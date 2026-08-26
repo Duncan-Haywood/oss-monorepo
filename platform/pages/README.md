@@ -5,10 +5,9 @@ surface in this repository into one GitHub Pages deployment, behind a hub page
 that lists and searches them.
 
 ```
-node platform/pages/build.mjs --out=dist                        # build
-node platform/pages/check.mjs --dist=dist                       # verify the output
+node platform/pages/build.mjs --out=dist          # build
+node platform/pages/check.mjs dist                # check the artifact
 node --test platform/pages/build.test.mjs platform/pages/check.test.mjs
-node platform/pages/journey.mjs --dist=dist                     # drive it in a browser
 ```
 
 Then serve it and click around:
@@ -67,8 +66,18 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   answer. Links that resolve inside the site are left untouched. The build
   prints how many it repointed.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
-  and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
-  Pages silently drops any directory starting with `_`).
+  and every venture, a `404.html`, and `.nojekyll` (without which Pages silently
+  drops any directory starting with `_`).
+- **The sitemaps themselves.** Each venture's `sitemap.xml` is *regenerated*
+  from the pages that actually published, replacing the hand-written one. The
+  ventures' own were copied verbatim until 2026-08-26, and three things were
+  wrong with them at once: some listed relative `<loc>` values, which the
+  sitemaps protocol does not allow and crawlers reject; two were written
+  against `…/monorepo-projects/ventures/<slug>/`, a path this site does not
+  serve, so all 11 of their URLs were 404s; and most were simply stale, leaving
+  70 of 186 pages in no sitemap at all. Generating from the output makes all
+  three impossible: a page is listed because it shipped, at the URL it shipped
+  to. Nobody has to remember to update a sitemap again.
 - **Dead ends.** Every venture page was written as a standalone site, so none of
   them linked to any other. The hub linked down into 33 tools and nothing linked
   back or across: someone arriving from a search result at
@@ -84,62 +93,72 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
   venture's page, and the pass is idempotent.
 
-## What is checked before it can publish
+## Checking the artifact
 
-`build.test.mjs` tests the builder's functions. `check.mjs` tests the site the
-builder *emitted*, and the workflow will not upload an artifact that fails it.
+`check.mjs` runs over the built directory, not the sources, because that is
+where these defects are created — by the copy, not by the input. It fails the
+build on a missing root file, a leftover `example.invalid`, a relative link
+that resolves to nothing, a link that climbs out of the site root, a product
+directory with no landing page, a page in no sitemap, and a sitemap URL that
+did not ship. It follows the sitemap index into each venture's sitemap; a check
+that read only the root would have passed while every defect above sat one
+level down.
 
-Those are different jobs, and the second one is the one that protects visitors.
-Discovery is automatic by design, so a venture reaches this artifact without
-anyone having looked at it — and the owner's `GITHUB_PAGES_ENABLED` flip
-publishes whatever the last build left behind. A defect that arrives from
-outside the builder therefore does not fail loudly at deploy time. It goes live.
+It also fails on four things that a link-and-sitemap pass cannot see, merged in
+from a concurrent checker written against the same gap:
 
-`check.mjs` reads the built tree (no network, no browser) and fails on:
+- **A product the hub does not link.** Checked in both directions, because the
+  two failures differ. A hub link with nothing behind it is a 404 a visitor
+  sees; a product with no hub link built, deployed, passed every other check,
+  and cannot be reached at all.
+- **A page with no disclaimer.** Every product page and the hub must carry the
+  no-warranty marker (`PRODUCT_PLAYBOOK.md` §5b). This is the one check here
+  with legal weight rather than broken-link weight: without it a page ships
+  calculated money figures with no limitation of liability.
+- **Leaked bookkeeping.** `*.test.mjs`, `VENTURE.yaml`, `README.md`,
+  `package-lock.json`, `node_modules` — finding any of it means the copy filter
+  regressed and visitors can download test payload.
+- **A discovery collapse.** The CLI requires at least 20 products. The floor
+  sits far below the count on `main` so a landing venture never needs it touched,
+  but a build that finds almost nothing emits a hub that looks fine with three
+  tools on it and would otherwise pass every check above.
 
-| Check | The failure it prevents |
-|---|---|
-| Root `index.html`, `404.html`, `robots.txt`, `sitemap.xml`, `sitemap-hub.xml` | A site with no front page or no crawlable entry |
-| Every tool directory has an `index.html` | A slug linked from the hub that 404s |
-| Hub links and published directories agree, both ways | A tool that built fine and is simply unreachable |
-| At least 20 tools published | A discovery collapse that emits a valid-looking hub with three tools and stays green |
-| Every local `src`/`href` and every ES-module specifier resolves | A calculator whose `calc.mjs` was filtered out: the form renders, then does nothing |
-| No reference escapes the site root | A link that only worked on the author's disk |
-| No `example.invalid` anywhere | Canonical tags and sitemaps pointing at a domain that does not resolve |
-| Every tool page and the hub carry the no-warranty disclaimer | Money figures shipped with no limitation of liability |
-| No `*.test.mjs`, `VENTURE.yaml`, `README.md`, `node_modules` | Test payload and bookkeeping served to visitors |
-| Every `sitemap.xml` entry has a page behind it | Crawlers led to 404s |
+Module specifiers are matched in both quote styles and in `import(...)`, not
+only `from "…"`. Every calculator loads its `calc.mjs` from an inline module
+script, so a specifier the pattern misses is a tool that renders its form and
+then does nothing.
 
-`check.test.mjs` builds a deliberately broken site per check and asserts that
-check fires, plus one well-formed site that must stay clean — a verifier that
-only ever passes is worse than none, because it buys false confidence in the one
-artifact that reaches the public.
+The workflow runs it between building and uploading, so a broken artifact never
+reaches the live site.
 
 ### The browser half
 
-`check.mjs` can prove a page exists and its links resolve. It cannot prove the
+`check.mjs` can prove a page shipped and its links resolve. It cannot prove the
 calculator *computes* — a tool whose module throws on load passes every static
-check and is still useless.
+check and is still useless in front of a user.
 
-`journey.mjs` is that pass: it serves the built site, then drives Chromium
-through the real journey (hub loads → search narrows → open a tool → change an
-input → the figures move), and fails if a driven calculator does not recompute
-or the browser raises anything. Because every tool here ships worked-example
-defaults, it asserts the output *changes*, not merely that a dollar sign is
-present.
+`journey.mjs` is that pass. It serves the built artifact and drives Chromium
+through the real journey: hub loads → search narrows the list → open a tool →
+change an input → the figures move. It requires the output to **change**, not
+merely that a dollar sign is present, because every tool here ships
+worked-example defaults and already shows figures on load.
 
-Playwright is not a dependency of this repo, so `journey.mjs` exits 0 with a
-`SKIP` line where no browser is available, and is not a CI gate. Run it before a
-publish. Last run: 38 tools on the hub, search narrowed 38→3, and
-`ebay-fee-calculator`, `invoice-payment-terms-calculator`,
-`amazon-fba-calculator` and `janitorial-bid-calculator` each recomputed with no
-console errors.
+```
+node platform/pages/journey.mjs --dist=dist
+```
+
+Playwright is not a dependency of this repo, so this exits 0 with a `SKIP` line
+where no browser is available and is **not** a CI gate. Run it before a publish.
+Last run (2026-08-26, 48 products): the hub listed all 48, search narrowed to 3
+on "ebay", and `ebay-fee-calculator`, `invoice-payment-terms-calculator`,
+`amazon-fba-calculator` and `janitorial-bid-calculator` each recomputed on input
+change with no console errors and no failed requests.
 
 ## Deploying
 
-`.github/workflows/portfolio-pages.yml` builds, tests, and checks on every push
-to `main` and every pull request that touches `ventures/` or this directory, so
-a broken site is caught at merge time whether or not publishing is on.
+`.github/workflows/portfolio-pages.yml` builds and tests on every push to `main`
+and every pull request that touches `ventures/` or this directory, so a broken
+site is caught at merge time whether or not publishing is on.
 
 Publishing is gated on an owner-set repository variable:
 

@@ -59,17 +59,12 @@ jobs:
         run: node build.mjs --out=dist
         working-directory: platform/pages
 
-      # Gate the upload on the *assembled* site, not just on the builder's unit
-      # tests. Discovery is automatic, so a venture reaches this artifact with
-      # nobody having reviewed it — and the owner's `GITHUB_PAGES_ENABLED` flip
-      # publishes whatever the last build left behind. Without this step a
-      # broken relative link, a missing disclaimer, or a canonical tag still
-      # aimed at the placeholder origin goes live silently. Failing here costs a
-      # red check; failing after the flip costs the public site.
-      - name: Check the built site is fit to publish
-        env:
-          PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
-        run: node check.mjs --dist=dist
+      # Runs against the artifact, not the sources. A dead link, a leftover
+      # placeholder origin, or a sitemap URL that 404s is created by the copy,
+      # so only the output can show it — and publishing one is expensive to
+      # undo once a crawler has read it.
+      - name: Check the built artifact
+        run: node check.mjs dist
         working-directory: platform/pages
 
       - name: Upload Pages artifact

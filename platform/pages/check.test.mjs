@@ -1,10 +1,9 @@
-// Tests for check.mjs.
+// Tests the artifact check, over synthetic sites built in a temp directory.
 //
-// A verifier that only ever passes is worse than no verifier, because it buys
-// false confidence in the one artifact that reaches the public origin. Every
-// test here builds a deliberately broken site in a temp directory and asserts
-// the corresponding check *fires*. The last test asserts a well-formed site
-// stays clean, so the suite fails if the checks become trigger-happy too.
+// Each test constructs the smallest site that exhibits one defect, so a
+// failure here names the defect rather than a line number. The point of the
+// suite is that the check is not vacuous: it has to go red on artifacts that
+// really did ship, not just green on a good one.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,265 +11,204 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-import { checkSite, localReferences, resolveReference } from './check.mjs';
+import { checkSite } from './check.mjs';
 
-const BASE = 'https://example.test/repo/';
+const BASE_PATH = '/repo/';
+const url = (relative) => `https://example.test${BASE_PATH}${relative}`;
 
-/** Minimal page that satisfies every check by default. */
-const page = (body = '') => `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Tool</title>
-<link rel="canonical" href="${BASE}"></head>
-<body>${body}<footer>Free and as-is. No warranty.</footer></body></html>`;
+const urlset = (...relatives) =>
+  `<?xml version="1.0" encoding="UTF-8"?><urlset>${relatives
+    .map((r) => `<url><loc>${url(r)}</loc></url>`)
+    .join('')}</urlset>`;
 
-const hub = (slugs) => page(
-  slugs.map((s) => `<a href="${s}/" data-tool="${s}">${s}</a>`).join(''),
-);
+const sitemapIndex = (...relatives) =>
+  `<?xml version="1.0" encoding="UTF-8"?><sitemapindex>${relatives
+    .map((r) => `<sitemap><loc>${url(r)}</loc></sitemap>`)
+    .join('')}</sitemapindex>`;
 
 /**
- * Write a well-formed site, then let each test damage it. `overrides` maps a
- * relative path to contents; `null` deletes.
+ * A minimal artifact that passes every check, plus whatever `files` overlays.
+ * A test names only the files its defect involves.
  */
-async function fixture(overrides = {}, { tools = 20 } = {}) {
+async function siteWith(files = {}) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-check-'));
-  const slugs = Array.from({ length: tools }, (_, i) => `tool-${String(i + 1).padStart(2, '0')}`);
 
-  await fs.writeFile(path.join(dir, 'index.html'), hub(slugs));
-  await fs.writeFile(path.join(dir, '404.html'), page('Not found'));
-  await fs.writeFile(path.join(dir, 'robots.txt'), `Sitemap: ${BASE}sitemap.xml\n`);
-  await fs.writeFile(path.join(dir, 'sitemap-hub.xml'), `<urlset><url><loc>${BASE}</loc></url></urlset>`);
-  await fs.writeFile(
-    path.join(dir, 'sitemap.xml'),
-    `<sitemapindex>${slugs.map((s) => `<sitemap><loc>${BASE}${s}/</loc></sitemap>`).join('')}</sitemapindex>`,
-  );
-  for (const slug of slugs) {
-    await fs.mkdir(path.join(dir, slug), { recursive: true });
-    await fs.writeFile(path.join(dir, slug, 'index.html'), page(`<h1>${slug}</h1>`));
-  }
+  // The hub and every product page carry the disclaimer marker, because a
+  // real artifact does: the check treats a page without one as unpublishable.
+  const defaults = {
+    'index.html': '<a href="tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
+    'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${url('sitemap.xml')}\n`,
+    '404.html': '<p>gone</p>',
+    '.nojekyll': '',
+    'favicon.ico': '',
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
+    'sitemap-hub.xml': urlset(''),
+    'tool/index.html': '<p>Tool</p><footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/'),
+  };
 
-  for (const [rel, contents] of Object.entries(overrides)) {
-    const target = path.join(dir, rel);
-    if (contents === null) {
-      await fs.rm(target, { recursive: true, force: true });
-      continue;
-    }
+  for (const [relative, contents] of Object.entries({ ...defaults, ...files })) {
+    if (contents === null) continue;
+    const target = path.join(dir, relative);
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(target, contents);
   }
 
-  return { dir, slugs };
+  return dir;
 }
 
-const run = (dir) => checkSite({ distDir: dir, baseUrl: BASE, minTools: 20 });
-const groups = (problems) => new Set(problems.map((p) => p.group));
-const detailsOf = (problems, group) => problems.filter((p) => p.group === group).map((p) => p.detail);
+const problemsFor = async (files) => checkSite(await siteWith(files));
+const mentioning = (problems, needle) => problems.filter((p) => p.includes(needle));
 
-// ---------------------------------------------------------------------------
-
-test('a well-formed site reports no problems', async () => {
-  const { dir } = await fixture();
-  const { problems, stats } = await run(dir);
-  assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems, null, 2)}`);
-  assert.equal(stats.tools, 20);
-});
-
-test('missing site directory is reported, not thrown', async () => {
-  const { problems } = await checkSite({ distDir: '/nope/not/built', baseUrl: BASE });
-  assert.equal(problems.length, 1);
-  assert.match(problems[0].detail, /run build\.mjs first/);
+test('a well-formed artifact passes', async () => {
+  assert.deepEqual(await problemsFor(), []);
 });
 
 test('a missing root file is caught', async () => {
-  const { dir } = await fixture({ 'robots.txt': null, '404.html': null });
-  const { problems } = await run(dir);
-  const structure = detailsOf(problems, 'structure');
-  assert.ok(structure.some((d) => d.includes('robots.txt')));
-  assert.ok(structure.some((d) => d.includes('404.html')));
+  const problems = await problemsFor({ '.nojekyll': null, 'robots.txt': null });
+  // Without .nojekyll, Pages silently drops any `_`-prefixed directory.
+  assert.equal(mentioning(problems, 'missing required file: .nojekyll').length, 1);
 });
 
-test('a tool directory without index.html is caught', async () => {
-  const { dir } = await fixture({ 'tool-03/index.html': null });
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'structure').some((d) => d.includes('tool-03')));
+test('a page in no sitemap is caught', async () => {
+  const problems = await problemsFor({ 'tool/compare.html': '<p>compare</p>' });
+  assert.equal(mentioning(problems, 'tool/compare.html: served but absent').length, 1);
 });
 
-test('a published tool the hub does not link is caught', async () => {
-  // The quiet one: the tool builds fine and is simply unreachable.
-  const { dir, slugs } = await fixture();
-  await fs.writeFile(path.join(dir, 'index.html'), hub(slugs.slice(0, -1)));
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'hub').some((d) => d.includes(slugs.at(-1)) && d.includes('cannot find')));
+test('a sitemap URL that did not ship is caught', async () => {
+  // The real defect: a venture sitemap written against `/ventures/<slug>/`,
+  // a path this site does not serve, so every URL in it 404s.
+  const problems = await problemsFor({ 'tool/sitemap.xml': urlset('tool/', 'ventures/tool/') });
+  assert.equal(mentioning(problems, 'did not ship -> /ventures/tool/').length, 1);
 });
 
-test('a hub link with no directory behind it is caught', async () => {
-  const { dir, slugs } = await fixture();
-  await fs.writeFile(path.join(dir, 'index.html'), hub([...slugs, 'ghost-tool']));
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'hub').some((d) => d.includes('ghost-tool')));
-});
-
-test('a discovery collapse is caught by the tool-count floor', async () => {
-  const { dir } = await fixture({}, { tools: 3 });
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'discovery').some((d) => /only 3 tool/.test(d)));
-});
-
-test('a relative link to an unpublished file is caught', async () => {
-  // The real-world case: a calculator imports calc.mjs that the copy filter
-  // dropped, so the form renders and then does nothing.
-  const { dir } = await fixture({
-    'tool-05/index.html': page('<script type="module">import { calc } from "./calc.mjs";</script>'),
+test('a relative <loc> is caught', async () => {
+  // `<loc>` must be a full absolute URL; crawlers reject a relative one, so a
+  // sitemap full of them covers nothing at all.
+  const problems = await problemsFor({
+    'tool/sitemap.xml': '<urlset><url><loc>index.html</loc></url></urlset>',
   });
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'links').some((d) => d.includes('calc.mjs')));
+  assert.equal(mentioning(problems, '<loc> is not a URL').length, 1);
 });
 
-test('a stylesheet or image that was not published is caught', async () => {
-  const { dir } = await fixture({
-    'tool-06/index.html': page('<link rel="stylesheet" href="style.css"><img src="chart.png" alt="">'),
+test('a leftover placeholder origin is caught', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<link rel="canonical" href="https://example.invalid/tool/">',
   });
-  const { problems } = await run(dir);
-  const links = detailsOf(problems, 'links');
-  assert.ok(links.some((d) => d.includes('style.css')));
-  assert.ok(links.some((d) => d.includes('chart.png')));
+  assert.equal(mentioning(problems, 'still contains https://example.invalid').length, 1);
 });
 
-test('a reference climbing out of the site root is caught', async () => {
-  const { dir } = await fixture({
-    'tool-07/index.html': page('<a href="../../../etc/passwd">x</a>'),
-  });
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'links').some((d) => /escapes the site root/.test(d)));
+test('a dead relative link is caught', async () => {
+  const problems = await problemsFor({ 'tool/index.html': '<a href="missing.html">gone</a>' });
+  assert.equal(mentioning(problems, 'dead link -> missing.html').length, 1);
 });
 
-test('the placeholder origin surviving into the artifact is caught', async () => {
-  const { dir } = await fixture({
-    'tool-08/index.html': page('<link rel="canonical" href="https://example.invalid/tool-08/">'),
-  });
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'origin').some((d) => d.includes('tool-08')));
+test('a link that climbs out of the site root is caught', async () => {
+  const problems = await problemsFor({ 'tool/index.html': '<a href="../../etc/passwd">x</a>' });
+  assert.equal(mentioning(problems, 'escapes the site root').length, 1);
 });
 
-test('a tool shipping without a disclaimer is caught', async () => {
-  const { dir } = await fixture({
-    'tool-09/index.html': '<!doctype html><html lang="en"><head><title>t</title></head><body><h1>$420.00</h1></body></html>',
+test('an external link is not resolved on disk', async () => {
+  const problems = await problemsFor({
+    'tool/index.html':
+      '<a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a><footer>No warranty.</footer>',
   });
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'disclaimer').some((d) => d.includes('tool-09')));
+  assert.deepEqual(problems, []);
+});
+
+test('a product directory with no landing page is caught', async () => {
+  const problems = await problemsFor({ 'orphan/deep.html': '<p>no index</p>' });
+  assert.equal(mentioning(problems, 'orphan/ has no index.html').length, 1);
+});
+
+test('a sitemap named by the index but never written is caught', async () => {
+  const problems = await problemsFor({ 'tool/sitemap.xml': null });
+  assert.equal(mentioning(problems, 'names a sitemap that did not ship').length, 1);
+});
+
+test('the index is followed into every sitemap it names', async () => {
+  // A check that read only the root sitemap would pass here: the defect is one
+  // level down, which is exactly where the real ones were.
+  const problems = await problemsFor({ 'tool/sitemap.xml': urlset('tool/', 'tool/ghost.html') });
+  assert.equal(mentioning(problems, 'did not ship -> /tool/ghost.html').length, 1);
+});
+
+// ---------------------------------------------------------------------------
+// Reachability, disclaimers, leaked payload, discovery floor
+//
+// Added when two concurrent checkers were merged (#1744). These are the defects
+// the sitemap-and-links half above cannot see: a page can ship, resolve every
+// link, and appear in a sitemap while still being unreachable, undisclaimed, or
+// accompanied by files no visitor should get.
+// ---------------------------------------------------------------------------
+
+test('a product the hub does not link is caught', async () => {
+  // The quiet one. It built, it deployed, every other check passes, and no
+  // visitor can reach it.
+  const problems = await problemsFor({
+    'ghost/index.html': '<p>Ghost</p><footer>No warranty.</footer>',
+    'ghost/sitemap.xml': urlset('ghost/'),
+    'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml', 'ghost/sitemap.xml'),
+  });
+  assert.equal(mentioning(problems, 'ghost/: shipped but the hub does not link it').length, 1);
+});
+
+test('a hub link with no product behind it is caught', async () => {
+  const problems = await problemsFor({
+    'index.html': '<a href="tool/" data-tool="tool">Tool</a><a data-tool="vanished">V</a><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'hub links "vanished"').length, 1);
+});
+
+test('a product page shipping without a disclaimer is caught', async () => {
+  const problems = await problemsFor({ 'tool/index.html': '<p>Your profit: $420.00</p>' });
+  assert.equal(mentioning(problems, 'tool/index.html: carries no disclaimer').length, 1);
 });
 
 test('a hub shipping without a disclaimer is caught', async () => {
-  const { dir, slugs } = await fixture();
-  await fs.writeFile(
-    path.join(dir, 'index.html'),
-    `<!doctype html><html lang="en"><head><title>hub</title></head><body>${slugs
-      .map((s) => `<a href="${s}/" data-tool="${s}">${s}</a>`)
-      .join('')}</body></html>`,
-  );
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'disclaimer').some((d) => /hub page/.test(d)));
+  const problems = await problemsFor({ 'index.html': '<a href="tool/" data-tool="tool">Tool</a>' });
+  assert.equal(mentioning(problems, 'index.html: carries no disclaimer').length, 1);
 });
 
-test('leaked test payload and bookkeeping are caught', async () => {
-  const { dir } = await fixture({
-    'tool-10/calc.test.mjs': 'assert(true)',
-    'tool-11/VENTURE.yaml': 'slug: tool-11',
-    'tool-12/README.md': '# notes',
+test('leaked test payload and repo bookkeeping are caught', async () => {
+  const problems = await problemsFor({
+    'tool/calc.test.mjs': 'assert(true)',
+    'tool/VENTURE.yaml': 'slug: tool',
+    'tool/README.md': '# notes',
   });
-  const { problems } = await run(dir);
-  const leaked = detailsOf(problems, 'leaked');
-  assert.ok(leaked.some((d) => d.includes('calc.test.mjs')));
-  assert.ok(leaked.some((d) => d.includes('VENTURE.yaml')));
-  assert.ok(leaked.some((d) => d.includes('README.md')));
+  assert.equal(mentioning(problems, 'tool/calc.test.mjs').length, 1);
+  assert.equal(mentioning(problems, 'tool/VENTURE.yaml').length, 1);
+  assert.equal(mentioning(problems, 'tool/README.md').length, 1);
 });
 
-test('a copied node_modules is caught without walking into it', async () => {
-  const { dir } = await fixture();
-  await fs.mkdir(path.join(dir, 'tool-13', 'node_modules', 'left-pad'), { recursive: true });
-  await fs.writeFile(path.join(dir, 'tool-13', 'node_modules', 'left-pad', 'index.js'), 'x');
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'leaked').some((d) => d.includes('node_modules')));
+test('a published node_modules is caught', async () => {
+  const problems = await problemsFor({ 'tool/node_modules/left-pad/index.js': 'x' });
+  assert.ok(mentioning(problems, 'node_modules').length >= 1);
 });
 
-test('a sitemap entry with nothing published behind it is caught', async () => {
-  const { dir, slugs } = await fixture();
-  await fs.writeFile(
-    path.join(dir, 'sitemap.xml'),
-    `<sitemapindex>${[...slugs, 'retired-tool']
-      .map((s) => `<sitemap><loc>${BASE}${s}/</loc></sitemap>`)
-      .join('')}</sitemapindex>`,
-  );
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'sitemap').some((d) => d.includes('retired-tool')));
+test('a discovery collapse is caught by the product floor', async () => {
+  // The fixture has one product, which is fine by default; the CLI passes the
+  // real floor, so this asserts the floor itself rather than the default.
+  const problems = await checkSite(await siteWith(), { minProducts: 20 });
+  assert.equal(mentioning(problems, 'only 1 product(s) published').length, 1);
 });
 
-test('a base URL without a trailing slash does not fail a good site', async () => {
-  // buildSite() appends the slash before writing any URL. If the checker did
-  // not normalise identically, an owner setting PAGES_BASE_URL without one
-  // would get a correctly built site and a check that rejected every sitemap
-  // entry — blocking the deploy over nothing.
-  const { dir } = await fixture();
-  const { problems } = await checkSite({ distDir: dir, baseUrl: BASE.replace(/\/$/, ''), minTools: 20 });
-  assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems, null, 2)}`);
+test('the default floor does not reject a small artifact', async () => {
+  assert.deepEqual(await problemsFor(), []);
 });
 
-test('a sitemap written against the wrong origin is caught', async () => {
-  const { dir } = await fixture({
-    'sitemap.xml': '<sitemapindex><sitemap><loc>https://elsewhere.test/a/</loc></sitemap></sitemapindex>',
+test('a single-quoted module specifier is resolved', async () => {
+  // `from './calc.mjs'` was invisible to the double-quote-only pattern, so a
+  // calculator could lose its module and still pass.
+  const problems = await problemsFor({
+    'tool/index.html': "<script type=\"module\">import { calc } from './calc.mjs';</script><footer>No warranty.</footer>",
   });
-  const { problems } = await run(dir);
-  assert.ok(detailsOf(problems, 'origin').some((d) => /does not mention the base URL/.test(d)));
+  assert.equal(mentioning(problems, "dead link -> ./calc.mjs").length, 1);
 });
 
-test('several independent problems are all reported together', async () => {
-  const { dir } = await fixture({
-    'robots.txt': null,
-    'tool-14/index.html': page('<img src="missing.png" alt="">'),
-    'tool-15/index.html': '<!doctype html><html lang="en"><head><title>t</title></head><body>x</body></html>',
-    'tool-16/calc.test.mjs': 'x',
+test('a dynamic import specifier is resolved', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<script type="module">const m = await import("./share.mjs");</script><footer>No warranty.</footer>',
   });
-  const { problems } = await run(dir);
-  // One run must surface all of them — a checker that stops at the first
-  // problem turns one fix-and-rerun cycle into four.
-  assert.ok(groups(problems).size >= 4, `groups: ${[...groups(problems)].join(', ')}`);
-});
-
-// --- unit-level behaviour the site checks depend on ------------------------
-
-test('data-URI favicons do not register as broken references', async () => {
-  // Regression guard: inline SVG data URIs contain quotes and spaces, and a
-  // naive attribute match reports ~20 phantom links per page.
-  const svg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3C/svg%3E";
-  const refs = localReferences(`<link rel="icon" href="${svg}"><img src="real.png" alt="">`);
-  assert.deepEqual(refs, ['real.png']);
-});
-
-test('external, mailto and anchor references are ignored', () => {
-  const refs = localReferences(
-    '<a href="https://github.com/sponsors/x">s</a><a href="//cdn.test/a.js">c</a>' +
-      '<a href="mailto:a@b.test">m</a><a href="#top">t</a><a href="calc.mjs">l</a>',
-  );
-  assert.deepEqual(refs, ['calc.mjs']);
-});
-
-test('query strings and fragments are stripped before resolving', () => {
-  const refs = localReferences('<a href="page.html?v=2#section">x</a>');
-  assert.deepEqual(refs, ['page.html']);
-});
-
-test('module specifiers in inline scripts are found', () => {
-  const refs = localReferences(
-    '<script type="module">import { a } from "./calc.mjs";\nconst m = await import("./share.mjs");</script>',
-  );
-  assert.deepEqual(refs.sort(), ['./calc.mjs', './share.mjs']);
-});
-
-test('root-relative references resolve against the deployed base path', () => {
-  // A project Pages site is served from /monorepo-projects/, so a link written
-  // as /monorepo-projects/x/ points at x/ inside dist — not at dist's parent.
-  const resolved = resolveReference('/repo/tool-01/', '/d/index.html', '/d', '/repo/');
-  assert.equal(resolved, path.join('/d', 'tool-01', 'index.html'));
-});
-
-test('a directory reference resolves to its index.html', () => {
-  assert.equal(resolveReference('sub/', '/d/a/index.html', '/d', '/'), path.join('/d/a/sub', 'index.html'));
+  assert.equal(mentioning(problems, 'dead link -> ./share.mjs').length, 1);
 });

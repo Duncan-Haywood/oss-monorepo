@@ -6,140 +6,6 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
-  - slug: invoice-payment-terms-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          calculation: 0
-          terms_copied: 0
-          draft_saved: 0
-          draft_loaded: 0
-          early_pay_compared: 0
-          factor_compared: 0
-        note: >-
-          Salvage of unique #1405/#1400 invoice payment terms calculator onto
-          current main, plus 2/10 Net 30 vs waiting after carrying cost, plus
-          factor vs waiting after the third-party fee, advance, and reserve.
-          Public URL remains owner-gated; the local-first counter reports only
-          to the user's own browser and is opt-out. Baseline row.
-  - slug: portfolio-pages
-    surface: github-pages-artifact
-    readings:
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          hub_visited: 0
-          tool_opened: 0
-          tools_published: 33
-        note: >-
-          The portfolio's public site: one GitHub Pages artifact assembling
-          every static venture surface (33 tools) behind a searchable hub.
-          Before this, the only workflow that could claim the repository's one
-          Pages site published retail-pilot-intel's passcode-gated docs, so the
-          owner's `GITHUB_PAGES_ENABLED` flip would have left every calculator
-          without a public URL. That flip now publishes the products. The
-          reading that matters once it is live is not the visit count but the
-          ratio `tool_opened / hub_visited` — whether a hub converts a visitor
-          into someone who opens a tool, which is the entire premise of
-          building one rather than 33 unlinked pages. Counted locally in the
-          visitor's own browser, aggregate, opt-out, and not counted at all
-          under Do Not Track or Global Privacy Control. Baseline row: still
-          zero, because the owner flip has not happened.
-  - slug: walmart-marketplace-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          listing_profit_calculated: 0
-          fulfillment_path_compared: 0
-          price_match_checked: 0
-          category_preset_applied: 0
-          two_day_compared: 0
-          returns_compared: 0
-          aged_wfs_compared: 0
-          ads_compared: 0
-        note: >-
-          Salvage of unique #1507 Walmart Marketplace WFS vs seller-fulfilled
-          profit calculator onto current main, plus the 2-day vs WFS take-rate
-          table, the returns mix, leftover keep vs remove vs dispose, and
-          Walmart Connect skip vs Sponsored Products: category referral
-          including the per-item floor, size-tier WFS fulfillment, storage,
-          inbound, the seller-paid label, max buy cost, whether a competitive
-          match still profits, whether a seller-fulfilled 2-day label still
-          beats WFS after take rate, whether WFS still beats seller fulfilled
-          after a refund mix, whether leftover units already inbound still
-          beat a removal after aged storage, and whether extra ad units cover
-          last-click ACOS on organic sales. Public URL remains owner-gated;
-          the local-first counter reports only to the user's own browser and
-          is opt-out. Baseline row.
-  - slug: faire-wholesale-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          brand_order_calculated: 0
-          retailer_order_calculated: 0
-          scenario_compared: 0
-          payout_float_compared: 0
-          open_house_compared: 0
-          link_copied: 0
-        note: >-
-          Salvage of unique #1489 Faire wholesale fee calculator onto current
-          main: first marketplace order vs reorder vs Faire Direct vs own
-          invoice, retailer lifetime after expected reorders, and a landed-cost
-          retailer page that keeps unsold opening-order units in the cost.
-          Open House vs everyday first order added 2026-08-26 (event discount
-          can eat the waived commission; extra new retailers flip the pile).
-          Public URL remains owner-gated; the local-first counter reports only
-          to the user's own browser and is opt-out. Baseline row.
-  - slug: freight-accessorial-auditor
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_audit_events: 0
-          review_exports: 0
-          draft_copies: 0
-          detention_compares: 0
-        note: >-
-          Salvage of #1379 multi-line accessorial audit plus #1436 evidence
-          and dispute draft onto current main, with a detention clock extra.
-          Public URL remains owner-gated; the local-first counter reports
-          only to the user's own browser and is opt-out. Baseline row.
-  - slug: cloud-egress-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_calculations_reported: 0
-          review_exports: 0
-          cdn_compares: 0
-        note: >-
-          Salvage of #1409 two-provider S3 storage/request/egress compare onto
-          current main, plus a CDN vs origin-only extra. Public URL remains
-          owner-gated; the local-first counter reports only to the user's own
-          browser and is opt-out. Baseline row.
-  - slug: grant-deadline-tracker
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_grants_added: 0
-          csv_exports: 0
-          late_report_compared: 0
-        note: >-
-          Shipped browser-local nonprofit grant deadline tracker (salvage of
-          #1440 plus interval current-period math from #1188) and a late-report
-          cash-at-risk comparison (hire a writer vs file vs miss). Public URL
-          remains owner-gated; the local-first counter reports only to the
-          user's own browser and is opt-out. Baseline row.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
@@ -387,6 +253,16 @@ products:
           Added finish vs kill-fee vs walk-with-deposit on the browser
           calculator. Public URL remains owner-gated; the counter stores
           only aggregate local events.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          csv_copied: 0
+          csv_downloaded: 0
+        note: >-
+          Browser CSV copy/download now quotes currency labels and includes
+          the on-screen overrun, cost-rise, discount, and kill-fee rows.
+          Public URL remains owner-gated; the counter stores only aggregate
+          local events.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
@@ -979,6 +855,277 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: freelance-retainer-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for independent
+          freelancers to price monthly retainers from billable capacity, costs,
+          and scope risk, then compare that price to hourly at 50/75/100/125%
+          usage. Public URL remains owner-gated; counters are local,
+          aggregate, and opt-out.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Added payment-term cash float (prepaid / Net 15 / Net 30 /
+          month-end) on the retainer calculator plus an interactive
+          retainer-payment-terms sibling. Default $7,800 target: Net 30
+          floats $7,800; month-end plus Net 30 floats $15,600. Currency
+          and payment terms persist in the local draft. Public URL
+          remains owner-gated.
+  - slug: holiday-light-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for holiday lighting
+          contractors to price hang-only versus hang-and-takedown versus
+          full-service storage from eave lineal feet, stories, and extras.
+          Public URL remains owner-gated; counters are local, aggregate, and
+          opt-out.
+  - slug: soffit-fascia-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: Shipped browser-local soffit and fascia bid calculator; public URL remains owner-gated.
+  - slug: popcorn-ceiling-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: Shipped browser-local popcorn ceiling removal bid calculator; public URL remains owner-gated.
+  - slug: tuckpointing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local tuckpointing / brick pointing bid calculator with
+          joint-and-access math, three-method comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: shed-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local backyard shed install bid calculator with
+          pad-and-delivery math, three-pad comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: pole-barn-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pole barn / post-frame bid calculator with
+          bay-and-eave math, three-floor comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: gravel-driveway-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local gravel driveway bid calculator with truck-and-depth
+          math, four-stone comparison, and a copyable proposal summary; public
+          URL remains owner-gated.
+  - slug: sod-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sod installation bid calculator with pallet math,
+          three-grass comparison, and a copyable proposal summary; public URL
+          remains owner-gated.
+  - slug: artificial-turf-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local landscape / pet / putting-green artificial
+          turf bid calculator; public URL remains owner-gated. Local
+          counters are anonymous, event-only, and opt-out. Baseline row.
+  - slug: asphalt-driveway-pave-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local overlay / mill-and-overlay / full-depth
+          driveway paving bid calculator; public URL remains owner-gated.
+          Local counters are anonymous, event-only, and opt-out. Baseline row.
+  - slug: invoice-payment-terms-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          terms_copied: 0
+          draft_saved: 0
+          draft_loaded: 0
+          early_pay_compared: 0
+          factor_compared: 0
+        note: >-
+          Salvage of unique #1405/#1400 invoice payment terms calculator onto
+          current main, plus 2/10 Net 30 vs waiting after carrying cost, plus
+          factor vs waiting after the third-party fee, advance, and reserve.
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
+  - slug: portfolio-pages
+    surface: github-pages-artifact
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          hub_visited: 0
+          tool_opened: 0
+          tools_published: 33
+        note: >-
+          The portfolio's public site: one GitHub Pages artifact assembling
+          every static venture surface (33 tools) behind a searchable hub.
+          Before this, the only workflow that could claim the repository's one
+          Pages site published retail-pilot-intel's passcode-gated docs, so the
+          owner's `GITHUB_PAGES_ENABLED` flip would have left every calculator
+          without a public URL. That flip now publishes the products. The
+          reading that matters once it is live is not the visit count but the
+          ratio `tool_opened / hub_visited` — whether a hub converts a visitor
+          into someone who opens a tool, which is the entire premise of
+          building one rather than 33 unlinked pages. Counted locally in the
+          visitor's own browser, aggregate, opt-out, and not counted at all
+          under Do Not Track or Global Privacy Control. Baseline row: still
+          zero, because the owner flip has not happened.
+  - slug: walmart-marketplace-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          listing_profit_calculated: 0
+          fulfillment_path_compared: 0
+          price_match_checked: 0
+          category_preset_applied: 0
+          two_day_compared: 0
+          returns_compared: 0
+          aged_wfs_compared: 0
+          ads_compared: 0
+        note: >-
+          Salvage of unique #1507 Walmart Marketplace WFS vs seller-fulfilled
+          profit calculator onto current main, plus the 2-day vs WFS take-rate
+          table, the returns mix, leftover keep vs remove vs dispose, and
+          Walmart Connect skip vs Sponsored Products: category referral
+          including the per-item floor, size-tier WFS fulfillment, storage,
+          inbound, the seller-paid label, max buy cost, whether a competitive
+          match still profits, whether a seller-fulfilled 2-day label still
+          beats WFS after take rate, whether WFS still beats seller fulfilled
+          after a refund mix, whether leftover units already inbound still
+          beat a removal after aged storage, and whether extra ad units cover
+          last-click ACOS on organic sales. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser and
+          is opt-out. Baseline row.
+  - slug: faire-wholesale-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          brand_order_calculated: 0
+          retailer_order_calculated: 0
+          scenario_compared: 0
+          payout_float_compared: 0
+          open_house_compared: 0
+          link_copied: 0
+        note: >-
+          Salvage of unique #1489 Faire wholesale fee calculator onto current
+          main: first marketplace order vs reorder vs Faire Direct vs own
+          invoice, retailer lifetime after expected reorders, and a landed-cost
+          retailer page that keeps unsold opening-order units in the cost.
+          Open House vs everyday first order added 2026-08-26 (event discount
+          can eat the waived commission; extra new retailers flip the pile).
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
+  - slug: freight-accessorial-auditor
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_audit_events: 0
+          review_exports: 0
+          draft_copies: 0
+          detention_compares: 0
+        note: >-
+          Salvage of #1379 multi-line accessorial audit plus #1436 evidence
+          and dispute draft onto current main, with a detention clock extra.
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+  - slug: cloud-egress-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_calculations_reported: 0
+          review_exports: 0
+          cdn_compares: 0
+        note: >-
+          Salvage of #1409 two-provider S3 storage/request/egress compare onto
+          current main, plus a CDN vs origin-only extra. Public URL remains
+          owner-gated; the local-first counter reports only to the user's own
+          browser and is opt-out. Baseline row.
+  - slug: grant-deadline-tracker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_grants_added: 0
+          csv_exports: 0
+          late_report_compared: 0
+        note: >-
+          Shipped browser-local nonprofit grant deadline tracker (salvage of
+          #1440 plus interval current-period math from #1188) and a late-report
+          cash-at-risk comparison (hire a writer vs file vs miss). Public URL
+          remains owner-gated; the local-first counter reports only to the
+          user's own browser and is opt-out. Baseline row.
   - slug: kitchen-tile-backsplash-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1287,32 +1434,6 @@ products:
           copyable proposal summary). Public URL remains owner-gated;
           the local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
-  - slug: freelance-retainer-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_calculations: 0
-          local_summary_copies: 0
-        note: >-
-          Shipped a zero-dependency browser calculator for independent
-          freelancers to price monthly retainers from billable capacity, costs,
-          and scope risk, then compare that price to hourly at 50/75/100/125%
-          usage. Public URL remains owner-gated; counters are local,
-          aggregate, and opt-out.
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_calculations: 0
-          local_summary_copies: 0
-        note: >-
-          Added payment-term cash float (prepaid / Net 15 / Net 30 /
-          month-end) on the retainer calculator plus an interactive
-          retainer-payment-terms sibling. Default $7,800 target: Net 30
-          floats $7,800; month-end plus Net 30 floats $15,600. Currency
-          and payment terms persist in the local draft. Public URL
-          remains owner-gated.
   - slug: real-estate-agent-photo-app
     surface: static-page-in-repo
     readings:

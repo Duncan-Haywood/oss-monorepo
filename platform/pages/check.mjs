@@ -1,303 +1,299 @@
 #!/usr/bin/env node
-// Verifies a site that `build.mjs` already produced, and fails if it is not fit
-// to publish.
+// Check a built Pages artifact before it is allowed to publish.
 //
-// Why this exists
-// ---------------
-// `build.test.mjs` tests the builder's functions. Nothing tested the thing the
-// builder actually emits. That gap matters here more than it usually would,
-// because of how publishing works: the artifact is uploaded on every push to
-// `main`, and the owner's `GITHUB_PAGES_ENABLED` flip publishes whatever the
-// last build produced. So a regression does not fail loudly at deploy time —
-// it goes live, silently, to the one public origin the portfolio has.
+// `build.mjs` can succeed and still produce a site that is broken for a reader
+// or invisible to a crawler: a footer linking a file that did not ship, a
+// canonical tag still naming `example.invalid`, a sitemap advertising a path
+// this site does not serve. None of that shows up in a test over the sources,
+// because the defect is created by the copy, not by the input.
 //
-// The failure modes this catches are all ones a unit test on the builder can
-// miss, because they arrive from *outside* the builder — a venture lands on
-// `main` with a relative link to a file the build does not publish, or without
-// the disclaimer every user-facing surface is required to carry, or with a
-// canonical tag still pointing at the placeholder origin. Discovery is
-// automatic (that is deliberate; see build.mjs), which means new ventures reach
-// the public site with nobody having looked at them. This is the thing that
-// looks at them.
+// So this runs over the real output directory. It is the guard that would have
+// caught the two sitemap defects fixed alongside it: 70 pages listed in no
+// sitemap, and 11 sitemap URLs pointing at `/ventures/<slug>/`, a path the
+// site does not serve.
 //
-//   node platform/pages/check.mjs --dist=platform/pages/dist
+//   node platform/pages/check.mjs dist
 //
-// Exits non-zero with a grouped report of every problem found. It reads the
-// built tree only — no network, no browser. `journey.mjs` is the companion
-// browser pass for the interactive half.
+// Adapted from the `check_site.py` written for PR #1723, which proposed a
+// second, competing Pages builder. That builder is not needed — this repo
+// already has one on `main` — but its artifact check was the better idea and
+// `main` had no equivalent, so it is carried over here.
+//
+// Extended 2026-08-26 by merging a concurrent checker written against the same
+// gap (#1744). Two sessions reached the same conclusion from #1723 within the
+// hour and each caught things the other missed, so both sets are kept: the
+// sitemap-coverage and base-path logic here, plus reachability (the hub and the
+// artifact agreeing in *both* directions), the disclaimer requirement, leaked
+// bookkeeping, a product-count floor, and single-quoted / dynamic `import()`
+// specifiers. `journey.mjs` is the browser half of that merge — this file can
+// prove a page shipped and its links resolve, but not that the calculator
+// computes.
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-import { DEFAULT_BASE_URL } from './build.mjs';
+const PLACEHOLDER_ORIGIN = 'https://example.invalid';
 
-// The placeholder origin ventures wrote their SEO against. build.mjs rewrites
-// it; if any survives into the artifact, canonical tags and sitemaps in the
-// published site point at a domain that does not resolve.
-const PLACEHOLDER_ORIGIN = 'example.invalid';
+const REQUIRED_ROOT_FILES = [
+  'index.html',
+  'sitemap.xml',
+  'sitemap-hub.xml',
+  'robots.txt',
+  '404.html',
+  '.nojekyll',
+  // Browsers request /favicon.ico on their own for every page, so if it is
+  // missing every page load logs a 404 and opens an anonymous blank tab.
+  'favicon.ico',
+];
 
-// Every user-facing surface in this repo carries a liability disclaimer
-// (PRODUCT_PLAYBOOK.md). This is the shared marker phrase they all use; a page
-// missing it is a page shipping calculated money figures with no limitation of
-// liability, which is the one defect here with legal weight rather than just
-// cosmetic.
+// Files whose contents are worth reading for links and stale origins.
+const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.mjs', '.js', '.css', '.json']);
+// Files whose links are worth resolving. A `.css` url() is not checked.
+const LINKED_EXTENSIONS = new Set(['.html', '.mjs', '.js']);
+
+const REFERENCE_RE = /(?:href|src)\s*=\s*"([^"]+)"/g;
+// Both quote styles, and `import(...)` as well as `from ...`. Every calculator
+// here loads its `calc.mjs` from an inline module script, and a specifier this
+// pattern misses is a tool that renders its form and then does nothing.
+const IMPORT_RE = /\bfrom\s+['"](\.{1,2}\/[^'"]+)['"]/g;
+const DYNAMIC_IMPORT_RE = /\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g;
+const LOC_RE = /<loc>([^<]+)<\/loc>/g;
+
+// Every user-facing surface here carries a liability disclaimer
+// (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
+// page missing it ships calculated money figures with no limitation of
+// liability — the one defect in this file with legal weight rather than just
+// broken-link weight.
 const DISCLAIMER_MARKER = /no warranty/i;
 
-// Files that exist for the repo, not for a visitor. Their presence means the
-// copy filter regressed and visitors can download test payload or bookkeeping.
-const LEAKED_FILE = /(\.test\.(mjs|js|cjs|py)|^VENTURE\.yaml$|^README\.md$|^package-lock\.json$|\.pyc$)/;
-const LEAKED_DIR = new Set(['node_modules', '__pycache__', 'coverage', '.git']);
+// Bookkeeping and test payload that exists for the repo, not for a visitor.
+// Finding any of it here means the copy filter in build.mjs regressed.
+const LEAKED_FILE_RE = /(?:^|\/)(?:[^/]+\.test\.(?:mjs|js|cjs|py)|VENTURE\.yaml|README\.md|package-lock\.json)$/;
+const LEAKED_DIRS = new Set(['node_modules', '__pycache__', 'coverage', '.git']);
 
-// A discovery regression is the quiet catastrophe: build.mjs finds nothing,
-// emits a valid-looking hub with two tools on it, and CI stays green. This
-// floor is deliberately well below the current count (34) so it does not need
-// touching every time a venture lands, while still catching a collapse.
-const MIN_TOOLS = 20;
+const EXTERNAL_PREFIXES = ['http://', 'https://', 'mailto:', 'tel:', 'data:', 'javascript:', '//', '#'];
+const isExternal = (target) => EXTERNAL_PREFIXES.some((prefix) => target.startsWith(prefix));
 
-const ROOT_FILES = ['index.html', '404.html', 'robots.txt', 'sitemap.xml', 'sitemap-hub.xml'];
+const exists = (target) => fs.access(target).then(() => true, () => false);
 
-// ---------------------------------------------------------------------------
-// Reference extraction
-// ---------------------------------------------------------------------------
-
-// Inline `data:` URIs (favicons, mostly) contain quotes and spaces that make
-// naive attribute matching produce dozens of phantom references. Drop them
-// before looking at anything else.
-const stripDataUris = (html) => html.replace(/(?:src|href)\s*=\s*"data:[^"]*"/gi, '');
-
-const isExternal = (ref) =>
-  /^(?:https?:)?\/\//i.test(ref) || /^(?:mailto|tel|data|javascript|blob):/i.test(ref) || ref.startsWith('#');
+async function walk(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) files.push(...(await walk(path.join(dir, entry.name), relative)));
+    else if (entry.isFile()) files.push(relative);
+  }
+  return files.sort();
+}
 
 /**
- * Local references a browser would actually fetch: markup attributes plus the
- * ES-module specifiers in inline `<script type="module">`, which is how every
- * calculator here loads its `calc.mjs`. Missing one of those is a tool that
- * renders its form and then does nothing when the user types.
+ * Where this site is rooted, read from the artifact rather than assumed.
+ *
+ * `robots.txt` names its sitemap by absolute URL, so that URL's directory is
+ * the origin path every other absolute URL in the artifact should share. A
+ * hard-coded guess here would pass on a site published at the wrong prefix.
  */
-export function localReferences(html) {
-  const cleaned = stripDataUris(html);
-  const found = new Set();
-
-  for (const m of cleaned.matchAll(/(?:src|href)\s*=\s*"([^"]+)"/gi)) found.add(m[1]);
-  for (const m of cleaned.matchAll(/\bfrom\s*['"]([^'"]+)['"]/g)) found.add(m[1]);
-  for (const m of cleaned.matchAll(/\bimport\(\s*['"]([^'"]+)['"]\s*\)/g)) found.add(m[1]);
-
-  return [...found]
-    .filter((ref) => ref && !isExternal(ref))
-    .map((ref) => ref.split('#')[0].split('?')[0])
-    .filter(Boolean);
-}
-
-/** Resolve a reference found in `pageFile` to the path on disk it needs. */
-export function resolveReference(ref, pageFile, distDir, basePath) {
-  let target;
-  if (ref.startsWith('/')) {
-    // Root-relative links are written against the *deployed* base path
-    // (`/monorepo-projects/...` on a project Pages site), not the dist root.
-    const trimmed = basePath && ref.startsWith(basePath) ? ref.slice(basePath.length) : ref.slice(1);
-    target = path.join(distDir, trimmed);
-  } else {
-    target = path.resolve(path.dirname(pageFile), ref);
-  }
-  return ref.endsWith('/') ? path.join(target, 'index.html') : target;
-}
-
-// ---------------------------------------------------------------------------
-// Walking
-// ---------------------------------------------------------------------------
-
-async function walk(dir, onFile, relative = '') {
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
-    const abs = path.join(dir, entry.name);
-    const rel = relative ? `${relative}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) {
-      if (LEAKED_DIR.has(entry.name)) {
-        onFile({ rel, name: entry.name, abs, leakedDir: true });
-        continue;
-      }
-      await walk(abs, onFile, rel);
-    } else if (entry.isFile()) {
-      onFile({ rel, name: entry.name, abs });
-    }
-  }
-}
-
-const exists = async (target) => {
+async function readBasePath(site) {
+  // A missing robots.txt is already reported as a missing root file; crashing
+  // here would hide every other problem behind a stack trace.
+  const robots = await fs.readFile(path.join(site, 'robots.txt'), 'utf8').catch(() => null);
+  const match = robots?.match(/^Sitemap:\s*(\S+)/m);
+  if (!match) return null;
   try {
-    await fs.access(target);
-    return true;
+    return new URL(match[1]).pathname.replace(/sitemap\.xml$/, '');
   } catch {
-    return false;
+    return null;
   }
-};
+}
 
-// ---------------------------------------------------------------------------
-// Checks
-// ---------------------------------------------------------------------------
+/** Every `<loc>` in the sitemap tree, following the index into each sitemap. */
+async function collectSitemapUrls(site, basePath, relative, seen, out, problems) {
+  if (seen.has(relative)) return;
+  seen.add(relative);
 
-/**
- * Verify a built site. Returns `{ problems, stats }` rather than throwing, so
- * the CLI can group the report and the tests can assert on it.
- */
-export async function checkSite({ distDir, baseUrl = DEFAULT_BASE_URL, minTools = MIN_TOOLS } = {}) {
-  const problems = [];
-  const fail = (group, detail) => problems.push({ group, detail });
-
-  if (!(await exists(distDir))) {
-    return { problems: [{ group: 'structure', detail: `no built site at ${distDir} — run build.mjs first` }], stats: {} };
+  const file = path.join(site, relative);
+  if (!(await exists(file))) {
+    problems.push(`sitemap.xml: names a sitemap that did not ship -> ${relative}`);
+    return;
   }
 
-  // buildSite() normalises the trailing slash before it writes any URL, so the
-  // checker has to normalise identically. Otherwise an owner who sets
-  // PAGES_BASE_URL without a trailing slash gets a site that built correctly
-  // and a check that rejects every sitemap entry — a self-inflicted deploy block.
-  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-
-  const basePath = (() => {
+  for (const [, loc] of (await fs.readFile(file, 'utf8')).matchAll(LOC_RE)) {
+    let urlPath;
     try {
-      return new URL(base).pathname;
+      urlPath = new URL(loc).pathname;
     } catch {
-      return '/';
-    }
-  })();
-
-  // --- root files -----------------------------------------------------------
-  for (const name of ROOT_FILES) {
-    if (!(await exists(path.join(distDir, name)))) fail('structure', `missing root file: ${name}`);
-  }
-
-  // --- tool directories ----------------------------------------------------
-  const entries = await fs.readdir(distDir, { withFileTypes: true });
-  const toolDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
-
-  for (const slug of toolDirs) {
-    if (!(await exists(path.join(distDir, slug, 'index.html')))) {
-      fail('structure', `${slug}/ has no index.html — it is linked but unreachable`);
-    }
-  }
-
-  if (toolDirs.length < minTools) {
-    fail('discovery', `only ${toolDirs.length} tool(s) published, expected at least ${minTools} — discovery may have regressed`);
-  }
-
-  // --- hub agrees with what is on disk -------------------------------------
-  const hubPath = path.join(distDir, 'index.html');
-  let hubHtml = '';
-  if (await exists(hubPath)) {
-    hubHtml = await fs.readFile(hubPath, 'utf8');
-    const linked = new Set([...hubHtml.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
-
-    for (const slug of linked) {
-      if (!toolDirs.includes(slug)) fail('hub', `hub links "${slug}" but no such directory was published`);
-    }
-    for (const slug of toolDirs) {
-      if (!linked.has(slug)) fail('hub', `${slug}/ was published but the hub does not link it — visitors cannot find it`);
-    }
-    if (!DISCLAIMER_MARKER.test(hubHtml)) fail('disclaimer', 'the hub page carries no disclaimer');
-  }
-
-  // --- per-file sweep -------------------------------------------------------
-  const htmlFiles = [];
-  const collected = [];
-  await walk(distDir, (file) => collected.push(file));
-
-  for (const file of collected) {
-    if (file.leakedDir) {
-      fail('leaked', `${file.rel}/ was copied into the site`);
+      problems.push(`${relative}: <loc> is not a URL -> ${loc}`);
       continue;
     }
-    if (LEAKED_FILE.test(file.name)) fail('leaked', `${file.rel} was copied into the site`);
-    if (file.name.endsWith('.html')) htmlFiles.push(file);
-  }
-
-  // --- placeholder origin ---------------------------------------------------
-  const textLike = new Set(['.html', '.xml', '.txt', '.mjs', '.js', '.json', '.css']);
-  for (const file of collected) {
-    if (file.leakedDir || !textLike.has(path.extname(file.name).toLowerCase())) continue;
-    const contents = await fs.readFile(file.abs, 'utf8');
-    if (contents.includes(PLACEHOLDER_ORIGIN)) {
-      fail('origin', `${file.rel} still points at ${PLACEHOLDER_ORIGIN} — its canonical/SEO URLs will not resolve`);
+    if (!urlPath.startsWith(basePath)) {
+      problems.push(`${relative}: <loc> outside the site root -> ${loc}`);
+      continue;
+    }
+    const inSite = urlPath.slice(basePath.length);
+    if (inSite.endsWith('sitemap.xml') || inSite.endsWith('sitemap-hub.xml')) {
+      await collectSitemapUrls(site, basePath, inSite, seen, out, problems);
+    } else {
+      out.set(inSite, relative);
     }
   }
-
-  // --- broken local references ---------------------------------------------
-  for (const file of htmlFiles) {
-    const html = await fs.readFile(file.abs, 'utf8');
-    for (const ref of localReferences(html)) {
-      const target = resolveReference(ref, file.abs, distDir, basePath);
-      // Never let a reference escape the published tree.
-      if (!path.resolve(target).startsWith(path.resolve(distDir))) {
-        fail('links', `${file.rel} -> ${ref} escapes the site root`);
-        continue;
-      }
-      if (!(await exists(target))) fail('links', `${file.rel} -> ${ref} (not published)`);
-    }
-  }
-
-  // --- disclaimers on every tool -------------------------------------------
-  for (const slug of toolDirs) {
-    const index = path.join(distDir, slug, 'index.html');
-    if (!(await exists(index))) continue;
-    const html = await fs.readFile(index, 'utf8');
-    if (!DISCLAIMER_MARKER.test(html)) {
-      fail('disclaimer', `${slug}/index.html carries no disclaimer — it must not ship without one`);
-    }
-  }
-
-  // --- sitemaps point somewhere real ---------------------------------------
-  const sitemapIndex = path.join(distDir, 'sitemap.xml');
-  if (await exists(sitemapIndex)) {
-    const xml = await fs.readFile(sitemapIndex, 'utf8');
-    if (!xml.includes(base)) fail('origin', `sitemap.xml does not mention the base URL ${base}`);
-    for (const m of xml.matchAll(/<loc>([^<]+)<\/loc>/g)) {
-      const loc = m[1];
-      if (!loc.startsWith(base)) continue;
-      const rel = loc.slice(base.length);
-      if (!rel) continue;
-      const target = rel.endsWith('/') ? path.join(distDir, rel, 'index.html') : path.join(distDir, rel);
-      if (!(await exists(target))) fail('sitemap', `sitemap.xml lists ${loc} but ${rel} was not published`);
-    }
-  }
-
-  return {
-    problems,
-    stats: { tools: toolDirs.length, htmlPages: htmlFiles.length, files: collected.length },
-  };
 }
 
-// ---------------------------------------------------------------------------
-// CLI
-// ---------------------------------------------------------------------------
+/**
+ * @param site  the built artifact directory
+ * @param minProducts  floor on the number of published products. Defaults to 1
+ *   so a small synthetic fixture is valid; the CLI passes the real floor,
+ *   because the failure worth catching is a *discovery collapse* — build.mjs
+ *   finding almost nothing, emitting a hub that looks fine with three tools on
+ *   it, and every check below passing.
+ */
+export async function checkSite(site, { minProducts = 1 } = {}) {
+  const problems = [];
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  const arg = (name, fallback) =>
-    process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3) ?? fallback;
+  if (!(await exists(site))) return [`${site} is not a directory`];
 
-  const distDir = path.resolve(arg('dist', path.join(path.dirname(fileURLToPath(import.meta.url)), 'dist')));
-  const baseUrl = arg('base', process.env.PAGES_BASE_URL || DEFAULT_BASE_URL);
-
-  const { problems, stats } = await checkSite({ distDir, baseUrl });
-
-  if (problems.length === 0) {
-    console.log(
-      `Site OK — ${stats.tools} tools, ${stats.htmlPages} HTML pages, ${stats.files} files.\n` +
-        `Base URL: ${baseUrl}`,
-    );
-    process.exit(0);
+  for (const required of REQUIRED_ROOT_FILES) {
+    if (!(await exists(path.join(site, required)))) problems.push(`missing required file: ${required}`);
   }
 
-  const byGroup = new Map();
-  for (const { group, detail } of problems) {
-    if (!byGroup.has(group)) byGroup.set(group, []);
-    byGroup.get(group).push(detail);
+  const entries = await fs.readdir(site, { withFileTypes: true });
+  const productDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+  if (productDirs.length === 0) problems.push('no product directories in the artifact');
+  else if (productDirs.length < minProducts) {
+    problems.push(`only ${productDirs.length} product(s) published, expected at least ${minProducts} — discovery may have regressed`);
+  }
+  for (const product of productDirs) {
+    if (!(await exists(path.join(site, product, 'index.html')))) {
+      problems.push(`${product}/ has no index.html`);
+    }
   }
 
-  console.error(`Site NOT fit to publish — ${problems.length} problem(s) in ${distDir}\n`);
-  for (const [group, details] of byGroup) {
-    console.error(`${group} (${details.length}):`);
-    for (const detail of details) console.error(`  - ${detail}`);
-    console.error('');
+  // ---- Reachability: the hub and the artifact must agree, both ways --------
+  //
+  // Checked in both directions because the two failures are different. A hub
+  // link with nothing behind it is a 404 a visitor sees. A product with no hub
+  // link is worse and quieter: it built, deployed, passed every other check,
+  // and no visitor can reach it.
+  const hubHtml = await fs.readFile(path.join(site, 'index.html'), 'utf8').catch(() => null);
+  if (hubHtml !== null) {
+    const linked = new Set([...hubHtml.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+    if (linked.size > 0) {
+      for (const slug of linked) {
+        if (!productDirs.includes(slug)) problems.push(`index.html: hub links "${slug}" but no such product shipped`);
+      }
+      for (const product of productDirs) {
+        if (!linked.has(product)) problems.push(`${product}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+    if (!DISCLAIMER_MARKER.test(hubHtml)) problems.push('index.html: carries no disclaimer');
   }
-  process.exit(1);
+
+  const files = await walk(site);
+  const servedPages = files.filter((f) => f.endsWith('.html'));
+
+  // ---- Disclaimers and leaked payload -------------------------------------
+  for (const product of productDirs) {
+    const index = path.join(site, product, 'index.html');
+    const html = await fs.readFile(index, 'utf8').catch(() => null);
+    if (html !== null && !DISCLAIMER_MARKER.test(html)) {
+      problems.push(`${product}/index.html: carries no disclaimer, so it must not ship`);
+    }
+  }
+
+  for (const relative of files) {
+    if (LEAKED_FILE_RE.test(relative)) problems.push(`${relative}: repo bookkeeping or test payload was published`);
+    else if (relative.split('/').some((segment) => LEAKED_DIRS.has(segment))) {
+      problems.push(`${relative}: published from a directory that should never ship`);
+    }
+  }
+
+  for (const relative of files) {
+    const extension = path.extname(relative).toLowerCase();
+    if (!TEXT_EXTENSIONS.has(extension)) continue;
+
+    const text = await fs.readFile(path.join(site, relative), 'utf8');
+    if (text.includes(PLACEHOLDER_ORIGIN)) {
+      problems.push(`${relative}: still contains ${PLACEHOLDER_ORIGIN}`);
+    }
+    if (!LINKED_EXTENSIONS.has(extension)) continue;
+
+    const targets = [
+      ...[...text.matchAll(REFERENCE_RE)].map((m) => m[1]),
+      ...[...text.matchAll(IMPORT_RE)].map((m) => m[1]),
+      ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
+    ];
+    for (const target of targets) {
+      if (isExternal(target)) continue;
+      const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
+      if (!cleaned) continue;
+
+      const from = path.resolve(site, path.dirname(relative));
+      let resolved = path.resolve(from, cleaned);
+      if (path.relative(path.resolve(site), resolved).startsWith('..')) {
+        problems.push(`${relative}: link escapes the site root -> ${target}`);
+        continue;
+      }
+      if (cleaned.endsWith('/')) resolved = path.join(resolved, 'index.html');
+      else if (!path.extname(resolved)) {
+        // A extension-less link is served as a directory if one is there.
+        if (await exists(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
+      }
+      if (!(await exists(resolved))) problems.push(`${relative}: dead link -> ${target}`);
+    }
+  }
+
+  // ---- Sitemaps: the two ways organic discovery quietly fails --------------
+
+  const basePath = await readBasePath(site);
+  if (basePath === null) {
+    problems.push('robots.txt: no Sitemap line, so crawlers get no entry point');
+    return problems;
+  }
+
+  const listed = new Map();
+  await collectSitemapUrls(site, basePath, 'sitemap.xml', new Set(), listed, problems);
+
+  // A URL that 404s is worse than no sitemap at all: it teaches a crawler the
+  // site is broken.
+  for (const [urlPath, source] of listed) {
+    const target = urlPath === '' || urlPath.endsWith('/') ? `${urlPath}index.html` : urlPath;
+    if (!(await exists(path.join(site, target)))) {
+      problems.push(`${source}: lists a URL that did not ship -> /${urlPath}`);
+    }
+  }
+
+  // A page in no sitemap is built, deployed, and never found.
+  for (const page of servedPages) {
+    if (page === '404.html') continue;
+    const candidates = [page];
+    if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
+    if (page === 'index.html') candidates.push('');
+    if (!candidates.some((c) => listed.has(c))) {
+      problems.push(`${page}: served but absent from every sitemap`);
+    }
+  }
+
+  return problems;
+}
+
+const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
+if (invokedDirectly) {
+  const positional = process.argv.slice(2).find((a) => !a.startsWith('--'));
+  const flag = process.argv.find((a) => a.startsWith('--dist='))?.slice('--dist='.length);
+  const site = path.resolve(flag ?? positional ?? 'dist');
+
+  // Deliberately well below the ~38 products on `main`, so a venture landing
+  // does not require touching this number, while a collapse still fails.
+  const problems = await checkSite(site, { minProducts: 20 });
+
+  if (problems.length > 0) {
+    console.error(`${problems.length} problem(s) in ${site}:`);
+    for (const problem of problems) console.error(`  ${problem}`);
+    process.exit(1);
+  }
+
+  const files = await walk(site);
+  const pages = files.filter((f) => f.endsWith('.html')).length;
+  const products = (await fs.readdir(site, { withFileTypes: true })).filter((e) => e.isDirectory()).length;
+  console.log(`${site} looks publishable: ${products} products, ${pages} pages, no dead links.`);
 }
