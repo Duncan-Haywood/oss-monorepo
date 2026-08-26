@@ -229,6 +229,9 @@ workflows:
 - workflow: furnace-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: garage-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: garmin-world-traveler-watchface-ci.yml
   classification: none
   publishes: []

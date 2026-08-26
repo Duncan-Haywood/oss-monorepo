@@ -4847,3 +4847,38 @@ ventures:
       specification, or a product warranty. Starting kit prices and grind
       rates are labelled ballpark starting points, and nothing the user
       enters leaves the browser.
+  - slug: garage-door-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      travel labor versus shop labor on a spring ticket, and why a 16×7 is
+      not two 8×7s — that is arithmetic, and adding inference would only
+      make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local garage-door bid calculator.
+      Scored with the other trade calculators: defensibility 5 because the
+      model encodes how a door shop actually loses money (drive vs shop hour,
+      single vs double) rather than restating a published fee schedule.
+      Distribution 7: "how much to charge to replace a garage door" and
+      "how much to charge for a broken spring" are lower-volume than
+      marketplace-fee queries but are typed by an operator with a real
+      ticket on the line, and the SERP is ads and range-guess articles.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the technician's own inputs, never a
+      recommended price, a safety inspection, a wind-load calculation, or a
+      permit determination. Starting part and hour figures are labelled
+      ballpark starting points, and nothing the user enters leaves the
+      browser.
