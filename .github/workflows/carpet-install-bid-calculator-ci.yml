@@ -1,16 +1,12 @@
 name: carpet-install-bid-calculator CI
 
-# Test runner for the browser-local carpet install bid calculator.
-# The product is static ES modules with no build step and no dependencies,
-# so this does no more than a contributor runs locally: `node --test`. It
-# publishes nothing, registers nothing, and spends no API budget — it is
-# not the unattended-automation kind of workflow CLAUDE.md gates.
+# Shipped in #1577 without a CI workflow, so its 31 tests ran only when a
+# contributor remembered to run them locally — while the venture was already
+# in the Portfolio Pages build. Added 2026-08-26, closing the last gap of this
+# kind: every venture with an `index.html` now has a workflow.
 #
-# Same shape as sewer-line-replace-bid-calculator-ci.yml.
-#
-# This venture merged (#1577) without a workflow of any kind, so its 31 tests
-# had never run in CI — the one calculator on main whose suite nothing was
-# checking.
+# Static ES modules, no build step, no dependencies: this does no more than a
+# contributor runs locally. It publishes nothing and spends no API budget.
 
 on:
   pull_request:
@@ -27,7 +23,6 @@ on:
 permissions:
   contents: read
 
-# A second push to the same branch makes the first run irrelevant.
 concurrency:
   group: carpet-install-bid-calculator-ci-${{ github.ref }}
   cancel-in-progress: true
@@ -44,14 +39,14 @@ jobs:
         with:
           node-version: "22"
       - run: node --test
-      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause and a
-      # best-effort/no-SLA clause on every hosted page. Neither is visible to
-      # this venture's own suite -- the clauses matter because the page gets
-      # published, and the venture does not know it is being published. That
-      # gap turned main red twice in two days (#1747, and again on the
-      # sewer-line merge), each time in the Pages job rather than in the CI of
-      # the venture that broke it. Checked here so the venture that needs the
-      # clause is the one that goes red.
-      - name: Published pages carry both liability clauses
+      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
+      # page, and it is the half build.mjs cannot inject: what a tool is not
+      # advice *about* is written in the venture's own voice. So it stays the
+      # venture's to get right -- but nothing showed the author that until the
+      # Pages job went red on main, after the merge, naming a workflow they
+      # never touched. Checked here so the venture that needs the clause is the
+      # one that goes red, before the merge.
+      - name: Published pages carry the no-warranty clause
         working-directory: .
         run: node platform/pages/clauses.mjs carpet-install-bid-calculator
+

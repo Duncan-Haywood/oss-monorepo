@@ -121,6 +121,9 @@ workflows:
 - workflow: faire-wholesale-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: flat-roof-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: forge-surface-reachability-ci.yml
   classification: none
   publishes: []
@@ -128,6 +131,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: freight-accessorial-auditor-ci.yml
+  classification: none
+  publishes: []
+- workflow: french-drain-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: garmin-world-traveler-watchface-ci.yml
@@ -169,6 +175,9 @@ workflows:
 - workflow: mcp-drift-watch-ci.yml
   classification: none
   publishes: []
+- workflow: metal-roof-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: no-show-fee-calculator-ci.yml
   classification: none
   publishes: []
@@ -179,13 +188,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: pages.yml
-  classification: gated
-  publishes:
-  - job: deploy
-    step: uses actions/deploy-pages
-    gates:
-    - github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'
+  classification: none
+  publishes: []
 - workflow: parking-lot-striping-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: patio-door-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: photo-editing-ci.yml
@@ -293,6 +301,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: substitute-supply-ci.yml
+  classification: none
+  publishes: []
+- workflow: sunroom-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: toilet-replacement-bid-calculator-ci.yml

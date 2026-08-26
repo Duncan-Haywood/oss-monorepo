@@ -1,91 +1,81 @@
-// Unit tests for the liability-clause checker.
+// Unit tests for the no-warranty clause checker.
 //
-// The checker is what stops a venture from reaching main with a hosted page
-// that carries no availability statement, so the thing worth testing is not
-// that it passes today -- it does -- but that it still fails on the exact
-// markup that got through twice.
+// The checker is what stops a venture from reaching main with a published page
+// that carries no warranty disclaimer, so the thing worth testing is not that
+// it passes today -- it does -- but that it still fails on the markup that has
+// actually shipped, and that it does not quietly pass a page it should catch.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { NO_SLA, NO_WARRANTY, collectPages, missingClauses } from './clauses.mjs';
+import { NO_SLA_PATTERN } from './build.mjs';
+import { NO_WARRANTY, collectPages, missingClauses } from './clauses.mjs';
 
-// The footer artificial-turf and asphalt-driveway-pave (#1747) and then
-// sewer-line-replace shipped with: the warranty half, and nothing about
-// hosting.
-const WARRANTY_ONLY = `<footer>
-  <p><strong>No warranty.</strong> This tool is provided free and as-is, without
-  warranty of any kind, express or implied. To the maximum extent permitted by
-  law, the authors accept no liability for any loss or damage arising from its
-  use.</p>
-  <p><strong>Nothing leaves your browser.</strong> Every number stays here.</p>
+// A footer with the hosting clause and no warranty paragraph: the inverse of
+// the failure that kept recurring, and the one injection does not cover.
+const SLA_ONLY = `<footer>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free and
+  experimental, and may be slow, broken, moved, or taken offline without
+  notice.</p>
 </footer>`;
 
-const BOTH = `${WARRANTY_ONLY}
-  <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and
-  experimental, and may be slow, broken, moved, or taken offline without
-  notice.</p>`;
+const BOTH = `${SLA_ONLY}
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without
+  warranty of any kind, express or implied. It is not plumbing, construction,
+  legal, tax, or financial advice.</p>`;
 
-test('a page with only the warranty clause is reported missing the no-SLA half', () => {
-  assert.deepEqual(missingClauses([['calc/index.html', WARRANTY_ONLY]]), [
-    { page: 'calc/index.html', clause: 'no-SLA' },
+test('a page with only the hosting clause is reported missing the warranty half', () => {
+  assert.deepEqual(missingClauses([['calc/index.html', SLA_ONLY]]), [
+    { page: 'calc/index.html', clause: 'no-warranty' },
   ]);
 });
 
-test('a page carrying both clauses reports nothing', () => {
+test('a page carrying the warranty clause reports nothing', () => {
   assert.deepEqual(missingClauses([['calc/index.html', BOTH]]), []);
 });
 
-test('a page missing both clauses reports both, not just the first', () => {
+test('every offending page is reported, not only the first', () => {
   // Reporting one at a time is how the second venture in #1747 survived the
   // first fix pass.
-  assert.deepEqual(missingClauses([['calc/index.html', '<p>Hello.</p>']]), [
-    { page: 'calc/index.html', clause: 'no-warranty' },
-    { page: 'calc/index.html', clause: 'no-SLA' },
-  ]);
-});
-
-test('every offending page is reported, not only the first', () => {
   const missing = missingClauses([
-    ['a/index.html', WARRANTY_ONLY],
+    ['a/index.html', SLA_ONLY],
     ['b/index.html', BOTH],
-    ['c/index.html', WARRANTY_ONLY],
+    ['c/index.html', SLA_ONLY],
   ]);
   assert.deepEqual(missing.map((m) => m.page), ['a/index.html', 'c/index.html']);
 });
 
-test('the no-SLA clause is matched in the wordings ventures actually use', () => {
-  // Several ventures word it in their own voice. Demanding the playbook's
-  // exact prose would fail correct pages instead of catching missing ones.
+test('the no-warranty pattern matches the wordings ventures actually use', () => {
   for (const wording of [
+    '<strong>No warranty.</strong> This tool is provided free and as-is.',
+    'NO WARRANTY OF ANY KIND',
+    'provided with no warranty, express or implied',
+  ]) {
+    assert.ok(NO_WARRANTY.test(wording), `not matched: ${wording}`);
+  }
+});
+
+test('the no-warranty pattern does not match a page that merely mentions warranties', () => {
+  // A false positive here is worse than a miss: it marks an uncovered page
+  // green and retires the check that catches the real one.
+  for (const wording of [
+    'The manufacturer warranty is 10 years.',
+    'Include the labour warranty in your bid.',
     'Best-effort hosting, no SLA.',
-    'It is hosted best-effort with no SLA: it may be slow.',
-    'Hosted URLs, when they exist, carry no availability SLA.',
-    'may be moved or taken offline without notice',
-    'There is no availability SLA.',
   ]) {
-    assert.ok(NO_SLA.test(wording), `not matched: ${wording}`);
+    assert.ok(!NO_WARRANTY.test(wording), `wrongly matched: ${wording}`);
   }
 });
 
-test('the no-SLA pattern does not match a page that merely mentions hosting', () => {
-  // A false positive here is worse than a miss: it would mark an
-  // uncovered page green and retire the check that catches the real one.
-  for (const wording of [
-    'This tool is hosted on GitHub Pages.',
-    'Self-hosting instructions are in the README.',
-    'No warranty of any kind.',
-  ]) {
-    assert.ok(!NO_SLA.test(wording), `wrongly matched: ${wording}`);
-  }
+test('the no-SLA clause is deliberately not this checker\'s job', () => {
+  // build.mjs injects it into every published page, so a source page without
+  // it is correct, not broken. If that injection is ever removed, this test
+  // and the checker's scope both have to be revisited -- asserting the
+  // pattern still exists is what makes that removal visible here.
+  assert.ok(NO_SLA_PATTERN instanceof RegExp, 'build.mjs still owns the hosting clause');
+  assert.deepEqual(missingClauses([['calc/index.html', BOTH.replace(SLA_ONLY, '')]]), []);
 });
 
-test('the no-warranty pattern is case-insensitive', () => {
-  assert.ok(NO_WARRANTY.test('NO WARRANTY'));
-  assert.ok(NO_WARRANTY.test('provided with no warranty'));
-  assert.ok(!NO_WARRANTY.test('This carries a warranty.'));
-});
-
-test('the real venture tree is walked and every page passes', async () => {
+test('the real venture tree is walked and every page carries the clause', async () => {
   const { pages, surfaces } = await collectPages();
 
   // A silently-empty walk would make every assertion above free, which is the
@@ -95,7 +85,7 @@ test('the real venture tree is walked and every page passes', async () => {
   assert.deepEqual(
     missingClauses(pages),
     [],
-    'a published page is missing a liability clause; run `node platform/pages/clauses.mjs`',
+    'a published page is missing the no-warranty clause; run `node platform/pages/clauses.mjs`',
   );
 });
 
