@@ -137,6 +137,33 @@ test('return disposition page compares restock, destroy, and customer-keeps', as
   assert.match(robots, /Sitemap:/);
 });
 
+test('inbound page compares pallet, carton, and loose receiving', async () => {
+  const page = await readFile(new URL('./inbound.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const robots = await readFile(new URL('./robots.txt', import.meta.url), 'utf8');
+  assert.match(page, /name="palletInboundFee"/);
+  assert.match(page, /name="cartonInboundFee"/);
+  assert.match(page, /name="receivingPerUnit"/);
+  assert.match(page, /compareInboundMethods/);
+  assert.match(page, /inbound_methods_compared/);
+  assert.match(page, /not financial, tax, legal/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  assert.match(index, /inbound.html/);
+  assert.match(sitemap, /inbound.html/);
+  assert.match(robots, /Sitemap:/);
+});
+
+test('inbound SEO page explains the container-fee arithmetic', async () => {
+  const page = await readFile(new URL('./pallet-vs-carton-inbound.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(page, /\$10/);
+  assert.match(page, /inbound.html/);
+  assert.match(page, /not financial, tax, legal/);
+  assert.match(sitemap, /pallet-vs-carton-inbound.html/);
+});
+
 test('kitting page compares 3PL assembly, pre-kit, and skipping the bundle', async () => {
   const page = await readFile(new URL('./should-i-pay-the-3pl-to-kit.html', import.meta.url), 'utf8');
   const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');

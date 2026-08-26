@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareKitting, compareQuotes, compareReturnDisposition, comparisonSummary, inputWarnings, kittingAovSweep, kittingFeeSweep, kittingFlip, kittingSummary, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
+import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareInboundMethods, compareKitting, compareQuotes, compareReturnDisposition, comparisonSummary, inboundComparisonSummary, inboundReceivingPerUnit, inputWarnings, kittingAovSweep, kittingFeeSweep, kittingFlip, kittingSummary, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
 
 test("custom return and restocking fees flow into the normalized quote", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
@@ -511,4 +511,100 @@ test("uses the first component when the quote is tied or empty", () => {
   assert.equal(driver.component, "receiving");
   assert.equal(driver.amount, 0);
   assert.equal(driver.share, 0);
+});
+
+test("converts pallet and carton inbound fees into a per-unit receiving rate", () => {
+  const pallet = inboundReceivingPerUnit("pallet", { inboundUnits: 480, palletInboundFee: 10, unitsPerPallet: 60 });
+  assert.equal(pallet.inboundCount, 8);
+  assert.equal(pallet.receivingPerUnit, 10 / 60);
+  const carton = inboundReceivingPerUnit("carton", { inboundUnits: 480, cartonInboundFee: 1.5, unitsPerCarton: 6 });
+  assert.equal(carton.inboundCount, 80);
+  assert.equal(carton.receivingPerUnit, 0.25);
+  const unit = inboundReceivingPerUnit("unit", { inboundUnits: 480, receivingPerUnit: 0.4 });
+  assert.equal(unit.inboundCount, 480);
+  assert.equal(unit.receivingPerUnit, 0.4);
+});
+
+test("rejects an unknown inbound method", () => {
+  assert.throws(() => inboundReceivingPerUnit("airfreight", {}), /Unknown inbound method/);
+});
+
+test("a zero container size cannot be turned into a receiving rate", () => {
+  const pallet = inboundReceivingPerUnit("pallet", { inboundUnits: 480, unitsPerPallet: 0, palletInboundFee: 10 });
+  assert.equal(pallet.receivingPerUnit, Infinity);
+  assert.equal(pallet.inboundCount, Infinity);
+});
+
+test("compares pallet, carton, and loose inbound on the same quote", () => {
+  const comparison = compareInboundMethods({
+    orders: 100,
+    inboundUnits: 480,
+    palletInboundFee: 10,
+    unitsPerPallet: 60,
+    cartonInboundFee: 1.5,
+    unitsPerCarton: 6,
+    receivingPerUnit: 0.4,
+    minimumMonthly: 0,
+  });
+  assert.deepEqual(comparison.rows.map((row) => row.id), ["pallet", "carton", "unit"]);
+  assert.equal(comparison.rows[0].receiving, 80);
+  assert.equal(comparison.rows[1].receiving, 120);
+  assert.equal(comparison.rows[2].receiving, 192);
+  assert.equal(comparison.cheapestId, "pallet");
+  assert.equal(comparison.monthlySpread, 112);
+  assert.match(inboundComparisonSummary(comparison), /Pallet inbound is lower by \$112\.00 per month/);
+  assert.ok(comparison.rows[0].total < comparison.rows[2].total);
+});
+
+test("inbound comparison leaves storage and pick fees unchanged", () => {
+  const input = {
+    orders: 100,
+    inboundUnits: 480,
+    palletInboundFee: 10,
+    unitsPerPallet: 60,
+    cartonInboundFee: 1.5,
+    unitsPerCarton: 6,
+    receivingPerUnit: 0.4,
+    storagePerPallet: 18,
+    firstPick: 2.75,
+    minimumMonthly: 0,
+  };
+  const comparison = compareInboundMethods(input);
+  const pallet = calculate({ ...input, receivingPerUnit: 10 / 60 }, false);
+  const loose = calculate({ ...input, receivingPerUnit: 0.4 }, false);
+  assert.equal(comparison.rows[0].total, pallet.quote.total);
+  assert.equal(comparison.rows[2].total, loose.quote.total);
+  assert.equal(pallet.quote.storage, loose.quote.storage);
+  assert.equal(pallet.quote.pickPack, loose.quote.pickPack);
+});
+
+test("a monthly minimum can hide a real inbound difference", () => {
+  const comparison = compareInboundMethods({
+    inboundUnits: 480,
+    palletInboundFee: 10,
+    unitsPerPallet: 60,
+    cartonInboundFee: 1.5,
+    unitsPerCarton: 6,
+    receivingPerUnit: 0.4,
+    minimumMonthly: 5000,
+  });
+  assert.equal(comparison.receivingSpread, 112);
+  assert.equal(comparison.monthlySpread, 0);
+  assert.match(inboundComparisonSummary(comparison), /monthly minimum keeps the normalized totals the same/);
+});
+
+test("inbound comparison reports a tie when every method costs the same", () => {
+  const comparison = compareInboundMethods({
+    inboundUnits: 120,
+    palletInboundFee: 12,
+    unitsPerPallet: 40,
+    cartonInboundFee: 3,
+    unitsPerCarton: 10,
+    receivingPerUnit: 0.3,
+    minimumMonthly: 0,
+  });
+  assert.equal(comparison.cheapestId, null);
+  assert.deepEqual(comparison.cheapestIds, ["pallet", "carton", "unit"]);
+  assert.equal(comparison.monthlySpread, 0);
+  assert.match(inboundComparisonSummary(comparison), /same normalized monthly total/);
 });
