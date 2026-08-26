@@ -1,5 +1,5 @@
 name: freight-accessorial-auditor
-description: A private browser tool that finds duplicate and over-billed freight accessorial charges before a shipper pays, and compares a detention line to the dock clock.
+description: A private browser tool that finds duplicate and over-billed freight accessorial charges before a shipper pays, compares a detention line to the dock clock, and shows whether eating an extra, billing the customer, or reviewing for a credit still keeps cash.
 stage: prototype
 owner: duncan
 hypotheses:
