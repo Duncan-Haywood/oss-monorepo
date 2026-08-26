@@ -1,5 +1,5 @@
 name: walk-in-tub-bid-calculator
-description: A private browser calculator for bath remodelers and accessibility contractors that prices a walk-in tub install from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove-swap versus relocate versus new-construction versus custom-opening, inward versus outward versus walk-through door, extras, and contractor-supplied versus customer-supplied tub — and shows the extra-work share and the walk-away price below which the job loses money.
+description: A private browser calculator for bath remodelers and accessibility contractors that prices a walk-in tub install from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove-swap versus relocate versus new-construction versus custom-opening, inward versus outward versus walk-through door, extras, contractor-supplied versus customer-supplied tub, and weekday versus only-bath-in-use versus Saturday / after-hours — and shows the extra-work share and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -16,6 +16,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Contractors will return to see whether a customer-supplied tub still pays at the $1,499 just-set special, because zeroing the invoice is not a free install and a wrong-unit callback is a second trip.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday-they-leave versus only-bath-still-in-use versus Saturday / after-hours on the same alcove, next to the weekday $3,499 number they asked you to keep, changes the bid enough that contractors refuse the "just start Saturday after a fall" special instead of matching it.
     status: untested
     checked: null
     evidence: customer-contact
