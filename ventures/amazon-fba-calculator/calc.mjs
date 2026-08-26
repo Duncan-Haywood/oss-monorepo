@@ -421,6 +421,30 @@ export function calculateListing(input) {
     return path;
   }
 
+  // Ads sit in cashInvested, so profit already includes the current PPC spend.
+  // Add the spend back to see how much advertising the unit can still carry
+  // before it loses money, or before it misses the seller's target margin.
+  // ACOS is that spend as a percent of the sale price — the number PPC
+  // campaigns are actually managed against.
+  function attachAdLimits(path) {
+    const profitBeforeAds = path.profit + adsPerUnit;
+    const breakEvenAds = Math.max(0, profitBeforeAds);
+    const targetProfit = salePrice * targetMarginRate;
+    const targetMarginAds = Math.max(0, profitBeforeAds - targetProfit);
+    const acos = (ads) => (salePrice <= 0 ? null : (ads / salePrice) * 100);
+    return {
+      ...path,
+      profitBeforeAds,
+      breakEvenAds,
+      breakEvenAcos: acos(breakEvenAds),
+      currentAcos: acos(adsPerUnit),
+      targetMarginAds,
+      targetMarginAcos: acos(targetMarginAds),
+      adsStillPay: path.profit >= -1e-9,
+      targetMarginReachableWithAds: profitBeforeAds + 1e-9 >= targetProfit,
+    };
+  }
+
   const fbaCash = sharedCash + inboundPerUnit + storagePerUnit;
   const fba = finish(
     pathResult({
@@ -462,14 +486,14 @@ export function calculateListing(input) {
     returnHandlingFee,
     unsellableRate,
   };
-  const fbaAfterReturns = withExpectedReturns(fba, {
+  const fbaAfterReturns = attachAdLimits(withExpectedReturns(fba, {
     ...returnAssumptions,
     fulfillmentFee,
-  });
-  const fbmAfterReturns = withExpectedReturns(fbm, {
+  }));
+  const fbmAfterReturns = attachAdLimits(withExpectedReturns(fbm, {
     ...returnAssumptions,
     fulfillmentFee: 0,
-  });
+  }));
 
   const selected = fulfillmentMethod === "fba" ? fbaAfterReturns : fbmAfterReturns;
   const fbaAdvantage = fbaAfterReturns.profit - fbmAfterReturns.profit;
