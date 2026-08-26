@@ -5,6 +5,7 @@ import argparse
 import csv
 import json
 import subprocess
+import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -181,30 +182,44 @@ def write_outputs(findings: list[Finding], report_path: Path, manifest_path: Pat
     }
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
+# Column order is shared with the `--format csv` stdout writer in main() so the
+# file and the stream are the same table; a reader that learns one can parse the
+# other.
+CSV_COLUMNS = ("branch", "tip", "classification", "review_action", "reason", "commit_count")
+
+def csv_row(finding: Finding) -> tuple:
+    """One approval-queue row: descriptive fields only, never an executable command."""
+    return (
+        finding.branch,
+        finding.tip,
+        finding.classification,
+        finding.review_action,
+        finding.reason,
+        len(finding.commits),
+    )
+
 def write_csv(findings: list[Finding], path: Path) -> None:
     """Write a spreadsheet-friendly approval queue, never executable commands."""
     with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(
-            handle,
-            fieldnames=("branch", "tip", "classification", "reason", "review_action", "commit_count"),
-        )
-        writer.writeheader()
+        writer = csv.writer(handle, lineterminator="\n")
+        writer.writerow(CSV_COLUMNS)
         for finding in findings:
-            writer.writerow({
-                "branch": finding.branch,
-                "tip": finding.tip,
-                "classification": finding.classification,
-                "reason": finding.reason,
-                "review_action": finding.review_action,
-                "commit_count": len(finding.commits),
-            })
+            writer.writerow(csv_row(finding))
 
 def has_unresolved_risk(findings: list[Finding]) -> bool:
     """Return whether the snapshot needs human review before any cleanup."""
     return any(finding.classification in {"shared", "moved-tip", "uncertain"} for finding in findings)
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Create a read-only branch review report")
+    parser = argparse.ArgumentParser(
+        description="Create a read-only branch review report",
+        epilog=(
+            "No warranty. This tool is provided free and as-is, without warranty "
+            "of any kind. It is not legal, security, or compliance advice and "
+            "does not replace a qualified professional. You are responsible for "
+            "reviewing and verifying its output before relying on it."
+        ),
+    )
     parser.add_argument("snapshot", type=Path, nargs="?", help="JSON snapshot (omit when using --repo)")
     parser.add_argument("--repo", type=Path, help="scan local branches from this checkout")
     parser.add_argument("--protect", action="append", default=[], help="additional protected branch name")
@@ -220,7 +235,7 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, default=Path("recovery-manifest.json"))
     parser.add_argument("--csv", dest="csv_path", type=Path, help="write a spreadsheet-friendly approval queue")
     parser.add_argument("--usage-log", type=Path)
-    parser.add_argument("--format", choices=("text", "json"), default="text", help="print a human or machine-readable summary")
+    parser.add_argument("--format", choices=("text", "json", "csv"), default="text", help="print a human or machine-readable summary")
     parser.add_argument("--fail-on-risk", action="store_true", help="exit 2 when shared, moved-tip, or uncertain findings need review")
     args = parser.parse_args()
     if bool(args.snapshot) == bool(args.repo):
@@ -245,6 +260,11 @@ def main() -> int:
         summary["classifications"][finding.classification] = summary["classifications"].get(finding.classification, 0) + 1
     if args.format == "json":
         print(json.dumps(summary, sort_keys=True))
+    elif args.format == "csv":
+        writer = csv.writer(sys.stdout, lineterminator="\n")
+        writer.writerow(CSV_COLUMNS)
+        for finding in findings:
+            writer.writerow(csv_row(finding))
     else:
         status = "review required" if summary["risk"] else "no unresolved risk"
         outputs = f"{args.report}, {args.manifest}"

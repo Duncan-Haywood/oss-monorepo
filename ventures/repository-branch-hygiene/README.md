@@ -19,6 +19,18 @@ snapshot contains an ambiguous ref:
 python3 src/branch_hygiene.py snapshot.json --format json --fail-on-risk
 ```
 
+For a spreadsheet or ticket-import workflow, emit one approval-queue row per
+branch. The CSV contains branch metadata and a review instruction, never a Git
+command:
+
+```bash
+python3 src/branch_hygiene.py snapshot.json --format csv > approval-queue.csv
+```
+
+The CSV columns are `branch`, `tip`, `classification`, `review_action`,
+`reason`, and `commit_count`. Treat every row as a review queue item; even a
+`review-delete-candidate` row is not permission to delete a ref.
+
 Exit status `2` means a human must review a `shared`, `moved-tip`, or
 `uncertain` finding. It never means that a branch is safe to delete. A zero
 status means only that this snapshot contains no unresolved ambiguity; the

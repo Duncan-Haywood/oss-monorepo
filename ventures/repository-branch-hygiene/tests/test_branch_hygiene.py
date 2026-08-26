@@ -37,7 +37,9 @@ class BranchHygieneTests(unittest.TestCase):
             path = Path(directory) / "queue.csv"
             write_csv(scan(self.snapshot), path)
             rows = path.read_text().splitlines()
-            self.assertEqual(rows[0], "branch,tip,classification,reason,review_action,commit_count")
+            # Same header as the `--format csv` stdout writer; the two exports
+            # are one table with two destinations, not two formats.
+            self.assertEqual(rows[0], "branch,tip,classification,review_action,reason,commit_count")
             self.assertIn("review-delete-candidate", path.read_text())
             self.assertNotIn("git delete", path.read_text())
             self.assertEqual(len(rows), 5)
@@ -59,6 +61,7 @@ class BranchHygieneTests(unittest.TestCase):
         findings = {item.branch: item for item in scan(snapshot)}
         self.assertEqual(findings["feature/reused"].classification, "active")
         self.assertEqual(findings["feature/reused"].review_action, "preserve-active-work")
+
 
     def test_risk_gate_requires_review_for_ambiguous_refs(self):
         findings = scan(self.snapshot)
@@ -96,6 +99,40 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertEqual(event["event"], "scan_completed")
             self.assertEqual(event["finding_count"], 4)
             self.assertNotIn("feature/", event)
+
+    def test_cli_csv_emits_non_executable_approval_queue(self):
+        project = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(project / "src/branch_hygiene.py"), str(project / "examples/snapshot.json"), "--format", "csv"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        rows = result.stdout.splitlines()
+        self.assertEqual(rows[0], "branch,tip,classification,review_action,reason,commit_count")
+        self.assertTrue(any(row.startswith("feature/merged,m2,merged,review-delete-candidate,") for row in rows[1:]))
+        self.assertNotIn("git branch", result.stdout)
+
+    def test_csv_file_and_stdout_are_the_same_table(self):
+        """`--csv PATH` and `--format csv` arrived as separate changes (#1250,
+        #1176) and drifted apart on column order, so a script written against
+        one mis-parsed the other. Pin them together."""
+        project = Path(__file__).parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "queue.csv"
+            result = subprocess.run(
+                [
+                    sys.executable, str(project / "src/branch_hygiene.py"),
+                    str(project / "examples/snapshot.json"),
+                    "--format", "csv", "--csv", str(path),
+                    "--report", str(Path(directory) / "report.txt"),
+                    "--manifest", str(Path(directory) / "manifest.json"),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            self.assertEqual(path.read_text(), result.stdout)
 
     def test_local_repository_snapshot_is_read_only_and_usable(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -223,6 +260,17 @@ class BranchHygieneTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("--pr-json requires --repo", result.stderr)
+
+    def test_cli_help_discloses_boundary(self):
+        project = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(project / "src/branch_hygiene.py"), "--help"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        self.assertIn("not legal, security, or compliance advice", result.stdout)
+        self.assertIn("reviewing and verifying its", result.stdout)
 
 if __name__ == "__main__":
     unittest.main()
