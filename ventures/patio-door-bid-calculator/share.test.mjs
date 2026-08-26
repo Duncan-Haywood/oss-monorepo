@@ -136,7 +136,7 @@ test('a stored bid is re-validated, so an edited blob cannot smuggle a field in'
 test('a link beats a saved bid, because an opened link is what the visitor meant to see', () => {
   const storage = fakeStorage();
   saveBid(storage, SPEC, { area: '10' });
-  const restored = restoreBid(SPEC, { search: '?area=48', storage });
+  const restored = restoreBid(SPEC, { link: '?area=48', storage });
   assert.deepEqual(restored.values, { area: '48' });
   assert.equal(restored.source, 'link');
 });
@@ -144,19 +144,19 @@ test('a link beats a saved bid, because an opened link is what the visitor meant
 test('a plain visit falls back to the saved bid', () => {
   const storage = fakeStorage();
   saveBid(storage, SPEC, { area: '10' });
-  const restored = restoreBid(SPEC, { search: '', storage });
+  const restored = restoreBid(SPEC, { link: '', storage });
   assert.deepEqual(restored.values, { area: '10' });
   assert.equal(restored.source, 'storage');
 });
 
 test('a first visit restores nothing and says so', () => {
-  const restored = restoreBid(SPEC, { search: '', storage: fakeStorage() });
+  const restored = restoreBid(SPEC, { link: '', storage: fakeStorage() });
   assert.deepEqual(restored.values, {});
   assert.equal(restored.source, 'none');
 });
 
 test('restoring works with no storage at all', () => {
-  assert.deepEqual(restoreBid(SPEC, { search: '?area=48' }).values, { area: '48' });
+  assert.deepEqual(restoreBid(SPEC, { link: '?area=48' }).values, { area: '48' });
   assert.equal(restoreBid(SPEC, {}).source, 'none');
 });
 
@@ -231,4 +231,21 @@ test('rows survive a save and reload', () => {
 test('a spec with no rows is unaffected by any of this', () => {
   assert.equal(encodeBid(SPEC, { area: '48', areas: [{ type: 'office' }] }).includes('areas'), false);
   assert.equal(decodeBid(SPEC, 'area=48&areas=office:1:2').areas, undefined);
+});
+
+test('a choice the page coerced to a number still reaches the link', () => {
+  // Regression: `readInput()` in the sewer-line bid returns `diameterIn` as a
+  // Number so its own arithmetic works. Comparing on `typeof === 'string'`
+  // dropped it from the link and from the saved bid in silence — a 6-inch
+  // lateral reopened as a 4-inch one, with the scope line reading 4-inch on a
+  // bid priced for 6. Caught in a browser pass, not by the drift guard: the id
+  // is in the spec, so nothing had drifted. The type had.
+  const spec = { key: 'k', numbers: [], flags: [], choices: { diameterIn: ['4', '6'] } };
+
+  assert.equal(decodeBid(spec, encodeBid(spec, { diameterIn: 6 })).diameterIn, '6');
+  assert.equal(decodeBid(spec, encodeBid(spec, { diameterIn: '6' })).diameterIn, '6');
+  // Coercion widens what is compared, never what is accepted.
+  assert.equal(decodeBid(spec, encodeBid(spec, { diameterIn: 8 })).diameterIn, undefined);
+  assert.equal(decodeBid(spec, encodeBid(spec, { diameterIn: null })).diameterIn, undefined);
+  assert.equal(decodeBid(spec, encodeBid(spec, { diameterIn: { toString: () => '6' } })).diameterIn, '6');
 });

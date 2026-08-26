@@ -118,8 +118,10 @@ A link beats a saved bid when both exist, because someone opening a link meant
 to see that bid; the page says which one is on screen.
 
 A bid link carries your own rates — wage, burden, overhead, and target margin.
-Send it to yourself or your crew. The customer should get the price, not the
-link.
+The numbers ride in the URL **fragment**, after the `#`, which browsers never
+send to a server — so copying or opening one uploads nothing, and nothing lands
+in a host's access log. Anyone holding the link can read them, though: send it
+to yourself or your crew. The customer should get the price, not the link.
 
 Nothing is uploaded either way. The link is built in the browser and copied by
 you; the save is `localStorage` on your own device.

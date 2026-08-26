@@ -160,7 +160,7 @@
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
       <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
-      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The numbers ride after the <code>#</code>, which is never sent to a server, so copying a link uploads nothing. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Same floor, four scopes</strong></p>
       <table>
@@ -186,7 +186,7 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not flooring-spec, moisture-test, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your floor, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers after the <code>#</code> in the address, which browsers never send to a server &mdash; but anyone you hand the link to can read them, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your floor, wages, costs, or prices.</p>
     <p>Looking up <a href="how-much-to-charge-to-install-carpet.html">how much to charge to install carpet</a>? The article walks the floor-versus-stair math this calculator uses.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -490,7 +490,12 @@
 
     async function copyLink() {
       const query = encodeBid(BID_SPEC, readInput());
-      const url = `${location.origin}${location.pathname}${query ? `?${query}` : ''}`;
+      // The fragment, not the query string. A query string reaches the host on
+      // every request — on GitHub Pages that puts a contractor's wage, burden,
+      // overhead and the price they are considering into a server access log,
+      // which is exactly what "nothing leaves your browser" promises it will
+      // not do. Browsers never send a fragment.
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
       } catch {
@@ -510,7 +515,7 @@
     }
 
     const restored = restoreBid(BID_SPEC, {
-      search: location.search,
+      link: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });
     applyValues(restored.values);
