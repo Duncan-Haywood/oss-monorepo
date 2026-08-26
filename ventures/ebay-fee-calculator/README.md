@@ -139,6 +139,12 @@ typed list and still buy the label. On eBay, folding the exact
 shipping charged into the item leaves the same leftover per
 completed sale. Leaving the list at $40 loses after a $5 label.
 [Should I offer free shipping on eBay?](should-i-offer-free-shipping-on-ebay.html).
+A **Skip vs insurance vs signature** table then prices the same
+already-sold tracked shipment three ways: skip the add-on, buy
+a typed premium that pays replacement value, or add signature
+confirmation. On a $40 sale a $1.80 premium keeps $1.00 less
+than skip; an 8% claim rate or a $180 / $85-cost SKU flips it.
+[Should I add shipping insurance on eBay?](should-i-add-shipping-insurance-on-ebay.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -352,6 +358,12 @@ drive that decision:
   charged into the item is leftover-identical per completed sale.
   The table also names the sell-through and free-ship list that
   still tie buyer-pays.
+- **Skip vs insurance vs signature** — expected leftover after
+  returns and item-not-received claims with no add-on versus a
+  typed premium that pays replacement value versus signature
+  confirmation. A claim is not a return — the item is gone.
+  The table also names the skip claim rate and premium that
+  still tie skip.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -392,7 +404,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `store_compared`,
 `best_offer_compared`,
 `international_compared`,
-`free_shipping_compared`, and
+`free_shipping_compared`,
+`package_protection_compared`, and
 `price_sensitivity_viewed`.
 `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -410,8 +423,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `global_shipping_compared`,
 `store_compared`,
 `best_offer_compared`,
-`international_compared`, and
-`free_shipping_compared` are counted at most
+`international_compared`,
+`free_shipping_compared`, and
+`package_protection_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
