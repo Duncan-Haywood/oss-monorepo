@@ -23708,3 +23708,22 @@ entries:
         arrives on eBay with costOfGoods 18 and computes $33.01, and on Etsy
         with materialCost 19.75.
     mrr_end: null
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Deepened the Walmart Marketplace calculator with hold vs permanent
+        match vs a time-boxed promo after Buy Box take. The existing match
+        field held take fixed, so a seller could see unit profit at $21.99
+        and still not know whether winning more of the Buy Box covered the
+        thinner leftover. Defaults ($24.99 list, $21.99 match, 60 completed
+        sales at 40% hold take, 70% match take, 10-day promo at 80%):
+        permanently matching keeps $121.49 more ($640.48 vs $518.99). A
+        20-day promo flips ahead of the permanent match. A 50% match take
+        flips the leftover back to holding. 89/89 tests; Chromium CDP
+        verified defaults plus both flips on the dedicated page and the
+        same leftover on index.html. Distinct from the unit-profit match,
+        2-day take, returns, aged leftover, and Connect ads. No open Walmart
+        feature PR at selection. Hosting still waits on deploy-settings.
+    mrr_end: null
