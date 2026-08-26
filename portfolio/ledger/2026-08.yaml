@@ -23525,3 +23525,37 @@ entries:
         `main` genuinely still lacked, re-checked against a fresh fetch
         immediately before pushing rather than asserted from an earlier read.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Consolidated two implementations of the one-Pages-deployer invariant
+        that ended up on `main` together, and fixed a hole in how it was wired
+        in. #1735's `check_single_pages_deployer` (hardened by #1762) and
+        #1776's `check_one_origin_per_gate` both enforce the same rule, and both
+        defined a module-level `PAGES_DEPLOY_ACTIONS`, so the later assignment
+        silently rebound the earlier one: #1776's function was quietly matching
+        three actions its own docstring said it did not. Git merged the two
+        cleanly because they never touched the same lines. Kept the more capable
+        implementation (three Pages actions, `vars.` and `secrets.`, dot and
+        bracket syntax), folded #1776's incident docstring and its two unique
+        test shapes into it, and deleted the duplicate.
+      - >-
+        Found and fixed a live hole while consolidating: the conflict check sat
+        inside `main()`'s `--check` branch, below an early-returning
+        `if args.write:` -- so `--write` never ran it, while the comment directly
+        above claimed "re-running with --write must not be able to bless it".
+        A conflicting surface could be laundered by rewriting the snapshot,
+        which is the one escape the check exists to close. Moved it ahead of
+        both branches. Reproduced the failure against `main`'s code first (the
+        new test fails there, passes on the fix) rather than asserting it.
+      - >-
+        Learned that merging into a fast-moving `main` can produce a semantic
+        collision with no textual conflict. This one was created by merging
+        #1762 -- a PR whose whole subject was duplicate Pages publishers -- into
+        a `main` that had meanwhile grown a second copy of that PR's own check.
+        Neither `--check`, `validate_workflows.py`, nor the test suites noticed:
+        every test passed, because each function was tested against itself. The
+        tell was reading the merged file rather than trusting the green run.
+    mrr_end: null
