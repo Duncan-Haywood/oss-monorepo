@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote, evidenceSnapshot } from './calc.mjs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -292,6 +292,16 @@ test('worksheet summary includes the retainage-rate comparison', () => {
   assert.match(summary, /10\.0% \(this worksheet\): withheld \$10000\.00; progress cash \$90000\.00; bid to keep progress cash \$111111\.11 \(\$11111\.11 extra\)/);
 });
 
+test('payment schedule export ignores blank rows and calculates outstanding amounts', () => {
+  const summary = paymentScheduleSummary([
+    { label: 'Mobilization', billed: '12000', paid: '5000' },
+    { label: '', billed: '', paid: '' }
+  ]);
+  assert.match(summary, /1\. Mobilization \| billed \$12000\.00 \| paid \$5000\.00 \| outstanding \$7000\.00/);
+  assert.doesNotMatch(summary, /2\./);
+  assert.match(summary, /Review this schedule/);
+});
+
 test('snapshot contains local inputs, modeled results, and safety note', () => {
   const snapshot = evidenceSnapshot({ inputs: { contractValue: 100000 }, result: { earnedUnpaid: 25000, inputs: { contractValue: 100000 } }, projectName: ' Main Street ' });
   assert.equal(snapshot.project.projectName, 'Main Street');
@@ -300,6 +310,15 @@ test('snapshot contains local inputs, modeled results, and safety note', () => {
   assert.equal(snapshot.modeledResults.inputs, undefined);
   assert.match(snapshot.note, /not legal/);
   assert.match(snapshot.exportedAt, /^20\d\d-/);
+});
+
+test('the page offers a private payment milestone schedule', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="milestoneSection"/);
+  assert.match(page, /id="addMilestone"/);
+  assert.match(page, /id="downloadSchedule"/);
+  assert.match(page, /paymentScheduleSummary\(/);
+  assert.match(page, /retainage-cashflow:milestone-downloads/);
 });
 
 test('the page offers a private JSON evidence snapshot', () => {

@@ -358,3 +358,15 @@ export function evidenceSnapshot({ inputs, result, projectName = '', payerName =
     note: 'User-provided inputs and deterministic modeled results. Review against the contract and records; this is not legal, tax, financial, or engineering advice.'
   };
 }
+
+export function paymentScheduleSummary(rows, currency = '$') {
+  const validRows = rows.filter(row => String(row.label || '').trim() || row.billed || row.paid);
+  if (!validRows.length) return 'No payment milestones provided.';
+  const lines = validRows.map((row, index) => {
+    const billed = Number(row.billed) || 0;
+    const paid = Number(row.paid) || 0;
+    const outstanding = Math.max(0, billed - paid);
+    return `${index + 1}. ${String(row.label || '').trim() || `Milestone ${index + 1}`} | billed ${currency}${billed.toFixed(2)} | paid ${currency}${paid.toFixed(2)} | outstanding ${currency}${outstanding.toFixed(2)}`;
+  });
+  return ['Payment milestone schedule', '=========================', ...lines, '', 'Review this schedule against invoices, payment applications, and bank records before relying on it.'].join('\n');
+}
