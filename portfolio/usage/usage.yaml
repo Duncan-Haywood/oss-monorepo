@@ -6,6 +6,22 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: invoice-payment-terms-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          terms_copied: 0
+          draft_saved: 0
+          draft_loaded: 0
+          early_pay_compared: 0
+        note: >-
+          Salvage of unique #1405/#1400 invoice payment terms calculator onto
+          current main, plus 2/10 Net 30 vs waiting after carrying cost.
+          Public URL remains owner-gated; the local-first counter reports only
+          to the user's own browser and is opt-out. Baseline row.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
@@ -17,15 +33,21 @@ products:
           price_match_checked: 0
           category_preset_applied: 0
           two_day_compared: 0
+          returns_compared: 0
+          aged_wfs_compared: 0
         note: >-
           Salvage of unique #1507 Walmart Marketplace WFS vs seller-fulfilled
           profit calculator onto current main, plus the 2-day vs WFS take-rate
-          table: category referral including the per-item floor, size-tier WFS
+          table, the returns mix, and leftover keep vs remove vs dispose:
+          category referral including the per-item floor, size-tier WFS
           fulfillment, storage, inbound, the seller-paid label, max buy cost,
-          whether a competitive match still profits, and whether a
-          seller-fulfilled 2-day label still beats WFS after take rate. Public
-          URL remains owner-gated; the local-first counter reports only to the
-          user's own browser and is opt-out. Baseline row.
+          whether a competitive match still profits, whether a
+          seller-fulfilled 2-day label still beats WFS after take rate,
+          whether WFS still beats seller fulfilled after a refund mix, and
+          whether leftover units already inbound still beat a removal after
+          aged storage. Public URL remains owner-gated; the local-first
+          counter reports only to the user's own browser and is opt-out.
+          Baseline row.
   - slug: faire-wholesale-calculator
     surface: static-page-in-repo
     readings:

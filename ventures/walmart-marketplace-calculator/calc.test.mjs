@@ -1,24 +1,26 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  AGED_WFS_DEFAULTS,
+  agedWfsNote,
   applyCategoryPreset,
   applyStoragePreset,
   breakEvenSalePrice,
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
-  compareReturns,
+  compareAgedWfs,
   compareTwoDay,
+  compareReturns,
   cubicFeet,
   DEFAULT_REFERRAL_MINIMUM,
   defaultFulfillmentFee,
   referralFee,
-  RETURN_DEFAULTS,
-  RETURN_RATE_PRESETS,
+  RETURNS_DEFAULTS,
   STORAGE_PRESETS,
   TWO_DAY_DEFAULTS,
   twoDayNote,
-  returnsSummary,
+  returnsNote,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -238,83 +240,111 @@ test("exports the two-day defaults the page starts from", () => {
   assert.equal(TWO_DAY_DEFAULTS.standardTakePct, 35);
 });
 
-test("zero returns leaves the completed-sale leftover untouched", () => {
-  const completed = calculateListing(base);
-  const mixed = compareReturns({
-    ...base,
-    returnRate: 0,
-    returnHandlingFee: 2.75,
-    unsellableReturnRate: 20,
-  });
-  near(mixed.typed.selected.profit, completed.selected.profit, "no drag at 0%");
-  near(mixed.typed.selected.returnDrag, 0, "zero drag");
-  near(mixed.typed.selected.profitBeforeReturns, completed.selected.profit, "before");
-  assert.equal(mixed.typed.selected.breakEvenReturnRate > 0, true);
+test("seller fulfilled still keeps more after an 8% Walmart return mix", () => {
+  const r = compareReturns(base);
+  const listing = calculateListing(base);
+  const labor = (8 / 60) * 18;
+  const wfsSunk = listing.wfs.cashInvested - 7 + listing.fulfillmentFee;
+  const sellerSunk = listing.seller.cashInvested - 7;
+  const wfsReturn = -wfsSunk - 2.5 - 0.25 * 7;
+  const sellerReturn = -sellerSunk - 5.5 - labor - 0.25 * 7;
+
+  near(r.restockLabor, 2.4, "8 min at $18");
+  near(r.wfs.completedProfit, listing.wfs.profit, "WFS completed");
+  near(r.seller.completedProfit, listing.seller.profit, "seller completed");
+  near(r.wfs.returnLeftover, wfsReturn, "WFS return leftover");
+  near(r.seller.returnLeftover, sellerReturn, "seller return leftover");
+  near(r.wfs.expectedProfit, 0.92 * listing.wfs.profit + 0.08 * wfsReturn, "WFS expected");
+  near(r.seller.expectedProfit, 0.92 * listing.seller.profit + 0.08 * sellerReturn, "seller expected");
+  near(r.extraWfsVsSeller, r.wfs.expectedProfit - r.seller.expectedProfit, "gap");
+  near(r.monthlyExtraOnWfs, r.extraWfsVsSeller * 60, "monthly gap");
+  assert.equal(r.winner, "seller");
+  assert.equal(r.completedWinner, "seller");
+  near(r.wfs.expectedProfit, 7.170513333333334, "locked WFS expected");
+  near(r.seller.expectedProfit, 7.330179999999999, "locked seller expected");
+  near(r.wfs.returnLeftover, -9.841666666666665, "locked WFS return");
+  near(r.seller.returnLeftover, -14.65, "locked seller return");
+  near(r.breakEvenReturnPct, 10.956790123456756, "locked return-rate floor");
+  assert.match(returnsNote(r), /seller fulfilled keeps \$0\.16 more per unit/);
+  assert.match(returnsNote(r), /\$7\.33 vs \$7\.17/);
+  assert.match(returnsNote(r), /11\.0%/);
 });
 
-test("an 18% Walmart return rate drags WFS leftover and can wipe it", () => {
-  const completed = calculateListing(base);
-  const mixed = compareReturns({
-    ...base,
-    returnRate: 18,
-    returnHandlingFee: 2.75,
-    unsellableReturnRate: 20,
-  });
-  const referral = 24.99 * 0.15;
-  const fulfillment = defaultFulfillmentFee("standard", 0.75);
-  const cashExCogs = completed.wfs.cashInvested - 7;
-  const keep = 0.82;
-  const cogsFactor = 1 - 0.18 * 0.8;
-  const expected =
-    keep * 24.99
-    - keep * referral
-    - fulfillment
-    - cashExCogs
-    - 0.18 * 2.75
-    - 7 * cogsFactor;
-  near(mixed.typed.wfs.profit, expected, "WFS expected after returns");
-  near(mixed.typed.selected.profitBeforeReturns, completed.wfs.profit, "completed WFS");
-  assert.ok(mixed.typed.selected.returnDrag > 0, "returns drag leftover");
-  assert.ok(mixed.typed.selected.profit < completed.wfs.profit, "mixed is below completed");
-  assert.ok(mixed.typed.seller.profit > mixed.typed.wfs.profit, "seller keeps more: no WFS pick left spent");
-  const stayValue = 24.99 - referral + 2.75 - 7 * 0.8;
-  near(mixed.typed.selected.breakEvenReturnRate, completed.wfs.profit / stayValue, "wipe rate");
-  assert.deepEqual(mixed.rows.map((row) => row.returnRate), [0, 10, 18, 28]);
-  assert.equal(mixed.rows.find((row) => row.isCurrent).returnRate, 18);
-  assert.match(returnsSummary({
-    typedRate: mixed.returnRate,
-    handling: mixed.returnHandlingFee,
-    unsellable: mixed.unsellableReturnRate,
-    typed: mixed.typed,
-  }), /18% return rate/);
-  near(mixed.typed.wfs.profit, 5.3393633333333375, "locked WFS expected");
-  near(mixed.typed.selected.returnDrag, 3.310469999999996, "locked drag");
-  near(mixed.typed.selected.breakEvenReturnRate, 0.4703169036420811, "locked wipe");
-  near(mixed.typed.seller.profit, 5.9310300000000025, "locked seller expected");
+test("a 20% return mix flips WFS ahead of seller fulfilled", () => {
+  const r = compareReturns({ ...base, returnRatePct: 20 });
+  assert.equal(r.winner, "wfs");
+  assert.equal(r.completedWinner, "seller");
+  near(r.extraWfsVsSeller, 0.48833333333333595, "locked 20% flip");
+  assert.match(returnsNote(r), /WFS keeps \$0\.49 more per unit/);
+  assert.match(returnsNote(r), /returns flip the mix/);
 });
 
-test("100% unsellable returns still recover nothing of cost of goods", () => {
-  const mixed = compareReturns({
-    ...base,
-    returnRate: 100,
-    returnHandlingFee: 2.75,
-    unsellableReturnRate: 100,
-  });
-  const completed = calculateListing(base);
-  const cashExCogs = completed.wfs.cashInvested - 7;
-  const expected = 0 - 0 - completed.fulfillmentFee - cashExCogs - 2.75 - 7;
-  near(mixed.typed.wfs.profit, expected, "full refund, dead unit, handling");
-  assert.equal(mixed.typed.wfs.breakEvenBuyCost, 0);
+test("a waived WFS return fee flips the 8% mix", () => {
+  const r = compareReturns({ ...base, wfsReturnFee: 0 });
+  assert.equal(r.winner, "wfs");
+  near(r.extraWfsVsSeller, 0.040333333333334664, "locked waived-fee flip");
+  assert.match(returnsNote(r), /WFS keeps \$0\.04 more per unit/);
 });
 
-test("rejects impossible return rates", () => {
-  assert.throws(() => compareReturns({ ...base, returnRate: 101 }), /at most 100/);
-  assert.throws(() => compareReturns({ ...base, unsellableReturnRate: 101 }), /at most 100/);
+test("rejects invalid return rates and zero volume", () => {
+  assert.throws(() => compareReturns({ ...base, returnRatePct: 101 }), /at most 100/);
+  assert.throws(() => compareReturns({ ...base, unsellableReturnPct: 101 }), /at most 100/);
+  assert.throws(() => compareReturns({ ...base, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareReturns({ ...base, referralRefunded: "maybe" }), /true or false/);
+  assert.throws(() => returnsNote({}), /missing rows/);
 });
 
-test("exports the return defaults the page starts from", () => {
-  assert.equal(RETURN_DEFAULTS.returnRate, 18);
-  assert.equal(RETURN_DEFAULTS.returnHandlingFee, 2.75);
-  assert.equal(RETURN_DEFAULTS.unsellableReturnRate, 20);
-  assert.deepEqual(RETURN_RATE_PRESETS, [0, 10, 18, 28]);
+test("exports the returns defaults the page starts from", () => {
+  assert.equal(RETURNS_DEFAULTS.returnRatePct, 8);
+  assert.equal(RETURNS_DEFAULTS.wfsReturnFee, 2.5);
+  assert.equal(RETURNS_DEFAULTS.sellerReturnLabel, 5.5);
+  assert.equal(RETURNS_DEFAULTS.restockMinutes, 8);
+  assert.equal(RETURNS_DEFAULTS.unsellableReturnPct, 25);
+});
+
+test("pulling a slow leftover WFS pile still beats leaving it for 4 months", () => {
+  const r = compareAgedWfs(base);
+  const listing = calculateListing(base);
+  const keepContribution = 24.99 - listing.referral - listing.fulfillmentFee;
+  const sellerContribution = 24.99 - listing.referral - 4.5 - 0.5;
+
+  near(r.keepContribution, keepContribution, "WFS contribution ignores sunk inbound");
+  near(r.sellerContribution, sellerContribution, "seller contribution after a new label");
+  near(r.storagePerUnitMonth, listing.cubicFeet * 2.1, "aged rate on leftover cu ft");
+  near(r.remove.cash, 40 * (sellerContribution - 1.25), "remove cash");
+  near(r.dispose.cash, -0.35 * 40, "dispose cash");
+  assert.equal(r.winner, "remove");
+  near(r.keep.cash, 261.3073046357333, "locked keep cash");
+  near(r.remove.cash, 599.66, "locked remove cash");
+  near(r.extraRemoveVsKeep, 338.35269536426665, "locked pull gap");
+  near(r.breakEvenSellThroughVsRemove, 41.31343147224591, "locked sell-through floor");
+  near(r.keep.soldUnits, 16.012185600000002, "12% over 4 months sells ~16");
+  assert.ok(r.keep.leftoverUnits > 23, "most of the pile is still sitting");
+  assert.match(agedWfsNote(r), /keeps \$338\.35 more/);
+  assert.match(agedWfsNote(r), /\$599\.66 vs \$261\.31/);
+  assert.match(agedWfsNote(r), /41\.3%/);
+});
+
+test("55% monthly sell-through flips the leftover pile back to WFS", () => {
+  const r = compareAgedWfs({ ...base, monthlySellThroughPct: 55 });
+  assert.equal(r.winner, "keep");
+  near(r.extraRemoveVsKeep, -55.5007004583332, "locked keep flip");
+  assert.match(agedWfsNote(r), /Leaving the 40 leftover units in WFS keeps \$55\.50 more/);
+  assert.match(agedWfsNote(r), /41\.3%/);
+});
+
+test("rejects invalid leftover, horizon, and sell-through inputs", () => {
+  assert.throws(() => compareAgedWfs({ ...base, leftoverUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareAgedWfs({ ...base, horizonMonths: 0 }), /greater than zero/);
+  assert.throws(() => compareAgedWfs({ ...base, monthlySellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => agedWfsNote({}), /missing rows/);
+});
+
+test("exports the aged WFS defaults the page starts from", () => {
+  assert.equal(AGED_WFS_DEFAULTS.leftoverUnits, 40);
+  assert.equal(AGED_WFS_DEFAULTS.monthlySellThroughPct, 12);
+  assert.equal(AGED_WFS_DEFAULTS.horizonMonths, 4);
+  assert.equal(AGED_WFS_DEFAULTS.agedStorageRate, STORAGE_PRESETS.long_term.perCuFt);
+  assert.equal(AGED_WFS_DEFAULTS.removalFee, 1.25);
+  assert.equal(AGED_WFS_DEFAULTS.disposalFee, 0.35);
 });
