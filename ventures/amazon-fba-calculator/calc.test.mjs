@@ -221,6 +221,13 @@ test("break-even buy cost makes profit exactly zero when used as cost of goods",
   near(atBuy.selected.profit, 0, "profit at max buy cost");
 });
 
+test("target-margin buy cost preserves the selected margin", () => {
+  const r = calculateListing(base);
+  const atTargetBuy = calculateListing({ ...base, costOfGoods: r.selected.targetMarginBuyCost });
+  near(atTargetBuy.selected.margin, base.targetMargin, "margin at target buy cost");
+  assert.ok(r.selected.targetMarginBuyCost < r.selected.breakEvenBuyCost);
+});
+
 test("calculates the sale price required for a target net margin", () => {
   const r = calculateListing({ ...base, monthlySellerFee: 0, targetMargin: 30 });
   const atTarget = calculateListing({

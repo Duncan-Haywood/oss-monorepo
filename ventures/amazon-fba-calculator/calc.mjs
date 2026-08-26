@@ -408,6 +408,10 @@ export function calculateListing(input) {
 
   function finish(path, cogsInCash) {
     path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
+    path.targetMarginBuyCost = Math.max(
+      0,
+      salePrice - path.feeTotal - (path.cashInvested - cogsInCash) - salePrice * targetMarginRate,
+    );
     return path;
   }
 

@@ -5,7 +5,8 @@ Amazon** against **merchant fulfilled (FBM)** on the same listing — referral
 fee, size-tier fulfillment, monthly storage, inbound, and the shipping label
 you buy yourself — then reports net profit, margin, return on the cash in the
 unit, the break-even sale price, the price that hits a target margin, and the
-**maximum you can pay for inventory** before the unit loses money.
+**maximum you can pay for inventory** both before the unit loses money and
+while preserving your target margin.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
