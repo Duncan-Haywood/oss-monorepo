@@ -1,5 +1,5 @@
 name: egress-window-bid-calculator
-description: A private browser calculator for foundation and basement contractors that prices an egress-window install from window count, hopper versus slider versus casement versus fiberglass, retrofit-existing versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, extras, and contractor-supplied versus customer-supplied sash and well — and shows the extra-work share and the walk-away price below which the $1,800 just-set special loses money.
+description: A private browser calculator for foundation and basement contractors that prices an egress-window install from window count, hopper versus slider versus casement versus fiberglass, retrofit-existing versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, extras, contractor-supplied versus customer-supplied sash and well, and weekday versus they-stay-in-the-basement versus Saturday / after-hours — and shows the extra-work share and the walk-away price below which the $1,800 just-set special loses money.
 stage: prototype
 owner: duncan
 hypotheses:
