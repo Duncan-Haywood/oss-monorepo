@@ -187,7 +187,15 @@ def has_unresolved_risk(findings: list[Finding]) -> bool:
     return any(finding.classification in {"shared", "moved-tip", "uncertain"} for finding in findings)
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Create a read-only branch review report")
+    parser = argparse.ArgumentParser(
+        description="Create a read-only branch review report",
+        epilog=(
+            "No warranty. This tool is provided free and as-is, without warranty "
+            "of any kind. It is not legal, security, or compliance advice and "
+            "does not replace a qualified professional. You are responsible for "
+            "reviewing and verifying its output before relying on it."
+        ),
+    )
     parser.add_argument("snapshot", type=Path, nargs="?", help="JSON snapshot (omit when using --repo)")
     parser.add_argument("--repo", type=Path, help="scan local branches from this checkout")
     parser.add_argument("--protect", action="append", default=[], help="additional protected branch name")

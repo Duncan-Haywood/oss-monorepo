@@ -243,3 +243,145 @@ export function formatSheetPlan(result, { unit = 'in', sheetCost = null } = {}) 
   lines.push('Verify every dimension against your own stock and saw before cutting.');
   return lines.join('\n');
 }
+
+export const MAX_SHEET_CANDIDATES = 6;
+
+function normalizeSheetCost(value) {
+  if (value == null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Names a common sheet in the shop's words — 96×48 in is a 4×8 — and falls
+ * back to the raw dimensions when the size is not a standard foot increment.
+ */
+export function sheetSizeLabel(width, height, unit = 'in') {
+  if (unit === 'in') {
+    const toFeet = (n) => {
+      const feet = n / 12;
+      const nearest = Math.round(feet);
+      return Math.abs(feet - nearest) < 0.02 && nearest > 0 ? nearest : null;
+    };
+    const short = toFeet(Math.min(width, height));
+    const long = toFeet(Math.max(width, height));
+    if (short && long) return `${short}×${long}`;
+  }
+  return `${round(width)} × ${round(height)}`;
+}
+
+function rankSheetRows(a, b) {
+  // A size that cannot take every piece is never the buy, even if it is cheap.
+  if (a.fitsAll !== b.fitsAll) return a.fitsAll ? -1 : 1;
+  if (a.totalCost != null && b.totalCost != null) {
+    const costDelta = a.totalCost - b.totalCost;
+    if (Math.abs(costDelta) > EPS) return costDelta;
+  }
+  if (a.sheetCount !== b.sheetCount) return a.sheetCount - b.sheetCount;
+  if (a.oversizeCount !== b.oversizeCount) return a.oversizeCount - b.oversizeCount;
+  const utilDelta = b.utilization - a.utilization;
+  if (Math.abs(utilDelta) > EPS) return utilDelta;
+  return a.width * a.height - b.width * b.height;
+}
+
+/**
+ * Runs the same cut list against two or more sheet sizes and ranks them by
+ * what the shop actually pays — material cost when every size has a price,
+ * otherwise sheets to buy. Used to answer "4×8 or 5×5?" before a store run.
+ */
+export function compareSheetSizes({
+  panels,
+  kerf = 0,
+  trim = 0,
+  allowRotation = true,
+  unit = 'in',
+  candidates,
+}) {
+  if (!Array.isArray(candidates) || candidates.length < 2) {
+    throw new Error('Add at least two sheet sizes to compare');
+  }
+  if (candidates.length > MAX_SHEET_CANDIDATES) {
+    throw new Error(`Compare at most ${MAX_SHEET_CANDIDATES} sheet sizes at a time`);
+  }
+  if (!Array.isArray(panels) || panels.length === 0) {
+    throw new Error('Add at least one panel');
+  }
+
+  const rows = candidates.map((candidate, index) => {
+    const width = Number(candidate.width);
+    const height = Number(candidate.height);
+    if (!(width > 0) || !(height > 0)) {
+      throw new Error(`Size ${index + 1}: sheet width and height must both be greater than zero`);
+    }
+    const costPerSheet = normalizeSheetCost(candidate.costPerSheet);
+    const result = optimizeSheets({
+      sheetWidth: width,
+      sheetHeight: height,
+      kerf,
+      trim,
+      panels,
+      allowRotation,
+    });
+    const sheetCount = result.sheets.length;
+    const totalCost = costPerSheet == null ? null : sheetCount * costPerSheet;
+    return {
+      label: String(candidate.label || sheetSizeLabel(width, height, unit)).trim(),
+      width,
+      height,
+      costPerSheet,
+      sheetCount,
+      utilization: result.utilization,
+      wasteArea: result.wasteArea,
+      oversizeCount: result.oversize.length,
+      fitsAll: result.oversize.length === 0 && sheetCount > 0,
+      totalCost,
+      wasteCost: totalCost == null ? null : totalCost * (1 - result.utilization),
+      result,
+    };
+  });
+
+  const ranked = [...rows].sort(rankSheetRows);
+  const winner = ranked[0];
+  const runnerUp = ranked[1] ?? null;
+  let savings = null;
+  if (winner && runnerUp) {
+    if (winner.totalCost != null && runnerUp.totalCost != null) {
+      savings = { kind: 'cost', amount: runnerUp.totalCost - winner.totalCost };
+    } else {
+      savings = { kind: 'sheets', amount: runnerUp.sheetCount - winner.sheetCount };
+    }
+  }
+
+  return {
+    rows: ranked,
+    winner,
+    runnerUp,
+    savings,
+    priced: rows.every((row) => row.totalCost != null),
+  };
+}
+
+/** Plain-text ranking for a job ticket: which size to buy, and why. */
+export function formatSheetComparison(comparison, { unit = 'in' } = {}) {
+  const lines = [
+    'Sheet size comparison for this cut list',
+    ...comparison.rows.map((row) => {
+      const size = `${row.label} (${round(row.width)} × ${round(row.height)} ${unit})`;
+      const sheets = `${row.sheetCount} sheet${row.sheetCount === 1 ? '' : 's'}`;
+      const used = `${(row.utilization * 100).toFixed(1)}% used`;
+      const cost = row.totalCost != null ? `, $${round(row.totalCost)}` : '';
+      const fit = row.fitsAll ? '' : `, ${row.oversizeCount} piece${row.oversizeCount === 1 ? '' : 's'} will not fit`;
+      const pick = row === comparison.winner ? '  ← buy this size' : '';
+      return `${size}: ${sheets}${cost}, ${used}${fit}${pick}`;
+    }),
+  ];
+  if (comparison.savings && comparison.savings.amount > EPS) {
+    if (comparison.savings.kind === 'cost') {
+      lines.push(`Buying ${comparison.winner.label} costs $${round(comparison.savings.amount)} less than ${comparison.runnerUp.label}.`);
+    } else {
+      lines.push(`Buying ${comparison.winner.label} uses ${comparison.savings.amount} fewer sheet${comparison.savings.amount === 1 ? '' : 's'} than ${comparison.runnerUp.label}.`);
+    }
+  }
+  lines.push('Verify prices and dimensions against your own supplier before buying.');
+  return lines.join('\n');
+}
