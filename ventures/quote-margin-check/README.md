@@ -29,8 +29,12 @@ profitable. The customer decides what costs and target rate are appropriate.
 The `After direct costs` line makes the amount left before the user's own
 compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
-The CSV format emits stable `measure,value,unit` columns so you can append
-results from several proposals to a spreadsheet without retyping calculations.
+The CSV format emits stable `measure,value,unit` columns with spreadsheet-safe
+escaping for currency labels containing commas, quotes, or line breaks, so you
+can append results from several proposals to a spreadsheet without retyping
+calculations. The browser Copy / Download buttons emit the same columns plus
+the time-overrun, cost-rise, discount-ask, and kill-fee rows already on the
+page.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
 
@@ -80,8 +84,9 @@ accept no liability for any loss or damage arising from its use.
 **Best-effort hosting, no SLA.** Hosted copies of this calculator are free,
 experimental, and may be slow, broken, moved, or taken offline without notice.
 
-Only aggregate `report_generated` events are optionally appended to the usage
-log. Inputs, project names, prices, and file contents never leave the machine.
+Only aggregate `report_generated`, `quote_review_checked`, `csv_copied`, and
+`csv_downloaded` events are optionally appended to the usage log. Inputs,
+project names, prices, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
 browser version counts the same event locally in `localStorage` (on by
 default, off-switchable in the page footer, and honors Do Not Track/Global
@@ -94,8 +99,11 @@ what makes it comparable to the CLI's own count. The browser also counts
 `quote_review_checked` locally when a valid quote is reviewed, and
 `cost_spike_compared` when the cost-rise table is computed, and
 `discount_ask_compared` when the discount-ask table is computed, and
-`kill_fee_compared` when the mid-project cancel table is computed; it stores no quote
-values and sends nothing anywhere.
+`kill_fee_compared` when the mid-project cancel table is computed. CSV copy
+and download events happen only when the user invokes those actions. The
+export contains the same arithmetic report as the page and quotes currency
+labels safely for spreadsheet import. It stores no quote values and sends
+nothing anywhere.
 
 ## Input
 

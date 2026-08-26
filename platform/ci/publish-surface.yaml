@@ -55,6 +55,12 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: artificial-turf-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: asphalt-driveway-pave-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: automatic-driveway-gate-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -118,6 +124,9 @@ workflows:
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: gravel-driveway-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
@@ -159,6 +168,9 @@ workflows:
     gates:
     - github.event_name != 'pull_request' && vars.PAGES_PUBLISHER == 'platform-ci' && vars.GITHUB_PAGES_ENABLED
       == 'true'
+- workflow: parking-lot-striping-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: photo-editing-ci.yml
   classification: none
   publishes: []
@@ -169,6 +181,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: plantation-shutter-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pole-barn-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: portfolio-pages.yml
@@ -227,6 +242,9 @@ workflows:
 - workflow: reverb-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: shed-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-a11y-evidence-ci.yml
   classification: none
   publishes: []
@@ -234,6 +252,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shopify-permission-drift-ci.yml
+  classification: none
+  publishes: []
+- workflow: sod-install-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
