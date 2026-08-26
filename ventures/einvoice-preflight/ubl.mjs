@@ -120,16 +120,35 @@ function payeePayment(root) {
   return null;
 }
 
+const DOCUMENT_ROOTS = {
+  Invoice: { type: "invoice", line: "InvoiceLine", quantity: "InvoicedQuantity" },
+  CreditNote: { type: "credit_note", line: "CreditNoteLine", quantity: "CreditedQuantity" },
+  DebitNote: { type: "debit_note", line: "DebitNoteLine", quantity: "DebitedQuantity" },
+};
+
+function billingReference(root) {
+  for (const ref of descendants(root, "BillingReference")) {
+    for (const invoiceRef of descendants(ref, "InvoiceDocumentReference")) {
+      const value = textOf(invoiceRef, "ID", false);
+      if (value) return value;
+    }
+  }
+  return "";
+}
+
 export function parseUblInvoice(source) {
   const tree = parseXmlTree(source);
-  const root = descendants(tree, "Invoice")[0];
-  if (!root) throw new Error("UBL document root must be Invoice");
+  const root = descendants(tree, "Invoice")[0]
+    || descendants(tree, "CreditNote")[0]
+    || descendants(tree, "DebitNote")[0];
+  if (!root) throw new Error("UBL document root must be Invoice, CreditNote, or DebitNote");
+  const kind = DOCUMENT_ROOTS[root.name];
 
-  const lines = descendants(root, "InvoiceLine").map((line) => {
+  const lines = descendants(root, kind.line).map((line) => {
     const category = descendants(line, "ClassifiedTaxCategory")[0] || line;
     return {
       description: textOf(line, "Name"),
-      quantity: asNumber(textOf(line, "InvoicedQuantity")),
+      quantity: asNumber(textOf(line, kind.quantity)),
       unit_price: asNumber(textOf(line, "PriceAmount")),
       tax_percent: asNumber(textOf(category, "Percent")),
       net: asNumber(textOf(line, "LineExtensionAmount")),
@@ -143,10 +162,17 @@ export function parseUblInvoice(source) {
   if (taxTotals.length === 0) throw new Error("UBL field TaxAmount is missing");
   const taxTotal = taxTotals.reduce((sum, item) => sum + Number(textOf(item, "TaxAmount")), 0);
   const dueDate = textOf(root, "DueDate", false);
+  const typeCode = textOf(root, "InvoiceTypeCode", false)
+    || textOf(root, "CreditNoteTypeCode", false)
+    || textOf(root, "DebitNoteTypeCode", false);
+  const original = billingReference(root);
   const invoice = {
     invoice_number: textOf(root, "ID"),
     issue_date: textOf(root, "IssueDate"),
     ...(dueDate ? { due_date: dueDate } : {}),
+    document_type: kind.type,
+    ...(typeCode ? { document_code: typeCode } : {}),
+    ...(original ? { original_invoice: original } : {}),
     currency: textOf(root, "DocumentCurrencyCode"),
     supplier: party(supplier),
     customer: party(customer),

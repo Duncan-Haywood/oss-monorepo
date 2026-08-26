@@ -45,8 +45,8 @@ test("UBL rejects entity declarations", () => {
   );
 });
 
-test("non-invoice XML is rejected", () => {
-  assert.throws(() => parseUblInvoice("<CreditNote><cbc:ID>1</cbc:ID></CreditNote>"), /Invoice/);
+test("unknown UBL roots are rejected", () => {
+  assert.throws(() => parseUblInvoice("<Order><cbc:ID>1</cbc:ID></Order>"), /Invoice, CreditNote, or DebitNote/);
 });
 
 test("UBL prepaid and payable map into remaining-balance checks", () => {

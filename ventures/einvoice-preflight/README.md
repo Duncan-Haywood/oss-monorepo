@@ -14,8 +14,10 @@ for an e-invoice preflight check.
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
-# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF.
+# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
+# and credit-note document type (INV-032 through INV-034).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
@@ -45,8 +47,9 @@ Pass `-`
 as the filename to read one JSON or UBL XML invoice from standard input, which
 is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
 the artifact name for piped input. Directories are scanned recursively for both
-`.json` and `.xml` files. XML input maps common UBL Invoice elements into the
-same checks; it is not a full Peppol or EN 16931 conformance validator. Use
+`.json` and `.xml` files. XML input maps common UBL Invoice, CreditNote, and
+DebitNote elements into the same checks. It is
+not a full Peppol or EN 16931 conformance validator. Use
 `--max-files N` in CI or ERP jobs to refuse a directory scan when more than `N`
 invoice files are present. This bounds accidental scans of a broad working
 tree; the command exits `2` without reading any invoice contents.
@@ -61,8 +64,8 @@ for selecting the correct format, tax treatment, and submission process.
 ## Input shape
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
-input maps common `Invoice`, `InvoiceLine`, party, tax, and monetary-total
-elements into this shape. When an invoice contains multiple UBL `TaxTotal`
+input maps common `Invoice`, `CreditNote`, `DebitNote`, line, party, tax, and
+monetary-total elements into this shape. When an invoice contains multiple UBL `TaxTotal`
 elements, their `TaxAmount` values are added to obtain the invoice tax total.
 This keeps split tax schemes from being silently ignored; it is still an
 arithmetic check, not a tax-law determination:
@@ -72,6 +75,7 @@ arithmetic check, not a tax-law determination:
   "invoice_number": "INV-1001",
   "issue_date": "2026-08-24",
   "due_date": "2026-09-23",
+  "document_type": "invoice",
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
@@ -121,6 +125,20 @@ and typo catch, not a bank lookup and not a determination that a payment
 will be allocated. UBL `PaymentMeans/PaymentID` maps into
 `payment.remittance`; `InstructionNote` is used when `PaymentID` is
 absent.
+
+`document_type` is optional and defaults to a commercial invoice. Use
+`invoice`, `credit_note`, or `debit_note` (UN/CEFACT 1001 codes `380`,
+`381`, and `383` are accepted). An unknown type is `INV-032`. A credit
+or debit note without `original_invoice` is `INV-033` — networks reject
+a reversing document that does not name the invoice it applies to. A
+commercial invoice that carries a credit or debit type code, or a
+credit that names itself as the original, is `INV-034`. Messages never
+repeat the original invoice number. This is a document-shape check, not
+a Peppol profile determination. UBL `CreditNote` and `DebitNote` roots
+map into `document_type`; `InvoiceTypeCode` / `CreditNoteTypeCode` /
+`DebitNoteTypeCode` map into `document_code`;
+`BillingReference/InvoiceDocumentReference/ID` maps into
+`original_invoice`.
 
 `due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
 earlier than `issue_date`; this is a date-shape and document-consistency check,
