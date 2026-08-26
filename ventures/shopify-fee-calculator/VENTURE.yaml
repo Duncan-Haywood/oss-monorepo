@@ -1,5 +1,5 @@
 name: shopify-fee-calculator
-description: A private browser calculator for Shopify merchants to see order profit after Shopify Payments or third-party processor fees, the extra Shopify transaction fee, shipping, and cost of goods — and to compare payment paths, POS vs online, and Shopify Shipping vs an own-label quote on the same order.
+description: A private browser calculator for Shopify merchants to see order profit after Shopify Payments or third-party processor fees, the extra Shopify transaction fee, shipping, and cost of goods — and to compare payment paths, POS vs online, Shopify Shipping vs an own-label quote, and Shop Pay Installments vs a regular card on the same order.
 stage: prototype
 owner: duncan
 hypotheses:
