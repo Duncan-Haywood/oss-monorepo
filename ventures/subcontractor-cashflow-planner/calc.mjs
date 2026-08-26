@@ -1,16 +1,15 @@
 export function planCashflow(input) {
-  const number = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
-  const invoice = Math.max(0, number(input.invoice));
-  const materials = Math.max(0, number(input.materials));
-  const weeklyBurn = Math.max(0, number(input.weeklyBurn));
-  const terms = Math.max(0, Math.round(number(input.terms)));
-  const retention = Math.min(99, Math.max(0, number(input.retention)));
-  const delay = Math.max(0, Math.round(number(input.delay)));
-  const retentionRelease = Math.max(0, Math.round(number(input.retentionRelease)));
-  const startingCash = Math.max(0, number(input.startingCash));
+  const invoice = Math.max(0, Number(input.invoice) || 0);
+  const materials = Math.max(0, Number(input.materials) || 0);
+  const weeklyBurn = Math.max(0, Number(input.weeklyBurn) || 0);
+  const terms = Math.max(0, Math.round(Number(input.terms) || 0));
+  const retention = Math.min(99, Math.max(0, Number(input.retention) || 0));
+  const delay = Math.max(0, Math.round(Number(input.delay) || 0));
+  const retentionRelease = Math.max(0, Math.round(Number(input.retentionRelease) || 0));
+  const startingCash = Math.max(0, Number(input.startingCash) || 0);
   const collectable = invoice * (1 - retention / 100);
-  const expectedCashDay = terms + delay;
   const retentionAmount = invoice - collectable;
+  const expectedCashDay = terms + delay;
   const retentionCashDay = expectedCashDay + retentionRelease;
   const cashNeeded = materials + weeklyBurn * (expectedCashDay / 7);
   const gap = Math.max(0, cashNeeded - startingCash);
