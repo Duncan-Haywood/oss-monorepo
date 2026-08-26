@@ -31,6 +31,11 @@ unit, or skip the label and let the customer keep it. That is a different
 decision from leftover pallets already on the floor and from raising the
 return rate against in-house. The table names the unit-cost and restockable-rate
 flips.
+Use [Should I pay the 3PL to kit, or skip the bundle](./should-i-pay-the-3pl-to-kit.html)
+to price assembly, extra component picks, and extra receiving against
+kitting before inbound and against selling the hero SKU. That is a different
+decision from leftover pallets, from return rates, and from restock vs keep.
+The table names the kit-fee and AOV-lift flips.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet, or **Download JSON record** for a procurement or
 ERP adapter, without retyping figures. The JSON record is versioned and includes
@@ -60,8 +65,8 @@ counts stay in the browser's local storage.
 
 Everything runs in your browser. Your data is never uploaded, and this product
 has no accounts, tracking cookies, or analytics vendor. It counts only local,
-anonymous feature events such as a quote normalization or copied summary. Use
-the opt-out control to delete and disable the counter.
+anonymous feature events such as a quote normalization, a kitting comparison,
+or a copied summary. Use the opt-out control to delete and disable the counter.
 
 ## Disclaimer
 

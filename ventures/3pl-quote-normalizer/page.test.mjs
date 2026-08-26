@@ -136,3 +136,25 @@ test('return disposition page compares restock, destroy, and customer-keeps', as
   assert.match(sitemap, /should-i-restock-or-let-the-customer-keep-a-3pl-return\.html/);
   assert.match(robots, /Sitemap:/);
 });
+
+test('kitting page compares 3PL assembly, pre-kit, and skipping the bundle', async () => {
+  const page = await readFile(new URL('./should-i-pay-the-3pl-to-kit.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  const robots = await readFile(new URL('./robots.txt', import.meta.url), 'utf8');
+  assert.match(page, /Should I Pay the 3PL to Kit, or Skip the Bundle/);
+  assert.match(page, /compareKitting/);
+  assert.match(page, /kittingFeeSweep/);
+  assert.match(page, /kittingAovSweep/);
+  assert.match(page, /kittingSummary/);
+  assert.match(page, /name="kitFee"/);
+  assert.match(page, /name="aovLift"/);
+  assert.match(page, /name="extraPicks"/);
+  assert.match(page, /name="inHouseKitLabor"/);
+  assert.match(page, /kitting_compared/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(index, /should-i-pay-the-3pl-to-kit\.html/);
+  assert.match(sitemap, /should-i-pay-the-3pl-to-kit\.html/);
+  assert.match(robots, /Sitemap:/);
+});

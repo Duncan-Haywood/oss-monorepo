@@ -565,6 +565,192 @@ export function returnDispositionSummary(input = {}) {
   ].join("\n");
 }
 
+const DEFAULT_KIT_FEES = [0.75, 1.25, 1.84, 2.5, 3.5, 5, 7];
+const DEFAULT_AOV_LIFTS = [3, 4, 5, 6, 7.66, 8, 10, 12];
+
+// A kit / insert / polybag is a different decision from leftover pallets
+// (compareAgedStorage), from raising the return *rate* (returnsSensitivity),
+// and from restock vs keep on a return that already arrived
+// (compareReturnDisposition). The signed pick-and-pack line prices the first
+// unit. Ops then bills assembly, extra component picks, and extra receiving.
+// Hold the rest of the quote still. Three paths: pay the 3PL to assemble,
+// kit before inbound so those extra lines are $0, or skip the bundle and
+// keep the hero SKU. Net is contribution, not cost — skip is $0.
+export function compareKitting(input = {}) {
+  const orders = fieldNumber(input.orders, 400);
+  const kitAttachRate = fieldPercent(input.kitAttachRate, 100);
+  const kittedOrders = roundMoney(orders * kitAttachRate / 100);
+  const aovLift = fieldNumber(input.aovLift, 6);
+  const extraCogs = fieldNumber(input.extraCogs, 2.8);
+  const kitFee = fieldNumber(input.kitFee, 3.5);
+  const extraPicks = fieldNumber(input.extraPicks, 1);
+  const extraReceiving = fieldNumber(input.extraReceiving, 0.36);
+  const inHouseKitLabor = fieldNumber(input.inHouseKitLabor, 0.9);
+
+  const threePlFees = roundMoney(kitFee + extraPicks + extraReceiving);
+  const threePlNet = roundMoney(aovLift - extraCogs - threePlFees);
+  const prekitNet = roundMoney(aovLift - extraCogs - inHouseKitLabor);
+  const skipNet = 0;
+
+  const threePl = {
+    id: "threePl",
+    label: "3PL assembles the kit",
+    fees: threePlFees,
+    extraCogs: roundMoney(extraCogs),
+    aovLift: roundMoney(aovLift),
+    perOrder: threePlNet,
+    monthly: roundMoney(threePlNet * kittedOrders),
+  };
+  const prekit = {
+    id: "prekit",
+    label: "Kit before inbound",
+    fees: roundMoney(inHouseKitLabor),
+    extraCogs: roundMoney(extraCogs),
+    aovLift: roundMoney(aovLift),
+    perOrder: prekitNet,
+    monthly: roundMoney(prekitNet * kittedOrders),
+  };
+  const skip = {
+    id: "skip",
+    label: "Skip the kit / sell the hero SKU",
+    fees: 0,
+    extraCogs: 0,
+    aovLift: 0,
+    perOrder: skipNet,
+    monthly: 0,
+  };
+  const rows = [threePl, prekit, skip];
+  const maxNet = Math.max(...rows.map((row) => row.perOrder));
+  const leaders = rows.filter((row) => Math.abs(row.perOrder - maxNet) < 1e-9);
+  const bestPath = leaders.length === 1 ? leaders[0].id : "tie";
+
+  const inboundLeaders = [threePl, skip].filter((row) => Math.abs(row.perOrder - Math.max(threePlNet, skipNet)) < 1e-9);
+  const bestIfAlreadyInbound = inboundLeaders.length === 1 ? inboundLeaders[0].id : "tie";
+
+  // 3PL beats skip once the bundle lift covers extra COGS plus every extra
+  // 3PL line. Algebra: aov - cogs - kitFee - picks - receiving = 0
+  const threePlBeatsSkipAtKitFee = roundMoney(aovLift - extraCogs - extraPicks - extraReceiving);
+  const threePlBeatsSkipAtAovLift = roundMoney(extraCogs + kitFee + extraPicks + extraReceiving);
+  const prekitBeatsSkipAtAovLift = roundMoney(extraCogs + inHouseKitLabor);
+
+  return {
+    orders,
+    kitAttachRate,
+    kittedOrders,
+    aovLift: roundMoney(aovLift),
+    extraCogs: roundMoney(extraCogs),
+    kitFee: roundMoney(kitFee),
+    extraPicks: roundMoney(extraPicks),
+    extraReceiving: roundMoney(extraReceiving),
+    inHouseKitLabor: roundMoney(inHouseKitLabor),
+    threePlFees,
+    rows,
+    threePl,
+    prekit,
+    skip,
+    bestPath,
+    bestIfAlreadyInbound,
+    vsSkip: {
+      threePl: threePlNet,
+      prekit: prekitNet,
+    },
+    threePlBeatsSkipAtKitFee,
+    threePlBeatsSkipAtAovLift,
+    prekitBeatsSkipAtAovLift,
+  };
+}
+
+export function kittingFeeSweep(input = {}, fees = DEFAULT_KIT_FEES) {
+  return normalizeSweepValues(fees, DEFAULT_KIT_FEES).map((kitFee) => {
+    const comparison = compareKitting({ ...input, kitFee });
+    return {
+      kitFee,
+      threePl: comparison.threePl.perOrder,
+      prekit: comparison.prekit.perOrder,
+      skip: comparison.skip.perOrder,
+      bestPath: comparison.bestPath,
+      bestIfAlreadyInbound: comparison.bestIfAlreadyInbound,
+    };
+  });
+}
+
+export function kittingAovSweep(input = {}, lifts = DEFAULT_AOV_LIFTS) {
+  return normalizeSweepValues(lifts, DEFAULT_AOV_LIFTS).map((aovLift) => {
+    const comparison = compareKitting({ ...input, aovLift });
+    return {
+      aovLift,
+      threePl: comparison.threePl.perOrder,
+      prekit: comparison.prekit.perOrder,
+      skip: comparison.skip.perOrder,
+      bestPath: comparison.bestPath,
+      bestIfAlreadyInbound: comparison.bestIfAlreadyInbound,
+    };
+  });
+}
+
+export function kittingFlip(rows, key = "kitFee", pathKey = "bestPath") {
+  if (!rows.length) return { kind: "empty" };
+  const first = rows[0][pathKey];
+  const flip = rows.find((row) => row[pathKey] !== first && row[pathKey] !== "tie");
+  if (!flip) return { kind: "holds", path: first, at: rows[rows.length - 1][key] };
+  return { kind: "flips", from: first, to: flip[pathKey], at: flip[key] };
+}
+
+export function kittingSummary(input = {}) {
+  const comparison = compareKitting(input);
+  const feeSweep = kittingFeeSweep(input);
+  const aovSweep = kittingAovSweep(input);
+  const feeFlip = kittingFlip(feeSweep, "kitFee", "bestIfAlreadyInbound");
+  const aovFlip = kittingFlip(aovSweep, "aovLift", "bestIfAlreadyInbound");
+  const bestLine = comparison.bestPath === "tie"
+    ? "The three paths tie on net contribution per kitted order at these assumptions."
+    : comparison.bestPath === "prekit"
+      ? `Kitting before inbound keeps ${money(comparison.prekit.perOrder)} per kit versus ${money(comparison.threePl.perOrder)} if the 3PL assembles and ${money(comparison.skip.perOrder)} if you skip the bundle.`
+      : comparison.bestPath === "skip"
+        ? `Skipping the kit keeps more than paying the 3PL to assemble (${money(comparison.threePl.perOrder)} per kit) or kitting before inbound (${money(comparison.prekit.perOrder)}).`
+        : `Paying the 3PL to assemble keeps ${money(comparison.threePl.perOrder)} per kit, ${money(comparison.threePl.perOrder - comparison.prekit.perOrder)} more than kitting before inbound.`;
+  const inboundLine = comparison.bestIfAlreadyInbound === "tie"
+    ? `If the components are already on the floor, 3PL assembly and skipping the kit tie at ${money(comparison.threePl.perOrder)}.`
+    : comparison.bestIfAlreadyInbound === "skip"
+      ? `If the components are already on the floor, skip the kit. 3PL assembly first beats skip at a ${money(comparison.threePlBeatsSkipAtKitFee)} kit fee or a ${money(comparison.threePlBeatsSkipAtAovLift)} AOV lift.`
+      : `If the components are already on the floor, 3PL assembly still beats skip by ${money(comparison.threePl.perOrder)} per kit.`;
+  const feeFlipLine = feeFlip.kind === "holds"
+    ? `${feeFlip.path === "skip" ? "Skip" : feeFlip.path === "threePl" ? "3PL assembly" : "Tie"} stays the on-the-floor winner through a ${money(feeFlip.at)} kit fee.`
+    : feeFlip.kind === "flips"
+      ? `On-the-floor winner flips from ${feeFlip.from} to ${feeFlip.to} at a ${money(feeFlip.at)} kit fee.`
+      : "No kit-fee sweep.";
+  const aovFlipLine = aovFlip.kind === "holds"
+    ? `${aovFlip.path === "skip" ? "Skip" : aovFlip.path === "threePl" ? "3PL assembly" : "Tie"} stays the on-the-floor winner through a ${money(aovFlip.at)} AOV lift.`
+    : aovFlip.kind === "flips"
+      ? `On-the-floor winner flips from ${aovFlip.from} to ${aovFlip.to} at a ${money(aovFlip.at)} AOV lift.`
+      : "No AOV-lift sweep.";
+  return [
+    "3PL kitting comparison",
+    `${comparison.kittedOrders} kitted orders / month at ${comparison.kitAttachRate}% of ${comparison.orders} orders.`,
+    bestLine,
+    inboundLine,
+    feeFlipLine,
+    aovFlipLine,
+    "",
+    "Path, extra 3PL / labor, extra COGS, AOV lift, net per kit, monthly",
+    ...comparison.rows.map((row) =>
+      `${row.label}: ${money(row.fees)} fees, ${money(row.extraCogs)} extra COGS, ${money(row.aovLift)} lift, ${money(row.perOrder)} each, ${money(row.monthly)} / month`,
+    ),
+    "",
+    "Kit-fee sweep (net per kit)",
+    ...feeSweep.map((row) =>
+      `${money(row.kitFee)} kit fee: 3PL ${money(row.threePl)}, pre-kit ${money(row.prekit)}, skip ${money(row.skip)}, best ${row.bestPath}, on-floor ${row.bestIfAlreadyInbound}`,
+    ),
+    "",
+    "AOV-lift sweep (net per kit)",
+    ...aovSweep.map((row) =>
+      `${money(row.aovLift)} lift: 3PL ${money(row.threePl)}, pre-kit ${money(row.prekit)}, skip ${money(row.skip)}, best ${row.bestPath}, on-floor ${row.bestIfAlreadyInbound}`,
+    ),
+    "",
+    "Review these figures against the signed rate card and your own kit labor before relying on them.",
+  ].join("\n");
+}
+
 export function negotiationLines(result) {
   const driver = largestCostDriver(result);
   return [
