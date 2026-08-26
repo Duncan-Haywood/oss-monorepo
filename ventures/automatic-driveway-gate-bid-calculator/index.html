@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Automatic Driveway Gate Bid Calculator | Single Swing vs Dual Swing vs Slide — Price the Operators, Not Just the Opening</title>
+  <meta name="description" content="Price an automatic driveway gate from single swing, dual swing, or slide: opening width, leaf material, columns, power, loops, and access — not a published $4,500 kit special. See the operators and the walk-away number.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Automatic Driveway Gate Bid Calculator">
+  <meta property="og:description" content="A 12-foot single aluminum swing on existing posts is not the same job as a 16-foot dual steel swing with masonry columns. Bid the style, the operators, and the extra work.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Automatic Driveway Gate Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Single swing versus dual swing versus slide, operators from leaf count, masonry columns, vehicle loops, solar versus AC trench, walk-away price, style comparison, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2422; background: #e6e8e4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3d5a3a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c9cfc6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a24180d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #545a54; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8a9286; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8a9286; background: #eef2ea; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dfe6d8; }
+    .result { position: sticky; top: 15px; background: #1d261c; color: #eef4ea; border-color: #1d261c; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #9cbc7a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .compare { margin: 0; padding: 0; list-style: none; font-size: .84rem; }
+    .compare li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 6px 0; border-bottom: 1px solid #ffffff1f; }
+    .compare li.win { color: #d4e8b0; }
+    footer { margin-top: 25px; font-size: .82rem; color: #545a54; }
+    footer a { color: #3d5a3a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #d4e8b0; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR GATE CONTRACTORS</p>
+    <h1>Bid the style, the operators, and the extra work.</h1>
+    <p>Price an automatic driveway gate the way the trade actually loses money: single swing versus dual swing versus slide, operators from leaf count, masonry columns, vehicle loops, and solar versus an AC trench. A 12-foot single aluminum swing on existing posts is not the same bid as a 16-foot dual steel swing that needs columns. You get the price, the operators, the extra-work share, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The opening</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing style never overwrites a rate you already typed. This is not a fence calculator (posts and walk gates as a barrier) and not a garage-door calculator (springs and a header).</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Gate style
+            <select id="style">
+              <option value="swing-single" selected>Single swing</option>
+              <option value="swing-dual">Dual swing</option>
+              <option value="slide">Slide</option>
+            </select>
+          </label>
+          <label>Opening width (ft) <input id="openingWidthFt" type="number" min="1" step="0.5" value="12"></label>
+          <label>Leaf height (ft) <input id="leafHeightFt" type="number" min="1" step="0.25" value="5"></label>
+          <label>Leaf material
+            <select id="material">
+              <option value="aluminum" selected>Aluminum</option>
+              <option value="steel">Steel</option>
+              <option value="wood">Wood</option>
+              <option value="vinyl">Vinyl</option>
+              <option value="chain-link">Chain-link</option>
+            </select>
+          </label>
+          <label>Columns / posts
+            <select id="columnType">
+              <option value="existing" selected>Existing posts</option>
+              <option value="steel-posts">New steel posts</option>
+              <option value="masonry">New masonry columns</option>
+            </select>
+          </label>
+          <label>Power
+            <select id="power">
+              <option value="ac" selected>AC trench and conduit</option>
+              <option value="solar">Solar kit</option>
+            </select>
+          </label>
+          <label>Vehicle loops <input id="loops" type="number" min="0" step="1" value="0"></label>
+          <label>Extra remotes <input id="extraRemotes" type="number" min="0" step="1" value="2"></label>
+          <label class="check"><input id="keypad" type="checkbox"> Keypad / access station</label>
+          <label class="check"><input id="batteryBackup" type="checkbox"> Battery backup</label>
+          <label class="check"><input id="edgeSensors" type="checkbox"> Edge sensors (beyond photo eyes)</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / move-in <input id="hoursTrip" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Hours / operator to hang and program <input id="hoursPerOperator" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Hours / lf of gate leaf <input id="hoursPerLfGate" type="number" min="0" step="0.05" value="0.35"></label>
+          <label>Hours / new column <input id="hoursPerColumn" type="number" min="0" step="0.25" value="0"></label>
+          <label>Hours / vehicle loop <input id="hoursPerLoop" type="number" min="0" step="0.25" value="1.25"></label>
+          <label>Hours to trench AC <input id="hoursTrench" type="number" min="0" step="0.25" value="3"></label>
+          <label>Hours to set solar <input id="hoursSolar" type="number" min="0" step="0.25" value="0"></label>
+          <label>Hours for keypad / access <input id="hoursAccess" type="number" min="0" step="0.25" value="1"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Operator kit each <input id="operatorEach" type="number" min="0" step="10" value="1450"></label>
+          <label>Gate leaf / lf <input id="gatePerLf" type="number" min="0" step="1" value="85"></label>
+          <label>Column / post each <input id="columnEach" type="number" min="0" step="5" value="0"></label>
+          <label>Vehicle loop each <input id="loopEach" type="number" min="0" step="5" value="185"></label>
+          <label>Keypad kit <input id="keypadKit" type="number" min="0" step="5" value="320"></label>
+          <label>Solar kit <input id="solarKit" type="number" min="0" step="10" value="0"></label>
+          <label>Battery backup kit <input id="batteryKit" type="number" min="0" step="5" value="240"></label>
+          <label>Remote each <input id="remoteEach" type="number" min="0" step="1" value="45"></label>
+          <label>Photo-eye kit <input id="photoEyeKit" type="number" min="0" step="5" value="165"></label>
+          <label>Edge-sensor kit <input id="edgeKit" type="number" min="0" step="5" value="210"></label>
+          <label>Trench and conduit <input id="trenchMaterial" type="number" min="0" step="5" value="185"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="125"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, trailer, lift <input id="travelAndEquipment" type="number" min="0" step="5" value="285"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 4500"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $42/h hand loaded at 32% is $55.44. Quoting the raw wage on a published $4,500 kit special is how a 16-foot dual masonry gate that looked fine turns into a two-day loss after the first loop sawcut.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">automatic driveway gate price</div>
+      <dl>
+        <dt>Style and opening</dt><dd id="scope"></dd>
+        <dt>Material and extras</dt><dd id="surfaceBits"></dd>
+        <dt>Operators and columns</dt><dd id="hardware"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Kits, leaves, columns, fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per opening foot</dt><dd id="perFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, three styles</strong></p>
+      <ul class="compare" id="compare"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and kit rates are common ballpark figures, not an industry standard, a UL 325 determination, or an electrical design &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not gate, construction, electrical, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening width, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-install-an-automatic-gate.html">How much to charge to install an automatic gate</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareStyles,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedColumnKit,
+      suggestedPowerKit,
+      suggestedStyleKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'openingWidthFt','leafHeightFt','loops','extraRemotes',
+      'hoursTrip','hoursPerOperator','hoursPerLfGate','hoursPerColumn','hoursPerLoop',
+      'hoursTrench','hoursSolar','hoursAccess','siteHours',
+      'operatorEach','gatePerLf','columnEach','loopEach','keypadKit','solarKit',
+      'batteryKit','remoteEach','photoEyeKit','edgeKit','trenchMaterial','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['keypad','batteryBackup','edgeSensors'];
+    const SELECT_IDS = ['style','material','columnType','power'];
+    const SUGGESTED_STYLE_IDS = [
+      'hoursTrip','hoursPerOperator','hoursPerLfGate','hoursPerLoop','hoursAccess','siteHours',
+      'operatorEach','gatePerLf','loopEach','keypadKit','batteryKit','remoteEach',
+      'photoEyeKit','edgeKit',
+    ];
+    const SUGGESTED_COLUMN_IDS = ['hoursPerColumn','columnEach'];
+    const SUGGESTED_POWER_IDS = ['hoursTrench','hoursSolar','solarKit','trenchMaterial'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyKit(rates, ids, force) {
+      for (const key of ids) {
+        if (force || !el(key).dataset.edited) el(key).value = rates[key];
+      }
+    }
+
+    function applyStyleKit(force) {
+      applyKit(suggestedStyleKit(el('style').value), SUGGESTED_STYLE_IDS, force);
+    }
+
+    function applyColumnKit(force) {
+      applyKit(suggestedColumnKit(el('columnType').value), SUGGESTED_COLUMN_IDS, force);
+    }
+
+    function applyPowerKit(force) {
+      applyKit(suggestedPowerKit(el('power').value), SUGGESTED_POWER_IDS, force);
+    }
+
+    function applyJob(job) {
+      el('style').value = job.style;
+      el('columnType').value = job.columnType;
+      el('power').value = job.power;
+      applyStyleKit(true);
+      applyColumnKit(true);
+      applyPowerKit(true);
+      [...SUGGESTED_STYLE_IDS, ...SUGGESTED_COLUMN_IDS, ...SUGGESTED_POWER_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('openingWidthFt').value = job.openingWidthFt;
+      el('leafHeightFt').value = job.leafHeightFt;
+      el('material').value = job.material;
+      el('loops').value = job.loops;
+      el('extraRemotes').value = job.extraRemotes;
+      el('keypad').checked = job.keypad;
+      el('batteryBackup').checked = job.batteryBackup;
+      el('edgeSensors').checked = job.edgeSensors;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'automatic driveway gate price';
+      ['scope','surfaceBits','hardware','hours','labor','materials','soft','overhead','cost','profit','perFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      let compared;
+      try {
+        const input = readInput();
+        result = calculateBid(input);
+        compared = compareStyles(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'automatic driveway gate price';
+      el('scope').textContent = `${result.style} · ${result.openingWidthFt} ft × ${result.leafHeightFt} ft`;
+      const extraBits = [
+        result.material,
+        result.columnType,
+        result.power,
+        result.loops ? `${result.loops} loop${result.loops === 1 ? '' : 's'}` : 'no loops',
+        result.keypad ? 'keypad' : null,
+        result.batteryBackup ? 'battery' : null,
+        result.edgeSensors ? 'edges' : null,
+      ].filter(Boolean);
+      el('surfaceBits').textContent = extraBits.join(', ');
+      el('hardware').textContent = `${result.operators} operator${result.operators === 1 ? '' : 's'} · ${result.columns} new column${result.columns === 1 ? '' : 's'}`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perFt').textContent = result.pricePerOpeningFt === null ? 'n/a' : money(result.pricePerOpeningFt);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('compare').innerHTML = compared.map((row) => {
+        const delta = row.cheapest ? 'lowest on these rates' : `+${money(row.delta)}`;
+        return `<li class="${row.cheapest ? 'win' : ''}"><span>${row.label}</span><span>${money(row.price)} · ${delta}</span></li>`;
+      }).join('');
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / move-in', result.hourShares.trip],
+        ['Operators', result.hourShares.operators],
+        ['Leaves', result.hourShares.gate],
+        ['Columns', result.hourShares.columns],
+        ['Loops', result.hourShares.loops],
+        ['Power', result.hourShares.power],
+        ['Keypad / access', result.hourShares.access],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Operator kits', result.shares.operators],
+        ['Leaves', result.shares.gate],
+        ['Columns / loops / power / access', result.shares.extra],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('style').addEventListener('change', () => {
+      applyStyleKit(false);
+      count('style_changed');
+      update();
+    });
+    el('columnType').addEventListener('change', () => {
+      applyColumnKit(false);
+      count('style_changed');
+      update();
+    });
+    el('power').addEventListener('change', () => {
+      applyPowerKit(false);
+      count('style_changed');
+      update();
+    });
+    el('material').addEventListener('change', () => {
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_STYLE_IDS, ...SUGGESTED_COLUMN_IDS, ...SUGGESTED_POWER_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
