@@ -44,8 +44,13 @@ test("counts preflight completion and export as feature events", () => {
     path: "/print-file-preflight",
     createdAt: "2026-08-24T15:56:10.000Z",
   });
+  recordUsageEvent({
+    name: "preflight_compared",
+    path: "/print-file-preflight",
+    createdAt: "2026-08-24T15:56:20.000Z",
+  });
   const summary = getUsageEventSummary();
-  assert.equal(summary.featureEvents, 2);
+  assert.equal(summary.featureEvents, 3);
   assert.equal(summary.pageViews, 0);
   assert.equal(summary.searches, 0);
 });
