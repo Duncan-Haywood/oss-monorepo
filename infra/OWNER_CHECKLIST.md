@@ -11,7 +11,18 @@ identities. Nothing here applies itself.
 - `duncanhaywood.dev` zone exists (4 records, not imported here).
 - Placement group `placement-group-1`.
 - 100 GB volume on the cpx52.
-- SSH key is already in GitHub Actions secrets.
+
+Actions secrets that exist (Settings → Secrets and variables → Actions).
+Names are exact; values never go in git.
+
+| Name | What | Used by |
+|---|---|---|
+| `HETZNERSSHKEY` | SSH private key for `root@89.167.29.39` and `root@157.180.80.188` | `hetzner-gitops-ci.yml` preflight (`workflow_dispatch`, `preflight: true`) |
+| `HETZNERREADAPIKEY` | Hetzner Cloud API token, **Read** only | `hetzner-gitops-ci.yml` `hcloud-scope` (maps to env `HCLOUD_TOKEN` for `hcloud` / Tofu plan). Laptop: `export HCLOUD_TOKEN=` the same value |
+| `CLAUDETRIGGERAPIKEY` | Claude Code routine API trigger bearer | `claude-routine-trigger.yml` only. Not this stack |
+
+Do not add a Hetzner **Write** token, an OpenAI Admin key, an age
+private key, or a kubeconfig as an Actions secret.
 
 Do not create a third VM. The next `tofu apply` must import / attach, not replace.
 
@@ -34,29 +45,23 @@ Hold the PAT until the cluster can seal it. Do not put it in the `agents`
 namespace as plaintext, and do not mount it into a workflow that does not
 need it.
 
-**SSH — already in Actions secrets.** Dispatch `hetzner-gitops CI` with
-`preflight: true`. The job looks for `HETZNER_SSH_PRIVATE_KEY`, then
-`SSH_PRIVATE_KEY`. If the existing secret uses another name, add one of
-those aliases (same key material). Preflight is read-only: it never
+**SSH — `HETZNERSSHKEY` is already in Actions.** Dispatch
+`hetzner-gitops CI` with `preflight: true`. Read-only: it never
 installs k3s or runs tofu.
 
-**Hetzner write token — no, not yet.** Hetzner Cloud has **no hard euro
-spend cap**. Console "Usage" alerts email you and keep billing
-([billing FAQ](https://docs.hetzner.com/cloud/billing/faq/)). A
+**Hetzner Read token — `HETZNERREADAPIKEY` is already in Actions.** CI
+probes `POST /servers` with an empty body (cannot create a server).
+**403 = keep it. Anything else = rotate, it can write.**
+`infra/scripts/assert_hcloud_read_only.sh` is that probe. On a laptop,
+`export HCLOUD_TOKEN=` the same value for `make discover` / `tofu plan`.
+
+**Hetzner write token — still no, not in Actions.** Hetzner Cloud has
+**no hard euro spend cap**. Console "Usage" alerts email you and keep
+billing ([billing FAQ](https://docs.hetzner.com/cloud/billing/faq/)). A
 Read+Write token can create servers, resize the cpx52, and attach
 volumes until the account resource limits (hundreds of servers). Tofu
 locks and `prevent_destroy` are not a spend limit — a leaked token talks
 to the API directly.
-
-The only Hetzner control with no API workaround is a **Read** token:
-
-1. Console → the project that owns these two servers → Security → API tokens
-2. New token, permission **Read**
-3. Optional: store it as repo secret `HCLOUD_TOKEN`
-
-CI will probe `POST /servers` with an empty body (cannot create a
-server). **403 = keep it. Anything else = rotate, it can write.**
-`infra/scripts/assert_hcloud_read_only.sh` is that probe.
 
 Keep the Read+Write token on the laptop for the one `tofu apply`. Never
 in Actions, never in `agents`.
@@ -81,10 +86,11 @@ codes as exit 42.
 
 ## You do once (laptop)
 
-1. Optional Read `HCLOUD_TOKEN` as above, then `make discover` and paste
-   `firewall_id` / `volume_id` into `infra/terraform.tfvars` (gitignored).
-2. Confirm SSH: Actions preflight, or `bootstrap/preflight.sh` from a
-   machine that has the key.
+1. Laptop: `export HCLOUD_TOKEN=` the `HETZNERREADAPIKEY` value, then
+   `make discover` and paste `firewall_id` / `volume_id` into
+   `infra/terraform.tfvars` (gitignored).
+2. Confirm SSH: Actions preflight (`HETZNERSSHKEY`), or
+   `bootstrap/preflight.sh` from a machine that has the key.
 3. If k3s is already on the cpx52, `bootstrap/label-existing.sh` instead
    of `install-k3s-server.sh`.
 4. Fine-grained GH token (agents) + read-only deploy key (Argo).

@@ -50,8 +50,10 @@ tofu plan                        # import + in-place attach only
 # tofu apply                     # laptop only, and only with a Write token
 ```
 
-GitHub Actions may run `tofu validate` / `tofu fmt`, and will probe a
-repo-secret `HCLOUD_TOKEN` to prove it is Read-only. It must not apply.
+GitHub Actions may run `tofu validate` / `tofu fmt`, and probes
+`HETZNERREADAPIKEY` as Read-only (mapped to env `HCLOUD_TOKEN`). It
+must not apply. Dispatch preflight uses `HETZNERSSHKEY`. Names live in
+`OWNER_CHECKLIST.md`.
 
 Hetzner has no hard euro spend cap (usage alerts are email-only). A
 Write token in CI is unbounded create/resize. Do not add one. See

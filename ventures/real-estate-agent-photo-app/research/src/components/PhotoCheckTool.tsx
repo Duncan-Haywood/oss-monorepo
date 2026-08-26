@@ -1,15 +1,18 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, ShieldAlert, UploadCloud } from "lucide-react";
+import { AlertTriangle, CheckCircle2, ClipboardCopy, ShieldAlert, UploadCloud } from "lucide-react";
 
 import {
   SPEC_DATE,
   SPEC_ID,
   UNIMPLEMENTED_RULES,
+  buildReshootPlan,
   checkBatch,
+  formatReshootPlan,
   isListingPhoto,
   type PhotoReport,
+  type ReshootKind,
 } from "@/lib/photo-spec";
 import { recordUsageEvent } from "@/lib/usage";
 
@@ -34,6 +37,81 @@ function severityStyle(severity: "blocking" | "degrading"): string {
     : "border-amber-400/30 bg-amber-500/10 text-amber-200";
 }
 
+const KIND_LABEL: Record<ReshootKind, string> = {
+  recapture: "Recapture / re-export from RAW",
+  pair: "Add the original",
+  reexport: "Fix the export",
+  rename: "Rename the file",
+};
+
+function ReshootList({ reports }: { reports: PhotoReport[] }) {
+  const [copied, setCopied] = useState(false);
+  const plan = buildReshootPlan(reports);
+
+  const copyList = useCallback(async () => {
+    const text = formatReshootPlan(plan);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const area = document.createElement("textarea");
+      area.value = text;
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand("copy");
+      area.remove();
+    }
+    setCopied(true);
+    recordUsageEvent("reshoot_list_copied");
+    window.setTimeout(() => setCopied(false), 2000);
+  }, [plan]);
+
+  if (plan.items.length === 0) {
+    return (
+      <div className="mt-6 rounded-xl border border-emerald-400/20 bg-emerald-500/5 p-5">
+        <p className="font-medium text-emerald-100">Nothing to reshoot on this floor spec.</p>
+        <p className="mt-1 text-sm text-slate-400">
+          A clean table is still not a clean photo — visual watermarks and burned-in contact
+          info are not checked.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6 rounded-xl border border-brand-400/30 bg-brand-500/5 p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-lg font-semibold text-white">What to fix next</h2>
+          <p className="mt-1 text-sm text-slate-400">
+            {plan.recaptureCount} room{plan.recaptureCount === 1 ? "" : "s"} to recapture or
+            re-export from RAW, {plan.deskFixCount} desk fix
+            {plan.deskFixCount === 1 ? "" : "es"}. Take this list back to the property.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => void copyList()}
+          className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
+        >
+          <ClipboardCopy className="h-4 w-4" aria-hidden="true" />
+          {copied ? "Copied" : "Copy shot list"}
+        </button>
+      </div>
+      <ol className="mt-4 space-y-3">
+        {plan.items.map((item) => (
+          <li key={item.fileName} className="rounded-lg border border-white/10 bg-slate-950/40 p-3">
+            <p className="font-mono text-sm text-white">{item.fileName}</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-brand-200">
+              {KIND_LABEL[item.kind]}
+            </p>
+            <p className="mt-1 text-sm text-slate-300">{item.action}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 export function PhotoCheckTool() {
   const [run, setRun] = useState<RunSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,6 +131,9 @@ export function PhotoCheckTool() {
       recordUsageEvent(
         blockingCount === 0 ? "batch_checked_all_clear" : "batch_checked_with_blockers",
       );
+      if (buildReshootPlan(reports).items.length > 0) {
+        recordUsageEvent("reshoot_list_viewed");
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -134,6 +215,7 @@ export function PhotoCheckTool() {
               </li>
             ))}
           </ul>
+          <ReshootList reports={run.reports} />
         </div>
       )}
 

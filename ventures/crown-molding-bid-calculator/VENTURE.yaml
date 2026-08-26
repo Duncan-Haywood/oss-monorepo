@@ -1,0 +1,32 @@
+name: crown-molding-bid-calculator
+description: A private browser calculator for finish carpenters that prices a residential crown-molding install from linear feet, inside versus outside corners, paint-grade versus stain-grade, simple cove versus colonial versus built-up, ceiling and height, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent finish carpenters will use a linear-foot-versus-corner bid calculator because the generic "$8 a foot installed" they are shopped on cannot see that 80 lf of paint-grade simple cove in one 8-ft room is a different job from 80 lf of stain-grade built-up crown in a two-story foyer with 14 coped insides and an LED cove.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-foot special) are the two figures a carpenter actually decides on when an owner asks them to match a cheaper paint-grade quote on a stain-grade foyer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing simple cove, colonial, and built-up on the same run, with cope hours and foyer access, changes the bid enough that carpenters notice which profile keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified finish carpenters use the calculator twice within 90 days.
+  - Contractors report that splitting run, corners, and extras is more work than their existing per-foot method without changing the price they would have bid.
+  - The starting hours and millwork invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
