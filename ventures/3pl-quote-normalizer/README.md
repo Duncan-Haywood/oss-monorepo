@@ -25,6 +25,12 @@ to put leftover pallets on the long-term storage line the signed card usually
 omits. That shows the monthly surcharge versus the quote as written, whether
 that aged path still beats in-house, and how many months of the hold eat a
 liquidation recovery.
+Use [Should I restock a 3PL return or let the customer keep it](./should-i-restock-or-let-the-customer-keep-a-3pl-return.html)
+to price a return that just arrived — restock sellable units, destroy the
+unit, or skip the label and let the customer keep it. That is a different
+decision from leftover pallets already on the floor and from raising the
+return rate against in-house. The table names the unit-cost and restockable-rate
+flips.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet, or **Download JSON record** for a procurement or
 ERP adapter, without retyping figures. The JSON record is versioned and includes
