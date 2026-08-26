@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Egress Window Bid Calculator | How Much to Charge to Install an Egress Window</title>
-  <meta name="description" content="Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, and extras — plus the walk-away price a $1,800 installed special cannot see.">
+  <meta name="description" content="Price an egress window from window count, hopper versus slider versus casement versus fiberglass, retrofit versus wood-cut versus masonry-cut versus poured-cut, plastic versus steel versus stone well, extras, and weekday versus Saturday — plus the walk-away price a $1,800 installed special cannot see.">
   <meta property="og:title" content="Egress Window Bid Calculator">
-  <meta property="og:description" content="Bid an egress window the way the trade does — opening, cut, and extras, not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Egress Window Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Window count, hopper vs slider vs casement vs fiberglass comparison, retrofit vs wood-cut vs masonry-cut vs poured-cut comparison, plastic vs steel vs stone well, cover drain ladder haul interior-finish extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <meta property="og:description" content="Bid an egress window the way the trade does — opening, cut, extras, and whether Saturday still pays — not a published installed dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Egress Window Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Window count, hopper vs slider vs casement vs fiberglass comparison, retrofit vs wood-cut vs masonry-cut vs poured-cut comparison, plastic vs steel vs stone well, contractor-supplied vs customer-supplied sash and well comparison, $1,800 install-only walk-away, weekday vs they-stay-in-the-basement vs Saturday/after-hours comparison, cover drain ladder haul interior-finish extras, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -152,9 +152,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+<p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Same opening, four cuts</strong></p>
       <table>
@@ -169,6 +173,22 @@
         <tbody id="windows"></tbody>
       </table>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, who bought the sash</strong></p>
+      <p class="note" style="margin-top:0">The $1,800 “just cut and set what I bought at the store” special. Zeroing the sash and well invoices is not a free install — the cut still costs money, and a hopper that will not pass is a second trip. <a href="should-i-install-a-customer-supplied-egress-window.html" style="color:#cde6ea">Should I install a customer-supplied egress window?</a></p>
+      <table>
+        <thead><tr><th>Who supplies</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="supply"></tbody>
+      </table>
+      <p id="supplyNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same opening, when you can work</strong></p>
+      <p class="note" style="margin-top:0">The “can you start Saturday? We need the legal bedroom before the listing” special. A weekday they leave is the bid you already have. They-stay-in-the-basement is the same wage on a slower cut. After-hours is time-and-a-half plus a second trip because you cannot leave an open foundation hole overnight. <a href="should-i-cut-an-egress-window-on-saturday.html" style="color:#cde6ea">Should I cut an egress window on Saturday?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -180,8 +200,8 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, egress-size, foundation-design, waterproofing, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-install-an-egress-window.html">how much to charge to install an egress window</a>? The article walks the opening-versus-cut math this calculator uses.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-an-egress-window.html">how much to charge to install an egress window</a>? The article walks the opening-versus-cut math this calculator uses. Customer bought the sash? See <a href="should-i-install-a-customer-supplied-egress-window.html">should I install a customer-supplied egress window</a>. They want Saturday? See <a href="should-i-cut-an-egress-window-on-saturday.html">should I cut an egress window on Saturday</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -190,6 +210,10 @@
       calculateBid,
       compareScope,
       compareWindow,
+      compareOwnerSupply,
+      ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedScopeKit,
       suggestedWindowKit,
@@ -201,6 +225,7 @@
       JOB_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const JOB_IDS = [
       'scope', 'window', 'well', 'windowCount', 'travelMiles',
@@ -230,6 +255,8 @@
     ];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
+    let supplyCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -286,6 +313,10 @@
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
       el('windows').innerHTML = '';
+      el('supply').innerHTML = '';
+      el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -354,6 +385,46 @@
         <td>${upgrade}</td>
       </tr>`;
       }).join('');
+
+      const supply = compareOwnerSupply(readInput());
+      el('supply').innerHTML = supply.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('supplyNote').textContent = ownerSupplyNote(supply);
+      if (!supplyCounted) {
+        count('owner_supply_compared');
+        supplyCounted = true;
+      }
+
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
+      }
 
       const verdict = el('verdict');
       if (result.proposed === null) {
@@ -438,7 +509,14 @@
     [...JOB_IDS, ...COST_IDS].forEach(id => {
       if (id === 'scope' || id === 'window' || id === 'well') return;
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => {
+        if (id === 'proposedPrice') {
+          count('proposed_price_compared');
+          count('access_compared');
+        } else {
+          count('bid_calculated');
+        }
+      });
     });
     FLAG_IDS.forEach(id => {
       el(id).addEventListener('change', () => {
@@ -459,7 +537,95 @@
     applyWindowKit();
     applyWellKit();
     applyExtraKit();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['scope', 'window', 'well'];
+    const BID_SPEC = {
+      key: 'egress-window-bid',
+      numbers: [...JOB_IDS, ...RATE_IDS, ...COST_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
     update();
+    persist();
   </script>
 </body>
 </html>

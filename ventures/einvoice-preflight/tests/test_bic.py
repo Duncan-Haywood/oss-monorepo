@@ -24,6 +24,7 @@ def _invoice(iban=None, bic=None):
     payment = {}
     if iban is not None:
         payment["iban"] = iban
+        payment["remittance"] = "INV-1"
     if bic is not None:
         payment["bic"] = bic
     if payment:
@@ -40,6 +41,7 @@ UBL_WITH_ACCOUNT = b'''<?xml version="1.0" encoding="UTF-8"?>
   <cac:AccountingCustomerParty><cac:Party><cac:PartyIdentification><cbc:ID>C1</cbc:ID></cac:PartyIdentification><cac:PartyName><cbc:Name>Customer</cbc:Name></cac:PartyName></cac:Party></cac:AccountingCustomerParty>
   <cac:PaymentMeans>
     <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+    <cbc:PaymentID>INV-XML-BIC</cbc:PaymentID>
     <cac:PayeeFinancialAccount>
       <cbc:ID>DE89370400440532013000</cbc:ID>
       <cac:FinancialInstitutionBranch><cbc:ID>COBADEFFXXX</cbc:ID></cac:FinancialInstitutionBranch>

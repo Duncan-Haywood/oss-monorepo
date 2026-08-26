@@ -74,15 +74,23 @@ a **home elevator** (a shaft). This prices a stair lift.
 It then reports price per lift, effective hourly rate, the hour
 split, a four-rail comparison on the same stair, a five-chair
 comparison on the same stair (the power-swivel upgrade versus
-the standard special), and the **walk-away price**. Entering a
-price already on the table scores it against the same cost
-base. **Copy bid summary** turns the result into a plain-text
-draft ready to paste into a proposal.
+the standard special), a three-way **who-supplies** comparison
+(you supply the lift, they supply one that fits, they supply
+one that does not), a three-way **when-they-need-it** comparison
+(weekday they leave, discharge week with next-day rail freight,
+Saturday overtime plus a second dispatch), and the **walk-away
+price**. Entering a price already on the table scores it
+against the same cost base — including the $795 “just
+install what I bought” special and the $3,995 “mom comes
+home Friday” rush. **Copy bid summary** turns the result into a
+plain-text draft ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-a-stair-lift.html`](how-much-to-charge-to-install-a-stair-lift.html).
+Search phrases: [`how-much-to-charge-to-install-a-stair-lift.html`](how-much-to-charge-to-install-a-stair-lift.html),
+[`should-i-install-a-customer-supplied-stair-lift.html`](should-i-install-a-customer-supplied-stair-lift.html),
+[`should-i-expedite-a-stair-lift-for-hospital-discharge.html`](should-i-expedite-a-stair-lift-for-hospital-discharge.html).
 
 ## Privacy
 
@@ -103,7 +111,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `rail_changed`,
 `chair_changed`, `attach_changed`, `proposed_price_compared`,
-`summary_copied`.
+`owner_supply_compared`, `access_compared`, `summary_copied`.
 
 ## Limitations
 
@@ -134,3 +142,29 @@ working. Do not use this as a system of record. If a tool needs to survive,
 export your inputs and run it yourself.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Saving and sharing a bid
+
+The whole form is kept in your own browser as you type, so the bid is still
+there on the next visit — the rates you tuned, not the ballpark ones this ships
+with. **Start a fresh bid** deletes it.
+
+**Copy bid link** puts the same bid in a URL. Opening it reproduces the bid
+exactly, in any browser, with nothing stored server-side — there is no server.
+A link beats a saved bid when both exist, because someone opening a link meant
+to see that bid; the page says which one is on screen.
+
+A bid link carries your own rates — wage, burden, overhead, and target margin.
+Send it to yourself or your crew. The customer should get the price, not the
+link.
+
+Nothing is uploaded either way. The rates ride in the link's `#` fragment,
+which browsers never send to a server or put in a `Referer` header, so opening
+or forwarding a bid link does not leak the numbers off the machines you send it
+to. The link is built in the browser and copied by you; the save is
+`localStorage` on your own device.
+
+`share.mjs` is the pure encode/decode/store module and is identical in every
+bid calculator here. Its field list is passed in from the page rather than kept
+in the module, so a field added to the form is saved and shareable without
+touching it; `page.test.mjs` fails if the two ever drift apart.

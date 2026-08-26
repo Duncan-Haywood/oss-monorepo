@@ -13,7 +13,7 @@ function invoice(iban) {
     lines: [{ description: "Work", quantity: 2, unit_price: 100, tax_percent: 19, net: 200 }],
     totals: { net: 200, tax: 38, gross: 238 },
   };
-  if (iban !== undefined) document.payment = { iban };
+  if (iban !== undefined) document.payment = { iban, remittance: "INV-1" };
   return document;
 }
 

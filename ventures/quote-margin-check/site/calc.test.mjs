@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -213,6 +213,136 @@ test("a discount that no longer covers direct costs cannot be fixed by cutting h
   assert.match(discountAskSummary(quote, report, discountAskScenarios(quote, report, [50])), /no longer covers/);
 });
 
+function exampleQuote() {
+  return loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+}
+
+test("compares finishing with a kill fee and walking with only the deposit", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 14, already_paid: 1200, kill_fee: 360, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.remaining_hours, 21);
+  assert.equal(compared.remaining_invoice, 1200);
+  assert.equal(compared.remaining_costs, 300);
+
+  assert.equal(compared.finish.cash_kept, 1920);
+  assert.equal(compared.finish.net_from_here, 900);
+  assert.ok(Math.abs(compared.finish.rate_from_here - 900 / 21) < 1e-9);
+  assert.equal(compared.finish.hours_still_worked, 21);
+  assert.equal(compared.finish.vs_finish, 0);
+
+  assert.equal(compared.kill.cash_kept, 1380);
+  assert.equal(compared.kill.vs_finish, -540);
+  assert.equal(compared.kill.hours_freed, 21);
+  assert.equal(compared.kill.refill_value, 1575);
+  assert.equal(compared.kill.refill_adjusted, 2955);
+  assert.equal(compared.kill.refill_vs_finish, 1035);
+
+  assert.equal(compared.walk.cash_kept, 1020);
+  assert.equal(compared.walk.vs_finish, -900);
+  assert.equal(compared.walk.refill_adjusted, 2595);
+  assert.equal(compared.walk.refill_vs_finish, 675);
+
+  assert.equal(compared.cash_winner, "finish");
+  assert.equal(compared.refill_winner, "kill");
+});
+
+test("kill-fee summary names the cash gap and the refill flip", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 14, already_paid: 1200, kill_fee: 360, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  assert.match(
+    killFeeSummary(quote, report, progress),
+    /Finishing keeps units 1920\.00 — units 540\.00 more cash than the kill fee \(units 1380\.00\).*900\.00 from here \(units 42\.86\/hour\).*21\.00 freed hours.*1035\.00 ahead/,
+  );
+});
+
+test("a kill fee can already keep more cash than finishing", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 8, already_paid: 2160, kill_fee: 80, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.remaining_hours, 27);
+  assert.equal(compared.remaining_invoice, 240);
+  assert.equal(compared.remaining_costs, 300);
+  assert.equal(compared.finish.net_from_here, -60);
+  assert.equal(compared.kill.cash_kept, 2060);
+  assert.equal(compared.kill.vs_finish, 140);
+  assert.equal(compared.cash_winner, "kill");
+  assert.equal(compared.refill_winner, "kill");
+  assert.match(killFeeSummary(quote, report, progress), /kill fee keeps units 2060\.00 — units 140\.00 more cash than finishing/);
+});
+
+test("walking with only the deposit is the kill-fee path at zero", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 14, already_paid: 1200, kill_fee: 0, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.kill.cash_kept, compared.walk.cash_kept);
+  assert.equal(compared.walk.cash_kept, 1020);
+});
+
+test("no remaining hours compares leftover invoices only", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 35, already_paid: 1200, kill_fee: 360, sunk_costs: 480 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.remaining_hours, 0);
+  assert.equal(compared.finish.rate_from_here, null);
+  assert.equal(compared.kill.refill_value, 0);
+  assert.equal(compared.finish.cash_kept, 1920);
+  assert.equal(compared.kill.cash_kept, 1080);
+  assert.match(killFeeSummary(quote, report, progress), /No hours remain/);
+});
+
+test("rejects kill-fee inputs that exceed the quote", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  assert.throws(
+    () => loadKillFeeProgress({ hours_done: 36, already_paid: 0, kill_fee: 0, sunk_costs: 0 }, quote, report),
+    /hours_done/,
+  );
+  assert.throws(
+    () => loadKillFeeProgress({ hours_done: 0, already_paid: 2401, kill_fee: 0, sunk_costs: 0 }, quote, report),
+    /already_paid/,
+  );
+  assert.throws(
+    () => loadKillFeeProgress({ hours_done: 0, already_paid: 0, kill_fee: 0, sunk_costs: 481 }, quote, report),
+    /sunk_costs/,
+  );
+  assert.throws(() => loadKillFeeProgress({ hours_done: true }, quote, report));
+  assert.throws(() => loadKillFeeProgress({ hours_done: NaN }, quote, report));
+});
+
 test("a steep cost rise can leave nothing after direct costs", () => {
   const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 800, target_hourly_rate: 80 });
   const report = calculate(quote);
@@ -220,4 +350,50 @@ test("a steep cost rise can leave nothing after direct costs", () => {
   assert.equal(spike50.direct_costs, 1200);
   assert.equal(spike50.cost_coverage, -200);
   assert.equal(spike50.effective_hourly_rate, -20);
+});
+
+test("compares a fixed quote to hourly at the same hours and costs", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  const rows = compareBillingModels(quote, report);
+  assert.deepEqual(rows.map((row) => row.percent), [0, 10, 25, 50]);
+  assert.equal(rows[0].total_hours, 35);
+  assert.equal(rows[0].hourly_total, 3105);
+  assert.equal(rows[0].hourly_minus_fixed, 705);
+  assert.ok(Math.abs(rows[0].fixed_effective_rate - 54.8571428) < 1e-6);
+  assert.equal(rows[3].total_hours, 52.5);
+  assert.equal(rows[3].hourly_total, 4417.5);
+  assert.equal(rows[3].hourly_minus_fixed, 2017.5);
+  assert.equal(rows[3].fixed_effective_rate, (2400 - 480) / 52.5);
+  const summary = billingModelSummary(quote, report);
+  assert.equal(summary.fixed_is_below_hourly, true);
+  assert.equal(summary.hourly_minus_fixed, 705);
+  assert.match(billingModelNote(quote, report), /3105\.00/);
+  assert.match(billingModelNote(quote, report), /705\.00 more than/);
+  assert.match(billingModelNote(quote, report), /not a recommendation/);
+});
+
+test("a fixed quote above hourly at the target is not a discount", () => {
+  const quote = loadQuote({ price: 2000, delivery_hours: 10, target_hourly_rate: 100 });
+  const report = calculate(quote);
+  const planned = compareBillingModels(quote, report, [0])[0];
+  assert.equal(planned.hourly_total, 1000);
+  assert.equal(planned.hourly_minus_fixed, -1000);
+  assert.equal(billingModelSummary(quote, report).fixed_is_below_hourly, false);
+  assert.match(billingModelNote(quote, report), /1000\.00 less than/);
+});
+
+test("a fixed quote that already matches hourly says so", () => {
+  const quote = loadQuote({ price: 3105, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  const report = calculate(quote);
+  assert.equal(billingModelSummary(quote, report).hourly_minus_fixed, 0);
+  assert.match(billingModelNote(quote, report), /the same as this fixed quote/);
 });

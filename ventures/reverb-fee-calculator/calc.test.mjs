@@ -8,6 +8,10 @@ import {
   compareReverbToEbay,
   offerThatMatchesEbayList,
   compareShippingPaths,
+  compareSafeShipping,
+  compareConsignment,
+  consignmentNote,
+  ILLUSTRATED_SAFE_SHIPPING_PREMIUM,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -139,4 +143,114 @@ test('a meetup cost comes out of pickup cash and does not change the other paths
   assert.equal(withMeetup.absorbed.profit, baseline.absorbed.profit);
   assert.equal(withMeetup.pickup.profit, baseline.pickup.profit - 20);
   assert.equal(withMeetup.meetupCost, 20);
+});
+
+test('Safe Shipping at the default $80 quote costs $15 more label than the $65 own label', () => {
+  const comparison = compareSafeShipping(REVERB_DEFAULTS);
+  assert.equal(comparison.own.profit, calculateReverbSale(REVERB_DEFAULTS, 800).profit);
+  assert.equal(comparison.ownLabel, 65);
+  assert.equal(comparison.safeLabel, 80);
+  assert.equal(comparison.extraLabelCost, 15);
+  assert.equal(comparison.usedIllustratedQuote, false);
+  assert.equal(Number(comparison.safe.profit.toFixed(3)), 269.325);
+  assert.equal(comparison.expectedClaim, 9);
+  assert.equal(Number(comparison.ownExpectedProfit.toFixed(3)), 275.325);
+  assert.equal(Number(comparison.breakEvenLossRatePct.toFixed(2)), 3.33);
+  assert.equal(comparison.winner, 'ownExpected');
+  assert.equal(comparison.safePays, false);
+});
+
+test('a $0 Safe Shipping quote is illustrated at own label plus the published premium', () => {
+  const comparison = compareSafeShipping({ ...REVERB_DEFAULTS, safeShippingCost: 0 });
+  assert.equal(comparison.usedIllustratedQuote, true);
+  assert.equal(comparison.safeLabel, REVERB_DEFAULTS.shippingCost + ILLUSTRATED_SAFE_SHIPPING_PREMIUM);
+  assert.equal(comparison.safeLabel, 80);
+});
+
+test('the extra label is worth it once the claim rate crosses the break-even', () => {
+  const atBreak = compareSafeShipping(REVERB_DEFAULTS);
+  const comparison = compareSafeShipping({
+    ...REVERB_DEFAULTS,
+    unprotectedLossRatePct: atBreak.breakEvenLossRatePct,
+  });
+  assert.ok(Math.abs(comparison.ownExpectedProfit - comparison.safe.profit) < 1e-9);
+  assert.equal(comparison.winner, 'tie');
+
+  const above = compareSafeShipping({ ...REVERB_DEFAULTS, unprotectedLossRatePct: 4 });
+  assert.equal(above.expectedClaim, 18);
+  assert.equal(Number(above.ownExpectedProfit.toFixed(3)), 266.325);
+  assert.equal(above.winner, 'safeShipping');
+  assert.equal(above.safePays, true);
+});
+
+test('claim cost defaults to item cost and a zero claim makes Safe Shipping a pure extra', () => {
+  const omitted = compareSafeShipping({ ...REVERB_DEFAULTS, claimCost: undefined });
+  assert.equal(omitted.claimCost, REVERB_DEFAULTS.itemCost);
+  const none = compareSafeShipping({ ...REVERB_DEFAULTS, claimCost: 0 });
+  assert.equal(none.expectedClaim, 0);
+  assert.equal(none.ownExpectedProfit, none.own.profit);
+  assert.equal(none.winner, 'ownExpected');
+  assert.equal(none.breakEvenLossRatePct, Infinity);
+});
+
+test('rejects an unprotected claim rate above 100%', () => {
+  assert.throws(() => compareSafeShipping({ ...REVERB_DEFAULTS, unprotectedLossRatePct: 101 }), /at most 100/);
+});
+
+test('a 30% shop cut on an $800 sale leaves $174.33 less than listing it yourself', () => {
+  const comparison = compareConsignment(REVERB_DEFAULTS);
+  assert.equal(comparison.selfList.profit, calculateReverbSale(REVERB_DEFAULTS, 800).profit);
+  assert.equal(comparison.shopSalePrice, 800);
+  assert.equal(comparison.consignmentRate, 30);
+  assert.equal(comparison.shopCashOffer, 520);
+  assert.equal(comparison.shopPayout, 560);
+  assert.equal(comparison.consignProfit, 110);
+  assert.equal(comparison.cashProfit, 70);
+  assert.equal(Number(comparison.rows[1].vsSelfList.toFixed(2)), -174.33);
+  assert.equal(Number(comparison.rows[2].vsSelfList.toFixed(2)), -214.33);
+  assert.equal(comparison.winner, 'selfList');
+  assert.equal(Number(comparison.breakEvenConsignmentRatePct.toFixed(2)), 8.21);
+  assert.equal(Number(comparison.breakEvenShopSalePrice.toFixed(2)), 1049.04);
+  assert.equal(Number(comparison.breakEvenShopCash.toFixed(2)), 734.33);
+  assert.equal(comparison.shopSaleCanMatch, true);
+});
+
+test('the break-even shop cut matches Reverb list cash', () => {
+  const atDefault = compareConsignment(REVERB_DEFAULTS);
+  const comparison = compareConsignment({
+    ...REVERB_DEFAULTS,
+    consignmentRate: atDefault.breakEvenConsignmentRatePct,
+  });
+  assert.ok(Math.abs(comparison.consignProfit - comparison.selfList.profit) < 1e-9);
+  assert.equal(comparison.winner === 'tie' || comparison.winner === 'selfList' || comparison.winner === 'consign', true);
+  assert.ok(Math.abs(comparison.consignProfit - comparison.selfList.profit) < 1e-6);
+});
+
+test('a 15% shop cut still loses to list but beats the $720 Reverb offer', () => {
+  const comparison = compareConsignment({ ...REVERB_DEFAULTS, consignmentRate: 15 });
+  assert.equal(comparison.shopPayout, 680);
+  assert.equal(comparison.consignProfit, 230);
+  assert.equal(comparison.winner, 'selfList');
+  assert.ok(comparison.vsOffer > 0);
+  assert.equal(Number(comparison.vsOffer.toFixed(2)), 19.36);
+});
+
+test('taking $800 cash today ties listing yourself after Reverb costs on the default rates', () => {
+  const comparison = compareConsignment({ ...REVERB_DEFAULTS, shopCashOffer: 734.325 });
+  assert.ok(Math.abs(comparison.cashProfit - comparison.selfList.profit) < 1e-9);
+});
+
+test('rejects a shop consignment cut above 100%', () => {
+  assert.throws(() => compareConsignment({ ...REVERB_DEFAULTS, consignmentRate: 101 }), /at most 100/);
+});
+
+test('consignmentNote names the default worked example without telling you to consign', () => {
+  const note = consignmentNote(compareConsignment(REVERB_DEFAULTS));
+  assert.match(note, /Listing it yourself on Reverb still leaves \$174\.33 more/);
+  assert.match(note, /30% shop cut/);
+  assert.match(note, /\$520\.00 cash offer/);
+  assert.match(note, /8\.21%/);
+  assert.match(note, /\$1049\.04/);
+  assert.match(note, /\$734\.33/);
+  assert.doesNotMatch(note, /you should|recommend|must consign/i);
 });

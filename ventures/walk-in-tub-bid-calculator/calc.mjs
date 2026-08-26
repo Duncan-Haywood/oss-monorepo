@@ -21,6 +21,20 @@
 // and a pad), *toilet replacement* (a commode swap), and
 // *water-heater* (a tank). This prices a walk-in tub: the
 // alcove, the unit, the door, and the extras.
+//
+// Owners also shop a second special: “I already bought one
+// on Amazon — just install it for $995.” Zeroing the tub
+// invoice is not a free set. Setting their unit still takes
+// hours. A drain that does not line up, a missing overflow
+// kit, or a door seal they expect you to eat is a second
+// trip plus hardware.
+//
+// Families also call after a fall: “Can you start Saturday
+// so she is not climbing the old tub?” A weekday $3,499
+// number is not a Saturday bid. Occupied is the same wage
+// on a slower set. After-hours is time-and-a-half plus a
+// second evening trip — you cannot leave the alcove open
+// overnight in the only bath.
 
 export const SCOPE_PRESETS = Object.freeze([
   { id: 'alcove-swap', label: 'Alcove swap — same footprint, existing drain (the cheap special)' },
@@ -507,6 +521,340 @@ export function compareTub(input) {
       upgradeFromSoaker: soaker ? row.price - soaker.price : 0,
     }))
     .sort((a, b) => a.price - b.price);
+}
+
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'contractor-supplied',
+    label: 'You supply the tub',
+    detail: 'Tub invoice stays in the bid',
+  },
+  {
+    id: 'owner-fits',
+    label: 'Owner supplies — it fits',
+    detail: 'No tub invoice, same set hours',
+  },
+  {
+    id: 'owner-wrong',
+    label: 'Owner supplies — wrong drain / missing kit',
+    detail: 'Inspect trip plus missing drain or overflow',
+  },
+]);
+
+/**
+ * Starting callback hours and missing-kit cost when the
+ * owner's Amazon tub does not match the alcove. Taken from
+ * the extra-kit trip plus a second door/drain pass so a
+ * typed tub invoice does not leak into the "they bought it"
+ * case.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    hoursMissingHardwareEach: 2.0,
+    missingHardwareEach: 220,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same bath three ways: you supply the tub, the
+ * owner supplies one that fits, or the owner supplies one
+ * that does not fit and costs a second trip.
+ *
+ * Owner rows zero the tub invoice and keep the current set
+ * hours — setting their Amazon unit is still a set. The
+ * wrong-drain row adds a starting inspect trip and missing
+ * overflow / drain-kit hardware on top of the current rates
+ * so a typed invoice does not leak into the "they bought it"
+ * case. Door invoice stays off the owner-row override;
+ * missing-kit dollars go on the door line so tubInvoice
+ * never appears on an owner row.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost
+ * base. That is the $995 "just install what I bought"
+ * number contractors actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursDoorEach = number(input.hoursDoorEach ?? 0, 'Door hours each');
+  const doorInvoice = number(input.doorInvoice ?? 0, 'Door invoice');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const contractor = calculateBid(input);
+  const ownerFits = calculateBid({ ...input, tubInvoice: 0 });
+  const ownerWrong = calculateBid({
+    ...input,
+    tubInvoice: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    hoursDoorEach: hoursDoorEach + callback.hoursMissingHardwareEach,
+    doorInvoice: doorInvoice + callback.missingHardwareEach,
+  });
+
+  const rows = [
+    {
+      supply: 'contractor-supplied',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: contractor,
+    },
+    {
+      supply: 'owner-fits',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerFits,
+    },
+    {
+      supply: 'owner-wrong',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerWrong,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    fixtureMaterial: row.bid.fixtureMaterial,
+    doorMaterial: row.bid.doorMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    hoursDoor: row.bid.hoursDoor,
+    hoursSet: row.bid.hoursSet,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsContractor: contractor.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the tub invoice.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  if (!contractor || !fits || !wrong) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = contractor.price - fits.price;
+  const callbackLift = wrong.price - fits.price;
+  if (contractor.installOnly && fits.installOnly) {
+    const asked = contractor.installOnly.price;
+    if (contractor.installOnly.belowBreakEven && fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} install-only you lose money even when they bought the tub. Walk-away on the owner-supplied set is ${money(fits.breakEvenPrice)}.`;
+    }
+    if (contractor.installOnly.belowBreakEven && !fits.installOnly.belowBreakEven) {
+      if (wrong.installOnly?.belowBreakEven) {
+        return `At ${money(asked)} the contractor-supplied job loses ${money(Math.abs(contractor.installOnly.profit))}. The same install-only number covers the set if their tub actually fits. A wrong-drain callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+      }
+      return `At ${money(asked)} the contractor-supplied job loses ${money(Math.abs(contractor.installOnly.profit))}. The same install-only number covers the set if their tub actually fits.`;
+    }
+    if (wrong.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their tub fits. A wrong-drain callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A wrong-drain callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the tub invoice drops the bid ${money(drop)}. A wrong-drain callback puts ${money(callbackLift)} back on.`;
+}
+
+export const ACCESS_PRESETS = Object.freeze([
+  {
+    id: 'weekday-scheduled',
+    label: 'Weekday, they leave',
+    detail: 'Another bath, or they stay out of this one',
+  },
+  {
+    id: 'occupied-weekday',
+    label: 'Weekday, only bath still in use',
+    detail: 'Same wage, slower set and punch-list after a fall',
+  },
+  {
+    id: 'after-hours',
+    label: 'After-hours / Saturday',
+    detail: 'Overtime wage plus a second evening trip',
+  },
+]);
+
+/**
+ * Starting pace and overtime when they will not wait for a
+ * weekday slot. Occupied pace is a multiplier on the typed
+ * unit, demo, set, and site hours — working around the only
+ * tub they still climb is slower, not a different wage.
+ * After-hours is time-and-a-half on the typed wage plus a
+ * second evening dispatch from the owner-callback trip, so a
+ * typed 9-hour site day does not inflate the extra trip.
+ */
+export function suggestedAccessKit() {
+  const extra = suggestedExtraKit();
+  return {
+    occupiedPaceMultiplier: 1.25,
+    afterHoursWageMultiplier: 1.5,
+    afterHoursExtraTripHours: extra.hoursTrip,
+  };
+}
+
+/**
+ * Price the same bath three ways: they leave on a weekday,
+ * they still bathe around you, or Saturday / after-hours.
+ *
+ * Occupied keeps the typed wage and adds clock hours on
+ * the unit set, demo, alcove set, and punch-list. After-hours
+ * keeps the typed hours and raises the wage, then adds a
+ * starting second evening trip because you cannot leave the
+ * alcove open overnight in the only bath. Scope, tub invoice,
+ * and extras stay.
+ *
+ * A Saturday / install-only price (options.installOnlyPrice,
+ * else the proposed price on the bid) is scored against
+ * each cost base. That is the "$3,499 Saturday" number
+ * aging-in-place shops actually get shopped on after a fall.
+ */
+export function compareAccess(input, options = {}) {
+  const kit = suggestedAccessKit();
+  const hoursTubEach = number(input.hoursTubEach ?? 0, 'Tub hours each');
+  const hoursDemoEach = number(input.hoursDemoEach ?? 0, 'Demo hours each');
+  const hoursSetBase = number(input.hoursSetBase ?? 0, 'Set-base hours each');
+  const siteHours = number(input.siteHours ?? 0, 'Site hours');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const weekday = calculateBid(input);
+  const occupied = calculateBid({
+    ...input,
+    hoursTubEach: hoursTubEach * kit.occupiedPaceMultiplier,
+    hoursDemoEach: hoursDemoEach * kit.occupiedPaceMultiplier,
+    hoursSetBase: hoursSetBase * kit.occupiedPaceMultiplier,
+    siteHours: siteHours * kit.occupiedPaceMultiplier,
+  });
+  const afterHours = calculateBid({
+    ...input,
+    hourlyWage: hourlyWage * kit.afterHoursWageMultiplier,
+    hoursTrip: hoursTrip + kit.afterHoursExtraTripHours,
+  });
+
+  const rows = [
+    {
+      access: 'weekday-scheduled',
+      label: ACCESS_PRESETS[0].label,
+      detail: ACCESS_PRESETS[0].detail,
+      bid: weekday,
+    },
+    {
+      access: 'occupied-weekday',
+      label: ACCESS_PRESETS[1].label,
+      detail: ACCESS_PRESETS[1].detail,
+      bid: occupied,
+    },
+    {
+      access: 'after-hours',
+      label: ACCESS_PRESETS[2].label,
+      detail: ACCESS_PRESETS[2].detail,
+      bid: afterHours,
+    },
+  ].map((row) => ({
+    access: row.access,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    loadedWage: row.bid.loadedWage,
+    siteHours: row.bid.siteHours,
+    hoursTub: row.bid.hoursTub,
+    hoursDemo: row.bid.hoursDemo,
+    hoursSet: row.bid.hoursSet,
+    hoursTravel: row.bid.hoursTravel,
+    laborCost: row.bid.laborCost,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    liftFromWeekday: row.bid.price - weekday.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the access table. Names the Saturday
+ * / after-hours loss when that number is on the table;
+ * otherwise names the bid lift from a weekday they leave.
+ */
+export function accessNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Access comparison is missing rows');
+  }
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  if (!weekday || !occupied || !afterHours) {
+    throw new Error('Access comparison is missing an access row');
+  }
+
+  const occupiedLift = occupied.price - weekday.price;
+  const afterHoursLift = afterHours.price - weekday.price;
+  if (weekday.installOnly && afterHours.installOnly) {
+    const asked = weekday.installOnly.price;
+    if (weekday.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} you lose money even on a weekday slot. Walk-away after-hours is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (!weekday.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the weekday set covers. The same Saturday / after-hours number loses ${money(Math.abs(afterHours.installOnly.profit))} — walk-away then is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (occupied.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} a weekday slot covers. Same-day while they stay home still loses ${money(Math.abs(occupied.installOnly.profit))} — walk-away then is ${money(occupied.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} every access window still holds a margin. After-hours still adds ${money(afterHoursLift)} to the bid.`;
+  }
+  return `Only-bath-still-in-use adds ${money(occupiedLift)} to the bid. After-hours / Saturday adds ${money(afterHoursLift)}.`;
 }
 
 function money(value) {

@@ -35,6 +35,18 @@ test("records named feature events without storing inputs", () => {
   recordUsage(storage, false, "subscribe_save_compared");
   recordUsage(storage, false, "bulk_buy_compared");
   recordUsage(storage, false, "prep_compared");
+  recordUsage(storage, false, "seller_plan_compared");
+  recordUsage(storage, false, "vine_compared");
+  recordUsage(storage, false, "aged_inventory_compared");
+  recordUsage(storage, false, "inbound_placement_compared");
+  recordUsage(storage, false, "return_rate_calculated");
+  recordUsage(storage, false, "storage_season_compared");
+  recordUsage(storage, false, "size_tier_packaging_compared");
+  recordUsage(storage, false, "sfp_compared");
+  recordUsage(storage, false, "low_inventory_compared");
+  recordUsage(storage, false, "awd_compared");
+  recordUsage(storage, false, "remote_fulfillment_compared");
+  recordUsage(storage, false, "liquidation_compared");
   const stored = JSON.parse(storage.getItem("amazon-fba-usage"));
   assert.equal(stored.fulfillment_path_compared, 1);
   assert.equal(stored.coupon_compared, 1);
@@ -43,6 +55,18 @@ test("records named feature events without storing inputs", () => {
   assert.equal(stored.subscribe_save_compared, 1);
   assert.equal(stored.bulk_buy_compared, 1);
   assert.equal(stored.prep_compared, 1);
+  assert.equal(stored.seller_plan_compared, 1);
+  assert.equal(stored.vine_compared, 1);
+  assert.equal(stored.aged_inventory_compared, 1);
+  assert.equal(stored.inbound_placement_compared, 1);
+  assert.equal(stored.return_rate_calculated, 1);
+  assert.equal(stored.storage_season_compared, 1);
+  assert.equal(stored.size_tier_packaging_compared, 1);
+  assert.equal(stored.sfp_compared, 1);
+  assert.equal(stored.low_inventory_compared, 1);
+  assert.equal(stored.awd_compared, 1);
+  assert.equal(stored.remote_fulfillment_compared, 1);
+  assert.equal(stored.liquidation_compared, 1);
   assert.ok(stored.last_day);
 });
 

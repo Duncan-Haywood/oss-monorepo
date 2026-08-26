@@ -14,8 +14,18 @@ for an e-invoice preflight check.
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
-# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC.
+# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
+# credit-note document type (INV-032 through INV-034), 0% / exempt
+# tax reasons (INV-035 and INV-036), mixed-rate tax breakdown
+# (INV-037 and INV-038), buyer/seller electronic addresses
+# (INV-039 through INV-041), invoice period start/end
+# (INV-042 and INV-043), and payment means vs IBAN
+# (INV-044 through INV-046), buyer / purchase-order
+# references (INV-047 through INV-049), and header
+# allowances or charges (INV-050 through INV-052).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
@@ -45,8 +55,9 @@ Pass `-`
 as the filename to read one JSON or UBL XML invoice from standard input, which
 is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
 the artifact name for piped input. Directories are scanned recursively for both
-`.json` and `.xml` files. XML input maps common UBL Invoice elements into the
-same checks; it is not a full Peppol or EN 16931 conformance validator. Use
+`.json` and `.xml` files. XML input maps common UBL Invoice, CreditNote, and
+DebitNote elements into the same checks. It is
+not a full Peppol or EN 16931 conformance validator. Use
 `--max-files N` in CI or ERP jobs to refuse a directory scan when more than `N`
 invoice files are present. This bounds accidental scans of a broad working
 tree; the command exits `2` without reading any invoice contents.
@@ -61,8 +72,8 @@ for selecting the correct format, tax treatment, and submission process.
 ## Input shape
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
-input maps common `Invoice`, `InvoiceLine`, party, tax, and monetary-total
-elements into this shape. When an invoice contains multiple UBL `TaxTotal`
+input maps common `Invoice`, `CreditNote`, `DebitNote`, line, party, tax, and
+monetary-total elements into this shape. When an invoice contains multiple UBL `TaxTotal`
 elements, their `TaxAmount` values are added to obtain the invoice tax total.
 This keeps split tax schemes from being silently ignored; it is still an
 arithmetic check, not a tax-law determination:
@@ -72,12 +83,17 @@ arithmetic check, not a tax-law determination:
   "invoice_number": "INV-1001",
   "issue_date": "2026-08-24",
   "due_date": "2026-09-23",
+  "period": {"start": "2026-07-01", "end": "2026-07-31"},
+  "buyer_reference": "COST-441",
+  "order_reference": "PO-9001",
+  "document_type": "invoice",
   "currency": "EUR",
-  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
-  "customer": {"id": "DE456", "name": "Customer GmbH"},
-  "payment": {"iban": "DE89370400440532013000", "bic": "COBADEFFXXX"},
+  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976", "endpoint": {"scheme": "0088", "id": "1234567890128"}},
+  "customer": {"id": "DE456", "name": "Customer GmbH", "endpoint": {"scheme": "EM", "id": "ap@customer.example"}},
+  "payment": {"means": "30", "iban": "DE89370400440532013000", "bic": "COBADEFFXXX", "remittance": "RF18539007547034"},
+  "adjustments": [{"kind": "allowance", "amount": 20, "base": 200, "percent": 10, "reason": "Early payment discount"}],
   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
-  "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
+  "totals": {"net": 180, "tax": 38, "gross": 218, "prepaid": 38, "due": 180}
 }
 ```
 
@@ -90,6 +106,28 @@ VAT numbers. Failed checksums are `INV-023`; a `vat_id` that is not a known
 shape is `INV-022`. Messages never repeat the identifier. This is a typo
 catch, not a VIES registration lookup and not a determination that a party
 may charge tax. UBL `PartyTaxScheme/CompanyID` maps into `vat_id`.
+
+`supplier.endpoint` and `customer.endpoint` are optional. When supplied they
+are `{ "scheme": "<EAS>", "id": "<address>" }`. A missing or unknown Peppol
+EAS scheme is `INV-039`. An empty id is `INV-040`. A known scheme that fails
+its published shape — GS1 check digit on `0088` (GLN), an email shape on
+`EM`, or the digit length for `0007` / `0184` / `0190` / `0192` / `0208` /
+`0212` — is `INV-041`. Other known schemes only require a non-empty
+identifier. Messages never repeat the address. This is a typo catch, not a
+Peppol SMP lookup and not a claim that the party can receive e-invoices.
+UBL `Party/EndpointID` maps into `endpoint.id` and `schemeID` maps into
+`endpoint.scheme`.
+
+`payment.means` is optional. When supplied it is a UNCL 4461 payment means
+code (BT-81) such as `30` (credit transfer), `58` (SEPA credit transfer),
+or `10` (cash). An empty or undocumented code is `INV-044`. A credit
+transfer, SEPA transfer, or direct debit without a complete IBAN is
+`INV-045`. Cash, cheque, or card together with a complete IBAN is
+`INV-046`. Omitted means stay clean even when an IBAN is present.
+Messages never repeat the typed code or the account. This is a code-list
+and consistency check, not a Peppol profile determination and not a claim
+that the buyer can pay that way. UBL `PaymentMeans/PaymentMeansCode` maps
+into `payment.means`.
 
 `payment.iban` is optional. When supplied, it is checked against published
 IBAN lengths and the ISO 13616 MOD-97 checksum. Failed checksums are
@@ -110,10 +148,97 @@ and not a determination that the institution will accept the payment. UBL
 `PayeeFinancialAccount/FinancialInstitutionBranch/ID` (or the nested
 `FinancialInstitution/ID`) maps into `payment.bic`.
 
+`payment.remittance` is the text the buyer should quote on the transfer.
+When a complete IBAN is present and remittance is missing, that is
+`INV-030` — an unmatched SEPA credit is how paid invoices sit in
+unallocated cash. When remittance is supplied, an ISO 11649 RF creditor
+reference that fails its MOD-97 check (or that is not RF-shaped after
+starting with `RF`) is `INV-031`. Unstructured notes are accepted up to
+140 characters. Messages never repeat the reference. This is a matching
+and typo catch, not a bank lookup and not a determination that a payment
+will be allocated. UBL `PaymentMeans/PaymentID` maps into
+`payment.remittance`; `InstructionNote` is used when `PaymentID` is
+absent.
+
+`document_type` is optional and defaults to a commercial invoice. Use
+`invoice`, `credit_note`, or `debit_note` (UN/CEFACT 1001 codes `380`,
+`381`, and `383` are accepted). An unknown type is `INV-032`. A credit
+or debit note without `original_invoice` is `INV-033` — networks reject
+a reversing document that does not name the invoice it applies to. A
+commercial invoice that carries a credit or debit type code, or a
+credit that names itself as the original, is `INV-034`. Messages never
+repeat the original invoice number. This is a document-shape check, not
+a Peppol profile determination. UBL `CreditNote` and `DebitNote` roots
+map into `document_type`; `InvoiceTypeCode` / `CreditNoteTypeCode` /
+`DebitNoteTypeCode` map into `document_code`;
+`BillingReference/InvoiceDocumentReference/ID` maps into
+`original_invoice`.
+
+A line with `tax_percent` of `0`, or a UNECE 5305 category of `E`, `AE`,
+`K`, `G`, `O`, or `Z`, needs an exemption reason. Put it on the line as
+`tax_reason` or `tax_reason_code` (for example `VATEX-EU-IC`), or on the
+invoice as `tax_exemption_reason` / `tax_exemption_reason_code`. A missing
+reason is `INV-035`. An empty reason field is `INV-036`. Messages never
+repeat the reason text. This is a document-shape check — the tool does
+not decide whether 0% is legally correct. UBL
+`ClassifiedTaxCategory/ID` maps into `tax_category`;
+`TaxExemptionReason` and `TaxExemptionReasonCode` map into the line
+reason fields. `TaxTotal/TaxSubtotal/TaxCategory` exemption fields map
+into the invoice-level reason.
+
+When line items use more than one `tax_percent`, the invoice needs
+`tax_breakdown`: one row per rate with `tax_percent`, `taxable` (the net
+of those lines), and `tax` (taxable times the rate, rounded to cents).
+A mixed-rate invoice without that list is `INV-037`. A present breakdown
+that is the wrong shape, repeats a rate, misses a rate the lines use,
+or disagrees with the line nets is `INV-038`. A single-rate invoice may
+omit the list. This is per-rate arithmetic — the same relationship EN
+16931 expresses as `TaxTotal/TaxSubtotal` — not a determination that a
+percentage is legally correct. UBL `TaxSubtotal` rows map into
+`tax_breakdown` (`TaxableAmount`, `TaxAmount`, `TaxCategory/Percent`,
+and optional `TaxCategory/ID` as `tax_category`).
+
 `due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
 earlier than `issue_date`; this is a date-shape and document-consistency check,
 not a judgment about payment terms or legal requirements. UBL `DueDate` is
 mapped into the same optional field.
+
+`buyer_reference` and `order_reference` are optional (EN 16931 BT-10 /
+BT-13). When supplied they must be non-empty text, not a placeholder such
+as `N/A` or `none`, and no longer than 70 characters. An empty or
+placeholder buyer reference is `INV-047`. The same defects on the
+purchase-order field are `INV-048`. A purchase-order value that repeats
+the invoice number is `INV-049`. Omitted references stay clean. Messages
+never repeat the typed reference. This is a shape and consistency check,
+not a Peppol profile determination and not a claim that the buyer issued
+that order. UBL `BuyerReference` maps into `buyer_reference` and
+`OrderReference/ID` maps into `order_reference`.
+
+`adjustments` is optional (EN 16931 BT-92 / BT-99). When supplied it is a
+list of document-level allowances and charges: `{ "kind": "allowance" |
+"charge", "amount": <money>, "base": <money>, "percent": <0-100>,
+"reason": "<text>", "reason_code": "<code>" }`. An empty list, a
+non-list, a missing kind, or a missing or negative amount is `INV-050`.
+When both `percent` and `base` are present, an amount that does not
+equal the percentage of the base (rounded to cents) is `INV-051`. A
+missing, empty, or placeholder reason (and reason code) is `INV-052`.
+Omitted adjustments stay clean. Invoice net then equals line nets minus
+allowances plus charges (`INV-014`). Messages never repeat the amount,
+percent, or reason. This is arithmetic and shape, not a Peppol profile
+determination and not a claim that the discount is commercially
+correct. UBL invoice-level `AllowanceCharge` maps into `adjustments`
+(`ChargeIndicator`, `Amount`, `BaseAmount`, `MultiplierFactorNumeric`,
+`AllowanceChargeReason`, `AllowanceChargeReasonCode`). Line-level
+`AllowanceCharge` is ignored.
+
+`period` is optional. When supplied it is `{ "start": "YYYY-MM-DD", "end":
+"YYYY-MM-DD" }` — the EN 16931 invoice period (BT-73 / BT-74). A period that
+is not an object, that names only one date, or that is not an ISO date is
+`INV-042`. An end earlier than the start is `INV-043`. Omitted periods stay
+clean. Messages never repeat the dates. This is a date-shape check, not a
+Peppol profile determination and not a claim that the dates match the
+underlying contract. UBL invoice-level `InvoicePeriod/StartDate` and
+`EndDate` map into `period`; line-level `InvoicePeriod` is ignored.
 
 `totals.prepaid` and `totals.due` are optional. When `prepaid` is supplied, it
 must be a non-negative amount no greater than `totals.gross` (`INV-028`). When
@@ -256,6 +381,15 @@ No. It reads one local JSON file and writes a report to stdout.
 No. It checks the arithmetic for the tax percentage supplied in each line; it
 does not decide whether that percentage is legally correct.
 
+### Does a 0% line need a reason?
+
+When a line is 0% or uses an exempt / zero-rated category (`E`, `AE`,
+`K`, `G`, `O`, `Z`), the preflight expects `tax_reason` or
+`tax_reason_code` (or an invoice-level exemption reason). That is the
+same shape Peppol and many EN 16931 CIUS reject when the reason is
+missing. The tool never chooses the reason and never claims the
+exemption is legally valid.
+
 ### Does it look up VAT registrations?
 
 No. Optional `vat_id` values (and a complete VAT shape in `id`) are checked
@@ -274,6 +408,9 @@ a balance is legally due.
 No. Optional `payment.iban` values (and a UBL payee account ID) are checked
 with the published IBAN length and MOD-97 checksum only. Optional
 `payment.bic` values are checked for ISO 9362 shape and, when both are
-complete, for the same country as the IBAN. The tool never contacts a
-bank, never stores the account number or BIC, and never claims funds can
-be received there.
+complete, for the same country as the IBAN. Optional `payment.remittance`
+(and UBL `PaymentID` / `InstructionNote`) is required when a complete
+IBAN is present and, when it looks like an RF creditor reference, is
+checked with the published ISO 11649 checksum only. The tool never
+contacts a bank, never stores the account number, BIC, or remittance,
+and never claims funds can be received or allocated there.

@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reverb Fee Calculator | Offer vs List, Shipping Included vs Buyer-Pays</title>
-  <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, and whether free shipping or local pickup still beats charging postage.">
+  <title>Reverb Fee Calculator | Offer vs List, Shop Consignment vs Cash</title>
+  <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, and whether consigning or taking a shop cash offer still beats listing it yourself.">
   <meta property="og:title" content="Reverb Fee Calculator">
-  <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, and versus baking shipping into the item price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping"}</script>
+  <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, versus baking shipping into the item price, versus absorbing the label, versus buying Reverb's insured label, and versus a shop consignment cut or cash offer.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping, Reverb Safe Shipping versus own label, shop consignment versus self-list, shop cash offer versus Reverb"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -20,13 +20,18 @@
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: inherit; } #copyLink { background: #c5edb5; color: #16261f; border-color: #c5edb5; } #reset { background: transparent; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
     .compare { margin-top: 18px; } .compare table { width: 100%; } .compare th, .compare td { border-bottom: 1px solid #d8d2c4; } .compare tr.winner { font-weight: 750; background: #eef6e8; } .verdict { font-size: 1.08rem; font-weight: 700; margin: 0 0 10px; }
     footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+      /* A grid item defaults to min-width:auto and grows to its widest child, so a
+       wide results table pushed the whole page sideways on a phone instead of
+       scrolling inside its own box, dragging the inputs off-screen with it. */
+    .layout > * { min-width: 0; }
+    @media (max-width: 700px) { section { overflow-x: auto; } table { max-width: 100%; } }
   </style>
 </head>
 <body>
   <header>
     <p>FOR REVERB SELLERS</p>
     <h1>See whether that offer still beats eBay.</h1>
-    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>.</p>
+    <p>Enter the rates from your last Reverb payout and the eBay final-value fee you actually pay. The calculator shows cash at your list price, cash if you take the offer, and the Reverb offer that leaves the same cash as selling the same item on eBay. Walk the numbers on <a href="should-i-take-this-reverb-offer.html">should I take this Reverb offer</a>. Marketplace fee sits on the item, so baking postage into the list costs extra — compare that to charging shipping, absorbing the label, or offering pickup on <a href="should-i-include-shipping-on-reverb.html">should I include shipping on Reverb</a> and <a href="should-i-eat-the-shipping-on-reverb.html">should I eat the shipping</a>. Reverb Safe Shipping is a more expensive label, not a different checkout — compare it to your own label on <a href="should-i-buy-reverb-safe-shipping.html">should I buy Reverb Safe Shipping</a>. A shop that will consign or buy the guitar today is a different sale — compare that on <a href="should-i-consign-this-reverb-listing.html">should I consign this Reverb listing</a>.</p>
   </header>
   <main class="layout">
     <section>
@@ -36,6 +41,9 @@
         <label>Buyer offer <input id="offerPrice" type="number" min="0" step="0.01" value="720"></label>
         <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="75"></label>
         <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="65"></label>
+        <label>Reverb Safe Shipping label <input id="safeShippingCost" type="number" min="0" step="0.01" value="80"></label>
+        <label>Cash you eat on an unprotected claim <input id="claimCost" type="number" min="0" step="0.01" value="450"></label>
+        <label>Unprotected claim rate (%) <input id="unprotectedLossRatePct" type="number" min="0" max="100" step="0.1" value="2"></label>
         <label>What you paid for the item <input id="itemCost" type="number" min="0" step="0.01" value="450"></label>
         <label>Other per-sale cost <input id="otherCost" type="number" min="0" step="0.01" value="10"></label>
         <label>Reverb marketplace fee (%) <input id="marketplaceRate" type="number" min="0" step="0.1" value="5"></label>
@@ -46,6 +54,9 @@
         <label>Meetup / pickup cost <input id="meetupCost" type="number" min="0" step="0.01" value="0"></label>
         <label>eBay final value fee (%) <input id="ebayFinalValueRate" type="number" min="0" step="0.1" value="13.25"></label>
         <label>eBay per-order fixed fee <input id="ebayFixedFee" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Shop sale price <input id="shopSalePrice" type="number" min="0" step="0.01" value="800"></label>
+        <label>Shop consignment cut (%) <input id="consignmentRate" type="number" min="0" max="100" step="0.1" value="30"></label>
+        <label>Shop cash offer <input id="shopCashOffer" type="number" min="0" step="0.01" value="520"></label>
       </div>
     </section>
     <section class="result">
@@ -107,6 +118,42 @@
     <p id="shippingMatch" class="note"></p>
     <p class="note">Including shipping folds postage into the item so marketplace fee rises. Absorbing the label keeps your typed list and leaves the postage on you — a cheaper checkout for the buyer and less cash for you. Local pickup uses your list with no shipping charged; add gas or parking as the meetup cost if pickup is not free. This is not a recommendation — it is the arithmetic on the rates you typed. <a href="should-i-include-shipping-on-reverb.html">Include-shipping example</a>. <a href="should-i-eat-the-shipping-on-reverb.html">Absorb-the-label example</a>.</p>
   </section>
+  <section class="compare" id="safe-shipping-compare">
+    <h2>Your own label or Reverb Safe Shipping</h2>
+    <p id="safeShippingVerdict" class="verdict"></p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Label you pay</th>
+          <th scope="col">Expected claim</th>
+          <th scope="col">Expected net</th>
+          <th scope="col">vs own after claims</th>
+        </tr>
+      </thead>
+      <tbody id="safeShippingRows"></tbody>
+    </table>
+    <p id="safeShippingMatch" class="note"></p>
+    <p class="note">Safe Shipping does not change what the buyer pays. It only changes the label you buy and whether you eat a damaged or lost shipment. Expected keep subtracts (claim rate × cash you lose on an unprotected claim) from own-label profit. A $0 Safe Shipping quote is illustrated at your own label plus $15 so the table is never empty. This is not a recommendation to buy their label — it is the arithmetic on the rates you typed. <a href="should-i-buy-reverb-safe-shipping.html">Worked example</a>.</p>
+  </section>
+  <section class="compare" id="consignment-compare">
+    <h2>List it yourself, consign at the shop, or take their cash</h2>
+    <p id="consignmentVerdict" class="verdict"></p>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Their price</th>
+          <th scope="col">You receive</th>
+          <th scope="col">Net after gear</th>
+          <th scope="col">vs Reverb list</th>
+        </tr>
+      </thead>
+      <tbody id="consignmentRows"></tbody>
+    </table>
+    <p id="consignmentMatch" class="note"></p>
+    <p class="note">Consignment is a percent of the shop's sale, not of your Reverb list. They ship and they collect, so this path does not pay Reverb marketplace, payment processing, a bump, or a label. Their cash offer is a buy today — you walk with that number minus what you paid for the gear. This is not a recommendation to consign or to take their cash — it is the arithmetic on the rates you typed. <a href="should-i-consign-this-reverb-listing.html">Worked example</a>.</p>
+  </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -114,7 +161,7 @@
     <p>Free and open source. If it stopped you from taking a $720 offer that left $74 on the table, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareShippingPaths } from './calc.mjs';
+    import { INPUT_FIELDS, REVERB_DEFAULTS, compareOfferToList, compareReverbToEbay, calculateEbaySale, offerThatMatchesEbayList, compareShippingPaths, compareSafeShipping, compareConsignment, consignmentNote } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
 
@@ -197,11 +244,41 @@
       document.getElementById('shippingMatch').textContent =
         `To keep buyer-pays cash with shipping included, list at ${money(shipping.includedListThatMatchesBuyerPays)} (buyer pays that all-in).`;
 
+      const protectedShip = compareSafeShipping(inputs);
+      document.getElementById('safeShippingRows').innerHTML = protectedShip.rows.map(row => {
+        const wins = row.id === protectedShip.winner || (protectedShip.winner === 'tie' && row.id !== 'ownIfNothing');
+        return `<tr class="${wins ? 'winner' : ''}"><td>${row.label}</td><td>${money(row.labelCost)}</td><td>${money(row.expectedClaim)}</td><td>${money(row.expectedProfit)}</td><td>${signed(row.vsOwnExpected)}</td></tr>`;
+      }).join('');
+      const breakEven = Number.isFinite(protectedShip.breakEvenLossRatePct)
+        ? `${protectedShip.breakEvenLossRatePct.toFixed(2)}%`
+        : 'any rate (claim cost is $0)';
+      document.getElementById('safeShippingVerdict').textContent = protectedShip.winner === 'safeShipping'
+        ? `Reverb Safe Shipping still leaves more expected cash. The extra ${money(protectedShip.extraLabelCost)} label beats a ${protectedShip.lossRatePct}% chance of eating ${money(protectedShip.claimCost)}.`
+        : protectedShip.winner === 'ownExpected'
+          ? `Your own label still leaves more expected cash. Safe Shipping's extra ${money(protectedShip.extraLabelCost)} label is worth it only if you lose more than ${breakEven} of shipments at a ${money(protectedShip.claimCost)} claim.`
+          : `Own label after expected claims and Safe Shipping leave the same cash on these inputs.`;
+      document.getElementById('safeShippingMatch').textContent = protectedShip.usedIllustratedQuote
+        ? `No Safe Shipping quote was typed, so the table illustrates your own label plus $15.00.`
+        : `Break-even unprotected claim rate is ${breakEven}.`;
+
+      const consignment = compareConsignment(inputs);
+      const consignBest = Math.max(...consignment.rows.map(row => row.profit));
+      document.getElementById('consignmentRows').innerHTML = consignment.rows.map(row =>
+        `<tr class="${row.profit === consignBest ? 'winner' : ''}"><td>${row.label}</td><td>${money(row.price)}</td><td>${money(row.youReceive)}</td><td>${money(row.profit)}</td><td>${signed(row.vsSelfList)}</td></tr>`
+      ).join('');
+      document.getElementById('consignmentVerdict').textContent = consignmentNote(consignment);
+      const offerVsConsign = consignment.vsOffer;
+      document.getElementById('consignmentMatch').textContent = offerVsConsign >= 0
+        ? `That shop cut also leaves ${money(offerVsConsign)} more than taking the ${money(Number(inputs.offerPrice) || 0)} Reverb offer.`
+        : `That shop cut leaves ${money(-offerVsConsign)} less than taking the ${money(Number(inputs.offerPrice) || 0)} Reverb offer.`;
+
       safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
       const optedOut = field('usageOptOut').checked;
       recordUsage(undefined, optedOut, 'reverb_sale_calculated');
       recordUsage(undefined, optedOut, 'reverb_offer_compared');
       recordUsage(undefined, optedOut, 'reverb_shipping_compared');
+      recordUsage(undefined, optedOut, 'reverb_safe_shipping_compared');
+      recordUsage(undefined, optedOut, 'reverb_consignment_compared');
     }
 
     field('copyLink').addEventListener('click', async () => {

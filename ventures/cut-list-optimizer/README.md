@@ -28,6 +28,12 @@ Enter the sheet size, your saw kerf, and one part per line:
 
 **Copy cut plan** puts a plain-text version on the clipboard for a job ticket or shop note. **Print** produces a paper copy of the diagrams with the controls hidden.
 
+The current form is saved as an optional local draft when a field is changed, so a
+shop can return to an unfinished list after closing the tab. **Clear saved draft**
+removes it immediately. Drafts contain only the form values and never leave the
+browser; enabling the footer opt-out clears both the draft and anonymous usage
+counts.
+
 ### How the layouts are produced, and what that means for you
 
 Every cut in a sheet plan runs edge to edge across whatever is left of the sheet — a **guillotine** layout. That is not a simplification, it is what a table saw, track saw, or panel saw can physically do. Nesting layouts that need an interior cut score better on paper and cannot be cut on the machines this tool's users own.
@@ -42,7 +48,14 @@ Kerf and edge trim are counted as **waste**, not as usable material, so the util
 
 ## Linear stock
 
-Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
+Enter one required length per line. Add `x quantity` when several identical pieces are needed, such as `24 x 3`. Add an optional cost per stock piece to see the material spend for the plan before buying. The deterministic first-fit decreasing plan is a planning aid, not a guarantee of the optimal arrangement. Use **Copy cut plan** to put a plain-text version into a job ticket or shop note; it stays in your browser and is not uploaded.
+
+Two optional inputs turn the plan from a waste estimate into a purchasing decision:
+
+- **Offcuts you already have** — same `36 x 2` format as the cut list. These are consumed before any new stock is opened, shortest usable piece first, so the long stock on your rack stays whole for the next job. An offcut nothing gets cut from is left alone: it counts as neither consumed stock nor waste.
+- **Cost per stock piece** and **currency** — prices the plan, and reports how many purchases planning against your own rack avoided, and what that saved against buying everything new. Only pieces you actually buy are priced; an offcut off your own rack is already paid for and is not charged again.
+
+Both are carried into the copied job ticket alongside the stock length and kerf the plan assumed.
 
 ## Privacy
 
@@ -55,6 +68,8 @@ Everything runs in the browser. The cut list never leaves your device, there are
 | `cut-list-optimizer-sheet-runs` | A sheet layout was calculated from a settled edit |
 | `cut-list-optimizer-sheet-copies` | A sheet plan was copied out for a job ticket |
 | `cut-list-optimizer-sheet-compares` | Two or more sheet sizes were ranked on the same list |
+
+The saved draft uses a separate local-storage key and is not an analytics event.
 
 Keeping them apart is what makes the numbers readable: `runs` shows the tool was used, `copies` shows a plan was good enough to carry into the shop, and the `sheet-` pair shows which half of the product people come back for. None of the counters records the cut list itself — no dimension, label, quantity, or price — and nothing is transmitted.
 
@@ -82,4 +97,8 @@ It also checks that every import resolves to a real export, that both tab panels
 stay wired to their tabs, and that user-supplied part labels are escaped before
 they reach the DOM.
 
-**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
+## Support
+
+Free and open source, with no gated features. If it saved you a trip to the lumber yard, [sponsoring its upkeep](https://github.com/sponsors/Duncan-Haywood) is welcome and entirely optional — declining changes nothing about what the tool does.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, including dimensions, tool setup, material, and prices, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.

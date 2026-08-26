@@ -71,6 +71,10 @@ test('sample JSON is a usable first-value scan, not an empty box', () => {
   assert.match(html, /"image-alt"/);
 });
 
+test('keeps theme-areas.html as a sibling, not a replacement', () => {
+  assert.match(markup, /href="\.\/theme-areas\.html"/);
+});
+
 test('user-facing rule text is escaped before it reaches innerHTML', () => {
   assert.match(scriptSource, /function\s+escapeHtml/);
   const interpolations = [...scriptSource.matchAll(/\$\{[^}]*item\.(id|help|impact)[^}]*\}/g)];

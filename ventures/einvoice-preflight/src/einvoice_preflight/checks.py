@@ -4,8 +4,17 @@ from datetime import date
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from typing import Any
 
+from .adjustment import header_adjustment_net_delta, inspect_header_adjustments
 from .bic import inspect_payment_bic
+from .breakdown import inspect_tax_breakdown
+from .document import inspect_document_type
+from .endpoint import inspect_party_endpoint
 from .iban import inspect_payment_iban
+from .means import inspect_payment_means
+from .period import inspect_invoice_period
+from .reference import inspect_commercial_references
+from .remittance import inspect_payment_remittance
+from .tax import inspect_tax_exemption
 from .vat import inspect_party_vat
 
 
@@ -66,9 +75,27 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
         if isinstance(party, dict):
             for finding in inspect_party_vat(party, party_name):
                 fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+            for finding in inspect_party_endpoint(party, party_name):
+                fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_iban(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_payment_means(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_payment_bic(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_payment_remittance(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_document_type(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_tax_exemption(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_tax_breakdown(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_invoice_period(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_commercial_references(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_header_adjustments(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     lines = invoice.get("lines")
     if not isinstance(lines, list) or not lines:
@@ -97,6 +124,9 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
             supplied = _money(line.get("net"))
             if supplied is None or supplied != line_net:
                 fail("INV-012", f"Line {index} net is missing or does not match quantity times unit price.", f"Set line net to {line_net} or correct the inputs.", f"/lines/{index - 1}/net")
+    expected_net = (expected_net + header_adjustment_net_delta(invoice)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    if expected_net < 0:
+        expected_net = Decimal("0.00")
     totals = invoice.get("totals")
     if not isinstance(totals, dict):
         totals = {}
@@ -104,7 +134,10 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     if net is None or net < 0:
         fail("INV-013", "Invoice net total is missing or invalid.", "Provide a non-negative numeric net total.", "/totals/net")
     elif net != expected_net:
-        fail("INV-014", "Invoice net total does not match its line items.", f"Set net total to {expected_net} or correct the line items.", "/totals/net")
+        if invoice.get("adjustments"):
+            fail("INV-014", "Invoice net total does not match line items after header allowances and charges.", f"Set net total to {expected_net} or correct the line items and adjustments.", "/totals/net")
+        else:
+            fail("INV-014", "Invoice net total does not match its line items.", f"Set net total to {expected_net} or correct the line items.", "/totals/net")
     if tax_total is None or tax_total < 0:
         fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax")
     elif tax_total != expected_tax:

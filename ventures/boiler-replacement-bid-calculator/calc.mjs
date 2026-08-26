@@ -748,6 +748,337 @@ function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'tech-supplied',
+    label: 'You supply the boiler',
+    detail: 'Plant invoice stays in the bid',
+  },
+  {
+    id: 'owner-fits',
+    label: 'Owner supplies — it matches',
+    detail: 'No plant invoice, same hang hours',
+  },
+  {
+    id: 'owner-wrong',
+    label: 'Owner supplies — wrong unit',
+    detail: 'Second trip plus adapters',
+  },
+]);
+
+/**
+ * Starting callback hours and adapter hardware when the
+ * owner's supply-house or online boiler does not match the
+ * plant. Taken from the extra-kit trip so a typed 16-hour
+ * steam conversion does not inflate the callback.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    hoursWrongPlant: 3.5,
+    wrongPlantHardware: 280,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same plant three ways: you supply the boiler, the
+ * owner supplies one that matches, or the owner supplies one
+ * that does not match and costs a second trip.
+ *
+ * Owner rows zero the plant invoice and the fuel add-on and
+ * keep the current hang hours — setting a Ferguson crate is
+ * still a changeout. The wrong-unit row adds a starting
+ * callback trip, extra near-boiler hours, and an adapter kit
+ * on top of the current rates so a typed invoice does not
+ * leak into the "they bought it" case.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost
+ * base. That is the $4,500 "just hang what I bought" number
+ * techs actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursPlant = number(input.hoursPlant ?? 0, 'Plant hours');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const tech = calculateBid(input);
+  const ownerFits = calculateBid({
+    ...input,
+    plantInvoice: 0,
+    fuelInvoicePerMbh: 0,
+    fuelHardware: 0,
+  });
+  const ownerWrong = calculateBid({
+    ...input,
+    plantInvoice: 0,
+    fuelInvoicePerMbh: 0,
+    fuelHardware: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    hoursPlant: hoursPlant + callback.hoursWrongPlant,
+    otherCost: otherCost + callback.wrongPlantHardware,
+  });
+
+  const rows = [
+    {
+      supply: 'tech-supplied',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: tech,
+    },
+    {
+      supply: 'owner-fits',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerFits,
+    },
+    {
+      supply: 'owner-wrong',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerWrong,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    boilerMaterial: row.bid.boilerMaterial,
+    plantMaterial: row.bid.plantMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    hoursPlant: row.bid.hoursPlant,
+    softCost: row.bid.softCost,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsTech: tech.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the plant.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const tech = rows.find((row) => row.supply === 'tech-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  if (!tech || !fits || !wrong) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = tech.price - fits.price;
+  const callbackLift = wrong.price - fits.price;
+  if (tech.installOnly && fits.installOnly) {
+    const asked = tech.installOnly.price;
+    if (tech.installOnly.belowBreakEven && fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} hang-only you lose money even when they bought the boiler. Walk-away on the owner-supplied set is ${money(fits.breakEvenPrice)}.`;
+    }
+    if (tech.installOnly.belowBreakEven && !fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the tech-supplied job loses ${money(Math.abs(tech.installOnly.profit))}. The same hang-only number covers the set if their unit actually matches.`;
+    }
+    if (wrong.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their unit matches. A wrong-unit callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A wrong-unit callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the boiler invoice drops the bid ${money(drop)}. A wrong-unit callback puts ${money(callbackLift)} back on.`;
+}
+
+export const ACCESS_PRESETS = Object.freeze([
+  {
+    id: 'weekday-scheduled',
+    label: 'Weekday, scheduled',
+    detail: 'They can wait; you book the day',
+  },
+  {
+    id: 'same-day-no-heat',
+    label: 'Same-day, no heat',
+    detail: 'Same wage, slower plant hang and punch-list',
+  },
+  {
+    id: 'after-hours',
+    label: 'After-hours / Saturday emergency',
+    detail: 'Overtime wage plus a second dispatch',
+  },
+]);
+
+/**
+ * Starting pace and overtime when they will not wait for a
+ * weekday slot, or want Saturday / after 5pm because the house
+ * is cold. Occupied pace is a multiplier on the typed plant
+ * hang and punch-list hours — working in a no-heat house they
+ * stay in is slower, not a different wage. After-hours is
+ * time-and-a-half on the typed wage plus a second emergency
+ * dispatch from the extra-kit trip, so a typed 16-hour steam
+ * conversion does not inflate the extra trip.
+ */
+export function suggestedAccessKit() {
+  const extra = suggestedExtraKit();
+  return {
+    occupiedPaceMultiplier: 1.2,
+    afterHoursWageMultiplier: 1.5,
+    afterHoursExtraTripHours: extra.hoursTrip,
+  };
+}
+
+/**
+ * Price the same plant three ways: weekday scheduled,
+ * same-day while they stay home with no heat, or after-hours
+ * / Saturday emergency.
+ *
+ * Occupied keeps the typed wage and adds clock hours on the
+ * plant hang and punch-list. After-hours keeps the typed
+ * hours and raises the wage, then adds a starting second
+ * dispatch because a Friday-night no-heat call is not a stop
+ * you combine with a weekday route. Scope, system, fuel,
+ * invoice, and extras stay.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost
+ * base. That is the "$4,500 Saturday" number techs actually
+ * get shopped on.
+ */
+export function compareAccess(input, options = {}) {
+  const kit = suggestedAccessKit();
+  const hoursPlant = number(input.hoursPlant ?? 0, 'Plant hours');
+  const siteHours = number(input.siteHours ?? 0, 'Site hours');
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const weekday = calculateBid(input);
+  const occupied = calculateBid({
+    ...input,
+    hoursPlant: hoursPlant * kit.occupiedPaceMultiplier,
+    siteHours: siteHours * kit.occupiedPaceMultiplier,
+  });
+  const afterHours = calculateBid({
+    ...input,
+    hourlyWage: hourlyWage * kit.afterHoursWageMultiplier,
+    hoursTrip: hoursTrip + kit.afterHoursExtraTripHours,
+  });
+
+  const rows = [
+    {
+      access: 'weekday-scheduled',
+      label: ACCESS_PRESETS[0].label,
+      detail: ACCESS_PRESETS[0].detail,
+      bid: weekday,
+    },
+    {
+      access: 'same-day-no-heat',
+      label: ACCESS_PRESETS[1].label,
+      detail: ACCESS_PRESETS[1].detail,
+      bid: occupied,
+    },
+    {
+      access: 'after-hours',
+      label: ACCESS_PRESETS[2].label,
+      detail: ACCESS_PRESETS[2].detail,
+      bid: afterHours,
+    },
+  ].map((row) => ({
+    access: row.access,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    loadedWage: row.bid.loadedWage,
+    hoursTravel: row.bid.hoursTravel,
+    hoursPlant: row.bid.hoursPlant,
+    siteHours: row.bid.siteHours,
+    laborCost: row.bid.laborCost,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    liftFromWeekday: row.bid.price - weekday.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the access table. Names the Saturday
+ * / after-hours loss when that number is on the table;
+ * otherwise names the bid lift from a weekday slot.
+ */
+export function accessNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Access comparison is missing rows');
+  }
+  const weekday = rows.find((row) => row.access === 'weekday-scheduled');
+  const occupied = rows.find((row) => row.access === 'same-day-no-heat');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  if (!weekday || !occupied || !afterHours) {
+    throw new Error('Access comparison is missing an access row');
+  }
+
+  const occupiedLift = occupied.price - weekday.price;
+  const afterHoursLift = afterHours.price - weekday.price;
+  if (weekday.installOnly && afterHours.installOnly) {
+    const asked = weekday.installOnly.price;
+    if (weekday.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} you lose money even on a weekday slot. Walk-away after-hours is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (!weekday.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the weekday set covers. The same Saturday / after-hours number loses ${money(Math.abs(afterHours.installOnly.profit))} — walk-away then is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (occupied.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} a weekday slot covers. Same-day with no heat still loses ${money(Math.abs(occupied.installOnly.profit))} — walk-away then is ${money(occupied.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} every access window still holds a margin. After-hours still adds ${money(afterHoursLift)} to the bid.`;
+  }
+  return `Same-day with no heat adds ${money(occupiedLift)} to the bid. After-hours / Saturday adds ${money(afterHoursLift)}.`;
+}
+
 /**
  * Format a bid as a plain-text draft the tech can paste into
  * a proposal. Costs, wages, and invoices are omitted on purpose —
