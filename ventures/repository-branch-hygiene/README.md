@@ -8,12 +8,28 @@ and a recovery manifest.
 python3 src/branch_hygiene.py examples/snapshot.json --report report.txt --manifest recovery.json
 ```
 
+For spreadsheet review, add `--csv approval-queue.csv`. The export contains
+branch metadata, a classification, and a human review action; it deliberately
+contains no shell commands and cannot approve or perform deletion.
+
 For a scheduled or CI review, emit a stable summary and fail closed when the
 snapshot contains an ambiguous ref:
 
 ```bash
 python3 src/branch_hygiene.py snapshot.json --format json --fail-on-risk
 ```
+
+For a spreadsheet or ticket-import workflow, emit one approval-queue row per
+branch. The CSV contains branch metadata and a review instruction, never a Git
+command:
+
+```bash
+python3 src/branch_hygiene.py snapshot.json --format csv > approval-queue.csv
+```
+
+The CSV columns are `branch`, `tip`, `classification`, `review_action`,
+`reason`, and `commit_count`. Treat every row as a review queue item; even a
+`review-delete-candidate` row is not permission to delete a ref.
 
 Exit status `2` means a human must review a `shared`, `moved-tip`, or
 `uncertain` finding. It never means that a branch is safe to delete. A zero
@@ -40,6 +56,9 @@ once, then resolve them against this same local checkout's ref ancestry.
 gh pr list --state all --json headRefName,state,baseRefName --limit 500 > prs.json
 python3 src/branch_hygiene.py --repo /path/to/checkout --pr-json prs.json --report report.txt --manifest recovery.json
 ```
+
+Add `--csv approval-queue.csv` to this command when the team reviews findings in
+a spreadsheet or ticketing workflow.
 
 `gh pr list` is the customer's own export step, run with their own
 credentials outside this tool; `branch_hygiene.py` only reads the resulting

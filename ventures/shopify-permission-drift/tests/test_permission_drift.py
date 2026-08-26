@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from permission_drift import compare, load_inventory, usage_event, write_report
+from permission_drift import compare, load_inventory, render_markdown, usage_event, write_report
 
 
 class PermissionDriftTests(unittest.TestCase):
@@ -42,6 +42,20 @@ class PermissionDriftTests(unittest.TestCase):
             saved = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(saved, report)
             self.assertNotIn("scopes", saved["metadata"])
+
+    def test_markdown_report_is_approval_ready_and_discloses_limits(self):
+        report = compare(self.before, self.after)
+        rendered = render_markdown(report)
+        self.assertIn("# Shopify permission drift: changed", rendered)
+        self.assertIn("**Scopes Changed**", rendered)
+        self.assertIn("`read_reports`", rendered)
+        self.assertIn("Evidence only", rendered)
+        self.assertIn("No warranty", rendered)
+
+    def test_markdown_unchanged_report_is_explicit(self):
+        rendered = render_markdown(compare(self.before, self.before))
+        self.assertIn("No app, scope, webhook", rendered)
+        self.assertIn("Review required:** no", rendered)
 
     def test_rejects_invalid_capture_time_and_duplicate_scopes(self):
         invalid_time = dict(self.before, captured_at="not-a-timestamp")
