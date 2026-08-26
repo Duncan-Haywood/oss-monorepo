@@ -55,13 +55,109 @@ def calculate(quote: Quote) -> dict[str, float]:
         "direct_costs": direct_costs,
         "effective_hourly_rate": effective_rate,
         "target_price": target_price,
+        "break_even_price": direct_costs,
         "gap_to_target": quote.price - target_price,
         "cost_coverage": quote.price - direct_costs,
+        "discount_room": max(0, quote.price - target_price),
     }
+
+
+def change_order_price(quote: Quote, extra_hours: float, extra_direct_costs: float = 0) -> dict[str, float]:
+    """Calculate the target-rate price floor for additional scope."""
+    for name, value in (("extra_hours", extra_hours), ("extra_direct_costs", extra_direct_costs)):
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
+            raise ValueError(f"{name} must be a non-negative number")
+    return {
+        "extra_hours": float(extra_hours),
+        "extra_direct_costs": float(extra_direct_costs),
+        "target_price": float(extra_hours) * quote.target_hourly_rate + float(extra_direct_costs),
+    }
+
+
+def discount_ask_scenarios(
+    quote: Quote,
+    result: dict[str, float],
+    percentages: tuple[int, ...] = (5, 10, 15, 20),
+) -> list[dict[str, float | None]]:
+    """Same hours and direct costs, lower quoted price. Complements time-overrun tables."""
+    percents = (0, *(percent for percent in percentages if percent != 0))
+    rows: list[dict[str, float | None]] = []
+    for percent in percents:
+        discounted_price = quote.price * (1 - percent / 100)
+        cost_coverage = discounted_price - result["direct_costs"]
+        if cost_coverage > 0:
+            hours_at_target = cost_coverage / quote.target_hourly_rate
+            hours_to_cut = max(0.0, result["total_hours"] - hours_at_target)
+        else:
+            hours_at_target = None
+            hours_to_cut = None
+        gap = discounted_price - result["target_price"]
+        rows.append(
+            {
+                "percent": percent,
+                "discounted_price": discounted_price,
+                "cost_coverage": cost_coverage,
+                "effective_hourly_rate": cost_coverage / result["total_hours"],
+                "gap_to_target": gap,
+                "extra_gap": gap - result["gap_to_target"],
+                "hours_at_target": hours_at_target,
+                "hours_to_cut": hours_to_cut,
+            }
+        )
+    return rows
+
+
+def compare_billing_models(
+    quote: Quote,
+    result: dict[str, float],
+    percentages: tuple[float, ...] = (0, 10, 25, 50),
+) -> list[dict[str, float]]:
+    """Fixed quote vs hourly at the same hours and direct costs.
+
+    Fixed keeps ``quote.price``. Hourly bills the hours at the supplied
+    target rate plus the same direct costs. Planned hours (0%) answers
+    whether the fixed quote is already a discount vs hourly.
+    """
+    rows = []
+    for percent in percentages:
+        hours = result["total_hours"] * (1 + percent / 100)
+        hourly_total = hours * quote.target_hourly_rate + result["direct_costs"]
+        rows.append(
+            {
+                "percent": float(percent),
+                "total_hours": hours,
+                "fixed_effective_rate": (quote.price - result["direct_costs"]) / hours,
+                "hourly_total": hourly_total,
+                "hourly_minus_fixed": hourly_total - quote.price,
+            }
+        )
+    return rows
+
+
+def billing_model_summary(quote: Quote, result: dict[str, float]) -> dict[str, float | bool]:
+    planned = compare_billing_models(quote, result, (0,))[0]
+    return {**planned, "fixed_is_below_hourly": planned["hourly_minus_fixed"] > 0}
+
+
+def billing_model_note(quote: Quote, result: dict[str, float]) -> str:
+    planned = billing_model_summary(quote, result)
+    hourly = f"{quote.currency} {planned['hourly_total']:.2f}"
+    if abs(planned["hourly_minus_fixed"]) < 1e-9:
+        return (
+            f"At planned hours, hourly at the supplied target would bill the same as this "
+            f"fixed quote ({hourly}). Comparison only, not a recommendation of which to send."
+        )
+    gap = f"{quote.currency} {abs(planned['hourly_minus_fixed']):.2f}"
+    direction = "more than" if planned["hourly_minus_fixed"] > 0 else "less than"
+    return (
+        f"At planned hours, hourly at the supplied target would bill {hourly} — "
+        f"{gap} {direction} this fixed quote. Comparison only, not a recommendation of which to send."
+    )
 
 
 def markdown(quote: Quote, result: dict[str, float]) -> str:
     status = "above target" if result["gap_to_target"] >= 0 else "below target"
+    billing = compare_billing_models(quote, result)
     lines = [
         "# Quote Margin Check",
         "",
@@ -72,13 +168,31 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Quoted price | {quote.currency} {quote.price:.2f} |",
         f"| Total working hours | {result['total_hours']:.2f} |",
         f"| Direct costs | {quote.currency} {result['direct_costs']:.2f} |",
+        f"| Break-even price (direct costs only) | {quote.currency} {result['break_even_price']:.2f} |",
         f"| Effective hourly rate | {quote.currency} {result['effective_hourly_rate']:.2f}/hour |",
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
+        f"| Maximum discount before target | {quote.currency} {result['discount_room']:.2f} |",
         "",
-        "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
+        "## Fixed quote vs hourly at your target",
+        "",
+        billing_model_note(quote, result),
+        "",
+        "| Extra time | Hours | Fixed effective rate | Hourly bill | Hourly minus fixed |",
+        "|---|---:|---:|---:|---:|",
     ]
+    for row in billing:
+        extra = "planned" if row["percent"] == 0 else f"+{row['percent']:.0f}%"
+        lines.append(
+            f"| {extra} | {row['total_hours']:.2f} | {quote.currency} {row['fixed_effective_rate']:.2f}/hour | {quote.currency} {row['hourly_total']:.2f} | {quote.currency} {row['hourly_minus_fixed']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
+        ]
+    )
     return "\n".join(lines) + "\n"
 
 
@@ -91,10 +205,14 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("quoted_price", f"{quote.price:.2f}", quote.currency),
             ("total_working_hours", f"{result['total_hours']:.2f}", "hours"),
             ("direct_costs", f"{result['direct_costs']:.2f}", quote.currency),
+            ("break_even_price", f"{result['break_even_price']:.2f}", quote.currency),
             ("effective_hourly_rate", f"{result['effective_hourly_rate']:.2f}", f"{quote.currency}/hour"),
             ("target_price", f"{result['target_price']:.2f}", quote.currency),
             ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
             ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
+            ("discount_room", f"{result['discount_room']:.2f}", quote.currency),
+            ("hourly_bill_at_planned_hours", f"{result['target_price']:.2f}", quote.currency),
+            ("hourly_minus_fixed_at_planned_hours", f"{result['target_price'] - quote.price:.2f}", quote.currency),
         )
     )
 
@@ -102,9 +220,9 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
 def batch_csv_report(reports: list[tuple[str, Quote, dict[str, float]]]) -> None:
     """Write a comparison table for several quote files."""
     writer = csv.writer(sys.stdout, lineterminator="\n")
-    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "effective_hourly_rate", "target_price", "gap_to_target"))
+    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "break_even_price", "effective_hourly_rate", "target_price", "gap_to_target"))
     for name, quote, result in reports:
-        writer.writerow((name, quote.currency, f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}"))
+        writer.writerow((name, quote.currency, f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['break_even_price']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}"))
 
 
 def load_reports(directory: Path) -> list[tuple[str, Quote, dict[str, float]]]:

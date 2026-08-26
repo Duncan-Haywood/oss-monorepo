@@ -1,0 +1,27 @@
+name: music-lesson-break-even
+description: A private browser calculator for independent music teachers to price lessons after cancellations, travel, preparation, and studio costs.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent music teachers need a transparent way to find the minimum lesson price that pays for their real teaching week.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A lesson-price and capacity model is useful enough to revisit when a teacher changes schedule, travel, or cancellation assumptions.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three music teachers use the calculator twice within 90 days after a public URL is available.
+  - Users cannot identify a recurring lesson price or capacity leak they would otherwise miss.
+links:
+  production: null
+  analytics: null
