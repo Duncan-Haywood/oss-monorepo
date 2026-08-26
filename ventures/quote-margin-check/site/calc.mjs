@@ -108,6 +108,11 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
   });
 }
 
+/** Maximum total hours that still reaches the supplied target rate. */
+export function targetHoursBudget(quote, report) {
+  return (quote.price - report.direct_costs) / quote.target_hourly_rate;
+}
+
 /** Compares the quote price needed at nearby hourly targets. */
 export function targetRateLadder(quote, report, rates = [50, 75, 100, 125]) {
   return rates.map((rate) => ({

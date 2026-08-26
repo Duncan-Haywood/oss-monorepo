@@ -382,6 +382,15 @@ products:
           Presets are examples only. Public URL remains owner-gated, so this
           is a zero baseline.
 
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          hours_budget_shown: 0
+        note: >-
+          Added a target-rate hours budget: leftover cash after direct costs
+          divided by the supplied target rate. Counted once per settled quote,
+          not per keystroke. Public URL remains owner-gated.
+
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:

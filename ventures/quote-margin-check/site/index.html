@@ -485,7 +485,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, targetRateLadder, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { markdownReview } from "./markdown.mjs";
@@ -518,6 +518,7 @@
       if (killFeeSettled) recordEvent("kill_fee_compared");
       recordEvent("change_order_checked");
       recordEvent("rate_ladder_compared");
+      recordEvent("hours_budget_shown");
     },
   });
 
@@ -591,6 +592,7 @@
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
+           <dt>Target-rate hours budget</dt><dd>${fmt(targetHoursBudget(quote, r))} total hours</dd>
            <dt>Maximum discount before target</dt><dd>${safeCurrency} ${fmt(r.discount_room)}</dd>
         </dl>
        `;
