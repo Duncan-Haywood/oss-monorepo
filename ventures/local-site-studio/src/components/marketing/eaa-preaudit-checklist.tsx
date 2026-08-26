@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { EAA_PREAUDIT_CHECKS, checklistExport, checklistPercent } from "@/lib/pricing/eaa-checklist";
+import { readChecklistDraft, writeChecklistDraft } from "@/lib/pricing/eaa-draft";
 
 const USAGE_KEY = "local-site-studio:eaa-preaudit-events";
 const OPT_OUT_KEY = "local-site-studio:eaa-preaudit-usage-opt-out";
@@ -23,18 +24,19 @@ export function EaaPreauditChecklist() {
   const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const [optedOut, setOptedOut] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
   const percent = checklistPercent(checked);
 
   useEffect(() => {
     let active = true;
     try {
-      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "[]");
-      const savedChecked = Array.isArray(saved) && saved.every((item) => typeof item === "string") ? saved : [];
+      const savedChecked = readChecklistDraft(localStorage.getItem(DRAFT_KEY));
       const savedOptedOut = localStorage.getItem(OPT_OUT_KEY) === "true";
       queueMicrotask(() => {
         if (!active) return;
         setChecked(savedChecked);
         setOptedOut(savedOptedOut);
+        setSavedAt(savedChecked.length > 0 ? "saved on this device" : null);
         recordUsage("preaudit_opened");
         setHydrated(true);
       });
@@ -52,7 +54,7 @@ export function EaaPreauditChecklist() {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(checked));
+      localStorage.setItem(DRAFT_KEY, writeChecklistDraft(checked));
     } catch {
       // Draft recovery is best effort; the checklist remains usable without storage.
     }
@@ -62,8 +64,20 @@ export function EaaPreauditChecklist() {
     setChecked((current) => {
       const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
       recordUsage("preaudit_check_toggled");
+      setSavedAt("saved just now");
       return next;
     });
+  }
+
+  function resetDraft() {
+    setChecked([]);
+    setSavedAt(null);
+    recordUsage("preaudit_draft_reset");
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // Reset still clears the on-screen checks when storage is blocked.
+    }
   }
 
   function downloadNotes() {
@@ -134,6 +148,12 @@ export function EaaPreauditChecklist() {
           Clipboard access was unavailable. Use the download button instead.
         </p>
       )}
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
+        <span aria-live="polite">{savedAt ? `Draft ${savedAt}.` : "No saved checks yet."}</span>
+        <button type="button" onClick={resetDraft} className="underline underline-offset-2 hover:text-zinc-900">
+          Reset saved draft
+        </button>
+      </div>
       <label className="mt-5 flex items-center gap-2 text-xs text-zinc-500">
         <input type="checkbox" checked={optedOut} onChange={(event) => setUsagePreference(event.target.checked)} />
         Don&apos;t count anonymous feature-use events on this device
