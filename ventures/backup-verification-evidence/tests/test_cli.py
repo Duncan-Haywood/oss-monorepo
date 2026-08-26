@@ -1,5 +1,7 @@
 import json
+import os
 import sys
+import time
 import tempfile
 import unittest
 from pathlib import Path
@@ -132,6 +134,49 @@ class CheckCommandTests(unittest.TestCase):
                 main(["check", str(record_path)])
             self.assertEqual(ctx.exception.code, 1)
 
+    def test_trend_flag_adds_shrinking_alerts_without_changing_exit_on_verified(self):
+        with tempfile.TemporaryDirectory() as directory:
+            nights = [
+                ("21.json", 50_000_000, "2026-08-21T03:04:00Z"),
+                ("22.json", 51_200_000, "2026-08-22T03:04:00Z"),
+                ("23.json", 50_400_000, "2026-08-23T03:04:00Z"),
+                ("24.json", 12_000_000, "2026-08-24T03:04:00Z"),
+            ]
+            paths = []
+            for name, size, finished_at in nights:
+                path = Path(directory) / name
+                path.write_text(
+                    json.dumps(
+                        {
+                            "tool": "pg_dump|gzip",
+                            "exit_code": 0,
+                            "started_at": finished_at.replace("03:04:00Z", "03:00:00Z"),
+                            "finished_at": finished_at,
+                            "artifact": {
+                                "exists": True,
+                                "size_bytes": size,
+                                "modified_at": finished_at.replace("03:04:00Z", "03:03:50Z"),
+                            },
+                            "expected": {"min_size_bytes": 1_000_000, "max_age_hours": 26},
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                paths.append(str(path))
+            output = Path(directory) / "trend.json"
+            usage = Path(directory) / "usage.json"
+            with self.assertRaises(SystemExit) as ctx:
+                main(["check", *paths, "--trend", "--output", str(output), "--usage-file", str(usage)])
+            self.assertEqual(ctx.exception.code, 0)
+            report = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(report["latest"]["status"], "verified")
+            self.assertTrue(report["trend"]["latest"]["shrinking_vs_previous"])
+            self.assertGreaterEqual(report["trend"]["alert_count"], 1)
+            self.assertEqual(
+                json.loads(usage.read_text(encoding="utf-8")),
+                {"report_generated": 1, "trend_viewed": 1},
+            )
+
     def test_check_exits_zero_when_latest_run_is_verified(self):
         with tempfile.TemporaryDirectory() as directory:
             record_path = Path(directory) / "run.json"
@@ -233,6 +278,46 @@ class VerifyCommandTests(unittest.TestCase):
             usage = Path(directory) / "usage.json"
             self._run(["verify", str(artifact), "--usage-file", str(usage)])
             self.assertEqual(json.loads(usage.read_text())["artifact_verified"], 1)
+
+    def test_fresh_intact_archive_passes_age_check(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            self.assertEqual(self._run(["verify", "--max-age-hours", "1", str(artifact)]), 0)
+
+    def test_old_intact_archive_is_stale_and_exits_two(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            old = time.time() - 48 * 3600
+            os.utime(artifact, (old, old))
+            buffer = io.StringIO()
+            stdout, sys.stdout = sys.stdout, buffer
+            try:
+                self.assertEqual(self._run(["verify", "--format", "json", "--max-age-hours", "24", str(artifact)]), 2)
+            finally:
+                sys.stdout = stdout
+            result = json.loads(buffer.getvalue())["artifacts"][0]
+            self.assertEqual(result["result"], "stale")
+            self.assertEqual(result["freshness"]["result"], "stale")
+
+    def test_corrupt_artifact_keeps_corrupt_exit_priority_when_stale(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz", truncate_tar=True)
+            old = time.time() - 48 * 3600
+            os.utime(artifact, (old, old))
+            self.assertEqual(self._run(["verify", "--max-age-hours", "24", str(artifact)]), 1)
+
+    def test_missing_artifact_is_unchecked_with_age_check(self):
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing.tar.gz"
+            buffer = io.StringIO()
+            stdout, sys.stdout = sys.stdout, buffer
+            try:
+                self.assertEqual(self._run(["verify", "--format", "json", "--max-age-hours", "24", str(missing)]), 2)
+            finally:
+                sys.stdout = stdout
+            result = json.loads(buffer.getvalue())["artifacts"][0]
+            self.assertEqual(result["result"], "unchecked")
+            self.assertEqual(result["freshness"]["result"], "unchecked")
 
 
 class RecordIntegrityTests(unittest.TestCase):
