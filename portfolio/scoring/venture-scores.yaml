@@ -2618,3 +2618,66 @@ ventures:
       figures are labelled a typical week rather than a benchmark, and
       nothing the user enters leaves the browser.
 
+
+  - slug: cash-runway-planner
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The forecast is intentionally deterministic and local-first. Its
+      value is invoice timing against recurring bills, not inference.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local 12-week cash forecast
+      for independent service businesses (repair-and-merge of unique
+      #1230). Distinct from invoice-payment-terms (one invoice's due
+      date and 2/10) and retainage (construction withhold): this models
+      starting cash, collection delay, weekly income, and weekly costs
+      into a low-balance week. Distribution is "cash runway calculator"
+      and "when will I run out of cash".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on the user's own inputs, labeled a
+      projection rather than financial advice, and remains in the
+      browser.
+
+  - slug: ltl-freight-class-estimator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI in the estimator. Density-to-class bands are a
+      published planning table; adding inference would only make the
+      result less checkable.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local LTL density and class
+      band estimator (repair-and-merge of unique #1194). Distinct from
+      freight-accessorial-auditor (invoice charges after the move) and
+      from 3PL quote normalizer (warehouse quotes): the buyer is a
+      small shipper or broker asking "what freight class is this
+      pallet?" before requesting a carrier quote. Distribution is
+      "LTL freight class calculator" and "freight class by density".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a density-based planning estimate, never an NMFC
+      classification, a carrier quote, or a booking instruction.
+      Nothing the user enters leaves the browser.
