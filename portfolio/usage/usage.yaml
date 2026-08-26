@@ -578,6 +578,21 @@ products:
           cash). Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline
           row.
+  - slug: interior-door-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Recovered the interior door replacement bid calculator from
+          incorrectly closed #1579 and added a who-bought-the-leaf
+          comparison (you supply vs they supply and it hangs vs they
+          supply and it binds) against the $150 hang-only special.
+          Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out.
+          Baseline row.
 
 # Example of the shape, once a product has shipped:
 #
