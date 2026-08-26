@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateWeek, WEEKS_PER_MONTH } from './calc.mjs';
+import { calculateWeek, compareAccessorials, WEEKS_PER_MONTH } from './calc.mjs';
 
 const week = () => ({
   loadedMiles: 1800,
@@ -159,4 +159,63 @@ test('monthly conversion uses averaged weeks, not a flat four', () => {
   const result = calculateWeek(week());
   // A flat 4-week month would understate the note by about 8%.
   assert.ok(result.weeklyFixed < 5550 / 4);
+});
+
+test('unreimbursed lumper raises weekly cost; reimbursed lumper does not', () => {
+  const unpaid = calculateWeek({ ...week(), lumperPaid: 75, lumperReimbursed: 0 });
+  const repaid = calculateWeek({ ...week(), lumperPaid: 75, lumperReimbursed: 75 });
+  const base = calculateWeek(week());
+  close(unpaid.lumperUnreimbursed, 75);
+  close(unpaid.weeklyCost, base.weeklyCost + 75);
+  close(repaid.lumperUnreimbursed, 0);
+  close(repaid.weeklyCost, base.weeklyCost);
+});
+
+test('detention and layover add to settlement after the same factor unless asked not to', () => {
+  const factored = calculateWeek({
+    ...week(),
+    detentionHours: 6,
+    detentionPayPerHour: 50,
+    layoverPay: 100,
+  });
+  close(factored.detentionGross, 300);
+  close(factored.accessorialGross, 400);
+  close(factored.accessorialNet, 400 * 0.97);
+  close(factored.offered.netRevenue, 3492 + 400 * 0.97);
+
+  const cash = calculateWeek({
+    ...week(),
+    detentionHours: 6,
+    detentionPayPerHour: 50,
+    layoverPay: 100,
+    factorAccessorials: false,
+  });
+  close(cash.accessorialNet, 400);
+  close(cash.offered.netRevenue, 3492 + 400);
+});
+
+test('default detention hours flip the starting $2.00 week after a $75 lumper', () => {
+  const compared = compareAccessorials({
+    ...week(),
+    detentionHours: 6,
+    detentionPayPerHour: 50,
+    lumperPaid: 75,
+  });
+  assert.ok(compared.milesOnly.offered.weeklyProfit < 0);
+  assert.ok(compared.withAccessorials.offered.weeklyProfit > 0);
+  close(compared.deltaProfit, compared.withAccessorials.offered.weeklyProfit - compared.milesOnly.offered.weeklyProfit);
+  close(compared.netPerDetentionHour, 50 * 0.97);
+  assert.ok(compared.detentionHoursToCover > 0);
+  assert.ok(compared.detentionHoursToCover < 6);
+});
+
+test('detention hours to cover are null when the miles-only week already keeps money', () => {
+  const compared = compareAccessorials({
+    ...week(),
+    offeredLoadedRate: 2.4,
+    detentionHours: 6,
+    detentionPayPerHour: 50,
+  });
+  assert.ok(compared.milesOnly.offered.weeklyProfit > 0);
+  assert.equal(compared.detentionHoursToCover, null);
 });

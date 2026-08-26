@@ -60,6 +60,13 @@ export function calculateWeek(input) {
   const factoringRate = number(input.factoringRate ?? 0, "Factoring rate");
   if (factoringRate >= 100) throw new Error("Factoring rate must be less than 100%");
 
+  const detentionHours = number(input.detentionHours ?? 0, "Detention hours");
+  const detentionPayPerHour = number(input.detentionPayPerHour ?? 0, "Detention pay per hour");
+  const layoverPay = number(input.layoverPay ?? 0, "Layover pay");
+  const lumperPaid = number(input.lumperPaid ?? 0, "Lumper paid");
+  const lumperReimbursed = number(input.lumperReimbursed ?? 0, "Lumper reimbursed");
+  const factorAccessorials = input.factorAccessorials !== false && input.factorAccessorials !== "false";
+
   const totalMiles = loadedMiles + emptyMiles;
   const fuelGallons = totalMiles / mpg;
   const fuelCost = fuelGallons * dieselPrice;
@@ -69,7 +76,11 @@ export function calculateWeek(input) {
 
   const monthlyFixed = truckPayment + insurance + permits + otherFixed;
   const weeklyFixed = monthlyFixed / WEEKS_PER_MONTH;
-  const weeklyCost = variableCost + weeklyFixed;
+  const detentionGross = detentionHours * detentionPayPerHour;
+  const accessorialGross = detentionGross + layoverPay;
+  const lumperUnreimbursed = Math.max(0, lumperPaid - lumperReimbursed);
+  const weeklyOperatingCost = variableCost + weeklyFixed;
+  const weeklyCost = weeklyOperatingCost + lumperUnreimbursed;
 
   const allInCpm = totalMiles === 0 ? null : weeklyCost / totalMiles;
   const variableCpm = totalMiles === 0 ? null : variableCost / totalMiles;
@@ -90,6 +101,9 @@ export function calculateWeek(input) {
     : null;
 
   const factoringMultiplier = 1 - factoringRate / 100;
+  const accessorialNet = factorAccessorials
+    ? accessorialGross * factoringMultiplier
+    : accessorialGross;
   const offered = offeredLoadedRate === null
     ? null
     : scoreOffer({
@@ -99,6 +113,7 @@ export function calculateWeek(input) {
       factoringMultiplier,
       weeklyCost,
       breakEvenLoadedRate,
+      accessorialNet,
     });
 
   const hasTarget =
@@ -116,7 +131,7 @@ export function calculateWeek(input) {
     } else if (factoringMultiplier === 0) {
       rateForTarget = null;
     } else {
-      rateForTarget = (weeklyCost + targetWeeklyTakeHome) / loadedMiles / factoringMultiplier;
+      rateForTarget = (weeklyCost - accessorialNet + targetWeeklyTakeHome) / loadedMiles / factoringMultiplier;
     }
   }
 
@@ -144,10 +159,61 @@ export function calculateWeek(input) {
     offered,
     targetWeeklyTakeHome,
     rateForTarget,
+    detentionHours,
+    detentionPayPerHour,
+    layoverPay,
+    lumperPaid,
+    lumperReimbursed,
+    lumperUnreimbursed,
+    detentionGross,
+    accessorialGross,
+    accessorialNet,
+    factorAccessorials,
+    weeklyOperatingCost,
     // Miles the truck must run loaded, at the offered rate after factoring,
     // to cover the week's cost. Null when there is no offer or the net rate
-    // is zero.
-    loadedMilesToBreakEven: offerMilesToCover(offered, weeklyCost),
+    // is zero. Accessorial net is already inside offered.weeklyProfit, so
+    // the miles figure still uses the settled loaded rate against weeklyCost.
+    loadedMilesToBreakEven: offerMilesToCover(offered, weeklyCost - accessorialNet),
+  };
+}
+
+/**
+ * Same week twice: miles and the note only, versus detention / layover /
+ * lumper on the settlement. The question is whether unpaid wait and a
+ * dock lumper flip a week that already looked fine — or save one that
+ * did not.
+ */
+export function compareAccessorials(input) {
+  const withThem = calculateWeek(input);
+  const milesOnly = calculateWeek({
+    ...input,
+    detentionHours: 0,
+    detentionPayPerHour: withThem.detentionPayPerHour,
+    layoverPay: 0,
+    lumperPaid: 0,
+    lumperReimbursed: 0,
+  });
+  const withProfit = withThem.offered?.weeklyProfit ?? null;
+  const milesProfit = milesOnly.offered?.weeklyProfit ?? null;
+  const deltaProfit = withProfit === null || milesProfit === null
+    ? null
+    : withProfit - milesProfit;
+
+  const netPerDetentionHour = withThem.detentionPayPerHour === 0
+    ? null
+    : withThem.detentionPayPerHour * (withThem.factorAccessorials ? (1 - withThem.factoringRate / 100) : 1);
+  let detentionHoursToCover = null;
+  if (milesProfit !== null && milesProfit < 0 && netPerDetentionHour > 0) {
+    detentionHoursToCover = (-milesProfit) / netPerDetentionHour;
+  }
+
+  return {
+    milesOnly,
+    withAccessorials: withThem,
+    deltaProfit,
+    detentionHoursToCover,
+    netPerDetentionHour,
   };
 }
 
@@ -158,10 +224,12 @@ function scoreOffer({
   factoringMultiplier,
   weeklyCost,
   breakEvenLoadedRate,
+  accessorialNet = 0,
 }) {
   const grossRevenue = loadedMiles * offeredLoadedRate;
   const factoringFee = grossRevenue * (1 - factoringMultiplier);
-  const netRevenue = grossRevenue - factoringFee;
+  const mileNetRevenue = grossRevenue - factoringFee;
+  const netRevenue = mileNetRevenue + accessorialNet;
   const profit = netRevenue - weeklyCost;
   const effectiveLoadedRate = offeredLoadedRate * factoringMultiplier;
   return {
@@ -176,10 +244,9 @@ function scoreOffer({
     profitPerLoadedMile: loadedMiles === 0 ? null : profit / loadedMiles,
     // A rate at or above break-even before factoring can still lose money
     // after the factor takes its cut. Compare the *settled* rate.
-    belowBreakEven:
-      breakEvenLoadedRate === null
-        ? netRevenue < weeklyCost
-        : effectiveLoadedRate < breakEvenLoadedRate,
+    accessorialNet,
+    mileNetRevenue,
+    belowBreakEven: profit < 0,
   };
 }
 

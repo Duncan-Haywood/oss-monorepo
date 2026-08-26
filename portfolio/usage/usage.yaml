@@ -1872,6 +1872,14 @@ products:
           adjusted break-even loaded rate, factoring on an offered rate,
           copyable week summary). Public URL remains owner-gated; the local
           counter is anonymous, event-only, and opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          accessorials_compared: 0
+        note: >-
+          Added detention / layover / lumper vs a miles-only week
+          (compareAccessorials). Public URL remains owner-gated; local
+          event accessorials_compared is opt-out and stores no inputs.
 
 # Example of the shape, once a product has shipped:
 #
