@@ -1,5 +1,6 @@
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
 import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
+import { extractEmbeddedInvoiceXml, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
@@ -9,16 +10,20 @@ function redactValues(text) {
   return String(text).replace(/\b\d+(?:\.\d+)?\b/g, "[value]");
 }
 
-export function parseInvoiceSource(name, source) {
-  const text = typeof source === "string" ? source : new TextDecoder().decode(source);
-  if (looksLikeXml(name, text)) {
+export async function parseInvoiceSource(name, source) {
+  let payload = source;
+  if (looksLikePdf(name, source)) {
+    payload = await extractEmbeddedInvoiceXml(source);
+  }
+  const text = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
+  if (looksLikeXml(name, text) || looksLikeCii(text)) {
     if (looksLikeCii(text)) return parseCiiInvoice(text);
     return parseUblInvoice(text);
   }
   return JSON.parse(text);
 }
 
-export function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES } = {}) {
+export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES } = {}) {
   const reports = [];
   const readErrors = [];
   const parsed = [];
@@ -45,7 +50,7 @@ export function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFi
       continue;
     }
     try {
-      const invoice = parseInvoiceSource(name, source);
+      const invoice = await parseInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
       reports.push({ file: name, errors });
       parsed.push({ name, invoice });

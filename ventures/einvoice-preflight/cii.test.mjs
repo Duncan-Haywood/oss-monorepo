@@ -70,8 +70,8 @@ test("unrelated XML is not silently treated as CII", () => {
   assert.throws(() => parseCiiInvoice("<Order><ID>1</ID></Order>"), /CrossIndustryInvoice/);
 });
 
-test("parseInvoiceSource routes the shipped CII example through the CII reader", () => {
-  const invoice = parseInvoiceSource("cii-invoice.xml", example("cii-invoice.xml"));
+test("parseInvoiceSource routes the shipped CII example through the CII reader", async () => {
+  const invoice = await parseInvoiceSource("cii-invoice.xml", example("cii-invoice.xml"));
   assert.equal(invoice.invoice_number, "INV-2026-0043");
   assert.deepEqual(checkInvoice(invoice), []);
 });

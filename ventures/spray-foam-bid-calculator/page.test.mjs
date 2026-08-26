@@ -49,6 +49,7 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
+  assert.match(scriptSource, /compareCellBids/, 'cell comparison is missing from the executable script');
 });
 
 test('every element the script reaches for exists in the markup', () => {
@@ -65,7 +66,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'area', 'cell', 'pitch', 'barrier', 'lengthFeet', 'widthFeet', 'thicknessInches',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets', 'cellCompare',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
