@@ -22,6 +22,8 @@ export function calculateRoute(input) {
 }
 
 export function summary(result, mode = 'scheduled') {
-  const verdict = result.margin < 0 ? 'LOSS: renegotiate or decline this route.' : 'Positive contribution margin before taxes and owner draw.';
+  const verdict = result.margin < 0
+    ? 'This scenario shows a negative contribution margin before taxes and owner draw.'
+    : 'This scenario shows a positive contribution margin before taxes and owner draw.';
   return [`Medical courier route margin (${mode})`, `Revenue: $${result.revenue.toFixed(2)}`, `Direct cost: $${result.directCost.toFixed(2)}`, `Contribution margin: $${result.margin.toFixed(2)} (${result.marginRate.toFixed(1)}%)`, `Margin per vehicle-hour: $${result.marginPerHour.toFixed(2)}`, `Stops: ${result.stops} | Miles: ${result.miles} | Paid wait: ${result.billableWaitMinutes} min`, verdict, 'Estimate only. Verify against your contract and completed route.'].join('\n');
 }

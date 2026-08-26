@@ -19,3 +19,6 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
       - run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs medical-courier-route-margin

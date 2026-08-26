@@ -12,7 +12,7 @@ test('includes paid wait after the grace period in labor cost', () => {
 test('surfaces a loss rather than disguising it as a route recommendation', () => {
   const result = calculateRoute({ stops: 4, miles: 80, routeHours: 5, waitMinutes: 0, graceMinutes: 15, loadedLaborRate: 30, vehicleCostPerMile: 1, consumablePerStop: 2, overheadRate: 10, revenue: 200 });
   assert.equal(result.margin, -58);
-  assert.match(summary(result), /LOSS/);
+  assert.match(summary(result), /negative contribution margin/);
 });
 
 test('empty or invalid inputs do not produce NaN', () => {

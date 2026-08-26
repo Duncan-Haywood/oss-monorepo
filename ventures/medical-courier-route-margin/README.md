@@ -2,7 +2,7 @@
 
 Medical couriers can price a scheduled, STAT, or dedicated route with the costs a per-mile calculator misses: stops, paid wait, loaded labor, vehicle cost, temperature-control consumables, overhead, and contribution margin per vehicle-hour.
 
-After using this, you can decide whether to quote, renegotiate, or decline a route, which used to take a spreadsheet that hid waiting and handling time. Enter only route economics. Never enter patient names, specimen details, medical records, or chain-of-custody data.
+After using this, you can now see contribution margin per vehicle-hour including paid wait, **which used to take** a spreadsheet that hid waiting and handling time. Enter only route economics. Never enter patient names, specimen details, medical records, or chain-of-custody data.
 
 ## Use it
 
@@ -21,5 +21,9 @@ Everything runs in your browser. Your data is never uploaded, and we don't have 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or medical advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
 The calculator is an estimate, not a compliance determination, healthcare instruction, income guarantee, or contract interpretation. Do not enter protected health information. Verify rates, fuel, wait, temperature-control costs, insurance, taxes, and contract terms yourself.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.
+
+Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood). Refusing to sponsor does not change the calculator.
 
 License: MIT.
