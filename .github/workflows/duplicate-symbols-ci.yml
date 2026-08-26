@@ -47,7 +47,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
+  # Named for what it checks, not `check`: the job name is what appears in the
+  # PR's check list, and `conflict-markers-ci.yml`'s job is already called
+  # `check`. Two rows both reading "check" defeats the reason this has its own
+  # workflow -- that a red result should name its own cause without opening it.
+  duplicate-symbols:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
