@@ -66,6 +66,7 @@ on:
       - "portfolio/research/README.md"
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
+      - "portfolio/usage/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -94,6 +95,7 @@ on:
       - "portfolio/research/README.md"
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
+      - "portfolio/usage/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -189,6 +191,16 @@ jobs:
           git config --global user.email "ci@example.com"
           git config --global user.name "CI"
           python3 -m unittest test_supersede_check
+
+      # usage.yaml is the portfolio's only honest signal while revenue is zero,
+      # and nothing read it in CI: #1387 left it unparseable and no check
+      # noticed. These two steps are that missing guard.
+      - name: Validate the usage ledger is readable
+        run: python3 portfolio/usage/validate_usage.py
+
+      - name: Usage-validator unit tests
+        working-directory: portfolio/usage
+        run: python3 -m unittest test_validate_usage
 
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
