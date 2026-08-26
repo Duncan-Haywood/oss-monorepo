@@ -4,7 +4,10 @@ import {
   applyCategoryPreset,
   applyPlacementPreset,
   applyStoragePreset,
+  blendedStorageRate,
   calculateListing,
+  compareStorageSeasons,
+  storageSeasonNote,
   PLACEMENT_PRESETS,
   CATEGORY_PRESETS,
   classifySizeTier,
@@ -1246,6 +1249,98 @@ test("rejects empty or invalid inbound-placement inputs", () => {
   assert.throws(() => compareInboundPlacement({ units: 10, freightMinimal: "abc" }), /Single-destination freight/);
   assert.throws(() => applyPlacementPreset({}, "envelope"), /Unknown size tier/);
   assert.throws(() => placementSummary({}), /missing paths/);
+});
+
+test("blendedStorageRate weights peak and off-peak months", () => {
+  near(blendedStorageRate({ offPeakMonths: 0, peakMonths: 0 }), 0, "empty stay");
+  near(blendedStorageRate({ offPeakMonths: 3, peakMonths: 0 }), 0.87, "off-peak only");
+  near(blendedStorageRate({ offPeakMonths: 0, peakMonths: 3 }), 2.4, "peak only");
+  near(blendedStorageRate({ offPeakMonths: 1, peakMonths: 2 }), (0.87 + 4.8) / 3, "1+2 mixed");
+});
+
+// 1 cu ft box, three-month stay, two of those months in Oct–Dec. Storage is
+// the only difference between the rows, so the cash gaps are exact cubic-foot
+// arithmetic. Ported from #1516 onto current main.
+test("compareStorageSeasons ranks waiting until January against a Q4 stay", () => {
+  const r = compareStorageSeasons({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 12,
+    width: 12,
+    height: 12,
+    weightLb: 2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 3,
+    peakMonths: 2,
+    units: 200,
+    fbmShippingCost: 4.75,
+    packagingCost: 0.6,
+    otherCost: 0,
+    adsPerUnit: 0,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+    fulfillmentFee: 5,
+    sizeTier: "large_standard",
+  });
+
+  near(r.cubicFeet, 1, "1 cu ft");
+  near(r.scenarios.off_peak.storagePerUnit, 2.61, "3 months off-peak");
+  near(r.scenarios.peak.storagePerUnit, 7.2, "3 months peak");
+  near(r.scenarios.mixed.storagePerUnit, 5.67, "1 off-peak + 2 peak");
+  near(r.waitUntilJanuarySavesPerUnit, 3.06, "mixed minus January");
+  near(r.waitUntilJanuarySaves, 612, "200 units");
+  near(r.peakCostsExtraPerUnit, 4.59, "all-peak minus January");
+  near(r.peakCostsExtra, 918, "200 units all-peak gap");
+  assert.equal(r.winner, "off_peak");
+  assert.equal(r.ranked[0].id, "off_peak");
+  near(r.scenarios.off_peak.fbaProfit - r.scenarios.mixed.fbaProfit, 3.06, "profit gap is storage");
+
+  const profitBeforeStorage = 29.99 - 29.99 * 0.15 - 5 - (8 + 0.6 + 1.2);
+  near(r.profitBeforeStorage, profitBeforeStorage, "zero-storage FBA profit");
+  near(r.peakMonthsUntilUnprofitable, profitBeforeStorage / 2.4, "months of peak that wipe profit");
+
+  const note = storageSeasonNote(r);
+  assert.match(note, /\$3\.06/);
+  assert.match(note, /\$612/);
+  assert.doesNotMatch(note, /should send|must wait|inbound now|opt in/i);
+});
+
+test("compareStorageSeasons treats a stay with no peak months as a January tie", () => {
+  const r = compareStorageSeasons({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 12,
+    width: 12,
+    height: 12,
+    weightLb: 2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 3,
+    peakMonths: 0,
+    units: 10,
+    packagingCost: 0,
+    monthlySellerFee: 0,
+    fulfillmentFee: 5,
+    sizeTier: "large_standard",
+  });
+  near(r.scenarios.mixed.storagePerUnit, r.scenarios.off_peak.storagePerUnit, "mixed equals January");
+  near(r.waitUntilJanuarySaves, 0, "nothing to save");
+  assert.ok(r.cheapestIds.includes("off_peak"));
+  assert.ok(r.cheapestIds.includes("mixed"));
+  assert.equal(r.winner, "tie");
+});
+
+test("compareStorageSeasons rejects an impossible peak stay and zero units", () => {
+  assert.throws(
+    () => compareStorageSeasons({ salePrice: 20, monthsInStorage: 1, peakMonths: 2 }),
+    /cannot exceed/,
+  );
+  assert.throws(
+    () => compareStorageSeasons({ salePrice: 20, monthsInStorage: 1, units: 0 }),
+    /greater than zero/,
+  );
+  assert.throws(() => storageSeasonNote({}), /missing scenarios/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareBulkBuy, compareCoupons, compareInboundPlacement, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave } from "./calc.mjs";
+import { compareBulkBuy, compareCoupons, compareInboundPlacement, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave, compareStorageSeasons } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const couponSeo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
@@ -85,6 +85,9 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /supplier MOQ/i);
   assert.match(featureList[1], /you-prep vs Amazon inbound prep/i);
   assert.match(featureList[1], /inbound placement vs split freight/i);
+  assert.match(featureList[1], /peak vs off-peak storage/i);
+  assert.match(markup, /id="storageCompare"/);
+  assert.match(markup, /peak-vs-off-peak-storage\.html/);
   assert.match(featureList[1], /Individual vs Professional seller plan/i);
   assert.match(featureList[1], /seller-plan volume ladder/i);
   assert.match(featureList[1], /aged inventory vs remove vs dispose/i);
@@ -387,6 +390,39 @@ test("calculator page wires return-rate columns that match the row template", ()
   assert.match(scriptSource, /returnsSummary/);
   assert.match(scriptSource, /return_rate_calculated/);
   assert.match(html, /do-amazon-returns-wipe-the-profit\.html/);
+});
+
+test("calculator page wires peak vs off-peak storage columns that match the row template", () => {
+  const storageMarkup = markup.split('id="storageCompare"')[0];
+  const headerBlock = storageMarkup.slice(storageMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Timing", "Storage / unit", "On these units", "FBA leftover / unit", "vs January"]);
+  assert.match(scriptSource, /compareStorageSeasons/);
+  assert.match(scriptSource, /storageSeasonNote/);
+  assert.match(scriptSource, /storage_season_compared/);
+  assert.match(html, /peak-vs-off-peak-storage\.html/);
+  assert.match(html, /id="storage-season"/);
+  const comparison = compareStorageSeasons({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 12,
+    width: 12,
+    height: 12,
+    weightLb: 2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 3,
+    peakMonths: 2,
+    units: 200,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    fulfillmentFee: 5,
+    sizeTier: "large_standard",
+  });
+  assert.equal(comparison.waitUntilJanuarySaves.toFixed(2), "612.00");
+  assert.match(html, /\$612\.00/);
 });
 
 test("calculator page wires inbound-placement columns that match the row template", () => {

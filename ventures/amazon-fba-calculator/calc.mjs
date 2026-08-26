@@ -1982,6 +1982,152 @@ export function compareAgedInventory(input) {
   };
 }
 
+// Oct–Dec storage is billed at a higher cubic-foot rate than Jan–Sep. The
+// listing calculator takes one blended rate; this comparison keeps the two
+// seasons on separate rows so a seller can see whether sending now and sitting
+// through Q4 still beats waiting until January.
+export function blendedStorageRate({
+  offPeakMonths,
+  peakMonths,
+  offPeakRate = STORAGE_PRESETS.off_peak.perCuFt,
+  peakRate = STORAGE_PRESETS.peak.perCuFt,
+}) {
+  const offM = number(offPeakMonths, "Off-peak months");
+  const peakM = number(peakMonths, "Peak months");
+  const offR = number(offPeakRate, "Off-peak storage rate");
+  const peakR = number(peakRate, "Peak storage rate");
+  const total = offM + peakM;
+  if (total === 0) return 0;
+  return (offM * offR + peakM * peakR) / total;
+}
+
+export function compareStorageSeasons(input) {
+  const months = number(input.monthsInStorage ?? input.months, "Months in storage", 1);
+  const peakMonths = number(input.peakMonths ?? 0, "Peak months");
+  if (peakMonths > months) {
+    throw new Error("Peak months cannot exceed months in storage");
+  }
+  const offPeakMonths = months - peakMonths;
+  const offPeakRate = number(
+    input.offPeakRate,
+    "Off-peak storage rate",
+    STORAGE_PRESETS.off_peak.perCuFt,
+  );
+  const peakRate = number(input.peakRate, "Peak storage rate", STORAGE_PRESETS.peak.perCuFt);
+  const typedUnits = input.units ?? input.monthlyUnits;
+  const units = number(typedUnits === undefined || typedUnits === "" ? 1 : typedUnits, "Units", 1);
+  if (units === 0) throw new Error("Units must be greater than zero");
+
+  function scenario(id, label, offM, peakM) {
+    const storageRate = blendedStorageRate({
+      offPeakMonths: offM,
+      peakMonths: peakM,
+      offPeakRate,
+      peakRate,
+    });
+    const listing = calculateListing({
+      ...input,
+      monthsInStorage: offM + peakM,
+      storageRate,
+    });
+    return {
+      id,
+      label,
+      offPeakMonths: offM,
+      peakMonths: peakM,
+      storageRate,
+      storagePerUnit: listing.storagePerUnit,
+      storageOnUnits: listing.storagePerUnit * units,
+      fbaProfit: listing.fba.profit,
+      fbaProfitOnUnits: listing.fba.profit * units,
+      maxBuyCost: listing.fba.breakEvenBuyCost,
+    };
+  }
+
+  const scenarios = {
+    off_peak: scenario("off_peak", "Wait until January (all off-peak)", months, 0),
+    mixed: scenario("mixed", "Your stay (peak months at Oct–Dec rate)", offPeakMonths, peakMonths),
+    peak: scenario("peak", "All peak (Oct–Dec rate)", 0, months),
+  };
+  const ranked = ["off_peak", "mixed", "peak"]
+    .map((id) => scenarios[id])
+    .sort((a, b) => b.fbaProfit - a.fbaProfit);
+  const bestProfit = ranked[0].fbaProfit;
+  const cheapestIds = ranked
+    .filter((row) => Math.abs(row.fbaProfit - bestProfit) < 1e-9)
+    .map((row) => row.id);
+  const winner = cheapestIds.length === 1 ? cheapestIds[0] : "tie";
+
+  const zeroStorage = calculateListing({ ...input, monthsInStorage: 0, storageRate: 0 });
+  const cuFt = cubicFeet({
+    length: input.length,
+    width: input.width,
+    height: input.height,
+  });
+  const peakCostPerMonth = cuFt * peakRate;
+  let peakMonthsUntilUnprofitable;
+  if (peakCostPerMonth === 0) {
+    peakMonthsUntilUnprofitable = zeroStorage.fba.profit > 0 ? Infinity : 0;
+  } else if (zeroStorage.fba.profit <= 0) {
+    peakMonthsUntilUnprofitable = 0;
+  } else {
+    peakMonthsUntilUnprofitable = zeroStorage.fba.profit / peakCostPerMonth;
+  }
+
+  return {
+    months,
+    peakMonths,
+    offPeakMonths,
+    units,
+    cubicFeet: cuFt,
+    offPeakRate,
+    peakRate,
+    scenarios,
+    ranked,
+    winner,
+    cheapestIds,
+    waitUntilJanuarySavesPerUnit:
+      scenarios.mixed.storagePerUnit - scenarios.off_peak.storagePerUnit,
+    waitUntilJanuarySaves: scenarios.mixed.storageOnUnits - scenarios.off_peak.storageOnUnits,
+    peakCostsExtraPerUnit: scenarios.peak.storagePerUnit - scenarios.off_peak.storagePerUnit,
+    peakCostsExtra: scenarios.peak.storageOnUnits - scenarios.off_peak.storageOnUnits,
+    peakMonthsUntilUnprofitable,
+    profitBeforeStorage: zeroStorage.fba.profit,
+  };
+}
+
+export function storageSeasonNote(comparison) {
+  if (!comparison?.scenarios) {
+    throw new Error("Storage-season comparison is missing scenarios");
+  }
+  const money = (value) => {
+    const sign = value < 0 ? "-" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const unitsLabel = comparison.units === 1 ? "1 unit" : `${comparison.units} units`;
+  const january = comparison.scenarios.off_peak;
+  const stay = comparison.scenarios.mixed;
+  let timing;
+  if (comparison.waitUntilJanuarySaves > 1e-9) {
+    timing = `Waiting until January keeps ${money(comparison.waitUntilJanuarySavesPerUnit)} more per unit than this stay (${money(comparison.waitUntilJanuarySaves)} on ${unitsLabel}). January storage is ${money(january.storagePerUnit)}; this stay is ${money(stay.storagePerUnit)}.`;
+  } else if (comparison.peakCostsExtra > 1e-9) {
+    timing = `None of this stay is in peak. The same ${comparison.months} month${comparison.months === 1 ? "" : "s"} at the Oct–Dec rate costs ${money(comparison.peakCostsExtraPerUnit)} more per unit (${money(comparison.peakCostsExtra)} on ${unitsLabel}).`;
+  } else {
+    timing = "Peak and off-peak leave the same FBA profit on these storage rates.";
+  }
+
+  const sit = comparison.peakMonthsUntilUnprofitable;
+  let wipe;
+  if (!Number.isFinite(sit)) {
+    wipe = " Peak storage is free on these rates, so it never wipes the unit by itself.";
+  } else if (sit === 0) {
+    wipe = " FBA profit is already gone before storage. Peak months do not create the loss; they add to it.";
+  } else {
+    wipe = ` FBA profit before storage is ${money(comparison.profitBeforeStorage)}. At the peak rate, storage alone wipes that after ${sit.toFixed(1)} months.`;
+  }
+  return `${timing}${wipe}`;
+}
+
 // Freight to one FC vs Amazon's inbound placement fee is the weekly inbound
 // decision. The listing calculator's "inbound / unit" field is a blended
 // number; this comparison keeps freight and placement on separate lines so a

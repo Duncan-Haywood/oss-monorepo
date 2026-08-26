@@ -23,7 +23,8 @@ whether paying Amazon to prep inbound still beats you-prep, and
 whether Individual or Professional still pays at your monthly volume, and
 whether an Amazon Vine enrollment still pays after gifted leftover units
 versus units that would have sold, whether Amazon inbound placement
-still beats extra freight on a split shipment, and whether a return
+still beats extra freight on a split shipment, whether sending inventory
+before Q4 still beats waiting until January, and whether a return
 rate still leaves expected profit after handling and unsellable units** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
@@ -177,7 +178,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, and returns-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, and storage-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -187,7 +188,8 @@ comparison, you-prep vs Amazon inbound prep comparison,
 Individual vs Professional seller-plan comparison,
 Vine leftover vs sellable enrollment comparison,
 aged-inventory keep vs return vs dispose comparison,
-inbound placement vs split-freight comparison, and
+inbound placement vs split-freight comparison,
+peak vs off-peak inbound timing, and
 expected profit after returns;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
