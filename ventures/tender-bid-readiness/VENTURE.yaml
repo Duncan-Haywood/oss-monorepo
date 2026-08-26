@@ -1,0 +1,27 @@
+name: tender-bid-readiness
+description: Free local-first tender bid readiness checker for small contractors. Paste a solicitation and get an evidence-linked checklist of deadlines, bonds, insurance, certifications, and submission instructions before spending hours on a bid.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small contractors will use a fast local checklist to decide whether a public tender is worth pursuing before assembling a full bid.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Tender readiness searches are distinct from bid-price calculators because the painful first decision is qualification and paperwork, not arithmetic.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat use or organic repository traffic after 60 days of public availability.
+  - Users report that the extracted checklist misses more time than it saves.
+links:
+  production: null
+  analytics: null
