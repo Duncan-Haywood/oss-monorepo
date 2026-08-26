@@ -2,7 +2,7 @@
 
 Independent consultants and freelancers can use this free browser calculator to turn a take-home income goal into a sustainable hourly floor and monthly retainer. It accounts for non-billable time, business costs, and a visible scope buffer instead of hiding those assumptions inside a generic rate.
 
-**Value:** After using this, you can send a retainer price with included hours and an out-of-scope rate, see whether that price still covers your hourly floor at 50%, 75%, 100%, and 125% usage, and see how much cash prepaid / Net 15 / Net 30 / month-end billing forces you to float — which used to take guesswork or a spreadsheet. The proposal summary can be copied or downloaded as a plain-text file for reliable handoff.
+**Value:** After using this, you can send a retainer price with included hours and an out-of-scope rate, see whether that price still covers your hourly floor at 50%, 75%, 100%, and 125% usage, see whether unused-hour rollover still covers the floor after a light first month, and see how much cash prepaid / Net 15 / Net 30 / month-end billing forces you to float — which used to take guesswork or a spreadsheet. The proposal summary can be copied or downloaded as a plain-text file for reliable handoff.
 
 ## Run and test
 
@@ -18,7 +18,7 @@ Operating cost is zero at launch: all calculations and anonymous event counts st
 
 ## Privacy and usage
 
-Everything runs in your browser. Your data is never uploaded, and there are no accounts, tracking cookies, or analytics vendors. The product counts only aggregate local `calculate`, `retainer_usage_compared`, `payment-terms-float`, `payment_terms_compared`, `copy-summary`, and `download-summary` events, never people, IPs, content, or cross-site identifiers. The checkbox in the footer turns counting off; clearing browser storage removes the local count.
+Everything runs in your browser. Your data is never uploaded, and there are no accounts, tracking cookies, or analytics vendors. The product counts only aggregate local `calculate`, `retainer_usage_compared`, `unused_hour_rollover_compared`, `payment-terms-float`, `payment_terms_compared`, `copy-summary`, and `download-summary` events, never people, IPs, content, or cross-site identifiers. The checkbox in the footer turns counting off; clearing browser storage removes the local count.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 
