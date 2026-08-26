@@ -399,6 +399,9 @@ workflows:
 - workflow: screened-porch-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: seller-net-sheet-ci.yml
+  classification: none
+  publishes: []
 - workflow: sewer-hydrojet-bid-calculator-ci.yml
   classification: none
   publishes: []
