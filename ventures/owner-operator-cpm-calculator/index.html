@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "All-in cost per mile, deadhead-adjusted break-even loaded rate, factoring on an offered rate, weekly and annual profit, target take-home rate, copyable load summary"
+    "featureList": "All-in cost per mile, deadhead-adjusted break-even loaded rate, factoring on an offered rate, weekly and annual profit, target take-home rate, detention layover and lumper comparison, copyable load summary"
   }
   </script>
   <script type="application/ld+json">
@@ -132,6 +132,19 @@
           <label>Target weekly take-home (optional) <input id="targetWeeklyTakeHome" type="number" min="0" step="25" placeholder="e.g. 800"></label>
         </div>
       </section>
+
+      <section>
+        <h2>Detention, layover, and lumper</h2>
+        <p class="hint">Miles do not pay you while you sit. Detention and layover are settlement lines; a dock lumper is cash out unless the broker reimburses it. Starting figures: 6 hours at $50, a $75 lumper you paid. <a href="does-detention-pay-cover-the-wait.html">Does detention pay cover the wait?</a></p>
+        <div class="fields">
+          <label>Detention hours <input id="detentionHours" type="number" min="0" step="0.25" value="6"></label>
+          <label>Detention pay ($/hr) <input id="detentionPayPerHour" type="number" min="0" step="5" value="50"></label>
+          <label>Layover pay ($) <input id="layoverPay" type="number" min="0" step="25" value="0"></label>
+          <label>Lumper you paid ($) <input id="lumperPaid" type="number" min="0" step="5" value="75"></label>
+          <label>Lumper reimbursed ($) <input id="lumperReimbursed" type="number" min="0" step="5" value="0"></label>
+        </div>
+        <label class="check" style="margin-top:12px;font-weight:400"><input id="factorAccessorials" type="checkbox" checked style="width:auto"> Factor detention and layover at the same percent as the miles</label>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -147,8 +160,22 @@
         <dt>Weekly cost</dt><dd id="weeklyCost"></dd>
         <dt>Annual cost (same week &times; 52)</dt><dd id="annualCost"></dd>
         <dt>Rate for target take-home</dt><dd id="rateForTarget"></dd>
+        <dt>Loaded miles to cover this week at offer</dt><dd id="loadedMilesToBreakEven"></dd>
+        <dt>Detention + layover after factor</dt><dd id="accessorialNet"></dd>
+        <dt>Unreimbursed lumper</dt><dd id="lumperUnreimbursed"></dd>
       </dl>
       <div id="verdict" class="verdict" hidden></div>
+      <table id="accessorialTable" style="width:100%;border-collapse:collapse;font-size:.84rem;margin-top:12px">
+        <caption style="text-align:left;font-weight:650;margin-bottom:8px">Miles-only week vs this settlement</caption>
+        <thead>
+          <tr><th style="text-align:left;padding:4px 0"></th><th style="text-align:right;padding:4px 0">Miles only</th><th style="text-align:right;padding:4px 0">With accessorials</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Weekly profit</td><td id="milesOnlyProfit" style="text-align:right"></td><td id="withAccessorialsProfit" style="text-align:right"></td></tr>
+          <tr><td>Gap this week</td><td colspan="2" id="accessorialDelta" style="text-align:right"></td></tr>
+          <tr><td>Detention hours that cover a losing miles-only week</td><td colspan="2" id="detentionHoursToCover" style="text-align:right"></td></tr>
+        </tbody>
+      </table>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy week summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
@@ -172,7 +199,7 @@
   </footer>
 
   <script type="module">
-    import { calculateWeek } from './calc.mjs';
+    import { calculateWeek, compareAccessorials } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
 
     const FIELD_IDS = [
@@ -180,13 +207,18 @@
       'truckPayment', 'insurance', 'permits', 'otherFixed',
       'maintenancePerMile', 'tiresPerMile', 'otherVariablePerMile',
       'factoringRate', 'offeredLoadedRate', 'targetWeeklyTakeHome',
+      'detentionHours', 'detentionPayPerHour', 'layoverPay',
+      'lumperPaid', 'lumperReimbursed',
     ];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const perMile = value => value === null ? 'n/a' : `${money(value)}/mi`;
     const el = id => document.getElementById(id);
 
     function readInput() {
-      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      return {
+        ...Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value])),
+        factorAccessorials: el('factorAccessorials').checked,
+      };
     }
 
     function count(event) {
@@ -197,7 +229,7 @@
       el('hero').textContent = message;
       el('hero').className = 'hero-number negative';
       el('heroLabel').textContent = 'check the highlighted input';
-      ['allInCpm', 'variableCpm', 'fixedCpm', 'deadheadShare', 'fuelCost', 'weeklyCost', 'annualCost', 'rateForTarget']
+      ['allInCpm', 'variableCpm', 'fixedCpm', 'deadheadShare', 'fuelCost', 'weeklyCost', 'annualCost', 'rateForTarget', 'loadedMilesToBreakEven', 'accessorialNet', 'lumperUnreimbursed', 'milesOnlyProfit', 'withAccessorialsProfit', 'accessorialDelta', 'detentionHoursToCover']
         .forEach(id => { el(id).textContent = ''; });
       el('verdict').hidden = true;
     }
@@ -231,6 +263,25 @@
       el('weeklyCost').textContent = money(result.weeklyCost);
       el('annualCost').textContent = money(result.annualCost);
       el('rateForTarget').textContent = result.rateForTarget === null ? 'n/a' : perMile(result.rateForTarget);
+      el('loadedMilesToBreakEven').textContent = result.loadedMilesToBreakEven === null
+        ? 'n/a'
+        : `${Math.ceil(result.loadedMilesToBreakEven).toLocaleString('en-US')} mi`;
+      el('accessorialNet').textContent = money(result.accessorialNet);
+      el('lumperUnreimbursed').textContent = money(result.lumperUnreimbursed);
+
+      const compared = compareAccessorials(readInput());
+      el('milesOnlyProfit').textContent = compared.milesOnly.offered
+        ? money(compared.milesOnly.offered.weeklyProfit)
+        : 'n/a';
+      el('withAccessorialsProfit').textContent = compared.withAccessorials.offered
+        ? money(compared.withAccessorials.offered.weeklyProfit)
+        : 'n/a';
+      el('accessorialDelta').textContent = compared.deltaProfit === null
+        ? 'n/a'
+        : `${compared.deltaProfit >= 0 ? '+' : ''}${money(compared.deltaProfit)}`;
+      el('detentionHoursToCover').textContent = compared.detentionHoursToCover === null
+        ? 'miles-only week already covers cost'
+        : `${compared.detentionHoursToCover.toFixed(2)} hr at ${money(result.detentionPayPerHour)}/hr`;
 
       const verdict = el('verdict');
       if (result.offered === null) {
@@ -263,7 +314,10 @@
         `Empty miles: ${result.emptyMiles.toLocaleString('en-US')} (${result.deadheadShare.toFixed(1)}% deadhead)`,
         `All-in cost per mile: ${result.allInCpm === null ? 'n/a' : money(result.allInCpm)}`,
         `Break-even loaded rate: ${result.breakEvenLoadedRate === null ? 'n/a' : money(result.breakEvenLoadedRate)}`,
+        `Loaded miles to cover this week at offer: ${result.loadedMilesToBreakEven === null ? 'n/a' : Math.ceil(result.loadedMilesToBreakEven).toLocaleString('en-US')}`,
         `Weekly cost: ${money(result.weeklyCost)}`,
+        `Detention + layover after factor: ${money(result.accessorialNet)}`,
+        `Unreimbursed lumper: ${money(result.lumperUnreimbursed)}`,
         '',
         ...offerLines,
         '',
@@ -295,8 +349,15 @@
     FIELD_IDS.forEach(id => {
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => {
-        count(id === 'offeredLoadedRate' || id === 'factoringRate' ? 'offer_compared' : 'week_calculated');
+        const accessorial = ['detentionHours', 'detentionPayPerHour', 'layoverPay', 'lumperPaid', 'lumperReimbursed'].includes(id);
+        count(id === 'offeredLoadedRate' || id === 'factoringRate'
+          ? 'offer_compared'
+          : accessorial ? 'accessorials_compared' : 'week_calculated');
       });
+    });
+    el('factorAccessorials').addEventListener('change', () => {
+      update();
+      count('accessorials_compared');
     });
     el('usageOptOut').addEventListener('change', update);
     el('copySummary').addEventListener('click', () => {

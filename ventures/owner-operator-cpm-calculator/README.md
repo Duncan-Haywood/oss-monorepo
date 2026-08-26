@@ -55,7 +55,14 @@ truck and has to decide whether to take the load.
    that belongs next to a broker's quote.
 7. **Optional offer.** Posted loaded rate minus factoring, scored against the
    same cost base. Optional target take-home solves for the loaded rate that
-   leaves that much after costs and factoring.
+   leaves that much after costs and factoring. The result also shows how many
+   loaded miles that offer must pay to cover this week's cost; it uses the
+   settled rate after factoring, not the posted rate.
+8. **Detention, layover, and lumper.** Same week twice: miles and the note
+   only versus those settlement lines. Detention and layover can take the
+   same factor as the miles. Unreimbursed lumper is extra weekly cost. On
+   the starting week, $2.00 after 3% loses $32.96 miles-only; 6 hours at
+   $50 minus a $75 lumper flips the week to +$183.04.
 
 **Copy week summary** turns the result into plain text you can paste into a
 note or a message to dispatch.
@@ -65,6 +72,8 @@ dependency. See [`calc.test.mjs`](calc.test.mjs).
 
 [`deadhead-miles.html`](deadhead-miles.html) is the same conversion in
 search-query words: how empty miles cut a loaded rate.
+[`does-detention-pay-cover-the-wait.html`](does-detention-pay-cover-the-wait.html)
+is the detention / lumper comparison.
 
 ## Privacy
 
@@ -76,7 +85,8 @@ skipped automatically when the browser sends Do Not Track or Global Privacy
 Control. See [`usage.mjs`](usage.mjs) and
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
-Events counted: `week_calculated`, `offer_compared`, `summary_copied`.
+Events counted: `week_calculated`, `offer_compared`, `summary_copied`,
+`accessorials_compared`.
 
 ## Limitations
 

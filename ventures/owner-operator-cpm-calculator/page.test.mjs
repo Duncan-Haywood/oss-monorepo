@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const article = readFileSync(new URL('./deadhead-miles.html', import.meta.url), 'utf8');
+const detention = readFileSync(new URL('./does-detention-pay-cover-the-wait.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -42,7 +43,10 @@ test('required inputs and result sinks exist in the markup', () => {
     'maintenancePerMile', 'tiresPerMile', 'otherVariablePerMile',
     'factoringRate', 'offeredLoadedRate', 'targetWeeklyTakeHome',
     'hero', 'heroLabel', 'allInCpm',
-    'deadheadShare', 'weeklyCost', 'verdict', 'copySummary', 'usageOptOut',
+    'deadheadShare', 'weeklyCost', 'loadedMilesToBreakEven', 'verdict', 'copySummary', 'usageOptOut',
+    'detentionHours', 'detentionPayPerHour', 'layoverPay', 'lumperPaid', 'lumperReimbursed',
+    'factorAccessorials', 'accessorialTable', 'milesOnlyProfit', 'withAccessorialsProfit',
+    'accessorialDelta', 'detentionHoursToCover',
   ];
   for (const id of requiredIds) {
     assert.match(markup, new RegExp(`id="${id}"`), `missing #${id}`);
@@ -55,6 +59,7 @@ test('the page script reads every input the calculator accepts', () => {
     'truckPayment', 'insurance', 'permits', 'otherFixed',
     'maintenancePerMile', 'tiresPerMile', 'otherVariablePerMile',
     'factoringRate', 'offeredLoadedRate', 'targetWeeklyTakeHome',
+    'detentionHours', 'detentionPayPerHour', 'layoverPay', 'lumperPaid', 'lumperReimbursed',
   ];
   for (const field of fields) {
     assert.match(scriptSource, new RegExp(`'${field}'`), `script no longer lists ${field}`);
@@ -76,6 +81,7 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['weekly and annual profit', /result\.offered\.weeklyProfit/],
     ['target take-home', /result\.rateForTarget/],
     ['copyable load summary', /copySummary/],
+    ['detention layover and lumper comparison', /compareAccessorials/],
   ];
   for (const [claim, rendered] of claims) {
     assert.ok(
@@ -105,4 +111,14 @@ test('the deadhead explainer exists and points back at the calculator', () => {
   assert.match(article, /href="\.\/"/);
   assert.match(article, /No warranty/);
   assert.match(article, /1,800 loaded miles and 450 empty miles/);
+});
+
+test('the detention explainer uses the same locked week as the calculator', () => {
+  assert.match(markup, /does-detention-pay-cover-the-wait\.html/);
+  assert.match(detention, /href="\.\/"/);
+  assert.match(detention, /No warranty/);
+  assert.match(detention, /loses \$32\.96/);
+  assert.match(detention, /keeps \$183\.04/);
+  assert.match(detention, /0\.68 hours/);
+  assert.match(scriptSource, /accessorials_compared/);
 });
