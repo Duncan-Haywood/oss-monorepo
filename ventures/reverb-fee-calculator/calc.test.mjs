@@ -7,6 +7,7 @@ import {
   compareOfferToList,
   compareReverbToEbay,
   offerThatMatchesEbayList,
+  compareShippingPaths,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -76,4 +77,44 @@ test('rejects negative or non-numeric prices', () => {
   assert.throws(() => calculateReverbSale(REVERB_DEFAULTS, -1));
   assert.throws(() => calculateReverbSale(REVERB_DEFAULTS, 'nope'));
   assert.throws(() => calculateEbaySale({ ...REVERB_DEFAULTS, ebayFinalValueRate: 100 }, 800));
+});
+
+test('including $75 of shipping in an $800 list costs 5% more marketplace fee', () => {
+  const comparison = compareShippingPaths(REVERB_DEFAULTS);
+  assert.equal(comparison.buyerPays.profit, calculateReverbSale(REVERB_DEFAULTS, 800).profit);
+  assert.equal(comparison.included.salePrice, 875);
+  assert.equal(comparison.included.revenue, 875);
+  assert.equal(comparison.included.fees.marketplace, 43.75);
+  assert.equal(comparison.extraMarketplaceOnIncluded, 3.75);
+  assert.equal(comparison.extraGivesOnIncluded, 0);
+  assert.equal(Number(comparison.included.profit.toFixed(3)), 280.575);
+  assert.equal(Number(comparison.rows[1].vsBuyerPays.toFixed(2)), -3.75);
+  assert.equal(comparison.winner, 'buyerPays');
+});
+
+test('local pickup drops postage both ways and loses the shipping charged', () => {
+  const comparison = compareShippingPaths(REVERB_DEFAULTS);
+  assert.equal(comparison.pickup.salePrice, 800);
+  assert.equal(comparison.pickup.revenue, 800);
+  assert.equal(comparison.pickup.fees.marketplace, 40);
+  assert.equal(comparison.pickup.fees.payment, 23.5);
+  assert.equal(comparison.pickup.profit, 276.5);
+  assert.equal(Number(comparison.rows[2].vsBuyerPays.toFixed(3)), -7.825);
+});
+
+test('the included list that matches buyer-pays cash recovers the extra marketplace line', () => {
+  const comparison = compareShippingPaths(REVERB_DEFAULTS);
+  const atMatch = calculateReverbSale(
+    { ...REVERB_DEFAULTS, shippingCharged: 0 },
+    comparison.includedListThatMatchesBuyerPays,
+  );
+  assert.ok(Math.abs(atMatch.profit - comparison.buyerPays.profit) < 1e-9);
+  assert.ok(comparison.includedListThatMatchesBuyerPays > 875);
+});
+
+test('buyer-pays and included match when shipping charged is already zero', () => {
+  const comparison = compareShippingPaths({ ...REVERB_DEFAULTS, shippingCharged: 0 });
+  assert.equal(comparison.buyerPays.profit, comparison.included.profit);
+  assert.equal(comparison.extraMarketplaceOnIncluded, 0);
+  assert.equal(comparison.winner, 'pickup');
 });

@@ -178,3 +178,55 @@ export function offerThatMatchesEbayList(input) {
     ebayListProfit: ebay.profit,
   };
 }
+
+// Same buyer checkout, three ways to handle shipping. Marketplace and
+// Reverb Gives sit on the item price, so folding postage into the list
+// raises those lines. Local pickup drops both shipping charged and the
+// postage you pay. Derived from the existing sale fields — no new inputs.
+export function compareShippingPaths(input, salePrice = input?.price) {
+  const price = number(salePrice, 'Sale price');
+  const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
+  const buyerPays = calculateReverbSale(input, price);
+  const included = calculateReverbSale({ ...input, shippingCharged: 0 }, price + shippingCharged);
+  const pickup = calculateReverbSale({ ...input, shippingCharged: 0, shippingCost: 0 }, price);
+  const rows = [
+    { id: 'buyerPays', label: 'Buyer pays shipping', sale: buyerPays },
+    { id: 'included', label: 'Shipping included in the price', sale: included },
+    { id: 'pickup', label: 'Local pickup', sale: pickup },
+  ].map((row) => ({
+    ...row,
+    checkout: row.sale.revenue,
+    vsBuyerPays: row.sale.profit - buyerPays.profit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.sale.profit));
+  const leaders = rows.filter((row) => Math.abs(row.sale.profit - maxProfit) < 1e-9);
+  return {
+    buyerPays,
+    included,
+    pickup,
+    rows,
+    extraMarketplaceOnIncluded: included.fees.marketplace - buyerPays.fees.marketplace,
+    extraGivesOnIncluded: included.fees.gives - buyerPays.fees.gives,
+    includedListThatMatchesBuyerPays: includedListThatMatchesBuyerPays(input, buyerPays.profit),
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
+}
+
+function includedListThatMatchesBuyerPays(input, targetProfit) {
+  const shippingCost = number(input.shippingCost, 'Shipping cost', 0);
+  const itemCost = number(input.itemCost, 'What you paid for the item', 0);
+  const otherCost = number(input.otherCost, 'Other per-sale cost', 0);
+  const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const paymentFixed = number(input.paymentFixed, 'Payment fixed fee', 0.3);
+  const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
+  const bumpFee = number(input.bumpFee, 'Bump fee on this listing', 0);
+  const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
+  if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
+  const needed = targetProfit + paymentFixed + shippingCost + itemCost + otherCost + bumpFee;
+  const listPrice = needed / keepRate;
+  if (!Number.isFinite(listPrice) || listPrice < 0) {
+    throw new Error('No non-negative included list matches that buyer-pays cash');
+  }
+  return listPrice;
+}
