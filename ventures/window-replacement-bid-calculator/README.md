@@ -61,8 +61,9 @@ price per opening, effective hourly billing rate, the labor split across
 openings, the share of hours that sit on the second story or higher, and the
 **walk-away price** — total cost, below which the job makes nothing. Entering a
 price already on the table scores it against the same cost base and says
-plainly whether it is under water. **Copy quote summary** turns the result into
-a plain-text draft. **Copy share link** puts the same fields in the page hash
+  plainly whether it is under water. **Copy quote summary** turns the result into
+  a plain-text draft. **Print quote** formats the result as a jobsite-ready quote
+  sheet without the editable inputs. **Copy share link** puts the same fields in the page hash
 so the recipient reconstructs the same quote.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
@@ -87,7 +88,7 @@ Control. See [`usage.mjs`](usage.mjs) and
 [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `opening_added`, `opening_removed`,
-`proposed_price_compared`, `summary_copied`, `share_copied`.
+`proposed_price_compared`, `summary_copied`, `share_copied`, `quote_printed`.
 
 A share link encodes only the allowlisted quote fields in the URL hash. It is
 not sent to us. See [`share.mjs`](share.mjs).
