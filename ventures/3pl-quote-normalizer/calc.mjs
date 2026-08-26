@@ -176,6 +176,183 @@ export function returnsSensitivitySummary(input, rates = DEFAULT_RETURN_RATES) {
   ].join("\n");
 }
 
+function fieldNumber(value, fallback = 0) {
+  if (value === undefined || value === null || (typeof value === "string" && value.trim() === "")) return fallback;
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, number) : fallback;
+}
+
+function quoteWithStorage(input, pallets, storagePerPallet) {
+  return calculate({ ...input, pallets, storagePerPallet }, false);
+}
+
+// The signed rate card prices every pallet at the fresh-storage line. After
+// 30–90 days most 3PLs move leftover pallets onto a long-term surcharge.
+// Liquidating leftover is a one-time recovery against that monthly hold.
+// Distinct from return-rate sensitivity and from inbound method (pallet /
+// carton / loose) — this is inventory that is already on the floor.
+export function compareAgedStorage(input = {}) {
+  const pallets = fieldNumber(input.pallets, 1);
+  const leftoverPallets = Math.min(pallets, fieldNumber(input.leftoverPallets, 0));
+  const turningPallets = Math.max(0, pallets - leftoverPallets);
+  const baseRate = fieldNumber(input.storagePerPallet, 18);
+  const longTermBlank = input.longTermStoragePerPallet === undefined
+    || input.longTermStoragePerPallet === null
+    || (typeof input.longTermStoragePerPallet === "string" && input.longTermStoragePerPallet.trim() === "");
+  const longTermRate = longTermBlank ? baseRate * 2 : fieldNumber(input.longTermStoragePerPallet, baseRate * 2);
+  const liquidationPerPallet = fieldNumber(input.liquidationPerPallet, 0);
+  const blendedRate = pallets > 0 ? (turningPallets * baseRate + leftoverPallets * longTermRate) / pallets : 0;
+
+  const asWritten = quoteWithStorage(input, pallets, baseRate);
+  const aged = quoteWithStorage(input, pallets, blendedRate);
+  const liquidate = quoteWithStorage(input, turningPallets, baseRate);
+  const monthlySurcharge = leftoverPallets * Math.max(0, longTermRate - baseRate);
+  const monthlyHoldIfKept = leftoverPallets * longTermRate;
+  const liquidationRecovery = leftoverPallets * liquidationPerPallet;
+  const monthsUntilSurchargeEatsRecovery = monthlyHoldIfKept > 0 && liquidationRecovery > 0
+    ? liquidationRecovery / monthlyHoldIfKept
+    : null;
+
+  const rows = [
+    {
+      id: "asWritten",
+      label: "Quote as written",
+      result: asWritten,
+      storageCost: asWritten.quote.storage,
+      leftoverPallets: 0,
+    },
+    {
+      id: "aged",
+      label: "Leftover at long-term rate",
+      result: aged,
+      storageCost: aged.quote.storage,
+      leftoverPallets,
+    },
+    {
+      id: "liquidate",
+      label: "Liquidate leftover now",
+      result: liquidate,
+      storageCost: liquidate.quote.storage,
+      leftoverPallets: 0,
+      liquidationRecovery,
+    },
+  ].map((row) => ({
+    ...row,
+    vsAsWritten: row.result.quote.total - asWritten.quote.total,
+  }));
+
+  const monthlyTotals = rows.map((row) => row.result.quote.total);
+  const minTotal = Math.min(...monthlyTotals);
+  const leaders = rows.filter((row) => Math.abs(row.result.quote.total - minTotal) < 1e-9);
+
+  return {
+    rows,
+    asWritten: rows[0],
+    aged: rows[1],
+    liquidate: rows[2],
+    pallets,
+    leftoverPallets,
+    turningPallets,
+    baseRate,
+    longTermRate,
+    blendedRate,
+    monthlySurcharge,
+    monthlyHoldIfKept,
+    liquidationPerPallet,
+    liquidationRecovery,
+    monthsUntilSurchargeEatsRecovery,
+    cheapestPath: leaders.length === 1 ? leaders[0].id : "tie",
+    agedWinner: aged.winner,
+  };
+}
+
+function leftoverSweepCounts(pallets) {
+  if (pallets <= 0) return [0];
+  const step = pallets <= 8 ? 1 : Math.max(1, Math.round(pallets / 4));
+  const counts = [];
+  for (let leftover = 0; leftover <= pallets; leftover += step) counts.push(leftover);
+  if (counts[counts.length - 1] !== pallets) counts.push(pallets);
+  return counts;
+}
+
+export function agedStorageSweep(input = {}) {
+  const pallets = fieldNumber(input.pallets, 1);
+  return leftoverSweepCounts(pallets).map((leftoverPallets) => {
+    const comparison = compareAgedStorage({ ...input, leftoverPallets });
+    return {
+      leftoverPallets,
+      storageCost: comparison.aged.storageCost,
+      total: comparison.aged.result.quote.total,
+      perOrder: comparison.aged.result.perOrder,
+      inHouse: comparison.aged.result.inHouse,
+      savingsVsInHouse: comparison.aged.result.delta,
+      winner: comparison.aged.result.winner,
+      monthlySurcharge: comparison.monthlySurcharge,
+      minimumApplied: comparison.aged.result.minimumApplied,
+    };
+  });
+}
+
+export function agedStorageFlip(rows) {
+  if (!rows.length) return { kind: "empty" };
+  if (rows[0].winner === "in-house") return { kind: "already-in-house", leftoverPallets: rows[0].leftoverPallets };
+  const flip = rows.find((row) => row.winner === "in-house");
+  if (!flip) return { kind: "stays-3pl", leftoverPallets: rows[rows.length - 1].leftoverPallets };
+  return { kind: "flips", leftoverPallets: flip.leftoverPallets, gap: flip.savingsVsInHouse };
+}
+
+export function agedStorageSummary(input = {}) {
+  const comparison = compareAgedStorage(input);
+  const sweep = agedStorageSweep(input);
+  const flip = agedStorageFlip(sweep);
+  const { leftoverPallets, monthlySurcharge, liquidationRecovery, monthsUntilSurchargeEatsRecovery, cheapestPath } = comparison;
+  const agedTotal = comparison.aged.result.quote.total;
+  const asWrittenTotal = comparison.asWritten.result.quote.total;
+  const flipLine = leftoverPallets === 0
+    ? "No leftover pallets are on the long-term line, so the quote as written and the aged path match."
+    : monthlySurcharge === 0
+      ? "The long-term rate matches fresh storage, so leftover pallets do not change the monthly total."
+      : `Leftover at the long-term rate raises the monthly 3PL total by ${money(agedTotal - asWrittenTotal)} versus the quote as written (${money(monthlySurcharge)} of that is the storage surcharge).`;
+  const holdLine = leftoverPallets === 0
+    ? "Raise leftover pallets to see when a surcharge flips the quote."
+    : monthsUntilSurchargeEatsRecovery == null
+      ? liquidationRecovery === 0
+        ? `Liquidating leftover drops monthly 3PL cost by ${money(comparison.asWritten.result.quote.total - comparison.liquidate.result.quote.total)} with no cash recovered.`
+        : "Long-term storage is $0, so holding leftover does not eat a liquidation recovery."
+      : `Holding leftover eats a ${money(liquidationRecovery)} liquidation recovery in ${monthsUntilSurchargeEatsRecovery.toFixed(1)} months of long-term storage.`;
+  const decisionLine = flip.kind === "already-in-house"
+    ? `In-house is already lower before leftover ages. Long-term storage is not why this quote loses.`
+    : flip.kind === "stays-3pl"
+      ? `3PL stays lower through ${flip.leftoverPallets} leftover pallet${flip.leftoverPallets === 1 ? "" : "s"} at these assumptions.`
+      : `3PL stays lower until ${flip.leftoverPallets} leftover pallet${flip.leftoverPallets === 1 ? "" : "s"} hit the long-term rate, where in-house is lower by ${money(Math.abs(flip.gap))} per month.`;
+  const cheapestLine = cheapestPath === "tie"
+    ? "The monthly 3PL totals tie across these paths."
+    : cheapestPath === "liquidate"
+      ? "The lowest monthly 3PL total is liquidating leftover and keeping only turning stock."
+      : cheapestPath === "aged"
+        ? "The lowest monthly 3PL total is keeping leftover at the long-term rate."
+        : "The lowest monthly 3PL total is the quote as written (all pallets at the fresh-storage line).";
+  return [
+    "3PL long-term storage comparison",
+    flipLine,
+    holdLine,
+    decisionLine,
+    cheapestLine,
+    "",
+    "Path, leftover pallets, storage line, 3PL total, winner vs in-house",
+    ...comparison.rows.map((row) =>
+      `${row.label}: ${row.leftoverPallets} leftover, ${money(row.storageCost)} storage, ${money(row.result.quote.total)} total, ${row.result.winner}`,
+    ),
+    "",
+    "Leftover sweep (aged path)",
+    ...sweep.map((row) =>
+      `${row.leftoverPallets} leftover: ${money(row.total)} total, ${money(row.monthlySurcharge)} surcharge, ${row.winner}`,
+    ),
+    "",
+    "Review these figures against the signed rate card before relying on them.",
+  ].join("\n");
+}
+
 export function negotiationLines(result) {
   const driver = largestCostDriver(result);
   return [
