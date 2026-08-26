@@ -22,7 +22,8 @@ whether a supplier MOQ still pays after the extra warehouse stay, and
 whether paying Amazon to prep inbound still beats you-prep, and
 whether Individual or Professional still pays at your monthly volume, and
 whether an Amazon Vine enrollment still pays after gifted leftover units
-versus units that would have sold** —
+versus units that would have sold, and whether Amazon inbound placement
+still beats extra freight on a split shipment** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
 
@@ -103,6 +104,15 @@ shows leftover cash, leftover units, and the monthly sell-through
 that still ties dispose. Complementary to Q4 storage (a seasonal
 rate) and to 3PL long-term storage (a different warehouse).
 
+Inbound placement is a create-shipment decision on the same SKU: pay
+Amazon to accept one warehouse, or pay extra freight to follow the
+split.
+[Is Amazon inbound placement cheaper than splitting the shipment?](inbound-placement-fee.html)
+keeps freight and the per-unit placement fee on separate lines so a
+blended inbound / unit does not hide the cheaper total. Complementary
+to you-prep vs Amazon inbound prep (who labels the unit, not where it
+lands).
+
 **After using the aged-inventory page, you can now see whether
 keeping 80 leftover units at 5% sell-through still beats a $0.32
 dispose after $1.50 / unit / month surcharge** — which used to mean
@@ -112,6 +122,11 @@ leaving the pile because removal looked like giving up.
 still beat skipping after a $419.95 gift, and why a hero SKU that
 would have sold usually does not** — which used to mean accepting
 the Vine invite because 30 reviews looked free.
+
+**After using the inbound-placement page, you can now see whether
+sending 200 large-standard units to one warehouse at $85 freight plus
+$0.43 placement still beats $210 on Amazon’s split** — which used to
+mean following the split because the placement fee looked optional.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -146,7 +161,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, and aged-inventory-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, and inbound-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -154,8 +169,9 @@ category presets, coupon comparison, Subscribe & Save comparison,
 Multi-Channel Fulfillment comparison, usual-PO vs supplier-MOQ
 comparison, you-prep vs Amazon inbound prep comparison,
 Individual vs Professional seller-plan comparison,
-Vine leftover vs sellable enrollment comparison, and
-aged-inventory keep vs return vs dispose comparison;
+Vine leftover vs sellable enrollment comparison,
+aged-inventory keep vs return vs dispose comparison, and
+inbound placement vs split-freight comparison;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 

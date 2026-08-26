@@ -537,6 +537,14 @@ products:
           surcharge on leftover units, sell-through floor). Still no
           public URL; local event aged_inventory_compared is opt-out
           and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          inbound_placement_compared: 0
+        note: >-
+          Added inbound-placement vs split-freight comparison
+          (compareInboundPlacement). Public URL remains owner-gated; the
+          local counter now also records inbound_placement_compared.
   - slug: einvoice-preflight
     surface: local-cli
     readings:
