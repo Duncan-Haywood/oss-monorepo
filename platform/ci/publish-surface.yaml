@@ -274,6 +274,9 @@ workflows:
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hood-cleaning-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: hot-tub-bid-calculator-ci.yml
   classification: none
   publishes: []

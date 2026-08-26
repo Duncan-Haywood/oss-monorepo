@@ -3150,3 +3150,17 @@ products:
           freeze-warning labor premium, travel, walk-away price). Public URL
           remains owner-gated; the local-first counter reports only to the
           user's own browser and is opt-out. Baseline row.
+
+  - slug: hood-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local kitchen-hood / exhaust-cleaning bid calculator
+          (canopy, filters, duct, fan, grease load, rooftop access,
+          after-hours labor, walk-away price). Public URL remains
+          owner-gated; the local-first counter reports only to the user's
+          own browser. Baseline row.
