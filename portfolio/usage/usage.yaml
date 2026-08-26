@@ -2601,6 +2601,18 @@ products:
           driver, packaging, extra labor, dine-in-matching price).
           Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out.
+  - slug: duct-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a local air-duct-cleaning bid calculator with a copyable
+          proposal summary; public URL remains owner-gated. Counters are
+          local, aggregate, and opt-out.
 
   - slug: seller-net-sheet
     surface: static-page-in-repo
