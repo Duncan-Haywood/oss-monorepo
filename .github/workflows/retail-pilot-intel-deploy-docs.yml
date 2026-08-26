@@ -71,7 +71,18 @@ jobs:
     # repo settings, which turns this workflow red on every push to the docs
     # paths. Gate it on an owner-set variable (mirrors deploy-vercel below) so
     # the build always validates but publishing only fires once Pages is on.
-    if: ${{ vars.GITHUB_PAGES_ENABLED == 'true' }}
+    #
+    # Deliberately NOT `GITHUB_PAGES_ENABLED`. GitHub serves one Pages site per
+    # repository, and that variable now publishes `portfolio-pages.yml` — the
+    # ~30 free calculators the portfolio's deploy-first priority is about. If
+    # both workflows read the same flag, one owner flip would make two
+    # deployments race and the live site would flap between them.
+    #
+    # These docs are passcode-gated and internal, so they are not what the
+    # public origin should serve. Setting `RETAIL_PILOT_INTEL_PAGES=true` hands
+    # the origin to them instead; the Vercel job below is the better route if
+    # both are wanted at once.
+    if: ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
