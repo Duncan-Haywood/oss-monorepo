@@ -106,6 +106,12 @@ products:
           live_url_visitors: null
           kitting_compared: 0
         note: Added 3PL assembly vs pre-kit vs skip-the-bundle; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          negotiation_brief_completed: 0
+          negotiation_brief_copied: 0
+        note: Added a copyable negotiation brief from two normalized monthly totals; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: static-page-in-repo
     readings:

@@ -36,6 +36,9 @@ to price assembly, extra component picks, and extra receiving against
 kitting before inbound and against selling the hero SKU. That is a different
 decision from leftover pallets, from return rates, and from restock vs keep.
 The table names the kit-fee and AOV-lift flips.
+Use [Create a 3PL negotiation brief](./negotiation.html) to turn two
+normalized monthly totals into a factual ask — the gap, not a recommended
+provider.
 Use [Which inbound method is cheaper](./inbound.html) to convert pallet,
 carton, and loose receiving into the same per-unit rate and see which line
 wins at your inbound volume. A monthly minimum can hide a real receiving
