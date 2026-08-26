@@ -3,8 +3,8 @@
 A free browser calculator for tile and bathroom contractors. It prices a
 tiled walk-in shower or tub-to-shower conversion the way the trade actually
 loses money — wall and floor tile, then the drain, the slope, the niches,
-the bench, and the glass as their own hours — and shows the margin before
-the price goes out.
+the bench, and the glass as their own hours — and shows whether Saturday
+still pays after overtime before the price goes out.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
@@ -58,9 +58,11 @@ rates, then scores matching the alcove’s price per tile square foot
 against each cost base. The **who-supplies table** prices the same
 shower three ways — you supply the tile, they bought boxes that cover
 the takeoff, or they bought too little / the wrong dye lot — against
-the $45 / SF labor-only special. **Copy bid summary** turns the result
-into a plain-text draft with wages omitted, ready to paste into a
-proposal.
+the $45 / SF labor-only special. The **access table** prices the same
+shower three ways — they leave on a weekday, they still shower around
+you, or after-hours / weekend — against the Saturday number they
+named. **Copy bid summary** turns the result into a plain-text draft
+with wages omitted, ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency. See [`calc.test.mjs`](calc.test.mjs). Matching a brochure
@@ -68,6 +70,8 @@ alcove number? See
 [`should-i-match-an-alcove-price-on-a-curbless-walk-in.html`](should-i-match-an-alcove-price-on-a-curbless-walk-in.html).
 Customer bought the tile? See
 [`should-i-install-customer-supplied-tile.html`](should-i-install-customer-supplied-tile.html).
+They want Saturday? See
+[`should-i-tile-a-walk-in-shower-after-hours.html`](should-i-tile-a-walk-in-shower-after-hours.html).
 
 ## Starting rates
 
@@ -86,7 +90,8 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `preset_applied`,
-`proposed_price_compared`, `scope_compared`, `summary_copied`.
+`proposed_price_compared`, `scope_compared`, `access_compared`,
+`summary_copied`.
 
 ## Limitations
 

@@ -12,6 +12,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-walk-in-shower.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-customer-supplied-tile.html', import.meta.url), 'utf8');
 const scopeSeo = readFileSync(new URL('./should-i-match-an-alcove-price-on-a-curbless-walk-in.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-tile-a-walk-in-shower-after-hours.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -52,6 +53,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
   assert.match(scriptSource, /compareTileSupply/, 'tile-supply comparison is missing from the executable script');
   assert.match(scriptSource, /compareScope/, 'scope comparison is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access note is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -71,6 +74,7 @@ test('inputs and result fields for the primary journey are present', () => {
     'hourlyWage', 'targetMargin', 'proposedPrice',
     'price', 'breakEven', 'copySummary', 'usageOptOut', 'jobPresets',
     'supply', 'supplyNote', 'scopes', 'scopeNote',
+    'accessWindow', 'accessWindowNote',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -101,6 +105,11 @@ test('the landing page links the alcove-vs-walk-in question', () => {
   assert.match(html, /Same shop, four bathrooms/i);
 });
 
+test('the landing page links the Saturday / after-hours question', () => {
+  assert.match(html, /should-i-tile-a-walk-in-shower-after-hours\.html/);
+  assert.match(html, /Same shower, when you can work/i);
+});
+
 test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /How much to charge to install a walk-in shower/i);
   assert.match(seo, /FAQPage/);
@@ -109,6 +118,7 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.match(seo, /should-i-install-customer-supplied-tile\.html/);
   assert.match(seo, /should-i-match-an-alcove-price-on-a-curbless-walk-in\.html/);
+  assert.match(seo, /should-i-tile-a-walk-in-shower-after-hours\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
 
@@ -128,4 +138,20 @@ test('the scope SEO article answers the match-the-alcove question', () => {
   assert.match(scopeSeo, /index\.html/);
   assert.match(scopeSeo, /Best-effort hosting, no SLA/);
   assert.doesNotMatch(scopeSeo, /<textarea/i);
+});
+
+test('the after-hours article quotes the curbless walk-in and alcove Saturday arithmetic', () => {
+  assert.match(accessSeo, /Should I tile a walk-in shower after hours/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$5,175/);
+  assert.match(accessSeo, /\$11,061\.97/);
+  assert.match(accessSeo, /\$12,821\.25/);
+  assert.match(accessSeo, /\$15,363\.84/);
+  assert.match(accessSeo, /\$7,418\.51/);
+  assert.match(accessSeo, /\$903\.94/);
+  assert.match(accessSeo, /time-and-a-half/i);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
 });
