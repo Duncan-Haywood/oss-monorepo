@@ -6,8 +6,23 @@ import {
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  bulkBuySummary,
+  compareBulkBuy,
+  compareCoupons,
+  compareLowPriceFba,
+  compareMcf,
+  compareSubscribeSave,
+  couponDiscount,
+  couponedListing,
+  couponSummary,
+  subscribeSaveListing,
+  subscribeSaveSummary,
   cubicFeet,
+  DEFAULT_COUPON_FEE,
   defaultFulfillmentFee,
+  defaultLowPriceFulfillmentFee,
+  defaultMcfFee,
+  lowPriceBreakEvenRaise,
   STORAGE_PRESETS,
 } from "./calc.mjs";
 
@@ -170,6 +185,515 @@ test("applyCategoryPreset and applyStoragePreset fill illustrative rates", () =>
   assert.equal(clothing.referralRate, CATEGORY_PRESETS.clothing.referralRate);
   const peak = applyStoragePreset({}, "peak");
   assert.equal(peak.storageRate, STORAGE_PRESETS.peak.perCuFt);
+});
+
+test("coupon discount stacks percent and a fixed amount, and never exceeds the list price", () => {
+  near(couponDiscount({ salePrice: 29.99, couponPercent: 15 }), 4.4985, "15%");
+  near(couponDiscount({ salePrice: 29.99, couponPercent: 0, couponFixed: 5 }), 5, "fixed");
+  near(couponDiscount({ salePrice: 29.99, couponPercent: 10, couponFixed: 2 }), 4.999, "stack");
+  near(couponDiscount({ salePrice: 8, couponPercent: 50, couponFixed: 10 }), 8, "capped");
+});
+
+test("couponed listing cuts referral on the buyer price and subtracts the redemption fee from profit", () => {
+  const list = calculateListing(base);
+  const couponed = couponedListing(base, { couponPercent: 15, couponFee: 0.6 });
+  const buyerPays = 29.99 - 4.4985;
+  near(couponed.buyerPays, buyerPays, "buyer pays");
+  near(couponed.referral, buyerPays * 0.15, "referral on discounted price");
+  near(couponed.fulfillment, list.fba.fees.fulfillment, "fulfillment unchanged");
+  near(couponed.cashInvested, list.fba.cashInvested, "cash unchanged");
+  near(couponed.profit, list.fba.profit - 4.4985 + (4.4985 - buyerPays * 0.15) - 0.6, "profit after discount, lower referral, fee");
+  near(couponed.profit, buyerPays - buyerPays * 0.15 - list.fba.fees.fulfillment - 0.6 - list.fba.cashInvested, "recomputed");
+});
+
+test("compareCoupons shows standard percents and the typed offer against list", () => {
+  const comparison = compareCoupons({
+    ...base,
+    couponPercent: 15,
+    couponFixed: 0,
+    couponFee: DEFAULT_COUPON_FEE,
+  });
+  assert.deepEqual(
+    comparison.rows.map((row) => row.label),
+    ["No coupon", "5% coupon", "10% coupon", "15% coupon", "20% coupon"],
+  );
+  assert.equal(comparison.typed.isCurrent, true);
+  assert.equal(comparison.typed.couponPercent, 15);
+  assert.equal(comparison.cheaper, "list");
+  near(comparison.none.profit, calculateListing(base).fba.profit, "list row");
+  near(comparison.typed.profitDelta, comparison.typed.profit - comparison.none.profit, "delta");
+
+  // Worked example locked for the SEO page: $29.99 home listing, 15% referral,
+  // large-standard FBA, $0.60 redemption fee. A 15% coupon leaves about $4.42
+  // less per unit; matching the 80-unit list month needs a ~67% volume lift.
+  near(comparison.none.profit, 10.993291666666668, "list profit");
+  near(comparison.typed.buyerPays, 25.4915, "15% buyer pays");
+  near(comparison.typed.profit, 6.569566666666667, "15% profit");
+  near(comparison.typed.profitDelta, -4.423725, "15% vs list");
+  near(
+    comparison.breakEvenUnits,
+    (comparison.none.profit * 80) / comparison.typed.profit,
+    "units to match list month",
+  );
+  assert.ok(comparison.breakEvenUnits > 133.8 && comparison.breakEvenUnits < 134);
+  assert.ok(comparison.liftPctNeeded > 67 && comparison.liftPctNeeded < 68);
+  assert.equal(comparison.typed.hitsTarget, false);
+  assert.equal(comparison.none.hitsTarget, true);
+});
+
+test("a custom fixed-off coupon is appended instead of replacing a standard row", () => {
+  const comparison = compareCoupons({ ...base, couponPercent: 0, couponFixed: 5, couponFee: 0.6 });
+  assert.equal(comparison.rows.length, 6);
+  assert.equal(comparison.typed.label, "$5.00 off coupon");
+  assert.equal(comparison.typed.isCustom, true);
+  near(comparison.typed.buyerPays, 24.99, "buyer pays");
+});
+
+test("zero coupon fee on the list row; a 0% coupon with no $ off charges nothing", () => {
+  const comparison = compareCoupons({ ...base, couponPercent: 0, couponFixed: 0, couponFee: 0.6 });
+  near(comparison.none.couponFee, 0, "list fee");
+  near(comparison.typed.profit, comparison.none.profit, "typed is list");
+  assert.equal(comparison.cheaper, "tie");
+});
+
+test("an unprofitable coupon cannot recover the month with more volume", () => {
+  const comparison = compareCoupons({
+    ...base,
+    couponPercent: 80,
+    couponFee: 0.6,
+  });
+  assert.ok(comparison.none.profit > 0, "list still pays");
+  assert.ok(comparison.typed.profit < 0, "80% coupon does not");
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(couponSummary(comparison), /cannot recover/i);
+});
+
+test("expected lift is compared to the list-price month, not to itself", () => {
+  const comparison = compareCoupons({
+    ...base,
+    couponPercent: 15,
+    couponFee: 0.6,
+    couponLiftPct: 80,
+  });
+  near(comparison.liftedUnits, 144, "80% lift");
+  near(comparison.liftedMonthlyProfit, comparison.typed.profit * 144, "lifted month");
+  assert.equal(comparison.liftBeatsList, comparison.liftedMonthlyProfit > comparison.listMonthlyProfit);
+  assert.match(couponSummary(comparison), /80%/);
+});
+
+test("couponSummary names the buyer price, the fee, and the lift needed", () => {
+  const text = couponSummary(compareCoupons({ ...base, couponPercent: 15, couponFee: 0.6 }));
+  assert.match(text, /\$25\.49/);
+  assert.match(text, /\$0\.60/);
+  assert.match(text, /133\.9 couponed sales/);
+  assert.match(text, /67% lift/);
+});
+
+test("rejects a coupon percent above 100", () => {
+  assert.throws(() => couponDiscount({ salePrice: 10, couponPercent: 101 }), /at most 100/);
+});
+
+const cheapSku = {
+  salePrice: 9.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 0.5,
+  weightLb: 0.4,
+  costOfGoods: 4,
+  inboundPerUnit: 0.8,
+  monthsInStorage: 1,
+  storageRate: 0.87,
+  fbmShippingCost: 4.75,
+  packagingCost: 0.4,
+  otherCost: 0,
+  adsPerUnit: 0,
+  monthlySellerFee: 0,
+  monthlyUnits: 80,
+  targetMargin: 20,
+  fulfillmentMethod: "fba",
+  sizeTier: "small_standard",
+  fulfillmentFee: 3.47,
+  lowPriceFulfillmentFee: 2.57,
+  lowPriceThreshold: 10,
+};
+
+test("illustrative Low-Price FBA fees discount standard tiers only", () => {
+  near(defaultLowPriceFulfillmentFee("small_standard", 0.2), 3.06 - 0.9, "4 oz cheap");
+  near(defaultLowPriceFulfillmentFee("small_standard", 0.9), 3.47 - 0.9, "14.4 oz cheap");
+  near(defaultLowPriceFulfillmentFee("large_standard", 1), 4.4 - 0.7, "16 oz cheap");
+  near(defaultLowPriceFulfillmentFee("extra_large", 5), 26.33, "XL stays regular");
+});
+
+test("break-even raise is stay price plus the fulfillment jump after referral", () => {
+  near(lowPriceBreakEvenRaise({
+    stayPrice: 9.99,
+    referralRate: 15,
+    lowPriceFee: 2.57,
+    regularFee: 3.47,
+  }), 9.99 + 0.9 / 0.85, "penny-plus is not enough");
+  assert.equal(
+    lowPriceBreakEvenRaise({ stayPrice: 9.99, referralRate: 100, lowPriceFee: 2, regularFee: 3 }),
+    Infinity,
+  );
+});
+
+test("a one-cent raise above $10 loses to Low-Price FBA", () => {
+  const r = compareLowPriceFba({ ...cheapSku, raisePrice: 10.01 });
+  assert.equal(r.winner, "stay");
+  assert.equal(r.stayPrice, 9.99);
+  assert.ok(r.extraProfit < 0);
+  near(r.stay.fba.fees.fulfillment, 2.57, "cheap pick fee");
+  near(r.raise.fba.fees.fulfillment, 3.47, "regular pick fee");
+  near(r.breakEvenRaise, 9.99 + 0.9 / 0.85, "locked break-even");
+  assert.equal(r.raiseBeatsBreakEven, false);
+  assert.match(r.summary, /Staying at \$9\.99/);
+});
+
+test("raising to $12 beats staying under the $10 Low-Price band", () => {
+  const r = compareLowPriceFba({ ...cheapSku, raisePrice: 12 });
+  assert.equal(r.winner, "raise");
+  assert.ok(r.extraProfit > 0);
+  assert.equal(r.raiseBeatsBreakEven, true);
+  near(r.justOver.salePrice, 10.01, "penny-over row is still computed");
+  assert.ok(r.justOver.fba.profit < r.stay.fba.profit, "penny-over still loses");
+  assert.match(r.summary, /Listing at \$12\.00/);
+});
+
+test("dropping a $29.99 listing to $10 for cheaper fulfillment loses cash", () => {
+  const r = compareLowPriceFba({
+    ...base,
+    fulfillmentFee: 3.47,
+    lowPriceFulfillmentFee: 2.57,
+    lowPriceThreshold: 10,
+  });
+  assert.equal(r.stayPrice, 10);
+  assert.equal(r.raisePrice, 29.99);
+  assert.equal(r.winner, "raise");
+  assert.ok(r.extraProfit > 10, "the lost revenue dwarfs the $0.90 pick-fee save");
+});
+
+test("ineligible listings only use the regular fulfillment fee", () => {
+  const r = compareLowPriceFba({
+    ...cheapSku,
+    raisePrice: 10.01,
+    lowPriceEligible: false,
+  });
+  assert.equal(r.eligible, false);
+  assert.equal(r.winner, "raise");
+  near(r.stay.fba.fees.fulfillment, 3.47, "stay loses the cheap fee");
+  assert.match(r.summary, /outside Low-Price FBA/);
+});
+
+test("rejects a stay price above the threshold or a raise that stays under it", () => {
+  assert.throws(
+    () => compareLowPriceFba({ ...cheapSku, lowPriceSalePrice: 10.5 }),
+    /at or below the threshold/,
+  );
+  assert.throws(
+    () => compareLowPriceFba({ ...cheapSku, raisePrice: 9.5 }),
+    /greater than the low-price threshold/,
+  );
+  assert.throws(
+    () => compareLowPriceFba({ ...cheapSku, lowPriceThreshold: 0 }),
+    /greater than zero/,
+  );
+});
+
+test("profit at the break-even raise matches Low-Price stay profit", () => {
+  const r = compareLowPriceFba({ ...cheapSku, raisePrice: 12 });
+  const atBreak = compareLowPriceFba({ ...cheapSku, raisePrice: r.breakEvenRaise });
+  near(atBreak.raise.fba.profit, r.stay.fba.profit, "equal profit at break-even raise");
+  assert.equal(atBreak.winner, "tie");
+});
+
+test("illustrative MCF fees add a size-tier premium to the FBA band", () => {
+  near(defaultMcfFee("small_standard", 0.2), 3.06 + 2.1, "4 oz MCF");
+  near(defaultMcfFee("large_standard", 0.75), 4.15 + 2.4, "12 oz MCF");
+  near(defaultMcfFee("large_bulky", 2), 9.61 + 4.8, "bulky MCF");
+  near(defaultMcfFee("extra_large", 5), 26.33 + 8, "XL MCF");
+});
+
+test("website + MCF skips referral, pays MCF plus card, and keeps inbound and storage", () => {
+  const amazon = calculateListing(base);
+  const r = compareMcf(base);
+  const processor = 29.99 * 0.029 + 0.3;
+  near(r.suggestedMcfFee, 6.55, "default MCF");
+  near(r.mcfFee, 6.55, "used fee");
+  near(r.processorFee, processor, "card");
+  near(r.amazon.profit, amazon.fba.profit, "Amazon row is FBA");
+  near(r.mcf.fees.referral, 0, "no Amazon referral on the website order");
+  near(r.mcf.fees.fulfillment, 6.55, "MCF pick fee");
+  near(r.mcf.fees.processor, processor, "card on website price");
+  near(r.mcf.cashInvested, amazon.fba.cashInvested, "same warehouse cash");
+  near(r.mcf.profit, 29.99 - 6.55 - processor - amazon.fba.cashInvested, "MCF profit");
+});
+
+test("website + you ship skips Amazon warehouse costs and uses the seller label", () => {
+  const amazon = calculateListing(base);
+  const r = compareMcf(base);
+  const processor = 29.99 * 0.029 + 0.3;
+  near(r.selfShip.fees.referral, 0, "no referral");
+  near(r.selfShip.fees.fulfillment, 0, "no MCF");
+  near(r.selfShip.cashInvested, amazon.fbm.cashInvested, "FBM-like cash");
+  near(r.selfShip.profit, 29.99 - processor - amazon.fbm.cashInvested, "self-ship profit");
+});
+
+test("worked example: local stock wins, MCF still beats Amazon by skipping referral", () => {
+  const r = compareMcf(base);
+  assert.equal(r.winner, "self");
+  assert.equal(r.mcfBeatsAmazon, true);
+  near(r.amazon.profit, 10.993291666666668, "Amazon FBA");
+  near(r.mcf.profit, 11.922081666666667, "MCF");
+  near(r.selfShip.profit, 14.970415, "you ship");
+  near(r.mcf.profitDelta, r.mcf.profit - r.amazon.profit, "MCF vs Amazon");
+  near(r.breakEvenMcfFee, 7.47879, "MCF fee that matches Amazon");
+  assert.match(r.summary, /you ship keeps \$14\.97/i);
+  assert.match(r.summary, /\$11\.92/);
+  assert.match(r.summary, /\$10\.99/);
+});
+
+test("MCF profit matches Amazon at the break-even MCF fee", () => {
+  const r = compareMcf(base);
+  const atBreak = compareMcf({ ...base, mcfFulfillmentFee: r.breakEvenMcfFee });
+  near(atBreak.mcf.profit, r.amazon.profit, "equal at break-even MCF fee");
+  assert.equal(atBreak.mcfBeatsAmazon, true);
+});
+
+test("Amazon ads stay on the Amazon row and do not tax the website paths", () => {
+  const r = compareMcf({ ...base, adsPerUnit: 2 });
+  const none = compareMcf(base);
+  near(r.amazon.cashInvested - none.amazon.cashInvested, 2, "ads on Amazon");
+  near(r.mcf.cashInvested, none.mcf.cashInvested, "MCF ignores Amazon ads");
+  near(r.selfShip.cashInvested, none.selfShip.cashInvested, "you-ship ignores Amazon ads");
+});
+
+test("a removal fee is cash on the you-ship path only", () => {
+  const r = compareMcf({ ...base, removalFee: 1.04 });
+  const none = compareMcf(base);
+  near(r.selfShip.cashInvested - none.selfShip.cashInvested, 1.04, "removal");
+  near(r.mcf.profit, none.mcf.profit, "MCF unchanged");
+  near(r.amazon.profit, none.amazon.profit, "Amazon unchanged");
+});
+
+test("MCF wins the table when the seller label is expensive", () => {
+  const r = compareMcf({ ...base, fbmShippingCost: 12 });
+  assert.equal(r.winner, "mcf");
+  assert.ok(r.mcf.profit > r.selfShip.profit);
+  assert.ok(r.mcf.profit > r.amazon.profit);
+  assert.match(r.summary, /Website \+ MCF keeps/);
+});
+
+test("Amazon wins when MCF is expensive and you-ship has no cheap local stock", () => {
+  const r = compareMcf({ ...base, mcfFulfillmentFee: 12, fbmShippingCost: 20 });
+  assert.equal(r.winner, "amazon");
+  assert.match(r.summary, /Amazon FBA keeps/);
+});
+
+test("website price can differ from the Amazon list price", () => {
+  const r = compareMcf({ ...base, dtcSalePrice: 34.99 });
+  near(r.dtcSalePrice, 34.99, "website price");
+  near(r.amazon.salePrice, 29.99, "Amazon stays at list");
+  near(r.mcf.salePrice, 34.99, "MCF uses website price");
+  assert.ok(r.mcf.profit > compareMcf(base).mcf.profit);
+});
+
+test("rejects an impossible website card rate and unknown MCF tiers", () => {
+  assert.throws(() => compareMcf({ ...base, dtcProcessorRate: 100 }), /less than 100/);
+  assert.throws(() => defaultMcfFee("envelope", 1), /Unknown size tier/);
+});
+
+test("Subscribe & Save cuts referral on the buyer price and does not add a coupon fee", () => {
+  const list = calculateListing(base);
+  const sns = subscribeSaveListing(base, { snsPercent: 15 });
+  const buyerPays = 29.99 * 0.85;
+  near(sns.buyerPays, buyerPays, "buyer pays");
+  near(sns.referral, buyerPays * 0.15, "referral on discounted price");
+  near(sns.fulfillment, list.fba.fees.fulfillment, "fulfillment unchanged");
+  near(sns.cashInvested, list.fba.cashInvested, "cash unchanged");
+  near(
+    sns.profit,
+    buyerPays - buyerPays * 0.15 - list.fba.fees.fulfillment - list.fba.cashInvested,
+    "recomputed",
+  );
+  const couponed = couponedListing(base, { couponPercent: 15, couponFee: 0.6 });
+  near(sns.profit - couponed.profit, 0.6, "S&S is the coupon without the redemption fee");
+});
+
+test("compareSubscribeSave shows 0/5/10/15 and the mixed month at the enroll share", () => {
+  const comparison = compareSubscribeSave({
+    ...base,
+    snsPercent: 5,
+    snsEnrollPct: 40,
+  });
+  assert.deepEqual(
+    comparison.rows.map((row) => row.label),
+    ["List price", "5% S&S (1 item)", "10% S&S (5+ items)", "15% S&S (promo)"],
+  );
+  assert.equal(comparison.typed.isCurrent, true);
+  assert.equal(comparison.typed.snsPercent, 5);
+  assert.equal(comparison.cheaper, "list");
+  near(comparison.none.profit, calculateListing(base).fba.profit, "list row");
+  near(comparison.enrolledUnits, 32, "40% of 80");
+  near(comparison.listUnits, 48, "remaining list units");
+  near(
+    comparison.mixedMonthlyProfit,
+    48 * comparison.none.profit + 32 * comparison.typed.profit,
+    "mixed month",
+  );
+  near(
+    comparison.mixedDelta,
+    32 * (comparison.typed.profit - comparison.none.profit),
+    "enroll delta",
+  );
+  near(
+    comparison.offsetUnits,
+    (32 * (comparison.none.profit - comparison.typed.profit)) / comparison.typed.profit,
+    "new units to offset converts",
+  );
+
+  // Worked example locked for the SEO page: $29.99 home listing, 15%
+  // referral, large-standard FBA. 5% S&S leaves about $1.27 less per unit
+  // than list — $0.60 more than the same 5% coupon — and 40% enroll needs
+  // a handful of new S&S-only sales to hold the month.
+  near(comparison.none.profit, 10.993291666666668, "list profit");
+  near(comparison.typed.buyerPays, 28.4905, "5% buyer pays");
+  near(comparison.typed.profit, 9.718716666666668, "5% profit");
+  near(comparison.typed.profitDelta, -1.274575, "5% vs list");
+  assert.equal(comparison.typed.hitsTarget, true);
+  assert.ok(comparison.offsetUnits > 4.1 && comparison.offsetUnits < 4.3);
+});
+
+test("a custom Subscribe & Save percent is appended instead of replacing a standard row", () => {
+  const comparison = compareSubscribeSave({ ...base, snsPercent: 8, snsEnrollPct: 40 });
+  assert.equal(comparison.rows.length, 5);
+  assert.equal(comparison.typed.label, "8% S&S");
+  assert.equal(comparison.typed.isCustom, true);
+  near(comparison.typed.buyerPays, 29.99 * 0.92, "buyer pays");
+});
+
+test("zero Subscribe & Save discount ties list and needs no offset units", () => {
+  const comparison = compareSubscribeSave({ ...base, snsPercent: 0, snsEnrollPct: 40 });
+  near(comparison.typed.profit, comparison.none.profit, "typed is list");
+  assert.equal(comparison.cheaper, "tie");
+  near(comparison.offsetUnits, 0, "no offset");
+  assert.match(subscribeSaveSummary(comparison), /No Subscribe & Save discount/);
+});
+
+test("an unprofitable Subscribe & Save discount cannot be offset with more volume", () => {
+  const comparison = compareSubscribeSave({
+    ...base,
+    snsPercent: 80,
+    snsEnrollPct: 40,
+  });
+  assert.ok(comparison.none.profit > 0, "list still pays");
+  assert.ok(comparison.typed.profit < 0, "80% S&S does not");
+  assert.equal(comparison.offsetUnits, Infinity);
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
+});
+
+test("subscribeSaveSummary names the buyer price, the mixed month, and the offset units", () => {
+  const text = subscribeSaveSummary(compareSubscribeSave({
+    ...base,
+    snsPercent: 5,
+    snsEnrollPct: 40,
+  }));
+  assert.match(text, /\$28\.49/);
+  assert.match(text, /40%/);
+  assert.match(text, /32\.0/);
+  assert.match(text, /4\.2 new S&S-only sales/);
+  assert.match(text, /no coupon redemption fee/i);
+});
+
+test("rejects a Subscribe & Save percent or enroll share above 100", () => {
+  assert.throws(() => subscribeSaveListing(base, { snsPercent: 101 }), /at most 100/);
+  assert.throws(() => compareSubscribeSave({ ...base, snsEnrollPct: 101 }), /at most 100/);
+});
+
+test("compareBulkBuy scales MOQ storage by qty and shows leftover vs extra cash", () => {
+  const comparison = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeInboundPerUnit: 0.9,
+  });
+  near(comparison.small.profit, 10.993291666666668, "usual PO matches listing");
+  near(comparison.small.monthsInStorage, 1, "usual stay");
+  near(comparison.large.monthsInStorage, 5, "5× qty sits 5× as long");
+  near(comparison.large.profit, 12.59995833333333, "MOQ unit after extra storage");
+  near(comparison.extraProfit, 1.606666666666662, "per-unit gain");
+  near(comparison.pileDelta, 803.333333333331, "gain on the MOQ qty");
+  near(comparison.extraCapital, 3335.95, "extra cash tied up");
+  near(comparison.breakEvenLargeCogs, 8.106666666666662, "MOQ COGS that ties");
+  near(comparison.paybackMonths, 25.953967842323724, "cash payback");
+  assert.equal(comparison.winner, "large");
+  assert.equal(comparison.small.hitsTarget, true);
+  assert.equal(comparison.large.hitsTarget, true);
+});
+
+test("compareBulkBuy defaults the usual PO to listing COGS, inbound, and months", () => {
+  const comparison = compareBulkBuy({ ...base, largeOrderQty: 500 });
+  near(comparison.small.qty, 100, "default usual qty");
+  near(comparison.small.costOfGoods, 8, "listing COGS");
+  near(comparison.small.inboundPerUnit, 1.2, "listing inbound");
+  near(comparison.large.costOfGoods, 8, "same COGS when MOQ cost is blank");
+  near(comparison.large.monthsInStorage, 5, "scaled stay");
+  assert.equal(comparison.winner, "small");
+  near(comparison.extraProfit, -0.19333333333333513, "extra storage only");
+});
+
+test("compareBulkBuy ties when MOQ COGS is the break-even", () => {
+  const priced = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeInboundPerUnit: 0.9,
+  });
+  const atBreak = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: priced.breakEvenLargeCogs,
+    largeInboundPerUnit: 0.9,
+  });
+  near(atBreak.extraProfit, 0, "break-even COGS ties unit profit");
+  assert.equal(atBreak.winner, "tie");
+});
+
+test("compareBulkBuy honors a typed MOQ stay instead of scaling", () => {
+  const comparison = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeMonthsInStorage: 1,
+  });
+  near(comparison.large.monthsInStorage, 1, "typed stay");
+  near(comparison.extraProfit, 1.5, "COGS save only, same storage");
+  assert.equal(comparison.winner, "large");
+});
+
+test("bulkBuySummary names the extra cash and the COGS that still ties", () => {
+  const text = bulkBuySummary(compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeInboundPerUnit: 0.9,
+  }));
+  assert.match(text, /\$1\.61/);
+  assert.match(text, /\$803\.33/);
+  assert.match(text, /\$3335\.95/);
+  assert.match(text, /\$8\.11/);
+  assert.match(text, /26\.0 months/);
+});
+
+test("compareBulkBuy rejects empty piles", () => {
+  assert.throws(() => compareBulkBuy({ ...base, smallOrderQty: 0 }), /greater than zero/);
+  assert.throws(() => compareBulkBuy({ ...base, largeOrderQty: 0 }), /greater than zero/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

@@ -58,6 +58,9 @@ workflows:
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: boiler-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: branch-cleanup.yml
   classification: none
   publishes: []
@@ -76,6 +79,9 @@ workflows:
 - workflow: ebay-fee-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: egress-window-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: error-rate-disclosure-ci.yml
   classification: none
   publishes: []
@@ -91,7 +97,13 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: home-elevator-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: janitorial-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
@@ -160,16 +172,28 @@ workflows:
     step: uses amondnet/vercel-action
     gates:
     - ${{ vars.VERCEL_DEPLOY == 'true' }}
+- workflow: shopify-a11y-evidence-ci.yml
+  classification: none
+  publishes: []
 - workflow: shopify-fee-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
+- workflow: stair-lift-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
+- workflow: toilet-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: ubuntu-agent-server-ci.yml
+  classification: none
+  publishes: []
+- workflow: walk-in-tub-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: where-to-sell-calculator-ci.yml

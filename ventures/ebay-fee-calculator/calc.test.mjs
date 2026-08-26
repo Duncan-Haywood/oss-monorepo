@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -133,4 +133,172 @@ test('rejects repricing offsets that cannot produce a listable price', () => {
   assert.throws(() => calculateRepricingTable({ price: 40 }, [-100]), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: 40 }, ['abc']), /greater than -100/);
   assert.throws(() => calculateRepricingTable({ price: -1 }, [0]), /Item price/);
+});
+
+test('expected profit equals completed-sale profit when no orders come back', () => {
+  const r = calculateOrder({
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+  });
+  near(r.expectedProfit, r.profit, 'zero return rate leaves completed-sale profit');
+  near(r.expectedProfitDelta, 0, 'no expected-profit change');
+  near(r.returnProfit, -(5 + 1), 'one return still eats the outbound label and packaging');
+  near(r.cashEatenPerReturn, 6, 'cash eaten per returned unit');
+});
+
+test('blends completed-sale profit with the cash a return still eats', () => {
+  // Completed sale on the documented $40 order is $21.605. A return that
+  // refunds every fee still eats the $5 label, $1 packaging, and $7 return
+  // postage — $13 — so a 10% return rate is 0.9 * 21.605 + 0.1 * -13.
+  const r = calculateOrder({
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+    returnRatePercent: 10, returnShippingCost: 7, feeRefundOnReturnPercent: 100,
+  });
+  near(r.profit, 21.605, 'completed-sale profit is unchanged');
+  near(r.returnProfit, -13, 'return profit');
+  near(r.expectedProfit, 0.9 * 21.605 + 0.1 * -13, 'expected profit');
+  near(r.expectedProfitDelta, r.expectedProfit - r.profit, 'delta vs completed sale');
+  near(r.expectedRevenue, 46 * 0.9, 'expected revenue after refunds');
+  near(r.cashEatenPerReturn, 13, 'cash eaten per return');
+  near(r.breakEvenReturnRate, 21.605 / (21.605 - -13) * 100, 'break-even return rate');
+});
+
+test('unrefunded fees stay in the return loss', () => {
+  const r = calculateOrder({
+    price: 100, shippingCharged: 0, finalValueRate: 10, fixedFee: 0.4,
+    shippingCost: 0, packagingCost: 0, otherCost: 0,
+    returnRatePercent: 100, returnShippingCost: 0, feeRefundOnReturnPercent: 0,
+  });
+  near(r.feeTotal, 10.4, 'fees on the completed sale');
+  near(r.returnProfit, -10.4, 'all fees stay with the seller');
+  near(r.expectedProfit, -10.4, 'every order comes back');
+});
+
+test('break-even return rate is zero when the completed sale already loses', () => {
+  const r = calculateOrder({
+    price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 20, shippingCost: 5,
+  });
+  assert.ok(r.profit < 0, 'losing sale');
+  assert.equal(r.breakEvenReturnRate, 0);
+});
+
+test('rejects a return rate or fee-refund rate above 100%', () => {
+  assert.throws(() => calculateOrder({ price: 10, returnRatePercent: 101 }), /at most 100/);
+  assert.throws(() => calculateOrder({ price: 10, feeRefundOnReturnPercent: 101 }), /at most 100/);
+});
+
+test('carries expected return profit into each repricing row', () => {
+  const input = {
+    price: 40, shippingCharged: 6, costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+    returnRatePercent: 20, returnShippingCost: 4,
+  };
+  const rows = calculateRepricingTable(input, [0, 10]);
+  const current = calculateOrder(input);
+  const higher = calculateOrder({ ...input, price: 44 });
+  near(rows[0].expectedProfit, current.expectedProfit, 'current expected profit');
+  near(rows[1].expectedProfit, higher.expectedProfit, 'repriced expected profit');
+  assert.ok(rows[1].expectedProfit > rows[0].expectedProfit, 'a higher price still helps after returns');
+});
+
+const formatBase = {
+  price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+  costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+};
+
+test('compares auction vs Buy It Now after sell-through and insertion', () => {
+  const comparison = compareListingFormat({
+    ...formatBase,
+    auctionExpectedClose: 36,
+    binSellThroughPct: 50,
+    auctionSellThroughPct: 90,
+    binDaysToSell: 21,
+    auctionDays: 7,
+  });
+  const binSold = calculateOrder(formatBase);
+  const auctionSold = calculateOrder({ ...formatBase, price: 36, promotedRate: 0 });
+  near(comparison.bin.soldExpectedProfit, binSold.expectedProfit, 'BIN completed-sale expected');
+  near(comparison.auction.soldExpectedProfit, auctionSold.expectedProfit, 'auction completed-sale expected');
+  near(comparison.bin.expectedProfit, binSold.expectedProfit * 0.5, 'BIN listing expected');
+  near(comparison.auction.expectedProfit, auctionSold.expectedProfit * 0.9, 'auction listing expected');
+  near(comparison.bin.expectedProfitPerDay, comparison.bin.expectedProfit / 21, 'BIN per day');
+  near(comparison.auction.expectedProfitPerDay, comparison.auction.expectedProfit / 7, 'auction per day');
+  assert.equal(comparison.winner, 'auction');
+  assert.ok(comparison.auction.soldExpectedProfit < comparison.bin.soldExpectedProfit, 'auction sale itself is cheaper');
+  assert.ok(comparison.auction.expectedProfit > comparison.bin.expectedProfit, 'sell-through still makes auction win');
+});
+
+test('defaults a 90% hammer and the usual sell-through / duration pair', () => {
+  const comparison = compareListingFormat(formatBase);
+  near(comparison.auction.price, 36, 'default hammer is 90% of BIN');
+  assert.equal(comparison.bin.sellThroughPct, 50);
+  assert.equal(comparison.auction.sellThroughPct, 90);
+  assert.equal(comparison.bin.days, 21);
+  assert.equal(comparison.auction.days, 7);
+});
+
+test('subtracts insertion fees that are sunk whether the listing sells', () => {
+  const comparison = compareListingFormat({
+    ...formatBase,
+    auctionExpectedClose: 36,
+    binInsertionFee: 0.35,
+    auctionInsertionFee: 0.35,
+  });
+  const without = compareListingFormat({ ...formatBase, auctionExpectedClose: 36 });
+  near(comparison.bin.expectedProfit, without.bin.expectedProfit - 0.35, 'BIN insertion');
+  near(comparison.auction.expectedProfit, without.auction.expectedProfit - 0.35, 'auction insertion');
+});
+
+test('keeps Promoted Listings Standard on Buy It Now only', () => {
+  const comparison = compareListingFormat({
+    ...formatBase,
+    promotedRate: 5,
+    auctionExpectedClose: 36,
+    auctionPromotedRate: 0,
+  });
+  const binPromoted = calculateOrder({ ...formatBase, promotedRate: 5 });
+  const auctionPlain = calculateOrder({ ...formatBase, price: 36, promotedRate: 0 });
+  near(comparison.bin.soldFees, binPromoted.feeTotal, 'BIN carries promoted');
+  near(comparison.auction.soldFees, auctionPlain.feeTotal, 'auction omits BIN promoted');
+});
+
+test('break-even auction close matches Buy It Now expected profit', () => {
+  const comparison = compareListingFormat({
+    ...formatBase,
+    auctionExpectedClose: 36,
+    binSellThroughPct: 50,
+    auctionSellThroughPct: 90,
+  });
+  const atBreakEven = compareListingFormat({
+    ...formatBase,
+    auctionExpectedClose: comparison.breakEvenAuctionClose,
+    binSellThroughPct: 50,
+    auctionSellThroughPct: 90,
+  });
+  near(atBreakEven.auction.expectedProfit, atBreakEven.bin.expectedProfit, 'hammer matches BIN expected');
+  assert.ok(comparison.breakEvenAuctionClose < 36, 'matching hammer is below the 90% default');
+});
+
+test('carries the typed return rate into both listing formats', () => {
+  const input = { ...formatBase, returnRatePercent: 10, returnShippingCost: 7 };
+  const comparison = compareListingFormat({ ...input, auctionExpectedClose: 36 });
+  const binSold = calculateOrder(input);
+  near(comparison.bin.soldExpectedProfit, binSold.expectedProfit, 'BIN after returns');
+  assert.ok(comparison.bin.soldExpectedProfit < comparison.bin.soldProfit, 'returns reduce the sale that sell-through scales');
+});
+
+test('listing-format note names the winner without telling the seller what to do', () => {
+  const comparison = compareListingFormat({ ...formatBase, auctionExpectedClose: 36 });
+  const note = listingFormatNote(comparison);
+  assert.match(note, /Auction at \$36\.00/);
+  assert.match(note, /Buy It Now at \$40\.00/);
+  assert.match(note, /hammer is about/);
+  assert.doesNotMatch(note, /should list|must list|list as/i);
+});
+
+test('rejects sell-through above 100% and non-positive listing days', () => {
+  assert.throws(() => compareListingFormat({ ...formatBase, binSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareListingFormat({ ...formatBase, auctionDays: 0 }), /greater than zero/);
+  assert.throws(() => compareListingFormat({ price: -1 }), /Item price/);
 });

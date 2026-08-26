@@ -1,5 +1,5 @@
 name: einvoice-preflight
-description: A local JSON invoice checker that catches structural and arithmetic defects before a bookkeeper submits an e-invoice.
+description: A local JSON and UBL invoice checker that catches structural, arithmetic, VAT, IBAN, and BIC defects before a bookkeeper submits an e-invoice.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,14 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Explainable rule IDs and downloadable JSON are useful enough for repeated integration checks.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a transposed IBAN before submission prevents a missed payment more often than a VAT-only preflight.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a BIC whose country does not match the IBAN prevents a SEPA reject more often than an IBAN-only preflight.
     status: untested
     checked: null
     evidence: customer-contact

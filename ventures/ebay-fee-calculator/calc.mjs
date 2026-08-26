@@ -21,6 +21,17 @@ export const INPUT_FIELDS = [
   'packagingCost',
   'otherCost',
   'targetMargin',
+  'returnRatePercent',
+  'returnShippingCost',
+  'feeRefundOnReturnPercent',
+  'auctionExpectedClose',
+  'binSellThroughPct',
+  'auctionSellThroughPct',
+  'binDaysToSell',
+  'auctionDays',
+  'binInsertionFee',
+  'auctionInsertionFee',
+  'auctionPromotedRate',
 ];
 
 export function calculateOrder(input) {
@@ -40,9 +51,14 @@ export function calculateOrder(input) {
   const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  const returnRatePercent = number(input.returnRatePercent ?? 0, 'Expected return rate');
+  const returnShippingCost = number(input.returnShippingCost ?? 0, 'Return shipping cost');
+  const feeRefundOnReturnPercent = number(input.feeRefundOnReturnPercent ?? 100, 'Fee refund on return');
   const quantity = number(input.quantity ?? 1, 'Units');
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+  if (returnRatePercent > 100) throw new Error('Expected return rate must be at most 100%');
+  if (feeRefundOnReturnPercent > 100) throw new Error('Fee refund on return must be at most 100%');
 
   // eBay charges the final value fee on the full order total (item + shipping),
   // so promoted-listings and international-fee percentages are modelled the same
@@ -69,6 +85,24 @@ export function calculateOrder(input) {
   const fixedCash = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
   const targetMarginRate = targetMargin / 100;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
+
+  // A completed sale keeps the profit above. A return typically refunds the
+  // buyer, often refunds percentage/fixed fees, and still eats the outbound
+  // label, packaging, other cash, and return postage. The item is treated as
+  // back in inventory, so cost of goods is not counted again as a loss.
+  const returnRate = returnRatePercent / 100;
+  const feeRefundRate = feeRefundOnReturnPercent / 100;
+  const sunkOnReturn = (shippingCost + packagingCost + otherCost + returnShippingCost) * quantity;
+  const unrefundedFees = feeTotal * (1 - feeRefundRate);
+  const returnProfit = -sunkOnReturn - unrefundedFees;
+  const expectedProfit = (1 - returnRate) * profit + returnRate * returnProfit;
+  const expectedRevenue = revenue * (1 - returnRate);
+  const profitReturnGap = profit - returnProfit;
+  const breakEvenReturnRate = profit <= 0
+    ? 0
+    : profitReturnGap <= 0
+      ? Infinity
+      : Math.min(100, profit / profitReturnGap * 100);
   return {
     revenue,
     quantity,
@@ -92,6 +126,20 @@ export function calculateOrder(input) {
     targetMarginPrice: targetRevenueDenominator <= 0
       ? Infinity
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    returnRatePercent,
+    returnShippingCost,
+    feeRefundOnReturnPercent,
+    returnProfit,
+    cashEatenPerReturn: quantity === 0 ? 0 : -returnProfit / quantity,
+    expectedProfit,
+    expectedUnitProfit: expectedProfit / quantity,
+    expectedRevenue,
+    expectedMargin: expectedRevenue === 0 ? 0 : expectedProfit / expectedRevenue * 100,
+    expectedProfitDelta: expectedProfit - profit,
+    // Highest return rate at which expected profit is still non-negative.
+    // Null-equivalent Infinity means even every order coming back still pays
+    // (no sunk shipping/fees). Zero means the completed sale already loses.
+    breakEvenReturnRate,
   };
 }
 
@@ -130,4 +178,152 @@ export function calculateRepricingTable(input, offsets = [-20, -10, 0, 10, 20]) 
     // "what does moving the price actually buy me" without mental arithmetic.
     profitDelta: scenario.profit - current.profit,
   }));
+}
+
+function optionalNumber(value, name, fallback) {
+  if (value === undefined || value === null || value === '') return fallback;
+  const result = Number(value);
+  if (!Number.isFinite(result) || result < 0) throw new Error(`${name} must be a non-negative number`);
+  return result;
+}
+
+function requiredPositive(value, name, fallback) {
+  const result = optionalNumber(value, name, fallback);
+  if (result <= 0) throw new Error(`${name} must be greater than zero`);
+  return result;
+}
+
+function requiredPercent(value, name, fallback) {
+  const result = optionalNumber(value, name, fallback);
+  if (result > 100) throw new Error(`${name} must be at most 100%`);
+  return result;
+}
+
+// expectedProfit is linear in item price (fees and the return blend both
+// scale with revenue). Two evaluations recover the slope so the break-even
+// hammer uses the same function the table already shows.
+function priceForExpectedProfit(input, promotedRate, targetExpectedProfit) {
+  const atZero = calculateOrder({ ...input, price: 0, promotedRate });
+  const atHundred = calculateOrder({ ...input, price: 100, promotedRate });
+  const slope = (atHundred.expectedProfit - atZero.expectedProfit) / 100;
+  if (slope <= 1e-12) return Infinity;
+  return Math.max(0, (targetExpectedProfit - atZero.expectedProfit) / slope);
+}
+
+function listingFormatRow({
+  format,
+  label,
+  price,
+  sellThroughPct,
+  days,
+  insertionFee,
+  promotedRate,
+  input,
+}) {
+  const sold = calculateOrder({ ...input, price, promotedRate });
+  const expectedProfit = sold.expectedProfit * (sellThroughPct / 100) - insertionFee;
+  return {
+    format,
+    label,
+    price,
+    sellThroughPct,
+    days,
+    insertionFee,
+    promotedRate,
+    soldProfit: sold.profit,
+    soldExpectedProfit: sold.expectedProfit,
+    soldFees: sold.feeTotal,
+    expectedProfit,
+    expectedProfitPerDay: expectedProfit / days,
+    expectedProfitDelta: 0,
+    cashInvested: sold.cashInvested,
+  };
+}
+
+/**
+ * Auction vs Buy It Now on the same SKU. A completed auction sale is often
+ * cheaper than BIN; auctions still win when they actually sell. Expected
+ * listing profit is completed-sale expected profit (after the typed return
+ * rate) times sell-through, minus the insertion fee that is sunk either way.
+ * Promoted Listings Standard sits on the BIN row; the auction row uses its
+ * own promoted rate (default 0).
+ */
+export function compareListingFormat(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const auctionClose = optionalNumber(
+    input.auctionExpectedClose,
+    'Auction expected close',
+    Math.round(listedPrice * 0.9 * 100) / 100,
+  );
+  const binSellThroughPct = requiredPercent(input.binSellThroughPct, 'Buy It Now sell-through', 50);
+  const auctionSellThroughPct = requiredPercent(input.auctionSellThroughPct, 'Auction sell-through', 90);
+  const binDays = requiredPositive(input.binDaysToSell, 'Buy It Now days to sell', 21);
+  const auctionDays = requiredPositive(input.auctionDays, 'Auction duration days', 7);
+  const binInsertionFee = optionalNumber(input.binInsertionFee, 'Buy It Now insertion fee', 0);
+  const auctionInsertionFee = optionalNumber(input.auctionInsertionFee, 'Auction insertion fee', 0);
+  const auctionPromotedRate = optionalNumber(input.auctionPromotedRate, 'Auction promoted rate', 0);
+  const binPromotedRate = optionalNumber(input.promotedRate, 'Promoted listings rate', 0);
+
+  const bin = listingFormatRow({
+    format: 'bin',
+    label: 'Buy It Now',
+    price: listedPrice,
+    sellThroughPct: binSellThroughPct,
+    days: binDays,
+    insertionFee: binInsertionFee,
+    promotedRate: binPromotedRate,
+    input,
+  });
+  const auction = listingFormatRow({
+    format: 'auction',
+    label: 'Auction',
+    price: auctionClose,
+    sellThroughPct: auctionSellThroughPct,
+    days: auctionDays,
+    insertionFee: auctionInsertionFee,
+    promotedRate: auctionPromotedRate,
+    input,
+  });
+  bin.expectedProfitDelta = bin.expectedProfit - auction.expectedProfit;
+  auction.expectedProfitDelta = auction.expectedProfit - bin.expectedProfit;
+
+  let breakEvenAuctionClose = Infinity;
+  if (auctionSellThroughPct > 0) {
+    const neededSoldExpected = (bin.expectedProfit + auctionInsertionFee) / (auctionSellThroughPct / 100);
+    breakEvenAuctionClose = priceForExpectedProfit(input, auctionPromotedRate, neededSoldExpected);
+  }
+
+  const winner = auction.expectedProfit > bin.expectedProfit + 1e-9
+    ? 'auction'
+    : auction.expectedProfit < bin.expectedProfit - 1e-9
+      ? 'bin'
+      : 'tie';
+
+  return {
+    bin,
+    auction,
+    rows: [bin, auction],
+    winner,
+    breakEvenAuctionClose,
+  };
+}
+
+export function listingFormatNote(comparison) {
+  if (!comparison?.bin || !comparison?.auction) {
+    throw new Error('Listing-format comparison is missing rows');
+  }
+  const money = (value) => `$${value.toFixed(2)}`;
+  const { bin, auction } = comparison;
+  const gap = Math.abs(auction.expectedProfit - bin.expectedProfit);
+  const ahead = auction.expectedProfit >= bin.expectedProfit ? 'more' : 'less';
+  const close = `Auction at ${money(auction.price)} with ${auction.sellThroughPct}% sell-through over ${auction.days} days expects ${money(auction.expectedProfit)} after insertion — ${money(gap)} ${ahead} than Buy It Now at ${money(bin.price)} with ${bin.sellThroughPct}% sell-through over ${bin.days} days (${money(bin.expectedProfit)}).`;
+  const sold = `A completed auction sale leaves ${money(auction.soldExpectedProfit)} after the typed return rate; a completed Buy It Now sale leaves ${money(bin.soldExpectedProfit)}.`;
+  const hammer = Number.isFinite(comparison.breakEvenAuctionClose)
+    ? ` Auction expected profit matches Buy It Now if the hammer is about ${money(comparison.breakEvenAuctionClose)}.`
+    : ' No auction hammer on these rates can match Buy It Now expected profit.';
+  return `${close} ${sold}${hammer}`;
 }

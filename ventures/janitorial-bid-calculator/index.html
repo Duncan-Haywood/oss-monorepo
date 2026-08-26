@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Janitorial Bid Calculator | Commercial Cleaning Price Per Month</title>
-  <meta name="description" content="Price a commercial cleaning contract from production rates: labor hours per visit, payroll burden, supplies, overhead, and margin — plus price per square foot, effective hourly rate, and the walk-away number.">
+  <meta name="description" content="Price a commercial cleaning contract from production rates, then see what a 5× to 3× frequency cut actually costs — labor drops with the visits, travel and equipment do not.">
   <meta property="og:title" content="Janitorial Bid Calculator">
-  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate — and see why a linear 60% of a 5-day price is not a 3-day bid.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -54,6 +54,15 @@
     .support { margin-top: 14px; }
     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
     .summary-status { font-size: .8rem; color: #bce8cf; }
+    .compare { margin-top: 18px; min-width: 0; }
+    .compare table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    .compare th, .compare td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-variant-numeric: tabular-nums; }
+    .compare th:first-child, .compare td:first-child { text-align: left; }
+    .compare thead th { font-size: .8rem; letter-spacing: .03em; color: #4a5666; }
+    .compare tr.hold { background: #e8f6ee; font-weight: 700; }
+    .compare tr.warn td { color: #9b2c1f; }
+    .compare-verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .9rem; background: #f3f6fa; }
+    .compare-verdict.bad { background: #fdf3f1; color: #7d2317; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .area-head { display: none; }
@@ -69,10 +78,11 @@
   <header>
     <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
     <h1>Bid the building, not the square footage.</h1>
-    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, and the number below which the job loses money.</p>
+    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, the number below which the job loses money, and what a 5×-to-3× schedule cut is actually worth — not 60% of today’s price.</p>
   </header>
 
-  <main class="layout">
+  <main>
+  <div class="layout">
     <div>
       <section>
         <h2>The building</h2>
@@ -97,6 +107,16 @@
           <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
+      </section>
+
+      <section>
+        <h2>If they cut the schedule</h2>
+        <p class="hint">A prospect who asks for 3 days a week instead of 5 will often offer 60% of the current monthly price. Labor hours do drop with the visits. Supplies, equipment, and travel stay on the job, so the price that still holds your margin is higher than a linear cut. <a href="5x-vs-3x-cleaning-price.html">Why 60% of a 5-day price is not a 3-day bid</a>.</p>
+        <div class="fields">
+          <label>Current days / week <input id="currentWeekly" type="number" min="0.5" max="21" step="0.5" value="5"></label>
+          <label>Proposed days / week <input id="proposedWeekly" type="number" min="0" max="21" step="0.5" value="3"></label>
+          <label>Price they offered for the cut (optional) <input id="clientOfferMonthly" type="number" min="0" step="10" placeholder="e.g. 60% of today"></label>
+        </div>
       </section>
     </div>
 
@@ -129,20 +149,76 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
     </section>
+  </div>
+
+  <section class="compare" id="frequencyCompare" hidden>
+    <h2>5× vs 3× is not a 40% discount</h2>
+    <p class="hint" id="compareHint">Labor scales with visits. The monthly supply line, equipment, and travel in this bid do not.</p>
+    <div class="table-scroll" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col" id="colCurrent">Current schedule</th>
+            <th scope="col" id="colReduced">Reduced schedule</th>
+            <th scope="col" id="colNaive">Linear cut of today&rsquo;s price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Days / week</th>
+            <td id="cmpCurrentDays"></td>
+            <td id="cmpReducedDays"></td>
+            <td id="cmpNaiveDays"></td>
+          </tr>
+          <tr>
+            <th scope="row">Labor hours / month</th>
+            <td id="cmpCurrentHours"></td>
+            <td id="cmpReducedHours"></td>
+            <td id="cmpNaiveHours"></td>
+          </tr>
+          <tr>
+            <th scope="row">Monthly cost</th>
+            <td id="cmpCurrentCost"></td>
+            <td id="cmpReducedCost"></td>
+            <td id="cmpNaiveCost"></td>
+          </tr>
+          <tr class="hold">
+            <th scope="row">Price that holds your margin</th>
+            <td id="cmpCurrentPrice"></td>
+            <td id="cmpReducedPrice"></td>
+            <td id="cmpNaivePrice"></td>
+          </tr>
+          <tr id="naiveMarginRow">
+            <th scope="row">Margin if you take the linear number</th>
+            <td colspan="2"></td>
+            <td id="cmpNaiveMargin"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="compareVerdict" class="compare-verdict"></div>
+    <div class="summary-actions">
+      <button type="button" id="copyFrequencyNote">Copy schedule-cut reply</button>
+      <span id="frequencyStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
+    </div>
+  </section>
   </main>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your building, wages, costs, or prices.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+    import { calculateBid, compareFrequencyReduction, frequencyReductionNote, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
+    const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
 
@@ -234,6 +310,7 @@
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('verdict').hidden = true;
+      el('frequencyCompare').hidden = true;
     }
 
     function update() {
@@ -292,6 +369,62 @@
           ? `At ${money(result.proposed.price)} a month this job <strong>loses ${money(Math.abs(result.proposed.profit))} a month</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenMonthlyPrice)}.`
           : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
       }
+
+      renderFrequencyCompare({ areas, result });
+    }
+
+    function renderFrequencyCompare({ areas }) {
+      const panel = el('frequencyCompare');
+      let comparison;
+      try {
+        comparison = compareFrequencyReduction({
+          areas,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        }, {
+          currentWeekly: el('currentWeekly').value,
+          proposedWeekly: el('proposedWeekly').value,
+          clientOfferMonthly: el('clientOfferMonthly').value,
+        });
+      } catch {
+        panel.hidden = true;
+        return;
+      }
+
+      const currentLabel = `${comparison.currentWeekly}×/week`;
+      const reducedLabel = `${comparison.proposedWeekly}×/week`;
+      const naiveLabel = `${(comparison.reductionFactor * 100).toFixed(0)}% of ${currentLabel}`;
+      el('colCurrent').textContent = currentLabel;
+      el('colReduced').textContent = reducedLabel;
+      el('colNaive').textContent = naiveLabel;
+      el('cmpCurrentDays').textContent = `${comparison.currentWeekly}`;
+      el('cmpReducedDays').textContent = `${comparison.proposedWeekly}`;
+      el('cmpNaiveDays').textContent = `${comparison.proposedWeekly}`;
+      el('cmpCurrentHours').textContent = `${comparison.baseline.monthlyHours.toFixed(1)} h`;
+      el('cmpReducedHours').textContent = `${comparison.reduced.monthlyHours.toFixed(1)} h`;
+      el('cmpNaiveHours').textContent = `${comparison.reduced.monthlyHours.toFixed(1)} h`;
+      el('cmpCurrentCost').textContent = money(comparison.baseline.monthlyCost);
+      el('cmpReducedCost').textContent = money(comparison.reduced.monthlyCost);
+      el('cmpNaiveCost').textContent = money(comparison.reduced.monthlyCost);
+      el('cmpCurrentPrice').textContent = money(comparison.baseline.monthlyPrice);
+      el('cmpReducedPrice').textContent = money(comparison.priceToHoldTargetMargin);
+      el('cmpNaivePrice').textContent = money(comparison.naiveLinearPrice);
+      el('cmpNaiveMargin').textContent = `${comparison.naiveMargin.toFixed(1)}%`;
+      el('naiveMarginRow').className = comparison.naiveBelowBreakEven ? 'warn' : '';
+
+      const verdict = el('compareVerdict');
+      verdict.className = `compare-verdict${comparison.naiveBelowBreakEven ? ' bad' : ''}`;
+      const offer = comparison.clientOffer;
+      const offerLine = offer
+        ? (offer.belowBreakEven
+          ? ` Their offer of ${money(offer.price)} loses ${money(Math.abs(offer.profit))} a month on the reduced schedule.`
+          : ` Their offer of ${money(offer.price)} leaves a ${offer.margin.toFixed(1)}% margin (${money(offer.profit)}/month).`)
+        : '';
+      verdict.innerHTML = comparison.naiveBelowBreakEven
+        ? `A linear ${(comparison.reductionFactor * 100).toFixed(0)}% of today&rsquo;s price (${money(comparison.naiveLinearPrice)}) <strong>loses ${money(Math.abs(comparison.naiveProfit))} a month</strong> once travel and supplies stay on the job. The ${reducedLabel} price that still holds your margin is ${money(comparison.priceToHoldTargetMargin)}; walk-away is ${money(comparison.walkAwayAtReduced)}.${offerLine}`
+        : `The ${reducedLabel} price that still holds your margin is <strong>${money(comparison.priceToHoldTargetMargin)}</strong> — ${money(comparison.leftOnTable)} a month above a linear cut (${money(comparison.naiveLinearPrice)}, ${comparison.naiveMargin.toFixed(1)}% margin). Labor drops ${comparison.laborHoursDropped.toFixed(1)} hours; ${money(comparison.unscaledMonthly)} of supplies, equipment, and travel stay.${offerLine}`;
+
+      panel.hidden = false;
+      panel.dataset.note = frequencyReductionNote(comparison, { targetMargin: Number(el('targetMargin').value) });
     }
 
     function summaryText(result) {
@@ -351,7 +484,35 @@
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
     });
+    FREQ_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('frequency_reduction_compared'));
+    });
     el('usageOptOut').addEventListener('change', update);
+    el('copyFrequencyNote').addEventListener('click', async () => {
+      const text = el('frequencyCompare').dataset.note || '';
+      if (!text) return;
+      try {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const fallback = document.createElement('textarea');
+          fallback.value = text;
+          fallback.setAttribute('readonly', '');
+          fallback.style.position = 'fixed';
+          fallback.style.opacity = '0';
+          document.body.append(fallback);
+          fallback.select();
+          document.execCommand('copy');
+          fallback.remove();
+        }
+        count('frequency_note_copied');
+        el('frequencyStatus').textContent = 'Copied to clipboard';
+        setTimeout(() => { el('frequencyStatus').textContent = ''; }, 2500);
+      } catch (error) {
+        el('frequencyStatus').textContent = error.message;
+      }
+    });
     el('copySummary').addEventListener('click', () => {
       try {
         copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });

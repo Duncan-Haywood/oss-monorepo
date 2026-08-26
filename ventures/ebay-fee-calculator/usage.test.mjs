@@ -73,3 +73,19 @@ test('can count a named feature event without recording content', () => {
   recordUsage(storage, false, 'share_link_copied');
   assert.equal(JSON.parse(storage.getItem('ebay-fee-usage')).share_link_copied, 1);
 });
+
+test('counts listing-format comparison without storing a price or rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'listing_format_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.listing_format_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'listing_format_compared']);
+});
+
+test('counts the return-rate view without storing a rate or cost', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'return_rate_viewed');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.return_rate_viewed, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'return_rate_viewed']);
+});

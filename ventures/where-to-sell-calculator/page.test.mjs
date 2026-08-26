@@ -87,6 +87,7 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['break-even price', /result\.breakEvenPrice/],
     ['price needed to match the best channel', /result\.priceToMatchBest/],
     ['net profit per channel', /result\.profit/],
+    ['expected profit after returns', /result\.expectedProfit/],
   ];
 
   for (const [claim, rendered] of claims) {

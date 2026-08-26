@@ -26,7 +26,15 @@ def _party(element: ElementTree.Element) -> dict[str, str]:
     party = next(iter(_children(element, "Party")), element)
     identifier = _text(party, "ID")
     name = _text(party, "Name")
-    return {"id": identifier, "name": name}
+    mapped = {"id": identifier, "name": name}
+    vat_id = ""
+    for scheme in _children(party, "PartyTaxScheme"):
+        vat_id = _text(scheme, "CompanyID", required=False)
+        if vat_id:
+            break
+    if vat_id:
+        mapped["vat_id"] = vat_id
+    return mapped
 
 
 def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
@@ -63,7 +71,7 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         raise ValueError("UBL field TaxAmount is missing")
     tax_total = sum((Decimal(_text(item, "TaxAmount")) for item in tax_totals), Decimal("0"))
     due_date = _text(root, "DueDate", required=False)
-    return {
+    invoice = {
         "invoice_number": _text(root, "ID"),
         "issue_date": _text(root, "IssueDate"),
         **({"due_date": due_date} if due_date else {}),
@@ -78,3 +86,37 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
             "gross": _number(_text(total, "TaxInclusiveAmount")),
         },
     }
+    payment = _payee_payment(root)
+    if payment:
+        invoice["payment"] = payment
+    return invoice
+
+
+def _payee_payment(root: ElementTree.Element) -> dict[str, str]:
+    """Map PayeeFinancialAccount/ID and the nested branch BIC when present."""
+    for means in _children(root, "PaymentMeans"):
+        for account in _children(means, "PayeeFinancialAccount"):
+            payment: dict[str, str] = {}
+            for child in list(account):
+                tag = child.tag.rsplit("}", 1)[-1]
+                if tag == "ID":
+                    value = (child.text or "").strip()
+                    if value:
+                        payment["iban"] = value
+                elif tag == "FinancialInstitutionBranch":
+                    bic = _branch_bic(child)
+                    if bic:
+                        payment["bic"] = bic
+            if payment:
+                return payment
+    return {}
+
+
+def _branch_bic(branch: ElementTree.Element) -> str:
+    """Accept branch/ID or branch/FinancialInstitution/ID."""
+    for child in branch.iter():
+        if child.tag.rsplit("}", 1)[-1] == "ID":
+            value = (child.text or "").strip()
+            if value:
+                return value
+    return ""

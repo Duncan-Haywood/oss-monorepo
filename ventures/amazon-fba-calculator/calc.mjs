@@ -86,6 +86,10 @@ export function classifySizeTier({ length, width, height, weightLb }) {
 
 // Illustrative 2026 US non-peak, non-apparel FBA fulfillment defaults.
 // Sellers should replace these with the fees on their current Amazon fee preview.
+function roundMoney(n) {
+  return Math.round((n + Number.EPSILON) * 100) / 100;
+}
+
 export function defaultFulfillmentFee(tier, weightLb) {
   if (!SIZE_TIER_LABELS[tier]) throw new Error(`Unknown size tier: ${tier}`);
   const weight = number(weightLb, "Weight");
@@ -113,6 +117,187 @@ export function defaultFulfillmentFee(tier, weightLb) {
     return 9.61 + Math.max(0, weight - 2) * 0.38;
   }
   return 26.33 + Math.max(0, weight - 5) * 0.42;
+}
+
+// Illustrative Low-Price FBA pick fees: the same size-tier bands minus a
+// typical discount. Extra-large and large bulky usually sit outside the
+// program, so they return the regular fee. Sellers should replace these
+// with the Low-Price line on their current Amazon fee preview.
+export function defaultLowPriceFulfillmentFee(tier, weightLb) {
+  const regular = defaultFulfillmentFee(tier, weightLb);
+  if (tier === "small_standard") return roundMoney(regular - 0.9);
+  if (tier === "large_standard") return roundMoney(regular - 0.7);
+  return regular;
+}
+
+/**
+ * Sale price on regular FBA that matches Low-Price FBA profit at `stayPrice`.
+ * Cash, inbound, storage, and ads cancel — only referral (a percent of price)
+ * and the two fulfillment fees differ. Below this price, staying under the
+ * threshold keeps more; at or above it, leaving the program pays for the
+ * extra pick fee after referral.
+ */
+export function lowPriceBreakEvenRaise({ stayPrice, referralRate, lowPriceFee, regularFee }) {
+  const stay = number(stayPrice, "Stay price");
+  const rate = number(referralRate, "Referral rate") / 100;
+  const cheap = number(lowPriceFee, "Low-price fulfillment fee");
+  const regular = number(regularFee, "Regular fulfillment fee");
+  if (rate >= 1) return Infinity;
+  return stay + (regular - cheap) / (1 - rate);
+}
+
+function listingTruthy(value) {
+  return !(value === false || value === "false" || value === 0 || value === "0");
+}
+
+/**
+ * Compare staying at or under Amazon's Low-Price FBA threshold against
+ * listing above it on regular FBA. When the typed sale price is already
+ * above the threshold, the stay row is the cut-to-threshold path — the
+ * decision sellers actually make on a $12–$30 SKU that could drop to $10
+ * to keep the cheaper pick fee.
+ */
+export function compareLowPriceFba(input) {
+  const threshold = number(input.lowPriceThreshold, "Low-price threshold", 10);
+  if (threshold <= 0) throw new Error("Low-price threshold must be greater than zero");
+
+  const salePrice = number(input.salePrice, "Sale price");
+  const referralRate = number(input.referralRate, "Referral rate", 15);
+  const sizeTier =
+    input.sizeTier && SIZE_TIER_LABELS[input.sizeTier]
+      ? input.sizeTier
+      : classifySizeTier({
+          length: input.length ?? 8,
+          width: input.width ?? 6,
+          height: input.height ?? 2,
+          weightLb: input.weightLb ?? 0.75,
+        });
+  const suggestedRegular = defaultFulfillmentFee(sizeTier, input.weightLb ?? 0.75);
+  const suggestedLow = defaultLowPriceFulfillmentFee(sizeTier, input.weightLb ?? 0.75);
+  const regularFee =
+    input.fulfillmentFee === undefined || input.fulfillmentFee === null || input.fulfillmentFee === ""
+      ? suggestedRegular
+      : number(input.fulfillmentFee, "Fulfillment fee");
+  const lowPriceFee =
+    input.lowPriceFulfillmentFee === undefined ||
+    input.lowPriceFulfillmentFee === null ||
+    input.lowPriceFulfillmentFee === ""
+      ? suggestedLow
+      : number(input.lowPriceFulfillmentFee, "Low-price fulfillment fee");
+  const eligible = listingTruthy(input.lowPriceEligible ?? true);
+
+  const stayPrice =
+    input.lowPriceSalePrice === undefined ||
+    input.lowPriceSalePrice === null ||
+    input.lowPriceSalePrice === ""
+      ? Math.min(salePrice, threshold)
+      : number(input.lowPriceSalePrice, "Low-price sale price");
+  if (stayPrice > threshold) {
+    throw new Error("Low-price sale price must be at or below the threshold");
+  }
+
+  const defaultRaise = salePrice > threshold ? salePrice : roundMoney(threshold + 0.01);
+  const raisePrice =
+    input.raisePrice === undefined || input.raisePrice === null || input.raisePrice === ""
+      ? defaultRaise
+      : number(input.raisePrice, "Raise-above-threshold price");
+  if (raisePrice <= threshold) {
+    throw new Error("Raise-above-threshold price must be greater than the low-price threshold");
+  }
+
+  const listingInput = { ...input, fulfillmentMethod: "fba" };
+  delete listingInput.lowPriceThreshold;
+  delete listingInput.lowPriceFulfillmentFee;
+  delete listingInput.lowPriceEligible;
+  delete listingInput.lowPriceSalePrice;
+  delete listingInput.raisePrice;
+
+  const stay = calculateListing({
+    ...listingInput,
+    salePrice: stayPrice,
+    fulfillmentFee: eligible ? lowPriceFee : regularFee,
+  });
+  const raise = calculateListing({
+    ...listingInput,
+    salePrice: raisePrice,
+    fulfillmentFee: regularFee,
+  });
+
+  const justOverPrice = roundMoney(threshold + 0.01);
+  const justOver =
+    Math.abs(raisePrice - justOverPrice) < 1e-9
+      ? raise
+      : calculateListing({
+          ...listingInput,
+          salePrice: justOverPrice,
+          fulfillmentFee: regularFee,
+        });
+
+  const extraProfit = raise.fba.profit - stay.fba.profit;
+  let winner = "tie";
+  if (extraProfit > 1e-9) winner = "raise";
+  else if (extraProfit < -1e-9) winner = "stay";
+  if (!eligible) winner = "raise";
+
+  const breakEvenRaise = eligible
+    ? lowPriceBreakEvenRaise({
+        stayPrice,
+        referralRate,
+        lowPriceFee,
+        regularFee,
+      })
+    : Infinity;
+
+  return {
+    threshold,
+    eligible,
+    stayPrice,
+    raisePrice,
+    justOverPrice,
+    regularFee,
+    lowPriceFee,
+    suggestedRegular,
+    suggestedLow,
+    sizeTier,
+    stay,
+    raise,
+    justOver,
+    extraProfit,
+    winner,
+    breakEvenRaise,
+    raiseBeatsBreakEven: Number.isFinite(breakEvenRaise) && raisePrice + 1e-9 >= breakEvenRaise,
+    summary: lowPriceSummary({
+      eligible,
+      winner,
+      extraProfit,
+      stayPrice,
+      raisePrice,
+      breakEvenRaise,
+    }),
+  };
+}
+
+function moneyLabel(value) {
+  const abs = Math.abs(value);
+  const formatted = abs.toFixed(2);
+  return value < 0 ? `-$${formatted}` : `$${formatted}`;
+}
+
+function lowPriceSummary({ eligible, winner, extraProfit, stayPrice, raisePrice, breakEvenRaise }) {
+  const stay = moneyLabel(stayPrice);
+  const raise = moneyLabel(raisePrice);
+  const gap = moneyLabel(Math.abs(extraProfit));
+  const breakEven = Number.isFinite(breakEvenRaise) ? moneyLabel(breakEvenRaise) : "an unreachable price";
+  if (!eligible) {
+    return `This listing is marked outside Low-Price FBA, so only the regular fulfillment fee applies at ${raise}.`;
+  }
+  if (winner === "stay") {
+    return `Staying at ${stay} on Low-Price FBA keeps ${gap} more than listing at ${raise}. Regular FBA needs about ${breakEven} to match.`;
+  }
+  if (winner === "raise") {
+    return `Listing at ${raise} on regular FBA keeps ${gap} more than staying at ${stay}. The raise that matches Low-Price profit is about ${breakEven}.`;
+  }
+  return `Staying at ${stay} and listing at ${raise} leave the same profit on these rates.`;
 }
 
 function pathResult({
@@ -237,4 +422,659 @@ export function calculateListing(input) {
     fbaAdvantage,
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
   };
+}
+
+// Amazon coupons cut the price the buyer pays. Referral is charged on that
+// discounted price. Fulfillment, inbound, and storage do not change. The
+// per-redemption coupon fee is deducted from proceeds — it is not cash the
+// seller laid out to source the unit. Defaults are illustrative; the seller
+// overwrites them from the coupon fee preview on their account.
+export const COUPON_PERCENTS = [0, 5, 10, 15, 20];
+export const DEFAULT_COUPON_FEE = 0.6;
+
+export function couponDiscount({ salePrice, couponPercent = 0, couponFixed = 0 }) {
+  const price = number(salePrice, "Sale price");
+  const percent = number(couponPercent, "Coupon percent");
+  const fixed = number(couponFixed, "Coupon fixed amount");
+  if (percent > 100) throw new Error("Coupon percent must be at most 100");
+  return Math.min(price, price * (percent / 100) + fixed);
+}
+
+function couponLabel(percent, fixed) {
+  const parts = [];
+  if (percent > 0) parts.push(`${percent}%`);
+  if (fixed > 0) parts.push(`$${fixed.toFixed(2)} off`);
+  if (parts.length === 0) return "No coupon";
+  return `${parts.join(" + ")} coupon`;
+}
+
+// Reprice the selected fulfillment path at the discounted checkout total,
+// then subtract the per-redemption coupon fee from profit. Professional-plan
+// allocation stays at the typed monthly volume so the table is comparable
+// row to row; more couponed units would dilute that fee slightly.
+export function couponedListing(input, offer = {}) {
+  const listPrice = number(input.salePrice, "Sale price");
+  const couponPercent = number(offer.couponPercent ?? 0, "Coupon percent");
+  const couponFixed = number(offer.couponFixed ?? 0, "Coupon fixed amount");
+  const couponFee = number(offer.couponFee ?? 0, "Coupon fee");
+  const targetMargin = number(input.targetMargin, "Target margin");
+  const discount = couponDiscount({ salePrice: listPrice, couponPercent, couponFixed });
+  const buyerPays = listPrice - discount;
+  const listing = calculateListing({ ...input, salePrice: buyerPays });
+  const path = listing.selected;
+  const profit = path.profit - couponFee;
+  const margin = buyerPays === 0 ? 0 : (profit / buyerPays) * 100;
+  return {
+    listPrice,
+    couponPercent,
+    couponFixed,
+    couponFee,
+    discount,
+    buyerPays,
+    feeTotal: path.feeTotal + couponFee,
+    cashInvested: path.cashInvested,
+    referral: path.fees.referral,
+    fulfillment: path.fees.fulfillment,
+    profit,
+    margin,
+    roi: path.cashInvested === 0 ? null : (profit / path.cashInvested) * 100,
+    hitsTarget: buyerPays === 0 ? profit >= 0 : margin + 1e-9 >= targetMargin,
+    breakEvenBuyCost: Math.max(0, path.breakEvenBuyCost - couponFee),
+  };
+}
+
+export function compareCoupons(input) {
+  const couponPercent = number(input.couponPercent ?? 0, "Coupon percent");
+  const couponFixed = number(input.couponFixed ?? 0, "Coupon fixed amount");
+  const couponFee = number(input.couponFee ?? DEFAULT_COUPON_FEE, "Coupon fee");
+  const couponLiftPct = number(input.couponLiftPct ?? 0, "Coupon volume lift");
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  const feeFor = (percent, fixed) => (percent === 0 && fixed === 0 ? 0 : couponFee);
+
+  const rows = COUPON_PERCENTS.map((percent) => {
+    const offer = couponedListing(input, {
+      couponPercent: percent,
+      couponFixed: 0,
+      couponFee: feeFor(percent, 0),
+    });
+    return {
+      ...offer,
+      label: couponLabel(percent, 0),
+      isCustom: false,
+      isCurrent: percent === couponPercent && couponFixed === 0,
+    };
+  });
+
+  const customMatchesStandard = couponFixed === 0 && COUPON_PERCENTS.includes(couponPercent);
+  if (!customMatchesStandard) {
+    rows.push({
+      ...couponedListing(input, {
+        couponPercent,
+        couponFixed,
+        couponFee: feeFor(couponPercent, couponFixed),
+      }),
+      label: couponLabel(couponPercent, couponFixed),
+      isCustom: true,
+      isCurrent: true,
+    });
+  }
+
+  const none = rows[0];
+  const typed = customMatchesStandard
+    ? rows.find((row) => row.couponPercent === couponPercent && !row.isCustom)
+    : rows[rows.length - 1];
+
+  const withDeltas = rows.map((row) => ({
+    ...row,
+    profitDelta: row.profit - none.profit,
+    monthlyProfit: row.profit * monthlyUnits,
+    monthlyDelta: (row.profit - none.profit) * monthlyUnits,
+  }));
+  const noneRow = withDeltas[0];
+  const typedRow = withDeltas.find((row) => row.isCurrent) ?? withDeltas[withDeltas.length - 1];
+
+  // Units at the couponed per-unit profit that match this month's list-price
+  // profit. Null when list profit is not positive. Infinity when the coupon
+  // unit itself does not pay — extra volume cannot recover the month.
+  let breakEvenUnits = null;
+  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
+  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+
+  const extraUnitsNeeded = breakEvenUnits === null
+    ? 0
+    : breakEvenUnits === Infinity
+      ? Infinity
+      : Math.max(0, breakEvenUnits - monthlyUnits);
+  const liftPctNeeded = monthlyUnits === 0 || extraUnitsNeeded === Infinity
+    ? extraUnitsNeeded
+    : (extraUnitsNeeded / monthlyUnits) * 100;
+
+  const liftedUnits = monthlyUnits * (1 + couponLiftPct / 100);
+  const liftedMonthlyProfit = typedRow.profit * liftedUnits;
+  const listMonthlyProfit = noneRow.monthlyProfit;
+
+  return {
+    rows: withDeltas,
+    none: noneRow,
+    typed: typedRow,
+    monthlyUnits,
+    couponLiftPct,
+    liftedUnits,
+    liftedMonthlyProfit,
+    listMonthlyProfit,
+    liftBeatsList: liftedMonthlyProfit > listMonthlyProfit,
+    breakEvenUnits,
+    extraUnitsNeeded,
+    liftPctNeeded,
+    cheaper: typedRow.profit > noneRow.profit ? "coupon" : typedRow.profit < noneRow.profit ? "list" : "tie",
+  };
+}
+
+export function couponSummary(comparison) {
+  const money = (value) => `$${value.toFixed(2)}`;
+  const typed = comparison.typed;
+  if (typed.discount === 0 && typed.couponFee === 0) {
+    return "No coupon is entered, so every row but the list-price line is a what-if against this listing.";
+  }
+  const offer = typed.label.toLowerCase();
+  const perUnit = `${offer} drops the buyer price from ${money(typed.listPrice)} to ${money(typed.buyerPays)} and leaves ${money(typed.profit)} after the ${money(typed.couponFee)} redemption fee — ${money(Math.abs(typed.profitDelta))} ${typed.profitDelta < 0 ? "less" : "more"} than list.`;
+  if (comparison.breakEvenUnits === Infinity) {
+    return `${perUnit} Extra volume cannot recover the list-price month: the couponed unit itself does not pay.`;
+  }
+  if (comparison.breakEvenUnits === null) {
+    return `${perUnit} The list-price unit is not profitable on these inputs, so a break-even volume is not defined.`;
+  }
+  const units = comparison.breakEvenUnits;
+  const lift = comparison.liftPctNeeded;
+  const volume = `At ${comparison.monthlyUnits} units you need about ${units.toFixed(1)} couponed sales (${lift.toFixed(0)}% lift) to match list-price monthly profit.`;
+  if (comparison.couponLiftPct > 0) {
+    const liftLine = comparison.liftBeatsList
+      ? `If the coupon lifts volume ${comparison.couponLiftPct}%, the coupon month keeps ${money(comparison.liftedMonthlyProfit)} against ${money(comparison.listMonthlyProfit)} at list.`
+      : `If the coupon lifts volume ${comparison.couponLiftPct}%, the coupon month still keeps only ${money(comparison.liftedMonthlyProfit)} against ${money(comparison.listMonthlyProfit)} at list.`;
+    return `${perUnit} ${volume} ${liftLine}`;
+  }
+  return `${perUnit} ${volume}`;
+}
+
+// Subscribe & Save is a standing percent off the list price for enrolled
+// deliveries. Referral is charged on that discounted price. Fulfillment,
+// inbound, and storage do not change. Unlike a coupon there is typically
+// no per-redemption fee — the same percent usually leaves more than a
+// coupon. This models a seller-funded discount (the conservative case).
+// If Amazon funds the discount on the settlement, leftover matches list;
+// type 0% then. Defaults 5% (one-item delivery) and 10% (five or more
+// S&S items) are illustrative; sellers replace them from their offer.
+export const SNS_PERCENTS = [0, 5, 10, 15];
+
+function snsLabel(percent) {
+  if (percent === 0) return "List price";
+  if (percent === 5) return "5% S&S (1 item)";
+  if (percent === 10) return "10% S&S (5+ items)";
+  if (percent === 15) return "15% S&S (promo)";
+  return `${percent}% S&S`;
+}
+
+export function subscribeSaveListing(input, offer = {}) {
+  const listPrice = number(input.salePrice, "Sale price");
+  const snsPercent = number(offer.snsPercent ?? 0, "Subscribe & Save percent");
+  if (snsPercent > 100) throw new Error("Subscribe & Save percent must be at most 100");
+  const targetMargin = number(input.targetMargin, "Target margin");
+  const discount = listPrice * (snsPercent / 100);
+  const buyerPays = listPrice - discount;
+  const listing = calculateListing({ ...input, salePrice: buyerPays });
+  const path = listing.selected;
+  return {
+    listPrice,
+    snsPercent,
+    discount,
+    buyerPays,
+    feeTotal: path.feeTotal,
+    cashInvested: path.cashInvested,
+    referral: path.fees.referral,
+    fulfillment: path.fees.fulfillment,
+    profit: path.profit,
+    margin: path.margin,
+    roi: path.roi,
+    hitsTarget: buyerPays === 0 ? path.profit >= 0 : path.margin + 1e-9 >= targetMargin,
+    breakEvenBuyCost: path.breakEvenBuyCost,
+  };
+}
+
+export function compareSubscribeSave(input) {
+  const snsPercent = number(input.snsPercent ?? 5, "Subscribe & Save percent");
+  const snsEnrollPct = number(input.snsEnrollPct ?? 40, "Subscribe & Save enroll percent");
+  if (snsPercent > 100) throw new Error("Subscribe & Save percent must be at most 100");
+  if (snsEnrollPct > 100) throw new Error("Subscribe & Save enroll percent must be at most 100");
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+
+  const rows = SNS_PERCENTS.map((percent) => ({
+    ...subscribeSaveListing(input, { snsPercent: percent }),
+    label: snsLabel(percent),
+    isCustom: false,
+    isCurrent: percent === snsPercent,
+  }));
+
+  if (!SNS_PERCENTS.includes(snsPercent)) {
+    rows.push({
+      ...subscribeSaveListing(input, { snsPercent }),
+      label: snsLabel(snsPercent),
+      isCustom: true,
+      isCurrent: true,
+    });
+  }
+
+  const withDeltas = rows.map((row) => ({
+    ...row,
+    profitDelta: row.profit - rows[0].profit,
+    monthlyProfit: row.profit * monthlyUnits,
+  }));
+  const noneRow = withDeltas[0];
+  const typedRow = withDeltas.find((row) => row.isCurrent) ?? withDeltas[withDeltas.length - 1];
+
+  const enrolledUnits = monthlyUnits * (snsEnrollPct / 100);
+  const listUnits = monthlyUnits - enrolledUnits;
+  const mixedMonthlyProfit = listUnits * noneRow.profit + enrolledUnits * typedRow.profit;
+  const listMonthlyProfit = noneRow.profit * monthlyUnits;
+  const mixedDelta = mixedMonthlyProfit - listMonthlyProfit;
+
+  // New S&S-only units that restore the all-list month after enrolled
+  // buyers convert. Infinity when the S&S unit itself does not pay.
+  let offsetUnits = 0;
+  if (snsPercent === 0 || enrolledUnits === 0 || typedRow.profit >= noneRow.profit) {
+    offsetUnits = 0;
+  } else if (typedRow.profit <= 0) {
+    offsetUnits = noneRow.profit > 0 ? Infinity : 0;
+  } else {
+    offsetUnits = (enrolledUnits * (noneRow.profit - typedRow.profit)) / typedRow.profit;
+  }
+
+  let breakEvenUnits = null;
+  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
+  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+
+  return {
+    rows: withDeltas,
+    none: noneRow,
+    typed: typedRow,
+    monthlyUnits,
+    snsEnrollPct,
+    enrolledUnits,
+    listUnits,
+    mixedMonthlyProfit,
+    listMonthlyProfit,
+    mixedDelta,
+    offsetUnits,
+    breakEvenUnits,
+    cheaper: typedRow.profit > noneRow.profit ? "sns" : typedRow.profit < noneRow.profit ? "list" : "tie",
+  };
+}
+
+export function subscribeSaveSummary(comparison) {
+  const money = (value) => `$${value.toFixed(2)}`;
+  const typed = comparison.typed;
+  if (typed.snsPercent === 0) {
+    return "No Subscribe & Save discount is entered, so every row but the list-price line is a what-if against this listing.";
+  }
+  const offer = typed.label;
+  const perUnit = `${offer} drops the buyer price from ${money(typed.listPrice)} to ${money(typed.buyerPays)} and leaves ${money(typed.profit)} — ${money(Math.abs(typed.profitDelta))} ${typed.profitDelta < 0 ? "less" : "more"} than list. There is no coupon redemption fee on this path.`;
+  if (comparison.offsetUnits === Infinity) {
+    return `${perUnit} Extra Subscribe & Save volume cannot recover the converted buyers: the discounted unit itself does not pay.`;
+  }
+  const enroll = `If ${comparison.snsEnrollPct}% of ${comparison.monthlyUnits} units enroll (${comparison.enrolledUnits.toFixed(1)}), this month keeps ${money(comparison.mixedMonthlyProfit)} against ${money(comparison.listMonthlyProfit)} at list.`;
+  if (comparison.offsetUnits === 0) {
+    return `${perUnit} ${enroll}`;
+  }
+  return `${perUnit} ${enroll} You need about ${comparison.offsetUnits.toFixed(1)} new S&S-only sales to offset those converted buyers.`;
+}
+
+// Illustrative 2026 US Multi-Channel Fulfillment Standard defaults: the
+// same size-tier FBA band plus a typical MCF premium. Sellers replace
+// these with the MCF line on their current Amazon fee preview. MCF is
+// how a website, eBay, or Walmart order ships from FBA inventory — no
+// Amazon referral, but the pick/pack/ship fee is higher than FBA.
+const MCF_SURCHARGE = {
+  small_standard: 2.1,
+  large_standard: 2.4,
+  large_bulky: 4.8,
+  extra_large: 8,
+};
+
+export function defaultMcfFee(tier, weightLb) {
+  if (!SIZE_TIER_LABELS[tier]) throw new Error(`Unknown size tier: ${tier}`);
+  const surcharge = MCF_SURCHARGE[tier];
+  return roundMoney(defaultFulfillmentFee(tier, weightLb) + surcharge);
+}
+
+function websitePathResult({
+  salePrice,
+  processorRate,
+  processorFixed,
+  fulfillment,
+  cashInvested,
+  targetMarginRate,
+  costOfGoods,
+}) {
+  const processor = salePrice * (processorRate / 100) + processorFixed;
+  const path = pathResult({
+    revenue: salePrice,
+    percentRate: processorRate / 100,
+    cashInvested,
+    targetMarginRate,
+    feeParts: { referral: 0, fulfillment, processor },
+  });
+  path.salePrice = salePrice;
+  path.breakEvenBuyCost = Math.max(
+    0,
+    salePrice - path.feeTotal - (cashInvested - costOfGoods),
+  );
+  path.hitsTarget = salePrice === 0 ? path.profit >= 0 : path.margin + 1e-9 >= targetMarginRate * 100;
+  return path;
+}
+
+function mcfSummary({ winner, amazon, mcf, selfShip, mcfFee, breakEvenMcfFee }) {
+  const amazonProfit = moneyLabel(amazon.profit);
+  const mcfProfit = moneyLabel(mcf.profit);
+  const selfProfit = moneyLabel(selfShip.profit);
+  const fee = moneyLabel(mcfFee);
+  const cap = Number.isFinite(breakEvenMcfFee) ? moneyLabel(breakEvenMcfFee) : "an unreachable fee";
+  if (winner === "mcf") {
+    return `Website + MCF keeps ${mcfProfit} after a ${fee} MCF fee and card processing — ${moneyLabel(Math.abs(mcf.profit - amazon.profit))} more than Amazon FBA at ${amazonProfit}. MCF still beats Amazon up to about ${cap}.`;
+  }
+  if (winner === "self") {
+    return `Website + you ship keeps ${selfProfit}, ahead of MCF at ${mcfProfit} and Amazon FBA at ${amazonProfit}. That path assumes the unit is already outside Amazon (or the removal fee is in the inputs).`;
+  }
+  if (winner === "amazon") {
+    return `Amazon FBA keeps ${amazonProfit}, ahead of website + MCF at ${mcfProfit}. The MCF fee that would match Amazon is about ${cap}; the typed MCF fee is ${fee}.`;
+  }
+  return `Amazon FBA, website + MCF, and website + you ship leave the same profit on these rates.`;
+}
+
+/**
+ * Compare selling the next unit on Amazon (FBA referral + FBA pick fee)
+ * against a website order fulfilled from the same FBA inventory (MCF,
+ * no referral, card fees) and a website order you ship yourself (card
+ * fees + your label, no Amazon referral or warehouse stay). Amazon ads
+ * stay on the Amazon row only. Inbound and storage stay on Amazon and
+ * MCF. You-ship adds an optional removal fee when the unit has to leave
+ * the Amazon warehouse first.
+ */
+export function compareMcf(input) {
+  const amazonPrice = number(input.salePrice, "Sale price");
+  const dtcSalePrice =
+    input.dtcSalePrice === undefined || input.dtcSalePrice === null || input.dtcSalePrice === ""
+      ? amazonPrice
+      : number(input.dtcSalePrice, "Website sale price");
+  const processorRate = number(input.dtcProcessorRate, "Website card rate", 2.9);
+  const processorFixed = number(input.dtcProcessorFixed, "Website card fixed fee", 0.3);
+  const removalFee = number(input.removalFee, "Removal fee");
+  const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const targetMargin = number(input.targetMargin, "Target margin");
+  if (processorRate >= 100) throw new Error("Website card rate must be less than 100%");
+
+  const amazonListing = calculateListing({ ...input, fulfillmentMethod: "fba" });
+  const suggestedMcfFee = defaultMcfFee(amazonListing.sizeTier, input.weightLb ?? 0.75);
+  const mcfFee =
+    input.mcfFulfillmentFee === undefined ||
+    input.mcfFulfillmentFee === null ||
+    input.mcfFulfillmentFee === ""
+      ? suggestedMcfFee
+      : number(input.mcfFulfillmentFee, "MCF fulfillment fee");
+
+  const targetMarginRate = targetMargin / 100;
+  const warehouseCash = amazonListing.fba.cashInvested - adsPerUnit;
+  const selfCash = amazonListing.fbm.cashInvested - adsPerUnit + removalFee;
+  const processorFee = dtcSalePrice * (processorRate / 100) + processorFixed;
+
+  const amazon = {
+    id: "amazon",
+    label: "Amazon FBA",
+    salePrice: amazonPrice,
+    fees: { ...amazonListing.fba.fees, processor: 0 },
+    feeTotal: amazonListing.fba.feeTotal,
+    cashInvested: amazonListing.fba.cashInvested,
+    profit: amazonListing.fba.profit,
+    margin: amazonListing.fba.margin,
+    roi: amazonListing.fba.roi,
+    breakEvenBuyCost: amazonListing.fba.breakEvenBuyCost,
+    hitsTarget:
+      amazonPrice === 0
+        ? amazonListing.fba.profit >= 0
+        : amazonListing.fba.margin + 1e-9 >= targetMargin,
+  };
+
+  const mcf = {
+    id: "mcf",
+    label: "Website + MCF",
+    ...websitePathResult({
+      salePrice: dtcSalePrice,
+      processorRate,
+      processorFixed,
+      fulfillment: mcfFee,
+      cashInvested: warehouseCash,
+      targetMarginRate,
+      costOfGoods,
+    }),
+  };
+
+  const selfShip = {
+    id: "self",
+    label: "Website + you ship",
+    ...websitePathResult({
+      salePrice: dtcSalePrice,
+      processorRate,
+      processorFixed,
+      fulfillment: 0,
+      cashInvested: selfCash,
+      targetMarginRate,
+      costOfGoods,
+    }),
+  };
+
+  const rows = [amazon, mcf, selfShip].map((row) => ({
+    ...row,
+    profitDelta: row.profit - amazon.profit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.profit));
+  const leaders = rows.filter((row) => Math.abs(row.profit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  // MCF fulfillment fee that matches Amazon FBA profit on this website price.
+  // Cash and card fees are held constant. Null-safe Infinity when the
+  // website price cannot cover processor + warehouse cash + Amazon profit.
+  const breakEvenMcfFee = dtcSalePrice - processorFee - warehouseCash - amazon.profit;
+
+  return {
+    rows,
+    amazon: rows[0],
+    mcf: rows[1],
+    selfShip: rows[2],
+    winner,
+    suggestedMcfFee,
+    mcfFee,
+    dtcSalePrice,
+    processorRate,
+    processorFixed,
+    processorFee,
+    removalFee,
+    sizeTier: amazonListing.sizeTier,
+    breakEvenMcfFee,
+    mcfBeatsAmazon: mcf.profit + 1e-9 >= amazon.profit,
+    summary: mcfSummary({
+      winner,
+      amazon: rows[0],
+      mcf: rows[1],
+      selfShip: rows[2],
+      mcfFee,
+      breakEvenMcfFee,
+    }),
+  };
+}
+
+function emptyField(value) {
+  return value === undefined || value === null || value === "";
+}
+
+export const DEFAULT_SMALL_ORDER_QTY = 100;
+export const DEFAULT_LARGE_ORDER_QTY = 500;
+
+function orderPath(listing, targetMargin) {
+  const path = listing.selected;
+  return {
+    profit: path.profit,
+    margin: path.margin,
+    cashInvested: path.cashInvested,
+    storagePerUnit: listing.storagePerUnit,
+    hitsTarget: listing.salePrice === 0
+      ? path.profit >= 0
+      : path.margin + 1e-9 >= targetMargin,
+    fbaProfit: listing.fba.profit,
+    fbmProfit: listing.fbm.profit,
+  };
+}
+
+/**
+ * Compare a usual replenishment PO against a supplier MOQ that drops
+ * unit COGS (and often inbound) but sits in FBA longer. Storage months
+ * on the MOQ default to the listing months scaled by qty / usual qty so
+ * a 5× pile sits 5× as long as the stay the seller already modeled.
+ * That is the decision: does the cheaper unit survive the extra warehouse
+ * stay and the extra cash tied up? Not a leftover-unit hold/remove, not
+ * a coupon, and not a season-rate swap.
+ */
+export function compareBulkBuy(input) {
+  const smallQty = number(input.smallOrderQty ?? DEFAULT_SMALL_ORDER_QTY, "Small order quantity");
+  const largeQty = number(input.largeOrderQty ?? DEFAULT_LARGE_ORDER_QTY, "Large order quantity");
+  if (smallQty <= 0) throw new Error("Small order quantity must be greater than zero");
+  if (largeQty <= 0) throw new Error("Large order quantity must be greater than zero");
+
+  const smallCogs = number(
+    emptyField(input.smallCogs) ? input.costOfGoods : input.smallCogs,
+    "Small-order cost of goods",
+  );
+  const largeCogs = number(
+    emptyField(input.largeCogs) ? input.costOfGoods : input.largeCogs,
+    "Large-order cost of goods",
+  );
+  const smallInbound = number(
+    emptyField(input.smallInboundPerUnit) ? input.inboundPerUnit : input.smallInboundPerUnit,
+    "Small-order inbound per unit",
+  );
+  const largeInbound = number(
+    emptyField(input.largeInboundPerUnit) ? input.inboundPerUnit : input.largeInboundPerUnit,
+    "Large-order inbound per unit",
+  );
+  const listingMonths = number(input.monthsInStorage, "Months in storage", 1);
+  const smallMonths = emptyField(input.smallMonthsInStorage)
+    ? listingMonths
+    : number(input.smallMonthsInStorage, "Small-order months in storage");
+  const largeMonths = emptyField(input.largeMonthsInStorage)
+    ? smallMonths * (largeQty / smallQty)
+    : number(input.largeMonthsInStorage, "Large-order months in storage");
+  const targetMargin = number(input.targetMargin, "Target margin");
+
+  const smallListing = calculateListing({
+    ...input,
+    costOfGoods: smallCogs,
+    inboundPerUnit: smallInbound,
+    monthsInStorage: smallMonths,
+  });
+  const largeListing = calculateListing({
+    ...input,
+    costOfGoods: largeCogs,
+    inboundPerUnit: largeInbound,
+    monthsInStorage: largeMonths,
+  });
+
+  const small = {
+    id: "small",
+    label: `Usual PO (${smallQty} units)`,
+    qty: smallQty,
+    costOfGoods: smallCogs,
+    inboundPerUnit: smallInbound,
+    monthsInStorage: smallMonths,
+    ...orderPath(smallListing, targetMargin),
+  };
+  const large = {
+    id: "large",
+    label: `MOQ PO (${largeQty} units)`,
+    qty: largeQty,
+    costOfGoods: largeCogs,
+    inboundPerUnit: largeInbound,
+    monthsInStorage: largeMonths,
+    ...orderPath(largeListing, targetMargin),
+  };
+
+  const extraProfit = large.profit - small.profit;
+  const pileDelta = extraProfit * largeQty;
+  const smallCapital = small.cashInvested * smallQty;
+  const largeCapital = large.cashInvested * largeQty;
+  const extraCapital = largeCapital - smallCapital;
+  // Profit moves $1 for $1 of COGS on the same sale price and fees.
+  const breakEvenLargeCogs = largeCogs + extraProfit;
+  const cogsSaveNeeded = smallCogs - breakEvenLargeCogs;
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  const paybackMonths =
+    extraProfit > 1e-9 && extraCapital > 1e-9
+      ? extraCapital / (extraProfit * monthlyUnits)
+      : extraProfit <= 1e-9 && extraCapital > 1e-9
+        ? Infinity
+        : 0;
+
+  let winner = "tie";
+  if (extraProfit > 1e-9) winner = "large";
+  else if (extraProfit < -1e-9) winner = "small";
+
+  return {
+    rows: [small, large],
+    small,
+    large,
+    extraProfit,
+    pileDelta,
+    smallCapital,
+    largeCapital,
+    extraCapital,
+    breakEvenLargeCogs,
+    cogsSaveNeeded,
+    monthlyUnits,
+    paybackMonths,
+    winner,
+    summary: bulkBuySummary({
+      winner,
+      small,
+      large,
+      extraProfit,
+      pileDelta,
+      extraCapital,
+      breakEvenLargeCogs,
+      paybackMonths,
+    }),
+  };
+}
+
+export function bulkBuySummary({
+  winner,
+  small,
+  large,
+  extraProfit,
+  pileDelta,
+  extraCapital,
+  breakEvenLargeCogs,
+  paybackMonths,
+}) {
+  const unit = moneyLabel(Math.abs(extraProfit));
+  const pile = moneyLabel(Math.abs(pileDelta));
+  const cash = moneyLabel(Math.abs(extraCapital));
+  const cap = moneyLabel(breakEvenLargeCogs);
+  const months = large.monthsInStorage.toFixed(1);
+  if (winner === "large") {
+    const payback = Number.isFinite(paybackMonths)
+      ? ` Extra cash pays back in about ${paybackMonths.toFixed(1)} months of sales at the typed volume.`
+      : "";
+    return `The ${large.qty}-unit MOQ keeps ${unit} more per unit after ${months} months of storage — ${pile} more on the pile — and ties up ${cash} extra cash. The MOQ unit cost can rise to ${cap} before the usual ${small.qty}-unit PO wins.${payback}`;
+  }
+  if (winner === "small") {
+    return `The usual ${small.qty}-unit PO keeps ${unit} more per unit than the ${large.qty}-unit MOQ after ${months} months of storage on the bigger pile (${pile} on the MOQ qty). Extra cash on the MOQ is ${cash}. The MOQ unit cost has to fall to ${cap} to match the usual PO.`;
+  }
+  return `The usual ${small.qty}-unit PO and the ${large.qty}-unit MOQ leave the same per-unit profit on these rates. Extra cash on the MOQ is ${cash}.`;
 }

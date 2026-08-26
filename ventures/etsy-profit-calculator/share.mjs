@@ -20,6 +20,12 @@ export const FIELD_IDS = [
   'shippingCost',
   'materialCost',
   'otherCost',
+  'listingsPerMonth',
+  'monthlyPlusFee',
+  'listingCredits',
+  'adsCredit',
+  'monthlyAdSpend',
+  'otherPlusValue',
 ];
 
 // A field value is only carried if it is a finite, non-negative number — the

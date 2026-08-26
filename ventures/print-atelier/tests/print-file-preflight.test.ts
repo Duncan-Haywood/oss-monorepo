@@ -110,6 +110,19 @@ test("does not pick a winner when two passing files are a DPI tie", () => {
   assert.match(comparison.reason, /too close/i);
 });
 
+test("does not call a blocked high-DPI master a DPI-floor miss", () => {
+  const webTagged = preflightImage(file("web-8x10.jpg"), 2000, 2500);
+  const softCrop = preflightImage(file("phone-8x10.jpg"), 400, 500);
+  const comparison = comparePreflightCandidates([webTagged, softCrop], "8x10");
+
+  assert.equal(webTagged.findings.some((finding) => finding.rule === "web_filename"), true);
+  assert.equal(comparison.rows.find((row) => row.fileName === "web-8x10.jpg")?.meetsDpiFloor, true);
+  assert.equal(comparison.rows.find((row) => row.fileName === "phone-8x10.jpg")?.meetsDpiFloor, false);
+  assert.equal(comparison.recommendedFileName, null);
+  assert.match(comparison.reason, /blocked/i);
+  assert.doesNotMatch(comparison.reason, /None of these files meet the 150 DPI floor/);
+});
+
 test("reports when no file meets the DPI floor at the chosen size", () => {
   const small = preflightImage(file("phone-export.jpg"), 1200, 1600);
   const alsoSmall = preflightImage(file("instagram-square.jpg"), 1080, 1080);

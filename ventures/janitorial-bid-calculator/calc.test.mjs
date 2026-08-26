@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+import { calculateBid, compareFrequencyReduction, frequencyReductionNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
 
 const office = () => ({
   areas: [
@@ -156,4 +156,126 @@ test('production-rate presets are usable positive numbers', () => {
 test('monthly conversion uses averaged weeks, not a flat four', () => {
   assert.ok(Math.abs(WEEKS_PER_MONTH - 52 / 12) < 1e-12);
   assert.ok(WEEKS_PER_MONTH > 4.3);
+});
+
+test('a 5× to 3× cut scales labor and leaves supplies and equipment on the job', () => {
+  const comparison = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 3 });
+  assert.equal(comparison.reductionFactor, 0.6);
+  assert.ok(Math.abs(comparison.reduced.monthlyHours - comparison.baseline.monthlyHours * 0.6) < 1e-9);
+  assert.ok(Math.abs(comparison.reduced.monthlyLaborCost - comparison.baseline.monthlyLaborCost * 0.6) < 1e-9);
+  assert.equal(comparison.suppliesUnchanged, true);
+  assert.equal(comparison.equipmentUnchanged, true);
+  assert.ok(Math.abs(comparison.reduced.monthlySupplies - comparison.baseline.monthlySupplies) < 1e-9);
+  assert.ok(Math.abs(comparison.unscaledMonthly - (40 + 25)) < 1e-9);
+  // Hours per visit stay the same — the crew still cleans the same building.
+  assert.equal(comparison.reduced.hoursPerVisitTotal, comparison.baseline.hoursPerVisitTotal);
+});
+
+test('a linear 60% of the 5× price is not the 3× price that holds the target margin', () => {
+  const comparison = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 3 });
+  assert.ok(Math.abs(comparison.naiveLinearPrice - comparison.baseline.monthlyPrice * 0.6) < 1e-9);
+  // Fixed costs mean the correct 3× price is higher than 60% of the 5× price.
+  assert.ok(comparison.priceToHoldTargetMargin > comparison.naiveLinearPrice);
+  assert.ok(comparison.leftOnTable > 0);
+  assert.ok(Math.abs(comparison.reduced.monthlyProfit / comparison.reduced.monthlyPrice * 100 - 20) < 1e-9);
+  assert.ok(comparison.naiveMargin < 20);
+  assert.equal(comparison.naiveBelowBreakEven, false);
+});
+
+test('high travel cost makes a linear 40% cut a losing bid', () => {
+  const comparison = compareFrequencyReduction(
+    { ...office(), equipmentMonthly: 800 },
+    { currentWeekly: 5, proposedWeekly: 3 },
+  );
+  assert.equal(comparison.naiveBelowBreakEven, true);
+  assert.ok(comparison.naiveProfit < 0);
+  assert.ok(comparison.walkAwayAtReduced > comparison.naiveLinearPrice);
+  assert.ok(comparison.priceToHoldTargetMargin > comparison.walkAwayAtReduced);
+});
+
+test('mixed area frequencies stay proportional when the building drops a day', () => {
+  const input = {
+    ...office(),
+    areas: [
+      { name: 'Open office', squareFeet: 6000, productionRate: 4000, cleaningsPerWeek: 5 },
+      { name: 'Restrooms', squareFeet: 600, productionRate: 1200, cleaningsPerWeek: 3 },
+    ],
+  };
+  const comparison = compareFrequencyReduction(input, { currentWeekly: 5, proposedWeekly: 3 });
+  const officeArea = comparison.reduced.areas.find(a => a.name === 'Open office');
+  const restrooms = comparison.reduced.areas.find(a => a.name === 'Restrooms');
+  assert.ok(Math.abs(officeArea.cleaningsPerWeek - 3) < 1e-9);
+  assert.ok(Math.abs(restrooms.cleaningsPerWeek - 1.8) < 1e-9);
+});
+
+test('building-level currentWeekly wins when area rows still show a different week', () => {
+  // Contractor typed 5→3 on the comparison, but left every area row at 3.
+  // Baseline labor must be the 5-day building, not the leftover 3-day rows.
+  const threeDayRows = {
+    ...office(),
+    areas: office().areas.map(area => ({ ...area, cleaningsPerWeek: 3 })),
+  };
+  const aligned = compareFrequencyReduction(threeDayRows, { currentWeekly: 5, proposedWeekly: 3 });
+  const matching = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 3 });
+  assert.ok(Math.abs(aligned.baseline.monthlyHours - matching.baseline.monthlyHours) < 1e-9);
+  assert.ok(Math.abs(aligned.reduced.monthlyHours - matching.reduced.monthlyHours) < 1e-9);
+  assert.ok(Math.abs(aligned.priceToHoldTargetMargin - matching.priceToHoldTargetMargin) < 1e-9);
+  assert.ok(Math.abs(aligned.baseline.monthlyHours - aligned.reduced.monthlyHours / 0.6) < 1e-6);
+});
+
+test('an optional client offer is scored against the reduced cost, not the 5× cost', () => {
+  const fiveDay = calculateBid(office());
+  const comparison = compareFrequencyReduction(office(), {
+    currentWeekly: 5,
+    proposedWeekly: 3,
+    clientOfferMonthly: fiveDay.monthlyPrice * 0.6,
+  });
+  assert.ok(comparison.clientOffer);
+  assert.ok(Math.abs(comparison.clientOffer.price - comparison.naiveLinearPrice) < 1e-9);
+  assert.ok(Math.abs(comparison.clientOffer.profit - comparison.naiveProfit) < 1e-9);
+});
+
+test('the same schedule compares as a no-op rather than a fake discount', () => {
+  const comparison = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 5 });
+  assert.equal(comparison.reductionFactor, 1);
+  assert.ok(Math.abs(comparison.leftOnTable) < 1e-9);
+  assert.ok(Math.abs(comparison.laborHoursDropped) < 1e-9);
+  assert.ok(Math.abs(comparison.naiveLinearPrice - comparison.baseline.monthlyPrice) < 1e-9);
+});
+
+test('a zero proposed week is a shutdown, not a free contract', () => {
+  const comparison = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 0 });
+  assert.equal(comparison.reduced.monthlyHours, 0);
+  assert.equal(comparison.naiveLinearPrice, 0);
+  assert.equal(comparison.naiveBelowBreakEven, true);
+  // Supplies and equipment remain, so the walk-away is not zero.
+  assert.ok(comparison.walkAwayAtReduced > 0);
+});
+
+test('frequency comparison rejects a zero current week rather than dividing by zero', () => {
+  assert.throws(
+    () => compareFrequencyReduction(office(), { currentWeekly: 0, proposedWeekly: 3 }),
+    /Current cleanings per week must be greater than zero/,
+  );
+  assert.throws(
+    () => compareFrequencyReduction(office(), { currentWeekly: 'often', proposedWeekly: 3 }),
+    /Current cleanings per week must be a number/,
+  );
+});
+
+test('the pasteable note names the true 3× price and the linear mistake', () => {
+  const comparison = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 3 });
+  const note = frequencyReductionNote(comparison, { targetMargin: 20 });
+  assert.match(note, /3×\/week/);
+  assert.match(note, /\$1,069\.37/);
+  assert.match(note, /not a linear cut/);
+  assert.match(note, /Supplies, equipment, and travel stay on the job/);
+  assert.match(note, /\$1,032\.00/);
+  const losing = compareFrequencyReduction(
+    { ...office(), equipmentMonthly: 800 },
+    { currentWeekly: 5, proposedWeekly: 3 },
+  );
+  const warning = frequencyReductionNote(losing, { targetMargin: 20 });
+  assert.match(warning, /would lose/);
+  assert.match(warning, /Walk-away/);
 });

@@ -29,6 +29,11 @@ products:
           live_url_visitors: null
           quote_csv_exports: 0
         note: Added one-click export of the current normalized result; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          returns_sensitivity_views: 0
+        note: Added a return-rate sweep that names the flip versus in-house; public URL remains owner-gated.
   - slug: shopify-permission-drift
     surface: local-cli
     readings:
@@ -46,6 +51,18 @@ products:
           repo_views_14d: 0
           release_downloads_total: 0
         note: Added copyable checklist status summary; public distribution and usage remain unmeasured.
+      - as_of: 2026-08-25
+        signals:
+          local_vat_checksum_runs: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added offline VAT checksum observations (INV-022/INV-023); public distribution remains unmeasured.
+      - as_of: 2026-08-25
+        signals:
+          local_iban_checksum_runs: 0
+          repo_views_14d: 0
+          release_downloads_total: 0
+        note: Added offline IBAN checksum observations (INV-024/INV-025); public distribution remains unmeasured.
   - slug: ai-engineering-academy
     surface: static-page-in-repo
     readings:
@@ -158,6 +175,16 @@ products:
           target-gap, hidden-time, and revision-assumption observations. No
           public URL yet; the feature counter stores only aggregate local
           events and remains opt-out.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          discount_ask_compared: 0
+        note: >-
+          Added a 5–20% client-discount table on the browser calculator.
+          Hours and direct costs stay fixed; the page reports the leftover
+          rate and hours of scope that would have to leave to hold the
+          supplied target. Public URL remains owner-gated; the counter
+          stores only aggregate local events.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
@@ -166,6 +193,11 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped local Etsy order-profit calculator; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          etsy_plus_compared: 0
+        note: Added stay-off-Plus vs listing-and-Ads-credit comparison; public URL remains owner-gated.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:
@@ -176,6 +208,14 @@ products:
         note: >-
           Shipped browser-local axe JSON evidence report; public URL remains
           owner-gated and the local counter has no external reporting path.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local remediation quote (hours + range) at
+          quote.html. Complementary to #1514 before/after compare — keep
+          quote.html as a sibling. Public URL remains owner-gated.
   - slug: ebay-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -188,6 +228,14 @@ products:
           unit tests). Public URL remains owner-gated, so there is no traffic
           signal to read; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added auction vs Buy It Now after sell-through (break-even hammer,
+          insertion, Promoted Listings on BIN only). Still no public URL;
+          local event listing_format_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:
@@ -208,6 +256,17 @@ products:
         note: >-
           Shipped a local commercial cleaning bid calculator with a copyable
           proposal summary; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          frequency_reduction_compared: 0
+          frequency_note_copied: 0
+        note: >-
+          Recovered the 5×-to-3× schedule-cut comparison (labor scales,
+          travel and equipment do not) after #1527 was closed with unique
+          lines still absent from main. Building-level currentWeekly now
+          rebases area rows when they disagree. Public URL remains
+          owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -256,6 +315,23 @@ products:
           fulfillment, storage, inbound, max buy cost, both-path comparison).
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added Low-Price FBA vs raise-price comparison (break-even raise
+          after referral). Still no public URL; local event
+          low_price_fba_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added usual-PO vs supplier-MOQ comparison (storage scaled by
+          pile size, extra cash, break-even MOQ COGS). Still no public
+          URL; local event bulk_buy_compared is opt-out and stores no
+          inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:
@@ -310,6 +386,135 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: kitchen-tile-backsplash-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local kitchen tile backsplash bid calculator (wall SF,
+          subway vs herringbone vs mosaic vs large-format, tile-only vs
+          new-prep vs demo-and-replace, outlet/cooktop/Schluter extras,
+          copyable proposal summary). Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser and
+          is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added same-wall four-pattern comparison (subway vs herringbone vs
+          mosaic vs large-format, with the upgrade from subway). Public URL
+          remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added leftover-box round-up, van leftover credit, second-wall
+          coverage (laundry / pantry), leftoverBoxNote, and a crawlable
+          leftover-box article. Public URL remains owner-gated.
+  - slug: boiler-replacement-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local boiler replacement bid calculator (input MBH,
+          hot-water vs steam, like-for-like vs condensing vs steam-to-hot-water,
+          liner/indirect/oil-to-gas extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added one-more-winter repair-vs-replace (this visit, this
+          winter, remaining winters vs the plant bid, plus a $280
+          circulator special scored on the visit). Public URL remains
+          owner-gated.
+  - slug: toilet-replacement-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local toilet replacement bid calculator (toilet count,
+          two-piece vs comfort-height vs one-piece vs bidet-combo, swap-only
+          vs new-supply vs flange-repair vs full-reset, 10/12/14-inch
+          rough-in, haul/wax-free/bidet extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+  - slug: egress-window-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local egress window bid calculator (window count,
+          hopper vs slider vs casement vs fiberglass, retrofit vs wood-cut
+          vs masonry-cut vs poured-cut, plastic vs steel vs stone well,
+          cover/ladder/drain/haul/finish extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+  - slug: walk-in-tub-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local walk-in tub bid calculator (tub count,
+          acrylic soaker vs cast vs whirlpool vs air-jet vs extra-wide,
+          alcove swap vs relocate vs new-construction vs custom-opening,
+          inward vs outward vs walk-through door, demo/tile/grab/handheld/
+          floor/permit extras, copyable proposal summary).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+  - slug: stair-lift-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local stair lift / chair lift bid calculator (lift
+          count, straight vs landing vs outdoor vs curved rail, perch vs
+          standard vs power-swivel vs power-pack vs heavy-duty chair,
+          wood vs concrete vs open-riser attach, fold/charge/circuit/
+          removal/permit/weather extras, copyable proposal summary).
+          Distinct from wheelchair ramp (carpentry), walk-in tub
+          (alcove plumbing), and home elevator (a shaft). Public URL
+          remains owner-gated; the local-first counter reports only to
+          the user's own browser and is opt-out. Baseline row.
+  - slug: home-elevator-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local home elevator / residential elevator bid
+          calculator (stops, travel feet, pneumatic vs winding-drum vs
+          hydraulic vs traction-MRL, through-floor vs existing-shaft vs
+          new-wood vs masonry vs glass, cab finish, pit/feeder/permit
+          extras, copyable proposal summary). Distinct from stair lift
+          (a chair on a rail), wheelchair ramp (carpentry), and walk-in
+          tub (alcove plumbing). Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
@@ -321,8 +526,24 @@ products:
         note: >-
           Shipped a zero-dependency browser calculator for independent
           freelancers to price monthly retainers from billable capacity, costs,
-          and scope risk. Public URL remains owner-gated; counters are local,
+          and scope risk, then compare that price to hourly at 50/75/100/125%
+          usage. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
+  - slug: real-estate-agent-photo-app
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          batch_checked_with_blockers: 0
+          reshoot_list_viewed: 0
+          reshoot_list_copied: 0
+        note: >-
+          Added a copyable reshoot / desk-fix list on the existing MLS
+          photo preflight (browser + CLI). Complementary to open download
+          PRs #1333, #1358, and #1385 — those export the evidence record;
+          this tells the photographer which rooms to recapture. Public URL
+          remains owner-gated (`deploy-settings`).
 
 # Example of the shape, once a product has shipped:
 #

@@ -44,12 +44,32 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+A second table keeps hours and the quoted price fixed and raises only overhead
+plus subcontractor cost by the same +10% / +25% / +50%. That answers the
+stale-quote question: if materials or a sub go up after you send a fixed
+price, what effective rate is left, and what price would still hit your
+target rate. See
+[`site/if-costs-go-up-is-this-quote-still-alive.html`](site/if-costs-go-up-is-this-quote-still-alive.html).
+The table is arithmetic on the figures you typed, not a forecast of supplier
+prices.
+
+A third table keeps hours and direct costs fixed and knocks 5%, 10%, 15%,
+and 20% off the quoted price. That answers the “can you do 10%?” email:
+what effective rate is left, and how many hours of scope would have to
+leave to still hit the supplied target rate. See
+[`site/if-they-ask-for-10-percent-off.html`](site/if-they-ask-for-10-percent-off.html).
+The table is arithmetic on the figures you typed, not a negotiation
+script or a pricing recommendation.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
 and verifying its output before relying on it**, and for meeting any obligation
 it helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** Hosted copies of this calculator are free,
+experimental, and may be slow, broken, moved, or taken offline without notice.
 
 Only aggregate `report_generated` events are optionally appended to the usage
 log. Inputs, project names, prices, and file contents never leave the machine.
@@ -62,7 +82,9 @@ page recomputes on every keystroke, so the counter waits for the figures to
 stop changing, skips the pre-filled example on first load, and ignores a repeat
 of a quote it already counted. Reading it as "reports", not "keystrokes", is
 what makes it comparable to the CLI's own count. The browser also counts
-`quote_review_checked` locally when a valid quote is reviewed; it stores no quote
+`quote_review_checked` locally when a valid quote is reviewed, and
+`cost_spike_compared` when the cost-rise table is computed, and
+`discount_ask_compared` when the discount-ask table is computed; it stores no quote
 values and sends nothing anywhere.
 
 ## Input

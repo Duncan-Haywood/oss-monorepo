@@ -191,7 +191,8 @@ export function defaultCompareSize(results: readonly PreflightResult[]): string 
   }
   let best: string | null = null;
   let bestCount = 0;
-  for (const [token, count] of counts) {
+  // Array.from: tsconfig target is es5, so `for...of` on Map fails TS2802.
+  for (const [token, count] of Array.from(counts.entries())) {
     if (count > bestCount || (count === bestCount && best !== null && token < best)) {
       best = token;
       bestCount = count;
@@ -277,16 +278,22 @@ function comparisonReason(rows: PreflightComparisonRow[], targetSize: string): s
   }
   if (rows.length === 1) {
     const only = rows[0];
-    if (!only.passed || !only.meetsDpiFloor) {
+    if (!only.meetsDpiFloor) {
       return `${only.fileName} does not clear the ${MIN_IMPLIED_DPI} DPI floor at ${targetSize}. Add another master to compare.`;
+    }
+    if (!only.passed) {
+      return `${only.fileName} meets the ${MIN_IMPLIED_DPI} DPI floor at ${targetSize} but is still blocked. Add another master to compare.`;
     }
     return `Add another master to compare against ${only.fileName} at ${targetSize}.`;
   }
 
   const recommended = rows.find((row) => row.recommended);
   if (!recommended) {
-    if (rows.every((row) => !row.passed || !row.meetsDpiFloor)) {
+    if (rows.every((row) => !row.meetsDpiFloor)) {
       return `None of these files meet the ${MIN_IMPLIED_DPI} DPI floor at ${targetSize}.`;
+    }
+    if (rows.every((row) => !row.passed)) {
+      return `No file both passes the checks and meets the ${MIN_IMPLIED_DPI} DPI floor at ${targetSize}. A blocked file can still be above the floor — check the dated record before you pay for a proof.`;
     }
     return `These files are too close to rank at ${targetSize}. Check the dated record before you pay for a proof.`;
   }

@@ -65,12 +65,42 @@ arithmetic check, not a tax-law determination:
   "issue_date": "2026-08-24",
   "due_date": "2026-09-23",
   "currency": "EUR",
-  "supplier": {"id": "DE123", "name": "Supplier GmbH"},
+  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
   "customer": {"id": "DE456", "name": "Customer GmbH"},
-   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
+  "payment": {"iban": "DE89370400440532013000", "bic": "COBADEFFXXX"},
+  "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
   "totals": {"net": 200, "tax": 38, "gross": 238}
 }
 ```
+
+`supplier.vat_id` and `customer.vat_id` are optional. When supplied, they are
+checked against published national VAT shapes and checksums (DE, FR, BE, NL,
+AT, IT, ES, PL, SE, DK, FI, PT, LU, IE, GB, and length-only checks for other
+EU prefixes). A matching complete VAT in `id` is checked the same way. Short
+codes such as `DE123` stay internal ERP identifiers and are not treated as
+VAT numbers. Failed checksums are `INV-023`; a `vat_id` that is not a known
+shape is `INV-022`. Messages never repeat the identifier. This is a typo
+catch, not a VIES registration lookup and not a determination that a party
+may charge tax. UBL `PartyTaxScheme/CompanyID` maps into `vat_id`.
+
+`payment.iban` is optional. When supplied, it is checked against published
+IBAN lengths and the ISO 13616 MOD-97 checksum. Failed checksums are
+`INV-025`; a value that is not a country-prefixed IBAN (or that uses the
+wrong national length) is `INV-024`. Short internal account numbers stay
+internal unless they are placed in `payment.iban`. Messages never repeat
+the account number. This is a typo catch, not a bank lookup and not a
+determination that the account exists or belongs to the named party. UBL
+`PaymentMeans/PayeeFinancialAccount/ID` maps into `payment.iban`.
+
+`payment.bic` is optional. When supplied, it must be an 8- or 11-character
+ISO 9362 identifier (four letters, a two-letter country, a two-character
+location, and an optional three-character branch). A value that is not
+that shape is `INV-026`. When both a complete IBAN and a complete BIC are
+present, a country mismatch is `INV-027`. Messages never repeat the BIC
+or the account number. This is a typo catch, not a SWIFT directory lookup
+and not a determination that the institution will accept the payment. UBL
+`PayeeFinancialAccount/FinancialInstitutionBranch/ID` (or the nested
+`FinancialInstitution/ID`) maps into `payment.bic`.
 
 `due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
 earlier than `issue_date`; this is a date-shape and document-consistency check,
@@ -208,3 +238,18 @@ No. It reads one local JSON file and writes a report to stdout.
 
 No. It checks the arithmetic for the tax percentage supplied in each line; it
 does not decide whether that percentage is legally correct.
+
+### Does it look up VAT registrations?
+
+No. Optional `vat_id` values (and a complete VAT shape in `id`) are checked
+with published checksums only. The tool never calls VIES or any network
+service, never stores the identifier, and never claims a party is registered.
+
+### Does it look up bank accounts?
+
+No. Optional `payment.iban` values (and a UBL payee account ID) are checked
+with the published IBAN length and MOD-97 checksum only. Optional
+`payment.bic` values are checked for ISO 9362 shape and, when both are
+complete, for the same country as the IBAN. The tool never contacts a
+bank, never stores the account number or BIC, and never claims funds can
+be received there.

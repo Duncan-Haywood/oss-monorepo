@@ -909,3 +909,251 @@ ventures:
       Pass: output is a planning floor from user-supplied assumptions, not
       financial advice or a guarantee of income, tax treatment, or contract
       enforceability; all data stays in the browser.
+
+  - slug: kitchen-tile-backsplash-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      wall SF, pattern waste, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local kitchen tile backsplash bid
+      calculator. Distinct from walk-in shower (wet area, slope, glass),
+      flooring (floor waste), and countertop (slabs). Distribution 8:
+      "how much to charge for a backsplash" and "kitchen backsplash cost
+      calculator" are high-intent operator queries; defensibility 5 because
+      the pattern-versus-scope model encodes how the trade estimates labor
+      rather than restating a published per-SF special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the setter's own inputs, never a
+      recommended price, a wage determination, or a building-code opinion.
+      The shipped hours and tile rates are labelled ballpark starting points
+      rather than a standard or benchmark, and nothing the user enters
+      leaves the browser.
+
+  - slug: boiler-replacement-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      input MBH, system, scope, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local boiler replacement bid
+      calculator. Distinct from furnace (forced air, AFUE, matching coil),
+      water-heater (a tank, not a hydronic plant), and mini-split (line-set).
+      Distribution 8: "how much to charge to replace a boiler" and "boiler
+      replacement cost calculator" are high-intent operator queries;
+      defensibility 5 because the plant-versus-scope model encodes how the
+      trade estimates labor rather than restating a published special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the tech's own inputs, never a
+      recommended price, a heat-loss determination, or a fuel-gas-code
+      opinion.       The shipped hours and boiler invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+
+  - slug: toilet-replacement-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      toilet count, bowl, flange, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local toilet replacement bid
+      calculator. Distinct from walk-in shower (tile, slope, glass),
+      water-heater (a tank), hydro-jet (cleaning a line), and sewer-line
+      replace (the lateral). Distribution 8: "how much to charge to replace
+      a toilet" and "toilet replacement cost calculator" are high-intent
+      operator queries; defensibility 5 because the closet-versus-scope
+      model encodes how the trade estimates labor rather than restating a
+      published installed special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the plumber's own inputs, never a
+      recommended price, a wage determination, or a plumbing-code opinion.
+      The shipped hours and fixture invoices are labelled ballpark starting
+      points rather than a standard or benchmark, and nothing the user
+      enters leaves the browser.
+
+  - slug: egress-window-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      window count, cut, well, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local egress window bid
+      calculator. Distinct from window replacement (wall openings, united
+      inches, nailing flange), basement finishing (framing a rec room),
+      skylight (a roof cut), basement waterproofing (interior drain, wells
+      as a waterproofing add-on), and foundation repair (piers).
+      Distribution 8: "how much to charge to install an egress window" and
+      "egress window cost calculator" are high-intent operator queries;
+      defensibility 5 because the opening-versus-cut model encodes how the
+      trade estimates labor rather than restating a published installed
+      special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an egress-size determination, or a building-code
+      opinion. The shipped hours and window invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+
+  - slug: walk-in-tub-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      tub count, alcove, unit, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local walk-in tub bid
+      calculator. Distinct from walk-in shower (tile, slope, glass),
+      hot-tub / spa (outdoor crane and a pad), toilet replacement (a
+      commode swap), and water-heater (a tank). Distribution 8: "how
+      much to charge to install a walk-in tub" and "walk-in tub cost
+      calculator" are high-intent operator queries; defensibility 5
+      because the alcove-versus-unit model encodes how the trade
+      estimates labor rather than restating a published installed
+      special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an accessibility determination, or a plumbing-code
+      opinion. The shipped hours and tub invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+
+  - slug: stair-lift-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      lift count, rail, chair, and payroll burden — that is arithmetic, and
+      adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local stair lift / chair lift
+      bid calculator. Distinct from wheelchair ramp (carpentry:
+      rise-to-run, landings, slope — a platform, not a chair on a rail),
+      walk-in tub (bathroom plumbing and an alcove), walk-in shower
+      (tile, slope, glass), and home elevator (a shaft). Distribution 8:
+      "how much to charge to install a stair lift" and "stair lift cost
+      calculator" are high-intent operator queries; defensibility 5
+      because the rail-versus-chair model encodes how the trade estimates
+      labor rather than restating a published installed special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an accessibility determination, or a medical-device
+      opinion. The shipped hours and rail invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.
+
+  - slug: home-elevator-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      stops, travel, drive, hoistway, and payroll burden — that is arithmetic,
+      and adding inference to it would only make the result less checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local home elevator / residential
+      elevator bid calculator. Distinct from stair lift (a chair on a rail —
+      no shaft, no pit, no cab), wheelchair ramp (carpentry: rise-to-run,
+      landings), walk-in tub (alcove plumbing), and walk-in shower (tile,
+      slope, glass). Distribution 8: "how much to charge to install a home
+      elevator" and "home elevator cost calculator" are high-intent operator
+      queries; defensibility 5 because the stop-versus-shaft model encodes
+      how the trade estimates labor rather than restating a published
+      pneumatic special.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, an elevator-code determination, or an accessibility
+      opinion. The shipped hours and unit invoices are labelled ballpark
+      starting points rather than a standard or benchmark, and nothing the
+      user enters leaves the browser.

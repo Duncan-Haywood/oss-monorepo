@@ -2,7 +2,7 @@
 
 Independent consultants and freelancers can use this free browser calculator to turn a take-home income goal into a sustainable hourly floor and monthly retainer. It accounts for non-billable time, business costs, and a visible scope buffer instead of hiding those assumptions inside a generic rate.
 
-**Value:** After using this, you can send a retainer price with included hours and an out-of-scope rate, which used to take guesswork or a spreadsheet. The proposal summary can be copied or downloaded as a plain-text file for reliable handoff.
+**Value:** After using this, you can send a retainer price with included hours and an out-of-scope rate, and see whether that price still covers your hourly floor at 50%, 75%, 100%, and 125% usage — which used to take guesswork or a spreadsheet. The proposal summary can be copied or downloaded as a plain-text file for reliable handoff.
 
 ## Run and test
 
@@ -10,7 +10,7 @@ Open `index.html` in a browser. No server, account, API key, or paid dependency 
 
 ## Opportunity and differentiation
 
-The target user is a solo freelancer preparing a proposal. Generic hourly-rate calculators often divide desired income by calendar hours, overstating capacity; project calculators do not answer the recurring retainer question. This niche is searchable through "freelance retainer pricing calculator", "how to price a monthly retainer", and "freelance hourly rate after expenses". A useful return loop is changing assumptions for each proposal and copying a scope summary. Future revenue could be a hosted history/export tier or a bring-your-own-key AI scope reviewer, but the free deterministic workflow comes first.
+The target user is a solo freelancer preparing a proposal. Generic hourly-rate calculators often divide desired income by calendar hours, overstating capacity; project calculators do not answer the recurring retainer question. This niche is searchable through "freelance retainer pricing calculator", "should I charge a retainer or hourly", and "freelance hourly rate after expenses". A useful return loop is changing assumptions for each proposal, checking usage scenarios, and copying a scope summary. Future revenue could be a hosted history/export tier or a bring-your-own-key AI scope reviewer, but the free deterministic workflow comes first.
 
 Alternatives include spreadsheets, Bonsai/Harvest calculators, and advice articles. Differentiation is a transparent capacity model, a scope-risk buffer, and a proposal-ready output with no account or data upload. It fits the portfolio's static-page infrastructure but is not a marketplace-fee calculator, trade bid calculator, or evidence checker.
 
@@ -18,7 +18,9 @@ Operating cost is zero at launch: all calculations and anonymous event counts st
 
 ## Privacy and usage
 
-Everything runs in your browser. Your data is never uploaded, and there are no accounts, tracking cookies, or analytics vendors. The product counts only aggregate local `calculate`, `copy-summary`, and `download-summary` events, never people, IPs, content, or cross-site identifiers. The checkbox in the footer turns counting off; clearing browser storage removes the local count.
+Everything runs in your browser. Your data is never uploaded, and there are no accounts, tracking cookies, or analytics vendors. The product counts only aggregate local `calculate`, `retainer_usage_compared`, `copy-summary`, and `download-summary` events, never people, IPs, content, or cross-site identifiers. The checkbox in the footer turns counting off; clearing browser storage removes the local count.
+
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 
 ## Disclaimer
 
