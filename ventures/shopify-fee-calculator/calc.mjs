@@ -1652,3 +1652,280 @@ export function compareGiftCard(input) {
     }),
   };
 }
+
+/**
+ * Illustrative Shopify Markets duty defaults so the table is immediately
+ * useful. 15% of item-plus-shipping is a blended VAT/duty starting
+ * point a merchant overwrites from their own landed-cost quote — not
+ * Shopify Markets policy or a published duty schedule. DAP take 55% /
+ * DDP take 42% / DAP refuse 18% / DDP refuse 6% are conversion and
+ * door-refusal guesses the merchant replaces from their own Markets
+ * report. International return labels are usually dearer than a
+ * domestic $7 — $8 is a starting point, not a carrier quote.
+ */
+export const DEFAULT_DUTY_RATE_PCT = 15;
+export const DEFAULT_DAP_TAKE_PCT = 55;
+export const DEFAULT_DDP_TAKE_PCT = 42;
+export const DEFAULT_DAP_REFUSE_PCT = 18;
+export const DEFAULT_DDP_REFUSE_PCT = 6;
+export const DEFAULT_DUTY_RETURN_LABEL = 8;
+export const DEFAULT_DUTY_RESTOCKABLE_PCT = 80;
+export const DEFAULT_DUTY_REFUND_FEE_LEFTOVER = 0.3;
+export const DEFAULT_MONTHLY_INTL_VISITORS = 20;
+
+function marketsPathExpected({
+  takePct,
+  refusePct,
+  deliveredProfit,
+  refusedProfit,
+}) {
+  const take = takePct / 100;
+  const refuse = refusePct / 100;
+  const perPlaced = (1 - refuse) * deliveredProfit + refuse * refusedProfit;
+  return {
+    perPlaced,
+    expected: take * perPlaced,
+    placedDelivered: take * (1 - refuse),
+    placedRefused: take * refuse,
+  };
+}
+
+function marketsDutiesSummary({
+  dutyAmount,
+  feeOnDuty,
+  dap,
+  ddp,
+  extraOnDapVsDdp,
+  monthlyExtraOnDapVsDdp,
+  breakEvenDapRefusePct,
+  breakEvenDdpTakePct,
+}) {
+  const skipLine = `Skipping international leaves $0.00 from this visitor.`;
+  const dapGap = moneyLabel(Math.abs(dap.expected));
+  const dapAhead = dap.expected >= 0 ? "more" : "less";
+  const dapLine = ` DAP at a ${dap.takePct}% take and ${dap.refusePct}% door-refuse rate expects ${moneyLabel(dap.expected)} — ${dapGap} ${dapAhead} than skip. A delivered DAP order keeps ${moneyLabel(dap.deliveredProfit)}; a refuse leaves ${moneyLabel(dap.refusedProfit)}.`;
+  const ddpGap = moneyLabel(Math.abs(ddp.expected - dap.expected));
+  const ddpAhead = ddp.expected >= dap.expected ? "more" : "less";
+  const ddpLine = ` DDP collects ${moneyLabel(dutyAmount)} at checkout (${moneyLabel(feeOnDuty)} extra card fee on the duty) at a ${ddp.takePct}% take and ${ddp.refusePct}% refuse rate and expects ${moneyLabel(ddp.expected)} — ${ddpGap} ${ddpAhead} than DAP.`;
+  const refuseFloor = Number.isFinite(breakEvenDapRefusePct)
+    ? ` DAP refuses have to reach about ${breakEvenDapRefusePct.toFixed(1)}% before DDP matches DAP.`
+    : " No DAP refuse rate on these takes can match DDP.";
+  const takeFloor = Number.isFinite(breakEvenDdpTakePct)
+    ? ` DDP take has to reach about ${breakEvenDdpTakePct.toFixed(1)}% before it matches DAP.`
+    : "";
+  const month = Math.abs(monthlyExtraOnDapVsDdp) > 1e-9
+    ? ` That is ${moneyLabel(Math.abs(monthlyExtraOnDapVsDdp))} / month ${extraOnDapVsDdp >= 0 ? "more on DAP" : "more on DDP"} at this visitor count.`
+    : "";
+  return `${skipLine}${dapLine}${ddpLine}${refuseFloor}${takeFloor}${month}`;
+}
+
+/**
+ * Same typical SKU, three views of one international-interested visitor
+ * on Shopify Markets:
+ *   - skip — do not sell internationally; leftover from this visitor is $0
+ *   - DAP — they pay item + shipping at checkout, duties at the door;
+ *     more of them buy, more of them refuse the package
+ *   - DDP — you collect duties at checkout (Shopify Markets / Duties);
+ *     card fees sit on the duty amount; fewer buy, fewer refuse
+ *
+ * A refused package refunds the checkout, leaves the leftover card
+ * fixed fee, eats outbound + return postage, and keeps only the
+ * restockable share of cost of goods. Duty is assumed remitted only
+ * on a delivered DDP order. Rates are inputs — not Shopify Markets
+ * policy or a customs quote.
+ */
+export function compareMarketsDuties(input) {
+  const dutyRatePct = emptyField(input.dutyRatePct)
+    ? DEFAULT_DUTY_RATE_PCT
+    : ratePercent(input.dutyRatePct, "Duty rate");
+  const dapTakePct = emptyField(input.dapTakePct)
+    ? DEFAULT_DAP_TAKE_PCT
+    : ratePercent(input.dapTakePct, "DAP take percent");
+  const ddpTakePct = emptyField(input.ddpTakePct)
+    ? DEFAULT_DDP_TAKE_PCT
+    : ratePercent(input.ddpTakePct, "DDP take percent");
+  const dapRefusePct = emptyField(input.dapRefusePct)
+    ? DEFAULT_DAP_REFUSE_PCT
+    : ratePercent(input.dapRefusePct, "DAP refuse percent");
+  const ddpRefusePct = emptyField(input.ddpRefusePct)
+    ? DEFAULT_DDP_REFUSE_PCT
+    : ratePercent(input.ddpRefusePct, "DDP refuse percent");
+  const returnLabel = emptyField(input.dutyReturnLabel)
+    ? DEFAULT_DUTY_RETURN_LABEL
+    : number(input.dutyReturnLabel, "International return label");
+  const restockablePct = emptyField(input.dutyRestockablePct)
+    ? DEFAULT_DUTY_RESTOCKABLE_PCT
+    : ratePercent(input.dutyRestockablePct, "Duty restockable percent");
+  const refundFeeLeftover = emptyField(input.dutyRefundFeeLeftover)
+    ? DEFAULT_DUTY_REFUND_FEE_LEFTOVER
+    : number(input.dutyRefundFeeLeftover, "Refund fee leftover");
+  const monthlyVisitors = emptyField(input.monthlyIntlVisitors)
+    ? DEFAULT_MONTHLY_INTL_VISITORS
+    : number(input.monthlyIntlVisitors, "Monthly international visitors");
+
+  const price = number(input.price, "Item price");
+  const shippingCharged = number(input.shippingCharged, "Shipping charged");
+  const costOfGoods = number(input.costOfGoods, "Cost of goods");
+  const shippingCost = number(input.shippingCost, "Shipping cost");
+  const packagingCost = number(input.packagingCost, "Packaging cost");
+  const otherCost = number(input.otherCost, "Other cost");
+
+  const soldOrder = calculateOrder(input);
+  const allocatedPlan = soldOrder.allocatedPlanCost;
+  const ticket = price + shippingCharged;
+  const dutyAmount = ticket * (dutyRatePct / 100);
+  const dapFees = cardFeesOnAmount(ticket, input);
+  const ddpFees = cardFeesOnAmount(ticket + dutyAmount, input);
+  const feeOnDuty = Math.max(0, ddpFees - dapFees);
+  const fulfillment = costOfGoods + shippingCost + packagingCost + otherCost;
+  const unrestocked = costOfGoods * (1 - restockablePct / 100);
+  const refusedCost = shippingCost + returnLabel + packagingCost + unrestocked
+    + otherCost + allocatedPlan + refundFeeLeftover;
+  const refusedProfit = -refusedCost;
+  const dapDeliveredProfit = ticket - dapFees - fulfillment - allocatedPlan;
+  const ddpDeliveredProfit = ticket + dutyAmount - ddpFees - fulfillment
+    - allocatedPlan - dutyAmount;
+
+  const skipMix = marketsPathExpected({
+    takePct: 0,
+    refusePct: 0,
+    deliveredProfit: 0,
+    refusedProfit: 0,
+  });
+  const dapMix = marketsPathExpected({
+    takePct: dapTakePct,
+    refusePct: dapRefusePct,
+    deliveredProfit: dapDeliveredProfit,
+    refusedProfit,
+  });
+  const ddpMix = marketsPathExpected({
+    takePct: ddpTakePct,
+    refusePct: ddpRefusePct,
+    deliveredProfit: ddpDeliveredProfit,
+    refusedProfit,
+  });
+
+  const skip = {
+    id: "skip",
+    label: "Don't sell internationally",
+    takePct: 0,
+    refusePct: 0,
+    charged: 0,
+    duty: 0,
+    fees: 0,
+    deliveredProfit: 0,
+    refusedProfit: 0,
+    expected: 0,
+  };
+  const dap = {
+    id: "dap",
+    label: "DAP — duties at the door",
+    takePct: dapTakePct,
+    refusePct: dapRefusePct,
+    charged: ticket,
+    duty: dutyAmount,
+    fees: dapFees,
+    deliveredProfit: dapDeliveredProfit,
+    refusedProfit,
+    expected: dapMix.expected,
+    perPlaced: dapMix.perPlaced,
+  };
+  const ddp = {
+    id: "ddp",
+    label: "DDP — collect duties at checkout",
+    takePct: ddpTakePct,
+    refusePct: ddpRefusePct,
+    charged: ticket + dutyAmount,
+    duty: dutyAmount,
+    fees: ddpFees,
+    deliveredProfit: ddpDeliveredProfit,
+    refusedProfit,
+    expected: ddpMix.expected,
+    perPlaced: ddpMix.perPlaced,
+  };
+
+  const extraOnDapVsDdp = dap.expected - ddp.expected;
+  const extraOnDapVsSkip = dap.expected;
+  const extraOnDdpVsSkip = ddp.expected;
+  const monthlyExtraOnDapVsDdp = extraOnDapVsDdp * monthlyVisitors;
+  const monthlyExtraOnDapVsSkip = extraOnDapVsSkip * monthlyVisitors;
+  const monthlyExtraOnDdpVsSkip = extraOnDdpVsSkip * monthlyVisitors;
+
+  const rows = [skip, dap, ddp].map((row) => ({
+    ...row,
+    vsSkip: row.expected,
+    vsDap: row.expected - dap.expected,
+  }));
+
+  const expectedValues = [skip.expected, dap.expected, ddp.expected];
+  const bestExpected = Math.max(...expectedValues);
+  const winners = [
+    skip.expected,
+    dap.expected,
+    ddp.expected,
+  ].map((value, index) => ({ value, id: ["skip", "dap", "ddp"][index] }))
+    .filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = winners.length === 1 ? winners[0].id : "tie";
+
+  const dapGap = dapDeliveredProfit - refusedProfit;
+  let breakEvenDapRefusePct = Infinity;
+  if (dapTakePct > 1e-12 && dapGap > 1e-12) {
+    const neededPerPlaced = ddp.expected / (dapTakePct / 100);
+    const rate = (dapDeliveredProfit - neededPerPlaced) / dapGap * 100;
+    breakEvenDapRefusePct = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  let breakEvenDdpTakePct = Infinity;
+  if (Math.abs(ddpMix.perPlaced) > 1e-12) {
+    const needed = dap.expected / ddpMix.perPlaced * 100;
+    breakEvenDdpTakePct = needed < -1e-9 || needed > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, needed);
+  }
+
+  return {
+    rows,
+    skip: rows[0],
+    dap: rows[1],
+    ddp: rows[2],
+    ticket,
+    dutyRatePct,
+    dutyAmount,
+    feeOnDuty,
+    dapFees,
+    ddpFees,
+    fulfillment,
+    allocatedPlan,
+    unrestocked,
+    refusedCost,
+    dapTakePct,
+    ddpTakePct,
+    dapRefusePct,
+    ddpRefusePct,
+    returnLabel,
+    restockablePct,
+    refundFeeLeftover,
+    monthlyVisitors,
+    extraOnDapVsDdp,
+    extraOnDapVsSkip,
+    extraOnDdpVsSkip,
+    monthlyExtraOnDapVsDdp,
+    monthlyExtraOnDapVsSkip,
+    monthlyExtraOnDdpVsSkip,
+    breakEvenDapRefusePct,
+    breakEvenDdpTakePct,
+    winner,
+    summary: marketsDutiesSummary({
+      dutyAmount,
+      feeOnDuty,
+      dap,
+      ddp,
+      extraOnDapVsDdp,
+      monthlyExtraOnDapVsDdp,
+      breakEvenDapRefusePct,
+      breakEvenDdpTakePct,
+    }),
+  };
+}

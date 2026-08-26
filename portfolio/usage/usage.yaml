@@ -549,6 +549,14 @@ products:
           Added gift card vs selling the SKU now (sale-day fees, leftover
           swipe, promo off face, breakage mix). Public URL remains
           owner-gated; local events are opt-out and store no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          markets_duties_compared: 0
+        note: >-
+          Added Shopify Markets DDP vs DAP vs skip (card fee on collected
+          duty, door-refuse leftover, take/refuse floors). Public URL
+          remains owner-gated; local events are opt-out and store no inputs.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:

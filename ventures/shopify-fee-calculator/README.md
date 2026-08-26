@@ -65,6 +65,10 @@ carrier label, and what you keep if you charge shipping and still deliver.
 answers the stored-value question: whether a card they redeem later still
 beats selling the SKU now after sale-day fees, a leftover swipe, and a
 promo off the face.
+[Should I collect duties on Shopify?](should-i-collect-duties-on-shopify.html)
+answers the Markets question: whether collecting duties at checkout (DDP)
+still beats letting the buyer pay at the door (DAP) after the card fee
+on the duty and the refuse leftover.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -110,6 +114,12 @@ still pays after the sale-day fee and a later redeem, including the
 second swipe on a leftover ticket** — which used to mean selling
 discounted cards because $50 in the bank looked like profit.
 
+**After using the duties page, you can now see whether collecting
+duties at Shopify checkout still beats a cheaper DAP door bill after
+the extra card fee and refused packages** — which used to mean
+turning on Markets duties because a $54 checkout looked kinder than
+$62.10.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -143,7 +153,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card page tests
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`

@@ -12,6 +12,7 @@ import {
   compareChargeback,
   compareLocalDelivery,
   compareGiftCard,
+  compareMarketsDuties,
   localDeliveryCost,
   DEFAULT_BANK_APR_PCT,
   DEFAULT_CAPITAL_ADVANCE,
@@ -43,6 +44,15 @@ import {
   DEFAULT_GIFT_CARD_PRICE,
   DEFAULT_GIFT_CARD_REDEMPTION_PCT,
   DEFAULT_MONTHLY_GIFT_CARDS,
+  DEFAULT_DUTY_RATE_PCT,
+  DEFAULT_DAP_TAKE_PCT,
+  DEFAULT_DDP_TAKE_PCT,
+  DEFAULT_DAP_REFUSE_PCT,
+  DEFAULT_DDP_REFUSE_PCT,
+  DEFAULT_DUTY_RETURN_LABEL,
+  DEFAULT_DUTY_RESTOCKABLE_PCT,
+  DEFAULT_DUTY_REFUND_FEE_LEFTOVER,
+  DEFAULT_MONTHLY_INTL_VISITORS,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -1068,4 +1078,92 @@ test("summary names the sell-now winner and does not treat breakage as a plan", 
   assert.match(text, /unredeemed cards/);
   assert.match(text, /\$6\.00/);
   assert.doesNotMatch(text, /should sell|must offer|turn on gift/i);
+});
+
+const MARKETS_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("defaults match the published Markets duty starting points", () => {
+  assert.equal(DEFAULT_DUTY_RATE_PCT, 15);
+  assert.equal(DEFAULT_DAP_TAKE_PCT, 55);
+  assert.equal(DEFAULT_DDP_TAKE_PCT, 42);
+  assert.equal(DEFAULT_DAP_REFUSE_PCT, 18);
+  assert.equal(DEFAULT_DDP_REFUSE_PCT, 6);
+  assert.equal(DEFAULT_DUTY_RETURN_LABEL, 8);
+  assert.equal(DEFAULT_DUTY_RESTOCKABLE_PCT, 80);
+  assert.equal(DEFAULT_DUTY_REFUND_FEE_LEFTOVER, 0.3);
+  assert.equal(DEFAULT_MONTHLY_INTL_VISITORS, 20);
+});
+
+test("DAP on the $54 ticket keeps more than DDP after the fee on duty", () => {
+  // Ticket $54. Duty 15% = $8.10. DAP fees $1.866. Delivered leftover
+  // $54 − $1.866 − $20.39 = $31.744. Refuse eats $0.30 leftover fee +
+  // $5 outbound + $8 return + $1 pack + 20% of $14 + $0.39 plan = $17.49.
+  // DAP mix 55% take / 18% refuse → $12.585 / visitor.
+  // DDP checkout $62.10, fees $2.1009, remits $8.10 → delivered $31.5091.
+  // DDP mix 42% / 6% → $11.999 / visitor.
+  const r = compareMarketsDuties(MARKETS_BASE);
+  near(r.ticket, 54, "ticket");
+  near(r.dutyAmount, 8.1, "duty");
+  near(r.feeOnDuty, 8.1 * 0.029, "fee on duty");
+  near(r.dap.deliveredProfit, 31.744, "DAP delivered");
+  near(r.dap.refusedProfit, -17.49, "refuse leftover");
+  near(r.ddp.deliveredProfit, 31.5091, "DDP delivered");
+  near(r.dap.expected, 12.585034, "DAP expected");
+  near(r.ddp.expected, 11.99904468, "DDP expected");
+  near(r.skip.expected, 0, "skip");
+  near(r.extraOnDapVsDdp, 0.58598932, "DAP minus DDP");
+  near(r.monthlyExtraOnDapVsDdp, 11.7197864, "20 visitors");
+  near(r.breakEvenDapRefusePct, 20.16402309, "DAP refuse floor");
+  near(r.breakEvenDdpTakePct, 44.05112591, "DDP take floor");
+  assert.equal(r.winner, "dap");
+  assert.ok(r.dap.expected > r.ddp.expected, "DAP wins the default mix");
+  assert.ok(r.ddp.expected > r.skip.expected, "offering international still beats skip");
+});
+
+test("a 25% DAP door-refuse rate flips the table to DDP", () => {
+  const r = compareMarketsDuties({ ...MARKETS_BASE, dapRefusePct: 25 });
+  near(r.dap.expected, 10.689525, "DAP at 25% refuse");
+  assert.ok(r.ddp.expected > r.dap.expected, "DDP keeps more when DAP refuse rises");
+  assert.equal(r.winner, "ddp");
+});
+
+test("empty Markets fields use the published defaults", () => {
+  const r = compareMarketsDuties(MARKETS_BASE);
+  near(r.dutyRatePct, DEFAULT_DUTY_RATE_PCT, "default duty");
+  near(r.dapTakePct, DEFAULT_DAP_TAKE_PCT, "default DAP take");
+  near(r.ddpTakePct, DEFAULT_DDP_TAKE_PCT, "default DDP take");
+  near(r.dapRefusePct, DEFAULT_DAP_REFUSE_PCT, "default DAP refuse");
+  near(r.ddpRefusePct, DEFAULT_DDP_REFUSE_PCT, "default DDP refuse");
+  near(r.returnLabel, DEFAULT_DUTY_RETURN_LABEL, "default return");
+  near(r.monthlyVisitors, DEFAULT_MONTHLY_INTL_VISITORS, "default visitors");
+});
+
+test("compareMarketsDuties rejects a duty rate over 100 and a negative label", () => {
+  assert.throws(() => compareMarketsDuties({ ...MARKETS_BASE, dutyRatePct: 101 }), /Duty rate/);
+  assert.throws(() => compareMarketsDuties({ ...MARKETS_BASE, dapTakePct: 120 }), /DAP take percent/);
+  assert.throws(() => compareMarketsDuties({ ...MARKETS_BASE, dutyReturnLabel: -1 }), /International return label/);
+  assert.throws(() => compareMarketsDuties({ ...MARKETS_BASE, dutyRefundFeeLeftover: -0.3 }), /Refund fee leftover/);
+});
+
+test("summary names the DAP leftover and does not tell you to turn Markets on", () => {
+  const text = compareMarketsDuties(MARKETS_BASE).summary;
+  assert.match(text, /\$12\.59/);
+  assert.match(text, /\$12\.00/);
+  assert.match(text, /\$8\.10/);
+  assert.match(text, /\$0\.23/);
+  assert.match(text, /20\.2%/);
+  assert.match(text, /44\.1%/);
+  assert.match(text, /\$11\.72/);
+  assert.doesNotMatch(text, /should collect|must offer|turn on markets|turn on duties/i);
 });
