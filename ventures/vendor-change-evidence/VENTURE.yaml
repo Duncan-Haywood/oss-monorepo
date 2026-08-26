@@ -20,7 +20,7 @@ economics:
   customers: null
 
 budget:
-  monthly_cap: 10
+  monthly_cap: 1
   protected: true
 
 kill_criteria:

@@ -1,4 +1,8 @@
+import sys
 import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 from vendor_change import compare, load_snapshot
 
 
@@ -17,7 +21,16 @@ class VendorChangeTests(unittest.TestCase):
 
     def test_missing_field_is_rejected(self):
         with self.assertRaises(ValueError):
-            load_snapshot(__import__("pathlib").Path("/does/not/exist"))
+            load_snapshot(Path("/does/not/exist"))
+
+    def test_example_snapshots_are_changed(self):
+        root = Path(__file__).parents[1]
+        report = compare(
+            load_snapshot(root / "examples/before.json"),
+            load_snapshot(root / "examples/after.json"),
+        )
+        self.assertEqual(report["status"], "changed")
+        self.assertEqual(report["changes"][0]["kind"], "content_changed")
 
 
 if __name__ == "__main__":
