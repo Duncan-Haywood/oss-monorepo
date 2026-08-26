@@ -63,6 +63,14 @@ test('calculator exposes a local CSV export from its live form', async () => {
   assert.match(page, /return-fields\.js/);
 });
 
+test('calculator exposes a privacy-safe local JSON export', async () => {
+  const script = await readFile(new URL('./export-page.mjs', import.meta.url), 'utf8');
+  const exporter = await readFile(new URL('./export.mjs', import.meta.url), 'utf8');
+  assert.match(script, /Download JSON record/);
+  assert.match(script, /quote_json_exported/);
+  assert.match(exporter, /schema_version: 1/);
+});
+
 test('sensitivity page exposes volume assumptions, results, and disclaimer', async () => {
   const page = await readFile(new URL('./sensitivity.html', import.meta.url), 'utf8');
   assert.match(page, /Volume Sensitivity/);

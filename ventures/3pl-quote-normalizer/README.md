@@ -21,7 +21,10 @@ rest of the rate card still and raise the return rate. That shows the first
 rate where in-house is cheaper, and whether a monthly minimum is hiding the
 returns line until the subtotal clears the floor.
 After normalizing, use **Download CSV record** to save the exact on-screen
-calculation for a spreadsheet or quote review without retyping figures.
+calculation for a spreadsheet, or **Download JSON record** for a procurement or
+ERP adapter, without retyping figures. The JSON record is versioned and includes
+only calculated values, warnings, and review safeguards; it does not include the
+raw rate-card fields.
 If a pasted value is malformed or negative, the copied line-by-line report
 includes an explicit warning instead of hiding the normalization rule.
 Blank fields are also called out with the default value used, so a missing
