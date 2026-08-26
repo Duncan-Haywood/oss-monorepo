@@ -55,7 +55,9 @@ truck and has to decide whether to take the load.
    that belongs next to a broker's quote.
 7. **Optional offer.** Posted loaded rate minus factoring, scored against the
    same cost base. Optional target take-home solves for the loaded rate that
-   leaves that much after costs and factoring.
+   leaves that much after costs and factoring. The result also shows how many
+   loaded miles that offer must pay to cover this week's cost; it uses the
+   settled rate after factoring, not the posted rate.
 
 **Copy week summary** turns the result into plain text you can paste into a
 note or a message to dispatch.

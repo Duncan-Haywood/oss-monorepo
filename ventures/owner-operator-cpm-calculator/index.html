@@ -147,6 +147,7 @@
         <dt>Weekly cost</dt><dd id="weeklyCost"></dd>
         <dt>Annual cost (same week &times; 52)</dt><dd id="annualCost"></dd>
         <dt>Rate for target take-home</dt><dd id="rateForTarget"></dd>
+        <dt>Loaded miles to cover this week at offer</dt><dd id="loadedMilesToBreakEven"></dd>
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
@@ -197,7 +198,7 @@
       el('hero').textContent = message;
       el('hero').className = 'hero-number negative';
       el('heroLabel').textContent = 'check the highlighted input';
-      ['allInCpm', 'variableCpm', 'fixedCpm', 'deadheadShare', 'fuelCost', 'weeklyCost', 'annualCost', 'rateForTarget']
+      ['allInCpm', 'variableCpm', 'fixedCpm', 'deadheadShare', 'fuelCost', 'weeklyCost', 'annualCost', 'rateForTarget', 'loadedMilesToBreakEven']
         .forEach(id => { el(id).textContent = ''; });
       el('verdict').hidden = true;
     }
@@ -231,6 +232,9 @@
       el('weeklyCost').textContent = money(result.weeklyCost);
       el('annualCost').textContent = money(result.annualCost);
       el('rateForTarget').textContent = result.rateForTarget === null ? 'n/a' : perMile(result.rateForTarget);
+      el('loadedMilesToBreakEven').textContent = result.loadedMilesToBreakEven === null
+        ? 'n/a'
+        : `${Math.ceil(result.loadedMilesToBreakEven).toLocaleString('en-US')} mi`;
 
       const verdict = el('verdict');
       if (result.offered === null) {
@@ -263,6 +267,7 @@
         `Empty miles: ${result.emptyMiles.toLocaleString('en-US')} (${result.deadheadShare.toFixed(1)}% deadhead)`,
         `All-in cost per mile: ${result.allInCpm === null ? 'n/a' : money(result.allInCpm)}`,
         `Break-even loaded rate: ${result.breakEvenLoadedRate === null ? 'n/a' : money(result.breakEvenLoadedRate)}`,
+        `Loaded miles to cover this week at offer: ${result.loadedMilesToBreakEven === null ? 'n/a' : Math.ceil(result.loadedMilesToBreakEven).toLocaleString('en-US')}`,
         `Weekly cost: ${money(result.weeklyCost)}`,
         '',
         ...offerLines,
