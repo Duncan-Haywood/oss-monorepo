@@ -2565,3 +2565,14 @@ products:
           Shipped a local sewer camera / hydro-jet bid calculator with a
           copyable proposal summary; public URL remains owner-gated.
           Counters are local, aggregate, and opt-out.
+  - slug: pool-plaster-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pool plaster / resurfacing bid calculator with
+          floor-plus-wall takeoff, finish, chip-out, spa, tile, and a
+          copyable proposal summary; public URL remains owner-gated.

@@ -310,6 +310,9 @@ workflows:
 - workflow: pole-barn-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: pool-plaster-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pool-route-pricing-ci.yml
   classification: none
   publishes: []
