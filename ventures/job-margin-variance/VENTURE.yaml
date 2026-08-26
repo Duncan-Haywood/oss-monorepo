@@ -1,0 +1,27 @@
+name: job-margin-variance
+description: A private browser tool for small contractors to compare estimated and actual job hours and costs, exposing the largest margin variances before the next quote.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small contractors will revisit a completed-job variance report because it turns job-cost surprises into concrete estimating adjustments.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A fast local report is useful without accounting integrations because owners already have estimate and actual totals in a spreadsheet or job folder.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three contractors generate a second report within 90 days.
+  - Users cannot identify a specific estimating assumption to change from the report.
+links:
+  production: null
+  analytics: null
