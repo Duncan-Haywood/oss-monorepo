@@ -143,19 +143,27 @@ Hetzner). It covers availability. It does **not** let us store personal
 data on a box and call that fine — if anything leaves the browser, the
 privacy line in §5c has to name it.
 
-**Check it before you open the PR**, on every HTML page in the venture, not
-just `index.html`:
+**You do not have to carry the no-SLA paragraph yourself.** The Pages build
+injects it into any published page that lacks one, because how these pages are
+hosted is the build's statement to make, not the venture's. Write it if you
+want it visible when the page is opened from a clone; leave it out and the
+hosted page still has it.
+
+**The no-warranty paragraph is yours**, and the build cannot write it: what a
+tool is not advice *about* — "not landscaping, construction, legal, tax, or
+financial advice" — only the venture knows. Check every HTML page in the
+venture, not just `index.html`:
 
 ```
-cd platform/pages && node --test   # "every published page carries both liability clauses"
+node platform/pages/clauses.mjs <venture-slug>
 ```
 
-That test is the only thing enforcing this, and it will not save you: bot
-PRs authored with `GITHUB_TOKEN` do not trigger Actions here, so it first
-runs *after* the merge, on `main`, where it turns the Pages build red. It
-has caught six pages across three ventures that way — all of them copied a
-sibling's footer that carried the no-warranty paragraph and not this one.
-Copy both paragraphs from this file rather than from another venture.
+Your venture's CI runs exactly that, so it fails on the PR. Do not rely on
+the Pages suite for it: bot PRs authored with `GITHUB_TOKEN` do not trigger
+Actions here, so that one first runs *after* the merge, on `main`, where it
+turns the Pages build red in a workflow you never touched. Six pages across
+three ventures reached `main` that way before the clause was injected — all
+of them copied a sibling's footer instead of this file.
 
 Non-negotiable positioning, because it is what keeps the liability containable:
 the product produces **evidence, drafts, checks, and monitoring**. The user
@@ -233,6 +241,11 @@ Ship when every line is true:
 - [ ] Usage counting is in, and off-switchable.
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
+- [ ] The §5b **no-warranty** clause is on every page the venture publishes,
+      not just the calculator — `node platform/pages/clauses.mjs <slug>`. The
+      venture's own CI runs this, so it fails on the PR rather than on `main`.
+      (The no-SLA clause is injected by the Pages build and is not yours to
+      carry; see §5b.)
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.

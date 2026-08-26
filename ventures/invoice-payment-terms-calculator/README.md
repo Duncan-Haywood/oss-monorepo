@@ -1,8 +1,8 @@
 # Invoice Payment Terms Calculator
 
-Free browser tool for freelancers and small service businesses. Enter an invoice amount, terms, late-rate assumption, and outstanding invoices to get the due date, **when the cash actually lands on your client's payment run**, cash-flow exposure, 30/60/90-day late-fee scenarios, copyable payment-terms wording, whether a **2/10 Net 30 discount still beats waiting**, and whether **factoring still beats waiting** after your carrying cost.
+Free browser tool for freelancers and small service businesses. Enter an invoice amount, terms, late-rate assumption, and outstanding invoices to get the due date, **when the cash actually lands on your client's payment run**, cash-flow exposure, 30/60/90-day late-fee scenarios, copyable payment-terms wording, whether a **2/10 Net 30 discount still beats waiting**, and whether **factoring still beats waiting** after your carrying cost. Before the first invoice goes out, it also prices the **billing schedule** — how much of your finished work a deposit or milestone split actually leaves unpaid on handover day.
 
-**After using this, you can now** see when the invoice is due, when the money actually arrives, how many operating days several unpaid invoices consume, whether giving 2% to get paid in 10 days still covers the float, and whether a 3% factor fee still beats waiting — which used to mean a spreadsheet that forgot grace days or treated “2/10 Net 30” and “get paid now” as slogans.
+**After using this, you can now** see when the invoice is due, when the money actually arrives, how many operating days several unpaid invoices consume, whether giving 2% to get paid in 10 days still covers the float, whether a 3% factor fee still beats waiting, and how much of a project you are financing under each billing schedule — which used to mean a spreadsheet that forgot grace days, treated “2/10 Net 30” and “get paid now” as slogans, or argued about the deposit percentage without checking when the deposit arrives.
 
 ## When the cash actually lands
 
@@ -32,7 +32,6 @@ quiet.
 
 This models the schedule you tell it. It does not predict whether a client
 pays on time.
-
 Open [`index.html`](index.html) in a browser. The calculation is local and works without an account, network request, or API key.
 
 [Should I offer 2/10 Net 30?](should-i-offer-2-10-net-30.html)
@@ -53,6 +52,25 @@ settlement is worth $861.16, waiting $823.43, chasing it yourself $755.61
 $355.63. The most useful number is the chase-hours break-even — about **1.8
 hours** on these defaults. Odds are the operator's estimate, not a prediction.
 
+[Should I ask for a deposit?](should-i-ask-for-a-deposit.html) answers the
+other end of the job — the schedule, before the first invoice exists. On a
+$6,000 project delivered over 30 days at Net 30 paid 12 days late, billing
+once at the end leaves the whole $6,000 of finished work unpaid on handover
+day; a 50% deposit that clears in five days leaves $3,000. Two results are
+worth knowing before copying anyone else's contract:
+
+- **Thirds can be worse than a half deposit** ($3,960 unpaid against $3,000),
+  because the midpoint bill is collected on the same 42-day cycle and lands
+  on day 57 — nearly a month after the work shipped.
+- **A deposit collected on that same cycle protects nothing.** Set the
+  deposit to take 42 days and every schedule leaves the full $6,000 unpaid.
+  The collection time is what protects you, not the percentage.
+
+What the schedule model does *not* claim: delivered value is assumed to
+spread evenly across the project's days, so front-loaded work is more
+exposed than shown; a client who has prepaid is never credited back as if
+they were lending to you; and none of it predicts whether a given client
+pays.
 It is not a quote-margin tool (that prices the job), not a retainage
 schedule (that is construction withhold), and not a Faire payout-speed
 page (that is marketplace processing). This page is invoice terms for
@@ -68,15 +86,14 @@ Then open `http://localhost:8877`. There is no build step.
 
 ## Privacy and usage
 
-Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`) and can be disabled in the footer. Saved drafts stay on this device.
-
+Everything runs in your browser. Your amounts, dates, and drafts are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional anonymous local counter records only feature names (`calculation`, `terms_copied`, `draft_saved`, `draft_loaded`, `early_pay_compared`, `factor_compared`, `settlement_projected`, `late_invoice_compared`, `late_invoice_draft_saved`, `late_invoice_draft_loaded`, `schedule_compared`, `schedule_copied`) and can be disabled in the footer. Saved drafts stay on this device.
 ## Safety
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. It does not determine whether a late-fee term is permitted or enforceable, and it does not tell you to offer or withhold an early-pay discount or to factor an invoice. **You are responsible for reviewing and verifying its output before relying on it.** To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
-Late-fee results are arithmetic scenarios, not a recommendation or a determination that a fee can be charged.
+Late-fee results are arithmetic scenarios, not a recommendation or a determination that a fee can be charged. Billing-schedule results are arithmetic scenarios from the numbers you enter; they are not a recommendation to ask for or waive a deposit, and not a prediction about any client.
 
 The overdue comparison is arithmetic on recovery odds you type. It does not tell you to settle, escalate, or walk away, and it does not say what a late fee, a settlement, or a collection agency is permitted to do — those vary by jurisdiction and by the contract you signed.
 
