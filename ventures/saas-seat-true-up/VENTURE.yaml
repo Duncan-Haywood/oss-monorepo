@@ -1,0 +1,27 @@
+name: saas-seat-true-up
+description: A browser-local SaaS seat true-up calculator that quantifies unused subscription seats before renewal.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: SaaS operators revisit seat counts near renewal when unused seats are translated into avoidable annual spend.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A private browser workflow is preferable to uploading employee or vendor data to a billing tool.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three operators complete two seat reviews within 90 days.
+  - Users do not identify at least one avoidable renewal cost in the first 90 days.
+links:
+  production: null
+  analytics: null
