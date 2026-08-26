@@ -3001,6 +3001,135 @@ ventures:
       fee schedule, legal opinion, or promise that a jurisdiction
       permits the charge. Inputs never leave the browser.
 
+  - slug: subscription-price-impact
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The calculator is deterministic revenue and churn-scenario
+      arithmetic. Adding inference would guess at retention the
+      operator already has in their own cohort data.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local SaaS price-change
+      worksheet (repair-and-merge of unique #1293). Distinct from
+      quote-margin (one project quote) and marketplace fee tools:
+      the buyer is an independent SaaS operator comparing current
+      and proposed monthly prices against churn they type. Distribution
+      is "SaaS price increase calculator" and "how much churn can a
+      price increase absorb".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on user-typed subscribers and prices,
+      not a forecast, a recommendation to raise the price, or financial
+      advice. Inputs never leave the browser.
+
+  - slug: job-margin-variance
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The review is deterministic estimate-versus-actual arithmetic.
+      Adding inference would guess at the next quote from numbers
+      the contractor already has in the job folder.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local completed-job
+      variance worksheet (repair-and-merge of unique #1237). Distinct
+      from quote-margin (price before send) and change-order-margin
+      (price incremental scope): the buyer is an independent
+      contractor comparing estimate vs actual after the work is
+      done. Distribution is "job cost variance calculator" and
+      "estimated vs actual labor hours".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is an arithmetic comparison, not a profitability
+      determination, pricing recommendation, or financial advice.
+      Inputs never leave the browser.
+
+  - slug: fifo-pick-evidence
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The checker is deterministic timestamp-and-lot comparison.
+      Adding inference would guess at warehouse semantics the
+      operator already has in their WMS export.
+    basis: >-
+      Graduated on 2026-08-26 as a local CSV FIFO exception
+      checker (repair-and-merge of unique #1308). Distinct from
+      3PL quote normalizer (inbound pricing) and public-record-watch
+      (register snapshots): the buyer is a small 3PL explaining
+      pick order before a customer audit. Distribution is
+      "FIFO pick order audit evidence" and "warehouse FIFO CSV
+      checker".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is a source-linked observation of supplied
+      rows, not an audit conclusion, compliance determination,
+      or warranty that FIFO was followed. Logs never leave the
+      operator's machine.
+
+  - slug: cleaning-dilution-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The calculator is deterministic dilution and container-price
+      arithmetic. Adding inference would guess at a label the
+      operator already has on the jug.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local ready-to-use
+      chemical cost worksheet (repair-and-merge of unique #1251).
+      Distinct from janitorial-bid-calculator (a whole-building
+      bid): the buyer is an independent cleaner converting
+      concentrate sticker price into cost per gallon and bucket.
+      Distribution is "cleaning chemical dilution calculator"
+      and "ready to use chemical cost per gallon".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on user-typed label and price
+      figures, not a safety determination, SDS interpretation,
+      or mixing instruction. Inputs never leave the browser.
+
 
   - slug: vinyl-liner-bid-calculator
     scores:

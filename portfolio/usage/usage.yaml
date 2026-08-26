@@ -2225,6 +2225,56 @@ products:
           calculator onto current main. Public URL remains owner-gated;
           usage is opt-out and honors DNT/GPC. Baseline row.
 
+  - slug: subscription-price-impact
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+        note: >-
+          Repair-and-merge of unique #1293 SaaS price-change churn
+          calculator onto current main. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: job-margin-variance
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+        note: >-
+          Repair-and-merge of unique #1237 completed-job variance
+          calculator onto current main. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: fifo-pick-evidence
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          reports_run: 0
+        note: >-
+          Repair-and-merge of unique #1308 FIFO pick-order evidence
+          CLI onto current main. Local CLI only; --usage-file is
+          opt-in and stores an aggregate count. Public URL remains
+          owner-gated. Baseline row.
+
+  - slug: cleaning-dilution-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculated: 0
+        note: >-
+          Repair-and-merge of unique #1251 cleaning chemical dilution
+          cost calculator onto current main. Public URL remains
+          owner-gated; usage is opt-out and honors DNT/GPC. Baseline
+          row.
+
 
   - slug: vinyl-liner-bid-calculator
     surface: static-page-in-repo
