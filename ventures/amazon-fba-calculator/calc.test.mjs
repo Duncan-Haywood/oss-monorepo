@@ -13,8 +13,10 @@ import {
   compareMcf,
   comparePrep,
   compareSellerPlans,
+  compareSellerPlanVolumes,
   compareSubscribeSave,
   SELLER_PLAN_DEFAULTS,
+  SELLER_PLAN_VOLUME_STEPS,
   DEFAULT_AMAZON_BAG_FEE,
   DEFAULT_AMAZON_BUBBLE_FEE,
   DEFAULT_AMAZON_LABEL_FEE,
@@ -851,6 +853,37 @@ test("seller-plan comparison rejects zero units and negative rates", () => {
   );
   assert.throws(() => compareSellerPlans(base, { individualPerUnit: -1 }), /Individual per-unit fee/);
   assert.throws(() => compareSellerPlans(base, { professionalMonthly: -1 }), /Professional monthly fee/);
+});
+
+test("volume ladder shows Individual winning low volume and Professional winning high volume", () => {
+  const ladder = compareSellerPlanVolumes(base);
+  assert.deepEqual(
+    ladder.rows.map((row) => row.monthlyUnits),
+    SELLER_PLAN_VOLUME_STEPS,
+  );
+  near(
+    ladder.breakEvenUnits,
+    SELLER_PLAN_DEFAULTS.professionalMonthly / SELLER_PLAN_DEFAULTS.individualPerUnit,
+    "ladder break-even",
+  );
+  assert.equal(ladder.rows[0].cheaperPlan, "individual");
+  assert.equal(ladder.rows[1].cheaperPlan, "individual");
+  assert.equal(ladder.rows[2].cheaperPlan, "individual");
+  assert.equal(ladder.rows[3].cheaperPlan, "professional");
+  assert.equal(ladder.rows[4].cheaperPlan, "professional");
+  assert.equal(ladder.rows[0].individualProfit.toFixed(2), "10.50");
+  assert.equal(ladder.rows[0].professionalProfit.toFixed(2), "7.49");
+  assert.equal(ladder.rows[3].professionalProfit.toFixed(2), "10.99");
+  assert.equal(ladder.rows[4].professionalProfit.toFixed(2), "11.29");
+  near(ladder.rows[4].professionalAllocatedFee, 39.99 / 200, "Professional allocated at 200");
+});
+
+test("volume ladder accepts custom steps and rejects an empty list", () => {
+  const ladder = compareSellerPlanVolumes(base, {}, [40, 40.4]);
+  assert.equal(ladder.rows.length, 2);
+  assert.equal(ladder.rows[0].cheaperPlan, "individual");
+  assert.equal(ladder.rows[1].cheaperPlan, "professional");
+  assert.throws(() => compareSellerPlanVolumes(base, {}, []), /non-empty list/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

@@ -490,6 +490,41 @@ export function compareSellerPlans(input = {}, plans = {}) {
   };
 }
 
+export const SELLER_PLAN_VOLUME_STEPS = [10, 20, 40, 80, 200];
+
+/**
+ * Replay Individual vs Professional at the volumes a growing seller
+ * actually hits. The current month is one number; the decision is when
+ * the $0.99/item fee flips to the flat plan. Each row reuses
+ * compareSellerPlans so FBA/FBM, referral, storage, and inbound stay
+ * on one code path.
+ */
+export function compareSellerPlanVolumes(input = {}, plans = {}, volumes = SELLER_PLAN_VOLUME_STEPS) {
+  if (!Array.isArray(volumes) || volumes.length === 0) {
+    throw new Error("Volume steps must be a non-empty list");
+  }
+  const rows = volumes.map((monthlyUnits) => {
+    const compared = compareSellerPlans({ ...input, monthlyUnits }, plans);
+    return {
+      monthlyUnits: compared.monthlyUnits,
+      cheaperPlan: compared.cheaperPlan,
+      individualProfit: compared.individual.selected.profit,
+      professionalProfit: compared.professional.selected.profit,
+      profitDelta: compared.profitDelta,
+      monthlyProfitDelta: compared.monthlyProfitDelta,
+      individualAllocatedFee: compared.individualPerUnit,
+      professionalAllocatedFee: compared.professionalAllocatedFee,
+    };
+  });
+  const first = compareSellerPlans({ ...input, monthlyUnits: volumes[0] }, plans);
+  return {
+    breakEvenUnits: first.breakEvenUnits,
+    individualPerUnit: first.individualPerUnit,
+    professionalMonthly: first.professionalMonthly,
+    rows,
+  };
+}
+
 // Amazon coupons cut the price the buyer pays. Referral is charged on that
 // discounted price. Fulfillment, inbound, and storage do not change. The
 // per-redemption coupon fee is deducted from proceeds — it is not cash the
