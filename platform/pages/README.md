@@ -67,18 +67,20 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
-- **Dead ends.** Each venture was written as a standalone page, so without this
-  every tool on the site is an island: a seller arriving on
-  `should-i-offer-free-shipping-on-etsy.html` from a search result has no way to
-  learn that thirty-four other tools exist, and no way back to the hub short of
-  editing the URL. The build injects a bar at the top of every page linking the
-  hub, and a strip at the bottom listing up to five tools from the same
-  category. Both are injected rather than written into each venture, so a new
-  calculator gets them on its first push and no venture file has to change.
-  Markup is namespaced `pf-*` with its own palette — the tools have their own
-  stylesheets and their own backgrounds, so the strip cannot inherit colours and
-  stay readable on all of them. Re-running the build over an existing tree does
-  not stack bars.
+- **Dead ends.** Every venture page was written as a standalone site, so none of
+  them linked to any other. The hub linked down into 33 tools and nothing linked
+  back or across: someone arriving from a search result at
+  `does-subscribe-and-save-still-pay.html` saw one calculator and had no route to
+  the other 32. The build injects a bar at the top of every published page ("←
+  All N free tools") and a footer offering four sibling tools — same category
+  first — plus the hub and the optional sponsor link.
+
+  It is injected at build time rather than committed into each venture for two
+  reasons. A calculator lands on `main` most days and injection covers each new
+  one for free. And venture pages are edited concurrently by other sessions, so
+  a nav bar written into ~180 product files would conflict with nearly every
+  open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
+  venture's page, and the pass is idempotent.
 
 ## Deploying
 
@@ -120,6 +122,13 @@ is uploaded, because there is no server that could receive it. The hub counts
 anonymous aggregate events (a visit, which tool slugs were opened) in the
 visitor's own `localStorage`, with an in-page opt-out, and counts nothing at all
 when the browser sends Do Not Track or Global Privacy Control.
+
+The injected chrome counts on the same terms and under the same key and opt-out:
+`tool_viewed:<slug>` when a page loads and `cross_tool_click:<slug>` when a
+visitor follows the nav. Until then the hub was the only page that counted
+anything, so a visitor arriving from search straight at a deep SEO page — the
+traffic those pages exist for — was invisible. Nothing is transmitted: there is
+no `fetch`, no beacon, and the counts never leave the device.
 
 The hub carries the no-warranty and no-SLA copy from `PRODUCT_PLAYBOOK.md` §5b,
 required on every hosted surface, plus an optional GitHub Sponsors link that

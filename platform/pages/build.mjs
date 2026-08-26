@@ -181,11 +181,16 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
+// The content value is read up to the *same* quote that opened it, via a
+// backreference. Accepting any quote instead (`[^"']*`) silently stops at the
+// first apostrophe inside a double-quoted attribute, so "last night's archive
+// shrank" reached the hub and its JSON-LD as "last night" — a card and a
+// crawler description cut mid-sentence.
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=["']([^"']*)["']`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*${attr}=["']${value}["']`, 'i');
+  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=(["'])(.*?)\\1`, 'i');
+  const reversed = new RegExp(`<meta[^>]*content=(["'])(.*?)\\1[^>]*${attr}=["']${value}["']`, 'i');
   const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[1]).trim() : '';
+  return match ? decodeEntities(match[2]).trim() : '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -366,138 +371,6 @@ const DISCLAIMER_HTML = `
         <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
         not counted at all.
       </p>`;
-
-// ---------------------------------------------------------------------------
-// Cross-tool navigation
-// ---------------------------------------------------------------------------
-//
-// Each venture was written as a standalone page, so before this every tool on
-// the site was an island: a seller who arrives on
-// `should-i-offer-free-shipping-on-etsy.html` from a search result had no way
-// to learn that thirty-four other tools exist, and no way back to the hub
-// short of editing the URL. That is the whole discoverability and return-visit
-// story for a portfolio whose only distribution is organic search.
-//
-// Injected at build time rather than added to each venture's HTML. Three
-// reasons that is the right seam: a new calculator gets it on its first push
-// with nothing to remember, the strip stays correct when a sibling is renamed
-// or added, and it touches no venture file — which matters in a repo where
-// several sessions edit these directories concurrently.
-
-const NAV_MARKER = '<!--portfolio-nav-->';
-
-//: Own-namespace class names and a self-contained palette. The tools have
-//: their own stylesheets and their own (light, dark, cream) backgrounds, so
-//: the strip cannot inherit colours and stay readable on all of them.
-const NAV_CSS = `
-.pf-bar{background:#1b2b25;color:#f4efe6;font:500 .86rem/1.4 system-ui,-apple-system,Segoe UI,sans-serif;}
-.pf-bar a{color:#c5edb5;text-decoration:none;}
-.pf-bar a:hover,.pf-bar a:focus-visible{text-decoration:underline;}
-.pf-bar .pf-in{max-width:1040px;margin:0 auto;padding:9px 18px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;}
-.pf-bar .pf-sep{opacity:.55;}
-.pf-more{max-width:1040px;margin:34px auto 0;padding:20px 18px 26px;border-top:1px solid currentColor;
-  font:400 .88rem/1.5 system-ui,-apple-system,Segoe UI,sans-serif;opacity:.92;}
-.pf-more h2{font-size:1rem;margin:0 0 4px;}
-.pf-more p.pf-note{margin:0 0 10px;font-size:.83rem;opacity:.75;}
-.pf-more ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 10px;}
-.pf-more li a{display:inline-block;padding:6px 11px;border:1px solid currentColor;border-radius:999px;
-  text-decoration:none;color:inherit;opacity:.9;}
-.pf-more li a:hover,.pf-more li a:focus-visible{opacity:1;text-decoration:underline;}
-@media (max-width:600px){.pf-bar .pf-in{padding:8px 14px;}.pf-more{padding:18px 14px 22px;}}
-`.trim();
-
-/** How many `../` segments reach the site root from a published page. */
-export function hubPrefix(relativePath) {
-  const depth = relativePath.split(/[\\/]/).length - 1;
-  return depth > 0 ? '../'.repeat(depth) : './';
-}
-
-/**
- * The bar that goes at the top of every tool page, and the related-tools strip
- * that goes at the bottom.
- *
- * `siblings` are the other tools in this tool's own category — the ones a
- * visitor with this problem plausibly has the next problem about.
- */
-export function renderToolNav({ slug, category, siblings, totalTools, prefix }) {
-  const shown = siblings.slice(0, 5);
-
-  const header =
-    `${NAV_MARKER}<style>${NAV_CSS}</style>` +
-    `<nav class="pf-bar" aria-label="Portfolio">` +
-    `<div class="pf-in">` +
-    `<a href="${prefix}">&larr; All ${totalTools} free tools</a>` +
-    `<span class="pf-sep">${escapeHtml(category.title)}</span>` +
-    `</div></nav>`;
-
-  if (shown.length === 0) {
-    return {
-      header,
-      footer:
-        `<nav class="pf-more" aria-label="More tools">` +
-        `<h2>More free tools</h2>` +
-        `<ul><li><a href="${prefix}">Browse all ${totalTools} tools</a></li></ul>` +
-        `</nav>`,
-    };
-  }
-
-  const links = shown
-    .map((s) => `<li><a href="${prefix}${s.slug}/">${escapeHtml(s.title)}</a></li>`)
-    .join('');
-
-  return {
-    header,
-    footer:
-      `<nav class="pf-more" aria-label="More tools">` +
-      `<h2>${escapeHtml(category.title)}</h2>` +
-      `<p class="pf-note">Free, no signup, and everything stays in your browser.</p>` +
-      `<ul>${links}<li><a href="${prefix}">All ${totalTools} tools &rarr;</a></li></ul>` +
-      `</nav>`,
-  };
-}
-
-/**
- * Insert the nav into every published page of one tool.
- *
- * Returns the number of pages changed. A page is skipped when it already
- * carries the marker, so a rebuild over an existing tree cannot stack bars.
- */
-export async function injectNav({ publishedDir, outDir, slug, category, siblings, totalTools }) {
-  const htmlFiles = (await listFiles(publishedDir)).filter((f) => f.endsWith('.html'));
-  let injected = 0;
-
-  for (const file of htmlFiles) {
-    const html = await fs.readFile(file, 'utf8');
-    if (html.includes(NAV_MARKER)) continue;
-
-    const relative = path.relative(outDir, file);
-    const { header, footer } = renderToolNav({
-      slug,
-      category,
-      siblings,
-      totalTools,
-      prefix: hubPrefix(relative),
-    });
-
-    // Anchor on the real <body> tag rather than prepending: a page's own
-    // <head> styles must still load first, and content inserted before
-    // <body> would be hoisted by the parser anyway.
-    const openBody = html.match(/<body[^>]*>/i);
-    if (!openBody) continue;
-    const closeBody = html.lastIndexOf('</body>');
-    if (closeBody === -1) continue;
-
-    const withHeader =
-      html.slice(0, openBody.index + openBody[0].length) +
-      header +
-      html.slice(openBody.index + openBody[0].length);
-    const end = withHeader.lastIndexOf('</body>');
-    await fs.writeFile(file, withHeader.slice(0, end) + footer + withHeader.slice(end));
-    injected += 1;
-  }
-
-  return injected;
-}
 
 export function renderHub(surfaces, baseUrl) {
   const groups = [...CATEGORY_RULES, FALLBACK_CATEGORY]
@@ -733,6 +606,185 @@ ${DISCLAIMER_HTML}
 `;
 }
 
+// ---------------------------------------------------------------------------
+// Site chrome
+// ---------------------------------------------------------------------------
+
+// Every venture page was written as a standalone site, so none of them links to
+// any other. Under one origin that makes 33 tools into 33 dead ends: a visitor
+// who arrives from a search result at `does-subscribe-and-save-still-pay.html`
+// can see one calculator and has no route to the other 32 — not to the hub, not
+// to the sibling tool that answers their next question. The hub links down; up
+// to now nothing linked back or across.
+//
+// The chrome is injected at build time rather than written into each venture,
+// for two reasons. A calculator lands on `main` most days and the injection
+// covers each new one for free. And venture pages are edited concurrently by
+// other sessions, so a nav bar committed into 150 product files would conflict
+// with nearly every open branch.
+const CHROME_MARKER = 'pf-chrome';
+
+// Scoped under `.pf-chrome` so it cannot restyle a venture's own page, and
+// declared with fallbacks rather than inherited variables because each venture
+// names its theme variables differently.
+const CHROME_STYLE = `<style id="pf-chrome-style">
+.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5}
+.pf-chrome a{color:#0f5648;text-decoration:underline}
+.pf-chrome-top{border-bottom:1px solid #d3dce6;background:#eef2f7;color:#1d2530;padding:9px 16px}
+.pf-chrome-top a{font-weight:650;text-decoration:none}
+.pf-chrome-top a:hover,.pf-chrome-top a:focus-visible{text-decoration:underline}
+.pf-chrome-foot{border-top:1px solid #d3dce6;background:#eef2f7;color:#1d2530;margin-top:40px;padding:22px 16px 26px}
+.pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
+.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px}
+.pf-chrome-foot p{margin:0 0 12px;color:#4a5666}
+.pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.pf-chrome-foot li{margin:0}
+.pf-chrome :focus-visible{outline:2px solid #0f5648;outline-offset:2px}
+@media (prefers-color-scheme:dark){
+.pf-chrome a{color:#7fd8c0}
+.pf-chrome-top,.pf-chrome-foot{background:#10151c;color:#e8eef5;border-color:#2a343f}
+.pf-chrome-foot p{color:#a2b0c0}
+.pf-chrome :focus-visible{outline-color:#7fd8c0}
+}
+</style>`;
+
+// The same anonymous, local-only convention the hub uses: which tool slugs were
+// opened, never who opened them, never leaving the device, and silent for a
+// browser asking not to be counted. Until this shipped the only page that
+// counted anything was the hub, so a visitor arriving from search at a deep SEO
+// page was invisible — which is most of the traffic these pages are written for.
+const CHROME_SCRIPT = (slug) => `<script>
+(function(){
+  try{
+    if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
+    if(localStorage.getItem('portfolio-hub-optout')==='1')return;
+    var k='portfolio-hub-usage';
+    var bump=function(event){
+      try{
+        var c=JSON.parse(localStorage.getItem(k)||'{}');
+        c[event]=(c[event]||0)+1;
+        c.last_day=new Date().toISOString().slice(0,10);
+        localStorage.setItem(k,JSON.stringify(c));
+      }catch(e){}
+    };
+    bump('tool_viewed:${slug}');
+    document.addEventListener('click',function(e){
+      var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
+      if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+    });
+  }catch(e){}
+})();
+</script>`;
+
+/** How many `../` segments reach the site root from a published file. */
+export function upToRoot(relativePath) {
+  const depth = relativePath.split(/[\\/]/).length - 1;
+  return depth === 0 ? './' : '../'.repeat(depth);
+}
+
+/**
+ * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
+ * category first, then the rest of the site. Rotating the list by the tool's
+ * own position means neighbouring tools do not all advertise the same four,
+ * while keeping the choice deterministic — the build has to be reproducible.
+ */
+export function relatedTools(surfaces, slug, limit = 4) {
+  const others = surfaces.filter((surface) => surface.slug !== slug);
+  if (others.length === 0) return [];
+
+  const category = categoryFor(slug).id;
+  const sameCategory = others.filter((surface) => categoryFor(surface.slug).id === category);
+  const rest = others.filter((surface) => categoryFor(surface.slug).id !== category);
+
+  const rotate = (list) => {
+    if (list.length === 0) return list;
+    const offset = surfaces.findIndex((surface) => surface.slug === slug) % list.length;
+    return [...list.slice(offset), ...list.slice(0, offset)];
+  };
+
+  return [...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+}
+
+/**
+ * Wrap one already-published page in the site's navigation. Returns the html
+ * unchanged when there is no `<body>` to attach to, or when the page has been
+ * wrapped already — the pass has to be safe to run twice.
+ */
+export function injectChrome(html, { slug, toRoot, total, related = [] }) {
+  if (html.includes(CHROME_MARKER)) return html;
+  const bodyOpen = html.match(/<body[^>]*>/i);
+  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+
+  const hub = `${toRoot}`;
+  const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
+  <a href="${escapeHtml(hub)}" data-pf-to="hub">← All ${total} free tools</a>
+</nav>`;
+
+  const links = related
+    .map(
+      (surface) =>
+        `      <li><a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-pf-to="${escapeHtml(
+          surface.slug,
+        )}">${escapeHtml(surface.title)}</a></li>`,
+    )
+    .join('\n');
+
+  const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+${CHROME_SCRIPT(slug)}`;
+
+  const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
+  // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
+  const stylePrefix = withStyle === html ? `${CHROME_STYLE}\n` : '';
+
+  return withStyle
+    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
+    .replace(/<\/body>/i, `${footer}\n</body>`);
+}
+
+/**
+ * Adds the navigation to every published venture page. Runs after the hub is
+ * written, because `repairLinks` treats a link to a file that does not exist yet
+ * as one that escapes the site and repoints it at GitHub — which is exactly what
+ * would happen to a `../` hub link injected any earlier.
+ */
+export async function addSiteChrome({ outDir, surfaces }) {
+  const wrapped = [];
+
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    const related = relatedTools(surfaces, surface.slug);
+
+    for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
+      const relative = path.relative(outDir, file);
+      const html = await fs.readFile(file, 'utf8');
+      const next = injectChrome(html, {
+        slug: surface.slug,
+        toRoot: upToRoot(relative),
+        total: surfaces.length,
+        related,
+      });
+      if (next === html) continue;
+      await fs.writeFile(file, next);
+      wrapped.push(relative);
+    }
+  }
+
+  return wrapped;
+}
+
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
@@ -833,28 +885,10 @@ export async function buildSite({
       ...surface,
       title,
       description,
-      destination,
       pageCount: await countPages(surface.sourceDir),
       hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
     });
     log(`  ${surface.slug}`);
-  }
-
-  // Second pass: the nav strip names its siblings, so it can only be written
-  // once every tool's title is known.
-  let navPages = 0;
-  for (const surface of surfaces) {
-    const category = categoryFor(surface.slug);
-    navPages += await injectNav({
-      publishedDir: surface.destination,
-      outDir,
-      slug: surface.slug,
-      category,
-      siblings: surfaces.filter(
-        (s) => s.slug !== surface.slug && categoryFor(s.slug).id === category.id,
-      ),
-      totalTools: surfaces.length,
-    });
   }
 
   await fs.writeFile(path.join(outDir, 'index.html'), renderHub(surfaces, base));
@@ -868,7 +902,9 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  return { outDir, baseUrl: base, surfaces, repairs, navPages };
+  const wrapped = await addSiteChrome({ outDir, surfaces });
+
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
 }
 
 // ---------------------------------------------------------------------------
@@ -890,5 +926,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (result.repairs.length > 0) {
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
-  console.log(`Cross-linked ${result.navPages} page(s) back to the hub and their sibling tools.`);
+  console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
 }

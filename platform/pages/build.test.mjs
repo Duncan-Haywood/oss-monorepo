@@ -15,13 +15,15 @@ import {
   buildSite,
   categoryFor,
   discoverSurfaces,
+  injectChrome,
+  listFiles,
+  relatedTools,
+  upToRoot,
   isPublishable,
   readMeta,
   renderHub,
   renderRobots,
   renderSitemapIndex,
-  renderToolNav,
-  hubPrefix,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -293,6 +295,32 @@ test('readMeta decodes entities rather than showing them raw', () => {
   assert.equal(meta.title, 'Fees & Margin');
 });
 
+// An apostrophe is ordinary English, not an edge case: three shipped ventures
+// carried one in the description a crawler reads. Reading only to the next
+// quote of either kind cut "last night's archive shrank" down to "last night".
+test('readMeta keeps an apostrophe inside a double-quoted attribute', () => {
+  const html = `<meta name="description" content="See whether last night's archive shrank.">`;
+  assert.equal(readMeta(html, 'x').description, "See whether last night's archive shrank.");
+});
+
+test('readMeta keeps an apostrophe in og:title and og:description', () => {
+  const html = `<meta property="og:title" content="Ohm's Law Calculator">
+    <meta property="og:description" content="Resistor codes and Ohm's law.">`;
+  const meta = readMeta(html, 'x');
+  assert.equal(meta.title, "Ohm's Law Calculator");
+  assert.equal(meta.description, "Resistor codes and Ohm's law.");
+});
+
+test('readMeta still reads a single-quoted attribute, quotes and all', () => {
+  const html = `<meta name='description' content='He said "go" before the run.'>`;
+  assert.equal(readMeta(html, 'x').description, 'He said "go" before the run.');
+});
+
+test('readMeta reads content written before the identifying attribute', () => {
+  const html = `<meta content="Last night's run." name="description">`;
+  assert.equal(readMeta(html, 'x').description, "Last night's run.");
+});
+
 test('truncate cuts on a word boundary', () => {
   assert.equal(truncate('short', 20), 'short');
   const long = truncate('a'.repeat(30) + ' tail words here that go on', 40);
@@ -373,98 +401,148 @@ test('hub markup escapes venture copy', () => {
   assert.ok(hub.includes('&lt;script&gt;'));
 });
 
-
 // ---------------------------------------------------------------------------
-// Cross-tool navigation
-// ---------------------------------------------------------------------------
+// Site chrome
 //
-// The failure these prevent: a tool page that is reachable from a search
-// result but is a dead end -- no way to the hub, no sibling tool. That costs
-// every second page view the portfolio could have had, and nothing turns red.
+// Before this, the hub linked down into 33 tools and nothing linked back or
+// across: a visitor arriving from a search result at a deep SEO page saw one
+// calculator and had no route to the other 32. These tests fail the build if a
+// page ships without that route, or if the route points somewhere that 404s.
+// ---------------------------------------------------------------------------
 
-const CATEGORY = { id: 'marketplace', title: 'Marketplace seller tools' };
-
-test('hub prefix climbs out of any page depth', () => {
-  assert.equal(hubPrefix(path.join('etsy-profit-calculator', 'index.html')), '../');
-  assert.equal(hubPrefix(path.join('a', 'b', 'page.html')), '../../');
-  assert.equal(hubPrefix('index.html'), './');
-});
-
-test('nav names the hub and the tool category', () => {
-  const { header } = renderToolNav({
-    slug: 'etsy-profit-calculator', category: CATEGORY, siblings: [], totalTools: 35, prefix: '../',
-  });
-  assert.ok(header.includes('href="../"'));
-  assert.ok(header.includes('All 35 free tools'));
-  assert.ok(header.includes('Marketplace seller tools'));
-});
-
-test('nav lists siblings and caps the strip', () => {
-  const siblings = Array.from({ length: 9 }, (_, i) => ({ slug: `t${i}`, title: `Tool ${i}` }));
-  const { footer } = renderToolNav({
-    slug: 'self', category: CATEGORY, siblings, totalTools: 35, prefix: '../',
-  });
-  const links = footer.match(/<li>/g) ?? [];
-  assert.equal(links.length, 6, 'five siblings plus the all-tools link');
-  assert.ok(footer.includes('href="../t0/"'));
-  assert.ok(!footer.includes('href="../t8/"'));
-});
-
-test('nav still offers the hub when a tool has no siblings', () => {
-  const { footer } = renderToolNav({
-    slug: 'only', category: CATEGORY, siblings: [], totalTools: 35, prefix: '../',
-  });
-  assert.ok(footer.includes('href="../"'));
-  assert.ok(footer.includes('Browse all 35 tools'));
-});
-
-test('nav escapes sibling titles', () => {
-  const { footer } = renderToolNav({
-    slug: 'self',
-    category: { id: 'x', title: '<script>alert(1)</script>' },
-    siblings: [{ slug: 'y', title: '<img src=x onerror=1>' }],
-    totalTools: 2,
-    prefix: '../',
-  });
-  assert.ok(!footer.includes('<script>alert(1)</script>'));
-  assert.ok(!footer.includes('<img src=x'));
-  assert.ok(footer.includes('&lt;'));
-});
-
-test('every published page carries the nav exactly once', async () => {
+test('every published venture page routes back to the hub', async () => {
   const { outDir, surfaces } = await site();
-  const pages = [];
-  for (const surface of surfaces) {
-    const dir = path.join(outDir, surface.slug);
-    for (const file of await fs.readdir(dir, { recursive: true })) {
-      if (file.endsWith('.html')) pages.push(path.join(dir, file));
+  const pages = (await listFiles(outDir))
+    .filter((f) => f.endsWith('.html'))
+    .filter((f) => path.dirname(f) !== outDir); // the hub and 404 are the destination
+
+  assert.ok(pages.length > surfaces.length, 'deep SEO pages are included, not just landing pages');
+
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    assert.ok(
+      html.includes('data-pf-to="hub"'),
+      `${path.relative(outDir, file)} ships with no way back to the hub`,
+    );
+  }
+});
+
+test('every injected link resolves to a page that exists', async () => {
+  const { outDir } = await site();
+  const pages = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    for (const [, ref] of html.matchAll(/href="([^"]+)"[^>]*data-pf-to=/g)) {
+      const resolved = path.resolve(path.dirname(file), ref);
+      const target = ref.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
+      assert.ok(
+        await fs.stat(target).then(() => true, () => false),
+        `${path.relative(outDir, file)} points at ${ref}, which is not published`,
+      );
     }
   }
-  assert.ok(pages.length > 100, `expected the whole portfolio, saw ${pages.length}`);
-
-  for (const page of pages) {
-    const html = await fs.readFile(page, 'utf8');
-    const bars = html.match(/<nav class="pf-bar"/g) ?? [];
-    assert.equal(bars.length, 1, `${path.relative(outDir, page)} should carry one nav bar`);
-    assert.ok(html.includes('class="pf-more"'), `${path.relative(outDir, page)} has no sibling strip`);
-  }
 });
 
-test('nav is inserted inside body, after the tool own head', async () => {
-  const html = await read('etsy-profit-calculator', 'index.html');
-  const body = html.search(/<body[^>]*>/i);
-  assert.ok(body !== -1);
-  assert.ok(html.indexOf('pf-bar') > body, 'nav must not be hoisted above <body>');
-  assert.ok(html.indexOf('</head>') < html.indexOf('pf-bar'), "the tool's own styles load first");
-  assert.ok(html.lastIndexOf('pf-more') < html.lastIndexOf('</body>'));
+test('a page nested deeper climbs further to reach the root', () => {
+  assert.equal(upToRoot('index.html'), './');
+  assert.equal(upToRoot(path.join('etsy-profit-calculator', 'index.html')), '../');
+  assert.equal(upToRoot(path.join('a', 'b', 'index.html')), '../../');
 });
 
-test('a rebuild over an existing tree does not stack nav bars', async () => {
-  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-rebuild-'));
-  await buildSite({ outDir, baseUrl: BASE });
-  await buildSite({ outDir, baseUrl: BASE });
-  const html = await fs.readFile(path.join(outDir, 'etsy-profit-calculator', 'index.html'), 'utf8');
-  assert.equal((html.match(/<nav class="pf-bar"/g) ?? []).length, 1);
+test('the deepest published page still reaches the hub', async () => {
+  const { outDir } = await site();
+  const deepest = (await listFiles(outDir))
+    .filter((f) => f.endsWith('.html'))
+    .sort((a, b) => b.split(path.sep).length - a.split(path.sep).length)[0];
+
+  assert.ok(path.relative(outDir, deepest).split(path.sep).length > 2, 'the site does nest');
+  const html = await fs.readFile(deepest, 'utf8');
+  const ref = html.match(/href="([^"]+)"[^>]*data-pf-to="hub"/)[1];
+  assert.equal(path.resolve(path.dirname(deepest), ref), outDir);
+});
+
+test('wrapping a page twice does not stack two navigation bars', () => {
+  const page = '<html><head></head><body><h1>Tool</h1></body></html>';
+  const once = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+  const twice = injectChrome(once, { slug: 'x', toRoot: '../', total: 2, related: [] });
+  assert.equal(twice, once);
+  assert.equal(once.match(/<nav class="pf-chrome pf-chrome-top"/g).length, 1);
+  assert.equal(once.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
+});
+
+test('a fragment with no body is left alone rather than corrupted', () => {
+  const fragment = '<div>partial</div>';
+  assert.equal(injectChrome(fragment, { slug: 'x', toRoot: '../', total: 2, related: [] }), fragment);
+});
+
+test('related tools exclude the page they sit on and prefer its category', () => {
+  const surfaces = [
+    { slug: 'amazon-fba-calculator', title: 'A' },
+    { slug: 'ebay-fee-calculator', title: 'B' },
+    { slug: 'etsy-profit-calculator', title: 'C' },
+    { slug: 'toilet-replacement-bid-calculator', title: 'D' },
+  ];
+  const related = relatedTools(surfaces, 'amazon-fba-calculator', 2);
+  assert.ok(!related.some((s) => s.slug === 'amazon-fba-calculator'));
+  assert.deepEqual(
+    related.map((s) => categoryFor(s.slug).id),
+    ['marketplace', 'marketplace'],
+    'a marketplace tool offers marketplace siblings before a trade calculator',
+  );
+});
+
+test('related tools fall back across categories when a category is thin', () => {
+  const surfaces = [
+    { slug: 'cut-list-optimizer', title: 'A' },
+    { slug: 'ebay-fee-calculator', title: 'B' },
+  ];
+  const related = relatedTools(surfaces, 'cut-list-optimizer', 4);
+  assert.deepEqual(related.map((s) => s.slug), ['ebay-fee-calculator']);
+});
+
+test('a lone tool advertises no siblings and still renders', () => {
+  const html = injectChrome('<html><head></head><body>x</body></html>', {
+    slug: 'only', toRoot: '../', total: 1, related: relatedTools([{ slug: 'only', title: 'Only' }], 'only'),
+  });
+  assert.ok(!html.includes('<ul>'), 'no empty list is emitted');
+  assert.ok(html.includes('data-pf-to="hub"'));
+});
+
+test('the chrome escapes venture copy', () => {
+  const html = injectChrome('<html><head></head><body>x</body></html>', {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [{ slug: 'y"><script>alert(1)</script>', title: '<script>alert(1)</script>' }],
+  });
+  assert.ok(!html.includes('<script>alert(1)</script>'));
+  assert.ok(html.includes('&lt;script&gt;'));
+});
+
+test('the chrome counts locally, honours opt-out, and asks for nothing off-origin', async () => {
+  const page = await read('etsy-profit-calculator', 'index.html');
+  // From the injected element, not the style block that names the same class:
+  // the venture's own footer sits above it and carries its own GitHub links.
+  const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
+
+  assert.ok(chrome.includes("localStorage.getItem('portfolio-hub-optout')"), 'the hub opt-out applies here too');
+  assert.ok(chrome.includes('doNotTrack') && chrome.includes('globalPrivacyControl'));
+  assert.ok(chrome.includes('tool_viewed:etsy-profit-calculator'));
+  assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
+
+  const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
+});
+
+test('the sponsor line on a tool page is optional and gates nothing', async () => {
+  const page = await read('etsy-profit-calculator', 'index.html');
+  assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
+});
+
+test('the hub itself is not wrapped in its own navigation', async () => {
+  assert.ok(!(await read('index.html')).includes('pf-chrome'));
+  assert.ok(!(await read('404.html')).includes('pf-chrome'));
 });
 
 test('no venture ships its package manifest to visitors', async () => {

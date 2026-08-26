@@ -41,9 +41,41 @@ without it, and say so in the privacy line.
 1. Prefer a static/browser shape so the product can live on GitHub Pages.
 2. If it needs a process, target the Hetzner product box and keep it
    stateless. Include the no-SLA clause.
-3. Prepare the Pages artifact (or the box deploy). The remaining owner
-   flip for static products is `deploy-settings` — enable GitHub Pages
-   (`GITHUB_PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not
-   open a second platform ask.
+3. Nothing. The Pages artifact builds itself — see below. A static product
+   is picked up automatically the moment it has an `index.html`.
 4. Do not register Cloudflare, Vercel, or another host as the way a
    product goes live.
+
+## The Pages artifact builds itself
+
+`.github/workflows/pages.yml` runs `platform/ci/build_pages_site.py` on every
+push to `main`. The builder finds every venture with an `index.html` (at the
+venture root, or under `site/`), copies its web assets to `_site/<slug>/`, and
+generates the hub at `_site/index.html` that links all of them.
+
+**A new static product needs no deploy work at all.** Give it an `index.html`
+and it appears on the hub on merge. There is nothing to register.
+
+Two things the builder owns, so no venture should hand-maintain them:
+
+- **The public base URL.** Ventures used to hard-code a guessed origin —
+  most said `https://example.invalid/<slug>/`, four said
+  `.../monorepo-projects/ventures/<slug>/`. The build rewrites every `<loc>`
+  and `Sitemap:` line to where it actually deploys. Do not hand-edit a
+  sitemap to "fix" its domain; it will be rewritten anyway.
+- **Where a product lives.** The layout is `<base>/<slug>/`. Products are not
+  nested under `/ventures/`.
+
+Run it locally before assuming anything about the live site:
+
+```
+python3 platform/ci/build_pages_site.py          # build into _site/
+python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
+python3 -m http.server -d _site 8000             # then open localhost:8000
+```
+
+The remaining owner flip is still `deploy-settings` — enable GitHub Pages
+(`GITHUB_PAGES_ENABLED=true`, Pages source: GitHub Actions). Do not open a
+second platform ask. Until that variable is set, the build still runs on
+every push and the artifact is still uploaded; only the publish step is
+skipped. Flipping it publishes everything at once.
