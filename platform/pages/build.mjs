@@ -315,10 +315,12 @@ export function faviconHref(baseUrl) {
  */
 export function injectFavicon(html, baseUrl) {
   if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
-  return html.replace(
-    /<head(\s[^>]*)?>/i,
-    (head) => `${head}\n  <link rel="icon" href="${faviconHref(baseUrl)}" sizes="32x32">`,
-  );
+  const link = `\n  <link rel="icon" href="${faviconHref(baseUrl)}" sizes="32x32">`;
+  // After the charset declaration, which the parser wants to see first.
+  if (/<meta[^>]+charset/i.test(html)) {
+    return html.replace(/<meta[^>]+charset[^>]*>/i, (meta) => `${meta}${link}`);
+  }
+  return html.replace(/<head(\s[^>]*)?>/i, (head) => `${head}${link}`);
 }
 
 export async function copyTree(from, to, baseUrl) {

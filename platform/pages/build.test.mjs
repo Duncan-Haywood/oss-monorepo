@@ -19,12 +19,11 @@ import {
   injectFavicon,
   discoverSurfaces,
   injectChrome,
-  listFiles,
-  relatedTools,
-  upToRoot,
   isPublishable,
   listFiles,
   readMeta,
+  relatedTools,
+  upToRoot,
   renderHub,
   renderRobots,
   renderSitemapIndex,
@@ -529,6 +528,13 @@ test('a venture that declares its own icon keeps it', () => {
   const injected = injectFavicon('<head>\n<title>t</title></head>', BASE);
   assert.equal((injected.match(/rel="icon"/g) ?? []).length, 1);
   assert.ok(injected.includes(faviconHref(BASE)));
+
+  // The charset declaration has to stay the first thing in the head.
+  const withCharset = injectFavicon('<head><meta charset="utf-8"><title>t</title></head>', BASE);
+  assert.ok(
+    withCharset.indexOf('charset') < withCharset.indexOf('rel="icon"'),
+    'the icon must not displace the charset declaration',
+  );
 
   // A fragment with no <head> must be left exactly as it was, not corrupted.
   assert.equal(injectFavicon('<p>no head here</p>', BASE), '<p>no head here</p>');
