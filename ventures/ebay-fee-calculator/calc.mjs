@@ -167,6 +167,16 @@ export const INPUT_FIELDS = [
   'signatureClaimRatePercent',
   'protectionFeeRefundOnClaimPercent',
   'monthlyProtectionShipments',
+  // Comparison-only: eBay label vs Pirate Ship / Shippo on the
+  // same already-sold shipment. Ignored by calculateOrder.
+  'ebayLabelCost',
+  'thirdPartyLabelCost',
+  'ebayLabelClaimRatePercent',
+  'thirdPartyClaimRatePercent',
+  'labelUploadMinutes',
+  'labelUploadWage',
+  'labelFeeRefundOnClaimPercent',
+  'monthlyLabelShipments',
 ];
 
 export function calculateOrder(input) {
@@ -4950,4 +4960,306 @@ export function packageProtectionNote(comparison) {
 
 export function packageProtectionSummary(comparison) {
   return packageProtectionNote(comparison);
+}
+
+/**
+ * Illustrative third-party / carrier-account label when the
+ * seller has not typed one. Edit it from a Pirate Ship, Shippo,
+ * or UPS quote — not a published eBay Shipping rate.
+ */
+export const DEFAULT_THIRD_PARTY_LABEL_COST = 4.25;
+export const DEFAULT_EBAY_LABEL_CLAIM_RATE = 0.8;
+export const DEFAULT_THIRD_PARTY_CLAIM_RATE = 2.5;
+export const DEFAULT_LABEL_UPLOAD_MINUTES = 4;
+export const DEFAULT_LABEL_UPLOAD_WAGE = 18;
+export const DEFAULT_LABEL_FEE_REFUND_ON_CLAIM = 100;
+export const DEFAULT_MONTHLY_LABEL_SHIPMENTS = 40;
+
+function labelUploadTimeCost(minutes, hourlyWage) {
+  return minutes * (hourlyWage / 60);
+}
+
+function labelPathExpected({
+  input,
+  shippingCost,
+  extraCost,
+  claimRatePercent,
+  feeRefundOnClaim,
+}) {
+  return packagePathExpected({
+    input: { ...input, shippingCost },
+    extraCost,
+    claimRatePercent,
+    payout: 0,
+    feeRefundOnClaim,
+  });
+}
+
+function labelRow({
+  id,
+  label,
+  labelCost,
+  extraCost,
+  claimRatePercent,
+  completedProfit,
+  soldExpectedProfit,
+  claimProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    labelCost,
+    extraCost,
+    claimRatePercent,
+    completedProfit,
+    soldExpectedProfit,
+    claimProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same already-sold tracked shipment, three ways to buy the label.
+ *
+ *   - eBay label — pay the eBay Shipping quote. Tracking
+ *     auto-uploads. The typed eBay claim rate is the leftover
+ *     item-not-received share after seller protection that
+ *     usually rides with an eBay-purchased label.
+ *   - Third-party label — Pirate Ship, Shippo, or a carrier
+ *     account. Postage is often cheaper. Tracking is uploaded
+ *     by hand, so a typed upload-time cost sits on every box.
+ *     The typed third-party claim rate is usually higher
+ *     because eBay seller protection is thinner when the label
+ *     was bought elsewhere.
+ *   - Third-party, no extra time — same postage and claim rate
+ *     with the upload minutes zeroed. Isolates whether the
+ *     claim-rate gap, not the four minutes, is the leak.
+ *
+ * Complementary to package protection (an add-on on a label
+ * already bought), Standard Envelope (untracked mail vs a
+ * tracked label), and free shipping (what you charge vs baking
+ * postage into the list). Label quotes, claim rates, and
+ * upload time are inputs, not a carrier table or eBay
+ * seller-protection policy.
+ */
+export function compareEbayLabels(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const typedShippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const ebayLabelCost = optionalNumber(input.ebayLabelCost, 'eBay label', typedShippingCost);
+  const thirdPartyLabelCost = optionalNumber(
+    input.thirdPartyLabelCost,
+    'Third-party label',
+    DEFAULT_THIRD_PARTY_LABEL_COST,
+  );
+  const ebayClaimRate = requiredPercent(
+    input.ebayLabelClaimRatePercent,
+    'eBay label claim rate',
+    DEFAULT_EBAY_LABEL_CLAIM_RATE,
+  );
+  const thirdPartyClaimRate = requiredPercent(
+    input.thirdPartyClaimRatePercent,
+    'Third-party claim rate',
+    DEFAULT_THIRD_PARTY_CLAIM_RATE,
+  );
+  const uploadMinutes = optionalNumber(
+    input.labelUploadMinutes,
+    'Label upload minutes',
+    DEFAULT_LABEL_UPLOAD_MINUTES,
+  );
+  const uploadWage = optionalNumber(
+    input.labelUploadWage,
+    'Label upload hourly wage',
+    DEFAULT_LABEL_UPLOAD_WAGE,
+  );
+  const feeRefundOnClaim = requiredPercent(
+    input.labelFeeRefundOnClaimPercent,
+    'Fee refund on label claim',
+    DEFAULT_LABEL_FEE_REFUND_ON_CLAIM,
+  );
+  const monthlyShipments = optionalNumber(
+    input.monthlyLabelShipments,
+    'Monthly label shipments',
+    DEFAULT_MONTHLY_LABEL_SHIPMENTS,
+  );
+  if (monthlyShipments === 0) throw new Error('Monthly label shipments must be greater than zero');
+
+  const uploadTimeCost = labelUploadTimeCost(uploadMinutes, uploadWage);
+
+  const ebayPath = labelPathExpected({
+    input,
+    shippingCost: ebayLabelCost,
+    extraCost: 0,
+    claimRatePercent: ebayClaimRate,
+    feeRefundOnClaim,
+  });
+  const thirdPath = labelPathExpected({
+    input,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  });
+  const postagePath = labelPathExpected({
+    input,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: 0,
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  });
+
+  const ebay = labelRow({
+    id: 'ebay',
+    label: 'eBay label',
+    labelCost: ebayLabelCost,
+    extraCost: 0,
+    claimRatePercent: ebayClaimRate,
+    completedProfit: ebayPath.sold.profit,
+    soldExpectedProfit: ebayPath.sold.expectedProfit,
+    claimProfit: ebayPath.claimProfit,
+    expectedProfit: ebayPath.expectedProfit,
+  });
+  const third = labelRow({
+    id: 'third_party',
+    label: 'Third-party label',
+    labelCost: thirdPartyLabelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+    completedProfit: thirdPath.sold.profit,
+    soldExpectedProfit: thirdPath.sold.expectedProfit,
+    claimProfit: thirdPath.claimProfit,
+    expectedProfit: thirdPath.expectedProfit,
+  });
+  const postageOnly = labelRow({
+    id: 'third_party_no_time',
+    label: 'Third-party, no extra time',
+    labelCost: thirdPartyLabelCost,
+    extraCost: 0,
+    claimRatePercent: thirdPartyClaimRate,
+    completedProfit: postagePath.sold.profit,
+    soldExpectedProfit: postagePath.sold.expectedProfit,
+    claimProfit: postagePath.claimProfit,
+    expectedProfit: postagePath.expectedProfit,
+  });
+  ebay.expectedProfitDelta = 0;
+  third.expectedProfitDelta = third.expectedProfit - ebay.expectedProfit;
+  postageOnly.expectedProfitDelta = postageOnly.expectedProfit - ebay.expectedProfit;
+
+  const rows = [ebay, third, postageOnly];
+  const bestExpected = Math.max(...rows.map((row) => row.expectedProfit));
+  const winners = rows.filter((row) => Math.abs(row.expectedProfit - bestExpected) <= 1e-9);
+  const winner = winners.length === 1 ? winners[0].id : 'tie';
+
+  const thirdGap = third.soldExpectedProfit - third.claimProfit;
+  let breakEvenThirdPartyClaimRate = Infinity;
+  if (thirdGap > 1e-12) {
+    const rate = (third.soldExpectedProfit - ebay.expectedProfit) / thirdGap * 100;
+    breakEvenThirdPartyClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const thirdAtLabel = (labelCost) => labelPathExpected({
+    input,
+    shippingCost: labelCost,
+    extraCost: uploadTimeCost,
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  }).expectedProfit;
+  const atZeroLabel = thirdAtLabel(0);
+  const atTenLabel = thirdAtLabel(10);
+  const labelSlope = (atTenLabel - atZeroLabel) / 10;
+  let breakEvenThirdPartyLabelCost = Infinity;
+  if (Math.abs(labelSlope) > 1e-12) {
+    const needed = (ebay.expectedProfit - atZeroLabel) / labelSlope;
+    breakEvenThirdPartyLabelCost = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const thirdAtMinutes = (minutes) => labelPathExpected({
+    input,
+    shippingCost: thirdPartyLabelCost,
+    extraCost: labelUploadTimeCost(minutes, uploadWage),
+    claimRatePercent: thirdPartyClaimRate,
+    feeRefundOnClaim,
+  }).expectedProfit;
+  const atZeroMinutes = thirdAtMinutes(0);
+  const atTenMinutes = thirdAtMinutes(10);
+  const minuteSlope = (atTenMinutes - atZeroMinutes) / 10;
+  let breakEvenUploadMinutes = Infinity;
+  if (Math.abs(minuteSlope) > 1e-12) {
+    const needed = (ebay.expectedProfit - atZeroMinutes) / minuteSlope;
+    breakEvenUploadMinutes = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const extraKeptOnThird = third.expectedProfit - ebay.expectedProfit;
+  const extraKeptOnPostageOnly = postageOnly.expectedProfit - ebay.expectedProfit;
+
+  const result = {
+    rows,
+    ebay,
+    third,
+    postageOnly,
+    winner,
+    ebayLabelCost,
+    thirdPartyLabelCost,
+    ebayClaimRate,
+    thirdPartyClaimRate,
+    uploadMinutes,
+    uploadWage,
+    uploadTimeCost,
+    feeRefundOnClaim,
+    monthlyShipments,
+    extraKeptOnThird,
+    extraKeptOnPostageOnly,
+    monthlyExtraOnThird: extraKeptOnThird * monthlyShipments,
+    monthlyExtraOnPostageOnly: extraKeptOnPostageOnly * monthlyShipments,
+    breakEvenThirdPartyClaimRate,
+    breakEvenThirdPartyLabelCost,
+    breakEvenUploadMinutes,
+    usedDefaultEbayLabel: input.ebayLabelCost === undefined
+      || input.ebayLabelCost === null
+      || input.ebayLabelCost === '',
+    usedDefaultThirdPartyLabel: input.thirdPartyLabelCost === undefined
+      || input.thirdPartyLabelCost === null
+      || input.thirdPartyLabelCost === '',
+  };
+  result.summary = ebayLabelsNote(result);
+  return result;
+}
+
+export function ebayLabelsNote(comparison) {
+  if (!comparison?.ebay || !comparison?.third || !comparison?.postageOnly) {
+    throw new Error('Label comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { ebay, third, postageOnly } = comparison;
+  const ebayLine = `The ${money(ebay.labelCost)} eBay label at a ${ebay.claimRatePercent}% item-not-received claim rate expects ${money(ebay.expectedProfit)} after the typed return mix — a claim on that path leaves ${money(ebay.claimProfit)}.`;
+  const thirdGap = money(Math.abs(third.expectedProfit - ebay.expectedProfit));
+  const thirdAhead = third.expectedProfit >= ebay.expectedProfit ? 'more' : 'less';
+  const timeBit = third.extraCost > 1e-9
+    ? ` after ${money(third.extraCost)} of upload time`
+    : '';
+  const thirdLine = ` A ${money(third.labelCost)} third-party label at a ${third.claimRatePercent}% claim rate${timeBit} expects ${money(third.expectedProfit)} — ${thirdGap} ${thirdAhead}.`;
+  const postageGap = money(Math.abs(postageOnly.expectedProfit - ebay.expectedProfit));
+  const postageAhead = postageOnly.expectedProfit >= ebay.expectedProfit ? 'more' : 'less';
+  const postageLine = ` The same third-party postage with no extra time expects ${money(postageOnly.expectedProfit)} — ${postageGap} ${postageAhead}.`;
+  const claimCeil = Number.isFinite(comparison.breakEvenThirdPartyClaimRate)
+    ? ` Third-party claims have to stay at about ${comparison.breakEvenThirdPartyClaimRate.toFixed(1)}% before that path matches the eBay label.`
+    : ' No third-party claim rate on these labels can match the eBay label.';
+  const labelCeil = Number.isFinite(comparison.breakEvenThirdPartyLabelCost)
+    ? ` The third-party quote has to stay at about ${money(comparison.breakEvenThirdPartyLabelCost)} before it matches the eBay label.`
+    : '';
+  return `${ebayLine}${thirdLine}${postageLine}${claimCeil}${labelCeil}`;
+}
+
+export function ebayLabelsSummary(comparison) {
+  return ebayLabelsNote(comparison);
 }
