@@ -8,7 +8,15 @@ from .core import article14_draft, report
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Match a local SBOM to advisories and draft CRA incident evidence; never file or certify.")
+    parser = argparse.ArgumentParser(
+        description="Match a local SBOM to advisories and draft CRA incident evidence; never file or certify.",
+        epilog=(
+            "No warranty. This is a customer-reviewed draft, not a filing, "
+            "legal advice, or a compliance claim. You are responsible for "
+            "reviewing the output. Best-effort; no SLA. Optional GitHub Sponsors "
+            "never changes what the tool does."
+        ),
+    )
     parser.add_argument("sbom", type=Path)
     parser.add_argument("advisories", type=Path)
     parser.add_argument("--product", required=True)

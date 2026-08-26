@@ -24,6 +24,10 @@ Everything runs locally. SBOMs, advisories, product names, and draft contents ne
 
 The customer remains responsible for deciding whether a report is required, reviewing the evidence, and submitting through the proper authority.
 
+**Best-effort hosting, no SLA.** This CLI runs on your machine. Any hosted copy of these files is free, experimental, and may be moved or taken offline without notice. Do not use a hosted URL as a system of record. If a draft needs to survive, keep the generated JSON or text.
+
+The tool is free and full-featured. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
+
 ## FAQ
 
 ### Does this submit a CRA notification?
