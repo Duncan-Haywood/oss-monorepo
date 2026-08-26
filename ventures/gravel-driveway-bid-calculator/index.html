@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gravel Driveway Bid Calculator | How Much to Charge for a Gravel Driveway</title>
+  <meta name="description" content="Price a gravel driveway from crusher-run, clean stone, recycled concrete, or pea gravel: compacted depth, whole truckloads, soil prep, fabric, and apron — plus the walk-away price a $4-a-foot special cannot see.">
+  <meta property="og:title" content="Gravel Driveway Bid Calculator">
+  <meta property="og:description" content="Bid gravel the way the trade does — trucks and compacted depth, not a published per-foot dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gravel Driveway Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Truck count from compacted depth and leftover tons, crusher-run vs clean stone vs recycled vs pea gravel comparison, ready-grade vs excavate-and-haul prep, quarry pickup vs delivery, fabric apron and culvert extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c7a5e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #143b31; color: #f2f8f5; border-color: #143b31; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fd6a8; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c7a5e; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce8cf; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid #ffffff24; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    td:last-child, th:last-child { text-align: right; }
+    .cheap { color: #a9e6b0; font-weight: 700; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EXCAVATION AND LANDSCAPE SHOPS</p>
+    <h1>Bid the trucks, the depth, and the dirt work.</h1>
+    <p>Price a gravel driveway the way the trade actually loses money: compacted depth to tons, then whole truckloads, soil prep, fabric, and a street apron — not the published $4-a-foot dump. You get the job price, what it works out to per square foot and per ton, and the number below which the drive loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The drive</h2>
+        <p class="hint">Pick a common job to start, then replace every rate with your quarry ticket and a crew you have timed. Changing stone, prep, or delivery fills starting hours and material only when you have not already edited that field.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Stone <select id="stone"></select></label>
+          <label>Length (ft) <input id="lengthFt" type="number" min="0" step="1" value="50"></label>
+          <label>Width (ft) <input id="widthFt" type="number" min="0" step="1" value="12"></label>
+          <label>Compacted depth (in) <input id="depthIn" type="number" min="0" step="0.5" value="4"></label>
+          <label>Compaction allowance (%) <input id="compactionPercent" type="number" min="0" step="1" value="25"></label>
+          <label>Soil prep <select id="prep"></select></label>
+          <label>Delivery <select id="delivery"></select></label>
+        </div>
+        <div class="checks">
+          <label><input id="slope" type="checkbox"> Sloped site (adds 20% to grade and spread hours)</label>
+          <label><input id="fabric" type="checkbox"> Geotextile fabric</label>
+          <label><input id="apron" type="checkbox"> Street apron</label>
+          <label><input id="culvert" type="checkbox"> Culvert</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and quarry rates</h2>
+        <p class="hint">These start from the stone, prep, and delivery you picked. They are ballpark crew figures, not a quarry catalog or a guarantee.</p>
+        <div class="fields">
+          <label>Trip hours <input id="hoursTrip" type="number" min="0" step="0.1"></label>
+          <label>Spread hours / sq ft <input id="hoursPerSqFtSpread" type="number" min="0" step="0.0001"></label>
+          <label>Grade hours / sq ft <input id="hoursPerSqFtGrade" type="number" min="0" step="0.0001"></label>
+          <label>Hours per truck <input id="hoursPerTruck" type="number" min="0" step="0.05"></label>
+          <label>Apron hours <input id="hoursApron" type="number" min="0" step="0.1"></label>
+          <label>Culvert hours <input id="hoursCulvert" type="number" min="0" step="0.1"></label>
+          <label>Site / punch-list hours <input id="siteHours" type="number" min="0" step="0.1"></label>
+          <label>Tons / cubic yard <input id="tonsPerCy" type="number" min="0.01" step="0.05"></label>
+          <label>Stone $ / ton <input id="stonePerTon" type="number" min="0" step="0.5"></label>
+          <label>Fabric $ / sq yd <input id="fabricEachSqYd" type="number" min="0" step="0.05"></label>
+          <label>Fabric overlap (%) <input id="fabricOverlapPercent" type="number" min="0" step="1"></label>
+          <label>Apron $ <input id="apronEach" type="number" min="0" step="1"></label>
+          <label>Culvert $ <input id="culvertEach" type="number" min="0" step="1"></label>
+          <label>Dump ticket $ <input id="dumpTicketEach" type="number" min="0" step="1"></label>
+          <label>Dump tickets <input id="dumpTickets" type="number" min="0" step="1"></label>
+          <label>Truck trip $ <input id="truckTripEach" type="number" min="0" step="1"></label>
+          <label>Tons per truck <input id="tonsPerTruck" type="number" min="1" step="1" value="16"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="24"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Travel &amp; equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="55"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 2400"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a per-foot dump that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">installed gravel driveway price</div>
+      <dl>
+        <dt>Drive area</dt><dd id="area"></dd>
+        <dt>Loose cubic yards</dt><dd id="loose"></dd>
+        <dt>Ordered after compaction</dt><dd id="ordered"></dd>
+        <dt>Tons ordered</dt><dd id="needed"></dd>
+        <dt>Tons paid (whole trucks)</dt><dd id="paid"></dd>
+        <dt>Truckloads</dt><dd id="loads"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Stone (paid tons)</dt><dd id="stoneCost"></dd>
+        <dt>Prep, fabric, extras</dt><dd id="extra"></dd>
+        <dt>Travel &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Price per ton</dt><dd id="perTon"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same drive, four stones</strong></p>
+      <table>
+        <thead><tr><th>Stone</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and quarry rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not excavation, civil, drainage, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your drive, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-for-a-gravel-driveway.html">how much to charge for a gravel driveway</a>? The article walks the truck-and-depth math this calculator uses.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareStone,
+      formatBidSummary,
+      suggestedStoneKit,
+      suggestedPrepKit,
+      suggestedDeliveryKit,
+      STONE_PRESETS,
+      PREP_PRESETS,
+      DELIVERY_PRESETS,
+      JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const JOB_IDS = [
+      'stone', 'lengthFt', 'widthFt', 'depthIn', 'compactionPercent',
+      'prep', 'delivery',
+    ];
+    const FLAG_IDS = ['slope', 'fabric', 'apron', 'culvert'];
+    const RATE_IDS = [
+      'hoursTrip', 'hoursPerSqFtSpread', 'hoursPerSqFtGrade', 'hoursPerTruck',
+      'hoursApron', 'hoursCulvert', 'siteHours', 'tonsPerCy', 'stonePerTon',
+      'fabricEachSqYd', 'fabricOverlapPercent', 'apronEach', 'culvertEach',
+      'dumpTicketEach', 'dumpTickets', 'truckTripEach', 'tonsPerTruck',
+    ];
+    const COST_IDS = [
+      'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+    const STONE_RATE_IDS = [
+      'hoursTrip', 'hoursPerSqFtSpread', 'hoursApron', 'hoursCulvert',
+      'siteHours', 'tonsPerCy', 'stonePerTon', 'fabricEachSqYd',
+      'fabricOverlapPercent', 'apronEach', 'culvertEach',
+    ];
+    const PREP_RATE_IDS = ['hoursPerSqFtGrade', 'dumpTicketEach', 'dumpTickets'];
+    const DELIVERY_RATE_IDS = ['hoursPerTruck', 'truckTripEach', 'tonsPerTruck'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, presets) {
+      el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+
+    fillSelect('stone', STONE_PRESETS);
+    fillSelect('prep', PREP_PRESETS);
+    fillSelect('delivery', DELIVERY_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function applyKit(kit, ids) {
+      for (const id of ids) {
+        const field = el(id);
+        if (field.dataset.edited) continue;
+        if (kit[id] !== undefined) field.value = kit[id];
+      }
+    }
+
+    function applyStoneKit() {
+      applyKit(suggestedStoneKit(el('stone').value), STONE_RATE_IDS);
+    }
+
+    function applyPrepKit() {
+      applyKit(suggestedPrepKit(el('prep').value), PREP_RATE_IDS);
+    }
+
+    function applyDeliveryKit() {
+      applyKit(suggestedDeliveryKit(el('delivery').value), DELIVERY_RATE_IDS);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+      );
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'installed gravel driveway price';
+      ['area','loose','ordered','needed','paid','loads','hours','labor','stoneCost','extra','soft','overhead','cost','profit','perSqFt','perTon','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'installed gravel driveway price';
+      el('area').textContent = `${result.areaSqFt.toLocaleString('en-US')} sq ft`;
+      el('loose').textContent = `${result.looseCy.toFixed(2)} cy`;
+      el('ordered').textContent = `${result.orderedCy.toFixed(2)} cy`;
+      el('needed').textContent = `${result.neededTons.toFixed(1)} t`;
+      el('paid').textContent = `${result.paidTons.toFixed(1)} t`;
+      el('loads').textContent = String(result.loads);
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('stoneCost').textContent = money(result.stoneMaterial);
+      el('extra').textContent = money(result.extraCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : `$${result.pricePerSqFt.toFixed(2)}`;
+      el('perTon').textContent = result.pricePerTon === null ? 'n/a' : money(result.pricePerTon);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourRows = [
+        ['Trip', result.hourShares.trip],
+        ['Grade', result.hourShares.grade],
+        ['Spread', result.hourShares.spread],
+        ['Delivery', result.hourShares.delivery],
+        ['Apron', result.hourShares.apron],
+        ['Culvert', result.hourShares.culvert],
+        ['Site', result.hourShares.site],
+      ].filter(row => row[1] > 0);
+      el('split').innerHTML = hourRows.length === 0
+        ? '<li class="empty">Hours appear here once the drive has area.</li>'
+        : hourRows
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const compared = compareStone(readInput());
+      el('compare').innerHTML = compared.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+      </tr>`).join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Gravel driveway');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyJob(index) {
+      const job = JOB_PRESETS[index];
+      if (!job) return;
+      for (const id of RATE_IDS) delete el(id).dataset.edited;
+      el('stone').value = job.stone;
+      el('lengthFt').value = job.lengthFt;
+      el('widthFt').value = job.widthFt;
+      el('depthIn').value = job.depthIn;
+      el('compactionPercent').value = job.compactionPercent;
+      el('prep').value = job.prep;
+      el('delivery').value = job.delivery;
+      el('slope').checked = job.slope;
+      el('fabric').checked = job.fabric;
+      el('apron').checked = job.apron;
+      el('culvert').checked = job.culvert;
+      applyStoneKit();
+      applyPrepKit();
+      applyDeliveryKit();
+    }
+
+    el('jobPresets').addEventListener('change', () => {
+      if (el('jobPresets').value === '') return;
+      applyJob(Number(el('jobPresets').value));
+      count('preset_applied');
+      update();
+    });
+    el('stone').addEventListener('change', () => {
+      applyStoneKit();
+      count('stone_changed');
+      update();
+    });
+    el('prep').addEventListener('change', () => {
+      applyPrepKit();
+      count('prep_changed');
+      update();
+    });
+    el('delivery').addEventListener('change', () => {
+      applyDeliveryKit();
+      count('delivery_changed');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count('bid_calculated'));
+    });
+    [...JOB_IDS, ...COST_IDS].forEach(id => {
+      if (id === 'stone' || id === 'prep' || id === 'delivery') return;
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyStoneKit();
+    applyPrepKit();
+    applyDeliveryKit();
+    update();
+  </script>
+</body>
+</html>

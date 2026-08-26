@@ -1,0 +1,32 @@
+name: artificial-turf-bid-calculator
+description: A private browser calculator for turf and landscape contractors that prices an artificial turf install from landscape, pet, or putting-green turf — lawn square footage, roll waste, crushed-rock base, sod demo, infill, seams, and tree wells — and shows the turf you have to buy, the extra-work share, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent turf shops will use a type-and-base bid calculator because the generic "$8 a square foot installed" or published landscape special they are shopped on cannot see that 600 sq ft of landscape turf on a prepared pad is a different job from 800 sq ft of pet turf with sod demo, zeolite infill, and two tree wells.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-square-foot special) are the two figures a shop actually decides on when a homeowner asks them to match a cheaper landscape quote on a pet yard.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing landscape, pet, and putting-green on the same lawn, with turf-to-buy from roll waste, changes the bid enough that shops notice which type keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified turf or landscape shops use the calculator twice within 90 days.
+  - Shops report that splitting turf type, waste, base, and sod demo is more work than their existing per-square-foot method without changing the price they would have bid.
+  - The starting hours and turf rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
