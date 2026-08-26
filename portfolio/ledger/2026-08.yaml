@@ -23350,3 +23350,37 @@ entries:
         primary journey, crawlability, and 288 files with zero dangling
         internal references.
     mrr_end: null
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the pay-run settlement model (#1753): the calculator now
+        shows when cash actually lands, not only the contractual due date.
+        Accounts-payable departments pay in runs, so a Net 30 invoice dated
+        2026-08-24 is due 2026-09-23 but lands 2026-10-01 at a client paying
+        the 1st and 15th -- eight days of drift, about $6.31 on $1,200 at
+        24%, which no late fee covers because it is not lateness. Five
+        schedules, drift priced at the carrying rate already on the form,
+        and a Net 7/15/30/45/60 ladder. 40 tests; verified in a headless
+        browser against the built Pages artifact.
+      - >-
+        The differentiated finding is that longer terms are frequently free:
+        because runs are batched, Net 15 and Net 30 both land 2026-10-01 at a
+        monthly-on-the-1st client. Fifteen extra days of terms at zero cost in
+        cash timing is a concession a freelancer can trade in a negotiation,
+        and no invoice calculator surveyed surfaces it. Measured going forward
+        by the new `settlement_projected` counter against `calculation`.
+      - >-
+        Integration over ownership: #1729 shipped invoice factoring to this
+        same venture mid-session. Both sides were pure appends to one base, so
+        the merge replayed both rather than choosing -- 11 exports, both test
+        suites, all six FAQ entries, both hypotheses. Learned that the useful
+        check for "is this really superseded" is running the other branch's
+        own tests against the survivor: it retired #1098 and #1400 (3/3 and
+        5/5 passing against `main`) and would have caught a false supersede.
+        `supersede_check.py` said NOT SUPERSEDED for all four PRs closed this
+        session because it compares added lines exactly and the survivors had
+        reworded the same facts -- the flag is about wording, not capability,
+        and each close says so rather than hiding it.
+    mrr_end: null
