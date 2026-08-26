@@ -134,6 +134,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     breakdown = _tax_breakdown(root)
     if breakdown:
         invoice["tax_breakdown"] = breakdown
+    period = _invoice_period(root)
+    if period:
+        invoice["period"] = period
     return invoice
 
 
@@ -197,6 +200,23 @@ def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
             if reason_code and "tax_exemption_reason_code" not in extras:
                 extras["tax_exemption_reason_code"] = reason_code
     return extras
+
+
+def _invoice_period(root: ElementTree.Element) -> dict[str, str] | None:
+    """Map invoice-level InvoicePeriod StartDate/EndDate. Ignore line periods."""
+    for child in list(root):
+        if child.tag.rsplit("}", 1)[-1] != "InvoicePeriod":
+            continue
+        start = _text(child, "StartDate", required=False)
+        end = _text(child, "EndDate", required=False)
+        if start or end:
+            period: dict[str, str] = {}
+            if start:
+                period["start"] = start
+            if end:
+                period["end"] = end
+            return period
+    return None
 
 
 def _billing_reference(root: ElementTree.Element) -> str:

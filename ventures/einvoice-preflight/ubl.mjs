@@ -261,7 +261,23 @@ export function parseUblInvoice(source) {
   Object.assign(invoice, documentExemption(root));
   const breakdown = taxBreakdown(root);
   if (breakdown.length) invoice.tax_breakdown = breakdown;
+  const period = invoicePeriod(root);
+  if (period) invoice.period = period;
   return invoice;
+}
+
+function invoicePeriod(root) {
+  for (const child of root.children) {
+    if (child.name !== "InvoicePeriod") continue;
+    const start = textOf(child, "StartDate", false);
+    const end = textOf(child, "EndDate", false);
+    if (!start && !end) continue;
+    const period = {};
+    if (start) period.start = start;
+    if (end) period.end = end;
+    return period;
+  }
+  return null;
 }
 
 export function looksLikeXml(name, source) {
