@@ -509,6 +509,7 @@
   // so the two could never be compared and neither matched the CLI's count.
   // Paired to the debounced counter, one settled quote logs one of each.
   let killFeeSettled = false;
+  let bufferSettled = false;
   const reportCounter = createReportCounter({
     record: (event) => {
       recordEvent(event);
@@ -523,6 +524,7 @@
       recordEvent("change_order_checked");
       recordEvent("rate_ladder_compared");
       recordEvent("hours_budget_shown");
+      if (bufferSettled) recordEvent("time_buffer_compared");
     },
   });
 
@@ -585,6 +587,7 @@
     try {
       const quote = loadQuote(readInputs());
       const r = calculate(quote);
+      bufferSettled = quote.time_buffer_percent > 0;
        const above = r.gap_to_target >= 0;
        lastReport = { quote, r };
        const safeCurrency = escapeHtml(quote.currency);

@@ -61,6 +61,10 @@ not a profitability verdict or pricing advice. After that review, three
 buttons let you record send, revise, or hold locally — a workflow note, not a
 recommendation.
 
+You can also supply a time-buffer percentage. The browser shows the price that
+would correspond to your target hourly rate if planned hours grew by that
+percentage. This is a reserve calculation, not a recommendation or forecast.
+
 It also shows +10%, +25%, and +50% time-overrun scenarios. These keep the
 quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,

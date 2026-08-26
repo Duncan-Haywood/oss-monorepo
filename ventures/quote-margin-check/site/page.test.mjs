@@ -12,6 +12,13 @@ test("calculator page prices extra scope as a change-order floor", async () => {
   assert.match(page, /arithmetic floor/);
 });
 
+test("calculator page prices a time-buffered target", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="time_buffer_percent"/);
+  assert.match(page, /buffered_target_price/);
+  assert.match(page, /time_buffer_compared/);
+});
+
 test("calculator page renders the cost-rise table and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="cost-spike"/);
