@@ -337,6 +337,9 @@ workflows:
 - workflow: mold-remediation-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: moving-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: music-lesson-break-even-ci.yml
   classification: none
   publishes: []
