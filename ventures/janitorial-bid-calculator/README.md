@@ -77,6 +77,15 @@ and they-buy-but-you-still-fill, plus a pasteable reply. A crawlable
 explainer lives at
 [`should-i-let-them-buy-the-paper.html`](should-i-let-them-buy-the-paper.html).
 
+**If they want the initial thrown in** answers the takeover ask: a neglected
+or vacant building wants a deep first visit included in today’s monthly.
+That first visit is several regular cleans of labor plus extra chemicals —
+a project on a periodic price. The table shows the one-time that still
+holds the target margin, the monthly if you bake it in over N months, the
+month-1 profit if you throw it in, and the cash if they cancel early. A
+crawlable explainer lives at
+[`should-i-throw-in-the-initial-clean.html`](should-i-throw-in-the-initial-clean.html).
+
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
 [`calc.test.mjs`](calc.test.mjs).
@@ -102,13 +111,15 @@ See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/READ
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
 `proposed_price_compared`, `summary_copied`, `frequency_reduction_compared`,
 `frequency_note_copied`, `supply_responsibility_compared`,
-`supply_note_copied`.
+`supply_note_copied`, `initial_clean_compared`,
+`initial_clean_offer_compared`, `initial_clean_note_copied`.
 
 ## Limitations
 
 - Single currency and no tax handling; the contractor enters their own numbers.
-- One periodic-service model. Project work (strip and wax, carpet extraction,
-  post-construction) is not priced separately yet.
+- Periodic service plus a one-time takeover / initial clean. Recurring
+  project work (strip and wax, carpet extraction, post-construction) is
+  still not priced as its own cycle.
 - "Other space" rows are labelled `Area N` rather than a custom name.
 - Day porter or fixed-headcount contracts are not modelled; this prices from
   production rates, not from a scheduled shift.

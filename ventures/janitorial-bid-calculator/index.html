@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Janitorial Bid Calculator | Commercial Cleaning Price Per Month</title>
-  <meta name="description" content="Price a commercial cleaning contract from production rates, see what a 5× to 3× cut actually costs, and whether letting the building buy the paper still holds your margin.">
+  <meta name="description" content="Price a commercial cleaning contract from production rates, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.">
   <meta property="og:title" content="Janitorial Bid Calculator">
-  <meta property="og:description" content="Bid commercial cleaning the way the trade does — and see why dropping the supplies line when they buy the paper is not the same as a restroom-stock handoff.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners"}</script>
+  <meta property="og:description" content="Bid commercial cleaning the way the trade does — including whether a free takeover clean still leaves a first month.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -78,7 +78,7 @@
   <header>
     <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
     <h1>Bid the building, not the square footage.</h1>
-    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, the number below which the job loses money, what a 5×-to-3× schedule cut is actually worth — not 60% of today’s price — and whether letting the building buy the paper still holds your margin.</p>
+    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, the number below which the job loses money, what a 5×-to-3× schedule cut is actually worth — not 60% of today’s price — whether letting the building buy the paper still holds your margin, and whether throwing in the takeover clean still leaves a first month.</p>
   </header>
 
   <main>
@@ -126,6 +126,18 @@
           <label>Restroom stock share of supplies (%) <input id="restroomSharePercent" type="number" min="0" max="100" step="1" value="65"></label>
           <label>Emergency fill when they run out ($ / month) <input id="emergencyFillMonthly" type="number" min="0" step="1" value="35"></label>
           <label>Price they offered after dropping supplies (optional) <input id="supplyOfferMonthly" type="number" min="0" step="10" placeholder="e.g. today minus supplies"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>If they want the initial thrown in</h2>
+        <p class="hint">A neglected or vacant building’s first visit is several regular cleans of labor plus extra chemicals. Prospects ask to “just include it.” Month 1 then carries a project on a periodic price — and if they cancel after 30 days, that giveaway is the whole relationship. <a href="should-i-throw-in-the-initial-clean.html">Should I throw in the initial clean?</a></p>
+        <div class="fields">
+          <label>Initial is how many regular visits <input id="initialVisitMultiplier" type="number" min="0.5" max="20" step="0.5" value="5"></label>
+          <label>Extra initial supplies ($) <input id="initialExtraSupplies" type="number" min="0" step="5" value="80"></label>
+          <label>Months to recover if baked into the monthly <input id="initialAmortizeMonths" type="number" min="1" max="60" step="1" value="12"></label>
+          <label>If they cancel after (months) <input id="initialCancelAfterMonths" type="number" min="1" max="36" step="1" value="1"></label>
+          <label>Monthly they offered including the initial (optional) <input id="initialOfferMonthly" type="number" min="0" step="10" placeholder="e.g. today's monthly"></label>
         </div>
       </section>
     </div>
@@ -266,6 +278,48 @@
       <span id="supplyStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
     </div>
   </section>
+
+  <section class="compare" id="initialCompare" hidden>
+    <h2>A free initial is not a free extra</h2>
+    <p class="hint" id="initialHint">The takeover clean is extra labor hours and extra chemicals on day one. The monthly does not pay for it unless you invoice it, bake it in, or eat it.</p>
+    <div class="table-scroll" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">How you handle the initial</th>
+            <th scope="col">They pay up front</th>
+            <th scope="col">Monthly that holds your margin</th>
+            <th scope="col">Month-1 profit at today&rsquo;s monthly</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Invoice the initial as a one-time</th>
+            <td id="initOneTime"></td>
+            <td id="initMonthlyOnly"></td>
+            <td id="initQuotedMonth1"></td>
+          </tr>
+          <tr>
+            <th scope="row" id="initAmortizeLabel">Bake it into the monthly</th>
+            <td id="initAmortizeUpfront">$0.00</td>
+            <td id="initAmortizeMonthly"></td>
+            <td id="initAmortizeMonth1"></td>
+          </tr>
+          <tr id="initThrownRow" class="hold">
+            <th scope="row">Throw it in at today&rsquo;s monthly</th>
+            <td>$0.00</td>
+            <td id="initThrownMonthly"></td>
+            <td id="initThrownMonth1"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="initialVerdict" class="compare-verdict"></div>
+    <div class="summary-actions">
+      <button type="button" id="copyInitialNote">Copy initial-clean reply</button>
+      <span id="initialStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
+    </div>
+  </section>
   </main>
 
   <footer>
@@ -277,12 +331,13 @@
   </footer>
 
   <script type="module">
-    import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+    import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, compareInitialClean, initialCleanNote, PRODUCTION_RATE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
 
     const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
     const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
     const SUPPLY_IDS = ['restroomSharePercent','emergencyFillMonthly','supplyOfferMonthly'];
+    const INITIAL_IDS = ['initialVisitMultiplier','initialExtraSupplies','initialAmortizeMonths','initialCancelAfterMonths','initialOfferMonthly'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
 
@@ -376,6 +431,7 @@
       el('verdict').hidden = true;
       el('frequencyCompare').hidden = true;
       el('supplyCompare').hidden = true;
+      el('initialCompare').hidden = true;
     }
 
     function update() {
@@ -437,6 +493,7 @@
 
       renderFrequencyCompare({ areas, result });
       renderSupplyCompare({ areas });
+      renderInitialCompare({ areas });
     }
 
     function renderFrequencyCompare({ areas }) {
@@ -551,6 +608,54 @@
       panel.dataset.note = supplyResponsibilityNote(comparison, { targetMargin: Number(el('targetMargin').value) });
     }
 
+    function renderInitialCompare({ areas }) {
+      const panel = el('initialCompare');
+      let comparison;
+      try {
+        comparison = compareInitialClean({
+          areas,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        }, {
+          visitMultiplier: el('initialVisitMultiplier').value,
+          extraSupplies: el('initialExtraSupplies').value,
+          amortizeMonths: el('initialAmortizeMonths').value,
+          cancelAfterMonths: el('initialCancelAfterMonths').value,
+          clientOfferMonthly: el('initialOfferMonthly').value,
+        });
+      } catch {
+        panel.hidden = true;
+        return;
+      }
+
+      el('initOneTime').textContent = money(comparison.initialPrice);
+      el('initMonthlyOnly').textContent = money(comparison.monthly.monthlyPrice);
+      el('initQuotedMonth1').textContent = money(comparison.monthly.monthlyProfit);
+      el('initAmortizeLabel').textContent = `Bake it into the monthly over ${comparison.amortizeMonths} months`;
+      el('initAmortizeMonthly').textContent = money(comparison.amortizedMonthlyPrice);
+      el('initAmortizeMonth1').textContent = money(comparison.amortizedMonthlyPrice - comparison.amortizedMonthlyCost);
+      el('initThrownMonthly').textContent = money(comparison.monthly.monthlyPrice);
+      el('initThrownMonth1').textContent = signedMoney(comparison.thrownInMonth1Profit);
+      el('initThrownRow').className = comparison.thrownInBelowBreakEven ? 'hold warn' : 'hold';
+
+      const verdict = el('initialVerdict');
+      verdict.className = `compare-verdict${comparison.thrownInBelowBreakEven || comparison.thrownInCashIfCancel < 0 ? ' bad' : ''}`;
+      const offer = comparison.clientOffer;
+      const offerLine = offer
+        ? (offer.belowBreakEvenMonth1
+          ? ` Their offer of ${money(offer.price)} loses ${money(Math.abs(offer.month1Profit))} in month 1 against a ${money(comparison.walkAwayMonth1)} walk-away.`
+          : ` Their offer of ${money(offer.price)} leaves ${money(offer.month1Profit)} in month 1 (${offer.month1Margin.toFixed(1)}% margin).`)
+        : '';
+      const cancelLine = comparison.thrownInCashIfCancel < 0
+        ? ` If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, the giveaway finishes <strong>${money(Math.abs(comparison.thrownInCashIfCancel))} under water</strong> versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`
+        : ` If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, throwing it in keeps ${money(comparison.thrownInCashIfCancel)} versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`;
+      verdict.innerHTML = comparison.thrownInBelowBreakEven
+        ? `A ${comparison.visitMultiplier.toFixed(1)}× takeover (${comparison.initialHours.toFixed(1)} h plus ${money(comparison.extraSupplies)} of extra supplies) is a <strong>${money(comparison.initialPrice)} one-time</strong> if it still holds your margin. Throwing it in at today&rsquo;s monthly <strong>loses ${money(Math.abs(comparison.thrownInMonth1Profit))} in month 1</strong>. Baking it in over ${comparison.amortizeMonths} months is ${money(comparison.amortizedMonthlyPrice)} (${money(comparison.amortizedAddOn)} above today).${cancelLine}${offerLine}`
+        : `A ${comparison.visitMultiplier.toFixed(1)}× takeover is a <strong>${money(comparison.initialPrice)} one-time</strong>. Throwing it in at today&rsquo;s monthly leaves ${money(comparison.thrownInMonth1Profit)} in month 1 (${comparison.thrownInMonth1Margin.toFixed(1)}% margin), not the target. Baking it in over ${comparison.amortizeMonths} months is ${money(comparison.amortizedMonthlyPrice)}.${cancelLine}${offerLine}`;
+
+      panel.hidden = false;
+      panel.dataset.note = initialCleanNote(comparison, { targetMargin: Number(el('targetMargin').value) });
+    }
+
     function summaryText(result) {
       const spaces = result.areas
         .filter(area => area.squareFeet > 0 && area.cleaningsPerWeek > 0)
@@ -616,6 +721,10 @@
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count('supply_responsibility_compared'));
     });
+    INITIAL_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'initialOfferMonthly' ? 'initial_clean_offer_compared' : 'initial_clean_compared'));
+    });
     el('usageOptOut').addEventListener('change', update);
     el('copySupplyNote').addEventListener('click', async () => {
       const text = el('supplyCompare').dataset.note || '';
@@ -639,6 +748,30 @@
         setTimeout(() => { el('supplyStatus').textContent = ''; }, 2500);
       } catch (error) {
         el('supplyStatus').textContent = error.message;
+      }
+    });
+    el('copyInitialNote').addEventListener('click', async () => {
+      const text = el('initialCompare').dataset.note || '';
+      if (!text) return;
+      try {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const fallback = document.createElement('textarea');
+          fallback.value = text;
+          fallback.setAttribute('readonly', '');
+          fallback.style.position = 'fixed';
+          fallback.style.opacity = '0';
+          document.body.append(fallback);
+          fallback.select();
+          document.execCommand('copy');
+          fallback.remove();
+        }
+        count('initial_clean_note_copied');
+        el('initialStatus').textContent = 'Copied to clipboard';
+        setTimeout(() => { el('initialStatus').textContent = ''; }, 2500);
+      } catch (error) {
+        el('initialStatus').textContent = error.message;
       }
     });
     el('copyFrequencyNote').addEventListener('click', async () => {
