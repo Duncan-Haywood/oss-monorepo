@@ -355,6 +355,25 @@ test('carries store-subscription fields so a shared link does not drop them', ()
   assert.equal(restored.monthlyStoreFee, 7.95);
 });
 
+test('carries the extra international label cost', () => {
+  const restored = decodeInputs(encodeInputs({ price: 40, intlExtraShipping: 18.5 }));
+  assert.equal(restored.intlExtraShipping, 18.5);
+});
+
+test('carries free-shipping fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    freeShipPrice: 46,
+    buyerPaysSellThroughPct: 55,
+    freeShipSellThroughPct: 70,
+    monthlyFreeShipListings: 40,
+  }));
+  assert.equal(restored.freeShipPrice, 46);
+  assert.equal(restored.buyerPaysSellThroughPct, 55);
+  assert.equal(restored.freeShipSellThroughPct, 70);
+  assert.equal(restored.monthlyFreeShipListings, 40);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

@@ -410,7 +410,7 @@ test('the incoming Best Offer table has one cell per column and a counted event'
   assert.match(page, /should-i-accept-this-ebay-offer\.html/);
   assert.match(page, /"featureList":\s*"[^"]*incoming Best Offer vs waiting/);
   const offerStart = page.indexOf('id="bestOfferTable"');
-  const offerEnd = page.indexOf('id="internationalShipping"', offerStart);
+  const offerEnd = page.indexOf('id="freeShipping"', offerStart);
   const headerBlock = page.slice(offerStart, offerEnd === -1 ? undefined : offerEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
@@ -419,6 +419,27 @@ test('the incoming Best Offer table has one cell per column and a counted event'
     'If it sells',
     'Expected leftover',
     'vs waiting',
+  ]);
+});
+
+test('the free-shipping table has one cell per column and a counted event', () => {
+  assert.match(page, /compareFreeShipping/);
+  assert.match(page, /id="freeShipping"/);
+  assert.match(page, /id="freeShippingVerdict"/);
+  assert.match(page, /free_shipping_compared/);
+  assert.match(page, /should-i-offer-free-shipping-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*free shipping vs buyer-pays/);
+  const freeStart = page.indexOf('id="freeShippingTable"');
+  const freeEnd = page.indexOf('id="internationalShipping"', freeStart);
+  const headerBlock = page.slice(freeStart, freeEnd === -1 ? undefined : freeEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Buyer pays',
+    'Close rate',
+    'If they keep it',
+    'Expected after sell-through',
+    'vs buyer-pays',
   ]);
 });
 
