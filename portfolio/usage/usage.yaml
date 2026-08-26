@@ -2396,3 +2396,15 @@ products:
           Repair-and-merge of unique #1161 MCP supply-chain watch onto current
           main. Local JSON/Markdown manifest diff only; usage log is opt-in
           and stores no tool names or schemas.
+
+  - slug: vendor-change-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+        note: >-
+          Repair-and-merge of unique #1169 vendor-change evidence onto current
+          main. Local snapshot compare only; failed fetches stay inconclusive.
+          Keep #1368 open until supersede_check exits 0.
