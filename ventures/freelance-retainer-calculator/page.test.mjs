@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { calculateCashFloat, comparePaymentTerms, compareRetainerUsage, compareUnusedHourRollover } from './app.js';
+import { calculateCashFloat, calculateIncomeCoverage, calculatePlan, comparePaymentTerms, compareRetainerUsage, compareUnusedHourRollover } from './app.js';
 
 const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const termsPage = readFileSync(new URL('./retainer-payment-terms.html', import.meta.url), 'utf8');
 const rolloverPage = readFileSync(new URL('./unused-hour-rollover.html', import.meta.url), 'utf8');
+const goalPage = readFileSync(new URL('./will-this-retainer-hit-my-income-goal.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
 assert.match(index, /id="paymentTerms"/);
@@ -53,5 +54,54 @@ assert.equal(comparePaymentTerms(7800)[2].cashToFloat, 7800);
 const rollover = compareUnusedHourRollover(plan);
 assert.equal(rollover.unusedHours, 10);
 assert.equal(rollover.clauses[2].month2Effective, 57.5);
+
+// --- The income-goal block -------------------------------------------------
+assert.match(index, /id="otherRevenue"/);
+assert.match(index, /id="otherHours"/);
+assert.match(index, /id="fillRate"[^>]*min="0"[^>]*max="100"[^>]*step="5"[^>]*value="100"/);
+assert.match(index, /id="coverageCommitted"/);
+assert.match(index, /id="coverageUnsold"/);
+assert.match(index, /id="coverageExpected"/);
+assert.match(index, /id="coverageShortfall"/);
+assert.match(index, /id="coverageRequiredFill"/);
+assert.match(index, /id="coverageVerdict"/);
+assert.match(index, /will-this-retainer-hit-my-income-goal\.html/);
+assert.match(sitemap, /will-this-retainer-hit-my-income-goal\.html/);
+
+assert.match(goalPage, /No warranty/);
+assert.match(goalPage, /GitHub Sponsors/);
+assert.match(goalPage, /not financial, tax, or legal advice/);
+
+// A worked example on a public page is a claim about what the tool outputs.
+// Recompute every published figure from `app.js` rather than trusting the
+// prose, so the page cannot drift into quoting numbers the calculator has
+// stopped producing.
+const goalPlan = calculatePlan({ income: 6000, costs: 1800, hours: 160, utilization: 65, retainerHours: 20, buffer: 15 });
+const published = [
+  { fill: 100, hours: '84.0 h', reaches: '$8,025', short: 'None — $225 over' },
+  { fill: 80, hours: '67.2 h', reaches: '$6,765', short: '$1,035', closes: '13.8 h' },
+  { fill: 60, hours: '50.4 h', reaches: '$5,505', short: '$2,295', closes: '30.6 h' },
+  { fill: 40, hours: '33.6 h', reaches: '$4,245', short: '$3,555', closes: '47.4 h' },
+];
+for (const row of published) {
+  const coverage = calculateIncomeCoverage(goalPlan, { fillRatePercent: row.fill });
+  assert.equal(`${coverage.expectedFillHours.toFixed(1)} h`, row.hours, `fill ${row.fill}%: hours billed`);
+  assert.equal(`$${coverage.expectedRevenue.toLocaleString('en-US')}`, row.reaches, `fill ${row.fill}%: month reaches`);
+  if (row.closes) {
+    assert.equal(`${coverage.hoursToClose.toFixed(1)} h`, row.closes, `fill ${row.fill}%: hours to close`);
+    assert.equal(`$${coverage.shortfall.toLocaleString('en-US')}`, row.short, `fill ${row.fill}%: shortfall`);
+  } else {
+    assert.equal(coverage.coversTarget, true, 'fill 100%: must cover');
+    assert.equal(`$${coverage.surplus.toLocaleString('en-US')}`, '$225');
+  }
+  assert.ok(goalPage.includes(row.reaches), `page is missing ${row.reaches}`);
+}
+// The headline break-even the whole page is built around.
+assert.equal(calculateIncomeCoverage(goalPlan, { fillRatePercent: 60 }).requiredFillRate, 96.43);
+assert.match(goalPage, /96\.4% fill rate/);
+assert.equal(calculateIncomeCoverage(goalPlan, { fillRatePercent: 60 }).retainerPriceToCloseGap, 4020);
+assert.match(goalPage, /\$4,020/);
+assert.equal(calculateIncomeCoverage(goalPlan).retainerShareOfTarget, 22.12);
+assert.match(goalPage, /22% of \$7,800/);
 
 console.log('freelance retainer page tests passed');

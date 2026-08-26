@@ -21,6 +21,7 @@
 import { promises as fs, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import zlib from 'node:zlib';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -56,7 +57,14 @@ const EXCLUDED_SLUGS = new Set([
 // Never shipped to a visitor: test payload they would download for no benefit,
 // repo bookkeeping, or a per-venture robots.txt that crawlers never read
 // (only the one at the origin root counts).
-const EXCLUDED_FILES = new Set(['VENTURE.yaml', 'robots.txt', 'README.md', 'package-lock.json']);
+// `package.json` is on the list for the same reason its lockfile already was:
+// two ventures ship one, a visitor downloads none of it, and publishing it puts
+// internal script names and dependency versions on a public URL for no benefit.
+// The rule below this one is by extension, so `.json` alone does not catch it —
+// and `.json` has to stay publishable for JSON-LD payloads and web manifests.
+const EXCLUDED_FILES = new Set([
+  'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
+]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
 const isTestFile = (name) => /\.test\.(mjs|js|cjs|py)$/.test(name);
 
@@ -175,11 +183,16 @@ const decodeEntities = (value) =>
     .replace(/&quot;/g, '"')
     .replace(/&#0?39;/g, "'");
 
+// The content value is read up to the *same* quote that opened it, via a
+// backreference. Accepting any quote instead (`[^"']*`) silently stops at the
+// first apostrophe inside a double-quoted attribute, so "last night's archive
+// shrank" reached the hub and its JSON-LD as "last night" — a card and a
+// crawler description cut mid-sentence.
 const metaContent = (html, attr, value) => {
-  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=["']([^"']*)["']`, 'i');
-  const reversed = new RegExp(`<meta[^>]*content=["']([^"']*)["'][^>]*${attr}=["']${value}["']`, 'i');
+  const pattern = new RegExp(`<meta[^>]*${attr}=["']${value}["'][^>]*content=(["'])(.*?)\\1`, 'i');
+  const reversed = new RegExp(`<meta[^>]*content=(["'])(.*?)\\1[^>]*${attr}=["']${value}["']`, 'i');
   const match = html.match(pattern) ?? html.match(reversed);
-  return match ? decodeEntities(match[1]).trim() : '';
+  return match ? decodeEntities(match[2]).trim() : '';
 };
 
 const titleize = (slug) => slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -214,12 +227,50 @@ async function countPages(sourceDir) {
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 }
 
+/**
+ * Every `.html` file published under `dir`, as paths relative to it.
+ *
+ * This reads the built output rather than the sources, so it sees exactly what
+ * a visitor can reach — after exclusions, after nested directories, after any
+ * page a venture added without telling anyone.
+ */
+export async function publishedPages(dir, prefix = '') {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const pages = [];
+
+  for (const entry of entries) {
+    const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
+    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
+      pages.push(relative);
+    }
+  }
+
+  return pages.sort();
+}
+
 // ---------------------------------------------------------------------------
 // Copy
 // ---------------------------------------------------------------------------
 
 function rewriteOrigin(contents, baseUrl) {
-  return contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+  const rewritten = contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+
+  // Three ventures (freelance-retainer, no-show-fee, retainage-cashflow) wrote
+  // today's Pages address into their canonical tags directly, rather than the
+  // placeholder. That is correct by accident: it holds only while the site is
+  // served from exactly that URL, and `PAGES_BASE_URL` exists so a custom
+  // domain can be attached. On that day those pages would keep naming the
+  // github.io origin as canonical, which tells every crawler the real page is
+  // at the old address and hands the new domain a duplicate.
+  //
+  // Sitemaps are safe without this — they are regenerated from what actually
+  // published — but canonical tags are copied through, so they are not.
+  // Treating the default as a second placeholder makes the whole portfolio
+  // follow the base URL it is actually built with.
+  if (baseUrl === DEFAULT_BASE_URL) return rewritten;
+  return rewritten.split(DEFAULT_BASE_URL).join(baseUrl);
 }
 
 export function isPublishable(name) {
@@ -595,21 +646,304 @@ ${DISCLAIMER_HTML}
 `;
 }
 
+// ---------------------------------------------------------------------------
+// Site chrome
+// ---------------------------------------------------------------------------
+
+// Every venture page was written as a standalone site, so none of them links to
+// any other. Under one origin that makes 33 tools into 33 dead ends: a visitor
+// who arrives from a search result at `does-subscribe-and-save-still-pay.html`
+// can see one calculator and has no route to the other 32 — not to the hub, not
+// to the sibling tool that answers their next question. The hub links down; up
+// to now nothing linked back or across.
+//
+// The chrome is injected at build time rather than written into each venture,
+// for two reasons. A calculator lands on `main` most days and the injection
+// covers each new one for free. And venture pages are edited concurrently by
+// other sessions, so a nav bar committed into 150 product files would conflict
+// with nearly every open branch.
+const CHROME_MARKER = 'pf-chrome';
+
+/**
+ * How a page says it carries no availability promise, in any of the wordings
+ * the ventures actually use. Deliberately loose: several write the clause in
+ * their own voice ("Hosted URLs, when they exist, carry no availability SLA"),
+ * and a page that already says it must not be given a second notice.
+ */
+export const NO_SLA_PATTERN =
+  /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+
+/**
+ * The availability clause, injected into any published page that lacks one.
+ *
+ * PRODUCT_PLAYBOOK.md 5b requires it on every hosted surface, and a test has
+ * enforced that since #1731 — but it can only fail *after* the venture is on
+ * `main`, and three ventures shipped without the clause and turned `main` red
+ * in a single day (#1747 for two, and sewer-line-replace after them). That is
+ * not carelessness: a calculator is written as a standalone page, months
+ * before anyone decides it will be hosted, so nothing in front of its author
+ * says an availability promise is now implied.
+ *
+ * Injecting it where it is missing makes the requirement hold by construction
+ * for every tool including the one that lands tomorrow, the same way the
+ * canonical below is injected only where absent.
+ *
+ * Only the *hosting* clause is injected, never the no-warranty one. This build
+ * decides how these pages are hosted, so the availability promise is its
+ * statement to make; what a tool is not advice *about* is the venture's own
+ * ("not landscaping, construction, legal, tax, or financial advice"), and
+ * generic prose there would be worse than what each venture already writes.
+ */
+const NO_SLA_CLAUSE =
+  '<p class="pf-sla"><strong>Best-effort hosting, no SLA.</strong> These tools are free and ' +
+  'experimental, and may be slow, broken, moved, or taken offline without notice. We do not ' +
+  'promise uptime, or that a URL will keep working. Do not use this as a system of record.</p>';
+
+// Scoped under `.pf-chrome` so it cannot restyle a venture's own page, and
+// declared with fallbacks rather than inherited variables because each venture
+// names its theme variables differently.
+// The chrome takes its colours from the host page, not from the operating
+// system, and that is the one non-obvious thing about this block.
+//
+// It used to paint an opaque band from its own palette behind
+// `prefers-color-scheme`. Internally that is perfectly legible — the band sets
+// both its background and its text, so the contrast within it is fine. The
+// problem is what it sits on. Most ventures in this portfolio are deliberately
+// light-only: they carry no `prefers-color-scheme` rule at all, so their page
+// stays cream whatever the OS says. A visitor with a dark OS therefore got a
+// near-black slab bolted to the bottom of a light page — readable, and
+// unmistakably broken-looking. On a phone at night, which is a lot of this
+// audience, that slab was the last thing they saw before deciding whether the
+// site was worth trusting with a bid.
+//
+// So: `color:inherit` for text, and a neutral mid-grey at low alpha for lines
+// and fills, which reads as a subtle tint over a light or a dark background
+// without the chrome needing to know which one it is. Links are underlined
+// rather than tinted, because no single accent is legible on all 42 pages.
+// A venture with its own dark mode still gets dark chrome — it inherits it,
+// which is the point.
+//
+// (`favicon.ico` is the deliberate exception elsewhere in this file: the
+// browser draws it onto its own furniture, so there is no host page for it to
+// inherit from.)
+const CHROME_STYLE = `<style id="pf-chrome-style">
+.pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5;
+  color:inherit;--pf-line:rgba(128,128,128,.34);--pf-fill:rgba(128,128,128,.07)}
+.pf-chrome a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.pf-chrome-top{border-bottom:1px solid var(--pf-line);background:var(--pf-fill);padding:9px 16px}
+.pf-chrome-top a{font-weight:650;text-decoration:none}
+.pf-chrome-top a:hover,.pf-chrome-top a:focus-visible{text-decoration:underline}
+.pf-chrome-foot{border-top:1px solid var(--pf-line);background:var(--pf-fill);margin-top:40px;padding:22px 16px 26px}
+.pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
+.pf-chrome-foot h2{font-size:1rem;margin:0 0 4px;color:inherit}
+.pf-chrome-foot p{margin:0 0 12px;opacity:.78}
+.pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.pf-chrome-foot li{margin:0}
+.pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
+</style>`;
+
+// The same anonymous, local-only convention the hub uses: which tool slugs were
+// opened, never who opened them, never leaving the device, and silent for a
+// browser asking not to be counted. Until this shipped the only page that
+// counted anything was the hub, so a visitor arriving from search at a deep SEO
+// page was invisible — which is most of the traffic these pages are written for.
+const CHROME_SCRIPT = (slug) => `<script>
+(function(){
+  try{
+    if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
+    if(localStorage.getItem('portfolio-hub-optout')==='1')return;
+    var k='portfolio-hub-usage';
+    var bump=function(event){
+      try{
+        var c=JSON.parse(localStorage.getItem(k)||'{}');
+        c[event]=(c[event]||0)+1;
+        c.last_day=new Date().toISOString().slice(0,10);
+        localStorage.setItem(k,JSON.stringify(c));
+      }catch(e){}
+    };
+    bump('tool_viewed:${slug}');
+    document.addEventListener('click',function(e){
+      var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
+      if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+    });
+  }catch(e){}
+})();
+</script>`;
+
+/** How many `../` segments reach the site root from a published file. */
+export function upToRoot(relativePath) {
+  const depth = relativePath.split(/[\\/]/).length - 1;
+  return depth === 0 ? './' : '../'.repeat(depth);
+}
+
+/**
+ * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
+ * category first, then the rest of the site. Rotating the list by the tool's
+ * own position means neighbouring tools do not all advertise the same four,
+ * while keeping the choice deterministic — the build has to be reproducible.
+ */
+export function relatedTools(surfaces, slug, limit = 4) {
+  const others = surfaces.filter((surface) => surface.slug !== slug);
+  if (others.length === 0) return [];
+
+  const category = categoryFor(slug).id;
+  const sameCategory = others.filter((surface) => categoryFor(surface.slug).id === category);
+  const rest = others.filter((surface) => categoryFor(surface.slug).id !== category);
+
+  const rotate = (list) => {
+    if (list.length === 0) return list;
+    const offset = surfaces.findIndex((surface) => surface.slug === slug) % list.length;
+    return [...list.slice(offset), ...list.slice(0, offset)];
+  };
+
+  return [...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+}
+
+/**
+ * Wrap one already-published page in the site's navigation. Returns the html
+ * unchanged when there is no `<body>` to attach to, or when the page has been
+ * wrapped already — the pass has to be safe to run twice.
+ */
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
+  if (html.includes(CHROME_MARKER)) return html;
+  const bodyOpen = html.match(/<body[^>]*>/i);
+  if (!bodyOpen || !/<\/body>/i.test(html)) return html;
+
+  // Two head tags that only became possible once these pages shared an origin.
+  // Both are added only where the venture does not already provide its own — a
+  // second canonical is worse than none, because the crawler then picks one
+  // arbitrarily.
+  let headExtras = '';
+  if (canonical && !/<link[^>]+rel=["']canonical["']/i.test(html)) {
+    // Under one origin every page is reachable at both `/tool/page.html` and,
+    // for an index, `/tool/` — which splits the ranking of a page already
+    // competing for one narrow search term. Ventures written as standalone
+    // sites had no origin to point a canonical at, so many carry none.
+    headExtras += `\n<link rel="canonical" href="${escapeHtml(canonical)}">`;
+  }
+  if (isEntry && canonical && !html.includes('"BreadcrumbList"')) {
+    // Lets a result render as "Free small-business calculators › eBay Fee
+    // Calculator" rather than a bare URL, and tells an answer engine these are
+    // one collection rather than 42 unrelated pages. Entry pages only: a deep
+    // SEO page inside a tool is not a third level of the site, and saying it is
+    // would describe a hierarchy that does not exist.
+    headExtras += `\n<script type="application/ld+json">${jsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Free small-business calculators',
+          item: canonical.slice(0, canonical.length - `${slug}/`.length),
+        },
+        { '@type': 'ListItem', position: 2, name: title || slug, item: canonical },
+      ],
+    })}</script>`;
+  }
+  if (headExtras) {
+    html = /<\/head>/i.test(html)
+      ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
+      : html.replace(bodyOpen[0], `${headExtras}\n${bodyOpen[0]}`);
+  }
+
+  const hub = `${toRoot}`;
+  const topBar = `<nav class="pf-chrome pf-chrome-top" aria-label="Site">
+  <a href="${escapeHtml(hub)}" data-pf-to="hub">← All ${total} free tools</a>
+</nav>`;
+
+  const links = related
+    .map(
+      (surface) =>
+        `      <li><a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-pf-to="${escapeHtml(
+          surface.slug,
+        )}">${escapeHtml(surface.title)}</a></li>`,
+    )
+    .join('\n');
+
+  // Tested against the venture's own markup, before any chrome is added.
+  const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
+
+  const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
+  <div class="pf-inner">
+    <h2>More free tools</h2>
+    <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
+${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
+      <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
+      is optional and changes nothing about what these tools do.
+    </p>
+  </div>
+</aside>
+${CHROME_SCRIPT(slug)}`;
+
+  const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
+  // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
+  const stylePrefix = withStyle === html ? `${CHROME_STYLE}\n` : '';
+
+  return withStyle
+    .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
+    .replace(/<\/body>/i, `${footer}\n</body>`);
+}
+
+/**
+ * Adds the navigation to every published venture page. Runs after the hub is
+ * written, because `repairLinks` treats a link to a file that does not exist yet
+ * as one that escapes the site and repoints it at GitHub — which is exactly what
+ * would happen to a `../` hub link injected any earlier.
+ */
+export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_URL }) {
+  const wrapped = [];
+
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    const related = relatedTools(surfaces, surface.slug);
+
+    for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
+      const relative = path.relative(outDir, file);
+      const url = relative.split(path.sep).join('/');
+      const html = await fs.readFile(file, 'utf8');
+      const next = injectChrome(html, {
+        slug: surface.slug,
+        toRoot: upToRoot(relative),
+        total: surfaces.length,
+        related,
+        title: surface.title,
+        // `/tool/index.html` and `/tool/` are the same page; the directory form
+        // is the one to declare.
+        canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
+        isEntry: url === `${surface.slug}/index.html`,
+      });
+      if (next === html) continue;
+      await fs.writeFile(file, next);
+      wrapped.push(relative);
+    }
+  }
+
+  return wrapped;
+}
+
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
- * entries, so the hub itself and any venture without its own sitemap live in
- * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
- * following robots.txt would reach the ventures and never the front page.
+ * entries, so the hub page itself lives in `sitemap-hub.xml`, which this index
+ * also lists — otherwise a crawler following robots.txt would reach the
+ * ventures and never the front page.
+ *
+ * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
+ * so there is no venture the index can leave out.
  */
 export function renderSitemapIndex(surfaces, baseUrl) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
-    surfaces
-      .filter((surface) => surface.hasSitemap)
-      .map((surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`),
+    surfaces.map(
+      (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
+    ),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -619,12 +953,46 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(surfaces, baseUrl) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    surfaces
-      .filter((surface) => !surface.hasSitemap)
-      .map((surface) => `  <url><loc>${baseUrl}${surface.slug}/</loc></url>`),
-  );
+export function renderHubSitemap(baseUrl) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${baseUrl}</loc></url>
+</urlset>
+`;
+}
+
+/**
+ * The URL a published page is served at, relative to the site root.
+ * `index.html` is served as its directory, so it is listed that way.
+ */
+export function pageUrlPath(slug, relativePath) {
+  const posix = relativePath.split(path.sep).join('/');
+  if (posix === 'index.html') return `${slug}/`;
+  if (posix.endsWith('/index.html')) return `${slug}/${posix.slice(0, -'index.html'.length)}`;
+  return `${slug}/${posix}`;
+}
+
+/**
+ * A venture's sitemap, generated from the pages the build actually published.
+ *
+ * The ventures ship their own hand-written `sitemap.xml` files, and copying
+ * those verbatim published two defects at once. They go stale — a venture
+ * grows a landing page and nobody edits the sitemap, so 70 of the 186 pages
+ * on this site were in no sitemap at all. And several were written against
+ * `…/monorepo-projects/ventures/<slug>/`, a path this site does not serve
+ * (products are mounted at `/<slug>/`), so every URL they advertised was a
+ * 404 — the worst possible thing to hand a crawler, since organic search is
+ * how these tools are meant to be found.
+ *
+ * Generating from the output makes both impossible by construction: a page is
+ * listed because it shipped, at the URL it actually shipped to.
+ */
+export function renderVentureSitemap(slug, relativePages, baseUrl) {
+  const urls = relativePages
+    .map((relative) => `${baseUrl}${pageUrlPath(slug, relative)}`)
+    .sort()
+    .map((url) => `  <url><loc>${url}</loc></url>`);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.join('\n')}
@@ -691,12 +1059,20 @@ export async function buildSite({
       })),
     );
 
+    // Overwrite whatever sitemap the venture shipped with one generated from
+    // what actually published. See `renderVentureSitemap` for why.
+    const pages = await publishedPages(destination);
+    await fs.writeFile(
+      path.join(destination, 'sitemap.xml'),
+      renderVentureSitemap(surface.slug, pages, base),
+    );
+
     surfaces.push({
       ...surface,
       title,
       description,
       pageCount: await countPages(surface.sourceDir),
-      hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
+      publishedPageCount: pages.length,
     });
     log(`  ${surface.slug}`);
   }
@@ -706,13 +1082,109 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
+
+  await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  return { outDir, baseUrl: base, surfaces, repairs };
+  const wrapped = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped };
+}
+
+// ---------------------------------------------------------------------------
+// Favicon
+// ---------------------------------------------------------------------------
+
+/**
+ * Every browser requests `/favicon.ico` on its own, for every page, whether or
+ * not the markup asks for one -- so without this file all 183 published pages
+ * log a 404 on load and open as an anonymous blank tab. The ventures' own
+ * pages cannot be asked to link an icon (there are 183 of them and they are
+ * the ventures' files, not this build's), and only `.ico` at the origin root
+ * is fetched automatically, so the icon has to be generated here.
+ *
+ * Built rather than committed so the tree stays reviewable text: a 16x16 PNG
+ * assembled by hand and wrapped in a single-image ICO container. Deterministic
+ * -- same bytes on every run.
+ */
+function pngChunk(type, data) {
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  const body = Buffer.concat([Buffer.from(type, 'ascii'), data]);
+  const crc = Buffer.alloc(4);
+  crc.writeUInt32BE(crc32(body) >>> 0);
+  return Buffer.concat([length, body, crc]);
+}
+
+let CRC_TABLE = null;
+function crc32(buffer) {
+  if (!CRC_TABLE) {
+    CRC_TABLE = new Int32Array(256);
+    for (let n = 0; n < 256; n += 1) {
+      let c = n;
+      for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      CRC_TABLE[n] = c;
+    }
+  }
+  let crc = -1;
+  for (const byte of buffer) crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  return crc ^ -1;
+}
+
+export function renderFavicon() {
+  const size = 16;
+  const ink = [36, 61, 53]; // the hub's accent green, so the tab matches the site
+  const mark = [197, 237, 181];
+
+  // Three rising bars on a rounded square. Chosen after looking at it at
+  // actual size: anything with a diagonal turns to mush at 16px, while flat
+  // bars stay crisp and read as "numbers" rather than as a generic glyph.
+  const BARS = [
+    { x0: 3, x1: 4, top: 9 },
+    { x0: 7, x1: 8, top: 6 },
+    { x0: 11, x1: 12, top: 3 },
+  ];
+  const raw = [];
+  for (let y = 0; y < size; y += 1) {
+    raw.push(0); // PNG filter byte: none
+    for (let x = 0; x < size; x += 1) {
+      const corner = (x < 2 || x > 13) && (y < 2 || y > 13);
+      const inBar = BARS.some((b) => x >= b.x0 && x <= b.x1 && y >= b.top && y <= 12);
+      if (corner) raw.push(0, 0, 0, 0);
+      else if (inBar) raw.push(...mark, 255);
+      else raw.push(...ink, 255);
+    }
+  }
+
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(size, 0);
+  ihdr.writeUInt32BE(size, 4);
+  ihdr[8] = 8; // bit depth
+  ihdr[9] = 6; // colour type: RGBA
+  const png = Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    pngChunk('IHDR', ihdr),
+    pngChunk('IDAT', zlib.deflateSync(Buffer.from(raw), { level: 9 })),
+    pngChunk('IEND', Buffer.alloc(0)),
+  ]);
+
+  // ICO container: 6-byte header, one 16-byte directory entry, then the PNG.
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0);
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(1, 4); // one image
+  const entry = Buffer.alloc(16);
+  entry[0] = size;
+  entry[1] = size;
+  entry.writeUInt16LE(1, 4); // colour planes
+  entry.writeUInt16LE(32, 6); // bits per pixel
+  entry.writeUInt32LE(png.length, 8);
+  entry.writeUInt32LE(header.length + entry.length, 12);
+  return Buffer.concat([header, entry, png]);
 }
 
 // ---------------------------------------------------------------------------
@@ -734,4 +1206,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (result.repairs.length > 0) {
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
+  console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
 }
