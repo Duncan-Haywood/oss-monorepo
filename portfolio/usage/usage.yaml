@@ -329,6 +329,26 @@ products:
           Added a copyable plain-text review summary for email or proposal
           notes. Public URL remains owner-gated; the counter stores only
           aggregate local events.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          draft_restored: 0
+          draft_reset: 0
+        note: >-
+          Added local draft persistence for the browser worksheet. Public
+          URL remains owner-gated; quote values stay in the browser.
+  - slug: mls-photo-spec-preflight
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_batches_checked: 0
+          local_reports_downloaded: 0
+        note: >-
+          Added a browser-local Markdown evidence export for the photo preflight
+          tool. The public URL remains owner-gated, so traffic and report usage
+          are currently unmeasured; counters never leave the visitor's browser.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:

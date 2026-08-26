@@ -132,6 +132,15 @@ test("sitemap and robots advertise the cost-rise page", async () => {
   assert.match(robots, /Sitemap: sitemap\.xml/);
 });
 
+test("calculator page persists a local draft and can reset it", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="clear-draft"/);
+  assert.match(page, /from "\.\/draft\.mjs"/);
+  assert.match(page, /draft_restored/);
+  assert.match(page, /draft_reset/);
+  assert.match(page, /Reset to example/);
+});
+
 test("calculator page copies a proposal-ready review summary", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="copy-summary"/);
