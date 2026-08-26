@@ -30,9 +30,11 @@ test('supports a named aggregate event without recording inputs', () => {
   recordUsage(storage, false, 'preset_applied');
   recordUsage(storage, false, 'preset_applied');
   recordUsage(storage, false, 'proposed_price_compared');
+  recordUsage(storage, false, 'cell_compared');
   const event = JSON.parse(storage.values.get('spray-foam-bid-usage'));
   assert.equal(event.preset_applied, 2);
   assert.equal(event.proposed_price_compared, 1);
+  assert.equal(event.cell_compared, 1);
 });
 
 test('stores nothing beyond event counters and the day', () => {
