@@ -3,12 +3,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareProductionPartner, compareStarSeller, compareShopSale, compareFreeShipping } from './calc.mjs';
+import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareOffsiteAdRates, maxAffordableOffsiteRate, compareProductionPartner, compareStarSeller, compareShopSale, compareFreeShipping } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./is-etsy-plus-worth-it.html', import.meta.url), 'utf8');
 const personalizationSeo = readFileSync(new URL('./should-i-charge-for-etsy-personalization.html', import.meta.url), 'utf8');
 const adsSeo = readFileSync(new URL('./is-etsy-ads-worth-it.html', import.meta.url), 'utf8');
+const offsiteSeo = readFileSync(new URL('./are-etsy-offsite-ads-worth-it.html', import.meta.url), 'utf8');
 const partnerSeo = readFileSync(new URL('./should-i-use-an-etsy-production-partner.html', import.meta.url), 'utf8');
 const starSeo = readFileSync(new URL('./is-etsy-star-seller-worth-it.html', import.meta.url), 'utf8');
 const saleSeo = readFileSync(new URL('./should-i-put-my-etsy-shop-on-sale.html', import.meta.url), 'utf8');
@@ -58,6 +59,7 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /Etsy Plus credit comparison/i);
   assert.match(featureList[1], /personalization upcharge comparison/i);
   assert.match(featureList[1], /Etsy Ads ACOS comparison/i);
+  assert.match(featureList[1], /Offsite Ads 12%\/15% comparison/i);
   assert.match(featureList[1], /production partner vs handmade comparison/i);
   assert.match(featureList[1], /Star Seller vs unsigned comparison/i);
   assert.match(featureList[1], /shop sale vs full price comparison/i);
@@ -148,7 +150,7 @@ test('the personalization SEO page uses the same worked examples the calculator 
 });
 
 test('the Ads row template has one cell per column', () => {
-  const tableMarkup = (markup.split('id="adsTable"')[1] || '').split('id="partnerTable"')[0];
+  const tableMarkup = (markup.split('id="adsTable"')[1] || '').split('id="offsiteTable"')[0];
   const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
   assert.equal(headers.length, 5, `expected 5 Ads columns, found ${headers.join(' | ')}`);
@@ -185,6 +187,44 @@ test('the Etsy Ads SEO page uses the same worked examples the calculator default
   assert.ok(adsSeo.includes(money(offsite.organic.profit)), `missing offsite organic ${money(offsite.organic.profit)}`);
   assert.ok(adsSeo.includes(money(offsite.advertised.profit)), `missing offsite advertised ${money(offsite.advertised.profit)}`);
   assert.ok(adsSeo.includes(`${offsite.breakEvenAcosPct.toFixed(2)}%`), `missing offsite ceiling ${offsite.breakEvenAcosPct.toFixed(2)}%`);
+});
+
+test('the Offsite Ads row template has one cell per column', () => {
+  const tableMarkup = (markup.split('id="offsiteTable"')[1] || '').split('id="partnerTable"')[0];
+  const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim());
+  assert.equal(headers.length, 5, `expected 5 Offsite Ads columns, found ${headers.join(' | ')}`);
+  assert.match(scriptSource, /compareOffsiteAdRates/);
+  assert.match(scriptSource, /offsiteAdsNote/);
+  assert.match(scriptSource, /offsite_ads_compared/);
+  assert.match(markup, /id="offsite-ads"/);
+  assert.match(markup, /id="cashInvested"/);
+  assert.match(markup, /id="roi"/);
+});
+
+test('the Offsite Ads SEO page uses the same worked examples the calculator defaults produce', () => {
+  assert.match(offsiteSeo, /Are Etsy Offsite Ads worth it/i);
+  assert.match(offsiteSeo, /href="\.\/#offsite-ads"/);
+  assert.match(offsiteSeo, /No warranty/);
+  assert.match(offsiteSeo, /no SLA/i);
+  const money = (value) => {
+    const rounded = Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+    const sign = rounded < 0 ? '−' : '';
+    return `${sign}$${Math.abs(rounded).toFixed(2)}`;
+  };
+  const tight = {
+    price: 14, shippingCharged: 3, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, shippingCost: 5.5, materialCost: 7,
+  };
+  const rows = compareOffsiteAdRates(tight);
+  const cap = maxAffordableOffsiteRate(tight);
+  const organic = rows.find((row) => row.offsiteAdRate === 0);
+  const at12 = rows.find((row) => row.offsiteAdRate === 12);
+  const at15 = rows.find((row) => row.offsiteAdRate === 15);
+  assert.ok(offsiteSeo.includes(money(organic.profit)), `missing organic ${money(organic.profit)}`);
+  assert.ok(offsiteSeo.includes(money(at12.profit)), `missing 12% ${money(at12.profit)}`);
+  assert.ok(offsiteSeo.includes(money(at15.profit)), `missing 15% ${money(at15.profit)}`);
+  assert.ok(offsiteSeo.includes(`${cap.toFixed(1)}%`), `missing ceiling ${cap.toFixed(1)}%`);
 });
 
 test('the production-partner row template has one cell per column', () => {

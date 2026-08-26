@@ -2,7 +2,9 @@
 
 The free Etsy profit calculator shows what an order leaves after listing fees,
 transaction fees, payment processing, offsite ads, shipping, materials, and
-other per-order costs. Use it before changing a price or publishing a listing.
+other per-order costs — including return on the cash you put into materials and
+shipping, and a side-by-side of organic vs 12% vs 15% Offsite Ads. Use it
+before changing a price, publishing a listing, or taking an attributed ad sale.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -115,6 +117,24 @@ order loses $3.27 even as extra demand. Turn on 15% Offsite Ads and the
 same 12% ACOS ceiling falls to about 45.64%. The SEO page
 [is-etsy-ads-worth-it.html](is-etsy-ads-worth-it.html) walks through the
 same examples.
+
+## Do Offsite Ads still leave a profit?
+
+Offsite Ads are a percentage Etsy takes on the order total when it
+attributes the sale to Google or social. That is not on-site Etsy Ads.
+Shops under $10,000 in trailing 12-month sales typically pay 15%; shops
+over that threshold typically pay 12%. The calculator shows organic,
+12%, and 15% on the same listing, plus the highest rate that still
+breaks even, and return on the cash you put into materials and shipping.
+
+On a $14 print with $3 shipping charged, $5.50 postage, and $7
+materials, organic leftover is $2.44 (19.5% ROI on $12.50 cash). 12%
+takes $2.04 and leaves $0.39. 15% takes $2.55 and leaves −$0.12. The
+order stays at or above $0.00 leftover until Offsite Ads reach about
+14.3%. The default $30 listing still keeps $15.98 at 15% — the tight
+print is the case that flips. The page
+[are-etsy-offsite-ads-worth-it.html](are-etsy-offsite-ads-worth-it.html)
+walks through the same examples. It does not opt a shop in or out.
 
 ## Does this production partner still pay?
 

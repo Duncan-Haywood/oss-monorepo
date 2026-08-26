@@ -293,6 +293,11 @@ products:
           live_url_visitors: null
           listing_renewal_compared: 0
         note: Added listing-fee allocation across one auto-renew window; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          offsite_ads_compared: 0
+        note: Added Offsite Ads 12%/15% comparison, ROI on cash invested, and a local offsite_ads_compared event. Public URL remains owner-gated.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:
