@@ -1,34 +1,31 @@
-# Build and check the portfolio Pages artifact. This workflow does NOT publish.
+# Build every browser product in `ventures/` into a Pages artifact, and check it.
 #
-# Why it no longer deploys
-# ------------------------
-# Two sessions built a portfolio Pages pipeline within hours of each other on
-# 2026-08-26 and both landed on `main`: #1718 (`platform/pages/build.mjs`, driven
-# by `portfolio-pages.yml`) and #1724 (this one, `platform/ci/build_pages_site.py`).
-# Neither could see the other in flight.
+# Why this workflow does NOT deploy
+# ---------------------------------
+# It used to. It was written to close a real gap -- 32 finished calculators with
+# no public URL -- and gated its deploy on `GITHUB_PAGES_ENABLED`, deliberately
+# reusing the one owner flip rather than opening a second ask.
 #
-# GitHub serves ONE Pages site per repository. Both workflows triggered on
-# `ventures/**`, both gated their deploy on the same `GITHUB_PAGES_ENABLED`
-# variable, and their concurrency groups differed -- so they did not serialise
-# against each other. The owner flip everyone is waiting on would therefore have
-# started two `actions/deploy-pages` runs on every push and left the live origin
-# flapping between two different builds of the same products. That defeats the
-# flip rather than delivering it.
+# `portfolio-pages.yml` was written to close the same gap, from the same
+# reasoning, in the same hour. Neither pull request could see the other, and both
+# merged. GitHub serves exactly one Pages site per repository and
+# `actions/deploy-pages` replaces the whole of it, so with both deploying, the
+# single `GITHUB_PAGES_ENABLED` flip would have armed two publishers of two
+# different builds, triggered by the same `ventures/**` paths, in different
+# concurrency groups -- racing on every push, with the live site left as whichever
+# finished last.
 #
-# `portfolio/DIRECTION.md` names `platform/pages/` and `portfolio-pages.yml` as
-# the site the flip publishes, and DIRECTION.md is explicitly the document that
-# wins when instructions conflict. That is the tiebreak used here: publishing
-# lives in `portfolio-pages.yml`, and this workflow keeps building and checking.
+# `portfolio-pages.yml` keeps the deploy: it is the more developed of the two
+# (site navigation, favicon, sitemap repair, the no-SLA clause check) and the
+# later Pages work built on it. Nothing here is deleted, because this builder is
+# still worth running: it is an independent implementation of the same site, so
+# when it and the Node builder disagree about what `ventures/` contains, one of
+# them has a bug. `check_pages_links.py` has no equivalent on the other side.
 #
-# Nothing here is deleted. `platform/ci/build_pages_site.py`, its tests, and
-# `check_pages_links.py` still run on every push and pull request, so this code
-# stays exercised and its checks still guard `ventures/**`. Consolidating the two
-# builders into one is worth doing, but it is a judgement about which of two
-# tested, merged implementations survives -- it should be made deliberately, not
-# as a side effect of fixing the race. Do not re-add a deploy job here without
-# first removing the one in `portfolio-pages.yml`.
+# `publish_surface.py --check` now fails if any one variable would arm two Pages
+# deployments, so this cannot silently come back.
 
-name: Portfolio Pages artifact check
+name: Portfolio Pages site build
 
 on:
   push:
@@ -46,11 +43,10 @@ on:
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
-# Serialised so two builds of the same tree do not interleave. This workflow no
-# longer publishes, so nothing here can reach the live site.
+# Nothing here publishes, so a superseded run has no value: cancel it.
 concurrency:
-  group: pages-artifact-check
-  cancel-in-progress: false
+  group: pages-build-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -82,9 +78,12 @@ jobs:
       - name: Check every hub link resolves in the built artifact
         run: python3 platform/ci/check_pages_links.py _site
 
-      - name: Upload Pages artifact
-        # Only the deploy job consumes this, but uploading unconditionally keeps
-        # the artifact inspectable on a PR run where deploying is not wanted.
-        uses: actions/upload-pages-artifact@v3
+      # Kept, though nothing here deploys: the tarball is what a reviewer
+      # downloads to see the site this builder actually produces.
+      - name: Upload the built site for inspection
+        uses: actions/upload-artifact@v4
         with:
+          name: pages-site-python-builder
           path: _site
+          retention-days: 7
+

@@ -18,6 +18,16 @@
 // second, competing Pages builder. That builder is not needed — this repo
 // already has one on `main` — but its artifact check was the better idea and
 // `main` had no equivalent, so it is carried over here.
+//
+// Extended 2026-08-26 by merging a concurrent checker written against the same
+// gap (#1744). Two sessions reached the same conclusion from #1723 within the
+// hour and each caught things the other missed, so both sets are kept: the
+// sitemap-coverage and base-path logic here, plus reachability (the hub and the
+// artifact agreeing in *both* directions), the disclaimer requirement, leaked
+// bookkeeping, a product-count floor, and single-quoted / dynamic `import()`
+// specifiers. `journey.mjs` is the browser half of that merge — this file can
+// prove a page shipped and its links resolve, but not that the calculator
+// computes.
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -42,8 +52,24 @@ const TEXT_EXTENSIONS = new Set(['.html', '.xml', '.txt', '.mjs', '.js', '.css',
 const LINKED_EXTENSIONS = new Set(['.html', '.mjs', '.js']);
 
 const REFERENCE_RE = /(?:href|src)\s*=\s*"([^"]+)"/g;
-const IMPORT_RE = /\bfrom\s+"(\.{1,2}\/[^"]+)"/g;
+// Both quote styles, and `import(...)` as well as `from ...`. Every calculator
+// here loads its `calc.mjs` from an inline module script, and a specifier this
+// pattern misses is a tool that renders its form and then does nothing.
+const IMPORT_RE = /\bfrom\s+['"](\.{1,2}\/[^'"]+)['"]/g;
+const DYNAMIC_IMPORT_RE = /\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g;
 const LOC_RE = /<loc>([^<]+)<\/loc>/g;
+
+// Every user-facing surface here carries a liability disclaimer
+// (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
+// page missing it ships calculated money figures with no limitation of
+// liability — the one defect in this file with legal weight rather than just
+// broken-link weight.
+const DISCLAIMER_MARKER = /no warranty/i;
+
+// Bookkeeping and test payload that exists for the repo, not for a visitor.
+// Finding any of it here means the copy filter in build.mjs regressed.
+const LEAKED_FILE_RE = /(?:^|\/)(?:[^/]+\.test\.(?:mjs|js|cjs|py)|VENTURE\.yaml|README\.md|package-lock\.json)$/;
+const LEAKED_DIRS = new Set(['node_modules', '__pycache__', 'coverage', '.git']);
 
 const EXTERNAL_PREFIXES = ['http://', 'https://', 'mailto:', 'tel:', 'data:', 'javascript:', '//', '#'];
 const isExternal = (target) => EXTERNAL_PREFIXES.some((prefix) => target.startsWith(prefix));
@@ -113,7 +139,15 @@ async function collectSitemapUrls(site, basePath, relative, seen, out, problems)
   }
 }
 
-export async function checkSite(site) {
+/**
+ * @param site  the built artifact directory
+ * @param minProducts  floor on the number of published products. Defaults to 1
+ *   so a small synthetic fixture is valid; the CLI passes the real floor,
+ *   because the failure worth catching is a *discovery collapse* — build.mjs
+ *   finding almost nothing, emitting a hub that looks fine with three tools on
+ *   it, and every check below passing.
+ */
+export async function checkSite(site, { minProducts = 1 } = {}) {
   const problems = [];
 
   if (!(await exists(site))) return [`${site} is not a directory`];
@@ -125,14 +159,93 @@ export async function checkSite(site) {
   const entries = await fs.readdir(site, { withFileTypes: true });
   const productDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
   if (productDirs.length === 0) problems.push('no product directories in the artifact');
+  else if (productDirs.length < minProducts) {
+    problems.push(`only ${productDirs.length} product(s) published, expected at least ${minProducts} — discovery may have regressed`);
+  }
   for (const product of productDirs) {
     if (!(await exists(path.join(site, product, 'index.html')))) {
       problems.push(`${product}/ has no index.html`);
     }
   }
 
+  // ---- Reachability: the hub and the artifact must agree, both ways --------
+  //
+  // Checked in both directions because the two failures are different. A hub
+  // link with nothing behind it is a 404 a visitor sees. A product with no hub
+  // link is worse and quieter: it built, deployed, passed every other check,
+  // and no visitor can reach it.
+  const hubHtml = await fs.readFile(path.join(site, 'index.html'), 'utf8').catch(() => null);
+  if (hubHtml !== null) {
+    // Scripts first, because a hub link is markup and script is not. The
+    // offline widget builds hub markup by concatenation, so its source contains
+    // the literal `data-tool="' + slug + '"` — scraped raw, that reads as a link
+    // to a product called `' + slug + '` and fails the check on a healthy site.
+    const markupOnly = hubHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+    const linked = new Set([...markupOnly.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+    if (linked.size > 0) {
+      for (const slug of linked) {
+        if (!productDirs.includes(slug)) problems.push(`index.html: hub links "${slug}" but no such product shipped`);
+      }
+      for (const product of productDirs) {
+        if (!linked.has(product)) problems.push(`${product}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+    if (!DISCLAIMER_MARKER.test(hubHtml)) problems.push('index.html: carries no disclaimer');
+  }
+
   const files = await walk(site);
   const servedPages = files.filter((f) => f.endsWith('.html'));
+
+  // ---- Disclaimers and leaked payload -------------------------------------
+  for (const product of productDirs) {
+    const index = path.join(site, product, 'index.html');
+    const html = await fs.readFile(index, 'utf8').catch(() => null);
+    if (html !== null && !DISCLAIMER_MARKER.test(html)) {
+      problems.push(`${product}/index.html: carries no disclaimer, so it must not ship`);
+    }
+  }
+
+  for (const relative of files) {
+    if (LEAKED_FILE_RE.test(relative)) problems.push(`${relative}: repo bookkeeping or test payload was published`);
+    else if (relative.split('/').some((segment) => LEAKED_DIRS.has(segment))) {
+      problems.push(`${relative}: published from a directory that should never ship`);
+    }
+  }
+
+  // A canonical tag must name a URL under this site's own base, and the hub's
+  // canonical is what that base is. Anything else tells crawlers the real page
+  // lives somewhere other than where it just shipped.
+  //
+  // The case this exists for is not a placeholder but a *stale real origin*:
+  // three ventures wrote `duncan-haywood.github.io/...` into their canonicals
+  // as a literal instead of using the placeholder. That is invisible today,
+  // because it happens to match where the site is served. The day
+  // `PAGES_BASE_URL` points at a custom domain, every one of those pages hands
+  // the new domain a duplicate and keeps the old address as canonical. The
+  // build now rewrites them; this is the check that says so.
+  let siteBase = null;
+  if (files.includes('index.html')) {
+    const hub = await fs.readFile(path.join(site, 'index.html'), 'utf8');
+    const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(hub);
+    if (canonical) {
+      try {
+        siteBase = new URL(canonical[1]);
+      } catch {
+        problems.push(`index.html: canonical href is not a valid URL -> ${canonical[1]}`);
+      }
+    }
+  }
+
+  if (siteBase) {
+    const prefix = `${siteBase.origin}${siteBase.pathname}`;
+    for (const relative of servedPages) {
+      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
+      if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(prefix)) {
+        problems.push(`${relative}: canonical points outside this site -> ${canonical[1]}`);
+      }
+    }
+  }
 
   for (const relative of files) {
     const extension = path.extname(relative).toLowerCase();
@@ -147,6 +260,7 @@ export async function checkSite(site) {
     const targets = [
       ...[...text.matchAll(REFERENCE_RE)].map((m) => m[1]),
       ...[...text.matchAll(IMPORT_RE)].map((m) => m[1]),
+      ...[...text.matchAll(DYNAMIC_IMPORT_RE)].map((m) => m[1]),
     ];
     for (const target of targets) {
       if (isExternal(target)) continue;
@@ -191,6 +305,13 @@ export async function checkSite(site) {
   // A page in no sitemap is built, deployed, and never found.
   for (const page of servedPages) {
     if (page === '404.html') continue;
+    // ...unless it asked not to be found. The offline fallback is a shell, and
+    // indexed it would be the search result for a calculator. A page that
+    // declares noindex and is then listed in a sitemap is the contradiction;
+    // one that declares it and stays out is correct.
+    if (/<meta name="robots" content="noindex">/i.test(await fs.readFile(path.join(site, page), 'utf8'))) {
+      continue;
+    }
     const candidates = [page];
     if (page.endsWith('/index.html')) candidates.push(page.slice(0, -'index.html'.length));
     if (page === 'index.html') candidates.push('');
@@ -204,8 +325,13 @@ export async function checkSite(site) {
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
 if (invokedDirectly) {
-  const site = path.resolve(process.argv[2] ?? 'dist');
-  const problems = await checkSite(site);
+  const positional = process.argv.slice(2).find((a) => !a.startsWith('--'));
+  const flag = process.argv.find((a) => a.startsWith('--dist='))?.slice('--dist='.length);
+  const site = path.resolve(flag ?? positional ?? 'dist');
+
+  // Deliberately well below the ~38 products on `main`, so a venture landing
+  // does not require touching this number, while a collapse still fails.
+  const problems = await checkSite(site, { minProducts: 20 });
 
   if (problems.length > 0) {
     console.error(`${problems.length} problem(s) in ${site}:`);

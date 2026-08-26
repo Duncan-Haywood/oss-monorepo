@@ -56,6 +56,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -292,14 +293,73 @@ def load_snapshot():
     return yaml.safe_load(SNAPSHOT.read_text())
 
 
+# GitHub serves exactly ONE Pages site per repository, so every one of these
+# actions writes to the same destination. Two workflows behind the same gate is
+# not two deployments -- it is two builds racing for one origin.
+PAGES_DEPLOY_ACTIONS = ("actions/deploy-pages",)
+
+
+def check_one_origin_per_gate(rows) -> list[str]:
+    """No two Pages deployments may hang off the same owner variable.
+
+    Why this check exists
+    ---------------------
+    On 2026-08-26 two sessions independently solved "the portfolio has no public
+    URL" and both landed: `pages.yml` (#1724, a Python builder) and
+    `portfolio-pages.yml` (#1718, a Node one). Each reasoned -- correctly, in
+    isolation -- that it should reuse the existing `GITHUB_PAGES_ENABLED`
+    variable rather than open a second owner ask. Neither could see the other.
+
+    Both trigger on a push to `main`, both match `ventures/**`, and both call
+    `actions/deploy-pages` against the single Pages site GitHub gives a
+    repository. Their `concurrency:` groups differ, so GitHub does not serialise
+    them: they run together and whichever finishes last wins. The owner's one
+    flip would have published a site that changed nondeterministically between
+    two different builds on every push.
+
+    Nothing in the repo caught it, and nothing could have: both workflows are
+    individually valid, both were correctly recorded in the snapshot as gated,
+    and the collision is invisible until the moment someone sets the variable --
+    at which point it presents as a live site that flaps rather than as a failed
+    deploy. The snapshot pins each workflow against its own past self; this looks
+    across them.
+    """
+    by_gate: dict[str, list[str]] = {}
+
+    for row in rows:
+        for step in row["publishes"]:
+            if not any(action in step["step"] for action in PAGES_DEPLOY_ACTIONS):
+                continue
+            for gate in step["gates"] or ["<ungated>"]:
+                # The variable is what the owner actually sets; the rest of the
+                # condition (branch, event type) differs harmlessly between two
+                # workflows that would still collide.
+                for var in re.findall(r"vars\.([A-Za-z_][A-Za-z0-9_]*)", gate) or ["<no vars. gate>"]:
+                    by_gate.setdefault(var, [])
+                    if row["workflow"] not in by_gate[var]:
+                        by_gate[var].append(row["workflow"])
+
+    problems = []
+    for var, workflows in sorted(by_gate.items()):
+        if len(workflows) > 1:
+            problems.append(
+                f"{', '.join(sorted(workflows))}: {len(workflows)} workflows deploy to "
+                f"GitHub Pages behind the same gate `{var}`. GitHub serves one Pages "
+                "site per repository, so setting it would start a race and the live "
+                "site would flap between their builds. Give all but one its own "
+                "variable, or delete the duplicate."
+            )
+    return problems
+
+
 def check(rows) -> list[str]:
     """Compare the derived surface to the committed snapshot."""
+    problems = check_one_origin_per_gate(rows)
     snapshot = load_snapshot()
     if snapshot is None:
-        return [f"{SNAPSHOT.name} is missing; run with --write to create it"]
+        return problems + [f"{SNAPSHOT.name} is missing; run with --write to create it"]
     expected = {r["workflow"]: r for r in snapshot.get("workflows", [])}
     actual = {r["workflow"]: r for r in rows}
-    problems = []
 
     for name in sorted(set(actual) - set(expected)):
         row = actual[name]
@@ -324,6 +384,106 @@ def check(rows) -> list[str]:
                 f"{name}: publish steps or their `if:` gates changed. Expected "
                 f"{want.get('publishes') or []}, derived {got['publishes']}."
             )
+    return problems
+
+
+# `vars.NAME` / `vars['NAME']` / `secrets.NAME` inside an `if:` expression.
+#
+# Secrets count alongside variables because the question this answers is "what
+# one owner action arms this deploy", and a job gated on `secrets.X != ''` is
+# armed by pasting that secret. Reading only `vars.` reported such a workflow as
+# *ungated* -- the right verdict for the wrong reason, and the message then told
+# the reader to add a gate the workflow already had.
+_OWNER_SWITCH_REF = re.compile(
+    r"(?:vars|secrets)\s*(?:\.\s*([A-Za-z_]\w*)|\[\s*['\"]([A-Za-z_]\w*)['\"]\s*\])"
+)
+
+# Every action that replaces this repository's one Pages site. A subset of
+# PUBLISH_ACTIONS, and it has to stay in step with it: matching only
+# `actions/deploy-pages` left the invariant blind to a workflow that deployed
+# with `peaceiris/actions-gh-pages` instead, which is the same single-instance
+# resource reached by a different name.
+PAGES_DEPLOY_ACTIONS = (
+    "actions/deploy-pages",
+    "JamesIves/github-pages-deploy-action",
+    "peaceiris/actions-gh-pages",
+)
+
+
+def pages_deploy_gates(rows) -> dict[str, set[str]]:
+    """
+    Workflows that publish the repository's GitHub Pages site, mapped to the set of
+    owner-set `vars.*` / `secrets.*` names that gate them.
+
+    A workflow with no gating switch maps to the empty set: nothing has to be
+    switched on for it to publish.
+    """
+    found = {}
+    for row in rows:
+        gates = set()
+        deploys = False
+        for step in row.get("publishes") or []:
+            marker = step.get("step") or ""
+            if not any(action in marker for action in PAGES_DEPLOY_ACTIONS):
+                continue
+            deploys = True
+            for gate in step.get("gates") or []:
+                gates.update(
+                    name for pair in _OWNER_SWITCH_REF.findall(str(gate)) for name in pair if name
+                )
+        if deploys:
+            found[row["workflow"]] = gates
+    return found
+
+
+def check_single_pages_deployer(rows) -> list[str]:
+    """
+    GitHub serves exactly one Pages site per repository, and `actions/deploy-pages`
+    replaces the whole thing. Two workflows that both deploy are not two sites —
+    they are two builds fighting over one origin, and the winner is whichever
+    finishes last. A shared `concurrency` group would only make them take turns;
+    the live site would still alternate between two different builds.
+
+    The invariant is therefore about a single owner action: **no one variable flip
+    may arm two Pages deployments.** Two workflows gated on *different* variables
+    are a deliberate either/or — `retail-pilot-intel-deploy-docs.yml` is gated on
+    `RETAIL_PILOT_INTEL_PAGES` precisely so the portfolio flip does not publish it —
+    and that stays legal. Two gated on the *same* variable, or any that is ungated,
+    is the bug.
+
+    This is a real incident, not a hypothetical. `pages.yml` and
+    `portfolio-pages.yml` were merged within an hour of each other, both gated on
+    `GITHUB_PAGES_ENABLED`, both triggered by `ventures/**`, with different
+    concurrency groups. Neither PR could see the other. The snapshot recorded both
+    without complaint, because pinning each workflow separately cannot notice that
+    two of them target the same single-instance resource.
+    """
+    gated = pages_deploy_gates(rows)
+    problems = []
+
+    ungated = sorted(w for w, v in gated.items() if not v)
+    if ungated and len(gated) > 1:
+        problems.append(
+            "these workflows deploy GitHub Pages with no owner-set variable or secret gating them: "
+            + ", ".join(ungated)
+            + ". With another deployer present they can publish over each other unbidden."
+        )
+
+    by_var = {}
+    for workflow, variables in gated.items():
+        for name in variables:
+            by_var.setdefault(name, []).append(workflow)
+
+    for name, workflows in sorted(by_var.items()):
+        if len(workflows) > 1:
+            problems.append(
+                f"setting {name} would arm {len(workflows)} GitHub Pages deployments: "
+                + ", ".join(sorted(workflows))
+                + ". The repository has one Pages site, so they would race on every push and "
+                "the live site would be whichever finished last. Exactly one workflow may keep "
+                "its deploy job; the others should build and check only."
+            )
+
     return problems
 
 
@@ -366,6 +526,16 @@ def main() -> int:
         return 0
 
     if args.check:
+        # Checked before the snapshot comparison: a second Pages deployer is wrong
+        # whether or not the snapshot happens to record it, and re-running with
+        # --write must not be able to bless it.
+        conflicts = check_single_pages_deployer(rows)
+        if conflicts:
+            print("Publish-surface conflict:\n", file=sys.stderr)
+            for conflict in conflicts:
+                print(f"  - {conflict}", file=sys.stderr)
+            return 1
+
         problems = check(rows)
         if problems:
             print(f"{len(problems)} publish-surface change(s) not reflected in the snapshot:\n", file=sys.stderr)

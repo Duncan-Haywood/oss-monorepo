@@ -49,25 +49,38 @@ without it, and say so in the privacy line.
 ## The Pages artifact builds itself
 
 `.github/workflows/portfolio-pages.yml` runs `platform/pages/build.mjs` on every
-push to `main`. The builder finds every venture with a browser entry point (an
-`index.html` at the venture root or under `site/`), copies its web assets to
-`<slug>/`, and generates the hub that links all of them, plus `sitemap.xml`,
-`catalog.json`, `robots.txt`, and `404.html`.
-
-**This is the workflow the owner flip publishes**, and it is the only one that
-publishes. On 2026-08-26 two sessions landed a portfolio Pages pipeline within
-hours of each other — #1718 (`platform/pages/`) and #1724 (`platform/ci/
-build_pages_site.py`) — neither able to see the other in flight. GitHub serves
-one Pages site per repository, and both gated on the same `GITHUB_PAGES_ENABLED`
-variable without a shared concurrency group, so the flip would have raced two
-deployments for one origin. `portfolio/DIRECTION.md` names `platform/pages/` as
-the site, and it is the document that wins on conflict, so `pages.yml` was
-changed to build and check only. Both builders still run their tests on every
-push; consolidating them into one is a worthwhile follow-up, deliberately left
-as its own decision rather than folded into the race fix.
+push to `main`. The builder finds every venture with an `index.html` (at the
+venture root, or under `site/`), copies its web assets to `dist/<slug>/`, and
+generates the hub at `dist/index.html` that links all of them. It then injects
+the cross-tool navigation and checks the artifact (`platform/pages/check.mjs`)
+before anything is uploaded.
 
 **A new static product needs no deploy work at all.** Give it an `index.html`
 and it appears on the hub on merge. There is nothing to register.
+
+### Exactly one workflow deploys
+
+`portfolio-pages.yml` is the only workflow that calls `actions/deploy-pages` for
+the portfolio site, and that is a rule rather than an accident. GitHub serves one
+Pages site per repository and `actions/deploy-pages` replaces the whole of it, so
+two workflows armed by the same owner flip do not publish twice — they race, and
+the live site is whichever finished last.
+
+That happened on 2026-08-26: `pages.yml` and `portfolio-pages.yml` were written
+within the hour from the same reasoning, neither pull request could see the
+other, and both merged deploying under `GITHUB_PAGES_ENABLED`.
+
+`.github/workflows/pages.yml` still exists and still runs
+`platform/ci/build_pages_site.py`, but **it no longer deploys**. It is kept as an
+independent second implementation of the same site: when the two builders
+disagree about what `ventures/` contains, one of them has a bug. Read its header
+before changing it.
+
+`publish_surface.py --check` fails if any single variable would arm two Pages
+deployments, so this cannot come back silently. A workflow gated on its *own*
+owner variable is still fine — that is how `retail-pilot-intel-deploy-docs.yml`
+coexists, reading `RETAIL_PILOT_INTEL_PAGES` so the portfolio flip does not
+publish it.
 
 Two things the builder owns, so no venture should hand-maintain them:
 
@@ -82,9 +95,17 @@ Two things the builder owns, so no venture should hand-maintain them:
 Run it locally before assuming anything about the live site:
 
 ```
-node platform/pages/build.mjs --out=dist     # build; fails on any dead link
-node --test platform/pages/build.test.mjs    # test
-python3 -m http.server -d dist 8000          # then open localhost:8000
+node platform/pages/build.mjs --out=dist         # build what actually deploys
+node platform/pages/check.mjs dist               # dead links, stale origins, sitemaps
+node --test platform/pages/build.test.mjs        # test the builder
+python3 -m http.server -d dist 8000              # then open localhost:8000
+```
+
+The second builder, if you are checking the two against each other:
+
+```
+python3 platform/ci/build_pages_site.py          # build into _site/
+python3 platform/ci/check_pages_links.py _site   # fail on any link that 404s
 ```
 
 The remaining owner flip is still `deploy-settings` — enable GitHub Pages

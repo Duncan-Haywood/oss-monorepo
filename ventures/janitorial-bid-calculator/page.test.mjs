@@ -126,3 +126,97 @@ test('the initial-clean landing page uses the same worked example the tests lock
   assert.ok(Math.abs(comparison.thrownInMonth1Profit + 48.29) < 0.01);
   assert.match(sitemap, /should-i-throw-in-the-initial-clean\.html/);
 });
+
+// This suite predates the shared structural helpers, so it grows only the two
+// it needs for the save-and-share guards below: the app script's own source,
+// and the ids the markup declares.
+const scriptSource = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n');
+const declaredIds = new Set([...html.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1]));
+
+// The saved-and-shared bid is only trustworthy if it carries every field the
+// calculator reads. This repo has already shipped the opposite once: a
+// `share.mjs` kept its own hand-written field list, the form grew two fields
+// past it, and a shared link silently dropped them — the recipient's page
+// computed a different price than the sender had quoted, with nothing on
+// screen to say so. These tests pin the derivation rather than the list, so a
+// field added to the form is covered without anyone remembering to.
+test('save-and-share is wired to the page', () => {
+  assert.match(scriptSource, /from '\.\/share\.mjs'/, 'share.mjs is not imported');
+  for (const name of ['encodeBid', 'saveBid', 'clearBid', 'restoreBid']) {
+    assert.match(scriptSource, new RegExp(`\\b${name}\\b`), `${name} is imported but never used`);
+  }
+  for (const id of ['copyLink', 'clearSaved', 'restoreNote']) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+  // What a bid link contains has to be on the page beside the button that
+  // makes one. A contractor who pastes it to the customer is handing over
+  // their wage, burden, overhead, and margin, and the address bar does not
+  // say so. This copy is a guardrail, not decoration — it stays.
+  assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
+  assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
+  assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
+  assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
+});
+
+function idListsIn(source) {
+  return new Set([...source.matchAll(/\b([A-Z][A-Z_]*_IDS)\b/g)].map((m) => m[1]));
+}
+
+// What the bid link carries is CHOICE_IDS plus BID_SPEC — and either may defer
+// to another id list rather than restate it, so resolve one level of that
+// before comparing. Reusing an existing list is the correct thing for a
+// venture to do; the guard should not push it into keeping a second copy.
+function specSource() {
+  let out = bodyOf(scriptSource, 'const CHOICE_IDS =') + bodyOf(scriptSource, 'const BID_SPEC =');
+  for (const name of idListsIn(out)) {
+    if (scriptSource.includes(`const ${name} =`)) out += bodyOf(scriptSource, `const ${name} =`);
+  }
+  return out;
+}
+
+// Returns the declaration at `opener` up to the close of its first bracketed
+// body, so a `{...}` object and an `[...]` array both work.
+function bodyOf(source, opener) {
+  const start = source.indexOf(opener);
+  assert.notEqual(start, -1, `could not find ${opener} in the script`);
+  const first = source.slice(start).search(/[[{]/);
+  assert.notEqual(first, -1, `${opener} has no bracketed body`);
+  const open = source[start + first];
+  const close = open === '[' ? ']' : '}';
+  let depth = 0;
+  for (let i = start + first; i < source.length; i += 1) {
+    if (source[i] === open) depth += 1;
+    else if (source[i] === close) {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, i + 1);
+    }
+  }
+  throw new Error(`unbalanced ${open}${close} after ${opener}`);
+}
+
+test('every field the form reads is a field the bid link carries', () => {
+  // This venture's reader is `readSavable()`: unlike the fixed-form
+  // calculators it also gathers the building's spaces, which are not an id list.
+  const read = idListsIn(bodyOf(scriptSource, 'function readSavable('));
+  const shared = idListsIn(specSource());
+  const dropped = [...read].filter((name) => !shared.has(name));
+  assert.deepEqual(
+    dropped,
+    [],
+    `readSavable() reads ${dropped.join(', ')} but BID_SPEC does not carry them; `
+      + 'a shared link would price a different job than the sender saw',
+  );
+});
+
+test('the building of spaces travels, not just the flat rates', () => {
+  const spec = bodyOf(scriptSource, 'const BID_SPEC =');
+  assert.match(spec, /rows:/, 'BID_SPEC carries no rows, so a shared link would drop every space');
+  for (const key of ['type', 'squareFeet', 'productionRate', 'cleaningsPerWeek']) {
+    assert.match(spec, new RegExp(`key: '${key}'`), `the area row does not carry ${key}`);
+  }
+  // The row's space type is a select, so it must travel validated against the
+  // options the dropdown offers rather than as free text.
+  assert.match(spec, /kind: 'choice'/, 'the space type is not carried as a validated choice');
+  assert.match(scriptSource, /AREA_TYPE_OPTIONS/, 'the space-type options are not derived from the presets');
+});
