@@ -5,9 +5,12 @@ platform that works on it.
 
 **Strategy:** [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) — build
 products people use (free, full-feature, usage-tracked), ship fast, minimize
-variable cost. Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
-[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it lands:
-[`portfolio/usage/`](portfolio/usage/README.md).
+variable cost. **Current priority:** deploy what is already on `main` before
+building another product. **Host:** GitHub Pages for static tools, existing
+Hetzner boxes for processes — [`portfolio/hosting/`](portfolio/hosting/README.md).
+Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
+lands: [`portfolio/usage/`](portfolio/usage/README.md).
 
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent
@@ -21,7 +24,14 @@ ventures/     one directory per business; each has a VENTURE.yaml
 platform/     shared agent definitions, skills, and CI — versioned once
 portfolio/    the ledger, the router that allocates agent effort, and the
               candidate pipeline of researched-but-not-started businesses
+infra/        OpenTofu for the existing hel1 pair (cpx52 + cpx22)
+bootstrap/    one-time k3s + Argo CD (laptop SSH, not cloud-init)
+gitops/       App-of-Apps, AppProjects, prod/staging/agents
 ```
+
+Actions secrets for that stack (names only): `HETZNERSSHKEY`,
+`HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
+trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
 
 ### ventures/
 
@@ -105,6 +115,15 @@ other. The router consumes the composite as a tiebreaker. See
 [portfolio/scoring/README.md](portfolio/scoring/README.md) for what the first
 pass found, including why merit and the router's dispatchable/blocked split
 disagree.
+
+## Product-first operating direction
+
+The portfolio prioritizes shipping useful, free software products over
+administrative throughput. New work should start from a narrow customer problem,
+ship a runnable vertical slice, measure anonymous feature events without PII,
+and preserve the legal, privacy, and safety guardrails in
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). Pull requests are reviewed in
+proportion to risk and merged when their relevant checks are green.
 
 ## History
 

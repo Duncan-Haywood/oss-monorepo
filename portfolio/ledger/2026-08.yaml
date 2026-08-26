@@ -1,5 +1,59 @@
 period: 2026-08
 entries:
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built and merged the portfolio's public site (#1718, extended by #1724):
+        `platform/pages/build.mjs` assembles every static venture surface into
+        the one GitHub Pages site a repository gets, behind a searchable hub
+        with the §5b no-warranty and no-SLA copy, a privacy line, and an
+        optional Sponsors link. 33 tools at merge; 37 by the end of the same
+        session, with no manual step — discovery is automatic, so a calculator
+        that lands on `main` is on the site on the next push.
+      - >-
+        The thing worth knowing: the owner flip everyone was waiting on was
+        worth far less than the queue said. GitHub serves one Pages site per
+        repository, and the only workflow that could claim it built
+        `retail-pilot-intel`'s passcode-gated internal docs. Setting
+        `GITHUB_PAGES_ENABLED` would have published a docs app and left every
+        calculator dark. `publish_surface.py` reported the gate honestly — it
+        reports what publishes, not whether what publishes is worth anything,
+        and nobody had checked the second question in seven days. The
+        `deploy-settings` ask was updated in place rather than duplicated, and
+        `retail-pilot-intel` moved to its own variable so one flip cannot make
+        two deployments race for the origin.
+      - >-
+        A cheaper lesson, twice over: the tests that assert the *built site*
+        rather than the build functions caught both real defects — nine links
+        that would have 404'd for visitors, and a JSON-LD block a venture title
+        containing a closing script tag could have broken out of. Neither turns
+        anything red on its own; the site builds fine and the visitor simply
+        cannot get there. Verified end to end in headless Chromium at a 390px
+        viewport: hub, search, click-through, a calculation that recomputes,
+        local usage counting, zero console errors, zero off-origin requests.
+      - >-
+        Deploy-first's build half is now done for every static product, and no
+        future calculator needs deploy work at all. What remains is the owner
+        flip, which no agent can do. `portfolio/DIRECTION.md` was updated to say
+        so, so the next session spends its time on depth in the tools that will
+        go live rather than on a thirty-eighth front page.
+    mrr_end: null
+  - venture: retainage-cashflow-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated and implemented a browser-local construction retainage and
+        payment-delay worksheet. It models retainage withheld, earned-but-unpaid
+        cash, user-supplied carrying-cost scenarios, and a factual payment
+        follow-up draft without accounts, uploads, integrations, or payments.
+        The product includes a visible no-warranty disclaimer, privacy boundary,
+        opt-out local usage counter, MIT license, SEO metadata, sitemap, and
+        robots.txt. Public publishing remains owner-gated; first usage reading
+        is recorded as zero.
+    mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
     human_hours: 0
@@ -23233,4 +23287,66 @@ entries:
           count one plan, and plan copies get their own counter. The README told
           users to open `index.html` from disk, which cannot work, since
           browsers refuse ES module imports over `file://`.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner decided the host: GitHub Pages for static products, the
+        existing Hetzner boxes for processes, no Cloudflare, no Vercel as
+        a portfolio default. Documented in `portfolio/hosting/README.md`,
+        the no-SLA clause in `PRODUCT_PLAYBOOK.md` §5b, and the operating
+        docs that pointed at an open platform menu. Removed the stale
+        `deployment-platform` queue row (#720 already closed unmerged).
+        Remaining owner flip for static URLs is still `deploy-settings`
+        (enable GitHub Pages).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Owner answered 2026-08-25: agents merge product PRs. Rely on the
+        owner as little as possible. Removed the "may we merge venture
+        code?" queue row. Remaining owner flags are money, legal-person
+        accounts, public publishing, unattended paid spend, and secrets
+        only they can paste.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Made every page on the new Pages site carry the liability clauses
+        before it gets a URL. `PRODUCT_PLAYBOOK.md` §5b requires the
+        no-warranty *and* the no-SLA clause on every hosted surface; the
+        second was checked only on the hub. Audited all 192 published pages
+        against the built tree: 20 pages across 10 ventures (`3pl-quote-
+        normalizer`, `ai-engineering-academy`, `amazon-fba-calculator`,
+        `cut-list-optimizer`, `ebay-fee-calculator`, `einvoice-preflight`,
+        `shopify-a11y-evidence`, `shopify-fee-calculator`,
+        `shopify-permission-drift`, `where-to-sell-calculator`,
+        `automatic-driveway-gate-bid-calculator`) carried no
+        availability statement at all. Added it to each, and added a test
+        over the built tree so the 184th page cannot ship without one --
+        verified the test goes red when a clause is removed (it caught
+        `automatic-driveway-gate-bid-calculator` the moment that venture merged
+        mid-session). Also emitted a
+        generated `favicon.ico`: browsers request it per page regardless of
+        markup, so all 192 pages were logging a 404 and opening as blank
+        tabs. Learned that the disclaimer gap was invisible to per-venture
+        CI because it is only a gap once the pages are hosted -- which they
+        were not until #1718 landed the site.
+      - >-
+        Duplicate avoided rather than merged: this session had a complete
+        second Pages builder (`platform/site/`, Python, 40 tests) when
+        #1718 merged an equivalent one 20 minutes earlier. Compared both --
+        #1718's published a strict superset (33 surfaces to 32, plus
+        `EXCLUDED_SLUGS` and a separate `RETAIL_PILOT_INTEL_PAGES` gate so
+        one owner flip cannot make two deployments race) -- and discarded
+        this session's rather than opening a competing PR. Verified the
+        merged one in a real browser instead: 33 tools listed, search,
+        primary journey, crawlability, and 288 files with zero dangling
+        internal references.
     mrr_end: null

@@ -19,6 +19,7 @@
  * rules (photo-spec.ts's UNIMPLEMENTED_RULES). See process/mls-compliance.ts.
  */
 
+import { buildReshootPlan, formatReshootPlan } from "../../research/src/lib/photo-spec";
 import { preflightDir } from "./preflight";
 
 type CliArgs = { dir: string; excludeFilenames: string[] };
@@ -73,6 +74,7 @@ async function main() {
       `${summary.degradingCount} degrading.` +
       (summary.ok ? " Floor spec OK." : " Fix blocking findings before delivering."),
   );
+  console.log(`\n${formatReshootPlan(buildReshootPlan(summary.reports))}`);
   console.log(
     "\n  This is a floor spec, not a board-specific compliance guarantee — see " +
       "process/mls-compliance.ts. Not checked: visual watermark, burned-in contact info, " +

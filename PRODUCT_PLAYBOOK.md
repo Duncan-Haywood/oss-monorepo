@@ -52,15 +52,17 @@ In rough order of preference:
    niches, and it makes the repo page the landing page.
 3. **Generator / checker that runs in the user's own CI.** A GitHub Action or a
    script they schedule. Their compute, their secrets, their data.
-4. **Small service on the VM.** Only when the product genuinely cannot be any
-   of the above. It costs us uptime and it holds data we then owe a duty of
-   care over — so keep it stateless, keep the data the user's, and say in the
-   README that it can go away.
+4. **Small service on the Hetzner product box.** Only when the product
+   genuinely cannot be any of the above. Keep it stateless, keep the data
+   the user's, and include the no-SLA clause in §5b. Never host a public
+   product on the agent box. Details: [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
 Rules that keep the cost floor at zero: no per-user paid API on our account, no
 per-user database we pay for, no per-user human step, no account system unless
 the product is useless without one (and if you need one, prefer "bring your own
-GitHub login" over storing credentials).
+GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
+the way a new product goes live — GitHub Pages and the existing Hetzner
+boxes are the host.
 
 ## 3. The API-key switch
 
@@ -129,6 +131,17 @@ first-run notice). Copy this, adjusting only the bracketed part:
 > on it**, and for meeting any obligation it helps you prepare for. To the
 > maximum extent permitted by law, the authors accept no liability for any
 > loss or damage arising from its use.
+>
+> **Best-effort hosting, no SLA.** These tools are free, experimental, and
+> may be slow, broken, moved, or taken offline without notice. We do not
+> promise uptime, backups of anything you type, or that a URL will keep
+> working. Do not use this as a system of record. If a tool needs to
+> survive, export your inputs and run it yourself.
+
+The no-SLA paragraph is required on every hosted surface (GitHub Pages or
+Hetzner). It covers availability. It does **not** let us store personal
+data on a box and call that fine — if anything leaves the browser, the
+privacy line in §5c has to name it.
 
 Non-negotiable positioning, because it is what keeps the liability containable:
 the product produces **evidence, drafts, checks, and monitoring**. The user
@@ -209,9 +222,19 @@ Ship when every line is true:
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
+- [ ] A stranger can reach it without cloning this repo — a public URL or an
+      install command. Merged-to-`main` is not deployed. Static products go
+      to GitHub Pages; processes go to the Hetzner product box
+      ([`portfolio/hosting/`](portfolio/hosting/README.md)). If Pages is
+      still gated, the next session prepares that deploy and points at
+      `deploy-settings`; it does not start a sibling product and does not
+      add Cloudflare or Vercel.
 
 ## 8. After it ships
 
+- **Deploy before you build the next one.** An undeployed product on `main`
+  outranks every unbuilt candidate. Usage cannot be read from a file nobody
+  can open.
 - **Watch usage, not opinions.** A product with real users outranks every
   candidate in the pipeline. If people come back, put the fleet's time there.
 - **If nobody uses it after a fair run**, say so plainly in one ledger line and
