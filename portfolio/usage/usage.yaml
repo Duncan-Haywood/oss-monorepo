@@ -2019,3 +2019,16 @@ products:
           calculator onto current main. Public URL remains owner-gated;
           the local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+
+  - slug: cash-runway-planner
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          forecast_runs: 0
+          csv_exported: 0
+        note: >-
+          Repair-and-merge of unique #1230 cash runway planner onto
+          current main. Public URL remains owner-gated; usage is opt-in
+          and local-only. Baseline row.

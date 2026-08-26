@@ -2618,3 +2618,34 @@ ventures:
       figures are labelled a typical week rather than a benchmark, and
       nothing the user enters leaves the browser.
 
+
+  - slug: cash-runway-planner
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The forecast is intentionally deterministic and local-first. Its
+      value is invoice timing against recurring bills, not inference.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local 12-week cash forecast
+      for independent service businesses (repair-and-merge of unique
+      #1230). Distinct from invoice-payment-terms (one invoice's due
+      date and 2/10) and retainage (construction withhold): this models
+      starting cash, collection delay, weekly income, and weekly costs
+      into a low-balance week. Distribution is "cash runway calculator"
+      and "when will I run out of cash".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: output is arithmetic on the user's own inputs, labeled a
+      projection rather than financial advice, and remains in the
+      browser.
