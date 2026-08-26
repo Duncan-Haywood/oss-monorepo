@@ -23,6 +23,8 @@ test("calculates hidden time and target price", () => {
   assert.equal(result.minimum_price_adjustment, 705);
   assert.equal(result.buffered_hours, 42);
   assert.equal(result.buffered_target_price, 3630);
+  assert.equal(result.hidden_hours, 11);
+  assert.equal(result.hidden_time_percent, (11 / 35) * 100);
 });
 
 test("defaults the time buffer to zero", () => {

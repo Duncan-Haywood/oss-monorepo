@@ -5,6 +5,14 @@ import { reviewQuote, reviewDecision } from "./review.mjs";
 
 function reportFor(data) { const quote = loadQuote(data); return [quote, calculate(quote)]; }
 
+test("flags hidden time that is a quarter or more of the work", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 6, admin_hours: 2, revision_hours: 1, target_hourly_rate: 50 });
+  const checks = reviewQuote(quote, report);
+  assert.equal(report.hidden_hours, 3);
+  assert.equal(report.hidden_time_percent, 33.33333333333333);
+  assert.match(checks.find((check) => check.title.startsWith("Hidden time is at least")).detail, /33\.3%/);
+});
+
 test("flags a quote below target and names hidden time", () => {
   const [quote, report] = reportFor({ currency: "USD", price: 1000, delivery_hours: 10, admin_hours: 2, revision_hours: 3, target_hourly_rate: 100 });
   const checks = reviewQuote(quote, report);
@@ -50,7 +58,7 @@ test("counts a full-price cost flag as attention, not a send recommendation", ()
   const [quote, report] = reportFor({ currency: "USD", price: 100, delivery_hours: 2, overhead: 60, subcontractor_cost: 40, target_hourly_rate: 20, revision_hours: 1 });
   const decision = reviewDecision(report, quote);
   assert.equal(decision.tone, "attention");
-  assert.match(decision.detail, /2 arithmetic flags/);
+  assert.match(decision.detail, /3 arithmetic flags/);
 });
 
 test("shows the target-rate hours budget when the quote has room", () => {

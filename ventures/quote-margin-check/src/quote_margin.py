@@ -50,6 +50,7 @@ def calculate(quote: Quote) -> dict[str, float]:
     direct_costs = quote.overhead + quote.subcontractor_cost
     effective_rate = (quote.price - direct_costs) / total_hours
     target_price = total_hours * quote.target_hourly_rate + direct_costs
+    hidden_hours = quote.admin_hours + quote.revision_hours
     return {
         "total_hours": total_hours,
         "direct_costs": direct_costs,
@@ -60,6 +61,9 @@ def calculate(quote: Quote) -> dict[str, float]:
         "cost_coverage": quote.price - direct_costs,
         "discount_room": max(0, quote.price - target_price),
         "minimum_price_adjustment": max(0.0, target_price - quote.price),
+        "delivery_hours": quote.delivery_hours,
+        "hidden_hours": hidden_hours,
+        "hidden_time_percent": (hidden_hours / total_hours) * 100,
     }
 
 
