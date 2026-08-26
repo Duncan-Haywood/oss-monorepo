@@ -73,7 +73,7 @@ products:
           share_link_copies: 0
         note: Added modeled retainage-reduction schedule and a shareable worksheet hash link; public URL remains owner-gated.
 
-  - slug: 3pl-quote-normalizer
+   - slug: 3pl-quote-normalizer
     surface: static-page-in-repo
     readings:
       - as_of: 2026-08-24
