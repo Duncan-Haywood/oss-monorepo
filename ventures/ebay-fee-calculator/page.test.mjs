@@ -281,9 +281,9 @@ test('the immediate-payment table has one cell per column and a counted event', 
   assert.match(page, /immediate_payment_compared/);
   assert.match(page, /should-i-require-immediate-payment-on-ebay\.html/);
   assert.match(page, /"featureList":\s*"[^"]*immediate payment vs unpaid checkouts/);
-  const payStart = page.indexOf('id="immediatePaymentTable"');
-  const payEnd = page.indexOf('id="globalShipping"', payStart);
-  const headerBlock = page.slice(payStart, payEnd === -1 ? undefined : payEnd);
+  const immediateStart = page.indexOf('id="immediatePaymentTable"');
+  const immediateEnd = page.indexOf('id="topRatedPlus"', immediateStart);
+  const headerBlock = page.slice(immediateStart, immediateEnd === -1 ? undefined : immediateEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -293,6 +293,48 @@ test('the immediate-payment table has one cell per column and a counted event', 
     'If checkout starts',
     'Expected after sell-through',
     'vs later',
+  ]);
+});
+
+test('the Top Rated Plus table has one cell per column and a counted event', () => {
+  assert.match(page, /compareTopRatedPlus/);
+  assert.match(page, /id="topRatedPlus"/);
+  assert.match(page, /id="topRatedPlusVerdict"/);
+  assert.match(page, /top_rated_plus_compared/);
+  assert.match(page, /is-ebay-top-rated-plus-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Top Rated Plus vs stay standard/);
+  const trsStart = page.indexOf('id="topRatedPlusTable"');
+  const trsEnd = page.indexOf('id="managedReturns"', trsStart);
+  const headerBlock = page.slice(trsStart, trsEnd === -1 ? undefined : trsEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Sell-through',
+    'Return rate',
+    'Handling',
+    'If it sells',
+    'Expected after sell-through',
+    'vs standard',
+  ]);
+});
+
+test('the Managed Returns table has one cell per column and a counted event', () => {
+  assert.match(page, /compareManagedReturns/);
+  assert.match(page, /id="managedReturns"/);
+  assert.match(page, /id="managedReturnsVerdict"/);
+  assert.match(page, /managed_returns_compared/);
+  assert.match(page, /is-ebay-managed-returns-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*Managed Returns vs your own label/);
+  const managedStart = page.indexOf('id="managedReturnsTable"');
+  const managedEnd = page.indexOf('id="globalShipping"', managedStart);
+  const headerBlock = page.slice(managedStart, managedEnd === -1 ? undefined : managedEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Label / fee',
+    'Return rate',
+    'Expected leftover',
+    'vs self-label',
   ]);
 });
 

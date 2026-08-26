@@ -85,6 +85,19 @@ unpaid-item rate, or require payment now and take a typed
 sell-through hit. A 10-point conversion drop can cost more than
 the unpaid cases you avoided.
 [Should I require immediate payment on eBay?](should-i-require-immediate-payment-on-ebay.html).
+A **Top Rated Plus vs stay standard** table then prices the same
+listing two ways: keep buyer-paid returns at the full final-value
+rate, or take a typed fee discount and a badge sell-through lift in
+exchange for seller-paid return labels, a higher return rate, and
+1-day handling time. A 10% discount on a $40 sale still loses after
+free returns.
+[Is eBay Top Rated Plus worth it?](is-ebay-top-rated-plus-worth-it.html).
+A **Managed Returns vs your own label** table then prices the same
+SKU three ways: buy the return postage yourself, pay eBay’s typed
+program fee (usually at a higher return rate), or make the buyer
+pay return shipping. A $5.50 fee still loses after four extra
+return points on a $40 listing.
+[Is eBay Managed Returns worth it?](is-ebay-managed-returns-worth-it.html).
 A **Global Shipping Program vs you-ship** table then prices the
 same international buyer two ways: ship to the US hub on your
 domestic label, or collect international postage and buy the
@@ -145,6 +158,16 @@ whether requiring pay-now still beats an 8% unpaid rate after
 a typed sell-through hit** — which used to mean flipping the
 listing setting because unpaid-item cases sat in Seller Hub
 and never pricing the checkouts that never started.
+
+**After using the Top Rated Plus page, you can now see whether a
+10% final-value discount still covers free returns and 1-day
+handling** — which used to mean enrolling because “the badge
+looks free” and never pricing the labels you now buy.
+
+**After using the Managed Returns page, you can now see whether a
+$5.50 program fee still beats an $8 label after extra returns** —
+which used to mean enrolling because “postage is cheaper” and
+never pricing the easier return path.
 
 **After using the Global Shipping page, you can now see whether
 the hub still beats an $18 international label after an 8%
@@ -233,6 +256,15 @@ drive that decision:
   require-now. An unpaid case never ships. The table also
   names the unpaid rate and immediate sell-through that still
   tie later checkout.
+- **Top Rated Plus vs stay standard** — expected listing profit
+  after sell-through with buyer-paid returns versus a typed
+  final-value discount, seller-paid return labels, a higher
+  return rate, and 1-day handling. The table also names the
+  free-return rate that still ties staying standard.
+- **Managed Returns vs your own label** — expected leftover after
+  returns with the label you buy versus a typed program fee
+  versus buyer-paid return shipping. The table also names the
+  Managed Returns rate that still ties buying the label yourself.
 - **Global Shipping Program vs you-ship** — expected listing
   profit after sell-through with a hub label versus an
   international label you buy. A claim is not a return — the
@@ -270,6 +302,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
+`top_rated_plus_compared`,
+`managed_returns_compared`,
 `global_shipping_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
@@ -280,7 +314,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `promoted_offsite_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
-`immediate_payment_compared`, and
+`immediate_payment_compared`,
+`top_rated_plus_compared`,
+`managed_returns_compared`, and
 `global_shipping_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
@@ -290,7 +326,8 @@ the view is used.
 
 The tool is free and full-featured. The
 [project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
-support is entirely voluntary and never changes what the tool does.
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
+voluntary and never changes what the tool does.
 
 ## Save and share
 

@@ -170,6 +170,22 @@ test('counts an immediate-payment comparison without storing an unpaid rate', ()
   assert.deepEqual(Object.keys(stored).sort(), ['immediate_payment_compared', 'last_day']);
 });
 
+test('counts a Top Rated Plus comparison without storing a discount or wage', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'top_rated_plus_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.top_rated_plus_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'top_rated_plus_compared']);
+});
+
+test('counts a Managed Returns comparison without storing a fee or rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'managed_returns_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.managed_returns_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'managed_returns_compared']);
+});
+
 test('counts a Global Shipping comparison without storing postage or a claim rate', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'global_shipping_compared');

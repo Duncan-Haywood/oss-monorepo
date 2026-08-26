@@ -391,6 +391,24 @@ products:
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
+          top_rated_plus_compared: 0
+        note: >-
+          Added Top Rated Plus vs staying standard after free returns
+          (final-value discount, 1-day handling, return-rate ceiling).
+          Still no public URL; local event top_rated_plus_compared is
+          opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          managed_returns_compared: 0
+        note: >-
+          Added Managed Returns vs self-label vs buyer-paid return
+          shipping (program fee, extra return rate, rate ceiling).
+          Still no public URL; local event managed_returns_compared is
+          opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
           global_shipping_compared: 0
         note: >-
           Added Global Shipping Program vs you-ship after sell-through

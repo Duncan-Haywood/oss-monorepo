@@ -109,6 +109,22 @@ export const INPUT_FIELDS = [
   'unpaidMinutes',
   'unpaidHourlyWage',
   'monthlyImmediateListings',
+  'trsDiscountPct',
+  'standardSellThroughPct',
+  'trsSellThroughPct',
+  'standardReturnRatePercent',
+  'trsReturnRatePercent',
+  'standardReturnShippingCost',
+  'trsReturnShippingCost',
+  'trsHandlingMinutes',
+  'trsHandlingWage',
+  'monthlyTrsListings',
+  'selfReturnShippingCost',
+  'selfReturnRatePercent',
+  'managedReturnFee',
+  'managedReturnRatePercent',
+  'buyerPaysReturnRatePercent',
+  'monthlyManagedListings',
   'gspReturnRatePercent',
   'gspSellThroughPct',
   'selfShipShippingCharged',
@@ -2752,6 +2768,440 @@ export function immediatePaymentNote(comparison) {
     ? ` Immediate payment has to convert about ${comparison.breakEvenImmediateSellThroughPct.toFixed(1)}% of the time before it matches allowing later checkout after sell-through.`
     : '';
   return `${laterLine}${immediateLine}${closeLine}${unpaidFloor}${stFloor}`;
+}
+
+/**
+ * Illustrative Top Rated Plus defaults. A 10% final-value discount
+ * looks like free money on a $40 listing — until seller-paid
+ * return labels, a doubled return rate, and 1-day handling wipe
+ * the fee save. Discount, rates, and handling minutes are inputs,
+ * not eBay's live Top Rated schedule.
+ */
+export const DEFAULT_TRS_DISCOUNT_PCT = 10;
+export const DEFAULT_STANDARD_SELL_THROUGH = 60;
+export const DEFAULT_TRS_SELL_THROUGH = 75;
+export const DEFAULT_STANDARD_RETURN_RATE = 8;
+export const DEFAULT_TRS_RETURN_RATE = 16;
+export const DEFAULT_STANDARD_RETURN_SHIPPING = 0;
+export const DEFAULT_TRS_RETURN_SHIPPING = 5;
+export const DEFAULT_TRS_HANDLING_MINUTES = 8;
+export const DEFAULT_TRS_HANDLING_WAGE = 18;
+export const DEFAULT_MONTHLY_TRS_LISTINGS = 40;
+
+function topRatedRow({
+  id,
+  label,
+  sellThroughPct,
+  returnRatePercent,
+  returnShippingCost,
+  finalValueRate,
+  handlingCost,
+  soldExpectedProfit,
+  completedProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    sellThroughPct,
+    returnRatePercent,
+    returnShippingCost,
+    finalValueRate,
+    handlingCost,
+    soldExpectedProfit,
+    completedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, listed under a standard return policy or as Top Rated
+ * Plus style: seller-paid returns, faster handling, a typed
+ * final-value discount, and a badge sell-through lift.
+ *
+ *   - Stay standard — typed standard return rate and return postage
+ *     (defaults: buyer pays the label). Full final-value rate. No
+ *     extra 1-day handling time.
+ *   - Top Rated Plus — final-value rate reduced by the typed
+ *     discount, seller-paid return labels, a higher return rate,
+ *     extra handling minutes on every sale, and a higher
+ *     sell-through from the badge.
+ *
+ * Expected listing profit is completed-sale expected profit times
+ * sell-through, minus handling paid on the sales you actually pack.
+ * Complementary to the return-*rate* mix (one postage), partial vs
+ * take-the-return (one case), Standard Envelope (claim vs return),
+ * local pickup (no shipping), and seller coupon (public code).
+ * Complementary to Managed Returns (who buys the label). Open
+ * eBay PRs still own Promoted Listings Standard rate, store,
+ * Best Offer, and international. Discount and rates are inputs,
+ * not eBay Top Rated policy.
+ */
+export function compareTopRatedPlus(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const discountPct = requiredPercent(
+    input.trsDiscountPct,
+    'Top Rated final-value discount',
+    DEFAULT_TRS_DISCOUNT_PCT,
+  );
+  const standardSellThrough = requiredPercent(
+    input.standardSellThroughPct,
+    'Standard sell-through',
+    DEFAULT_STANDARD_SELL_THROUGH,
+  );
+  const trsSellThrough = requiredPercent(
+    input.trsSellThroughPct,
+    'Top Rated sell-through',
+    DEFAULT_TRS_SELL_THROUGH,
+  );
+  const standardReturnRate = requiredPercent(
+    input.standardReturnRatePercent,
+    'Standard return rate',
+    DEFAULT_STANDARD_RETURN_RATE,
+  );
+  const trsReturnRate = requiredPercent(
+    input.trsReturnRatePercent,
+    'Top Rated return rate',
+    DEFAULT_TRS_RETURN_RATE,
+  );
+  const standardReturnShip = optionalNumber(
+    input.standardReturnShippingCost,
+    'Standard return shipping',
+    DEFAULT_STANDARD_RETURN_SHIPPING,
+  );
+  const trsReturnShip = optionalNumber(
+    input.trsReturnShippingCost,
+    'Top Rated return shipping',
+    DEFAULT_TRS_RETURN_SHIPPING,
+  );
+  const minutes = optionalNumber(
+    input.trsHandlingMinutes,
+    'Top Rated handling minutes',
+    DEFAULT_TRS_HANDLING_MINUTES,
+  );
+  const wage = optionalNumber(
+    input.trsHandlingWage,
+    'Top Rated handling wage',
+    DEFAULT_TRS_HANDLING_WAGE,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyTrsListings,
+    'Monthly Top Rated listings',
+    DEFAULT_MONTHLY_TRS_LISTINGS,
+  );
+
+  const listedFvf = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.25);
+  const discountedFvf = listedFvf * (1 - discountPct / 100);
+  const handlingCost = (minutes / 60) * wage;
+
+  const standardSold = calculateOrder({
+    ...input,
+    returnRatePercent: standardReturnRate,
+    returnShippingCost: standardReturnShip,
+  });
+  const trsSold = calculateOrder({
+    ...input,
+    finalValueRate: discountedFvf,
+    returnRatePercent: trsReturnRate,
+    returnShippingCost: trsReturnShip,
+  });
+
+  const standardExpected = standardSold.expectedProfit * (standardSellThrough / 100);
+  const trsExpected = (trsSold.expectedProfit - handlingCost) * (trsSellThrough / 100);
+
+  const standard = topRatedRow({
+    id: 'standard',
+    label: 'Stay standard',
+    sellThroughPct: standardSellThrough,
+    returnRatePercent: standardReturnRate,
+    returnShippingCost: standardReturnShip,
+    finalValueRate: listedFvf,
+    handlingCost: 0,
+    soldExpectedProfit: standardSold.expectedProfit,
+    completedProfit: standardSold.profit,
+    expectedProfit: standardExpected,
+  });
+  const topRated = topRatedRow({
+    id: 'topRated',
+    label: 'Top Rated Plus',
+    sellThroughPct: trsSellThrough,
+    returnRatePercent: trsReturnRate,
+    returnShippingCost: trsReturnShip,
+    finalValueRate: discountedFvf,
+    handlingCost,
+    soldExpectedProfit: trsSold.expectedProfit,
+    completedProfit: trsSold.profit,
+    expectedProfit: trsExpected,
+  });
+  standard.expectedProfitDelta = standard.expectedProfit - topRated.expectedProfit;
+  topRated.expectedProfitDelta = topRated.expectedProfit - standard.expectedProfit;
+
+  const winner = topRated.expectedProfit > standard.expectedProfit + 1e-9
+    ? 'topRated'
+    : topRated.expectedProfit < standard.expectedProfit - 1e-9
+      ? 'standard'
+      : 'tie';
+
+  let breakEvenTrsSellThrough = Infinity;
+  const trsPerSale = trsSold.expectedProfit - handlingCost;
+  if (trsPerSale > 1e-12) {
+    const needed = standard.expectedProfit / trsPerSale * 100;
+    breakEvenTrsSellThrough = needed > 100 + 1e-9 ? Infinity : Math.max(0, needed);
+  }
+
+  let breakEvenTrsReturnRate = Infinity;
+  const trsStFrac = trsSellThrough / 100;
+  if (trsStFrac > 1e-12) {
+    const targetSold = standard.expectedProfit / trsStFrac + handlingCost;
+    const gap = trsSold.profit - trsSold.returnProfit;
+    if (Math.abs(gap) > 1e-12) {
+      const needed = (trsSold.profit - targetSold) / gap * 100;
+      breakEvenTrsReturnRate = needed < -1e-9 || needed > 100 + 1e-9
+        ? Infinity
+        : Math.max(0, Math.min(100, needed));
+    }
+  }
+
+  const fvfSave = standardSold.fees.finalValue - trsSold.fees.finalValue;
+
+  return {
+    rows: [standard, topRated],
+    standard,
+    topRated,
+    winner,
+    discountPct,
+    discountedFvf,
+    handlingCost,
+    fvfSave,
+    monthlyListings,
+    extraKeptOnTopRated: topRated.expectedProfit - standard.expectedProfit,
+    monthlyExtraOnTopRated: (topRated.expectedProfit - standard.expectedProfit) * monthlyListings,
+    breakEvenTrsSellThrough,
+    breakEvenTrsReturnRate,
+    standardCompletedProfit: standardSold.profit,
+    topRatedCompletedProfit: trsSold.profit,
+  };
+}
+
+export function topRatedPlusNote(comparison) {
+  if (!comparison?.standard || !comparison?.topRated) {
+    throw new Error('Top Rated Plus comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { standard, topRated } = comparison;
+  const gap = money(Math.abs(topRated.expectedProfit - standard.expectedProfit));
+  const ahead = topRated.expectedProfit >= standard.expectedProfit ? 'more' : 'less';
+  const standardLine = `Staying standard at ${standard.sellThroughPct}% sell-through and a ${standard.returnRatePercent}% return rate, with ${money(standard.returnShippingCost)} return postage, expects ${money(standard.expectedProfit)}.`;
+  const trsLine = `Top Rated Plus at a ${comparison.discountPct}% final-value discount, ${topRated.sellThroughPct}% sell-through, a ${topRated.returnRatePercent}% return rate, ${money(topRated.returnShippingCost)} seller-paid return postage, and ${money(comparison.handlingCost)} of 1-day handling expects ${money(topRated.expectedProfit)} — ${gap} ${ahead}.`;
+  const ceiling = Number.isFinite(comparison.breakEvenTrsReturnRate)
+    ? ` Free returns can rise to about ${comparison.breakEvenTrsReturnRate.toFixed(1)}% before Top Rated Plus matches staying standard.`
+    : ' No free-return rate on these sell-throughs can match staying standard.';
+  return `${standardLine} ${trsLine}${ceiling}`;
+}
+
+/**
+ * Illustrative Managed Returns defaults. Per-return program fee and the
+ * two return rates are inputs — not eBay's current Managed Returns
+ * schedule. $8 self-label / $5.50 program fee / 10% vs 14% vs 6% is a
+ * clothing-adjacent mix a seller overwrites from their last month.
+ */
+export const DEFAULT_SELF_RETURN_LABEL = 8;
+export const DEFAULT_SELF_RETURN_RATE = 10;
+export const DEFAULT_MANAGED_RETURN_FEE = 5.5;
+export const DEFAULT_MANAGED_RETURN_RATE = 14;
+export const DEFAULT_BUYER_PAYS_RETURN_RATE = 6;
+export const DEFAULT_MONTHLY_MANAGED_LISTINGS = 40;
+
+function firstPresent(...values) {
+  for (const value of values) {
+    if (value !== undefined && value !== null && value !== '') return value;
+  }
+  return undefined;
+}
+
+/**
+ * Same SKU, three ways to handle the return label.
+ *
+ *   - Self-label — you buy the typed return postage at the typed
+ *     self-return rate. Dedicated fields keep the headline
+ *     return-rate mix untouched; the sibling page can still pass
+ *     returnShippingCost / returnRatePercent.
+ *   - Managed Returns — eBay's per-return program fee replaces your
+ *     label. The return rate is often higher because the buyer path
+ *     is easier.
+ *   - Buyer pays return shipping — no label cost, lower return rate
+ *     from the extra friction.
+ *
+ * Complementary to the return-*rate* mix (one postage, one rate),
+ * partial vs take-the-return (one case), and Top Rated Plus (fee
+ * discount vs free returns). Rates and the program fee are inputs,
+ * not eBay Managed Returns policy.
+ */
+export function compareManagedReturns(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const selfLabel = optionalNumber(
+    firstPresent(input.selfReturnShippingCost, input.returnShippingCost),
+    'Self-return shipping',
+    DEFAULT_SELF_RETURN_LABEL,
+  );
+  const selfRate = requiredPercent(
+    firstPresent(input.selfReturnRatePercent, input.returnRatePercent),
+    'Self-return rate',
+    DEFAULT_SELF_RETURN_RATE,
+  );
+  const managedFee = optionalNumber(input.managedReturnFee, 'Managed Returns fee', DEFAULT_MANAGED_RETURN_FEE);
+  const managedRate = requiredPercent(
+    input.managedReturnRatePercent,
+    'Managed Returns rate',
+    DEFAULT_MANAGED_RETURN_RATE,
+  );
+  const buyerRate = requiredPercent(
+    input.buyerPaysReturnRatePercent,
+    'Buyer-pays return rate',
+    DEFAULT_BUYER_PAYS_RETURN_RATE,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyManagedListings,
+    'Monthly listings',
+    DEFAULT_MONTHLY_MANAGED_LISTINGS,
+  );
+  if (monthlyListings === 0) throw new Error('Monthly listings must be greater than zero');
+
+  const selfOrder = calculateOrder({
+    ...input,
+    returnShippingCost: selfLabel,
+    returnRatePercent: selfRate,
+  });
+  const managedOrder = calculateOrder({
+    ...input,
+    returnShippingCost: managedFee,
+    returnRatePercent: managedRate,
+  });
+  const buyerOrder = calculateOrder({
+    ...input,
+    returnShippingCost: 0,
+    returnRatePercent: buyerRate,
+  });
+
+  const self = {
+    id: 'self',
+    label: 'Buy the return label yourself',
+    returnCost: selfLabel,
+    returnRatePercent: selfRate,
+    returnProfit: selfOrder.returnProfit,
+    expectedProfit: selfOrder.expectedProfit,
+  };
+  const managed = {
+    id: 'managed',
+    label: 'eBay Managed Returns',
+    returnCost: managedFee,
+    returnRatePercent: managedRate,
+    returnProfit: managedOrder.returnProfit,
+    expectedProfit: managedOrder.expectedProfit,
+  };
+  const buyerPays = {
+    id: 'buyer_pays',
+    label: 'Buyer pays return shipping',
+    returnCost: 0,
+    returnRatePercent: buyerRate,
+    returnProfit: buyerOrder.returnProfit,
+    expectedProfit: buyerOrder.expectedProfit,
+  };
+
+  const extraKeptOnManaged = managed.expectedProfit - self.expectedProfit;
+  const extraKeptOnBuyerPays = buyerPays.expectedProfit - self.expectedProfit;
+  const rows = [self, managed, buyerPays].map((row) => ({
+    ...row,
+    vsSelf: row.expectedProfit - self.expectedProfit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.expectedProfit));
+  const leaders = rows.filter((row) => Math.abs(row.expectedProfit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : 'tie';
+
+  const completedProfit = selfOrder.profit;
+  const selfGap = completedProfit - self.returnProfit;
+  const managedGap = completedProfit - managed.returnProfit;
+  let breakEvenManagedRate = Infinity;
+  if (managedGap > 1e-12) {
+    breakEvenManagedRate = Math.min(100, (selfRate / 100) * selfGap / managedGap * 100);
+  }
+  let breakEvenManagedFee = Infinity;
+  const outboundSunk = (Number(input.shippingCost ?? 0) + Number(input.packagingCost ?? 0) + Number(input.otherCost ?? 0))
+    * (Number(input.quantity ?? 1));
+  const unrefundedFees = selfOrder.feeTotal * (1 - selfOrder.feeRefundOnReturnPercent / 100);
+  const managedBlend = managedRate / 100;
+  if (managedBlend > 1e-12) {
+    const targetReturnProfit = (self.expectedProfit - (1 - managedBlend) * completedProfit) / managedBlend;
+    breakEvenManagedFee = -targetReturnProfit - outboundSunk - unrefundedFees;
+    if (breakEvenManagedFee < 0) breakEvenManagedFee = -Infinity;
+  }
+
+  return {
+    rows,
+    self: rows[0],
+    managed: rows[1],
+    buyerPays: rows[2],
+    completedProfit,
+    selfLabel,
+    managedFee,
+    extraKeptOnManaged,
+    extraKeptOnBuyerPays,
+    monthlyExtraOnManaged: extraKeptOnManaged * monthlyListings,
+    monthlyExtraOnBuyerPays: extraKeptOnBuyerPays * monthlyListings,
+    monthlyListings,
+    breakEvenManagedRate,
+    breakEvenManagedFee,
+    winner,
+    summary: managedReturnsNote({
+      winner,
+      extraKeptOnManaged,
+      extraKeptOnBuyerPays,
+      breakEvenManagedRate,
+      managedFee,
+      selfLabel,
+    }),
+  };
+}
+
+export function managedReturnsNote(comparison) {
+  if (!comparison || comparison.extraKeptOnManaged === undefined) {
+    throw new Error('Managed Returns comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const {
+    winner,
+    extraKeptOnManaged,
+    extraKeptOnBuyerPays,
+    breakEvenManagedRate,
+    managedFee,
+    selfLabel,
+  } = comparison;
+  const managedGap = money(Math.abs(extraKeptOnManaged));
+  const managedAhead = extraKeptOnManaged >= 0 ? 'more' : 'less';
+  const feeLine = `Managed Returns at ${money(managedFee)} keeps ${managedGap} ${managedAhead} than buying the ${money(selfLabel)} label yourself.`;
+  const floor = Number.isFinite(breakEvenManagedRate)
+    ? ` The program still ties your own label as long as the Managed Returns rate stays near ${breakEvenManagedRate.toFixed(1)}%.`
+    : ' No Managed Returns rate on these fees can match buying the label yourself.';
+  const buyer = ` Buyer-paid return shipping keeps ${money(Math.abs(extraKeptOnBuyerPays))} ${extraKeptOnBuyerPays >= 0 ? 'more' : 'less'}.`;
+  if (winner === 'tie') {
+    return `Managed Returns and your own label leave the same expected profit on these rates.${buyer}`;
+  }
+  return `${feeLine}${floor}${buyer}`;
 }
 
 /**
