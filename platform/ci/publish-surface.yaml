@@ -226,6 +226,9 @@ workflows:
 - workflow: walk-in-tub-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: walmart-marketplace-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: where-to-sell-calculator-ci.yml
   classification: none
   publishes: []
