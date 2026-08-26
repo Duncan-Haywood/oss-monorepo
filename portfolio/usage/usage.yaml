@@ -3473,3 +3473,16 @@ products:
           Repair-and-merge of unique #905 vendor page change monitor. In-memory
           snapshots only; usage events are event name + path + day, never the
           checked URL. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          check_started: 0
+          check_unchanged: 0
+          check_changed: 0
+        note: >-
+          Snapshots moved into the visitor's own browser, so a baseline now
+          survives a restart and is never answered from another visitor's
+          snapshot. check_changed and check_unchanged are the outcome signals
+          worth watching: before this, a returning visitor could only ever see
+          check_first_snapshot, so repeat value was unmeasurable rather than
+          merely unmeasured. Public URL remains owner-gated.
