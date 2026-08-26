@@ -1,5 +1,5 @@
 name: freight-accessorial-auditor
-description: A private browser tool that imports a carrier's own invoice export, applies the shipper's contract rate card, and finds duplicate and over-billed freight accessorial charges before they pay — plus a detention clock check and a comparison of eating an extra, billing the customer, or reviewing for a credit.
+description: A private browser tool that imports a carrier's own invoice export, applies the shipper's contract rate card — flat or per hour, day, or hundredweight with a free allowance and a cap — and finds duplicate and over-billed freight accessorial charges before they pay, citing the contract term behind each expected amount, plus a detention clock check and a comparison of eating an extra, billing the customer, or reviewing for a credit.
 stage: prototype
 owner: duncan
 hypotheses:
