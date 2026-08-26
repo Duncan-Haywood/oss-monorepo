@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -478,4 +478,125 @@ test('rejects negative or over-100 Star Seller inputs', () => {
   assert.throws(() => compareStarSeller({ ...PAGE_ORDER, starSellerMessageMinutes: -1 }), /Star Seller message minutes/);
   assert.throws(() => compareStarSeller({ ...PAGE_ORDER, unsignedSellThroughPct: 101 }), /at most 100/);
   assert.throws(() => compareStarSeller({ ...PAGE_ORDER, starSellerSellThroughPct: -5 }), /Star Seller sell-through/);
+});
+
+test('shop-sale defaults match the 20% / $5 / 40% vs 55% example', () => {
+  assert.deepEqual(SHOP_SALE_DEFAULTS, {
+    salePercent: 20,
+    saleDollar: 5,
+    listedSellThroughPct: 40,
+    saleSellThroughPct: 55,
+    saleListings: 40,
+  });
+});
+
+test('a 15-point lift makes $5 off beat 20% and full price', () => {
+  const result = compareShopSale(PAGE_ORDER);
+  assert.equal(result.asListed.profit, 21.23);
+  assert.equal(result.percent.price, 24);
+  assert.equal(result.percent.profit, 15.8);
+  assert.equal(result.percent.cannibalized, -5.43);
+  assert.equal(result.dollar.price, 25);
+  assert.equal(result.dollar.profit, 16.7);
+  assert.equal(result.dollar.cannibalized, -4.53);
+  assert.equal(result.asListed.expected, 8.49);
+  assert.equal(result.percent.expected, 8.69);
+  assert.equal(result.dollar.expected, 9.19);
+  assert.equal(result.percentExtraExpected, 0.2);
+  assert.equal(result.dollarExtraExpected, 0.7);
+  assert.equal(result.percentExtraAcrossListings, 8);
+  assert.equal(result.dollarExtraAcrossListings, 28);
+  assert.equal(result.asListed.acrossListings, 339.6);
+  assert.equal(result.percent.acrossListings, 347.6);
+  assert.equal(result.dollar.acrossListings, 367.6);
+  assert.equal(result.breakEvenPercentSellThroughPct, 53.75);
+  assert.equal(result.breakEvenDollarSellThroughPct, 50.84);
+  assert.equal(result.percentCeiling, 21.33);
+  assert.equal(result.dollarCeiling, 6.4);
+  assert.equal(result.salePriceCeiling, 23.6);
+  assert.equal(result.percentPays, true);
+  assert.equal(result.dollarPays, true);
+  assert.equal(result.winner, 'dollar');
+});
+
+test('a 10-point sale lift is not enough — stay full price', () => {
+  const result = compareShopSale({ ...PAGE_ORDER, saleSellThroughPct: 50 });
+  assert.equal(result.percent.expected, 7.9);
+  assert.equal(result.dollar.expected, 8.35);
+  assert.equal(result.percentExtraExpected, -0.59);
+  assert.equal(result.dollarExtraExpected, -0.14);
+  assert.equal(result.percentExtraAcrossListings, -23.6);
+  assert.equal(result.dollarExtraAcrossListings, -5.6);
+  assert.equal(result.breakEvenPercentSellThroughPct, 53.75);
+  assert.equal(result.percentPays, false);
+  assert.equal(result.dollarPays, false);
+  assert.equal(result.winner, 'as_listed');
+});
+
+test('a 30-point lift widens the dollar-off lead', () => {
+  const result = compareShopSale({ ...PAGE_ORDER, saleSellThroughPct: 70 });
+  assert.equal(result.percent.expected, 11.06);
+  assert.equal(result.dollar.expected, 11.69);
+  assert.equal(result.percentExtraExpected, 2.57);
+  assert.equal(result.dollarExtraExpected, 3.2);
+  assert.equal(result.winner, 'dollar');
+});
+
+test('15% Offsite Ads make 20% off lose while $5 off still squeaks ahead', () => {
+  const result = compareShopSale({ ...PAGE_ORDER, offsiteAdRate: 15 });
+  assert.equal(result.asListed.profit, 15.98);
+  assert.equal(result.percent.profit, 11.45);
+  assert.equal(result.dollar.profit, 12.2);
+  assert.equal(result.asListed.expected, 6.39);
+  assert.equal(result.percent.expected, 6.29);
+  assert.equal(result.dollar.expected, 6.71);
+  assert.equal(result.percentExtraExpected, -0.1);
+  assert.equal(result.dollarExtraExpected, 0.32);
+  assert.equal(result.breakEvenPercentSellThroughPct, 55.83);
+  assert.equal(result.breakEvenDollarSellThroughPct, 52.38);
+  assert.equal(result.percentCeiling, 19.23);
+  assert.equal(result.dollarCeiling, 5.77);
+  assert.equal(result.percentPays, false);
+  assert.equal(result.dollarPays, true);
+  assert.equal(result.winner, 'dollar');
+});
+
+test('a shallower 10% sale keeps more than $5 off at the same lift', () => {
+  const result = compareShopSale({ ...PAGE_ORDER, salePercent: 10 });
+  assert.equal(result.percent.price, 27);
+  assert.equal(result.percent.profit, 18.51);
+  assert.equal(result.percent.expected, 10.18);
+  assert.equal(result.percentExtraExpected, 1.69);
+  assert.equal(result.breakEvenPercentSellThroughPct, 45.87);
+  assert.equal(result.winner, 'percent');
+});
+
+test('shop-sale note names the packed gap, the lift, and the discount ceiling', () => {
+  const note = shopSaleNote(compareShopSale(PAGE_ORDER));
+  assert.match(note, /\$21\.23/);
+  assert.match(note, /20\.0% off/);
+  assert.match(note, /\$24\.00/);
+  assert.match(note, /\$15\.80/);
+  assert.match(note, /\$5\.43/);
+  assert.match(note, /\$5\.00 coupon/);
+  assert.match(note, /\$16\.70/);
+  assert.match(note, /\$4\.53/);
+  assert.match(note, /40\.0% vs 55\.0%/);
+  assert.match(note, /\$8\.49/);
+  assert.match(note, /\$8\.69/);
+  assert.match(note, /\$0\.20/);
+  assert.match(note, /\$9\.19/);
+  assert.match(note, /\$0\.70/);
+  assert.match(note, /\$28\.00/);
+  assert.match(note, /53\.8%/);
+  assert.match(note, /50\.8%/);
+  assert.match(note, /21\.3%/);
+  assert.match(note, /\$6\.40/);
+});
+
+test('rejects negative or over-100 shop-sale inputs', () => {
+  assert.throws(() => compareShopSale({ ...PAGE_ORDER, salePercent: 101 }), /at most 100/);
+  assert.throws(() => compareShopSale({ ...PAGE_ORDER, saleDollar: -5 }), /Sale dollar off/);
+  assert.throws(() => compareShopSale({ ...PAGE_ORDER, listedSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareShopSale({ ...PAGE_ORDER, saleSellThroughPct: -5 }), /Sale sell-through/);
 });

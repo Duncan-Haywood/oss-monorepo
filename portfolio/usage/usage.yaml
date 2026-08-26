@@ -273,6 +273,11 @@ products:
           live_url_visitors: null
           star_seller_compared: 0
         note: Added unsigned vs Star Seller conversion-lift comparison; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          shop_sale_compared: 0
+        note: Added full-price vs 20% vs dollar-off shop-sale comparison; public URL remains owner-gated.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:

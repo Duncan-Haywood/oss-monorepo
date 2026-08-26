@@ -158,6 +158,29 @@ page
 [is-etsy-star-seller-worth-it.html](is-etsy-star-seller-worth-it.html)
 walks through the same examples.
 
+## Does this shop sale still beat staying full price?
+
+A 20% shop sale looks like a conversion cheat until every buyer who
+would have paid full price leaves $5.43 less. The cash a sale returns
+is a higher sell-through on the same listings. Percentage fees sit on
+the lower ticket; postage and materials do not change. This is not
+free shipping and it is not on-site Ads.
+
+On the default $30 listing, 20% off vs a $5.00 coupon, and 40% vs 55%
+sell-through, a packed full-price sale keeps $21.23, 20% off keeps
+$15.80 (−$5.43 if they would have paid full price), and $5.00 off
+keeps $16.70 (−$4.53). Expected keep is $8.49 vs $8.69 vs $9.19.
+The $5 coupon expects $0.70 more per listing and $28.00 more across
+40 listings. 20% off has to convert about 53.8% before it matches
+staying full price; $5 off has to convert about 50.8%. At this lift
+the sale has to stay at or below about 21.3% or $6.40 off. A 10-point
+lift (50% sale sell-through) loses on both coupons. 15% Offsite Ads
+make 20% lose $0.10 while $5 still keeps $0.32 more. A shallower 10%
+sale expects $10.18 and beats both full price and the $5 coupon. The
+SEO page
+[should-i-put-my-etsy-shop-on-sale.html](should-i-put-my-etsy-shop-on-sale.html)
+walks through the same examples.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 

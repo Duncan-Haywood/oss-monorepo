@@ -73,6 +73,11 @@ test('every encodable field is a real calculator field', () => {
   assert.ok(FIELD_IDS.includes('unsignedSellThroughPct'));
   assert.ok(FIELD_IDS.includes('starSellerSellThroughPct'));
   assert.ok(FIELD_IDS.includes('starSellerListings'));
+  assert.ok(FIELD_IDS.includes('salePercent'));
+  assert.ok(FIELD_IDS.includes('saleDollar'));
+  assert.ok(FIELD_IDS.includes('listedSellThroughPct'));
+  assert.ok(FIELD_IDS.includes('saleSellThroughPct'));
+  assert.ok(FIELD_IDS.includes('saleListings'));
 });
 
 test('carries Star Seller fields so a shared link does not drop the badge table', () => {
@@ -88,4 +93,19 @@ test('carries Star Seller fields so a shared link does not drop the badge table'
   assert.equal(decoded.starSellerShippingCost, 9);
   assert.equal(decoded.starSellerSellThroughPct, 50);
   assert.equal(decoded.starSellerListings, 40);
+});
+
+test('carries shop-sale fields so a shared link does not drop the sale table', () => {
+  const decoded = decodeInputs(encodeInputs({
+    price: 30,
+    salePercent: 20,
+    saleDollar: 5,
+    listedSellThroughPct: 40,
+    saleSellThroughPct: 55,
+    saleListings: 40,
+  }));
+  assert.equal(decoded.salePercent, 20);
+  assert.equal(decoded.saleDollar, 5);
+  assert.equal(decoded.saleSellThroughPct, 55);
+  assert.equal(decoded.saleListings, 40);
 });

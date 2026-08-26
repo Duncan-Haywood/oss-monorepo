@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareProductionPartner, compareStarSeller } from './calc.mjs';
+import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareProductionPartner, compareStarSeller, compareShopSale } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./is-etsy-plus-worth-it.html', import.meta.url), 'utf8');
@@ -11,6 +11,7 @@ const personalizationSeo = readFileSync(new URL('./should-i-charge-for-etsy-pers
 const adsSeo = readFileSync(new URL('./is-etsy-ads-worth-it.html', import.meta.url), 'utf8');
 const partnerSeo = readFileSync(new URL('./should-i-use-an-etsy-production-partner.html', import.meta.url), 'utf8');
 const starSeo = readFileSync(new URL('./is-etsy-star-seller-worth-it.html', import.meta.url), 'utf8');
+const saleSeo = readFileSync(new URL('./should-i-put-my-etsy-shop-on-sale.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -58,6 +59,7 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /Etsy Ads ACOS comparison/i);
   assert.match(featureList[1], /production partner vs handmade comparison/i);
   assert.match(featureList[1], /Star Seller vs unsigned comparison/i);
+  assert.match(featureList[1], /shop sale vs full price comparison/i);
   assert.match(markup, /id="plusTable"/);
   assert.match(markup, /id="listingsPerMonth"/);
   assert.match(markup, /id="monthlyPlusFee"/);
@@ -232,7 +234,7 @@ test('the production-partner SEO page uses the same worked examples the calculat
 });
 
 test('the Star Seller row template has one cell per column', () => {
-  const tableMarkup = markup.split('id="starTable"')[1] || '';
+  const tableMarkup = (markup.split('id="starTable"')[1] || '').split('id="saleTable"')[0];
   const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
   assert.equal(headers.length, 6, `expected 6 Star Seller columns, found ${headers.join(' | ')}`);
@@ -291,4 +293,62 @@ test('the Star Seller SEO page uses the same worked examples the calculator defa
   assert.ok(starSeo.includes(money(low.unsigned.expected)), `missing 20% unsigned ${money(low.unsigned.expected)}`);
   assert.ok(starSeo.includes(money(low.starSeller.expected)), `missing 35% star ${money(low.starSeller.expected)}`);
   assert.ok(starSeo.includes(signed(low.extraExpected)), `missing 20-35 extra ${signed(low.extraExpected)}`);
+});
+
+test('the shop-sale row template has one cell per column', () => {
+  const tableMarkup = markup.split('id="saleTable"')[1] || '';
+  const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim());
+  assert.equal(headers.length, 6, `expected 6 shop-sale columns, found ${headers.join(' | ')}`);
+  assert.match(scriptSource, /compareShopSale/);
+  assert.match(scriptSource, /shopSaleNote/);
+  assert.match(scriptSource, /shop_sale_compared/);
+  assert.match(markup, /id="salePercent"/);
+  assert.match(markup, /id="saleDollar"/);
+  assert.match(markup, /id="listedSellThroughPct"/);
+  assert.match(markup, /id="saleSellThroughPct"/);
+  assert.match(markup, /id="saleListings"/);
+  assert.match(markup, /id="shop-sale"/);
+});
+
+test('the shop-sale SEO page uses the same worked examples the calculator defaults produce', () => {
+  assert.match(saleSeo, /Should I put my Etsy shop on sale/i);
+  assert.match(saleSeo, /href="\.\/#shop-sale"/);
+  assert.match(saleSeo, /No warranty/);
+  assert.match(saleSeo, /no SLA/i);
+  const money = (value) => `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
+  const signed = (value) => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
+  const pageOrder = {
+    price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6,
+    materialCost: 4, otherCost: 0,
+  };
+  const defaults = compareShopSale(pageOrder);
+  const tenPoint = compareShopSale({ ...pageOrder, saleSellThroughPct: 50 });
+  const lift = compareShopSale({ ...pageOrder, saleSellThroughPct: 70 });
+  const ads = compareShopSale({ ...pageOrder, offsiteAdRate: 15 });
+  const shallow = compareShopSale({ ...pageOrder, salePercent: 10 });
+  assert.ok(saleSeo.includes(money(defaults.asListed.profit)), `missing listed packed ${money(defaults.asListed.profit)}`);
+  assert.ok(saleSeo.includes(money(defaults.percent.profit)), `missing 20% packed ${money(defaults.percent.profit)}`);
+  assert.ok(saleSeo.includes(money(defaults.dollar.profit)), `missing $5 packed ${money(defaults.dollar.profit)}`);
+  assert.ok(saleSeo.includes(money(defaults.asListed.expected)), `missing listed expected ${money(defaults.asListed.expected)}`);
+  assert.ok(saleSeo.includes(money(defaults.percent.expected)), `missing 20% expected ${money(defaults.percent.expected)}`);
+  assert.ok(saleSeo.includes(money(defaults.dollar.expected)), `missing $5 expected ${money(defaults.dollar.expected)}`);
+  assert.ok(saleSeo.includes(signed(defaults.percentExtraExpected)), `missing 20% extra ${signed(defaults.percentExtraExpected)}`);
+  assert.ok(saleSeo.includes(signed(defaults.dollarExtraExpected)), `missing $5 extra ${signed(defaults.dollarExtraExpected)}`);
+  assert.ok(saleSeo.includes(money(Math.abs(defaults.dollarExtraAcrossListings))), `missing $5 across ${money(Math.abs(defaults.dollarExtraAcrossListings))}`);
+  assert.ok(saleSeo.includes(`${defaults.breakEvenPercentSellThroughPct.toFixed(1)}%`), `missing 20% break-even ${defaults.breakEvenPercentSellThroughPct.toFixed(1)}%`);
+  assert.ok(saleSeo.includes(`${defaults.breakEvenDollarSellThroughPct.toFixed(1)}%`), `missing $5 break-even ${defaults.breakEvenDollarSellThroughPct.toFixed(1)}%`);
+  assert.ok(saleSeo.includes(money(defaults.dollarCeiling)), `missing dollar ceiling ${money(defaults.dollarCeiling)}`);
+  assert.ok(saleSeo.includes(signed(tenPoint.percentExtraExpected)), `missing 50% 20-extra ${signed(tenPoint.percentExtraExpected)}`);
+  assert.ok(saleSeo.includes(signed(tenPoint.dollarExtraExpected)), `missing 50% $5-extra ${signed(tenPoint.dollarExtraExpected)}`);
+  assert.ok(saleSeo.includes(money(lift.dollar.expected)), `missing 70% $5 ${money(lift.dollar.expected)}`);
+  assert.ok(saleSeo.includes(signed(lift.dollarExtraExpected)), `missing 70% extra ${signed(lift.dollarExtraExpected)}`);
+  assert.ok(saleSeo.includes(money(ads.asListed.expected)), `missing ads listed ${money(ads.asListed.expected)}`);
+  assert.ok(saleSeo.includes(money(ads.percent.expected)), `missing ads 20% ${money(ads.percent.expected)}`);
+  assert.ok(saleSeo.includes(signed(ads.percentExtraExpected)), `missing ads 20-extra ${signed(ads.percentExtraExpected)}`);
+  assert.ok(saleSeo.includes(signed(ads.dollarExtraExpected)), `missing ads $5-extra ${signed(ads.dollarExtraExpected)}`);
+  assert.ok(saleSeo.includes(money(shallow.percent.profit)), `missing 10% packed ${money(shallow.percent.profit)}`);
+  assert.ok(saleSeo.includes(money(shallow.percent.expected)), `missing 10% expected ${money(shallow.percent.expected)}`);
+  assert.ok(saleSeo.includes(signed(shallow.percentExtraExpected)), `missing 10% extra ${signed(shallow.percentExtraExpected)}`);
 });
