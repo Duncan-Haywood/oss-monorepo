@@ -7,6 +7,8 @@ export function reviewQuote(quote, report) {
 
   if (report.direct_costs > quote.price) {
     checks.push({ level: "attention", title: "Direct costs exceed the quoted price", detail: `The supplied direct costs are ${quote.currency} ${report.direct_costs.toFixed(2)} against ${quote.currency} ${quote.price.toFixed(2)}.` });
+  } else if (report.direct_costs === quote.price) {
+    checks.push({ level: "attention", title: "Direct costs use the entire quoted price", detail: `The supplied direct costs use all ${quote.currency} ${quote.price.toFixed(2)} of the quoted price, leaving nothing after direct costs.` });
   }
   if (report.gap_to_target < 0) {
     checks.push({ level: "attention", title: "The quote is below the supplied target", detail: `The arithmetic gap is ${quote.currency} ${Math.abs(report.gap_to_target).toFixed(2)} below the target price.` });

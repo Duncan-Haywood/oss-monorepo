@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dryer Vent Bid Calculator | Price the Stories, the Run, and the Roof Cap — Not Just a $99 Special</title>
+  <meta name="description" content="Price a dryer vent cleaning from extra stories, extra feet of duct, extra dryers, a rooftop termination, camera inspection, crushed-flex replacement, and a nest — not a published $99 special. See the walk-away number before you match a cheaper wall-cap quote.">
+  <meta property="og:title" content="Dryer Vent Bid Calculator">
+  <meta property="og:description" content="A one-story wall cap with eight feet of pipe is not the same job as a two-story roof cap with a 28-foot run and a camera pass. Bid the stories and the run.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dryer Vent Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Wall-cap versus two-story versus roof-cap versus multi-dryer job type, extra stories over the included first floor, extra feet over the included short run, extra dryers, camera inspection, crushed-flex replacement, nest or blockage, occupied-home access, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2a33; background: #e6eef3; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #24536b; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c3d0d8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1420280d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b64; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #7d93a0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #7d93a0; background: #eaf2f6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #d5e4ec; }
+    .result { position: sticky; top: 15px; background: #16303d; color: #f3f7f9; border-color: #16303d; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7eb8c9; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b64; }
+    footer a { color: #24536b; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #d5e8ef; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR DRYER-VENT TECHS</p>
+    <h1>Bid the stories, the run, and the roof cap.</h1>
+    <p>Price a dryer vent clean the way the trade actually loses money: the included one-story wall cap, then the extra story, the extra feet of duct, extra dryers, a rooftop termination, a camera pass, crushed flex in the laundry closet, a nest, and occupied-home access. You get the bid, the price per dryer, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing job type never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting house…</option>
+            </select>
+          </label>
+          <label>Job type
+            <select id="jobType">
+              <option value="wall" selected>1-story wall-cap special</option>
+              <option value="two-story">2-story wall or soffit</option>
+              <option value="roof">Roof-cap / rooftop termination</option>
+              <option value="multi">Multi-dryer / duplex laundry</option>
+            </select>
+          </label>
+          <label>Stories <input id="stories" type="number" min="1" step="1" value="1"></label>
+          <label>Duct run (ft) <input id="runFeet" type="number" min="1" step="1" value="8"></label>
+          <label>Extra dryers (beyond the first) <input id="extraDryers" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="camera" type="checkbox"> Camera inspection</label>
+          <label class="check"><input id="flexReplace" type="checkbox"> Replace crushed flex in the closet</label>
+          <label class="check"><input id="nestBlockage" type="checkbox"> Nest / heavy blockage</label>
+          <label class="check"><input id="occupied" type="checkbox"> Occupied home</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Stories included in the base setup <input id="includedStories" type="number" min="1" step="1" value="1"></label>
+          <label>Run feet included <input id="includedRunFeet" type="number" min="1" step="1" value="8"></label>
+          <label>Dryers included <input id="includedDryers" type="number" min="1" step="1" value="1"></label>
+          <label>Hours for a base setup <input id="hoursBaseSetup" type="number" min="0" step="0.05" value="0.75"></label>
+          <label>Hours / extra story <input id="hoursPerExtraStory" type="number" min="0" step="0.05" value="0.45"></label>
+          <label>Hours / extra 10 ft of run <input id="hoursPerExtra10Feet" type="number" min="0" step="0.05" value="0.25"></label>
+          <label>Hours / extra dryer <input id="hoursPerExtraDryer" type="number" min="0" step="0.05" value="0.55"></label>
+          <label>Hours for a camera pass <input id="hoursCamera" type="number" min="0" step="0.05" value="0.35"></label>
+          <label>Hours for flex replacement <input id="hoursFlex" type="number" min="0" step="0.05" value="0.5"></label>
+          <label>Hours for a nest / blockage <input id="hoursNest" type="number" min="0" step="0.05" value="0.75"></label>
+          <label>Hours for an occupied home <input id="hoursOccupied" type="number" min="0" step="0.05" value="0.25"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.05" value="0.4"></label>
+          <label>Brush kit <input id="brushKit" type="number" min="0" step="1" value="18"></label>
+          <label>Extra rod $ / 10 ft <input id="extraRodPer10Feet" type="number" min="0" step="1" value="6"></label>
+          <label>Camera fee <input id="cameraFee" type="number" min="0" step="5" value="45"></label>
+          <label>Flex kit <input id="flexKit" type="number" min="0" step="1" value="38"></label>
+          <label>Nest / blockage disposal <input id="nestDisposal" type="number" min="0" step="1" value="22"></label>
+          <label>Roof safety kit <input id="roofSafetyKit" type="number" min="0" step="5" value="55"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, vacuum, ladders <input id="travelAndEquipment" type="number" min="0" step="5" value="35"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 99"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $38/h tech loaded at 32% is $50.16. Quoting the raw wage on a published $99 special is how a roof-cap job that looked fine turns into a loss after the first extra story.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">cleaning price</div>
+      <dl>
+        <dt>Stories, run, and dryers</dt><dd id="scope"></dd>
+        <dt>Access and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Kits + rods + fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per dryer</dt><dd id="perDryer"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and kit rates are common ballpark figures, not an industry standard, a fire-code determination, or a clearance certificate &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not fire-safety, building-code, construction, appliance, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your run length, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-for-dryer-vent-cleaning.html">How much to charge for dryer vent cleaning</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedJobHours,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'stories','runFeet','extraDryers',
+      'includedStories','includedRunFeet','includedDryers',
+      'hoursBaseSetup','hoursPerExtraStory','hoursPerExtra10Feet','hoursPerExtraDryer',
+      'hoursCamera','hoursFlex','hoursNest','hoursOccupied','siteHours',
+      'brushKit','extraRodPer10Feet','cameraFee','flexKit','nestDisposal','roofSafetyKit',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['camera','flexReplace','nestBlockage','occupied'];
+    const SELECT_IDS = ['jobType'];
+    const SUGGESTED_JOB_IDS = ['hoursBaseSetup'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyJobHours(force) {
+      const rates = suggestedJobHours(el('jobType').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('jobType').value = job.jobType;
+      applyJobHours(true);
+      SUGGESTED_JOB_IDS.forEach(id => { el(id).dataset.edited = ''; });
+      el('stories').value = job.stories;
+      el('runFeet').value = job.runFeet;
+      el('extraDryers').value = job.extraDryers;
+      el('camera').checked = job.camera;
+      el('flexReplace').checked = job.flexReplace;
+      el('nestBlockage').checked = job.nestBlockage;
+      el('occupied').checked = job.occupied;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'cleaning price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perDryer','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'cleaning price';
+      el('scope').textContent = `${result.stories} stor${result.stories === 1 ? 'y' : 'ies'} · ${result.runFeet} ft · ${result.dryerCount} dryer${result.dryerCount === 1 ? '' : 's'}`;
+      const extraBits = [
+        result.jobType,
+        result.extraStories ? `${result.extraStories} extra stor${result.extraStories === 1 ? 'y' : 'ies'}` : null,
+        result.extraFeet ? `${result.extraFeet} extra ft` : null,
+        result.extraDryers ? `${result.extraDryers} extra dryer${result.extraDryers === 1 ? '' : 's'}` : null,
+        result.camera ? 'camera' : null,
+        result.flexReplace ? 'flex replace' : null,
+        result.nestBlockage ? 'nest' : null,
+        result.occupied ? 'occupied' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard wall-cap special';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perDryer').textContent = result.pricePerDryer === null ? 'n/a' : money(result.pricePerDryer);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Base setup', result.hourShares.setup],
+        ['Stories + extra feet', result.hourShares.access],
+        ['Extra dryers + camera + flex + nest + occupied', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Kits + rods + fees', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('jobType').addEventListener('change', () => {
+      applyJobHours(false);
+      count('bid_calculated');
+      update();
+    });
+
+    SUGGESTED_JOB_IDS
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

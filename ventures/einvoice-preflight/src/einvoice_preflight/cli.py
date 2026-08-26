@@ -7,6 +7,7 @@ from html import escape as html_escape
 import io
 import json
 import os
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -16,12 +17,13 @@ from xml.sax.saxutils import escape, quoteattr
 import fcntl
 
 from .checks import check_invoice
+from .formats import DocumentError, detect_syntax, parse_cii_invoice
 from .ubl import parse_ubl_invoice
 
 VERSION = "0.1.0"
 
 
-def _record_usage(path: str) -> None:
+def _record_usage(path: str, event: str = "invoice_preflight_checked") -> None:
     """Record an aggregate event without affecting the validation result."""
     temporary_path: str | None = None
     try:
@@ -40,10 +42,10 @@ def _record_usage(path: str) -> None:
                     pass
             events = data.setdefault("events", {})
             try:
-                previous = int(events.get("invoice_preflight_checked", 0))
+                previous = int(events.get(event, 0))
             except (TypeError, ValueError):
                 previous = 0
-            events["invoice_preflight_checked"] = previous + 1
+            events[event] = previous + 1
             with tempfile.NamedTemporaryFile(
                 "w", encoding="utf-8", dir=target.parent, prefix=f".{target.name}.", delete=False
             ) as temporary:
@@ -245,7 +247,11 @@ def _json_report(
 ) -> dict[str, Any]:
     """Build one versioned adapter payload for every input mode."""
     rule_counts = Counter(error["rule"] for _, errors in reports for error in errors)
-    errors = [error for _, invoice_errors in reports for error in invoice_errors]
+    errors = [
+        {**error, "file": path.as_posix()}
+        for path, invoice_errors in reports
+        for error in invoice_errors
+    ]
     fix_details: dict[str, dict[str, str | int]] = {}
     for error in errors:
         detail = fix_details.setdefault(
@@ -381,6 +387,48 @@ def _remediation_report(
     }
 
 
+def _checklist_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build a copyable repair checklist without invoice values or contents."""
+    def redact_values(text: str) -> str:
+        # Validator fixes may include calculated amounts; keep the action but not the value.
+        return re.sub(r"\b\d+(?:\.\d+)?\b", "[value]", text)
+
+    observations = sum(len(errors) for _, errors in reports)
+    lines = [
+        "E-invoice preflight repair checklist",
+        "",
+        f"Status: {'FAIL' if observations or read_errors else 'PASS'}",
+        f"Checked: {len(reports)} invoice(s)",
+        f"Observations: {observations}",
+        f"Read errors: {len(read_errors)}",
+        "",
+    ]
+    for path, errors in reports:
+        lines.append(f"[ ] Review {path.as_posix()}")
+        if not errors:
+            lines.append("    No supported defects found.")
+            continue
+        grouped: dict[str, dict[str, Any]] = {}
+        for error in errors:
+            item = grouped.setdefault(error["rule"], {"count": 0, "paths": [], "message": error["message"], "fix": error["fix"]})
+            item["count"] += 1
+            if error["path"] not in item["paths"]:
+                item["paths"].append(error["path"])
+        for rule in sorted(grouped):
+            item = grouped[rule]
+            suffix = f" ({item['count']} occurrence(s))" if item["count"] != 1 else ""
+            lines.append(f"    - [ ] {rule}{suffix} at {', '.join(item['paths'])}: {redact_values(item['message'])}")
+            lines.append(f"      Fix: {redact_values(item['fix'])}")
+    if read_errors:
+        lines.extend(["", "Unreadable inputs:"])
+        lines.extend(f"- [ ] Review {error['file']}: {error['error']}" for error in read_errors)
+    lines.extend(["", "This is a local observation checklist, not a declaration of legal validity or compliance.", "Review and verify each change before submitting an invoice."])
+    return "\n".join(lines) + "\n"
+
+
 def _csv_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -469,15 +517,30 @@ def _html_report(
         for value, label in ((len(reports), "checked"), (passed, "passed"), (failed, "failed"), (observations, "observations"), (len(read_errors), "read errors"))
     )
     summary = ""
+    rule_sections: dict[str, list[str]] = {}
+    for index, (path, errors) in enumerate(reports):
+        section_id = f"invoice-{index}"
+        for error in errors:
+            rule_sections.setdefault(error["rule"], []).append(section_id)
+
+    def rule_links(rule: str) -> str:
+        return " ".join(
+            f'<a href="#{section}">Invoice {section.removeprefix("invoice-")}</a>'
+            for section in rule_sections[rule]
+        )
+
     if rule_counts:
         rows = "".join(
-            f"<tr><td><code>{text(rule)}</code></td><td>{count}</td><td>{text(rule_messages[rule])}</td><td>{text(rule_fixes[rule])}</td></tr>"
+            f'<tr><td><code>{text(rule)}</code></td><td>{count}</td>'
+            f'<td>{rule_links(rule)}<br>{text(rule_messages[rule])}</td>'
+            f'<td>{text(rule_fixes[rule])}</td></tr>'
             for rule, count in sorted(rule_counts.items())
         )
-        summary = f'<section><h2>Finding summary</h2><table><thead><tr><th>Rule</th><th>Occurrences</th><th>Check</th><th>Recommended fix</th></tr></thead><tbody>{rows}</tbody></table></section>'
+        summary = f'<section id="finding-summary"><h2>Finding summary</h2><table><caption>Findings grouped by validation rule</caption><thead><tr><th scope="col">Rule</th><th scope="col">Occurrences</th><th scope="col">Check</th><th scope="col">Recommended fix</th></tr></thead><tbody>{rows}</tbody></table></section>'
 
     sections = []
-    for path, errors in reports:
+    for index, (path, errors) in enumerate(reports):
+        section_id = f"invoice-{index}"
         if errors:
             findings = "".join(
                 f'<li><strong>{text(error["rule"])}</strong> at <code>{text(error["path"] or "/")}</code><br>{text(error["message"])}<br><span class="fix">Fix: {text(error["fix"])}</span></li>'
@@ -486,11 +549,11 @@ def _html_report(
             body = f'<p class="status fail">FAIL</p><ul>{findings}</ul>'
         else:
             body = '<p class="status pass">PASS</p><p>No defects found in the supported checks.</p>'
-        sections.append(f'<article><h2><code>{text(path.as_posix())}</code></h2>{body}</article>')
+        sections.append(f'<article id="{section_id}"><h2><code>{text(path.as_posix())}</code></h2>{body}</article>')
     read_section = ""
     if read_errors:
         items = "".join(f'<li><code>{text(error["file"])}</code>: {text(error["error"])}</li>' for error in read_errors)
-        read_section = f'<section><h2>Read errors</h2><ul>{items}</ul></section>'
+        read_section = f'<section id="read-errors"><h2>Read errors</h2><ul>{items}</ul></section>'
     accent = "#a61b1b" if overall == "FAIL" else "#116329"
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -502,10 +565,11 @@ header, section, article {{ background: white; border: 1px solid #d9dee5; border
 h1 {{ margin-top: 0; }} h2 {{ font-size: 1.05rem; }} .overall {{ color: {accent}; font-weight: 700; letter-spacing: .08em; }}
 .metrics {{ display: flex; flex-wrap: wrap; gap: .75rem; }} .metric {{ min-width: 7rem; background: #eef2f6; border-radius: 8px; padding: .75rem; }}
 .metric strong, .metric span {{ display: block; }} .metric strong {{ font-size: 1.5rem; }} .metric span {{ color: #52606d; font-size: .85rem; }}
-table {{ border-collapse: collapse; width: 100%; }} th, td {{ border-bottom: 1px solid #e4e7eb; padding: .6rem; text-align: left; vertical-align: top; }}
+ table {{ border-collapse: collapse; width: 100%; }} th, td {{ border-bottom: 1px solid #e4e7eb; padding: .6rem; text-align: left; vertical-align: top; }}
+ a {{ color: #075985; }} .skip-link {{ position: absolute; left: -9999px; }} .skip-link:focus {{ left: 1rem; top: 1rem; background: white; padding: .5rem; z-index: 1; }}
 .status {{ font-weight: 700; }} .pass {{ color: #116329; }} .fail {{ color: #a61b1b; }} .fix, footer {{ color: #52606d; }} li {{ margin: .7rem 0; }} code {{ overflow-wrap: anywhere; }} footer {{ font-size: .85rem; margin-top: 1.5rem; }}
-</style></head><body><header><h1>E-invoice preflight</h1><p class="overall">Overall: {text(overall)}</p><div class="metrics">{metrics}</div></header>
-{summary}{''.join(sections)}{read_section}<footer>This local report is an observation, not a declaration that an invoice is valid or compliant. It contains no invoice values or line contents. Review and verify output before relying on it; this tool is not tax or legal advice.</footer>
+ </style></head><body><a class="skip-link" href="#report-content">Skip to report content</a><header><h1>E-invoice preflight</h1><p class="overall" role="status">Overall: {text(overall)}</p><div class="metrics">{metrics}</div></header>
+ <main id="report-content"><nav aria-label="Report sections">{'<a href="#finding-summary">Finding summary</a>' if rule_counts else ''}{' | ' if rule_counts and read_errors else ''}{'<a href="#read-errors">Read errors</a>' if read_errors else ''}</nav>{summary}{''.join(sections)}{read_section}</main><footer>This local report is an observation, not a declaration that an invoice is valid or compliant. It contains no invoice values or line contents. Review and verify output before relying on it; this tool is not tax or legal advice.</footer>
 </body></html>
 '''
 
@@ -538,10 +602,10 @@ def _markdown_text(value: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
+    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, or UN/CEFACT CII e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
@@ -555,6 +619,9 @@ def main(argv: list[str] | None = None) -> int:
         help="refuse an input invoice larger than this many bytes",
     )
     args = parser.parse_args(argv)
+    if args.usage_file:
+        # Count attempted invocations separately from successfully parsed files.
+        _record_usage(args.usage_file, "invoice_preflight_attempted")
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
@@ -608,8 +675,15 @@ def main(argv: list[str] | None = None) -> int:
         try:
             raw = source if source is not None else _read_file_limited(invoice_path, args.max_bytes)
             is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
-            invoice = parse_ubl_invoice(raw) if is_xml else json.loads(raw)
-        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:
+            if is_xml:
+                try:
+                    syntax = detect_syntax(raw)
+                except DocumentError:
+                    syntax = "ubl"
+                invoice = parse_cii_invoice(raw) if syntax == "cii" else parse_ubl_invoice(raw)
+            else:
+                invoice = json.loads(raw)
+        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
         reports.append((report_path, check_invoice(invoice)))
@@ -631,6 +705,8 @@ def main(argv: list[str] | None = None) -> int:
         report = _jsonl_report(reports, read_errors)
     elif args.format == "remediation":
         report = json.dumps(_remediation_report(reports, read_errors), indent=2) + "\n"
+    elif args.format == "checklist":
+        report = _checklist_report(reports, read_errors)
     elif args.format == "markdown":
         report = _markdown_report(reports, read_errors)
     elif args.format == "html":

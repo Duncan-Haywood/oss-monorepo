@@ -1,0 +1,32 @@
+name: fence-bid-calculator
+description: A private browser calculator for fence contractors that prices an install from posts, terminals, gates, tear-out, and digging conditions — not a flat price per linear foot — and shows the installed price per foot, the effective hourly rate, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent fence contractors will use a post-and-gate bid calculator because the generic installed-price-per-foot rules of thumb they hear from homeowners cannot see that terminals, gates, corners, and tear-out are most of the job, which is how a bid that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the price per linear foot are the two numbers a contractor actually decides on when a homeowner asks them to match a cheaper quote, more than the job total itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Digging conditions and payroll burden are the costs most often left out of a small crew's own scratch pad, so making both required, explained inputs changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified fence contractors use the calculator twice within 90 days.
+  - Contractors report that counting posts and gates is more work than their existing per-foot method without changing the price they would have bid.
+  - The starting material and production figures prove so far from real crews' invoices that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
