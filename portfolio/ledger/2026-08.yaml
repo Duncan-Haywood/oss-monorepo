@@ -23647,3 +23647,52 @@ entries:
         escape sequence `'\.'`, a DeprecationWarning on 3.12 that becomes a
         SyntaxError on 3.14.
     mrr_end: null
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the cross-tool handoff (#1725). The comparison page now carries
+        the item into the winning channel's own calculator -- price, postage,
+        cost of goods, packaging -- instead of ending at a ranking the reader
+        would have to retype to act on. eBay and Etsy today, being the two whose
+        calculators already read `location.hash`; a channel gains a link the day
+        its calculator learns to. A channel with no prefillable calculator gets
+        no link rather than one that would quietly show its own defaults.
+      - >-
+        The mapping is checked against the other side rather than restated.
+        `itemCost` here is `costOfGoods` on eBay and `materialCost` on Etsy, and
+        a name the receiver does not recognise is dropped silently rather than
+        raising -- the reader then prices an item they never entered. So
+        `handoff.test.mjs` imports each target's own field list from that
+        venture and fails here if a rename lands there. Writing the test first
+        caught a live instance: `Number('')` is 0, so a blank field would have
+        arrived as an explicit zero and overridden the target's default.
+      - >-
+        A cost the target has no field for is summed, not dropped. Etsy has no
+        packaging input because packaging is part of what it calls materials, so
+        it folds into `materialCost`; dropping it would have understated cost
+        and overstated profit on arrival.
+      - >-
+        Learned the same duplication lesson the portfolio-pages entry above
+        records, from the other side, and acted on it. Four separate pieces of
+        this session's work were superseded mid-run by other sessions -- a Pages
+        builder, cross-page navigation, a no-SLA clause fix, and a deploy-race
+        guard -- and each was dropped rather than defended after a merits
+        comparison. Checking open PRs at the start caught none of them: all four
+        arrived as merges, not as PRs. What finally landed was chosen by asking
+        which venture the swarm was *not* touching. `where-to-sell-calculator`
+        had one commit in the last hundred against `ebay-fee-calculator`'s 148,
+        and the change went in first try. Picking by contention rather than by
+        obviousness is the cheap half of the fix a claim mechanism would do
+        properly.
+      - >-
+        Independently verified the site that the pending owner flip will
+        publish, which nothing had done -- the suites operate on markup strings.
+        Served the built artifact under the real `/monorepo-projects/` prefix
+        and crawled all 37 landing pages in Chromium: every one loads, has an
+        h1, no page errors, no failed requests. The handoff itself was driven
+        end to end there too: a $72 item costing $18 plus $1.75 packaging
+        arrives on eBay with costOfGoods 18 and computes $33.01, and on Etsy
+        with materialCost 19.75.
+    mrr_end: null
