@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareCoupons, compareMcf, compareSubscribeSave } from "./calc.mjs";
+import { compareBulkBuy, compareCoupons, compareMcf, compareSubscribeSave } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const couponSeo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
@@ -17,6 +17,10 @@ const mcfSeo = readFileSync(
 );
 const snsSeo = readFileSync(
   new URL("./does-subscribe-and-save-still-pay.html", import.meta.url),
+  "utf8",
+);
+const bulkSeo = readFileSync(
+  new URL("./does-this-amazon-moq-still-pay.html", import.meta.url),
   "utf8",
 );
 
@@ -66,6 +70,9 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /Subscribe & Save vs list profit/i);
   assert.match(featureList[1], /Low-Price FBA/i);
   assert.match(featureList[1], /Multi-Channel Fulfillment/i);
+  assert.match(featureList[1], /supplier MOQ/i);
+  assert.match(markup, /id="bulkCompare"/);
+  assert.match(markup, /does-this-amazon-moq-still-pay\.html/);
   assert.match(markup, /id="couponCompare"/);
   assert.match(markup, /id="couponPercent"/);
   assert.match(markup, /id="snsCompare"/);
@@ -227,6 +234,64 @@ test("Low-Price SEO page states the penny-raise trap and the break-even raise", 
   assert.match(lowPriceSeo, /No warranty/);
 });
 
+test("the bulk-buy row template has one cell per column", () => {
+  const bulkMarkup = markup.split('id="bulkCompare"')[0];
+  const headerBlock = bulkMarkup.slice(bulkMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Order", "COGS", "Months", "Profit", "vs usual"]);
+  assert.match(scriptSource, /compareBulkBuy\(readInput\(\)\)/);
+  assert.match(html, /bulk_buy_compared/);
+  assert.match(html, /id="smallOrderQty"/);
+  assert.match(html, /id="largeOrderQty"/);
+  assert.match(html, /id="largeCogs"/);
+});
+
+test("SEO page uses the same MOQ worked example the tests lock", () => {
+  const comparison = compareBulkBuy({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 1,
+    storageRate: 0.87,
+    fbmShippingCost: 4.75,
+    packagingCost: 0.6,
+    otherCost: 0,
+    adsPerUnit: 0,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    targetMargin: 30,
+    fulfillmentMethod: "fba",
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeInboundPerUnit: 0.9,
+  });
+  assert.match(bulkSeo, /\$10\.99/);
+  assert.match(bulkSeo, /\$12\.60/);
+  assert.match(bulkSeo, /\$1\.61/);
+  assert.match(bulkSeo, /\$803\.33/);
+  assert.match(bulkSeo, /\$3335\.95/);
+  assert.match(bulkSeo, /\$8\.11/);
+  assert.match(bulkSeo, /26\.0 months/);
+  assert.match(bulkSeo, /\$7\.81/);
+  assert.match(bulkSeo, /No warranty/);
+  assert.match(bulkSeo, /Best-effort hosting, no SLA/);
+  assert.match(bulkSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  nearEnough(comparison.small.profit, 10.99);
+  nearEnough(comparison.large.profit, 12.6);
+  nearEnough(comparison.extraProfit, 1.61);
+  nearEnough(comparison.pileDelta, 803.33);
+  nearEnough(comparison.extraCapital, 3335.95);
+  nearEnough(comparison.breakEvenLargeCogs, 8.11);
+});
+
 test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);
@@ -236,4 +301,6 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(couponSeo, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(snsSeo, /No warranty/);
   assert.match(snsSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(bulkSeo, /No warranty/);
+  assert.match(bulkSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

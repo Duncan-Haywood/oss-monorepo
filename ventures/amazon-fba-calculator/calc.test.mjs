@@ -6,6 +6,8 @@ import {
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  bulkBuySummary,
+  compareBulkBuy,
   compareCoupons,
   compareLowPriceFba,
   compareMcf,
@@ -607,6 +609,91 @@ test("subscribeSaveSummary names the buyer price, the mixed month, and the offse
 test("rejects a Subscribe & Save percent or enroll share above 100", () => {
   assert.throws(() => subscribeSaveListing(base, { snsPercent: 101 }), /at most 100/);
   assert.throws(() => compareSubscribeSave({ ...base, snsEnrollPct: 101 }), /at most 100/);
+});
+
+test("compareBulkBuy scales MOQ storage by qty and shows leftover vs extra cash", () => {
+  const comparison = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeInboundPerUnit: 0.9,
+  });
+  near(comparison.small.profit, 10.993291666666668, "usual PO matches listing");
+  near(comparison.small.monthsInStorage, 1, "usual stay");
+  near(comparison.large.monthsInStorage, 5, "5× qty sits 5× as long");
+  near(comparison.large.profit, 12.59995833333333, "MOQ unit after extra storage");
+  near(comparison.extraProfit, 1.606666666666662, "per-unit gain");
+  near(comparison.pileDelta, 803.333333333331, "gain on the MOQ qty");
+  near(comparison.extraCapital, 3335.95, "extra cash tied up");
+  near(comparison.breakEvenLargeCogs, 8.106666666666662, "MOQ COGS that ties");
+  near(comparison.paybackMonths, 25.953967842323724, "cash payback");
+  assert.equal(comparison.winner, "large");
+  assert.equal(comparison.small.hitsTarget, true);
+  assert.equal(comparison.large.hitsTarget, true);
+});
+
+test("compareBulkBuy defaults the usual PO to listing COGS, inbound, and months", () => {
+  const comparison = compareBulkBuy({ ...base, largeOrderQty: 500 });
+  near(comparison.small.qty, 100, "default usual qty");
+  near(comparison.small.costOfGoods, 8, "listing COGS");
+  near(comparison.small.inboundPerUnit, 1.2, "listing inbound");
+  near(comparison.large.costOfGoods, 8, "same COGS when MOQ cost is blank");
+  near(comparison.large.monthsInStorage, 5, "scaled stay");
+  assert.equal(comparison.winner, "small");
+  near(comparison.extraProfit, -0.19333333333333513, "extra storage only");
+});
+
+test("compareBulkBuy ties when MOQ COGS is the break-even", () => {
+  const priced = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeInboundPerUnit: 0.9,
+  });
+  const atBreak = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: priced.breakEvenLargeCogs,
+    largeInboundPerUnit: 0.9,
+  });
+  near(atBreak.extraProfit, 0, "break-even COGS ties unit profit");
+  assert.equal(atBreak.winner, "tie");
+});
+
+test("compareBulkBuy honors a typed MOQ stay instead of scaling", () => {
+  const comparison = compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeMonthsInStorage: 1,
+  });
+  near(comparison.large.monthsInStorage, 1, "typed stay");
+  near(comparison.extraProfit, 1.5, "COGS save only, same storage");
+  assert.equal(comparison.winner, "large");
+});
+
+test("bulkBuySummary names the extra cash and the COGS that still ties", () => {
+  const text = bulkBuySummary(compareBulkBuy({
+    ...base,
+    smallOrderQty: 100,
+    largeOrderQty: 500,
+    largeCogs: 6.5,
+    largeInboundPerUnit: 0.9,
+  }));
+  assert.match(text, /\$1\.61/);
+  assert.match(text, /\$803\.33/);
+  assert.match(text, /\$3335\.95/);
+  assert.match(text, /\$8\.11/);
+  assert.match(text, /26\.0 months/);
+});
+
+test("compareBulkBuy rejects empty piles", () => {
+  assert.throws(() => compareBulkBuy({ ...base, smallOrderQty: 0 }), /greater than zero/);
+  assert.throws(() => compareBulkBuy({ ...base, largeOrderQty: 0 }), /greater than zero/);
 });
 
 test("rejects unknown presets and invalid inputs", () => {

@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship"
+    "featureList": "FBA vs FBM comparison, size-tier fulfillment, storage, inbound, net profit, margin, ROI, break-even price, max buy cost, target-margin price, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, usual PO vs supplier MOQ"
   }
   </script>
   <script type="application/ld+json">
@@ -80,6 +80,14 @@
           "acceptedAnswer": {
             "@type": "Answer",
             "text": "A one-cent raise above the Low-Price threshold usually loses, because the regular pick fee jumps by more than the extra revenue after referral. The calculator shows the raise that matches Low-Price profit on the fees you enter. It does not publish Amazon's live schedule or say a listing is eligible."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does this Amazon supplier MOQ still pay after extra FBA storage?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A cheaper unit cost at a minimum order quantity still sits in FBA until it sells. The calculator scales the warehouse stay by pile size, then shows leftover per unit, extra cash tied up, and the MOQ cost that still matches your usual purchase order. It does not recommend taking the MOQ."
           }
         }
     ]
@@ -213,6 +221,18 @@
           <input id="removalFee" type="number" min="0" step="0.01" value="0">
           <span class="hint">Leave $0 when the you-ship unit is already outside Amazon. Add the removal line from your fee preview when you would un-fulfill it first.</span>
         </label>
+        <label>Usual PO quantity <input id="smallOrderQty" type="number" min="1" step="1" value="100"></label>
+        <label>MOQ quantity <input id="largeOrderQty" type="number" min="1" step="1" value="500"></label>
+        <label>MOQ unit cost <span class="hint">blank = same as you paid</span>
+          <input id="largeCogs" type="number" min="0" step="0.01" value="6.50">
+        </label>
+        <label>MOQ inbound / unit <span class="hint">blank = same inbound</span>
+          <input id="largeInboundPerUnit" type="number" min="0" step="0.01" value="0.90">
+        </label>
+        <label class="span2">MOQ months in storage
+          <input id="largeMonthsInStorage" type="number" min="0" step="0.1" value="">
+          <span class="hint">Leave blank to scale the listing months by MOQ ÷ usual qty. A 5× pile then sits 5× as long as the stay you already modeled.</span>
+        </label>
       </div>
     </section>
     <section class="result">
@@ -299,7 +319,28 @@
         <tbody id="mcfCompare"></tbody>
       </table>
       <p class="note">MCF ships a website, eBay, or Walmart order from FBA inventory: no Amazon referral, a higher pick fee, plus your card processor. You-ship assumes the unit is already outside Amazon unless you add a removal fee. <a href="should-i-use-amazon-mcf-for-website-orders.html" style="color:#9ec5ff">Should I use Amazon MCF for website orders?</a></p>
-      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, and Low-Price bands vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, or turning on MCF.</p>
+      <hr>
+      <h2>Usual PO vs supplier MOQ</h2>
+      <p id="bulkSummary" class="note"></p>
+      <dl>
+        <dt>MOQ unit cost that still ties</dt><dd id="bulkBreakEven"></dd>
+        <dt>Extra cash on the MOQ</dt><dd id="bulkExtraCash"></dd>
+        <dt>Which order keeps more</dt><dd id="bulkWinner"></dd>
+      </dl>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Order</th>
+            <th scope="col">COGS</th>
+            <th scope="col">Months</th>
+            <th scope="col">Profit</th>
+            <th scope="col">vs usual</th>
+          </tr>
+        </thead>
+        <tbody id="bulkCompare"></tbody>
+      </table>
+      <p class="note">The cheaper MOQ unit still sits until it sells. Leave months blank to scale the listing stay by pile size. Extra cash is the whole MOQ pile minus the usual PO. <a href="does-this-amazon-moq-still-pay.html" style="color:#9ec5ff">Does this Amazon supplier MOQ still pay?</a></p>
+      <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, and Low-Price bands vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, turning on MCF, or taking a supplier MOQ.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -339,10 +380,17 @@
       and the card.
     </p>
     <p>
+      A supplier MOQ is a sourcing decision on the same SKU: a cheaper
+      unit that sits longer and ties up more cash.
+      <a href="does-this-amazon-moq-still-pay.html">Does this Amazon supplier MOQ still pay?</a>
+      scales the warehouse stay by pile size and shows the MOQ cost that
+      still matches your usual purchase order.
+    </p>
+    <p>
       It does not recommend a price, a category, a fulfillment method, a
-      coupon, or Subscribe &amp; Save enrollment, and it is not tax or
-      financial advice. The gap between paths is an arithmetic comparison
-      of the rates you entered.
+      coupon, Subscribe &amp; Save enrollment, or a purchase-order size,
+      and it is not tax or financial advice. The gap between paths is an
+      arithmetic comparison of the rates you entered.
     </p>
   </section>
   <footer>
@@ -357,6 +405,7 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareBulkBuy,
       compareCoupons,
       compareLowPriceFba,
       compareMcf,
@@ -375,6 +424,7 @@
       "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
       "snsPercent", "snsEnrollPct",
       "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
+      "smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -391,6 +441,9 @@
       if (raw.raisePrice === "") delete raw.raisePrice;
       if (raw.dtcSalePrice === "") delete raw.dtcSalePrice;
       if (raw.mcfFulfillmentFee === "") delete raw.mcfFulfillmentFee;
+      if (raw.largeCogs === "") delete raw.largeCogs;
+      if (raw.largeInboundPerUnit === "") delete raw.largeInboundPerUnit;
+      if (raw.largeMonthsInStorage === "") delete raw.largeMonthsInStorage;
       return {
         ...raw,
         fulfillmentMethod: fulfillmentMethod(),
@@ -531,11 +584,22 @@
         document.getElementById("mcfCompare").innerHTML = mcf.rows.map((row) =>
           `<tr class="${row.id === mcf.winner ? "current" : ""}"><td>${row.label}</td><td>${money(row.salePrice)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${signed(row.profitDelta)}</td></tr>`
         ).join("");
+        const bulk = compareBulkBuy(readInput());
+        document.getElementById("bulkSummary").textContent = bulk.summary;
+        document.getElementById("bulkBreakEven").textContent = money(bulk.breakEvenLargeCogs);
+        document.getElementById("bulkExtraCash").textContent = money(bulk.extraCapital);
+        document.getElementById("bulkWinner").textContent =
+          bulk.winner === "large" ? "The MOQ keeps more per unit"
+            : bulk.winner === "small" ? "The usual PO keeps more per unit"
+              : "same profit";
+        document.getElementById("bulkCompare").innerHTML = bulk.rows.map((row) =>
+          `<tr class="${row.id === bulk.winner ? "current" : ""}"><td>${row.label}</td><td>${money(row.costOfGoods)}</td><td>${row.monthsInStorage.toFixed(1)}</td><td>${money(row.profit)}</td><td>${signed(row.profit - bulk.small.profit)}</td></tr>`
+        ).join("");
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
@@ -545,6 +609,7 @@
         document.getElementById("snsCompare").innerHTML = "";
         document.getElementById("snsSummary").textContent = "";
         document.getElementById("mcfCompare").innerHTML = "";
+        document.getElementById("bulkCompare").innerHTML = "";
       }
     }
 
@@ -567,6 +632,7 @@
     const autoFields = new Set(["fulfillmentFee", "lowPriceFulfillmentFee", "lowPriceSalePrice", "raisePrice", "mcfFulfillmentFee", "dtcSalePrice"]);
     const mcfFields = new Set(["dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee"]);
     const lowPriceFields = new Set(["lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee"]);
+    const bulkFields = new Set(["smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage"]);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
       if (autoFields.has(id) && !syncingFee) {
         document.getElementById(id).dataset.auto = "0";
@@ -582,6 +648,7 @@
           : id.startsWith("sns") ? "subscribe_save_compared"
           : mcfFields.has(id) ? "mcf_compared"
           : lowPriceFields.has(id) ? "low_price_fba_compared"
+          : bulkFields.has(id) ? "bulk_buy_compared"
             : "listing_profit_calculated",
       );
     }));

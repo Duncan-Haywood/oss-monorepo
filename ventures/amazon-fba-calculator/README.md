@@ -16,8 +16,9 @@ fee preview, and verify them there.
 SKU, the most you can pay a supplier for that unit, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
 coupon still hits your target after the redemption fee, whether
-Subscribe & Save still pays when only some units enroll, and whether a
-website order shipped MCF still beats selling the unit on Amazon** —
+Subscribe & Save still pays when only some units enroll, whether a
+website order shipped MCF still beats selling the unit on Amazon, and
+whether a supplier MOQ still pays after the extra warehouse stay** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
 
@@ -61,6 +62,13 @@ Amazon referral and pays a higher pick fee plus your card processor.
 shows leftover profit against Amazon FBA and against shipping it
 yourself, and the MCF fee that still matches Amazon.
 
+A supplier MOQ is a sourcing decision on the same SKU: a cheaper unit
+that sits longer and ties up more cash.
+[Does this Amazon supplier MOQ still pay?](does-this-amazon-moq-still-pay.html)
+scales the listing months by pile size, then shows leftover per unit,
+extra cash, and the MOQ cost that still matches the usual purchase
+order.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -98,8 +106,9 @@ node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
-category presets, coupon comparison, Subscribe & Save comparison, and
-Multi-Channel Fulfillment comparison; `usage.mjs` holds the anonymous
+category presets, coupon comparison, Subscribe & Save comparison,
+Multi-Channel Fulfillment comparison, and usual-PO vs supplier-MOQ
+comparison; `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is

@@ -910,3 +910,171 @@ export function compareMcf(input) {
     }),
   };
 }
+
+function emptyField(value) {
+  return value === undefined || value === null || value === "";
+}
+
+export const DEFAULT_SMALL_ORDER_QTY = 100;
+export const DEFAULT_LARGE_ORDER_QTY = 500;
+
+function orderPath(listing, targetMargin) {
+  const path = listing.selected;
+  return {
+    profit: path.profit,
+    margin: path.margin,
+    cashInvested: path.cashInvested,
+    storagePerUnit: listing.storagePerUnit,
+    hitsTarget: listing.salePrice === 0
+      ? path.profit >= 0
+      : path.margin + 1e-9 >= targetMargin,
+    fbaProfit: listing.fba.profit,
+    fbmProfit: listing.fbm.profit,
+  };
+}
+
+/**
+ * Compare a usual replenishment PO against a supplier MOQ that drops
+ * unit COGS (and often inbound) but sits in FBA longer. Storage months
+ * on the MOQ default to the listing months scaled by qty / usual qty so
+ * a 5× pile sits 5× as long as the stay the seller already modeled.
+ * That is the decision: does the cheaper unit survive the extra warehouse
+ * stay and the extra cash tied up? Not a leftover-unit hold/remove, not
+ * a coupon, and not a season-rate swap.
+ */
+export function compareBulkBuy(input) {
+  const smallQty = number(input.smallOrderQty ?? DEFAULT_SMALL_ORDER_QTY, "Small order quantity");
+  const largeQty = number(input.largeOrderQty ?? DEFAULT_LARGE_ORDER_QTY, "Large order quantity");
+  if (smallQty <= 0) throw new Error("Small order quantity must be greater than zero");
+  if (largeQty <= 0) throw new Error("Large order quantity must be greater than zero");
+
+  const smallCogs = number(
+    emptyField(input.smallCogs) ? input.costOfGoods : input.smallCogs,
+    "Small-order cost of goods",
+  );
+  const largeCogs = number(
+    emptyField(input.largeCogs) ? input.costOfGoods : input.largeCogs,
+    "Large-order cost of goods",
+  );
+  const smallInbound = number(
+    emptyField(input.smallInboundPerUnit) ? input.inboundPerUnit : input.smallInboundPerUnit,
+    "Small-order inbound per unit",
+  );
+  const largeInbound = number(
+    emptyField(input.largeInboundPerUnit) ? input.inboundPerUnit : input.largeInboundPerUnit,
+    "Large-order inbound per unit",
+  );
+  const listingMonths = number(input.monthsInStorage, "Months in storage", 1);
+  const smallMonths = emptyField(input.smallMonthsInStorage)
+    ? listingMonths
+    : number(input.smallMonthsInStorage, "Small-order months in storage");
+  const largeMonths = emptyField(input.largeMonthsInStorage)
+    ? smallMonths * (largeQty / smallQty)
+    : number(input.largeMonthsInStorage, "Large-order months in storage");
+  const targetMargin = number(input.targetMargin, "Target margin");
+
+  const smallListing = calculateListing({
+    ...input,
+    costOfGoods: smallCogs,
+    inboundPerUnit: smallInbound,
+    monthsInStorage: smallMonths,
+  });
+  const largeListing = calculateListing({
+    ...input,
+    costOfGoods: largeCogs,
+    inboundPerUnit: largeInbound,
+    monthsInStorage: largeMonths,
+  });
+
+  const small = {
+    id: "small",
+    label: `Usual PO (${smallQty} units)`,
+    qty: smallQty,
+    costOfGoods: smallCogs,
+    inboundPerUnit: smallInbound,
+    monthsInStorage: smallMonths,
+    ...orderPath(smallListing, targetMargin),
+  };
+  const large = {
+    id: "large",
+    label: `MOQ PO (${largeQty} units)`,
+    qty: largeQty,
+    costOfGoods: largeCogs,
+    inboundPerUnit: largeInbound,
+    monthsInStorage: largeMonths,
+    ...orderPath(largeListing, targetMargin),
+  };
+
+  const extraProfit = large.profit - small.profit;
+  const pileDelta = extraProfit * largeQty;
+  const smallCapital = small.cashInvested * smallQty;
+  const largeCapital = large.cashInvested * largeQty;
+  const extraCapital = largeCapital - smallCapital;
+  // Profit moves $1 for $1 of COGS on the same sale price and fees.
+  const breakEvenLargeCogs = largeCogs + extraProfit;
+  const cogsSaveNeeded = smallCogs - breakEvenLargeCogs;
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  const paybackMonths =
+    extraProfit > 1e-9 && extraCapital > 1e-9
+      ? extraCapital / (extraProfit * monthlyUnits)
+      : extraProfit <= 1e-9 && extraCapital > 1e-9
+        ? Infinity
+        : 0;
+
+  let winner = "tie";
+  if (extraProfit > 1e-9) winner = "large";
+  else if (extraProfit < -1e-9) winner = "small";
+
+  return {
+    rows: [small, large],
+    small,
+    large,
+    extraProfit,
+    pileDelta,
+    smallCapital,
+    largeCapital,
+    extraCapital,
+    breakEvenLargeCogs,
+    cogsSaveNeeded,
+    monthlyUnits,
+    paybackMonths,
+    winner,
+    summary: bulkBuySummary({
+      winner,
+      small,
+      large,
+      extraProfit,
+      pileDelta,
+      extraCapital,
+      breakEvenLargeCogs,
+      paybackMonths,
+    }),
+  };
+}
+
+export function bulkBuySummary({
+  winner,
+  small,
+  large,
+  extraProfit,
+  pileDelta,
+  extraCapital,
+  breakEvenLargeCogs,
+  paybackMonths,
+}) {
+  const unit = moneyLabel(Math.abs(extraProfit));
+  const pile = moneyLabel(Math.abs(pileDelta));
+  const cash = moneyLabel(Math.abs(extraCapital));
+  const cap = moneyLabel(breakEvenLargeCogs);
+  const months = large.monthsInStorage.toFixed(1);
+  if (winner === "large") {
+    const payback = Number.isFinite(paybackMonths)
+      ? ` Extra cash pays back in about ${paybackMonths.toFixed(1)} months of sales at the typed volume.`
+      : "";
+    return `The ${large.qty}-unit MOQ keeps ${unit} more per unit after ${months} months of storage — ${pile} more on the pile — and ties up ${cash} extra cash. The MOQ unit cost can rise to ${cap} before the usual ${small.qty}-unit PO wins.${payback}`;
+  }
+  if (winner === "small") {
+    return `The usual ${small.qty}-unit PO keeps ${unit} more per unit than the ${large.qty}-unit MOQ after ${months} months of storage on the bigger pile (${pile} on the MOQ qty). Extra cash on the MOQ is ${cash}. The MOQ unit cost has to fall to ${cap} to match the usual PO.`;
+  }
+  return `The usual ${small.qty}-unit PO and the ${large.qty}-unit MOQ leave the same per-unit profit on these rates. Extra cash on the MOQ is ${cash}.`;
+}
