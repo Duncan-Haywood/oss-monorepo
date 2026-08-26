@@ -20,6 +20,9 @@ test("round-trips a full brand set including region and payout", () => {
     targetMargin: 40,
     expectedReorders: 2,
     annualCarryRate: 24,
+    openHouseDiscountRate: 20,
+    openHouseCommissionRate: 0,
+    openHouseExtraRetailers: 2,
     region: "outside_na",
     payout: "next_day",
   };
@@ -70,6 +73,8 @@ test("every brand and retailer field id is unique", () => {
   assert.ok(FIELD_IDS.includes("unitWholesale"));
   assert.ok(FIELD_IDS.includes("expectedReorders"));
   assert.ok(FIELD_IDS.includes("annualCarryRate"));
+  assert.ok(FIELD_IDS.includes("openHouseDiscountRate"));
+  assert.ok(FIELD_IDS.includes("openHouseExtraRetailers"));
   assert.ok(RETAILER_FIELD_IDS.includes("unitRetail"));
   assert.deepEqual(Object.keys(ENUM_FIELDS), ["region", "payout"]);
 });

@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, 2-day vs WFS take-rate leftover, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -48,6 +48,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Enter the competitive match price. The calculator re-runs the same costs at that price and shows whether profit stays non-negative. Matching is a common Walmart listing pressure; this is arithmetic, not a pricing recommendation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I buy a 2-day label myself or use WFS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "WFS includes two-day delivery after inbound. A seller-fulfilled 2-day label plus pack time usually converts more than standard shipping and still often loses to WFS once take rate is mixed in. On the defaults WFS keeps $4.83 more per session than an $8.95 2-day label. Open the 2-day page to replace the label, minutes, and take rates from Seller Center."
         }
       }
     ]
@@ -151,6 +159,12 @@
         <label>Other monthly fee <input id="monthlySellerFee" type="number" min="0" step="0.01" value="0"></label>
         <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="60"></label>
         <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="25"></label>
+        <label>2-day seller label ($) <input id="twoDayShippingCost" type="number" min="0" step="0.01" value="8.95"></label>
+        <label>2-day pack minutes <input id="twoDayMinutes" type="number" min="0" step="0.1" value="6"></label>
+        <label>Pack wage ($ / hour) <input id="twoDayHourlyWage" type="number" min="0" step="0.01" value="18"></label>
+        <label>WFS take (%) <input id="wfsTakePct" type="number" min="0" max="100" step="0.1" value="80"></label>
+        <label>2-day take (%) <input id="twoDayTakePct" type="number" min="0" max="100" step="0.1" value="70"></label>
+        <label>Standard take (%) <input id="standardTakePct" type="number" min="0" max="100" step="0.1" value="35"></label>
       </div>
     </section>
     <section class="result">
@@ -176,6 +190,13 @@
         <thead><tr><th>Path</th><th>Fees</th><th>Profit</th><th>Max buy</th></tr></thead>
         <tbody id="compare"></tbody>
       </table>
+      <hr>
+      <h2>Same listing, 2-day take</h2>
+      <p id="twoDayNote" class="note"></p>
+      <table>
+        <thead><tr><th>Path</th><th>Take</th><th>Completed</th><th>Expected</th></tr></thead>
+        <tbody id="twoDayCompare"></tbody>
+      </table>
       <p class="note">Transparent arithmetic from your inputs — not Walmart’s current fee schedule. Referral, WFS fulfillment, storage, and inbound vary by category, size, and account. Verify against Seller Center before buying inventory.</p>
     </section>
   </main>
@@ -189,6 +210,10 @@
       The referral floor also bites on cheap items.
       <a href="wfs-vs-seller-fulfilled.html">WFS vs seller fulfilled: which path leaves more?</a>
       walks through that in search-query words.
+      A 2-day Buy Box weight is a further mix:
+      <a href="should-i-offer-two-day-shipping-on-walmart.html">Should I offer 2-day shipping on Walmart?</a>
+      compares WFS (2-day included) against a seller-fulfilled 2-day label
+      and standard shipping after take rate.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -208,6 +233,8 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareTwoDay,
+      twoDayNote,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -216,7 +243,8 @@
       "width", "height", "weightLb", "monthsInStorage", "storageRate",
       "fulfillmentFee", "costOfGoods", "inboundPerUnit", "sellerShippingCost",
       "packagingCost", "adsPerUnit", "otherCost", "monthlySellerFee",
-      "monthlyUnits", "targetMargin",
+      "monthlyUnits", "targetMargin", "twoDayShippingCost", "twoDayMinutes",
+      "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -286,14 +314,20 @@
         ].map(([name, path]) =>
           `<tr><td>${name}</td><td>${money(path.feeTotal)}</td><td>${money(path.profit)}</td><td>${money(path.breakEvenBuyCost)}</td></tr>`
         ).join("");
+        const twoDay = compareTwoDay(readInput());
+        document.getElementById("twoDayNote").textContent = twoDayNote(twoDay);
+        document.getElementById("twoDayCompare").innerHTML = twoDay.rows.map((row) =>
+          `<tr><td>${row.label}</td><td>${row.takePct.toFixed(1)}%</td><td>${money(row.completedProfit)}</td><td>${money(row.expectedProfit)}</td></tr>`
+        ).join("");
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "referral", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "matchResult"].forEach((id) => {
+        ["revenue", "referral", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "matchResult", "twoDayNote"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
+        document.getElementById("twoDayCompare").innerHTML = "";
       }
     }
 
@@ -324,7 +358,9 @@
         ? "price_match_checked"
         : id === "targetMargin"
           ? "target_margin_calculated"
-          : "listing_profit_calculated";
+          : ["twoDayShippingCost", "twoDayMinutes", "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct"].includes(id)
+            ? "two_day_compared"
+            : "listing_profit_calculated";
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {

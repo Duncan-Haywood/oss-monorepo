@@ -4,9 +4,13 @@ import {
   calculateBrandOrder,
   calculateRetailerOrder,
   compareBrandScenarios,
+  compareOpenHouse,
   comparePayoutSpeeds,
   comparePayoutSpeedsAfterFloat,
   compareRetailerLifetime,
+  openHouseNote,
+  openHouseSummary,
+  OPEN_HOUSE_DEFAULTS,
   retailPriceForMargin,
   summarizePayoutFloat,
   wholesaleForMargin,
@@ -216,6 +220,74 @@ test("counts how many reorders recover a loss-making first marketplace order", (
 
 test("rejects a fractional expected-reorder count", () => {
   assert.throws(() => compareRetailerLifetime(naReorder, 1.5), /whole number/);
+});
+
+test("compareOpenHouse shows a 20% event discount can eat the waived commission", () => {
+  const comparison = compareOpenHouse(naReorder);
+  const everyday = comparison.rows.find((row) => row.id === "everyday");
+  const event = comparison.rows.find((row) => row.id === "open_house");
+  const same = comparison.rows.find((row) => row.id === "open_house_same_list");
+  assert.equal(everyday.profit, 75.9);
+  assert.equal(everyday.commissionRate, 15);
+  assert.equal(event.discountRate, 20);
+  assert.equal(event.commissionRate, 0);
+  assert.ok(event.profit < everyday.profit);
+  assert.ok(Math.abs(event.profit - 66.66) < 1e-9);
+  assert.equal(same.discountRate, 0);
+  assert.equal(same.commissionRate, 0);
+  assert.ok(same.profit > everyday.profit);
+  assert.ok(Math.abs(same.profit - 105.9) < 1e-9);
+  assert.equal(comparison.bestPerOrder.id, "open_house_same_list");
+  assert.equal(comparison.extraRetailers, 2);
+  assert.equal(event.retailers, 3);
+  assert.ok(comparison.pileExtraVsEveryday > 0);
+  assert.equal(comparison.bestPile.id, "open_house_same_list");
+  assert.ok(comparison.discountCeiling > 15 && comparison.discountCeiling < 16);
+  assert.equal(comparison.retailersToMatchEveryday, 2);
+});
+
+test("compareOpenHouse extra retailers flip a losing per-order event discount", () => {
+  const comparison = compareOpenHouse(naReorder);
+  const event = comparison.rows.find((row) => row.id === "open_house");
+  const everyday = comparison.rows.find((row) => row.id === "everyday");
+  assert.ok(event.profit < everyday.profit);
+  assert.ok(event.pileProfit > everyday.pileProfit);
+  const none = compareOpenHouse({ ...naReorder, openHouseExtraRetailers: 0 });
+  const noneEvent = none.rows.find((row) => row.id === "open_house");
+  assert.ok(noneEvent.pileProfit < none.rows.find((row) => row.id === "everyday").pileProfit);
+  assert.equal(none.bestPile.id, "open_house_same_list");
+});
+
+test("compareOpenHouse everyday 15% opening makes the 20% event path win per order", () => {
+  const comparison = compareOpenHouse({ ...naReorder, openingDiscountRate: 15 });
+  const everyday = comparison.rows.find((row) => row.id === "everyday");
+  const event = comparison.rows.find((row) => row.id === "open_house");
+  assert.ok(event.profit > everyday.profit);
+  assert.equal(comparison.bestPerOrder.id, "open_house_same_list");
+});
+
+test("openHouseNote names the default leak, ceiling, and pile flip", () => {
+  const comparison = compareOpenHouse(naReorder);
+  const text = openHouseNote(comparison);
+  assert.equal(text, comparison.summary);
+  assert.equal(text, openHouseSummary(comparison));
+  assert.match(text, /\$75\.90/);
+  assert.match(text, /\$66\.66/);
+  assert.match(text, /15\.3%/);
+  assert.match(text, /\$105\.90/);
+  assert.match(text, /2 extra new retailers/);
+});
+
+test("compareOpenHouse rejects impossible discounts and fractional extra retailers", () => {
+  assert.throws(() => compareOpenHouse({ ...naReorder, openHouseDiscountRate: 100 }), /below 100/);
+  assert.throws(() => compareOpenHouse({ ...naReorder, openHouseExtraRetailers: 1.5 }), /whole number/);
+  assert.throws(() => openHouseNote({}), /missing rows/);
+});
+
+test("OPEN_HOUSE_DEFAULTS match the page starting point", () => {
+  assert.equal(OPEN_HOUSE_DEFAULTS.openHouseDiscountRate, 20);
+  assert.equal(OPEN_HOUSE_DEFAULTS.openHouseCommissionRate, 0);
+  assert.equal(OPEN_HOUSE_DEFAULTS.openHouseExtraRetailers, 2);
 });
 
 test("rejects selling more units than the retailer bought", () => {

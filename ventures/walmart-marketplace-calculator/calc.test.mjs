@@ -7,11 +7,14 @@ import {
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  compareTwoDay,
   cubicFeet,
   DEFAULT_REFERRAL_MINIMUM,
   defaultFulfillmentFee,
   referralFee,
   STORAGE_PRESETS,
+  TWO_DAY_DEFAULTS,
+  twoDayNote,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -164,4 +167,69 @@ test("rejects invalid fulfillment methods and target margins", () => {
 
 test("exports the default referral floor sellers can edit", () => {
   assert.equal(DEFAULT_REFERRAL_MINIMUM, 0.3);
+});
+
+test("WFS 2-day beats a seller 2-day label on the page defaults", () => {
+  const r = compareTwoDay(base);
+  const listing = calculateListing(base);
+  const labor = (6 / 60) * 18;
+  const twoDayCompleted = listing.seller.profit + 4.5 - 8.95 - labor;
+
+  near(r.laborCost, 1.8, "6 min at $18");
+  near(r.wfs.completedProfit, listing.wfs.profit, "WFS completed");
+  near(r.standard.completedProfit, listing.seller.profit, "standard completed");
+  near(r.twoDay.completedProfit, twoDayCompleted, "2-day completed");
+  near(r.sessions, 75, "60 WFS units at 80% take");
+  near(r.wfs.expectedProfit, 0.8 * listing.wfs.profit, "WFS expected");
+  near(r.twoDay.expectedProfit, 0.7 * twoDayCompleted, "2-day expected");
+  near(r.standard.expectedProfit, 0.35 * listing.seller.profit, "standard expected");
+  near(r.extraTwoDayVsWfs, r.twoDay.expectedProfit - r.wfs.expectedProfit, "2-day gap");
+  near(r.monthlyExtraOnTwoDay, r.extraTwoDayVsWfs * 75, "monthly 2-day gap");
+  assert.equal(r.winner, "wfs");
+  assert.ok(r.extraTwoDayVsWfs < 0, "seller 2-day loses on these rates");
+  near(r.wfs.expectedProfit, 6.9198666666666675, "locked WFS expected");
+  near(r.twoDay.expectedProfit, 2.0940499999999993, "locked 2-day expected");
+  near(r.standard.expectedProfit, 3.234524999999999, "locked standard expected");
+  near(r.breakEvenTwoDayShipping, 2.055976190476187, "locked 2-day label ceiling");
+  near(r.breakEvenStandardTakePct, 74.8781763422244, "locked standard take floor");
+  assert.equal(r.breakEvenTwoDayTakePct, Infinity, "2-day leftover cannot match WFS even at 100%");
+  assert.match(twoDayNote(r), /WFS keeps \$4\.83 more per session/);
+  assert.match(twoDayNote(r), /\$2\.06/);
+  assert.match(twoDayNote(r), /unreachable take rate/);
+});
+
+test("a cheap 2-day label at matched take flips ahead of WFS", () => {
+  const r = compareTwoDay({
+    ...base,
+    twoDayShippingCost: 4.5,
+    twoDayMinutes: 0,
+    twoDayTakePct: 80,
+  });
+  assert.equal(r.winner, "two_day");
+  near(r.twoDay.completedProfit, r.standard.completedProfit, "same label as standard");
+  assert.ok(r.extraTwoDayVsWfs > 0, "matched take + no WFS inbound beats WFS");
+  near(r.extraTwoDayVsWfs, 0.47333333333333183, "locked flip gap");
+  assert.match(twoDayNote(r), /Seller-fulfilled 2-day keeps \$0\.47 more/);
+});
+
+test("90% standard take flips ahead of WFS on the same listing", () => {
+  const r = compareTwoDay({ ...base, standardTakePct: 90 });
+  assert.equal(r.winner, "standard");
+  near(r.extraStandardVsWfs, 1.3974833333333319, "locked standard flip");
+  assert.match(twoDayNote(r), /Seller-fulfilled standard shipping keeps \$1\.40 more/);
+});
+
+test("rejects invalid two-day take rates and zero WFS volume", () => {
+  assert.throws(() => compareTwoDay({ ...base, wfsTakePct: 0 }), /WFS take percent must be greater than zero/);
+  assert.throws(() => compareTwoDay({ ...base, twoDayTakePct: 101 }), /at most 100/);
+  assert.throws(() => compareTwoDay({ ...base, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => twoDayNote({}), /missing rows/);
+});
+
+test("exports the two-day defaults the page starts from", () => {
+  assert.equal(TWO_DAY_DEFAULTS.twoDayShippingCost, 8.95);
+  assert.equal(TWO_DAY_DEFAULTS.twoDayMinutes, 6);
+  assert.equal(TWO_DAY_DEFAULTS.wfsTakePct, 80);
+  assert.equal(TWO_DAY_DEFAULTS.twoDayTakePct, 70);
+  assert.equal(TWO_DAY_DEFAULTS.standardTakePct, 35);
 });

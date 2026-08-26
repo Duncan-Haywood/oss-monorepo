@@ -104,6 +104,7 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /Individual vs Professional seller plan/i);
   assert.match(featureList[1], /seller-plan volume ladder/i);
   assert.match(featureList[1], /aged inventory vs remove vs dispose/i);
+  assert.match(featureList[1], /FBA Liquidations vs dispose vs sell-elsewhere/i);
   assert.match(featureList[1], /expected returns/i);
   assert.match(featureList[1], /return-rate sweep/i);
   assert.match(featureList[1], /peak vs off-peak Q4 storage/i);
@@ -118,6 +119,7 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(markup, /low-inventory-level-fee\.html/);
   assert.match(markup, /should-i-use-amazon-awd\.html/);
   assert.match(markup, /should-i-use-amazon-remote-fulfillment\.html/);
+  assert.match(markup, /should-i-liquidate-aged-fba-inventory\.html/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);
