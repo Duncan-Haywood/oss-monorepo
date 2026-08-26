@@ -599,6 +599,120 @@ export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
 
+// ---------------------------------------------------------------------------
+// Cross-links
+// ---------------------------------------------------------------------------
+
+// Marks a page as already carrying the footer, so a second pass over a tree
+// (or a venture that somehow ships one of its own) cannot stack two of them.
+const CROSSLINK_MARKER = 'data-portfolio-crosslinks';
+
+/** How many sibling tools a page offers before falling back to the hub link. */
+const MAX_SIBLINGS = 4;
+
+/**
+ * The tools to offer on `slug`'s pages: its own category first, in slug order
+ * starting after itself so the set differs page to page rather than every tool
+ * pointing at the same four, then other categories if the category is thin.
+ *
+ * A visitor who arrives from a search result lands on one calculator and, until
+ * now, had no way to discover the other thirty-plus. Crawlers had the same
+ * problem: every venture was an island reachable only from the hub.
+ */
+export function relatedSurfaces(surfaces, slug, limit = MAX_SIBLINGS) {
+  const categoryId = categoryFor(slug).id;
+  const sameCategory = surfaces.filter((s) => s.slug !== slug && categoryFor(s.slug).id === categoryId);
+
+  // Rotate so each tool leads with a different neighbour.
+  const start = sameCategory.findIndex((s) => s.slug > slug);
+  const rotated = start === -1 ? sameCategory : [...sameCategory.slice(start), ...sameCategory.slice(0, start)];
+
+  const picked = rotated.slice(0, limit);
+  if (picked.length >= limit) return picked;
+
+  const chosen = new Set(picked.map((s) => s.slug));
+  for (const surface of surfaces) {
+    if (picked.length >= limit) break;
+    if (surface.slug === slug || chosen.has(surface.slug)) continue;
+    picked.push(surface);
+    chosen.add(surface.slug);
+  }
+  return picked;
+}
+
+/**
+ * The footer markup. Links are relative to the file being written rather than
+ * absolute, so the same output works on the Pages sub-path, on a custom domain,
+ * and under `python3 -m http.server` in `dist` — none of which share a prefix.
+ */
+export function renderCrossLinks(related, prefix) {
+  const items = related
+    .map(
+      (surface) =>
+        `        <li><a href="${escapeHtml(prefix)}${escapeHtml(surface.slug)}/">${escapeHtml(surface.title)}</a></li>`,
+    )
+    .join('\n');
+
+  return `
+<nav ${CROSSLINK_MARKER} class="pf-crosslinks" aria-label="More free tools from this portfolio">
+  <style>
+    /* 48rem sits inside the 700–800px container most ventures use, so the
+       footer lines up with the page copy instead of out-denting past it. */
+    .pf-crosslinks { max-width: 48rem; margin: 56px auto 0; padding: 22px 1.2rem 34px;
+      border-top: 1px solid rgba(128, 145, 165, .32); font-family: system-ui, -apple-system,
+      "Segoe UI", Roboto, sans-serif; font-size: .93rem; line-height: 1.55; }
+    .pf-crosslinks h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .08em;
+      margin: 0 0 10px; font-weight: 600; opacity: .72; }
+    .pf-crosslinks ul { list-style: none; margin: 0; padding: 0; display: flex;
+      flex-wrap: wrap; gap: 8px 10px; }
+    .pf-crosslinks li { margin: 0; }
+    .pf-crosslinks li a { display: inline-block; padding: 6px 11px; border-radius: 999px;
+      border: 1px solid rgba(128, 145, 165, .38); text-decoration: none; }
+    .pf-crosslinks li a:hover, .pf-crosslinks li a:focus-visible {
+      border-color: currentColor; text-decoration: underline; }
+    .pf-crosslinks .pf-all { margin: 14px 0 0; }
+    @media (max-width: 34rem) { .pf-crosslinks ul { gap: 6px 8px; } }
+  </style>
+  <h2>More free tools</h2>
+  <ul>
+${items}
+  </ul>
+  <p class="pf-all"><a href="${escapeHtml(prefix) || './'}">See all free calculators &amp; checks &rarr;</a></p>
+</nav>
+`;
+}
+
+/**
+ * Append the footer to every published HTML page of one venture — the SEO
+ * landing pages included, since those are what a search result actually opens.
+ */
+export async function addCrossLinks({ publishedDir, outDir, surfaces, slug }) {
+  const related = relatedSurfaces(surfaces, slug);
+  if (related.length === 0) return [];
+
+  const touched = [];
+  for (const file of await listFiles(publishedDir)) {
+    if (path.extname(file).toLowerCase() !== '.html') continue;
+
+    const html = await fs.readFile(file, 'utf8');
+    if (html.includes(CROSSLINK_MARKER)) continue;
+
+    // `path.relative` yields '' for a file sitting directly in `outDir`; every
+    // published page is at least one directory deep, but guard it anyway.
+    const up = path.relative(path.dirname(file), outDir);
+    const prefix = up === '' ? './' : `${up.split(path.sep).join('/')}/`;
+
+    const block = renderCrossLinks(related, prefix);
+    const close = html.toLowerCase().lastIndexOf('</body>');
+    const next = close === -1 ? html + block : html.slice(0, close) + block + html.slice(close);
+
+    await fs.writeFile(file, next);
+    touched.push(file);
+  }
+
+  return touched;
+}
+
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
  * entries, so the hub itself and any venture without its own sitemap live in
@@ -701,6 +815,20 @@ export async function buildSite({
     log(`  ${surface.slug}`);
   }
 
+  // Second pass: the footer names sibling tools by title, so it can only be
+  // written once every surface has been read.
+  const crossLinked = [];
+  for (const surface of surfaces) {
+    crossLinked.push(
+      ...(await addCrossLinks({
+        publishedDir: path.join(outDir, surface.slug),
+        outDir,
+        surfaces,
+        slug: surface.slug,
+      })),
+    );
+  }
+
   await fs.writeFile(path.join(outDir, 'index.html'), renderHub(surfaces, base));
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
@@ -712,7 +840,7 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  return { outDir, baseUrl: base, surfaces, repairs };
+  return { outDir, baseUrl: base, surfaces, repairs, crossLinked };
 }
 
 // ---------------------------------------------------------------------------
@@ -734,4 +862,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (result.repairs.length > 0) {
     console.log(`Repointed ${result.repairs.length} off-site link(s) at the repository source.`);
   }
+  console.log(`Cross-linked ${result.crossLinked.length} page(s) back to the hub and their siblings.`);
 }

@@ -12,11 +12,15 @@ import path from 'node:path';
 import os from 'node:os';
 
 import {
+  addCrossLinks,
   buildSite,
   categoryFor,
   discoverSurfaces,
   isPublishable,
+  listFiles,
   readMeta,
+  relatedSurfaces,
+  renderCrossLinks,
   renderHub,
   renderRobots,
   renderSitemapIndex,
@@ -369,4 +373,113 @@ test('hub markup escapes venture copy', () => {
   );
   assert.ok(!hub.includes('<script>alert(1)</script>'));
   assert.ok(hub.includes('&lt;script&gt;'));
+});
+
+// ---------------------------------------------------------------------------
+// Cross-links
+// ---------------------------------------------------------------------------
+
+test('every published page links back to the hub', async () => {
+  const { outDir, surfaces } = await site();
+
+  const orphans = [];
+  for (const surface of surfaces) {
+    for (const file of await listFiles(path.join(outDir, surface.slug))) {
+      if (path.extname(file) !== '.html') continue;
+      const html = await fs.readFile(file, 'utf8');
+      if (!html.includes('data-portfolio-crosslinks')) orphans.push(path.relative(outDir, file));
+    }
+  }
+
+  assert.deepEqual(orphans, [], 'a page with no way back to the hub is a dead end for visitors and crawlers');
+});
+
+test('cross-link targets resolve to a real directory in the built site', async () => {
+  const { outDir } = await site();
+  const page = path.join(outDir, 'etsy-profit-calculator', 'index.html');
+  const html = await fs.readFile(page, 'utf8');
+
+  const nav = html.match(/<nav data-portfolio-crosslinks[\s\S]*?<\/nav>/)[0];
+  const hrefs = [...nav.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(hrefs.length > 1, 'the footer should offer siblings, not just the hub');
+
+  for (const href of hrefs) {
+    const target = path.resolve(path.dirname(page), href);
+    assert.ok(
+      await fs.stat(target).then((s) => s.isDirectory()).catch(() => false),
+      `${href} should resolve inside the built site`,
+    );
+    assert.ok(
+      await fs.stat(path.join(target, 'index.html')).then(() => true).catch(() => false),
+      `${href} should have an index.html to land on`,
+    );
+  }
+});
+
+test('a nested page walks up the right number of directories', async () => {
+  const { outDir } = await site();
+  // `ai-engineering-academy` publishes its five calculators one level deeper
+  // than every other venture, so a single `../` would land on the wrong page.
+  const nested = path.join(outDir, 'ai-engineering-academy', 'rc-filter-calculator', 'index.html');
+  const html = await fs.readFile(nested, 'utf8');
+  assert.ok(html.includes('class="pf-all"><a href="../../"'), 'the hub is two levels up from here');
+});
+
+test('the footer is added once, however many times the tree is walked', async () => {
+  const { outDir, surfaces } = await site();
+  const page = path.join(outDir, 'ebay-fee-calculator', 'index.html');
+
+  const before = await fs.readFile(page, 'utf8');
+  await addCrossLinks({
+    publishedDir: path.join(outDir, 'ebay-fee-calculator'),
+    outDir,
+    surfaces,
+    slug: 'ebay-fee-calculator',
+  });
+
+  assert.equal(await fs.readFile(page, 'utf8'), before, 'a second pass must not stack a second footer');
+});
+
+test('related tools prefer the same category and stop at the limit', () => {
+  const surfaces = [
+    { slug: 'ebay-fee-calculator', title: 'eBay' },
+    { slug: 'etsy-profit-calculator', title: 'Etsy' },
+    { slug: 'amazon-fba-calculator', title: 'Amazon' },
+    { slug: 'shopify-fee-calculator', title: 'Shopify' },
+    { slug: 'faire-wholesale-calculator', title: 'Faire' },
+    { slug: 'janitorial-bid-calculator', title: 'Janitorial' },
+  ];
+
+  const related = relatedSurfaces(surfaces, 'ebay-fee-calculator');
+  assert.equal(related.length, 4);
+  assert.ok(!related.some((s) => s.slug === 'ebay-fee-calculator'), 'a tool never links to itself');
+  assert.ok(
+    related.every((s) => categoryFor(s.slug).id === 'marketplace'),
+    'four marketplace siblings exist, so no filler from another category is needed',
+  );
+});
+
+test('a tool alone in its category still gets neighbours', () => {
+  const surfaces = [
+    { slug: 'janitorial-bid-calculator', title: 'Janitorial' },
+    { slug: 'ebay-fee-calculator', title: 'eBay' },
+    { slug: 'etsy-profit-calculator', title: 'Etsy' },
+  ];
+
+  const related = relatedSurfaces(surfaces, 'janitorial-bid-calculator');
+  assert.equal(related.length, 2, 'falls back to other categories rather than showing an empty footer');
+  assert.ok(!related.some((s) => s.slug === 'janitorial-bid-calculator'));
+});
+
+test('a sibling title cannot inject markup into the footer', () => {
+  const nav = renderCrossLinks([{ slug: 'x', title: '<script>alert(1)</script>' }], '../');
+  assert.ok(!nav.includes('<script>alert(1)</script>'));
+  assert.ok(nav.includes('&lt;script&gt;'));
+});
+
+test('the footer goes inside the document body', async () => {
+  const html = await read('quote-margin-check', 'index.html');
+  const nav = html.indexOf('<nav data-portfolio-crosslinks');
+  assert.ok(nav !== -1);
+  assert.ok(nav < html.toLowerCase().lastIndexOf('</body>'), 'markup after </body> is moved by the parser');
 });

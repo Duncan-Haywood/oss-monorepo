@@ -64,6 +64,14 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
   public repository, where the link still answers the question it was there to
   answer. Links that resolve inside the site are left untouched. The build
   prints how many it repointed.
+- **Dead ends.** Every published page gets a "More free tools" footer: four
+  sibling tools from its own category, plus a link to the hub. Before this, a
+  visitor who arrived from a search result on one calculator had no way to
+  discover the other thirty-plus, and every venture was an island a crawler
+  could reach only from the front page. The links are relative, so the same
+  output works on the Pages sub-path, on a custom domain, and from
+  `python3 -m http.server` in `dist`. The build prints how many pages it
+  cross-linked.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
