@@ -7,9 +7,10 @@ cancellation fee, an estimate of what no-shows cost you a year, and a
 ready-to-copy cancellation policy.
 
 **After using this, you can now** state and defend a specific
-no-show/late-cancellation fee — and hand clients a ready-to-use policy —
-**which used to take** guessing a number or copying a boilerplate template
-that doesn't match your prices.
+no-show/late-cancellation fee, see whether a 24-hour or 48-hour notice
+window actually recovers more empty-slot cash on your waitlist, and hand
+clients a ready-to-use policy — **which used to take** guessing a number
+or copying a boilerplate template that doesn't match your prices.
 
 ## Who this is for
 
@@ -43,9 +44,13 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    in USD, EUR, GBP, CAD, or AUD; it does not convert between currencies.
 4. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a plain-text
-   cancellation policy you can copy straight into your booking system,
-   client agreement, or website.
+   revenue you could collect if you enforce the policy — plus a table that
+   compares collecting that fee on a full book against overbooking 50%,
+   100%, and 150% of the empty chairs (and against dropping the fee and
+   only overbooking). Optionally type what a double-booked chair costs
+   you; leave it blank to price overflow as one session. Then copy a
+   plain-text cancellation policy into your booking system, client
+   agreement, or website.
 
 All the arithmetic is in [`src/calc.mjs`](src/calc.mjs), covered by
 [`test/calc.test.mjs`](test/calc.test.mjs). Nothing here is AI-generated
@@ -57,6 +62,17 @@ in its query string, including the selected currency and any business or
 service names, so treat it like any other link containing business information.
 It is not uploaded or stored by this tool.
 
+**Compare notice windows** answers the 24-hour vs 48-hour question with
+your own waitlist fill-rate assumption. Same-day, 24-hour, and 48-hour
+rows show how many late cancels you refill, how much empty-slot cash that
+recovers, and the extra versus a same-day rule. The fee table stays
+separate: collecting a fee does not put another client in the chair. A
+crawlable explainer lives at
+[`24h-vs-48h-cancellation-notice.html`](24h-vs-48h-cancellation-notice.html).
+
+A worked example of the overbooking table lives on
+[`should-i-overbook-or-charge-a-no-show-fee.html`](should-i-overbook-or-charge-a-no-show-fee.html).
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of
@@ -67,6 +83,12 @@ obligation it helps you prepare for — including checking that a
 cancellation/no-show fee is permitted for your business type and location
 before you publish a policy. To the maximum extent permitted by law, the
 authors accept no liability for any loss or damage arising from its use.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and
+may be slow, broken, moved, or taken offline without notice. We do not
+promise uptime, backups of anything you type, or that a URL will keep
+working. Do not use this as a system of record. If a tool needs to
+survive, export your inputs and run it yourself.
 
 ## Privacy
 

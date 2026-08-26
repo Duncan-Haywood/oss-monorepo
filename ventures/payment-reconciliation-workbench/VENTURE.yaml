@@ -7,13 +7,17 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Matching only on amount-to-the-cent and a date window is more trustworthy than a fuzzy bank-feed importer that silently drops rows.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
   monthly_cost: 0
   customers: null
 budget:
-  monthly_cap: 10
+  monthly_cap: 1
   protected: true
 kill_criteria:
   - No organic visits, forks, or repeat local usage after 60 days of availability.
