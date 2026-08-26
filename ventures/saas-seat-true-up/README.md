@@ -6,9 +6,9 @@ Open [`index.html`](index.html) directly or serve this directory as a static sit
 
 ## Usage
 
-Enter purchased seats, seats used in the latest review, per-seat monthly price, and months remaining. Unused seats become avoidable spend. Used seats above the purchased count become overage. The result is a planning scenario, not a vendor invoice or savings guarantee.
+Enter purchased seats, seats used in the latest review, per-seat monthly price, months remaining, and any contracted overage premium. Unused seats become avoidable spend. Used seats above the purchased count become overage, billed at list price plus that premium (0% keeps the same-price default). The result is a planning scenario, not a vendor invoice or savings guarantee.
 
-Use **Save scenario** to keep the four totals in this browser for the next renewal review. **Reset** restores the example numbers and deletes the saved scenario. Saved values never leave the device.
+Use **Save scenario** to keep the entered totals in this browser for the next renewal review. **Reset** restores the example numbers and deletes the saved scenario. Saved values never leave the device.
 
 The product counts local aggregate events (`true_up_calculated`, `scenario_saved`, `scenario_restored`). It stores no names, identifiers, IP addresses, or content, sends nothing to an analytics vendor, honors Do Not Track and Global Privacy Control, and includes a persistent opt-out. Baseline usage is recorded in `portfolio/usage/usage.yaml`.
 

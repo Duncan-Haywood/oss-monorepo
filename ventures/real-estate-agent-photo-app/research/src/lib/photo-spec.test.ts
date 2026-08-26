@@ -9,7 +9,7 @@
 
 import zlib from "node:zlib";
 
-import { buildReshootPlan, checkBatch, checkPhoto, formatReshootPlan } from "./photo-spec";
+import { SPEC_DATE, SPEC_ID, UNIMPLEMENTED_RULES, buildReshootPlan, checkBatch, checkPhoto, createEvidenceReport, formatReshootPlan } from "./photo-spec";
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`Assertion failed: ${message}`);
@@ -203,6 +203,20 @@ function testReshootPlanTextIsCopyable() {
   assert(text.includes("not a warranty"), "disclaimer stays on the copied list");
 }
 
+function testEvidenceReportNamesTheSpecAndUnimplementedRules(): void {
+  const reports = checkBatch([
+    { name: "kitchen-1600x1200.png", data: new Uint8Array(pngBytes(1600, 1200)) },
+  ]);
+  const evidence = createEvidenceReport(reports, ["notes.txt"], "2026-08-26T20:55:00.000Z");
+  assertEqual(evidence.reportType, "listing-lens-photo-preflight", "report type");
+  assertEqual(evidence.specId, SPEC_ID, "spec id");
+  assertEqual(evidence.specDate, SPEC_DATE, "spec date");
+  assertEqual(evidence.checkedPhotos, 1, "checked photo count");
+  assertEqual(evidence.skippedFiles, ["notes.txt"], "skipped files stay listed");
+  assertEqual([...evidence.unimplementedRules], [...UNIMPLEMENTED_RULES], "unimplemented rules stay explicit");
+  assert(evidence.photos[0].info.name === "kitchen-1600x1200.png", "keeps the checked photo");
+}
+
 const tests: Array<[string, () => void]> = [
   ["passing photos have no findings", testPassingPhotosHaveNoFindings],
   ["long edge / aspect / branding / staging", testLongEdgeAspectBrandingStaging],
@@ -213,6 +227,7 @@ const tests: Array<[string, () => void]> = [
   ["reshoot plan maps findings to actions", testReshootPlanMapsFindingsToActions],
   ["clean batch has an empty reshoot plan", testCleanBatchHasEmptyReshootPlan],
   ["reshoot plan text is copyable", testReshootPlanTextIsCopyable],
+  ["evidence report names the spec and unimplemented rules", testEvidenceReportNamesTheSpecAndUnimplementedRules],
 ];
 
 let failures = 0;
