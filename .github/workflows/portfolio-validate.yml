@@ -122,8 +122,20 @@ jobs:
         with:
           python-version: "3.12"
 
+      # First, and before pip: an unfinished merge makes every step after it
+      # fail for the wrong reason. #1032 merged conflict markers into a
+      # VENTURE.yaml and this job reported a YAML "simple key" error four
+      # steps in, while the markers it also left in the ledger -- which still
+      # parsed -- were reported by nothing at all.
+      - name: Check no unfinished merge was committed
+        run: python3 platform/ci/check_conflict_markers.py
+
       - name: Install dependencies
         run: pip install -r portfolio/router/requirements.txt pytest
+
+      - name: Conflict-marker guard unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_conflict_markers
 
       - name: Validate VENTURE.yaml schema
         run: python3 portfolio/router/validate.py
