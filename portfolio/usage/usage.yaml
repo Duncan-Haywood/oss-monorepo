@@ -390,6 +390,14 @@ products:
           Added a target-rate hours budget: leftover cash after direct costs
           divided by the supplied target rate. Counted once per settled quote,
           not per keystroke. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          time_buffer_compared: 0
+        note: >-
+          Added an optional time-buffer percentage that prices the same
+          target rate against buffered hours. Public URL remains
+          owner-gated; the counter stores only aggregate local events.
 
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
@@ -2362,14 +2370,6 @@ products:
           Repair-and-merge of unique #1441 subcontractor cash-flow
           planner onto current main. Public URL remains owner-gated;
           usage is opt-out and local-only. Baseline row.
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          scenario_planned: 0
-        note: >-
-          Added retention-release timing: days after the invoice payment
-          when held-back retainage is modeled as arriving. Public URL
-          remains owner-gated; usage is opt-out and local-only.
 
   - slug: medical-courier-route-margin
     surface: static-page-in-repo

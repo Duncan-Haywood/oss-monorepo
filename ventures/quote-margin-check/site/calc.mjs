@@ -10,6 +10,7 @@ const FIELDS = [
   "overhead",
   "subcontractor_cost",
   "target_hourly_rate",
+  "time_buffer_percent",
 ];
 
 // Editable starting points, not pricing recommendations.
@@ -51,11 +52,15 @@ export function calculate(quote) {
   const directCosts = quote.overhead + quote.subcontractor_cost;
   const effectiveHourlyRate = (quote.price - directCosts) / totalHours;
   const targetPrice = totalHours * quote.target_hourly_rate + directCosts;
+  const bufferedHours = totalHours * (1 + quote.time_buffer_percent / 100);
+  const bufferedTargetPrice = bufferedHours * quote.target_hourly_rate + directCosts;
   return {
     total_hours: totalHours,
     direct_costs: directCosts,
     effective_hourly_rate: effectiveHourlyRate,
     target_price: targetPrice,
+    buffered_hours: bufferedHours,
+    buffered_target_price: bufferedTargetPrice,
     gap_to_target: quote.price - targetPrice,
     cost_coverage: quote.price - directCosts,
     discount_room: Math.max(0, quote.price - targetPrice),
