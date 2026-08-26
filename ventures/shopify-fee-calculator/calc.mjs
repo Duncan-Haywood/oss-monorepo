@@ -1273,3 +1273,176 @@ export function compareChargeback(input) {
     }),
   };
 }
+
+/**
+ * Illustrative local-delivery defaults. Minutes, hourly, miles, and the
+ * IRS-style mileage rate are inputs — not a Shopify Local Delivery
+ * schedule. $8 charged / 25 minutes / $18 hour / 8 miles / $0.70 mile
+ * is a city drop-off a merchant overwrites from their last run.
+ */
+export const DEFAULT_LOCAL_DELIVERY_FEE = 8;
+export const DEFAULT_LOCAL_DELIVERY_MINUTES = 25;
+export const DEFAULT_LOCAL_HOURLY_RATE = 18;
+export const DEFAULT_LOCAL_MILES = 8;
+export const DEFAULT_LOCAL_MILEAGE_RATE = 0.7;
+
+export function localDeliveryCost({ minutes, hourlyRate, miles, mileageRate }) {
+  return (minutes / 60) * hourlyRate + miles * mileageRate;
+}
+
+function localDeliverySummary({
+  winner,
+  extraKeptOnLocal,
+  deliveryCost,
+  breakEvenDeliveryCost,
+  monthlyExtraOnLocal,
+}) {
+  const gap = moneyLabel(Math.abs(extraKeptOnLocal));
+  const ahead = extraKeptOnLocal >= 0 ? "more" : "less";
+  const localLine = `Local delivery at a ${moneyLabel(deliveryCost)} run cost keeps ${gap} ${ahead} than the carrier label.`;
+  const ceiling = Number.isFinite(breakEvenDeliveryCost)
+    ? ` The run has to cost about ${moneyLabel(breakEvenDeliveryCost)} before local delivery matches the label.`
+    : " No local-delivery run cost on these rates can match the label.";
+  const month = monthlyExtraOnLocal === 0
+    ? ""
+    : ` Across the typed month that is ${moneyLabel(monthlyExtraOnLocal)}.`;
+  if (winner === "tie") {
+    return `Local delivery and the carrier label leave the same profit on these rates.${month}`;
+  }
+  return `${localLine}${ceiling}${month}`;
+}
+
+/**
+ * Same SKU, three ways to get it to the buyer.
+ *
+ *   - Carrier / Shopify label — typed shipping charged and shipping you
+ *     pay. This is the landed label path.
+ *   - Local delivery — typed delivery fee, driver minutes × hourly,
+ *     plus miles × mileage. Card fees sit on the delivery fee.
+ *   - Charge shipping, deliver yourself — keep the typed postage
+ *     charged, still pay the driver run. The usual “I’ll just drop
+ *     it off and keep the shipping” trap.
+ *
+ * Complementary to landed Shopify Shipping vs own label (two labels,
+ * same checkout postage) and to POS pickup (buyer comes in). Rates
+ * and the run are inputs, not Shopify Local Delivery policy.
+ */
+export function compareLocalDelivery(input) {
+  const deliveryFee = emptyField(input.localDeliveryFee)
+    ? DEFAULT_LOCAL_DELIVERY_FEE
+    : number(input.localDeliveryFee, "Local delivery fee");
+  const minutes = emptyField(input.localDeliveryMinutes)
+    ? DEFAULT_LOCAL_DELIVERY_MINUTES
+    : number(input.localDeliveryMinutes, "Local delivery minutes");
+  const hourlyRate = emptyField(input.localHourlyRate)
+    ? DEFAULT_LOCAL_HOURLY_RATE
+    : number(input.localHourlyRate, "Local hourly rate");
+  const miles = emptyField(input.localMiles)
+    ? DEFAULT_LOCAL_MILES
+    : number(input.localMiles, "Local delivery miles");
+  const mileageRate = emptyField(input.localMileageRate)
+    ? DEFAULT_LOCAL_MILEAGE_RATE
+    : number(input.localMileageRate, "Local mileage rate");
+  const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
+
+  const deliveryCost = localDeliveryCost({ minutes, hourlyRate, miles, mileageRate });
+  const shipOrder = calculateOrder(input);
+  const localOrder = calculateOrder({
+    ...input,
+    shippingCharged: deliveryFee,
+    shippingCost: deliveryCost,
+  });
+  const chargeShipDeliverOrder = calculateOrder({
+    ...input,
+    shippingCost: deliveryCost,
+  });
+
+  const shipProfit = shipOrder.selected.profit;
+  const localProfit = localOrder.selected.profit;
+  const chargeShipDeliverProfit = chargeShipDeliverOrder.selected.profit;
+
+  const ship = {
+    id: "ship",
+    label: "Carrier / Shopify label",
+    charged: number(input.shippingCharged, "Shipping charged"),
+    fulfillmentCost: number(input.shippingCost, "Shipping cost"),
+    fees: shipOrder.selected.feeTotal,
+    profit: shipProfit,
+  };
+  const local = {
+    id: "local",
+    label: "Local delivery",
+    charged: deliveryFee,
+    fulfillmentCost: deliveryCost,
+    fees: localOrder.selected.feeTotal,
+    profit: localProfit,
+  };
+  const chargeShipDeliver = {
+    id: "charge_ship_deliver",
+    label: "Charge shipping, deliver yourself",
+    charged: ship.charged,
+    fulfillmentCost: deliveryCost,
+    fees: chargeShipDeliverOrder.selected.feeTotal,
+    profit: chargeShipDeliverProfit,
+  };
+
+  const extraKeptOnLocal = localProfit - shipProfit;
+  const extraKeptOnChargeShipDeliver = chargeShipDeliverProfit - shipProfit;
+  const monthlyExtraOnLocal = extraKeptOnLocal * monthlyOrders;
+
+  const rows = [ship, local, chargeShipDeliver].map((row) => ({
+    ...row,
+    vsShip: row.profit - shipProfit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.profit));
+  const leaders = rows.filter((row) => Math.abs(row.profit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  const localRevenue = number(input.price, "Item price") + deliveryFee;
+  const paymentsRate = number(input.paymentsRate, "Shopify Payments rate", 2.9);
+  const paymentsFixed = number(input.paymentsFixed, "Shopify Payments fixed fee", 0.3);
+  const processorRate = number(input.processorRate, "Third-party processor rate", 3.49);
+  const processorFixed = number(input.processorFixed, "Third-party processor fixed fee", 0.49);
+  const shopifyTxnRate = number(input.shopifyTxnRate, "Shopify third-party transaction rate", 2);
+  const paymentMethod = input.paymentMethod ?? "shopify_payments";
+  const localPercentRate = paymentMethod === "third_party"
+    ? (processorRate + shopifyTxnRate) / 100
+    : paymentsRate / 100;
+  const localFixed = paymentMethod === "third_party" ? processorFixed : paymentsFixed;
+  const localFeesAtFee = localRevenue * localPercentRate + localFixed;
+  const cashWithoutFulfillment = localOrder.selected.cashInvested - deliveryCost;
+  let breakEvenDeliveryCost = Infinity;
+  if (Number.isFinite(shipProfit)) {
+    breakEvenDeliveryCost = localRevenue - localFeesAtFee - cashWithoutFulfillment - shipProfit;
+  }
+  let breakEvenMinutes = Infinity;
+  if (hourlyRate > 1e-12) {
+    breakEvenMinutes = ((breakEvenDeliveryCost - miles * mileageRate) / hourlyRate) * 60;
+  }
+
+  return {
+    rows,
+    ship: rows[0],
+    local: rows[1],
+    chargeShipDeliver: rows[2],
+    deliveryFee,
+    minutes,
+    hourlyRate,
+    miles,
+    mileageRate,
+    deliveryCost,
+    extraKeptOnLocal,
+    extraKeptOnChargeShipDeliver,
+    monthlyExtraOnLocal,
+    breakEvenDeliveryCost,
+    breakEvenMinutes,
+    winner,
+    summary: localDeliverySummary({
+      winner,
+      extraKeptOnLocal,
+      deliveryCost,
+      breakEvenDeliveryCost,
+      monthlyExtraOnLocal,
+    }),
+  };
+}

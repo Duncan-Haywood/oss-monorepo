@@ -345,9 +345,12 @@ products:
         signals:
           live_url_visitors: null
           chargeback_compared: 0
+          local_delivery_compared: 0
         note: >-
           Added refund-now vs fight vs accept on a Shopify Payments
-          chargeback; public URL remains owner-gated.
+          chargeback, and local delivery vs carrier label (driver minutes,
+          mileage, charge-shipping-and-deliver trap). Public URL remains
+          owner-gated; local events are opt-out and store no inputs.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:
