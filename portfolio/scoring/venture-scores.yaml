@@ -5253,3 +5253,34 @@ ventures:
       The shipped waste and production figures are labelled ballpark
       starting points rather than a standard or benchmark, and nothing the
       user enters leaves the browser.
+
+  - slug: mobile-detailing-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The product deliberately uses transparent arithmetic rather than AI;
+      its value is the detailing-specific model for travel, setup, supplies,
+      and payment fees, which is easier for an operator to audit.
+    basis: >-
+      Built on 2026-08-25 as a browser-local bid calculator for mobile
+      detailers. It is distinct from generic quote-margin tools because it
+      models the vehicle and job-mobility burden that determines a
+      profitable minimum quote. Distribution 7 reflects clear search intent
+      around mobile detailing prices and minimum charges, with a narrower
+      and less saturated audience than general pricing calculators.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: results are modeled from user-supplied assumptions, not
+      financial, tax, wage, or legal advice; assumptions remain visible and
+      inputs stay in the browser.
