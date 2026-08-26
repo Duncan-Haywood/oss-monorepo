@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS, compareTopRatedPlus, topRatedPlusNote, DEFAULT_TRS_DISCOUNT_PCT, DEFAULT_STANDARD_SELL_THROUGH, DEFAULT_TRS_SELL_THROUGH, DEFAULT_STANDARD_RETURN_RATE, DEFAULT_TRS_RETURN_RATE, DEFAULT_MONTHLY_TRS_LISTINGS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -1261,4 +1261,88 @@ test('rejects an unpaid rate above 100% and a missing comparison', () => {
   assert.throws(() => compareImmediatePayment({ ...agBase, immediateSellThroughPct: -1 }), /Immediate-pay sell-through/);
   assert.throws(() => compareImmediatePayment({ price: -1 }), /Item price/);
   assert.throws(() => immediatePaymentNote({}), /missing rows/);
+});
+
+test('compares Top Rated Plus against staying standard on the default listing', () => {
+  // Standard: completed $21.605; return −$6 (buyer-paid label); 8% mix → $19.3966.
+  // 60% sell-through → $11.63796.
+  // TRP: 10% off 13.25% FVF → 11.925%. Completed $22.2145; return −$11;
+  // 16% mix → $16.90018; minus $2.40 handling; 75% sell-through → $10.875135.
+  // Standard is ahead. The 10% fee save does not cover free returns.
+  const comparison = compareTopRatedPlus(agBase);
+  assert.equal(comparison.discountPct, DEFAULT_TRS_DISCOUNT_PCT);
+  assert.equal(comparison.standard.sellThroughPct, DEFAULT_STANDARD_SELL_THROUGH);
+  assert.equal(comparison.topRated.sellThroughPct, DEFAULT_TRS_SELL_THROUGH);
+  assert.equal(comparison.standard.returnRatePercent, DEFAULT_STANDARD_RETURN_RATE);
+  assert.equal(comparison.topRated.returnRatePercent, DEFAULT_TRS_RETURN_RATE);
+  assert.equal(comparison.monthlyListings, DEFAULT_MONTHLY_TRS_LISTINGS);
+  near(comparison.discountedFvf, 11.925, '10% off 13.25');
+  near(comparison.fvfSave, 0.6095, 'FVF save on $46');
+  near(comparison.handlingCost, 2.4, '8 minutes at $18');
+  near(comparison.standard.soldExpectedProfit, 19.3966, 'standard completed expected');
+  near(comparison.standard.expectedProfit, 19.3966 * 0.60, 'standard listing expected');
+  near(comparison.topRated.completedProfit, 22.2145, 'TRP completed');
+  near(comparison.topRated.soldExpectedProfit, 16.90018, 'TRP completed expected');
+  near(comparison.topRated.expectedProfit, (16.90018 - 2.4) * 0.75, 'TRP listing expected');
+  assert.equal(comparison.winner, 'standard');
+  near(comparison.extraKeptOnTopRated, 10.875135 - 11.63796, 'TRP vs standard');
+  near(comparison.monthlyExtraOnTopRated, (10.875135 - 11.63796) * 40, '40 listings');
+  near(comparison.breakEvenTrsSellThrough, 80.26079676252296, 'sell-through that ties standard');
+  near(comparison.breakEvenTrsReturnRate, 12.93778319709766, 'return rate that ties standard');
+});
+
+test('break-even Top Rated sell-through and return rate match staying standard', () => {
+  const comparison = compareTopRatedPlus(agBase);
+  const atSellThrough = compareTopRatedPlus({
+    ...agBase,
+    trsSellThroughPct: comparison.breakEvenTrsSellThrough,
+  });
+  near(atSellThrough.topRated.expectedProfit, atSellThrough.standard.expectedProfit, 'ceiling sell-through ties standard');
+  const atReturnRate = compareTopRatedPlus({
+    ...agBase,
+    trsReturnRatePercent: comparison.breakEvenTrsReturnRate,
+  });
+  near(atReturnRate.topRated.expectedProfit, atReturnRate.standard.expectedProfit, 'ceiling return rate ties standard');
+  assert.ok(comparison.breakEvenTrsReturnRate < 16, 'default 16% free returns is above the ceiling');
+});
+
+test('a high-ticket listing with a modest return lift flips Top Rated Plus ahead', () => {
+  const comparison = compareTopRatedPlus({
+    ...agBase,
+    price: 180,
+    shippingCharged: 12,
+    costOfGoods: 70,
+    shippingCost: 14,
+    packagingCost: 3,
+    standardReturnRatePercent: 6,
+    trsReturnRatePercent: 10,
+    standardSellThroughPct: 55,
+    trsSellThroughPct: 72,
+    trsReturnShippingCost: 12,
+  });
+  assert.equal(comparison.winner, 'topRated');
+  near(comparison.standard.expectedProfit, 40.41642, 'high-ticket standard');
+  near(comparison.topRated.expectedProfit, 49.192992, 'high-ticket Top Rated');
+  near(comparison.extraKeptOnTopRated, 49.192992 - 40.41642, 'high-ticket gap');
+});
+
+test('Top Rated Plus note names the figures without telling the seller what to do', () => {
+  const comparison = compareTopRatedPlus(agBase);
+  const note = topRatedPlusNote(comparison);
+  assert.match(note, /Staying standard at 60%/);
+  assert.match(note, /8% return rate/);
+  assert.match(note, /\$0\.00 return postage/);
+  assert.match(note, /10% final-value discount/);
+  assert.match(note, /75% sell-through/);
+  assert.match(note, /16% return rate/);
+  assert.match(note, /\$2\.40 of 1-day handling/);
+  assert.match(note, /Free returns can rise to about 12\.9%/);
+  assert.doesNotMatch(note, /should enroll|must offer free returns|apply for Top Rated/i);
+});
+
+test('rejects a Top Rated return rate above 100% and a missing comparison', () => {
+  assert.throws(() => compareTopRatedPlus({ ...agBase, trsReturnRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareTopRatedPlus({ ...agBase, trsDiscountPct: 101 }), /at most 100/);
+  assert.throws(() => compareTopRatedPlus({ price: -1 }), /Item price/);
+  assert.throws(() => topRatedPlusNote({}), /missing rows/);
 });

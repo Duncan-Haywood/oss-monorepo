@@ -85,6 +85,13 @@ unpaid-item rate, or require payment now and take a typed
 sell-through hit. A 10-point conversion drop can cost more than
 the unpaid cases you avoided.
 [Should I require immediate payment on eBay?](should-i-require-immediate-payment-on-ebay.html).
+A **Top Rated Plus vs stay standard** table then prices the same
+listing two ways: keep buyer-paid returns at the full final-value
+rate, or take a typed fee discount and a badge sell-through lift in
+exchange for seller-paid return labels, a higher return rate, and
+1-day handling time. A 10% discount on a $40 sale still loses after
+free returns.
+[Is eBay Top Rated Plus worth it?](is-ebay-top-rated-plus-worth-it.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -139,6 +146,11 @@ whether requiring pay-now still beats an 8% unpaid rate after
 a typed sell-through hit** — which used to mean flipping the
 listing setting because unpaid-item cases sat in Seller Hub
 and never pricing the checkouts that never started.
+
+**After using the Top Rated Plus page, you can now see whether a
+10% final-value discount still covers free returns and 1-day
+handling** — which used to mean enrolling because “the badge
+looks free” and never pricing the labels you now buy.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -221,6 +233,11 @@ drive that decision:
   require-now. An unpaid case never ships. The table also
   names the unpaid rate and immediate sell-through that still
   tie later checkout.
+- **Top Rated Plus vs stay standard** — expected listing profit
+  after sell-through with buyer-paid returns versus a typed
+  final-value discount, seller-paid return labels, a higher
+  return rate, and 1-day handling. The table also names the
+  free-return rate that still ties staying standard.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -252,7 +269,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `promoted_offsite_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
-`immediate_payment_compared`, and
+`immediate_payment_compared`,
+`top_rated_plus_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -261,8 +279,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
 `quantity_discount_compared`,
-`seller_coupon_compared`, and
-`immediate_payment_compared` are counted at most
+`seller_coupon_compared`,
+`immediate_payment_compared`, and
+`top_rated_plus_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
@@ -271,7 +290,8 @@ the view is used.
 
 The tool is free and full-featured. The
 [project lives on GitHub](https://github.com/Duncan-Haywood/monorepo-projects);
-support is entirely voluntary and never changes what the tool does.
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
+voluntary and never changes what the tool does.
 
 ## Save and share
 
