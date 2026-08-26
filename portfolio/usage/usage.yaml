@@ -855,6 +855,66 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: freelance-retainer-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for independent
+          freelancers to price monthly retainers from billable capacity, costs,
+          and scope risk, then compare that price to hourly at 50/75/100/125%
+          usage. Public URL remains owner-gated; counters are local,
+          aggregate, and opt-out.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Added payment-term cash float (prepaid / Net 15 / Net 30 /
+          month-end) on the retainer calculator plus an interactive
+          retainer-payment-terms sibling. Default $7,800 target: Net 30
+          floats $7,800; month-end plus Net 30 floats $15,600. Currency
+          and payment terms persist in the local draft. Public URL
+          remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+          income_coverage_compared: 0
+          income_goal_short: 0
+        note: >-
+          Added the income-goal check: the hourly floor is
+          target / capacity, which only reaches the goal if every billable
+          hour sells, so a retainer can clear the floor and still miss the
+          month. On the shipped defaults the $1,725 retainer is 22% of a
+          $7,800 target and needs a 96.4% fill rate on the 84 unsold hours.
+          `income_coverage_compared` counts only sessions that edit a
+          month-level input, so engagement with the new view is separable
+          from ordinary retainer pricing. Also fixed 21px of horizontal
+          page scroll on a 390px viewport that had been live since launch,
+          and gave the venture its first CI workflow — its 117 pricing
+          assertions lived in `test_app.mjs`, which `node --test` does not
+          match, so they had never run anywhere. Public URL remains
+          owner-gated.
+  - slug: sewer-line-replace-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sewer line replacement bid calculator (open-cut
+          vs pipe bursting vs CIPP) with a copyable proposal summary;
+          public URL remains owner-gated. Counters are local, aggregate,
+          and opt-out.
+
   - slug: kitchen-tile-backsplash-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -942,53 +1002,6 @@ products:
           a two-piece weekday swap and loses $124.94 after hours.
           Public URL remains owner-gated; local event access_compared
           is opt-out and stores no inputs.
-  - slug: freelance-retainer-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_calculations: 0
-          local_summary_copies: 0
-        note: >-
-          Shipped a zero-dependency browser calculator for independent
-          freelancers to price monthly retainers from billable capacity, costs,
-          and scope risk, then compare that price to hourly at 50/75/100/125%
-          usage. Public URL remains owner-gated; counters are local,
-          aggregate, and opt-out.
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_calculations: 0
-          local_summary_copies: 0
-        note: >-
-          Added payment-term cash float (prepaid / Net 15 / Net 30 /
-          month-end) on the retainer calculator plus an interactive
-          retainer-payment-terms sibling. Default $7,800 target: Net 30
-          floats $7,800; month-end plus Net 30 floats $15,600. Currency
-          and payment terms persist in the local draft. Public URL
-          remains owner-gated.
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_calculations: 0
-          local_summary_copies: 0
-          income_coverage_compared: 0
-          income_goal_short: 0
-        note: >-
-          Added the income-goal check: the hourly floor is
-          target / capacity, which only reaches the goal if every billable
-          hour sells, so a retainer can clear the floor and still miss the
-          month. On the shipped defaults the $1,725 retainer is 22% of a
-          $7,800 target and needs a 96.4% fill rate on the 84 unsold hours.
-          `income_coverage_compared` counts only sessions that edit a
-          month-level input, so engagement with the new view is separable
-          from ordinary retainer pricing. Also fixed 21px of horizontal
-          page scroll on a 390px viewport that had been live since launch,
-          and gave the venture its first CI workflow — its 117 pricing
-          assertions lived in `test_app.mjs`, which `node --test` does not
-          match, so they had never run anywhere. Public URL remains
-          owner-gated.
   - slug: real-estate-agent-photo-app
     surface: static-page-in-repo
     readings:

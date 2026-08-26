@@ -212,7 +212,8 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
+    - ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED
+      == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -259,6 +260,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: reverb-fee-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: sewer-line-replace-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
