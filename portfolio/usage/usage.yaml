@@ -1989,6 +1989,18 @@ products:
           local_inconclusive_observations: 0
           qualified_operators: 0
         note: Shipped fixture-backed comparison baseline; recurring MSP demand remains untested.
+  - slug: epoxy-garage-floor-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local garage-floor coating bid calculator that prices
+          grind hours, flake load, and waste a $/sq ft special hides;
+          public URL remains owner-gated and the browser counter is local
+          and opt-out. Baseline row.
 # Example of the shape, once a product has shipped:
 #
 # products:
