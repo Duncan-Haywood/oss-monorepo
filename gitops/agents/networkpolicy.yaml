@@ -1,0 +1,64 @@
+# Default-deny in agents. Workers get DNS + HTTPS only; they do not get
+# a path to the kube-apiserver. Governor gets kube-api + DNS.
+#
+# Default k3s NetworkPolicy is CIDR-based, not FQDN. The intent is
+# github.com + api.openai.com + npm + Debian; the enforceable control
+# here is "443 and DNS, no kube-api for workers". FQDN lock-down needs
+# Cilium and is a follow-up PR.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: governor-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: governor
+  policyTypes:
+    - Egress
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    # k3s default kubernetes Service
+    - to:
+        - ipBlock:
+            cidr: 10.43.0.1/32
+      ports:
+        - protocol: TCP
+          port: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: worker-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: codex-worker
+  policyTypes:
+    - Egress
+    - Ingress
+  ingress: []
+  egress:
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - ports:
+        - protocol: TCP
+          port: 443
+    # Explicitly no 10.43.0.1 — workers must not reach kube-apiserver.
+    # automountServiceAccountToken: false is the other half of that wall.
