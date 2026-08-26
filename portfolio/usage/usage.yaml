@@ -776,6 +776,15 @@ products:
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added deposit-versus-after-the-fact-fee comparison and a copyable
+          deposit policy on the existing calculator. Counts
+          collection_policies_viewed and deposit_policy_copied locally.
+          Public URL remains owner-gated.
       - as_of: 2026-08-24
         signals:
           live_url_visitors: null

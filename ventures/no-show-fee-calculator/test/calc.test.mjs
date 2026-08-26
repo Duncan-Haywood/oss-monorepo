@@ -11,6 +11,7 @@ import {
   computeAnnualFeeRevenue,
   computeAll,
   compareFeeScenarios,
+  compareCollectionPolicies,
   compareNoticeWindows,
   nearestNoticeHours,
   noticeWindowSummary,
@@ -18,6 +19,7 @@ import {
   annualOverbookOutcome,
   compareOverbooking,
   generatePolicyText,
+  generateDepositPolicyText,
   buildShareUrl,
   readShareValues,
 } from "../src/calc.mjs";
@@ -30,6 +32,7 @@ test("parseInputs accepts valid numeric input", () => {
     noticeHours: "24",
     feePercent: "100",
     enforcementRatePct: "70",
+    depositPercent: "50",
   });
   assert.equal(result.ok, true);
   assert.deepEqual(result.values, {
@@ -39,6 +42,7 @@ test("parseInputs accepts valid numeric input", () => {
     noticeHours: 24,
     feePercent: 100,
     enforcementRatePct: 70,
+    depositPercent: 50,
     overflowCost: 75,
     fillSameDayPct: 10,
     fillDayAheadPct: 40,
@@ -54,6 +58,7 @@ test("parseInputs rejects negative price", () => {
     noticeHours: "24",
     feePercent: "50",
     enforcementRatePct: "50",
+    depositPercent: "50",
   });
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => e.includes("price")));
@@ -67,9 +72,23 @@ test("parseInputs rejects out-of-range percentages", () => {
     noticeHours: "24",
     feePercent: "-5",
     enforcementRatePct: "200",
+    depositPercent: "150",
   });
   assert.equal(result.ok, false);
-  assert.equal(result.errors.length, 3);
+  assert.equal(result.errors.length, 4);
+});
+
+test("parseInputs defaults a missing deposit so older share links still parse", () => {
+  const result = parseInputs({
+    price: "75",
+    bookingsPerWeek: "20",
+    noShowRatePct: "8",
+    noticeHours: "24",
+    feePercent: "100",
+    enforcementRatePct: "70",
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.values.depositPercent, 50);
 });
 
 test("parseInputs rejects non-numeric input", () => {
@@ -80,6 +99,7 @@ test("parseInputs rejects non-numeric input", () => {
     noticeHours: "24",
     feePercent: "50",
     enforcementRatePct: "50",
+    depositPercent: "50",
   });
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((e) => e.includes("price")));
@@ -164,6 +184,113 @@ test("compareFeeScenarios shows standard levels and preserves a custom selection
 test("compareFeeScenarios does not duplicate a standard selected level", () => {
   const scenarios = compareFeeScenarios({ price: 100, bookingsPerWeek: 1, noShowRatePct: 10, feePercent: 75, enforcementRatePct: 100 });
   assert.deepEqual(scenarios.map(({ feePercent }) => feePercent), [50, 75, 100]);
+});
+
+test("compareCollectionPolicies ranks deposit against an after-the-fact fee", () => {
+  // $80 session, 10 bookings/week, 10% no-shows = 52 no-shows/year.
+  // 100% fee at 50% enforcement recovers $40 per no-show / $2,080 a year.
+  // 50% deposit already in hand recovers $40 per no-show / $2,080 a year.
+  // Combined keeps the $40 deposit and half of the remaining $40 = $60 / $3,120.
+  const comparison = compareCollectionPolicies({
+    price: 80,
+    bookingsPerWeek: 10,
+    noShowRatePct: 10,
+    feePercent: 100,
+    enforcementRatePct: 50,
+    depositPercent: 50,
+  });
+  assert.equal(comparison.depositAmount, 40);
+  assert.equal(comparison.remainderAmount, 40);
+  assert.equal(comparison.noShowsPerYear, 52);
+  assert.deepEqual(comparison.policies.map(({ id }) => id), [
+    "after-the-fact-fee",
+    "require-deposit",
+    "deposit-plus-remainder",
+  ]);
+  assert.deepEqual(comparison.policies.map(({ recoveredPerNoShow }) => recoveredPerNoShow), [40, 40, 60]);
+  assert.deepEqual(comparison.policies.map(({ annualRecovered }) => annualRecovered), [2080, 2080, 3120]);
+  assert.deepEqual(comparison.policies.map(({ annualStillLost }) => annualStillLost), [2080, 2080, 1040]);
+  assert.equal(comparison.recommendedId, "deposit-plus-remainder");
+  assert.equal(comparison.annualAdvantage, 1040);
+});
+
+test("compareCollectionPolicies prefers a certain deposit when recoveries tie", () => {
+  const comparison = compareCollectionPolicies({
+    price: 80,
+    bookingsPerWeek: 10,
+    noShowRatePct: 10,
+    feePercent: 50,
+    enforcementRatePct: 100,
+    depositPercent: 50,
+  });
+  const feeAndDeposit = comparison.policies.filter((policy) => policy.id !== "deposit-plus-remainder");
+  assert.deepEqual(feeAndDeposit.map(({ annualRecovered }) => annualRecovered), [2080, 2080]);
+  // Combined still wins because remainder * 100% enforcement adds another $40.
+  assert.equal(comparison.recommendedId, "deposit-plus-remainder");
+});
+
+test("compareCollectionPolicies prefers the deposit when it beats a weakly enforced fee", () => {
+  const comparison = compareCollectionPolicies({
+    price: 100,
+    bookingsPerWeek: 5,
+    noShowRatePct: 10,
+    feePercent: 100,
+    enforcementRatePct: 30,
+    depositPercent: 50,
+  });
+  const byId = Object.fromEntries(comparison.policies.map((policy) => [policy.id, policy]));
+  assert.equal(byId["after-the-fact-fee"].annualRecovered, 780);
+  assert.equal(byId["require-deposit"].annualRecovered, 1300);
+  assert.ok(byId["require-deposit"].annualRecovered > byId["after-the-fact-fee"].annualRecovered);
+  assert.equal(comparison.recommendedId, "deposit-plus-remainder");
+  assert.equal(comparison.annualAdvantage, byId["deposit-plus-remainder"].annualRecovered - byId["require-deposit"].annualRecovered);
+});
+
+test("compareCollectionPolicies treats a zero deposit as recovering nothing by itself", () => {
+  const comparison = compareCollectionPolicies({
+    price: 75,
+    bookingsPerWeek: 20,
+    noShowRatePct: 8,
+    feePercent: 100,
+    enforcementRatePct: 70,
+    depositPercent: 0,
+  });
+  const byId = Object.fromEntries(comparison.policies.map((policy) => [policy.id, policy]));
+  assert.equal(byId["require-deposit"].annualRecovered, 0);
+  assert.equal(byId["after-the-fact-fee"].annualRecovered, 4368);
+  assert.equal(byId["deposit-plus-remainder"].annualRecovered, 4368);
+  assert.ok(["after-the-fact-fee", "deposit-plus-remainder"].includes(comparison.recommendedId));
+});
+
+test("generateDepositPolicyText includes the deposit, remainder, and non-warranty note", () => {
+  const text = generateDepositPolicyText({
+    businessName: "Riverside Training",
+    serviceName: "session",
+    noticeHours: 24,
+    depositPercent: 50,
+    depositAmount: 37.5,
+    remainderAmount: 37.5,
+    currencySymbol: "€",
+  });
+  assert.match(text, /Riverside Training/);
+  assert.match(text, /50% deposit \(€37\.50\)/);
+  assert.match(text, /remaining €37\.50/);
+  assert.match(text, /1 day/);
+  assert.match(text, /not a finished legal document/);
+});
+
+test("generateDepositPolicyText falls back to placeholders when name/service are blank", () => {
+  const text = generateDepositPolicyText({
+    businessName: "",
+    serviceName: "",
+    noticeHours: 48,
+    depositPercent: 25,
+    depositAmount: 20,
+    remainderAmount: 60,
+  });
+  assert.match(text, /\[Your business name\]/);
+  assert.match(text, /appointment/);
+  assert.match(text, /2 days/);
 });
 
 test("compareNoticeWindows recovers more empty-slot cash at a higher fill rate", () => {
@@ -253,6 +380,7 @@ test("parseInputs rejects an out-of-range waitlist fill rate", () => {
     noticeHours: "24",
     feePercent: "100",
     enforcementRatePct: "70",
+    depositPercent: "50",
     fillTwoDayPct: "150",
   });
   assert.equal(result.ok, false);
@@ -357,6 +485,7 @@ test("parseInputs defaults overflow cost to the session price", () => {
     noticeHours: "24",
     feePercent: "50",
     enforcementRatePct: "50",
+    depositPercent: "50",
   });
   assert.equal(result.ok, true);
   assert.equal(result.values.overflowCost, 80);
@@ -419,8 +548,8 @@ test("generatePolicyText always ends with the non-warranty disclaimer", () => {
 });
 
 test("buildShareUrl encodes supported inputs without server state", () => {
-  const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", businessName: "Riverside & Co", serviceName: "training session", ignored: "secret" }, "https://example.test/calculator");
-  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&businessName=Riverside+%26+Co&serviceName=training+session");
+  const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", depositPercent: "50", businessName: "Riverside & Co", serviceName: "training session", ignored: "secret" }, "https://example.test/calculator");
+  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&depositPercent=50&businessName=Riverside+%26+Co&serviceName=training+session");
   assert.equal(url.includes("ignored"), false);
 });
 
@@ -463,9 +592,15 @@ const VALID_RAW = {
   noticeHours: "24",
   feePercent: "100",
   enforcementRatePct: "70",
+  depositPercent: "50",
 };
 
-for (const field of Object.keys(VALID_RAW)) {
+// depositPercent is optional (defaults to 50%) so older share links still
+// parse. The required-field loop covers only inputs that must be typed.
+const REQUIRED_RAW = { ...VALID_RAW };
+delete REQUIRED_RAW.depositPercent;
+
+for (const field of Object.keys(REQUIRED_RAW)) {
   test(`parseInputs rejects an empty ${field} rather than reading it as zero`, () => {
     const result = parseInputs({ ...VALID_RAW, [field]: "" });
     assert.equal(result.ok, false);
@@ -605,6 +740,18 @@ test("index.html and app.mjs wire the overbooking table", () => {
   assert.match(html, /should-i-overbook-or-charge-a-no-show-fee\.html/);
   assert.match(app, /compareOverbooking/);
   assert.match(app, /overbooking_compared/);
+});
+
+test("index.html and app.mjs wire the deposit-vs-fee comparison", () => {
+  const html = readHtml();
+  const app = readApp();
+  assert.match(html, /id="collection-section"/);
+  assert.match(html, /id="collection-body"/);
+  assert.match(html, /id="depositPercent"/);
+  assert.match(html, /id="deposit-policy-text"/);
+  assert.match(app, /compareCollectionPolicies/);
+  assert.match(app, /generateDepositPolicyText/);
+  assert.match(app, /collection_policies_viewed/);
 });
 
 test("app.mjs does not count usage on every keystroke", () => {
