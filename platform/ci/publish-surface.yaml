@@ -627,6 +627,9 @@ workflows:
 - workflow: where-to-sell-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: window-cleaning-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: window-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []

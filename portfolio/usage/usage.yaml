@@ -3334,3 +3334,14 @@ products:
           onto current main (surfaces, travel, setup, after-travel hourly).
           Public URL remains owner-gated; the browser counter is local,
           opt-out, and honors DNT/GPC. Baseline row.
+  - slug: window-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local window-cleaning bid calculator (panes × minutes ×
+          sides plus travel/setup, minimum job charge, copyable estimate);
+          public URL remains owner-gated.
