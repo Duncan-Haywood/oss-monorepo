@@ -70,3 +70,36 @@ test('a proposed quote that hides a loss is still reported as a loss', () => {
   assert.equal(result.profit, -70);
   assert.equal(result.marginAtProposed, (120 - 190) / 120 * 100);
 });
+
+test('an unreachable target margin is reported as unreachable, not as a negative price', () => {
+  // The payment fee and the target margin are both slices of the final price.
+  // At 3% + 98% they claim 101% of it, and the old arithmetic answered with a
+  // negative number the page printed as advice: "quote at least -$4,608.00".
+  const over = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 3, targetMargin: 98 });
+  assert.equal(over.targetQuote, Infinity);
+
+  // Exactly 100% is the boundary: no finite price leaves anything for costs.
+  const exact = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 3, targetMargin: 97 });
+  assert.equal(exact.targetQuote, Infinity);
+
+  // Just under the boundary still solves, and solves large — the figure is
+  // real, so it is not swept into the unreachable branch with the others.
+  const under = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 3, targetMargin: 96 });
+  assert.ok(Number.isFinite(under.targetQuote));
+  assert.ok(under.targetQuote > under.breakEven);
+});
+
+test('a high payment fee alone can put the target out of reach', () => {
+  const result = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 99, targetMargin: 50 });
+  assert.equal(result.targetQuote, Infinity);
+  // Break-even is still a real price here: 99% fees are survivable on their
+  // own, it is the 50% margin on top that is not.
+  assert.ok(Number.isFinite(result.breakEven));
+});
+
+test('ordinary targets are unaffected by the guard', () => {
+  const result = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 3, targetMargin: 35 });
+  assert.ok(Number.isFinite(result.targetQuote));
+  // directCosts / (1 - 0.03 - 0.35), the same arithmetic as before.
+  assert.equal(Number(result.targetQuote.toFixed(2)), Number((result.directCosts / 0.62).toFixed(2)));
+});

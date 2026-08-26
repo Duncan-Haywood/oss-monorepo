@@ -121,3 +121,24 @@ test('the default $180 example stays in the black when wage is skipped', () => {
   assert.equal(result.laborCost, 0);
   assert.ok(result.contribution > 0, 'skipping wage should not hide a loss on the worked example');
 });
+
+test('the page handles an unreachable target instead of printing a negative price', () => {
+  // The payment fee and the target margin are both slices of the final price,
+  // so together they can claim the whole ticket. calc.mjs answers Infinity for
+  // that — the house signal for "no price reaches this" — and money() would
+  // render Infinity as "$Infinity", so the page has to branch before it
+  // formats. Before the guard it printed "Quote at least $-4608.00".
+  const unreachable = calculateBid({ targetPrice: 180, laborHours: 3, paymentRate: 3, targetMargin: 98 });
+  assert.equal(unreachable.targetQuote, Infinity);
+  assert.match(
+    scriptSource,
+    /Number\.isFinite\(r\.targetQuote\)/,
+    'index.html formats targetQuote without checking it is finite; an unreachable target would print as $Infinity or as a negative quote',
+  );
+  assert.match(scriptSource, /unreachable/, 'no unreachable-target message found in the page script');
+});
+
+test('the disclaimer PRODUCT_PLAYBOOK 5b requires is on the page', () => {
+  assert.match(markup, /No warranty/i);
+  assert.match(markup, /not .*(business|tax|financial|professional) .*advice/i);
+});

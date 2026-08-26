@@ -49,7 +49,17 @@ export function calculateBid(input = {}) {
   const contribution = targetPrice - totalCost;
   const margin = targetPrice === 0 ? 0 : contribution / targetPrice * 100;
   const breakEven = directCosts / (1 - paymentRate / 100);
-  const targetQuote = directCosts / (1 - paymentRate / 100 - targetMargin / 100);
+  // The payment fee and the target margin are both slices of the *final*
+  // price, so together they can claim the whole ticket: at 3% fees and a 98%
+  // target the denominator goes negative and the division returns a negative
+  // price, which the page was printing as real advice ("quote at least
+  // -$4,608.00"). At exactly 100% it returns Infinity. Neither is a quote.
+  // Infinity is the house signal for "no price reaches this" — the eBay
+  // calculator uses it the same way — and the page renders it as unreachable.
+  const targetDenominator = 1 - paymentRate / 100 - targetMargin / 100;
+  const targetQuote = targetDenominator <= 0
+    ? Infinity
+    : directCosts / targetDenominator;
   const proposedPrice = targetPrice;
   return {
     targetPrice, laborHours, travelHours, setupHours, cleanupHours, totalHours,
