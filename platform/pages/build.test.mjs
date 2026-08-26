@@ -20,6 +20,7 @@ import {
   renderHub,
   renderRobots,
   renderSitemapIndex,
+  rewriteOrigin,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -333,6 +334,37 @@ test('readMeta does not confuse one meta tag with the next', () => {
   const html = `<meta property="og:site_name" content="Portfolio">
     <meta name="description" content="The real description.">`;
   assert.equal(readMeta(html, 'x').description, 'The real description.');
+});
+
+// `3pl-quote-normalizer` and `invoice-payment-terms-calculator` each shipped a
+// sitemap.xml written against a guessed URL that included their repository
+// path. The artifact serves no `ventures/` directory, so all 11 of those `<loc>`
+// entries were 404s — reachable from robots.txt via the sitemap index.
+test('rewriteOrigin drops a stray ventures/ segment from a guessed URL', () => {
+  const base = 'https://example.com/repo/';
+  assert.equal(
+    rewriteOrigin('<loc>https://example.com/repo/ventures/3pl-quote-normalizer/compare.html</loc>', base),
+    '<loc>https://example.com/repo/3pl-quote-normalizer/compare.html</loc>',
+  );
+});
+
+test('rewriteOrigin still swaps the placeholder origin', () => {
+  const base = 'https://example.com/repo/';
+  assert.equal(
+    rewriteOrigin('<loc>https://example.invalid/etsy-profit-calculator/</loc>', base),
+    '<loc>https://example.com/repo/etsy-profit-calculator/</loc>',
+  );
+});
+
+// The rewrite is anchored to baseUrl, so prose that happens to say "ventures/"
+// and a correct URL both come through unchanged.
+test('rewriteOrigin leaves unrelated text and correct URLs alone', () => {
+  const base = 'https://example.com/repo/';
+  assert.equal(rewriteOrigin('See ventures/ for sources.', base), 'See ventures/ for sources.');
+  assert.equal(
+    rewriteOrigin('<loc>https://example.com/repo/cut-list-optimizer/</loc>', base),
+    '<loc>https://example.com/repo/cut-list-optimizer/</loc>',
+  );
 });
 
 test('truncate cuts on a word boundary', () => {

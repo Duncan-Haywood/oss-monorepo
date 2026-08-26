@@ -258,8 +258,26 @@ async function countPages(sourceDir) {
 // Copy
 // ---------------------------------------------------------------------------
 
-function rewriteOrigin(contents, baseUrl) {
-  return contents.split(PLACEHOLDER_ORIGIN).join(baseUrl);
+/**
+ * Point already-written SEO at the real, served URL.
+ *
+ * Two rewrites, because ventures wrote their canonical tags and sitemaps under
+ * two different conventions:
+ *
+ * 1. The placeholder origin, swapped for the real one.
+ * 2. A guessed absolute URL. A venture that skipped the placeholder and wrote
+ *    `<base>ventures/<slug>/…` — its own path *in the repository* — advertises
+ *    a page this artifact does not serve: surfaces are published at
+ *    `<base><slug>/`, and there is no `ventures/` directory in the output at
+ *    all. Those URLs 404. Rewriting on the way out fixes the two sitemaps that
+ *    do it today without editing venture files (which would collide with the
+ *    open PRs against those calculators), and immunises the next one.
+ *
+ * Anchored to `baseUrl` so a legitimate mention of the string "ventures/"
+ * elsewhere in a page is untouched.
+ */
+export function rewriteOrigin(contents, baseUrl) {
+  return contents.split(PLACEHOLDER_ORIGIN).join(baseUrl).split(`${baseUrl}ventures/`).join(baseUrl);
 }
 
 export function isPublishable(name) {
