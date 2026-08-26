@@ -1,0 +1,40 @@
+name: freight-accessorial-auditor CI
+
+# Static browser-local auditor: plain ES modules, node --test, no
+# package.json, no dependencies, no network.
+# audit.mjs is invoice-line and detention arithmetic; usage.mjs is the
+# anonymous local counter. Each has a sibling *.test.mjs.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/freight-accessorial-auditor/**"
+      - ".github/workflows/freight-accessorial-auditor-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/freight-accessorial-auditor/**"
+      - ".github/workflows/freight-accessorial-auditor-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: freight-accessorial-auditor-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/freight-accessorial-auditor
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run module tests
+        run: node --test

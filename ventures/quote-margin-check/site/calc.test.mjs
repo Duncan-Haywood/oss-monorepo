@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -69,4 +69,285 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
   assert.deepEqual(overrunScenarios(quote, report).map((scenario) => scenario.total_hours), [38.5, 43.75, 52.5]);
   assert.equal(overrunScenarios(quote, report)[0].effective_hourly_rate, 49.87012987012987);
   assert.equal(report.total_hours, 35);
+});
+
+test("compares a cost rise without changing hours or the quoted price", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  const rows = directCostSpikeScenarios(quote, report);
+  assert.deepEqual(rows.map((row) => row.percent), [0, 10, 25, 50]);
+  assert.equal(rows[0].direct_costs, 480);
+  assert.equal(rows[0].effective_hourly_rate, report.effective_hourly_rate);
+  assert.equal(rows[0].target_price, 3105);
+  assert.equal(rows[0].gap_to_target, -705);
+  assert.equal(rows[0].extra_gap, 0);
+
+  assert.equal(rows[1].direct_costs, 528);
+  assert.ok(Math.abs(rows[1].effective_hourly_rate - 53.48571428571428) < 1e-9);
+  assert.equal(rows[1].target_price, 3153);
+  assert.equal(rows[1].gap_to_target, -753);
+  assert.equal(rows[1].extra_gap, -48);
+
+  assert.equal(rows[2].direct_costs, 600);
+  assert.ok(Math.abs(rows[2].effective_hourly_rate - 51.42857142857143) < 1e-9);
+  assert.equal(rows[2].target_price, 3225);
+  assert.equal(rows[2].gap_to_target, -825);
+  assert.equal(rows[2].extra_gap, -120);
+
+  assert.equal(rows[3].direct_costs, 720);
+  assert.equal(rows[3].effective_hourly_rate, 48);
+  assert.equal(rows[3].target_price, 3345);
+  assert.equal(rows[3].gap_to_target, -945);
+  assert.equal(rows[3].extra_gap, -240);
+
+  assert.equal(report.total_hours, 35);
+  assert.equal(report.direct_costs, 480);
+});
+
+test("cost-rise summary names the price that would hold the target rate", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  assert.match(
+    directCostSpikeSummary(quote, report),
+    /rise 25%.*54\.86.*51\.43.*3225\.00 instead of units 2400\.00/,
+  );
+});
+
+test("a quote with no direct costs is unchanged by a cost rise", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
+  const report = calculate(quote);
+  const rows = directCostSpikeScenarios(quote, report);
+  for (const row of rows) {
+    assert.equal(row.direct_costs, 0);
+    assert.equal(row.effective_hourly_rate, 100);
+    assert.equal(row.target_price, 1000);
+    assert.equal(row.extra_gap, 0);
+  }
+  assert.match(directCostSpikeSummary(quote, report), /does not change/);
+});
+
+test("compares a client discount ask without changing hours or direct costs", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  const rows = discountAskScenarios(quote, report);
+  assert.deepEqual(rows.map((row) => row.percent), [0, 5, 10, 15, 20]);
+  assert.equal(rows[0].discounted_price, 2400);
+  assert.equal(rows[0].effective_hourly_rate, report.effective_hourly_rate);
+  assert.equal(rows[0].gap_to_target, -705);
+  assert.equal(rows[0].extra_gap, 0);
+  assert.ok(Math.abs(rows[0].hours_at_target - 25.6) < 1e-9);
+  assert.ok(Math.abs(rows[0].hours_to_cut - 9.4) < 1e-9);
+
+  assert.equal(rows[2].discounted_price, 2160);
+  assert.equal(rows[2].cost_coverage, 1680);
+  assert.equal(rows[2].effective_hourly_rate, 48);
+  assert.equal(rows[2].gap_to_target, -945);
+  assert.equal(rows[2].extra_gap, -240);
+  assert.ok(Math.abs(rows[2].hours_at_target - 22.4) < 1e-9);
+  assert.ok(Math.abs(rows[2].hours_to_cut - 12.6) < 1e-9);
+
+  assert.equal(report.total_hours, 35);
+  assert.equal(report.direct_costs, 480);
+});
+
+test("discount-ask summary names the hours that would have to leave", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  const report = calculate(quote);
+  assert.match(
+    discountAskSummary(quote, report),
+    /10% off.*2160\.00.*54\.86.*48\.00.*cutting 12\.60 hours/,
+  );
+});
+
+test("a discount that still clears the target needs no scope cut", () => {
+  const quote = loadQuote({ price: 2000, delivery_hours: 10, target_hourly_rate: 100 });
+  const report = calculate(quote);
+  const ten = discountAskScenarios(quote, report).find((row) => row.percent === 10);
+  assert.equal(ten.discounted_price, 1800);
+  assert.equal(ten.effective_hourly_rate, 180);
+  assert.equal(ten.hours_to_cut, 0);
+  assert.match(discountAskSummary(quote, report), /no scope cut is required/);
+});
+
+test("a discount that no longer covers direct costs cannot be fixed by cutting hours", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 800, target_hourly_rate: 80 });
+  const report = calculate(quote);
+  const fifty = discountAskScenarios(quote, report, [50]).find((row) => row.percent === 50);
+  assert.equal(fifty.discounted_price, 500);
+  assert.equal(fifty.cost_coverage, -300);
+  assert.equal(fifty.effective_hourly_rate, -30);
+  assert.equal(fifty.hours_at_target, null);
+  assert.equal(fifty.hours_to_cut, null);
+  assert.match(discountAskSummary(quote, report, discountAskScenarios(quote, report, [50])), /no longer covers/);
+});
+
+function exampleQuote() {
+  return loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+}
+
+test("compares finishing with a kill fee and walking with only the deposit", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 14, already_paid: 1200, kill_fee: 360, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.remaining_hours, 21);
+  assert.equal(compared.remaining_invoice, 1200);
+  assert.equal(compared.remaining_costs, 300);
+
+  assert.equal(compared.finish.cash_kept, 1920);
+  assert.equal(compared.finish.net_from_here, 900);
+  assert.ok(Math.abs(compared.finish.rate_from_here - 900 / 21) < 1e-9);
+  assert.equal(compared.finish.hours_still_worked, 21);
+  assert.equal(compared.finish.vs_finish, 0);
+
+  assert.equal(compared.kill.cash_kept, 1380);
+  assert.equal(compared.kill.vs_finish, -540);
+  assert.equal(compared.kill.hours_freed, 21);
+  assert.equal(compared.kill.refill_value, 1575);
+  assert.equal(compared.kill.refill_adjusted, 2955);
+  assert.equal(compared.kill.refill_vs_finish, 1035);
+
+  assert.equal(compared.walk.cash_kept, 1020);
+  assert.equal(compared.walk.vs_finish, -900);
+  assert.equal(compared.walk.refill_adjusted, 2595);
+  assert.equal(compared.walk.refill_vs_finish, 675);
+
+  assert.equal(compared.cash_winner, "finish");
+  assert.equal(compared.refill_winner, "kill");
+});
+
+test("kill-fee summary names the cash gap and the refill flip", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 14, already_paid: 1200, kill_fee: 360, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  assert.match(
+    killFeeSummary(quote, report, progress),
+    /Finishing keeps units 1920\.00 — units 540\.00 more cash than the kill fee \(units 1380\.00\).*900\.00 from here \(units 42\.86\/hour\).*21\.00 freed hours.*1035\.00 ahead/,
+  );
+});
+
+test("a kill fee can already keep more cash than finishing", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 8, already_paid: 2160, kill_fee: 80, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.remaining_hours, 27);
+  assert.equal(compared.remaining_invoice, 240);
+  assert.equal(compared.remaining_costs, 300);
+  assert.equal(compared.finish.net_from_here, -60);
+  assert.equal(compared.kill.cash_kept, 2060);
+  assert.equal(compared.kill.vs_finish, 140);
+  assert.equal(compared.cash_winner, "kill");
+  assert.equal(compared.refill_winner, "kill");
+  assert.match(killFeeSummary(quote, report, progress), /kill fee keeps units 2060\.00 — units 140\.00 more cash than finishing/);
+});
+
+test("walking with only the deposit is the kill-fee path at zero", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 14, already_paid: 1200, kill_fee: 0, sunk_costs: 180 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.kill.cash_kept, compared.walk.cash_kept);
+  assert.equal(compared.walk.cash_kept, 1020);
+});
+
+test("no remaining hours compares leftover invoices only", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  const progress = loadKillFeeProgress(
+    { hours_done: 35, already_paid: 1200, kill_fee: 360, sunk_costs: 480 },
+    quote,
+    report,
+  );
+  const compared = compareKillFee(quote, report, progress);
+  assert.equal(compared.remaining_hours, 0);
+  assert.equal(compared.finish.rate_from_here, null);
+  assert.equal(compared.kill.refill_value, 0);
+  assert.equal(compared.finish.cash_kept, 1920);
+  assert.equal(compared.kill.cash_kept, 1080);
+  assert.match(killFeeSummary(quote, report, progress), /No hours remain/);
+});
+
+test("rejects kill-fee inputs that exceed the quote", () => {
+  const quote = exampleQuote();
+  const report = calculate(quote);
+  assert.throws(
+    () => loadKillFeeProgress({ hours_done: 36, already_paid: 0, kill_fee: 0, sunk_costs: 0 }, quote, report),
+    /hours_done/,
+  );
+  assert.throws(
+    () => loadKillFeeProgress({ hours_done: 0, already_paid: 2401, kill_fee: 0, sunk_costs: 0 }, quote, report),
+    /already_paid/,
+  );
+  assert.throws(
+    () => loadKillFeeProgress({ hours_done: 0, already_paid: 0, kill_fee: 0, sunk_costs: 481 }, quote, report),
+    /sunk_costs/,
+  );
+  assert.throws(() => loadKillFeeProgress({ hours_done: true }, quote, report));
+  assert.throws(() => loadKillFeeProgress({ hours_done: NaN }, quote, report));
+});
+
+test("a steep cost rise can leave nothing after direct costs", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 800, target_hourly_rate: 80 });
+  const report = calculate(quote);
+  const spike50 = directCostSpikeScenarios(quote, report).find((row) => row.percent === 50);
+  assert.equal(spike50.direct_costs, 1200);
+  assert.equal(spike50.cost_coverage, -200);
+  assert.equal(spike50.effective_hourly_rate, -20);
 });

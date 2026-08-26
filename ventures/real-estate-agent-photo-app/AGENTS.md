@@ -53,6 +53,8 @@ it's a local `sharp` pipeline and not a paid cloud AI API.
 Checks a delivery folder against the same MLS floor spec as the free browser
 tool at `/photo-check` (`research/src/lib/photo-spec.ts` — format, byte size,
 long edge, aspect ratio, branding-filename tokens, staged/original pairing).
+After the findings it prints a reshoot / desk-fix list from
+`buildReshootPlan` (same function the browser Copy shot list uses).
 Not a board-specific compliance guarantee; see `process/mls-compliance.ts`
 and `photo-spec.ts`'s `UNIMPLEMENTED_RULES` for what this does not check
 (visual watermark, burned-in contact info, board-specific extras).

@@ -5,10 +5,11 @@
     python3 platform/ci/publish_surface.py --json    # machine-readable
     python3 platform/ci/publish_surface.py --check   # compare to the snapshot
 
-`CLAUDE.md`'s agent-decidable test turns on one factual question -- does this
-change reach "any `ventures/*` app code that deploys to a live site"? -- and
-until now nothing in the repo answered it from the workflow files. The answer
-was hand-derived into prose in four places and then frozen:
+This answers a factual question -- what does a merge to `main` actually
+publish? -- from the workflow files. It does not block merging product
+code. Agents merge product PRs; this tool says whether that merge also
+goes live. The answer used to be hand-derived into prose in four places
+and then frozen:
 
   - `portfolio/ledger/asks.yaml`, as free-text `unlocks:` strings
   - `CLAUDE.md`'s agent-decidable list, which names no ventures at all
