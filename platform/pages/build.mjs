@@ -758,6 +758,8 @@ ${DISCLAIMER_HTML}
       <p>
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
+        <a href="catalog.json">Machine-readable catalog</a> ·
+        <a href="sitemap.xml">Sitemap</a>
       </p>
     </footer>
   </div>
@@ -1048,6 +1050,65 @@ const CHROME_SCRIPT = (slug) => `<script>
 })();
 </script>`;
 
+// ---------------------------------------------------------------------------
+// Number inputs
+// ---------------------------------------------------------------------------
+
+/**
+ * Whether a `step` value admits fractions.
+ *
+ * `step` is the only thing on these inputs that says whether the field is a
+ * count or a measurement, and every calculator sets it: `step="1"` on niches
+ * and doors, `step="0.25"` on hours, `step="0.01"` on dollar rates. An absent
+ * or `any` step means the browser imposes no integer constraint, so a decimal
+ * keypad is the safe reading.
+ */
+export function stepAllowsDecimals(step) {
+  if (step === undefined || step === null || step === '') return true;
+  const trimmed = String(step).trim();
+  if (trimmed.toLowerCase() === 'any') return true;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value)) return true;
+  return !Number.isInteger(value);
+}
+
+/**
+ * Gives every `<input type="number">` the mobile keyboard it should have had.
+ *
+ * `type="number"` alone does not settle which keypad appears. On iOS it opens
+ * the numbers-and-punctuation layout -- the small top-row keys, no dedicated
+ * decimal point -- rather than the large phone-dial keypad. These calculators
+ * ask for thirty to forty numbers each, and the person entering them is
+ * frequently standing in a driveway on a phone, so the difference between a
+ * cramped punctuation row and a full keypad is the difference between a bid
+ * measured on site and one retyped later at a desk.
+ *
+ * `inputmode` is chosen from `step`, so a field that only accepts whole
+ * numbers does not offer a decimal key that would produce a value the input
+ * then rejects.
+ *
+ * Injected rather than written into the ~180 venture pages for the same two
+ * reasons the chrome above is: a calculator lands on `main` most days and this
+ * covers each new one for free, and those pages are edited concurrently by
+ * other sessions, so an attribute added to every one of them would conflict
+ * with nearly every open branch.
+ *
+ * An input that already carries an `inputmode` keeps it -- the venture's own
+ * choice wins, and re-running this is a no-op.
+ */
+export function annotateNumberInputs(html) {
+  return html.replace(/<input\b[^>]*>/gi, (tag) => {
+    if (!/\btype\s*=\s*["']?number\b/i.test(tag)) return tag;
+    if (/\binputmode\s*=/i.test(tag)) return tag;
+    const step = tag.match(/\bstep\s*=\s*["']([^"']*)["']/i)?.[1];
+    const mode = stepAllowsDecimals(step) ? 'decimal' : 'numeric';
+    // Insert before the tag's own close, keeping whatever whitespace and
+    // self-closing slash were there, so `<input … />` does not come back as
+    // `<input …/>`.
+    return tag.replace(/(\s*)(\/?)>$/, ` inputmode="${mode}"$1$2>`);
+  });
+}
+
 /** How many `../` segments reach the site root from a published file. */
 export function upToRoot(relativePath) {
   const depth = relativePath.split(/[\\/]/).length - 1;
@@ -1184,7 +1245,9 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
       const toRoot = upToRoot(relative);
-      const next = injectFavicon(injectChrome(html, {
+      // The attribute pass runs on the venture's own markup, before the chrome
+      // adds any input of its own, and is a no-op on a page with no numbers.
+      const next = injectFavicon(annotateNumberInputs(injectChrome(html, {
         slug: surface.slug,
         toRoot,
         total: surfaces.length,
@@ -1194,7 +1257,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // is the one to declare.
         canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
         isEntry: url === `${surface.slug}/index.html`,
-      }), toRoot);
+      })), toRoot);
       if (next === html) continue;
       await fs.writeFile(file, next);
       wrapped.push(relative);
@@ -1277,6 +1340,43 @@ export function renderVentureSitemap(slug, relativePages, baseUrl) {
 ${urls.join('\n')}
 </urlset>
 `;
+}
+
+/**
+ * A machine-readable index of the whole site.
+ *
+ * `renderHub` already emits JSON-LD for a human-facing crawler. This is the
+ * flatter thing an AI assistant answering "is there a free tool that does X"
+ * can fetch and read in one request, without parsing a page of markup. It is
+ * the discoverability half of PRODUCT_PLAYBOOK.md §5e, and it costs one file.
+ *
+ * Deliberately not carrying a sponsorship or funding field: whether this repo
+ * publishes a funding surface is an open owner decision (`funding-sponsors-live`
+ * in the decision queue), and a machine-readable file is the wrong place to
+ * pre-answer it.
+ */
+export function renderCatalog(surfaces, baseUrl) {
+  return `${JSON.stringify(
+    {
+      name: 'Free calculators for sellers, contractors, and small back offices',
+      url: baseUrl,
+      license: 'MIT',
+      price: { amount: '0', currency: 'USD' },
+      privacy: 'client-side-only',
+      source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
+      generated_by: 'platform/pages/build.mjs',
+      tools: surfaces.map((surface) => ({
+        slug: surface.slug,
+        name: surface.title,
+        url: `${baseUrl}${surface.slug}/`,
+        category: categoryFor(surface.slug).title,
+        description: surface.description,
+        pages: surface.pageCount,
+      })),
+    },
+    null,
+    2,
+  )}\n`;
 }
 
 export function renderNotFound(baseUrl) {
@@ -1472,6 +1572,7 @@ export async function buildSite({
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
+  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
