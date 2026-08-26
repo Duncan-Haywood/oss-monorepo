@@ -2372,3 +2372,15 @@ products:
           onto current main. Labor is hours times hourly rate (words/hour is
           productivity only). Public URL remains owner-gated; local counting
           honors DNT/GPC and a visible opt-out.
+
+  - slug: wheelchair-ramp-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local wheelchair-ramp bid calculator with rise-to-run
+          landings, walk-away price, and a copyable proposal summary;
+          public URL remains owner-gated.
