@@ -347,6 +347,7 @@
         <dt>Return on investment</dt><dd id="roi"></dd>
         <dt>Break-even sale price</dt><dd id="breakEven"></dd>
         <dt>Max buy cost</dt><dd id="maxBuy"></dd>
+        <dt>Max buy at target margin</dt><dd id="targetMarginBuy"></dd>
         <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
         <dt>Sourcing check</dt><dd id="buyCheck"></dd>
         <dt>FBA vs FBM</dt><dd id="advantage"></dd>
@@ -916,6 +917,7 @@
         document.getElementById("breakEven").textContent = Number.isFinite(result.selected.breakEvenPrice)
           ? money(result.selected.breakEvenPrice) : "never";
         document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
+        document.getElementById("targetMarginBuy").textContent = money(result.selected.targetMarginBuyCost);
         document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
           ? money(result.selected.targetMarginPrice) : "unreachable";
         const buyCheck = buyCostCheck(result, readInput().costOfGoods);
@@ -1096,7 +1098,7 @@
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "buyCheck", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
+        ["revenue", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginBuy", "targetMarginPrice", "buyCheck", "advantage", "profitBeforeReturns", "returnDrag", "breakEvenReturnRate", "returnsSummary", "planVerdict", "lowPriceSummary", "lowPriceBreakEven", "lowPriceWinner", "mcfSummary", "mcfBreakEven", "mcfWinner", "bulkSummary", "bulkBreakEven", "bulkExtraCash", "bulkWinner", "prepSummary", "prepBreakEven", "prepWinner", "placementSummary", "placementVerdict", "placementWinner", "placementCarry"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
