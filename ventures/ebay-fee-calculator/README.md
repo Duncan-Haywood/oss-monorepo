@@ -104,6 +104,12 @@ program fee (usually at a higher return rate), or make the buyer
 pay return shipping. A $5.50 fee still loses after four extra
 return points on a $40 listing.
 [Is eBay Managed Returns worth it?](is-ebay-managed-returns-worth-it.html).
+A **Global Shipping Program vs you-ship** table then prices the
+same international buyer two ways: ship to the US hub on your
+domestic label, or collect international postage and buy the
+label yourself. An 8% item-not-received claim rate can cost
+more than the extra postage you collected.
+[Should I use eBay Global Shipping Program?](should-i-use-ebay-global-shipping-program.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
@@ -168,6 +174,12 @@ looks free” and never pricing the labels you now buy.
 $5.50 program fee still beats an $8 label after extra returns** —
 which used to mean enrolling because “postage is cheaper” and
 never pricing the easier return path.
+
+**After using the Global Shipping page, you can now see whether
+the hub still beats an $18 international label after an 8%
+claim rate** — which used to mean turning GSP off because
+“I can ship cheaper” and never pricing the boxes that never
+arrive.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -264,6 +276,11 @@ drive that decision:
   returns with the label you buy versus a typed program fee
   versus buyer-paid return shipping. The table also names the
   Managed Returns rate that still ties buying the label yourself.
+- **Global Shipping Program vs you-ship** — expected listing
+  profit after sell-through with a hub label versus an
+  international label you buy. A claim is not a return — the
+  item is gone. The table also names the claim rate and
+  you-ship sell-through that still tie GSP.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -298,7 +315,8 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
 `top_rated_plus_compared`,
-`managed_returns_compared`, and
+`managed_returns_compared`,
+`global_shipping_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
@@ -310,8 +328,9 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
-`top_rated_plus_compared`, and
-`managed_returns_compared` are counted at most
+`top_rated_plus_compared`,
+`managed_returns_compared`, and
+`global_shipping_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

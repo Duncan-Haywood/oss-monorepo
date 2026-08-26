@@ -194,6 +194,14 @@ test('counts a Managed Returns comparison without storing a fee or rate', () => 
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'managed_returns_compared']);
 });
 
+test('counts a Global Shipping comparison without storing postage or a claim rate', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'global_shipping_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.global_shipping_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['global_shipping_compared', 'last_day']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');
