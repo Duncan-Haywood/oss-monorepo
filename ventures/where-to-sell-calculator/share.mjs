@@ -62,9 +62,8 @@ export function decodeComparison(value) {
         // calculator, where it surfaced as a validation error on a field the
         // recipient never typed. Dropping it falls back to the preset instead.
         ...Object.fromEntries(CHANNEL_FIELDS.map((key) => {
-          const raw = channel.values?.[key];
-          const parsed = raw === undefined || raw === "" ? null : Number(raw);
-          return [key, Number.isFinite(parsed) && parsed >= 0 ? parsed : null];
+          const number = sharedNumber(channel.values?.[key]);
+          return [key, number];
         }).filter(([, value]) => value !== null)),
       })) : [];
     return {
