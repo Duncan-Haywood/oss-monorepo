@@ -49,9 +49,16 @@ A venture is discovered when it has:
 `retail-pilot-intel` (passcode-gated internal docs that need a pnpm build and
 keep their own workflow).
 
-Not shipped to visitors: `*.test.mjs`, CLI source (`.py`, `.toml`, …),
-`VENTURE.yaml`, `README.md`, per-venture `robots.txt` (only the one at the
-origin root is read), and `node_modules`. `LICENSE` files are kept.
+Not shipped to visitors: test payload, CLI source (`.py`, `.toml`, …),
+`VENTURE.yaml`, `README.md`, `package.json`, per-venture `robots.txt` (only the
+one at the origin root is read), and `node_modules`. `LICENSE` files are kept.
+
+`foo.test.mjs` is the house convention for a test file, but it is a convention
+rather than a rule, so the exclusion also covers `test.mjs`, `test_*.mjs` and
+`*_test.mjs` — the spellings `retainage-cashflow-calculator` and
+`freelance-retainer-calculator` actually use. Both were being published until
+that was fixed. It matches on the whole filename segment, so product code that
+merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
 
 ## What the build fixes up
 
@@ -260,9 +267,33 @@ anything, so a visitor arriving from search straight at a deep SEO page — the
 traffic those pages exist for — was invisible. Nothing is transmitted: there is
 no `fetch`, no beacon, and the counts never leave the device.
 
+<<<<<<< HEAD
+Those counts are also what the hub gives back. **Pick up where you left off** is
+a row above the catalogue listing the tools this browser has actually opened,
+most used first, read from the same `tool_viewed:<slug>` counts. Thirty-seven
+tools is a lot to search through when someone came back for the one they used
+last week, and this is the whole return path — no account, no sign-in, no server
+that could know who they are. It is worth stating plainly that the counting is
+what makes the shortcut possible; the value goes to the person the data is
+about, and it never leaves their machine.
+
+It holds to the same rules as the counting it reads:
+
+- Opting out, or a browser sending DNT/GPC, means no counts exist, so the row is
+  not shown at all — the hub looks exactly as it does to a first-time visitor.
+  Ticking the opt-out removes the row in the same click rather than on the next
+  visit.
+- No history, no storage, or script off: the section ships `hidden` with an empty
+  list, so nothing appears and the full catalogue below is the fallback.
+- Every tool shares one origin, so any page on the site can write to that key.
+  A stored slug is used only if it matches `^[a-z0-9][a-z0-9-]*$` **and** the
+  hub is currently showing that tool; the link is built from the validated slug,
+  and titles are written with `textContent`, never as markup.
+=======
 The offline cache is the visitor's own browser storage: pages and scripts this
 site served them, held on their device, cleared by clearing site data. No
 personal data is stored, and nothing cached is ever sent anywhere.
+>>>>>>> origin/main
 
 The hub carries the no-warranty and no-SLA copy from `PRODUCT_PLAYBOOK.md` §5b,
 required on every hosted surface, plus an optional GitHub Sponsors link that
