@@ -22,3 +22,14 @@ out/
 coverage/
 
 tmp/
+
+# OpenTofu (infra/)
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+infra/*.tfvars
+!infra/terraform.tfvars.example
+
+# Built GitHub Pages site (platform/ci/build_pages_site.py). Regenerated on
+# every deploy; never committed.
+/_site/

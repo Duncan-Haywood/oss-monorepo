@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cut List Optimizer | Sheet Goods and Linear Stock Cutting Plans</title>
-  <meta name="description" content="Free cut list optimizer for woodworkers, sign shops, and makers. Turn a parts list into a sheet layout diagram or a linear cutting plan, with saw kerf and edge trim, in your browser. Nothing is uploaded.">
+  <title>Cut List Optimizer | Compare 4×8 vs 5×5 Sheet Sizes Before You Buy</title>
+  <meta name="description" content="Free cut list optimizer for woodworkers and sign shops. Lay out plywood, MDF, or acrylic, then compare 4×8, 5×5 Baltic birch, and half-sheets so you buy the size that costs less. Nothing is uploaded.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Cut List Optimizer for Woodworkers and Sign Shops">
-  <meta property="og:description" content="Lay out plywood, MDF, and acrylic sheets or linear stock, see the offcut before you buy, and print the plan. Free and entirely in your browser.">
+  <meta property="og:title" content="Cut List Optimizer — 4×8 vs 5×5 before you buy">
+  <meta property="og:description" content="Paste your parts, see the sheet layout, and rank 4×8 against 5×5 or a half-sheet by cash and sheets to buy. Free, in your browser.">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -16,8 +16,8 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any browser",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, linear stock optimization, material cost estimate, printable job ticket",
-    "description": "A free browser tool that turns a parts list into a low-waste cutting plan for sheet goods or linear stock. Runs entirely on the visitor's device."
+    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, material cost estimate for sheets and linear stock, printable job ticket",
+    "description": "A free browser tool that turns a parts list into a low-waste cutting plan and ranks common sheet sizes by material cost before you buy. Runs entirely on the visitor's device."
   }
   </script>
   <style>
@@ -70,6 +70,23 @@
     footer { font-size: .8rem; color: #5c5b52; margin-top: 28px; }
     footer p { line-height: 1.5; }
     .empty { color: #5c5b52; font-size: .9rem; }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .presets button {
+      font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer;
+      padding: 6px 12px; border-radius: 999px; border: 1px solid #aaa394;
+      background: #fff; color: inherit;
+    }
+    .compare { margin-top: 18px; }
+    .compare table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .compare th, .compare td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ffffff30; }
+    .compare th { font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; opacity: .8; }
+    .compare tr.winner { background: #e9be7624; }
+    .compare .pick { color: #e9be76; font-weight: 800; }
+    .compare:empty { display: none; }
+    .compare-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; grid-column: 1 / -1; }
+    @media (max-width: 760px) {
+      .compare-fields { grid-template-columns: 1fr; }
+    }
     @media (max-width: 760px) {
       .layout { grid-template-columns: 1fr; }
       .fields { grid-template-columns: 1fr; }
@@ -89,7 +106,9 @@
     <p>
       Paste the pieces you need. Get a sheet-by-sheet layout for plywood, MDF, or acrylic,
       or a bar-by-bar plan for linear stock — with your saw kerf accounted for and the
-      offcut shown before you buy material. Everything runs in this browser.
+      offcut shown before you buy. Compare a 4×8 against 5×5 Baltic birch or a half-sheet
+      when the store stocks more than one size.
+      <a href="compare-4x8-vs-5x5.html">4×8 vs 5×5 worked example</a>.
     </p>
   </header>
 
@@ -116,6 +135,28 @@
             </select>
           </label>
           <label>Cost per sheet <span class="muted">optional</span><input id="sheet-cost" type="number" min="0" step="0.01" placeholder="62.00"></label>
+          <div class="wide">
+            <p style="margin:0 0 8px;font-weight:700;font-size:.88rem">Compare other sheet sizes</p>
+            <p class="muted" style="margin:0">
+              Rank this list against a second and third size before you buy.
+              Leave a row blank to skip it.
+            </p>
+            <div class="presets" role="group" aria-label="Common sheet sizes to compare">
+              <button type="button" id="preset-5x5">Use 5×5 Baltic birch</button>
+              <button type="button" id="preset-4x4">Use 4×4 half-sheet</button>
+              <button type="button" id="preset-5x10">Use 5×10</button>
+            </div>
+          </div>
+          <div class="compare-fields">
+            <label>Alt width<input id="sheet-alt1-width" type="number" min="0.01" step="0.01" placeholder="60"></label>
+            <label>Alt height<input id="sheet-alt1-height" type="number" min="0.01" step="0.01" placeholder="60"></label>
+            <label>Alt cost <span class="muted">optional</span><input id="sheet-alt1-cost" type="number" min="0" step="0.01" placeholder="55.00"></label>
+          </div>
+          <div class="compare-fields">
+            <label>Second alt width<input id="sheet-alt2-width" type="number" min="0.01" step="0.01" placeholder="48"></label>
+            <label>Second alt height<input id="sheet-alt2-height" type="number" min="0.01" step="0.01" placeholder="48"></label>
+            <label>Second alt cost <span class="muted">optional</span><input id="sheet-alt2-cost" type="number" min="0" step="0.01" placeholder="22.00"></label>
+          </div>
           <div class="wide">
             <label class="check"><input id="sheet-rotate" type="checkbox" checked> Pieces may be rotated 90°</label>
             <p class="muted" style="margin:6px 0 0">
@@ -147,6 +188,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           <dt>Material cost</dt><dd id="sheet-total-cost">—</dd>
         </dl>
         <div class="warn" id="sheet-oversize"></div>
+        <div class="compare" id="sheet-compare"></div>
         <div class="actions">
           <button type="button" id="sheet-copy" disabled>Copy cut plan</button>
           <button type="button" class="secondary" id="sheet-print">Print</button>
@@ -176,6 +218,7 @@ Top: 31.5 x 11.25 x 2</textarea>
               <option value="ft">feet</option>
             </select>
           </label>
+          <label>Cost per stock piece <span class="muted">optional</span><input id="stock-cost" type="number" min="0" step="0.01" placeholder="12.00"></label>
           <label class="wide">Required cuts, one per line
             <span class="muted">Use <code>24 x 3</code> for three pieces at 24</span>
             <textarea id="cuts" spellcheck="false">48 x 2
@@ -195,6 +238,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           <dt>Required material</dt><dd id="used">—</dd>
           <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
           <dt>Stock utilization</dt><dd id="utilization">—</dd>
+          <dt>Material cost</dt><dd id="linear-total-cost">—</dd>
         </dl>
         <div id="plan"></div>
         <div class="actions">
@@ -206,7 +250,8 @@ Top: 31.5 x 11.25 x 2</textarea>
   </div>
 
   <footer>
-    <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
+    <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite"></span></div>
     <p>
       <strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied.
       It is not engineering, financial, or business advice and does not replace a qualified professional.
@@ -214,20 +259,22 @@ Top: 31.5 x 11.25 x 2</textarea>
       Review and verify the plan, dimensions, tool setup, and material before cutting.
       To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
     <p>
       Every cut in a sheet plan runs edge to edge, so the layout can be cut on a table saw, track saw, or panel saw.
       Kerf and edge trim are counted as waste rather than as usable material.
     </p>
     <p>
-      Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events are counted only
-      in local storage, can be switched off above, and are never sent to an analytics vendor.
+      Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events and your optional
+      unfinished draft are kept only in local storage, can be switched off and cleared above, and are never sent to an analytics vendor.
     </p>
   </footer>
 
   <script type="module">
     import { parseCuts, optimizeCutList, formatCutPlan } from './calc.mjs';
-    import { parsePanels, optimizeSheets, formatSheetPlan } from './sheet.mjs';
+    import { parsePanels, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
+    import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $('optout').checked;
@@ -238,7 +285,42 @@ Top: 31.5 x 11.25 x 2</textarea>
     // Re-rendering is cheap and runs on every keystroke, but a usage count that
     // ticks per keystroke measures typing, not cut plans. `ready` lets the
     // settled-value ('change') listeners below count one plan per real edit.
-    const ready = { sheet: false, linear: false };
+    const ready = { sheet: false, linear: false, sheetCompare: false };
+
+    const SHEET_PRESETS = {
+      '5x5': { width: 60, height: 60 },
+      '4x4': { width: 48, height: 48 },
+      '5x10': { width: 60, height: 120 },
+    };
+
+    function readAltCandidate(prefix) {
+      const width = Number($(prefix + '-width').value);
+      const height = Number($(prefix + '-height').value);
+      if (!(width > 0) || !(height > 0)) return null;
+      const rawCost = Number($(prefix + '-cost').value);
+      return {
+        width,
+        height,
+        costPerSheet: Number.isFinite(rawCost) && rawCost > 0 ? rawCost : null,
+      };
+    }
+
+    function firstOpenAltPrefix() {
+      for (const prefix of ['sheet-alt1', 'sheet-alt2']) {
+        if (!readAltCandidate(prefix)) return prefix;
+      }
+      return 'sheet-alt2';
+    }
+
+    function applyPreset(name) {
+      const preset = SHEET_PRESETS[name];
+      if (!preset) return;
+      const prefix = firstOpenAltPrefix();
+      $(prefix + '-width').value = String(preset.width);
+      $(prefix + '-height').value = String(preset.height);
+      renderSheet();
+      if (ready.sheetCompare) recordUsage(localStorage, optedOut(), 'sheet-compares');
+    }
 
     /* ---------------- Sheet goods ---------------- */
 
@@ -321,8 +403,29 @@ Top: 31.5 x 11.25 x 2</textarea>
             + '. Check the size, lower the edge trim, or allow rotation.'
           : '';
         renderSheetPlan(result, unit);
+        let comparison = null;
+        try {
+          comparison = renderSheetComparison({
+            panels: parsePanels($('sheet-parts').value),
+            kerf: Number($('sheet-kerf').value),
+            trim: Number($('sheet-trim').value),
+            allowRotation: $('sheet-rotate').checked,
+            unit,
+            primary: {
+              width: Number($('sheet-width').value),
+              height: Number($('sheet-height').value),
+              costPerSheet: sheetCost,
+            },
+          });
+        } catch (compareError) {
+          $('sheet-compare').innerHTML = `<p class="muted">${escapeHtml(compareError.message)}</p>`;
+          ready.sheetCompare = false;
+        }
+        const planText = formatSheetPlan(result, { unit, sheetCost });
         $('sheet-copy').disabled = false;
-        $('sheet-copy').dataset.plan = formatSheetPlan(result, { unit, sheetCost });
+        $('sheet-copy').dataset.plan = comparison
+          ? `${planText}\n${formatSheetComparison(comparison, { unit })}`
+          : planText;
         ready.sheet = true;
       } catch (error) {
         // Every message thrown by sheet.mjs is written for the user, so it is
@@ -331,25 +434,71 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('sheet-message').textContent = error.message;
         SHEET_STATS.forEach((id) => { $(id).textContent = '—'; });
         $('sheet-oversize').innerHTML = '';
+        $('sheet-compare').innerHTML = '';
         $('sheet-diagrams').innerHTML = '<p class="empty">The layout for each sheet appears here.</p>';
         $('sheet-copy').disabled = true;
         $('sheet-copy').dataset.plan = '';
         ready.sheet = false;
+        ready.sheetCompare = false;
       }
+    }
+
+    function renderSheetComparison({ panels, kerf, trim, allowRotation, unit, primary }) {
+      const candidates = [primary, readAltCandidate('sheet-alt1'), readAltCandidate('sheet-alt2')]
+        .filter(Boolean);
+      if (candidates.length < 2) {
+        $('sheet-compare').innerHTML = '';
+        ready.sheetCompare = false;
+        return null;
+      }
+      const comparison = compareSheetSizes({ panels, kerf, trim, allowRotation, unit, candidates });
+      const money = (value) => value == null ? 'add a price' : `$${value.toFixed(2)}`;
+      const rows = comparison.rows.map((row) => {
+        const pick = row === comparison.winner
+          ? '<span class="pick">Buy this size</span>'
+          : (row.fitsAll ? 'Fits' : `${row.oversizeCount} will not fit`);
+        return `<tr class="${row === comparison.winner ? 'winner' : ''}">
+            <td>${escapeHtml(row.label)}<br><span class="muted">${row.width.toFixed(2)} × ${row.height.toFixed(2)} ${escapeHtml(unit)}</span></td>
+            <td>${row.sheetCount}</td>
+            <td>${(row.utilization * 100).toFixed(1)}%</td>
+            <td>${money(row.totalCost)}</td>
+            <td>${pick}</td>
+          </tr>`;
+      }).join('');
+      let why = 'Ranked by sheets to buy. Add a price on every size to rank by cash.';
+      if (comparison.savings && comparison.savings.kind === 'cost' && comparison.savings.amount > 0) {
+        why = `${escapeHtml(comparison.winner.label)} costs $${comparison.savings.amount.toFixed(2)} less than ${escapeHtml(comparison.runnerUp.label)}. Confirm the yard's prices before you buy.`;
+      } else if (comparison.savings && comparison.savings.kind === 'sheets' && comparison.savings.amount > 0) {
+        why = `${escapeHtml(comparison.winner.label)} uses ${comparison.savings.amount} fewer sheet${comparison.savings.amount === 1 ? '' : 's'} than ${escapeHtml(comparison.runnerUp.label)}.`;
+      } else if (comparison.winner && !comparison.winner.fitsAll) {
+        why = 'No size on this list takes every piece. Check the dimensions or add a larger sheet.';
+      }
+      $('sheet-compare').innerHTML = `
+        <h3 style="margin:0 0 8px;font-size:1rem">Which size to buy</h3>
+        <p class="muted" style="margin:0 0 10px">${why}</p>
+        <table>
+          <thead><tr><th>Size</th><th>Sheets</th><th>Used</th><th>Material</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+      ready.sheetCompare = true;
+      return comparison;
     }
 
     /* ---------------- Linear stock ---------------- */
 
-    const LINEAR_STATS = ['bars', 'used', 'waste', 'utilization'];
+    const LINEAR_STATS = ['bars', 'used', 'waste', 'utilization', 'linear-total-cost'];
 
     function renderLinear() {
       const unit = $('unit').value;
       const format = (n) => `${n.toFixed(2)} ${unit}`;
+      const rawCost = Number($('stock-cost').value);
+      const stockCost = Number.isFinite(rawCost) && rawCost >= 0 && $('stock-cost').value.trim() !== '' ? rawCost : null;
       try {
         const result = optimizeCutList({
           stockLength: Number($('stock').value),
           kerf: Number($('kerf').value),
           cuts: parseCuts($('cuts').value),
+          stockCost,
         });
         $('headline').textContent = `${result.bars.length} stock piece${result.bars.length === 1 ? '' : 's'}`;
         $('message').textContent = 'Largest cuts are placed first to keep the plan compact. Confirm against your actual saw and stock.';
@@ -357,6 +506,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         $('used').textContent = format(result.totalCuts);
         $('waste').textContent = format(result.waste);
         $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
+        $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : `$${result.totalCost.toFixed(2)}`;
         $('plan').innerHTML = result.bars.map((bar, i) => (
           `<div class="bar"><strong>Stock ${i + 1}: ${bar.cuts.map(format).join(' + ')}</strong>`
           + `<span class="muted">${format(bar.remaining)} remaining after kerf allowance</span></div>`
@@ -366,6 +516,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           stockUnit: unit,
           stockLength: $('stock').value,
           kerf: $('kerf').value,
+          currency: '$',
         });
         ready.linear = true;
       } catch (error) {
@@ -381,12 +532,38 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     /* ---------------- Wiring ---------------- */
 
+    const DRAFT_FIELDS = [
+      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate',
+      'stock', 'kerf', 'cuts', 'unit', 'stock-cost',
+    ];
+
+    function draftValues() {
+      return Object.fromEntries(DRAFT_FIELDS.map((id) => [id, $(id).type === 'checkbox' ? $(id).checked : $(id).value]));
+    }
+
+    function restoreDraft() {
+      const draft = loadDraft(localStorage);
+      if (!draft) return false;
+      DRAFT_FIELDS.forEach((id) => {
+        if (!(id in draft)) return;
+        if ($(id).type === 'checkbox') $(id).checked = Boolean(draft[id]);
+        else $(id).value = String(draft[id]);
+      });
+      return true;
+    }
+
+    function persistDraft() {
+      if (!optedOut()) saveDraft(localStorage, draftValues());
+    }
+
     function wireInputs(ids, render, mode, runEvent) {
       ids.forEach((id) => {
         $(id).addEventListener('input', render);
         $(id).addEventListener('change', () => {
           render();
+          persistDraft();
           if (ready[mode]) recordUsage(localStorage, optedOut(), runEvent);
+          if (mode === 'sheet' && ready.sheetCompare) recordUsage(localStorage, optedOut(), 'sheet-compares');
         });
       });
     }
@@ -418,10 +595,18 @@ Top: 31.5 x 11.25 x 2</textarea>
     });
 
     wireInputs(
-      ['sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate'],
+      [
+        'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts',
+        'sheet-unit', 'sheet-rotate',
+        'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
+        'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
+      ],
       renderSheet, 'sheet', 'sheet-runs',
     );
-    wireInputs(['stock', 'kerf', 'cuts', 'unit'], renderLinear, 'linear', 'runs');
+    ['preset-5x5', 'preset-4x4', 'preset-5x10'].forEach((id) => {
+      $(id).addEventListener('click', () => applyPreset(id.replace('preset-', '')));
+    });
+    wireInputs(['stock', 'kerf', 'cuts', 'unit', 'stock-cost'], renderLinear, 'linear', 'runs');
 
     wireCopy('sheet-copy', 'sheet-copy-status', 'sheet-copies');
     wireCopy('copy-plan', 'copy-status', 'copies');
@@ -430,13 +615,26 @@ Top: 31.5 x 11.25 x 2</textarea>
     // Opting out is not only "stop counting" — it clears what was already
     // counted, so the checkbox means what a visitor reads it to mean.
     $('optout').addEventListener('change', () => {
-      if (optedOut()) clearUsage(localStorage);
+      if (optedOut()) {
+        clearUsage(localStorage);
+        clearDraft(localStorage);
+      } else {
+        persistDraft();
+      }
       renderSheet();
       renderLinear();
     });
 
+    $('clear-draft').addEventListener('click', () => {
+      clearDraft(localStorage);
+      $('draft-status').textContent = 'Saved draft cleared.';
+      setTimeout(() => { $('draft-status').textContent = ''; }, 4000);
+    });
+
+    const restored = restoreDraft();
     renderSheet();
     renderLinear();
+    if (restored) $('draft-status').textContent = 'Saved draft restored.';
   </script>
 </body>
 </html>
