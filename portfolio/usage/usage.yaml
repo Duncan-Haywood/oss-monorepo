@@ -636,6 +636,15 @@ products:
           Added strip-and-wax / extraction / initial-clean as one-time
           project rows kept off the monthly price, with a first-month
           invoice. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          shift_added: 0
+          shift_priced: 0
+        note: >-
+          Added day-porter / scheduled-shift pricing as coverage hours
+          kept separate from the night-clean production rate. Public
+          URL remains owner-gated.
   - slug: shopify-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -1794,6 +1803,19 @@ products:
           evening trip). Distinct from kitchen-tile Saturday
           (a dry splash) and toilet Saturday (a commode swap).
           Public URL remains owner-gated.
+
+  - slug: tiktok-shop-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local TikTok Shop fee calculator (organic vs affiliate after
+          returns, affiliate commission kept on refunds, announced 1 Oct 2026
+          schedule). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
 
   - slug: owner-operator-cpm-calculator
     surface: static-page-in-repo

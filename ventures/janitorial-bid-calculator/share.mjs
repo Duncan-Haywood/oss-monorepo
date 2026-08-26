@@ -84,8 +84,8 @@ export function encodeBid(spec, values) {
     if (values?.[id] === undefined) continue;
     params.set(id, values[id] ? '1' : '0');
   }
-  const rows = specRows(spec);
-  if (rows && Array.isArray(values?.[rows.param])) {
+  for (const rows of specRowGroups(spec)) {
+    if (!Array.isArray(values?.[rows.param])) continue;
     const encoded = values[rows.param]
       .slice(0, MAX_ROWS)
       .map(row => rows.fields.map(field => encodeCell(field, row?.[field.key])).join(CELL_SEPARATOR))
@@ -101,6 +101,20 @@ function specRows(spec) {
   const rows = spec?.rows;
   if (!rows || typeof rows.param !== 'string' || !Array.isArray(rows.fields)) return null;
   return rows;
+}
+
+function specRowGroups(spec) {
+  const groups = [];
+  const primary = specRows(spec);
+  if (primary) groups.push(primary);
+  if (Array.isArray(spec?.extraRows)) {
+    for (const rows of spec.extraRows) {
+      if (rows && typeof rows.param === 'string' && Array.isArray(rows.fields)) {
+        groups.push(rows);
+      }
+    }
+  }
+  return groups;
 }
 
 const MAX_TEXT = 80;
@@ -161,8 +175,8 @@ export function decodeBid(spec, source) {
     if (!params.has(id)) continue;
     values[id] = params.get(id) === '1';
   }
-  const rows = specRows(spec);
-  if (rows && params.has(rows.param)) {
+  for (const rows of specRowGroups(spec)) {
+    if (!params.has(rows.param)) continue;
     const decoded = params.get(rows.param)
       .split(ROW_SEPARATOR)
       .slice(0, MAX_ROWS)
