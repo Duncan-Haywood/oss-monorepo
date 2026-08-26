@@ -97,6 +97,9 @@ workflows:
 - workflow: cam-reconciliation-check-ci.yml
   classification: none
   publishes: []
+- workflow: carpet-cleaning-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: carpet-install-bid-calculator-ci.yml
   classification: none
   publishes: []
