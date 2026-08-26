@@ -25,9 +25,10 @@ whether an Amazon Vine enrollment still pays after gifted leftover units
 versus units that would have sold, whether Amazon inbound placement
 still beats extra freight on a split shipment, and whether a return
 rate still leaves expected profit after handling and unsellable units, and
-whether sending inventory before Q4 still beats waiting until January** —
+whether sending inventory before Q4 still beats waiting until January,
+and whether a smaller carton still drops a size-tier fee cliff** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
-pick-fee jump at $10.
+0.75-inch small-standard gate.
 
 ## Why it's different
 
@@ -151,6 +152,23 @@ completed-sale leftover looked fat.
 still costs $612 more than waiting until January** — which used to
 mean inbound in August because stock-out looked more expensive than
 storage.
+
+A carton that just crossed 0.75 inch or 1 lb is a packaging decision
+on the same SKU: stay in the current size tier, flatten into the
+next-lower tier if the unit still fits, or drop only a fulfillment
+weight band.
+[Does a smaller box cut Amazon FBA fees?](does-smaller-box-cut-amazon-fba-fees.html)
+shows leftover per unit and extra prep so a cheaper ounce band is
+not confused with a cheaper size tier. Complementary to
+[Q4 peak storage](peak-vs-off-peak-storage.html) (when the unit sits)
+and to [Amazon inbound prep](should-i-pay-amazon-to-prep-inbound.html)
+(who labels the unit).
+
+**After using the packaging page, you can now see whether flattening
+an 8×6×2 carton to 0.75 inch still keeps $0.80 more per unit
+($64.02 a month at 80 units) before extra prep** — which used to
+mean leaving the box because the fee preview looked like a referral
+change.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it

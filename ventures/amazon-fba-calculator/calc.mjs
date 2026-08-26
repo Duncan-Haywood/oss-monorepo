@@ -2182,6 +2182,261 @@ export function compareStorageSeasons(input) {
   };
 }
 
+// Cheapest to dearest. A carton only drops a fee cliff by moving left.
+export const SIZE_TIER_ORDER = Object.freeze([
+  "small_standard",
+  "large_standard",
+  "large_bulky",
+  "extra_large",
+]);
+
+// Maximum packed size that still classifies as that tier under
+// classifySizeTier(). These are the published US dimensional gates the
+// classifier uses — not Amazon's live schedule.
+export const SIZE_TIER_LIMITS = Object.freeze({
+  small_standard: { weightLb: 1, longest: 15, median: 12, shortest: 0.75 },
+  large_standard: { weightLb: 20, longest: 18, median: 14, shortest: 8 },
+  large_bulky: { weightLb: 50, longest: 59, medianPlusShortest: 90, longestPlusGirth: 130 },
+});
+
+const STANDARD_WEIGHT_BAND_OZ = Object.freeze({
+  small_standard: [4, 8, 12, 16],
+  large_standard: [4, 8, 12, 16, 24, 32, 48, 80],
+});
+
+export function nextLowerSizeTier(tier) {
+  if (!SIZE_TIER_LABELS[tier]) throw new Error(`Unknown size tier: ${tier}`);
+  const index = SIZE_TIER_ORDER.indexOf(tier);
+  return index > 0 ? SIZE_TIER_ORDER[index - 1] : null;
+}
+
+function sortedDims(length, width, height) {
+  return [length, width, height].sort((a, b) => b - a);
+}
+
+function cutsFromCurrent(current, packed) {
+  const [cLong, cMed, cShort] = sortedDims(current.length, current.width, current.height);
+  const [pLong, pMed, pShort] = sortedDims(packed.length, packed.width, packed.height);
+  return {
+    longestIn: Math.max(0, cLong - pLong),
+    medianIn: Math.max(0, cMed - pMed),
+    shortestIn: Math.max(0, cShort - pShort),
+    weightOz: Math.max(0, (current.weightLb - packed.weightLb) * 16),
+  };
+}
+
+/**
+ * Shrink the current carton just enough to classify as `tier`.
+ * Axes are reassigned longest/median/shortest so the comparison is about
+ * the packed cube, not about which form field was "length".
+ */
+export function clampBoxToTier(input, tier) {
+  if (!SIZE_TIER_LIMITS[tier]) throw new Error(`Unknown size tier: ${tier}`);
+  const length = number(input.length, "Length");
+  const width = number(input.width, "Width");
+  const height = number(input.height, "Height");
+  const weightLb = number(input.weightLb, "Weight");
+  const [longest, median, shortest] = sortedDims(length, width, height);
+  const limits = SIZE_TIER_LIMITS[tier];
+
+  if (tier === "small_standard" || tier === "large_standard") {
+    return {
+      length: Math.min(longest, limits.longest),
+      width: Math.min(median, limits.median),
+      height: Math.min(shortest, limits.shortest),
+      weightLb: Math.min(weightLb, limits.weightLb),
+    };
+  }
+
+  let nextLongest = Math.min(longest, limits.longest);
+  let nextMedian = median;
+  let nextShortest = shortest;
+  if (nextMedian + nextShortest > limits.medianPlusShortest) {
+    const scale = limits.medianPlusShortest / (nextMedian + nextShortest);
+    nextMedian *= scale;
+    nextShortest *= scale;
+  }
+  const girth = 2 * (nextMedian + nextShortest);
+  if (nextLongest + girth > limits.longestPlusGirth) {
+    const maxSum = (limits.longestPlusGirth - nextLongest) / 2;
+    if (maxSum > 0 && nextMedian + nextShortest > maxSum) {
+      const scale = maxSum / (nextMedian + nextShortest);
+      nextMedian *= scale;
+      nextShortest *= scale;
+    }
+  }
+  return {
+    length: nextLongest,
+    width: nextMedian,
+    height: nextShortest,
+    weightLb: Math.min(weightLb, limits.weightLb),
+  };
+}
+
+/** Max weight (lb) of the next cheaper fulfillment band, or null if already cheapest. */
+export function nextCheaperWeightLb(tier, weightLb) {
+  if (!SIZE_TIER_LABELS[tier]) throw new Error(`Unknown size tier: ${tier}`);
+  const weight = number(weightLb, "Weight");
+  const bands = STANDARD_WEIGHT_BAND_OZ[tier];
+  if (bands) {
+    const oz = weight * 16;
+    const current = bands.find((band) => oz <= band) ?? bands[bands.length - 1];
+    const index = bands.indexOf(current);
+    if (index <= 0) return null;
+    return bands[index - 1] / 16;
+  }
+  if (tier === "large_bulky") {
+    if (weight <= 2) return null;
+    return 2;
+  }
+  if (weight <= 5) return null;
+  return 5;
+}
+
+function listingForPack(input, pack, packExtra) {
+  const packagingCost = number(input.packagingCost, "Packaging cost") + packExtra;
+  const listing = calculateListing({
+    ...input,
+    ...pack,
+    packagingCost,
+    fulfillmentFee: undefined,
+    sizeTier: undefined,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+  });
+  return { listing, pack, packExtra };
+}
+
+/**
+ * Current carton vs a pack that drops a size tier vs a pack that only
+ * drops a fulfillment weight band. The drop-tier carton is the current
+ * cube clamped to the next-lower tier's gates — it is not a claim the
+ * product still fits that box. Repack cost is extra prep on the smaller
+ * carton only.
+ *
+ * Return mix is forced to zero so this table stays completed-sale
+ * packaging arithmetic — complementary to the returns page, not a
+ * second return sweep.
+ */
+export function compareSizeTierPackaging(input = {}) {
+  const current = calculateListing({
+    ...input,
+    fulfillmentFee: undefined,
+    sizeTier: undefined,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+  });
+  const packExtra = number(input.repackCostPerUnit, "Repack cost");
+  const currentPack = {
+    length: number(input.length, "Length", 8),
+    width: number(input.width, "Width", 6),
+    height: number(input.height, "Height", 2),
+    weightLb: number(input.weightLb, "Weight", 0.75),
+  };
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+
+  const lowerTier = nextLowerSizeTier(current.sizeTier);
+  let dropTier = null;
+  if (lowerTier) {
+    const pack = clampBoxToTier(currentPack, lowerTier);
+    const { listing } = listingForPack(input, pack, packExtra);
+    const profitDelta = listing.fba.profit - current.fba.profit;
+    dropTier = {
+      targetTier: lowerTier,
+      targetTierLabel: SIZE_TIER_LABELS[lowerTier],
+      pack,
+      cuts: cutsFromCurrent(currentPack, pack),
+      sizeTier: listing.sizeTier,
+      sizeTierLabel: listing.sizeTierLabel,
+      fulfillmentFee: listing.suggestedFulfillment,
+      storagePerUnit: listing.storagePerUnit,
+      packExtra,
+      profit: listing.fba.profit,
+      profitDelta,
+      monthlyDelta: profitDelta * monthlyUnits,
+    };
+  }
+
+  const lighterWeight = nextCheaperWeightLb(current.sizeTier, currentPack.weightLb);
+  let dropWeight = null;
+  if (lighterWeight !== null) {
+    const pack = { ...currentPack, weightLb: lighterWeight };
+    const { listing } = listingForPack(input, pack, 0);
+    const profitDelta = listing.fba.profit - current.fba.profit;
+    dropWeight = {
+      pack,
+      cuts: cutsFromCurrent(currentPack, pack),
+      sizeTier: listing.sizeTier,
+      sizeTierLabel: listing.sizeTierLabel,
+      fulfillmentFee: listing.suggestedFulfillment,
+      storagePerUnit: listing.storagePerUnit,
+      packExtra: 0,
+      profit: listing.fba.profit,
+      profitDelta,
+      monthlyDelta: profitDelta * monthlyUnits,
+    };
+  }
+
+  const dropTierPays = Boolean(dropTier && dropTier.profitDelta > 0);
+  const dropWeightPays = Boolean(dropWeight && dropWeight.profitDelta > 0);
+  const winner = dropTierPays && (!dropWeight || dropTier.profitDelta >= dropWeight.profitDelta)
+    ? "drop_tier"
+    : dropWeightPays
+      ? "drop_weight"
+      : "current";
+
+  return {
+    current: {
+      pack: currentPack,
+      sizeTier: current.sizeTier,
+      sizeTierLabel: current.sizeTierLabel,
+      fulfillmentFee: current.suggestedFulfillment,
+      storagePerUnit: current.storagePerUnit,
+      packExtra: 0,
+      profit: current.fba.profit,
+      profitDelta: 0,
+      monthlyDelta: 0,
+    },
+    dropTier,
+    dropWeight,
+    dropTierPays,
+    dropWeightPays,
+    winner,
+    alreadyCheapestStandardBand:
+      current.sizeTier === "small_standard" && dropWeight === null,
+    monthlyUnits,
+    packExtra,
+  };
+}
+
+export function sizeTierPackagingNote(comparison) {
+  if (!comparison?.current) {
+    throw new Error("Size-tier packaging comparison is missing rows");
+  }
+  if (comparison.alreadyCheapestStandardBand) {
+    return "This carton is already in the cheapest illustrative small-standard weight band. A smaller box does not drop another FBA size tier on these rates.";
+  }
+  if (comparison.winner === "drop_tier") {
+    const inches = comparison.dropTier.cuts.shortestIn;
+    const money = roundMoney(comparison.dropTier.profitDelta);
+    const shrink = inches > 0
+      ? `shrink the shortest side by ${inches.toFixed(2)} in into a ${comparison.dropTier.targetTierLabel.toLowerCase()} carton`
+      : `pack the unit into a ${comparison.dropTier.targetTierLabel.toLowerCase()} carton`;
+    return `If you can ${shrink} and the unit still fits, FBA keeps $${money.toFixed(2)} more per unit than the current pack after the extra prep you entered.`;
+  }
+  if (comparison.winner === "drop_weight") {
+    const ounces = comparison.dropWeight.cuts.weightOz;
+    const money = roundMoney(comparison.dropWeight.profitDelta);
+    return `If the shipped weight drops ${ounces.toFixed(1)} oz into the next fulfillment band, FBA keeps $${money.toFixed(2)} more per unit. Dimensions stay the same, so the size tier does not change.`;
+  }
+  if (comparison.dropTier && comparison.dropTier.profitDelta < 0) {
+    return "The extra prep on the smaller carton costs more than the fulfillment and storage it saves on these rates.";
+  }
+  return "A smaller carton does not keep more on these rates. Overwrite the fulfillment fee from your Amazon fee preview before you change packaging.";
+}
+
 export function storageSeasonNote(result) {
   if (!result?.scenarios?.off_peak || !result?.scenarios?.mixed) {
     throw new Error("Storage-season comparison is missing rows");

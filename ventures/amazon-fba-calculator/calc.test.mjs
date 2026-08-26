@@ -22,6 +22,11 @@ import {
   compareInboundPlacement,
   compareReturns,
   compareStorageSeasons,
+  compareSizeTierPackaging,
+  clampBoxToTier,
+  nextCheaperWeightLb,
+  nextLowerSizeTier,
+  sizeTierPackagingNote,
   blendedStorageRate,
   storageSeasonNote,
   placementSummary,
@@ -1374,4 +1379,173 @@ test("storageSeasonNote names the January gap without telling the seller to inbo
   assert.match(text, /\$612\.00 on 200 units/);
   assert.match(text, /about 4\.5 October–December months/);
   assert.doesNotMatch(text, /should send|must wait|inbound now|opt in/i);
+});
+
+test("nextLowerSizeTier walks cheapest to dearest", () => {
+  assert.equal(nextLowerSizeTier("small_standard"), null);
+  assert.equal(nextLowerSizeTier("large_standard"), "small_standard");
+  assert.equal(nextLowerSizeTier("large_bulky"), "large_standard");
+  assert.equal(nextLowerSizeTier("extra_large"), "large_bulky");
+  assert.throws(() => nextLowerSizeTier("envelope"), /Unknown size tier/);
+});
+
+test("clampBoxToTier flattens the default 8×6×2 carton into small-standard", () => {
+  const pack = clampBoxToTier({ length: 8, width: 6, height: 2, weightLb: 0.75 }, "small_standard");
+  assert.equal(pack.length, 8);
+  assert.equal(pack.width, 6);
+  assert.equal(pack.height, 0.75);
+  assert.equal(pack.weightLb, 0.75);
+  assert.equal(classifySizeTier(pack), "small_standard");
+});
+
+test("clampBoxToTier pulls extra-large down through girth into large bulky", () => {
+  const pack = clampBoxToTier({ length: 60, width: 20, height: 20, weightLb: 30 }, "large_bulky");
+  assert.equal(classifySizeTier(pack), "large_bulky");
+  assert.ok(pack.length <= 59);
+  assert.ok(pack.width + pack.height <= 90);
+  assert.ok(pack.length + 2 * (pack.width + pack.height) <= 130 + 1e-9);
+});
+
+test("nextCheaperWeightLb steps into the previous fulfillment band", () => {
+  assert.equal(nextCheaperWeightLb("large_standard", 0.75), 8 / 16);
+  assert.equal(nextCheaperWeightLb("small_standard", 0.2), null);
+  assert.equal(nextCheaperWeightLb("large_bulky", 12), 2);
+  assert.equal(nextCheaperWeightLb("large_bulky", 2), null);
+  assert.throws(() => nextCheaperWeightLb("envelope", 1), /Unknown size tier/);
+});
+
+test("compareSizeTierPackaging: default 8×6×2 box drops a tier by flattening to 0.75 in", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 1,
+    storageRate: 0.87,
+    packagingCost: 0.6,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    targetMargin: 30,
+    fulfillmentMethod: "fba",
+  });
+  assert.equal(comparison.current.sizeTier, "large_standard");
+  assert.equal(comparison.dropTier.targetTier, "small_standard");
+  assert.equal(comparison.dropTier.sizeTier, "small_standard");
+  near(comparison.dropTier.pack.height, 0.75, "flattened height");
+  near(comparison.dropTier.cuts.shortestIn, 1.25, "inches off the shortest side");
+  near(comparison.dropTier.fulfillmentFee, defaultFulfillmentFee("small_standard", 0.75), "small-standard fee");
+  near(comparison.current.fulfillmentFee, defaultFulfillmentFee("large_standard", 0.75), "large-standard fee");
+
+  const feeSave = comparison.current.fulfillmentFee - comparison.dropTier.fulfillmentFee;
+  const storageSave = comparison.current.storagePerUnit - comparison.dropTier.storagePerUnit;
+  near(comparison.dropTier.profitDelta, feeSave + storageSave, "profit delta is fee plus storage");
+  assert.ok(comparison.dropTier.profitDelta > 0);
+  assert.equal(comparison.dropTierPays, true);
+  assert.equal(comparison.winner, "drop_tier");
+  near(comparison.dropTier.monthlyDelta, comparison.dropTier.profitDelta * 80, "monthly");
+  near(comparison.dropTier.profitDelta, 0.800208, "default $0.80");
+  near(comparison.dropTier.monthlyDelta, 64.016667, "default $64.02 / month");
+  assert.match(sizeTierPackagingNote(comparison), /0\.75 in|small standard|keeps \$/i);
+  assert.doesNotMatch(sizeTierPackagingNote(comparison), /should pack|must flatten|change the box|pack now/i);
+});
+
+test("compareSizeTierPackaging: extra prep can make the smaller carton lose", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.25,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    repackCostPerUnit: 5,
+  });
+  assert.equal(comparison.current.sizeTier, "large_standard");
+  assert.equal(comparison.dropWeight, null);
+  assert.ok(comparison.dropTier.profitDelta < 0);
+  assert.equal(comparison.dropTierPays, false);
+  assert.equal(comparison.winner, "current");
+  assert.match(sizeTierPackagingNote(comparison), /extra prep/i);
+});
+
+test("compareSizeTierPackaging: a small-standard 4 oz pack has no cheaper band", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 8,
+    width: 6,
+    height: 0.5,
+    weightLb: 0.2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+  });
+  assert.equal(comparison.current.sizeTier, "small_standard");
+  assert.equal(comparison.dropTier, null);
+  assert.equal(comparison.dropWeight, null);
+  assert.equal(comparison.alreadyCheapestStandardBand, true);
+  assert.equal(comparison.winner, "current");
+  assert.match(sizeTierPackagingNote(comparison), /already in the cheapest/i);
+});
+
+test("compareSizeTierPackaging: weight-band drop keeps the same size tier", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 12,
+    width: 10,
+    height: 6,
+    weightLb: 1,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+  });
+  assert.equal(comparison.current.sizeTier, "large_standard");
+  assert.ok(comparison.dropWeight);
+  near(comparison.dropWeight.pack.weightLb, 12 / 16, "12 oz band");
+  assert.equal(comparison.dropWeight.sizeTier, "large_standard");
+  assert.ok(comparison.dropWeight.profitDelta > 0);
+});
+
+test("compareSizeTierPackaging ignores a typed return mix and rejects a negative repack", () => {
+  const withReturns = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+  });
+  near(withReturns.current.profit, completed.current.profit, "return mix forced to 0");
+  assert.throws(() => compareSizeTierPackaging({ salePrice: 20, repackCostPerUnit: -1 }), /Repack cost/);
+  assert.throws(() => sizeTierPackagingNote({}), /missing rows/);
 });
