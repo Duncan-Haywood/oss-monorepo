@@ -15,10 +15,12 @@ for an e-invoice preflight check.
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
 # http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
-# credit-note document type (INV-032 through INV-034), and 0% / exempt
-# tax reasons (INV-035 and INV-036).
+# credit-note document type (INV-032 through INV-034), 0% / exempt
+# tax reasons (INV-035 and INV-036), and mixed-rate tax breakdown
+# (INV-037 and INV-038).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
+PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --format sarif > preflight.sarif
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
@@ -152,6 +154,18 @@ not decide whether 0% is legally correct. UBL
 `TaxExemptionReason` and `TaxExemptionReasonCode` map into the line
 reason fields. `TaxTotal/TaxSubtotal/TaxCategory` exemption fields map
 into the invoice-level reason.
+
+When line items use more than one `tax_percent`, the invoice needs
+`tax_breakdown`: one row per rate with `tax_percent`, `taxable` (the net
+of those lines), and `tax` (taxable times the rate, rounded to cents).
+A mixed-rate invoice without that list is `INV-037`. A present breakdown
+that is the wrong shape, repeats a rate, misses a rate the lines use,
+or disagrees with the line nets is `INV-038`. A single-rate invoice may
+omit the list. This is per-rate arithmetic — the same relationship EN
+16931 expresses as `TaxTotal/TaxSubtotal` — not a determination that a
+percentage is legally correct. UBL `TaxSubtotal` rows map into
+`tax_breakdown` (`TaxableAmount`, `TaxAmount`, `TaxCategory/Percent`,
+and optional `TaxCategory/ID` as `tax_category`).
 
 `due_date` is optional. When supplied, it must use `YYYY-MM-DD` and cannot be
 earlier than `issue_date`; this is a date-shape and document-consistency check,

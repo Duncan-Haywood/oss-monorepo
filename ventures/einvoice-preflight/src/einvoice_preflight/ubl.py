@@ -113,6 +113,9 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     exemption = _document_exemption(root)
     if exemption:
         invoice.update(exemption)
+    breakdown = _tax_breakdown(root)
+    if breakdown:
+        invoice["tax_breakdown"] = breakdown
     return invoice
 
 
@@ -133,6 +136,35 @@ def _tax_category_fields(category: ElementTree.Element) -> dict[str, str]:
     if reason_code:
         extras["tax_reason_code"] = reason_code
     return extras
+
+
+def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
+    """Map TaxTotal/TaxSubtotal rows into tax_breakdown."""
+    rows: list[dict[str, Any]] = []
+    for subtotal in _children(root, "TaxSubtotal"):
+        taxable = _text(subtotal, "TaxableAmount", required=False)
+        tax = _text(subtotal, "TaxAmount", required=False)
+        category = next(iter(_children(subtotal, "TaxCategory")), None)
+        percent = _text(category, "Percent", required=False) if category is not None else ""
+        tax_id = ""
+        if category is not None:
+            for child in list(category):
+                if child.tag.rsplit("}", 1)[-1] == "ID":
+                    tax_id = (child.text or "").strip()
+        if not taxable and not tax and not percent:
+            continue
+        row: dict[str, Any] = {}
+        if percent:
+            row["tax_percent"] = _number(percent)
+        if taxable:
+            row["taxable"] = _number(taxable)
+        if tax:
+            row["tax"] = _number(tax)
+        if tax_id:
+            row["tax_category"] = tax_id
+        if row:
+            rows.append(row)
+    return rows
 
 
 def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
