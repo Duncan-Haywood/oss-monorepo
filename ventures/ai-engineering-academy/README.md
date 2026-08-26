@@ -54,22 +54,24 @@ existing pages:
   (RC/RL × low/high-pass), with a design mode that solves for the missing
   component from a target cutoff and snaps it to a buyable standard value
   (24 passing unit tests).
-- [`tools/capacitor-charge-calculator/`](tools/capacitor-charge-calculator/) —
-  RC capacitor charge/discharge timing, voltage-after-delay, and reverse design
-  for a target threshold (5 passing unit tests).
+- [`tools/rc-time-calculator/`](tools/rc-time-calculator/) — capacitor charge
+  and discharge timing to a chosen voltage threshold, plus inverse delay design
+  that snaps the missing resistor or capacitor to a preferred value (6 passing
+  unit tests).
 
-All six are deliberately narrower than "the MVP": small, self-contained
+All five are deliberately narrower than "the MVP": small, self-contained
 tools for the Circuits corner of the planned EE track, not a curriculum.
 None is yet deployed to a live URL — publishing under the portfolio's name
-is owner-gated per `portfolio/DIRECTION.md`; all six are ready to deploy
+is owner-gated per `portfolio/DIRECTION.md`; all five are ready to deploy
 once that gate opens.
 
 ## Next steps
 
 - Review, argue with, and revise the constitution in `docs/` — it's a v1
   draft meant to be tightened, not treated as settled.
-- Add more small, self-contained EE tools in `tools/` as further seeds of the
-  Circuits track, each shippable and
+- Add more small, self-contained EE tools in `tools/` (e.g. a capacitor
+  charge/discharge time calculator, a 555-timer astable/monostable
+  calculator) as further seeds of the Circuits track, each shippable and
   testable independently of the full curriculum design. Add each one to
   `tools/index.html` and to the CI matrix in
   `.github/workflows/ai-engineering-academy-ci.yml`; the per-tool pages only

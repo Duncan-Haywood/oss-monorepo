@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Exterior Painting Bid Calculator | Price the Elevation, the Stories, and the Scrape — Not Just a $3,999 House Special</title>
+  <meta name="description" content="Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim, shutters, and hard access — not a published $3,999 house special. See the walk-away number before you match a cheaper ranch quote.">
+  <meta property="og:title" content="Exterior Painting Bid Calculator">
+  <meta property="og:description" content="A one-story ranch with 1,800 sf of sound paint is not the same job as a two-story colonial with peeling latex, 240 feet of trim, and hard second-story access. Bid the elevation and the stories.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Exterior Painting Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Two-coat repaint versus scrape-and-prime versus bare-wood versus elastomeric masonry, extra stories over the included first floor, extra elevation square footage over the included ranch, extra trim, shutters, scrape of failing paint, primer coat, occupied-home protection, hard second-story access, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2418; background: #efe6d4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #6b4a16; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fffdf8; border: 1px solid #d4c4a4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a18080d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5344; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8a7a5c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8a7a5c; background: #f4ead4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #ead8b0; }
+    .result { position: sticky; top: 15px; background: #2c2113; color: #f8f1e4; border-color: #2c2113; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b45a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5344; }
+    footer a { color: #6b4a16; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0ddb0; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR EXTERIOR PAINTING CONTRACTORS</p>
+    <h1>Bid the elevation, the stories, and the scrape.</h1>
+    <p>Price an exterior paint job the way the trade actually loses money: the included one-story ranch, then the extra story, the extra elevation square footage, extra trim, shutters, a scrape of failing paint, a primer coat, occupied-home protection, and hard second-story access. You get the bid, the price per elevation square foot, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing job type never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting house…</option>
+            </select>
+          </label>
+          <label>System
+            <select id="jobType">
+              <option value="repaint" selected>2-coat repaint / $3,999 house special</option>
+              <option value="scrape">Scrape, prime, and two finish coats</option>
+              <option value="bare">Bare / new wood — primer + two finish coats</option>
+              <option value="elastomeric">Elastomeric masonry / stucco</option>
+            </select>
+          </label>
+          <label>Elevation square feet <input id="elevationSf" type="number" min="1" step="10" value="1800"></label>
+          <label>Stories <input id="stories" type="number" min="1" step="1" value="1"></label>
+          <label>Trim lineal feet (windows, fascia, soffit) <input id="trimFeet" type="number" min="0" step="1" value="90"></label>
+          <label>Shutters <input id="shutters" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="scrape" type="checkbox"> Failing paint — scrape first</label>
+          <label class="check"><input id="prime" type="checkbox"> Primer coat required</label>
+          <label class="check"><input id="occupied" type="checkbox"> Occupied home / landscaping</label>
+          <label class="check"><input id="hardAccess" type="checkbox"> Hard second-story / steep access</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Elevation included in the base setup <input id="includedElevationSf" type="number" min="1" step="10" value="1600"></label>
+          <label>Stories included <input id="includedStories" type="number" min="1" step="1" value="1"></label>
+          <label>Trim included (lf) <input id="includedTrimFeet" type="number" min="0" step="1" value="80"></label>
+          <label>Hours for a base setup <input id="hoursBaseSetup" type="number" min="0" step="0.05" value="6"></label>
+          <label>Hours / extra 100 sf <input id="hoursPer100Sf" type="number" min="0" step="0.05" value="2.4"></label>
+          <label>Hours / extra story <input id="hoursPerExtraStory" type="number" min="0" step="0.05" value="6"></label>
+          <label>Hours to scrape / 100 sf <input id="hoursScrapePer100" type="number" min="0" step="0.05" value="1.8"></label>
+          <label>Hours to prime / 100 sf <input id="hoursPrimePer100" type="number" min="0" step="0.05" value="0.8"></label>
+          <label>Hours of trim / 10 ft <input id="hoursTrimPer10Feet" type="number" min="0" step="0.05" value="0.7"></label>
+          <label>Hours / shutter <input id="hoursPerShutter" type="number" min="0" step="0.05" value="0.2"></label>
+          <label>Hours for an occupied home <input id="hoursOccupied" type="number" min="0" step="0.05" value="2"></label>
+          <label>Hours for hard access <input id="hoursHardAccess" type="number" min="0" step="0.05" value="5"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.05" value="1"></label>
+          <label>Finish coats <input id="finishCoats" type="number" min="1" step="1" value="2"></label>
+          <label>Paint coverage (sf / gal) <input id="paintCoverage" type="number" min="1" step="5" value="350"></label>
+          <label>Paint $ / gallon <input id="paintCostPerGallon" type="number" min="0" step="1" value="48"></label>
+          <label>Primer $ / gallon <input id="primerCostPerGallon" type="number" min="0" step="1" value="38"></label>
+          <label>Caulk $ / 10 trim ft <input id="caulkPer10TrimFeet" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="36"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, lifts, drop cloths <input id="travelAndEquipment" type="number" min="0" step="5" value="85"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 3999 for the house special"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $36/h painter loaded at 32% is $47.52. Quoting the raw wage on a published $3,999 house special is how a two-story colonial that looked fine turns into a loss after the first extra story.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">paint price</div>
+      <dl>
+        <dt>Elevation, stories, and trim</dt><dd id="scope"></dd>
+        <dt>Access and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Paint + primer + caulk</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per elevation sf</dt><dd id="perSf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and paint rates are common ballpark figures, not an industry standard, a lead-paint determination, or a building-code inspection &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, painting, lead-paint, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your elevation, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-paint-the-exterior-of-a-house.html">How much to charge to paint the exterior of a house</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedJobHours,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'elevationSf','stories','trimFeet','shutters',
+      'includedElevationSf','includedStories','includedTrimFeet',
+      'hoursBaseSetup','hoursPer100Sf','hoursPerExtraStory','hoursScrapePer100',
+      'hoursPrimePer100','hoursTrimPer10Feet','hoursPerShutter',
+      'hoursOccupied','hoursHardAccess','siteHours',
+      'finishCoats','paintCoverage','paintCostPerGallon','primerCostPerGallon','caulkPer10TrimFeet',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['scrape','prime','occupied','hardAccess'];
+    const SELECT_IDS = ['jobType'];
+    const SUGGESTED_JOB_IDS = ['hoursBaseSetup','paintCostPerGallon','finishCoats'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyJobHours(force) {
+      const rates = suggestedJobHours(el('jobType').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('jobType').value = job.jobType;
+      applyJobHours(true);
+      SUGGESTED_JOB_IDS.forEach(id => { el(id).dataset.edited = ''; });
+      el('elevationSf').value = job.elevationSf;
+      el('stories').value = job.stories;
+      el('trimFeet').value = job.trimFeet;
+      el('shutters').value = job.shutters;
+      el('scrape').checked = job.scrape;
+      el('prime').checked = job.prime;
+      el('occupied').checked = job.occupied;
+      el('hardAccess').checked = job.hardAccess;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'paint price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perSf','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'paint price';
+      el('scope').textContent = `${result.elevationSf} sf · ${result.stories} stor${result.stories === 1 ? 'y' : 'ies'} · ${result.trimFeet} lf trim`;
+      const extraBits = [
+        result.jobType,
+        result.extraStories ? `${result.extraStories} extra stor${result.extraStories === 1 ? 'y' : 'ies'}` : null,
+        result.extraSf ? `${result.extraSf} extra sf` : null,
+        result.extraTrim ? `${result.extraTrim} extra lf trim` : null,
+        result.scrape ? 'scrape' : null,
+        result.prime ? 'primer' : null,
+        result.shutters ? `${result.shutters} shutter${result.shutters === 1 ? '' : 's'}` : null,
+        result.occupied ? 'occupied' : null,
+        result.hardAccess ? 'hard access' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard ranch house special';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSf').textContent = result.pricePerSf === null ? 'n/a' : money(result.pricePerSf);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Base setup', result.hourShares.setup],
+        ['Stories + extra elevation + hard access', result.hourShares.access],
+        ['Scrape + prime + trim + shutters + occupied', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Paint + primer + caulk', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('jobType').addEventListener('change', () => {
+      applyJobHours(false);
+      count('bid_calculated');
+      update();
+    });
+
+    SUGGESTED_JOB_IDS
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

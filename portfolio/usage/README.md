@@ -4,6 +4,12 @@ Revenue is zero by design right now â€” everything ships free and full-feature â
 so **usage is the only honest signal about which product deserves more of the
 fleet's time.** This directory is where it lands.
 
+A reading cannot exist until a stranger can reach the product. While every
+row here is still a zero baseline with `live_url_visitors: null`, the next
+task is a public URL for something already on `main`, not another
+instrumented-but-undeployed calculator. See
+[`../DIRECTION.md`](../DIRECTION.md) "Current priority".
+
 Two rules decide everything else in this file:
 
 1. **Count events, never people.** No accounts, no cookies, no IP storage, no
