@@ -917,64 +917,6 @@ products:
           assertions lived in `test_app.mjs`, which `node --test` does not
           match, so they had never run anywhere. Public URL remains
           owner-gated.
-  - slug: sunroom-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Shipped a local sunroom / three-season / four-season bid calculator
-          that prices glass, thermal floor, and insulated roof instead of a
-          floor-square-foot coupon. Public URL remains owner-gated; counters
-          are local, aggregate, and opt-out.
-  - slug: metal-roof-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_calculation_events: 0
-          summary_copies: 0
-        note: >-
-          Shipped a zero-dependency browser calculator for metal-roofing
-          crews to price standing-seam and exposed-fastener jobs from panel
-          squares, tear-off, stories, and trim. Public URL remains
-          owner-gated; counters are local, aggregate, and opt-out.
-  - slug: flat-roof-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Shipped a local TPO / EPDM / PVC / modified-bitumen bid calculator
-          with a copyable proposal summary; public URL remains owner-gated.
-          Counters are local, aggregate, and opt-out.
-  - slug: patio-door-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Shipped a local sliding-glass / patio-door replacement bid
-          calculator with a copyable proposal summary; public URL remains
-          owner-gated and the browser counter is local and opt-out.
-  - slug: french-drain-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Shipped a local exterior French-drain / yard-drainage install bid
-          calculator with a copyable proposal summary; public URL remains
-          owner-gated and the browser counter is local and opt-out.
   - slug: sewer-line-replace-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1826,6 +1768,77 @@ products:
           Shipped browser-local landscape lighting bid calculator
           (fixtures vs trench vs transformer). Public URL remains
           owner-gated; counters are local, aggregate, and opt-out.
+  - slug: irrigation-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for irrigation
+          contractors to price a new sprinkler-system install from zones,
+          extra heads, trench, soil, backflow, and drip extras. Public URL
+          remains owner-gated; counters are local, aggregate, and opt-out.
+  - slug: sunroom-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sunroom / three-season / four-season bid calculator
+          that prices glass, thermal floor, and insulated roof instead of a
+          floor-square-foot coupon. Public URL remains owner-gated; counters
+          are local, aggregate, and opt-out.
+  - slug: metal-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for metal-roofing
+          crews to price standing-seam and exposed-fastener jobs from panel
+          squares, tear-off, stories, and trim. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: flat-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local TPO / EPDM / PVC / modified-bitumen bid calculator
+          with a copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: patio-door-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sliding-glass / patio-door replacement bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated and the browser counter is local and opt-out.
+  - slug: french-drain-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local exterior French-drain / yard-drainage install bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated and the browser counter is local and opt-out.
 
 # Example of the shape, once a product has shipped:
 #
