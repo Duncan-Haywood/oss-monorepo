@@ -1,4 +1,4 @@
-import { parseInputs, computeAll, compareFeeScenarios, compareOverbooking, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
+import { parseInputs, computeAll, compareFeeScenarios, compareNoticeWindows, noticeWindowSummary, compareOverbooking, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -14,6 +14,9 @@ const usageSummaryEl = document.getElementById("usage-summary");
 const clearUsageBtn = document.getElementById("clear-usage");
 const scenarioSection = document.getElementById("scenario-section");
 const scenarioBody = document.getElementById("scenario-body");
+const noticeSection = document.getElementById("notice-section");
+const noticeBody = document.getElementById("notice-body");
+const noticeSummaryEl = document.getElementById("notice-summary");
 const overbookSection = document.getElementById("overbook-section");
 const overbookBody = document.getElementById("overbook-body");
 const overbookSummary = document.getElementById("overbook-summary");
@@ -72,6 +75,29 @@ function renderScenarios(values) {
     scenarioBody.appendChild(row);
   }
   scenarioSection.hidden = false;
+}
+
+function renderNoticeWindows(values) {
+  noticeBody.replaceChildren();
+  const rows = compareNoticeWindows(values);
+  for (const row of rows) {
+    const tr = document.createElement("tr");
+    if (row.selected) tr.className = "selected-scenario";
+    const label = row.selected
+      ? `${row.label} (your policy)`
+      : row.nearest
+        ? `${row.label} (closest to your policy)`
+        : row.label;
+    tr.appendChild(Object.assign(document.createElement("th"), { scope: "row", textContent: label }));
+    tr.insertCell().textContent = `${row.fillPct}%`;
+    tr.insertCell().textContent = row.slotsFilled.toFixed(1);
+    tr.insertCell().textContent = fmtMoney(row.recoveredByRefill);
+    tr.insertCell().textContent = fmtMoney(row.leftoverLost);
+    tr.insertCell().textContent = fmtMoney(row.extraVsSameDay);
+    noticeBody.appendChild(tr);
+  }
+  noticeSummaryEl.textContent = noticeWindowSummary(rows);
+  noticeSection.hidden = false;
 }
 
 function overbookCells(row, outcome, winnerId, fmt) {
@@ -144,6 +170,7 @@ function render() {
     // the old numbers still apply to the edited inputs. This is #1022's fix;
     // a later merge on `main` dropped the line, so this restores it.
     scenarioSection.hidden = true;
+    noticeSection.hidden = true;
     overbookSection.hidden = true;
     return false;
   }
@@ -152,6 +179,7 @@ function render() {
   const result = computeAll(parsed.values);
   renderResults(result);
   renderScenarios(parsed.values);
+  renderNoticeWindows(parsed.values);
   renderOverbooking(parsed.values);
 
   policyEl.value = generatePolicyText({
@@ -171,6 +199,7 @@ function countCalculation() {
   if (!render()) return;
   recordEvent("calculation_run");
   recordEvent("fee_scenarios_viewed");
+  recordEvent("notice_windows_compared");
   recordEvent("overbooking_compared");
   renderUsageSummary();
 }

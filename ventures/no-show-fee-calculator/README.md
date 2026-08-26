@@ -7,9 +7,10 @@ cancellation fee, an estimate of what no-shows cost you a year, and a
 ready-to-copy cancellation policy.
 
 **After using this, you can now** state and defend a specific
-no-show/late-cancellation fee — and hand clients a ready-to-use policy —
-**which used to take** guessing a number or copying a boilerplate template
-that doesn't match your prices.
+no-show/late-cancellation fee, see whether a 24-hour or 48-hour notice
+window actually recovers more empty-slot cash on your waitlist, and hand
+clients a ready-to-use policy — **which used to take** guessing a number
+or copying a boilerplate template that doesn't match your prices.
 
 ## Who this is for
 
@@ -60,6 +61,14 @@ restores the form and results on another device. The link contains the values
 in its query string, including the selected currency and any business or
 service names, so treat it like any other link containing business information.
 It is not uploaded or stored by this tool.
+
+**Compare notice windows** answers the 24-hour vs 48-hour question with
+your own waitlist fill-rate assumption. Same-day, 24-hour, and 48-hour
+rows show how many late cancels you refill, how much empty-slot cash that
+recovers, and the extra versus a same-day rule. The fee table stays
+separate: collecting a fee does not put another client in the chair. A
+crawlable explainer lives at
+[`24h-vs-48h-cancellation-notice.html`](24h-vs-48h-cancellation-notice.html).
 
 A worked example of the overbooking table lives on
 [`should-i-overbook-or-charge-a-no-show-fee.html`](should-i-overbook-or-charge-a-no-show-fee.html).

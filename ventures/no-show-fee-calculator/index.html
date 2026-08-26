@@ -31,7 +31,7 @@
       "priceCurrency": "USD"
     },
     "description": "Free calculator that turns a service business's own appointment price, booking volume, and no-show rate into a defensible cancellation fee, an overbooking comparison, an estimate of annual revenue at risk, and a ready-to-copy cancellation policy.",
-    "featureList": "No-show fee from your own price, annual exposure, fee-level comparison, overbooking vs collecting the fee, overflow cost, ready-to-copy cancellation policy",
+    "featureList": "No-show fee from your own price, annual exposure, fee-level comparison, 24-hour vs 48-hour waitlist refill, overbooking vs collecting the fee, overflow cost, ready-to-copy cancellation policy",
     "url": "https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/"
   }
   </script>
@@ -61,7 +61,7 @@
         "name": "How much notice should I require before a cancellation is free?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "24 hours is the most common default because it usually gives enough time to fill the slot from a waitlist. Businesses with longer sessions or harder-to-fill slots (e.g. multi-hour bookings) often require 48 hours instead. The calculator defaults to 24 hours and you can change it."
+          "text": "24 hours is the most common default because it usually gives enough time to fill the slot from a waitlist. Businesses with longer sessions or harder-to-fill slots (e.g. multi-hour bookings) often require 48 hours instead. The calculator compares 4-hour, 24-hour, and 48-hour windows using your own waitlist fill-rate assumption so you can see how much empty-slot cash a longer window actually recovers."
         }
       },
       {
@@ -140,6 +140,28 @@
         </div>
 
         <fieldset>
+          <legend>Waitlist fill if you get that notice (your assumption)</legend>
+          <p class="hint">
+            How often you actually refill a cancelled slot when the client gives you that much warning.
+            Same-day is usually near zero; 48 hours is why people ask for it.
+            Count last month's late cancels that you filled, or leave the defaults.
+            <a href="24h-vs-48h-cancellation-notice.html">Why 24 hours vs 48 hours is a cash question</a>.
+          </p>
+          <div class="field">
+            <label for="fillSameDayPct">Same-day (4 hour) fill rate (%)</label>
+            <input type="number" id="fillSameDayPct" name="fillSameDayPct" min="0" max="100" step="1" value="10" />
+          </div>
+          <div class="field">
+            <label for="fillDayAheadPct">24-hour fill rate (%)</label>
+            <input type="number" id="fillDayAheadPct" name="fillDayAheadPct" min="0" max="100" step="1" value="40" />
+          </div>
+          <div class="field">
+            <label for="fillTwoDayPct">48-hour fill rate (%)</label>
+            <input type="number" id="fillTwoDayPct" name="fillTwoDayPct" min="0" max="100" step="1" value="65" />
+          </div>
+        </fieldset>
+
+        <fieldset>
           <legend>For the generated policy text (optional)</legend>
           <div class="field">
             <label for="businessName">Business name</label>
@@ -198,6 +220,33 @@
             <tbody id="scenario-body"></tbody>
           </table>
         </div>
+      </div>
+
+      <div id="notice-section" hidden>
+        <h2>Compare notice windows</h2>
+        <p class="note">
+          Same bookings and no-show rate as above. A longer window only helps if you
+          actually refill more of those openings. The fee table above is separate —
+          collecting a fee does not put another client in the chair.
+          <a href="24h-vs-48h-cancellation-notice.html">Worked example</a>.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Annual empty-slot cash recovered by notice window and waitlist fill</caption>
+            <thead>
+              <tr>
+                <th scope="col">Notice</th>
+                <th scope="col">Assumed fill</th>
+                <th scope="col">Slots refilled / year</th>
+                <th scope="col">Cash recovered by refill</th>
+                <th scope="col">Still empty</th>
+                <th scope="col">Extra vs same-day</th>
+              </tr>
+            </thead>
+            <tbody id="notice-body"></tbody>
+          </table>
+        </div>
+        <p id="notice-summary" class="note"></p>
       </div>
 
       <div id="overbook-section" hidden>
@@ -262,7 +311,9 @@
       <p>
         24 hours is the most common default — usually enough time to fill the slot from a
         waitlist. Businesses with longer or harder-to-fill sessions often use 48 hours
-        instead.
+        instead. The table above compares same-day, 24-hour, and 48-hour windows using
+        your own fill-rate assumption so you can see how much empty-slot cash a longer
+        window actually recovers.
       </p>
       <h3>Should I overbook or charge a no-show fee?</h3>
       <p>
