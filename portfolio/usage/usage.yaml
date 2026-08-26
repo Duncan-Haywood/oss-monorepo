@@ -445,6 +445,15 @@ products:
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
+          international_compared: 0
+        note: >-
+          Added domestic vs worldwide at this list (illustrative
+          international fee, extra postage you absorb, hold prices).
+          Still no public URL; local event international_compared is
+          opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
           free_shipping_compared: 0
         note: >-
           Added free shipping vs buyer-pays after sell-through (bake-in

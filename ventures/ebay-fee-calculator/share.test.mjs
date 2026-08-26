@@ -355,6 +355,11 @@ test('carries store-subscription fields so a shared link does not drop them', ()
   assert.equal(restored.monthlyStoreFee, 7.95);
 });
 
+test('carries the extra international label cost', () => {
+  const restored = decodeInputs(encodeInputs({ price: 40, intlExtraShipping: 18.5 }));
+  assert.equal(restored.intlExtraShipping, 18.5);
+});
+
 test('carries free-shipping fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,
