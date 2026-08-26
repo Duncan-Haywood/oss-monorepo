@@ -28,13 +28,13 @@ hypotheses:
       and a fetch-failed error message. Full suite: 18/18 tests pass.
 
 economics:
-  currency: usd
+  currency: USD
   mrr: null
-  monthly_cost: null
+  monthly_cost: 0
   customers: null
 
 budget:
-  monthly_cap: 20
+  monthly_cap: 1
   protected: true
 
 kill_criteria:

@@ -2,8 +2,9 @@ export default function Disclaimers({ compact = false }: { compact?: boolean }) 
   const items = [
     "This is an evidence feed, not legal, compliance, or contract-review advice.",
     "Vendor Watch does not decide whether a change is “compliant,” “safe,” or “material” — you decide what a change means.",
-    "Only monitor pages you're authorized to monitor; only public pages are supported.",
-    "No warranty on fetch availability, completeness, or timing.",
+    "Only monitor pages you are authorized to monitor; only public pages are supported.",
+    "No warranty. This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice. You are responsible for reviewing and verifying its output before relying on it.",
+    "Best-effort hosting, no SLA. These tools may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.",
   ];
 
   return (

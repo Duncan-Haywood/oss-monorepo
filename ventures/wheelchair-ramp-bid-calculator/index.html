@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wheelchair Ramp Bid Calculator | How Much to Charge to Build a Wheelchair Ramp</title>
+  <meta name="description" content="Price a residential wheelchair ramp from the rise, the landings a lineal-foot special cannot see, both-side handrails, surface, demo, and permit — plus walk-away price and proposed-price margin check.">
+  <meta property="og:title" content="Wheelchair Ramp Bid Calculator">
+  <meta property="og:description" content="Bid the landings, the rails, and the rise — not the lineal-foot coupon. See the margin before you send the price.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wheelchair Ramp Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Rise-to-run geometry, intermediate and switchback landings, both-side handrails, wood/composite/aluminum/concrete surface kits, walk-away price, proposed-price margin check, copyable customer-facing summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5f7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+    .check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #14303b; color: #f2f7f8; border-color: #14303b; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fc4d6; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c5f7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce0e8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR ACCESSIBILITY AND DECK CREWS</p>
+    <h1>Bid the landings, the rails, and the rise.</h1>
+    <p>Price a residential wheelchair ramp the way the trade actually loses money: rise to run, then every landing a lineal-foot special cannot see, both-side handrails, surface, demo, permit, and the margin you intend to keep. You get the job price, what it works out to per foot of run and per walking square foot, and the number below which the job loses money.</p>
+    <p class="hint" style="margin:0">Looking up <a href="./how-much-to-charge-to-build-a-wheelchair-ramp.html">how much to charge to build a wheelchair ramp</a>? Start here, then replace every starting figure with your own crew times.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>A starting job</h2>
+        <p class="hint">Pick a common call to fill the rise, slope, layout, and surface. Changing a kit never overwrites hours or material costs you have already typed.</p>
+        <label>Job preset
+          <select id="jobPresets">
+            <option value="">Choose a starting job…</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2>The opening</h2>
+        <p class="hint">Rise is the step from grade to the threshold. Slope is inches of run per inch of rise — 1:12 is twelve inches of run for each inch of rise. These are starting points, not a code opinion.</p>
+        <div class="fields">
+          <label>Slope starting point
+            <select id="slope"></select>
+          </label>
+          <label>Layout
+            <select id="layout"></select>
+          </label>
+          <label>Rise (inches) <input id="riseInches" type="number" min="1" step="1" value="24"></label>
+          <label>Width (feet) <input id="widthFeet" type="number" min="0.5" step="0.25" value="4"></label>
+          <label>Landing side (feet) <input id="landingSideFeet" type="number" min="3" step="0.25" value="5"></label>
+          <label>Max rise between landings (in) <input id="maxRiseBetweenLandings" type="number" min="1" step="1" value="30"></label>
+          <label>Run per inch of rise <input id="runPerRise" type="number" min="1" step="1" value="12"></label>
+          <label>Surface
+            <select id="surface"></select>
+          </label>
+        </div>
+        <div class="fields" style="margin-top:13px">
+          <label class="check"><input id="demoExistingStairs" type="checkbox"> Demo existing stairs</label>
+          <label class="check"><input id="includePermit" type="checkbox"> Include permit allowance</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and extras</h2>
+        <p class="hint">Hours per 100 sf apply to the whole walking surface — sloped run plus every landing. Handrail and footing counts start from the geometry; change them when the site disagrees.</p>
+        <div class="fields">
+          <label>Trip / setup hours <input id="hoursTrip" type="number" min="0" step="0.1" value="1.5"></label>
+          <label>Hours per 100 sf <input id="hoursPer100Sf" type="number" min="0" step="0.1" value="3.2"></label>
+          <label>Hours per lf of handrail <input id="hoursPerHandrailLf" type="number" min="0" step="0.01" value="0.12"></label>
+          <label>Hours per footing <input id="hoursPerFooting" type="number" min="0" step="0.05" value="0.35"></label>
+          <label>Stair-demo hours <input id="hoursDemo" type="number" min="0" step="0.1" value="2"></label>
+          <label>Site / grade hours <input id="hoursSite" type="number" min="0" step="0.1" value="0.5"></label>
+          <label>Travel hours <input id="siteHours" type="number" min="0" step="0.1" value="0.4"></label>
+          <label>Handrail lineal feet <input id="handrailLf" type="number" min="0" step="0.5" value="58"></label>
+          <label>Footing count <input id="footingCount" type="number" min="0" step="1" value="14"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Materials and your costs</h2>
+        <div class="fields">
+          <label>Decking / surface per sf <input id="deckingPerSf" type="number" min="0" step="0.25" value="4.5"></label>
+          <label>Framing / structure per sf <input id="framingPerSf" type="number" min="0" step="0.25" value="6"></label>
+          <label>Handrail per lf <input id="handrailPerLf" type="number" min="0" step="0.5" value="18"></label>
+          <label>Cost per footing <input id="footingEach" type="number" min="0" step="1" value="35"></label>
+          <label>Stair-demo fee <input id="demoFee" type="number" min="0" step="5" value="275"></label>
+          <label>Mobilization <input id="mobilizationFee" type="number" min="0" step="5" value="150"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="225"></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="28"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel and equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="85"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 2040"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. A lineal-foot special written on the run never sees it — or the landings.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Run</dt><dd id="runFeet"></dd>
+        <dt>Landings</dt><dd id="landings"></dd>
+        <dt>Walking surface</dt><dd id="walkingSf"></dd>
+        <dt>Landings as share of walking</dt><dd id="landingShare"></dd>
+        <dt>Crew hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Travel, mobilization, permit</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per lf of run</dt><dd id="perRun"></dd>
+        <dt>Price per walking sf</dt><dd id="perSf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting slopes, landing sizes, hours, and material rates are common ballpark figures, not an ADA determination, a building-code opinion, a permit, a warranty, or an engineering stamp. Time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not construction, legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a layout is compliant. Verify every figure against your own payroll, insurance, and material costs, and against a qualified professional and the authority having jurisdiction, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rise, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      SLOPE_PRESETS,
+      SURFACE_PRESETS,
+      LAYOUT_PRESETS,
+      suggestedSurfaceKit,
+      suggestedSlopeKit,
+      suggestedHandrailLf,
+      suggestedFootingCount,
+      intermediateLandingCount,
+      switchbackExtraLandings,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'slope','layout','riseInches','widthFeet','landingSideFeet','maxRiseBetweenLandings','runPerRise','surface',
+      'hoursTrip','hoursPer100Sf','hoursPerHandrailLf','hoursPerFooting','hoursDemo','hoursSite','siteHours',
+      'handrailLf','footingCount',
+      'deckingPerSf','framingPerSf','handrailPerLf','footingEach','demoFee','mobilizationFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin','proposedPrice',
+    ];
+    const KIT_IDS = new Set([
+      'runPerRise','hoursPer100Sf','deckingPerSf','framingPerSf','handrailLf','footingCount',
+    ]);
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, items) {
+      el(id).innerHTML = items.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+    fillSelect('slope', SLOPE_PRESETS);
+    fillSelect('surface', SURFACE_PRESETS);
+    fillSelect('layout', LAYOUT_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applySlopeKit() {
+      if (el('runPerRise').dataset.edited) return;
+      el('runPerRise').value = suggestedSlopeKit(el('slope').value).runPerRise;
+    }
+
+    function applySurfaceKit() {
+      const kit = suggestedSurfaceKit(el('surface').value);
+      if (!el('hoursPer100Sf').dataset.edited) el('hoursPer100Sf').value = kit.hoursPer100Sf;
+      if (!el('deckingPerSf').dataset.edited) el('deckingPerSf').value = kit.deckingPerSf;
+      if (!el('framingPerSf').dataset.edited) el('framingPerSf').value = kit.framingPerSf;
+    }
+
+    function applyGeometryKits() {
+      const rise = Number(el('riseInches').value);
+      const width = Number(el('widthFeet').value);
+      const side = Number(el('landingSideFeet').value);
+      const maxRise = Number(el('maxRiseBetweenLandings').value);
+      const runPerRise = Number(el('runPerRise').value);
+      if (![rise, width, side, maxRise, runPerRise].every(Number.isFinite) || rise <= 0 || runPerRise <= 0) return;
+      const runFeet = rise * runPerRise / 12;
+      const mids = intermediateLandingCount(rise, maxRise);
+      const landings = 2 + mids + switchbackExtraLandings(el('layout').value, mids);
+      if (!el('handrailLf').dataset.edited) el('handrailLf').value = suggestedHandrailLf(rise, runFeet, landings, side);
+      if (!el('footingCount').dataset.edited) el('footingCount').value = suggestedFootingCount(runFeet, landings);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      values.demoExistingStairs = el('demoExistingStairs').checked;
+      values.includePermit = el('includePermit').checked;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['runFeet','landings','walkingSf','landingShare','totalHours','labor','materials','soft','overhead','cost','profit','perRun','perSf','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('runFeet').textContent = `${result.runFeet.toFixed(1)} lf`;
+      el('landings').textContent = `${result.landingCount} (${result.landingSf.toFixed(0)} sf)`;
+      el('walkingSf').textContent = `${result.walkingSf.toFixed(0)} sf`;
+      el('landingShare').textContent = `${result.landingShareOfWalking.toFixed(0)}%`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perRun').textContent = result.pricePerRunLf === null ? 'n/a' : money(result.pricePerRunLf);
+      el('perSf').textContent = result.pricePerWalkingSf === null ? 'n/a' : money(result.pricePerWalkingSf);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const parts = [
+        ['Trip / setup', result.hourShares.trip],
+        ['Sloped run', result.hourShares.ramp],
+        ['Landings', result.hourShares.landings],
+        ['Handrails', result.hourShares.rails],
+        ['Footings', result.hourShares.footings],
+        ['Demo', result.hourShares.demo],
+        ['Grade', result.hourShares.grade],
+        ['Travel', result.hourShares.site],
+      ].filter(part => part[1] > 0.5);
+      el('split').innerHTML = parts.length === 0
+        ? '<li class="empty">Enter a rise and the hour split appears here.</li>'
+        : parts
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Wheelchair ramp');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('slope').addEventListener('change', () => {
+      applySlopeKit();
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    el('surface').addEventListener('change', () => {
+      applySurfaceKit();
+      count('bid_calculated');
+      update();
+    });
+    el('layout').addEventListener('change', () => {
+      applyGeometryKits();
+      count('bid_calculated');
+      update();
+    });
+    ['riseInches','widthFeet','landingSideFeet','maxRiseBetweenLandings','runPerRise'].forEach(id => {
+      el(id).addEventListener('input', () => {
+        applyGeometryKits();
+        update();
+      });
+    });
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      if (KIT_IDS.has(id)) {
+        el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+      }
+    });
+    ['demoExistingStairs','includePermit'].forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('jobPresets').addEventListener('change', () => {
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      if (!preset) return;
+      el('slope').value = preset.slope;
+      el('surface').value = preset.surface;
+      el('layout').value = preset.layout;
+      el('riseInches').value = preset.riseInches;
+      el('widthFeet').value = preset.widthFeet;
+      el('demoExistingStairs').checked = preset.demoExistingStairs;
+      el('includePermit').checked = preset.includePermit;
+      KIT_IDS.forEach(id => { delete el(id).dataset.edited; });
+      applySlopeKit();
+      applySurfaceKit();
+      applyGeometryKits();
+      count('preset_applied');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applySlopeKit();
+    applySurfaceKit();
+    applyGeometryKits();
+    update();
+  </script>
+</body>
+</html>

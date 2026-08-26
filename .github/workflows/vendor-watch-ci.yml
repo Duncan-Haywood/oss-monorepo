@@ -1,4 +1,4 @@
-name: CI
+name: vendor-watch CI
 
 on:
   pull_request:
