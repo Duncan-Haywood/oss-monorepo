@@ -17,7 +17,7 @@ economics:
   monthly_cost: 0
   customers: null
 budget:
-  monthly_cap: 0
+  monthly_cap: 1
   protected: true
 kill_criteria:
   - No repeat usage or organic repository traffic after 60 days of availability.

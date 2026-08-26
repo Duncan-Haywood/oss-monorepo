@@ -1,0 +1,32 @@
+name: painting-bid-calculator
+description: A private browser calculator for independent interior painters that prices a repaint from per-surface production rates — walls, ceilings, trim, doors, coats, paint, loaded wage, overhead, and margin — and shows the price per floor square foot, the labor split, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent interior painters will use a per-surface production-rate calculator because the price-per-floor-square-foot rules of thumb homeowners quote cannot see that trim and doors take a large share of labor hours and almost none of the floor area, which is how a bid that looked competitive turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing a common $2/sq ft floor bid against the same cost base changes the price a painter will send more often than showing the job price alone, because that is the number they are being asked to match.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating the second coat as a stated fraction of first-coat time, rather than omitting it or doubling it, changes the bid by more than the typical profit margin on a residential interior.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three independent painters use the calculator twice within 90 days.
+  - Painters report that the per-surface model is more work than their existing method without changing the price they would have bid.
+  - The starting production rates prove so far from real jobs that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
