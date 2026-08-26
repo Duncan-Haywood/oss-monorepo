@@ -55,6 +55,9 @@ workflows:
 - workflow: amazon-fba-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: automatic-driveway-gate-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
@@ -68,6 +71,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: cloud-egress-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: crown-molding-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: cut-list-optimizer-ci.yml
@@ -158,6 +164,16 @@ workflows:
 - workflow: photos-import-tools-ci.yml
   classification: none
   publishes: []
+- workflow: plantation-shutter-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: portfolio-pages.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: uses actions/deploy-pages
+    gates:
+    - ${{ github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true' }}
 - workflow: portfolio-validate.yml
   classification: none
   publishes: []
@@ -195,7 +211,7 @@ workflows:
   - job: deploy
     step: uses actions/deploy-pages
     gates:
-    - ${{ vars.GITHUB_PAGES_ENABLED == 'true' }}
+    - ${{ vars.RETAIL_PILOT_INTEL_PAGES == 'true' }}
   - job: deploy-vercel
     step: uses amondnet/vercel-action
     gates:
