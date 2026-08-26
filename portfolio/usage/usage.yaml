@@ -409,6 +409,15 @@ products:
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
+          promoted_standard_compared: 0
+        note: >-
+          Added Promoted Listings Standard vs skip after extra sales
+          (ad drag on the sale you already had, extra-sale floor, rate
+          ceiling). Still no public URL; local event
+          promoted_standard_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
           global_shipping_compared: 0
         note: >-
           Added Global Shipping Program vs you-ship after sell-through

@@ -66,6 +66,12 @@ is billed even if they bounce and add the extra sales you type.
 Promoted Listings Standard is a percent of a completed sale;
 Offsite is not.
 [Is eBay Promoted Offsite worth it?](is-ebay-promoted-offsite-worth-it.html).
+A **Promoted Listings Standard vs skip** table then prices the
+same listing two ways: keep the sale you already have at 0% ads,
+or take the typed Standard percent on that sale plus the extra
+sales you type. Zero extra sales is the conservative test — the
+campaign only cuts a sale you already would have made.
+[Are eBay Promoted Listings worth it?](are-ebay-promoted-listings-worth-it.html).
 A **Quantity discount vs selling separately** table then prices the
 same multi-quantity SKU two ways: sell N units as singles at list,
 or cut the item price so one buyer takes all N, pays shipping
@@ -242,6 +248,11 @@ drive that decision:
   with the listing you already have versus that listing plus
   extra sales minus a campaign billed either way. The table
   also names the extra-sale count that still ties skip.
+- **Promoted Listings Standard vs skip** — expected profit after
+  returns with the sale you already have at 0% ads versus that
+  sale plus extra sales, all paying the typed Standard percent.
+  Zero extra sales is the conservative test. The table also
+  names the extra-sale floor and the rate that still ties skip.
 - **Quantity discount vs selling separately** — expected profit
   after sell-through with N singles versus one multi-buy at a
   percent off, one shipping charge, and one label. The table
@@ -299,6 +310,7 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `standard_envelope_compared`, `combined_shipping_compared`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
+`promoted_standard_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,
@@ -312,6 +324,7 @@ The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `standard_envelope_compared`, `combined_shipping_compared`,
 `seller_initiated_offer_compared`,
 `promoted_offsite_compared`,
+`promoted_standard_compared`,
 `quantity_discount_compared`,
 `seller_coupon_compared`,
 `immediate_payment_compared`,

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS, compareTopRatedPlus, topRatedPlusNote, DEFAULT_TRS_DISCOUNT_PCT, DEFAULT_STANDARD_SELL_THROUGH, DEFAULT_TRS_SELL_THROUGH, DEFAULT_STANDARD_RETURN_RATE, DEFAULT_TRS_RETURN_RATE, DEFAULT_MONTHLY_TRS_LISTINGS, compareManagedReturns, managedReturnsNote, DEFAULT_SELF_RETURN_LABEL, DEFAULT_SELF_RETURN_RATE, DEFAULT_MANAGED_RETURN_FEE, DEFAULT_MANAGED_RETURN_RATE, DEFAULT_BUYER_PAYS_RETURN_RATE, DEFAULT_MONTHLY_MANAGED_LISTINGS, compareGlobalShipping, globalShippingNote, DEFAULT_GSP_RETURN_RATE, DEFAULT_GSP_SELL_THROUGH, DEFAULT_SELF_SHIP_SHIPPING_CHARGED, DEFAULT_SELF_SHIP_SHIPPING_COST, DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST, DEFAULT_SELF_SHIP_INTL_FEE_RATE, DEFAULT_SELF_SHIP_RETURN_RATE, DEFAULT_SELF_SHIP_CLAIM_RATE, DEFAULT_SELF_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_GSP_LISTINGS } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, comparePromotedStandard, promotedStandardNote, DEFAULT_PROMOTED_STANDARD_RATE, DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS, DEFAULT_MONTHLY_PROMOTED_LISTINGS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS, compareTopRatedPlus, topRatedPlusNote, DEFAULT_TRS_DISCOUNT_PCT, DEFAULT_STANDARD_SELL_THROUGH, DEFAULT_TRS_SELL_THROUGH, DEFAULT_STANDARD_RETURN_RATE, DEFAULT_TRS_RETURN_RATE, DEFAULT_MONTHLY_TRS_LISTINGS, compareManagedReturns, managedReturnsNote, DEFAULT_SELF_RETURN_LABEL, DEFAULT_SELF_RETURN_RATE, DEFAULT_MANAGED_RETURN_FEE, DEFAULT_MANAGED_RETURN_RATE, DEFAULT_BUYER_PAYS_RETURN_RATE, DEFAULT_MONTHLY_MANAGED_LISTINGS, compareGlobalShipping, globalShippingNote, DEFAULT_GSP_RETURN_RATE, DEFAULT_GSP_SELL_THROUGH, DEFAULT_SELF_SHIP_SHIPPING_CHARGED, DEFAULT_SELF_SHIP_SHIPPING_COST, DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST, DEFAULT_SELF_SHIP_INTL_FEE_RATE, DEFAULT_SELF_SHIP_RETURN_RATE, DEFAULT_SELF_SHIP_CLAIM_RATE, DEFAULT_SELF_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_GSP_LISTINGS } from './calc.mjs';
+
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -947,6 +948,72 @@ test('rejects a missing price, a negative spend, and a missing Offsite compariso
   assert.throws(() => comparePromotedOffsite({ ...offsiteBase, offsiteExtraOrders: -1 }), /Extra Offsite orders/);
   assert.throws(() => comparePromotedOffsite({ ...offsiteBase, offsitePromotedRate: 101 }), /at most 100/);
   assert.throws(() => promotedOffsiteNote({}), /missing rows/);
+});
+
+test('a 5% Standard campaign that buys one extra sale still pays after the ad cut', () => {
+  const comparison = comparePromotedStandard(offsiteBase);
+  assert.equal(comparison.promotedRate, DEFAULT_PROMOTED_STANDARD_RATE);
+  assert.equal(comparison.extraOrders, DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS);
+  assert.equal(comparison.monthlyListings, DEFAULT_MONTHLY_PROMOTED_LISTINGS);
+  near(comparison.listingExpectedProfit, 18.3445, 'skip after returns');
+  near(comparison.extraSaleExpectedProfit, 16.2745, 'one promoted sale after returns');
+  near(comparison.skip.expectedProfit, 18.3445, 'skip Standard');
+  near(comparison.promote.expectedProfit, 32.549, 'add Standard');
+  near(comparison.extraKeptOnPromote, 14.2045, 'Standard gap');
+  near(comparison.monthlyExtraOnPromote, 14.2045 * 20, 'twenty listings');
+  near(comparison.breakEvenExtraOrders, 18.3445 / 16.2745 - 1, 'extra-sale floor');
+  near(comparison.breakEvenPromotedRate, 22.155193236714993, 'rate ceiling');
+  near(comparison.noLiftExpectedProfit, 16.2745, 'no-lift leftover');
+  near(comparison.adDragOnExistingSale, 2.07, 'ad drag on the sale you already had');
+  near(comparison.promotedAdFee, 2.3, '5% of $46');
+  assert.equal(comparison.winner, 'promote');
+  assert.equal(comparison.skip.adFee, 0);
+  assert.equal(comparison.promote.extraOrders, 1);
+});
+
+test('break-even extra sales and Standard rate match skip', () => {
+  const comparison = comparePromotedStandard(offsiteBase);
+  const atOrders = comparePromotedStandard({
+    ...offsiteBase,
+    promotedStandardExtraOrders: comparison.breakEvenExtraOrders,
+  });
+  near(atOrders.promote.expectedProfit, atOrders.skip.expectedProfit, 'floor extras tie skip');
+  const atRate = comparePromotedStandard({
+    ...offsiteBase,
+    promotedStandardRate: comparison.breakEvenPromotedRate,
+  });
+  near(atRate.promote.expectedProfit, atRate.skip.expectedProfit, 'ceiling rate ties skip');
+  assert.ok(comparison.breakEvenExtraOrders < 1, 'default one extra is above the floor');
+  assert.ok(comparison.breakEvenPromotedRate > 5, 'default 5% is below the ceiling');
+});
+
+test('zero extra sales flips skip-Standard ahead by the ad cut', () => {
+  const comparison = comparePromotedStandard({ ...offsiteBase, promotedStandardExtraOrders: 0 });
+  assert.equal(comparison.winner, 'skip');
+  near(comparison.promote.expectedProfit, 16.2745, 'no-lift leftover');
+  near(comparison.extraKeptOnPromote, -2.07, 'no-lift gap');
+});
+
+test('Promoted Listings Standard note reports both paths without telling the seller which to use', () => {
+  const comparison = comparePromotedStandard(offsiteBase);
+  const note = promotedStandardNote(comparison);
+  assert.match(note, /Skip Promoted Listings/);
+  assert.match(note, /\$18\.34/);
+  assert.match(note, /5% Standard campaign/);
+  assert.match(note, /1 extra sale/);
+  assert.match(note, /\$32\.55/);
+  assert.match(note, /\$14\.20 more/);
+  assert.match(note, /\$16\.27/);
+  assert.match(note, /\$2\.07 less/);
+  assert.match(note, /0\.13/);
+  assert.doesNotMatch(note, /should turn on|must promote|enroll/i);
+});
+
+test('rejects a missing price, a rate above 100%, and a missing Standard comparison', () => {
+  assert.throws(() => comparePromotedStandard({ price: -1 }), /Item price/);
+  assert.throws(() => comparePromotedStandard({ ...offsiteBase, promotedStandardRate: 101 }), /at most 100/);
+  assert.throws(() => comparePromotedStandard({ ...offsiteBase, promotedStandardExtraOrders: -1 }), /Extra Standard orders/);
+  assert.throws(() => promotedStandardNote({}), /missing rows/);
 });
 
 test('compares 10% off two units against two singles on the default listing', () => {

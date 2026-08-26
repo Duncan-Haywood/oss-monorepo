@@ -146,6 +146,14 @@ test('counts a Promoted Offsite comparison without storing spend or extra sales'
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'promoted_offsite_compared']);
 });
 
+test('counts a Promoted Listings Standard comparison without storing a rate or extra sales', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'promoted_standard_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.promoted_standard_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'promoted_standard_compared']);
+});
+
 test('counts a quantity-discount comparison without storing a percent or take rate', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'quantity_discount_compared');
