@@ -975,7 +975,11 @@ class ChecksTest(unittest.TestCase):
             self.assertIn('id="invoice-0"', report)
             self.assertIn('caption>Findings grouped by validation rule', report)
             self.assertIn('scope="col"', report)
-            self.assertIn('href="#report-content"', report)
+            self.assertIn('href="#report-content">Skip to report content', report)
+            self.assertIn('<main id="report-content" aria-label="Preflight report">', report)
+            self.assertIn('role="status">Overall: FAIL', report)
+            self.assertIn('aria-labelledby="finding-summary-heading"', report)
+            self.assertIn('aria-label="Report metrics"', report)
             self.assertNotIn("PRIVATE-123", report)
             self.assertNotIn("<script", report.lower())
 
