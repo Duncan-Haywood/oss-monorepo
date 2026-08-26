@@ -22,6 +22,8 @@ test('supports a named aggregate event without recording inputs', () => {
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
   recordUsage(storage, false, 'reverb_offer_compared');
   assert.equal(JSON.parse(values.get('reverb-fee-usage')).reverb_offer_compared, 1);
+  recordUsage(storage, false, 'reverb_shipping_compared');
+  assert.equal(JSON.parse(values.get('reverb-fee-usage')).reverb_shipping_compared, 1);
 });
 
 test('honors Do Not Track without recording', () => {
