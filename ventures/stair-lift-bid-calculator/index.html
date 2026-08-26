@@ -7,7 +7,7 @@
   <meta name="description" content="Price a stair lift from lift count, straight versus landing versus outdoor versus curved rail, perch versus standard versus power-swivel versus power-pack versus heavy-duty chair, wood versus concrete versus open-riser attach, and extras — plus the walk-away price a $3,995 installed special cannot see.">
   <meta property="og:title" content="Stair Lift Bid Calculator">
   <meta property="og:description" content="Bid a stair lift the way the trade does — rail, chair, and extras, not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Stair Lift Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Lift count, straight vs landing vs outdoor vs curved rail comparison, perch vs standard vs power-swivel vs power-pack vs heavy-duty chair comparison, wood vs concrete vs open-riser attach, contractor-supplied vs customer-supplied lift comparison, $795 install-only walk-away, folding-rail charge-point circuit removal permit weather extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Stair Lift Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Lift count, straight vs landing vs outdoor vs curved rail comparison, perch vs standard vs power-swivel vs power-pack vs heavy-duty chair comparison, wood vs concrete vs open-riser attach, contractor-supplied vs customer-supplied lift comparison, weekday vs hospital-discharge week vs Saturday expedite comparison, $3,995 rush walk-away, folding-rail charge-point circuit removal permit weather extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a241c; background: #f3eee4; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -181,6 +181,14 @@
       </table>
       <p id="supplyNote" class="note"></p>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same stair, when they need it</strong></p>
+      <p class="note" style="margin-top:0">The “mom comes home Friday — same $3,995?” special. A weekday slot is ground freight and an empty house. Discharge week is next-day rail freight plus a slower set while they stay home. Saturday is overtime, a second dispatch, and the same expedite ticket. <a href="should-i-expedite-a-stair-lift-for-hospital-discharge.html" style="color:#f0dfc2">Should I expedite a stair lift for hospital discharge?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -193,7 +201,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, accessibility, medical-device, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rail, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-install-a-stair-lift.html">how much to charge to install a stair lift</a>? The article walks the rail-versus-chair math this calculator uses. Customer bought the lift? See <a href="should-i-install-a-customer-supplied-stair-lift.html">should I install a customer-supplied stair lift</a>.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-a-stair-lift.html">how much to charge to install a stair lift</a>? The article walks the rail-versus-chair math this calculator uses. Customer bought the lift? See <a href="should-i-install-a-customer-supplied-stair-lift.html">should I install a customer-supplied stair lift</a>. Hospital discharge this week? See <a href="should-i-expedite-a-stair-lift-for-hospital-discharge.html">should I expedite a stair lift for hospital discharge</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -204,6 +212,8 @@
       compareChair,
       compareOwnerSupply,
       ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedRailKit,
       suggestedChairKit,
@@ -247,6 +257,7 @@
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
     let supplyCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -305,6 +316,8 @@
       el('chairs').innerHTML = '';
       el('supply').innerHTML = '';
       el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -394,6 +407,26 @@
       if (!supplyCounted) {
         count('owner_supply_compared');
         supplyCounted = true;
+      }
+
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
       }
 
       const verdict = el('verdict');
