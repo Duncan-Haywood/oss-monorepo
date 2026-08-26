@@ -367,6 +367,17 @@ products:
           Added a browser-local Markdown evidence export for the photo preflight
           tool. The public URL remains owner-gated, so traffic and report usage
           are currently unmeasured; counters never leave the visitor's browser.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_batches_checked: 0
+          local_reports_downloaded: 0
+          json_report_downloaded: 0
+        note: >-
+          Added a machine-readable JSON export beside the Markdown record, for
+          filing preflight evidence rather than reading it. Both carry the spec
+          id, spec date, and check time; neither contains photo pixels. Public
+          URL remains owner-gated; counters never leave the visitor's browser.
   - slug: etsy-profit-calculator
     surface: static-page-in-repo
     readings:
