@@ -272,6 +272,292 @@ function listingAtPrice(input, salePrice) {
   };
 }
 
+function moneyLabel(value) {
+  const sign = value < 0 ? "−" : "";
+  return `${sign}$${Math.abs(value).toFixed(2)}`;
+}
+
+function takePercent(value, name, fallback) {
+  const result = number(value, name, fallback);
+  if (result > 100) throw new Error(`${name} must be at most 100`);
+  return result;
+}
+
+function twoDayPath({
+  id,
+  label,
+  takePct,
+  shippingCost,
+  laborCost,
+  completedProfit,
+  expectedProfit,
+  monthlyProfit,
+}) {
+  return {
+    id,
+    label,
+    takePct,
+    shippingCost,
+    laborCost,
+    completedProfit,
+    expectedProfit,
+    monthlyProfit,
+  };
+}
+
+function twoDaySummary({
+  winner,
+  wfs,
+  twoDay,
+  standard,
+  extraTwoDayVsWfs,
+  extraStandardVsWfs,
+  monthlyExtraOnTwoDay,
+  monthlyUnits,
+  breakEvenTwoDayShipping,
+  breakEvenTwoDayTakePct,
+  breakEvenStandardTakePct,
+}) {
+  const wfsKeep = moneyLabel(wfs.expectedProfit);
+  const twoDayKeep = moneyLabel(twoDay.expectedProfit);
+  const standardKeep = moneyLabel(standard.expectedProfit);
+  const twoDayGap = moneyLabel(Math.abs(extraTwoDayVsWfs));
+  const standardGap = moneyLabel(Math.abs(extraStandardVsWfs));
+  const monthGap = moneyLabel(Math.abs(monthlyExtraOnTwoDay));
+  const shipCeil = Number.isFinite(breakEvenTwoDayShipping)
+    ? moneyLabel(breakEvenTwoDayShipping)
+    : "an unreachable 2-day label";
+  const twoDayFloor = Number.isFinite(breakEvenTwoDayTakePct)
+    ? `${breakEvenTwoDayTakePct.toFixed(1)}%`
+    : "an unreachable take rate";
+  const standardFloor = Number.isFinite(breakEvenStandardTakePct)
+    ? `${breakEvenStandardTakePct.toFixed(1)}%`
+    : "an unreachable take rate";
+  const volume = `${monthlyUnits} WFS unit${monthlyUnits === 1 ? "" : "s"}`;
+
+  if (winner === "two_day") {
+    return (
+      `Seller-fulfilled 2-day keeps ${twoDayGap} more per session than WFS ` +
+      `(${twoDayKeep} vs ${wfsKeep}), ${monthGap} on ${volume}. ` +
+      `The 2-day label can rise to about ${shipCeil} before WFS matches.`
+    );
+  }
+  if (winner === "standard") {
+    return (
+      `Seller-fulfilled standard shipping keeps ${standardGap} more per session than WFS ` +
+      `(${standardKeep} vs ${wfsKeep}). 2-day is ${twoDayKeep}. ` +
+      `Standard still needs about ${standardFloor} take to match WFS.`
+    );
+  }
+  if (winner === "wfs") {
+    return (
+      `WFS keeps ${twoDayGap} more per session than seller-fulfilled 2-day ` +
+      `(${wfsKeep} vs ${twoDayKeep}), ${monthGap} on ${volume}. ` +
+      `2-day matches if the label falls to about ${shipCeil} ` +
+      `or take rises to about ${twoDayFloor}. Standard is ${standardKeep}.`
+    );
+  }
+  return "WFS, seller-fulfilled 2-day, and standard shipping leave the same expected leftover on these rates.";
+}
+
+// Walmart's Buy Box heavily weights 2-day. WFS includes that promise.
+// Seller-fulfilled 2-day buys a faster label and pack time. Standard
+// seller-fulfilled is cheaper per completed sale but usually converts
+// fewer sessions. Complementary to the completed-sale WFS vs seller
+// table (which assumes the offer already won) and to price match
+// (which holds take fixed). Defaults are illustrative — overwrite
+// the label, minutes, and take rates from Seller Center.
+export const TWO_DAY_DEFAULTS = {
+  twoDayShippingCost: 8.95,
+  twoDayMinutes: 6,
+  twoDayHourlyWage: 18,
+  wfsTakePct: 80,
+  twoDayTakePct: 70,
+  standardTakePct: 35,
+};
+
+/**
+ * Same listing, three ways to keep 2-day (or give it up): WFS, you
+ * buy a 2-day label, or you ship standard and accept a lower take.
+ * Expected leftover is take% × completed-sale profit. monthlyUnits
+ * is treated as WFS completed volume so sessions = units / WFS take.
+ */
+export function compareTwoDay(input = {}) {
+  const twoDayShippingCost = number(
+    input.twoDayShippingCost,
+    "Two-day shipping cost",
+    TWO_DAY_DEFAULTS.twoDayShippingCost,
+  );
+  const twoDayMinutes = number(
+    input.twoDayMinutes,
+    "Two-day minutes",
+    TWO_DAY_DEFAULTS.twoDayMinutes,
+  );
+  const twoDayHourlyWage = number(
+    input.twoDayHourlyWage,
+    "Two-day hourly wage",
+    TWO_DAY_DEFAULTS.twoDayHourlyWage,
+  );
+  const wfsTakePct = takePercent(
+    input.wfsTakePct,
+    "WFS take percent",
+    TWO_DAY_DEFAULTS.wfsTakePct,
+  );
+  const twoDayTakePct = takePercent(
+    input.twoDayTakePct,
+    "Two-day take percent",
+    TWO_DAY_DEFAULTS.twoDayTakePct,
+  );
+  const standardTakePct = takePercent(
+    input.standardTakePct,
+    "Standard take percent",
+    TWO_DAY_DEFAULTS.standardTakePct,
+  );
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 60);
+  const sellerShippingCost = number(input.sellerShippingCost, "Seller shipping cost", 4.5);
+
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+  if (wfsTakePct === 0) throw new Error("WFS take percent must be greater than zero");
+
+  const listing = calculateListing(input);
+  const laborCost = (twoDayMinutes / 60) * twoDayHourlyWage;
+  const wfsCompleted = listing.wfs.profit;
+  const standardCompleted = listing.seller.profit;
+  const twoDayCompleted = standardCompleted + sellerShippingCost - twoDayShippingCost - laborCost;
+
+  const sessions = monthlyUnits / (wfsTakePct / 100);
+  const wfsExpected = (wfsTakePct / 100) * wfsCompleted;
+  const twoDayExpected = (twoDayTakePct / 100) * twoDayCompleted;
+  const standardExpected = (standardTakePct / 100) * standardCompleted;
+  const wfsMonthly = wfsExpected * sessions;
+  const twoDayMonthly = twoDayExpected * sessions;
+  const standardMonthly = standardExpected * sessions;
+
+  const wfs = twoDayPath({
+    id: "wfs",
+    label: "WFS (2-day included)",
+    takePct: wfsTakePct,
+    shippingCost: listing.fulfillmentFee,
+    laborCost: 0,
+    completedProfit: wfsCompleted,
+    expectedProfit: wfsExpected,
+    monthlyProfit: wfsMonthly,
+  });
+  const twoDay = twoDayPath({
+    id: "two_day",
+    label: "Seller-fulfilled 2-day",
+    takePct: twoDayTakePct,
+    shippingCost: twoDayShippingCost,
+    laborCost,
+    completedProfit: twoDayCompleted,
+    expectedProfit: twoDayExpected,
+    monthlyProfit: twoDayMonthly,
+  });
+  const standard = twoDayPath({
+    id: "standard",
+    label: "Seller-fulfilled standard",
+    takePct: standardTakePct,
+    shippingCost: sellerShippingCost,
+    laborCost: 0,
+    completedProfit: standardCompleted,
+    expectedProfit: standardExpected,
+    monthlyProfit: standardMonthly,
+  });
+
+  const extraTwoDayVsWfs = twoDayExpected - wfsExpected;
+  const extraStandardVsWfs = standardExpected - wfsExpected;
+  const monthlyExtraOnTwoDay = extraTwoDayVsWfs * sessions;
+  const monthlyExtraOnStandard = extraStandardVsWfs * sessions;
+
+  const rows = [wfs, twoDay, standard].map((row) => ({
+    ...row,
+    vsWfs: row.expectedProfit - wfsExpected,
+  }));
+
+  const bestExpected = Math.max(wfsExpected, twoDayExpected, standardExpected);
+  const leaders = [
+    { id: "wfs", value: wfsExpected },
+    { id: "two_day", value: twoDayExpected },
+    { id: "standard", value: standardExpected },
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenTwoDayShipping = Infinity;
+  if (twoDayTakePct > 1e-12) {
+    const neededCompleted = wfsExpected / (twoDayTakePct / 100);
+    breakEvenTwoDayShipping = standardCompleted + sellerShippingCost - laborCost - neededCompleted;
+    if (!Number.isFinite(breakEvenTwoDayShipping)) breakEvenTwoDayShipping = Infinity;
+  }
+
+  let breakEvenTwoDayTakePct = Infinity;
+  if (twoDayCompleted > 1e-12) {
+    breakEvenTwoDayTakePct = (wfsExpected / twoDayCompleted) * 100;
+    if (breakEvenTwoDayTakePct < -1e-9 || breakEvenTwoDayTakePct > 100 + 1e-9) {
+      breakEvenTwoDayTakePct = Infinity;
+    } else {
+      breakEvenTwoDayTakePct = Math.max(0, Math.min(100, breakEvenTwoDayTakePct));
+    }
+  }
+
+  let breakEvenStandardTakePct = Infinity;
+  if (standardCompleted > 1e-12) {
+    breakEvenStandardTakePct = (wfsExpected / standardCompleted) * 100;
+    if (breakEvenStandardTakePct < -1e-9 || breakEvenStandardTakePct > 100 + 1e-9) {
+      breakEvenStandardTakePct = Infinity;
+    } else {
+      breakEvenStandardTakePct = Math.max(0, Math.min(100, breakEvenStandardTakePct));
+    }
+  }
+
+  return {
+    rows,
+    wfs: rows[0],
+    twoDay: rows[1],
+    standard: rows[2],
+    winner,
+    sessions,
+    monthlyUnits,
+    wfsTakePct,
+    twoDayTakePct,
+    standardTakePct,
+    twoDayShippingCost,
+    twoDayMinutes,
+    twoDayHourlyWage,
+    laborCost,
+    sellerShippingCost,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    extraTwoDayVsWfs,
+    extraStandardVsWfs,
+    monthlyExtraOnTwoDay,
+    monthlyExtraOnStandard,
+    breakEvenTwoDayShipping,
+    breakEvenTwoDayTakePct,
+    breakEvenStandardTakePct,
+    summary: twoDaySummary({
+      winner,
+      wfs: rows[0],
+      twoDay: rows[1],
+      standard: rows[2],
+      extraTwoDayVsWfs,
+      extraStandardVsWfs,
+      monthlyExtraOnTwoDay,
+      monthlyUnits,
+      breakEvenTwoDayShipping,
+      breakEvenTwoDayTakePct,
+      breakEvenStandardTakePct,
+    }),
+  };
+}
+
+export function twoDayNote(comparison) {
+  if (!comparison?.wfs || !comparison?.twoDay) {
+    throw new Error("Two-day comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 export function calculateListing(input) {
   const salePrice = number(input.salePrice, "Sale price");
   const listed = listingAtPrice(input, salePrice);
