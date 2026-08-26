@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fireplace Insert Bid Calculator | Price the Liner, the Hearth, and the Stack — Not Just $2,499 Installed</title>
+  <meta name="description" content="Price a fireplace-insert install from fuel, liner footage, hearth, gas run, dedicated circuit, surround, and stack height — not a published $2,499-installed gas special. See the walk-away number before you match a cheaper quote.">
+  <meta property="og:title" content="Fireplace Insert Bid Calculator">
+  <meta property="og:description" content="A small gas cassette in an existing firebox with a live stub is not the same job as a large wood insert with a 30-foot liner, a new hearth, and a two-story stack. Bid the liner and the extras.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fireplace Insert Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Gas versus pellet versus wood, small versus large box, stainless liner footage, masonry rebuild, hearth pad, new gas run, dedicated circuit, surround, damper, two-story stack, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a1c14; background: #f3e4d4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #a33b1a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d8b89a; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a1c140d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c4030; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9a6b4a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9a6b4a; background: #f6e6d4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #edd6ba; }
+    .result { position: sticky; top: 15px; background: #3a1a12; color: #f8eee4; border-color: #3a1a12; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e08a4a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c4030; }
+    footer a { color: #a33b1a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d2b4; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR HEARTH AND CHIMNEY SHOPS</p>
+    <h1>Bid the liner, the hearth, and the stack.</h1>
+    <p>Price a fireplace-insert install the way the trade actually loses money: liner footage, a new hearth, a gas run, a dedicated circuit, a surround, and a two-story stack. You get the bid, the hours the first liner actually consumes, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The fireplace</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing fuel, size, chimney, or access never overwrites a rate you already typed. This prices an insert hang — not a CSIA sweep, and not a full chimney rebuild sold as the house.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Fuel
+            <select id="fuel">
+              <option value="gas" selected>Gas (NG / LP cassette)</option>
+              <option value="pellet">Pellet insert</option>
+              <option value="wood">Wood-burning insert</option>
+            </select>
+          </label>
+          <label>Size
+            <select id="size">
+              <option value="small" selected>Small (up to ~35k BTU / compact box)</option>
+              <option value="medium">Medium (typical masonry opening)</option>
+              <option value="large">Large / high-output</option>
+            </select>
+          </label>
+          <label>Chimney scope
+            <select id="chimney">
+              <option value="none" selected>Existing liner / no liner this bid</option>
+              <option value="liner">New stainless liner</option>
+              <option value="rebuild">Masonry rebuild / reline package</option>
+            </select>
+          </label>
+          <label>Access
+            <select id="access">
+              <option value="one" selected>One-story stack / ground roof</option>
+              <option value="two">Two-story / tall stack / hard roof</option>
+            </select>
+          </label>
+          <label>Liner footage (lf) <input id="linerFeet" type="number" min="0" step="0.5" value="0"></label>
+          <label class="check"><input id="addHearth" type="checkbox"> New hearth pad</label>
+          <label class="check"><input id="addGasLine" type="checkbox"> New gas run / LP conversion</label>
+          <label class="check"><input id="addCircuit" type="checkbox"> Dedicated circuit (pellet / blower)</label>
+          <label class="check"><input id="addSurround" type="checkbox"> Surround / mantel</label>
+          <label class="check"><input id="addDamper" type="checkbox"> Damper / rain cap</label>
+          <label class="check"><input id="tearOut" type="checkbox" checked> Tear-out / haul the old unit</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Hours to set the insert <input id="hoursSet" type="number" min="0" step="0.1" value="3.5"></label>
+          <label>Fuel set-hour premium <input id="hoursSetPremium" type="number" min="0" step="0.05" value="0"></label>
+          <label>Two-story / tall-stack hours <input id="hoursAccess" type="number" min="0" step="0.1" value="0"></label>
+          <label>Rebuild / chimney-package hours <input id="hoursChimney" type="number" min="0" step="0.1" value="8"></label>
+          <label>Hours / liner foot <input id="hoursPerLinerFoot" type="number" min="0" step="0.02" value="0.18"></label>
+          <label>Hours for a new hearth <input id="hoursHearth" type="number" min="0" step="0.1" value="2.5"></label>
+          <label>Hours for a new gas run <input id="hoursGasLine" type="number" min="0" step="0.1" value="2.2"></label>
+          <label>Hours for a dedicated circuit <input id="hoursCircuit" type="number" min="0" step="0.1" value="1.8"></label>
+          <label>Hours for a surround / mantel <input id="hoursSurround" type="number" min="0" step="0.1" value="2"></label>
+          <label>Hours for a damper / cap <input id="hoursDamper" type="number" min="0" step="0.1" value="0.8"></label>
+          <label>Hours to tear out the old unit <input id="hoursTearOut" type="number" min="0" step="0.1" value="1.5"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Insert unit cost <input id="unitCost" type="number" min="0" step="10" value="1850"></label>
+          <label>Size unit-cost multiplier <input id="unitCostMultiplier" type="number" min="0" step="0.02" value="1"></label>
+          <label>Liner kit / tee / cap <input id="linerKit" type="number" min="0" step="5" value="280"></label>
+          <label>Liner / ft <input id="linerPerFoot" type="number" min="0" step="0.5" value="28"></label>
+          <label>Rebuild / masonry package <input id="rebuildMaterial" type="number" min="0" step="25" value="2200"></label>
+          <label>Hearth pad <input id="hearthCost" type="number" min="0" step="5" value="380"></label>
+          <label>Gas line / conversion <input id="gasLineCost" type="number" min="0" step="5" value="420"></label>
+          <label>Dedicated circuit <input id="circuitCost" type="number" min="0" step="5" value="340"></label>
+          <label>Surround / mantel <input id="surroundCost" type="number" min="0" step="5" value="520"></label>
+          <label>Damper / cap <input id="damperCost" type="number" min="0" step="5" value="95"></label>
+          <label>Dump / haul-away <input id="dumpFee" type="number" min="0" step="5" value="85"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="125"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="48"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="34"></label>
+          <label>Travel, truck, recovery <input id="travelAndEquipment" type="number" min="0" step="5" value="145"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="32"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 2499"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $48/h installer loaded at 34% is $64.32. Quoting the raw wage on a published $2,499-installed special is how a wood insert with thirty feet of liner that looked fine turns into a two-day loss after the first seized damper.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">fireplace-insert price</div>
+      <dl>
+        <dt>Fuel, size, and access</dt><dd id="scope"></dd>
+        <dt>Chimney and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Insert + extras</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or a fireplace design &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your fireplace, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-install-a-fireplace-insert.html">How much to charge to install a fireplace insert</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedSizeKit,
+      suggestedFuelKit,
+      suggestedChimneyKit,
+      suggestedAccessKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'linerFeet',
+      'hoursTrip','hoursSet','hoursSetPremium','hoursAccess','hoursChimney',
+      'hoursPerLinerFoot','hoursHearth','hoursGasLine','hoursCircuit',
+      'hoursSurround','hoursDamper','hoursTearOut','siteHours',
+      'unitCost','unitCostMultiplier','linerKit','linerPerFoot','rebuildMaterial',
+      'hearthCost','gasLineCost','circuitCost','surroundCost','damperCost',
+      'dumpFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['addHearth','addGasLine','addCircuit','addSurround','addDamper','tearOut'];
+    const SELECT_IDS = ['fuel','size','chimney','access'];
+    const SUGGESTED_SIZE_IDS = ['hoursSet','unitCostMultiplier'];
+    const SUGGESTED_FUEL_IDS = ['unitCost','hoursSetPremium'];
+    const SUGGESTED_CHIMNEY_IDS = ['hoursChimney'];
+    const SUGGESTED_ACCESS_IDS = ['hoursAccess'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyKit(force, rates, ids) {
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+      if (ids) {
+        /* keep ids referenced so a future kit field is not silently dropped */
+      }
+    }
+
+    function applySizeKit(force) {
+      applyKit(force, suggestedSizeKit(el('size').value), SUGGESTED_SIZE_IDS);
+    }
+    function applyFuelKit(force) {
+      applyKit(force, suggestedFuelKit(el('fuel').value), SUGGESTED_FUEL_IDS);
+    }
+    function applyChimneyKit(force) {
+      applyKit(force, suggestedChimneyKit(el('chimney').value), SUGGESTED_CHIMNEY_IDS);
+    }
+    function applyAccessKit(force) {
+      applyKit(force, suggestedAccessKit(el('access').value), SUGGESTED_ACCESS_IDS);
+    }
+
+    function applyJob(job) {
+      el('fuel').value = job.fuel;
+      el('size').value = job.size;
+      el('chimney').value = job.chimney;
+      el('access').value = job.access;
+      applySizeKit(true);
+      applyFuelKit(true);
+      applyChimneyKit(true);
+      applyAccessKit(true);
+      [...SUGGESTED_SIZE_IDS, ...SUGGESTED_FUEL_IDS, ...SUGGESTED_CHIMNEY_IDS, ...SUGGESTED_ACCESS_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('linerFeet').value = job.linerFeet;
+      el('addHearth').checked = job.addHearth;
+      el('addGasLine').checked = job.addGasLine;
+      el('addCircuit').checked = job.addCircuit;
+      el('addSurround').checked = job.addSurround;
+      el('addDamper').checked = job.addDamper;
+      el('tearOut').checked = job.tearOut;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'fireplace-insert price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'fireplace-insert price';
+      el('scope').textContent = `${result.fuel} · ${result.size} · ${result.access}`;
+      const extraBits = [
+        result.chimney === 'liner' && result.linerFeet ? `${result.linerFeet} ft liner` : null,
+        result.chimney === 'rebuild' ? 'rebuild package' : null,
+        result.addHearth ? 'hearth' : null,
+        result.addGasLine ? 'gas run' : null,
+        result.addCircuit ? 'circuit' : null,
+        result.addSurround ? 'surround' : null,
+        result.addDamper ? 'damper / cap' : null,
+        result.tearOut ? 'tear-out' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard brochure gas hang';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Set the insert', result.hourShares.set],
+        ['Stack / access', result.hourShares.access],
+        ['Chimney (liner / rebuild)', result.hourShares.chimney],
+        ['Hearth / gas / circuit / surround / tear-out', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Insert + extras', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('size').addEventListener('change', () => {
+      applySizeKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('fuel').addEventListener('change', () => {
+      applyFuelKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('chimney').addEventListener('change', () => {
+      applyChimneyKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_SIZE_IDS, ...SUGGESTED_FUEL_IDS, ...SUGGESTED_CHIMNEY_IDS, ...SUGGESTED_ACCESS_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
