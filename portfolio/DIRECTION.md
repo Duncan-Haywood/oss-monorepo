@@ -63,6 +63,25 @@ do not register a domain, store listing, or npm publish. Building
 privately remains allowed. Cloning a twelfth undeployed calculator is
 not.
 
+**The artifact is prepared** (2026-08-26).
+[`platform/pages/`](../platform/pages/README.md) assembles every static venture
+surface — 33 tools at the time of writing — into the one Pages site this
+repository gets, and `.github/workflows/portfolio-pages.yml` builds and tests it
+on every push to `main`. Until then, the flip would have published only
+`retail-pilot-intel`'s passcode-gated docs and left every calculator dark, so it
+was worth far less than the queue implied; that workflow now reads its own
+variable rather than racing for the origin. Two consequences for a session
+picking work:
+
+- **Nothing further is needed to publish.** A new calculator is discovered
+  automatically on the next push — no manifest to update, no per-venture deploy
+  workflow to write. If a venture must stay private, add its slug to
+  `EXCLUDED_SLUGS` with a reason.
+- **The deploy half of deploy-first is done.** What is still missing is the
+  owner flip, and nothing an agent builds changes that. So the next unit of
+  work is making the tools that will go live better — depth, correctness,
+  onboarding, discoverability — not a thirty-fourth front page.
+
 ## What a good product looks like here
 
 | Criterion | Why it matters |
