@@ -968,6 +968,27 @@ products:
           floats $7,800; month-end plus Net 30 floats $15,600. Currency
           and payment terms persist in the local draft. Public URL
           remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+          income_coverage_compared: 0
+          income_goal_short: 0
+        note: >-
+          Added the income-goal check: the hourly floor is
+          target / capacity, which only reaches the goal if every billable
+          hour sells, so a retainer can clear the floor and still miss the
+          month. On the shipped defaults the $1,725 retainer is 22% of a
+          $7,800 target and needs a 96.4% fill rate on the 84 unsold hours.
+          `income_coverage_compared` counts only sessions that edit a
+          month-level input, so engagement with the new view is separable
+          from ordinary retainer pricing. Also fixed 21px of horizontal
+          page scroll on a 390px viewport that had been live since launch,
+          and gave the venture its first CI workflow — its 117 pricing
+          assertions lived in `test_app.mjs`, which `node --test` does not
+          match, so they had never run anywhere. Public URL remains
+          owner-gated.
   - slug: real-estate-agent-photo-app
     surface: static-page-in-repo
     readings:
