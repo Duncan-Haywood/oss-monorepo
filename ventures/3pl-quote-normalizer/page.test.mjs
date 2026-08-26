@@ -15,6 +15,11 @@ test('negotiation page builds a copyable brief without recommending a provider',
   assert.match(page, /Copy brief/);
   assert.match(page, /not recommend a provider/);
   assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const compare = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
+  assert.match(index, /negotiation\.html/);
+  assert.match(compare, /negotiation\.html/);
 });
 
 test('comparison page exposes two monthly quote inputs and disclaimer', async () => {
