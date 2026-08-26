@@ -1,0 +1,27 @@
+name: notary-trip-quote
+description: A private browser calculator for mobile notaries to price travel, appointment minimums, witnesses, after-hours work, and mileage before confirming a booking.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Mobile notaries lose profitable appointments when state fees, travel time, mileage, and waiting are mixed into one improvised quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent quote breakdown and copyable booking summary will be reused for every new appointment.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified mobile notaries use the calculator twice within 90 days.
+  - Users say their existing fee sheet is faster and produces the same quote decisions.
+links:
+  production: null
+  analytics: null
