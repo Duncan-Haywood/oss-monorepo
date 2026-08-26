@@ -7,7 +7,7 @@
   <meta name="description" content="Price a freelance retainer from capacity and costs, then see whether it still beats hourly when the client uses half the block, the full block, or more. Free and private in your browser.">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Freelance Retainer Pricing Calculator">
-  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price from capacity, then check whether real usage still pays your hourly floor.">
+  <meta property="og:description" content="Stop guessing what to charge for a monthly retainer. Price from capacity, then check a client's offered price against that floor.">
   <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/">
   <link rel="stylesheet" href="style.css">
@@ -43,6 +43,7 @@
         </fieldset>
         <label>Currency <select id="currency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
         <label>When this client pays <select id="paymentTerms"><option value="prepaid">Prepaid on kickoff</option><option value="net15">Invoice on kickoff, Net 15</option><option value="net30">Invoice on kickoff, Net 30</option><option value="arrears15">Invoice at month-end, Net 15</option><option value="arrears30">Invoice at month-end, Net 30</option></select></label>
+        <label>Price they offered (optional) <span data-currency-symbol>$</span><input id="offeredPrice" type="number" min="0" step="25" placeholder="Leave blank if they have not named a number"></label>
         <p id="draftStatus" class="draft-status" role="status">Your inputs stay in this browser as a private local draft, including currency and payment terms.</p>
         <button type="submit">Calculate sustainable price</button>
         <p id="errors" class="error" role="alert" hidden></p>
@@ -66,6 +67,15 @@
           <div class="answer"><span>Short of the goal by</span><strong id="coverageShortfall">$0</strong></div>
           <div class="answer"><span>Fill rate the goal needs</span><strong id="coverageRequiredFill">—</strong></div>
           <p id="coverageVerdict" class="verdict"></p>
+        </div>
+        <div id="offerCompare" class="usage-compare" hidden>
+          <h3>Their offer against your floor</h3>
+          <p class="note">The floor is the price that covers your take-home, costs, and buffer. Their number is just a number. This block is the gap — not a recommendation to accept or walk away.</p>
+          <div class="answer"><span>They offered</span><strong id="offerAmount">$0</strong></div>
+          <div class="answer"><span>Gap to your floor</span><strong id="offerGap">$0</strong></div>
+          <div class="answer"><span>Effective rate on included hours</span><strong id="offerIncluded">$0</strong></div>
+          <div class="answer"><span>Hours you can still include at the floor</span><strong id="offerHours">0 hours</strong></div>
+          <p id="offerVerdict" class="verdict"></p>
         </div>
         <div id="usageCompare" class="usage-compare">
           <h3>If they use less — or more — than the block</h3>

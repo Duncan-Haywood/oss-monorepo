@@ -3,6 +3,7 @@ import {
   calculateCashFloat,
   calculateIncomeCoverage,
   calculatePlan,
+  compareOffer,
   formatIncomeCoverageAdvice,
   DEFAULT_FILL_RATE,
   comparePaymentTerms,
@@ -181,6 +182,7 @@ const draft = {
   otherRevenue: '3000',
   otherHours: '40',
   fillRate: '60',
+  offeredPrice: '1400',
   currency: 'EUR',
   paymentTerms: 'net30',
 };
@@ -209,6 +211,7 @@ assert.deepEqual(loadDraft({ getItem: (key) => legacy.get(key) || null }), {
   otherRevenue: '',
   otherHours: '',
   fillRate: '',
+  offeredPrice: '',
   currency: '',
   paymentTerms: '',
 });
@@ -302,6 +305,20 @@ const summaryWithOtherClients = formatProposalSummary(
 assert.ok(!summaryWithOtherClients.includes('3,000'), 'proposal summary leaked other-client revenue');
 assert.ok(!summaryWithOtherClients.includes('Other committed'), 'proposal summary leaked other-client wording');
 assert.ok(!/fill rate/i.test(summaryWithOtherClients), 'proposal summary leaked the fill-rate assumption');
+
+assert.equal(compareOffer(plan, ''), null);
+assert.equal(compareOffer(plan, null), null);
+const below = compareOffer(plan, '1500');
+assert.equal(below.offeredPrice, 1500);
+assert.equal(below.gap, -225);
+assert.equal(below.belowFloor, true);
+assert.equal(below.effectiveIncluded, 75);
+assert.equal(below.hoursAtFloor, 17.4);
+const above = compareOffer(plan, '1800');
+assert.equal(above.gap, 75);
+assert.equal(above.belowFloor, false);
+assert.throws(() => compareOffer(plan, 'nope'), /valid offered monthly price/);
+assert.throws(() => compareOffer(plan, '-10'), /valid offered monthly price/);
 
 function round2ForTest(value) {
   return Math.round(value * 100) / 100;

@@ -13,7 +13,7 @@ export const PAYMENT_TERMS = {
 // everything else, but `formatProposalSummary` must never print them: that
 // summary is copied into a client-facing proposal, and what other clients pay
 // is none of its business. A test asserts the summary stays clean.
-export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer', 'otherRevenue', 'otherHours', 'fillRate', 'currency', 'paymentTerms'];
+export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer', 'otherRevenue', 'otherHours', 'fillRate', 'offeredPrice', 'currency', 'paymentTerms'];
 export const DRAFT_KEY = 'frc-draft-v1';
 export const DISCLAIMER = 'Planning aid only. No warranty. Review and verify this output before relying on it; it is not financial advice.';
 
@@ -69,7 +69,34 @@ export function calculatePlan(values) {
   const target = income + costs;
   const rate = target / capacity;
   const retainer = Math.round(rate * retainerHours * (1 + buffer) * 100) / 100;
-  return { capacity, remainingCapacity: capacity - retainerHours, target, rate, retainer, retainerHours };
+  return { capacity, remainingCapacity: capacity - retainerHours, target, rate, retainer, retainerHours, buffer };
+}
+
+/**
+ * Compare a client's offered monthly price to the planning floor.
+ * Blank is "I have not been offered a number yet." A typed value shows the
+ * gap, the effective hourly rate, and how many hours still fit the floor.
+ * Arithmetic only — it does not tell the freelancer to accept or walk away.
+ */
+export function compareOffer(plan, offeredPriceRaw) {
+  if (offeredPriceRaw === '' || offeredPriceRaw == null) return null;
+  const offeredPrice = Number(offeredPriceRaw);
+  if (!Number.isFinite(offeredPrice) || offeredPrice < 0) {
+    throw new Error('Enter a valid offered monthly price, or leave it blank.');
+  }
+  const buffer = Number.isFinite(plan.buffer) ? plan.buffer : 0;
+  const loadedRate = plan.rate * (1 + buffer);
+  const bufferedHours = plan.retainerHours * (1 + buffer);
+  const hoursAtFloor = loadedRate > 0 ? Math.round((offeredPrice / loadedRate) * 10) / 10 : 0;
+  const gap = Math.round((offeredPrice - plan.retainer) * 100) / 100;
+  return {
+    offeredPrice,
+    gap,
+    belowFloor: offeredPrice + 0.005 < plan.retainer,
+    effectiveIncluded: offeredPrice / plan.retainerHours,
+    effectiveBuffered: bufferedHours > 0 ? offeredPrice / bufferedHours : 0,
+    hoursAtFloor,
+  };
 }
 
 export const DEFAULT_FILL_RATE = 100;
@@ -516,6 +543,23 @@ if (typeof document !== 'undefined') {
         : `${coverage.requiredFillRate}%${coverage.reachableWithinCapacity ? '' : ' — more than you have'}`;
       $('coverageVerdict').textContent = coverage.recommendation;
     };
+    const renderOffer = (offer, currency) => {
+      const box = $('offerCompare');
+      if (!box) return;
+      if (!offer) {
+        box.hidden = true;
+        return;
+      }
+      box.hidden = false;
+      $('offerAmount').textContent = moneyText(offer.offeredPrice, currency);
+      $('offerGap').textContent = `${offer.gap < 0 ? '' : '+'}${moneyText(offer.gap, currency)}`;
+      $('offerGap').classList.toggle('needs-float', offer.belowFloor);
+      $('offerIncluded').textContent = moneyText(offer.effectiveIncluded, currency);
+      $('offerHours').textContent = `${offer.hoursAtFloor} hours`;
+      $('offerVerdict').textContent = offer.belowFloor
+        ? `This offer is ${moneyText(Math.abs(offer.gap), currency)} below your planning floor. Cut included hours, drop the buffer, or walk away — the arithmetic does not choose for you.`
+        : `This offer is ${moneyText(offer.gap, currency)} above your planning floor. That is leftover, not a reason to raise the included hours without repricing.`;
+    };
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       try {
@@ -530,6 +574,7 @@ if (typeof document !== 'undefined') {
           currency: input.currency,
         });
         const float = calculateCashFloat(plan.target, input.paymentTerms);
+        const offer = compareOffer(plan, input.offeredPrice);
         $('errors').hidden = true;
         $('results').hidden = false;
         $('rate').textContent = money(plan.rate);
@@ -542,6 +587,7 @@ if (typeof document !== 'undefined') {
         $('cashFloat').classList.toggle('needs-float', !float.prepaid);
         $('explanation').textContent = `Your ${input.utilization}% utilization leaves ${plan.capacity.toFixed(1)} billable hours from ${input.hours} available hours. After this retainer, ${plan.remainingCapacity.toFixed(1)} hours remain for other work, admin, and recovery. The retainer includes a ${input.buffer}% buffer for scope drift; it is a planning floor, not a promise of results. ${formatCashFloatAdvice(float, input.currency)} ${formatArrearsComparison(plan.target, input.currency)}`;
         renderCoverage(coverage);
+        renderOffer(offer, input.currency);
         renderUsage(comparison);
         renderRollover(rollover);
         $('summary').value = formatProposalSummary(input, plan, input.currency, comparison, rollover);
@@ -557,6 +603,7 @@ if (typeof document !== 'undefined') {
           track('income_coverage_compared');
         }
         if (!float.prepaid) track('payment-terms-float');
+        if (offer) track('client_offer_compared');
       } catch (error) {
         $('errors').textContent = error.message;
         $('errors').hidden = false;
