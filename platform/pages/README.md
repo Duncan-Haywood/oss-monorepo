@@ -99,6 +99,21 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   a nav bar written into ~180 product files would conflict with nearly every
   open branch. Markup is scoped under `.pf-chrome` so it cannot restyle a
   venture's page, and the pass is idempotent.
+- **The mobile keypad.** Every calculator asks for thirty to forty numbers, and
+  the person entering them is often on a phone at the job site. `type="number"`
+  alone does not settle which keyboard opens — on iOS it gives the
+  numbers-and-punctuation layout, small top-row keys with no dedicated decimal
+  point, rather than the large phone-dial keypad. Not one of the 35 bid
+  calculators set `inputmode`, so the build adds it to all 2,664 number inputs
+  across 130 pages, choosing `numeric` or `decimal` from each input's own
+  `step`: a field that accepts only whole numbers does not get a decimal key
+  that would produce a value it then rejects. An input carrying its own
+  `inputmode` keeps it, and the pass is idempotent.
+
+  Injected for the same two reasons as the chrome: a calculator lands on `main`
+  most days and this covers each new one for free, and an attribute added to
+  ~180 concurrently-edited product files would conflict with nearly every open
+  branch.
 
 ## Offline and installable
 
@@ -215,8 +230,40 @@ BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/
 
 It covers the hub and its grouping, search (narrowing, the empty state, and
 clearing), the usage opt-out across a reload, a click through into a calculator
-and a computed figure, a cross-product sibling link, a nested product hub,
-sitemap sampling, the 404, and a 375px viewport for horizontal overflow.
+and a computed figure, a cross-product sibling link, a nested product hub, every
+URL in every sitemap, the 404, a 375px viewport for horizontal overflow, and two
+whole-run assertions: that nothing was fetched off-origin, and that no page,
+console, or resource error was raised anywhere except the deliberate 404 step.
+
+**Serve it under a `/monorepo-projects/` prefix too.** Some defects exist only at
+a path, and served from `/` they are invisible:
+
+```bash
+mkdir -p sp && cp -r dist sp/monorepo-projects
+python3 -m http.server 8793 --directory sp &
+BASE_URL=http://localhost:8793/monorepo-projects node platform/pages/journey.mjs
+```
+
+A browser with no declared icon asks the **origin** root for `/favicon.ico`.
+Served from `/`, the `favicon.ico` this build writes answers that request and
+masks a missing `<link rel="icon">`; served from `/monorepo-projects/`, which is
+the shape GitHub Pages actually serves, it does not and the page 404s. That gap
+is how every page shipped with a failing favicon request until #1746. Run both.
+
+It also **changes an input and requires the output to move**, on one calculator
+of each shape. That distinction carries the weight here: every tool ships
+worked-example defaults, so money is on the page from the moment it loads and a
+"computed a figure" assertion passes whether or not the arithmetic ever ran. A
+tool whose `calc.mjs` throws on load renders its form, shows its defaults, and
+satisfies every static check in `check.mjs` while being useless to a visitor.
+Only a changed input tells the two apart.
+
+If Playwright is installed globally rather than beside this repo, point
+`PLAYWRIGHT` at it:
+
+```bash
+PLAYWRIGHT=/opt/node22/lib/node_modules/playwright/index.mjs node platform/pages/journey.mjs
+```
 
 Counts are derived from the page, never hardcoded — a venture lands most days,
 and a literal would fail on a healthy site the moment someone ships a
@@ -227,6 +274,31 @@ of this repo, and `build.test.mjs` plus `check.mjs` already gate the build. Run
 it before claiming the site works, and again against production after the owner
 flip. If Playwright is installed globally rather than beside the repo, point
 `PLAYWRIGHT` at its module path.
+
+### Sweeping every tool
+
+`journey.mjs` is deep and narrow — the hub, and a few tools in detail.
+`sweep.mjs` is the other axis: shallow and total, over **every** published tool.
+
+```bash
+node platform/pages/sweep.mjs        # same BASE_URL / PLAYWRIGHT env vars
+```
+
+It answers the one question a site assembled from ~60 independently-written
+ventures raises: does each one still compute? For every tool it loads the page
+at a 390px viewport, watches for page and console errors, changes the inputs,
+and requires a response. A tool that only recalculates on a button press gets
+its button pressed; a tool whose inputs are pasted text gets its own "load an
+example" button pressed first, which is also the shortest path that product has
+to first value. A page that arrives with its answer already computed is asked
+whether it is showing a result rather than being failed for not changing, and a
+page that is only links is reported as such rather than called broken.
+
+That failure mode is silent and this repo has shipped it before: a page whose
+markup swallowed its own app script rendered perfectly and did nothing. Under
+one origin it matters more, because a visitor arriving from a search result
+meets one tool — and if that tool is dead, they have met the whole portfolio.
+Exit status is non-zero if any tool fails, so it can gate a release.
 
 ## Deploying
 

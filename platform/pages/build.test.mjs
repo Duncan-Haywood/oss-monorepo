@@ -13,6 +13,8 @@ import os from 'node:os';
 
 import {
   addOfflineSupport,
+  annotateNumberInputs,
+  stepAllowsDecimals,
   buildSite,
   categoryFor,
   collectPageTitles,
@@ -1456,4 +1458,120 @@ test('the availability clause is supplied only where a venture lacks its own', a
   // And the build's own copy says what the playbook requires it to say.
   const injected = await read(surfaces[0].slug, 'index.html');
   assert.match(injected, /no warranty|Best-effort hosting/i);
+});
+
+// ---------------------------------------------------------------------------
+// Number inputs
+// ---------------------------------------------------------------------------
+
+test('step decides whether a decimal keypad is offered', () => {
+  // Whole-number fields (niches, doors, fixture counts) must not offer a
+  // decimal key, because the input would then reject what the key produced.
+  for (const step of ['1', '5', '10', '25', '100']) {
+    assert.equal(stepAllowsDecimals(step), false, `step="${step}"`);
+  }
+  for (const step of ['0.001', '0.01', '0.05', '0.1', '0.25', '0.5']) {
+    assert.equal(stepAllowsDecimals(step), true, `step="${step}"`);
+  }
+  // No constraint declared means the browser imposes none, so decimals are
+  // the safe reading rather than the risky one.
+  for (const step of [undefined, null, '', 'any', 'ANY', 'nonsense']) {
+    assert.equal(stepAllowsDecimals(step), true, `step=${String(step)}`);
+  }
+});
+
+test('number inputs get the keypad their step implies', () => {
+  const html = annotateNumberInputs(
+    '<input type="number" min="0" step="1" value="4">' +
+      '<input type="number" min="0" step="0.25" value="4">' +
+      '<input type="number" value="4">',
+  );
+  assert.match(html, /step="1" value="4" inputmode="numeric"/);
+  assert.match(html, /step="0.25" value="4" inputmode="decimal"/);
+  assert.match(html, /<input type="number" value="4" inputmode="decimal">/);
+});
+
+test('inputs that are not numbers are left alone', () => {
+  const html =
+    '<input type="text" name="a"><input type="checkbox" checked><input type="radio"><textarea></textarea>';
+  assert.equal(annotateNumberInputs(html), html);
+});
+
+test("a venture's own inputmode wins, and the pass is idempotent", () => {
+  const own = '<input type="number" step="1" inputmode="decimal">';
+  assert.equal(annotateNumberInputs(own), own, 'an explicit choice is not overridden');
+
+  const once = annotateNumberInputs('<input type="number" step="0.5">');
+  assert.equal(annotateNumberInputs(once), once, 'running twice adds nothing');
+  assert.equal((once.match(/inputmode/g) ?? []).length, 1);
+});
+
+test('a self-closing tag stays well-formed', () => {
+  assert.equal(
+    annotateNumberInputs('<input type="number" step="1" />'),
+    '<input type="number" step="1" inputmode="numeric" />',
+  );
+});
+
+test('every number input on the built site carries an inputmode', async () => {
+  // The reason this is asserted over the whole site rather than one fixture:
+  // the pass runs at build time precisely so a calculator landing tomorrow is
+  // covered without anyone editing it, and only a full walk can show that.
+  const { outDir, surfaces } = await site();
+
+  let inputs = 0;
+  const missing = [];
+  for (const surface of surfaces) {
+    for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
+      const markup = await fs.readFile(page, 'utf8');
+      for (const tag of markup.match(/<input\b[^>]*>/gi) ?? []) {
+        if (!/\btype\s*=\s*["']?number\b/i.test(tag)) continue;
+        inputs += 1;
+        if (!/\binputmode\s*=/i.test(tag)) missing.push(`${path.relative(outDir, page)}: ${tag}`);
+      }
+    }
+  }
+
+  // A silently-empty walk would make the assertion below pass for free.
+  assert.ok(inputs > 1000, `only ${inputs} number input(s) found`);
+  assert.deepEqual(missing, [], `number inputs with no keypad:\n${missing.slice(0, 10).join('\n')}`);
+});
+
+// ---------------------------------------------------------------------------
+// Machine-readable catalog
+//
+// The flat thing an AI assistant answering "is there a free tool for X" can
+// fetch in one request, instead of parsing the hub. Carried over from #1740
+// after `main` independently landed that branch's Pages race fix; the catalog
+// was the part of it `main` did not already have.
+// ---------------------------------------------------------------------------
+
+test('catalog.json describes every published tool', async () => {
+  const { surfaces } = await site();
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.equal(catalog.tools.length, surfaces.length);
+  for (const tool of catalog.tools) {
+    assert.ok(tool.slug && tool.name && tool.description, `incomplete entry: ${tool.slug}`);
+    assert.ok(tool.url.startsWith(BASE), `${tool.slug} url is not on the site origin`);
+    assert.ok(tool.category, `${tool.slug} has no category`);
+  }
+});
+
+test('catalog.json states the product is free and browser-only', async () => {
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.equal(catalog.price.amount, '0');
+  assert.equal(catalog.privacy, 'client-side-only');
+  assert.equal(catalog.url, BASE);
+});
+
+test('catalog.json does not pre-answer the open funding decision', async () => {
+  // Whether the repo carries a sponsorship surface is queued for the owner
+  // (funding-sponsors-live); a machine-readable file must not decide it.
+  const catalog = JSON.parse(await read('catalog.json'));
+  assert.ok(!('sponsor' in catalog), 'catalog.json must not carry a funding field');
+});
+
+test('the hub links to the machine-readable catalog', async () => {
+  const hub = await read('index.html');
+  assert.ok(hub.includes('catalog.json'), 'catalog.json should be discoverable from the hub');
 });

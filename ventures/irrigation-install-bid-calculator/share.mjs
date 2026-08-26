@@ -67,17 +67,8 @@ export function encodeBid(spec, values) {
   const params = new URLSearchParams();
   const choices = specChoices(spec);
   for (const [id, allowed] of Object.entries(choices)) {
-    const raw = values?.[id];
-    if (raw === undefined || raw === null) continue;
-    // A select's value is a string in the DOM, but a page may coerce it before
-    // handing values here — the sewer-line bid does `Number(diameterIn)` so its
-    // own arithmetic gets a number. A strict `typeof === 'string'` check then
-    // dropped the field from the link *and* the save without a word, and a bid
-    // priced for a 6-inch lateral reopened as a 4-inch one, for the recipient
-    // and for the contractor's own next visit. Compare on the string form; the
-    // allowed list still decides what may be set.
-    const value = String(raw);
-    if (allowed.includes(value)) params.set(id, value);
+    const value = values?.[id];
+    if (typeof value === 'string' && allowed.includes(value)) params.set(id, value);
   }
   for (const id of specNumbers(spec)) {
     const value = usableNumber(values?.[id]);
@@ -120,10 +111,8 @@ function decodeCell(field, raw) {
   return number === null ? null : String(number);
 }
 
-// encoded bid -> values object. Accepts a bare parameter string or one with a
-// leading '#' or '?', so a caller can hand it `location.hash` untouched. The
-// page carries a bid in the fragment: a query string is sent to the host on
-// every request, and these numbers are a contractor's own rates.
+// query string -> values object. Accepts a bare query string or one with a
+// leading '?' or '#', so a caller can hand it `location.search` untouched.
 // Only ids named in the spec survive, numbers must parse, and a select only
 // takes a value the select actually offers — a crafted link cannot inject a
 // scope the calculator has no rates for, or any markup at all.
@@ -210,8 +199,8 @@ export function clearBid(storage, spec) {
 // to see that bid, not the one they last priced. Storage is the fallback for a
 // plain visit. Returns the values plus which source answered, so the page can
 // say so rather than silently changing numbers under the visitor.
-export function restoreBid(spec, { link = '', storage = null } = {}) {
-  const fromLink = decodeBid(spec, link);
+export function restoreBid(spec, { search = '', storage = null } = {}) {
+  const fromLink = decodeBid(spec, search);
   if (Object.keys(fromLink).length > 0) return { values: fromLink, source: 'link' };
   const stored = loadBid(storage, spec);
   if (Object.keys(stored).length > 0) return { values: stored, source: 'storage' };

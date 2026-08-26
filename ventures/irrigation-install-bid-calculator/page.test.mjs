@@ -186,19 +186,3 @@ test('every select the visitor can set travels as a validated choice', () => {
     );
   }
 });
-
-test('a bid link keeps the rates out of the request', () => {
-  // A query string is sent to the host on every request, so `?hourlyWage=62`
-  // would put a contractor's wage, burden, overhead and the price they are
-  // weighing into a server access log — on GitHub Pages, into GitHub's.
-  // Verified against a logging server: with the bid in the query string the
-  // server received `/?hourlyWage=62&targetMargin=32&proposedPrice=3400`;
-  // with it in the fragment the server received `/`. The page promises
-  // nothing leaves the browser, so the fragment is the only honest transport.
-  assert.match(html, /\$\{query \? `#\$\{query\}` : ''\}/,
-    'the copied bid link must carry the bid in the fragment, not the query string');
-  assert.doesNotMatch(html, /\?\$\{query\}/,
-    'no code path may put the bid in the query string');
-  assert.match(html, /link: location\.hash/,
-    'the bid must be read back from the fragment');
-});

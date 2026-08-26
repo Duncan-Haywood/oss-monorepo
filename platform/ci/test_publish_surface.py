@@ -5,7 +5,11 @@ The point of the tool is that removing a gate turns CI red, so most of these
 assert on the boundary between `gated` and `live` rather than on the happy path.
 """
 
+import contextlib
+import io
+import sys
 import unittest
+import unittest.mock
 
 import yaml
 
@@ -161,8 +165,8 @@ class SinglePagesDeployer(unittest.TestCase):
     """
 
     @staticmethod
-    def row(name, gate):
-        step = {"job": "deploy", "step": "uses actions/deploy-pages"}
+    def row(name, gate, action="actions/deploy-pages"):
+        step = {"job": "deploy", "step": f"uses {action}"}
         if gate is not None:
             step["gates"] = [gate]
         return {"workflow": name, "classification": "gated", "publishes": [step]}
@@ -211,6 +215,52 @@ class SinglePagesDeployer(unittest.TestCase):
         ]
         self.assertEqual(ps.check_single_pages_deployer(rows), [])
 
+    def test_a_pages_deploy_by_another_action_is_still_a_pages_deploy(self):
+        # The hole this closes: the invariant matched only
+        # `actions/deploy-pages`, so switching one of two racing workflows to
+        # `peaceiris/actions-gh-pages` -- the same one Pages site, reached by a
+        # different name, and already listed in PUBLISH_ACTIONS -- silently
+        # brought the race back with nothing turning red.
+        for action in ("peaceiris/actions-gh-pages", "JamesIves/github-pages-deploy-action"):
+            with self.subTest(action=action):
+                rows = [
+                    self.row("a.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
+                    self.row("b.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}", action=action),
+                ]
+                problems = ps.check_single_pages_deployer(rows)
+                self.assertEqual(len(problems), 1)
+                self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
+
+    def test_every_pages_action_the_surface_recognises_is_covered(self):
+        # PAGES_DEPLOY_ACTIONS is a subset of PUBLISH_ACTIONS and has to stay
+        # one: an action this tool already knows publishes to Pages, but the
+        # invariant does not check, is exactly the blind spot above.
+        for action in ps.PAGES_DEPLOY_ACTIONS:
+            self.assertIn(action, ps.PUBLISH_ACTIONS, action)
+        for action in ps.PUBLISH_ACTIONS:
+            if "pages" in action.lower() or "gh-pages" in action.lower():
+                self.assertIn(action, ps.PAGES_DEPLOY_ACTIONS, action)
+
+    def test_a_shared_secret_arms_two_deployments_just_as_a_variable_does(self):
+        # Reading only `vars.` called these ungated, which is the right verdict
+        # for the wrong reason: the message then told the reader to add a gate
+        # both workflows already had.
+        rows = [
+            self.row("a.yml", "${{ secrets.PAGES_TOKEN != '' }}"),
+            self.row("b.yml", "${{ secrets.PAGES_TOKEN != '' }}"),
+        ]
+        problems = ps.check_single_pages_deployer(rows)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("PAGES_TOKEN", problems[0])
+        self.assertNotIn("no owner-set variable", problems[0])
+
+    def test_a_secret_and_a_variable_are_still_distinct_switches(self):
+        rows = [
+            self.row("a.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
+            self.row("b.yml", "${{ secrets.DOCS_PAGES_TOKEN != '' }}"),
+        ]
+        self.assertEqual(ps.check_single_pages_deployer(rows), [])
+
 
 class Snapshot(unittest.TestCase):
     def test_committed_snapshot_matches_the_live_workflows(self):
@@ -250,7 +300,12 @@ if __name__ == "__main__":
 
 
 class OneOriginPerGate(unittest.TestCase):
-    """GitHub serves one Pages site per repository, so two deployments behind one
+    """Cases carried over from #1776's `check_one_origin_per_gate`, which was a
+    second implementation of the same invariant; the two were consolidated into
+    `check_single_pages_deployer`. Kept because they cover shapes the other
+    class does not: a gate naming two variables, and non-Pages publishers.
+
+    GitHub serves one Pages site per repository, so two deployments behind one
     owner variable is a race, not redundancy.
 
     This is the shape of the 2026-08-26 near-miss: two sessions independently
@@ -276,7 +331,7 @@ class OneOriginPerGate(unittest.TestCase):
         }
 
     def test_two_pages_deploys_on_one_variable_is_reported(self):
-        problems = ps.check_one_origin_per_gate([
+        problems = ps.check_single_pages_deployer([
             self._pages_row("pages.yml", "GITHUB_PAGES_ENABLED"),
             self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
         ])
@@ -287,7 +342,7 @@ class OneOriginPerGate(unittest.TestCase):
 
     def test_separate_variables_are_fine(self):
         self.assertEqual(
-            ps.check_one_origin_per_gate([
+            ps.check_single_pages_deployer([
                 self._pages_row("pages.yml", "PAGES_PYTHON_BUILDER"),
                 self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
             ]),
@@ -296,7 +351,7 @@ class OneOriginPerGate(unittest.TestCase):
 
     def test_one_workflow_on_one_variable_is_fine(self):
         self.assertEqual(
-            ps.check_one_origin_per_gate([self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED")]),
+            ps.check_single_pages_deployer([self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED")]),
             [],
         )
 
@@ -317,7 +372,7 @@ class OneOriginPerGate(unittest.TestCase):
                 ],
             },
         ]
-        problems = ps.check_one_origin_per_gate(rows)
+        problems = ps.check_single_pages_deployer(rows)
         self.assertEqual(len(problems), 1)
         self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
 
@@ -340,10 +395,32 @@ class OneOriginPerGate(unittest.TestCase):
                 ],
             },
         ]
-        self.assertEqual(ps.check_one_origin_per_gate(rows), [])
+        self.assertEqual(ps.check_single_pages_deployer(rows), [])
+
+    def test_write_cannot_bless_a_conflict(self):
+        # The check used to sit inside main()'s `--check` branch, below an
+        # early-returning `if args.write:` -- so `--write` never ran it, while
+        # its own comment claimed re-running with --write must not be able to
+        # bless a conflict. A conflicting surface has to fail whichever flag
+        # asked, or the snapshot becomes the way to launder it.
+        conflicting = [
+            self._pages_row("a.yml", "GITHUB_PAGES_ENABLED"),
+            self._pages_row("b.yml", "GITHUB_PAGES_ENABLED"),
+        ]
+        wrote = []
+        with unittest.mock.patch.object(ps, "survey", return_value=(conflicting, [])), \
+             unittest.mock.patch.object(ps, "write_snapshot", side_effect=lambda r: wrote.append(r)), \
+             unittest.mock.patch.object(sys, "argv", ["publish_surface.py", "--write"]):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = ps.main()
+
+        self.assertEqual(code, 1, "--write must refuse a conflicting surface")
+        self.assertEqual(wrote, [], "the snapshot must not be rewritten over a conflict")
+        self.assertIn("GITHUB_PAGES_ENABLED", err.getvalue())
 
     def test_the_live_repository_has_at_most_one_pages_deploy_per_gate(self):
         # The check above proves the logic; this proves the repository.
         rows, errors = ps.survey()
         self.assertEqual(errors, [], 'every workflow must be readable for this to mean anything')
-        self.assertEqual(ps.check_one_origin_per_gate(rows), [])
+        self.assertEqual(ps.check_single_pages_deployer(rows), [])
