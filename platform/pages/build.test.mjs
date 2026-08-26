@@ -16,6 +16,7 @@ import {
   categoryFor,
   discoverSurfaces,
   injectChrome,
+  NO_SLA_PATTERN,
   listFiles,
   relatedTools,
   upToRoot,
@@ -761,6 +762,35 @@ test('a lone tool advertises no siblings and still renders', () => {
   });
   assert.ok(!html.includes('<ul>'), 'no empty list is emitted');
   assert.ok(html.includes('data-pf-to="hub"'));
+});
+
+// The clause is injected rather than required of each venture because the
+// requirement can otherwise only be discovered after the venture is on `main`.
+// Three ventures shipped without it in one day; these two tests are what stop
+// a fourth from turning `main` red.
+
+test('a page with no availability clause is given one', () => {
+  const html = injectChrome('<html><head></head><body>calculator</body></html>', {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.match(html, /Best-effort hosting, no SLA/);
+  assert.match(html, NO_SLA_PATTERN);
+});
+
+test('a page that writes its own availability clause is not given a second', () => {
+  // The wording a venture uses is its own; two notices are worse than one.
+  const own = '<p>Hosted URLs, when they exist, carry no availability SLA.</p>';
+  const html = injectChrome(`<html><head></head><body>${own}</body></html>`, {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [],
+  });
+  assert.ok(!html.includes('pf-sla'), 'the venture already says it');
+  assert.ok(html.includes(own), 'and its own wording survives');
 });
 
 test('the chrome escapes venture copy', () => {
