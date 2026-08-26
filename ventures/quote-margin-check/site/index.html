@@ -243,6 +243,7 @@
       <div class="table-scroll"><table class="sensitivity"><thead><tr><th>Component</th><th>Amount</th></tr></thead><tbody></tbody><tfoot><tr><th scope="row">Total target price</th><td></td></tr></tfoot></table></div>
     </div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
+    <div class="result" id="ladder" aria-live="polite"><strong>Price ladder</strong><p class="hint">Comparison only: the quote needed to pay each hourly target for the hours and direct costs above. Arithmetic, not a recommended price.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Hourly target</th><th>Needed quote</th><th>Change from quote</th></tr></thead><tbody></tbody></table></div></div>
     <div class="result" id="cost-spike" aria-live="polite">
       <strong>If costs rise before you start</strong>
       <p class="hint">Hours and the quoted price stay unchanged. Only overhead and subcontractor cost move. <a href="if-costs-go-up-is-this-quote-still-alive.html">Worked example</a>.</p>
@@ -475,7 +476,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, targetRateLadder, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { markdownReview } from "./markdown.mjs";
@@ -507,6 +508,7 @@
       // produced this count — an invalid kill fee is not a comparison.
       if (killFeeSettled) recordEvent("kill_fee_compared");
       recordEvent("change_order_checked");
+      recordEvent("rate_ladder_compared");
     },
   });
 
@@ -516,6 +518,7 @@
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
+  const ladder = document.getElementById("ladder");
   const decision = review.querySelector(".decision");
   const decisionTitle = review.querySelector(".decision-title");
   const decisionDetail = review.querySelector(".decision-detail");
@@ -589,6 +592,7 @@
        decisionDetail.textContent = nextStep.detail;
        decisionStatus.textContent = "";
        sensitivity.querySelector("tbody").innerHTML = overrunScenarios(quote, r).map((scenario) => `<tr><th scope="row">+${scenario.percent}%</th><td>${fmt(scenario.total_hours)}</td><td>${safeCurrency} ${fmt(scenario.effective_hourly_rate)}/hour</td><td>${safeCurrency} ${fmt(scenario.gap_to_target)}</td></tr>`).join("");
+       ladder.querySelector("tbody").innerHTML = targetRateLadder(quote, r).map((scenario) => `<tr><th scope="row">${safeCurrency} ${fmt(scenario.hourly_rate)}/hour</th><td>${safeCurrency} ${fmt(scenario.target_price)}</td><td class="${scenario.difference_from_quote <= 0 ? "good" : "bad"}">${scenario.difference_from_quote <= 0 ? "-" : "+"}${safeCurrency} ${fmt(Math.abs(scenario.difference_from_quote))}</td></tr>`).join("");
        const spikeRows = directCostSpikeScenarios(quote, r);
        costSpike.querySelector("#cost-spike-summary").textContent = directCostSpikeSummary(quote, r, spikeRows);
        costSpike.querySelector("tbody").innerHTML = spikeRows.map((scenario) => {
@@ -650,6 +654,7 @@
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
        decision.hidden = true;
+       if (ladder) ladder.querySelector("tbody").innerHTML = "";
        costSpike.querySelector("#cost-spike-summary").textContent = "Fix the inputs above to compare a cost rise.";
        costSpike.querySelector("tbody").innerHTML = "";
        discountAsk.querySelector("#discount-ask-summary").textContent = "Fix the inputs above to compare a discount ask.";

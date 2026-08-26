@@ -365,6 +365,14 @@ products:
           Added local send / revise / hold workflow choices after the
           pre-send review. The buttons record only the chosen next step;
           they are not a recommendation. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          rate_ladder_compared: 0
+        note: >-
+          Added a 50/75/100/125 hourly-target price ladder on the browser
+          calculator. Hours and direct costs stay fixed; the table is
+          arithmetic, not a recommended quote. Public URL remains owner-gated.
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:

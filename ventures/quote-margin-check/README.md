@@ -66,6 +66,11 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+The price ladder compares the quote needed at 50, 75, 100, and 125 per hour,
+using the supplied hours and direct costs. It is a quick way to compare
+negotiation anchors without changing the quote inputs; it is arithmetic only,
+not pricing advice.
+
 A second table keeps hours and the quoted price fixed and raises only overhead
 plus subcontractor cost by the same +10% / +25% / +50%. That answers the
 stale-quote question: if materials or a sub go up after you send a fixed

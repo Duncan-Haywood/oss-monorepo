@@ -216,6 +216,14 @@ test("offers portable Markdown review actions", async () => {
   assert.match(page, /quote-margin-review\.md/);
 });
 
+test("calculator page renders a target-rate price ladder", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="ladder"/);
+  assert.match(page, /targetRateLadder/);
+  assert.match(page, /rate_ladder_compared/);
+  assert.match(page, /Price ladder/);
+});
+
 test("calculator page records a local send, revise, or hold after the review", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /reviewDecision/);
