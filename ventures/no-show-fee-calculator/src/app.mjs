@@ -1,4 +1,4 @@
-import { parseInputs, computeAll, compareFeeScenarios, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
+import { parseInputs, computeAll, compareFeeScenarios, compareOverbooking, generatePolicyText, buildShareUrl, readShareValues } from "./calc.mjs";
 import { recordEvent, isOptedOut, setOptedOut, getUsageSummary, clearUsageLog } from "./usage.mjs";
 
 const form = document.getElementById("calc-form");
@@ -14,6 +14,9 @@ const usageSummaryEl = document.getElementById("usage-summary");
 const clearUsageBtn = document.getElementById("clear-usage");
 const scenarioSection = document.getElementById("scenario-section");
 const scenarioBody = document.getElementById("scenario-body");
+const overbookSection = document.getElementById("overbook-section");
+const overbookBody = document.getElementById("overbook-body");
+const overbookSummary = document.getElementById("overbook-summary");
 const currencySelect = document.getElementById("currency");
 
 const currencyOptions = {
@@ -71,6 +74,38 @@ function renderScenarios(values) {
   scenarioSection.hidden = false;
 }
 
+function overbookCells(row, outcome, winnerId, fmt) {
+  const tr = document.createElement("tr");
+  if (row.id === winnerId) tr.className = "selected-scenario";
+  tr.appendChild(Object.assign(document.createElement("th"), { scope: "row", textContent: row.label }));
+  tr.insertCell().textContent = outcome.extraBookingsPerWeek.toFixed(1);
+  tr.insertCell().textContent = outcome.served.toFixed(1);
+  tr.insertCell().textContent = outcome.overflow.toFixed(2);
+  tr.insertCell().textContent = fmt(outcome.serviceRevenue);
+  tr.insertCell().textContent = fmt(outcome.feeRevenue);
+  tr.insertCell().textContent = fmt(outcome.overflowCostAnnual);
+  tr.insertCell().textContent = fmt(outcome.netKept);
+  return tr;
+}
+
+function renderOverbooking(values) {
+  const comparison = compareOverbooking(values);
+  overbookSummary.textContent = comparison.summary;
+  overbookBody.replaceChildren();
+  for (const row of comparison.rows) {
+    overbookBody.appendChild(overbookCells(row, row.withFee, comparison.winner, fmtMoney));
+  }
+  overbookBody.appendChild(
+    overbookCells(
+      { id: "overbook_drop_fee", label: "Overbook to match, drop the fee" },
+      comparison.matchNoFee,
+      comparison.winner,
+      fmtMoney,
+    ),
+  );
+  overbookSection.hidden = false;
+}
+
 function renderUsageSummary() {
   const { total, byEvent } = getUsageSummary();
   if (total === 0) {
@@ -109,6 +144,7 @@ function render() {
     // the old numbers still apply to the edited inputs. This is #1022's fix;
     // a later merge on `main` dropped the line, so this restores it.
     scenarioSection.hidden = true;
+    overbookSection.hidden = true;
     return false;
   }
 
@@ -116,6 +152,7 @@ function render() {
   const result = computeAll(parsed.values);
   renderResults(result);
   renderScenarios(parsed.values);
+  renderOverbooking(parsed.values);
 
   policyEl.value = generatePolicyText({
     businessName: String(raw.businessName ?? ""),
@@ -134,6 +171,7 @@ function countCalculation() {
   if (!render()) return;
   recordEvent("calculation_run");
   recordEvent("fee_scenarios_viewed");
+  recordEvent("overbooking_compared");
   renderUsageSummary();
 }
 
