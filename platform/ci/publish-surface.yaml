@@ -85,6 +85,9 @@ workflows:
 - workflow: carpet-install-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: cash-runway-planner-ci.yml
+  classification: none
+  publishes: []
 - workflow: chargeback-evidence-packet-ci.yml
   classification: none
   publishes: []
@@ -172,6 +175,9 @@ workflows:
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: hvac-maintenance-contract-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: interior-door-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -191,6 +197,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
+  classification: none
+  publishes: []
+- workflow: ltl-freight-class-estimator-ci.yml
   classification: none
   publishes: []
 - workflow: mcp-drift-watch-ci.yml
@@ -218,6 +227,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: patio-door-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: pest-control-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: photo-editing-ci.yml
