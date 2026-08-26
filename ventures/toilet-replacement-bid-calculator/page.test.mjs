@@ -7,10 +7,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import {
+  compareAccess,
+  accessNote,
+  suggestedScopeKit,
+  suggestedToiletKit,
+  suggestedRoughInKit,
+  suggestedExtraKit,
+} from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-replace-a-toilet.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-toilet.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-take-a-saturday-toilet-call.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -53,6 +62,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /compareToilet/, 'bowl comparison is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access note is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -70,7 +81,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'scope', 'toilet', 'roughIn', 'toiletCount', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'toilets', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'toilets', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -85,6 +96,8 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /vs two-piece/);
   assert.match(html, /Same closet, who bought the bowl/);
   assert.match(html, /should-i-install-a-customer-supplied-toilet\.html/);
+  assert.match(html, /Same closet, when you can work/);
+  assert.match(html, /should-i-take-a-saturday-toilet-call\.html/);
 });
 
 test('disclaimer and privacy line are visible, not only in the README', () => {
@@ -101,6 +114,7 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /swap-only/i);
   assert.match(seo, /Two-piece versus one-piece on the same closet/i);
   assert.match(seo, /Customer-supplied bowls are not a free set/i);
+  assert.match(seo, /Saturday is not the weekday bid/i);
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
@@ -114,4 +128,154 @@ test('the owner-supply article answers the search phrase and stays crawlable', (
   assert.match(supplySeo, /No warranty/);
   assert.match(supplySeo, /no SLA/i);
   assert.doesNotMatch(supplySeo, /<textarea/i);
+});
+
+test('the Saturday article quotes the two-piece swap and flange-repair arithmetic', () => {
+  const kit = {
+    ...suggestedScopeKit('swap-only'),
+    ...suggestedToiletKit('two-piece-standard'),
+    ...suggestedRoughInKit('12-inch'),
+    ...suggestedExtraKit(),
+  };
+  const rows = compareAccess({
+    toiletCount: 1,
+    scope: 'swap-only',
+    toilet: 'two-piece-standard',
+    roughIn: '12-inch',
+    travelMiles: 6,
+    includeHaul: false,
+    includeWaxFree: false,
+    includeBidetSeat: false,
+    hourlyWage: 42,
+    burdenRate: 30,
+    overheadRate: 15,
+    targetMargin: 20,
+    travelAndEquipment: 45,
+    otherCost: 0,
+    ...kit,
+  }, { installOnlyPrice: 499 });
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.match(accessNote(rows), /\$124\.94/);
+  assert.match(accessSeo, /Should I take a Saturday toilet call/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$499/);
+  assert.match(accessSeo, /\$124\.94/);
+  assert.match(accessSeo, /\$623\.94/);
+  assert.match(accessSeo, /\$565\.65/);
+  assert.match(accessSeo, /\$779\.92/);
+  assert.match(accessSeo, /\$1,937\.11/);
+  assert.match(accessSeo, /\$2,287\.56/);
+  assert.match(accessSeo, /\$1,830\.05/);
+  assert.match(accessSeo, /\$249/);
+  assert.match(accessSeo, /time-and-a-half/i);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
+});
+
+// The saved-and-shared bid is only trustworthy if it carries every field the
+// calculator reads. This repo has already shipped the opposite once: a
+// `share.mjs` kept its own hand-written field list, the form grew two fields
+// past it, and a shared link silently dropped them — the recipient's page
+// computed a different price than the sender had quoted, with nothing on
+// screen to say so. These tests pin the derivation rather than the list, so a
+// field added to the form is covered without anyone remembering to.
+test('save-and-share is wired to the page', () => {
+  assert.match(scriptSource, /from '\.\/share\.mjs'/, 'share.mjs is not imported');
+  // The bid rides in the URL fragment, never the query string. A query string
+  // is sent in the request line a server logs and in the `Referer` header a
+  // later off-site click carries; a fragment is sent in neither. On a page that
+  // promises nothing you type is uploaded, that is the difference between the
+  // claim holding and not. Pin it here so a future edit cannot quietly move the
+  // bid into `?...` and start leaking the setter's rates.
+  assert.match(scriptSource, /\$\{query \? `#\$\{query\}` : ''\}/,
+    'the bid link must be built as a URL fragment (#), not a query string (?)');
+  assert.ok(!/`\?\$\{query\}`/.test(scriptSource),
+    'the bid link must not be built with a query string');
+  assert.match(scriptSource, /search: location\.hash/,
+    'the bid must be restored from the fragment, matching how the link is built');
+  for (const name of ['encodeBid', 'saveBid', 'clearBid', 'restoreBid']) {
+    assert.match(scriptSource, new RegExp(`\\b${name}\\b`), `${name} is imported but never used`);
+  }
+  for (const id of ['copyLink', 'clearSaved', 'restoreNote']) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+  // What a bid link contains has to be on the page beside the button that
+  // makes one. A contractor who pastes it to the customer is handing over
+  // their wage, burden, overhead, and margin, and the address bar does not
+  // say so. This copy is a guardrail, not decoration — it stays.
+  assert.match(html, /A bid link carries your own rates/, 'the bid link does not say what it carries');
+  assert.match(html, /wage, burden, overhead, and target margin/, 'the link caution does not name the rates it carries');
+  assert.match(html, /The customer should get the price, not the link/, 'the link caution does not say who not to send it to');
+  assert.match(html, /Your bid is saved in this browser/, 'the privacy note does not disclose that the bid is stored');
+  assert.match(html, /treat one like your rate sheet/, 'the privacy note does not warn what a copied link holds');
+});
+
+function idListsIn(source) {
+  return new Set([...source.matchAll(/\b([A-Z][A-Z_]*_IDS)\b/g)].map((m) => m[1]));
+}
+
+// What the bid link carries is CHOICE_IDS plus BID_SPEC — and either may defer
+// to another id list rather than restate it, so resolve one level of that
+// before comparing. Reusing an existing list is the correct thing for a
+// venture to do; the guard should not push it into keeping a second copy.
+function specSource() {
+  let out = bodyOf(scriptSource, 'const CHOICE_IDS =') + bodyOf(scriptSource, 'const BID_SPEC =');
+  for (const name of idListsIn(out)) {
+    if (scriptSource.includes(`const ${name} =`)) out += bodyOf(scriptSource, `const ${name} =`);
+  }
+  return out;
+}
+
+// Returns the declaration at `opener` up to the close of its first bracketed
+// body, so a `{...}` object and an `[...]` array both work.
+function bodyOf(source, opener) {
+  const start = source.indexOf(opener);
+  assert.notEqual(start, -1, `could not find ${opener} in the script`);
+  const first = source.slice(start).search(/[[{]/);
+  assert.notEqual(first, -1, `${opener} has no bracketed body`);
+  const open = source[start + first];
+  const close = open === '[' ? ']' : '}';
+  let depth = 0;
+  for (let i = start + first; i < source.length; i += 1) {
+    if (source[i] === open) depth += 1;
+    else if (source[i] === close) {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, i + 1);
+    }
+  }
+  throw new Error(`unbalanced ${open}${close} after ${opener}`);
+}
+
+test('every field the form reads is a field the bid link carries', () => {
+  const read = idListsIn(bodyOf(scriptSource, 'function readInput('));
+  const shared = idListsIn(specSource());
+  const dropped = [...read].filter((name) => !shared.has(name));
+  assert.deepEqual(
+    dropped,
+    [],
+    `readInput() reads ${dropped.join(', ')} but BID_SPEC does not carry them; `
+      + 'a shared link would price a different job than the sender saw',
+  );
+});
+
+test('every select the visitor can set travels as a validated choice', () => {
+  // Read the selects out of the markup, not out of the script, so a select
+  // added to the form is caught even if nobody touched the wiring. #jobPresets
+  // is excluded on purpose: it is a "start from this job" shortcut that writes
+  // the other fields, and it holds no state of its own worth carrying.
+  const selects = [...markup.matchAll(/<select\s+id="([\w-]+)"/g)]
+    .map((m) => m[1])
+    .filter((id) => id !== 'jobPresets');
+  assert.ok(selects.length > 0, 'no selects found; the markup probably did not parse');
+  const carried = specSource();
+  for (const id of selects) {
+    assert.match(
+      carried,
+      new RegExp(`'${id}'`),
+      `select #${id} is not in CHOICE_IDS, so a shared link would carry it unvalidated or not at all`,
+    );
+  }
 });

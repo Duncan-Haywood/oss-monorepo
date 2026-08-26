@@ -82,6 +82,7 @@ test("UBL payee account and branch map into payment IBAN and BIC", () => {
   );
   const invoice = parseUblInvoice(source);
   assert.deepEqual(invoice.payment, {
+    means: "30",
     remittance: "RF18539007547034",
     iban: "DE89370400440532013000",
     bic: "COBADEFFXXX",

@@ -13,9 +13,24 @@ verify them against your current statements.
 
 After using this, you can now see cash at list, cash on the offer, the
 Reverb offer that matches eBay list cash, whether charging shipping,
-folding postage into the list, or offering local pickup leaves more, and
-whether a bump still pays if it gets you from the offer to list, which
-used to mean opening two seller fee pages and a spreadsheet.
+folding postage into the list, absorbing the label, or offering local
+pickup leaves more, whether Reverb Safe Shipping still beats your own
+label after expected claims, whether a bump still pays if it gets you
+from the offer to list, and whether consigning at a shop or taking
+their cash offer still beats listing it yourself, which used to mean
+opening two seller fee pages and a spreadsheet.
+
+## Pay for a bump, or take the offer
+
+A bump is a fixed cash out of this sale. Paying $3 and still taking the
+$720 offer always leaves $3 less. It only pays if it changes the price
+you take — list instead of the offer, or an offer high enough to cover
+the bump after marketplace and payment take their cut.
+
+The SEO page
+[`should-i-bump-this-reverb-listing.html`](should-i-bump-this-reverb-listing.html)
+walks the default worked example ($3 illustrated bump, $210.65 offer vs
+$281.33 list-with-bump, $70.68 save, $723.26 cover).
 
 ## Offer versus list
 
@@ -41,12 +56,16 @@ a different sale than charging postage for the same checkout: folding $75
 into an $875 list raises the marketplace line, even though the buyer still
 pays $875.
 
-The calculator keeps three paths on one screen:
+The calculator keeps four paths on one screen:
 
 - **Buyer pays shipping** — your list plus shipping charged, postage you pay.
 - **Shipping included** — same checkout, postage baked into the item, so
   marketplace (and Gives) rise.
-- **Local pickup** — your list, no shipping charged, no postage you pay.
+- **Local pickup** — your list, no shipping charged; add gas or parking as
+  the meetup cost if pickup is not free.
+- **You absorb the label** — keep the typed list, offer free shipping, and
+  still buy the label. The buyer pays less; you keep less. That is not the
+  same sale as folding postage into the item.
 
 It also names the included list that leaves the same cash as charging
 shipping, so you can see how much the buyer would have to pay all-in to
@@ -54,36 +73,73 @@ offset the extra marketplace line.
 
 The SEO page
 [`should-i-include-shipping-on-reverb.html`](should-i-include-shipping-on-reverb.html)
-walks the default worked example ($800 + $75 charged / $65 you pay: $284.33
-buyer-pays, $280.58 included, $276.50 pickup, $879.07 included list that
-matches buyer-pays). Comparison is derived from the existing sale fields —
-no second form.
+walks the default include-vs-charge example ($800 + $75 charged / $65 you
+pay: $284.33 buyer-pays, $280.58 included, $276.50 pickup, $879.07 included
+list that matches buyer-pays).
+[`should-i-eat-the-shipping-on-reverb.html`](should-i-eat-the-shipping-on-reverb.html)
+walks absorbing the label on the same guitar ($211.50 — $69.08 less than
+including shipping, $72.83 less than charging the buyer).
 
-## Pay for a bump, or take the offer
+## Your own label or Reverb Safe Shipping
 
-A bump is a fixed cash out of this sale. Paying one and still taking the
-same offer always leaves less by exactly the bump. It only pays if it
-changes the price you take — list instead of the offer, or an offer high
-enough to cover the bump after marketplace and payment take their cut.
+Safe Shipping is a more expensive label, not a different checkout. The
+buyer still pays the same shipping charged. You pay more postage; they
+cover a damaged or lost shipment. Your own label is cheaper and you eat
+the claim.
 
-When the bump field is $0 the table uses a $3 illustration so the four
-rows are not the same sale twice. Type your own bump to replace it. The
-calculator also names the offer that keeps no-bump offer cash after
-paying the bump.
+The calculator keeps three paths on one screen:
+
+- **Own label if nothing goes wrong** — typed shipping you pay, no claim.
+- **Own label after expected claims** — same sale minus (claim rate × cash
+  you lose on an unprotected claim).
+- **Reverb Safe Shipping** — typed Safe Shipping quote as the label you
+  pay. A $0 quote is illustrated at your own label plus $15 so the table
+  is never empty.
+
+It also names the break-even unprotected claim rate: extra label cost
+divided by the claim. Below that rate your own label still leaves more
+expected cash.
 
 The SEO page
-[`should-i-bump-this-reverb-listing.html`](should-i-bump-this-reverb-listing.html)
-walks the default worked example ($800 list, $720 offer, $3 illustration:
-$210.65 take the offer, $207.65 offer plus bump, $284.33 list, $281.33
-list plus bump, $723.26 offer that covers the bump). Complementary to
-open PR #1600 (absorb-the-label / meetup) — that changes shipping paths;
-this uses the existing bump field.
+[`should-i-buy-reverb-safe-shipping.html`](should-i-buy-reverb-safe-shipping.html)
+walks the default worked example ($65 own label, $80 Safe Shipping, $450
+claim, 2% rate: $284.33 if nothing goes wrong, $275.33 after the $9.00
+expected claim, $269.33 on Safe Shipping, 3.33% break-even). Complementary
+to who pays postage (buyer / included / pickup) and to open PRs that absorb
+the label into the list or compare a bump — those do not compare insured
+label versus own postage.
+
+## List it yourself, consign, or take their cash
+
+A shop that will consign the guitar or buy it today is a different sale
+than a Reverb checkout. Consignment is a percent of *their* sale — they
+ship and they collect, so you do not pay marketplace, payment processing,
+a bump, or a label. Their cash offer is a buy today: that number minus
+what you paid for the gear.
+
+The calculator keeps three paths on one screen:
+
+- **List it yourself on Reverb** — your list, Reverb fees, postage, packing.
+- **Consign at the shop** — shop sale price times (1 − their cut).
+- **Take their cash offer today** — the number they would hand you now.
+
+It also names the shop cut, the shop sale price, and the cash offer that
+leave the same cash as Reverb at list, so a 30% "we'll handle it" quote
+can be checked against the listing you already have.
+
+The SEO page
+[`should-i-consign-this-reverb-listing.html`](should-i-consign-this-reverb-listing.html)
+walks the default worked example ($800 Reverb list / $800 shop sale / 30%
+cut / $520 cash: $284.33 self-list, $110.00 consign, $70.00 cash, 8.21%
+break-even cut, $1049.04 shop sale that matches list, $734.33 cash that
+matches list). Complementary to offer-versus-eBay, who pays postage, Safe
+Shipping, and to open PRs that compare a bump or absorb the label into
+the list — those do not compare a shop cut or a shop cash offer.
 
 This is distinct from the eBay fee calculator (final-value fee on one
 channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
 (fulfillment and storage), and the where-to-sell ranker (a custom "other
-channel" row, not Reverb's offer-versus-list, shipping-packaging, or bump
-shape).
+channel" row, not Reverb's offer-versus-list or shipping-packaging shape).
 
 ## Save and share your numbers
 

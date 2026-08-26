@@ -13,8 +13,11 @@ REQUIRED = ("name", "type", "resolver", "observed_at")
 UNCERTAIN = {"timeout", "disagreement", "dnssec_failure", "refused", "error"}
 
 
-def load_snapshot(path: str | Path) -> dict[str, Any]:
-    snapshot = json.loads(Path(path).read_text(encoding="utf-8"))
+def load_snapshot(source: str | Path | dict[str, Any]) -> dict[str, Any]:
+    if isinstance(source, dict):
+        snapshot = source
+    else:
+        snapshot = json.loads(Path(source).read_text(encoding="utf-8"))
     if snapshot.get("authorized") is not True:
         raise ValueError("input must declare authorized: true")
     if not snapshot.get("domain"):

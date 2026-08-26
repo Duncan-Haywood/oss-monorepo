@@ -22,11 +22,11 @@ def _number(value: str) -> int | float:
     return int(number) if number == number.to_integral_value() else float(number)
 
 
-def _party(element: ElementTree.Element) -> dict[str, str]:
+def _party(element: ElementTree.Element) -> dict[str, Any]:
     party = next(iter(_children(element, "Party")), element)
     identifier = _text(party, "ID")
     name = _text(party, "Name")
-    mapped = {"id": identifier, "name": name}
+    mapped: dict[str, Any] = {"id": identifier, "name": name}
     vat_id = ""
     for scheme in _children(party, "PartyTaxScheme"):
         vat_id = _text(scheme, "CompanyID", required=False)
@@ -34,7 +34,25 @@ def _party(element: ElementTree.Element) -> dict[str, str]:
             break
     if vat_id:
         mapped["vat_id"] = vat_id
+    endpoint = _endpoint(party)
+    if endpoint:
+        mapped["endpoint"] = endpoint
     return mapped
+
+
+def _endpoint(party: ElementTree.Element) -> dict[str, str] | None:
+    """Map Party/EndpointID and its schemeID when either is present."""
+    for child in party.iter():
+        if child.tag.rsplit("}", 1)[-1] != "EndpointID":
+            continue
+        value = (child.text or "").strip()
+        scheme = ""
+        for key, attr in child.attrib.items():
+            if key.rsplit("}", 1)[-1] == "schemeID":
+                scheme = (attr or "").strip()
+        if value or scheme:
+            return {"id": value, "scheme": scheme}
+    return None
 
 
 _DOCUMENT_ROOTS = {
@@ -64,13 +82,15 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         price = _text(line, "PriceAmount")
         net = _text(line, "LineExtensionAmount")
         category = next(iter(_children(line, "ClassifiedTaxCategory")), line)
-        lines.append({
+        mapped_line = {
             "description": _text(line, "Name"),
             "quantity": _number(quantity),
             "unit_price": _number(price),
             "tax_percent": _number(_text(category, "Percent")),
             "net": _number(net),
-        })
+        }
+        mapped_line.update(_tax_category_fields(category))
+        lines.append(mapped_line)
 
     supplier = next(iter(_children(root, "AccountingSupplierParty")), root)
     customer = next(iter(_children(root, "AccountingCustomerParty")), root)
@@ -108,7 +128,143 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
     payment = _payee_payment(root)
     if payment:
         invoice["payment"] = payment
+    exemption = _document_exemption(root)
+    if exemption:
+        invoice.update(exemption)
+    breakdown = _tax_breakdown(root)
+    if breakdown:
+        invoice["tax_breakdown"] = breakdown
+    period = _invoice_period(root)
+    if period:
+        invoice["period"] = period
+    invoice.update(_commercial_references(root))
+    adjustments = _header_adjustments(root)
+    if adjustments:
+        invoice["adjustments"] = adjustments
     return invoice
+
+
+def _tax_category_fields(category: ElementTree.Element) -> dict[str, str]:
+    """Map ClassifiedTaxCategory ID and exemption reason / code when present."""
+    extras: dict[str, str] = {}
+    tax_id = ""
+    for child in list(category):
+        tag = child.tag.rsplit("}", 1)[-1]
+        if tag == "ID":
+            tax_id = (child.text or "").strip()
+    if tax_id:
+        extras["tax_category"] = tax_id
+    reason = _text(category, "TaxExemptionReason", required=False)
+    if reason:
+        extras["tax_reason"] = reason
+    reason_code = _text(category, "TaxExemptionReasonCode", required=False)
+    if reason_code:
+        extras["tax_reason_code"] = reason_code
+    return extras
+
+
+def _tax_breakdown(root: ElementTree.Element) -> list[dict[str, Any]]:
+    """Map TaxTotal/TaxSubtotal rows into tax_breakdown."""
+    rows: list[dict[str, Any]] = []
+    for subtotal in _children(root, "TaxSubtotal"):
+        taxable = _text(subtotal, "TaxableAmount", required=False)
+        tax = _text(subtotal, "TaxAmount", required=False)
+        category = next(iter(_children(subtotal, "TaxCategory")), None)
+        percent = _text(category, "Percent", required=False) if category is not None else ""
+        tax_id = ""
+        if category is not None:
+            for child in list(category):
+                if child.tag.rsplit("}", 1)[-1] == "ID":
+                    tax_id = (child.text or "").strip()
+        if not taxable and not tax and not percent:
+            continue
+        row: dict[str, Any] = {}
+        if percent:
+            row["tax_percent"] = _number(percent)
+        if taxable:
+            row["taxable"] = _number(taxable)
+        if tax:
+            row["tax"] = _number(tax)
+        if tax_id:
+            row["tax_category"] = tax_id
+        if row:
+            rows.append(row)
+    return rows
+
+
+def _document_exemption(root: ElementTree.Element) -> dict[str, str]:
+    """Map TaxSubtotal/TaxCategory exemption reason when present."""
+    extras: dict[str, str] = {}
+    for subtotal in _children(root, "TaxSubtotal"):
+        for category in _children(subtotal, "TaxCategory"):
+            reason = _text(category, "TaxExemptionReason", required=False)
+            if reason and "tax_exemption_reason" not in extras:
+                extras["tax_exemption_reason"] = reason
+            reason_code = _text(category, "TaxExemptionReasonCode", required=False)
+            if reason_code and "tax_exemption_reason_code" not in extras:
+                extras["tax_exemption_reason_code"] = reason_code
+    return extras
+
+
+def _header_adjustments(root: ElementTree.Element) -> list[dict[str, Any]]:
+    """Map invoice-level AllowanceCharge rows. Ignore line-level charges."""
+    rows: list[dict[str, Any]] = []
+    for child in list(root):
+        if child.tag.rsplit("}", 1)[-1] != "AllowanceCharge":
+            continue
+        indicator = _text(child, "ChargeIndicator", required=False)
+        amount = _text(child, "Amount", required=False)
+        base = _text(child, "BaseAmount", required=False)
+        percent = _text(child, "MultiplierFactorNumeric", required=False)
+        reason = _text(child, "AllowanceChargeReason", required=False)
+        reason_code = _text(child, "AllowanceChargeReasonCode", required=False)
+        if not any((indicator, amount, base, percent, reason, reason_code)):
+            continue
+        row: dict[str, Any] = {}
+        if indicator:
+            row["kind"] = "charge" if indicator.strip().casefold() in {"true", "1"} else "allowance"
+        if amount:
+            row["amount"] = _number(amount)
+        if base:
+            row["base"] = _number(base)
+        if percent:
+            row["percent"] = _number(percent)
+        if reason:
+            row["reason"] = reason
+        if reason_code:
+            row["reason_code"] = reason_code
+        if row:
+            rows.append(row)
+    return rows
+
+
+def _commercial_references(root: ElementTree.Element) -> dict[str, str]:
+    """Map invoice-level BuyerReference and OrderReference/ID when present."""
+    extras: dict[str, str] = {}
+    for child in list(root):
+        tag = child.tag.rsplit("}", 1)[-1]
+        if tag == "BuyerReference":
+            extras["buyer_reference"] = (child.text or "").strip()
+        elif tag == "OrderReference":
+            extras["order_reference"] = _text(child, "ID", required=False)
+    return extras
+
+
+def _invoice_period(root: ElementTree.Element) -> dict[str, str] | None:
+    """Map invoice-level InvoicePeriod StartDate/EndDate. Ignore line periods."""
+    for child in list(root):
+        if child.tag.rsplit("}", 1)[-1] != "InvoicePeriod":
+            continue
+        start = _text(child, "StartDate", required=False)
+        end = _text(child, "EndDate", required=False)
+        if start or end:
+            period: dict[str, str] = {}
+            if start:
+                period["start"] = start
+            if end:
+                period["end"] = end
+            return period
+    return None
 
 
 def _billing_reference(root: ElementTree.Element) -> str:
@@ -134,9 +290,12 @@ def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | flo
 
 
 def _payee_payment(root: ElementTree.Element) -> dict[str, str]:
-    """Map remittance, payee account, and nested branch BIC when present."""
+    """Map payment means code, remittance, payee account, and branch BIC."""
     for means in _children(root, "PaymentMeans"):
         payment: dict[str, str] = {}
+        code = _text(means, "PaymentMeansCode", required=False)
+        if code:
+            payment["means"] = code
         remittance = _payment_reference(means)
         if remittance:
             payment["remittance"] = remittance

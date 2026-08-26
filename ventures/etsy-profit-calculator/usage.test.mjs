@@ -22,6 +22,26 @@ test('supports a named aggregate event without recording inputs', () => {
   const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
   recordUsage(storage, false, 'etsy_plus_compared');
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).etsy_plus_compared, 1);
+  recordUsage(storage, false, 'personalization_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).personalization_compared, 1);
+  recordUsage(storage, false, 'etsy_ads_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).etsy_ads_compared, 1);
+  recordUsage(storage, false, 'production_partner_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).production_partner_compared, 1);
+  recordUsage(storage, false, 'star_seller_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).star_seller_compared, 1);
+  recordUsage(storage, false, 'shop_sale_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).shop_sale_compared, 1);
+  recordUsage(storage, false, 'free_shipping_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).free_shipping_compared, 1);
+  recordUsage(storage, false, 'etsy_labels_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).etsy_labels_compared, 1);
+  recordUsage(storage, false, 'listing_renewal_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).listing_renewal_compared, 1);
+  recordUsage(storage, false, 'offsite_ads_compared');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).offsite_ads_compared, 1);
+  recordUsage(storage, false, 'target_profit_priced');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).target_profit_priced, 1);
 });
 
 test('honors Do Not Track without recording', () => {

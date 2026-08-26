@@ -3,16 +3,22 @@ import assert from 'node:assert/strict';
 import {
   calculateBid,
   compareTileSupply,
+  compareScope,
+  compareAccess,
   tileSupplyNote,
+  scopeNote,
+  accessNote,
   formatBidSummary,
   billedTileSf,
   suggestedBench,
   suggestedGlass,
   suggestedOwnerTileKit,
+  suggestedAccessKit,
   JOB_PRESETS,
   BENCH_PRESETS,
   GLASS_PRESETS,
   SUPPLY_PRESETS,
+  ACCESS_PRESETS,
 } from './calc.mjs';
 
 const rates = () => ({
@@ -301,4 +307,168 @@ test('supply presets name the three paths shops actually get shopped on', () => 
   assert.equal(SUPPLY_PRESETS[0].id, 'contractor-supplied');
   assert.equal(SUPPLY_PRESETS[1].id, 'owner-fits');
   assert.equal(SUPPLY_PRESETS[2].id, 'owner-short');
+});
+
+test('compareScope prices four bathrooms from the same crew rates', () => {
+  const rows = compareScope(alcove());
+  assert.equal(rows.length, 4);
+  const alcoveRow = rows.find((row) => row.scope === 'alcove');
+  const walkInRow = rows.find((row) => row.scope === 'curbless');
+  const steamRow = rows.find((row) => row.scope === 'steam');
+  const tileOnly = rows.find((row) => row.scope === 'tile-only');
+  assert.ok(alcoveRow && walkInRow && steamRow && tileOnly);
+  assert.equal(alcoveRow.tileSf, 95);
+  assert.equal(walkInRow.tileSf, 115);
+  assert.equal(walkInRow.drainHours, 5);
+  assert.equal(walkInRow.curblessHours, 7);
+  assert.equal(alcoveRow.drainHours, 0);
+  assert.equal(alcoveRow.curblessHours, 0);
+  assert.equal(alcoveRow.glassMaterial, 480);
+  assert.equal(walkInRow.glassMaterial, 1650);
+  assert.equal(steamRow.glassMaterial, 2200);
+  assert.equal(tileOnly.glassMaterial, 0);
+  assert.ok(walkInRow.price > alcoveRow.price * 1.5);
+  assert.ok(walkInRow.pricePerTileSf > alcoveRow.pricePerTileSf);
+  assert.ok(steamRow.price > walkInRow.price);
+  assert.ok(tileOnly.price < alcoveRow.price);
+  assert.equal(alcoveRow.cheapest, false);
+  assert.equal(tileOnly.cheapest, true);
+});
+
+test('compareScope does not reuse a typed glass invoice', () => {
+  const cheapGlass = compareScope({ ...alcove(), glassCost: 1, hoursPerBench: 99, benchMaterial: 1 });
+  const baseline = compareScope(alcove());
+  const walkInCheap = cheapGlass.find((row) => row.scope === 'curbless');
+  const walkInBase = baseline.find((row) => row.scope === 'curbless');
+  assert.ok(Math.abs(walkInCheap.price - walkInBase.price) < 1e-9);
+  assert.equal(walkInCheap.glassMaterial, 1650);
+});
+
+test('matching the alcove per-SF on the curbless walk-in loses money', () => {
+  const rows = compareScope(alcove());
+  const alcoveRow = rows.find((row) => row.scope === 'alcove');
+  const walkInRow = rows.find((row) => row.scope === 'curbless');
+  assert.ok(alcoveRow.matchAlcove);
+  assert.equal(alcoveRow.matchAlcove.belowBreakEven, false);
+  assert.ok(Math.abs(alcoveRow.matchAlcove.price - alcoveRow.price) < 1e-6);
+  assert.equal(walkInRow.matchAlcove.belowBreakEven, true);
+  assert.ok(Math.abs(walkInRow.matchAlcove.perTileSf - alcoveRow.pricePerTileSf) < 1e-9);
+  assert.ok(Math.abs(walkInRow.matchAlcove.price - alcoveRow.pricePerTileSf * 115) < 1e-6);
+  assert.match(scopeNote(rows), /lose/i);
+  assert.match(scopeNote(rows), /Walk-away on that walk-in/i);
+});
+
+test('scopeNote names the lift when matching the alcove still covers', () => {
+  const rows = compareScope({ ...alcove(), targetMargin: 80 });
+  const walkIn = rows.find((row) => row.scope === 'curbless');
+  assert.equal(walkIn.matchAlcove.belowBreakEven, false);
+  assert.match(scopeNote(rows), /still covers the curbless walk-in/i);
+});
+
+test('scopeNote rejects a short or incomplete table', () => {
+  assert.throws(() => scopeNote([{ scope: 'alcove' }]), /missing rows/);
+  assert.throws(() => scopeNote([
+    { scope: 'alcove' },
+    { scope: 'curbless' },
+    { scope: 'tile-only' },
+    { scope: 'someone-else' },
+  ]), /missing a bathroom row/);
+});
+
+test('job presets carry stable ids for the scope table', () => {
+  assert.deepEqual(JOB_PRESETS.map((job) => job.id), ['alcove', 'curbless', 'steam', 'tile-only']);
+  for (const job of JOB_PRESETS) {
+    assert.ok(job.shortLabel.length > 0);
+  }
+});
+
+test('compareAccess keeps weekday hours and raises after-hours wage plus a second trip', () => {
+  const kit = suggestedAccessKit();
+  const rows = compareAccess(alcove());
+  assert.equal(rows.length, 3);
+  const empty = rows.find((row) => row.access === 'empty-weekday');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(kit.occupiedPaceMultiplier, 1.25);
+  assert.equal(kit.afterHoursWageMultiplier, 1.5);
+  assert.equal(kit.afterHoursExtraTripHours, suggestedOwnerTileKit().hoursCallbackTrip);
+  assert.ok(Math.abs(occupied.tileHours - empty.tileHours * 1.25) < 1e-9);
+  assert.ok(Math.abs(occupied.siteHours - empty.siteHours * 1.25) < 1e-9);
+  assert.ok(Math.abs(occupied.loadedWage - empty.loadedWage) < 1e-9);
+  assert.ok(occupied.totalHours > empty.totalHours);
+  assert.ok(occupied.price > empty.price);
+  assert.ok(Math.abs(afterHours.loadedWage - empty.loadedWage * 1.5) < 1e-9);
+  assert.ok(Math.abs(afterHours.siteHours - empty.siteHours - kit.afterHoursExtraTripHours) < 1e-9);
+  assert.ok(Math.abs(afterHours.tileHours - empty.tileHours) < 1e-9);
+  assert.ok(afterHours.price > occupied.price);
+  assert.equal(empty.cheapest, true);
+  assert.equal(empty.installOnly, null);
+  assert.ok(Math.abs(empty.price - 7418.512555555557) < 1e-4);
+  assert.ok(Math.abs(occupied.price - 7824.599555555556) < 1e-4);
+  assert.ok(Math.abs(afterHours.price - 8894.366055555556) < 1e-4);
+});
+
+test('compareAccess does not leak a typed site day into the extra evening dispatch', () => {
+  const baseline = compareAccess(alcove());
+  const overridden = compareAccess({ ...alcove(), siteHours: 9 });
+  const empty = overridden.find((row) => row.access === 'empty-weekday');
+  const afterHours = overridden.find((row) => row.access === 'after-hours');
+  const baselineAfter = baseline.find((row) => row.access === 'after-hours');
+  const baselineEmpty = baseline.find((row) => row.access === 'empty-weekday');
+  assert.ok(empty.siteHours > baselineEmpty.siteHours);
+  assert.ok(Math.abs((afterHours.siteHours - empty.siteHours) - (baselineAfter.siteHours - baselineEmpty.siteHours)) < 1e-9);
+});
+
+test('a $5,500 Saturday special covers a weekday alcove and loses after-hours', () => {
+  const rows = compareAccess(alcove(), { installOnlyPrice: 5500 });
+  const empty = rows.find((row) => row.access === 'empty-weekday');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(empty.installOnly.belowBreakEven, false);
+  assert.equal(occupied.installOnly.belowBreakEven, true);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(afterHours.breakEvenPrice - 6403.94356) < 1e-4);
+  assert.match(accessNote(rows), /empty-weekday set covers/i);
+  assert.match(accessNote(rows), /\$903\.94/);
+  assert.match(accessNote(rows), /\$6,403\.94/);
+});
+
+test('the $45 / SF Saturday special on a curbless walk-in loses even on a weekday', () => {
+  const rows = compareAccess(walkIn(), { installOnlyPrice: 45 * 115 });
+  const empty = rows.find((row) => row.access === 'empty-weekday');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  assert.equal(empty.installOnly.belowBreakEven, true);
+  assert.equal(occupied.installOnly.belowBreakEven, true);
+  assert.equal(afterHours.installOnly.belowBreakEven, true);
+  assert.ok(Math.abs(empty.price - 12821.251222222223) < 1e-4);
+  assert.ok(Math.abs(afterHours.breakEvenPrice - 11061.96532) < 1e-4);
+  assert.match(accessNote(rows), /lose money even on an empty weekday/i);
+  assert.match(accessNote(rows), /\$5,175/);
+  assert.match(accessNote(rows), /\$11,061\.97/);
+});
+
+test('accessNote names the bid lift when no Saturday number is on the table', () => {
+  const note = accessNote(compareAccess(alcove()));
+  assert.match(note, /Only-bath-still-in-use adds \$406\.09/i);
+  assert.match(note, /After-hours \/ weekend adds \$1,475\.85/);
+});
+
+test('accessNote rejects a missing comparison', () => {
+  assert.throws(() => accessNote(null), /missing rows/);
+  assert.throws(() => accessNote([{ access: 'empty-weekday' }]), /missing rows/);
+});
+
+test('suggestedAccessKit uses the owner-tile callback trip, not a typed set', () => {
+  const kit = suggestedAccessKit();
+  assert.equal(kit.afterHoursExtraTripHours, suggestedOwnerTileKit().hoursCallbackTrip);
+  assert.equal(kit.afterHoursWageMultiplier, 1.5);
+  assert.equal(kit.occupiedPaceMultiplier, 1.25);
+});
+
+test('access presets name the three windows shops actually get shopped on', () => {
+  assert.equal(ACCESS_PRESETS.length, 3);
+  assert.equal(ACCESS_PRESETS[0].id, 'empty-weekday');
+  assert.equal(ACCESS_PRESETS[1].id, 'occupied-weekday');
+  assert.equal(ACCESS_PRESETS[2].id, 'after-hours');
 });

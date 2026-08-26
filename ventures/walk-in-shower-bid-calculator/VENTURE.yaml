@@ -1,5 +1,5 @@
 name: walk-in-shower-bid-calculator
-description: A private browser calculator for tile and bathroom contractors that prices a tiled walk-in shower or tub-to-shower conversion from wall and floor tile, waterproofing, linear drain, curbless slope, valve relocate, niches, bench, and glass — and shows the price per square foot of tile, whether a customer-supplied tile set still pays against the $45 / SF labor-only special, and the walk-away price below which the job loses money.
+description: A private browser calculator for tile and bathroom contractors that prices a tiled walk-in shower or tub-to-shower conversion from wall and floor tile, waterproofing, linear drain, curbless slope, valve relocate, niches, bench, and glass — and shows the price per square foot of tile, whether matching a brochure alcove per-SF number still pays on a curbless walk-in, whether Saturday / after-hours still pays after overtime, whether a customer-supplied tile set still pays against the $45 / SF labor-only special, and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -16,6 +16,14 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Showing you-supply versus they-bought-it versus they-bought-too-little on the same shower, next to the $45 / SF labor-only special, changes the bid enough that contractors refuse the "just set what I bought" number instead of matching it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing the brochure alcove, the curbless walk-in, and the steam shower on the same crew rates, next to matching the alcove's price per tile square foot, changes the bid enough that contractors refuse the "just match the $78 / SF special" number on the walk-in they are actually standing in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday-they-leave versus only-bath-still-in-use versus Saturday / after-hours on the same shower, next to the weekday number they asked you to keep, changes the bid enough that contractors refuse the "just start Saturday" special instead of matching it.
     status: untested
     checked: null
     evidence: customer-contact

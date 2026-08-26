@@ -2,8 +2,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyCategoryPreset,
+  applyPlacementPreset,
   applyStoragePreset,
   calculateListing,
+  PLACEMENT_PRESETS,
   CATEGORY_PRESETS,
   classifySizeTier,
   bulkBuySummary,
@@ -12,7 +14,62 @@ import {
   compareLowPriceFba,
   compareMcf,
   comparePrep,
+  compareSellerPlans,
+  compareSellerPlanVolumes,
   compareSubscribeSave,
+  compareVine,
+  compareAgedInventory,
+  compareLiquidation,
+  liquidationNote,
+  DEFAULT_LIQUIDATION_RECOVERY_PCT,
+  DEFAULT_LIQUIDATION_FEE,
+  DEFAULT_ELSEWHERE_NET,
+  compareInboundPlacement,
+  compareReturns,
+  compareStorageSeasons,
+  compareSizeTierPackaging,
+  compareSfp,
+  sfpNote,
+  compareLowInventory,
+  daysOfSupply,
+  defaultLowInventoryFee,
+  lowInventoryNote,
+  LOW_INVENTORY_THRESHOLD_DAYS,
+  compareAwd,
+  awdNote,
+  compareRemoteFulfillment,
+  remoteFulfillmentNote,
+  DEFAULT_NARF_FEE,
+  DEFAULT_CA_INBOUND,
+  DEFAULT_NARF_TAKE_PCT,
+  DEFAULT_CA_TAKE_PCT,
+  DEFAULT_CA_SESSIONS,
+  DEFAULT_AWD_LOT_UNITS,
+  DEFAULT_AWD_HORIZON_MONTHS,
+  DEFAULT_AWD_INBOUND,
+  DEFAULT_AWD_STORAGE_PER_CU_FT,
+  DEFAULT_AWD_TO_FBA,
+  DEFAULT_YOU_HOLD_STORAGE_PER_UNIT,
+  clampBoxToTier,
+  nextCheaperWeightLb,
+  nextLowerSizeTier,
+  sizeTierPackagingNote,
+  blendedStorageRate,
+  storageSeasonNote,
+  placementSummary,
+  vineUnitCost,
+  DEFAULT_VINE_UNITS,
+  DEFAULT_AGED_UNITS,
+  DEFAULT_AGED_SELL_THROUGH_PCT,
+  DEFAULT_AGED_HORIZON_MONTHS,
+  DEFAULT_AGED_AIS_PER_UNIT,
+  DEFAULT_AGED_REMOVAL_FEE,
+  DEFAULT_AGED_DISPOSAL_FEE,
+  DEFAULT_VINE_REFERRAL_RATE,
+  DEFAULT_CONVERSION_LIFT_PCT,
+  DEFAULT_VINE_MONTHS,
+  SELLER_PLAN_DEFAULTS,
+  SELLER_PLAN_VOLUME_STEPS,
   DEFAULT_AMAZON_BAG_FEE,
   DEFAULT_AMAZON_BUBBLE_FEE,
   DEFAULT_AMAZON_LABEL_FEE,
@@ -28,6 +85,8 @@ import {
   defaultLowPriceFulfillmentFee,
   defaultMcfFee,
   lowPriceBreakEvenRaise,
+  RETURN_RATE_PRESETS,
+  returnsSummary,
   STORAGE_PRESETS,
 } from "./calc.mjs";
 
@@ -46,6 +105,7 @@ const base = {
   monthsInStorage: 1,
   storageRate: 0.87,
   fbmShippingCost: 4.75,
+  fbmHandlingCost: 0,
   packagingCost: 0.6,
   otherCost: 0,
   adsPerUnit: 0,
@@ -120,6 +180,15 @@ test("FBM drops fulfillment and storage/inbound, and uses the seller's own label
   assert.equal(r.selected.profit, r.fbm.profit);
 });
 
+test("FBM can include optional handling labor in path cash and comparison", () => {
+  const withoutLabor = calculateListing(base);
+  const withLabor = calculateListing({ ...base, fbmHandlingCost: 2.5 });
+  near(withLabor.fbm.cashInvested, withoutLabor.fbm.cashInvested + 2.5, "FBM cash includes labor");
+  near(withLabor.fbm.profit, withoutLabor.fbm.profit - 2.5, "FBM profit includes labor");
+  near(withLabor.fbm.breakEvenBuyCost, withoutLabor.fbm.breakEvenBuyCost - 2.5, "FBM max buy includes labor");
+  assert.equal(withoutLabor.fbm.profit, calculateListing({ ...base, fbmHandlingCost: 0 }).fbm.profit);
+});
+
 test("reports which path leaves more on the same listing", () => {
   const r = calculateListing(base);
   near(r.fbaAdvantage, r.fba.profit - r.fbm.profit, "advantage");
@@ -183,6 +252,130 @@ test("honors an explicit fulfillment-fee override", () => {
   near(r.fulfillmentFee, 4.25, "override");
   near(r.fba.fees.fulfillment, 4.25, "used in FBA");
   assert.ok(r.suggestedFulfillment !== 4.25);
+});
+
+test("zero returns leave the successful-sale numbers unchanged", () => {
+  const r = calculateListing({ ...base, returnRate: 0, returnHandlingFee: 3, unsellableReturnRate: 25 });
+  near(r.selected.profit, r.selected.profitBeforeReturns, "expected equals kept");
+  near(r.selected.returnDrag, 0, "no drag");
+  near(r.fba.fees.returnHandling, 0, "no allocated handling");
+});
+
+test("expected returns reduce profit by the mix of lost sales and leftover costs", () => {
+  const clean = calculateListing({ ...base, monthlySellerFee: 0, returnRate: 0 });
+  const withReturns = calculateListing({
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 10,
+    returnHandlingFee: 4,
+    unsellableReturnRate: 20,
+  });
+  const keep = clean.fba.profit;
+  const cashExCogs = clean.fba.cashInvested - 8;
+  const fulfillment = clean.fulfillmentFee;
+  const returnProfit = 0 - fulfillment - 4 - cashExCogs - 0.2 * 8;
+  const expected = 0.9 * keep + 0.1 * returnProfit;
+  near(withReturns.fba.profitBeforeReturns, keep, "kept sale");
+  near(withReturns.fba.profit, expected, "expected after returns");
+  assert.ok(withReturns.fba.profit < keep);
+  near(withReturns.fba.returnDrag, keep - expected, "drag");
+  near(withReturns.fba.fees.returnHandling, 0.4, "allocated handling");
+});
+
+test("break-even return rate drives expected profit to zero", () => {
+  const r = calculateListing({ ...base, monthlySellerFee: 0, returnHandlingFee: 3, unsellableReturnRate: 25 });
+  assert.ok(r.selected.breakEvenReturnRate > 0);
+  assert.ok(r.selected.breakEvenReturnRate < 1);
+  const atEdge = calculateListing({
+    ...base,
+    monthlySellerFee: 0,
+    returnHandlingFee: 3,
+    unsellableReturnRate: 25,
+    returnRate: r.selected.breakEvenReturnRate * 100,
+  });
+  near(atEdge.selected.profit, 0, "profit at break-even return rate");
+});
+
+test("after-returns break-even sale price and max buy still zero expected profit", () => {
+  const assumptions = {
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 12,
+    returnHandlingFee: 3.5,
+    unsellableReturnRate: 30,
+  };
+  const r = calculateListing(assumptions);
+  const atPrice = calculateListing({ ...assumptions, salePrice: r.selected.breakEvenPrice });
+  near(atPrice.selected.profit, 0, "profit at after-returns break-even price");
+  const atBuy = calculateListing({ ...assumptions, costOfGoods: r.selected.breakEvenBuyCost });
+  near(atBuy.selected.profit, 0, "profit at after-returns max buy");
+});
+
+test("after-returns target price still hits the requested margin on kept revenue", () => {
+  const assumptions = {
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 8,
+    returnHandlingFee: 2,
+    unsellableReturnRate: 0,
+    targetMargin: 30,
+  };
+  const r = calculateListing(assumptions);
+  const atTarget = calculateListing({ ...assumptions, salePrice: r.selected.targetMarginPrice });
+  near(atTarget.selected.margin, 30, "expected margin at target price");
+});
+
+test("a fully returned resellable unit recovers cost of goods and still loses fulfillment", () => {
+  const r = calculateListing({
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 100,
+    returnHandlingFee: 5,
+    unsellableReturnRate: 0,
+  });
+  const cashExCogs = r.fba.cashInvested - 8;
+  near(r.fba.profit, -r.fulfillmentFee - 5 - cashExCogs, "all returns, goods recovered");
+  assert.equal(r.selected.breakEvenPrice, Infinity);
+});
+
+test("already-unprofitable listings have a zero break-even return rate", () => {
+  const r = calculateListing({
+    ...base,
+    salePrice: 1,
+    costOfGoods: 20,
+    monthlySellerFee: 0,
+  });
+  assert.ok(r.selected.profitBeforeReturns < 0);
+  assert.equal(r.selected.breakEvenReturnRate, 0);
+});
+
+test("rejects return rates above 100%", () => {
+  assert.throws(() => calculateListing({ salePrice: 10, returnRate: 101 }), /cannot exceed 100/);
+  assert.throws(() => calculateListing({ salePrice: 10, unsellableReturnRate: 150 }), /cannot exceed 100/);
+  assert.throws(() => compareReturns({ ...base, returnRate: 101 }), /cannot exceed 100/);
+});
+
+test("return-rate sweep includes zero and the typed rate", () => {
+  assert.deepEqual(RETURN_RATE_PRESETS, [0, 8, 15, 22]);
+  const comparison = compareReturns({
+    ...base,
+    monthlySellerFee: 0,
+    returnRate: 10,
+    returnHandlingFee: 2.5,
+    unsellableReturnRate: 20,
+  });
+  assert.deepEqual(comparison.rows.map((row) => row.returnRate), [0, 8, 10, 15, 22]);
+  const typed = comparison.rows.find((row) => row.isCurrent);
+  assert.equal(typed.returnRate, 10);
+  near(typed.profit, comparison.typed.selected.profit, "typed row matches listing");
+  assert.ok(comparison.rows[0].profit > typed.profit);
+  assert.match(comparison.summary, /10%/);
+  assert.match(returnsSummary({
+    typedRate: 0,
+    handling: 2.5,
+    unsellable: 20,
+    typed: calculateListing({ ...base, returnRate: 0 }),
+  }), /completed sale/);
 });
 
 test("applyCategoryPreset and applyStoragePreset fill illustrative rates", () => {
@@ -778,6 +971,328 @@ test("comparePrep rejects a negative Amazon prep fee", () => {
   assert.throws(() => comparePrep({ ...base, amazonPrepFee: -1 }), /Amazon prep quote/);
 });
 
+test("Individual vs Professional break-even is monthly fee divided by per-item fee", () => {
+  const compared = compareSellerPlans(base);
+  near(
+    compared.breakEvenUnits,
+    SELLER_PLAN_DEFAULTS.professionalMonthly / SELLER_PLAN_DEFAULTS.individualPerUnit,
+    "break-even units",
+  );
+  near(compared.individualPerUnit, 0.99, "Individual default");
+  near(compared.professionalMonthly, 39.99, "Professional default");
+  near(compared.individual.allocatedSellerFee, 0.99, "Individual allocated");
+  near(compared.professional.allocatedSellerFee, 39.99 / 80, "Professional allocated");
+});
+
+test("Individual keeps more per unit below the plan break-even volume", () => {
+  const compared = compareSellerPlans({ ...base, monthlyUnits: 10 });
+  assert.equal(compared.cheaperPlan, "individual");
+  assert.ok(compared.profitDelta < 0);
+  near(compared.monthlyProfitDelta, compared.profitDelta * 10, "monthly delta");
+});
+
+test("Professional keeps more per unit above the plan break-even volume", () => {
+  const compared = compareSellerPlans({ ...base, monthlyUnits: 200 });
+  assert.equal(compared.cheaperPlan, "professional");
+  assert.ok(compared.profitDelta > 0);
+  near(compared.professionalAllocatedFee, 39.99 / 200, "allocated Professional");
+  near(compared.individualMonthlyFee, 0.99 * 200, "monthly Individual total");
+});
+
+test("plans tie when the account fee per unit is the same", () => {
+  const compared = compareSellerPlans(
+    { ...base, monthlyUnits: 40, monthlySellerFee: 39.6 },
+    { individualPerUnit: 0.99, professionalMonthly: 39.6 },
+  );
+  assert.equal(compared.cheaperPlan, "tie");
+  near(compared.profitDelta, 0, "same allocated fee");
+  near(compared.maxBuyDelta, 0, "same max buy");
+  near(compared.breakEvenUnits, 40, "exact 40 units");
+});
+
+test("seller-plan comparison reuses FBA and FBM paths on the same listing", () => {
+  const compared = compareSellerPlans({ ...base, fulfillmentMethod: "fbm" });
+  assert.equal(compared.individual.fulfillmentMethod, "fbm");
+  assert.equal(compared.professional.selected.profit, compared.professional.fbm.profit);
+  near(
+    compared.profitDelta,
+    compared.professional.fbm.profit - compared.individual.fbm.profit,
+    "FBM-selected delta",
+  );
+  assert.ok(compared.individual.fba.profit !== compared.individual.fbm.profit);
+});
+
+test("editable Individual and Professional rates change the winner", () => {
+  const cheapPro = compareSellerPlans(base, {
+    individualPerUnit: 1.99,
+    professionalMonthly: 1,
+  });
+  assert.equal(cheapPro.cheaperPlan, "professional");
+  const cheapInd = compareSellerPlans({ ...base, monthlyUnits: 80 }, {
+    individualPerUnit: 0.01,
+    professionalMonthly: 399,
+  });
+  assert.equal(cheapInd.cheaperPlan, "individual");
+});
+
+test("seller-plan comparison rejects zero units and negative rates", () => {
+  assert.throws(
+    () => compareSellerPlans({ ...base, monthlyUnits: 0 }),
+    /greater than zero to compare seller plans/,
+  );
+  assert.throws(() => compareSellerPlans(base, { individualPerUnit: -1 }), /Individual per-unit fee/);
+  assert.throws(() => compareSellerPlans(base, { professionalMonthly: -1 }), /Professional monthly fee/);
+});
+
+test("volume ladder shows Individual winning low volume and Professional winning high volume", () => {
+  const ladder = compareSellerPlanVolumes(base);
+  assert.deepEqual(
+    ladder.rows.map((row) => row.monthlyUnits),
+    SELLER_PLAN_VOLUME_STEPS,
+  );
+  near(
+    ladder.breakEvenUnits,
+    SELLER_PLAN_DEFAULTS.professionalMonthly / SELLER_PLAN_DEFAULTS.individualPerUnit,
+    "ladder break-even",
+  );
+  assert.equal(ladder.rows[0].cheaperPlan, "individual");
+  assert.equal(ladder.rows[1].cheaperPlan, "individual");
+  assert.equal(ladder.rows[2].cheaperPlan, "individual");
+  assert.equal(ladder.rows[3].cheaperPlan, "professional");
+  assert.equal(ladder.rows[4].cheaperPlan, "professional");
+  assert.equal(ladder.rows[0].individualProfit.toFixed(2), "10.50");
+  assert.equal(ladder.rows[0].professionalProfit.toFixed(2), "7.49");
+  assert.equal(ladder.rows[3].professionalProfit.toFixed(2), "10.99");
+  assert.equal(ladder.rows[4].professionalProfit.toFixed(2), "11.29");
+  near(ladder.rows[4].professionalAllocatedFee, 39.99 / 200, "Professional allocated at 200");
+});
+
+test("volume ladder accepts custom steps and rejects an empty list", () => {
+  const ladder = compareSellerPlanVolumes(base, {}, [40, 40.4]);
+  assert.equal(ladder.rows.length, 2);
+  assert.equal(ladder.rows[0].cheaperPlan, "individual");
+  assert.equal(ladder.rows[1].cheaperPlan, "professional");
+  assert.throws(() => compareSellerPlanVolumes(base, {}, []), /non-empty list/);
+});
+
+test("defaults match the published Vine enrollment", () => {
+  assert.equal(DEFAULT_VINE_UNITS, 30);
+  assert.equal(DEFAULT_VINE_REFERRAL_RATE, 0);
+  assert.equal(DEFAULT_CONVERSION_LIFT_PCT, 12);
+  assert.equal(DEFAULT_VINE_MONTHS, 6);
+});
+
+test("leftover Vine pays on the default $29.99 listing; Vine on sellable units does not", () => {
+  // List leftover $10.993. Gifted unit: $8 + $0.60 + $1.20 + $0.048 storage + $4.15 pick.
+  // 30 leftover units cost $419.95. 12% of $879.46/month over 6 months is $633.21.
+  const r = compareVine(base);
+  near(r.profitPerUnit, 10.993291666666668, "list leftover");
+  near(r.vineUnitCost, 13.998333333333333, "gifted unit");
+  near(r.vineUpfront, 419.95, "30-unit enrollment");
+  near(r.monthlyProfit, 879.4633333333334, "80-unit month");
+  near(r.skip.horizonProfit, 5276.78, "skip six months");
+  near(r.leftover.horizonProfit, 5490.0436, "leftover Vine");
+  near(r.sellable.horizonProfit, 5160.24485, "sellable Vine");
+  near(r.extraKeptOnLeftover, 213.2636, "leftover vs skip");
+  near(r.extraKeptOnSellable, -116.53515, "sellable vs skip");
+  near(r.breakEvenLiftPct, 7.958451934702601, "lift floor");
+  near(r.breakEvenMonths, 3.9792259673513013, "months at 12%");
+  assert.equal(r.winner, "leftover");
+  assert.ok(r.leftover.horizonProfit > r.skip.horizonProfit, "leftover beats skip");
+  assert.ok(r.skip.horizonProfit > r.sellable.horizonProfit, "skip beats Vine on a hero SKU");
+});
+
+test("zero conversion lift makes leftover Vine just the gift cost", () => {
+  const r = compareVine({ ...base, conversionLiftPct: 0 });
+  near(r.extraMonthly, 0, "no extra sales");
+  near(r.extraKeptOnLeftover, -419.95, "ate the enrollment");
+  assert.equal(r.winner, "skip");
+});
+
+test("empty Vine fields use the published defaults", () => {
+  const r = compareVine(base);
+  near(r.vineUnits, DEFAULT_VINE_UNITS, "default units");
+  near(r.conversionLiftPct, DEFAULT_CONVERSION_LIFT_PCT, "default lift");
+  near(r.vineMonths, DEFAULT_VINE_MONTHS, "default months");
+  near(vineUnitCost(base), r.vineUnitCost, "helper matches");
+});
+
+test("compareVine rejects a zero enrollment or horizon", () => {
+  assert.throws(() => compareVine({ ...base, vineUnits: 0 }), /Vine units/);
+  assert.throws(() => compareVine({ ...base, vineMonths: 0 }), /Vine months/);
+  assert.throws(() => compareVine({ ...base, vineUnits: -1 }), /Vine units/);
+});
+
+test("summary names leftover Vine and the lift floor", () => {
+  const text = compareVine(base).summary;
+  assert.match(text, /\$213\.26 more/);
+  assert.match(text, /\$419\.95/);
+  assert.match(text, /8\.0%/);
+  assert.match(text, /\$116\.54 less/);
+  assert.doesNotMatch(text, /should enroll|must join|turn on Vine/i);
+});
+
+test("defaults match the published aged-inventory pile", () => {
+  assert.equal(DEFAULT_AGED_UNITS, 80);
+  assert.equal(DEFAULT_AGED_SELL_THROUGH_PCT, 5);
+  assert.equal(DEFAULT_AGED_HORIZON_MONTHS, 3);
+  assert.equal(DEFAULT_AGED_AIS_PER_UNIT, 1.5);
+  assert.equal(DEFAULT_AGED_REMOVAL_FEE, 1.04);
+  assert.equal(DEFAULT_AGED_DISPOSAL_FEE, 0.32);
+});
+
+test("disposing the default leftover pile loses less than keeping", () => {
+  // Contribution is list minus referral and pick — COGS and inbound are sunk.
+  // 80 units × 5% sell-through over 3 months: 11.41 sold, 68.59 leftover.
+  // Carrying is storage + $1.50 AIS on what is still there each month.
+  const r = compareAgedInventory(base);
+  near(r.contribution, 21.3415, "sunk-COGS contribution");
+  near(r.storagePerUnitMonth, 0.04833333333333333, "cu ft × $0.87");
+  near(r.keep.cash, -109.82315166666672, "keep");
+  near(r.remove.cash, -83.2, "return removal");
+  near(r.dispose.cash, -25.6, "dispose");
+  near(r.keep.soldUnits, 11.41, "expected sold");
+  near(r.keep.leftoverUnits, 68.59, "still sitting");
+  near(r.keep.carryingFees, 353.3296666666667, "storage + AIS");
+  near(r.extraKeepVsDispose, -84.22315166666672, "keep vs dispose");
+  near(r.breakEvenSellThroughVsDispose, 6.720082528357096, "sell-through floor");
+  near(r.breakEvenSellThroughVsRemove, 5.537296348009946, "vs return");
+  near(r.breakEvenAisVsDispose, 1.1309239628980379, "AIS ceiling");
+  assert.equal(r.winner, "dispose");
+  assert.ok(r.dispose.cash > r.remove.cash, "dispose beats a return");
+  assert.ok(r.remove.cash > r.keep.cash, "a return beats keeping");
+});
+
+test("a faster leftover pile flips keep ahead of dispose", () => {
+  const r = compareAgedInventory({ ...base, monthlySellThroughPct: 20 });
+  assert.equal(r.winner, "keep");
+  assert.ok(r.keep.cash > 0, "sales cover carrying");
+  assert.ok(r.extraKeepVsDispose > 0, "keep beats dispose");
+});
+
+test("zero sell-through is just three months of carrying", () => {
+  const r = compareAgedInventory({ ...base, monthlySellThroughPct: 0 });
+  near(r.keep.soldUnits, 0, "nothing sold");
+  near(r.keep.leftoverUnits, 80, "whole pile remains");
+  near(r.keep.cash, -371.6, "80 × ($0.04833 + $1.50) × 3");
+  assert.equal(r.winner, "dispose");
+});
+
+test("empty aged-inventory fields use the published defaults", () => {
+  const r = compareAgedInventory(base);
+  near(r.agedUnits, DEFAULT_AGED_UNITS, "default units");
+  near(r.monthlySellThroughPct, DEFAULT_AGED_SELL_THROUGH_PCT, "default sell-through");
+  near(r.horizonMonths, DEFAULT_AGED_HORIZON_MONTHS, "default horizon");
+  near(r.aisPerUnit, DEFAULT_AGED_AIS_PER_UNIT, "default AIS");
+});
+
+test("compareAgedInventory rejects a zero pile or horizon", () => {
+  assert.throws(() => compareAgedInventory({ ...base, agedUnits: 0 }), /Aged units/);
+  assert.throws(() => compareAgedInventory({ ...base, horizonMonths: 0 }), /Horizon months/);
+  assert.throws(() => compareAgedInventory({ ...base, monthlySellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareAgedInventory({ ...base, aisPerUnit: -1 }), /Aged inventory surcharge/);
+});
+
+test("summary names dispose and the sell-through floor", () => {
+  const text = compareAgedInventory(base).summary;
+  assert.match(text, /\$84\.22 less/);
+  assert.match(text, /-\$25\.60/);
+  assert.match(text, /-\$109\.82/);
+  assert.match(text, /-\$83\.20/);
+  assert.match(text, /6\.7%/);
+  assert.doesNotMatch(text, /should dispose|must remove|create a removal/i);
+});
+
+test("applyPlacementPreset fills illustrative inbound placement rates", () => {
+  const filled = applyPlacementPreset({}, "large_standard");
+  assert.equal(filled.placementMinimalPerUnit, PLACEMENT_PRESETS.large_standard.minimalPerUnit);
+  assert.equal(filled.placementPartialPerUnit, PLACEMENT_PRESETS.large_standard.partialPerUnit);
+});
+
+// 200 large-standard units. One-warehouse freight is cheap; Amazon's placement
+// fee on that path still beats paying much more freight to split the shipment.
+test("one-warehouse inbound wins when extra freight exceeds the placement fee", () => {
+  const r = compareInboundPlacement({
+    units: 200,
+    freightMinimal: 85,
+    freightPartial: 140,
+    freightOptimized: 210,
+    placementMinimalPerUnit: 0.43,
+    placementPartialPerUnit: 0.27,
+    placementOptimizedPerUnit: 0,
+  });
+  near(r.paths.minimal.placementTotal, 86, "200 × $0.43");
+  near(r.paths.minimal.total, 171, "85 + 86");
+  near(r.paths.partial.total, 194, "140 + 54");
+  near(r.paths.optimized.total, 210, "210 + 0");
+  assert.equal(r.winner, "minimal");
+  near(r.nextBestDelta, 23, "partial is next");
+  near(r.extraVsCheapest.optimized, 39, "optimized costs $39 more");
+  near(r.paths.minimal.perUnit, 171 / 200, "blended inbound / unit");
+  near(r.extraFreightOptimizedCanCarry, 86, "placement avoided by splitting");
+});
+
+// Same 200 units, but the split only costs a little more in freight. Paying
+// Amazon to accept a single destination is then the expensive path.
+test("Amazon-optimized split wins when extra freight is less than placement", () => {
+  const r = compareInboundPlacement({
+    units: 200,
+    freightMinimal: 90,
+    freightPartial: 105,
+    freightOptimized: 120,
+    placementMinimalPerUnit: 0.55,
+    placementPartialPerUnit: 0.32,
+    placementOptimizedPerUnit: 0,
+  });
+  near(r.paths.minimal.total, 200, "90 + 110");
+  near(r.paths.partial.total, 169, "105 + 64");
+  near(r.paths.optimized.total, 120, "120 + 0");
+  assert.equal(r.winner, "optimized");
+  near(r.nextBestDelta, 49, "partial is next");
+  near(r.extraVsCheapest.minimal, 80, "one warehouse costs $80 more");
+});
+
+test("reports a tie when every inbound path costs the same", () => {
+  const r = compareInboundPlacement({
+    units: 100,
+    freightMinimal: 50,
+    freightPartial: 40,
+    freightOptimized: 30,
+    placementMinimalPerUnit: 0.2,
+    placementPartialPerUnit: 0.3,
+    placementOptimizedPerUnit: 0.4,
+  });
+  near(r.paths.minimal.total, 70, "tie total");
+  assert.equal(r.winner, "tie");
+  assert.deepEqual(r.cheapestIds, ["minimal", "partial", "optimized"]);
+  near(r.nextBestDelta, 0, "no cheaper alternative");
+});
+
+test("placement summary names the cheaper split without telling the seller to send it", () => {
+  const cheapWarehouse = compareInboundPlacement({
+    units: 200,
+    freightMinimal: 85,
+    freightPartial: 140,
+    freightOptimized: 210,
+    placementMinimalPerUnit: 0.43,
+    placementPartialPerUnit: 0.27,
+    placementOptimizedPerUnit: 0,
+  });
+  const text = placementSummary(cheapWarehouse);
+  assert.match(text, /Send to one warehouse totals \$171\.00/);
+  assert.match(text, /\$23\.00 less/);
+  assert.match(text, /\$86\.00 more in freight/);
+  assert.doesNotMatch(text, /should send|must split|create a shipment/i);
+});
+
+test("rejects empty or invalid inbound-placement inputs", () => {
+  assert.throws(() => compareInboundPlacement({ units: 0, freightMinimal: 10 }), /greater than zero/);
+  assert.throws(() => compareInboundPlacement({ units: -2, freightMinimal: 10 }), /Shipment units/);
+  assert.throws(() => compareInboundPlacement({ units: 10, freightMinimal: "abc" }), /Single-destination freight/);
+  assert.throws(() => applyPlacementPreset({}, "envelope"), /Unknown size tier/);
+  assert.throws(() => placementSummary({}), /missing paths/);
+});
+
 test("rejects unknown presets and invalid inputs", () => {
   assert.throws(() => applyCategoryPreset({}, "widgets"), /Unknown Amazon category/);
   assert.throws(() => applyStoragePreset({}, "summer"), /Unknown storage season/);
@@ -785,9 +1300,767 @@ test("rejects unknown presets and invalid inputs", () => {
   assert.throws(() => calculateListing({ salePrice: "abc" }), /Sale price/);
   assert.throws(() => calculateListing({ salePrice: 10, targetMargin: 100 }), /less than 100/);
   assert.throws(() => calculateListing({ salePrice: 10, fulfillmentMethod: "sfp" }), /fba or fbm/);
+  assert.throws(() => calculateListing({ salePrice: 10, fbmHandlingCost: -1 }), /FBM handling cost/);
   assert.throws(
     () => calculateListing({ salePrice: 10, monthlySellerFee: 39.99, monthlyUnits: 0 }),
     /Monthly units/,
   );
   assert.throws(() => defaultFulfillmentFee("envelope", 1), /Unknown size tier/);
+});
+
+test("blendedStorageRate weights peak and off-peak months", () => {
+  near(blendedStorageRate({ offPeakMonths: 0, peakMonths: 0 }), 0, "empty stay");
+  near(blendedStorageRate({ offPeakMonths: 3, peakMonths: 0 }), 0.87, "off-peak only");
+  near(blendedStorageRate({ offPeakMonths: 0, peakMonths: 3 }), 2.4, "peak only");
+  near(blendedStorageRate({ offPeakMonths: 1, peakMonths: 2 }), (0.87 + 4.8) / 3, "1+2 mixed");
+});
+
+// 1 cu ft box, three-month stay, two of them in Oct–Dec. Storage is the only
+// difference between the rows, so the cash gaps are exact cubic-foot arithmetic.
+test("compareStorageSeasons ranks waiting until January against a Q4 stay", () => {
+  const r = compareStorageSeasons({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 12,
+    width: 12,
+    height: 12,
+    weightLb: 2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 3,
+    peakMonths: 2,
+    units: 200,
+    fbmShippingCost: 4.75,
+    packagingCost: 0.6,
+    otherCost: 0,
+    adsPerUnit: 0,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+    fulfillmentFee: 5,
+    sizeTier: "large_standard",
+  });
+
+  near(r.cubicFeet, 1, "1 cu ft");
+  near(r.scenarios.off_peak.storagePerUnit, 2.61, "3 months off-peak");
+  near(r.scenarios.peak.storagePerUnit, 7.2, "3 months peak");
+  near(r.scenarios.mixed.storagePerUnit, 5.67, "1 off-peak + 2 peak");
+  near(r.waitUntilJanuarySavesPerUnit, 3.06, "mixed minus January");
+  near(r.waitUntilJanuarySaves, 612, "200 units");
+  near(r.peakCostsExtraPerUnit, 4.59, "all-peak minus January");
+  near(r.peakCostsExtra, 918, "200 units all-peak gap");
+  assert.equal(r.winner, "off_peak");
+  assert.equal(r.ranked[0].id, "off_peak");
+  near(r.scenarios.off_peak.fbaProfit - r.scenarios.mixed.fbaProfit, 3.06, "profit gap is storage");
+
+  const profitBeforeStorage = 29.99 - 29.99 * 0.15 - 5 - (8 + 0.6 + 1.2);
+  near(r.profitBeforeStorage, profitBeforeStorage, "zero-storage FBA profit");
+  near(r.peakMonthsUntilUnprofitable, profitBeforeStorage / 2.4, "months of peak that wipe profit");
+});
+
+test("compareStorageSeasons treats a stay with no peak months as a January tie", () => {
+  const r = compareStorageSeasons({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 12,
+    width: 12,
+    height: 12,
+    weightLb: 2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 3,
+    peakMonths: 0,
+    units: 10,
+    packagingCost: 0,
+    monthlySellerFee: 0,
+    fulfillmentFee: 5,
+    sizeTier: "large_standard",
+  });
+  near(r.scenarios.mixed.storagePerUnit, r.scenarios.off_peak.storagePerUnit, "mixed equals January");
+  near(r.waitUntilJanuarySaves, 0, "nothing to save");
+  assert.ok(r.cheapestIds.includes("off_peak"));
+  assert.ok(r.cheapestIds.includes("mixed"));
+  assert.equal(r.winner, "tie");
+});
+
+test("compareStorageSeasons rejects an impossible peak stay and zero units", () => {
+  assert.throws(
+    () => compareStorageSeasons({ salePrice: 20, monthsInStorage: 1, peakMonths: 2 }),
+    /cannot exceed/,
+  );
+  assert.throws(
+    () => compareStorageSeasons({ salePrice: 20, monthsInStorage: 1, units: 0 }),
+    /greater than zero/,
+  );
+  assert.throws(() => storageSeasonNote({}), /missing rows/);
+});
+
+test("storageSeasonNote names the January gap without telling the seller to inbound", () => {
+  const r = compareStorageSeasons({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 12,
+    width: 12,
+    height: 12,
+    weightLb: 2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 3,
+    peakMonths: 2,
+    units: 200,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    fulfillmentFee: 5,
+    sizeTier: "large_standard",
+  });
+  const text = storageSeasonNote(r);
+  assert.match(text, /\$3\.06 more per unit/);
+  assert.match(text, /\$612\.00 on 200 units/);
+  assert.match(text, /about 4\.5 October–December months/);
+  assert.doesNotMatch(text, /should send|must wait|inbound now|opt in/i);
+});
+
+test("nextLowerSizeTier walks cheapest to dearest", () => {
+  assert.equal(nextLowerSizeTier("small_standard"), null);
+  assert.equal(nextLowerSizeTier("large_standard"), "small_standard");
+  assert.equal(nextLowerSizeTier("large_bulky"), "large_standard");
+  assert.equal(nextLowerSizeTier("extra_large"), "large_bulky");
+  assert.throws(() => nextLowerSizeTier("envelope"), /Unknown size tier/);
+});
+
+test("clampBoxToTier flattens the default 8×6×2 carton into small-standard", () => {
+  const pack = clampBoxToTier({ length: 8, width: 6, height: 2, weightLb: 0.75 }, "small_standard");
+  assert.equal(pack.length, 8);
+  assert.equal(pack.width, 6);
+  assert.equal(pack.height, 0.75);
+  assert.equal(pack.weightLb, 0.75);
+  assert.equal(classifySizeTier(pack), "small_standard");
+});
+
+test("clampBoxToTier pulls extra-large down through girth into large bulky", () => {
+  const pack = clampBoxToTier({ length: 60, width: 20, height: 20, weightLb: 30 }, "large_bulky");
+  assert.equal(classifySizeTier(pack), "large_bulky");
+  assert.ok(pack.length <= 59);
+  assert.ok(pack.width + pack.height <= 90);
+  assert.ok(pack.length + 2 * (pack.width + pack.height) <= 130 + 1e-9);
+});
+
+test("nextCheaperWeightLb steps into the previous fulfillment band", () => {
+  assert.equal(nextCheaperWeightLb("large_standard", 0.75), 8 / 16);
+  assert.equal(nextCheaperWeightLb("small_standard", 0.2), null);
+  assert.equal(nextCheaperWeightLb("large_bulky", 12), 2);
+  assert.equal(nextCheaperWeightLb("large_bulky", 2), null);
+  assert.throws(() => nextCheaperWeightLb("envelope", 1), /Unknown size tier/);
+});
+
+test("compareSizeTierPackaging: default 8×6×2 box drops a tier by flattening to 0.75 in", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 1,
+    storageRate: 0.87,
+    packagingCost: 0.6,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    targetMargin: 30,
+    fulfillmentMethod: "fba",
+  });
+  assert.equal(comparison.current.sizeTier, "large_standard");
+  assert.equal(comparison.dropTier.targetTier, "small_standard");
+  assert.equal(comparison.dropTier.sizeTier, "small_standard");
+  near(comparison.dropTier.pack.height, 0.75, "flattened height");
+  near(comparison.dropTier.cuts.shortestIn, 1.25, "inches off the shortest side");
+  near(comparison.dropTier.fulfillmentFee, defaultFulfillmentFee("small_standard", 0.75), "small-standard fee");
+  near(comparison.current.fulfillmentFee, defaultFulfillmentFee("large_standard", 0.75), "large-standard fee");
+
+  const feeSave = comparison.current.fulfillmentFee - comparison.dropTier.fulfillmentFee;
+  const storageSave = comparison.current.storagePerUnit - comparison.dropTier.storagePerUnit;
+  near(comparison.dropTier.profitDelta, feeSave + storageSave, "profit delta is fee plus storage");
+  assert.ok(comparison.dropTier.profitDelta > 0);
+  assert.equal(comparison.dropTierPays, true);
+  assert.equal(comparison.winner, "drop_tier");
+  near(comparison.dropTier.monthlyDelta, comparison.dropTier.profitDelta * 80, "monthly");
+  near(comparison.dropTier.profitDelta, 0.800208, "default $0.80");
+  near(comparison.dropTier.monthlyDelta, 64.016667, "default $64.02 / month");
+  assert.match(sizeTierPackagingNote(comparison), /0\.75 in|small standard|keeps \$/i);
+  assert.doesNotMatch(sizeTierPackagingNote(comparison), /should pack|must flatten|change the box|pack now/i);
+});
+
+test("compareSizeTierPackaging: extra prep can make the smaller carton lose", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.25,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    repackCostPerUnit: 5,
+  });
+  assert.equal(comparison.current.sizeTier, "large_standard");
+  assert.equal(comparison.dropWeight, null);
+  assert.ok(comparison.dropTier.profitDelta < 0);
+  assert.equal(comparison.dropTierPays, false);
+  assert.equal(comparison.winner, "current");
+  assert.match(sizeTierPackagingNote(comparison), /extra prep/i);
+});
+
+test("compareSizeTierPackaging: a small-standard 4 oz pack has no cheaper band", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 8,
+    width: 6,
+    height: 0.5,
+    weightLb: 0.2,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+  });
+  assert.equal(comparison.current.sizeTier, "small_standard");
+  assert.equal(comparison.dropTier, null);
+  assert.equal(comparison.dropWeight, null);
+  assert.equal(comparison.alreadyCheapestStandardBand, true);
+  assert.equal(comparison.winner, "current");
+  assert.match(sizeTierPackagingNote(comparison), /already in the cheapest/i);
+});
+
+test("compareSizeTierPackaging: weight-band drop keeps the same size tier", () => {
+  const comparison = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 12,
+    width: 10,
+    height: 6,
+    weightLb: 1,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+  });
+  assert.equal(comparison.current.sizeTier, "large_standard");
+  assert.ok(comparison.dropWeight);
+  near(comparison.dropWeight.pack.weightLb, 12 / 16, "12 oz band");
+  assert.equal(comparison.dropWeight.sizeTier, "large_standard");
+  assert.ok(comparison.dropWeight.profitDelta > 0);
+});
+
+test("compareSizeTierPackaging ignores a typed return mix and rejects a negative repack", () => {
+  const withReturns = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareSizeTierPackaging({
+    salePrice: 29.99,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    packagingCost: 0.6,
+    monthlySellerFee: 0,
+    monthlyUnits: 80,
+  });
+  near(withReturns.current.profit, completed.current.profit, "return mix forced to 0");
+  assert.throws(() => compareSizeTierPackaging({ salePrice: 20, repackCostPerUnit: -1 }), /Repack cost/);
+  assert.throws(() => sizeTierPackagingNote({}), /missing rows/);
+});
+
+const SFP_BASE = {
+  salePrice: 29.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 2,
+  weightLb: 0.75,
+  costOfGoods: 8,
+  inboundPerUnit: 1.2,
+  monthsInStorage: 1,
+  storageRate: 0.87,
+  fbmShippingCost: 4.75,
+  packagingCost: 0.6,
+  monthlySellerFee: 39.99,
+  monthlyUnits: 80,
+};
+
+test("compareSfp: default large-standard unit still prefers FBA over a 2-day label", () => {
+  const comparison = compareSfp(SFP_BASE);
+  assert.equal(comparison.winner, "fba");
+  assert.equal(comparison.sizeTier, "large_standard");
+  near(comparison.fulfillmentFee, 4.15, "large-standard 12 oz band");
+  near(comparison.laborCost, 1.8, "6 min at $18");
+  near(comparison.fba.completedProfit, 10.993291666666664, "FBA leftover");
+  near(comparison.sfp.completedProfit, 5.641624999999999, "SFP leftover");
+  near(comparison.fbm.completedProfit, 11.641624999999998, "FBM leftover");
+  near(comparison.fba.expectedProfit, 7.695304166666665, "70% take");
+  near(comparison.sfp.expectedProfit, 3.667056249999999, "65% take");
+  near(comparison.fbm.expectedProfit, 4.656649999999999, "40% take");
+  near(comparison.extraKeptOnSfp, -4.028247916666666, "FBA vs SFP gap");
+  near(comparison.monthlyExtraOnSfp, -460.3711904761904, "80 FBA units");
+  near(comparison.breakEvenSfpShipping, 2.752695512820514, "2-day ceiling");
+  near(comparison.breakEvenFbmTakePct, 66.10163243247112, "FBM take floor");
+  assert.equal(comparison.breakEvenSfpTakePct, Infinity);
+  assert.match(comparison.summary, /\$4\.03 more per session/);
+  assert.match(comparison.summary, /\$460\.37 on 80 FBA units/);
+  assert.match(comparison.summary, /\$2\.75/);
+  assert.equal(sfpNote(comparison), comparison.summary);
+});
+
+test("compareSfp: a $2.40 2-day label flips Seller Fulfilled Prime ahead of FBA", () => {
+  const comparison = compareSfp({ ...SFP_BASE, sfpShippingCost: 2.4 });
+  assert.equal(comparison.winner, "sfp");
+  near(comparison.extraKeptOnSfp, 0.2292520833333338, "cheap 2-day");
+  near(comparison.monthlyExtraOnSfp, 26.20023809523815, "monthly flip");
+  assert.match(comparison.summary, /\$0\.23 more per session/);
+  assert.match(comparison.summary, /\$26\.20 on 80 FBA units/);
+});
+
+test("compareSfp: FBM take at the floor ties FBA expected leftover", () => {
+  const comparison = compareSfp({ ...SFP_BASE, fbmTakePct: 66.10163243247112 });
+  near(comparison.fbm.expectedProfit, comparison.fba.expectedProfit, "FBM floor");
+});
+
+test("compareSfp: zero pack minutes still leaves FBA ahead on the default label", () => {
+  const comparison = compareSfp({ ...SFP_BASE, sfpMinutes: 0 });
+  assert.equal(comparison.winner, "fba");
+  near(comparison.laborCost, 0, "no pack time");
+  assert.ok(comparison.extraKeptOnSfp < 0);
+});
+
+test("compareSfp ignores a typed return mix and rejects impossible inputs", () => {
+  const withReturns = compareSfp({
+    ...SFP_BASE,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareSfp(SFP_BASE);
+  near(withReturns.fba.completedProfit, completed.fba.completedProfit, "return mix forced to 0");
+  assert.throws(() => compareSfp({ salePrice: -1 }), /Sale price/);
+  assert.throws(() => compareSfp({ ...SFP_BASE, fbaTakePct: 0 }), /greater than zero/);
+  assert.throws(() => compareSfp({ ...SFP_BASE, sfpTakePct: 101 }), /at most 100/);
+  assert.throws(() => compareSfp({ ...SFP_BASE, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => sfpNote({}), /missing rows/);
+});
+
+test("days of supply is average inventory divided by daily shipped", () => {
+  near(
+    daysOfSupply({ averageDailyInventory: 10, unitsSold: 30, windowDays: 30 }),
+    10,
+    "10 on hand / 1 per day",
+  );
+  assert.equal(
+    daysOfSupply({ averageDailyInventory: 10, unitsSold: 0, windowDays: 30 }),
+    Infinity,
+  );
+  assert.throws(
+    () => daysOfSupply({ averageDailyInventory: 10, unitsSold: 30, windowDays: 0 }),
+    /Window days/,
+  );
+});
+
+test("LIL default bands follow size tier, weight, and days of supply", () => {
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 10 }), 0.89, "thin small");
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 18 }), 0.63, "mid small");
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 24 }), 0.32, "near 28 small");
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 28 }), 0, "at threshold");
+  near(defaultLowInventoryFee({ sizeTier: "large_standard", weightLb: 2, daysOfSupply: 10 }), 0.97, "light large");
+  near(defaultLowInventoryFee({ sizeTier: "large_standard", weightLb: 5, daysOfSupply: 10 }), 1.11, "heavy large");
+  near(defaultLowInventoryFee({ sizeTier: "large_bulky", weightLb: 12, daysOfSupply: 10 }), 2.09, "bulky");
+  near(defaultLowInventoryFee({ sizeTier: "extra_large", weightLb: 30, daysOfSupply: 5 }), 0, "XL exempt default");
+});
+
+test("thin 30-day and 90-day supply charges LIL and restocking beats staying thin", () => {
+  const r = compareLowInventory({
+    onHandUnits: 10,
+    soldLast30Days: 30,
+    soldLast90Days: 90,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    cubicFeet: cubicFeet({ length: 8, width: 6, height: 2 }),
+    storageRate: 0.87,
+    inboundPerUnit: 1.2,
+    monthlyUnits: 30,
+    fulfillmentMethod: "fba",
+  });
+  assert.equal(r.applies, true);
+  assert.equal(r.reason, "below_threshold");
+  near(r.shortTermDays, 10, "30-day days of supply");
+  near(r.longTermDays, 10, "90-day days of supply");
+  near(r.feePerUnit, 0.89, "0–13 day small-standard band");
+  near(r.monthlyFee, 0.89 * 30, "monthly surcharge");
+  near(r.extraUnitsTo28, 18, "28 days at 1/day minus 10 on hand");
+  const extraStorage = 18 * cubicFeet({ length: 8, width: 6, height: 2 }) * 0.87;
+  near(r.extraStoragePerMonth, extraStorage, "storage on the extra units");
+  near(r.extraInbound, 18 * 1.2, "one-time inbound");
+  near(r.restockSavesPerMonth, 0.89 * 30 - extraStorage, "LIL avoided minus extra storage");
+  assert.equal(r.cheaperPolicy, "restock");
+  assert.ok(r.inboundPaybackMonths < 1);
+  assert.equal(LOW_INVENTORY_THRESHOLD_DAYS, 28);
+  assert.doesNotMatch(lowInventoryNote(r), /should restock|must send|stay thin is better/i);
+});
+
+test("peak storage on a near-threshold cube can make staying thin cheaper than restocking", () => {
+  const r = compareLowInventory({
+    onHandUnits: 1050,
+    soldLast30Days: 1500,
+    soldLast90Days: 4500,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    cubicFeet: 1,
+    storageRate: 2.4,
+    inboundPerUnit: 1.2,
+    monthlyUnits: 1500,
+    fulfillmentMethod: "fba",
+  });
+  assert.equal(r.applies, true);
+  near(r.shortTermDays, 21, "21 days of supply");
+  near(r.feePerUnit, 0.32, "21–27 day small-standard band");
+  near(r.extraUnitsTo28, 350, "7 more days at 50/day");
+  near(r.extraStoragePerMonth, 350 * 2.4, "peak storage on 350 cu ft");
+  near(r.monthlyFee, 0.32 * 1500, "monthly LIL");
+  assert.ok(r.restockSavesPerMonth < 0);
+  assert.equal(r.cheaperPolicy, "stay_thin");
+  assert.doesNotMatch(lowInventoryNote(r), /should stay|must keep|do not restock/i);
+});
+
+test("either 28-day window at or above 28 days waives the LIL fee", () => {
+  const longHealthy = compareLowInventory({
+    onHandUnits: 30,
+    soldLast30Days: 90,
+    soldLast90Days: 90,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    monthlyUnits: 90,
+  });
+  near(longHealthy.shortTermDays, 10, "thin 30-day");
+  near(longHealthy.longTermDays, 30, "healthy 90-day");
+  assert.equal(longHealthy.applies, false);
+  near(longHealthy.feePerUnit, 0, "waived");
+
+  const bothHealthy = compareLowInventory({
+    onHandUnits: 80,
+    soldLast30Days: 80,
+    soldLast90Days: 240,
+    sizeTier: "large_standard",
+    weightLb: 0.75,
+    monthlyUnits: 80,
+  });
+  near(bothHealthy.shortTermDays, 30, "healthy 30-day");
+  assert.equal(bothHealthy.applies, false);
+});
+
+test("FBM, grocery, and new-FNSKU listings do not pay the LIL surcharge", () => {
+  const thin = {
+    onHandUnits: 10,
+    soldLast30Days: 30,
+    soldLast90Days: 90,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    monthlyUnits: 30,
+  };
+  assert.equal(compareLowInventory({ ...thin, fulfillmentMethod: "fbm" }).feePerUnit, 0);
+  assert.equal(compareLowInventory({ ...thin, groceryExempt: true }).feePerUnit, 0);
+  assert.equal(compareLowInventory({ ...thin, newFnskuExempt: true }).feePerUnit, 0);
+});
+
+test("omitted inventory fields leave listing profit unchanged", () => {
+  const without = calculateListing(base);
+  const omitted = compareLowInventory({});
+  near(without.fba.profit, calculateListing(base).fba.profit, "listing path ignores LIL");
+  near(omitted.feePerUnit, 0, "no LIL without inventory inputs");
+  assert.equal(omitted.applies, false);
+  assert.throws(() => lowInventoryNote({}), /missing/);
+});
+
+test("rejects negative inventory inputs", () => {
+  assert.throws(
+    () => compareLowInventory({ onHandUnits: -1, soldLast30Days: 10, soldLast90Days: 30 }),
+    /On-hand units/,
+  );
+});
+
+const AWD_BASE = {
+  salePrice: 29.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 2,
+  weightLb: 0.75,
+  costOfGoods: 8,
+  inboundPerUnit: 1.2,
+  packagingCost: 0.6,
+  storageRate: 0.87,
+  monthlyUnits: 80,
+};
+
+test("compareAwd: default 400-unit lot still prefers AWD replenish over FBA now", () => {
+  const comparison = compareAwd(AWD_BASE);
+  assert.equal(comparison.winner, "awd");
+  assert.equal(comparison.lotUnits, DEFAULT_AWD_LOT_UNITS);
+  assert.equal(comparison.horizonMonths, DEFAULT_AWD_HORIZON_MONTHS);
+  assert.equal(comparison.awdInboundPerUnit, DEFAULT_AWD_INBOUND);
+  assert.equal(comparison.awdStoragePerCuFt, DEFAULT_AWD_STORAGE_PER_CU_FT);
+  assert.equal(comparison.awdToFbaPerUnit, DEFAULT_AWD_TO_FBA);
+  assert.equal(comparison.youHoldStoragePerUnit, DEFAULT_YOU_HOLD_STORAGE_PER_UNIT);
+  assert.equal(comparison.sizeTier, "large_standard");
+  near(comparison.fulfillmentFee, 4.15, "large-standard 12 oz band");
+  near(comparison.contribution, 12.7415, "sale minus referral, pick, COGS, prep");
+  near(comparison.fba.cash, 4558.6, "FBA now leftover");
+  near(comparison.awd.cash, 4723.933333333332, "AWD leftover");
+  near(comparison.hold.cash, 4397.2666666666655, "you-hold leftover");
+  near(comparison.extraAwdVsFba, 165.33333333333303, "AWD vs FBA gap");
+  near(comparison.extraHoldVsFba, -161.33333333333303, "you-hold vs FBA gap");
+  near(comparison.breakEvenAwdToFba, 1.0933333333333333, "transfer ceiling");
+  near(comparison.fba.inbound, 480, "FBA inbound on 400");
+  near(comparison.awd.inbound, 60, "AWD receive on 400");
+  near(comparison.awd.transfers, 272, "AWD-to-FBA on 400");
+  near(comparison.hold.transfers, 480, "FBA inbound only as units drip");
+  assert.equal(comparison.fba.sold, 400);
+  assert.equal(comparison.awd.leftover, 0);
+  assert.match(comparison.summary, /\$165\.33 more on 400 units/);
+  assert.match(comparison.summary, /\$4723\.93 vs \$4558\.60/);
+  assert.match(comparison.summary, /\$1\.09/);
+  assert.match(comparison.summary, /loses \$161\.33/);
+  assert.equal(awdNote(comparison), comparison.summary);
+});
+
+test("compareAwd: a $1.20 AWD-to-FBA transfer flips sending the lot to FBA", () => {
+  const comparison = compareAwd({ ...AWD_BASE, awdToFbaPerUnit: 1.2 });
+  assert.equal(comparison.winner, "fba");
+  near(comparison.extraAwdVsFba, -42.66666666666697, "expensive transfer");
+  assert.match(comparison.summary, /\$42\.67 more on 400 units/);
+});
+
+test("compareAwd: cheap you-hold storage beats parking the pile in FBA", () => {
+  const comparison = compareAwd({ ...AWD_BASE, youHoldStoragePerUnit: 0.01 });
+  assert.equal(comparison.winner, "awd");
+  assert.ok(comparison.extraHoldVsFba > 0, "garage cheaper than FBA storage");
+  const atCeiling = compareAwd({
+    ...AWD_BASE,
+    youHoldStoragePerUnit: comparison.breakEvenYouHoldStorage,
+  });
+  near(atCeiling.hold.cash, atCeiling.fba.cash, "you-hold storage floor");
+});
+
+test("compareAwd: transfer at the ceiling ties FBA leftover", () => {
+  const comparison = compareAwd(AWD_BASE);
+  const tied = compareAwd({ ...AWD_BASE, awdToFbaPerUnit: comparison.breakEvenAwdToFba });
+  near(tied.awd.cash, tied.fba.cash, "transfer ceiling");
+  assert.equal(tied.winner, "tie");
+});
+
+test("compareAwd ignores a typed return mix and rejects impossible inputs", () => {
+  const withReturns = compareAwd({
+    ...AWD_BASE,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareAwd(AWD_BASE);
+  near(withReturns.awd.cash, completed.awd.cash, "return mix forced to 0");
+  assert.throws(() => compareAwd({ salePrice: -1 }), /Sale price/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, lotUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, horizonMonths: 0 }), /greater than zero/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareAwd({ ...AWD_BASE, workingStock: 0 }), /greater than zero/);
+  assert.throws(() => awdNote({}), /missing rows/);
+});
+
+test("defaults match the published liquidation pile", () => {
+  assert.equal(DEFAULT_LIQUIDATION_RECOVERY_PCT, 8);
+  assert.equal(DEFAULT_LIQUIDATION_FEE, 0.3);
+  assert.equal(DEFAULT_ELSEWHERE_NET, 4);
+});
+
+test("compareLiquidation: default pile prefers pulling and selling elsewhere", () => {
+  const comparison = compareLiquidation(base);
+  assert.equal(comparison.winner, "elsewhere");
+  near(comparison.keep.cash, -109.82315166666672, "keep matches aged page");
+  near(comparison.dispose.cash, -25.6, "dispose matches aged page");
+  near(comparison.liquidate.perUnit, 2.0992, "8% of $29.99 minus $0.30");
+  near(comparison.liquidate.cash, 167.936, "80 units liquidated");
+  near(comparison.elsewhere.perUnit, 2.96, "$4 leftover minus $1.04 removal");
+  near(comparison.elsewhere.cash, 236.8, "80 units sold elsewhere");
+  near(comparison.extraLiquidateVsDispose, 193.536, "liquidate vs dispose");
+  near(comparison.extraElsewhereVsLiquidate, 68.864, "elsewhere vs liquidate");
+  near(comparison.breakEvenRecoveryVsDispose, 0, "0% still beats dispose at $0.30 fee");
+  near(comparison.breakEvenElsewhereVsLiquidate, 3.1392, "elsewhere floor");
+  assert.ok(comparison.breakEvenSellThroughVsLiquidate > 100 - 1e-9
+    || comparison.breakEvenSellThroughVsLiquidate === Infinity
+    || comparison.keep.cash < comparison.liquidate.cash);
+  assert.match(comparison.summary, /\$68\.86 more/);
+  assert.match(comparison.summary, /\$236\.80/);
+  assert.match(comparison.summary, /\$167\.94/);
+  assert.match(comparison.summary, /\$3\.14/);
+  assert.equal(liquidationNote(comparison), comparison.summary);
+  assert.doesNotMatch(comparison.summary, /should liquidate|must remove|create a liquidation/i);
+});
+
+test("compareLiquidation: no elsewhere leftover flips FBA Liquidations ahead", () => {
+  const comparison = compareLiquidation({ ...base, elsewhereNet: 0 });
+  assert.equal(comparison.winner, "liquidate");
+  near(comparison.elsewhere.cash, -83.2, "removal fee only");
+  near(comparison.extraLiquidateVsDispose, 193.536, "same liquidate cash");
+  assert.match(comparison.summary, /\$193\.54 more/);
+  assert.match(comparison.summary, /\$167\.94 vs -\$25\.60/);
+});
+
+test("compareLiquidation: zero recovery and a $0.80 fee flips dispose ahead", () => {
+  const comparison = compareLiquidation({
+    ...base,
+    recoveryPct: 0,
+    liquidationFee: 0.8,
+    elsewhereNet: 0,
+  });
+  assert.equal(comparison.winner, "dispose");
+  near(comparison.liquidate.cash, -64, "80 × $0.80");
+  near(comparison.breakEvenRecoveryVsDispose, 1.6005335111703902, "recovery floor");
+  assert.match(comparison.summary, /\$38\.40 less/);
+  assert.match(comparison.summary, /1\.6%/);
+});
+
+test("compareLiquidation: 20% monthly sell-through flips keep ahead of every exit", () => {
+  const comparison = compareLiquidation({ ...base, monthlySellThroughPct: 20 });
+  assert.equal(comparison.winner, "keep");
+  assert.ok(comparison.keep.cash > comparison.elsewhere.cash, "keep beats a $4 elsewhere leftover");
+  assert.ok(comparison.keep.cash > comparison.liquidate.cash, "keep beats liquidations");
+  assert.match(comparison.summary, /still beats FBA Liquidations/);
+});
+
+test("compareLiquidation: empty recovery fields use the published defaults", () => {
+  const comparison = compareLiquidation(base);
+  near(comparison.recoveryPct, DEFAULT_LIQUIDATION_RECOVERY_PCT, "default recovery");
+  near(comparison.liquidationFee, DEFAULT_LIQUIDATION_FEE, "default fee");
+  near(comparison.elsewhereNet, DEFAULT_ELSEWHERE_NET, "default elsewhere");
+  near(comparison.agedUnits, DEFAULT_AGED_UNITS, "same pile");
+});
+
+test("compareLiquidation rejects impossible recovery or a zero pile", () => {
+  assert.throws(() => compareLiquidation({ ...base, recoveryPct: 101 }), /at most 100/);
+  assert.throws(() => compareLiquidation({ ...base, agedUnits: 0 }), /Aged units/);
+  assert.throws(() => compareLiquidation({ ...base, liquidationFee: -1 }), /Liquidation fee/);
+  assert.throws(() => liquidationNote({}), /missing rows/);
+});
+
+const NARF_BASE = {
+  salePrice: 29.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 2,
+  weightLb: 0.75,
+  costOfGoods: 8,
+  inboundPerUnit: 1.2,
+  packagingCost: 0.6,
+  storageRate: 0.87,
+  monthlyUnits: 80,
+};
+
+test("compareRemoteFulfillment: default Canada demand still prefers NARF over a first CA pile", () => {
+  const comparison = compareRemoteFulfillment(NARF_BASE);
+  assert.equal(comparison.winner, "narf");
+  assert.equal(comparison.narfFee, DEFAULT_NARF_FEE);
+  assert.equal(comparison.caInboundPerUnit, DEFAULT_CA_INBOUND);
+  assert.equal(comparison.narfTakePct, DEFAULT_NARF_TAKE_PCT);
+  assert.equal(comparison.caTakePct, DEFAULT_CA_TAKE_PCT);
+  assert.equal(comparison.monthlySessions, DEFAULT_CA_SESSIONS);
+  assert.equal(comparison.sizeTier, "large_standard");
+  near(comparison.fulfillmentFee, 4.15, "large-standard 12 oz band");
+  near(comparison.usProfit, 11.493166666666664, "US FBA leftover");
+  near(comparison.narf.completedProfit, 10.243166666666664, "NARF completed");
+  near(comparison.narf.expectedProfit, 5.121583333333332, "NARF expected");
+  near(comparison.canada.completedProfit, 7.493166666666663, "CA completed");
+  near(comparison.canada.expectedProfit, 4.870558333333331, "CA expected");
+  near(comparison.extraNarfVsSkip, 5.121583333333332, "NARF vs skip");
+  near(comparison.extraCanadaVsNarf, -0.25102500000000116, "CA vs NARF");
+  near(comparison.monthlyExtraOnNarf, 204.8633333333333, "monthly vs skip");
+  near(comparison.breakEvenNarfFee, 1.7520500000000023, "remote-fee ceiling");
+  near(comparison.breakEvenCaInbound, 4.813807692307691, "CA inbound ceiling");
+  near(comparison.breakEvenNarfTakePct, 47.54934183764785, "NARF take floor");
+  assert.equal(comparison.skip.expectedProfit, 0);
+  assert.match(comparison.summary, /\$5\.12 more per Canada session/);
+  assert.match(comparison.summary, /\$204\.86 on 40 Canada sessions/);
+  assert.match(comparison.summary, /behind by \$0\.25/);
+  assert.match(comparison.summary, /\$1\.75/);
+  assert.equal(remoteFulfillmentNote(comparison), comparison.summary);
+});
+
+test("compareRemoteFulfillment: form defaults without monthly units match the locked leftover", () => {
+  const fromForm = compareRemoteFulfillment({
+    salePrice: "29.99",
+    referralRate: "15",
+    length: "8",
+    width: "6",
+    height: "2",
+    weightLb: "0.75",
+    costOfGoods: "8",
+    inboundPerUnit: "1.20",
+    packagingCost: "0.60",
+    narfFee: "1.25",
+    caInboundPerUnit: "5.20",
+    narfTakePct: "50",
+    caTakePct: "65",
+    caSessions: "40",
+  });
+  const fromTests = compareRemoteFulfillment(NARF_BASE);
+  assert.equal(fromForm.winner, "narf");
+  near(fromForm.narf.expectedProfit, fromTests.narf.expectedProfit, "form vs test leftover");
+  near(fromForm.usProfit, 11.493166666666664, "Professional fee not allocated to one unit");
+});
+
+test("compareRemoteFulfillment: a $2.40 Canada inbound flips the dedicated pile ahead", () => {
+  const comparison = compareRemoteFulfillment({ ...NARF_BASE, caInboundPerUnit: 2.4 });
+  assert.equal(comparison.winner, "canada");
+  near(comparison.canada.expectedProfit, 6.690558333333331, "cheap CA expected");
+  near(comparison.extraCanadaVsNarf, 1.5689749999999991, "cheap CA vs NARF");
+  assert.match(comparison.summary, /\$1\.57 more per session/);
+  assert.match(comparison.summary, /can rise to about \$4\.81/);
+});
+
+test("compareRemoteFulfillment: remote fee at the ceiling ties the Canada pile", () => {
+  const comparison = compareRemoteFulfillment(NARF_BASE);
+  const tied = compareRemoteFulfillment({
+    ...NARF_BASE,
+    narfFee: comparison.breakEvenNarfFee,
+  });
+  near(tied.narf.expectedProfit, tied.canada.expectedProfit, "remote-fee ceiling");
+  assert.equal(tied.winner, "tie");
+});
+
+test("compareRemoteFulfillment ignores a typed return mix and rejects impossible inputs", () => {
+  const withReturns = compareRemoteFulfillment({
+    ...NARF_BASE,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareRemoteFulfillment(NARF_BASE);
+  near(withReturns.narf.expectedProfit, completed.narf.expectedProfit, "return mix forced to 0");
+  assert.throws(() => compareRemoteFulfillment({ salePrice: -1 }), /Sale price/);
+  assert.throws(() => compareRemoteFulfillment({ ...NARF_BASE, caSessions: 0 }), /greater than zero/);
+  assert.throws(() => compareRemoteFulfillment({ ...NARF_BASE, narfTakePct: 140 }), /at most 100/);
+  assert.throws(() => remoteFulfillmentNote({}), /missing rows/);
 });

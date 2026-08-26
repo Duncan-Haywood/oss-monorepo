@@ -7,7 +7,7 @@
   <meta name="description" content="Price a stair lift from lift count, straight versus landing versus outdoor versus curved rail, perch versus standard versus power-swivel versus power-pack versus heavy-duty chair, wood versus concrete versus open-riser attach, and extras — plus the walk-away price a $3,995 installed special cannot see.">
   <meta property="og:title" content="Stair Lift Bid Calculator">
   <meta property="og:description" content="Bid a stair lift the way the trade does — rail, chair, and extras, not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Stair Lift Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Lift count, straight vs landing vs outdoor vs curved rail comparison, perch vs standard vs power-swivel vs power-pack vs heavy-duty chair comparison, wood vs concrete vs open-riser attach, folding-rail charge-point circuit removal permit weather extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stair Lift Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Lift count, straight vs landing vs outdoor vs curved rail comparison, perch vs standard vs power-swivel vs power-pack vs heavy-duty chair comparison, wood vs concrete vs open-riser attach, contractor-supplied vs customer-supplied lift comparison, weekday vs hospital-discharge week vs Saturday expedite comparison, $3,995 rush walk-away, folding-rail charge-point circuit removal permit weather extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a241c; background: #f3eee4; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -156,9 +156,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+<p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Same stair, four rails</strong></p>
       <table>
@@ -173,6 +177,22 @@
         <tbody id="chairs"></tbody>
       </table>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same stair, who bought the lift</strong></p>
+      <p class="note" style="margin-top:0">The $795 “just install what I bought on Facebook” special. Zeroing the rail and chair invoices is not a free set — templating their used rail still takes hours, and a rail that is too short is a second trip. <a href="should-i-install-a-customer-supplied-stair-lift.html" style="color:#f0dfc2">Should I install a customer-supplied stair lift?</a></p>
+      <table>
+        <thead><tr><th>Who supplies</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="supply"></tbody>
+      </table>
+      <p id="supplyNote" class="note"></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same stair, when they need it</strong></p>
+      <p class="note" style="margin-top:0">The “mom comes home Friday — same $3,995?” special. A weekday slot is ground freight and an empty house. Discharge week is next-day rail freight plus a slower set while they stay home. Saturday is overtime, a second dispatch, and the same expedite ticket. <a href="should-i-expedite-a-stair-lift-for-hospital-discharge.html" style="color:#f0dfc2">Should I expedite a stair lift for hospital discharge?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -184,8 +204,8 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, accessibility, medical-device, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rail, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-install-a-stair-lift.html">how much to charge to install a stair lift</a>? The article walks the rail-versus-chair math this calculator uses.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rail, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-a-stair-lift.html">how much to charge to install a stair lift</a>? The article walks the rail-versus-chair math this calculator uses. Customer bought the lift? See <a href="should-i-install-a-customer-supplied-stair-lift.html">should I install a customer-supplied stair lift</a>. Hospital discharge this week? See <a href="should-i-expedite-a-stair-lift-for-hospital-discharge.html">should I expedite a stair lift for hospital discharge</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -194,6 +214,10 @@
       calculateBid,
       compareRail,
       compareChair,
+      compareOwnerSupply,
+      ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedRailKit,
       suggestedChairKit,
@@ -205,6 +229,7 @@
       JOB_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const JOB_IDS = [
       'rail', 'chair', 'attach', 'liftCount', 'travelMiles',
@@ -236,6 +261,8 @@
     ];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
+    let supplyCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -292,6 +319,10 @@
       el('split').innerHTML = '';
       el('compare').innerHTML = '';
       el('chairs').innerHTML = '';
+      el('supply').innerHTML = '';
+      el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -362,6 +393,46 @@
         <td>${upgrade}</td>
       </tr>`;
       }).join('');
+
+      const supply = compareOwnerSupply(readInput());
+      el('supply').innerHTML = supply.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('supplyNote').textContent = ownerSupplyNote(supply);
+      if (!supplyCounted) {
+        count('owner_supply_compared');
+        supplyCounted = true;
+      }
+
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
+      }
 
       const verdict = el('verdict');
       if (result.proposed === null) {
@@ -468,7 +539,95 @@
     applyChairKit();
     applyAttachKit();
     applyExtraKit();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['rail', 'chair', 'attach'];
+    const BID_SPEC = {
+      key: 'stair-lift-bid',
+      numbers: [...JOB_IDS, ...RATE_IDS, ...COST_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
     update();
+    persist();
   </script>
 </body>
 </html>

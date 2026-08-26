@@ -1,5 +1,5 @@
 name: interior-door-bid-calculator
-description: A private browser calculator for carpenters that prices an interior door replacement from door count, hollow-slab versus hollow-prehung versus solid-core versus French-or-barn, hang-only versus prehung-swap versus new-opening versus pocket-conversion, owner-supplied versus carpenter-supplied, 80-inch versus 96-inch versus double, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+description: A private browser calculator for carpenters that prices an interior door replacement from door count, hollow-slab versus hollow-prehung versus solid-core versus French-or-barn, hang-only versus prehung-swap versus new-opening versus pocket-conversion, owner-supplied versus carpenter-supplied, weekday they-leave versus they-stay versus Saturday overtime, 80-inch versus 96-inch versus double, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -16,6 +16,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Showing carpenter-supplied versus owner-supplied-it-hangs versus owner-supplied-wrong-size on the same opening changes the bid enough that carpenters walk away from a $150 hang-only special even when the leaf invoice is zero.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing weekday they-leave versus they-stay versus after-hours Saturday on the same opening changes the bid enough that carpenters walk away from a $349 Saturday hang that would have covered a weekday they-leave slot.
     status: untested
     checked: null
     evidence: customer-contact

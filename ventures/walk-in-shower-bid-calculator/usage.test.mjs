@@ -30,9 +30,13 @@ test('supports a named aggregate event without recording inputs', () => {
   recordUsage(storage, false, 'preset_applied');
   recordUsage(storage, false, 'preset_applied');
   recordUsage(storage, false, 'proposed_price_compared');
+  recordUsage(storage, false, 'scope_compared');
+  recordUsage(storage, false, 'access_compared');
   const event = JSON.parse(storage.values.get('walk-in-shower-bid-usage'));
   assert.equal(event.preset_applied, 2);
   assert.equal(event.proposed_price_compared, 1);
+  assert.equal(event.scope_compared, 1);
+  assert.equal(event.access_compared, 1);
 });
 
 test('stores nothing beyond event counters and the day', () => {

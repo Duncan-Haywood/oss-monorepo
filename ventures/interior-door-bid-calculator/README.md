@@ -42,6 +42,10 @@ installed**. Those numbers cannot see the opening or the leaf.
   assumes every opening is an 80-inch hollow slab.
 - **Paint both sides, haul-away, and a new lockset** are their own
   tickets. They do not live in a $150 dump.
+- **Saturday / after-hours** is time-and-a-half plus a second
+  dispatch. **Weekday while they stay home** is the same wage on a
+  slower hang. Matching a weekday $349 on Saturday is how a sold
+  hang becomes a loss.
 
 Matching a cheap hang quote on a pocket-conversion job is how a sold
 door becomes a loss when the header and the extra trip eat the margin.
@@ -71,17 +75,20 @@ It then reports price per door, effective hourly rate, the hour split,
 a four-scope comparison on the same opening, a four-leaf comparison on
 the same opening (the solid-core upgrade versus the hollow-slab
 special), a three-way **who-bought-the-leaf** comparison (you supply,
-they supply and it hangs, they supply and it binds), and the
-**walk-away price**. Entering a price already on the table scores it
-against the same cost base — including the $150 “just hang what I
-bought” special. **Copy bid summary** turns the result into a
-plain-text draft ready to paste into a proposal.
+they supply and it hangs, they supply and it binds), a three-way
+**when-you-can-work** comparison (weekday they leave, weekday they
+stay, after-hours / Saturday), and the **walk-away price**. Entering
+a price already on the table scores it against the same cost base —
+including the $150 “just hang what I bought” special and the
+“same $349 Saturday” number. **Copy bid summary** turns the result
+into a plain-text draft ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
 Search phrases: [`how-much-to-charge-to-replace-interior-doors.html`](how-much-to-charge-to-replace-interior-doors.html),
-[`should-i-hang-a-customer-supplied-door.html`](should-i-hang-a-customer-supplied-door.html).
+[`should-i-hang-a-customer-supplied-door.html`](should-i-hang-a-customer-supplied-door.html),
+[`should-i-hang-doors-on-saturday.html`](should-i-hang-doors-on-saturday.html).
 
 ## Privacy
 
@@ -102,7 +109,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `door_changed`, `size_changed`, `proposed_price_compared`,
-`owner_supply_compared`, `summary_copied`.
+`owner_supply_compared`, `access_compared`, `summary_copied`.
 
 ## Limitations
 
@@ -131,3 +138,29 @@ working. Do not use this as a system of record. If a tool needs to survive,
 export your inputs and run it yourself.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Saving and sharing a bid
+
+The whole form is kept in your own browser as you type, so the bid is still
+there on the next visit — the rates you tuned, not the ballpark ones this ships
+with. **Start a fresh bid** deletes it.
+
+**Copy bid link** puts the same bid in a URL. Opening it reproduces the bid
+exactly, in any browser, with nothing stored server-side — there is no server.
+A link beats a saved bid when both exist, because someone opening a link meant
+to see that bid; the page says which one is on screen.
+
+A bid link carries your own rates — wage, burden, overhead, and target margin.
+Send it to yourself or your crew. The customer should get the price, not the
+link.
+
+Nothing is uploaded either way. The rates ride in the link's `#` fragment,
+which browsers never send to a server or put in a `Referer` header, so opening
+or forwarding a bid link does not leak the numbers off the machines you send it
+to. The link is built in the browser and copied by you; the save is
+`localStorage` on your own device.
+
+`share.mjs` is the pure encode/decode/store module and is identical in every
+bid calculator here. Its field list is passed in from the page rather than kept
+in the module, so a field added to the form is saved and shareable without
+touching it; `page.test.mjs` fails if the two ever drift apart.

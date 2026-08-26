@@ -1,6 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, compareFrequencyReduction, frequencyReductionNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+import {
+  calculateBid,
+  formatBidSummary,
+  compareFrequencyReduction,
+  frequencyReductionNote,
+  compareSupplyResponsibility,
+  supplyResponsibilityNote,
+  compareInitialClean,
+  initialCleanNote,
+  WEEKS_PER_MONTH,
+  PRODUCTION_RATE_PRESETS,
+  PROJECT_RATE_PRESETS,
+} from './calc.mjs';
 
 const office = () => ({
   areas: [
@@ -107,6 +119,19 @@ test('an area cleaned zero times a week costs nothing and is left out of the vis
   assert.equal(result.totalSquareFeet, 11000);
 });
 
+test('a custom Other-space name is what the labor split reports', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [
+      { name: 'Server room', squareFeet: 200, productionRate: 1500, cleaningsPerWeek: 5 },
+      { name: 'Loading dock', squareFeet: 800, productionRate: 6000, cleaningsPerWeek: 3 },
+    ],
+  });
+  assert.equal(result.areas[0].name, 'Server room');
+  assert.equal(result.areas[1].name, 'Loading dock');
+  assert.ok(result.areas[0].hoursShare > 0);
+});
+
 test('a nameless area still reports under a stable label', () => {
   const result = calculateBid({
     ...office(),
@@ -156,6 +181,145 @@ test('production-rate presets are usable positive numbers', () => {
 test('monthly conversion uses averaged weeks, not a flat four', () => {
   assert.ok(Math.abs(WEEKS_PER_MONTH - 52 / 12) < 1e-12);
   assert.ok(WEEKS_PER_MONTH > 4.3);
+});
+
+test('omitted project work leaves the monthly contract unchanged', () => {
+  const without = calculateBid(office());
+  const empty = calculateBid({ ...office(), projects: [] });
+  assert.equal(without.hasProjectWork, false);
+  assert.equal(empty.hasProjectWork, false);
+  assert.equal(without.monthlyPrice, empty.monthlyPrice);
+  assert.equal(without.projectPrice, 0);
+  assert.equal(without.firstMonthInvoice, without.monthlyPrice);
+  assert.equal(without.breakEvenFirstMonth, without.monthlyCost);
+});
+
+test('strip and wax hours are square feet divided by rate times coats', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{
+      name: 'Strip & wax (VCT)',
+      squareFeet: 2000,
+      productionRate: 250,
+      passes: 2,
+      materials: 80,
+    }],
+  });
+  const line = result.projects[0];
+  assert.ok(Math.abs(line.hours - 16) < 1e-9);
+  assert.ok(Math.abs(line.laborCost - 16 * result.loadedWage) < 1e-9);
+  assert.equal(line.materials, 80);
+  assert.ok(result.hasProjectWork);
+  assert.ok(Math.abs(result.projectHours - 16) < 1e-9);
+  // Same margin-on-price rule as the monthly contract, applied only to the
+  // one-time work — not amortized into the eleven months that follow.
+  assert.ok(Math.abs(result.projectProfit / result.projectPrice * 100 - 20) < 1e-9);
+  assert.ok(Math.abs(result.firstMonthInvoice - (result.monthlyPrice + result.projectPrice)) < 1e-9);
+  assert.ok(result.projectPrice > 80);
+});
+
+test('project work does not change the recurring monthly price', () => {
+  const monthlyOnly = calculateBid(office());
+  const withProject = calculateBid({
+    ...office(),
+    projects: [{ name: 'Carpet extraction', squareFeet: 1500, productionRate: 300, passes: 1, materials: 40 }],
+  });
+  assert.ok(Math.abs(withProject.monthlyPrice - monthlyOnly.monthlyPrice) < 1e-9);
+  assert.ok(Math.abs(withProject.annualPrice - monthlyOnly.annualPrice) < 1e-9);
+  assert.ok(withProject.firstMonthInvoice > withProject.monthlyPrice);
+  assert.ok(withProject.breakEvenFirstMonth > withProject.breakEvenMonthlyPrice);
+});
+
+test('a zero-area project with no materials is idle, not an error', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Not yet scoped', squareFeet: 0, productionRate: 250, passes: 2, materials: 0 }],
+  });
+  assert.equal(result.hasProjectWork, false);
+  assert.equal(result.projectHours, 0);
+  assert.equal(result.projectPrice, 0);
+});
+
+test('materials-only project work still prices and is flagged', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Extra chemical charge', squareFeet: 0, productionRate: 250, passes: 1, materials: 120 }],
+  });
+  assert.equal(result.hasProjectWork, true);
+  assert.equal(result.projectHours, 0);
+  assert.ok(result.projectPrice > 120);
+});
+
+test('zero passes means no labor hours on that project', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Hold finish', squareFeet: 2000, productionRate: 250, passes: 0, materials: 10 }],
+  });
+  assert.equal(result.projects[0].hours, 0);
+  assert.equal(result.projects[0].laborCost, 0);
+  assert.equal(result.hasProjectWork, true);
+});
+
+test('project inputs that would produce a nonsense price are rejected', () => {
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: 1000, productionRate: 0, passes: 2 }],
+    }),
+    /Strip: project production rate must be greater than zero/,
+  );
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: -1, productionRate: 250 }],
+    }),
+    /Strip: project square feet must be at least 0/,
+  );
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: 1000, productionRate: 250, passes: -1 }],
+    }),
+    /Strip: passes must be at least 0/,
+  );
+});
+
+test('a nameless project still reports under a stable label', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ squareFeet: 500, productionRate: 250, passes: 1, materials: 0 }],
+  });
+  assert.equal(result.projects[0].name, 'Project 1');
+});
+
+test('project-rate presets are usable positive numbers', () => {
+  assert.ok(PROJECT_RATE_PRESETS.length >= 4);
+  for (const preset of PROJECT_RATE_PRESETS) {
+    assert.ok(preset.label.length > 0);
+    assert.ok(Number.isFinite(preset.rate) && preset.rate > 0);
+    assert.ok(Number.isFinite(preset.passes) && preset.passes >= 1);
+  }
+});
+
+test('bid summary keeps one-time work out of the monthly line', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Strip & wax (VCT)', squareFeet: 2000, productionRate: 250, passes: 2, materials: 80 }],
+  });
+  const text = formatBidSummary(result);
+  assert.match(text, /Proposed monthly service:/);
+  assert.match(text, /ONE-TIME PROJECT WORK/);
+  assert.match(text, /Strip & wax \(VCT\)/);
+  assert.match(text, /First-month invoice/);
+  assert.match(text, /SERVICE AREAS/);
+  assert.match(text, /Open office/);
+  assert.doesNotMatch(text, /undefined/);
+});
+
+test('bid summary omits the project block when there is no project work', () => {
+  const text = formatBidSummary(calculateBid(office()));
+  assert.doesNotMatch(text, /ONE-TIME PROJECT WORK/);
+  assert.doesNotMatch(text, /First-month invoice/);
 });
 
 test('a 5× to 3× cut scales labor and leaves supplies and equipment on the job', () => {
@@ -278,4 +442,274 @@ test('the pasteable note names the true 3× price and the linear mistake', () =>
   const warning = frequencyReductionNote(losing, { targetMargin: 20 });
   assert.match(warning, /would lose/);
   assert.match(warning, /Walk-away/);
+});
+
+test('they-buy-restroom-stock drops only that share of supplies and leaves labor alone', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  assert.ok(Math.abs(comparison.restroomSuppliesMonthly - 26) < 1e-9);
+  assert.ok(Math.abs(comparison.chemicalSuppliesMonthly - 14) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyRestroom.monthlySupplies - 14) < 1e-9);
+  assert.equal(comparison.theyBuyAll.monthlySupplies, 0);
+  assert.equal(comparison.theyBuyRestroom.monthlyHours, comparison.youSupply.monthlyHours);
+  assert.equal(comparison.theyBuyAll.monthlyHours, comparison.youSupply.monthlyHours);
+  assert.equal(comparison.theyBuyButYouFill.monthlyHours, comparison.youSupply.monthlyHours);
+  assert.equal(comparison.theyBuyRestroom.equipmentMonthly, comparison.youSupply.equipmentMonthly);
+});
+
+test('dropping the whole supplies line is the they-buy-everything price, not the restroom-only price', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  // $40 supplies × 1.15 overhead / 0.80 margin = $57.50 of today's price.
+  assert.ok(Math.abs(comparison.suppliesInPrice - 57.5) < 1e-9);
+  assert.ok(Math.abs(comparison.naiveDropPrice - comparison.theyBuyAll.monthlyPrice) < 1e-9);
+  assert.ok(comparison.theyBuyRestroom.monthlyPrice > comparison.theyBuyAll.monthlyPrice);
+  assert.ok(comparison.theyBuyRestroom.monthlyPrice < comparison.youSupply.monthlyPrice);
+  assert.ok(Math.abs(comparison.leftoverIfTheyBuyRestroom - 37.375) < 1e-9);
+  assert.ok(Math.abs(comparison.youSupply.monthlyPrice - 1719.9975) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyRestroom.monthlyPrice - 1682.6225) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyAll.monthlyPrice - 1662.4975) < 1e-9);
+});
+
+test('emergency-fill after they run out can cost more than you-supplying', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  assert.equal(comparison.fillCostsMoreThanYouSupply, true);
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.monthlyPrice - 1732.935) < 1e-9);
+  assert.ok(Math.abs(comparison.fillPremiumVsYouSupply - 12.9375) < 1e-9);
+  // Chemicals stay; the $35 fill is layered on other monthly cost.
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.monthlySupplies - 14) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.otherMonthly - 35) < 1e-9);
+  assert.ok(comparison.naiveMarginAtFill < comparison.naiveMarginAtRestroom);
+  assert.ok(comparison.naiveMarginAtRestroom < 20);
+});
+
+test('a zero emergency fill makes the fill row the same as they-buy-restroom', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 0,
+  });
+  assert.equal(comparison.fillCostsMoreThanYouSupply, false);
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.monthlyPrice - comparison.theyBuyRestroom.monthlyPrice) < 1e-9);
+  assert.ok(Math.abs(comparison.fillPremiumVsYouSupply - (comparison.theyBuyRestroom.monthlyPrice - comparison.youSupply.monthlyPrice)) < 1e-9);
+});
+
+test('a 100% restroom share is they-buy-everything; a 0% share is you-supply', () => {
+  const allRestroom = compareSupplyResponsibility(office(), { restroomSharePercent: 100 });
+  assert.ok(Math.abs(allRestroom.theyBuyRestroom.monthlyPrice - allRestroom.theyBuyAll.monthlyPrice) < 1e-9);
+  assert.equal(allRestroom.chemicalSuppliesMonthly, 0);
+  const none = compareSupplyResponsibility(office(), { restroomSharePercent: 0 });
+  assert.ok(Math.abs(none.theyBuyRestroom.monthlyPrice - none.youSupply.monthlyPrice) < 1e-9);
+  assert.ok(Math.abs(none.restroomSuppliesMonthly) < 1e-9);
+});
+
+test('their drop-supplies offer is scored against the cost you still carry', () => {
+  const you = calculateBid(office());
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+    clientOfferMonthly: you.monthlyPrice - 57.5,
+  });
+  assert.ok(comparison.clientOfferRestroom);
+  assert.ok(Math.abs(comparison.clientOfferRestroom.price - comparison.naiveDropPrice) < 1e-9);
+  assert.ok(Math.abs(comparison.clientOfferRestroom.profit - comparison.naiveProfitAtRestroom) < 1e-9);
+  assert.ok(Math.abs(comparison.clientOfferFill.profit - comparison.naiveProfitAtFill) < 1e-9);
+  assert.equal(comparison.clientOfferAll.belowBreakEven, false);
+});
+
+test('a large emergency fill makes dropping the supplies line a losing bid', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 300,
+  });
+  assert.equal(comparison.naiveBelowBreakEvenAtFill, true);
+  assert.ok(comparison.naiveProfitAtFill < 0);
+  assert.ok(comparison.theyBuyButYouFill.breakEvenMonthlyPrice > comparison.naiveDropPrice);
+});
+
+test('supply comparison rejects a restroom share above 100 rather than inventing a credit', () => {
+  assert.throws(
+    () => compareSupplyResponsibility(office(), { restroomSharePercent: 140 }),
+    /Restroom stock share of supplies must be at most 100/,
+  );
+  assert.throws(
+    () => compareSupplyResponsibility(office(), { restroomSharePercent: 'most' }),
+    /Restroom stock share of supplies must be a number/,
+  );
+  assert.throws(
+    () => compareSupplyResponsibility(office(), { emergencyFillMonthly: -1 }),
+    /Emergency fill when they run out must be at least 0/,
+  );
+});
+
+test('the pasteable supplies note names the restroom-only price and the emergency-fill trap', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  const note = supplyResponsibilityNote(comparison, { targetMargin: 20 });
+  assert.match(note, /\$26\.00/);
+  assert.match(note, /\$14\.00/);
+  assert.match(note, /\$1,682\.62/);
+  assert.match(note, /\$1,720\.00/);
+  assert.match(note, /\$1,662\.50/);
+  assert.match(note, /\$1,732\.94/);
+  assert.match(note, /above you-supplying/);
+  const losing = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 300,
+  });
+  const warning = supplyResponsibilityNote(losing, { targetMargin: 20 });
+  assert.match(warning, /would lose/);
+});
+
+test('a 5× takeover initial is extra labor and supplies, not another month of the contract', () => {
+  const monthly = calculateBid(office());
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+    cancelAfterMonths: 1,
+  });
+  assert.ok(Math.abs(comparison.hoursPerVisit - 2.4) < 1e-9);
+  assert.ok(Math.abs(comparison.initialHours - 12) < 1e-9);
+  assert.ok(Math.abs(comparison.initialLabor - 12 * monthly.loadedWage) < 1e-9);
+  assert.ok(Math.abs(comparison.initialDirect - (comparison.initialLabor + 80)) < 1e-9);
+  assert.ok(Math.abs(comparison.initialOverhead - comparison.initialDirect * 0.15) < 1e-9);
+  assert.ok(Math.abs(comparison.initialCost - comparison.initialDirect * 1.15) < 1e-9);
+  assert.ok(Math.abs(comparison.initialPrice - comparison.initialCost / 0.8) < 1e-9);
+  assert.equal(comparison.monthly.monthlyHours, monthly.monthlyHours);
+  assert.ok(Math.abs(comparison.monthly.monthlyPrice - monthly.monthlyPrice) < 1e-9);
+});
+
+test('throwing a 5× initial into today\'s monthly loses money in month 1', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+    cancelAfterMonths: 1,
+  });
+  assert.equal(comparison.thrownInBelowBreakEven, true);
+  assert.ok(comparison.thrownInMonth1Profit < 0);
+  assert.ok(comparison.walkAwayMonth1 > comparison.monthly.monthlyPrice);
+  assert.ok(Math.abs(comparison.thrownInMonth1Cost - (comparison.monthly.monthlyCost + comparison.initialCost)) < 1e-9);
+  // Locked worked example used by the SEO page.
+  assert.ok(Math.abs(comparison.monthly.monthlyPrice - 1719.9975) < 1e-9);
+  assert.ok(Math.abs(comparison.initialPrice - 490.36) < 0.005);
+  assert.ok(Math.abs(comparison.thrownInMonth1Profit + 48.288) < 0.01);
+  assert.ok(Math.abs(comparison.amortizedMonthlyPrice - 1760.860833333) < 0.01);
+  assert.ok(Math.abs(comparison.amortizedAddOn - 40.863333) < 0.01);
+});
+
+test('amortizing the initial over 12 months is a small add-on, not a doubled month', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+  });
+  assert.ok(comparison.amortizedAddOn > 0);
+  assert.ok(comparison.amortizedAddOn < comparison.initialPrice);
+  assert.ok(comparison.amortizedMonthlyPrice < comparison.monthly.monthlyPrice + comparison.initialPrice);
+  assert.ok(Math.abs(comparison.amortizedMonthlyCost - (comparison.monthly.monthlyCost + comparison.initialCost / 12)) < 1e-9);
+  // Same target margin on the combined cost.
+  assert.ok(Math.abs((comparison.amortizedMonthlyPrice - comparison.amortizedMonthlyCost) / comparison.amortizedMonthlyPrice * 100 - 20) < 1e-9);
+});
+
+test('a 30-day cancel after a free initial finishes under water', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    cancelAfterMonths: 1,
+  });
+  assert.ok(comparison.thrownInCashIfCancel < 0);
+  assert.ok(comparison.quotedSeparatelyCashIfCancel > 0);
+  // Throwing it in vs invoicing it costs the one-time price, regardless of tenure.
+  assert.ok(Math.abs(comparison.giveawayVsQuotedIfCancel + comparison.initialPrice) < 1e-9);
+  assert.ok(Math.abs(comparison.thrownInCashIfCancel - (comparison.monthly.monthlyProfit - comparison.initialCost)) < 1e-9);
+});
+
+test('a 12-month stay still leaves the giveaway equal to the unpaid one-time', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    cancelAfterMonths: 12,
+  });
+  assert.ok(comparison.thrownInCashIfCancel > 0);
+  assert.ok(Math.abs(comparison.giveawayVsQuotedIfCancel + comparison.initialPrice) < 1e-9);
+  assert.ok(comparison.monthsOfProfitToCoverGiveaway > 1);
+  assert.ok(comparison.monthsOfProfitToCoverGiveaway < 2);
+});
+
+test('a 2× maintained-building initial still prices as a project, not as free', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 2,
+    extraSupplies: 20,
+  });
+  assert.ok(Math.abs(comparison.initialHours - 4.8) < 1e-9);
+  assert.equal(comparison.thrownInBelowBreakEven, false);
+  assert.ok(comparison.thrownInMonth1Profit > 0);
+  assert.ok(comparison.thrownInMonth1Margin < 20);
+  assert.ok(comparison.initialPrice > 0);
+});
+
+test('their include-the-initial monthly is scored against month-1 cost, not the periodic cost', () => {
+  const monthly = calculateBid(office());
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    clientOfferMonthly: monthly.monthlyPrice,
+  });
+  assert.ok(comparison.clientOffer);
+  assert.equal(comparison.clientOffer.belowBreakEvenMonth1, true);
+  assert.ok(Math.abs(comparison.clientOffer.month1Profit - comparison.thrownInMonth1Profit) < 1e-9);
+  assert.equal(comparison.clientOffer.laterBelowBreakEven, false);
+  assert.ok(Math.abs(comparison.clientOffer.laterProfit - monthly.monthlyProfit) < 1e-9);
+});
+
+test('initial-clean comparison rejects a zero multiplier rather than a free project', () => {
+  assert.throws(
+    () => compareInitialClean(office(), { visitMultiplier: 0 }),
+    /Initial-clean visit multiplier must be greater than zero/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { amortizeMonths: 0 }),
+    /Months to recover the initial must be greater than zero/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { cancelAfterMonths: 0 }),
+    /If they cancel after this many months must be greater than zero/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { extraSupplies: -1 }),
+    /Extra initial-clean supplies must be at least 0/,
+  );
+  assert.throws(
+    () => compareInitialClean(office(), { visitMultiplier: 'deep' }),
+    /Initial-clean visit multiplier must be a number/,
+  );
+});
+
+test('the pasteable initial-clean note names the one-time and the month-1 loss', () => {
+  const comparison = compareInitialClean(office(), {
+    visitMultiplier: 5,
+    extraSupplies: 80,
+    amortizeMonths: 12,
+    cancelAfterMonths: 1,
+  });
+  const note = initialCleanNote(comparison, { targetMargin: 20 });
+  assert.match(note, /\$490\.36/);
+  assert.match(note, /\$1,720\.00/);
+  assert.match(note, /loses \$48\.29/);
+  assert.match(note, /\$1,760\.86/);
+  assert.match(note, /under water/);
+  const easy = compareInitialClean(office(), { visitMultiplier: 2, extraSupplies: 20 });
+  const easyNote = initialCleanNote(easy, { targetMargin: 20 });
+  assert.match(easyNote, /leaves \$/);
+  assert.doesNotMatch(easyNote, /loses \$/);
 });

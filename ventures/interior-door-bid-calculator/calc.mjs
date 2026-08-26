@@ -654,6 +654,165 @@ export function ownerSupplyNote(rows) {
   return `Zeroing the leaf invoice drops the bid ${money(drop)}. A wrong-size callback puts ${money(callbackLift)} back on.`;
 }
 
+export const ACCESS_PRESETS = Object.freeze([
+  {
+    id: 'weekday-empty',
+    label: 'Weekday, they leave',
+    detail: 'Empty house; you book the day',
+  },
+  {
+    id: 'occupied-stay',
+    label: 'Weekday, they stay',
+    detail: 'Same wage, slower hang and punch-list',
+  },
+  {
+    id: 'after-hours',
+    label: 'After-hours / Saturday',
+    detail: 'Overtime wage plus a second dispatch',
+  },
+]);
+
+/**
+ * Starting pace and overtime when they will not leave you the
+ * house on a weekday, or want Saturday / after 5pm because they
+ * work. Occupied pace is a multiplier on the typed hang and
+ * punch-list hours — working around furniture, pets, and a
+ * homeowner who "just wants to watch" is slower, not a different
+ * wage. After-hours is time-and-a-half on the typed wage plus a
+ * second Saturday dispatch from the extra-kit trip, so a typed
+ * 9-hour hang does not inflate the extra trip.
+ */
+export function suggestedAccessKit() {
+  const extra = suggestedExtraKit();
+  return {
+    occupiedPaceMultiplier: 1.25,
+    afterHoursWageMultiplier: 1.5,
+    afterHoursExtraTripHours: extra.hoursTrip,
+  };
+}
+
+/**
+ * Price the same opening three ways: weekday they leave,
+ * weekday they stay home, or after-hours / Saturday.
+ *
+ * Occupied keeps the typed wage and adds clock hours on the
+ * hang and punch-list. After-hours keeps the typed hours and
+ * raises the wage, then adds a starting second dispatch
+ * because a Saturday hang is not a stop you combine with a
+ * weekday route. Leaf, scope, millwork invoice, and extras
+ * stay.
+ *
+ * A hang-only price (options.hangOnlyPrice, else the proposed
+ * price on the bid) is scored against each cost base. That is
+ * the "$150 Saturday" number carpenters actually get shopped
+ * on.
+ */
+export function compareAccess(input, options = {}) {
+  const kit = suggestedAccessKit();
+  const hoursHangPerDoor = number(input.hoursHangPerDoor ?? 0, 'Hang hours per door');
+  const siteHours = number(input.siteHours ?? 0, 'Site hours');
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+
+  let hangPrice = null;
+  const rawHang = options.hangOnlyPrice !== undefined
+    ? options.hangOnlyPrice
+    : input.proposedPrice;
+  if (rawHang !== null && rawHang !== undefined && rawHang !== '') {
+    hangPrice = number(rawHang, 'Hang-only price');
+  }
+
+  const weekday = calculateBid(input);
+  const occupied = calculateBid({
+    ...input,
+    hoursHangPerDoor: hoursHangPerDoor * kit.occupiedPaceMultiplier,
+    siteHours: siteHours * kit.occupiedPaceMultiplier,
+  });
+  const afterHours = calculateBid({
+    ...input,
+    hourlyWage: hourlyWage * kit.afterHoursWageMultiplier,
+    hoursTrip: hoursTrip + kit.afterHoursExtraTripHours,
+  });
+
+  const rows = [
+    {
+      access: 'weekday-empty',
+      label: ACCESS_PRESETS[0].label,
+      detail: ACCESS_PRESETS[0].detail,
+      bid: weekday,
+    },
+    {
+      access: 'occupied-stay',
+      label: ACCESS_PRESETS[1].label,
+      detail: ACCESS_PRESETS[1].detail,
+      bid: occupied,
+    },
+    {
+      access: 'after-hours',
+      label: ACCESS_PRESETS[2].label,
+      detail: ACCESS_PRESETS[2].detail,
+      bid: afterHours,
+    },
+  ].map((row) => ({
+    access: row.access,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    loadedWage: row.bid.loadedWage,
+    hoursTravel: row.bid.hoursTravel,
+    hoursHang: row.bid.hoursHang,
+    siteHours: row.bid.siteHours,
+    laborCost: row.bid.laborCost,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    hangOnly: scoreHangOnly(row.bid, hangPrice),
+    liftFromWeekday: row.bid.price - weekday.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    hangOnlyPrice: hangPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the access table. Names the Saturday
+ * / after-hours loss when that number is on the table;
+ * otherwise names the bid lift from a weekday they-leave slot.
+ */
+export function accessNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Access comparison is missing rows');
+  }
+  const weekday = rows.find((row) => row.access === 'weekday-empty');
+  const occupied = rows.find((row) => row.access === 'occupied-stay');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  if (!weekday || !occupied || !afterHours) {
+    throw new Error('Access comparison is missing an access row');
+  }
+
+  const occupiedLift = occupied.price - weekday.price;
+  const afterHoursLift = afterHours.price - weekday.price;
+  if (weekday.hangOnly && afterHours.hangOnly) {
+    const asked = weekday.hangOnly.price;
+    if (weekday.hangOnly.belowBreakEven && afterHours.hangOnly.belowBreakEven) {
+      return `At ${money(asked)} you lose money even on a weekday they-leave slot. Walk-away after-hours is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (!weekday.hangOnly.belowBreakEven && afterHours.hangOnly.belowBreakEven) {
+      return `At ${money(asked)} the weekday hang covers. The same Saturday / after-hours number loses ${money(Math.abs(afterHours.hangOnly.profit))} — walk-away then is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (occupied.hangOnly?.belowBreakEven) {
+      return `At ${money(asked)} a weekday they-leave slot covers. Weekday while they stay home still loses ${money(Math.abs(occupied.hangOnly.profit))} — walk-away then is ${money(occupied.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} every access window still holds a margin. After-hours still adds ${money(afterHoursLift)} to the bid.`;
+  }
+  return `Weekday while they stay home adds ${money(occupiedLift)} to the bid. After-hours / Saturday adds ${money(afterHoursLift)}.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

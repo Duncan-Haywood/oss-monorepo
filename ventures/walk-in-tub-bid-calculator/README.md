@@ -9,10 +9,12 @@ door, tile, grab bars, and floor work — and shows the margin
 before the price goes out.
 
 **After using this, you can now** send a walk-away walk-in-tub
-price that sees the alcove and the unit, **which used to take**
-matching a published $3,499 installed special that treats a
-soaker alcove swap as the same job as a relocate extra-wide
-tile install.
+price that sees the alcove, the unit, whether they already
+bought the tub, and whether Saturday still pays after overtime,
+**which used to take** matching a published $3,499 installed
+special — or a $1,499 “just set what I bought” special — that
+treats a weekday soaker alcove swap as the same job as a
+Saturday whirlpool after a fall.
 
 **Open [`index.html`](index.html) directly in a browser**, or serve this
 directory statically. It is a self-contained, zero-dependency page: no build
@@ -49,6 +51,12 @@ Matching a cheap alcove-swap quote on a relocate-plus-tile job
 is how a sold aging-in-place install becomes a loss when the
 plumbing and the surround eat the margin.
 
+Families also call after a fall: **can you start Saturday so
+she is not climbing the old tub?** A weekday $3,499 number is
+not a Saturday bid. Occupied is the same wage on a slower set.
+After-hours is time-and-a-half plus a second evening trip —
+you cannot leave the alcove open overnight in the only bath.
+
 This is distinct from a **walk-in shower** (tile, slope, glass),
 a **hot tub** (outdoor crane and a pad), **toilet replacement**
 (a commode swap), and a **water heater** (a tank). This prices a
@@ -72,15 +80,23 @@ walk-in tub.
 It then reports price per tub, effective hourly rate, the hour
 split, a four-scope comparison on the same bath, a five-unit
 comparison on the same bath (the whirlpool upgrade versus the
-soaker special), and the **walk-away price**. Entering a price
-already on the table scores it against the same cost base. **Copy
-bid summary** turns the result into a plain-text draft ready to
-paste into a proposal.
+soaker special), a three-way **who-supplies** comparison (you
+supply the tub, they supply one that fits, they supply one
+that does not), a three-way **when-you-can-work** comparison
+(weekday they leave, only-bath-still-in-use, Saturday /
+after-hours), and the **walk-away price**. Entering a price
+already on the table scores it against the same cost base —
+including the $995 “just install what I bought” special and
+the $3,499 Saturday number.
+**Copy bid summary** turns the result into a plain-text draft
+ready to paste into a proposal.
 
 The arithmetic lives in [`calc.mjs`](calc.mjs). See
 [`calc.test.mjs`](calc.test.mjs).
 
-Search phrase: [`how-much-to-charge-to-install-a-walk-in-tub.html`](how-much-to-charge-to-install-a-walk-in-tub.html).
+Search phrases: [`how-much-to-charge-to-install-a-walk-in-tub.html`](how-much-to-charge-to-install-a-walk-in-tub.html),
+[`should-i-install-a-customer-supplied-walk-in-tub.html`](should-i-install-a-customer-supplied-walk-in-tub.html),
+[`should-i-take-a-saturday-walk-in-tub-call.html`](should-i-take-a-saturday-walk-in-tub-call.html).
 
 ## Privacy
 
@@ -101,7 +117,7 @@ when the browser sends Do Not Track or Global Privacy Control. See
 
 Events counted: `bid_calculated`, `preset_applied`, `scope_changed`,
 `tub_changed`, `door_changed`, `proposed_price_compared`,
-`summary_copied`.
+`owner_supply_compared`, `access_compared`, `summary_copied`.
 
 ## Limitations
 
@@ -132,3 +148,29 @@ working. Do not use this as a system of record. If a tool needs to survive,
 export your inputs and run it yourself.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Saving and sharing a bid
+
+The whole form is kept in your own browser as you type, so the bid is still
+there on the next visit — the rates you tuned, not the ballpark ones this ships
+with. **Start a fresh bid** deletes it.
+
+**Copy bid link** puts the same bid in a URL. Opening it reproduces the bid
+exactly, in any browser, with nothing stored server-side — there is no server.
+A link beats a saved bid when both exist, because someone opening a link meant
+to see that bid; the page says which one is on screen.
+
+A bid link carries your own rates — wage, burden, overhead, and target margin.
+Send it to yourself or your crew. The customer should get the price, not the
+link.
+
+Nothing is uploaded either way. The rates ride in the link's `#` fragment,
+which browsers never send to a server or put in a `Referer` header, so opening
+or forwarding a bid link does not leak the numbers off the machines you send it
+to. The link is built in the browser and copied by you; the save is
+`localStorage` on your own device.
+
+`share.mjs` is the pure encode/decode/store module and is identical in every
+bid calculator here. Its field list is passed in from the page rather than kept
+in the module, so a field added to the form is saved and shareable without
+touching it; `page.test.mjs` fails if the two ever drift apart.

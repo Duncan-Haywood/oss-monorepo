@@ -8,6 +8,19 @@ function localName(tag) {
   return trimmed.includes(":") ? trimmed.slice(trimmed.lastIndexOf(":") + 1) : trimmed;
 }
 
+function parseAttrs(token) {
+  const attrs = {};
+  const pattern = /([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  let match = pattern.exec(token);
+  while (match) {
+    const raw = match[1];
+    const key = raw.includes(":") ? raw.slice(raw.lastIndexOf(":") + 1) : raw;
+    attrs[key] = match[2] !== undefined ? match[2] : match[3];
+    match = pattern.exec(token);
+  }
+  return attrs;
+}
+
 export function parseXmlTree(source) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
   if (/<!DOCTYPE/i.test(text) || /<!ENTITY/i.test(text)) {
@@ -24,7 +37,7 @@ export function parseXmlTree(source) {
     }
     if (token.startsWith("<")) {
       const selfClosing = /\/>$/.test(token);
-      const node = { name: localName(token.slice(1)), text: "", children: [] };
+      const node = { name: localName(token.slice(1)), text: "", children: [], attrs: parseAttrs(token) };
       stack[stack.length - 1].children.push(node);
       if (!selfClosing) stack.push(node);
       continue;
@@ -67,6 +80,12 @@ function party(node) {
       break;
     }
   }
+  const endpointNode = descendants(partyNode, "EndpointID")[0];
+  if (endpointNode) {
+    const id = endpointNode.text.trim();
+    const scheme = (endpointNode.attrs && endpointNode.attrs.schemeID) ? endpointNode.attrs.schemeID.trim() : "";
+    if (id || scheme) mapped.endpoint = { id, scheme };
+  }
   return mapped;
 }
 
@@ -102,6 +121,8 @@ function paymentReference(means) {
 function payeePayment(root) {
   for (const means of descendants(root, "PaymentMeans")) {
     const payment = {};
+    const code = textOf(means, "PaymentMeansCode", false);
+    if (code) payment.means = code;
     const remittance = paymentReference(means);
     if (remittance) payment.remittance = remittance;
     for (const account of descendants(means, "PayeeFinancialAccount")) {
@@ -125,6 +146,58 @@ const DOCUMENT_ROOTS = {
   CreditNote: { type: "credit_note", line: "CreditNoteLine", quantity: "CreditedQuantity" },
   DebitNote: { type: "debit_note", line: "DebitNoteLine", quantity: "DebitedQuantity" },
 };
+
+function taxCategoryFields(category) {
+  const extras = {};
+  for (const child of category.children) {
+    if (child.name === "ID") {
+      const value = child.text.trim();
+      if (value) extras.tax_category = value;
+    }
+  }
+  const reason = textOf(category, "TaxExemptionReason", false);
+  if (reason) extras.tax_reason = reason;
+  const reasonCode = textOf(category, "TaxExemptionReasonCode", false);
+  if (reasonCode) extras.tax_reason_code = reasonCode;
+  return extras;
+}
+
+function taxBreakdown(root) {
+  const rows = [];
+  for (const subtotal of descendants(root, "TaxSubtotal")) {
+    const taxable = textOf(subtotal, "TaxableAmount", false);
+    const tax = textOf(subtotal, "TaxAmount", false);
+    const category = descendants(subtotal, "TaxCategory")[0];
+    const percent = category ? textOf(category, "Percent", false) : "";
+    let taxId = "";
+    if (category) {
+      for (const child of category.children) {
+        if (child.name === "ID") taxId = child.text.trim();
+      }
+    }
+    if (!taxable && !tax && !percent) continue;
+    const row = {};
+    if (percent) row.tax_percent = asNumber(percent);
+    if (taxable) row.taxable = asNumber(taxable);
+    if (tax) row.tax = asNumber(tax);
+    if (taxId) row.tax_category = taxId;
+    if (Object.keys(row).length) rows.push(row);
+  }
+  return rows;
+}
+
+function documentExemption(root) {
+  const extras = {};
+  for (const subtotal of descendants(root, "TaxSubtotal")) {
+    for (const category of descendants(subtotal, "TaxCategory")) {
+      const reason = textOf(category, "TaxExemptionReason", false);
+      if (reason && !extras.tax_exemption_reason) extras.tax_exemption_reason = reason;
+      const reasonCode = textOf(category, "TaxExemptionReasonCode", false);
+      if (reasonCode && !extras.tax_exemption_reason_code) extras.tax_exemption_reason_code = reasonCode;
+    }
+  }
+  return extras;
+}
 
 function billingReference(root) {
   for (const ref of descendants(root, "BillingReference")) {
@@ -152,6 +225,7 @@ export function parseUblInvoice(source) {
       unit_price: asNumber(textOf(line, "PriceAmount")),
       tax_percent: asNumber(textOf(category, "Percent")),
       net: asNumber(textOf(line, "LineExtensionAmount")),
+      ...taxCategoryFields(category),
     };
   });
 
@@ -186,7 +260,67 @@ export function parseUblInvoice(source) {
   };
   const payment = payeePayment(root);
   if (payment) invoice.payment = payment;
+  Object.assign(invoice, documentExemption(root));
+  const breakdown = taxBreakdown(root);
+  if (breakdown.length) invoice.tax_breakdown = breakdown;
+  const period = invoicePeriod(root);
+  if (period) invoice.period = period;
+  Object.assign(invoice, commercialReferences(root));
+  const adjustments = headerAdjustments(root);
+  if (adjustments.length) invoice.adjustments = adjustments;
   return invoice;
+}
+
+function headerAdjustments(root) {
+  const rows = [];
+  for (const child of root.children) {
+    if (child.name !== "AllowanceCharge") continue;
+    const indicator = textOf(child, "ChargeIndicator", false);
+    const amount = textOf(child, "Amount", false);
+    const base = textOf(child, "BaseAmount", false);
+    const percent = textOf(child, "MultiplierFactorNumeric", false);
+    const reason = textOf(child, "AllowanceChargeReason", false);
+    const reasonCode = textOf(child, "AllowanceChargeReasonCode", false);
+    if (!indicator && !amount && !base && !percent && !reason && !reasonCode) continue;
+    const row = {};
+    if (indicator) {
+      const token = indicator.trim().toLowerCase();
+      row.kind = token === "true" || token === "1" ? "charge" : "allowance";
+    }
+    if (amount) row.amount = asNumber(amount);
+    if (base) row.base = asNumber(base);
+    if (percent) row.percent = asNumber(percent);
+    if (reason) row.reason = reason;
+    if (reasonCode) row.reason_code = reasonCode;
+    if (Object.keys(row).length) rows.push(row);
+  }
+  return rows;
+}
+
+function commercialReferences(root) {
+  const extras = {};
+  for (const child of root.children) {
+    if (child.name === "BuyerReference") {
+      extras.buyer_reference = (child.text || "").trim();
+    } else if (child.name === "OrderReference") {
+      extras.order_reference = textOf(child, "ID", false);
+    }
+  }
+  return extras;
+}
+
+function invoicePeriod(root) {
+  for (const child of root.children) {
+    if (child.name !== "InvoicePeriod") continue;
+    const start = textOf(child, "StartDate", false);
+    const end = textOf(child, "EndDate", false);
+    if (!start && !end) continue;
+    const period = {};
+    if (start) period.start = start;
+    if (end) period.end = end;
+    return period;
+  }
+  return null;
 }
 
 export function looksLikeXml(name, source) {
