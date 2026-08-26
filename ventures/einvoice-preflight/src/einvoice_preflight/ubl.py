@@ -22,11 +22,11 @@ def _number(value: str) -> int | float:
     return int(number) if number == number.to_integral_value() else float(number)
 
 
-def _party(element: ElementTree.Element) -> dict[str, str]:
+def _party(element: ElementTree.Element) -> dict[str, Any]:
     party = next(iter(_children(element, "Party")), element)
     identifier = _text(party, "ID")
     name = _text(party, "Name")
-    mapped = {"id": identifier, "name": name}
+    mapped: dict[str, Any] = {"id": identifier, "name": name}
     vat_id = ""
     for scheme in _children(party, "PartyTaxScheme"):
         vat_id = _text(scheme, "CompanyID", required=False)
@@ -34,7 +34,25 @@ def _party(element: ElementTree.Element) -> dict[str, str]:
             break
     if vat_id:
         mapped["vat_id"] = vat_id
+    endpoint = _endpoint(party)
+    if endpoint:
+        mapped["endpoint"] = endpoint
     return mapped
+
+
+def _endpoint(party: ElementTree.Element) -> dict[str, str] | None:
+    """Map Party/EndpointID and its schemeID when either is present."""
+    for child in party.iter():
+        if child.tag.rsplit("}", 1)[-1] != "EndpointID":
+            continue
+        value = (child.text or "").strip()
+        scheme = ""
+        for key, attr in child.attrib.items():
+            if key.rsplit("}", 1)[-1] == "schemeID":
+                scheme = (attr or "").strip()
+        if value or scheme:
+            return {"id": value, "scheme": scheme}
+    return None
 
 
 _DOCUMENT_ROOTS = {
