@@ -3096,3 +3096,17 @@ products:
           (publishing is owner-gated), so there is no traffic signal to read
           and its local-first event counter reports only to the user's own
           browser. Baseline row.
+
+  - slug: asphalt-sealcoat-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local asphalt sealcoating bid calculator (coats,
+          oxidized coverage, oil-spot primer, crack fill, striping, travel,
+          walk-away price). Public URL remains owner-gated; the local-first
+          counter reports only to the user's own browser and is opt-out.
+          Baseline row.

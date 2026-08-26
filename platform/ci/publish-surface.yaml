@@ -67,6 +67,9 @@ workflows:
 - workflow: asphalt-driveway-pave-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: asphalt-sealcoat-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: attic-insulation-bid-calculator-ci.yml
   classification: none
   publishes: []
