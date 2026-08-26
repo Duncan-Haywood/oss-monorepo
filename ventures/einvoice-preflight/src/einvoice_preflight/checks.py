@@ -9,6 +9,7 @@ from .breakdown import inspect_tax_breakdown
 from .document import inspect_document_type
 from .endpoint import inspect_party_endpoint
 from .iban import inspect_payment_iban
+from .period import inspect_invoice_period
 from .remittance import inspect_payment_remittance
 from .tax import inspect_tax_exemption
 from .vat import inspect_party_vat
@@ -84,6 +85,8 @@ def check_invoice(invoice: Any) -> list[dict[str, str]]:
     for finding in inspect_tax_exemption(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     for finding in inspect_tax_breakdown(invoice):
+        fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
+    for finding in inspect_invoice_period(invoice):
         fail(finding["rule"], finding["message"], finding["fix"], finding["path"])
     lines = invoice.get("lines")
     if not isinstance(lines, list) or not lines:

@@ -17,8 +17,9 @@ cd ventures/einvoice-preflight
 # http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
 # credit-note document type (INV-032 through INV-034), 0% / exempt
 # tax reasons (INV-035 and INV-036), mixed-rate tax breakdown
-# (INV-037 and INV-038), and buyer/seller electronic addresses
-# (INV-039 through INV-041).
+# (INV-037 and INV-038), buyer/seller electronic addresses
+# (INV-039 through INV-041), and invoice period start/end
+# (INV-042 and INV-043).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
@@ -79,6 +80,7 @@ arithmetic check, not a tax-law determination:
   "invoice_number": "INV-1001",
   "issue_date": "2026-08-24",
   "due_date": "2026-09-23",
+  "period": {"start": "2026-07-01", "end": "2026-07-31"},
   "document_type": "invoice",
   "currency": "EUR",
   "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976", "endpoint": {"scheme": "0088", "id": "1234567890128"}},
@@ -183,6 +185,15 @@ and optional `TaxCategory/ID` as `tax_category`).
 earlier than `issue_date`; this is a date-shape and document-consistency check,
 not a judgment about payment terms or legal requirements. UBL `DueDate` is
 mapped into the same optional field.
+
+`period` is optional. When supplied it is `{ "start": "YYYY-MM-DD", "end":
+"YYYY-MM-DD" }` — the EN 16931 invoice period (BT-73 / BT-74). A period that
+is not an object, that names only one date, or that is not an ISO date is
+`INV-042`. An end earlier than the start is `INV-043`. Omitted periods stay
+clean. Messages never repeat the dates. This is a date-shape check, not a
+Peppol profile determination and not a claim that the dates match the
+underlying contract. UBL invoice-level `InvoicePeriod/StartDate` and
+`EndDate` map into `period`; line-level `InvoicePeriod` is ignored.
 
 `totals.prepaid` and `totals.due` are optional. When `prepaid` is supplied, it
 must be a non-negative amount no greater than `totals.gross` (`INV-028`). When
