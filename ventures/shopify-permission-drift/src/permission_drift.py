@@ -17,11 +17,8 @@ DISCLAIMER = (
 )
 
 
-def load_inventory(path: Path) -> dict:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError(f"cannot read inventory: {exc}") from exc
+def validate_inventory(data: dict) -> dict:
+    """Reject incomplete inventories so capture and compare share one schema."""
     if not isinstance(data, dict) or any(key not in data for key in REQUIRED):
         raise ValueError("inventory must include captured_at, api_version, source, authorization_state, and apps")
     for field in REQUIRED[:-1]:
@@ -34,6 +31,14 @@ def load_inventory(path: Path) -> dict:
     if not isinstance(data["apps"], list):
         raise ValueError("inventory apps must be a list")
     return data
+
+
+def load_inventory(path: Path) -> dict:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"cannot read inventory: {exc}") from exc
+    return validate_inventory(data)
 
 
 def _mapping(inventory: dict) -> dict[str, dict]:
@@ -70,8 +75,13 @@ def compare(before: dict, after: dict) -> dict:
     for field in ("authorization_state", "api_version"):
         if before[field] != after[field]:
             changes.append({"kind": f"{field}_changed", "before": before[field], "after": after[field]})
+    before_captured = datetime.fromisoformat(before["captured_at"].replace("Z", "+00:00"))
+    after_captured = datetime.fromisoformat(after["captured_at"].replace("Z", "+00:00"))
+    if after_captured < before_captured:
+        changes.append({"kind": "capture_order_invalid", "before": before["captured_at"], "after": after["captured_at"]})
     metadata = {"before_source": before["source"], "after_source": after["source"], "before_captured_at": before["captured_at"], "after_captured_at": after["captured_at"]}
-    return {"status": "changed" if changes else "unchanged", "metadata": metadata, "changes": changes, "review_required": bool(changes)}
+    status = "inconclusive" if any(change["kind"] == "capture_order_invalid" for change in changes) else ("changed" if changes else "unchanged")
+    return {"status": status, "metadata": metadata, "changes": changes, "review_required": bool(changes)}
 
 
 def usage_event(path: Path, finding_count: int) -> None:

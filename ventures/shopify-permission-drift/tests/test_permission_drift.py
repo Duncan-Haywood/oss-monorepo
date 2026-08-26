@@ -66,6 +66,12 @@ class PermissionDriftTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "duplicate scopes"):
             compare(duplicate_scopes, self.after)
 
+    def test_marks_reversed_capture_order_inconclusive(self):
+        report = compare(self.after, self.before)
+        self.assertEqual(report["status"], "inconclusive")
+        self.assertTrue(report["review_required"])
+        self.assertEqual(report["changes"][-1]["kind"], "capture_order_invalid")
+
 
 def load_inventory_from_data(data):
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json", encoding="utf-8") as handle:

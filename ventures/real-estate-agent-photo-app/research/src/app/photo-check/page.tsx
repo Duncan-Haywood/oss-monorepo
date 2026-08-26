@@ -6,7 +6,7 @@ import { PhotoCheckTool } from "@/components/PhotoCheckTool";
 export const metadata: Metadata = {
   title: "Free MLS Listing Photo Preflight Check | Listing Lens",
   description:
-    "Check real estate listing photos against a dated floor spec — resolution, file size, format, aspect ratio, branding/watermark filenames, and staged-photo pairing — entirely in your browser. Free, no upload, no account.",
+    "Check real estate listing photos against a dated floor spec and get a copyable reshoot list — which rooms to recapture, which files to rename or recrop, and which staged shots still need an original. Free, no upload, no account.",
 };
 
 export default function PhotoCheckPage() {
@@ -20,9 +20,10 @@ export default function PhotoCheckPage() {
           MLS Listing Photo Preflight Check
         </h1>
         <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-          Drop a folder of listing photos in and get a dated findings report — resolution,
-          file size, format, aspect ratio, branding/watermark filenames, and staged-photo
-          pairing. Free, unlimited, and your photos never leave this browser tab.
+          Drop a folder of listing photos in and get a dated findings report plus a
+          copyable reshoot list — which rooms to recapture, which files to rename or
+          recrop, and which staged shots still need an original. Free, unlimited, and
+          your photos never leave this browser tab.
         </p>
         <PhotoCheckTool />
       </div>
