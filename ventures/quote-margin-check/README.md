@@ -39,7 +39,9 @@ fragment (not sent as a referrer) and a plain-text review summary for an email o
 proposal note. It includes the quote's arithmetic, the supplied target
 comparison, and only attention-level review observations. Copying the summary
 records an anonymous `review_summary_copied` event locally; quote values are
-never stored in that event or sent anywhere. The browser can also remember
+never stored in that event or sent anywhere. The discount-ask table also has
+its own **Copy discount ladder** control for a spreadsheet-safe CSV of the
+percent-off rows; that records `discount_ladder_copied` the same way. The browser can also remember
 the current worksheet in local storage on this device. Restoring or resetting
 that draft records anonymous `draft_restored` / `draft_reset` events; quote
 values stay in the browser. The browser can also download those same quote

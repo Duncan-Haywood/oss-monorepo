@@ -295,6 +295,7 @@
           <tbody></tbody>
         </table>
       </div>
+      <p class="actions"><button type="button" id="copy-discounts">Copy discount ladder</button> <span id="discount-copy-status" class="hint" role="status" aria-live="polite"></span></p>
     </div>
     <div class="result" id="billing" aria-live="polite">
       <strong>Fixed quote vs hourly at your target</strong>
@@ -859,6 +860,32 @@
   const copyBtn = document.getElementById("copy-csv");
   const downloadBtn = document.getElementById("download-csv");
   const copyStatus = document.getElementById("copy-status");
+  const discountCopyBtn = document.getElementById("copy-discounts");
+  const discountCopyStatus = document.getElementById("discount-copy-status");
+  discountCopyBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      discountCopyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const rows = [
+      "discount_percent,quote_price,effective_hourly_rate,hours_to_cut,gap_to_target",
+      ...discountAskScenarios(quote, r).map((scenario) => [
+        scenario.percent,
+        scenario.discounted_price,
+        scenario.effective_hourly_rate,
+        scenario.hours_to_cut === null ? "" : scenario.hours_to_cut,
+        scenario.gap_to_target,
+      ].map((value) => Number.isFinite(Number(value)) && value !== "" ? Number(value).toFixed(2) : String(value)).join(",")),
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(rows + "\n");
+      discountCopyStatus.textContent = "Copied — paste into a spreadsheet.";
+      recordEvent("discount_ladder_copied");
+    } catch {
+      discountCopyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
   summaryBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";
