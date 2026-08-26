@@ -110,6 +110,125 @@ test('compareEarlyPay rejects impossible discounts and inverted windows', () => 
   assert.throws(() => compareEarlyPay({ ...earlyPay, annualCarryRate: -1 }), /non-negative/);
 });
 
+// --- when the cash actually lands -----------------------------------
+
+import { PAY_RUN_SCHEDULES, compareTermsLandings, projectSettlement, settlementNote } from './calc.mjs';
+
+const settle = { amount: 1200, invoiceDate: '2026-08-24', termsDays: 30, annualCarryRate: 24 };
+
+test('semimonthly client pushes a Sep 23 due date to the Oct 1 run', () => {
+  const p = projectSettlement({ ...settle, payRun: 'semimonthly' });
+  assert.equal(p.dueDate, '2026-09-23');
+  assert.equal(p.settlementDate, '2026-10-01');
+  assert.equal(p.driftDays, 8);
+  assert.equal(p.totalWaitDays, 38);
+  assert.equal(p.landsOnDueDate, false);
+});
+
+test('drift is priced at the carrying rate already on the form', () => {
+  const p = projectSettlement({ ...settle, payRun: 'semimonthly' });
+  assert.equal(p.driftCarryCost, 1200 * 0.24 * (8 / 365));
+});
+
+test('a due date landing on a run day has no drift', () => {
+  const p = projectSettlement({ ...settle, invoiceDate: '2026-09-01', payRun: 'semimonthly', termsDays: 14 });
+  assert.equal(p.dueDate, '2026-09-15');
+  assert.equal(p.settlementDate, '2026-09-15');
+  assert.equal(p.driftDays, 0);
+  assert.equal(p.landsOnDueDate, true);
+});
+
+test('weekdays schedule carries a weekend due date to Monday', () => {
+  // 2026-09-26 is a Saturday.
+  const p = projectSettlement({ ...settle, invoiceDate: '2026-08-27', payRun: 'weekdays' });
+  assert.equal(p.dueDate, '2026-09-26');
+  assert.equal(p.settlementDate, '2026-09-28');
+  assert.equal(p.driftDays, 2);
+});
+
+test('weekdays is the default when no schedule is given', () => {
+  const p = projectSettlement({ ...settle, invoiceDate: '2026-08-27' });
+  assert.equal(p.schedule, 'weekdays');
+  assert.equal(p.settlementDate, '2026-09-28');
+});
+
+test('on-due reproduces the plain contractual due date', () => {
+  const p = projectSettlement({ ...settle, payRun: 'on-due' });
+  assert.equal(p.settlementDate, calculateTerms(settle).dueDate);
+  assert.equal(p.driftDays, 0);
+  assert.equal(p.earlierRun, null);
+});
+
+test('a monthly run day clamps to the end of a short month', () => {
+  const p = projectSettlement({ ...settle, invoiceDate: '2027-01-20', payRun: 'monthly', payRunDay: 31 });
+  assert.equal(p.dueDate, '2027-02-19');
+  assert.equal(p.settlementDate, '2027-02-28');
+});
+
+test('a weekly run lands on the chosen weekday', () => {
+  const p = projectSettlement({ ...settle, payRun: 'weekly', payRunWeekday: 1 });
+  assert.equal(new Date(`${p.settlementDate}T00:00:00Z`).getUTCDay(), 1);
+  assert.equal(p.settlementDate, '2026-09-28');
+});
+
+test('the send-earlier tip appears only when batching gives leverage', () => {
+  // Monthly run: 22 days earlier buys 30 days sooner.
+  const batched = projectSettlement({ ...settle, payRun: 'monthly', payRunDay: 1 });
+  assert.equal(batched.earlierRun.sendEarlierDays, 22);
+  assert.equal(batched.earlierRun.daysSooner, 30);
+  assert.equal(batched.earlierRun.invoiceBy, '2026-08-02');
+
+  // Weekdays: every shift is 1-for-1, so there is nothing to say.
+  const flat = projectSettlement({ ...settle, invoiceDate: '2026-08-26', payRun: 'weekdays' });
+  assert.equal(flat.earlierRun, null);
+});
+
+test('a longer term can land on the same run as a shorter one', () => {
+  const rows = compareTermsLandings({ ...settle, payRun: 'monthly', payRunDay: 1 });
+  const net30 = rows.find(r => r.termsDays === 30);
+  const net15 = rows.find(r => r.termsDays === 15);
+  assert.equal(net15.settlementDate, net30.settlementDate);
+  assert.equal(net30.landsWith, 15);
+  assert.equal(net30.freeExtraDays, 15);
+  assert.equal(net15.landsWith, null);
+});
+
+test('the terms ladder includes the operator’s own term and marks it', () => {
+  const rows = compareTermsLandings({ ...settle, termsDays: 21 });
+  const own = rows.filter(r => r.isCurrent);
+  assert.equal(own.length, 1);
+  assert.equal(own[0].termsDays, 21);
+  assert.deepEqual(rows.map(r => r.termsDays), [7, 15, 21, 30, 45, 60]);
+});
+
+test('rejects a schedule that is not on the list', () => {
+  assert.throws(() => projectSettlement({ ...settle, payRun: 'whenever' }), /payment schedule/);
+});
+
+test('rejects an out-of-range monthly day and weekly weekday', () => {
+  assert.throws(() => projectSettlement({ ...settle, payRun: 'monthly', payRunDay: 0 }), /between 1 and 31/);
+  assert.throws(() => projectSettlement({ ...settle, payRun: 'weekly', payRunWeekday: 9 }), /between 0/);
+});
+
+test('rejects an invalid invoice date', () => {
+  assert.throws(() => projectSettlement({ ...settle, invoiceDate: '2026-02-30' }), /valid invoice date/);
+});
+
+test('every advertised schedule projects a real date', () => {
+  for (const { id } of PAY_RUN_SCHEDULES) {
+    const p = projectSettlement({ ...settle, payRun: id });
+    assert.match(p.settlementDate, /^\d{4}-\d{2}-\d{2}$/, id);
+    assert.ok(p.totalWaitDays >= settle.termsDays, id);
+  }
+});
+
+test('the settlement note states the drift and never advises', () => {
+  const note = settlementNote(projectSettlement({ ...settle, payRun: 'semimonthly' }));
+  assert.match(note, /2026-10-01/);
+  assert.match(note, /8 days later/);
+  assert.doesNotMatch(note, /you should|we recommend/i);
+});
+
 const factor = {
   amount: 1200,
   termsDays: 30,
