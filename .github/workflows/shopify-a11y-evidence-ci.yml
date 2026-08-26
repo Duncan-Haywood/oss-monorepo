@@ -1,8 +1,8 @@
 name: shopify-a11y-evidence CI
 
 # Test runner for the browser-local Shopify accessibility evidence report,
-# remediation quote, and theme-area router. Static ES modules, no build step,
-# no dependencies.
+# remediation quote, theme-area router, and before/after compare. Static ES
+# modules, no build step, no dependencies.
 
 on:
   pull_request:
