@@ -38,6 +38,7 @@ async function siteWith(files = {}) {
     'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${url('sitemap.xml')}\n`,
     '404.html': '<p>gone</p>',
     '.nojekyll': '',
+    'favicon.ico': '',
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
     'sitemap-hub.xml': urlset(''),
     'tool/index.html': '<p>Tool</p>',

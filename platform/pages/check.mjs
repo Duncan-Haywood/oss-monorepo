@@ -31,6 +31,9 @@ const REQUIRED_ROOT_FILES = [
   'robots.txt',
   '404.html',
   '.nojekyll',
+  // Browsers request /favicon.ico on their own for every page, so if it is
+  // missing every page load logs a 404 and opens an anonymous blank tab.
+  'favicon.ico',
 ];
 
 // Files whose contents are worth reading for links and stale origins.
