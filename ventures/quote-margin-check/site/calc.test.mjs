@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -412,4 +412,20 @@ test("breaks target price into delivery, hidden time, and direct costs", () => {
     direct_costs: 480,
     total: 3105,
   });
+});
+
+test("prices extra scope at the quote's target rate plus new direct costs", () => {
+  const quote = loadQuote({ price: 2400, delivery_hours: 24, target_hourly_rate: 75 });
+  assert.deepEqual(changeOrderPrice(quote, 4, 60), {
+    extra_hours: 4,
+    extra_direct_costs: 60,
+    target_price: 360,
+    effective_hourly_rate: 75,
+  });
+});
+
+test("rejects negative or non-finite change-order inputs", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
+  assert.throws(() => changeOrderPrice(quote, -1));
+  assert.throws(() => changeOrderPrice(quote, 1, Infinity));
 });

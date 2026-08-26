@@ -3,6 +3,15 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { loadQuote, calculate, directCostSpikeScenarios, discountAskScenarios, compareBillingModels, loadKillFeeProgress, compareKillFee } from "./calc.mjs";
 
+test("calculator page prices extra scope as a change-order floor", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="change-order"/);
+  assert.match(page, /id="extra-hours"/);
+  assert.match(page, /changeOrderPrice/);
+  assert.match(page, /change_order_checked/);
+  assert.match(page, /arithmetic floor/);
+});
+
 test("calculator page renders the cost-rise table and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="cost-spike"/);

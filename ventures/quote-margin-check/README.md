@@ -63,6 +63,12 @@ quoted price and direct costs fixed while showing how the effective hourly rate
 and gap to the supplied target change. They are arithmetic what-if comparisons,
 not a forecast of project delivery time.
 
+When a client adds scope, the browser's change-order guard calculates a price
+floor from the additional hours at the supplied target rate plus any new direct
+costs. It is a transparent arithmetic floor, not a recommendation: review the
+scope, assumptions, taxes, and any other business costs yourself before making
+an offer.
+
 A second table keeps hours and the quoted price fixed and raises only overhead
 plus subcontractor cost by the same +10% / +25% / +50%. That answers the
 stale-quote question: if materials or a sub go up after you send a fixed
@@ -132,7 +138,7 @@ accept no liability for any loss or damage arising from its use.
 **Best-effort hosting, no SLA.** Hosted copies of this calculator are free,
 experimental, and may be slow, broken, moved, or taken offline without notice.
 
-Only aggregate `report_generated`, `quote_review_checked`, `csv_copied`, and
+Only aggregate `report_generated`, `quote_review_checked`, `change_order_checked`, `csv_copied`, and
 `csv_downloaded` events are optionally appended to the usage log. Inputs,
 project names, prices, and file contents never leave the machine.
 Pass `--usage-log PATH` to opt in; omit it to keep usage counting off. The
