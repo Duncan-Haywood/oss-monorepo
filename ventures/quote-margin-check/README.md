@@ -104,6 +104,10 @@ only calculator fields and derived numbers, never project names, client
 content, or identifiers. They can be deleted individually or cleared
 together.
 
+Use **Download JSON report** to save the current quote inputs and derived
+result as a portable local artifact. The download contains no hidden
+browser data and does not upload anything.
+
 The browser also breaks the target price into delivery labor, hidden admin and
 revision time, and direct costs. This makes the arithmetic auditable instead
 of leaving the user to reverse-engineer one total; it is not a recommendation
@@ -137,7 +141,8 @@ what makes it comparable to the CLI's own count. The browser also counts
 `kill_fee_compared` when the mid-project cancel table is computed, and
 `billing_model_compared` when the fixed-vs-hourly table is computed. The
 browser also counts `history_saved`, `history_deleted`, and `history_cleared`
-when local review snapshots are stored or removed. CSV copy
+when local review snapshots are stored or removed. A `report_downloaded`
+event is counted when the JSON report is saved locally. CSV copy
 and download events happen only when the user invokes those actions. Copying
 the review summary records `review_summary_copied` the same way. Restoring
 or resetting a local draft records `draft_restored` or `draft_reset`. The
