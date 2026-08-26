@@ -8,7 +8,7 @@
   <meta property="og:title" content="Spray Foam Bid Calculator">
   <meta property="og:description" content="Bid the board feet, the rim, and the coating — not the attic-square-foot coupon. See the margin before you send the price.">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Spray Foam Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Board-foot geometry, open/closed/hybrid cell, rim-joist footage, ignition coating, cathedral pitch factor, walk-away price, proposed-price margin check, copyable customer-facing summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Spray Foam Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Board-foot geometry, open/closed/hybrid cell, same-attic cell comparison, rim-joist footage, ignition coating, cathedral pitch factor, walk-away price, proposed-price margin check, copyable customer-facing summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -46,6 +46,10 @@
     .support { margin-top: 14px; }
     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
     .summary-status { font-size: .8rem; color: #c5e8d8; }
+    .cell-table { width:100%; border-collapse:collapse; font-size:.82rem; margin:8px 0 0; }
+    .cell-table th, .cell-table td { text-align:right; padding:6px 4px; border-bottom:1px solid #ffffff2b; }
+    .cell-table th:first-child, .cell-table td:first-child { text-align:left; }
+    .cell-table .selected td { background:#ffffff14; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
@@ -165,6 +169,20 @@
         <dt>Walk-away price</dt><dd id="breakEven"></dd>
       </dl>
       <div id="verdict" class="verdict" hidden></div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same attic, three cells</strong></p>
+      <p class="note">Board-foot split, waste, and spray hours change. Your drum prices, wage, rim, and extras stay. The coupon cannot see this table.</p>
+      <table class="cell-table">
+        <thead>
+          <tr>
+            <th scope="col">Cell</th>
+            <th scope="col">Bid</th>
+            <th scope="col">vs this bid</th>
+            <th scope="col">$/sf plane</th>
+          </tr>
+        </thead>
+        <tbody id="cellCompare"></tbody>
+      </table>
       <div class="summary-actions">
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
@@ -187,6 +205,7 @@
   <script type="module">
     import {
       calculateBid,
+      compareCellBids,
       formatBidSummary,
       JOB_PRESETS,
       AREA_PRESETS,
@@ -290,12 +309,15 @@
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('verdict').hidden = true;
+      if (el('cellCompare')) el('cellCompare').innerHTML = '';
     }
 
     function update() {
       let result;
+      let input;
       try {
-        result = calculateBid(readInput());
+        input = readInput();
+        result = calculateBid(input);
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -348,6 +370,11 @@
           ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
           : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
       }
+
+      const signed = (value) => (value === 0 ? 'this bid' : `${value > 0 ? '+' : '−'}${money(Math.abs(value))}`);
+      el('cellCompare').innerHTML = compareCellBids(input).map((row) =>
+        `<tr class="${row.selected ? 'selected' : ''}"><td>${row.label}</td><td>${money(row.price)}</td><td>${signed(row.vsSelected)}</td><td>${row.pricePerAreaSf === null ? 'n/a' : money(row.pricePerAreaSf)}</td></tr>`
+      ).join('');
     }
 
     async function copySummary() {
@@ -376,6 +403,7 @@
       applyCellKit();
       applyGeometryKits();
       count('bid_calculated');
+      count('cell_compared');
       update();
     });
     el('access').addEventListener('change', () => {
