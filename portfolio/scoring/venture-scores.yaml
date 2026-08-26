@@ -2893,6 +2893,36 @@ ventures:
       Pass: inputs must declare authorized: true, the tool does not scrape
       registers or rank people, and the report is a source-linked observation
       rather than a suitability or compliance determination.
+  - slug: contractor-bid-readiness
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.333
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The checklist is intentionally deterministic and local-first. Adding
+      inference would only guess at solicitation requirements the contractor
+      already has in the RFP.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local RFP artifact readiness
+      matrix (repair-and-merge of unique #1398). Distinct from quote-margin
+      (price a job) and retainage (cash withheld after award): the buyer is
+      a small contractor assembling insurance, forms, and signatures before
+      a deadline. Distribution is "contractor bid checklist" and "RFP
+      submission checklist".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the report is a private working record, not a determination that
+      a bid is complete, compliant, or likely to win. Bid details never leave
+      the browser.
   - slug: change-order-margin-calculator
     scores:
       ai_leverage: 1
