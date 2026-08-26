@@ -3,13 +3,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareProductionPartner } from './calc.mjs';
+import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareProductionPartner, compareStarSeller } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./is-etsy-plus-worth-it.html', import.meta.url), 'utf8');
 const personalizationSeo = readFileSync(new URL('./should-i-charge-for-etsy-personalization.html', import.meta.url), 'utf8');
 const adsSeo = readFileSync(new URL('./is-etsy-ads-worth-it.html', import.meta.url), 'utf8');
 const partnerSeo = readFileSync(new URL('./should-i-use-an-etsy-production-partner.html', import.meta.url), 'utf8');
+const starSeo = readFileSync(new URL('./is-etsy-star-seller-worth-it.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -56,6 +57,7 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /personalization upcharge comparison/i);
   assert.match(featureList[1], /Etsy Ads ACOS comparison/i);
   assert.match(featureList[1], /production partner vs handmade comparison/i);
+  assert.match(featureList[1], /Star Seller vs unsigned comparison/i);
   assert.match(markup, /id="plusTable"/);
   assert.match(markup, /id="listingsPerMonth"/);
   assert.match(markup, /id="monthlyPlusFee"/);
@@ -180,7 +182,7 @@ test('the Etsy Ads SEO page uses the same worked examples the calculator default
 });
 
 test('the production-partner row template has one cell per column', () => {
-  const tableMarkup = markup.split('id="partnerTable"')[1] || '';
+  const tableMarkup = (markup.split('id="partnerTable"')[1] || '').split('id="starTable"')[0];
   const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
   assert.equal(headers.length, 6, `expected 6 partner columns, found ${headers.join(' | ')}`);
@@ -227,4 +229,66 @@ test('the production-partner SEO page uses the same worked examples the calculat
   assert.ok(partnerSeo.includes(money(reject.breakEvenPartnerUnit)), `missing reject break-even ${money(reject.breakEvenPartnerUnit)}`);
   assert.ok(partnerSeo.includes(money(fits.youMake.monthly)), `missing fit handmade ${money(fits.youMake.monthly)}`);
   assert.ok(partnerSeo.includes(money(fits.partner.monthly)), `missing fit partner ${money(fits.partner.monthly)}`);
+});
+
+test('the Star Seller row template has one cell per column', () => {
+  const tableMarkup = markup.split('id="starTable"')[1] || '';
+  const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim());
+  assert.equal(headers.length, 6, `expected 6 Star Seller columns, found ${headers.join(' | ')}`);
+  assert.match(scriptSource, /compareStarSeller/);
+  assert.match(scriptSource, /starSellerNote/);
+  assert.match(scriptSource, /star_seller_compared/);
+  assert.match(markup, /id="starSellerShippingCost"/);
+  assert.match(markup, /id="starSellerMessageMinutes"/);
+  assert.match(markup, /id="starSellerHourlyWage"/);
+  assert.match(markup, /id="unsignedSellThroughPct"/);
+  assert.match(markup, /id="starSellerSellThroughPct"/);
+  assert.match(markup, /id="starSellerListings"/);
+  assert.match(markup, /id="star-seller"/);
+});
+
+test('the Star Seller SEO page uses the same worked examples the calculator defaults produce', () => {
+  assert.match(starSeo, /Is Etsy Star Seller worth it/i);
+  assert.match(starSeo, /href="\.\/#star-seller"/);
+  assert.match(starSeo, /No warranty/);
+  assert.match(starSeo, /no SLA/i);
+  const money = (value) => `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
+  const signed = (value) => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
+  const pageOrder = {
+    price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6,
+    materialCost: 4, otherCost: 0,
+  };
+  const defaults = compareStarSeller(pageOrder);
+  const lift = compareStarSeller({ ...pageOrder, starSellerSellThroughPct: 60 });
+  const cheap = compareStarSeller({ ...pageOrder, starSellerShippingCost: 7 });
+  const already = compareStarSeller({
+    ...pageOrder,
+    unsignedSellThroughPct: 70,
+    starSellerSellThroughPct: 75,
+  });
+  const low = compareStarSeller({
+    ...pageOrder,
+    unsignedSellThroughPct: 20,
+    starSellerSellThroughPct: 35,
+  });
+  assert.ok(starSeo.includes(money(defaults.unsigned.profit)), `missing unsigned packed ${money(defaults.unsigned.profit)}`);
+  assert.ok(starSeo.includes(money(defaults.starSeller.profit)), `missing star packed ${money(defaults.starSeller.profit)}`);
+  assert.ok(starSeo.includes(money(defaults.unsigned.expected)), `missing unsigned expected ${money(defaults.unsigned.expected)}`);
+  assert.ok(starSeo.includes(money(defaults.starSeller.expected)), `missing star expected ${money(defaults.starSeller.expected)}`);
+  assert.ok(starSeo.includes(signed(defaults.extraExpected)), `missing default extra ${signed(defaults.extraExpected)}`);
+  assert.ok(starSeo.includes(money(Math.abs(defaults.extraAcrossListings))), `missing across ${money(Math.abs(defaults.extraAcrossListings))}`);
+  assert.ok(starSeo.includes(`${defaults.breakEvenSellThroughPct.toFixed(1)}%`), `missing break-even ${defaults.breakEvenSellThroughPct.toFixed(1)}%`);
+  assert.ok(starSeo.includes(money(defaults.starPostageCeiling)), `missing postage ceiling ${money(defaults.starPostageCeiling)}`);
+  assert.ok(starSeo.includes(signed(lift.extraExpected)), `missing 60% extra ${signed(lift.extraExpected)}`);
+  assert.ok(starSeo.includes(signed(lift.extraAcrossListings)), `missing 60% across ${signed(lift.extraAcrossListings)}`);
+  assert.ok(starSeo.includes(money(cheap.starSeller.profit)), `missing $7 packed ${money(cheap.starSeller.profit)}`);
+  assert.ok(starSeo.includes(signed(cheap.extraExpected)), `missing $7 extra ${signed(cheap.extraExpected)}`);
+  assert.ok(starSeo.includes(money(already.unsigned.expected)), `missing 70% unsigned ${money(already.unsigned.expected)}`);
+  assert.ok(starSeo.includes(money(already.starSeller.expected)), `missing 75% star ${money(already.starSeller.expected)}`);
+  assert.ok(starSeo.includes(signed(already.extraExpected)), `missing 70-75 extra ${signed(already.extraExpected)}`);
+  assert.ok(starSeo.includes(money(low.unsigned.expected)), `missing 20% unsigned ${money(low.unsigned.expected)}`);
+  assert.ok(starSeo.includes(money(low.starSeller.expected)), `missing 35% star ${money(low.starSeller.expected)}`);
+  assert.ok(starSeo.includes(signed(low.extraExpected)), `missing 20-35 extra ${signed(low.extraExpected)}`);
 });

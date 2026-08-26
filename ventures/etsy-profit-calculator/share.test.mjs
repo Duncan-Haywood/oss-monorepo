@@ -67,4 +67,25 @@ test('every encodable field is a real calculator field', () => {
   assert.ok(FIELD_IDS.includes('partnerUnitCost'));
   assert.ok(FIELD_IDS.includes('yourMonthlyCapacity'));
   assert.ok(FIELD_IDS.includes('monthlyDemand'));
+  assert.ok(FIELD_IDS.includes('starSellerShippingCost'));
+  assert.ok(FIELD_IDS.includes('starSellerMessageMinutes'));
+  assert.ok(FIELD_IDS.includes('starSellerHourlyWage'));
+  assert.ok(FIELD_IDS.includes('unsignedSellThroughPct'));
+  assert.ok(FIELD_IDS.includes('starSellerSellThroughPct'));
+  assert.ok(FIELD_IDS.includes('starSellerListings'));
+});
+
+test('carries Star Seller fields so a shared link does not drop the badge table', () => {
+  const decoded = decodeInputs(encodeInputs({
+    price: 30,
+    starSellerShippingCost: 9,
+    starSellerMessageMinutes: 8,
+    starSellerHourlyWage: 18,
+    unsignedSellThroughPct: 40,
+    starSellerSellThroughPct: 50,
+    starSellerListings: 40,
+  }));
+  assert.equal(decoded.starSellerShippingCost, 9);
+  assert.equal(decoded.starSellerSellThroughPct, 50);
+  assert.equal(decoded.starSellerListings, 40);
 });

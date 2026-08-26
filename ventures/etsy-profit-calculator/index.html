@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Etsy Profit Calculator | See Your Net Profit After Fees</title>
-  <meta name="description" content="Calculate Etsy order profit after listing, transaction, payment, offsite ad, shipping, material, and other costs. Compare whether Etsy Plus credits cover the $10 fee, whether a personalization still pays, whether on-site Etsy Ads still leave a profit after ACOS, and whether a production-partner quote still pays after you run out of handmade hours.">
+  <meta name="description" content="Calculate Etsy order profit after listing, transaction, payment, offsite ad, shipping, material, and other costs. Compare whether Etsy Plus credits cover the $10 fee, whether a personalization still pays, whether on-site Etsy Ads still leave a profit after ACOS, whether a production-partner quote still pays after you run out of handmade hours, and whether chasing Star Seller still beats staying unsigned.">
   <meta property="og:title" content="Etsy Profit Calculator">
-  <meta property="og:description" content="See what an Etsy order leaves after the complete fee stack, whether Plus credits still beat staying off Plus, whether a personalization covers extra time, whether Etsy Ads still pay after ACOS, and whether a production partner still pays this month.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Etsy Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Etsy fee breakdown, break-even price, net profit margin, Etsy Plus credit comparison, personalization upcharge comparison, Etsy Ads ACOS comparison, production partner vs handmade comparison"}</script>
+  <meta property="og:description" content="See what an Etsy order leaves after the complete fee stack, whether Plus credits still beat staying off Plus, whether a personalization covers extra time, whether Etsy Ads still pay after ACOS, whether a production partner still pays this month, and whether Star Seller still beats staying unsigned.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Etsy Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Etsy fee breakdown, break-even price, net profit margin, Etsy Plus credit comparison, personalization upcharge comparison, Etsy Ads ACOS comparison, production partner vs handmade comparison, Star Seller vs unsigned comparison"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -17,12 +17,12 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; } label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; } input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; } .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; } .negative { color: #ffb6a6; } .positive { color: #c5edb5; } dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; } .note { font-size: .82rem; opacity: .8; } table { width: 100%; border-collapse: collapse; } th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; } th:first-child, td:first-child { text-align: left; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; } .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; } #copyLink { background: #c5edb5; color: #16261f; border-color: #c5edb5; } #reset { background: transparent; color: #fffdf9; } .actions button:hover { filter: brightness(1.06); } #status { min-height: 1.1em; margin: 2px 0 0; }
-    .plus, .personalization, .ads, .partner { margin-top: 18px; } .plus .fields, .personalization .fields, .ads .fields, .partner .fields { margin-bottom: 16px; } .plus table, .personalization table, .ads table, .partner table { width: 100%; border-collapse: collapse; } .plus th, .plus td, .personalization th, .personalization td, .ads th, .ads td, .partner th, .partner td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ded5c8; font-variant-numeric: tabular-nums; } .plus th:first-child, .plus td:first-child, .personalization th:first-child, .personalization td:first-child, .ads th:first-child, .ads td:first-child, .partner th:first-child, .partner td:first-child { text-align: left; } .plus tr.winner, .personalization tr.winner, .ads tr.winner, .partner tr.winner { font-weight: 750; background: #eef6e8; } .plus .verdict, .personalization .verdict, .ads .verdict, .partner .verdict { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px; } .plus .note, .personalization .note, .ads .note, .partner .note { margin-top: 12px; }
+    .plus, .personalization, .ads, .partner, .star { margin-top: 18px; } .plus .fields, .personalization .fields, .ads .fields, .partner .fields, .star .fields { margin-bottom: 16px; } .plus table, .personalization table, .ads table, .partner table, .star table { width: 100%; border-collapse: collapse; } .plus th, .plus td, .personalization th, .personalization td, .ads th, .ads td, .partner th, .partner td, .star th, .star td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ded5c8; font-variant-numeric: tabular-nums; } .plus th:first-child, .plus td:first-child, .personalization th:first-child, .personalization td:first-child, .ads th:first-child, .ads td:first-child, .partner th:first-child, .partner td:first-child, .star th:first-child, .star td:first-child { text-align: left; } .plus tr.winner, .personalization tr.winner, .ads tr.winner, .partner tr.winner, .star tr.winner { font-weight: 750; background: #eef6e8; } .plus .verdict, .personalization .verdict, .ads .verdict, .partner .verdict, .star .verdict { font-size: 1.1rem; font-weight: 700; margin: 0 0 10px; } .plus .note, .personalization .note, .ads .note, .partner .note, .star .note { margin-top: 12px; }
     footer { margin-top: 25px; font-size: .82rem; color: #5c554d; } @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a>, whether <a href="#personalization">a personalization still pays after extra time and fees</a>, whether <a href="#etsy-ads">on-site Etsy Ads still leave a profit after ACOS</a>, or whether <a href="#production-partner">a production-partner quote still pays after you run out of handmade hours</a>. Walk the numbers on <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a>, <a href="should-i-charge-for-etsy-personalization.html">should I charge for Etsy personalization</a>, <a href="is-etsy-ads-worth-it.html">is Etsy Ads worth it</a>, and <a href="should-i-use-an-etsy-production-partner.html">should I use an Etsy production partner</a>.</p></header>
+  <header><p>FOR ETSY SELLERS</p><h1>Know what each order really leaves.</h1><p>Enter the fees and costs from your shop to see net profit, margin, and the break-even price before you publish or reprice a listing. Then check whether <a href="#etsy-plus">Etsy Plus credits cover the subscription this month</a>, whether <a href="#personalization">a personalization still pays after extra time and fees</a>, whether <a href="#etsy-ads">on-site Etsy Ads still leave a profit after ACOS</a>, whether <a href="#production-partner">a production-partner quote still pays after you run out of handmade hours</a>, or whether <a href="#star-seller">chasing Star Seller still beats staying unsigned</a>. Walk the numbers on <a href="is-etsy-plus-worth-it.html">is Etsy Plus worth it</a>, <a href="should-i-charge-for-etsy-personalization.html">should I charge for Etsy personalization</a>, <a href="is-etsy-ads-worth-it.html">is Etsy Ads worth it</a>, <a href="should-i-use-an-etsy-production-partner.html">should I use an Etsy production partner</a>, and <a href="is-etsy-star-seller-worth-it.html">is Etsy Star Seller worth it</a>.</p></header>
   <main class="layout">
     <section><h2>Order and fee assumptions</h2><div class="fields">
       <label>Item price <input id="price" type="number" min="0" step="0.01" value="30"></label>
@@ -103,6 +103,24 @@
     </table>
     <p id="partnerNote" class="note"></p>
   </section>
+  <section class="star" id="star-seller">
+    <h2>Does Star Seller still beat staying unsigned?</h2>
+    <p>The badge is free. The cash it costs is a faster label to stay on-time and the minutes you spend answering messages in 24 hours. The cash it returns is a higher sell-through on the same listings. Message time is paid only on packed sales. Sell-through is what you type from Shop Stats, not a ranking Etsy publishes. This is arithmetic on your inputs, not Etsy's live Star Seller rules or a promise the badge will convert more views.</p>
+    <div class="fields">
+      <label>Star Seller shipping cost <input id="starSellerShippingCost" type="number" min="0" step="0.01" value="9"></label>
+      <label>Minutes answering to close one sale <input id="starSellerMessageMinutes" type="number" min="0" step="0.1" value="8"></label>
+      <label>Hourly wage for that time <input id="starSellerHourlyWage" type="number" min="0" step="0.01" value="18"></label>
+      <label>Unsigned sell-through (%) <input id="unsignedSellThroughPct" type="number" min="0" max="100" step="0.1" value="40"></label>
+      <label>Star Seller sell-through (%) <input id="starSellerSellThroughPct" type="number" min="0" max="100" step="0.1" value="50"></label>
+      <label>Listings in this window <input id="starSellerListings" type="number" min="0" step="1" value="40"></label>
+    </div>
+    <p id="starVerdict" class="verdict"></p>
+    <table id="starTable">
+      <thead><tr><th scope="col">Path</th><th scope="col">Packed leftover</th><th scope="col">Sell-through</th><th scope="col">Expected / listing</th><th scope="col">Across listings</th><th scope="col">vs unsigned</th></tr></thead>
+      <tbody id="starRows"></tbody>
+    </table>
+    <p id="starNote" class="note"></p>
+  </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -110,7 +128,7 @@
     <p>Free and open source. If it stopped you from paying $10 for unused credits, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, priceForMargin, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareProductionPartner, productionPartnerNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
+    import { calculateOrder, priceForMargin, compareEtsyPlus, comparePersonalization, personalizationNote, compareEtsyAds, etsyAdsNote, compareProductionPartner, productionPartnerNote, compareStarSeller, starSellerNote } from './calc.mjs'; import { recordUsage } from './usage.mjs'; import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
@@ -254,6 +272,34 @@
       document.getElementById('partnerNote').textContent = productionPartnerNote(comparison);
     }
 
+    function renderStarSeller(input) {
+      const comparison = compareStarSeller(input);
+      const verdict = document.getElementById('starVerdict');
+      if (comparison.starPays) {
+        verdict.textContent = `Star Seller expects ${money(comparison.extraExpected)} more per listing — ${money(comparison.extraAcrossListings)} across ${comparison.starSellerListings} listings.`;
+      } else if (comparison.starBreaksEven) {
+        verdict.textContent = 'Star Seller breaks even against staying unsigned at this conversion lift.';
+      } else {
+        verdict.textContent = `Staying unsigned expects ${money(-comparison.extraExpected)} more per listing — ${money(-comparison.extraAcrossListings)} across ${comparison.starSellerListings} listings.`;
+      }
+      const rows = [
+        { ...comparison.unsigned, delta: 0, winner: comparison.winner === 'unsigned' },
+        { ...comparison.starSeller, delta: comparison.extraExpected, winner: comparison.winner === 'star_seller' },
+      ];
+      document.getElementById('starRows').replaceChildren(...rows.map((item) => {
+        const row = document.createElement('tr');
+        if (item.winner) row.className = 'winner';
+        plusCell(row, item.label);
+        plusCell(row, money(item.profit));
+        plusCell(row, `${Number(item.sellThroughPct).toFixed(1)}%`);
+        plusCell(row, money(item.expected));
+        plusCell(row, money(item.acrossListings));
+        plusCell(row, item.id === 'unsigned' ? '—' : signedMoney(item.delta));
+        return row;
+      }));
+      document.getElementById('starNote').textContent = starSellerNote(comparison);
+    }
+
     function update() {
       try {
         const result = calculateOrder(currentInputs());
@@ -296,6 +342,13 @@
         document.getElementById('partnerVerdict').textContent = error.message;
         document.getElementById('partnerRows').replaceChildren();
         document.getElementById('partnerNote').textContent = '';
+      }
+      try {
+        renderStarSeller(currentInputs());
+      } catch (error) {
+        document.getElementById('starVerdict').textContent = error.message;
+        document.getElementById('starRows').replaceChildren();
+        document.getElementById('starNote').textContent = '';
       }
     }
 
@@ -348,6 +401,9 @@
     ['yourTimeCost', 'partnerUnitCost', 'partnerHandlingCost', 'yourMonthlyCapacity', 'monthlyDemand', 'partnerRejectRatePercent'].forEach(id => {
       field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'production_partner_compared'));
     });
+    ['starSellerShippingCost', 'starSellerMessageMinutes', 'starSellerHourlyWage', 'unsignedSellThroughPct', 'starSellerSellThroughPct', 'starSellerListings'].forEach(id => {
+      field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'star_seller_compared'));
+    });
     document.getElementById('usageOptOut').addEventListener('change', update);
 
     document.getElementById('copyLink').addEventListener('click', async () => {
@@ -361,7 +417,7 @@
     document.getElementById('reset').addEventListener('click', () => {
       safe(() => localStorage.removeItem(INPUTS_KEY));
       history.replaceState(null, '', location.pathname);
-      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0, personalizationUpcharge: 8, extraMaterialCost: 1.50, extraTimeCost: 6, monthlyCustomOrders: 12, etsyAdsAcosPct: 12, yourTimeCost: 8, partnerUnitCost: 14, partnerHandlingCost: 1, yourMonthlyCapacity: 20, monthlyDemand: 40, partnerRejectRatePercent: 0 });
+      apply({ price: 30, shippingCharged: 5, listingFee: 0.20, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 0, listingsPerMonth: 15, monthlyPlusFee: 10, listingCredits: 15, adsCredit: 5, monthlyAdSpend: 5, otherPlusValue: 0, personalizationUpcharge: 8, extraMaterialCost: 1.50, extraTimeCost: 6, monthlyCustomOrders: 12, etsyAdsAcosPct: 12, yourTimeCost: 8, partnerUnitCost: 14, partnerHandlingCost: 1, yourMonthlyCapacity: 20, monthlyDemand: 40, partnerRejectRatePercent: 0, starSellerShippingCost: 9, starSellerMessageMinutes: 8, starSellerHourlyWage: 18, unsignedSellThroughPct: 40, starSellerSellThroughPct: 50, starSellerListings: 40 });
       update(); flash('Reset to the default example order.');
     });
 

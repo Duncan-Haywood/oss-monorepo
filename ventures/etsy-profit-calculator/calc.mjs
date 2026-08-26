@@ -658,6 +658,178 @@ export function compareProductionPartner(input = {}) {
   };
 }
 
+// Illustrative Star Seller extras. $9.00 is a faster USPS / Etsy label
+// that buys on-time shipping; the unsigned path keeps the typed $6.00
+// Ground / First Class cost. 8 minutes at $18/hour is answering the
+// messages that keep a 24-hour response rate. 40% vs 50% is a 10-point
+// conversion lift sellers often assign the badge. These are inputs, not
+// Etsy's live Star Seller rules — the seller overwrites them from the
+// labels they actually buy and the views they actually convert.
+export const STAR_SELLER_DEFAULTS = {
+  starSellerShippingCost: 9,
+  starSellerMessageMinutes: 8,
+  starSellerHourlyWage: 18,
+  unsignedSellThroughPct: 40,
+  starSellerSellThroughPct: 50,
+  starSellerListings: 40,
+};
+
+function winnerFromExpected(extraExpected) {
+  if (extraExpected > 1e-9) return 'star_seller';
+  if (extraExpected < -1e-9) return 'unsigned';
+  return 'tie';
+}
+
+// Same listing, two ways to close the views you already have: stay
+// unsigned vs chase the Star Seller badge. The badge itself is free.
+// The cash it costs is faster postage plus message time on packed
+// sales. The cash it returns is a higher sell-through on the same
+// listings. Message time is paid only on packed sales (the same
+// pattern as handling on other fee tools). Sell-through is typed, not
+// scraped from Shop Stats.
+export function compareStarSeller(input = {}) {
+  const starSellerShippingCost = nonNegativeNumber(
+    input.starSellerShippingCost,
+    'Star Seller shipping cost',
+    STAR_SELLER_DEFAULTS.starSellerShippingCost,
+  );
+  const starSellerMessageMinutes = nonNegativeNumber(
+    input.starSellerMessageMinutes,
+    'Star Seller message minutes',
+    STAR_SELLER_DEFAULTS.starSellerMessageMinutes,
+  );
+  const starSellerHourlyWage = nonNegativeNumber(
+    input.starSellerHourlyWage,
+    'Star Seller hourly wage',
+    STAR_SELLER_DEFAULTS.starSellerHourlyWage,
+  );
+  const unsignedSellThroughPct = rateAtMost100(
+    input.unsignedSellThroughPct,
+    'Unsigned sell-through',
+    STAR_SELLER_DEFAULTS.unsignedSellThroughPct,
+  );
+  const starSellerSellThroughPct = rateAtMost100(
+    input.starSellerSellThroughPct,
+    'Star Seller sell-through',
+    STAR_SELLER_DEFAULTS.starSellerSellThroughPct,
+  );
+  const starSellerListings = nonNegativeNumber(
+    input.starSellerListings,
+    'Star Seller listings',
+    STAR_SELLER_DEFAULTS.starSellerListings,
+  );
+
+  const messageCost = starSellerMessageMinutes / 60 * starSellerHourlyWage;
+  const otherCost = nonNegativeNumber(input.otherCost, 'Other cost', 0);
+  const unsignedShippingCost = nonNegativeNumber(input.shippingCost, 'Shipping cost', 0);
+
+  const unsignedOrder = calculateOrder(input);
+  const starOrder = calculateOrder({
+    ...input,
+    shippingCost: starSellerShippingCost,
+    otherCost: otherCost + messageCost,
+  });
+
+  const unsignedProfit = roundMoney(unsignedOrder.profit);
+  const starProfit = roundMoney(starOrder.profit);
+  const extraPostage = roundMoney(starSellerShippingCost - unsignedShippingCost);
+  const extraCash = roundMoney(extraPostage + messageCost);
+  const unsignedFees = roundMoney(orderFeeTotal(unsignedOrder));
+  const starFees = roundMoney(orderFeeTotal(starOrder));
+
+  const unsignedRate = unsignedSellThroughPct / 100;
+  const starRate = starSellerSellThroughPct / 100;
+  const unsignedExpected = roundMoney(unsignedRate * unsignedOrder.profit);
+  const starExpected = roundMoney(starRate * starOrder.profit);
+  const extraExpected = roundMoney(starExpected - unsignedExpected);
+  const extraAcrossListings = roundMoney(extraExpected * starSellerListings);
+
+  const breakEvenSellThroughPct = starOrder.profit <= 1e-12
+    ? (unsignedExpected <= 1e-12 ? 0 : Infinity)
+    : roundMoney((unsignedExpected / starOrder.profit) * 100);
+
+  // Total Star Seller postage that still matches unsigned expected keep,
+  // after message time and the typed Star Seller sell-through.
+  const neededStarProfit = starRate <= 1e-12
+    ? (unsignedExpected <= 1e-12 ? unsignedOrder.profit : Infinity)
+    : unsignedExpected / starRate;
+  const starPostageCeiling = !Number.isFinite(neededStarProfit)
+    ? Infinity
+    : roundMoney(unsignedShippingCost + unsignedOrder.profit - messageCost - neededStarProfit);
+
+  const unsigned = {
+    id: 'unsigned',
+    label: 'Stay unsigned',
+    shippingCost: roundMoney(unsignedShippingCost),
+    messageCost: 0,
+    extraCash: 0,
+    fees: unsignedFees,
+    profit: unsignedProfit,
+    sellThroughPct: unsignedSellThroughPct,
+    expected: unsignedExpected,
+    acrossListings: roundMoney(unsignedExpected * starSellerListings),
+  };
+  const starSeller = {
+    id: 'star_seller',
+    label: 'Chase Star Seller',
+    shippingCost: roundMoney(starSellerShippingCost),
+    messageCost: roundMoney(messageCost),
+    extraCash,
+    fees: starFees,
+    profit: starProfit,
+    sellThroughPct: starSellerSellThroughPct,
+    expected: starExpected,
+    acrossListings: roundMoney(starExpected * starSellerListings),
+  };
+
+  return {
+    starSellerShippingCost: roundMoney(starSellerShippingCost),
+    starSellerMessageMinutes,
+    starSellerHourlyWage: roundMoney(starSellerHourlyWage),
+    unsignedSellThroughPct,
+    starSellerSellThroughPct,
+    starSellerListings,
+    messageCost: roundMoney(messageCost),
+    extraPostage,
+    extraCash,
+    unsigned,
+    starSeller,
+    extraExpected,
+    extraAcrossListings,
+    breakEvenSellThroughPct,
+    starPostageCeiling,
+    starPays: extraExpected > 1e-9,
+    starBreaksEven: Math.abs(extraExpected) <= 1e-9,
+    winner: winnerFromExpected(extraExpected),
+  };
+}
+
+export function starSellerNote(comparison) {
+  if (!comparison?.unsigned || !comparison?.starSeller) {
+    throw new Error('Star Seller comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const pct = (value) => `${Number(value).toFixed(1)}%`;
+  const extras = [];
+  if (Math.abs(comparison.extraPostage) > 1e-9) extras.push(`${money(comparison.extraPostage)} extra postage`);
+  if (comparison.messageCost > 0) extras.push(`${money(comparison.messageCost)} answering messages`);
+  const extraPhrase = extras.length ? extras.join(' and ') : 'no extra cash';
+  const gap = money(Math.abs(comparison.extraExpected));
+  const ahead = comparison.extraExpected >= 0 ? 'more' : 'less';
+  const packed = `A packed Star Seller sale, after ${extraPhrase}, leaves ${money(comparison.starSeller.profit)} versus ${money(comparison.unsigned.profit)} staying unsigned.`;
+  const expected = ` At ${pct(comparison.unsignedSellThroughPct)} vs ${pct(comparison.starSellerSellThroughPct)} sell-through the unsigned path expects ${money(comparison.unsigned.expected)} per listing and Star Seller expects ${money(comparison.starSeller.expected)} — ${gap} ${ahead} (${money(comparison.extraAcrossListings)} across ${comparison.starSellerListings} listings).`;
+  const ceiling = Number.isFinite(comparison.breakEvenSellThroughPct)
+    ? ` The badge has to convert about ${pct(comparison.breakEvenSellThroughPct)} of listings before it matches staying unsigned.`
+    : ' No finite sell-through can match staying unsigned when a packed Star Seller sale leaves $0.00 or less.';
+  const postage = Number.isFinite(comparison.starPostageCeiling)
+    ? ` Star Seller postage has to stay at or below about ${money(comparison.starPostageCeiling)} at this conversion lift.`
+    : '';
+  return `${packed}${expected}${ceiling}${postage}`;
+}
+
 export function productionPartnerNote(comparison) {
   if (!comparison?.youMake || !comparison?.partner || !comparison?.hybrid) {
     throw new Error('Production-partner comparison is missing rows');

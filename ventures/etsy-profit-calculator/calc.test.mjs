@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -381,4 +381,101 @@ test('rejects negative or 100% production-partner inputs', () => {
   assert.throws(() => compareProductionPartner({ ...PAGE_ORDER, yourTimeCost: -1 }), /Your time cost/);
   assert.throws(() => compareProductionPartner({ ...PAGE_ORDER, partnerRejectRatePercent: 100 }), /below 100/);
   assert.throws(() => compareProductionPartner({ ...PAGE_ORDER, partnerRejectRatePercent: 101 }), /at most 100/);
+});
+
+test('Star Seller defaults match the $9 label / 8 min / 40% vs 50% example', () => {
+  assert.deepEqual(STAR_SELLER_DEFAULTS, {
+    starSellerShippingCost: 9,
+    starSellerMessageMinutes: 8,
+    starSellerHourlyWage: 18,
+    unsignedSellThroughPct: 40,
+    starSellerSellThroughPct: 50,
+    starSellerListings: 40,
+  });
+});
+
+test('a 10-point Star Seller lift loses after a $9 label and message time', () => {
+  const result = compareStarSeller(PAGE_ORDER);
+  assert.equal(result.messageCost, 2.4);
+  assert.equal(result.extraPostage, 3);
+  assert.equal(result.extraCash, 5.4);
+  assert.equal(result.unsigned.profit, 21.23);
+  assert.equal(result.starSeller.profit, 15.83);
+  assert.equal(result.unsigned.expected, 8.49);
+  assert.equal(result.starSeller.expected, 7.91);
+  assert.equal(result.extraExpected, -0.58);
+  assert.equal(result.extraAcrossListings, -23.2);
+  assert.equal(result.unsigned.acrossListings, 339.6);
+  assert.equal(result.starSeller.acrossListings, 316.4);
+  assert.equal(result.breakEvenSellThroughPct, 53.65);
+  assert.equal(result.starPostageCeiling, 7.85);
+  assert.equal(result.starPays, false);
+  assert.equal(result.winner, 'unsigned');
+});
+
+test('a 20-point lift flips Star Seller ahead on the same fees', () => {
+  const result = compareStarSeller({ ...PAGE_ORDER, starSellerSellThroughPct: 60 });
+  assert.equal(result.starSeller.expected, 9.5);
+  assert.equal(result.extraExpected, 1.01);
+  assert.equal(result.extraAcrossListings, 40.4);
+  assert.equal(result.breakEvenSellThroughPct, 53.65);
+  assert.equal(result.starPays, true);
+  assert.equal(result.winner, 'star_seller');
+});
+
+test('a $7 Star Seller label covers a 10-point lift', () => {
+  const result = compareStarSeller({ ...PAGE_ORDER, starSellerShippingCost: 7 });
+  assert.equal(result.starSeller.profit, 17.83);
+  assert.equal(result.extraCash, 3.4);
+  assert.equal(result.extraExpected, 0.42);
+  assert.equal(result.breakEvenSellThroughPct, 47.63);
+  assert.equal(result.starPostageCeiling, 7.85);
+  assert.equal(result.winner, 'star_seller');
+});
+
+test('a shop that already converts loses money chasing a small badge lift', () => {
+  const result = compareStarSeller({
+    ...PAGE_ORDER,
+    unsignedSellThroughPct: 70,
+    starSellerSellThroughPct: 75,
+  });
+  assert.equal(result.unsigned.expected, 14.86);
+  assert.equal(result.starSeller.expected, 11.87);
+  assert.equal(result.extraExpected, -2.99);
+  assert.equal(result.winner, 'unsigned');
+});
+
+test('a low-conversion shop can still come out ahead with a 15-point lift', () => {
+  const result = compareStarSeller({
+    ...PAGE_ORDER,
+    unsignedSellThroughPct: 20,
+    starSellerSellThroughPct: 35,
+  });
+  assert.equal(result.unsigned.expected, 4.25);
+  assert.equal(result.starSeller.expected, 5.54);
+  assert.equal(result.extraExpected, 1.29);
+  assert.equal(result.breakEvenSellThroughPct, 26.86);
+  assert.equal(result.winner, 'star_seller');
+});
+
+test('Star Seller note names the packed gap, the lift, and the postage ceiling', () => {
+  const note = starSellerNote(compareStarSeller(PAGE_ORDER));
+  assert.match(note, /\$3\.00 extra postage/);
+  assert.match(note, /\$2\.40 answering messages/);
+  assert.match(note, /\$15\.83/);
+  assert.match(note, /\$21\.23/);
+  assert.match(note, /40\.0% vs 50\.0%/);
+  assert.match(note, /\$8\.49/);
+  assert.match(note, /\$7\.91/);
+  assert.match(note, /\$0\.58 less/);
+  assert.match(note, /\$23\.20/);
+  assert.match(note, /53\.6%/);
+  assert.match(note, /\$7\.85/);
+});
+
+test('rejects negative or over-100 Star Seller inputs', () => {
+  assert.throws(() => compareStarSeller({ ...PAGE_ORDER, starSellerShippingCost: -9 }), /Star Seller shipping cost/);
+  assert.throws(() => compareStarSeller({ ...PAGE_ORDER, starSellerMessageMinutes: -1 }), /Star Seller message minutes/);
+  assert.throws(() => compareStarSeller({ ...PAGE_ORDER, unsignedSellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => compareStarSeller({ ...PAGE_ORDER, starSellerSellThroughPct: -5 }), /Star Seller sell-through/);
 });
