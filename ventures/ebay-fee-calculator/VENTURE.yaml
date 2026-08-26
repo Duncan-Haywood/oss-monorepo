@@ -1,5 +1,5 @@
 name: ebay-fee-calculator
-description: A private browser calculator for eBay resellers to see order profit, margin, ROI, break-even resale price, expected profit after returns, whether a partial refund still beats taking the return, and whether auction still beats Buy It Now after sell-through.
+description: A private browser calculator for eBay resellers to see order profit, margin, ROI, break-even resale price, expected profit after returns, whether a partial refund still beats taking the return, whether Authenticity Guarantee still pays after the hub label, and whether auction still beats Buy It Now after sell-through.
 stage: prototype
 owner: duncan
 hypotheses:

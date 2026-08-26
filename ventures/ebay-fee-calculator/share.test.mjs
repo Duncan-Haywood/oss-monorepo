@@ -58,6 +58,24 @@ test('carries partial-refund fields so a shared link does not drop them', () => 
   assert.equal(restored.monthlyCases, 4);
 });
 
+test('carries Authenticity Guarantee fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    authenticityFeeRate: 3,
+    authenticityExtraShip: 8,
+    withoutAgSellThroughPct: 55,
+    authenticitySellThroughPct: 80,
+    authenticityReturnRatePercent: 4,
+    monthlyAgListings: 8,
+  }));
+  assert.equal(restored.authenticityFeeRate, 3);
+  assert.equal(restored.authenticityExtraShip, 8);
+  assert.equal(restored.withoutAgSellThroughPct, 55);
+  assert.equal(restored.authenticitySellThroughPct, 80);
+  assert.equal(restored.authenticityReturnRatePercent, 4);
+  assert.equal(restored.monthlyAgListings, 8);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

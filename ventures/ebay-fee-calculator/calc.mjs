@@ -34,6 +34,12 @@ export const INPUT_FIELDS = [
   'auctionPromotedRate',
   'partialRefundAmount',
   'monthlyCases',
+  'authenticityFeeRate',
+  'authenticityExtraShip',
+  'withoutAgSellThroughPct',
+  'authenticitySellThroughPct',
+  'authenticityReturnRatePercent',
+  'monthlyAgListings',
 ];
 
 export function calculateOrder(input) {
@@ -458,4 +464,188 @@ export function partialRefundNote(comparison) {
     ? ` Taking the return starts to win once the partial exceeds about ${money(comparison.breakEvenPartial)}.`
     : ' No partial on these rates can match taking the return.';
   return `${caseLine} ${fullLine}${ceiling}`;
+}
+
+/**
+ * Illustrative Authenticity Guarantee defaults. eBay’s live fee and whether
+ * the hub label is prepaid change by category and year — these are inputs,
+ * not a published schedule. 3% of item price and an $8 extra hub label are
+ * placeholders a sneaker or watch seller overwrites from their last payout.
+ */
+export const DEFAULT_AUTHENTICITY_FEE_RATE = 3;
+export const DEFAULT_AUTHENTICITY_EXTRA_SHIP = 8;
+export const DEFAULT_WITHOUT_AG_SELL_THROUGH = 55;
+export const DEFAULT_AUTHENTICITY_SELL_THROUGH = 80;
+export const DEFAULT_AUTHENTICITY_RETURN_RATE = 4;
+export const DEFAULT_MONTHLY_AG_LISTINGS = 8;
+
+function authenticityRow({
+  id,
+  label,
+  sellThroughPct,
+  returnRatePercent,
+  extraCashOnSale,
+  soldExpectedProfit,
+  completedProfit,
+}) {
+  const expectedProfit = soldExpectedProfit * (sellThroughPct / 100);
+  return {
+    id,
+    label,
+    sellThroughPct,
+    returnRatePercent,
+    extraCashOnSale,
+    completedProfit,
+    soldExpectedProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, listed with or without Authenticity Guarantee.
+ *
+ *   - Skip AG — existing completed-sale expected profit (typed return
+ *     rate) times a lower sell-through. No authenticity fee, ship
+ *     straight to the buyer.
+ *   - Use AG — authenticity fee (percent of item price) plus extra hub
+ *     shipping come out of a completed sale. The fee is treated like a
+ *     percentage marketplace fee and comes back on a return; the extra
+ *     hub label does not. Sell-through is higher and the authenticity
+ *     return rate is usually lower (fewer “not authentic” cases).
+ *
+ * Complementary to the return-*rate* mix, auction vs BIN, and the
+ * one-case partial-refund table. Open eBay PRs still own promoted,
+ * store, Best Offer, and international. Rates are inputs, not eBay
+ * Authenticity Guarantee policy.
+ */
+export function compareAuthenticity(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+  const sold = calculateOrder(input);
+  const authenticityFeeRate = optionalNumber(
+    input.authenticityFeeRate,
+    'Authenticity fee rate',
+    DEFAULT_AUTHENTICITY_FEE_RATE,
+  );
+  const authenticityExtraShip = optionalNumber(
+    input.authenticityExtraShip,
+    'Authenticity extra shipping',
+    DEFAULT_AUTHENTICITY_EXTRA_SHIP,
+  );
+  const withoutSellThrough = requiredPercent(
+    input.withoutAgSellThroughPct,
+    'Sell-through without Authenticity Guarantee',
+    DEFAULT_WITHOUT_AG_SELL_THROUGH,
+  );
+  const withSellThrough = requiredPercent(
+    input.authenticitySellThroughPct,
+    'Authenticity sell-through',
+    DEFAULT_AUTHENTICITY_SELL_THROUGH,
+  );
+  const authenticityReturnRate = requiredPercent(
+    input.authenticityReturnRatePercent,
+    'Authenticity return rate',
+    DEFAULT_AUTHENTICITY_RETURN_RATE,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyAgListings,
+    'Monthly Authenticity listings',
+    DEFAULT_MONTHLY_AG_LISTINGS,
+  );
+
+  const authenticityFee = sold.quantity * listedPrice * (authenticityFeeRate / 100);
+  const extraShip = authenticityExtraShip * sold.quantity;
+  const extraCashOnSale = authenticityFee + extraShip;
+  const authenticityCompleted = sold.profit - extraCashOnSale;
+  const authenticityReturn = sold.returnProfit - extraShip;
+  const authenticityReturnRateFrac = authenticityReturnRate / 100;
+  const authenticityExpected = (1 - authenticityReturnRateFrac) * authenticityCompleted
+    + authenticityReturnRateFrac * authenticityReturn;
+
+  const skip = authenticityRow({
+    id: 'skip',
+    label: 'Skip Authenticity Guarantee',
+    sellThroughPct: withoutSellThrough,
+    returnRatePercent: sold.returnRatePercent,
+    extraCashOnSale: 0,
+    soldExpectedProfit: sold.expectedProfit,
+    completedProfit: sold.profit,
+  });
+  const authenticity = authenticityRow({
+    id: 'authenticity',
+    label: 'List with Authenticity Guarantee',
+    sellThroughPct: withSellThrough,
+    returnRatePercent: authenticityReturnRate,
+    extraCashOnSale,
+    soldExpectedProfit: authenticityExpected,
+    completedProfit: authenticityCompleted,
+  });
+  skip.expectedProfitDelta = skip.expectedProfit - authenticity.expectedProfit;
+  authenticity.expectedProfitDelta = authenticity.expectedProfit - skip.expectedProfit;
+
+  const rows = [skip, authenticity];
+  const winner = authenticity.expectedProfit > skip.expectedProfit + 1e-9
+    ? 'authenticity'
+    : authenticity.expectedProfit < skip.expectedProfit - 1e-9
+      ? 'skip'
+      : 'tie';
+
+  const keepFrac = 1 - authenticityReturnRateFrac;
+  let breakEvenAuthenticityFee = Infinity;
+  if (withSellThrough > 1e-12 && keepFrac > 1e-12) {
+    const targetExpected = skip.expectedProfit / (withSellThrough / 100);
+    const baseExpected = keepFrac * (sold.profit - extraShip)
+      + authenticityReturnRateFrac * (sold.returnProfit - extraShip);
+    breakEvenAuthenticityFee = (baseExpected - targetExpected) / keepFrac;
+  }
+
+  let breakEvenExtraShip = Infinity;
+  if (withSellThrough > 1e-12) {
+    const targetExpected = skip.expectedProfit / (withSellThrough / 100);
+    const withoutExtra = keepFrac * (sold.profit - authenticityFee)
+      + authenticityReturnRateFrac * sold.returnProfit;
+    breakEvenExtraShip = (withoutExtra - targetExpected) / sold.quantity;
+  }
+
+  return {
+    rows,
+    skip,
+    authenticity,
+    winner,
+    authenticityFee,
+    authenticityFeeRate,
+    authenticityExtraShip,
+    monthlyListings,
+    extraKeptOnAuthenticity: authenticity.expectedProfit - skip.expectedProfit,
+    monthlyExtraOnAuthenticity: (authenticity.expectedProfit - skip.expectedProfit) * monthlyListings,
+    breakEvenAuthenticityFee,
+    breakEvenAuthenticityFeeRate: sold.quantity * listedPrice <= 1e-12
+      ? Infinity
+      : breakEvenAuthenticityFee / (sold.quantity * listedPrice) * 100,
+    breakEvenExtraShip,
+    completedProfit: sold.profit,
+    returnProfit: sold.returnProfit,
+  };
+}
+
+export function authenticityNote(comparison) {
+  if (!comparison?.skip || !comparison?.authenticity) {
+    throw new Error('Authenticity comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, authenticity } = comparison;
+  const gap = money(Math.abs(authenticity.expectedProfit - skip.expectedProfit));
+  const ahead = authenticity.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const skipLine = `Skip Authenticity Guarantee at ${skip.sellThroughPct}% sell-through and a ${skip.returnRatePercent}% return rate expects ${money(skip.expectedProfit)}.`;
+  const agLine = `With a ${comparison.authenticityFeeRate}% authenticity fee and ${money(comparison.authenticityExtraShip)} extra hub shipping, Authenticity at ${authenticity.sellThroughPct}% sell-through and a ${authenticity.returnRatePercent}% return rate expects ${money(authenticity.expectedProfit)} — ${gap} ${ahead}.`;
+  const hub = Number.isFinite(comparison.breakEvenExtraShip)
+    ? ` Extra hub shipping has to be about ${money(comparison.breakEvenExtraShip)} before Authenticity matches skip-AG.`
+    : ' No extra hub shipping on these rates can match skip-AG.';
+  return `${skipLine} ${agLine}${hub}`;
 }

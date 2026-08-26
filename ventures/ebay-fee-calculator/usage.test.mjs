@@ -90,6 +90,14 @@ test('counts a partial-refund comparison without storing a concession', () => {
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'partial_refund_compared']);
 });
 
+test('counts an Authenticity Guarantee comparison without storing a fee or label', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'authenticity_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.authenticity_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['authenticity_compared', 'last_day']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');

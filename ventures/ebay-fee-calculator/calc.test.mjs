@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES } from './calc.mjs';
+import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -382,4 +382,74 @@ test('rejects a partial larger than the order and a missing comparison', () => {
   assert.throws(() => comparePartialRefund({ ...caseBase, partialRefundAmount: 46.01 }), /cannot exceed the order total/);
   assert.throws(() => comparePartialRefund({ ...caseBase, partialRefundAmount: -1 }), /Partial refund/);
   assert.throws(() => partialRefundNote({}), /missing rows/);
+});
+
+const agBase = {
+  ...caseBase,
+  returnRatePercent: 10,
+};
+
+test('compares Authenticity Guarantee against skip-AG on the default listing', () => {
+  // Completed sale $21.605; return −$11; 10% mix → $18.3445 expected.
+  // Skip-AG at 55% sell-through → $10.089475.
+  // AG: $1.20 fee + $8 hub label. Completed $12.405; return −$19;
+  // 4% mix → $11.1488; 80% sell-through → $8.91904. Skip-AG is ahead.
+  const comparison = compareAuthenticity(agBase);
+  assert.equal(comparison.authenticityFeeRate, DEFAULT_AUTHENTICITY_FEE_RATE);
+  assert.equal(comparison.authenticityExtraShip, DEFAULT_AUTHENTICITY_EXTRA_SHIP);
+  assert.equal(comparison.skip.sellThroughPct, DEFAULT_WITHOUT_AG_SELL_THROUGH);
+  assert.equal(comparison.authenticity.sellThroughPct, DEFAULT_AUTHENTICITY_SELL_THROUGH);
+  assert.equal(comparison.authenticity.returnRatePercent, DEFAULT_AUTHENTICITY_RETURN_RATE);
+  assert.equal(comparison.monthlyListings, DEFAULT_MONTHLY_AG_LISTINGS);
+  near(comparison.authenticityFee, 1.2, '3% of $40');
+  near(comparison.skip.soldExpectedProfit, 18.3445, 'skip-AG completed expected');
+  near(comparison.skip.expectedProfit, 18.3445 * 0.55, 'skip-AG listing expected');
+  near(comparison.authenticity.completedProfit, 21.605 - 1.2 - 8, 'AG completed');
+  near(comparison.authenticity.soldExpectedProfit, 0.96 * 12.405 + 0.04 * -19, 'AG completed expected');
+  near(comparison.authenticity.expectedProfit, 11.1488 * 0.80, 'AG listing expected');
+  assert.equal(comparison.winner, 'skip');
+  near(comparison.extraKeptOnAuthenticity, 8.91904 - 10.089475, 'AG vs skip');
+  near(comparison.monthlyExtraOnAuthenticity, (8.91904 - 10.089475) * 8, 'eight listings');
+});
+
+test('break-even extra hub shipping matches skip-AG expected profit', () => {
+  const comparison = compareAuthenticity(agBase);
+  const atCeiling = compareAuthenticity({ ...agBase, authenticityExtraShip: comparison.breakEvenExtraShip });
+  near(atCeiling.authenticity.expectedProfit, atCeiling.skip.expectedProfit, 'ceiling hub ship ties skip-AG');
+  assert.ok(comparison.breakEvenExtraShip < 8, 'default $8 is above the ceiling');
+  near(comparison.breakEvenExtraShip, 6.53695625, 'closed-form hub-ship ceiling');
+  assert.ok(comparison.breakEvenAuthenticityFee < 0, 'no non-negative fee matches with an $8 hub label');
+});
+
+test('a prepaid hub label flips Authenticity ahead on the same 3% fee', () => {
+  const comparison = compareAuthenticity({ ...agBase, authenticityExtraShip: 0 });
+  assert.equal(comparison.winner, 'authenticity');
+  near(comparison.authenticity.completedProfit, 21.605 - 1.2, 'AG completed without extra ship');
+  near(comparison.authenticity.soldExpectedProfit, 0.96 * 20.405 + 0.04 * -11, 'AG expected without extra ship');
+  near(comparison.authenticity.expectedProfit, 19.1488 * 0.80, 'AG listing without extra ship');
+  near(comparison.extraKeptOnAuthenticity, 15.31904 - 10.089475, 'prepaid-label gap');
+});
+
+test('a high without-AG authenticity-claim rate can flip the table', () => {
+  const comparison = compareAuthenticity({ ...agBase, returnRatePercent: 25 });
+  assert.equal(comparison.winner, 'authenticity');
+  near(comparison.skip.soldExpectedProfit, 0.75 * 21.605 + 0.25 * -11, '25% mix');
+  near(comparison.skip.expectedProfit, 13.45375 * 0.55, 'skip-AG at 25% returns');
+  assert.ok(comparison.authenticity.expectedProfit > comparison.skip.expectedProfit, 'AG beats fake-claim bleed');
+});
+
+test('authenticity note names the figures without telling the seller what to do', () => {
+  const comparison = compareAuthenticity(agBase);
+  const note = authenticityNote(comparison);
+  assert.match(note, /Skip Authenticity Guarantee at 55%/);
+  assert.match(note, /3% authenticity fee/);
+  assert.match(note, /\$8\.00 extra hub shipping/);
+  assert.match(note, /Extra hub shipping has to be about/);
+  assert.doesNotMatch(note, /should enroll|must use|list with authenticity/i);
+});
+
+test('rejects a missing price, a return rate above 100%, and a missing comparison', () => {
+  assert.throws(() => compareAuthenticity({ ...agBase, authenticityReturnRatePercent: 101 }), /at most 100/);
+  assert.throws(() => compareAuthenticity({ price: -1 }), /Item price/);
+  assert.throws(() => authenticityNote({}), /missing rows/);
 });
