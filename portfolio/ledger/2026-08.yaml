@@ -23612,6 +23612,53 @@ entries:
         at one surface, or a claim mechanism before work starts. Five merges of
         main were needed to land a four-file change.
     mrr_end: null
+  - venture: trade-bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped save-and-share across all 36 trade bid calculators (#1774,
+        #1783): the whole form is kept in the visitor's own browser as they
+        type, "Copy bid link" reproduces a bid from a URL anywhere, and "Start
+        a fresh bid" clears it. Every one of these tools previously opened to an
+        empty form, so a contractor pricing five jobs a week retyped their wage,
+        burden, overhead, markup and every material rate each time, and closing
+        the tab lost the bid. That is the structural reason a pricing tool gets
+        used once; return usage was not merely low here, it was impossible.
+      - >-
+        Built it as a spec-driven module whose field list is passed in from the
+        page rather than kept in the module, because the failure this repo has
+        already shipped is the other way round -- a share.mjs with its own
+        hand-written allowlist, a form that grew past it, and a link that
+        silently dropped two fields so the recipient priced a different job.
+        page.test.mjs now fails if the form and the link ever disagree, and that
+        guard was checked by injecting the drift rather than assumed to work.
+      - >-
+        Learned that a bid link is a rate sheet. It carries wage, burden,
+        overhead and target margin, and the address bar does not say so -- a
+        contractor could paste one to the customer they are bidding. The
+        disclosure beside the button and in the privacy note is pinned by tests
+        in every venture; it is a guardrail, not copy.
+      - >-
+        Learned the same concurrency cost the previous entry names, from the
+        other side. Main moved 61 commits across four fetches during the run and
+        added 24 more bid calculators, five of which arrived needing the wiring
+        after it was already written -- one landing in the same minute as the
+        merge, which is why a second PR was needed. Nothing was dropped or
+        argued over this time: each arrival was integrated and wired, and the
+        five disclaimer conflicts all resolved by keeping both sides. The
+        durable fix is a CI gate requiring share.mjs in every
+        ventures/*-bid-calculator. It was deliberately not added: with ~380 open
+        PRs it would turn the in-flight calculator PRs red mid-review. Worth
+        revisiting when the backlog is thinner, or scoped to calculators added
+        after a cutoff so it binds new work without breaking work in flight.
+      - >-
+        Also restored a red Portfolio Pages on main. Four calculators had
+        shipped without the no-SLA clause, failing the build test on eight
+        pages; confirmed red on origin/main in a clean worktree first, then
+        resolved to main's own wording when a concurrent session fixed it
+        differently, so the site states the clause once rather than twice.
+    mrr_end: null
   - venture: where-to-sell-calculator
     agent_spend_usd: null
     human_hours: 0
