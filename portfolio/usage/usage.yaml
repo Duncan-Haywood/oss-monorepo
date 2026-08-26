@@ -2286,3 +2286,15 @@ products:
         note: >-
           Shipped a local vinyl-liner bid calculator with a copyable proposal
           summary; public URL remains owner-gated.
+
+  - slug: pergola-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pergola / patio-cover bid calculator with
+          post-and-shade geometry, walk-away price, and a copyable
+          proposal summary; public URL remains owner-gated.

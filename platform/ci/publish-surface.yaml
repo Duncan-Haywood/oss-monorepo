@@ -229,6 +229,9 @@ workflows:
 - workflow: patio-door-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: pergola-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: pest-control-bid-calculator-ci.yml
   classification: none
   publishes: []
