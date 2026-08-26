@@ -1,3 +1,5 @@
+import { buildShareUrl, decodeInputs, FIELD_IDS } from './share.mjs';
+
 const $ = (id) => document.getElementById(id);
 const symbols = { USD: '$', EUR: '€', GBP: '£', CAD: '$', AUD: '$' };
 export const CURRENCIES = Object.keys(symbols);
@@ -13,7 +15,10 @@ export const PAYMENT_TERMS = {
 // everything else, but `formatProposalSummary` must never print them: that
 // summary is copied into a client-facing proposal, and what other clients pay
 // is none of its business. A test asserts the summary stays clean.
+// A shareable plan link *does* carry them — that link is for a partner or
+// future-you, not the client-facing proposal.
 export const inputIds = ['income', 'costs', 'hours', 'utilization', 'retainerHours', 'buffer', 'otherRevenue', 'otherHours', 'fillRate', 'offeredPrice', 'currency', 'paymentTerms'];
+export { FIELD_IDS };
 export const DRAFT_KEY = 'frc-draft-v1';
 export const DISCLAIMER = 'Planning aid only. No warranty. Review and verify this output before relying on it; it is not financial advice.';
 
@@ -455,23 +460,50 @@ if (typeof document !== 'undefined') {
       // Usage measurement is best-effort and must never block the calculator.
     }
   };
-
   if ($('calculator')) {
     const form = $('calculator');
     const money = (n) => moneyText(n, $('currency').value);
-    const read = () => Object.fromEntries(inputIds.map((id) => [id, $(id).value]));
+    const read = () => Object.fromEntries(inputIds.map((id) => [id, $(id)?.value ?? '']));
+    const apply = (values) => {
+      for (const id of FIELD_IDS) {
+        if (values[id] === undefined || !$(id)) continue;
+        $(id).value = String(values[id]);
+      }
+    };
     const storage = (() => { try { return window.localStorage; } catch { return null; } })();
     const syncCurrencyLabels = () => {
       const symbol = symbols[$('currency').value] || symbols.USD;
       document.querySelectorAll('[data-currency-symbol]').forEach((el) => { el.textContent = symbol; });
     };
     const save = () => storage && saveDraft(read(), storage) && ($('draftStatus').textContent = 'Draft saved locally.');
-    if (storage) {
+    const copyShareLink = async () => {
+      const link = buildShareUrl(location.href, read());
+      try { history.replaceState(null, '', link); } catch { /* file URLs may reject it */ }
+      try {
+        await navigator.clipboard.writeText(link);
+        $('copyStatus').textContent = ' Shareable link copied.';
+        $('draftStatus').textContent = 'Shareable link copied. It carries only these planning numbers in the URL hash.';
+        track('share-link');
+      } catch {
+        window.prompt('Copy this private link:', link);
+        $('copyStatus').textContent = ' Copy was blocked. The link is in the prompt.';
+      }
+    };
+    // A shared link wins over a local draft so the recipient always sees the
+    // sender's numbers. HTML defaults fill any field the link omitted.
+    const fromLink = decodeInputs(location.hash || location.search);
+    const openedFromLink = Object.keys(fromLink).length > 0;
+    if (openedFromLink) {
+      apply(fromLink);
+      $('draftStatus').textContent = 'Opened a shared plan. Review the numbers before you quote.';
+    } else if (storage) {
       const draft = loadDraft(storage);
       if (draft) {
         inputIds.forEach((id) => { if (draft[id] !== '' && $(id)) $(id).value = draft[id]; });
         $('draftStatus').textContent = 'Restored your last draft from this browser.';
       }
+    }
+    if (storage) {
       inputIds.forEach((id) => {
         if (!$(id)) return;
         $(id).addEventListener('input', save);
@@ -630,6 +662,9 @@ if (typeof document !== 'undefined') {
       $('copyStatus').textContent = ' Proposal downloaded.';
       track('download-summary');
     });
+    $('share')?.addEventListener('click', copyShareLink);
+    $('shareResult')?.addEventListener('click', copyShareLink);
+    if (openedFromLink) form.requestSubmit();
   }
 
   if ($('floatForm')) {

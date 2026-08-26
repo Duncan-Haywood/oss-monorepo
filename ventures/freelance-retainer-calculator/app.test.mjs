@@ -18,6 +18,7 @@ import {
   loadDraft,
   saveDraft,
 } from './app.js';
+import { buildShareUrl, decodeInputs, encodeInputs } from './share.mjs';
 
 const plan = calculatePlan({ income: 6000, costs: 1800, hours: 160, utilization: 65, retainerHours: 20, buffer: 15 });
 assert.equal(plan.capacity, 104);
@@ -323,5 +324,30 @@ assert.throws(() => compareOffer(plan, '-10'), /valid offered monthly price/);
 function round2ForTest(value) {
   return Math.round(value * 100) / 100;
 }
+
+const shared = {
+  income: 6000,
+  costs: 1800,
+  hours: 160,
+  utilization: 65,
+  retainerHours: 20,
+  buffer: 15,
+  otherRevenue: 3000,
+  otherHours: 40,
+  fillRate: 60,
+  offeredPrice: 1500,
+  currency: 'USD',
+  paymentTerms: 'arrears30',
+};
+const restored = decodeInputs(encodeInputs(shared));
+assert.deepEqual(calculatePlan(restored), plan);
+assert.equal(restored.otherRevenue, 3000);
+assert.equal(restored.otherHours, 40);
+assert.equal(restored.fillRate, 60);
+assert.equal(restored.offeredPrice, 1500);
+assert.equal(restored.paymentTerms, 'arrears30');
+assert.match(buildShareUrl('https://example.test/app/', shared), /#income=6000/);
+assert.match(encodeInputs(shared), /otherRevenue=3000/);
+assert.match(encodeInputs(shared), /paymentTerms=arrears30/);
 
 console.log('freelance retainer calculator tests passed');
