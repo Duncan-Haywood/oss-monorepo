@@ -206,7 +206,61 @@ export function readMeta(html, slug) {
   const description =
     metaContent(html, 'name', 'description') || metaContent(html, 'property', 'og:description') || '';
 
-  return { title, description: truncate(description) };
+  // `description` is card copy and is trimmed to fit one. `fullDescription` is
+  // what the hub's search actually indexes: 24 of 34 tools say more about
+  // themselves than a card can hold, and the eBay tool says 1862 characters'
+  // worth. Indexing the trimmed copy made ~90% of that tool unfindable.
+  return { title, description: truncate(description), fullDescription: description };
+}
+
+/** Words too common across these tools to narrow a search. */
+const SEARCH_STOPWORDS = new Set(
+  ('a an and are as at be but by for from get how if in into is it its of on or so that the then ' +
+   'there these they this to too was what when where which who why will with you your' ).split(' '),
+);
+
+/**
+ * The searchable token set for one card.
+ *
+ * Kept as deduplicated tokens rather than raw prose for two reasons: the page
+ * carries the whole index inline, so repeating "calculator" 34 times costs
+ * bytes for nothing; and matching per token is what makes a two-word query
+ * ("ebay return") work, which a substring match over prose cannot do.
+ */
+export function searchTokens(parts) {
+  const seen = new Set();
+  for (const part of parts) {
+    for (const token of String(part ?? '')
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)) {
+      if (token.length < 2 || SEARCH_STOPWORDS.has(token)) continue;
+      seen.add(token);
+    }
+  }
+  return [...seen].sort().join(' ');
+}
+
+/**
+ * The `<title>`/`<h1>` of every other page in a venture.
+ *
+ * These are the venture's SEO articles, and they are phrased as the question a
+ * visitor actually types ("should I use Amazon AWD", "how much to charge to
+ * install crown molding"). None of that wording appears in the tool's own meta
+ * description, so without this the hub cannot answer the search that brought
+ * the visitor to the portfolio in the first place.
+ */
+export async function collectPageTitles(sourceDir, entryFile) {
+  const files = (await listFiles(sourceDir)).filter(
+    (file) => file.endsWith('.html') && file !== entryFile,
+  );
+  const titles = [];
+  for (const file of files.slice(0, 40)) {
+    const html = await fs.readFile(file, 'utf8');
+    const title = html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? '';
+    const heading = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] ?? '';
+    titles.push(decodeEntities(title), decodeEntities(heading.replace(/<[^>]*>/g, ' ')));
+  }
+  return titles;
 }
 
 async function countPages(sourceDir) {
@@ -228,6 +282,33 @@ export function isPublishable(name) {
 }
 
 /** Recursively copy `from` into `to`, dropping test payload and repo bookkeeping. */
+/**
+ * Where `favicon.ico` sits relative to the origin, e.g. `/monorepo-projects/`
+ * for a project site. Root-absolute rather than relative because the same href
+ * is injected into pages at several depths.
+ */
+export function faviconHref(baseUrl) {
+  return `${new URL(baseUrl).pathname.replace(/\/*$/, '/')}favicon.ico`;
+}
+
+/**
+ * Point a copied page at the site's favicon.
+ *
+ * A browser asks the *origin* root for `/favicon.ico`, and on a project site
+ * that is `github.io/favicon.ico` — outside this tree, and not ours to serve.
+ * So every tool page needs the link written in. This rewrites the published
+ * copy, in the same pass that already rewrites the placeholder origin; the
+ * venture's own source is not touched, and a venture that declares its own icon
+ * keeps it.
+ */
+export function injectFavicon(html, baseUrl) {
+  if (/<link[^>]+rel=["'][^"']*icon/i.test(html)) return html;
+  return html.replace(
+    /<head(\s[^>]*)?>/i,
+    (head) => `${head}\n  <link rel="icon" href="${faviconHref(baseUrl)}" sizes="32x32">`,
+  );
+}
+
 export async function copyTree(from, to, baseUrl) {
   await fs.mkdir(to, { recursive: true });
   const entries = await fs.readdir(from, { withFileTypes: true });
@@ -249,7 +330,11 @@ export async function copyTree(from, to, baseUrl) {
 
     if (REWRITABLE.has(path.extname(entry.name))) {
       const contents = await fs.readFile(src, 'utf8');
-      await fs.writeFile(dest, rewriteOrigin(contents, baseUrl));
+      const rewritten = rewriteOrigin(contents, baseUrl);
+      await fs.writeFile(
+        dest,
+        path.extname(entry.name) === '.html' ? injectFavicon(rewritten, baseUrl) : rewritten,
+      );
     } else {
       await fs.copyFile(src, dest);
     }
@@ -400,7 +485,8 @@ export function renderHub(surfaces, baseUrl) {
 ${items
   .map(
     (surface) => `          <li class="card" data-search="${escapeHtml(
-      `${surface.title} ${surface.description} ${surface.slug}`.toLowerCase(),
+      surface.searchIndex ??
+        searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug]),
     )}">
             <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
               <h3>${escapeHtml(surface.title)}</h3>
@@ -424,6 +510,7 @@ ${items
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="${escapeHtml(faviconHref(baseUrl))}" sizes="32x32">
   <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
   <meta name="description" content="${escapeHtml(
     `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
@@ -537,11 +624,35 @@ ${DISCLAIMER_HTML}
     const groups = [...document.querySelectorAll('.group')];
     const total = cards.length;
 
+    // Every query word must hit, so "ebay return" narrows to the eBay tool
+    // instead of finding nothing because those two words are never adjacent.
+    // A word matches at a token boundary, which is what makes a half-typed
+    // "backspl" still find the backsplash calculator.
+    const matches = (index, words, boundary) =>
+      words.every((word) => (boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
+
+    // The query is normalised exactly as the index was. It has to be: a word
+    // the index never stores can never match, so keeping it would force every
+    // query containing it down to zero hits — typing "2/10 net 30" would find
+    // nothing because "2" was dropped at build time but not from the query.
+    const STOPWORDS = new Set(${JSON.stringify([...SEARCH_STOPWORDS])});
+    const normalise = (text) =>
+      text
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter((word) => word.length >= 2 && !STOPWORDS.has(word));
+
     function filter() {
-      const needle = q.value.trim().toLowerCase();
+      const words = normalise(q.value.trim());
+      // Token-prefix first; fall back to a loose substring pass so a query that
+      // would have matched before this became token-aware still matches.
+      let boundary = true;
+      if (words.length && !cards.some((c) => matches(c.dataset.search, words, true))) {
+        boundary = false;
+      }
       let shown = 0;
       for (const card of cards) {
-        const hit = !needle || card.dataset.search.includes(needle);
+        const hit = !words.length || matches(card.dataset.search, words, boundary);
         card.hidden = !hit;
         if (hit) shown += 1;
       }
@@ -549,7 +660,7 @@ ${DISCLAIMER_HTML}
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
       }
       empty.style.display = shown === 0 ? 'block' : 'none';
-      count.textContent = needle ? shown + ' of ' + total + ' tools' : total + ' tools';
+      count.textContent = words.length ? shown + ' of ' + total + ' tools' : total + ' tools';
     }
     q.addEventListener('input', filter);
     filter();
@@ -600,6 +711,77 @@ export function renderRobots(baseUrl) {
 }
 
 /**
+ * A 32×32 icon written straight into the ICO container as an uncompressed
+ * 32-bit bitmap.
+ *
+ * Every browser requests `/favicon.ico` from the origin root whether or not a
+ * page links one, so without this file every page on the site — the hub and all
+ * 34 tools — serves a 404 and logs a console error on first paint. Emitting it
+ * at the root fixes all of them at once, which matters because the tools are
+ * other ventures' code and the build deliberately does not edit their markup.
+ *
+ * Hand-encoded rather than checked in as a binary so it stays reviewable in a
+ * diff and needs no asset pipeline. The mark is a calculator: a dark rounded
+ * field with a light display band and four keys.
+ */
+export function renderFavicon() {
+  const SIZE = 32;
+  const ink = [0x1c, 0x1f, 0x26]; // BGR — body
+  const lit = [0xe8, 0xf0, 0xf4]; // BGR — display and keys
+  const pixels = Buffer.alloc(SIZE * SIZE * 4); // BGRA, bottom-up
+
+  const inDisplay = (x, y) => y >= 5 && y <= 11 && x >= 6 && x <= 25;
+  const inKey = (x, y) => {
+    const col = Math.floor((x - 6) / 5);
+    const rowY = Math.floor((y - 15) / 5);
+    return x >= 6 && x <= 25 && y >= 15 && y <= 26 && (x - 6) % 5 < 4 && (y - 15) % 5 < 4 && col < 4 && rowY < 3;
+  };
+
+  for (let y = 0; y < SIZE; y += 1) {
+    for (let x = 0; x < SIZE; x += 1) {
+      // Rounded corners: drop the four 3px corner nubs so the mark reads as a
+      // device rather than a square at 16px.
+      const corner = (x < 3 || x > SIZE - 4) && (y < 3 || y > SIZE - 4);
+      const inside = x >= 2 && x <= SIZE - 3 && y >= 2 && y <= SIZE - 3 && !corner;
+      const offset = ((SIZE - 1 - y) * SIZE + x) * 4;
+      if (!inside) continue; // left transparent
+      const colour = inDisplay(x, y) || inKey(x, y) ? lit : ink;
+      pixels[offset] = colour[0];
+      pixels[offset + 1] = colour[1];
+      pixels[offset + 2] = colour[2];
+      pixels[offset + 3] = 0xff;
+    }
+  }
+
+  // The AND mask is required by the format even when alpha carries the
+  // transparency: one bit per pixel, each row padded to 4 bytes.
+  const mask = Buffer.alloc((SIZE / 8) * SIZE);
+
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0); // reserved
+  header.writeUInt16LE(1, 2); // type: icon
+  header.writeUInt16LE(1, 4); // one image
+
+  const info = Buffer.alloc(40);
+  info.writeUInt32LE(40, 0); // header size
+  info.writeInt32LE(SIZE, 4);
+  info.writeInt32LE(SIZE * 2, 8); // height counts image + mask
+  info.writeUInt16LE(1, 12); // planes
+  info.writeUInt16LE(32, 14); // bits per pixel
+  info.writeUInt32LE(pixels.length + mask.length, 20);
+
+  const entry = Buffer.alloc(16);
+  entry[0] = SIZE;
+  entry[1] = SIZE;
+  entry.writeUInt16LE(1, 4); // planes
+  entry.writeUInt16LE(32, 6); // bits per pixel
+  entry.writeUInt32LE(info.length + pixels.length + mask.length, 8);
+  entry.writeUInt32LE(header.length + entry.length, 12);
+
+  return Buffer.concat([header, entry, info, pixels, mask]);
+}
+
+/**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
  * entries, so the hub itself and any venture without its own sitemap live in
  * `sitemap-hub.xml`, which this index also lists — otherwise a crawler
@@ -638,6 +820,7 @@ export function renderNotFound(baseUrl) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="${escapeHtml(faviconHref(baseUrl))}" sizes="32x32">
   <title>Not found</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
@@ -678,7 +861,7 @@ export async function buildSite({
 
   for (const surface of discovered) {
     const html = await fs.readFile(surface.entryFile, 'utf8');
-    const { title, description } = readMeta(html, surface.slug);
+    const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
 
     await copyTree(surface.sourceDir, destination, base);
@@ -695,6 +878,13 @@ export async function buildSite({
       ...surface,
       title,
       description,
+      fullDescription,
+      searchIndex: searchTokens([
+        title,
+        fullDescription,
+        surface.slug,
+        ...(await collectPageTitles(surface.sourceDir, surface.entryFile)),
+      ]),
       pageCount: await countPages(surface.sourceDir),
       hasSitemap: await exists(path.join(destination, 'sitemap.xml')),
     });
@@ -703,6 +893,7 @@ export async function buildSite({
 
   await fs.writeFile(path.join(outDir, 'index.html'), renderHub(surfaces, base));
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
+  await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
