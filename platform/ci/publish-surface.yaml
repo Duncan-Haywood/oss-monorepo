@@ -609,6 +609,9 @@ workflows:
 - workflow: vendor-change-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: vendor-watch-ci.yml
+  classification: none
+  publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml
   classification: none
   publishes: []

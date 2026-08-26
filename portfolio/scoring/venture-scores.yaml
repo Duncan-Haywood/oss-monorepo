@@ -5833,3 +5833,31 @@ ventures:
       The product explicitly does not interpret funder rules or certify
       compliance; it asks users to verify the award agreement and professional
       requirements before relying on the planning queue.
+  - slug: vendor-watch
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 8
+      time_to_revenue: 6
+      gross_margin: 8
+      defensibility: 4
+      distribution: 4
+    composite: 5.333
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The shipped slice is a deterministic public-page fetch and word diff.
+      Inference would make a terms change less checkable against the captured
+      text.
+    basis: >-
+      Repair-and-merge of unique #905. Complementary to vendor-change-evidence
+      (customer-supplied snapshots, no network): this one fetches an authorized
+      public URL on demand, with SSRF blocks, inconclusive failures, and no
+      scheduled monitor.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: only public http(s) URLs, private/loopback ranges are refused,
+      failed fetches stay inconclusive, and the product is an evidence feed
+      rather than a compliance determination.

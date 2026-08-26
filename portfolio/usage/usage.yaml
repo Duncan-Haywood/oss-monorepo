@@ -3462,3 +3462,14 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped private browser deadline queue and CSV export; public publishing is owner-gated, so this is the initial baseline.
+  - slug: vendor-watch
+    surface: process-host-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          check_started: 0
+        note: >-
+          Repair-and-merge of unique #905 vendor page change monitor. In-memory
+          snapshots only; usage events are event name + path + day, never the
+          checked URL. Public URL remains owner-gated.
