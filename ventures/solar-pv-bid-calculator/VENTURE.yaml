@@ -1,0 +1,32 @@
+name: solar-pv-bid-calculator
+description: A private browser calculator for solar installers that prices a rooftop or ground-mount PV job from module count, roof-difficulty labor, electrical extras that a dollars-per-watt quote hides, and margin — then shows price per watt, crew hours, and the walk-away number.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Solar installers will use a bid calculator that prices roof difficulty and panel upgrades separately because a flat dollars-per-watt rule treats an easy composition-roof 10 kW as the same job as a tile-roof 10 kW that needs a 100 A to 200 A service upgrade.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the dollars-per-watt that still covers extras are the two numbers an installer decides on when a closer asks them to match a cheaper quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Electrical extras that do not scale with array size change the bid materially on smaller residential jobs, which is where per-watt matching is most common.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified solar installers use the calculator twice within 90 days.
+  - Installers report that splitting roof factor and electrical extras is more work than their existing per-watt method without changing the price they would have bid.
+  - The starting roof factors or electrical extras prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

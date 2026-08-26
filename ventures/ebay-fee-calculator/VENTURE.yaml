@@ -1,5 +1,5 @@
 name: ebay-fee-calculator
-description: A private browser calculator for eBay resellers to see order profit, margin, ROI, and break-even resale price after eBay fees and cost of goods.
+description: A private browser calculator for eBay resellers to see order profit, margin, ROI, break-even resale price, expected profit after returns, whether a partial refund still beats taking the return, whether Authenticity Guarantee still pays after the hub label, whether local pickup still beats the label after no-shows, whether keeping a lot still beats splitting it into singles, whether a Standard Envelope still beats a tracked label after item-not-received claims, whether combining two already-sold items still beats two labels, whether a seller-initiated offer still beats waiting for Buy It Now, whether Promoted Offsite still pays after a bill that is charged even if they bounce, whether Promoted Listings Advanced still pays after a click bill that is charged even if they bounce, whether a seller coupon still beats staying listed, whether requiring immediate payment still beats unpaid checkouts, whether Top Rated Plus still covers free returns after the fee discount, whether Managed Returns still beats buying the return label yourself, whether offering international still leaves a profit at this list, whether Global Shipping Program still beats buying the international label, whether a store subscription still beats the no-store rate, whether an incoming Best Offer still beats waiting for list, whether free shipping still beats charging the buyer after a typed sell-through lift, whether skip still beats shipping insurance or signature confirmation after item-not-received claims, whether an eBay shipping label still beats Pirate Ship after item-not-received claims and upload time, and whether auction still beats Buy It Now after sell-through.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,50 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Return on invested cash is the number resellers actually decide on when sourcing, more than the raw profit figure.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will change listing format when they can see expected profit after sell-through, because a cheaper auction hammer still beats a Buy It Now that does not sell.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will skip or keep Top Rated Plus when they can see the 10% final-value discount against seller-paid return labels and 1-day handling, because the badge looks free until free returns wipe it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will skip or keep Managed Returns when they can see a cheaper program fee against the extra returns an easier path usually brings, because the fee line looks like a save until the rate rises.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will keep or skip Global Shipping Program when they can see a hub label against international postage plus a typed claim rate, because “I can ship cheaper” ignores boxes that never arrive.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will skip or keep Promoted Listings Advanced when they can see a click bill charged even if they bounce against the extra sales those clicks actually buy, because a $0.40 CPC looks cheap until forty clicks is a $16 bill and nobody bought.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will skip or keep a store when they can see a $7.95 Starter against forty of the same $40 sales, because the lower rate looks free until the month does not cover the subscription.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will take or wait on a Best Offer when they can see a $34 offer against a 50% chance of the $40 list, because under-list looks like a loss until waiting is priced.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will offer or skip worldwide shipping when they can see a 1.65% fee and a $12 extra label against a domestic leftover, because “more buyers” ignores the postage they absorb.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will offer or skip free shipping when they can see that baking the exact shipping charged into the item is leftover-identical on eBay, because leaving the list put and still buying the label is the leak.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will skip or buy shipping insurance when they can see a $1.80 premium against a 2.5% item-not-received loss, because the add-on looks cheap until it is charged on every box that arrives.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Resellers will buy an eBay label or a Pirate Ship quote when they can see a $0.75 postage save against a higher item-not-received rate and four minutes of upload time, because cheaper postage looks free until tracking and seller protection are priced.
     status: untested
     checked: null
     evidence: customer-contact
