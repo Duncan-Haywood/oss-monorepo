@@ -29,6 +29,7 @@ test("honors opt out", () => {
 test("records named feature events without storing inputs", () => {
   const storage = fakeStorage();
   recordUsage(storage, false, "payment_path_compared");
+  recordUsage(storage, false, "plan_upgrade_compared");
   recordUsage(storage, false, "pos_online_compared");
   recordUsage(storage, false, "shipping_labels_compared");
   recordUsage(storage, false, "shop_pay_installments_compared");
@@ -47,6 +48,7 @@ test("records named feature events without storing inputs", () => {
   recordUsage(storage, false, "promos_compared");
   const stored = JSON.parse(storage.getItem("shopify-fee-usage"));
   assert.equal(stored.payment_path_compared, 1);
+  assert.equal(stored.plan_upgrade_compared, 1);
   assert.equal(stored.pos_online_compared, 1);
   assert.equal(stored.shipping_labels_compared, 1);
   assert.equal(stored.shop_pay_installments_compared, 1);
