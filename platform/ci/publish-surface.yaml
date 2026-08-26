@@ -465,6 +465,9 @@ workflows:
 - workflow: walmart-marketplace-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: water-softener-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: wheelchair-ramp-bid-calculator-ci.yml
   classification: none
   publishes: []
