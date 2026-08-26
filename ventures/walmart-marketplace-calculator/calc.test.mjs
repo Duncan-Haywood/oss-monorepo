@@ -1,12 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
+  AGED_WFS_DEFAULTS,
+  agedWfsNote,
   applyCategoryPreset,
   applyStoragePreset,
   breakEvenSalePrice,
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  compareAgedWfs,
   compareTwoDay,
   compareReturns,
   cubicFeet,
@@ -297,4 +300,51 @@ test("exports the returns defaults the page starts from", () => {
   assert.equal(RETURNS_DEFAULTS.sellerReturnLabel, 5.5);
   assert.equal(RETURNS_DEFAULTS.restockMinutes, 8);
   assert.equal(RETURNS_DEFAULTS.unsellableReturnPct, 25);
+});
+
+test("pulling a slow leftover WFS pile still beats leaving it for 4 months", () => {
+  const r = compareAgedWfs(base);
+  const listing = calculateListing(base);
+  const keepContribution = 24.99 - listing.referral - listing.fulfillmentFee;
+  const sellerContribution = 24.99 - listing.referral - 4.5 - 0.5;
+
+  near(r.keepContribution, keepContribution, "WFS contribution ignores sunk inbound");
+  near(r.sellerContribution, sellerContribution, "seller contribution after a new label");
+  near(r.storagePerUnitMonth, listing.cubicFeet * 2.1, "aged rate on leftover cu ft");
+  near(r.remove.cash, 40 * (sellerContribution - 1.25), "remove cash");
+  near(r.dispose.cash, -0.35 * 40, "dispose cash");
+  assert.equal(r.winner, "remove");
+  near(r.keep.cash, 261.3073046357333, "locked keep cash");
+  near(r.remove.cash, 599.66, "locked remove cash");
+  near(r.extraRemoveVsKeep, 338.35269536426665, "locked pull gap");
+  near(r.breakEvenSellThroughVsRemove, 41.31343147224591, "locked sell-through floor");
+  near(r.keep.soldUnits, 16.012185600000002, "12% over 4 months sells ~16");
+  assert.ok(r.keep.leftoverUnits > 23, "most of the pile is still sitting");
+  assert.match(agedWfsNote(r), /keeps \$338\.35 more/);
+  assert.match(agedWfsNote(r), /\$599\.66 vs \$261\.31/);
+  assert.match(agedWfsNote(r), /41\.3%/);
+});
+
+test("55% monthly sell-through flips the leftover pile back to WFS", () => {
+  const r = compareAgedWfs({ ...base, monthlySellThroughPct: 55 });
+  assert.equal(r.winner, "keep");
+  near(r.extraRemoveVsKeep, -55.5007004583332, "locked keep flip");
+  assert.match(agedWfsNote(r), /Leaving the 40 leftover units in WFS keeps \$55\.50 more/);
+  assert.match(agedWfsNote(r), /41\.3%/);
+});
+
+test("rejects invalid leftover, horizon, and sell-through inputs", () => {
+  assert.throws(() => compareAgedWfs({ ...base, leftoverUnits: 0 }), /greater than zero/);
+  assert.throws(() => compareAgedWfs({ ...base, horizonMonths: 0 }), /greater than zero/);
+  assert.throws(() => compareAgedWfs({ ...base, monthlySellThroughPct: 101 }), /at most 100/);
+  assert.throws(() => agedWfsNote({}), /missing rows/);
+});
+
+test("exports the aged WFS defaults the page starts from", () => {
+  assert.equal(AGED_WFS_DEFAULTS.leftoverUnits, 40);
+  assert.equal(AGED_WFS_DEFAULTS.monthlySellThroughPct, 12);
+  assert.equal(AGED_WFS_DEFAULTS.horizonMonths, 4);
+  assert.equal(AGED_WFS_DEFAULTS.agedStorageRate, STORAGE_PRESETS.long_term.perCuFt);
+  assert.equal(AGED_WFS_DEFAULTS.removalFee, 1.25);
+  assert.equal(AGED_WFS_DEFAULTS.disposalFee, 0.35);
 });

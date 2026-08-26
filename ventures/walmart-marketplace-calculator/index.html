@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, 2-day vs WFS take-rate leftover, expected leftover after Walmart returns, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, 2-day vs WFS take-rate leftover, expected leftover after Walmart returns, leftover WFS keep vs remove vs dispose, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -64,6 +64,14 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "The completed-sale table assumes the order sticks. On the defaults an 8% return mix still leaves seller fulfilled $0.16 ahead per unit ($7.33 vs $7.17) because the $4.50 outbound label plus a $5.50 return label is worse than WFS return processing, but not enough to flip an $0.59 completed-sale gap. At 20% returns WFS keeps $0.49 more. Open the returns page to replace the rate, WFS return fee, and return label from Seller Center."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I pull leftover units out of WFS?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Inbound and cost of goods are already spent on leftover units. On the defaults a 12% monthly sell-through over 4 months still leaves a $1.25 removal plus your own label $338.35 ahead of aged WFS storage ($599.66 vs $261.31). Keeping matches at about 41.3% monthly sell-through. Open the aged-inventory page to replace the leftover count, sell-through, aged rate, and removal fee from Seller Center."
         }
       }
     ]
@@ -179,6 +187,12 @@
         <label>Restock minutes <input id="restockMinutes" type="number" min="0" step="0.1" value="8"></label>
         <label>Restock wage ($ / hour) <input id="restockHourlyWage" type="number" min="0" step="0.01" value="18"></label>
         <label>Unsellable returns (%) <input id="unsellableReturnPct" type="number" min="0" max="100" step="0.1" value="25"></label>
+        <label>Leftover WFS units <input id="leftoverUnits" type="number" min="1" step="1" value="40"></label>
+        <label>Monthly sell-through (%) <input id="monthlySellThroughPct" type="number" min="0" max="100" step="0.1" value="12"></label>
+        <label>Months you will wait <input id="horizonMonths" type="number" min="1" step="1" value="4"></label>
+        <label>Aged WFS storage ($ / cu ft) <input id="agedStorageRate" type="number" min="0" step="0.01" value="2.10"></label>
+        <label>Removal fee / unit ($) <input id="removalFee" type="number" min="0" step="0.01" value="1.25"></label>
+        <label>Disposal fee / unit ($) <input id="disposalFee" type="number" min="0" step="0.01" value="0.35"></label>
       </div>
     </section>
     <section class="result">
@@ -218,6 +232,13 @@
         <thead><tr><th>Path</th><th>Completed</th><th>Return</th><th>Expected</th></tr></thead>
         <tbody id="returnsCompare"></tbody>
       </table>
+      <hr>
+      <h2>Same leftover pile, already inbound</h2>
+      <p id="agedNote" class="note"></p>
+      <table>
+        <thead><tr><th>Path</th><th>Sold</th><th>Still sitting</th><th>Cash</th></tr></thead>
+        <tbody id="agedCompare"></tbody>
+      </table>
       <p class="note">Transparent arithmetic from your inputs — not Walmart’s current fee schedule. Referral, WFS fulfillment, storage, and inbound vary by category, size, and account. Verify against Seller Center before buying inventory.</p>
     </section>
   </main>
@@ -239,6 +260,10 @@
       <a href="should-i-use-wfs-with-walmart-returns.html">Should I stay on WFS after Walmart returns?</a>
       compares expected leftover after a refund, WFS return processing,
       and the return label you buy.
+      Leftover units already inbound are a further mix:
+      <a href="should-i-pull-aged-wfs-inventory.html">Should I pull aged WFS inventory?</a>
+      compares keeping them under aged storage, paying a removal and
+      selling them yourself, and disposing.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -260,8 +285,10 @@
       calculateListing,
       compareTwoDay,
       compareReturns,
+      compareAgedWfs,
       twoDayNote,
       returnsNote,
+      agedWfsNote,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
@@ -273,7 +300,9 @@
       "monthlyUnits", "targetMargin", "twoDayShippingCost", "twoDayMinutes",
       "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct",
       "returnRatePct", "wfsReturnFee", "sellerReturnLabel", "restockMinutes",
-      "restockHourlyWage", "unsellableReturnPct",
+      "restockHourlyWage", "unsellableReturnPct", "leftoverUnits",
+      "monthlySellThroughPct", "horizonMonths", "agedStorageRate",
+      "removalFee", "disposalFee",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -353,16 +382,22 @@
         document.getElementById("returnsCompare").innerHTML = returns.rows.map((row) =>
           `<tr><td>${row.label}</td><td>${money(row.completedProfit)}</td><td>${money(row.returnLeftover)}</td><td>${money(row.expectedProfit)}</td></tr>`
         ).join("");
+        const aged = compareAgedWfs(readInput());
+        document.getElementById("agedNote").textContent = agedWfsNote(aged);
+        document.getElementById("agedCompare").innerHTML = aged.rows.map((row) =>
+          `<tr><td>${row.label}</td><td>${row.soldUnits.toFixed(1)}</td><td>${row.leftoverUnits.toFixed(1)}</td><td>${money(row.cash)}</td></tr>`
+        ).join("");
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "referral", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "matchResult", "twoDayNote", "returnsNote"].forEach((id) => {
+        ["revenue", "referral", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "matchResult", "twoDayNote", "returnsNote", "agedNote"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
         document.getElementById("twoDayCompare").innerHTML = "";
         document.getElementById("returnsCompare").innerHTML = "";
+        document.getElementById("agedCompare").innerHTML = "";
       }
     }
 
@@ -397,7 +432,9 @@
             ? "two_day_compared"
             : ["returnRatePct", "wfsReturnFee", "sellerReturnLabel", "restockMinutes", "restockHourlyWage", "unsellableReturnPct"].includes(id)
               ? "returns_compared"
-              : "listing_profit_calculated";
+              : ["leftoverUnits", "monthlySellThroughPct", "horizonMonths", "agedStorageRate", "removalFee", "disposalFee"].includes(id)
+                ? "aged_wfs_compared"
+                : "listing_profit_calculated";
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
