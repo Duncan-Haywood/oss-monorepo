@@ -48,6 +48,86 @@ scoring_rule: >-
   near-zero-price norm is a real property of the business on any host.
 
 ventures:
+  - slug: commercial-photo-license-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The first release is deterministic usage-scope arithmetic; defensibility
+      can come later from photographer-specific presets and repeat clients.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local commercial usage-rights
+      worksheet. It separates creative fee from channel, term, territory, and
+      exclusivity without uploads, accounts, paid APIs, or customer data leaving
+      the browser.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is a negotiation worksheet rather than legal
+      or copyright advice; photographers remain responsible for contract terms.
+  - slug: chargeback-evidence-packet
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the evidence checklist and drafting core.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local chargeback evidence packet
+      builder for small ecommerce sellers. The first slice organizes seller-
+      supplied records and facts without claiming a dispute outcome, storing
+      documents, or connecting to a processor. Distribution is supported by
+      specific chargeback-response search intent; repeat use and defensibility
+      remain untested.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: output is an evidence checklist and factual draft,
+      not legal, financial, or payment-dispute advice. The seller reviews and
+      submits the packet through the processor's process.
+  - slug: appliance-repair-quote-calculator
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The complete first release is deterministic arithmetic; defensibility can
+      come later from appliance-specific quote templates and repeat workflows.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local quote calculator for independent
+      appliance repair technicians. It models diagnostic and repair labor,
+      travel, parts markup, callback reserve, overhead, and target margin without
+      uploads, accounts, paid APIs, or customer data leaving the browser.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass, conditionally: outputs are user-input scenarios rather than price,
+      financial, or warranty advice; technicians remain responsible for checking
+      their own costs, contracts, and customer-facing quote terms.
   - slug: retainage-cashflow-calculator
     scores:
       ai_leverage: 1

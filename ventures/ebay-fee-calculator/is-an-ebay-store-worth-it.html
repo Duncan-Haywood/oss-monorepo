@@ -227,6 +227,7 @@
 
     function recordCompare() {
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "store_compared");
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "store_comparison_viewed");
     }
 
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));

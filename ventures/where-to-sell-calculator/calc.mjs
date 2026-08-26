@@ -172,6 +172,20 @@ function ratePercent(value, name, fallback = 0) {
   return result;
 }
 
+// Days-to-sell is optional for cash-per-day. Empty or zero means "I do not
+// know yet" and profit-per-day stays null rather than inventing a pace. A
+// negative value is a real mistake and is refused. Shelf-time still reads
+// the same field as a number (zero when unset) so a missing pace does not
+// invent sell-through either.
+function optionalPositive(value, name) {
+  if (value === undefined || value === null || value === "") return null;
+  const result = Number(value);
+  if (!Number.isFinite(result) || result < 0) {
+    throw new Error(`${name} must be a non-negative number`);
+  }
+  return result === 0 ? null : result;
+}
+
 /**
  * Net result for one channel, given the shared item facts.
  *
@@ -201,6 +215,21 @@ export function calculateChannel(channel, shared = {}) {
   const otherCost = number(shared.otherCost, "Other per-item cost", 0);
   const monthlyOrders = wholeNumber(shared.monthlyOrders, "Orders per month", 0);
   const includeSubscription = shared.includeSubscription !== false;
+  const daysToSellInput = channel.daysToSell !== undefined && channel.daysToSell !== ""
+    ? channel.daysToSell
+    : shared.daysToSell;
+  const daysToSell = optionalPositive(daysToSellInput, `${label} days to sell`);
+
+  // Expected sales on THIS channel. Empty falls back to the shared monthly
+  // figure, so existing comparisons stay unchanged. When a seller overrides
+  // it, that number is also what a monthly plan is spread over — otherwise a
+  // $39 Shopify plan amortized over 100 "portfolio" orders then multiplied by
+  // 20 own-store sales would understate the plan by 5×.
+  const rawChannelVolume = channel.expectedMonthlySales;
+  const hasChannelVolume = rawChannelVolume !== undefined && rawChannelVolume !== null && rawChannelVolume !== "";
+  const expectedMonthlySales = hasChannelVolume
+    ? wholeNumber(rawChannelVolume, `${label} expected monthly sales`)
+    : monthlyOrders;
 
   // A subscription is only a per-order cost once it is spread over the orders
   // it carries. Comparing a $39/month store against a per-sale marketplace
@@ -208,11 +237,19 @@ export function calculateChannel(channel, shared = {}) {
   // no order volume to spread it over the question has no answer, so say so
   // instead of quietly dividing by zero.
   let subscriptionShare = 0;
+  let unamortizedMonthlyFee = 0;
   if (includeSubscription && monthlyFee > 0) {
-    if (monthlyOrders < 1) {
-      throw new Error("Enter how many orders a month you expect, so monthly fees can be spread over them");
+    if (expectedMonthlySales < 1) {
+      if (hasChannelVolume) {
+        // Explicit zero volume on this channel: there is no per-sale share,
+        // but the plan is still paid that month.
+        unamortizedMonthlyFee = monthlyFee;
+      } else {
+        throw new Error("Enter how many orders a month you expect, so monthly fees can be spread over them");
+      }
+    } else {
+      subscriptionShare = monthlyFee / expectedMonthlySales;
     }
-    subscriptionShare = monthlyFee / monthlyOrders;
   }
 
   const revenue = price + shippingCharged;
@@ -300,12 +337,12 @@ export function calculateChannel(channel, shared = {}) {
   const capitalCostPct = number(shared.capitalCostPct, "Annual cost of the cash tied up", 0);
   const unsoldRecoveryPct = ratePercent(shared.unsoldRecoveryPct, "Value kept if it does not sell", 100);
   const sellThroughPct = ratePercent(channel.sellThroughPct, `${label} sell-through rate`, 100);
-  const daysToSell = number(channel.daysToSell, `${label} days to sell`, 0);
+  const shelfDaysToSell = number(daysToSellInput, `${label} days to sell`, 0);
   const listingRenewalDays = number(channel.listingRenewalDays, `${label} listing renewal days`, 0);
 
   // A listing cannot sell after you have taken it down, so a channel whose
   // typical time to sale is past the horizon effectively sells on the last day.
-  const soldDays = Math.min(daysToSell, horizonDays);
+  const soldDays = Math.min(shelfDaysToSell, horizonDays);
   const listingCycles = (days) =>
     listingRenewalDays > 0 ? Math.max(1, Math.ceil(days / listingRenewalDays)) : 1;
   // Only the item cost is capital tied up while it waits — packaging, postage
@@ -331,7 +368,7 @@ export function calculateChannel(channel, shared = {}) {
 
   const velocity = {
     sellThroughPct,
-    daysToSell,
+    daysToSell: shelfDaysToSell,
     listingRenewalDays,
     horizonDays,
     soldDays,
@@ -396,7 +433,20 @@ export function calculateChannel(channel, shared = {}) {
     roi: cashInvested === 0 ? null : (profit / cashInvested) * 100,
     percentRate: percentRate * 100,
     fixedCash,
+    expectedMonthlySales,
+    // When volume is at least one, the per-sale profit already carries its
+    // share of the monthly plan, so multiplying recovers the plan once.
+    // At zero volume the plan was not amortized, so subtract it here.
+    monthlyProfit: expectedMonthlySales >= 1
+      ? profit * expectedMonthlySales
+      : -unamortizedMonthlyFee,
     breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
+    daysToSell,
+    // Cash this sale leaves you per day it sits unsold. Null when the seller
+    // has not given a pace — inventing one would rank channels on a guess
+    // they never entered. 30-day month is a planning figure, not a calendar.
+    profitPerDay: daysToSell === null ? null : profit / daysToSell,
+    monthlyProfitAtVelocity: daysToSell === null ? null : profit * (30 / daysToSell),
     /**
      * Item price this channel needs, holding shipping charged constant, to
      * clear `targetProfit`. This is the number that turns a comparison into a
@@ -445,6 +495,12 @@ export function compareChannels(channels, shared = {}) {
   const includeReturns = shared.includeReturns !== false;
   const score = (result) => (includeReturns ? result.expectedProfit : result.profit);
   const best = results.reduce((winner, result) => (score(result) > score(winner) ? result : winner));
+  const withPace = results.filter((result) => result.profitPerDay !== null);
+  const bestOnVelocity = withPace.length === 0
+    ? null
+    : withPace.reduce((winner, result) => (
+      result.profitPerDay > winner.profitPerDay ? result : winner
+    ));
 
   const ranked = [...results].sort((a, b) => score(b) - score(a));
   const rankById = new Map(ranked.map((result, index) => [result, index + 1]));
@@ -462,11 +518,32 @@ export function compareChannels(channels, shared = {}) {
   const shelfBest = shelfRanked[0];
   const shelfBestScore = shelfScore(shelfBest);
 
+  // Third ranking: expected monthly cash when channel volumes differ. A
+  // cheaper-per-sale channel can lose the month when another simply sells
+  // more units. Empty per-channel volume falls back to shared monthlyOrders
+  // so existing comparisons stay unchanged.
+  const bestMonthly = results.reduce(
+    (winner, result) => (result.monthlyProfit > winner.monthlyProfit ? result : winner),
+  );
+  const monthlyRanked = [...results].sort((a, b) => b.monthlyProfit - a.monthlyProfit);
+  const monthlyRankByResult = new Map(monthlyRanked.map((result, index) => [result, index + 1]));
+  const volumesDiffer = results.some(
+    (result) => result.expectedMonthlySales !== results[0].expectedMonthlySales,
+  );
+
   return {
     results: results.map((result) => ({
       ...result,
       rank: rankById.get(result),
+      monthlyRank: monthlyRankByResult.get(result),
       isBest: result === best,
+      isBestMonthly: result === bestMonthly,
+      isBestOnVelocity: result === bestOnVelocity,
+      // Negative or zero for the velocity winner; for everyone else, the
+      // cash-per-day this channel gives up against the fastest earner.
+      gapVsBestPerDay: bestOnVelocity === null || result.profitPerDay === null
+        ? null
+        : bestOnVelocity.profitPerDay - result.profitPerDay,
       shelfRank: shelfRankById.get(result),
       isShelfBest: result === shelfBest,
       // Cash per 30 days of shelf this channel gives up against the fastest
@@ -478,6 +555,7 @@ export function compareChannels(channels, shared = {}) {
       // Negative or zero for the winner; for everyone else, the cash this
       // channel gives up on the same item (sold, or expected after returns).
       gapVsBest: bestScore - score(result),
+      monthlyGapVsBest: bestMonthly.monthlyProfit - result.monthlyProfit,
       // What this channel would have to charge to match the winner. Null on
       // the winner itself, where the question is meaningless.
       priceToMatchBest: result === best
@@ -495,6 +573,19 @@ export function compareChannels(channels, shared = {}) {
       soldProfit: best.profit,
       expectedProfit: best.expectedProfit,
       margin: includeReturns ? best.expectedMargin : best.margin,
+    },
+    bestMonthly: {
+      id: bestMonthly.id,
+      label: bestMonthly.label,
+      monthlyProfit: bestMonthly.monthlyProfit,
+      expectedMonthlySales: bestMonthly.expectedMonthlySales,
+    },
+    bestOnVelocity: bestOnVelocity === null ? null : {
+      id: bestOnVelocity.id,
+      label: bestOnVelocity.label,
+      profitPerDay: bestOnVelocity.profitPerDay,
+      daysToSell: bestOnVelocity.daysToSell,
+      monthlyProfitAtVelocity: bestOnVelocity.monthlyProfitAtVelocity,
     },
     /**
      * The shelf-time verdict. `agrees` is the headline: when the channel that
@@ -516,7 +607,13 @@ export function compareChannels(channels, shared = {}) {
     },
     // How much the channel choice is worth on this one item if it sells
     // everywhere. `shelf.spread` is the same question once sell-through and
-    // time to sale are counted.
+    // time to sale are counted. `monthlySpread` is the same question once
+    // each channel's expected volume is counted.
     spread: bestScore - score(ranked[ranked.length - 1]),
+    monthlySpread: bestMonthly.monthlyProfit - monthlyRanked[monthlyRanked.length - 1].monthlyProfit,
+    volumesDiffer,
+    // The decision the fee-only ranking cannot make: a cheaper-per-sale
+    // channel loses the month when another one simply sells more units.
+    rankingsDiverge: best.id !== bestMonthly.id,
   };
 }

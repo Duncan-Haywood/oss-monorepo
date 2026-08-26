@@ -4,19 +4,26 @@ import { CHANNEL_PRESETS, compareChannels } from "./calc.mjs";
 import { decodeComparison, encodeComparison } from "./share.mjs";
 
 test("round-trips shared inputs and channel overrides", () => {
-  const shared = { price: "48", itemCost: "14", monthlyOrders: "100", includeSubscription: false, includeReturns: false };
+  const shared = {
+    price: "48", itemCost: "14", monthlyOrders: "100", daysToSell: "12",
+    includeSubscription: false, includeReturns: false,
+  };
   const channels = CHANNEL_PRESETS.map((channel) => ({
     ...channel,
     price: channel.id === "etsy" ? "62" : undefined,
+    expectedMonthlySales: channel.id === "ebay" ? "40" : undefined,
+    daysToSell: channel.id === "ebay" ? "9" : channel.daysToSell,
     returnRate: channel.id === "amazon" ? "22" : undefined,
   }));
   const restored = decodeComparison(encodeComparison(shared, channels));
-  assert.deepEqual(restored.shared, { price: 48, itemCost: 14, monthlyOrders: 100 });
+  assert.deepEqual(restored.shared, { price: 48, itemCost: 14, monthlyOrders: 100, daysToSell: 12 });
   assert.equal(restored.includeSubscription, false);
   assert.equal(restored.includeReturns, false);
   // Values arrive coerced to numbers: the form hands over strings, the link
   // carries them, and the recipient gets something the calculator can use.
   assert.equal(restored.channels.find((channel) => channel.id === "etsy").price, 62);
+  assert.equal(restored.channels.find((channel) => channel.id === "ebay").expectedMonthlySales, 40);
+  assert.equal(restored.channels.find((channel) => channel.id === "ebay").daysToSell, 9);
   assert.equal(restored.channels.find((channel) => channel.id === "amazon").returnRate, 22);
   assert.equal(restored.channels.find((channel) => channel.id === "other").enabled, false);
 });
@@ -35,6 +42,7 @@ test("a shared link reproduces the sender's comparison exactly", () => {
     ...channel,
     sellThroughPct: channel.id === "etsy" ? 25 : channel.sellThroughPct,
     daysToSell: channel.id === "etsy" ? 70 : channel.daysToSell,
+    expectedMonthlySales: channel.id === "ebay" ? 25 : undefined,
   }));
 
   const restored = decodeComparison(encodeComparison(shared, channels));
@@ -47,9 +55,12 @@ test("a shared link reproduces the sender's comparison exactly", () => {
   const received = compareChannels(rebuilt, { ...restored.shared, includeReturns: restored.includeReturns });
   assert.deepEqual(received.ranked, sent.ranked, "the ranking travelled");
   assert.deepEqual(received.shelf.ranked, sent.shelf.ranked, "the shelf-time ranking travelled");
+  assert.equal(received.bestMonthly.id, sent.bestMonthly.id, "the monthly-volume ranking travelled");
   for (const before of sent.results) {
     const after = received.results.find((result) => result.id === before.id);
     assert.equal(after.expectedProfit, before.expectedProfit, `${before.label} expected keep`);
+    assert.equal(after.expectedMonthlySales, before.expectedMonthlySales, `${before.label} monthly volume`);
+    assert.equal(after.profitPerDay, before.profitPerDay, `${before.label} profit per day`);
     assert.equal(
       after.velocity.valuePer30Days,
       before.velocity.valuePer30Days,

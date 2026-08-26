@@ -99,6 +99,8 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['break-even price', /result\.breakEvenPrice/],
     ['price needed to match the best channel', /result\.priceToMatchBest/],
     ['net profit per channel', /result\.profit/],
+    ['expected monthly profit', /result\.monthlyProfit/],
+    ['profit per day', /result\.profitPerDay/],
     ['expected profit after returns', /result\.expectedProfit/],
     ['listing value per month of shelf time', /result\.velocity\.valuePer30Days/],
     ['sell-through needed to match the fastest channel', /result\.sellThroughToMatchBest/],
@@ -197,6 +199,16 @@ test('figures that can be absent are rendered defensively', () => {
     rowTemplate[0],
     /result\.priceToMatchBest === null/,
     'priceToMatchBest is null on the best channel; render a placeholder instead of formatting null',
+  );
+  assert.match(
+    rowTemplate[0],
+    /result\.profitPerDay === null/,
+    'profitPerDay is null when no days-to-sell was given; render a placeholder instead of formatting null',
+  );
+  assert.match(
+    rowTemplate[0],
+    /result\.daysToSell === null/,
+    'daysToSell is null when no pace was given; render a placeholder instead of a blank cell',
   );
   // Null on the shelf leader, and also on any channel no sell-through can lift
   // to the leader's rate — a trailing row, not just the winning one.

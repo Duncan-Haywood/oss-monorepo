@@ -4094,7 +4094,7 @@ export function compareStoreTiers(input, tiers = STORE_TIER_PRESETS) {
 }
 
 export function storeTiersNote(comparison) {
-  if (!comparison || comparison.extraKeptOnStarter === undefined || !comparison.starter) {
+  if (!comparison || comparison.extraKeptOnStarter === undefined) {
     throw new Error('Store comparison is missing rows');
   }
   const money = (value) => {
@@ -4102,6 +4102,12 @@ export function storeTiersNote(comparison) {
     return `${sign}$${Math.abs(value).toFixed(2)}`;
   };
   const { winner, currentRate, extraKeptOnStarter, starter } = comparison;
+  // A seller already on Starter (or a matching fee+rate) drops that
+  // preset so the table is not two identical rows. The note then
+  // talks about the remaining mix instead of inventing a Starter gap.
+  if (!starter) {
+    return `Your current rate already matches an example store mix, so the table compares the remaining tiers at ${currentRate}%.`;
+  }
   const gap = money(Math.abs(extraKeptOnStarter));
   const ahead = extraKeptOnStarter >= 0 ? 'more' : 'less';
   const feeLine = `Starter at ${money(starter.monthlyFee)} / ${starter.finalValueRate}% keeps ${gap} ${ahead} than staying at ${currentRate}% with no subscription.`;

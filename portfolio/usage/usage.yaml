@@ -6,6 +6,34 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: chargeback-evidence-packet
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          New browser-local evidence packet builder for ecommerce dispute
+          responses. No public URL yet; local events are opt-out and remain in
+          the visitor's browser.
+  - slug: commercial-photo-license-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped browser-local commercial usage-rights quote worksheet; public distribution remains owner-gated.
+  - slug: appliance-repair-quote-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_quote_calculation_events: 0
+          local_summary_copies: 0
+        note: Shipped browser-local appliance repair quote calculator; public URL remains owner-gated.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
@@ -480,11 +508,12 @@ products:
         signals:
           live_url_visitors: null
           store_compared: 0
+          store_comparison_viewed: 0
         note: >-
           Added store subscription vs no-store rate after monthly
           volume (example Starter/Basic/Premium, break-even order
-          count). Still no public URL; local event store_compared is
-          opt-out and stores no inputs.
+          count). Still no public URL; local events store_compared
+          and store_comparison_viewed are opt-out and store no inputs.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
@@ -662,6 +691,20 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+          channel_volume_edited: 0
+        note: >-
+          Added expected days-to-sell and profit-per-day so a slower no-fee
+          channel can lose to a faster marketplace on cash velocity. Also
+          added per-channel expected monthly sales and a monthly-keep ranking
+          so a cheaper-per-sale channel can lose the month when another sells
+          more units. Public URL remains owner-gated; watch
+          channel_volume_edited against comparison_calculated once a URL
+          exists; the velocity signals stay comparison_calculated /
+          channel_rates_edited.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
@@ -709,6 +752,14 @@ products:
           fulfillment, storage, inbound, max buy cost, both-path comparison).
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added inbound-placement vs split-freight comparison
+          (compareInboundPlacement). Public URL remains owner-gated; the
+          local counter now also records inbound_placement_compared.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null

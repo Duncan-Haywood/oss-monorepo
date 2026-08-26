@@ -1776,6 +1776,49 @@ test('store note names the $2.43 gap and the 58-sale floor', () => {
   assert.throws(() => storeTiersNote({}), /missing rows/);
 });
 
+test('store break-even is monthly fee divided by final-value savings per order', () => {
+  // $46 revenue × 0.30% lower FVF = $0.138 saved per order. $7.95 / $0.138
+  // is the volume where a $7.95 Starter example starts to pay.
+  const orders = storeBreakEvenOrders({
+    revenue: 46, currentFinalValueRate: 13.25, storeFinalValueRate: 12.95, monthlyFee: 7.95,
+  });
+  near(orders, 7.95 / 0.138, 'starter break-even orders');
+});
+
+test('Basic example wins once volume covers its fee and still beats Starter', () => {
+  const r = compareStoreTiers({ ...STORE_BASE, monthlyStoreOrders: 120 });
+  near(r.starter.monthlyProfit - r.current.monthlyProfit, 120 * 0.138 - 7.95, 'starter at 120');
+  near(r.basic.monthlyProfit - r.current.monthlyProfit, 120 * 0.322 - 27.95, 'basic at 120');
+  near(r.premium.monthlyProfit - r.current.monthlyProfit, 120 * 0.644 - 74.95, 'premium at 120');
+  assert.equal(r.winner, 'basic');
+  assert.ok(r.basic.monthlyProfit > r.starter.monthlyProfit);
+  near(r.basic.breakEvenOrders, 27.95 / 0.322, 'basic break-even');
+});
+
+test('current monthly store fee is deducted from the stay-put row', () => {
+  const r = compareStoreTiers({ ...STORE_BASE, monthlyStoreFee: 27.95, finalValueRate: 12.55 });
+  const order = calculateOrder({ ...STORE_BASE, finalValueRate: 12.55 });
+  near(r.current.monthlyProfit, order.profit * 40 - 27.95, 'current includes the store already paid');
+  assert.ok(r.starter, 'starter row still compared');
+  assert.ok(r.starter.monthlyProfit !== r.current.monthlyProfit);
+});
+
+test('skips a preset that is identical to the seller\'s current setup', () => {
+  const r = compareStoreTiers({
+    ...STORE_BASE, finalValueRate: 12.95, monthlyStoreFee: 7.95,
+  });
+  assert.deepEqual(r.rows.map((row) => row.id), ['current', 'basic', 'premium']);
+  assert.equal(r.starter, undefined);
+});
+
+test('carries batch quantity into every store-tier order', () => {
+  const input = { ...STORE_BASE, quantity: 3 };
+  const r = compareStoreTiers(input, [{ id: 'starter', label: 'Starter (example)', monthlyFee: 7.95, finalValueRate: 12.95 }]);
+  const direct = calculateOrder({ ...input, finalValueRate: 12.95 });
+  near(r.starter.profit, direct.profit, 'batch order profit');
+  near(r.starter.revenue, 46 * 3, 'batch revenue');
+});
+
 const OFFER_BASE = {
   price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
   costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20,

@@ -1134,6 +1134,7 @@
       if (sellerEditedInputs && !storeTiersCounted) {
         storeTiersCounted = true;
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'store_compared');
+        recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'store_comparison_viewed');
       }
     }
     function renderBestOffer(input) {

@@ -234,6 +234,14 @@ test('counts a store comparison without storing a fee or order count', () => {
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'store_compared']);
 });
 
+test('counts the store_comparison_viewed alias without storing a fee or order count', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'store_comparison_viewed');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.store_comparison_viewed, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'store_comparison_viewed']);
+});
+
 test('counts a free-shipping comparison without storing a list or sell-through', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'free_shipping_compared');
