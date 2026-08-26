@@ -58,6 +58,9 @@ your collection rate, and whether holding the order beats shipping first.
 answers the dispute question: whether refunding before the pull still beats
 fighting or accepting after the chargeback fee, and the win rate that
 flips representment.
+[Should I offer local delivery on Shopify?](should-i-offer-local-delivery-on-shopify.html)
+answers the drop-off question: whether driver time and miles still beat a
+carrier label, and what you keep if you charge shipping and still deliver.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -93,6 +96,11 @@ representment win rate still loses to refunding after a $15 fee, and
 the win rate that would flip the table** — which used to mean fighting
 every dispute because winning sounded free.
 
+**After using the local-delivery page, you can now see whether a
+25-minute drop-off still beats a $5 label after driver time and miles**
+— which used to mean turning on Local Delivery because the postage
+looked like the only cost.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -126,7 +134,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback page tests
+node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery page tests
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
