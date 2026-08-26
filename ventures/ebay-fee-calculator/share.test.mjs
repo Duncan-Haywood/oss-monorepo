@@ -376,6 +376,26 @@ test('carries the extra international label cost', () => {
   assert.equal(restored.intlExtraShipping, 18.5);
 });
 
+test('carries package-protection fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    skipClaimRatePercent: 8,
+    insurancePremium: 2.25,
+    insuranceClaimRatePercent: 0.5,
+    insurancePayout: 20,
+    signatureFee: 4,
+    signatureClaimRatePercent: 0.3,
+    monthlyProtectionShipments: 25,
+  }));
+  assert.equal(restored.skipClaimRatePercent, 8);
+  assert.equal(restored.insurancePremium, 2.25);
+  assert.equal(restored.insuranceClaimRatePercent, 0.5);
+  assert.equal(restored.insurancePayout, 20);
+  assert.equal(restored.signatureFee, 4);
+  assert.equal(restored.signatureClaimRatePercent, 0.3);
+  assert.equal(restored.monthlyProtectionShipments, 25);
+});
+
 test('carries free-shipping fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,

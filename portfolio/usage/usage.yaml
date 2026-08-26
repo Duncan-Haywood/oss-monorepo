@@ -479,6 +479,15 @@ products:
           charged either way (extra-sale floor, CPC ceiling, click
           ceiling). Still no public URL; local event
           promoted_advanced_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          package_protection_compared: 0
+        note: >-
+          Added skip vs insurance vs signature after item-not-received
+          claims (replacement-value payout, skip-claim floor, premium
+          ceiling). Still no public URL; local event
+          package_protection_compared is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:

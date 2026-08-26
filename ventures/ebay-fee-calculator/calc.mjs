@@ -157,6 +157,16 @@ export const INPUT_FIELDS = [
   // international postage. Ignored by calculateOrder so the
   // headline stays a domestic order until they type an intl fee.
   'intlExtraShipping',
+  // Comparison-only: skip vs insurance vs signature on the
+  // same already-sold tracked shipment. Ignored by calculateOrder.
+  'skipClaimRatePercent',
+  'insurancePremium',
+  'insuranceClaimRatePercent',
+  'insurancePayout',
+  'signatureFee',
+  'signatureClaimRatePercent',
+  'protectionFeeRefundOnClaimPercent',
+  'monthlyProtectionShipments',
 ];
 
 export function calculateOrder(input) {
@@ -4616,4 +4626,328 @@ export function internationalNote(comparison) {
 
 export function internationalSummary(comparison) {
   return internationalNote(comparison);
+}
+
+/**
+ * Illustrative package-protection defaults. A $1.80 third-party
+ * premium and a $3.45 signature add-on are typical quotes on a
+ * $40–$50 parcel, not a live carrier table. The skip claim rate
+ * is the item-not-received / lost-in-transit share on an already
+ * tracked label — not the Standard Envelope claim rate, which
+ * is about untracked mail. Sellers overwrite every figure from
+ * their own Shipsurance / USPS / UPS quote and Seller Hub INR
+ * rate.
+ */
+export const DEFAULT_SKIP_CLAIM_RATE = 2.5;
+export const DEFAULT_INSURANCE_PREMIUM = 1.8;
+export const DEFAULT_INSURANCE_CLAIM_RATE = 0.6;
+export const DEFAULT_SIGNATURE_FEE = 3.45;
+export const DEFAULT_SIGNATURE_CLAIM_RATE = 0.4;
+export const DEFAULT_PROTECTION_FEE_REFUND_ON_CLAIM = 100;
+export const DEFAULT_MONTHLY_PROTECTION_SHIPMENTS = 40;
+
+function protectionRow({
+  id,
+  label,
+  extraCost,
+  claimRatePercent,
+  payout,
+  completedProfit,
+  soldExpectedProfit,
+  claimProfit,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    extraCost,
+    claimRatePercent,
+    payout,
+    completedProfit,
+    soldExpectedProfit,
+    claimProfit,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+function packageClaimProfit({
+  sold,
+  extraCost,
+  payout,
+  feeRefundOnClaim,
+  costOfGoods,
+  shippingCost,
+  packagingCost,
+  otherCost,
+}) {
+  const quantity = sold.quantity;
+  const unrefundedFees = sold.feeTotal * (1 - feeRefundOnClaim / 100);
+  const sunk = (costOfGoods + shippingCost + packagingCost + otherCost + extraCost) * quantity;
+  return -sunk - unrefundedFees + payout * quantity;
+}
+
+function packagePathExpected({
+  input,
+  extraCost,
+  claimRatePercent,
+  payout,
+  feeRefundOnClaim,
+}) {
+  const shippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const packagingCost = optionalNumber(input.packagingCost, 'Packaging cost', 0);
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const otherCost = optionalNumber(input.otherCost, 'Other cost', 0);
+  const sold = calculateOrder({
+    ...input,
+    otherCost: otherCost + extraCost,
+  });
+  const claimProfit = packageClaimProfit({
+    sold,
+    extraCost,
+    payout,
+    feeRefundOnClaim,
+    costOfGoods,
+    shippingCost,
+    packagingCost,
+    otherCost,
+  });
+  const claimFrac = claimRatePercent / 100;
+  const expectedProfit = (1 - claimFrac) * sold.expectedProfit + claimFrac * claimProfit;
+  return {
+    sold,
+    claimProfit,
+    expectedProfit,
+  };
+}
+
+/**
+ * Same already-sold tracked shipment, three ways to treat a
+ * lost-in-transit / item-not-received claim.
+ *
+ *   - Skip — pay nothing extra. The typed skip claim rate is
+ *     a full loss: buyer refunded, item gone, fees usually
+ *     come back. A return restocks the item; a claim does not.
+ *   - Insure — pay a typed premium on every label. Remaining
+ *     claims pay a typed payout that defaults to cost of goods
+ *     plus postage and pack (replacement value, not retail).
+ *   - Signature — pay a typed add-on on every label. Claims
+ *     drop; leftover claims are still a full loss. Signature
+ *     is deterrence, not reimbursement.
+ *
+ * Complementary to Standard Envelope (cheap untracked mail vs
+ * a tracked label) and Authenticity Guarantee (a hub inspects
+ * the item). Premium, signature fee, payout, and both claim
+ * rates are inputs, not carrier or eBay seller-protection
+ * policy.
+ */
+export function comparePackageProtection(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const skipClaimRate = requiredPercent(
+    input.skipClaimRatePercent,
+    'Skip claim rate',
+    DEFAULT_SKIP_CLAIM_RATE,
+  );
+  const insurancePremium = optionalNumber(
+    input.insurancePremium,
+    'Insurance premium',
+    DEFAULT_INSURANCE_PREMIUM,
+  );
+  const insuranceClaimRate = requiredPercent(
+    input.insuranceClaimRatePercent,
+    'Insurance claim rate',
+    DEFAULT_INSURANCE_CLAIM_RATE,
+  );
+  const costOfGoods = optionalNumber(input.costOfGoods, 'Cost of goods', 0);
+  const shippingCost = optionalNumber(input.shippingCost, 'Shipping cost', 0);
+  const packagingCost = optionalNumber(input.packagingCost, 'Packaging cost', 0);
+  const defaultPayout = costOfGoods + shippingCost + packagingCost;
+  const insurancePayout = optionalNumber(
+    input.insurancePayout,
+    'Insurance payout',
+    defaultPayout,
+  );
+  const signatureFee = optionalNumber(
+    input.signatureFee,
+    'Signature fee',
+    DEFAULT_SIGNATURE_FEE,
+  );
+  const signatureClaimRate = requiredPercent(
+    input.signatureClaimRatePercent,
+    'Signature claim rate',
+    DEFAULT_SIGNATURE_CLAIM_RATE,
+  );
+  const feeRefundOnClaim = requiredPercent(
+    input.protectionFeeRefundOnClaimPercent,
+    'Fee refund on protection claim',
+    DEFAULT_PROTECTION_FEE_REFUND_ON_CLAIM,
+  );
+  const monthlyShipments = optionalNumber(
+    input.monthlyProtectionShipments,
+    'Monthly protection shipments',
+    DEFAULT_MONTHLY_PROTECTION_SHIPMENTS,
+  );
+  if (monthlyShipments === 0) throw new Error('Monthly protection shipments must be greater than zero');
+
+  const skipPath = packagePathExpected({
+    input,
+    extraCost: 0,
+    claimRatePercent: skipClaimRate,
+    payout: 0,
+    feeRefundOnClaim,
+  });
+  const insurePath = packagePathExpected({
+    input,
+    extraCost: insurancePremium,
+    claimRatePercent: insuranceClaimRate,
+    payout: insurancePayout,
+    feeRefundOnClaim,
+  });
+  const signaturePath = packagePathExpected({
+    input,
+    extraCost: signatureFee,
+    claimRatePercent: signatureClaimRate,
+    payout: 0,
+    feeRefundOnClaim,
+  });
+
+  const skip = protectionRow({
+    id: 'skip',
+    label: 'Skip protection',
+    extraCost: 0,
+    claimRatePercent: skipClaimRate,
+    payout: 0,
+    completedProfit: skipPath.sold.profit,
+    soldExpectedProfit: skipPath.sold.expectedProfit,
+    claimProfit: skipPath.claimProfit,
+    expectedProfit: skipPath.expectedProfit,
+  });
+  const insure = protectionRow({
+    id: 'insure',
+    label: 'Buy shipping insurance',
+    extraCost: insurancePremium,
+    claimRatePercent: insuranceClaimRate,
+    payout: insurancePayout,
+    completedProfit: insurePath.sold.profit,
+    soldExpectedProfit: insurePath.sold.expectedProfit,
+    claimProfit: insurePath.claimProfit,
+    expectedProfit: insurePath.expectedProfit,
+  });
+  const signature = protectionRow({
+    id: 'signature',
+    label: 'Add signature confirmation',
+    extraCost: signatureFee,
+    claimRatePercent: signatureClaimRate,
+    payout: 0,
+    completedProfit: signaturePath.sold.profit,
+    soldExpectedProfit: signaturePath.sold.expectedProfit,
+    claimProfit: signaturePath.claimProfit,
+    expectedProfit: signaturePath.expectedProfit,
+  });
+  skip.expectedProfitDelta = 0;
+  insure.expectedProfitDelta = insure.expectedProfit - skip.expectedProfit;
+  signature.expectedProfitDelta = signature.expectedProfit - skip.expectedProfit;
+
+  const rows = [skip, insure, signature];
+  const bestExpected = Math.max(...rows.map((row) => row.expectedProfit));
+  const winners = rows.filter((row) => Math.abs(row.expectedProfit - bestExpected) <= 1e-9);
+  const winner = winners.length === 1 ? winners[0].id : 'tie';
+
+  const skipGap = skip.soldExpectedProfit - skip.claimProfit;
+  let breakEvenSkipClaimRate = Infinity;
+  if (skipGap > 1e-12) {
+    const rate = (skip.soldExpectedProfit - insure.expectedProfit) / skipGap * 100;
+    breakEvenSkipClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const skipAtPremium = (premium) => packagePathExpected({
+    input,
+    extraCost: premium,
+    claimRatePercent: insuranceClaimRate,
+    payout: insurancePayout,
+    feeRefundOnClaim,
+  }).expectedProfit;
+  const atZeroPremium = skipAtPremium(0);
+  const atTenPremium = skipAtPremium(10);
+  const premiumSlope = (atTenPremium - atZeroPremium) / 10;
+  let breakEvenInsurancePremium = Infinity;
+  if (Math.abs(premiumSlope) > 1e-12) {
+    const needed = (skip.expectedProfit - atZeroPremium) / premiumSlope;
+    breakEvenInsurancePremium = needed < -1e-9 ? Infinity : needed;
+  }
+
+  const signatureGap = signature.soldExpectedProfit - signature.claimProfit;
+  let breakEvenSignatureClaimRate = Infinity;
+  if (signatureGap > 1e-12) {
+    const rate = (signature.soldExpectedProfit - skip.expectedProfit) / signatureGap * 100;
+    breakEvenSignatureClaimRate = rate < -1e-9 || rate > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, rate));
+  }
+
+  const extraKeptOnInsure = insure.expectedProfit - skip.expectedProfit;
+  const extraKeptOnSignature = signature.expectedProfit - skip.expectedProfit;
+
+  const result = {
+    rows,
+    skip,
+    insure,
+    signature,
+    winner,
+    skipClaimRate,
+    insurancePremium,
+    insuranceClaimRate,
+    insurancePayout,
+    usedDefaultPayout: input.insurancePayout === undefined
+      || input.insurancePayout === null
+      || input.insurancePayout === '',
+    signatureFee,
+    signatureClaimRate,
+    feeRefundOnClaim,
+    monthlyShipments,
+    extraKeptOnInsure,
+    extraKeptOnSignature,
+    monthlyExtraOnInsure: extraKeptOnInsure * monthlyShipments,
+    monthlyExtraOnSignature: extraKeptOnSignature * monthlyShipments,
+    breakEvenSkipClaimRate,
+    breakEvenInsurancePremium,
+    breakEvenSignatureClaimRate,
+  };
+  result.summary = packageProtectionNote(result);
+  return result;
+}
+
+export function packageProtectionNote(comparison) {
+  if (!comparison?.skip || !comparison?.insure || !comparison?.signature) {
+    throw new Error('Package-protection comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { skip, insure, signature } = comparison;
+  const skipLine = `Skip protection at a ${skip.claimRatePercent}% item-not-received claim rate expects ${money(skip.expectedProfit)} after the typed return mix — a claim on that path leaves ${money(skip.claimProfit)}.`;
+  const insureGap = money(Math.abs(insure.expectedProfit - skip.expectedProfit));
+  const insureAhead = insure.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const insureLine = ` Buying ${money(insure.extraCost)} insurance that pays ${money(insure.payout)} at a ${insure.claimRatePercent}% leftover-claim rate expects ${money(insure.expectedProfit)} — ${insureGap} ${insureAhead}.`;
+  const sigGap = money(Math.abs(signature.expectedProfit - skip.expectedProfit));
+  const sigAhead = signature.expectedProfit >= skip.expectedProfit ? 'more' : 'less';
+  const sigLine = ` A ${money(signature.extraCost)} signature add-on at a ${signature.claimRatePercent}% claim rate expects ${money(signature.expectedProfit)} — ${sigGap} ${sigAhead}.`;
+  const claimFloor = Number.isFinite(comparison.breakEvenSkipClaimRate)
+    ? ` Skip claims have to reach about ${comparison.breakEvenSkipClaimRate.toFixed(1)}% before insurance matches skip.`
+    : ' No skip claim rate on these premiums can match insurance.';
+  const premiumCeil = Number.isFinite(comparison.breakEvenInsurancePremium)
+    ? ` Insurance has to stay at about ${money(comparison.breakEvenInsurancePremium)} before it matches skip.`
+    : '';
+  return `${skipLine}${insureLine}${sigLine}${claimFloor}${premiumCeil}`;
+}
+
+export function packageProtectionSummary(comparison) {
+  return packageProtectionNote(comparison);
 }

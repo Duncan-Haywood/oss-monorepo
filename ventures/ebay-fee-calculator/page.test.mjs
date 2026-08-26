@@ -472,7 +472,9 @@ test('the international-shipping table has one cell per column and a counted eve
   assert.match(page, /international_compared/);
   assert.match(page, /should-i-offer-international-shipping-on-ebay\.html/);
   assert.match(page, /"featureList":\s*"[^"]*domestic vs worldwide at this list/);
-  const headerBlock = page.slice(page.indexOf('id="internationalShippingTable"'));
+  const intlStart = page.indexOf('id="internationalShippingTable"');
+  const intlEnd = page.indexOf('id="packageProtection"', intlStart);
+  const headerBlock = page.slice(intlStart, intlEnd === -1 ? undefined : intlEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -481,5 +483,25 @@ test('the international-shipping table has one cell per column and a counted eve
     'If they keep it',
     'Expected leftover',
     'vs domestic',
+  ]);
+});
+
+test('the package-protection table has one cell per column and a counted event', () => {
+  assert.match(page, /comparePackageProtection/);
+  assert.match(page, /id="packageProtection"/);
+  assert.match(page, /id="packageProtectionVerdict"/);
+  assert.match(page, /package_protection_compared/);
+  assert.match(page, /should-i-add-shipping-insurance-on-ebay\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*skip vs insurance vs signature after item-not-received claims/);
+  const headerBlock = page.slice(page.indexOf('id="packageProtectionTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Extra cost',
+    'Claim rate',
+    'Payout',
+    'If they keep it',
+    'Expected after claims',
+    'vs skip',
   ]);
 });
