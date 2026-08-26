@@ -1,5 +1,5 @@
 name: einvoice-preflight
-description: A local JSON and UBL invoice checker — browser or CLI — that catches structural, arithmetic, mixed-rate tax-breakdown, invoice-period, VAT, IBAN, BIC, remittance, credit-note document-type, and 0% tax-reason defects before a bookkeeper submits an e-invoice.
+description: A local JSON and UBL invoice checker — browser or CLI — that catches structural, arithmetic, mixed-rate tax-breakdown, invoice-period, payment-means, VAT, IBAN, BIC, remittance, credit-note document-type, and 0% tax-reason defects before a bookkeeper submits an e-invoice.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -20,6 +20,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Catching an invoice period that ends before it starts prevents a network reject more often than a totals-only preflight.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a SEPA payment-means code without an IBAN prevents a network reject more often than an IBAN-only preflight.
     status: untested
     checked: null
     evidence: customer-contact

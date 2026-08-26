@@ -242,9 +242,12 @@ def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | flo
 
 
 def _payee_payment(root: ElementTree.Element) -> dict[str, str]:
-    """Map remittance, payee account, and nested branch BIC when present."""
+    """Map payment means code, remittance, payee account, and branch BIC."""
     for means in _children(root, "PaymentMeans"):
         payment: dict[str, str] = {}
+        code = _text(means, "PaymentMeansCode", required=False)
+        if code:
+            payment["means"] = code
         remittance = _payment_reference(means)
         if remittance:
             payment["remittance"] = remittance

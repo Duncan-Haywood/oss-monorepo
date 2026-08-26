@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>E-invoice Preflight | Check JSON or UBL before submission</title>
-  <meta name="description" content="Free local e-invoice preflight: drop a JSON or UBL XML invoice or credit note to catch missing fields, arithmetic mistakes, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
+  <meta name="description" content="Free local e-invoice preflight: drop a JSON or UBL XML invoice or credit note to catch missing fields, arithmetic mistakes, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <link rel="sitemap" type="application/xml" href="sitemap.xml">
@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-    "featureList": "JSON and UBL invoice and credit-note checks, arithmetic totals, invoice period start and end dates, mixed-rate tax breakdown, buyer and seller electronic addresses, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
+    "featureList": "JSON and UBL invoice and credit-note checks, arithmetic totals, invoice period start and end dates, payment means versus IBAN, mixed-rate tax breakdown, buyer and seller electronic addresses, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
   }
   </script>
   <script type="application/ld+json">
@@ -40,7 +40,7 @@
         "name": "How do I check an e-invoice before submission?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Drop a JSON or UBL XML invoice or credit note, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
+          "text": "Drop a JSON or UBL XML invoice or credit note, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
         }
       }
     ]
@@ -94,6 +94,7 @@
       per-rate breakdown, a 0% line without an exemption
       reason, a buyer electronic address that fails its GLN or EAS scheme,
       an invoice period that is incomplete or ends before it starts,
+      a SEPA payment means without an IBAN,
       and transposed VAT, IBAN, BIC, or
       RF values. After using this, you can now review a structured invoice in
       the browser in seconds, which used to mean running a CLI or waiting for a
@@ -118,6 +119,7 @@
         <button id="mixedSample" class="secondary" type="button">Load mixed rates without a breakdown</button>
         <button id="endpointSample" class="secondary" type="button">Load a buyer GLN that fails its check</button>
         <button id="periodSample" class="secondary" type="button">Load a period that ends before it starts</button>
+        <button id="meansSample" class="secondary" type="button">Load a SEPA transfer without an IBAN</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
@@ -148,10 +150,11 @@
       per-rate breakdown (INV-037 and INV-038), and optional buyer or
       seller electronic addresses (INV-039 through INV-041), and an
       optional invoice period that is incomplete or ends before it starts
-      (INV-042 and INV-043).
+      (INV-042 and INV-043), and optional payment means versus IBAN
+      (INV-044 through INV-046).
       UBL XML is mapped into that shape, including CreditNote,
       BillingReference, payee account, branch,
-      PaymentID, TaxExemptionReason, TaxSubtotal, EndpointID, and InvoicePeriod. It is <strong>not</strong>
+      PaymentID, PaymentMeansCode, TaxExemptionReason, TaxSubtotal, EndpointID, and InvoicePeriod. It is <strong>not</strong>
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
     </p>
     <p class="muted">
@@ -177,7 +180,7 @@
       currency: "EUR",
       supplier: { id: "DE123", name: "Supplier GmbH", vat_id: "DE136695976" },
       customer: { id: "DE456", name: "Customer GmbH" },
-      payment: { iban: "DE89370400440532013000", bic: "COBADEFFXXX", remittance: "RF18539007547034" },
+      payment: { means: "30", iban: "DE89370400440532013000", bic: "COBADEFFXXX", remittance: "RF18539007547034" },
       lines: [{ description: "Consulting", quantity: 2, unit_price: 100, tax_percent: 19, net: 200 }],
       totals: { net: 200, tax: 38, gross: 238, prepaid: 38, due: 200 },
     };
@@ -263,6 +266,13 @@
     document.getElementById("periodSample").addEventListener("click", () => {
       const broken = structuredClone(VALID_EXAMPLE);
       broken.period = { start: "2026-07-31", end: "2026-07-01" };
+      paste.value = JSON.stringify(broken, null, 2);
+      filesInput.value = "";
+      dropped = [];
+    });
+    document.getElementById("meansSample").addEventListener("click", () => {
+      const broken = structuredClone(VALID_EXAMPLE);
+      broken.payment = { means: "58" };
       paste.value = JSON.stringify(broken, null, 2);
       filesInput.value = "";
       dropped = [];

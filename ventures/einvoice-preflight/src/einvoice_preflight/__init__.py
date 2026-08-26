@@ -5,6 +5,7 @@ from .breakdown import inspect_tax_breakdown
 from .checks import check_invoice
 from .endpoint import inspect_party_endpoint, inspect_party_endpoints, looks_like_known_scheme, normalize_endpoint_id, normalize_scheme
 from .iban import inspect_payment_iban, looks_like_complete_iban, normalize_iban
+from .means import inspect_payment_means, looks_like_known_means, normalize_means
 from .period import inspect_invoice_period, parse_iso_date
 from .remittance import inspect_payment_remittance, looks_like_structured_rf, normalize_remittance
 from .tax import inspect_tax_exemption, looks_like_exemption_category, normalize_tax_category
@@ -18,7 +19,9 @@ __all__ = [
     "inspect_party_vat",
     "inspect_payment_bic",
     "inspect_payment_iban",
+    "inspect_payment_means",
     "inspect_payment_remittance",
+    "looks_like_known_means",
     "inspect_tax_breakdown",
     "inspect_tax_exemption",
     "looks_like_known_scheme",
@@ -30,6 +33,7 @@ __all__ = [
     "normalize_bic",
     "normalize_endpoint_id",
     "normalize_iban",
+    "normalize_means",
     "normalize_scheme",
     "parse_iso_date",
     "normalize_remittance",
