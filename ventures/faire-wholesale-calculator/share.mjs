@@ -32,6 +32,11 @@ export const FIELD_IDS = [
   "restockablePct",
   "keepDiscountPct",
   "denyKeepPct",
+  "payNowRate",
+  "payNowTakePct",
+  "extraPayNowOrders",
+  "netWaitDays",
+  "payNowWaitDays",
 ];
 
 export const RETAILER_FIELD_IDS = [
