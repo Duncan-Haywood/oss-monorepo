@@ -1,26 +1,48 @@
 # Vendor Change Evidence
 
-Capture a customer-selected SaaS terms, privacy, security, or subprocessor page and compare it with the previous snapshot. The local CLI produces a dated, source-linked diff for procurement and security review without claiming what the change means legally.
-
-## Use it
+If a vendor changes its privacy, terms, subprocessors, or security page, this
+local CLI gives procurement and security teams a dated, portable review record.
+It compares customer-supplied snapshots and never contacts a vendor or uploads
+content.
 
 ```bash
-python3 vendor_evidence.py capture --url https://vendor.example/privacy --store snapshots
-python3 vendor_evidence.py diff --store snapshots --url https://vendor.example/privacy --format markdown
+cd ventures/vendor-change-evidence
+python3 src/vendor_change.py examples/before.json examples/after.json --format markdown
+python3 src/vendor_change.py examples/before.json examples/after.json --format json --output review.json
+python3 -m unittest discover -s tests -v
 ```
 
-The first capture records a baseline. A later capture records the new source and `diff` reports added and removed lines. Use `--file` instead of `--url` for an offline fixture or a page exported by your own process.
+Use `fetch_status: "timeout"`, `"blocked"`, or another non-`ok` value when a
+fetch failed. The report is `inconclusive`, never falsely stable. The tool
+reports evidence only; it does not decide whether a contract, security posture,
+or compliance status changed.
 
-This is an evidence and drafting aid, not legal advice, a contract review, or a compliance determination. **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not legal, security, or compliance advice, and
+it does not replace a qualified professional. **You are responsible for
+reviewing and verifying its output before relying on it**, and for meeting any
+obligation it helps you prepare for. To the maximum extent permitted by law,
+the authors accept no liability for any loss or damage arising from its use.
 
-## Privacy and costs
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself.
 
-The CLI stores the selected URL, fetch timestamp, response status, content hash, and page text in the directory you choose. It makes no hosted service calls and has no accounts, cookies, paid APIs, or analytics vendor. Optional usage counting writes only aggregate event names to a local file and can be disabled by omitting `--usage-file`. Hosting and inference cost is zero in this local-first slice.
+## Privacy and usage
 
-## Scope boundary
+Everything runs locally. Snapshots and reports are never uploaded. There are
+no accounts, cookies, or analytics vendors. `--usage-log` is optional and
+writes only an event name and day to a local file; do not enable it if you do
+not want aggregate usage counting. Reports list change kinds only — they do
+not echo snapshot text.
 
-Only monitor public pages you are authorized to review. A changed page is not necessarily a changed contract or policy. Inspect the raw evidence and decide what action, if any, is appropriate. Failed fetches are recorded as inconclusive rather than treated as no change.
+This is a prototype for customer-authorized public pages. Preserve the source
+URL, capture time, and fetch result in each snapshot. Review raw source text
+before acting.
 
-## License
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
+does not change what the tool does.
 
-MIT. See [`LICENSE`](LICENSE).
+MIT licensed; see `LICENSE`.
