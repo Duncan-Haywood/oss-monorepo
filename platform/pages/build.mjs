@@ -65,7 +65,14 @@ const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
 const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', '__pycache__']);
-const isTestFile = (name) => /\.test\.(mjs|js|cjs|py)$/.test(name);
+// `foo.test.mjs` is the house convention, but it is a convention rather than a
+// rule, and two ventures did not follow it: `retainage-cashflow-calculator`
+// ships its suite as `test.mjs` and `freelance-retainer-calculator` as
+// `test_app.mjs`. Both were being copied to the public site, where a visitor
+// downloads none of it and a crawler can index the venture's internal
+// assertions. Cover the other spellings a test file is given.
+const isTestFile = (name) =>
+  /(^|\.)test\.(mjs|js|cjs|py)$/.test(name) || /^test_/.test(name) || /_test\.(mjs|js|cjs|py)$/.test(name);
 
 // Several ventures ship a browser tool *and* a CLI from the same directory
 // (einvoice-preflight is both a Python package and a static page). A visitor
@@ -483,6 +490,17 @@ ${items
     .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; font-size: .89rem; line-height: 1.5; color: var(--muted); }
     .card .meta { margin-top: 9px; font-size: .78rem; font-weight: 650; color: var(--accent); }
+    .yours { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
+             border: 1px solid var(--line); border-radius: 13px; }
+    .yours h2 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .yours p { color: var(--muted); margin: 0 0 12px; font-size: .87rem; line-height: 1.5; }
+    .yours ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .yours li { margin: 0; }
+    .yours li a { display: inline-block; border: 1px solid var(--line); border-radius: 999px;
+                  padding: 7px 14px; font-size: .88rem; font-weight: 600;
+                  color: var(--ink); text-decoration: none; background: var(--bg); }
+    .yours li a:hover, .yours li a:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .yours .times { display: block; font-size: .72rem; color: var(--muted); margin-top: 3px; padding-left: 4px; }
     .empty { display: none; color: var(--muted); font-style: italic; margin-top: 30px; }
     footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 24px;
              font-size: .87rem; line-height: 1.6; color: var(--muted); }
@@ -516,6 +534,18 @@ ${items
              autocomplete="off" spellcheck="false">
       <p class="count" id="count"></p>
     </div>
+
+    <!-- Filled in by script from counts held on this device; a visitor with no
+         history, no storage, or an opt-out never sees it. -->
+    <section class="yours" id="yours" hidden>
+      <h2>Pick up where you left off</h2>
+      <p>
+        The tools you have opened in this browser, most used first. This list is
+        built from a count kept on your own device — it is never uploaded, and
+        clearing your browser data clears it.
+      </p>
+      <ul id="yoursList"></ul>
+    </section>
 
 ${sections}
 
@@ -601,6 +631,74 @@ ${DISCLAIMER_HTML}
     for (const link of document.querySelectorAll('[data-tool]')) {
       link.addEventListener('click', () => record('tool_opened:' + link.dataset.tool));
     }
+
+    // Thirty-seven tools is a lot to search through when you came back for the
+    // one you used last week. Every tool page already records a tool_viewed
+    // count for its own slug on this device, so the hub can lead with the tools
+    // this browser actually uses without asking anyone to sign in and without a
+    // byte leaving the machine. Counting is what makes the shortcut possible,
+    // which is also the honest argument for the counting.
+    //
+    // tool_viewed and not tool_opened: a visit counts however the visitor
+    // arrived, and most of them arrive from a search result rather than here.
+    function yourTools(limit = 6) {
+      // No counts exist for someone who opted out or whose browser asked not to
+      // be counted, so there is nothing to show and nothing to decide.
+      if (optedOut() || honorsBrowserSignal()) return [];
+
+      let counts;
+      try { counts = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch { return []; }
+      if (!counts || typeof counts !== 'object') return [];
+
+      const used = [];
+      for (const [event, value] of Object.entries(counts)) {
+        const slug = /^tool_viewed:(.*)$/.exec(event)?.[1];
+        // Every tool on this site shares one origin, so any page on it can write
+        // to this key. Take a slug only in the shape the build produces, and
+        // build the link from that — never from the stored string as given.
+        if (!slug || !/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue;
+        if (!Number.isFinite(value) || value <= 0) continue;
+        used.push([slug, value]);
+      }
+
+      return used
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .slice(0, limit);
+    }
+
+    function showYourTools() {
+      const section = document.getElementById('yours');
+      const list = document.getElementById('yoursList');
+      const mine = yourTools();
+      list.replaceChildren();
+
+      for (const [slug, times] of mine) {
+        // Only offer a tool the hub is actually showing: a slug left behind by
+        // a tool that has since been renamed or withdrawn would 404.
+        const card = document.querySelector('[data-tool="' + slug + '"]');
+        if (!card) continue;
+
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = slug + '/';
+        link.textContent = card.querySelector('h3')?.textContent.trim() || slug;
+        link.addEventListener('click', () => record('tool_opened:' + slug));
+
+        const meta = document.createElement('span');
+        meta.className = 'times';
+        meta.textContent = times === 1 ? 'opened once' : 'opened ' + times + ' times';
+
+        item.append(link, meta);
+        list.append(item);
+      }
+
+      section.hidden = list.childElementCount === 0;
+    }
+
+    showYourTools();
+    // Turning counting off should take the shortcut away with it, in the same
+    // click rather than on the next visit.
+    optout.addEventListener('change', showYourTools);
   </script>
 </body>
 </html>

@@ -89,9 +89,16 @@ test('no test payload, CLI source, or repo bookkeeping is published', async () =
   const { outDir } = await site();
   const files = (await walk(outDir)).map((f) => path.relative(outDir, f));
 
+  // `foo.test.mjs` is the convention, not a rule. This check was written to
+  // match only that spelling, so `retainage-cashflow-calculator/test.mjs` and
+  // `freelance-retainer-calculator/test_app.mjs` shipped to the public site
+  // while the test that exists to catch exactly this stayed green. Match the
+  // other spellings too, so the next venture that invents one is caught.
   const leaked = files.filter(
     (f) =>
-      /\.test\.(mjs|js|py)$/.test(f) ||
+      /(^|[./])test\.(mjs|js|py)$/.test(f) ||
+      /(^|\/)test_/.test(f) ||
+      /_test\.(mjs|js|py)$/.test(f) ||
       f.endsWith('.py') ||
       f.endsWith('VENTURE.yaml') ||
       f.endsWith('README.md') ||
@@ -351,6 +358,18 @@ test('isPublishable keeps web assets and drops the rest', () => {
   assert.ok(isPublishable('index.html'));
   assert.ok(isPublishable('LICENSE'));
   assert.ok(!isPublishable('calc.test.mjs'));
+
+  // The spellings two ventures actually used, which the original rule missed.
+  assert.ok(!isPublishable('test.mjs'), 'retainage-cashflow-calculator names its suite this');
+  assert.ok(!isPublishable('test_app.mjs'), 'freelance-retainer-calculator names its suite this');
+  assert.ok(!isPublishable('calc_test.mjs'));
+  assert.ok(!isPublishable('test_calc.py'));
+
+  // ...without swallowing product code that merely contains the word.
+  assert.ok(isPublishable('latest.mjs'), 'a substring match would drop this');
+  assert.ok(isPublishable('protest.js'));
+  assert.ok(isPublishable('testimonials.html'));
+
   assert.ok(!isPublishable('checks.py'));
   assert.ok(!isPublishable('pyproject.toml'));
   assert.ok(!isPublishable('VENTURE.yaml'));
@@ -561,4 +580,46 @@ test('publishable JSON that a page actually needs is still copied', () => {
   assert.equal(isPublishable('package.json'), false);
   assert.equal(isPublishable('site.webmanifest'), true);
   assert.equal(isPublishable('rates.json'), true);
+});
+
+// ---------------------------------------------------------------------------
+// "Pick up where you left off"
+//
+// The hub leads a returning visitor with the tools their own browser has
+// opened. The behaviour itself is exercised in a browser (see the PR); these
+// pin the parts a Node test can hold: that it degrades to nothing without
+// script or storage, and that it never trusts what it reads back.
+// ---------------------------------------------------------------------------
+
+test('the personalised row is absent until script fills it', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<section class="yours" id="yours" hidden>/,
+    'a visitor with script off, no history, or no storage must not see an empty panel');
+  assert.match(hub, /<ul id="yoursList"><\/ul>/, 'the list ships empty — the catalogue is the fallback');
+});
+
+test('the personalised row is built from local counts and says so', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /never uploaded/i);
+  assert.match(hub, /clearing your browser data clears it/i);
+  // The copy a visitor reads, not the script comments that explain it.
+  const visible = hub.slice(0, hub.indexOf('<script type="module">'));
+  assert.ok(!/sign in|log in|create an account|your profile/i.test(visible), 'no account is involved');
+});
+
+test('a stored slug is validated before it reaches a selector or a link', async () => {
+  const hub = await read('index.html');
+  // Every tool shares one origin, so any page on the site can write this key.
+  assert.match(hub, /\/\^\[a-z0-9\]\[a-z0-9-\]\*\$\//,
+    'the slug shape check must survive; without it a stored value reaches querySelector and href');
+  assert.ok(!/innerHTML\s*=/.test(hub.slice(hub.indexOf('function yourTools'))),
+    'stored values are written as text, never as markup');
+});
+
+test('opting out is wired to remove the personalised row, not just stop counting', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function yourTools'));
+  assert.match(script, /optout\.addEventListener\('change', showYourTools\)/);
+  assert.match(script, /if \(optedOut\(\) \|\| honorsBrowserSignal\(\)\) return \[\]/,
+    'DNT/GPC and the opt-out must both suppress it');
 });
