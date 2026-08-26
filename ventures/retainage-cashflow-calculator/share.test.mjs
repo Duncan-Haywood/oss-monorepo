@@ -11,6 +11,8 @@ const sample = {
   percentComplete: 80,
   reductionAtPct: 50,
   reducedRetainagePct: 5,
+  partialOffer: 5000,
+  waitDays: 60,
   project: 'Main Street remodel',
   payer: 'Acme Construction',
   invoice: 'Pay application #4',
@@ -46,5 +48,7 @@ test('caps shared text so a pasted novel cannot bloat the URL', () => {
 
 test('exports the field lists the page persists and shares', () => {
   assert.ok(NUMBER_FIELD_IDS.includes('percentComplete'));
+  assert.ok(NUMBER_FIELD_IDS.includes('partialOffer'));
+  assert.ok(NUMBER_FIELD_IDS.includes('waitDays'));
   assert.ok(TEXT_FIELD_IDS.includes('project'));
 });

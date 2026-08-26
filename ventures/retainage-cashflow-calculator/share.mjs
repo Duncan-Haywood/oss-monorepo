@@ -11,6 +11,8 @@ export const NUMBER_FIELD_IDS = [
   'percentComplete',
   'reductionAtPct',
   'reducedRetainagePct',
+  'partialOffer',
+  'waitDays',
 ];
 
 export const TEXT_FIELD_IDS = ['project', 'payer', 'invoice', 'due'];
