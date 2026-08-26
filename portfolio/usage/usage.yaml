@@ -6,6 +6,15 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: appliance-repair-quote-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_quote_calculation_events: 0
+          local_summary_copies: 0
+        note: Shipped browser-local appliance repair quote calculator; public URL remains owner-gated.
   - slug: retainage-cashflow-calculator
     surface: static-page-in-repo
     readings:
@@ -663,6 +672,15 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added expected days-to-sell and profit-per-day so a slower no-fee
+          channel can lose to a faster marketplace on cash velocity. Public
+          URL remains owner-gated; the local-first counter is unchanged
+          (comparison_calculated / channel_rates_edited).
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
@@ -710,6 +728,14 @@ products:
           fulfillment, storage, inbound, max buy cost, both-path comparison).
           Public URL remains owner-gated; the local-first counter reports only
           to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added inbound-placement vs split-freight comparison
+          (compareInboundPlacement). Public URL remains owner-gated; the
+          local counter now also records inbound_placement_compared.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null

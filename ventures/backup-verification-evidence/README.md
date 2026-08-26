@@ -22,6 +22,10 @@ point it at backups you already have:
 
 ```bash
 PYTHONPATH=src python3 -m backup_evidence.cli verify /backups/*.tar.gz
+
+# Also require each artifact to have been modified within the last 26 hours:
+PYTHONPATH=src python3 -m backup_evidence.cli verify \
+  --max-age-hours 26 /backups/*.tar.gz
 ```
 
 ```
@@ -36,7 +40,9 @@ CORRUPT  /backups/2026-08-24.tar.gz  [tar.gz]
 on purpose, so an alerting rule can treat "broken" and "couldn't tell"
 differently: `0` every artifact intact, `1` at least one **provably corrupt**,
 `2` none corrupt but at least one could not be checked. `--format json` gives
-the same findings machine-readably.
+the same findings machine-readably. With `--max-age-hours`, a structurally
+intact but old artifact is reported as `stale` and exits `2`; a corrupt artifact
+still exits `1`.
 
 ## Did last night shrink?
 

@@ -172,6 +172,20 @@ function ratePercent(value, name, fallback = 0) {
   return result;
 }
 
+// Days-to-sell is optional for cash-per-day. Empty or zero means "I do not
+// know yet" and profit-per-day stays null rather than inventing a pace. A
+// negative value is a real mistake and is refused. Shelf-time still reads
+// the same field as a number (zero when unset) so a missing pace does not
+// invent sell-through either.
+function optionalPositive(value, name) {
+  if (value === undefined || value === null || value === "") return null;
+  const result = Number(value);
+  if (!Number.isFinite(result) || result < 0) {
+    throw new Error(`${name} must be a non-negative number`);
+  }
+  return result === 0 ? null : result;
+}
+
 /**
  * Net result for one channel, given the shared item facts.
  *
@@ -201,6 +215,10 @@ export function calculateChannel(channel, shared = {}) {
   const otherCost = number(shared.otherCost, "Other per-item cost", 0);
   const monthlyOrders = wholeNumber(shared.monthlyOrders, "Orders per month", 0);
   const includeSubscription = shared.includeSubscription !== false;
+  const daysToSellInput = channel.daysToSell !== undefined && channel.daysToSell !== ""
+    ? channel.daysToSell
+    : shared.daysToSell;
+  const daysToSell = optionalPositive(daysToSellInput, `${label} days to sell`);
 
   // A subscription is only a per-order cost once it is spread over the orders
   // it carries. Comparing a $39/month store against a per-sale marketplace
@@ -300,12 +318,12 @@ export function calculateChannel(channel, shared = {}) {
   const capitalCostPct = number(shared.capitalCostPct, "Annual cost of the cash tied up", 0);
   const unsoldRecoveryPct = ratePercent(shared.unsoldRecoveryPct, "Value kept if it does not sell", 100);
   const sellThroughPct = ratePercent(channel.sellThroughPct, `${label} sell-through rate`, 100);
-  const daysToSell = number(channel.daysToSell, `${label} days to sell`, 0);
+  const shelfDaysToSell = number(daysToSellInput, `${label} days to sell`, 0);
   const listingRenewalDays = number(channel.listingRenewalDays, `${label} listing renewal days`, 0);
 
   // A listing cannot sell after you have taken it down, so a channel whose
   // typical time to sale is past the horizon effectively sells on the last day.
-  const soldDays = Math.min(daysToSell, horizonDays);
+  const soldDays = Math.min(shelfDaysToSell, horizonDays);
   const listingCycles = (days) =>
     listingRenewalDays > 0 ? Math.max(1, Math.ceil(days / listingRenewalDays)) : 1;
   // Only the item cost is capital tied up while it waits — packaging, postage
@@ -331,7 +349,7 @@ export function calculateChannel(channel, shared = {}) {
 
   const velocity = {
     sellThroughPct,
-    daysToSell,
+    daysToSell: shelfDaysToSell,
     listingRenewalDays,
     horizonDays,
     soldDays,
@@ -397,6 +415,12 @@ export function calculateChannel(channel, shared = {}) {
     percentRate: percentRate * 100,
     fixedCash,
     breakEvenPrice: Math.max(0, fixedCash / (1 - percentRate) - shippingCharged),
+    daysToSell,
+    // Cash this sale leaves you per day it sits unsold. Null when the seller
+    // has not given a pace — inventing one would rank channels on a guess
+    // they never entered. 30-day month is a planning figure, not a calendar.
+    profitPerDay: daysToSell === null ? null : profit / daysToSell,
+    monthlyProfitAtVelocity: daysToSell === null ? null : profit * (30 / daysToSell),
     /**
      * Item price this channel needs, holding shipping charged constant, to
      * clear `targetProfit`. This is the number that turns a comparison into a
@@ -445,6 +469,12 @@ export function compareChannels(channels, shared = {}) {
   const includeReturns = shared.includeReturns !== false;
   const score = (result) => (includeReturns ? result.expectedProfit : result.profit);
   const best = results.reduce((winner, result) => (score(result) > score(winner) ? result : winner));
+  const withPace = results.filter((result) => result.profitPerDay !== null);
+  const bestOnVelocity = withPace.length === 0
+    ? null
+    : withPace.reduce((winner, result) => (
+      result.profitPerDay > winner.profitPerDay ? result : winner
+    ));
 
   const ranked = [...results].sort((a, b) => score(b) - score(a));
   const rankById = new Map(ranked.map((result, index) => [result, index + 1]));
@@ -467,6 +497,12 @@ export function compareChannels(channels, shared = {}) {
       ...result,
       rank: rankById.get(result),
       isBest: result === best,
+      isBestOnVelocity: result === bestOnVelocity,
+      // Negative or zero for the velocity winner; for everyone else, the
+      // cash-per-day this channel gives up against the fastest earner.
+      gapVsBestPerDay: bestOnVelocity === null || result.profitPerDay === null
+        ? null
+        : bestOnVelocity.profitPerDay - result.profitPerDay,
       shelfRank: shelfRankById.get(result),
       isShelfBest: result === shelfBest,
       // Cash per 30 days of shelf this channel gives up against the fastest
@@ -495,6 +531,13 @@ export function compareChannels(channels, shared = {}) {
       soldProfit: best.profit,
       expectedProfit: best.expectedProfit,
       margin: includeReturns ? best.expectedMargin : best.margin,
+    },
+    bestOnVelocity: bestOnVelocity === null ? null : {
+      id: bestOnVelocity.id,
+      label: bestOnVelocity.label,
+      profitPerDay: bestOnVelocity.profitPerDay,
+      daysToSell: bestOnVelocity.daysToSell,
+      monthlyProfitAtVelocity: bestOnVelocity.monthlyProfitAtVelocity,
     },
     /**
      * The shelf-time verdict. `agrees` is the headline: when the channel that
