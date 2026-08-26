@@ -5,7 +5,10 @@ import {
   calculateOrder,
   compareOnlineVsPos,
   compareShippingLabels,
+  compareShopPayInstallments,
   DEFAULT_OWN_LABEL_COST,
+  DEFAULT_INSTALLMENT_RATE,
+  DEFAULT_INSTALLMENT_FIXED,
   PLAN_PRESETS,
 } from "./calc.mjs";
 
@@ -344,4 +347,152 @@ test("summary names the cheaper own label and the monthly gap", () => {
   assert.match(text, /\$4\.25/);
   assert.match(text, /\$5\.49/);
   assert.match(text, /\$124\.00 \/ month/);
+});
+
+const INSTALLMENT_BASE = {
+  price: 88,
+  shippingCharged: 6,
+  shippingCost: 5,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 28,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  installmentRate: 5.99,
+  installmentFixed: 0.3,
+  installmentSharePct: 15,
+};
+
+test("an installment checkout costs the rate gap on the same ticket", () => {
+  // $88 + $6 = $94. Card 2.9%+$0.30 = $3.026. Installments 5.99%+$0.30 = $5.9306.
+  // Cash is the same ($28 + $5 + $1 + $39/100 = $34.39), so the profit gap
+  // is the extra fee.
+  const r = compareShopPayInstallments(INSTALLMENT_BASE);
+  near(r.card.revenue, 94, "card revenue");
+  near(r.installment.revenue, 94, "installment revenue");
+  near(r.card.feeTotal, 94 * 0.029 + 0.3, "card fees");
+  near(r.installment.feeTotal, 94 * 0.0599 + 0.3, "installment fees");
+  near(r.extraFeePerInstallment, 94 * (0.0599 - 0.029), "rate gap");
+  near(r.extraKeptOnCard, r.extraFeePerInstallment, "profit gap is the fee gap");
+  near(r.card.cashInvested, 28 + 5 + 1 + 0.39, "same cash");
+  near(r.installment.cashInvested, 28 + 5 + 1 + 0.39, "same cash on installments");
+  assert.equal(r.winner, "card");
+  assert.equal(r.cardWinner, "card");
+});
+
+test("a 15% installment share prices the blended month and the lift to break even", () => {
+  const r = compareShopPayInstallments(INSTALLMENT_BASE);
+  const extra = 94 * (0.0599 - 0.029);
+  near(r.monthlyExtraCost, extra * 0.15 * 100, "monthly extra at 15% of 100");
+  near(r.blendProfitPerOrder, 0.85 * r.card.profit + 0.15 * r.installment.profit, "blend");
+  near(r.cardOnlyMonthly, r.card.profit * 100, "card-only month");
+  near(r.blendedMonthly, r.blendProfitPerOrder * 100, "blended month");
+  const ratio = r.card.profit / r.blendProfitPerOrder;
+  near(r.breakEvenLiftPct, (ratio - 1) * 100, "lift percent");
+  near(r.breakEvenExtraOrders, 100 * (ratio - 1), "extra orders");
+  assert.ok(r.breakEvenLiftPct > 0, "installments should need some lift");
+  assert.ok(r.breakEvenLiftPct < 2, "15% of a 3-point rate gap should be a small lift");
+  assert.equal(r.liftPays, false);
+});
+
+test("typed extra orders cover the installment mix when they beat the lift", () => {
+  const short = compareShopPayInstallments({
+    ...INSTALLMENT_BASE,
+    extraOrdersFromInstallments: 0.2,
+  });
+  const enough = compareShopPayInstallments({
+    ...INSTALLMENT_BASE,
+    extraOrdersFromInstallments: 2,
+  });
+  assert.equal(short.liftPays, false);
+  assert.equal(enough.liftPays, true);
+  assert.ok(enough.blendedWithLiftMonthly > enough.cardOnlyMonthly);
+  assert.match(enough.summary, /2 extra orders you typed more than cover/);
+});
+
+test("empty installment rate uses the illustrative default", () => {
+  const r = compareShopPayInstallments({
+    price: 88,
+    shippingCharged: 6,
+    shippingCost: 5,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 28,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+  });
+  near(r.installmentRate, DEFAULT_INSTALLMENT_RATE, "default rate");
+  near(r.installmentFixed, DEFAULT_INSTALLMENT_FIXED, "default fixed");
+  near(r.installmentSharePct, 15, "default share");
+  near(r.extraFeePerInstallment, 94 * (DEFAULT_INSTALLMENT_RATE - 2.9) / 100, "default gap");
+});
+
+test("equal rates tie and need no conversion lift", () => {
+  const r = compareShopPayInstallments({
+    ...INSTALLMENT_BASE,
+    installmentRate: 2.9,
+    installmentFixed: 0.3,
+  });
+  assert.equal(r.winner, "tie");
+  near(r.extraFeePerInstallment, 0, "no extra fee");
+  near(r.breakEvenLiftPct, 0, "no lift");
+  near(r.breakEvenExtraOrders, 0, "no extra orders");
+  assert.match(r.summary, /leave the same profit/);
+});
+
+test("zero installment share needs no lift even when the rate is higher", () => {
+  const r = compareShopPayInstallments({ ...INSTALLMENT_BASE, installmentSharePct: 0 });
+  near(r.monthlyExtraCost, 0, "no mix");
+  near(r.breakEvenLiftPct, 0, "no lift at 0% share");
+  near(r.blendProfitPerOrder, r.card.profit, "blend is the card");
+});
+
+test("installments win if the typed installment rate is cheaper", () => {
+  const r = compareShopPayInstallments({ ...INSTALLMENT_BASE, installmentRate: 1.5 });
+  assert.equal(r.winner, "installments");
+  assert.ok(r.extraFeePerInstallment < 0);
+  assert.match(r.summary, /keeps/);
+});
+
+test("a losing blend cannot recover with more of the same mix", () => {
+  const r = compareShopPayInstallments({
+    ...INSTALLMENT_BASE,
+    price: 20,
+    shippingCharged: 0,
+    shippingCost: 8,
+    costOfGoods: 18,
+    packagingCost: 2,
+    monthlyPlan: 39,
+    monthlyOrders: 10,
+    installmentSharePct: 100,
+    installmentRate: 80,
+  });
+  assert.ok(r.blendProfitPerOrder < 0, "blend should lose money");
+  assert.equal(r.breakEvenLiftPct, null);
+  assert.equal(r.breakEvenExtraOrders, null);
+  assert.match(r.summary, /does not earn/);
+});
+
+test("compareShopPayInstallments rejects a share over 100 and a negative rate", () => {
+  assert.throws(
+    () => compareShopPayInstallments({ ...INSTALLMENT_BASE, installmentSharePct: 101 }),
+    /Installment share must be at most 100/,
+  );
+  assert.throws(
+    () => compareShopPayInstallments({ ...INSTALLMENT_BASE, installmentRate: -1 }),
+    /Shop Pay Installments rate/,
+  );
+  assert.throws(
+    () => compareShopPayInstallments({ ...INSTALLMENT_BASE, extraOrdersFromInstallments: -2 }),
+    /Extra monthly orders from installments/,
+  );
+});
+
+test("summary names the extra fee and the monthly gap", () => {
+  const text = compareShopPayInstallments(INSTALLMENT_BASE).summary;
+  assert.match(text, /\$2\.90/);
+  assert.match(text, /15%/);
+  assert.match(text, /\$43\.57 \/ month/);
 });

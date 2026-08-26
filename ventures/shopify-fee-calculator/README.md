@@ -40,6 +40,10 @@ card reader.
 answers the postage question: whether a Pirate Ship, Shippo, or carrier-account
 quote still beats the Shopify Shipping label after card fees, and what you
 keep if checkout charges Shopify’s rate while you buy the cheaper label.
+[Should I offer Shop Pay Installments?](should-i-offer-shop-pay-installments.html)
+answers the installment question: whether the extra Shop Pay Installments
+rate still pays after you blend the share of checkouts that use it, and how
+many extra orders cover the gap.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -49,6 +53,11 @@ comparing two rate cards and forgetting the postage line.
 your own label keeps more on the same order, including the leftover if you
 charge Shopify’s quote and buy cheaper postage** — which used to mean
 subtracting two label PDFs and forgetting that card fees sit on shipping charged.
+
+**After using the installment page, you can now see whether Shop Pay
+Installments still pay after the extra fee, including the conversion lift
+that covers a blended month** — which used to mean staring at a 5.99%
+sticker and turning the offer off.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it

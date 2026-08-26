@@ -388,3 +388,171 @@ export function compareShippingLabels(input) {
     }),
   };
 }
+
+/**
+ * Illustrative Shop Pay Installments (Affirm) rate when the merchant has
+ * not typed one. Edit it from the Shop Pay Installments line on a Shopify
+ * Payments payout — not a published Affirm or Shopify schedule.
+ */
+export const DEFAULT_INSTALLMENT_RATE = 5.99;
+export const DEFAULT_INSTALLMENT_FIXED = 0.3;
+
+function winnerFromInstallmentDelta(delta) {
+  if (delta > 1e-9) return "card";
+  if (delta < -1e-9) return "installments";
+  return "tie";
+}
+
+function installmentSummary({
+  extraFeePerInstallment,
+  extraKeptOnCard,
+  installmentSharePct,
+  monthlyExtraCost,
+  breakEvenLiftPct,
+  breakEvenExtraOrders,
+  extraOrdersFromInstallments,
+  liftPays,
+  winner,
+}) {
+  const extraFee = moneyLabel(extraFeePerInstallment);
+  const extraProfit = moneyLabel(extraKeptOnCard);
+  const month = moneyLabel(monthlyExtraCost);
+  if (winner === "tie") {
+    return `Shop Pay Installments and a regular Shopify Payments card leave the same profit on these rates.`;
+  }
+  if (winner === "installments") {
+    return `Shop Pay Installments keeps ${extraProfit} more per order than a regular card at these rates.`;
+  }
+  const liftLine =
+    breakEvenLiftPct == null
+      ? `The blended mix does not earn, so extra installment-driven orders cannot cover the extra fee.`
+      : breakEvenLiftPct === 0
+        ? `No extra conversion is needed at a ${installmentSharePct}% installment share.`
+        : `You need about ${breakEvenLiftPct.toFixed(2)}% more orders (${breakEvenExtraOrders.toFixed(1)} / month) for the mix to match turning installments off.`;
+  const typedLift =
+    extraOrdersFromInstallments > 0
+      ? liftPays
+        ? ` The ${extraOrdersFromInstallments} extra orders you typed more than cover that.`
+        : ` The ${extraOrdersFromInstallments} extra orders you typed do not cover that.`
+      : "";
+  return `An installment checkout costs ${extraFee} more in fees (${extraProfit} less profit) than a regular Shopify Payments card. At a ${installmentSharePct}% share that is ${month} / month if volume stays put. ${liftLine}${typedLift}`;
+}
+
+/**
+ * Same checkout ticket: regular Shopify Payments / Shop Pay card vs
+ * Shop Pay Installments, then a blended month at the typed installment
+ * share.
+ *
+ * Installments usually cost more per order (illustrative 5.99% + $0.30
+ * vs the card rate). The merchant question is whether the extra fee is
+ * covered by extra conversion. Rates are inputs. Empty installment rate
+ * uses DEFAULT_INSTALLMENT_RATE so the table is immediately useful.
+ *
+ * Always priced on the Shopify Payments path — Shop Pay Installments is
+ * not available on PayPal / Stripe checkout.
+ */
+export function compareShopPayInstallments(input) {
+  const installmentRate = emptyField(input.installmentRate)
+    ? DEFAULT_INSTALLMENT_RATE
+    : number(input.installmentRate, "Shop Pay Installments rate");
+  const installmentFixed = emptyField(input.installmentFixed)
+    ? DEFAULT_INSTALLMENT_FIXED
+    : number(input.installmentFixed, "Shop Pay Installments fixed fee");
+  const installmentSharePct = number(input.installmentSharePct, "Installment share", 15);
+  if (installmentSharePct > 100) throw new Error("Installment share must be at most 100%");
+  const extraOrdersFromInstallments = number(
+    input.extraOrdersFromInstallments,
+    "Extra monthly orders from installments",
+    0,
+  );
+  const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
+  const cardRate = number(input.paymentsRate, "Shopify Payments rate", 2.9);
+  const cardFixed = number(input.paymentsFixed, "Shopify Payments fixed fee", 0.3);
+
+  const share = installmentSharePct / 100;
+
+  const cardOrder = calculateOrder({ ...input, paymentMethod: "shopify_payments" });
+  const installmentOrder = calculateOrder({
+    ...input,
+    paymentMethod: "shopify_payments",
+    paymentsRate: installmentRate,
+    paymentsFixed: installmentFixed,
+  });
+
+  const card = {
+    id: "card",
+    label: "Shopify Payments / Shop Pay card",
+    rate: cardRate,
+    fixed: cardFixed,
+    revenue: cardOrder.revenue,
+    ...cardOrder.shopifyPayments,
+  };
+  const installment = {
+    id: "installments",
+    label: "Shop Pay Installments",
+    rate: installmentRate,
+    fixed: installmentFixed,
+    revenue: installmentOrder.revenue,
+    ...installmentOrder.shopifyPayments,
+  };
+
+  const extraFeePerInstallment = installment.feeTotal - card.feeTotal;
+  const extraKeptOnCard = card.profit - installment.profit;
+  const blendProfitPerOrder = (1 - share) * card.profit + share * installment.profit;
+  const blendFeePerOrder = (1 - share) * card.feeTotal + share * installment.feeTotal;
+  const monthlyExtraCost = extraKeptOnCard * share * monthlyOrders;
+  const cardOnlyMonthly = card.profit * monthlyOrders;
+  const blendedMonthly = blendProfitPerOrder * monthlyOrders;
+  const blendedWithLiftMonthly = blendProfitPerOrder * (monthlyOrders + extraOrdersFromInstallments);
+
+  let breakEvenLiftPct = null;
+  let breakEvenExtraOrders = null;
+  if (share === 0 || extraKeptOnCard <= 1e-9) {
+    breakEvenLiftPct = 0;
+    breakEvenExtraOrders = 0;
+  } else if (blendProfitPerOrder > 1e-9) {
+    const ratio = card.profit / blendProfitPerOrder;
+    breakEvenLiftPct = (ratio - 1) * 100;
+    breakEvenExtraOrders = monthlyOrders * (ratio - 1);
+  }
+
+  const liftPays = blendedWithLiftMonthly + 1e-9 >= cardOnlyMonthly;
+  const winner = winnerFromInstallmentDelta(extraKeptOnCard);
+
+  return {
+    rows: [
+      { ...card, profitDelta: 0 },
+      { ...installment, profitDelta: installment.profit - card.profit },
+    ],
+    card,
+    installment,
+    installmentRate,
+    installmentFixed,
+    installmentSharePct,
+    extraOrdersFromInstallments,
+    extraFeePerInstallment,
+    extraKeptOnCard,
+    blendProfitPerOrder,
+    blendFeePerOrder,
+    monthlyExtraCost,
+    cardOnlyMonthly,
+    blendedMonthly,
+    blendedWithLiftMonthly,
+    breakEvenLiftPct,
+    breakEvenExtraOrders,
+    liftPays,
+    winner,
+    cardWinner: winner,
+    summary: installmentSummary({
+      extraFeePerInstallment,
+      extraKeptOnCard,
+      installmentSharePct,
+      monthlyExtraCost,
+      breakEvenLiftPct,
+      breakEvenExtraOrders,
+      extraOrdersFromInstallments,
+      liftPays,
+      winner,
+    }),
+  };
+}
