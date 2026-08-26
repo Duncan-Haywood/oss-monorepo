@@ -252,6 +252,11 @@ products:
           live_url_visitors: null
           etsy_ads_compared: 0
         note: Added organic vs on-site Etsy Ads ACOS comparison; public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          production_partner_compared: 0
+        note: Added handmade vs production-partner overflow comparison; public URL remains owner-gated.
   - slug: shopify-a11y-evidence
     surface: static-page-in-repo
     readings:

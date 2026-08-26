@@ -1,5 +1,5 @@
 name: etsy-profit-calculator
-description: A private browser calculator for Etsy sellers to see order profit after marketplace, ad, shipping, and material costs, whether Plus credits cover the monthly fee, whether a personalization upcharge still pays after extra time, materials, and fees, and whether on-site Etsy Ads still leave a profit after ACOS.
+description: A private browser calculator for Etsy sellers to see order profit after marketplace, ad, shipping, and material costs, whether Plus credits cover the monthly fee, whether a personalization upcharge still pays, whether on-site Etsy Ads still leave a profit after ACOS, and whether a production-partner quote still pays after you run out of handmade hours.
 stage: prototype
 owner: duncan
 hypotheses:

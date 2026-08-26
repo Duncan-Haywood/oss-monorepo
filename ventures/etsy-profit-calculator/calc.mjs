@@ -452,3 +452,231 @@ export function etsyAdsNote(comparison) {
   }
   return `${perOrder}${ceiling}${incrementalLine}${monthlyLine}`;
 }
+
+// Illustrative production-partner extras. $8.00 is about 25 minutes at
+// $18/hour to make the piece yourself. $14.00 is a common all-in partner
+// quote that already buys materials. $1.00 covers QC or inbound to you.
+// 20 handmade units/month vs 40 you can sell is the capacity bind that
+// makes a worse per-unit leftover still win the month. These are inputs,
+// not a wage or Etsy schedule — the seller overwrites them from the quote
+// and the hours they actually have.
+export const PRODUCTION_PARTNER_DEFAULTS = {
+  yourTimeCost: 8,
+  partnerUnitCost: 14,
+  partnerHandlingCost: 1,
+  yourMonthlyCapacity: 20,
+  monthlyDemand: 40,
+  partnerRejectRatePercent: 0,
+};
+
+function rateAtMost100(value, name, fallback) {
+  const result = nonNegativeNumber(value, name, fallback);
+  if (result > 100) throw new Error(`${name} must be at most 100`);
+  return result;
+}
+
+function monthlyWinner(youMonthly, partnerMonthly, hybridMonthly, hybridYouUnits, hybridPartnerUnits) {
+  const best = Math.max(youMonthly, partnerMonthly, hybridMonthly);
+  const hits = [];
+  if (Math.abs(youMonthly - best) <= 1e-9) hits.push('you_make');
+  if (Math.abs(partnerMonthly - best) <= 1e-9) hits.push('partner');
+  // Hybrid is only its own path when both sides actually ship units.
+  // Otherwise it is you-make (no overflow) or partner (no handmade).
+  if (hybridYouUnits > 0 && hybridPartnerUnits > 0 && Math.abs(hybridMonthly - best) <= 1e-9) {
+    hits.push('hybrid');
+  }
+  if (hits.length !== 1) return 'tie';
+  return hits[0];
+}
+
+function perUnitWinner(youProfit, partnerProfit) {
+  if (youProfit - partnerProfit > 1e-9) return 'you_make';
+  if (partnerProfit - youProfit > 1e-9) return 'partner';
+  return 'tie';
+}
+
+// Same listing, two ways to fill it: you make the piece (materials + time)
+// vs a production partner's all-in unit quote (they buy materials). Fees
+// do not change because the ticket does not change. Rejected partner units
+// still cost you — the quote is spread across the sellable ones.
+//
+// Two frames, because sellers mix them up:
+//   - per unit: the partner quote vs your handmade leftover;
+//   - this month: you can only make so many, and leftover demand is $0
+//     unless someone else makes it.
+export function compareProductionPartner(input = {}) {
+  const yourTimeCost = nonNegativeNumber(
+    input.yourTimeCost,
+    'Your time cost',
+    PRODUCTION_PARTNER_DEFAULTS.yourTimeCost,
+  );
+  const partnerUnitCost = nonNegativeNumber(
+    input.partnerUnitCost,
+    'Partner unit cost',
+    PRODUCTION_PARTNER_DEFAULTS.partnerUnitCost,
+  );
+  const partnerHandlingCost = nonNegativeNumber(
+    input.partnerHandlingCost,
+    'Partner handling cost',
+    PRODUCTION_PARTNER_DEFAULTS.partnerHandlingCost,
+  );
+  const yourMonthlyCapacity = nonNegativeNumber(
+    input.yourMonthlyCapacity,
+    'Your monthly capacity',
+    PRODUCTION_PARTNER_DEFAULTS.yourMonthlyCapacity,
+  );
+  const monthlyDemand = nonNegativeNumber(
+    input.monthlyDemand,
+    'Monthly demand',
+    PRODUCTION_PARTNER_DEFAULTS.monthlyDemand,
+  );
+  const partnerRejectRatePercent = rateAtMost100(
+    input.partnerRejectRatePercent,
+    'Partner reject rate',
+    PRODUCTION_PARTNER_DEFAULTS.partnerRejectRatePercent,
+  );
+  if (partnerRejectRatePercent >= 100) {
+    throw new Error('Partner reject rate must be below 100');
+  }
+
+  const keepRate = 1 - partnerRejectRatePercent / 100;
+  const effectivePartnerCost = (partnerUnitCost + partnerHandlingCost) / keepRate;
+  const materialCost = nonNegativeNumber(input.materialCost, 'Material cost', 0);
+  const otherCost = nonNegativeNumber(input.otherCost, 'Other cost', 0);
+
+  const youMakeOrder = calculateOrder({
+    ...input,
+    otherCost: otherCost + yourTimeCost,
+  });
+  const partnerOrder = calculateOrder({
+    ...input,
+    materialCost: 0,
+    otherCost: otherCost + effectivePartnerCost,
+  });
+
+  const youMakeProfit = roundMoney(youMakeOrder.profit);
+  const partnerProfit = roundMoney(partnerOrder.profit);
+  const perUnitDelta = roundMoney(partnerProfit - youMakeProfit);
+  const youMakeFees = roundMoney(orderFeeTotal(youMakeOrder));
+  const partnerFees = roundMoney(orderFeeTotal(partnerOrder));
+
+  const youOnlyUnits = Math.min(yourMonthlyCapacity, monthlyDemand);
+  const partnerOnlyUnits = monthlyDemand;
+  const hybridYouUnits = youOnlyUnits;
+  const hybridPartnerUnits = Math.max(0, monthlyDemand - yourMonthlyCapacity);
+
+  const youOnlyMonthly = roundMoney(youOnlyUnits * youMakeProfit);
+  const partnerOnlyMonthly = roundMoney(partnerOnlyUnits * partnerProfit);
+  const hybridMonthly = roundMoney(
+    hybridYouUnits * youMakeProfit + hybridPartnerUnits * partnerProfit,
+  );
+
+  const breakEvenPartnerUnit = roundMoney((materialCost + yourTimeCost) * keepRate - partnerHandlingCost);
+
+  const transactionRate = nonNegativeNumber(input.transactionRate, 'Transaction rate', 6.5);
+  const paymentRate = nonNegativeNumber(input.paymentRate, 'Payment rate', 3);
+  const offsiteAdRate = nonNegativeNumber(input.offsiteAdRate, 'Offsite ad rate', 0);
+  const listingFee = nonNegativeNumber(input.listingFee, 'Listing fee', 0.2);
+  const paymentFixed = nonNegativeNumber(input.paymentFixed, 'Payment fixed fee', 0.25);
+  const shippingCharged = nonNegativeNumber(input.shippingCharged, 'Shipping charged', 0);
+  const shippingCost = nonNegativeNumber(input.shippingCost, 'Shipping cost', 0);
+  const percentRate = (transactionRate + paymentRate + offsiteAdRate) / 100;
+  const keepOfPrice = 1 - percentRate;
+  const matchYouMakePrice = keepOfPrice <= 1e-12
+    ? Infinity
+    : roundMoney(
+      (youMakeProfit
+        - shippingCharged * keepOfPrice
+        + listingFee
+        + paymentFixed
+        + shippingCost
+        + otherCost
+        + effectivePartnerCost) / keepOfPrice,
+    );
+
+  const youMake = {
+    id: 'you_make',
+    label: 'You make them',
+    units: youOnlyUnits,
+    cashOut: roundMoney(materialCost + yourTimeCost),
+    fees: youMakeFees,
+    profit: youMakeProfit,
+    monthly: youOnlyMonthly,
+  };
+  const partner = {
+    id: 'partner',
+    label: 'Partner makes them',
+    units: partnerOnlyUnits,
+    cashOut: roundMoney(effectivePartnerCost),
+    fees: partnerFees,
+    profit: partnerProfit,
+    monthly: partnerOnlyMonthly,
+  };
+  const hybrid = {
+    id: 'hybrid',
+    label: 'You make what you can, partner the rest',
+    units: monthlyDemand,
+    youUnits: hybridYouUnits,
+    partnerUnits: hybridPartnerUnits,
+    cashOut: roundMoney(
+      (hybridYouUnits * (materialCost + yourTimeCost)
+        + hybridPartnerUnits * effectivePartnerCost) / (monthlyDemand || 1),
+    ),
+    fees: youMakeFees,
+    profit: monthlyDemand === 0
+      ? 0
+      : roundMoney(hybridMonthly / monthlyDemand),
+    monthly: hybridMonthly,
+  };
+
+  return {
+    yourTimeCost: roundMoney(yourTimeCost),
+    partnerUnitCost: roundMoney(partnerUnitCost),
+    partnerHandlingCost: roundMoney(partnerHandlingCost),
+    yourMonthlyCapacity,
+    monthlyDemand,
+    partnerRejectRatePercent,
+    effectivePartnerCost: roundMoney(effectivePartnerCost),
+    youMake,
+    partner,
+    hybrid,
+    perUnitDelta,
+    monthlyDeltaVsYou: roundMoney(hybridMonthly - youOnlyMonthly),
+    breakEvenPartnerUnit,
+    matchYouMakePrice,
+    youMakePaysPerUnit: youMakeProfit - partnerProfit > 1e-9,
+    partnerPaysPerUnit: partnerProfit - youMakeProfit > 1e-9,
+    hybridPaysThisMonth: hybridMonthly - youOnlyMonthly > 1e-9,
+    perUnitWinner: perUnitWinner(youMakeProfit, partnerProfit),
+    monthlyWinner: monthlyWinner(
+      youOnlyMonthly,
+      partnerOnlyMonthly,
+      hybridMonthly,
+      hybridYouUnits,
+      hybridPartnerUnits,
+    ),
+  };
+}
+
+export function productionPartnerNote(comparison) {
+  if (!comparison?.youMake || !comparison?.partner || !comparison?.hybrid) {
+    throw new Error('Production-partner comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '−' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const perUnitGap = money(Math.abs(comparison.perUnitDelta));
+  const ahead = comparison.perUnitDelta >= 0 ? 'more' : 'less';
+  const perUnitLine = `Making it yourself keeps ${money(comparison.youMake.profit)} per order. The ${money(comparison.partnerUnitCost)} partner quote, after ${money(comparison.partnerHandlingCost)} handling${comparison.partnerRejectRatePercent > 0 ? ` and a ${comparison.partnerRejectRatePercent}% reject rate` : ''}, keeps ${money(comparison.partner.profit)} — ${perUnitGap} ${ahead} per sale.`;
+  const capacityLine = comparison.monthlyDemand > comparison.yourMonthlyCapacity
+    ? ` You can only make ${comparison.yourMonthlyCapacity} of the ${comparison.monthlyDemand} you can sell, so staying handmade leaves ${money(comparison.youMake.monthly)} this month. Sending every order to the partner leaves ${money(comparison.partner.monthly)}. Making what you can and sending the overflow keeps ${money(comparison.hybrid.monthly)}.`
+    : ` At ${comparison.monthlyDemand} sales against ${comparison.yourMonthlyCapacity} you can make, handmade leftover this month is ${money(comparison.youMake.monthly)} and the partner path is ${money(comparison.partner.monthly)}.`;
+  const ceiling = Number.isFinite(comparison.breakEvenPartnerUnit)
+    ? ` The partner quote has to fall to about ${money(comparison.breakEvenPartnerUnit)} before it matches your handmade leftover.`
+    : '';
+  const reprice = Number.isFinite(comparison.matchYouMakePrice)
+    ? ` Raising the listing to about ${money(comparison.matchYouMakePrice)} keeps the handmade leftover on the partner path.`
+    : ' No finite listing price can match your handmade leftover on the partner path at these fee rates.';
+  return `${perUnitLine}${capacityLine}${ceiling}${reprice}`;
+}

@@ -116,6 +116,27 @@ same 12% ACOS ceiling falls to about 45.64%. The SEO page
 [is-etsy-ads-worth-it.html](is-etsy-ads-worth-it.html) walks through the
 same examples.
 
+## Does this production partner still pay?
+
+A partner quote looks expensive per piece until you run out of hours.
+Handmade leftover is materials plus your time. The partner path is their
+all-in unit cost plus handling — they buy the materials. Fees stay the
+same because the ticket does not change. If you can only make some of
+the orders you can sell, overflow leftover is $0 unless someone else
+makes it.
+
+On the default $30 listing, $8.00 of your time, a $14.00 partner quote,
+and $1.00 handling, handmade keeps $13.23 and the partner keeps $10.23
+— $3.00 less per sale. You can only make 20 of the 40 you can sell, so
+staying handmade leaves $264.60 this month. Sending every order to the
+partner leaves $409.20. Making what you can and sending the overflow
+keeps $469.20. The quote has to fall to about $11.00 before it matches
+handmade leftover. A $10.00 quote keeps $14.23 per sale. A 10% reject
+rate on the $14.00 quote raises the effective cost to $16.67. The SEO
+page
+[should-i-use-an-etsy-production-partner.html](should-i-use-an-etsy-production-partner.html)
+walks through the same examples.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 

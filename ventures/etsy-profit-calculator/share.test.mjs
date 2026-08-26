@@ -63,4 +63,8 @@ test('every encodable field is a real calculator field', () => {
   assert.ok(FIELD_IDS.includes('monthlyCustomOrders'));
   assert.ok(FIELD_IDS.includes('etsyAdsAcosPct'));
   assert.ok(FIELD_IDS.includes('monthlyAdSpend'));
+  assert.ok(FIELD_IDS.includes('yourTimeCost'));
+  assert.ok(FIELD_IDS.includes('partnerUnitCost'));
+  assert.ok(FIELD_IDS.includes('yourMonthlyCapacity'));
+  assert.ok(FIELD_IDS.includes('monthlyDemand'));
 });
