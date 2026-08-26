@@ -125,7 +125,6 @@ products:
           qualified_pilots: 0
           github_annotation_comparisons: 0
         note: Shipped fixture-backed local comparison and CI warning output; customer demand remains untested.
-        note: Shipped fixture-backed local comparison; customer demand remains untested.
       - as_of: 2026-08-24
         signals:
           markdown_reports_rendered: 1
@@ -2086,6 +2085,8 @@ products:
           Added a static landing page so the CLI has a public entry once
           Pages is enabled. Public URL remains owner-gated; no repository
           data is collected.
+      - as_of: 2026-08-26
+        signals:
           local_observations_compared: 0
           local_inconclusive_observations: 0
           qualified_operators: 0
