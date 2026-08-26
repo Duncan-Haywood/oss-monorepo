@@ -30,6 +30,7 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /Load a SEPA transfer without an IBAN/);
   assert.match(page, /Load a PO that repeats the invoice number/);
   assert.match(page, /Load a header discount that does not match its percent/);
+  assert.match(page, /CII \(XRechnung \/ Factur-X\)/);
 });
 
 test("disclaimer and optional sponsors are visible", () => {

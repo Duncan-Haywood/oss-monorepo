@@ -22,6 +22,8 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+import { parseCiiInvoice } from "./cii.mjs";
+import { parseInvoiceSource } from "./report.mjs";
 import { parseUblInvoice, looksLikeXml } from "./ubl.mjs";
 import { checkInvoice } from "./checks.mjs";
 
@@ -137,16 +139,15 @@ test("a legal name in PartyLegalEntity is a name, not a read error", () => {
   assert.equal(invoice.supplier.id, "HRB 1234");
 });
 
-test("the CII example is detected as XML but is not readable by the browser tool", () => {
-  // A known, deliberate gap rather than a silent one. src/einvoice_preflight/
-  // has parse_cii_invoice, so the CLI reads examples/cii-invoice.xml; the
-  // browser bundle has no CII reader, so it reports a read error naming the
-  // roots it does support. This test states that limitation so it is visible
-  // in the suite, and will fail the day a CII reader lands -- at which point
-  // it should be replaced with the positive assertion.
-  assert.equal(looksLikeXml("cii-invoice.xml", example("cii-invoice.xml")), true);
-  assert.throws(
-    () => parseUblInvoice(example("cii-invoice.xml")),
-    /must be Invoice, CreditNote, or DebitNote/,
-  );
+test("the CII example is readable by the browser tool", () => {
+  // The CLI already read examples/cii-invoice.xml. The page next to that
+  // file used to throw "UBL document root must be Invoice, CreditNote, or
+  // DebitNote". parseInvoiceSource now routes CrossIndustryInvoice through
+  // the CII reader so a dropped XRechnung CII / Factur-X XML is checked.
+  const xml = example("cii-invoice.xml");
+  assert.equal(looksLikeXml("cii-invoice.xml", xml), true);
+  const invoice = parseCiiInvoice(xml);
+  assert.equal(invoice.invoice_number, "INV-2026-0043");
+  assert.deepEqual(checkInvoice(invoice), []);
+  assert.deepEqual(checkInvoice(parseInvoiceSource("cii-invoice.xml", xml)), []);
 });
