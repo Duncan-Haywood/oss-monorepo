@@ -9,17 +9,20 @@ reorders, how the first-order fee looks across the relationship.
 
 Open `index.html` in a browser. Independent retailers use `retailer.html` to
 see landed cost versus shelf price after an opening-order discount and the
-units that do not sell. `faire-direct-vs-marketplace.html` answers the search
-question in words.
+units that do not sell. `faire-direct-vs-marketplace.html` answers the Direct
+search question in words.
+`should-i-list-during-faire-open-house.html` compares an everyday first order
+to Open House at 0% commission after the deeper discount retailers expect.
 
 The calculation is local and works without an account, network request, or API
 key. It is arithmetic, not an estimate of the fees Faire will charge: enter the
 rates from your payout summary and verify them there.
 
 After using this, you can now **set a wholesale price that still works on a
-first marketplace order, and see whether expected reorders recover that
-opening-order fee**, which used to take reconciling Faire’s help articles
-against a spreadsheet.
+first marketplace order, see whether expected reorders recover that
+opening-order fee, and see whether a Faire Open House discount still leaves
+more than listing everyday**, which used to take reconciling Faire’s help
+articles against a spreadsheet.
 
 ## What it checks that a flat 15% page does not
 
@@ -74,11 +77,11 @@ the counter in the same way as the checkbox.
 
 ## Opportunity
 
-Faire brands search for “Faire seller fees”, “Faire commission calculator”, and
-“Faire Direct vs marketplace” because the first-order fee and payout-speed
-processing make a 15% headline incomplete. Independent retailers search for
-opening-order margin after shipping. Both jobs are deterministic arithmetic
-with no paid API.
+Faire brands search for “Faire seller fees”, “Faire commission calculator”,
+“Faire Direct vs marketplace”, and “Faire Open House worth it” because the
+first-order fee, a seasonal 0% window, and payout-speed processing make a 15%
+headline incomplete. Independent retailers search for opening-order margin
+after shipping. Those jobs are deterministic arithmetic with no paid API.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 never changes what the tool does.
 
