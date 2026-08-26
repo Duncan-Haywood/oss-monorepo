@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from branch_hygiene import has_unresolved_risk, load_pr_export, scan, snapshot_from_repo, write_outputs
+from branch_hygiene import has_unresolved_risk, load_pr_export, scan, snapshot_from_repo, write_csv, write_outputs
 
 class BranchHygieneTests(unittest.TestCase):
     def setUp(self):
@@ -31,6 +31,18 @@ class BranchHygieneTests(unittest.TestCase):
             self.assertTrue(manifest_data["approval_required"])
             self.assertEqual(manifest_data["format"], 2)
             self.assertIn("approval queue", report.read_text().lower())
+
+    def test_csv_is_review_queue_not_delete_script(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "queue.csv"
+            write_csv(scan(self.snapshot), path)
+            rows = path.read_text().splitlines()
+            # Same header as the `--format csv` stdout writer; the two exports
+            # are one table with two destinations, not two formats.
+            self.assertEqual(rows[0], "branch,tip,classification,review_action,reason,commit_count")
+            self.assertIn("review-delete-candidate", path.read_text())
+            self.assertNotIn("git delete", path.read_text())
+            self.assertEqual(len(rows), 5)
 
     def test_reused_branch_name_prefers_open_pr_over_stale_closed_record(self):
         snapshot = {
@@ -100,6 +112,27 @@ class BranchHygieneTests(unittest.TestCase):
         self.assertEqual(rows[0], "branch,tip,classification,review_action,reason,commit_count")
         self.assertTrue(any(row.startswith("feature/merged,m2,merged,review-delete-candidate,") for row in rows[1:]))
         self.assertNotIn("git branch", result.stdout)
+
+    def test_csv_file_and_stdout_are_the_same_table(self):
+        """`--csv PATH` and `--format csv` arrived as separate changes (#1250,
+        #1176) and drifted apart on column order, so a script written against
+        one mis-parsed the other. Pin them together."""
+        project = Path(__file__).parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "queue.csv"
+            result = subprocess.run(
+                [
+                    sys.executable, str(project / "src/branch_hygiene.py"),
+                    str(project / "examples/snapshot.json"),
+                    "--format", "csv", "--csv", str(path),
+                    "--report", str(Path(directory) / "report.txt"),
+                    "--manifest", str(Path(directory) / "manifest.json"),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            self.assertEqual(path.read_text(), result.stdout)
 
     def test_local_repository_snapshot_is_read_only_and_usable(self):
         with tempfile.TemporaryDirectory() as directory:

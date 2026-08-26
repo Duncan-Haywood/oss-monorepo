@@ -1920,6 +1920,15 @@ products:
           Shipped read-only branch inventory with text, JSON, and CSV approval
           queue output. Local verification used the bundled fixture; customer
           demand remains untested.
+      - as_of: 2026-08-24
+        signals:
+          local_scans: 1
+          approval_queue_exports: 1
+          qualified_pilots: 0
+        note: >-
+          Added a spreadsheet-friendly, non-executable approval queue export to
+          the read-only branch inventory CLI. Pilot demand and recurring use
+          remain untested; no customer repository data is collected.
 # Example of the shape, once a product has shipped:
 #
 # products:
