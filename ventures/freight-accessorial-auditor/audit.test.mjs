@@ -30,8 +30,26 @@ test("flags overages, duplicates, missing codes, and evidence", () => {
     expected: 170,
     flagged: 3,
     recoverable: 100,
+    unpriced: 0,
     actionable: 2,
   });
+});
+
+test("a line with no expected amount is not counted as a full recovery", () => {
+  // Bulk import makes this the common case: a carrier export carries line haul
+  // and fuel that no rate card prices. Treating their blank expected as $0.00
+  // would headline the whole billed amount as recoverable — "we do not know
+  // what this should cost" reported as "you were overbilled by $912.40".
+  const results = auditCharges([
+    { invoice: "INV-4471", reference: "PRO-77120", code: "LINEHAUL", billed: "912.40", expected: "" },
+    { invoice: "INV-4471", reference: "PRO-77120", code: "DET", billed: "300", expected: "75" },
+  ]);
+  assert.equal(results[0].priority, "fix-inputs");
+  const totals = auditTotals(results);
+  assert.equal(totals.billed, 1212.4);
+  assert.equal(totals.recoverable, 225);
+  assert.equal(totals.unpriced, 1);
+  assert.equal(totals.actionable, 1);
 });
 
 test("high priority starts at a $100 overage with missing or contradictory evidence", () => {
