@@ -530,6 +530,19 @@ products:
           floor/permit extras, copyable proposal summary).
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added contractor-supplied vs owner-supplied-it-fits vs
+          owner-supplied-wrong-drain on the same alcove, plus a
+          should-i-install-a-customer-supplied-walk-in-tub page. Default
+          cheap special: $995 install-only still loses about $2,011 when
+          you supply the soaker, keeps about $117 when they bought a
+          unit that fits (walk-away about $878), and loses about $362
+          when the drain does not line up (walk-away about $1,357).
+          Public URL remains owner-gated.
   - slug: stair-lift-bid-calculator
     surface: static-page-in-repo
     readings:

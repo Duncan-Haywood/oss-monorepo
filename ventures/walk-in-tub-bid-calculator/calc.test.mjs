@@ -4,12 +4,15 @@ import {
   calculateBid,
   compareScope,
   compareTub,
+  compareOwnerSupply,
+  ownerSupplyNote,
   formatBidSummary,
   travelHours,
   suggestedScopeKit,
   suggestedTubKit,
   suggestedDoorKit,
   suggestedExtraKit,
+  suggestedOwnerCallbackKit,
   JOB_PRESETS,
 } from './calc.mjs';
 
@@ -198,6 +201,98 @@ test('job presets cover the cheap special and the losing relocate', () => {
   assert.ok(JOB_PRESETS.some((job) => job.scope === 'alcove-swap' && job.tub === 'soaker-acrylic'));
   assert.ok(JOB_PRESETS.some((job) => job.scope === 'alcove-relocate' && job.tub === 'bariatric'));
   assert.ok(JOB_PRESETS.some((job) => job.tubCount === 2));
+});
+
+test('compareOwnerSupply zeros the tub invoice and keeps the set hours', () => {
+  const rows = compareOwnerSupply(special());
+  assert.equal(rows.length, 3);
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.ok(contractor);
+  assert.ok(fits);
+  assert.ok(wrong);
+  assert.equal(fits.cheapest, true);
+  assert.ok(fits.price < contractor.price);
+  assert.ok(fits.fixtureMaterial < contractor.fixtureMaterial);
+  assert.equal(fits.totalHours, contractor.totalHours);
+  assert.equal(fits.hoursSet, contractor.hoursSet);
+  assert.ok(wrong.totalHours > fits.totalHours);
+  assert.ok(wrong.price > fits.price);
+  assert.ok(wrong.doorMaterial > fits.doorMaterial);
+  assert.ok(wrong.hoursTravel > fits.hoursTravel);
+  assert.ok(wrong.hoursDoor > fits.hoursDoor);
+});
+
+test('compareOwnerSupply does not leak a typed invoice into the owner-supplied rows', () => {
+  const baseline = compareOwnerSupply(special()).find((row) => row.supply === 'owner-fits');
+  const overridden = compareOwnerSupply({
+    ...special(),
+    tubInvoice: 9999,
+  }).find((row) => row.supply === 'owner-fits');
+  assert.ok(baseline);
+  assert.ok(overridden);
+  assert.equal(overridden.fixtureMaterial, baseline.fixtureMaterial);
+  assert.ok(Math.abs(overridden.price - baseline.price) < 1e-9);
+});
+
+test('compareOwnerSupply scores a $995 install-only special against each cost base', () => {
+  const rows = compareOwnerSupply(special(), { installOnlyPrice: 995 });
+  const contractor = rows.find((row) => row.supply === 'contractor-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  assert.equal(contractor.installOnly.belowBreakEven, true);
+  assert.equal(fits.installOnly.belowBreakEven, false);
+  assert.equal(wrong.installOnly.belowBreakEven, true);
+  assert.ok(fits.breakEvenPrice < 995);
+  assert.ok(wrong.breakEvenPrice > 995);
+  const note = ownerSupplyNote(rows);
+  assert.match(note, /\$995\.00/);
+  assert.match(note, /covers the set if their tub actually fits/i);
+  assert.match(note, /wrong-drain callback still loses/i);
+});
+
+test('compareOwnerSupply scores a $795 install-only special as a loss even when they bought the tub', () => {
+  const rows = compareOwnerSupply(special(), { installOnlyPrice: 795 });
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  assert.equal(fits.installOnly.belowBreakEven, true);
+  assert.ok(fits.breakEvenPrice > 795);
+  const note = ownerSupplyNote(rows);
+  assert.match(note, /\$795\.00/);
+  assert.match(note, /lose money even when they bought the tub/i);
+  assert.match(note, /walk-away/i);
+});
+
+test('ownerSupplyNote names the bid drop when no install-only price is set', () => {
+  const note = ownerSupplyNote(compareOwnerSupply(special()));
+  assert.match(note, /Zeroing the tub invoice drops the bid/i);
+  assert.match(note, /wrong-drain callback/i);
+});
+
+test('ownerSupplyNote names the path that covers when only the owner-supplied set holds', () => {
+  const rows = compareOwnerSupply(special());
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const between = Math.round((fits.breakEvenPrice + rows.find((row) => row.supply === 'contractor-supplied').breakEvenPrice) / 2);
+  const scored = compareOwnerSupply(special(), { installOnlyPrice: between });
+  assert.match(ownerSupplyNote(scored), /covers the set if their tub actually fits/i);
+});
+
+test('ownerSupplyNote uses proposedPrice when installOnlyPrice is omitted', () => {
+  const rows = compareOwnerSupply({ ...special(), proposedPrice: 995 });
+  assert.equal(rows[0].installOnlyPrice, 995);
+  assert.match(ownerSupplyNote(rows), /\$995\.00/);
+});
+
+test('ownerSupplyNote rejects a short row list', () => {
+  assert.throws(() => ownerSupplyNote([]), /missing rows/);
+  assert.throws(() => ownerSupplyNote([{ supply: 'contractor-supplied' }]), /missing rows/);
+});
+
+test('suggestedOwnerCallbackKit is a second trip plus missing hardware', () => {
+  const kit = suggestedOwnerCallbackKit();
+  assert.equal(kit.hoursCallbackTrip, suggestedExtraKit().hoursTrip);
+  assert.ok(kit.hoursMissingHardwareEach > 0);
+  assert.ok(kit.missingHardwareEach > 0);
 });
 
 test('formatBidSummary is a customer-facing draft without wages', () => {
