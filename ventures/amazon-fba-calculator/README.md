@@ -19,7 +19,8 @@ coupon still hits your target after the redemption fee, whether
 Subscribe & Save still pays when only some units enroll, whether a
 website order shipped MCF still beats selling the unit on Amazon,
 whether a supplier MOQ still pays after the extra warehouse stay, and
-whether paying Amazon to prep inbound still beats you-prep** —
+whether paying Amazon to prep inbound still beats you-prep, and
+whether Individual or Professional still pays at your monthly volume** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
 
@@ -36,7 +37,8 @@ The decision sellers actually make is the fulfillment path:
 This tool keeps every assumption editable, fills illustrative US defaults from
 a category and storage-season picker, classifies a size tier from dimensions
 and weight, allocates the professional seller plan across expected monthly
-units, and shows **both paths on the same listing**.
+units, compares that plan to Individual’s per-item selling fee, and shows
+**both fulfillment paths on the same listing**.
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
@@ -77,6 +79,13 @@ prep fees replace that line.
 shows leftover profit, the monthly gap, and the Amazon fee that
 still matches you-prep.
 
+The selling plan is a further account decision on the same SKU:
+Individual charges per item sold; Professional is a flat month.
+[Individual vs Professional: when does the monthly plan pay?](individual-vs-professional.html)
+applies both to leftover profit and max buy. At the illustrative
+US defaults the subscription matches the per-item fee at about
+40.4 units a month.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -116,7 +125,8 @@ node --test        # runs calc.test.mjs, usage.test.mjs, and page.test.mjs
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
 category presets, coupon comparison, Subscribe & Save comparison,
 Multi-Channel Fulfillment comparison, usual-PO vs supplier-MOQ
-comparison, and you-prep vs Amazon inbound prep comparison;
+comparison, you-prep vs Amazon inbound prep comparison, and
+Individual vs Professional seller-plan comparison;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
