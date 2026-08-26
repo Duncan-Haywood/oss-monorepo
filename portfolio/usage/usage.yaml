@@ -1817,6 +1817,19 @@ products:
           schedule). Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
 
+  - slug: str-host-payout-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local Airbnb vs Vrbo vs direct host-payout calculator
+          (2026 host-only fee, payout restore, occupancy break-even).
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
+
 # Example of the shape, once a product has shipped:
 #
 # products:
@@ -1978,6 +1991,21 @@ products:
           live_url_visitors: null
           local_events_reported: 0
         note: Shipped browser-local vendor scenario comparison baseline; public URL remains owner-gated.
+
+  - slug: equipment-rental-break-even
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          export: 0
+          draft_save: 0
+        note: >-
+          Repair-and-merge of unique #1395 equipment-rental booking
+          calculator onto current main. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
 
   - slug: cash-runway-planner
     surface: static-page-in-repo

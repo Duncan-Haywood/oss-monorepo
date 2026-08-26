@@ -559,6 +559,36 @@ ventures:
       liability_containment: pass
       ethical_robustness: pass
 
+  - slug: equipment-rental-break-even
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 8
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The v0 is intentionally deterministic: rental operators need transparent
+      ownership recovery and utilization arithmetic, not generated advice.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local equipment-rental booking
+      calculator. It models booking-specific costs, asset recovery, target
+      contribution price, and break-even utilization without accounts, uploads,
+      integrations, or paid APIs. The niche has direct money value for
+      independent operators, clear calculator search intent, and a low-cost
+      static launch path; customer demand remains untested.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: outputs are labeled arithmetic scenarios rather than profit,
+      financial, tax, or engineering advice; users supply and verify their own
+      assumptions before quoting.
+
   - slug: world-clock-widget
     scores:
       ai_leverage: 1
@@ -2518,6 +2548,42 @@ ventures:
       Pass: the output is arithmetic on the operator's own inputs, never a
       recommended vendor, a contract opinion, or a tax determination.
       Nothing the user enters leaves the browser.
+  - slug: str-host-payout-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is the fee-base
+      model — Airbnb's host fee on the subtotal, Vrbo processing on the
+      guest payment, occupancy-keep on direct — and adding inference
+      would only make the payout less checkable.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local short-term rental host
+      payout calculator. Scored with the marketplace fee calculators on
+      gross margin and ops, one above them on defensibility (5): those
+      restate a published fee schedule, whereas the 2026 Airbnb host-only
+      migration plus Vrbo's split fee bases plus the occupancy-keep
+      break-even is the comparison generic "15% vs 8%" pages flatten.
+      Distribution 8: "Airbnb vs Vrbo host fees" and "Airbnb 15.5% host
+      fee" are high-intent queries after the 2026 cut.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the host's own inputs, never a
+      recommendation to list or delist. Starting rates are labelled 2026
+      ballparks rather than a quote from Airbnb or Vrbo. The retired
+      split-fee model cannot win the ranking. Nothing the user enters
+      leaves the browser.
+
 
   - slug: cash-runway-planner
     scores:

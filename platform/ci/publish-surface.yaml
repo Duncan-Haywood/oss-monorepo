@@ -321,6 +321,9 @@ workflows:
 - workflow: stair-lift-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: str-host-payout-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: substitute-supply-ci.yml
   classification: none
   publishes: []
