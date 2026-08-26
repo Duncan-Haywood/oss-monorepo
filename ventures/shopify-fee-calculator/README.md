@@ -36,10 +36,19 @@ search question directly.
 counter-vs-checkout question: whether a cheaper in-person tap still beats
 the same SKU sold online after postage markup, and how many taps recover a
 card reader.
+[Should I buy Shopify Shipping labels?](should-i-buy-shopify-shipping-labels.html)
+answers the postage question: whether a Pirate Ship, Shippo, or carrier-account
+quote still beats the Shopify Shipping label after card fees, and what you
+keep if checkout charges Shopify’s rate while you buy the cheaper label.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
 comparing two rate cards and forgetting the postage line.
+
+**After using the label page, you can now see whether Shopify Shipping or
+your own label keeps more on the same order, including the leftover if you
+charge Shopify’s quote and buy cheaper postage** — which used to mean
+subtracting two label PDFs and forgetting that card fees sit on shipping charged.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it

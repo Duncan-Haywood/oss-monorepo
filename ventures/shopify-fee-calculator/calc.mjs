@@ -239,3 +239,152 @@ export function compareOnlineVsPos(input) {
     ordersToRecoverHardware,
   };
 }
+
+function emptyField(value) {
+  return value === undefined || value === null || value === "";
+}
+
+function winnerFromLabelDelta(delta) {
+  if (delta > 1e-9) return "own";
+  if (delta < -1e-9) return "shopify";
+  return "tie";
+}
+
+function moneyLabel(value) {
+  const sign = value < 0 ? "-" : "";
+  return `${sign}$${Math.abs(value).toFixed(2)}`;
+}
+
+function pathFromOrder(id, label, order, labelCost, shippingCharged) {
+  return {
+    id,
+    label,
+    labelCost,
+    shippingCharged,
+    revenue: order.revenue,
+    ...order.selected,
+  };
+}
+
+/**
+ * Illustrative third-party / carrier-account label when the merchant
+ * has not typed one. Edit it from a Pirate Ship, Shippo, or UPS quote —
+ * not a published Shopify Shipping rate.
+ */
+export const DEFAULT_OWN_LABEL_COST = 4.25;
+
+function shippingLabelsSummary({
+  winner,
+  shopify,
+  own,
+  chargeShopifyBuyOwn,
+  shopifyLabelCost,
+  ownLabelCost,
+  monthlyExtraOnOwn,
+}) {
+  const shopifyFee = moneyLabel(shopifyLabelCost);
+  const ownFee = moneyLabel(ownLabelCost);
+  const ownProfit = moneyLabel(own.profit);
+  const shopifyProfit = moneyLabel(shopify.profit);
+  const pocket = moneyLabel(chargeShopifyBuyOwn.profit);
+  const month = moneyLabel(monthlyExtraOnOwn);
+  if (winner === "own") {
+    return `Buying the ${ownFee} own / third-party label keeps ${ownProfit} — ${moneyLabel(Math.abs(own.profit - shopify.profit))} more than the ${shopifyFee} Shopify Shipping label at ${shopifyProfit}. At this volume that gap is ${month} / month.`;
+  }
+  if (winner === "charge_shopify_buy_own") {
+    return `Charging the ${shopifyFee} Shopify quote and buying the ${ownFee} own label keeps ${pocket}, ahead of buying Shopify Shipping at ${shopifyProfit}. Card fees move with the shipping you charge, so this is not the raw label spread.`;
+  }
+  if (winner === "shopify") {
+    return `The ${shopifyFee} Shopify Shipping label keeps ${shopifyProfit}, ahead of the ${ownFee} own / third-party label at ${ownProfit}. Buy the Shopify quote on these rates.`;
+  }
+  return `Shopify Shipping and the own / third-party label leave the same profit on these rates.`;
+}
+
+/**
+ * Same checkout ticket, three ways to buy the label.
+ *
+ *   - Shopify Shipping — pay the Shopify quote, charge typed shipping
+ *   - Own / third-party label — Pirate Ship, Shippo, or a carrier account
+ *   - Charge the Shopify quote, buy the own label — the usual “leave
+ *     Shopify's rate in checkout, buy cheaper postage” move
+ *
+ * Card fees sit on item + shipping charged, so changing what you charge
+ * to ship is not a wash even when the label is cheaper. Rates are
+ * inputs. Empty Shopify label falls back to shipping you pay; empty own
+ * label uses DEFAULT_OWN_LABEL_COST so the table is immediately useful.
+ */
+export function compareShippingLabels(input) {
+  const typedShippingCharged = number(input.shippingCharged, "Shipping charged");
+  const shopifyLabelCost = emptyField(input.shopifyLabelCost)
+    ? number(input.shippingCost, "Shipping you pay")
+    : number(input.shopifyLabelCost, "Shopify Shipping label");
+  const ownLabelCost = emptyField(input.ownLabelCost)
+    ? DEFAULT_OWN_LABEL_COST
+    : number(input.ownLabelCost, "Own / third-party label");
+  const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
+
+  const shopifyOrder = calculateOrder({ ...input, shippingCost: shopifyLabelCost });
+  const ownOrder = calculateOrder({ ...input, shippingCost: ownLabelCost });
+  const chargeShopifyBuyOwnOrder = calculateOrder({
+    ...input,
+    shippingCharged: shopifyLabelCost,
+    shippingCost: ownLabelCost,
+  });
+
+  const shopify = pathFromOrder(
+    "shopify",
+    "Shopify Shipping label",
+    shopifyOrder,
+    shopifyLabelCost,
+    typedShippingCharged,
+  );
+  const own = pathFromOrder(
+    "own",
+    "Own / third-party label",
+    ownOrder,
+    ownLabelCost,
+    typedShippingCharged,
+  );
+  const chargeShopifyBuyOwn = pathFromOrder(
+    "charge_shopify_buy_own",
+    "Charge Shopify quote, buy own label",
+    chargeShopifyBuyOwnOrder,
+    ownLabelCost,
+    shopifyLabelCost,
+  );
+
+  const extraKeptOnOwn = own.profit - shopify.profit;
+  const extraKeptOnChargeShopifyBuyOwn = chargeShopifyBuyOwn.profit - shopify.profit;
+  const monthlyExtraOnOwn = extraKeptOnOwn * monthlyOrders;
+  const rows = [shopify, own, chargeShopifyBuyOwn].map((row) => ({
+    ...row,
+    profitDelta: row.profit - shopify.profit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.profit));
+  const leaders = rows.filter((row) => Math.abs(row.profit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  return {
+    rows,
+    shopify: rows[0],
+    own: rows[1],
+    chargeShopifyBuyOwn: rows[2],
+    shopifyLabelCost,
+    ownLabelCost,
+    extraKeptOnOwn,
+    extraKeptOnChargeShopifyBuyOwn,
+    monthlyExtraOnOwn,
+    pocketedSpread: shopifyLabelCost - ownLabelCost,
+    ownWinner: winnerFromLabelDelta(extraKeptOnOwn),
+    winner,
+    summary: shippingLabelsSummary({
+      winner,
+      shopify: rows[0],
+      own: rows[1],
+      chargeShopifyBuyOwn: rows[2],
+      shopifyLabelCost,
+      ownLabelCost,
+      monthlyExtraOnOwn,
+    }),
+  };
+}

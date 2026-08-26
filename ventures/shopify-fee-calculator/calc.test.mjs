@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { applyPlanPreset, calculateOrder, compareOnlineVsPos, PLAN_PRESETS } from "./calc.mjs";
+import {
+  applyPlanPreset,
+  calculateOrder,
+  compareOnlineVsPos,
+  compareShippingLabels,
+  DEFAULT_OWN_LABEL_COST,
+  PLAN_PRESETS,
+} from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
   assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
@@ -222,4 +229,119 @@ test("card-reader recovery uses pickup extra when pickup wins, else the rate gap
 test("compareOnlineVsPos rejects negative in-person rates", () => {
   assert.throws(() => compareOnlineVsPos({ ...POS_BASE, posPaymentsRate: -1 }), /In-person card rate/);
   assert.throws(() => compareOnlineVsPos({ ...POS_BASE, posHardwareCost: -5 }), /Card reader cost/);
+});
+
+const LABEL_BASE = {
+  price: 48,
+  shippingCharged: 6,
+  shippingCost: 5,
+  shopifyLabelCost: 5.49,
+  ownLabelCost: 4.25,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("a cheaper own label keeps the label spread when checkout shipping stays put", () => {
+  // Same $54 ticket, same 2.9%+$0.30 fees. Cash drops by $1.24 when the
+  // label falls from $5.49 to $4.25. Card fees do not move.
+  const r = compareShippingLabels(LABEL_BASE);
+  const shopifyCash = 14 + 5.49 + 1 + 0.39;
+  const ownCash = 14 + 4.25 + 1 + 0.39;
+  near(r.shopify.revenue, 54, "Shopify-label revenue");
+  near(r.own.revenue, 54, "own-label revenue");
+  near(r.shopify.labelCost, 5.49, "Shopify label");
+  near(r.own.labelCost, 4.25, "own label");
+  near(r.shopify.cashInvested, shopifyCash, "Shopify cash");
+  near(r.own.cashInvested, ownCash, "own cash");
+  near(r.extraKeptOnOwn, 1.24, "label spread");
+  near(r.pocketedSpread, 1.24, "raw label spread");
+  near(r.monthlyExtraOnOwn, 124, "monthly gap");
+  assert.equal(r.ownWinner, "own");
+  assert.equal(r.winner, "own");
+});
+
+test("charging the Shopify quote and buying own is not the raw label spread", () => {
+  // Revenue falls from $54 to $53.49, so Shopify Payments falls with it.
+  // Cash still uses the $4.25 label. The leftover vs buying Shopify
+  // Shipping is label savings minus lost postage markup plus the fee drop.
+  const r = compareShippingLabels(LABEL_BASE);
+  near(r.chargeShopifyBuyOwn.revenue, 48 + 5.49, "matched-quote revenue");
+  near(r.chargeShopifyBuyOwn.shippingCharged, 5.49, "charged Shopify quote");
+  near(r.chargeShopifyBuyOwn.labelCost, 4.25, "still buys own");
+  near(r.chargeShopifyBuyOwn.feeTotal, 53.49 * 0.029 + 0.3, "fees on lower ticket");
+  assert.ok(
+    r.extraKeptOnChargeShopifyBuyOwn < r.extraKeptOnOwn - 1e-9,
+    "matched quote should keep less than charging $6 and buying own",
+  );
+  assert.ok(r.extraKeptOnChargeShopifyBuyOwn > 0, "still beats buying Shopify Shipping");
+});
+
+test("Shopify Shipping wins when the own label is more expensive", () => {
+  const r = compareShippingLabels({ ...LABEL_BASE, ownLabelCost: 8 });
+  assert.equal(r.ownWinner, "shopify");
+  assert.equal(r.winner, "shopify");
+  near(r.extraKeptOnOwn, 5.49 - 8, "own costs more");
+  assert.match(r.summary, /Shopify Shipping label keeps/);
+});
+
+test("equal labels tie the buy-Shopify vs buy-own rows", () => {
+  const r = compareShippingLabels({
+    ...LABEL_BASE,
+    shopifyLabelCost: 5,
+    ownLabelCost: 5,
+    shippingCharged: 5,
+  });
+  assert.equal(r.ownWinner, "tie");
+  near(r.extraKeptOnOwn, 0, "no label spread");
+  near(r.chargeShopifyBuyOwn.profit, r.shopify.profit, "matched quote equals Shopify row");
+  assert.equal(r.winner, "tie");
+});
+
+test("empty Shopify label falls back to shipping you pay; empty own uses the default", () => {
+  const r = compareShippingLabels({
+    price: 48,
+    shippingCharged: 6,
+    shippingCost: 5.49,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 14,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+  });
+  near(r.shopifyLabelCost, 5.49, "fallback Shopify label");
+  near(r.ownLabelCost, DEFAULT_OWN_LABEL_COST, "default own label");
+  near(r.extraKeptOnOwn, 5.49 - DEFAULT_OWN_LABEL_COST, "spread vs default");
+});
+
+test("label comparison follows the selected PayPal path", () => {
+  const r = compareShippingLabels({
+    ...LABEL_BASE,
+    paymentMethod: "third_party",
+    shopifyTxnRate: 2,
+    processorRate: 3.49,
+    processorFixed: 0.49,
+  });
+  const revenue = 54;
+  const thirdPartyFees = revenue * 0.02 + revenue * 0.0349 + 0.49;
+  near(r.shopify.feeTotal, thirdPartyFees, "PayPal + Shopify txn fee");
+  near(r.own.feeTotal, thirdPartyFees, "same ticket, same fees");
+  near(r.extraKeptOnOwn, 1.24, "label spread still cash");
+});
+
+test("compareShippingLabels rejects a negative label quote", () => {
+  assert.throws(() => compareShippingLabels({ ...LABEL_BASE, shopifyLabelCost: -1 }), /Shopify Shipping label/);
+  assert.throws(() => compareShippingLabels({ ...LABEL_BASE, ownLabelCost: -0.01 }), /Own \/ third-party label/);
+});
+
+test("summary names the cheaper own label and the monthly gap", () => {
+  const text = compareShippingLabels(LABEL_BASE).summary;
+  assert.match(text, /\$4\.25/);
+  assert.match(text, /\$5\.49/);
+  assert.match(text, /\$124\.00 \/ month/);
 });
