@@ -4,7 +4,7 @@ import PrintFilePreflight from "@/components/PrintFilePreflight";
 
 const title = "Print file preflight for POD artists";
 const description =
-  "Check a JPEG or PNG print master for format, file size, pixel floor, implied DPI, crop, and web-export names before you order a paid proof. Artwork stays in your browser.";
+  "Check one JPEG or PNG print master, or compare up to five, for format, file size, pixel floor, implied DPI, crop, and web-export names before you order a paid proof. Artwork stays in your browser.";
 
 export const metadata: Metadata = {
   title,
@@ -40,7 +40,15 @@ const jsonLd = {
           name: "Does this upload my artwork?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "No. The file is read in your browser. Dimensions and findings never leave the page except as a JSON file you choose to download.",
+            text: "No. The files are read in your browser. Dimensions and findings never leave the page except as a JSON file you choose to download.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Can I compare two exports before I order a proof?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes. Select up to five JPEG or PNG files and pick a print size. The tool ranks implied DPI at that size and names a better master when one file clearly clears the floor.",
           },
         },
         {
@@ -81,8 +89,9 @@ export default function PrintFilePreflightPage() {
           <p className="mt-5 text-lg leading-8 text-stone-600">
             After using this, you can download a dated technical record of what
             your print master actually contains — format, pixels, implied DPI,
-            and obvious web-export names — instead of discovering those problems
-            on a paid proof.
+            and obvious web-export names — and see which of two exports is the
+            better master at a chosen size, instead of discovering those
+            problems on a paid proof.
           </p>
         </div>
         <PrintFilePreflight />
@@ -102,10 +111,10 @@ export default function PrintFilePreflightPage() {
             any loss or damage arising from its use.
           </p>
           <p>
-            Usage counting is anonymous events only (check completed, record
-            exported). No filename, image, IP, or identifying information is
-            sent. Honour Do Not Track / Global Privacy Control, or use the
-            on-page opt-out.
+            Usage counting is anonymous events only (check completed, files
+            compared, record exported). No filename, image, IP, or identifying
+            information is sent. Honour Do Not Track / Global Privacy Control,
+            or use the on-page opt-out.
           </p>
         </section>
       </main>
