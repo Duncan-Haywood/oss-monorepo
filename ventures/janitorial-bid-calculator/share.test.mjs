@@ -228,6 +228,21 @@ test('rows survive a save and reload', () => {
   assert.deepEqual(loadBid(storage, ROW_SPEC), { wage: '19', areas });
 });
 
+test('a typed Other-space name round-trips, including punctuation', () => {
+  const spec = {
+    ...ROW_SPEC,
+    rows: {
+      ...ROW_SPEC.rows,
+      fields: [
+        ...ROW_SPEC.rows.fields,
+        { key: 'name', kind: 'text' },
+      ],
+    },
+  };
+  const areas = [{ type: 'other', squareFeet: '200', rate: '1500', name: 'Hall: west, "east"' }];
+  assert.deepEqual(decodeBid(spec, encodeBid(spec, { areas })).areas, areas);
+});
+
 test('a spec with no rows is unaffected by any of this', () => {
   assert.equal(encodeBid(SPEC, { area: '48', areas: [{ type: 'office' }] }).includes('areas'), false);
   assert.equal(decodeBid(SPEC, 'area=48&areas=office:1:2').areas, undefined);

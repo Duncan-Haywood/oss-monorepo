@@ -43,6 +43,7 @@ test("records named feature events without storing inputs", () => {
   recordUsage(storage, false, "subscriptions_compared");
   recordUsage(storage, false, "pickup_compared");
   recordUsage(storage, false, "upsell_compared");
+  recordUsage(storage, false, "refund_rate_compared");
   const stored = JSON.parse(storage.getItem("shopify-fee-usage"));
   assert.equal(stored.payment_path_compared, 1);
   assert.equal(stored.pos_online_compared, 1);
@@ -59,6 +60,7 @@ test("records named feature events without storing inputs", () => {
   assert.equal(stored.subscriptions_compared, 1);
   assert.equal(stored.pickup_compared, 1);
   assert.equal(stored.upsell_compared, 1);
+  assert.equal(stored.refund_rate_compared, 1);
   assert.ok(stored.last_day);
 });
 

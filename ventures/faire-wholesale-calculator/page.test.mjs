@@ -31,6 +31,7 @@ const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 const openHousePage = readFileSync(new URL("./should-i-list-during-faire-open-house.html", import.meta.url), "utf8");
 const promotedPage = readFileSync(new URL("./should-i-run-faire-promoted-listings.html", import.meta.url), "utf8");
 const returnPage = readFileSync(new URL("./should-i-take-this-faire-return.html", import.meta.url), "utf8");
+const payNowPage = readFileSync(new URL("./should-i-offer-faire-pay-now.html", import.meta.url), "utf8");
 const brandParsed = parse(brand);
 const retailerParsed = parse(retailer);
 const rowTemplate = brandParsed.scripts.join("\n").match(/row\.innerHTML = `<td>\$\{result\.label\}[\s\S]*?`;/);
@@ -74,6 +75,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
     ["Open House", /compareOpenHouse|openHouseNote/],
     ["Promoted Listings leftover after last-click organic", /compareFairePromoted|promotedNote/],
     ["keep-it credit vs deny vs taking a Faire return", /compareFaireReturn|faireReturnNote/],
+    ["Pay Now leftover after Faire remittance wait", /compareFairePayNow|payNowNote/],
   ];
   for (const [claim, rendered] of claims) {
     assert.ok(
@@ -85,7 +87,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
 });
 
 test("brand and retailer pages show the disclaimer a user can actually read", () => {
-  for (const html of [brand, retailer, explainer, floatSeo, openHousePage, promotedPage, returnPage]) {
+  for (const html of [brand, retailer, explainer, floatSeo, openHousePage, promotedPage, returnPage, payNowPage]) {
     assert.match(html, /No warranty/);
     assert.match(html, /not tax, financial, or business advice/i);
     assert.match(html, /Not affiliated with Faire|Not affiliated with Faire Wholesale/i);
@@ -170,6 +172,16 @@ test("return table columns match the return-row template", () => {
     .filter((text) => ["Choice", "Leftover", "vs keep-it"].includes(text));
   const cells = (returnTemplate[0].match(/<td[\s>]/g) || []).length;
   assert.equal(cells, headers.length, `return table declares ${headers.length} columns but the row emits ${cells} cells`);
+});
+
+test("Pay Now table columns match the remittance-row template", () => {
+  const payNowTemplate = brandParsed.scripts.join("\n").match(/row\.innerHTML = `<td>\$\{result\.label\}<\/td><td>\$\{result\.payNowRate[\s\S]*?`;/);
+  assert.ok(payNowTemplate, "could not find the Pay Now <tr> innerHTML template");
+  const headers = [...brandParsed.markup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)]
+    .map((m) => m[1].replace(/\s+/g, " ").trim())
+    .filter((text) => ["Pay Now path", "Pay Now %", "Remit days", "Pay Now leftover", "vs Net terms"].includes(text));
+  const cells = (payNowTemplate[0].match(/<td[\s>]/g) || []).length;
+  assert.equal(cells, headers.length, `Pay Now table declares ${headers.length} columns but the row emits ${cells} cells`);
 });
 
 test("Open House table columns match the window-row template", () => {

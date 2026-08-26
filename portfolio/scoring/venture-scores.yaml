@@ -2453,3 +2453,35 @@ ventures:
       The shipped hours and material rates are labelled ballpark starting
       points rather than a standard or benchmark, and nothing the user
       enters leaves the browser.
+  - slug: vendor-rate-break-even
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      current fixed and per-job cost versus vendor alternatives at expected
+      volume — that is arithmetic, and adding inference to it would only
+      make the result less checkable.
+    basis: >-
+      Graduated as a browser-local vendor / supplier / equipment-lease
+      break-even calculator. Distinct from marketplace fee tools (a sale
+      already happened) and from trade bid calculators (a job to price):
+      it compares a current cost structure to up to three vendor rate cards
+      at the operator's actual monthly job volume. Distribution 7:
+      "supplier discount break even" and "equipment lease cost per job"
+      are searchable by an owner-operator looking at a real rate card.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own inputs, never a
+      recommended vendor, a contract opinion, or a tax determination.
+      Nothing the user enters leaves the browser.

@@ -38,6 +38,9 @@ who price off the raw wage are short before they start.
 
 1. **Per-space labor.** Each row is a space type with its own cleanable square
    footage, production rate (sq ft per cleaner-hour), and cleanings per week.
+   Unlisted spaces (gym, server room, loading dock) use **Other space** and a
+   name the contractor types, so the labor split and the copied bid say what
+   is actually being cleaned instead of `Area 2`.
    Hours per visit = square feet ÷ production rate. Monthly hours multiply that
    by the weekly frequency and by 52/12 weeks — not 4, which understates the
    month by about 8%, more than the margin on a typical contract.
@@ -109,10 +112,11 @@ automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `area_added`, `area_removed`,
-`proposed_price_compared`, `summary_copied`, `frequency_reduction_compared`,
-`frequency_note_copied`, `supply_responsibility_compared`,
-`supply_note_copied`, `initial_clean_compared`,
-`initial_clean_offer_compared`, `initial_clean_note_copied`.
+`proposed_price_compared`, `summary_copied`, `space_named`,
+`frequency_reduction_compared`, `frequency_note_copied`,
+`supply_responsibility_compared`, `supply_note_copied`,
+`initial_clean_compared`, `initial_clean_offer_compared`,
+`initial_clean_note_copied`.
 
 ## Limitations
 
@@ -120,7 +124,7 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
 - Periodic service plus a one-time takeover / initial clean. Recurring
   project work (strip and wax, carpet extraction, post-construction) is
   still not priced as its own cycle.
-- "Other space" rows are labelled `Area N` rather than a custom name.
+- "Other space" rows can be named; an empty name still falls back to `Area N`.
 - Day porter or fixed-headcount contracts are not modelled; this prices from
   production rates, not from a scheduled shift.
 
