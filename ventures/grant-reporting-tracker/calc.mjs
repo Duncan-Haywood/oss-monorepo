@@ -36,3 +36,18 @@ export function toCsv(rows) {
   const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
   return [fields.join(','), ...rows.map((row) => fields.map((field) => quote(row[field])).join(','))].join('\n');
 }
+
+// Saved awards come back from localStorage, which is user-writable and can be
+// left damaged by an interrupted write or an older version of this page. A
+// single null or string row used to reach reviewGrant and throw on
+// `grant.awardDate`, blanking the whole queue — so drop anything that is not an
+// object rather than trusting the parsed shape.
+export function loadGrants(value) {
+  if (!value) return [];
+  try {
+    const grants = JSON.parse(value);
+    return Array.isArray(grants) ? grants.filter((grant) => grant && typeof grant === 'object') : [];
+  } catch {
+    return [];
+  }
+}

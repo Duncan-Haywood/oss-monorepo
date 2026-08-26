@@ -28,11 +28,11 @@
   <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Grant information stays on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
   <footer><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or tax advice and does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.</footer>
 </main><script type="module">
-  import { reviewAll, toCsv } from './calc.mjs';
+  import { reviewAll, toCsv, loadGrants } from './calc.mjs';
   const form=document.querySelector('#grant-form'), tbody=document.querySelector('tbody'), table=document.querySelector('#table'), empty=document.querySelector('#empty'); const storageKey='grant-tracker-awards';
-  const loadGrants=()=>{try{const value=JSON.parse(localStorage.getItem(storageKey)||'[]');return Array.isArray(value)?value:[];}catch{return [];}};
+  const readGrants=()=>{try{return loadGrants(localStorage.getItem(storageKey));}catch{return [];}};
   const saveGrants=()=>{try{localStorage.setItem(storageKey,JSON.stringify(grants));}catch{} };
-  let grants=loadGrants();
+  let grants=readGrants();
   const track=(event)=>{if(document.querySelector('#usage').checked){try{const key='grant-tracker-events';const data=JSON.parse(localStorage.getItem(key)||'{}');data[event]=(data[event]||0)+1;localStorage.setItem(key,JSON.stringify(data));}catch{}}};
   const render=()=>{const rows=reviewAll(grants); tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.funder)}</td><td>${r.nextReport||'Check date'}</td><td class="status ${r.status==='Overdue'?'overdue':r.status==='Due soon'?'soon':''}">${r.status}</td><td>${Number(r.restrictedBalance).toFixed(2)}</td></tr>`).join(''); table.hidden=!rows.length; empty.hidden=!!rows.length; return rows;};
   const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addMonths, reviewAll, toCsv } from './calc.mjs';
+import { addMonths, reviewAll, toCsv, loadGrants } from './calc.mjs';
 
 test('adds months without overflowing short months', () => {
   assert.equal(addMonths('2026-01-31', 1), '2026-02-28');
@@ -28,4 +28,24 @@ test('does not mutate saved award data while reviewing', () => {
   const before = JSON.stringify(grant);
   reviewAll([grant], '2026-02-01');
   assert.equal(JSON.stringify(grant), before);
+});
+
+test('loads only saved grant rows and recovers from damaged local storage', () => {
+  assert.deepEqual(loadGrants(null), []);
+  assert.deepEqual(loadGrants(''), []);
+  assert.deepEqual(loadGrants('{not json'), []);
+  assert.deepEqual(loadGrants('{"awardDate":"2026-01-01"}'), []);
+  // The row that used to blank the queue: a null and a string alongside a real
+  // award. Both are dropped; the real award survives.
+  assert.deepEqual(
+    loadGrants(JSON.stringify([{ name: 'Garden' }, null, 'not a grant'])),
+    [{ name: 'Garden' }],
+  );
+});
+
+test('a damaged saved queue still reviews the awards that survived', () => {
+  const grants = loadGrants(JSON.stringify([null, { name: 'Garden', awardDate: '2026-01-01', intervalMonths: 6, awardAmount: 1000, spentAmount: 250 }]));
+  const rows = reviewAll(grants, '2026-06-01');
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].restrictedBalance, 750);
 });
