@@ -12,6 +12,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./how-much-to-charge-to-install-a-home-elevator.html', import.meta.url), 'utf8');
 const supplySeo = readFileSync(new URL('./should-i-install-a-customer-supplied-home-elevator.html', import.meta.url), 'utf8');
 const cabSeo = readFileSync(new URL('./acrylic-vs-glass-home-elevator-cab.html', import.meta.url), 'utf8');
+const accessSeo = readFileSync(new URL('./should-i-expedite-a-home-elevator-for-hospital-discharge.html', import.meta.url), 'utf8');
 
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
 
@@ -56,6 +57,8 @@ test('the module script survives parsing and would actually execute', () => {
   assert.match(scriptSource, /cabNote/, 'cab verdict is missing from the executable script');
   assert.match(scriptSource, /compareOwnerSupply/, 'owner-supply comparison is missing from the executable script');
   assert.match(scriptSource, /ownerSupplyNote/, 'owner-supply verdict is missing from the executable script');
+  assert.match(scriptSource, /compareAccess/, 'access comparison is missing from the executable script');
+  assert.match(scriptSource, /accessNote/, 'access verdict is missing from the executable script');
   assert.match(scriptSource, /formatBidSummary/, 'copy-summary helper is missing from the executable script');
 });
 
@@ -73,7 +76,7 @@ test('inputs and result fields for the primary journey are present', () => {
   for (const id of [
     'drive', 'hoistway', 'cab', 'stops', 'travelFeet', 'travelMiles',
     'hourlyWage', 'targetMargin', 'proposedPrice',
-    'price', 'breakEven', 'compare', 'drives', 'cabs', 'cabNote', 'supply', 'supplyNote', 'copySummary', 'usageOptOut', 'jobPresets',
+    'price', 'breakEven', 'compare', 'drives', 'cabs', 'cabNote', 'supply', 'supplyNote', 'access', 'accessNote', 'copySummary', 'usageOptOut', 'jobPresets',
   ]) {
     assert.ok(declaredIds.has(id), `missing #${id}`);
   }
@@ -89,6 +92,31 @@ test('the landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /Same house, four cabs/);
   assert.match(html, /vs acrylic/);
   assert.match(html, /Same house, who bought the unit/);
+  assert.match(html, /Same house, when they need it/);
+});
+
+test('the access article answers the search phrase and stays crawlable', () => {
+  assert.match(accessSeo, /Should I Expedite a Home Elevator for Hospital Discharge/i);
+  assert.match(accessSeo, /FAQPage/);
+  assert.match(accessSeo, /\$28,108\.09/);
+  assert.match(accessSeo, /\$32,645\.87/);
+  assert.match(accessSeo, /\$4,537\.78/);
+  assert.match(accessSeo, /\$35,919\.76/);
+  assert.match(accessSeo, /\$7,811\.66/);
+  assert.match(accessSeo, /\$18,995/);
+  assert.match(accessSeo, /\$28,735\.80/);
+  assert.match(accessSeo, /\$627\.80/);
+  assert.match(accessSeo, /\$87,736\.52/);
+  assert.match(accessSeo, /\$82,728\.95/);
+  assert.match(accessSeo, /not a stair-lift rail/i);
+  assert.match(accessSeo, /index\.html/);
+  assert.match(accessSeo, /No warranty/);
+  assert.match(accessSeo, /no SLA/i);
+  assert.doesNotMatch(accessSeo, /<textarea/i);
+});
+
+test('the landing page links the hospital-discharge access question', () => {
+  assert.match(html, /should-i-expedite-a-home-elevator-for-hospital-discharge\.html/);
 });
 
 test('the cab article answers the search phrase and stays crawlable', () => {
@@ -143,5 +171,6 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.match(seo, /should-i-install-a-customer-supplied-home-elevator\.html/);
   assert.match(seo, /acrylic-vs-glass-home-elevator-cab\.html/);
+  assert.match(seo, /should-i-expedite-a-home-elevator-for-hospital-discharge\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });

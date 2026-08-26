@@ -984,6 +984,25 @@ products:
           ($28,108.09 → $36,462.61); matching the acrylic bid on a
           glass-cab ask sits $1,062.00 under the glass walk-away of
           $29,170.09. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added weekday they-leave vs discharge-week expedite freight
+          vs Saturday overtime on the same house, plus a
+          should-i-expedite-a-home-elevator-for-hospital-discharge
+          page. Next-day air on the unit ($2,450) and a weekend
+          inspector ($925) — not a stair-lift rail ticket.
+          Default cheap special: weekday $28,108.09, discharge
+          $32,645.87 (+$4,537.78), after-hours $35,919.76
+          (+$7,811.66). $18,995 loses even on weekday (after-hours
+          walk-away $28,735.80). $28,108 weekday covers and loses
+          $627.80 after hours. Three-stop hydraulic: weekday
+          $87,736.52 / after-hours $103,411.19; $18,995 loses even
+          on weekday (after-hours walk-away $82,728.95). Public URL
+          remains owner-gated; local event access_compared is
+          opt-out and stores no inputs.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:

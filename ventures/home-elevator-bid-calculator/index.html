@@ -7,7 +7,7 @@
   <meta name="description" content="Price a residential home elevator from stops, travel, pneumatic versus hydraulic versus traction MRL, through-floor versus a new shaft, acrylic versus glass cab, and extras — plus the walk-away price an $18,995 pneumatic special cannot see.">
   <meta property="og:title" content="Home Elevator Bid Calculator">
   <meta property="og:description" content="Bid a home elevator the way the trade does — stops, drive, hoistway, and extras, not a published pneumatic dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Elevator Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Stops and travel feet, pneumatic vs winding-drum vs hydraulic vs traction-MRL comparison, through-floor vs existing-shaft vs new-wood vs masonry vs glass comparison, acrylic vs standard vs wood-panel vs glass cab comparison, pit machine-closet feeder permit extras, owner-supplied vs contractor-supplied comparison, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Home Elevator Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Stops and travel feet, pneumatic vs winding-drum vs hydraulic vs traction-MRL comparison, through-floor vs existing-shaft vs new-wood vs masonry vs glass comparison, acrylic vs standard vs wood-panel vs glass cab comparison, weekday they-leave vs discharge-week expedite freight vs Saturday overtime plus weekend inspector, pit machine-closet feeder permit extras, owner-supplied vs contractor-supplied comparison, walk-away price, proposed-price margin check, copyable bid summary"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2833; background: #e8eef3; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -194,6 +194,14 @@
       </table>
       <p id="supplyNote" class="note"></p>
       <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same house, when they need it</strong></p>
+      <p class="note" style="margin-top:0">The “mom comes home Friday — same $18,995 on Saturday?” special. A weekday slot is factory ground freight, an empty house, and a weekday inspector. Discharge week is next-day air on the unit plus a slower set while they stay home. Saturday is overtime, a second dispatch, the same air ticket, and a weekend inspector. A home elevator is not a stair-lift rail. <a href="should-i-expedite-a-home-elevator-for-hospital-discharge.html" style="color:#cde6ea">Should I expedite a home elevator for hospital discharge?</a></p>
+      <table>
+        <thead><tr><th>When</th><th>Hours</th><th>Your bid</th><th>At their number</th></tr></thead>
+        <tbody id="access"></tbody>
+      </table>
+      <p id="accessNote" class="note"></p>
+      <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
@@ -206,7 +214,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not elevator-specification, structural, building-code, accessibility, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your stops, wages, costs, or prices.</p>
-    <p>Looking up <a href="how-much-to-charge-to-install-a-home-elevator.html">how much to charge to install a home elevator</a>? The article walks the stop-versus-shaft math this calculator uses. They asked for glass after shopping the tube? See <a href="acrylic-vs-glass-home-elevator-cab.html">acrylic vs glass home elevator cab</a>. Customer bought the unit? See <a href="should-i-install-a-customer-supplied-home-elevator.html">should I install a customer-supplied home elevator</a>.</p>
+    <p>Looking up <a href="how-much-to-charge-to-install-a-home-elevator.html">how much to charge to install a home elevator</a>? The article walks the stop-versus-shaft math this calculator uses. They asked for glass after shopping the tube? See <a href="acrylic-vs-glass-home-elevator-cab.html">acrylic vs glass home elevator cab</a>. Customer bought the unit? See <a href="should-i-install-a-customer-supplied-home-elevator.html">should I install a customer-supplied home elevator</a>. Hospital discharge this week? See <a href="should-i-expedite-a-home-elevator-for-hospital-discharge.html">should I expedite a home elevator for hospital discharge</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -219,6 +227,8 @@
       cabNote,
       compareOwnerSupply,
       ownerSupplyNote,
+      compareAccess,
+      accessNote,
       formatBidSummary,
       suggestedDriveKit,
       suggestedHoistwayKit,
@@ -263,6 +273,7 @@
     const el = id => document.getElementById(id);
     let supplyCounted = false;
     let cabCounted = false;
+    let accessCounted = false;
 
     function fillSelect(id, presets) {
       el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
@@ -323,6 +334,8 @@
       el('cabNote').textContent = '';
       el('supply').innerHTML = '';
       el('supplyNote').textContent = '';
+      el('access').innerHTML = '';
+      el('accessNote').textContent = '';
       el('verdict').hidden = true;
     }
 
@@ -430,6 +443,26 @@
       if (!supplyCounted) {
         count('owner_supply_compared');
         supplyCounted = true;
+      }
+
+      const access = compareAccess(readInput());
+      el('access').innerHTML = access.map(row => {
+        const atTheirs = row.installOnly === null
+          ? 'enter their number'
+          : row.installOnly.belowBreakEven
+            ? `loses ${money(Math.abs(row.installOnly.profit))}`
+            : `keeps ${money(row.installOnly.profit)}`;
+        return `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest bid' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+        <td>${atTheirs}</td>
+      </tr>`;
+      }).join('');
+      el('accessNote').textContent = accessNote(access);
+      if (!accessCounted) {
+        count('access_compared');
+        accessCounted = true;
       }
 
       const verdict = el('verdict');
