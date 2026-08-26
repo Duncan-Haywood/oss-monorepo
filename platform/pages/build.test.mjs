@@ -15,9 +15,14 @@ import {
   buildSite,
   categoryFor,
   discoverSurfaces,
+  injectChrome,
+  listFiles,
+  relatedTools,
+  upToRoot,
   isPublishable,
   readMeta,
   renderHub,
+  renderFavicon,
   renderRobots,
   renderSitemapIndex,
   repairSitemaps,
@@ -329,6 +334,49 @@ test('the hub carries the required disclaimers and privacy line', async () => {
   assert.match(hub, /never uploaded/i);
 });
 
+test('every published page carries both liability clauses, not just the hub', async () => {
+  // PRODUCT_PLAYBOOK.md 5b requires the no-warranty clause AND the no-SLA
+  // clause on every hosted surface. Until this site existed the second one was
+  // arguably moot -- nothing was hosted -- and eighteen pages across nine
+  // ventures shipped without any availability statement at all. The moment the
+  // owner flips `GITHUB_PAGES_ENABLED` all of them are hosted surfaces, so the
+  // clause is checked here, where a new landing page cannot slip past it.
+  //
+  // Matched loosely on purpose: several ventures word the clause in their own
+  // voice ("Hosted URLs, when they exist, carry no availability SLA"), and
+  // demanding the playbook's exact prose would force a rewrite of correct
+  // pages rather than catch a missing one.
+  const { outDir, surfaces } = await site();
+  const warranty = /no warranty/i;
+  const noSla = /best-effort hosting|no (availability )?sla|carry no availability|taken offline without notice/i;
+
+  const missing = [];
+  let checked = 0;
+  for (const surface of surfaces) {
+    for (const page of await htmlPagesUnder(path.join(outDir, surface.slug))) {
+      const markup = await fs.readFile(page, 'utf8');
+      const relative = path.relative(outDir, page);
+      checked += 1;
+      if (!warranty.test(markup)) missing.push(`${relative} (no-warranty)`);
+      if (!noSla.test(markup)) missing.push(`${relative} (no-SLA)`);
+    }
+  }
+
+  // A silently-empty walk would make the assertion above pass for free.
+  assert.ok(checked > 100, `only ${checked} page(s) checked`);
+  assert.deepEqual(missing, [], `pages missing a required clause:\n${missing.join('\n')}`);
+});
+
+async function htmlPagesUnder(dir) {
+  const found = [];
+  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) found.push(...(await htmlPagesUnder(full)));
+    else if (entry.name.endsWith('.html')) found.push(full);
+  }
+  return found;
+}
+
 test('the sponsor ask is optional and does not gate anything', async () => {
   const hub = await read('index.html');
   assert.match(hub, /github\.com\/sponsors\//);
@@ -403,6 +451,25 @@ test('a tool without its own sitemap is still listed', async () => {
   assert.ok(!index.includes('has-none/sitemap.xml'), 'do not point at a sitemap that is not there');
 });
 
+test('a favicon is emitted, because every page requests one whether or not it links one', async () => {
+  const { outDir } = await site();
+  const ico = await fs.readFile(path.join(outDir, 'favicon.ico'));
+
+  // ICO header: reserved 0, type 1 (icon), one image.
+  assert.deepEqual([...ico.subarray(0, 6)], [0, 0, 1, 0, 1, 0]);
+  assert.equal(ico[6], 16, 'width');
+  assert.equal(ico[7], 16, 'height');
+  // The payload is a PNG, and its signature must survive the offset arithmetic
+  // in the directory entry -- get that wrong and browsers show nothing at all
+  // while the file still looks fine on disk.
+  const offset = ico.readUInt32LE(18);
+  assert.deepEqual([...ico.subarray(offset, offset + 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+});
+
+test('the favicon is byte-identical on every build', () => {
+  assert.deepEqual(renderFavicon(), renderFavicon());
+});
+
 test('.nojekyll is emitted so Pages serves the tree verbatim', async () => {
   await read('.nojekyll');
 });
@@ -434,6 +501,32 @@ test('readMeta falls back through title, then slug', () => {
 test('readMeta decodes entities rather than showing them raw', () => {
   const meta = readMeta('<meta property="og:title" content="Fees &amp; Margin">', 'x');
   assert.equal(meta.title, 'Fees & Margin');
+});
+
+// An apostrophe is ordinary English, not an edge case: three shipped ventures
+// carried one in the description a crawler reads. Reading only to the next
+// quote of either kind cut "last night's archive shrank" down to "last night".
+test('readMeta keeps an apostrophe inside a double-quoted attribute', () => {
+  const html = `<meta name="description" content="See whether last night's archive shrank.">`;
+  assert.equal(readMeta(html, 'x').description, "See whether last night's archive shrank.");
+});
+
+test('readMeta keeps an apostrophe in og:title and og:description', () => {
+  const html = `<meta property="og:title" content="Ohm's Law Calculator">
+    <meta property="og:description" content="Resistor codes and Ohm's law.">`;
+  const meta = readMeta(html, 'x');
+  assert.equal(meta.title, "Ohm's Law Calculator");
+  assert.equal(meta.description, "Resistor codes and Ohm's law.");
+});
+
+test('readMeta still reads a single-quoted attribute, quotes and all', () => {
+  const html = `<meta name='description' content='He said "go" before the run.'>`;
+  assert.equal(readMeta(html, 'x').description, 'He said "go" before the run.');
+});
+
+test('readMeta reads content written before the identifying attribute', () => {
+  const html = `<meta content="Last night's run." name="description">`;
+  assert.equal(readMeta(html, 'x').description, "Last night's run.");
 });
 
 test('truncate cuts on a word boundary', () => {
@@ -514,4 +607,166 @@ test('hub markup escapes venture copy', () => {
   );
   assert.ok(!hub.includes('<script>alert(1)</script>'));
   assert.ok(hub.includes('&lt;script&gt;'));
+});
+
+// ---------------------------------------------------------------------------
+// Site chrome
+//
+// Before this, the hub linked down into 33 tools and nothing linked back or
+// across: a visitor arriving from a search result at a deep SEO page saw one
+// calculator and had no route to the other 32. These tests fail the build if a
+// page ships without that route, or if the route points somewhere that 404s.
+// ---------------------------------------------------------------------------
+
+test('every published venture page routes back to the hub', async () => {
+  const { outDir, surfaces } = await site();
+  const pages = (await listFiles(outDir))
+    .filter((f) => f.endsWith('.html'))
+    .filter((f) => path.dirname(f) !== outDir); // the hub and 404 are the destination
+
+  assert.ok(pages.length > surfaces.length, 'deep SEO pages are included, not just landing pages');
+
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    assert.ok(
+      html.includes('data-pf-to="hub"'),
+      `${path.relative(outDir, file)} ships with no way back to the hub`,
+    );
+  }
+});
+
+test('every injected link resolves to a page that exists', async () => {
+  const { outDir } = await site();
+  const pages = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    for (const [, ref] of html.matchAll(/href="([^"]+)"[^>]*data-pf-to=/g)) {
+      const resolved = path.resolve(path.dirname(file), ref);
+      const target = ref.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
+      assert.ok(
+        await fs.stat(target).then(() => true, () => false),
+        `${path.relative(outDir, file)} points at ${ref}, which is not published`,
+      );
+    }
+  }
+});
+
+test('a page nested deeper climbs further to reach the root', () => {
+  assert.equal(upToRoot('index.html'), './');
+  assert.equal(upToRoot(path.join('etsy-profit-calculator', 'index.html')), '../');
+  assert.equal(upToRoot(path.join('a', 'b', 'index.html')), '../../');
+});
+
+test('the deepest published page still reaches the hub', async () => {
+  const { outDir } = await site();
+  const deepest = (await listFiles(outDir))
+    .filter((f) => f.endsWith('.html'))
+    .sort((a, b) => b.split(path.sep).length - a.split(path.sep).length)[0];
+
+  assert.ok(path.relative(outDir, deepest).split(path.sep).length > 2, 'the site does nest');
+  const html = await fs.readFile(deepest, 'utf8');
+  const ref = html.match(/href="([^"]+)"[^>]*data-pf-to="hub"/)[1];
+  assert.equal(path.resolve(path.dirname(deepest), ref), outDir);
+});
+
+test('wrapping a page twice does not stack two navigation bars', () => {
+  const page = '<html><head></head><body><h1>Tool</h1></body></html>';
+  const once = injectChrome(page, { slug: 'x', toRoot: '../', total: 2, related: [] });
+  const twice = injectChrome(once, { slug: 'x', toRoot: '../', total: 2, related: [] });
+  assert.equal(twice, once);
+  assert.equal(once.match(/<nav class="pf-chrome pf-chrome-top"/g).length, 1);
+  assert.equal(once.match(/<aside class="pf-chrome pf-chrome-foot"/g).length, 1);
+});
+
+test('a fragment with no body is left alone rather than corrupted', () => {
+  const fragment = '<div>partial</div>';
+  assert.equal(injectChrome(fragment, { slug: 'x', toRoot: '../', total: 2, related: [] }), fragment);
+});
+
+test('related tools exclude the page they sit on and prefer its category', () => {
+  const surfaces = [
+    { slug: 'amazon-fba-calculator', title: 'A' },
+    { slug: 'ebay-fee-calculator', title: 'B' },
+    { slug: 'etsy-profit-calculator', title: 'C' },
+    { slug: 'toilet-replacement-bid-calculator', title: 'D' },
+  ];
+  const related = relatedTools(surfaces, 'amazon-fba-calculator', 2);
+  assert.ok(!related.some((s) => s.slug === 'amazon-fba-calculator'));
+  assert.deepEqual(
+    related.map((s) => categoryFor(s.slug).id),
+    ['marketplace', 'marketplace'],
+    'a marketplace tool offers marketplace siblings before a trade calculator',
+  );
+});
+
+test('related tools fall back across categories when a category is thin', () => {
+  const surfaces = [
+    { slug: 'cut-list-optimizer', title: 'A' },
+    { slug: 'ebay-fee-calculator', title: 'B' },
+  ];
+  const related = relatedTools(surfaces, 'cut-list-optimizer', 4);
+  assert.deepEqual(related.map((s) => s.slug), ['ebay-fee-calculator']);
+});
+
+test('a lone tool advertises no siblings and still renders', () => {
+  const html = injectChrome('<html><head></head><body>x</body></html>', {
+    slug: 'only', toRoot: '../', total: 1, related: relatedTools([{ slug: 'only', title: 'Only' }], 'only'),
+  });
+  assert.ok(!html.includes('<ul>'), 'no empty list is emitted');
+  assert.ok(html.includes('data-pf-to="hub"'));
+});
+
+test('the chrome escapes venture copy', () => {
+  const html = injectChrome('<html><head></head><body>x</body></html>', {
+    slug: 'x',
+    toRoot: '../',
+    total: 2,
+    related: [{ slug: 'y"><script>alert(1)</script>', title: '<script>alert(1)</script>' }],
+  });
+  assert.ok(!html.includes('<script>alert(1)</script>'));
+  assert.ok(html.includes('&lt;script&gt;'));
+});
+
+test('the chrome counts locally, honours opt-out, and asks for nothing off-origin', async () => {
+  const page = await read('etsy-profit-calculator', 'index.html');
+  // From the injected element, not the style block that names the same class:
+  // the venture's own footer sits above it and carries its own GitHub links.
+  const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
+
+  assert.ok(chrome.includes("localStorage.getItem('portfolio-hub-optout')"), 'the hub opt-out applies here too');
+  assert.ok(chrome.includes('doNotTrack') && chrome.includes('globalPrivacyControl'));
+  assert.ok(chrome.includes('tool_viewed:etsy-profit-calculator'));
+  assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
+
+  const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
+});
+
+test('the sponsor line on a tool page is optional and gates nothing', async () => {
+  const page = await read('etsy-profit-calculator', 'index.html');
+  assert.match(page, /Sponsoring on GitHub<\/a>\s*\n?\s*is optional and changes nothing/);
+});
+
+test('the hub itself is not wrapped in its own navigation', async () => {
+  assert.ok(!(await read('index.html')).includes('pf-chrome'));
+  assert.ok(!(await read('404.html')).includes('pf-chrome'));
+});
+
+test('no venture ships its package manifest to visitors', async () => {
+  const { outDir } = await site();
+  const leaked = [];
+  for (const file of await fs.readdir(outDir, { recursive: true })) {
+    if (path.basename(file) === 'package.json') leaked.push(file);
+  }
+  assert.deepEqual(leaked, [],
+    'package.json exposes internal script names and dependency versions for no visitor benefit');
+});
+
+test('publishable JSON that a page actually needs is still copied', () => {
+  // The exclusion is by filename, not by extension: a web manifest or a
+  // JSON-LD payload beside a page must keep shipping.
+  assert.equal(isPublishable('package.json'), false);
+  assert.equal(isPublishable('site.webmanifest'), true);
+  assert.equal(isPublishable('rates.json'), true);
 });

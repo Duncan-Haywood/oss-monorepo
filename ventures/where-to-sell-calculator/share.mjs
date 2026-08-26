@@ -1,14 +1,21 @@
 // Share only calculator assumptions in the URL. No saved inputs leave the
 // browser except when the user explicitly copies a link.
+//
+// Every field the calculator reads must appear in one of these two lists. A
+// field that is missing is silently dropped from the link, and the recipient
+// then computes a different answer than the sender saw — the failure mode is
+// a wrong number, not an error.
 const SHARED_FIELDS = [
   "price", "shippingCharged", "shippingCost", "itemCost",
   "packagingCost", "otherCost", "monthlyOrders",
+  "horizonDays", "capitalCostPct", "unsoldRecoveryPct",
 ];
 const CHANNEL_FIELDS = [
   "price", "shippingCharged", "shippingCost", "fulfilmentCost",
   "commissionRate", "paymentRate", "paymentFixed", "perListingFee",
   "monthlyFee", "adRate",
   "returnRate", "returnShippingCost", "resellableRate", "feeRefundRate",
+  "sellThroughPct", "daysToSell", "listingRenewalDays",
 ];
 
 export function encodeComparison(shared = {}, channels = []) {
@@ -43,8 +50,15 @@ export function decodeComparison(value) {
       .map((channel) => ({
         id: channel.id,
         enabled: channel.enabled !== false,
-        ...Object.fromEntries(CHANNEL_FIELDS.map((key) => [key, channel.values?.[key]])
-          .filter(([, value]) => value !== undefined && value !== "")),
+        // Coerce, do not merely pass through: a link is untrusted input, and a
+        // non-numeric value used to survive this filter and reach the
+        // calculator, where it surfaced as a validation error on a field the
+        // recipient never typed. Dropping it falls back to the preset instead.
+        ...Object.fromEntries(CHANNEL_FIELDS.map((key) => {
+          const raw = channel.values?.[key];
+          const parsed = raw === undefined || raw === "" ? null : Number(raw);
+          return [key, Number.isFinite(parsed) && parsed >= 0 ? parsed : null];
+        }).filter(([, value]) => value !== null)),
       })) : [];
     return {
       shared,
