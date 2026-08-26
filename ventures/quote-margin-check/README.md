@@ -26,7 +26,7 @@ The report distinguishes the customer's inputs from derived arithmetic. It does
 not recommend prices, provide tax or financial advice, or claim that a quote is
 profitable. The customer decides what costs and target rate are appropriate.
 
-The `After direct costs` line makes the amount left before the user's own
+The `Break-even price` line is the same cash as direct costs: the quoted price that covers overhead and subcontractors with nothing left for labor. The `After direct costs` line makes the amount left before the user's own
 compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
 The CSV format emits stable `measure,value,unit` columns with spreadsheet-safe

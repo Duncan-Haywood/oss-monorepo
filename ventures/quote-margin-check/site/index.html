@@ -596,6 +596,7 @@
         <dl>
           <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
            <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
+           <dt>Break-even price (direct costs only)</dt><dd>${safeCurrency} ${fmt(r.break_even_price)}</dd>
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
