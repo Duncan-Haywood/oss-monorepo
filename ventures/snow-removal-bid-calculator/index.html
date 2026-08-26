@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snow Removal Bid Calculator | Per-Push vs Seasonal Contract Price</title>
+  <meta name="description" content="Price a snow-removal winter from route minutes, truck cost, salt, and expected storms. Compare per-push vs seasonal, see the ice-event drain, and the storm count where a cheap seasonal goes underwater.">
+  <meta property="og:title" content="Snow Removal Bid Calculator">
+  <meta property="og:description" content="Bid snow removal from the route, not the driveway. See per-push, seasonal, ice events, and how many storms a cheap seasonal can actually survive.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Snow Removal Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-site plow and sidewalk minutes, deadhead, loaded operator-and-truck hourly, salt, ice events, second-pass storms, seasonal vs per-push price, walk-away price, break-even storm count, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a snow removal contract?","acceptedAnswer":{"@type":"Answer","text":"Time each stop (plow + sidewalk + drive time), price those minutes at a loaded operator-and-truck hourly, add salt, then multiply by the storms and ice events you actually expect. Margin is a share of the seasonal price, not a markup on one driveway."}},{"@type":"Question","name":"Is a seasonal snow removal contract better than per push?","acceptedAnswer":{"@type":"Answer","text":"Seasonal is only better for the contractor if the quote covers a long winter plus ice events. A $350 driveway seasonal that looked fine at eight storms often loses money at fourteen, especially with unlimited ice."}},{"@type":"Question","name":"How many snow events should I estimate?","acceptedAnswer":{"@type":"Answer","text":"Use your own trigger depth and last few winters, not a national average. In many Northeast and Midwest metros a 1-inch trigger fires more often than a 2-inch trigger. This tool does not forecast weather — it prices the event count you enter."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2430; background: #e8eef5; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1a5f86; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d0d8e2; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .site-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(5, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .site-row select, .site-row input { padding: 10px 6px; }
+    .site-head { font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    .site-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #123047; color: #eef6fb; border-color: #123047; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7ec8e8; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1a5f86; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #b8dff0; }
+    .faq { margin-top: 8px; }
+    .faq details { margin: 8px 0; }
+    .faq summary { cursor: pointer; font-weight: 650; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .site-head { display: none; }
+      .site-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .site-row label { font-size: .78rem; gap: 5px; }
+      .site-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .site-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SNOW-REMOVAL CONTRACTORS</p>
+    <h1>Price the winter, not the driveway.</h1>
+    <p>A $350 seasonal that looked fine at eight storms is often underwater at fourteen — especially if ice is “included.” This calculator prices a route from minutes on site, deadhead, a loaded truck, salt, and the event count you actually expect. You get a per-push price, a seasonal, the ice drain, and the storm count where a cheap quote dies.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The route</h2>
+        <p class="hint">One row per stop. Minutes are a starting point — time your own truck and replace them. Ice minutes default to 65% of plow + sidewalk (salt and walks, not a full push) and stay editable.</p>
+        <div class="site-row site-head" aria-hidden="true">
+          <span>Site type</span><span>Plow min</span><span>Walk min</span><span>Salt bags</span><span>Ice min</span><span>Ice bags</span><span></span>
+        </div>
+        <div id="sites"></div>
+        <button type="button" id="addSite">+ Add a stop</button>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Operator hourly wage <input id="operatorWage" type="number" min="0" step="0.25" value="22"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Truck, plow &amp; working fuel / hour <input id="truckHourly" type="number" min="0" step="1" value="45"></label>
+          <label>Deadhead minutes per stop <input id="deadheadMinutesPerSite" type="number" min="0" step="1" value="6"></label>
+          <label>Salt cost per bag <input id="saltCostPerBag" type="number" min="0" step="0.25" value="8"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Passes per snow event <input id="passesPerSnowEvent" type="number" min="0.1" step="0.1" value="1"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A long storm on a 4-hour route is often two passes. Set passes to 1.3 or 2 if you typically re-hit the route before it ends. Payroll burden is employer taxes, workers&rsquo; compensation, and paid time off — the part that never shows up on the wage.</p>
+      </section>
+
+      <section>
+        <h2>The winter you are bidding</h2>
+        <div class="fields">
+          <label>Expected snow events <input id="expectedSnowEvents" type="number" min="0" step="1" value="10"></label>
+          <label>Expected ice / salt-only events <input id="expectedIceEvents" type="number" min="0" step="1" value="6"></label>
+          <label>Seasonal you&rsquo;re considering (optional) <input id="proposedSeasonal" type="number" min="0" step="25" placeholder="e.g. 2800 for 8 drives"></label>
+          <label>Per-push you&rsquo;re considering (optional) <input id="proposedPerPush" type="number" min="0" step="5" placeholder="e.g. 85 for the route"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Use your trigger depth and your last few winters, not a national average. A 1-inch trigger fires more often than a 2-inch trigger. This is not a weather forecast.</p>
+      </section>
+
+      <section class="faq">
+        <h2>Questions contractors actually ask</h2>
+        <details>
+          <summary>How do I price a snow removal contract?</summary>
+          <p>Time each stop, price those minutes at a loaded operator-and-truck hourly, add salt, then multiply by the storms and ice events you expect. Do not start from a neighbor&rsquo;s driveway price.</p>
+        </details>
+        <details>
+          <summary>Per push or seasonal?</summary>
+          <p>Offer both. Seasonal only works if the quote survives a long winter plus ice. Paste a number you are considering and the tool will say how many storms it can absorb.</p>
+        </details>
+        <details>
+          <summary>What about unlimited ice?</summary>
+          <p>Ice is usually salt and sidewalks, not a full plow — and there are often more ice events than snow events. Price them as their own line or the “included” clause eats the season.</p>
+        </details>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your winter bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">seasonal contract price</div>
+      <dl>
+        <dt>Per-push price (one snow event)</dt><dd id="perPush"></dd>
+        <dt>Per ice-event price</dt><dd id="perIce"></dd>
+        <dt>Per-site seasonal</dt><dd id="perSiteSeasonal"></dd>
+        <dt>Per-site per-push</dt><dd id="perSitePush"></dd>
+        <dt>Minutes per snow pass</dt><dd id="minutes"></dd>
+        <dt>Billed hours this winter</dt><dd id="hours"></dd>
+        <dt>Loaded hourly (operator + truck)</dt><dd id="loaded"></dd>
+        <dt>Salt this winter (in the cost)</dt><dd id="salt"></dd>
+        <dt>Total winter cost</dt><dd id="cost"></dd>
+        <dt>Winter profit</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away seasonal</dt><dd id="walkAway"></dd>
+        <dt>Walk-away per-push</dt><dd id="walkAwayPush"></dd>
+        <dt>Storms this quote survives</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the minutes go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting minutes and salt bags are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own route and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a weather forecast and it does not replace a qualified professional. Verify every figure against your own payroll, insurance, fuel, and material costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your route, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a winter, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateSeason, SITE_PRESETS, ICE_MINUTE_FACTOR, ICE_SALT_FACTOR } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = [
+      'operatorWage','burdenRate','truckHourly','deadheadMinutesPerSite','saltCostPerBag',
+      'overheadRate','targetMargin','passesPerSnowEvent','expectedSnowEvents','expectedIceEvents',
+      'proposedSeasonal','proposedPerPush',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    // Eight two-car driveways: enough stops that a $350/driveway seasonal
+    // immediately looks like a lot and still loses a quiet winter.
+    const STARTING_SITES = Array.from({ length: 8 }, () => ({
+      name: 'Two-car driveway',
+      minutesPerPush: 12,
+      sidewalkMinutes: 8,
+      saltBags: 1.5,
+    }));
+
+    const TYPE_OPTIONS = SITE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other stop</option>';
+
+    const sitesHost = el('sites');
+    let rowSeq = 0;
+
+    function iceDefaults(presetOrMinutes, sidewalk, saltBags) {
+      const plow = typeof presetOrMinutes === 'object'
+        ? presetOrMinutes.minutesPerPush + presetOrMinutes.sidewalkMinutes
+        : Number(presetOrMinutes) + Number(sidewalk);
+      const bags = typeof presetOrMinutes === 'object' ? presetOrMinutes.saltBags : Number(saltBags);
+      return {
+        iceMinutes: Math.round(plow * ICE_MINUTE_FACTOR * 10) / 10,
+        iceSaltBags: Math.round(bags * ICE_SALT_FACTOR * 10) / 10,
+      };
+    }
+
+    function addSiteRow(site) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'site-row';
+      const ice = iceDefaults(site.minutesPerPush, site.sidewalkMinutes, site.saltBags);
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Site type</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-plow"><span class="lbl">Plow minutes</span><input class="s-plow" id="${id}-plow" type="number" min="0" step="1"></label>
+        <label for="${id}-walk"><span class="lbl">Sidewalk minutes</span><input class="s-walk" id="${id}-walk" type="number" min="0" step="1"></label>
+        <label for="${id}-salt"><span class="lbl">Salt bags / snow</span><input class="s-salt" id="${id}-salt" type="number" min="0" step="0.5"></label>
+        <label for="${id}-ice"><span class="lbl">Ice minutes</span><input class="s-ice" id="${id}-ice" type="number" min="0" step="0.5"></label>
+        <label for="${id}-icesalt"><span class="lbl">Salt bags / ice</span><input class="s-icesalt" id="${id}-icesalt" type="number" min="0" step="0.5"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this stop</span></button>`;
+
+      const typeField = row.querySelector('.s-type');
+      const plowField = row.querySelector('.s-plow');
+      const walkField = row.querySelector('.s-walk');
+      const saltField = row.querySelector('.s-salt');
+      const iceField = row.querySelector('.s-ice');
+      const iceSaltField = row.querySelector('.s-icesalt');
+      const presetIndex = SITE_PRESETS.findIndex(p => p.label === site.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      plowField.value = site.minutesPerPush;
+      walkField.value = site.sidewalkMinutes;
+      saltField.value = site.saltBags;
+      iceField.value = site.iceMinutes ?? ice.iceMinutes;
+      iceSaltField.value = site.iceSaltBags ?? ice.iceSaltBags;
+
+      function fillFromType() {
+        const preset = SITE_PRESETS[Number(typeField.value)];
+        if (!preset) return;
+        if (!plowField.dataset.edited) plowField.value = preset.minutesPerPush;
+        if (!walkField.dataset.edited) walkField.value = preset.sidewalkMinutes;
+        if (!saltField.dataset.edited) saltField.value = preset.saltBags;
+        if (!iceField.dataset.edited || !iceSaltField.dataset.edited) {
+          const next = iceDefaults(preset);
+          if (!iceField.dataset.edited) iceField.value = next.iceMinutes;
+          if (!iceSaltField.dataset.edited) iceSaltField.value = next.iceSaltBags;
+        }
+      }
+
+      typeField.addEventListener('change', () => {
+        fillFromType();
+        count('bid_calculated');
+        update();
+      });
+      plowField.addEventListener('input', () => { plowField.dataset.edited = '1'; });
+      walkField.addEventListener('input', () => { walkField.dataset.edited = '1'; });
+      saltField.addEventListener('input', () => { saltField.dataset.edited = '1'; });
+      iceField.addEventListener('input', () => { iceField.dataset.edited = '1'; });
+      iceSaltField.addEventListener('input', () => { iceSaltField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('site_removed');
+        update();
+      });
+      sitesHost.append(row);
+    }
+
+    function readSites() {
+      return [...sitesHost.querySelectorAll('.site-row')].map(row => {
+        const preset = SITE_PRESETS[Number(row.querySelector('.s-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          minutesPerPush: row.querySelector('.s-plow').value,
+          sidewalkMinutes: row.querySelector('.s-walk').value,
+          saltBags: row.querySelector('.s-salt').value,
+          iceMinutes: row.querySelector('.s-ice').value,
+          iceSaltBags: row.querySelector('.s-icesalt').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'seasonal contract price';
+      ['perPush','perIce','perSiteSeasonal','perSitePush','minutes','hours','loaded','salt','cost','profit','hourlyRate','walkAway','walkAwayPush','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function readInput() {
+      return {
+        sites: readSites(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+      };
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.sites.length === 0) {
+        clearOutputs('Add a stop to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one stop above and the minute split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateSeason(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.seasonalPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'seasonal contract for this winter';
+      el('perPush').textContent = money(result.pricePerPush);
+      el('perIce').textContent = money(result.pricePerIce);
+      el('perSiteSeasonal').textContent = result.pricePerSiteSeasonal === null ? 'n/a' : money(result.pricePerSiteSeasonal);
+      el('perSitePush').textContent = result.pricePerSitePerPush === null ? 'n/a' : money(result.pricePerSitePerPush);
+      el('minutes').textContent = `${result.plowMinutesPerPass.toFixed(0)} min`;
+      el('hours').textContent = `${result.billedHours.toFixed(1)} h`;
+      el('loaded').textContent = `${money(result.loadedHourly)}/h`;
+      el('salt').textContent = money(
+        result.saltPerPass * result.expectedSnowEvents * result.passesPerSnowEvent
+        + result.iceSaltBagsPerEvent * Number(el('saltCostPerBag').value || 0) * result.expectedIceEvents,
+      );
+      el('cost').textContent = money(result.seasonalCost);
+      el('profit').textContent = money(result.seasonalProfit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('walkAway').textContent = money(result.walkAwaySeasonal);
+      el('walkAwayPush').textContent = money(result.walkAwayPerPush);
+      el('breakEven').textContent = result.breakEvenSnowEvents === null
+        ? 'n/a'
+        : `${result.breakEvenSnowEvents.toFixed(1)} snow events`;
+
+      const worked = result.sites.filter(site => site.visitMinutes > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No stop has minutes yet — set plow or sidewalk time above.</li>'
+        : worked
+          .map(site => `<li><span>${site.name}</span><span>${site.minutesShare.toFixed(0)}% of the pass</span>
+            <span class="bar"><span style="width:${site.minutesShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      const parts = [];
+      if (result.proposedSeasonal) {
+        parts.push(result.proposedSeasonal.belowBreakEven
+          ? `At ${money(result.proposedSeasonal.price)} seasonal this winter <strong>loses ${money(Math.abs(result.proposedSeasonal.profit))}</strong>. It survives about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)} snow events after ice is paid. Walk-away is ${money(result.walkAwaySeasonal)}.`
+          : `At ${money(result.proposedSeasonal.price)} seasonal you keep <strong>${money(result.proposedSeasonal.profit)}</strong> — a ${result.proposedSeasonal.margin.toFixed(1)}% margin, surviving about ${result.proposedSeasonal.breakEvenSnowEvents.toFixed(1)} snow events.`);
+      }
+      if (result.proposedPerPush) {
+        parts.push(result.proposedPerPush.belowBreakEven
+          ? `At ${money(result.proposedPerPush.price)} per push you <strong>lose ${money(Math.abs(result.proposedPerPush.profit))}</strong> every snow event. Walk-away is ${money(result.walkAwayPerPush)}.`
+          : `At ${money(result.proposedPerPush.price)} per push you keep <strong>${money(result.proposedPerPush.profit)}</strong> each snow event (${result.proposedPerPush.margin.toFixed(1)}% margin).`);
+      }
+      if (parts.length === 0) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${(result.proposedSeasonal?.belowBreakEven || result.proposedPerPush?.belowBreakEven) ? ' bad' : ''}`;
+        verdict.innerHTML = parts.join('<br><br>');
+      }
+    }
+
+    function summaryText(result) {
+      const stops = result.sites
+        .map(site => `- ${site.name}: ${site.minutesPerPush} min plow, ${site.sidewalkMinutes} min walks, ${site.saltBags} bags`)
+        .join('\n');
+      return [
+        'SNOW REMOVAL WINTER BID',
+        '',
+        `Seasonal for the entered winter: ${money(result.seasonalPrice)}`,
+        `Per-push (one snow event): ${money(result.pricePerPush)}`,
+        `Per ice event: ${money(result.pricePerIce)}`,
+        `Per-site seasonal: ${result.pricePerSiteSeasonal === null ? 'n/a' : money(result.pricePerSiteSeasonal)}`,
+        `Assumed winter: ${result.expectedSnowEvents} snow events, ${result.expectedIceEvents} ice events, ${result.passesPerSnowEvent} pass(es) per snow`,
+        `Route time per snow pass: ${result.plowMinutesPerPass.toFixed(0)} minutes`,
+        `Walk-away seasonal: ${money(result.walkAwaySeasonal)}`,
+        `Storms this quote survives: ${result.breakEvenSnowEvents === null ? 'n/a' : result.breakEvenSnowEvents.toFixed(1)}`,
+        '',
+        'STOPS',
+        stops || '- No stops entered',
+        '',
+        'This is a draft for review. Confirm trigger depth, ice scope, insurance, taxes, and all pricing before sending. Not a weather forecast.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateSeason(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addSite').addEventListener('click', () => {
+      addSiteRow({ name: 'Two-car driveway', minutesPerPush: 12, sidewalkMinutes: 8, saltBags: 1.5 });
+      count('site_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(
+        id === 'proposedSeasonal' || id === 'proposedPerPush' ? 'proposed_price_compared' : 'bid_calculated',
+      ));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_SITES.forEach(addSiteRow);
+    update();
+  </script>
+</body>
+</html>

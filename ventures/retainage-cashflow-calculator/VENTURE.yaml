@@ -1,0 +1,27 @@
+name: retainage-cashflow-calculator
+description: Free browser calculator for small contractors to quantify retainage withheld, earned-but-unpaid cash, carrying cost, and whether a partial retainage check still beats waiting, before sending a factual payment follow-up.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent contractors and specialty subcontractors will use a retainage calculator to see how much cash is tied up and copy a payment follow-up draft.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers for retainage percentage, construction cash flow, and payment follow-up will prefer a private local tool over a generic spreadsheet template.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No repeat use or organic repository traffic after 60 days of public availability.
+  - Users do not report that the output helped them identify cash tied up in an unpaid project within 90 days.
+links:
+  production: null
+  analytics: null
