@@ -16,6 +16,14 @@ export function RoadmapPage() {
           <Link to="/roi">Business value &amp; ROI</Link> for rankings and
           illustrative € scenarios.
         </p>
+        <p>
+          <strong>Current priority:</strong> deploy the surfaces that already
+          exist (docs site, portal demo) to a public URL before starting
+          Phase 2 sensors or another unshipped package. A built page nobody
+          can open does not produce the Phase 1 KPIs. The owner flip for
+          Pages / Vercel is already queued as <code>deploy-settings</code> —
+          do not open a second ask.
+        </p>
       </Card>
 
       <h2>

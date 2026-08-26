@@ -1,5 +1,5 @@
 name: janitorial-bid-calculator
-description: A private browser calculator for commercial cleaning contractors that prices a janitorial contract from per-space production rates — labor hours, loaded wage, supplies, overhead, and margin — and shows the price per square foot, the effective hourly rate, and the walk-away price below which the job loses money.
+description: A private browser calculator for commercial cleaning contractors that prices a janitorial contract from per-space production rates and optional day-porter shifts — labor hours, loaded wage, supplies, overhead, and margin — and shows the price per square foot, the effective hourly rate, and the walk-away price below which the job loses money.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -12,6 +12,14 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Payroll burden is the cost most often left out of a small contractor's own spreadsheet, so making it a required, explained input changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing restroom-stock vs they-buy-everything vs emergency-fill changes a bid that dropped the whole supplies line when the building offered to buy the paper.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing one-time vs amortized vs thrown-in on a 5x takeover clean stops contractors from giving away month 1 to win a monthly that the prospect can cancel after 30 days.
     status: untested
     checked: null
     evidence: customer-contact

@@ -1,0 +1,32 @@
+name: roofing-bid-calculator
+description: A private browser calculator for residential roofing contractors that prices a reroof from roof squares — footprint converted by pitch, waste, tear-off layers, loaded labor, dump, overhead, and margin — and shows the price per square, the effective hourly rate, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small roofing contractors will use a squares-and-pitch bid calculator because the house-square-footage rules of thumb they find online cannot see that a 12/12 section is 41% more surface than its footprint and that a second tear-off layer doubles dump without changing the new covering, which is how a bid that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the price per square are the two numbers a contractor actually decides on when a homeowner asks them to match a cheaper quote, more than the job total itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Waste and steepness are the two inputs most often left out of a small contractor's own spreadsheet, so making them required, explained inputs changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified roofing contractors use the calculator twice within 90 days.
+  - Contractors report that the squares-and-pitch model is more work than their existing method without changing the price they would have bid.
+  - The starting material and labor rates prove so far from real invoices that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
