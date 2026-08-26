@@ -4,7 +4,7 @@ If you are comparing S3-compatible storage providers, this browser-local calcula
 
 Open `index.html` directly, or serve this directory with any static HTTP server. Enter the rates from each provider's current price sheet; the calculator intentionally does not fetch or endorse prices.
 
-**After using this, you can now** see which quoted sheet is cheaper on *your* stored GB, requests, and outbound transfer — and the cache-hit rate at which a CDN still loses to origin-only — which used to take a spreadsheet plus two pricing pages.
+**After using this, you can now** see which quoted sheet is cheaper on *your* stored GB, requests, and outbound transfer — the cache-hit rate at which a CDN still loses to origin-only — and whether a second-region replica still beats paying the cross-region pull every month — which used to take a spreadsheet plus two pricing pages.
 
 ## What it does
 
@@ -12,6 +12,7 @@ Open `index.html` directly, or serve this directory with any static HTTP server.
 - Shows the cheaper option, annualized savings, savings percentage, and a break-even outbound-transfer volume when the crossing is a positive GB figure.
 - Downloads a portable JSON review record with the workload and calculated totals, while omitting provider rate inputs.
 - Compares origin-only egress against a CDN on the same download volume (`does-a-cdn-cut-s3-egress.html`), including miss-fetch cost and the hit-rate floor.
+- Compares keep-pulling a dataset across regions against copying it once (`does-a-replica-beat-cross-region-pull.html`), including the seed, change-sync, payback months, and the pull volume where they match.
 - Runs without an account, API key, network call, or paid dependency.
 - Includes crawler-readable metadata, JSON-LD, sitemap, and `robots.txt`.
 
@@ -33,7 +34,7 @@ The product can later support saved local scenarios, provider price-sheet import
 
 The main risks are stale user-supplied rates and confusing estimates with an invoice. The interface says to use a current price sheet and labels the result as a comparison, not a quote or financial/technical determination. No customer data leaves the browser.
 
-This is a different product from `egress-window-bid-calculator` (a residential egress-window install bid). Overlap checked 2026-08-26: no open PR besides #1409 shipped a cloud egress calculator; #1409 is the source of the two-provider core (conflicted, validate/test red). This branch salvages that core onto current `main` and adds the CDN extra.
+This is a different product from `egress-window-bid-calculator` (a residential egress-window install bid). Overlap checked 2026-08-26: #1409 and #1267 are older cores of the two-provider calculator already on `main` (supersede_check on #1409 exits 1 — leave them open). No open PR adds replica vs cross-region pull. Distinct from the CDN extra (internet downloads vs origin).
 
 ## Privacy And Usage
 
