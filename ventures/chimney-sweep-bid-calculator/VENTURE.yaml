@@ -1,0 +1,32 @@
+name: chimney-sweep-bid-calculator
+description: A private browser calculator for chimney sweeps and fireplace shops that prices a stop from flue type, stories, roof access, and creosote — labor hours, loaded wage, travel, add-ons, overhead, and margin — and shows the price per flue, the effective hourly rate, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent chimney sweeps will use a flue-and-height bid calculator because the flat house-sweep specials they compete with cannot see that a 3-story wood stove with glazed creosote is a different job from a 1-story gas fireplace, which is how a bid that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the effective hourly rate are the two numbers a sweep actually decides on when a homeowner asks them to match a neighborhood special, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Payroll burden and round-trip travel are the two costs most often left out of a small sweep's own quote, so making both required, explained inputs changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified chimney sweeps or fireplace shops use the calculator twice within 90 days.
+  - Sweeps report that the flue-and-height model is more work than their existing method without changing the price they would have bid.
+  - The starting hours prove so far from real stops that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

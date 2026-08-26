@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gutter Cleaning Bid Calculator | Price Stories, Guards, and Downspouts</title>
+  <meta name="description" content="Price a gutter cleaning visit from linear feet, stories, roof pitch, gutter guards, debris, and downspouts — then loaded wage, travel, disposal, a minimum stop charge, and an optional spring-and-fall contract.">
+  <meta property="og:title" content="Gutter Cleaning Bid Calculator">
+  <meta property="og:description" content="Bid gutter cleaning the way the job actually takes time — stories, guards, and downspouts, not a flat price per linear foot.">
+  <link rel="canonical" href="https://example.invalid/gutter-cleaning-bid-calculator/">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-run labor from linear feet, story, pitch, gutter-guard, and debris multipliers; downspout flush time; travel and setup; minimum stop charge; seasonal contract; walk-away visit price; implied price per linear foot"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5f7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .run-row { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(6, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .run-row select, .run-row input { padding: 10px 6px; }
+    .run-head { font-size: .7rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    .run-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #14303b; color: #f2f7f8; border-color: #14303b; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fc8d6; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c5f7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce0e8; }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .run-head { display: none; }
+      .run-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .run-row label { font-size: .78rem; gap: 5px; }
+      .run-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .run-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR GUTTER CLEANING CONTRACTORS</p>
+    <h1>Bid the stories and the downspouts, not the linear feet.</h1>
+    <p>Price a gutter cleaning the way the job actually takes time: each run of trough, the story it sits on, the pitch, whether guards are in the way, what is in it, and every downspout you have to flush. You get the visit price, what that works out to per linear foot, the walk-away number, and an optional spring-and-fall contract.</p>
+    <p class="hint" style="margin:0">New to two-story pricing? <a href="./two-story-gutter-cleaning-cost.html">Why a second story is not twice the footage</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">One row per distinct run. A 40-foot two-story rear is a different job from 40 feet of one-story garage screens — putting them on the same per-foot price is how a cheap quote loses money.</p>
+        <div class="run-row run-head" aria-hidden="true">
+          <span>Run</span><span>Linear ft</span><span>Stories</span><span>Pitch</span><span>Guards</span><span>Debris</span><span>Downspouts</span><span></span>
+        </div>
+        <div id="runs"></div>
+        <button type="button" id="addRun">+ Add a run</button>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="22"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Minutes per 10 lf (1-story, open, leaves) <input id="minutesPer10ft" type="number" min="0.1" step="0.5" value="8"></label>
+          <label>Minutes per downspout <input id="minutesPerDownspout" type="number" min="0" step="0.5" value="8"></label>
+          <label>Travel and setup (minutes) <input id="travelMinutes" type="number" min="0" step="1" value="20"></label>
+          <label>Disposal / visit <input id="disposalPerVisit" type="number" min="0" step="1" value="15"></label>
+          <label>Equipment / visit <input id="equipmentPerVisit" type="number" min="0" step="1" value="10"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Visits per year <input id="visitsPerYear" type="number" min="1" max="12" step="1" value="2"></label>
+          <label>Minimum stop charge <input id="minimumCharge" type="number" min="0" step="5" value="125"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="5" placeholder="e.g. 189"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Minutes per 10 linear feet is the one-story, open-gutter, leaf baseline your crew actually hits. Stories, pitch, guards, and debris multiply that figure. Visits per year of 2 is a spring-and-fall contract; 1 is a one-time clean.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">visit price</div>
+      <dl>
+        <dt>Crew hours this visit</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Disposal &amp; equipment</dt><dd id="other"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Visit cost</dt><dd id="cost"></dd>
+        <dt>Visit profit</dt><dd id="profit"></dd>
+        <dt>Price per linear foot</dt><dd id="perFoot"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away visit price</dt><dd id="breakEven"></dd>
+        <dt>Seasonal / annual total</dt><dd id="annual"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting minutes and difficulty factors are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and job times, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your house, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, formatBidSummary, STORY_PRESETS, PITCH_PRESETS, GUARD_PRESETS, DEBRIS_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = ['hourlyWage','burdenRate','minutesPer10ft','minutesPerDownspout','travelMinutes','disposalPerVisit','equipmentPerVisit','overheadRate','targetMargin','visitsPerYear','minimumCharge','proposedPrice'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+    const options = presets => presets.map(preset => `<option value="${preset.id}">${preset.label}</option>`).join('');
+
+    // A typical suburban house: enough contrast that the labor split immediately
+    // shows why a flat per-foot quote on the two-story rear and the screened
+    // garage is the bid that loses money.
+    const STARTING_RUNS = [
+      { name: 'Front and sides', linearFeet: 80, story: '1', pitch: 'low', guards: 'none', debris: 'leaves', downspouts: 3 },
+      { name: 'Rear two-story', linearFeet: 40, story: '2', pitch: 'moderate', guards: 'none', debris: 'leaves', downspouts: 1 },
+      { name: 'Garage screens', linearFeet: 30, story: '1', pitch: 'low', guards: 'screens', debris: 'mixed', downspouts: 1 },
+    ];
+
+    const runsHost = el('runs');
+    let rowSeq = 0;
+
+    function addRunRow(run) {
+      const id = `r${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'run-row';
+      row.innerHTML = `
+        <label for="${id}-name"><span class="lbl">Run</span><input class="r-name" id="${id}-name" type="text" maxlength="40"></label>
+        <label for="${id}-lf"><span class="lbl">Linear feet</span><input class="r-lf" id="${id}-lf" type="number" min="0" step="1"></label>
+        <label for="${id}-story"><span class="lbl">Stories</span><select class="r-story" id="${id}-story">${options(STORY_PRESETS)}</select></label>
+        <label for="${id}-pitch"><span class="lbl">Pitch</span><select class="r-pitch" id="${id}-pitch">${options(PITCH_PRESETS)}</select></label>
+        <label for="${id}-guards"><span class="lbl">Guards</span><select class="r-guards" id="${id}-guards">${options(GUARD_PRESETS)}</select></label>
+        <label for="${id}-debris"><span class="lbl">Debris</span><select class="r-debris" id="${id}-debris">${options(DEBRIS_PRESETS)}</select></label>
+        <label for="${id}-ds"><span class="lbl">Downspouts</span><input class="r-ds" id="${id}-ds" type="number" min="0" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this run</span></button>`;
+
+      row.querySelector('.r-name').value = run.name;
+      row.querySelector('.r-lf').value = run.linearFeet;
+      row.querySelector('.r-story').value = run.story;
+      row.querySelector('.r-pitch').value = run.pitch;
+      row.querySelector('.r-guards').value = run.guards;
+      row.querySelector('.r-debris').value = run.debris;
+      row.querySelector('.r-ds').value = run.downspouts;
+
+      row.querySelectorAll('input, select').forEach(field => {
+        field.addEventListener('input', update);
+        field.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('run_removed');
+        update();
+      });
+      runsHost.append(row);
+    }
+
+    function readRuns() {
+      return [...runsHost.querySelectorAll('.run-row')].map(row => ({
+        name: row.querySelector('.r-name').value,
+        linearFeet: row.querySelector('.r-lf').value,
+        story: row.querySelector('.r-story').value,
+        pitch: row.querySelector('.r-pitch').value,
+        guards: row.querySelector('.r-guards').value,
+        debris: row.querySelector('.r-debris').value,
+        downspouts: row.querySelector('.r-ds').value,
+      }));
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'visit price';
+      ['hours','labor','other','overhead','cost','profit','perFoot','hourlyRate','breakEven','annual']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const runs = readRuns();
+      if (runs.length === 0) {
+        clearOutputs('Add a run to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one gutter run above and the labor split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          runs,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.visitPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = result.minimumApplied
+        ? 'visit price (minimum charge applied)'
+        : 'visit price';
+      el('hours').textContent = `${result.hoursPerVisit.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('other').textContent = money(result.otherDirect);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.visitCost);
+      el('profit').textContent = money(result.visitProfit);
+      el('perFoot').textContent = result.pricePerLinearFoot === null ? 'n/a' : `$${result.pricePerLinearFoot.toFixed(2)}/lf`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenVisitPrice);
+      el('annual').textContent = result.visitsPerYear > 1
+        ? `${money(result.annualPrice)} (${result.visitsPerYear} visits)`
+        : 'one-time visit';
+
+      const worked = result.runs.filter(run => run.laborHours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No run has linear footage yet — add feet above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.laborHours - a.laborHours)
+          .map(run => `<li><span>${run.name}</span><span>${run.hoursShare.toFixed(0)}% of trough hours</span>
+            <span class="bar"><span style="width:${run.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this visit <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenVisitPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of crew time.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid({
+        runs: readRuns(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = formatBidSummary(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addRun').addEventListener('click', () => {
+      addRunRow({ name: '', linearFeet: 0, story: '1', pitch: 'low', guards: 'none', debris: 'leaves', downspouts: 0 });
+      count('run_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_RUNS.forEach(addRunRow);
+    update();
+  </script>
+</body>
+</html>
