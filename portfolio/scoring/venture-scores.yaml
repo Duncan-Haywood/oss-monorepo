@@ -3235,3 +3235,26 @@ ventures:
       The shipped panel widths and mesh rates are labelled ballpark starting
       points rather than a standard, and nothing the user enters leaves the
       browser.
+
+  - slug: pool-route-pricing
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: AI is intentionally absent from the checkable arithmetic core; the domain model is route economics.
+    basis: >-
+      Graduated on 2026-08-24 as a browser-local recurring pool service route
+      pricing calculator, distinct from one-off trade bid calculators because
+      the unit is a recurring monthly account and the output includes
+      windshield time, chemicals, and route overhead.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: Output is arithmetic on user-supplied operating assumptions, labelled as a planning threshold rather than a recommendation.

@@ -861,3 +861,27 @@ candidates:
       component for distribution.
     first_experiment_days: 14
     first_experiment_budget_usd: 100
+  - slug: pool-route-pricing
+    name: Pool route pricing calculator
+    doc: candidates/pool-route-pricing.md
+    verdict: graduated
+    probe_status: Browser-local vertical slice shipped on 2026-08-24; demand and distribution remain unmeasured.
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/pool-route-pricing
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 6
+      liability_containment: 8
+      ethical_robustness: 9
+    composite: 7.0
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep the calculation deterministic and label operating assumptions as user-supplied planning inputs; measure repeat use before adding integrations.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
