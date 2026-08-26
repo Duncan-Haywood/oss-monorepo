@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SaaS seat true-up calculator | Find unused subscription spend</title>
   <meta name="description" content="Calculate unused SaaS seats and avoidable renewal spend privately in your browser. No account or upload required.">
+  <meta name="robots" content="index,follow">
   <meta property="og:title" content="SaaS seat true-up calculator">
   <meta property="og:description" content="Find unused subscription seats before renewal with a private, browser-local calculator.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SaaS Seat True-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"SaaS Seat True-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Web","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
   <style>
     :root { color-scheme: light; --ink:#18252b; --muted:#5e6c70; --paper:#f7f3eb; --accent:#d9673d; --line:#d9d0c2; }
     * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
@@ -34,14 +35,33 @@
       <button type="submit">Calculate true-up</button>
     </form>
     <section class="panel" aria-live="polite"><h2>Your review</h2><div class="results">
-      <div class="metric"><strong id="unused">6</strong><span>unused seats</span></div><div class="metric"><strong id="utilization">70%</strong><span>seat utilization</span></div>
-      <div class="metric"><strong id="monthly">$108.00</strong><span>avoidable per month</span></div><div class="metric"><strong id="remaining">$432.00</strong><span>avoidable through renewal</span></div>
+      <div class="metric"><strong id="unused">6</strong><span id="unusedLabel">unused seats</span></div><div class="metric"><strong id="utilization">70%</strong><span>seat utilization</span></div>
+      <div class="metric"><strong id="monthly">$108.00</strong><span id="monthlyLabel">avoidable per month</span></div><div class="metric"><strong id="remaining">$432.00</strong><span id="remainingLabel">avoidable through renewal</span></div>
     </div><div class="callout" id="message">A seat review could release $1,296.00 over a full year if the unused seats are not renewed.</div></section>
   </section>
   <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events are stored only in this browser and can be disabled with <a href="#" id="disable">turning usage counting off</a>.</footer>
 </main><script type="module">
-  import { calculateTrueUp, formatMoney } from './calc.mjs'; import { recordEvent, disableUsage } from './usage.mjs';
-  const form = document.querySelector('#form'); const read = id => document.querySelector(`#${id}`).value;
-  function render(count = false) { try { const result = calculateTrueUp({ seatsPurchased:read('purchased'), seatsUsed:read('used'), monthlyPrice:read('price'), monthsRemaining:read('months') }); document.querySelector('#unused').textContent=result.unused; document.querySelector('#utilization').textContent=`${result.utilizationPercent.toFixed(1)}%`; document.querySelector('#monthly').textContent=formatMoney(result.monthlyAvoidable); document.querySelector('#remaining').textContent=formatMoney(result.remainingAvoidable); document.querySelector('#message').textContent=`A seat review could release ${formatMoney(result.annualAvoidable)} over a full year if the unused seats are not renewed.`; if (count) recordEvent('true_up_calculated'); } catch (error) { document.querySelector('#message').textContent=error.message; } }
-  form.addEventListener('submit', event => { event.preventDefault(); render(true); }); document.querySelector('#disable').addEventListener('click', event => { event.preventDefault(); disableUsage(); });
+  import { calculateTrueUp, formatMoney, reviewMessage } from './calc.mjs';
+  import { recordEvent, disableUsage } from './usage.mjs';
+  const form = document.querySelector('#form');
+  const read = id => document.querySelector(`#${id}`).value;
+  function render(count = false) {
+    try {
+      const result = calculateTrueUp({ seatsPurchased:read('purchased'), seatsUsed:read('used'), monthlyPrice:read('price'), monthsRemaining:read('months') });
+      const over = result.extra > 0;
+      document.querySelector('#unused').textContent = over ? result.extra : result.unused;
+      document.querySelector('#unusedLabel').textContent = over ? 'seats over purchased' : 'unused seats';
+      document.querySelector('#utilization').textContent = Number.isFinite(result.utilizationPercent) ? `${result.utilizationPercent.toFixed(1)}%` : 'n/a';
+      document.querySelector('#monthly').textContent = formatMoney(over ? result.monthlyOverage : result.monthlyAvoidable);
+      document.querySelector('#monthlyLabel').textContent = over ? 'extra per month' : 'avoidable per month';
+      document.querySelector('#remaining').textContent = formatMoney(over ? result.remainingOverage : result.remainingAvoidable);
+      document.querySelector('#remainingLabel').textContent = over ? 'extra through remaining term' : 'avoidable through renewal';
+      document.querySelector('#message').textContent = reviewMessage(result);
+      if (count) recordEvent('true_up_calculated');
+    } catch (error) {
+      document.querySelector('#message').textContent = error.message;
+    }
+  }
+  form.addEventListener('submit', event => { event.preventDefault(); render(true); });
+  document.querySelector('#disable').addEventListener('click', event => { event.preventDefault(); disableUsage(); });
 </script></body></html>

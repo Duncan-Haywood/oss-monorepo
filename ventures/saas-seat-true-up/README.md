@@ -6,8 +6,8 @@ Open [`index.html`](index.html) directly or serve this directory as a static sit
 
 ## Usage
 
-Enter purchased seats, seats used in the latest review, per-seat monthly price, and months remaining. The result is an estimate of unused seats, utilization, current-term avoidable spend, and annualized avoidable spend. It is a planning scenario, not a vendor invoice or savings guarantee.
+Enter purchased seats, seats used in the latest review, per-seat monthly price, and months remaining. Unused seats become avoidable spend. Used seats above the purchased count become overage. The result is a planning scenario, not a vendor invoice or savings guarantee.
 
-The product counts only the local aggregate `true_up_calculated` event. It stores no plan values, names, identifiers, IP addresses, or content, sends nothing to an analytics vendor, honors Do Not Track and Global Privacy Control, and includes an opt-out link. Baseline usage is recorded in `portfolio/usage/usage.yaml`.
+The product counts only the local aggregate `true_up_calculated` event. It stores no plan values, names, identifiers, IP addresses, or content, sends nothing to an analytics vendor, honors Do Not Track and Global Privacy Control, and includes a persistent opt-out. Baseline usage is recorded in `portfolio/usage/usage.yaml`.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
