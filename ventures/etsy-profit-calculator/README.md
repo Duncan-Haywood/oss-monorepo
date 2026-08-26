@@ -201,6 +201,22 @@ the $32 lift to about 6.6 extra orders. The SEO page
 [should-i-offer-free-shipping-on-etsy.html](should-i-offer-free-shipping-on-etsy.html)
 walks through the same examples.
 
+## Does auto-renew still cover a slow listing?
+
+Etsy charges the listing fee when a listing publishes or auto-renews,
+not once per sale. The order calculator subtracts that fee from every
+order, which overstates cost on a listing that sells more than once
+and hides the fee on a listing that sells nothing.
+
+Open [listing-renewal.html](listing-renewal.html) and type the sales
+you actually expect in one renewal window. On the default $30 listing
+with $1 other cost, contribution before the listing fee is $20.43.
+Two sales in four months leave $40.65 after the $0.20 fee ($0.10 per
+sale). One sale recovers the fee. Zero sales still cost $0.20 — $0.60
+a year at a four-month window. Charging $0.20 on every order
+overstates listing cost by $0.20 across those two sales, or $0.80
+across five. The page does not turn auto-renew on or off.
+
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingRenewalNote } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -694,4 +694,80 @@ test('freeShippingNote names a raised-ahead path without asking for volume', () 
 test('rejects a negative free-shipping item price or monthly orders', () => {
   assert.throws(() => compareFreeShipping({ ...PAGE_ORDER, freeShipPrice: -1 }), /Free-shipping item price/);
   assert.throws(() => compareFreeShipping({ ...PAGE_ORDER, monthlyOrders: -4 }), /Monthly orders/);
+});
+
+const renewalInput = {
+  price: 30,
+  shippingCharged: 5,
+  listingFee: 0.2,
+  transactionRate: 6.5,
+  paymentRate: 3,
+  paymentFixed: 0.25,
+  offsiteAdRate: 0,
+  shippingCost: 6,
+  materialCost: 4,
+  otherCost: 1,
+  renewalMonths: 4,
+};
+
+test('allocates the listing fee across sales in one renewal window', () => {
+  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 5 });
+  const withoutListing = calculateOrder({ ...renewalInput, listingFee: 0 });
+  assert.equal(result.listingPerSale, 0.04);
+  assert.equal(result.contributionExListing, withoutListing.profit);
+  assert.equal(result.periodProfitAfterListing, withoutListing.profit * 5 - 0.2);
+  assert.equal(Number(result.annualListingCost.toFixed(2)), 0.6);
+  assert.equal(result.overstatedInPeriod, 0.8);
+  assert.equal(result.coversListing, true);
+  assert.equal(result.unpaidRenewal, false);
+  assert.equal(result.profitIfAllocated, calculateOrder({ ...renewalInput, listingFee: 0.04 }).profit);
+});
+
+test('keeps the listing fee on a listing that sells nothing', () => {
+  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 0 });
+  assert.equal(result.listingPerSale, null);
+  assert.equal(result.profitIfAllocated, null);
+  assert.equal(result.periodProfitAfterListing, -0.2);
+  assert.equal(result.coversListing, false);
+  assert.equal(result.unpaidRenewal, true);
+  assert.equal(result.scenarios[0].periodProfitAfterListing, -0.2);
+  assert.equal(result.scenarios[0].periodProfitIfListingPerOrder, 0);
+});
+
+test('counts how many sales recover the listing fee from leftover contribution', () => {
+  const result = calculateListingRenewal({ ...renewalInput, expectedSales: 2 });
+  assert.equal(result.salesToRecover, 1);
+  assert.ok(result.contributionExListing > 0.2);
+  assert.equal(Number(result.periodProfitAfterListing.toFixed(2)), 40.65);
+  assert.equal(result.listingPerSale, 0.1);
+});
+
+test('reports that a losing order never recovers the listing fee', () => {
+  const result = calculateListingRenewal({
+    ...renewalInput,
+    price: 5,
+    shippingCharged: 0,
+    shippingCost: 8,
+    materialCost: 4,
+    expectedSales: 10,
+  });
+  assert.equal(result.salesToRecover, null);
+  assert.equal(result.coversListing, false);
+});
+
+test('rejects a zero or invalid renewal window', () => {
+  assert.throws(() => calculateListingRenewal({ ...renewalInput, renewalMonths: 0 }), /greater than zero/);
+  assert.throws(() => calculateListingRenewal({ ...renewalInput, expectedSales: -1 }), /non-negative/);
+});
+
+test('listingRenewalNote names unpaid renewals and overstated per-order fees', () => {
+  const unpaid = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 0 }));
+  assert.match(unpaid, /\$0\.20/);
+  assert.match(unpaid, /even if nothing sells/);
+  assert.match(unpaid, /\$0\.60/);
+  const two = listingRenewalNote(calculateListingRenewal({ ...renewalInput, expectedSales: 2 }));
+  assert.match(two, /\$40\.65/);
+  assert.match(two, /\$0\.10/);
+  assert.match(two, /1 sale recovers/);
+  assert.match(two, /\$0\.20/);
 });
