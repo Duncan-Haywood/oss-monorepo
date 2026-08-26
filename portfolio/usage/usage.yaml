@@ -902,6 +902,30 @@ products:
           assertions lived in `test_app.mjs`, which `node --test` does not
           match, so they had never run anywhere. Public URL remains
           owner-gated.
+  - slug: metal-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for metal-roofing
+          crews to price standing-seam and exposed-fastener jobs from panel
+          squares, tear-off, stories, and trim. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: flat-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local TPO / EPDM / PVC / modified-bitumen bid calculator
+          with a copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
   - slug: patio-door-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1297,6 +1321,20 @@ products:
           and dispute draft onto current main, with a detention clock extra.
           Public URL remains owner-gated; the local-first counter reports
           only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_audit_events: 0
+          review_exports: 0
+          draft_copies: 0
+          detention_compares: 0
+          invoice_imports: 0
+        note: >-
+          CSV invoice import with column mapping and a contract rate card
+          shipped. New `invoice_imported` event; still a zero baseline because
+          the public URL remains owner-gated on deploy-settings. Once live the
+          reading that matters is imports versus hand-entered audits — if
+          nobody imports, the mapping step is the friction, not the idea.
   - slug: cloud-egress-calculator
     surface: static-page-in-repo
     readings:
