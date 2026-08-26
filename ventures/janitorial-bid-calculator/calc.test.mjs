@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, compareFrequencyReduction, frequencyReductionNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
 
 const office = () => ({
   areas: [
@@ -278,4 +278,129 @@ test('the pasteable note names the true 3× price and the linear mistake', () =>
   const warning = frequencyReductionNote(losing, { targetMargin: 20 });
   assert.match(warning, /would lose/);
   assert.match(warning, /Walk-away/);
+});
+
+test('they-buy-restroom-stock drops only that share of supplies and leaves labor alone', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  assert.ok(Math.abs(comparison.restroomSuppliesMonthly - 26) < 1e-9);
+  assert.ok(Math.abs(comparison.chemicalSuppliesMonthly - 14) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyRestroom.monthlySupplies - 14) < 1e-9);
+  assert.equal(comparison.theyBuyAll.monthlySupplies, 0);
+  assert.equal(comparison.theyBuyRestroom.monthlyHours, comparison.youSupply.monthlyHours);
+  assert.equal(comparison.theyBuyAll.monthlyHours, comparison.youSupply.monthlyHours);
+  assert.equal(comparison.theyBuyButYouFill.monthlyHours, comparison.youSupply.monthlyHours);
+  assert.equal(comparison.theyBuyRestroom.equipmentMonthly, comparison.youSupply.equipmentMonthly);
+});
+
+test('dropping the whole supplies line is the they-buy-everything price, not the restroom-only price', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  // $40 supplies × 1.15 overhead / 0.80 margin = $57.50 of today's price.
+  assert.ok(Math.abs(comparison.suppliesInPrice - 57.5) < 1e-9);
+  assert.ok(Math.abs(comparison.naiveDropPrice - comparison.theyBuyAll.monthlyPrice) < 1e-9);
+  assert.ok(comparison.theyBuyRestroom.monthlyPrice > comparison.theyBuyAll.monthlyPrice);
+  assert.ok(comparison.theyBuyRestroom.monthlyPrice < comparison.youSupply.monthlyPrice);
+  assert.ok(Math.abs(comparison.leftoverIfTheyBuyRestroom - 37.375) < 1e-9);
+  assert.ok(Math.abs(comparison.youSupply.monthlyPrice - 1719.9975) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyRestroom.monthlyPrice - 1682.6225) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyAll.monthlyPrice - 1662.4975) < 1e-9);
+});
+
+test('emergency-fill after they run out can cost more than you-supplying', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  assert.equal(comparison.fillCostsMoreThanYouSupply, true);
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.monthlyPrice - 1732.935) < 1e-9);
+  assert.ok(Math.abs(comparison.fillPremiumVsYouSupply - 12.9375) < 1e-9);
+  // Chemicals stay; the $35 fill is layered on other monthly cost.
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.monthlySupplies - 14) < 1e-9);
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.otherMonthly - 35) < 1e-9);
+  assert.ok(comparison.naiveMarginAtFill < comparison.naiveMarginAtRestroom);
+  assert.ok(comparison.naiveMarginAtRestroom < 20);
+});
+
+test('a zero emergency fill makes the fill row the same as they-buy-restroom', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 0,
+  });
+  assert.equal(comparison.fillCostsMoreThanYouSupply, false);
+  assert.ok(Math.abs(comparison.theyBuyButYouFill.monthlyPrice - comparison.theyBuyRestroom.monthlyPrice) < 1e-9);
+  assert.ok(Math.abs(comparison.fillPremiumVsYouSupply - (comparison.theyBuyRestroom.monthlyPrice - comparison.youSupply.monthlyPrice)) < 1e-9);
+});
+
+test('a 100% restroom share is they-buy-everything; a 0% share is you-supply', () => {
+  const allRestroom = compareSupplyResponsibility(office(), { restroomSharePercent: 100 });
+  assert.ok(Math.abs(allRestroom.theyBuyRestroom.monthlyPrice - allRestroom.theyBuyAll.monthlyPrice) < 1e-9);
+  assert.equal(allRestroom.chemicalSuppliesMonthly, 0);
+  const none = compareSupplyResponsibility(office(), { restroomSharePercent: 0 });
+  assert.ok(Math.abs(none.theyBuyRestroom.monthlyPrice - none.youSupply.monthlyPrice) < 1e-9);
+  assert.ok(Math.abs(none.restroomSuppliesMonthly) < 1e-9);
+});
+
+test('their drop-supplies offer is scored against the cost you still carry', () => {
+  const you = calculateBid(office());
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+    clientOfferMonthly: you.monthlyPrice - 57.5,
+  });
+  assert.ok(comparison.clientOfferRestroom);
+  assert.ok(Math.abs(comparison.clientOfferRestroom.price - comparison.naiveDropPrice) < 1e-9);
+  assert.ok(Math.abs(comparison.clientOfferRestroom.profit - comparison.naiveProfitAtRestroom) < 1e-9);
+  assert.ok(Math.abs(comparison.clientOfferFill.profit - comparison.naiveProfitAtFill) < 1e-9);
+  assert.equal(comparison.clientOfferAll.belowBreakEven, false);
+});
+
+test('a large emergency fill makes dropping the supplies line a losing bid', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 300,
+  });
+  assert.equal(comparison.naiveBelowBreakEvenAtFill, true);
+  assert.ok(comparison.naiveProfitAtFill < 0);
+  assert.ok(comparison.theyBuyButYouFill.breakEvenMonthlyPrice > comparison.naiveDropPrice);
+});
+
+test('supply comparison rejects a restroom share above 100 rather than inventing a credit', () => {
+  assert.throws(
+    () => compareSupplyResponsibility(office(), { restroomSharePercent: 140 }),
+    /Restroom stock share of supplies must be at most 100/,
+  );
+  assert.throws(
+    () => compareSupplyResponsibility(office(), { restroomSharePercent: 'most' }),
+    /Restroom stock share of supplies must be a number/,
+  );
+  assert.throws(
+    () => compareSupplyResponsibility(office(), { emergencyFillMonthly: -1 }),
+    /Emergency fill when they run out must be at least 0/,
+  );
+});
+
+test('the pasteable supplies note names the restroom-only price and the emergency-fill trap', () => {
+  const comparison = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 35,
+  });
+  const note = supplyResponsibilityNote(comparison, { targetMargin: 20 });
+  assert.match(note, /\$26\.00/);
+  assert.match(note, /\$14\.00/);
+  assert.match(note, /\$1,682\.62/);
+  assert.match(note, /\$1,720\.00/);
+  assert.match(note, /\$1,662\.50/);
+  assert.match(note, /\$1,732\.94/);
+  assert.match(note, /above you-supplying/);
+  const losing = compareSupplyResponsibility(office(), {
+    restroomSharePercent: 65,
+    emergencyFillMonthly: 300,
+  });
+  const warning = supplyResponsibilityNote(losing, { targetMargin: 20 });
+  assert.match(warning, /would lose/);
 });
