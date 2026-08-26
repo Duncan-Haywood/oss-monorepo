@@ -12,8 +12,14 @@
 // form grew since — a shared link that computes a different price than the
 // sender saw is worse than no link at all.
 //
-// Nothing here is transmitted. `localStorage` is the visitor's own disk and
-// the link is only ever built in their browser and copied by them.
+// Nothing here is transmitted. `localStorage` is the visitor's own disk, and
+// the link is only ever built in their browser and copied by them. The bid
+// travels in the URL *fragment* (`#...`), never the query string: a fragment
+// is not sent in the request line a server logs, nor in the `Referer` header a
+// later click would carry, so the numbers a setter typed stay on the machines
+// they choose to send the link to. `encodeBid` returns a bare parameter string
+// and `decodeBid` accepts it with or without a leading `#`, so this module
+// stays agnostic to which the caller uses; the calculators use the fragment.
 
 // Spec shape, built by the caller from its existing id lists:
 //   {
