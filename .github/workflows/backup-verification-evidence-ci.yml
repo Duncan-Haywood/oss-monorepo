@@ -28,6 +28,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: python3 -m unittest discover -s tests -v
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: node --test report.test.mjs page.test.mjs
 
   lint:
     runs-on: ubuntu-latest

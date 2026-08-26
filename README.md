@@ -24,7 +24,14 @@ ventures/     one directory per business; each has a VENTURE.yaml
 platform/     shared agent definitions, skills, and CI — versioned once
 portfolio/    the ledger, the router that allocates agent effort, and the
               candidate pipeline of researched-but-not-started businesses
+infra/        OpenTofu for the existing hel1 pair (cpx52 + cpx22)
+bootstrap/    one-time k3s + Argo CD (laptop SSH, not cloud-init)
+gitops/       App-of-Apps, AppProjects, prod/staging/agents
 ```
+
+Actions secrets for that stack (names only): `HETZNERSSHKEY`,
+`HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
+trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
 
 ### ventures/
 
