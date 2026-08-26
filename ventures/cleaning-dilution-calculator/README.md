@@ -43,4 +43,7 @@ for meeting any obligation it helps you prepare for. To the maximum extent
 permitted by law, the authors accept no liability for any loss or damage arising
 from its use.
 
+[GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
+never changes what the tool does.
+
 MIT licensed. See [`LICENSE`](LICENSE).
