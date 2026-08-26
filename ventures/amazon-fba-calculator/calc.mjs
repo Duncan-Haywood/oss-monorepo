@@ -2777,3 +2777,284 @@ export function placementSummary(comparison) {
     : ` One-warehouse placement is ${money(-extraFreightOptimizedCanCarry)} cheaper than the optimized split's placement line, so extra freight on the split has to be even smaller to win.`;
   return `${winnerLine}${carry}`;
 }
+
+// Amazon can add a per-unit low-inventory-level surcharge when BOTH the
+// 30-day and 90-day historical days of supply sit below 28. That is a
+// quantity question (how thin is this FNSKU?), not aged-inventory (an
+// age surcharge on leftover units) and not restock vs storage seasons
+// (when the cube sits). Salvaged from #1521 onto current main so the
+// unique restock-vs-stay-thin table is not lost behind a conflicted rebase.
+export const LOW_INVENTORY_THRESHOLD_DAYS = 28;
+
+// Illustrative 2025–26 US FBA low-inventory-level bands. Sellers replace
+// the per-unit fee from their current Amazon fee preview. Extra-large is
+// treated as exempt in this model.
+export const LOW_INVENTORY_FEE_PRESETS = {
+  small_standard: [
+    { maxDays: 13, fee: 0.89, label: "0–13 days" },
+    { maxDays: 20, fee: 0.63, label: "14–20 days" },
+    { maxDays: 27, fee: 0.32, label: "21–27 days" },
+  ],
+  large_standard_light: [
+    { maxDays: 13, fee: 0.97, label: "0–13 days" },
+    { maxDays: 20, fee: 0.7, label: "14–20 days" },
+    { maxDays: 27, fee: 0.36, label: "21–27 days" },
+  ],
+  large_standard_heavy: [
+    { maxDays: 13, fee: 1.11, label: "0–13 days" },
+    { maxDays: 20, fee: 0.87, label: "14–20 days" },
+    { maxDays: 27, fee: 0.47, label: "21–27 days" },
+  ],
+  large_bulky: [
+    { maxDays: 13, fee: 2.09, label: "0–13 days" },
+    { maxDays: 20, fee: 1.44, label: "14–20 days" },
+    { maxDays: 27, fee: 1.08, label: "21–27 days" },
+  ],
+};
+
+export function daysOfSupply({ averageDailyInventory, unitsSold, windowDays }) {
+  const inventory = number(averageDailyInventory, "On-hand units");
+  const sold = number(unitsSold, "Units sold");
+  const window = number(windowDays, "Window days");
+  if (window === 0) throw new Error("Window days must be greater than zero");
+  const dailyShipped = sold / window;
+  if (dailyShipped === 0) return Infinity;
+  return inventory / dailyShipped;
+}
+
+export function lowInventoryBandKey(sizeTier, weightLb) {
+  if (!SIZE_TIER_LABELS[sizeTier]) throw new Error(`Unknown size tier: ${sizeTier}`);
+  if (sizeTier === "small_standard") return "small_standard";
+  if (sizeTier === "large_standard") {
+    return number(weightLb, "Weight") <= 3 ? "large_standard_light" : "large_standard_heavy";
+  }
+  if (sizeTier === "large_bulky") return "large_bulky";
+  return "exempt";
+}
+
+export function defaultLowInventoryFee({ sizeTier, weightLb, daysOfSupply: days }) {
+  const supply = number(days, "Days of supply");
+  if (supply >= LOW_INVENTORY_THRESHOLD_DAYS) return 0;
+  const key = lowInventoryBandKey(sizeTier, weightLb);
+  const bands = LOW_INVENTORY_FEE_PRESETS[key];
+  if (!bands) return 0;
+  for (const band of bands) {
+    if (supply <= band.maxDays) return band.fee;
+  }
+  return bands[bands.length - 1].fee;
+}
+
+/**
+ * Same FNSKU, two policies once both historical windows sit under 28 days.
+ *
+ *   - Stay thin — pay the per-unit surcharge on each FBA shipment.
+ *   - Restock to 28 days — send the extra units, pay inbound now and
+ *     storage on the extra cube, and drop the surcharge.
+ *
+ * Days of supply is on-hand divided by daily shipped in that window.
+ * When both windows are thin, the fee band follows the thinner one.
+ * If either window is 28 days or more, this model adds nothing.
+ * Merchant-fulfilled, grocery, and new-FNSKU are exemption switches
+ * the seller turns on — not a claim the account qualifies.
+ *
+ * Listing profit stays completed-sale on the main calculator. This
+ * table is complementary, not a second aged-inventory or Q4-storage
+ * page. Rates are inputs, not Amazon's live LIL schedule.
+ */
+export function compareLowInventory(input = {}) {
+  const hasInventory =
+    !emptyField(input.onHandUnits) &&
+    !emptyField(input.soldLast30Days) &&
+    !emptyField(input.soldLast90Days);
+
+  if (!hasInventory) {
+    return {
+      applies: false,
+      reason: "not_entered",
+      shortTermDays: null,
+      longTermDays: null,
+      bandDays: null,
+      bandLabel: "not entered",
+      suggestedFee: 0,
+      feePerUnit: 0,
+      monthlyFee: 0,
+      extraUnitsTo28: 0,
+      extraStoragePerMonth: 0,
+      extraInbound: 0,
+      restockSavesPerMonth: 0,
+      inboundPaybackMonths: null,
+      cheaperPolicy: "tie",
+      exempt: false,
+      monthlyUnits: 0,
+    };
+  }
+
+  const onHandUnits = number(input.onHandUnits, "On-hand units");
+  const soldLast30Days = number(input.soldLast30Days, "Units sold last 30 days");
+  const soldLast90Days = number(input.soldLast90Days, "Units sold last 90 days");
+  const storageRate = number(input.storageRate, "Storage rate", 0);
+  const inboundPerUnit = number(input.inboundPerUnit, "Inbound per unit", 0);
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 0);
+  const cuFt = emptyField(input.cubicFeet)
+    ? cubicFeet({
+        length: input.length ?? 8,
+        width: input.width ?? 6,
+        height: input.height ?? 2,
+      })
+    : number(input.cubicFeet, "Cubic feet", 0);
+  const fulfillmentMethod = input.fulfillmentMethod ?? "fba";
+  const newFnskuExempt = Boolean(input.newFnskuExempt);
+  const groceryExempt = Boolean(input.groceryExempt);
+  const sizeTier = input.sizeTier ?? "large_standard";
+  const weightLb = input.weightLb ?? 0;
+
+  const shortTermDays = daysOfSupply({
+    averageDailyInventory: onHandUnits,
+    unitsSold: soldLast30Days,
+    windowDays: 30,
+  });
+  const longTermDays = daysOfSupply({
+    averageDailyInventory: onHandUnits,
+    unitsSold: soldLast90Days,
+    windowDays: 90,
+  });
+
+  const bothFinite = Number.isFinite(shortTermDays) && Number.isFinite(longTermDays);
+  const bothBelow =
+    bothFinite &&
+    shortTermDays < LOW_INVENTORY_THRESHOLD_DAYS &&
+    longTermDays < LOW_INVENTORY_THRESHOLD_DAYS;
+  // When both windows are thin, the fee band follows the thinner one. If
+  // either window is 28 days or more, Amazon's published rule waives the fee.
+  const bandDays = bothBelow ? Math.min(shortTermDays, longTermDays) : Math.max(shortTermDays, longTermDays);
+
+  let reason = "above_threshold";
+  let exempt = false;
+  if (fulfillmentMethod === "fbm") {
+    reason = "fbm";
+    exempt = true;
+  } else if (newFnskuExempt) {
+    reason = "new_fnsku";
+    exempt = true;
+  } else if (groceryExempt) {
+    reason = "grocery";
+    exempt = true;
+  } else if (!bothBelow) {
+    reason = "above_threshold";
+  } else {
+    reason = "below_threshold";
+  }
+
+  const applies = reason === "below_threshold";
+  const suggestedFee = applies
+    ? defaultLowInventoryFee({
+        sizeTier,
+        weightLb,
+        daysOfSupply: bandDays,
+      })
+    : 0;
+
+  const feePerUnit = applies
+    ? emptyField(input.lowInventoryFee)
+      ? suggestedFee
+      : number(input.lowInventoryFee, "Low-inventory fee")
+    : 0;
+
+  const monthlyFee = feePerUnit * monthlyUnits;
+
+  const dailyShipped = Math.max(soldLast30Days / 30, soldLast90Days / 90);
+  const unitsFor28 = dailyShipped * LOW_INVENTORY_THRESHOLD_DAYS;
+  const extraUnitsTo28 = Math.max(0, unitsFor28 - onHandUnits);
+  const extraStoragePerMonth = extraUnitsTo28 * cuFt * storageRate;
+  const extraInbound = extraUnitsTo28 * inboundPerUnit;
+  const restockSavesPerMonth = monthlyFee - extraStoragePerMonth;
+  const inboundPaybackMonths =
+    restockSavesPerMonth > 0 ? extraInbound / restockSavesPerMonth : extraInbound === 0 ? 0 : Infinity;
+
+  let cheaperPolicy = "tie";
+  if (restockSavesPerMonth > 0) cheaperPolicy = "restock";
+  if (restockSavesPerMonth < 0) cheaperPolicy = "stay_thin";
+
+  const bands = LOW_INVENTORY_FEE_PRESETS[lowInventoryBandKey(sizeTier, weightLb)] ?? [];
+  const bandLabel = applies
+    ? bands.find((band) => bandDays <= band.maxDays)?.label ?? "below 28 days"
+    : reason === "above_threshold"
+      ? "28+ days"
+      : reason === "fbm"
+        ? "FBM (not charged)"
+        : reason === "new_fnsku"
+          ? "new FNSKU exempt"
+          : reason === "grocery"
+            ? "grocery exempt"
+            : "not entered";
+
+  return {
+    applies,
+    reason,
+    shortTermDays,
+    longTermDays,
+    bandDays,
+    bandLabel,
+    suggestedFee,
+    feePerUnit,
+    monthlyFee,
+    extraUnitsTo28,
+    extraStoragePerMonth,
+    extraInbound,
+    restockSavesPerMonth,
+    inboundPaybackMonths,
+    cheaperPolicy,
+    exempt,
+    dailyShipped,
+    unitsFor28,
+    monthlyUnits,
+    cubicFeet: cuFt,
+    sizeTier,
+    sizeTierLabel: SIZE_TIER_LABELS[sizeTier] ?? sizeTier,
+  };
+}
+
+export function lowInventoryNote(result) {
+  if (!result || typeof result.reason !== "string") {
+    throw new Error("Low-inventory comparison is missing");
+  }
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  if (!result.applies) {
+    if (result.reason === "fbm") {
+      return "Merchant fulfilled shipments do not pick up the low-inventory-level surcharge on these inputs.";
+    }
+    if (result.reason === "grocery") {
+      return "The grocery exemption switch is on, so this model adds no low-inventory-level surcharge. That is not a claim your account qualifies.";
+    }
+    if (result.reason === "new_fnsku") {
+      return "The new-FNSKU exemption switch is on, so this model adds no low-inventory-level surcharge. That is not a claim your account qualifies.";
+    }
+    if (result.reason === "not_entered") {
+      return "On-hand units and the last 30 / 90 days of sales are needed before days of supply can be compared to 28.";
+    }
+    return "One of the two historical windows is 28 days or more. The model adds no surcharge when either the 30-day or the 90-day days of supply sits at or above 28.";
+  }
+  const stay = `Stay thin: ${money(result.monthlyFee)} / month on ${result.monthlyUnits} shipments (${money(result.feePerUnit)} / unit, ${result.bandLabel}).`;
+  if (result.cheaperPolicy === "restock") {
+    const payback = Number.isFinite(result.inboundPaybackMonths)
+      ? ` Extra inbound pays back in about ${result.inboundPaybackMonths.toFixed(1)} months.`
+      : "";
+    return (
+      `${stay} Restocking ${result.extraUnitsTo28.toFixed(1)} units to 28 days avoids ` +
+      `${money(result.restockSavesPerMonth)} more per month after the extra storage.` +
+      `${payback} Arithmetic on your inputs, not advice to send inventory.`
+    );
+  }
+  if (result.cheaperPolicy === "stay_thin") {
+    return (
+      `${stay} Extra storage on a restock to 28 days (${money(result.extraStoragePerMonth)} / month) ` +
+      `is larger than the surcharge, so staying thin leaves ` +
+      `${money(-result.restockSavesPerMonth)} more per month. ` +
+      `Arithmetic on your inputs, not advice to stay thin.`
+    );
+  }
+  return `${stay} Restocking to 28 days and staying thin leave the same monthly cash on these rates.`;
+}

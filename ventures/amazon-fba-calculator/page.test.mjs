@@ -101,9 +101,11 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /peak vs off-peak Q4 storage/i);
   assert.match(featureList[1], /size-tier packaging cliff/i);
   assert.match(featureList[1], /Seller Fulfilled Prime vs FBA vs FBM/i);
+  assert.match(featureList[1], /restock vs low-inventory-level fee/i);
   assert.match(markup, /peak-vs-off-peak-storage\.html/);
   assert.match(markup, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(markup, /should-i-use-seller-fulfilled-prime\.html/);
+  assert.match(markup, /low-inventory-level-fee\.html/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);

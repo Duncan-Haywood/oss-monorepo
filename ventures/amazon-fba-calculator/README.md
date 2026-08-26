@@ -110,6 +110,20 @@ that still ties dispose. Complementary to
 [peak vs off-peak Q4 storage](peak-vs-off-peak-storage.html) (a seasonal
 rate) and to 3PL long-term storage (a different warehouse).
 
+Units that are still selling, but sitting thin, are a quantity
+decision on the same SKU: pay the low-inventory-level surcharge on
+each FBA shipment, or send enough units to cover 28 days.
+[Does restocking beat the low-inventory-level fee?](low-inventory-level-fee.html)
+shows both historical windows, the surcharge band, extra inbound,
+and extra storage. Complementary to aged-inventory removal (units
+that already sit) and to Q4 peak storage (when the cube sits).
+
+**After using the low-inventory page, you can now see whether 10
+on-hand units at 1 sale/day still lose $26.70 / month to the
+surcharge, and that restocking 18 units avoids $25.83 / month after
+$0.87 extra storage** — which used to mean staying thin because
+28 days looked like extra warehouse cost.
+
 Inbound placement is a create-shipment decision on the same SKU: pay
 Amazon to accept one warehouse, or pay extra freight to follow the
 split.
@@ -220,7 +234,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, and sfp-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, and low-inventory-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -233,7 +247,8 @@ aged-inventory keep vs return vs dispose comparison,
 inbound placement vs split-freight comparison,
 expected profit after returns,
 peak vs off-peak Q4 storage,
-and Seller Fulfilled Prime vs FBA vs FBM;
+Seller Fulfilled Prime vs FBA vs FBM,
+and restock vs low-inventory-level fee;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 

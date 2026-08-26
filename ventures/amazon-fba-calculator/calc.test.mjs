@@ -25,6 +25,11 @@ import {
   compareSizeTierPackaging,
   compareSfp,
   sfpNote,
+  compareLowInventory,
+  daysOfSupply,
+  defaultLowInventoryFee,
+  lowInventoryNote,
+  LOW_INVENTORY_THRESHOLD_DAYS,
   clampBoxToTier,
   nextCheaperWeightLb,
   nextLowerSizeTier,
@@ -1627,4 +1632,141 @@ test("compareSfp ignores a typed return mix and rejects impossible inputs", () =
   assert.throws(() => compareSfp({ ...SFP_BASE, sfpTakePct: 101 }), /at most 100/);
   assert.throws(() => compareSfp({ ...SFP_BASE, monthlyUnits: 0 }), /greater than zero/);
   assert.throws(() => sfpNote({}), /missing rows/);
+});
+
+test("days of supply is average inventory divided by daily shipped", () => {
+  near(
+    daysOfSupply({ averageDailyInventory: 10, unitsSold: 30, windowDays: 30 }),
+    10,
+    "10 on hand / 1 per day",
+  );
+  assert.equal(
+    daysOfSupply({ averageDailyInventory: 10, unitsSold: 0, windowDays: 30 }),
+    Infinity,
+  );
+  assert.throws(
+    () => daysOfSupply({ averageDailyInventory: 10, unitsSold: 30, windowDays: 0 }),
+    /Window days/,
+  );
+});
+
+test("LIL default bands follow size tier, weight, and days of supply", () => {
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 10 }), 0.89, "thin small");
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 18 }), 0.63, "mid small");
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 24 }), 0.32, "near 28 small");
+  near(defaultLowInventoryFee({ sizeTier: "small_standard", weightLb: 0.5, daysOfSupply: 28 }), 0, "at threshold");
+  near(defaultLowInventoryFee({ sizeTier: "large_standard", weightLb: 2, daysOfSupply: 10 }), 0.97, "light large");
+  near(defaultLowInventoryFee({ sizeTier: "large_standard", weightLb: 5, daysOfSupply: 10 }), 1.11, "heavy large");
+  near(defaultLowInventoryFee({ sizeTier: "large_bulky", weightLb: 12, daysOfSupply: 10 }), 2.09, "bulky");
+  near(defaultLowInventoryFee({ sizeTier: "extra_large", weightLb: 30, daysOfSupply: 5 }), 0, "XL exempt default");
+});
+
+test("thin 30-day and 90-day supply charges LIL and restocking beats staying thin", () => {
+  const r = compareLowInventory({
+    onHandUnits: 10,
+    soldLast30Days: 30,
+    soldLast90Days: 90,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    cubicFeet: cubicFeet({ length: 8, width: 6, height: 2 }),
+    storageRate: 0.87,
+    inboundPerUnit: 1.2,
+    monthlyUnits: 30,
+    fulfillmentMethod: "fba",
+  });
+  assert.equal(r.applies, true);
+  assert.equal(r.reason, "below_threshold");
+  near(r.shortTermDays, 10, "30-day days of supply");
+  near(r.longTermDays, 10, "90-day days of supply");
+  near(r.feePerUnit, 0.89, "0–13 day small-standard band");
+  near(r.monthlyFee, 0.89 * 30, "monthly surcharge");
+  near(r.extraUnitsTo28, 18, "28 days at 1/day minus 10 on hand");
+  const extraStorage = 18 * cubicFeet({ length: 8, width: 6, height: 2 }) * 0.87;
+  near(r.extraStoragePerMonth, extraStorage, "storage on the extra units");
+  near(r.extraInbound, 18 * 1.2, "one-time inbound");
+  near(r.restockSavesPerMonth, 0.89 * 30 - extraStorage, "LIL avoided minus extra storage");
+  assert.equal(r.cheaperPolicy, "restock");
+  assert.ok(r.inboundPaybackMonths < 1);
+  assert.equal(LOW_INVENTORY_THRESHOLD_DAYS, 28);
+  assert.doesNotMatch(lowInventoryNote(r), /should restock|must send|stay thin is better/i);
+});
+
+test("peak storage on a near-threshold cube can make staying thin cheaper than restocking", () => {
+  const r = compareLowInventory({
+    onHandUnits: 1050,
+    soldLast30Days: 1500,
+    soldLast90Days: 4500,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    cubicFeet: 1,
+    storageRate: 2.4,
+    inboundPerUnit: 1.2,
+    monthlyUnits: 1500,
+    fulfillmentMethod: "fba",
+  });
+  assert.equal(r.applies, true);
+  near(r.shortTermDays, 21, "21 days of supply");
+  near(r.feePerUnit, 0.32, "21–27 day small-standard band");
+  near(r.extraUnitsTo28, 350, "7 more days at 50/day");
+  near(r.extraStoragePerMonth, 350 * 2.4, "peak storage on 350 cu ft");
+  near(r.monthlyFee, 0.32 * 1500, "monthly LIL");
+  assert.ok(r.restockSavesPerMonth < 0);
+  assert.equal(r.cheaperPolicy, "stay_thin");
+  assert.doesNotMatch(lowInventoryNote(r), /should stay|must keep|do not restock/i);
+});
+
+test("either 28-day window at or above 28 days waives the LIL fee", () => {
+  const longHealthy = compareLowInventory({
+    onHandUnits: 30,
+    soldLast30Days: 90,
+    soldLast90Days: 90,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    monthlyUnits: 90,
+  });
+  near(longHealthy.shortTermDays, 10, "thin 30-day");
+  near(longHealthy.longTermDays, 30, "healthy 90-day");
+  assert.equal(longHealthy.applies, false);
+  near(longHealthy.feePerUnit, 0, "waived");
+
+  const bothHealthy = compareLowInventory({
+    onHandUnits: 80,
+    soldLast30Days: 80,
+    soldLast90Days: 240,
+    sizeTier: "large_standard",
+    weightLb: 0.75,
+    monthlyUnits: 80,
+  });
+  near(bothHealthy.shortTermDays, 30, "healthy 30-day");
+  assert.equal(bothHealthy.applies, false);
+});
+
+test("FBM, grocery, and new-FNSKU listings do not pay the LIL surcharge", () => {
+  const thin = {
+    onHandUnits: 10,
+    soldLast30Days: 30,
+    soldLast90Days: 90,
+    sizeTier: "small_standard",
+    weightLb: 0.5,
+    monthlyUnits: 30,
+  };
+  assert.equal(compareLowInventory({ ...thin, fulfillmentMethod: "fbm" }).feePerUnit, 0);
+  assert.equal(compareLowInventory({ ...thin, groceryExempt: true }).feePerUnit, 0);
+  assert.equal(compareLowInventory({ ...thin, newFnskuExempt: true }).feePerUnit, 0);
+});
+
+test("omitted inventory fields leave listing profit unchanged", () => {
+  const without = calculateListing(base);
+  const omitted = compareLowInventory({});
+  near(without.fba.profit, calculateListing(base).fba.profit, "listing path ignores LIL");
+  near(omitted.feePerUnit, 0, "no LIL without inventory inputs");
+  assert.equal(omitted.applies, false);
+  assert.throws(() => lowInventoryNote({}), /missing/);
+});
+
+test("rejects negative inventory inputs", () => {
+  assert.throws(
+    () => compareLowInventory({ onHandUnits: -1, soldLast30Days: 10, soldLast90Days: 30 }),
+    /On-hand units/,
+  );
 });
