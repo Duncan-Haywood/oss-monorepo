@@ -31,6 +31,12 @@ export const FIELD_IDS = [
   'extraTimeCost',
   'monthlyCustomOrders',
   'etsyAdsAcosPct',
+  'yourTimeCost',
+  'partnerUnitCost',
+  'partnerHandlingCost',
+  'yourMonthlyCapacity',
+  'monthlyDemand',
+  'partnerRejectRatePercent',
 ];
 
 // A field value is only carried if it is a finite, non-negative number — the

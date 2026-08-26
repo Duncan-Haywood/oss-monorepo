@@ -3,12 +3,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { compareEtsyPlus, comparePersonalization, compareEtsyAds } from './calc.mjs';
+import { compareEtsyPlus, comparePersonalization, compareEtsyAds, compareProductionPartner } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./is-etsy-plus-worth-it.html', import.meta.url), 'utf8');
 const personalizationSeo = readFileSync(new URL('./should-i-charge-for-etsy-personalization.html', import.meta.url), 'utf8');
 const adsSeo = readFileSync(new URL('./is-etsy-ads-worth-it.html', import.meta.url), 'utf8');
+const partnerSeo = readFileSync(new URL('./should-i-use-an-etsy-production-partner.html', import.meta.url), 'utf8');
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -54,6 +55,7 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /Etsy Plus credit comparison/i);
   assert.match(featureList[1], /personalization upcharge comparison/i);
   assert.match(featureList[1], /Etsy Ads ACOS comparison/i);
+  assert.match(featureList[1], /production partner vs handmade comparison/i);
   assert.match(markup, /id="plusTable"/);
   assert.match(markup, /id="listingsPerMonth"/);
   assert.match(markup, /id="monthlyPlusFee"/);
@@ -138,7 +140,7 @@ test('the personalization SEO page uses the same worked examples the calculator 
 });
 
 test('the Ads row template has one cell per column', () => {
-  const tableMarkup = markup.split('id="adsTable"')[1] || '';
+  const tableMarkup = (markup.split('id="adsTable"')[1] || '').split('id="partnerTable"')[0];
   const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, ' ').trim());
   assert.equal(headers.length, 5, `expected 5 Ads columns, found ${headers.join(' | ')}`);
@@ -175,4 +177,54 @@ test('the Etsy Ads SEO page uses the same worked examples the calculator default
   assert.ok(adsSeo.includes(money(offsite.organic.profit)), `missing offsite organic ${money(offsite.organic.profit)}`);
   assert.ok(adsSeo.includes(money(offsite.advertised.profit)), `missing offsite advertised ${money(offsite.advertised.profit)}`);
   assert.ok(adsSeo.includes(`${offsite.breakEvenAcosPct.toFixed(2)}%`), `missing offsite ceiling ${offsite.breakEvenAcosPct.toFixed(2)}%`);
+});
+
+test('the production-partner row template has one cell per column', () => {
+  const tableMarkup = markup.split('id="partnerTable"')[1] || '';
+  const headers = [...tableMarkup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, ' ').trim());
+  assert.equal(headers.length, 6, `expected 6 partner columns, found ${headers.join(' | ')}`);
+  assert.match(scriptSource, /compareProductionPartner/);
+  assert.match(scriptSource, /productionPartnerNote/);
+  assert.match(scriptSource, /production_partner_compared/);
+  assert.match(markup, /id="yourTimeCost"/);
+  assert.match(markup, /id="partnerUnitCost"/);
+  assert.match(markup, /id="partnerHandlingCost"/);
+  assert.match(markup, /id="yourMonthlyCapacity"/);
+  assert.match(markup, /id="monthlyDemand"/);
+  assert.match(markup, /id="partnerRejectRatePercent"/);
+});
+
+test('the production-partner SEO page uses the same worked examples the calculator defaults produce', () => {
+  assert.match(partnerSeo, /Should I use an Etsy production partner/i);
+  assert.match(partnerSeo, /href="\.\/#production-partner"/);
+  assert.match(partnerSeo, /No warranty/);
+  assert.match(partnerSeo, /no SLA/i);
+  const money = (value) => `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
+  const signed = (value) => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
+  const pageOrder = {
+    price: 30, shippingCharged: 5, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, offsiteAdRate: 0, shippingCost: 6,
+    materialCost: 4, otherCost: 0,
+  };
+  const defaults = compareProductionPartner(pageOrder);
+  const cheap = compareProductionPartner({ ...pageOrder, partnerUnitCost: 10 });
+  const reject = compareProductionPartner({ ...pageOrder, partnerRejectRatePercent: 10 });
+  const fits = compareProductionPartner({ ...pageOrder, monthlyDemand: 15 });
+  assert.ok(partnerSeo.includes(money(defaults.youMake.profit)), `missing handmade ${money(defaults.youMake.profit)}`);
+  assert.ok(partnerSeo.includes(money(defaults.partner.profit)), `missing partner ${money(defaults.partner.profit)}`);
+  assert.ok(partnerSeo.includes(signed(defaults.perUnitDelta)), `missing per-unit ${signed(defaults.perUnitDelta)}`);
+  assert.ok(partnerSeo.includes(money(defaults.youMake.monthly)), `missing handmade month ${money(defaults.youMake.monthly)}`);
+  assert.ok(partnerSeo.includes(money(defaults.partner.monthly)), `missing partner month ${money(defaults.partner.monthly)}`);
+  assert.ok(partnerSeo.includes(money(defaults.hybrid.monthly)), `missing hybrid month ${money(defaults.hybrid.monthly)}`);
+  assert.ok(partnerSeo.includes(money(defaults.breakEvenPartnerUnit)), `missing break-even ${money(defaults.breakEvenPartnerUnit)}`);
+  assert.ok(partnerSeo.includes(money(defaults.matchYouMakePrice)), `missing reprice ${money(defaults.matchYouMakePrice)}`);
+  assert.ok(partnerSeo.includes(money(cheap.partner.profit)), `missing $10 profit ${money(cheap.partner.profit)}`);
+  assert.ok(partnerSeo.includes(signed(cheap.perUnitDelta)), `missing $10 extra ${signed(cheap.perUnitDelta)}`);
+  assert.ok(partnerSeo.includes(money(cheap.partner.monthly)), `missing $10 month ${money(cheap.partner.monthly)}`);
+  assert.ok(partnerSeo.includes(money(reject.effectivePartnerCost)), `missing reject cost ${money(reject.effectivePartnerCost)}`);
+  assert.ok(partnerSeo.includes(money(reject.partner.profit)), `missing reject profit ${money(reject.partner.profit)}`);
+  assert.ok(partnerSeo.includes(money(reject.breakEvenPartnerUnit)), `missing reject break-even ${money(reject.breakEvenPartnerUnit)}`);
+  assert.ok(partnerSeo.includes(money(fits.youMake.monthly)), `missing fit handmade ${money(fits.youMake.monthly)}`);
+  assert.ok(partnerSeo.includes(money(fits.partner.monthly)), `missing fit partner ${money(fits.partner.monthly)}`);
 });

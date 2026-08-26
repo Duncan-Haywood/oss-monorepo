@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS } from './calc.mjs';
 
 test('calculates the complete fee stack and contribution', () => {
   const result = calculateOrder({ price: 30, shippingCharged: 5, listingFee: .2, transactionRate: 6.5, paymentRate: 3, paymentFixed: .25, offsiteAdRate: 0, shippingCost: 6, materialCost: 4, otherCost: 1 });
@@ -298,4 +298,87 @@ test('Etsy Ads note names the cannibalized gap, the ceiling, and the monthly bud
 
 test('rejects a negative Etsy Ads ACOS', () => {
   assert.throws(() => compareEtsyAds({ ...PAGE_ORDER, etsyAdsAcosPct: -12 }), /Etsy Ads ACOS/);
+});
+
+test('production-partner defaults match the $8 time / $14 quote / 20-of-40 example', () => {
+  assert.deepEqual(PRODUCTION_PARTNER_DEFAULTS, {
+    yourTimeCost: 8,
+    partnerUnitCost: 14,
+    partnerHandlingCost: 1,
+    yourMonthlyCapacity: 20,
+    monthlyDemand: 40,
+    partnerRejectRatePercent: 0,
+  });
+});
+
+test('a $14 partner quote loses per unit but overflow still wins the month', () => {
+  const result = compareProductionPartner(PAGE_ORDER);
+  assert.equal(result.youMake.profit, 13.23);
+  assert.equal(result.partner.profit, 10.23);
+  assert.equal(result.perUnitDelta, -3);
+  assert.equal(result.effectivePartnerCost, 15);
+  assert.equal(result.youMake.cashOut, 12);
+  assert.equal(result.youMake.units, 20);
+  assert.equal(result.youMake.monthly, 264.6);
+  assert.equal(result.partner.units, 40);
+  assert.equal(result.partner.monthly, 409.2);
+  assert.equal(result.hybrid.youUnits, 20);
+  assert.equal(result.hybrid.partnerUnits, 20);
+  assert.equal(result.hybrid.monthly, 469.2);
+  assert.equal(result.monthlyDeltaVsYou, 204.6);
+  assert.equal(result.breakEvenPartnerUnit, 11);
+  assert.equal(result.matchYouMakePrice, 33.32);
+  assert.equal(result.youMakePaysPerUnit, true);
+  assert.equal(result.partnerPaysPerUnit, false);
+  assert.equal(result.hybridPaysThisMonth, true);
+  assert.equal(result.perUnitWinner, 'you_make');
+  assert.equal(result.monthlyWinner, 'hybrid');
+});
+
+test('a $10 partner quote beats handmade per unit and this month', () => {
+  const result = compareProductionPartner({ ...PAGE_ORDER, partnerUnitCost: 10 });
+  assert.equal(result.partner.profit, 14.23);
+  assert.equal(result.perUnitDelta, 1);
+  assert.equal(result.perUnitWinner, 'partner');
+  assert.equal(result.monthlyWinner, 'partner');
+  assert.equal(result.partner.monthly, 569.2);
+  assert.equal(result.hybrid.monthly, 549.2);
+});
+
+test('a 10% reject rate raises the effective partner cost and lowers the break-even quote', () => {
+  const result = compareProductionPartner({ ...PAGE_ORDER, partnerRejectRatePercent: 10 });
+  assert.equal(result.effectivePartnerCost, 16.67);
+  assert.equal(result.partner.profit, 8.56);
+  assert.equal(result.breakEvenPartnerUnit, 9.8);
+  assert.equal(result.perUnitWinner, 'you_make');
+});
+
+test('when demand fits handmade capacity, overflow is not a separate winner', () => {
+  const result = compareProductionPartner({ ...PAGE_ORDER, monthlyDemand: 15 });
+  assert.equal(result.youMake.units, 15);
+  assert.equal(result.hybrid.partnerUnits, 0);
+  assert.equal(result.youMake.monthly, 198.45);
+  assert.equal(result.hybrid.monthly, 198.45);
+  assert.equal(result.partner.monthly, 153.45);
+  assert.equal(result.monthlyWinner, 'you_make');
+  assert.equal(result.hybridPaysThisMonth, false);
+});
+
+test('production-partner note names the per-unit gap and the monthly overflow', () => {
+  const note = productionPartnerNote(compareProductionPartner(PAGE_ORDER));
+  assert.match(note, /\$13\.23 per order/);
+  assert.match(note, /\$14\.00 partner quote/);
+  assert.match(note, /\$3\.00 less/);
+  assert.match(note, /\$264\.60 this month/);
+  assert.match(note, /\$409\.20/);
+  assert.match(note, /\$469\.20/);
+  assert.match(note, /\$11\.00/);
+  assert.match(note, /\$33\.32/);
+});
+
+test('rejects negative or 100% production-partner inputs', () => {
+  assert.throws(() => compareProductionPartner({ ...PAGE_ORDER, partnerUnitCost: -14 }), /Partner unit cost/);
+  assert.throws(() => compareProductionPartner({ ...PAGE_ORDER, yourTimeCost: -1 }), /Your time cost/);
+  assert.throws(() => compareProductionPartner({ ...PAGE_ORDER, partnerRejectRatePercent: 100 }), /below 100/);
+  assert.throws(() => compareProductionPartner({ ...PAGE_ORDER, partnerRejectRatePercent: 101 }), /at most 100/);
 });
