@@ -2087,3 +2087,1286 @@ products:
           United Inches, story access, and tear-out a per-window special
           hides; public URL remains owner-gated and the browser counter
           is local and opt-out. Baseline row.
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
+  - slug: automatic-driveway-gate-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a browser-local automatic driveway gate bid calculator
+          (single vs dual swing vs slide, columns, loops, solar vs AC).
+          Public URL remains owner-gated; counters are local, aggregate,
+          and opt-out.
+
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
+  - slug: crawl-space-encapsulation-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local crawl space encapsulation bid calculator with
+          liner-and-access math, three-scope comparison, and a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: parking-lot-striping-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: Shipped browser-local parking-lot striping bid calculator; public URL remains owner-gated.
+
+  - slug: landscape-lighting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local landscape lighting bid calculator
+          (fixtures vs trench vs transformer). Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: irrigation-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for irrigation
+          contractors to price a new sprinkler-system install from zones,
+          extra heads, trench, soil, backflow, and drip extras. Public URL
+          remains owner-gated; counters are local, aggregate, and opt-out.
+  - slug: sunroom-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sunroom / three-season / four-season bid calculator
+          that prices glass, thermal floor, and insulated roof instead of a
+          floor-square-foot coupon. Public URL remains owner-gated; counters
+          are local, aggregate, and opt-out.
+  - slug: metal-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for metal-roofing
+          crews to price standing-seam and exposed-fastener jobs from panel
+          squares, tear-off, stories, and trim. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: flat-roof-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local TPO / EPDM / PVC / modified-bitumen bid calculator
+          with a copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: patio-door-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sliding-glass / patio-door replacement bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated and the browser counter is local and opt-out.
+  - slug: french-drain-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local exterior French-drain / yard-drainage install bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated and the browser counter is local and opt-out.
+
+# Example of the shape, once a product has shipped:
+#
+# products:
+#   - slug: example-product
+#     surface: github-pages
+#     readings:
+#       - as_of: 2026-08-24
+#         signals:
+#           repo_views_14d: 0
+#           release_downloads_total: 0
+#         note: Shipped today; baseline reading.
+
+  - slug: vendor-rate-break-even
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped browser-local vendor scenario comparison baseline; public URL remains owner-gated.
+
+  - slug: equipment-rental-break-even
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+          export: 0
+          draft_save: 0
+        note: >-
+          Repair-and-merge of unique #1395 equipment-rental booking
+          calculator onto current main. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
+
+  - slug: cash-runway-planner
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          forecast_runs: 0
+          csv_exported: 0
+        note: >-
+          Repair-and-merge of unique #1230 cash runway planner onto
+          current main. Public URL remains owner-gated; usage is opt-in
+          and local-only. Baseline row.
+
+  - slug: ltl-freight-class-estimator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          estimate_completed: 0
+          result_copied: 0
+        note: >-
+          Repair-and-merge of unique #1194 LTL freight class estimator
+          onto current main. Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
+
+  - slug: hvac-maintenance-contract-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          plan_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1350 HVAC maintenance contract
+          calculator onto current main. Public URL remains owner-gated;
+          the local-first counter reports only to the user's own browser
+          and is opt-out. Baseline row.
+
+  - slug: subcontractor-cashflow-planner
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          scenario_planned: 0
+          csv_exported: 0
+        note: >-
+          Repair-and-merge of unique #1441 subcontractor cash-flow
+          planner onto current main. Public URL remains owner-gated;
+          usage is opt-out and local-only. Baseline row.
+
+  - slug: medical-courier-route-margin
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          route_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1392 medical courier route margin
+          calculator onto current main. Public URL remains owner-gated;
+          usage is local-only and honors DNT/GPC. Baseline row.
+
+  - slug: cam-reconciliation-check
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          checked: 0
+          downloaded: 0
+        note: >-
+          Repair-and-merge of unique #1430 CAM reconciliation worksheet
+          onto current main. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: payment-reconciliation-workbench
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          reconciliation_run: 0
+          review_exported: 0
+        note: >-
+          Repair-and-merge of unique #1388 payment reconciliation
+          workbench onto current main. Also removes conflict markers
+          that landed in usage.yaml with #1430. Public URL remains
+          owner-gated; usage is opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: public-record-watch
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+        note: >-
+          Repair-and-merge of unique #1411 public-record snapshot comparer
+          onto current main. Local CLI only; --usage-file is opt-in and
+          stores an aggregate count. Public URL remains owner-gated.
+
+  - slug: contractor-bid-readiness
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          readiness_checked: 0
+          report_downloaded: 0
+        note: >-
+          Repair-and-merge of unique #1398 contractor bid readiness checklist
+          onto current main. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: change-order-margin-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          change_order_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1369 change-order margin calculator
+          onto current main. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: notary-trip-quote
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          quote_calculated: 0
+          summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1256 mobile notary trip quote
+          calculator onto current main. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: subscription-price-impact
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculation: 0
+        note: >-
+          Repair-and-merge of unique #1293 SaaS price-change churn
+          calculator onto current main. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: job-margin-variance
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+        note: >-
+          Repair-and-merge of unique #1237 completed-job variance
+          calculator onto current main. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+
+  - slug: fifo-pick-evidence
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          reports_run: 0
+        note: >-
+          Repair-and-merge of unique #1308 FIFO pick-order evidence
+          CLI onto current main. Local CLI only; --usage-file is
+          opt-in and stores an aggregate count. Public URL remains
+          owner-gated. Baseline row.
+
+  - slug: cleaning-dilution-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          calculated: 0
+        note: >-
+          Repair-and-merge of unique #1251 cleaning chemical dilution
+          cost calculator onto current main. Public URL remains
+          owner-gated; usage is opt-out and honors DNT/GPC. Baseline
+          row.
+
+
+  - slug: vinyl-liner-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local vinyl-liner bid calculator with a copyable proposal
+          summary; public URL remains owner-gated.
+
+  - slug: pergola-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pergola / patio-cover bid calculator with
+          post-and-shade geometry, walk-away price, and a copyable
+          proposal summary; public URL remains owner-gated.
+
+  - slug: screened-porch-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local screened-porch / lanai bid calculator with
+          wall-screen and knee-wall geometry, walk-away price, and a
+          copyable proposal summary; public URL remains owner-gated.
+
+  - slug: pool-route-pricing
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_estimate_events: 0
+        note: >-
+          Repair-and-merge of unique #1202 pool route pricing calculator
+          onto current main. Public URL remains owner-gated; local counting
+          is anonymous, honors DNT/GPC, and is off by a visible control.
+
+  - slug: construction-evidence-log
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Repair-and-merge of unique #1204 construction daily log evidence
+          pack onto current main. Public URL remains owner-gated; local
+          counting is opt-in and honors DNT/GPC.
+
+  - slug: saas-seat-true-up
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          true_up_calculated: 0
+        note: >-
+          Repair-and-merge of unique #1353 SaaS seat true-up calculator onto
+          current main. Public URL remains owner-gated; local counting honors
+          DNT/GPC and a persistent opt-out.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          true_up_calculated: 0
+          scenario_saved: 0
+          scenario_restored: 0
+        note: >-
+          Browser-local save/restore of the four renewal totals so a
+          returning operator can reopen last review's numbers. Public URL
+          remains owner-gated.
+
+  - slug: consent-change-record
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          comparisons: 0
+        note: >-
+          Repair-and-merge of unique #1223 consent change record onto current
+          main. Public URL remains owner-gated; local counting honors DNT/GPC
+          and a visible opt-out.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          har_diffs: 0
+        note: >-
+          Added the sibling HAR before/after diff (tool/) from unique #1258.
+          JSON traces stay on index.html; HAR files stay local. Public URL
+          remains owner-gated.
+
+  - slug: translator-project-quote
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          page_viewed: 0
+          quote_summary_copied: 0
+        note: >-
+          Repair-and-merge of unique #1297 translator project quote calculator
+          onto current main. Labor is hours times hourly rate (words/hour is
+          productivity only). Public URL remains owner-gated; local counting
+          honors DNT/GPC and a visible opt-out.
+
+  - slug: wheelchair-ramp-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local wheelchair-ramp bid calculator with rise-to-run
+          landings, walk-away price, and a copyable proposal summary;
+          public URL remains owner-gated.
+
+  - slug: mcp-supply-chain-watch
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          manifest_compared: 0
+        note: >-
+          Repair-and-merge of unique #1161 MCP supply-chain watch onto current
+          main. Local JSON/Markdown manifest diff only; usage log is opt-in
+          and stores no tool names or schemas.
+
+  - slug: vendor-change-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+        note: >-
+          Repair-and-merge of unique #1169 vendor-change evidence onto current
+          main. Local snapshot compare only; failed fetches stay inconclusive.
+          Keep #1368 open until supersede_check exits 0.
+
+  - slug: tender-radar
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          page_viewed: 0
+          shortlist_created: 0
+          shortlist_exported: 0
+        note: >-
+          Repair-and-merge of unique #1200 tender radar onto current main.
+          Import-first CSV shortlist; no portal fetch. Public URL remains
+          owner-gated; local counting honors DNT/GPC and a visible opt-out.
+
+  - slug: deck-staining-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local deck staining / sealing bid calculator with a
+          copyable proposal summary; public URL remains owner-gated.
+
+  - slug: concrete-lifting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local concrete lifting / mudjacking / polyjacking bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated.
+
+  - slug: hot-tub-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local hot-tub / spa install bid calculator with a copyable
+          proposal summary; public URL remains owner-gated.
+
+  - slug: fireplace-insert-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local fireplace-insert bid calculator with a copyable
+          proposal summary; public URL remains owner-gated.
+
+  - slug: entry-door-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for door and carpentry
+          shops to price an entry-door replacement from sidelights, an
+          out-of-square opening, jamb rot, brickmold, storm door, and paint
+          rather than a published $1,200-installed special. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+
+  - slug: booth-rent-vs-commission
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local booth-rent vs commission take-home calculator for
+          stylists; public URL remains owner-gated and the browser counter is
+          local and opt-out.
+
+  - slug: sump-pump-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local sump-pump install bid calculator (pit,
+          extra discharge, battery / water-powered backup, alarm). Public
+          URL remains owner-gated; counters are local, aggregate, and
+          opt-out.
+  - slug: gutter-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local gutter *install* bid calculator (corners,
+          extra drops, stories, fascia, tear-off). Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: furnace-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local furnace / heat-pump bid calculator with extra duct,
+          attic versus basement, matching coil, gas upsize, and haul-away as
+          their own hours. Public URL remains owner-gated; counters are
+          local, aggregate, and opt-out.
+  - slug: water-softener-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local water-softener / iron-filter bid calculator with a
+          copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: well-pump-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local well-pump / pressure-tank bid calculator with a
+          copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: sewer-hydrojet-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local sewer camera / hydro-jet bid calculator with a
+          copyable proposal summary; public URL remains owner-gated.
+          Counters are local, aggregate, and opt-out.
+  - slug: pool-plaster-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local pool plaster / resurfacing bid calculator with
+          floor-plus-wall takeoff, finish, chip-out, spa, tile, and a
+          copyable proposal summary; public URL remains owner-gated.
+  - slug: stucco-repair-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local stucco / EIFS repair bid calculator with crack
+          feet, tear-off, stories, and a copyable proposal summary; public
+          URL remains owner-gated.
+
+  - slug: delivery-app-margin-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local restaurant delivery-margin comparison
+          (dine-in vs pickup vs DoorDash / Uber Eats / Grubhub / own
+          driver, packaging, extra labor, dine-in-matching price).
+          Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out.
+  - slug: duct-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a local air-duct-cleaning bid calculator with a copyable
+          proposal summary; public URL remains owner-gated. Counters are
+          local, aggregate, and opt-out.
+  - slug: exterior-painting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for exterior painting
+          contractors to price extra stories, extra elevation, scrape and
+          prime, extra trim, and hard access instead of a published $3,999
+          house special. Public URL remains owner-gated; counters are local,
+          aggregate, and opt-out.
+
+  - slug: seller-net-sheet
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local seller net sheet (post-NAR offer comparison,
+          walk-away sale price, copyable worksheet). Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: gutter-guard-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for gutter shops
+          to price extra stories, extra lineal feet, extra miters, and a
+          micromesh coil instead of a published $8/ft special. Public URL
+          remains owner-gated; counters are local, aggregate, and opt-out.
+
+  - slug: npm-deployment-evidence
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          local_reports_generated: 1
+          live_url_visitors: null
+        note: >-
+          Shipped a local package-lock v2/v3 production-vs-dev reachability
+          report. No public URL; usage is an optional local aggregate
+          counter only.
+
+  - slug: cra-evidence-desk
+    surface: local-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          local_reports_generated: 0
+          live_url_visitors: null
+        note: >-
+          Shipped exact-match SBOM/advisory evidence draft baseline;
+          customer demand remains untested. No public URL.
+  - slug: dryer-vent-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for dryer-vent techs
+          to price extra stories, extra feet of duct, extra dryers, and a
+          roof cap instead of a published $99 special. Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
+  - slug: mold-remediation-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for mold remediators
+          to price containment, demolition, dry-out, and clearance instead of
+          a published mold special. Public URL remains owner-gated; counters
+          are local, aggregate, and opt-out.
+  - slug: radon-mitigation-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local radon mitigation bid calculator with a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: septic-pumping-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local septic pumping bid calculator with a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: electrical-panel-upgrade-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local electrical panel / 200A service-upgrade bid
+          calculator with a copyable proposal summary; public URL remains
+          owner-gated. Counters are local, aggregate, and opt-out.
+  - slug: foundation-repair-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local foundation-repair bid calculator (helical / push
+          piers, extra shaft, interior access, straps) with a copyable
+          proposal summary; public URL remains owner-gated.
+  - slug: basement-waterproofing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for waterproofing
+          contractors to price interior drain, exterior excavation, and
+          crawl encapsulation from wells, sump, and discharge. Public URL
+          remains owner-gated; counters are local, aggregate, and opt-out.
+  - slug: countertop-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for stone fabricators
+          to price quartz and granite jobs from slabs, cutouts, and
+          waterfalls. Public URL remains owner-gated; counters are local,
+          aggregate, and opt-out.
+  - slug: hardwood-refinishing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local hardwood floor refinishing bid calculator that
+          prices field square footage, stair treads, closets, stain, and
+          an extra coat; public URL remains owner-gated and the browser
+          counter is local and opt-out. Baseline row.
+  - slug: cabinet-refinishing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local kitchen cabinet refinishing bid calculator that
+          prices doors, drawer fronts, face frames, hardware, degrease,
+          and a dark-to-light extra coat; public URL remains owner-gated
+          and the browser counter is local and opt-out. Baseline row.
+  - slug: paver-patio-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local interlocking-paver bid calculator that prices
+          pattern waste, compacted base, edge restraint, and haul-away;
+          public URL remains owner-gated and the browser counter is local
+          and opt-out. Baseline row.
+  - slug: retaining-wall-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local retaining-wall bid calculator that prices height,
+          drain stone, geogrid, corners, and the engineer/permit step a
+          per-linear-foot quote hides; public URL remains owner-gated and
+          the browser counter is local and opt-out. Baseline row.
+  - slug: mini-split-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local mini-split / ductless install bid calculator that
+          prices heads, line-set extras, story height, and the electrical
+          extras a per-head quote hides; public URL remains owner-gated and
+          the browser counter is local and opt-out. Baseline row.
+  - slug: solar-pv-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local solar PV install bid calculator that prices roof
+          difficulty and electrical extras a dollars-per-watt quote hides;
+          public URL remains owner-gated and the browser counter is local
+          and opt-out. Baseline row.
+  - slug: water-heater-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local water-heater replacement bid calculator that prices
+          the vent, the gas upsize, and the attic carry a flat installed
+          quote hides; public URL remains owner-gated and the browser
+          counter is local and opt-out. Baseline row.
+  - slug: standby-generator-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local standby-generator install bid calculator that prices
+          the transfer switch, the pad, and the fuel line a flat installed
+          quote hides; public URL remains owner-gated and the browser
+          counter is local and opt-out. Baseline row.
+  - slug: ev-charger-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local Level 2 EV charger install bid calculator that
+          prices the run, the trench, and the panel work a flat hang fee
+          hides; public URL remains owner-gated and the browser counter is
+          local and opt-out. Baseline row.
+
+  - slug: drywall-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local drywall hang-and-finish bid calculator with finish
+          levels 0–5, copyable quote summary, and an allowlisted share link;
+          public URL remains owner-gated and the browser counter is local and
+          opt-out. Baseline row.
+
+  - slug: siding-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local siding bid calculator (net squares × waste ×
+          height, plus tear-off, housewrap, openings, linear trim, dumpster,
+          and a walk-away price). Not yet deployed to a public URL
+          (publishing is owner-gated), so there is no traffic signal to read
+          and its local-first event counter reports only to the user's own
+          browser. Baseline row.
+
+  - slug: asphalt-sealcoat-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local asphalt sealcoating bid calculator (coats,
+          oxidized coverage, oil-spot primer, crack fill, striping, travel,
+          walk-away price). Public URL remains owner-gated; the local-first
+          counter reports only to the user's own browser and is opt-out.
+          Baseline row.
+
+  - slug: chimney-sweep-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local chimney-sweep bid calculator (flue hours ×
+          height × roof access, plus creosote, inspection, travel, and a
+          walk-away price). Not yet deployed to a public URL (publishing is
+          owner-gated), so there is no traffic signal to read and its
+          local-first event counter reports only to the user's own browser.
+          Baseline row.
+
+  - slug: irrigation-winterization-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local irrigation winterization / sprinkler-blowout
+          bid calculator (spray/rotor/drip minutes, backflow drain-and-insulate,
+          freeze-warning labor premium, travel, walk-away price). Public URL
+          remains owner-gated; the local-first counter reports only to the
+          user's own browser and is opt-out. Baseline row.
+
+  - slug: hood-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local kitchen-hood / exhaust-cleaning bid calculator
+          (canopy, filters, duct, fan, grease load, rooftop access,
+          after-hours labor, walk-away price). Public URL remains
+          owner-gated; the local-first counter reports only to the user's
+          own browser. Baseline row.
+
+  - slug: flooring-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local flooring install bid calculator (waste-adjusted
+          purchased material, per-room tear-out, stair treads, walk-away
+          price). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser. Baseline row.
+
+  - slug: mobile-detailing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a browser-local minimum-quote calculator for mobile
+          detailers (labor, round-trip travel, supplies, overhead, payment
+          fees). Public URL remains owner-gated; counters are anonymous,
+          local, and opt-out. Baseline row.
+
+  - slug: moving-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local moving bid calculator (inventory hours plus stairs
+          and long-carry access, walk-away price). Public URL remains
+          owner-gated; the local-first counter reports only to the user's
+          own browser. Baseline row.
+
+  - slug: portable-restroom-event-quote
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local porta potty / portable restroom event quote
+          calculator (days on site, pump-outs, two-round-trip mileage,
+          optional starting fleet estimate, copyable quote summary). Public
+          URL remains owner-gated; the local-first counter reports only to
+          the user's own browser. Baseline row.
+
+  - slug: fence-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local fence install bid calculator (posts from spacing,
+          terminals, gates, site multipliers, walk-away price). Public URL
+          remains owner-gated; the local-first counter reports only to the
+          user's own browser. Baseline row.
+
+  - slug: painting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local interior painting bid calculator (per-surface
+          production rates, extra-coat factor, paint gallons, walk-away, and
+          $2/sq ft floor-bid comparison). Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser and is
+          opt-out. Baseline row.
+
+  - slug: roofing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local residential reroof bid calculator (squares from
+          pitch, waste, tear-off layers, walk-away price). Public URL remains
+          owner-gated; the browser counter is local and opt-out. Baseline row.
+
+  - slug: gutter-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local gutter-cleaning bid calculator (stories, guards,
+          downspouts, minimum stop, seasonal contract); public URL remains
+          owner-gated.
+
+  - slug: snow-removal-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local snow-removal bid calculator (per-push vs seasonal,
+          ice events, break-even storm count, copyable proposal summary).
+          Public URL remains owner-gated; the browser counter is local and
+          opt-out. Baseline row.
+
+  - slug: tree-service-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local tree-service bid calculator (DBH-squared
+          hours, access, stump, haul, travel once per stop, mobilization
+          minimum, walk-away and per-inch sanity check). Public URL remains
+          owner-gated; the local-first counter reports only to the user's own
+          browser and is opt-out. Baseline row.
+
+  - slug: tender-bid-readiness
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          readiness_checked: 0
+        note: >-
+          Repair-and-merge of unique #1086 tender bid readiness checker onto
+          current main. Paste a solicitation; heuristic signals stay in the
+          browser. Public URL remains owner-gated; usage is opt-out and
+          honors DNT/GPC. Baseline row.
+
+  - slug: junk-removal-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local junk-hauling bid calculator (weight-from-material
+          dump ticket, special item fees, walk-away vs half-truck special).
+          Public URL remains owner-gated; the browser counter is local and
+          opt-out. Baseline row.
+
+  - slug: pressure-washing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Repair-and-merge of unique #1074 pressure-washing bid calculator
+          onto current main (surfaces, travel, setup, after-travel hourly).
+          Public URL remains owner-gated; the browser counter is local,
+          opt-out, and honors DNT/GPC. Baseline row.
+  - slug: window-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local window-cleaning bid calculator (panes × minutes ×
+          sides plus travel/setup, minimum job charge, copyable estimate);
+          public URL remains owner-gated.
+  - slug: carpet-cleaning-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local carpet cleaning bid calculator (rooms, stairs, pet
+          extra passes, upholstery, drive time, walk-away vs a posted special)
+          with a copyable quote summary; public URL remains owner-gated.
+
+  - slug: lawn-care-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped browser-local lawn-care bid calculator (per-service
+          production rates, travel as loaded labor, honest annual at
+          growing-season weeks, walk-away price). Public URL remains
+          owner-gated; the local-first counter reports only to the user's
+          own browser and is opt-out. Baseline row.
