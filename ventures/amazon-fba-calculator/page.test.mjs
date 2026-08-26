@@ -537,6 +537,15 @@ test("SEO page uses the same seller-plan worked example the tests lock", () => {
   nearEnough(compared.monthlyProfitDelta, 39.21);
 });
 
+test("named sourcing scenarios stay on this device", () => {
+  assert.match(html, /id="saveScenario"/);
+  assert.match(html, /id="scenarioName"/);
+  assert.match(html, /id="copySummary"/);
+  assert.match(html, /from "\.\/scenarios\.mjs"/);
+  assert.match(html, /scenario_saved/);
+  assert.match(html, /decision_summary_copied/);
+});
+
 test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);

@@ -183,6 +183,13 @@
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     .hint { font-weight: 500; font-size: .78rem; color: #5a6b82; }
+    .scenarios { margin-top: 18px; }
+    .scenario-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
+    .scenario-tools label { flex: 1 1 180px; }
+    .scenarios button { border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px 12px; font: inherit; font-weight: 650; background: #f4f7fb; cursor: pointer; }
+    .scenarios button:hover { background: #e6edf7; }
+    .scenario-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .scenario-list button { font-size: .85rem; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
       /* A grid item defaults to min-width:auto and grows to its widest child, so a
        wide results table pushed the whole page sideways on a phone instead of
@@ -539,6 +546,16 @@
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. FBM handling labor is an optional per-unit opportunity cost. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, Low-Price bands, prep-service fees, inbound-placement fees, and Individual vs Professional selling fees vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, turning on MCF, taking a supplier MOQ, paying Amazon to prep inbound, paying inbound placement, or switching seller plans.</p>
     </section>
   </main>
+  <section class="scenarios" aria-labelledby="scenario-heading">
+    <h2 id="scenario-heading">Keep sourcing scenarios on this device</h2>
+    <p>Save named assumptions such as “Spring restock” or “FBM test” to compare them later. Nothing is uploaded, and saved scenarios stay in this browser.</p>
+    <div class="scenario-tools">
+      <label>Scenario name <input id="scenarioName" maxlength="80" placeholder="Spring restock"></label>
+      <button id="saveScenario" type="button">Save current inputs</button>
+      <button id="copySummary" type="button">Copy decision summary</button>
+    </div>
+    <div id="scenarioList" class="scenario-list" aria-live="polite"></div>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -718,6 +735,7 @@
       subscribeSaveSummary,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { deleteScenario, listScenarios, saveScenario } from "./scenarios.mjs";
 
     const ids = [
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
@@ -740,6 +758,63 @@
 
     function fulfillmentMethod() {
       return document.querySelector('input[name="fulfillmentMethod"]:checked').value;
+    }
+
+    function renderScenarios() {
+      const list = document.getElementById("scenarioList");
+      list.replaceChildren(...listScenarios(localStorage).flatMap((scenario) => {
+        const load = document.createElement("button");
+        load.type = "button";
+        load.dataset.load = scenario.id;
+        load.textContent = scenario.name;
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.dataset.delete = scenario.id;
+        remove.setAttribute("aria-label", `Delete ${scenario.name}`);
+        remove.textContent = "delete";
+        return [load, remove];
+      }));
+      list.querySelectorAll("[data-load]").forEach((button) => button.addEventListener("click", () => {
+        const scenario = listScenarios(localStorage).find((item) => item.id === button.dataset.load);
+        if (!scenario) return;
+        ids.forEach((id) => { if (scenario.inputs[id] !== undefined) document.getElementById(id).value = scenario.inputs[id]; });
+        if (scenario.inputs.fulfillmentMethod) {
+          const radio = document.querySelector(`input[name="fulfillmentMethod"][value="${scenario.inputs.fulfillmentMethod}"]`);
+          if (radio) radio.checked = true;
+        }
+        update();
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_loaded");
+      }));
+      list.querySelectorAll("[data-delete]").forEach((button) => {
+        button.addEventListener("click", () => {
+          deleteScenario(localStorage, button.dataset.delete);
+          renderScenarios();
+          recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_deleted");
+        });
+      });
+    }
+
+    function decisionSummary() {
+      const result = calculateListing(readInput());
+      const path = result.selected;
+      const advantage = result.fbaAdvantage > 0
+        ? `${money(result.fbaAdvantage)} more with FBA`
+        : result.fbaAdvantage < 0
+          ? `${money(-result.fbaAdvantage)} more with FBM`
+          : "same profit";
+      return [
+        "Amazon listing decision",
+        `Sale price: ${money(result.salePrice)}`,
+        `Selected path: ${fulfillmentMethod().toUpperCase()}`,
+        `Net profit: ${money(path.profit)}`,
+        `Net margin: ${path.margin.toFixed(1)}%`,
+        `ROI: ${path.roi === null ? "n/a" : `${path.roi.toFixed(1)}%`}`,
+        `Break-even sale price: ${Number.isFinite(path.breakEvenPrice) ? money(path.breakEvenPrice) : "never"}`,
+        `Maximum buy cost: ${money(path.breakEvenBuyCost)}`,
+        `FBA vs FBM: ${advantage}`,
+        "",
+        "Calculated from entered assumptions. Verify current Amazon fees before buying inventory.",
+      ].join("\n");
     }
 
     function readInput() {
@@ -1124,7 +1199,30 @@
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
+    document.getElementById("saveScenario").addEventListener("click", () => {
+      try {
+        saveScenario(localStorage, document.getElementById("scenarioName").value, readInput());
+        document.getElementById("scenarioName").value = "";
+        renderScenarios();
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "scenario_saved");
+      } catch (error) {
+        document.getElementById("scenarioName").setCustomValidity(error.message);
+        document.getElementById("scenarioName").reportValidity();
+      }
+    });
+    document.getElementById("scenarioName").addEventListener("input", (event) => event.target.setCustomValidity(""));
+    document.getElementById("copySummary").addEventListener("click", async () => {
+      try {
+        const text = decisionSummary();
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+        else window.prompt("Copy this decision summary:", text);
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "decision_summary_copied");
+      } catch {
+        return;
+      }
+    });
     update();
+    renderScenarios();
   </script>
 </body>
 </html>
