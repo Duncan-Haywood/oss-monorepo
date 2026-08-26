@@ -44,6 +44,25 @@ class PermissionDriftTests(unittest.TestCase):
             self.assertEqual(saved, report)
             self.assertNotIn("scopes", saved["metadata"])
 
+    def test_cli_output_remains_json_when_display_format_is_markdown(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.json"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(Path(__file__).parents[1] / "src/permission_drift.py"),
+                    str(Path(__file__).parents[1] / "examples/before.json"),
+                    str(Path(__file__).parents[1] / "examples/after.json"),
+                    "--format", "markdown",
+                    "--output", str(path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertIn("Shopify permission drift", result.stdout)
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), compare(self.before, self.after))
+
     def test_github_format_emits_one_warning_per_change(self):
         root = Path(__file__).parents[1]
         result = subprocess.run(
