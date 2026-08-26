@@ -7,7 +7,7 @@
   <meta name="description" content="Price a residential boiler replacement from input MBH, hot water versus steam, like-for-like versus condensing versus steam-to-hot-water, extras, owner-supplied versus tech-supplied, weekday versus Saturday no-heat, and whether one more winter of patches still beats replacing — plus the walk-away price a $4,500 hang-only special cannot see.">
   <meta property="og:title" content="Boiler Replacement Bid Calculator">
   <meta property="og:description" content="Bid a boiler changeout the way the trade does — plant, system, extras, and whether Saturday still pays — not a published special — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Boiler Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Input MBH, hot water vs steam, like-for-like vs condensing vs steam-to-hot-water comparison, owner-supplied vs tech-supplied plant, weekday vs same-day no-heat vs after-hours Saturday comparison, one-more-winter repair vs replace, liner indirect oil-to-gas extras, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Boiler Replacement Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Input MBH, hot water vs steam, like-for-like vs condensing vs steam-to-hot-water comparison, owner-supplied vs tech-supplied plant, weekday vs same-day no-heat vs after-hours Saturday comparison, one-more-winter repair vs replace, liner indirect oil-to-gas extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2f36; background: #e8edf2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -172,9 +172,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+<p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Same plant, three scopes</strong></p>
       <table>
@@ -216,7 +220,7 @@
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not heat-loss, fuel-gas-code, chimney-design, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your plant, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your plant, wages, costs, or prices.</p>
     <p>Looking up <a href="how-much-to-charge-to-replace-a-boiler.html">how much to charge to replace a boiler</a>? The article walks the plant-versus-scope math this calculator uses. Standing in a no-heat basement? <a href="should-i-patch-this-boiler-for-one-more-winter.html">Should I patch this boiler for one more winter?</a> They already bought the unit? <a href="should-i-install-a-customer-supplied-boiler.html">Should I install a customer-supplied boiler?</a> Saturday no-heat? <a href="should-i-take-a-saturday-boiler-call.html">Should I take a Saturday boiler call?</a></p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -243,6 +247,7 @@
       JOB_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
     const JOB_IDS = [
       'scope', 'system', 'fuel', 'inputMbh', 'zones', 'flueHeight', 'travelMiles',
@@ -585,7 +590,95 @@
     applyFuelKit();
     applyExtraKit();
     applyRepairKit();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['scope', 'system', 'fuel'];
+    const BID_SPEC = {
+      key: 'boiler-replacement-bid',
+      numbers: [...JOB_IDS, ...RATE_IDS, ...COST_IDS, ...REPAIR_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `?${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.search,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
     update();
+    persist();
   </script>
 </body>
 </html>
