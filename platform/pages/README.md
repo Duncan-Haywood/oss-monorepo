@@ -67,6 +67,18 @@ origin root is read), and `node_modules`. `LICENSE` files are kept.
 - **Crawlability.** A root `robots.txt`, a `sitemap.xml` index covering the hub
   and every venture's own sitemap, a `404.html`, and `.nojekyll` (without which
   Pages silently drops any directory starting with `_`).
+- **Dead ends.** Each venture was written as a standalone page, so without this
+  every tool on the site is an island: a seller arriving on
+  `should-i-offer-free-shipping-on-etsy.html` from a search result has no way to
+  learn that thirty-four other tools exist, and no way back to the hub short of
+  editing the URL. The build injects a bar at the top of every page linking the
+  hub, and a strip at the bottom listing up to five tools from the same
+  category. Both are injected rather than written into each venture, so a new
+  calculator gets them on its first push and no venture file has to change.
+  Markup is namespaced `pf-*` with its own palette — the tools have their own
+  stylesheets and their own backgrounds, so the strip cannot inherit colours and
+  stay readable on all of them. Re-running the build over an existing tree does
+  not stack bars.
 
 ## Deploying
 

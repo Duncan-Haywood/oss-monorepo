@@ -20,6 +20,8 @@ import {
   renderHub,
   renderRobots,
   renderSitemapIndex,
+  renderToolNav,
+  hubPrefix,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -369,4 +371,107 @@ test('hub markup escapes venture copy', () => {
   );
   assert.ok(!hub.includes('<script>alert(1)</script>'));
   assert.ok(hub.includes('&lt;script&gt;'));
+});
+
+
+// ---------------------------------------------------------------------------
+// Cross-tool navigation
+// ---------------------------------------------------------------------------
+//
+// The failure these prevent: a tool page that is reachable from a search
+// result but is a dead end -- no way to the hub, no sibling tool. That costs
+// every second page view the portfolio could have had, and nothing turns red.
+
+const CATEGORY = { id: 'marketplace', title: 'Marketplace seller tools' };
+
+test('hub prefix climbs out of any page depth', () => {
+  assert.equal(hubPrefix(path.join('etsy-profit-calculator', 'index.html')), '../');
+  assert.equal(hubPrefix(path.join('a', 'b', 'page.html')), '../../');
+  assert.equal(hubPrefix('index.html'), './');
+});
+
+test('nav names the hub and the tool category', () => {
+  const { header } = renderToolNav({
+    slug: 'etsy-profit-calculator', category: CATEGORY, siblings: [], totalTools: 35, prefix: '../',
+  });
+  assert.ok(header.includes('href="../"'));
+  assert.ok(header.includes('All 35 free tools'));
+  assert.ok(header.includes('Marketplace seller tools'));
+});
+
+test('nav lists siblings and caps the strip', () => {
+  const siblings = Array.from({ length: 9 }, (_, i) => ({ slug: `t${i}`, title: `Tool ${i}` }));
+  const { footer } = renderToolNav({
+    slug: 'self', category: CATEGORY, siblings, totalTools: 35, prefix: '../',
+  });
+  const links = footer.match(/<li>/g) ?? [];
+  assert.equal(links.length, 6, 'five siblings plus the all-tools link');
+  assert.ok(footer.includes('href="../t0/"'));
+  assert.ok(!footer.includes('href="../t8/"'));
+});
+
+test('nav still offers the hub when a tool has no siblings', () => {
+  const { footer } = renderToolNav({
+    slug: 'only', category: CATEGORY, siblings: [], totalTools: 35, prefix: '../',
+  });
+  assert.ok(footer.includes('href="../"'));
+  assert.ok(footer.includes('Browse all 35 tools'));
+});
+
+test('nav escapes sibling titles', () => {
+  const { footer } = renderToolNav({
+    slug: 'self',
+    category: { id: 'x', title: '<script>alert(1)</script>' },
+    siblings: [{ slug: 'y', title: '<img src=x onerror=1>' }],
+    totalTools: 2,
+    prefix: '../',
+  });
+  assert.ok(!footer.includes('<script>alert(1)</script>'));
+  assert.ok(!footer.includes('<img src=x'));
+  assert.ok(footer.includes('&lt;'));
+});
+
+test('every published page carries the nav exactly once', async () => {
+  const { outDir, surfaces } = await site();
+  const pages = [];
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    for (const file of await fs.readdir(dir, { recursive: true })) {
+      if (file.endsWith('.html')) pages.push(path.join(dir, file));
+    }
+  }
+  assert.ok(pages.length > 100, `expected the whole portfolio, saw ${pages.length}`);
+
+  for (const page of pages) {
+    const html = await fs.readFile(page, 'utf8');
+    const bars = html.match(/<nav class="pf-bar"/g) ?? [];
+    assert.equal(bars.length, 1, `${path.relative(outDir, page)} should carry one nav bar`);
+    assert.ok(html.includes('class="pf-more"'), `${path.relative(outDir, page)} has no sibling strip`);
+  }
+});
+
+test('nav is inserted inside body, after the tool own head', async () => {
+  const html = await read('etsy-profit-calculator', 'index.html');
+  const body = html.search(/<body[^>]*>/i);
+  assert.ok(body !== -1);
+  assert.ok(html.indexOf('pf-bar') > body, 'nav must not be hoisted above <body>');
+  assert.ok(html.indexOf('</head>') < html.indexOf('pf-bar'), "the tool's own styles load first");
+  assert.ok(html.lastIndexOf('pf-more') < html.lastIndexOf('</body>'));
+});
+
+test('a rebuild over an existing tree does not stack nav bars', async () => {
+  const outDir = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-rebuild-'));
+  await buildSite({ outDir, baseUrl: BASE });
+  await buildSite({ outDir, baseUrl: BASE });
+  const html = await fs.readFile(path.join(outDir, 'etsy-profit-calculator', 'index.html'), 'utf8');
+  assert.equal((html.match(/<nav class="pf-bar"/g) ?? []).length, 1);
+});
+
+test('no venture ships its package manifest to visitors', async () => {
+  const { outDir } = await site();
+  const leaked = [];
+  for (const file of await fs.readdir(outDir, { recursive: true })) {
+    if (path.basename(file) === 'package.json') leaked.push(file);
+  }
+  assert.deepEqual(leaked, [], 'package.json exposes internal scripts and deps for no visitor benefit');
 });
