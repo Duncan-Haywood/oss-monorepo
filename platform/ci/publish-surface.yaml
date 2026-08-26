@@ -67,6 +67,9 @@ workflows:
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: basement-finishing-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -130,6 +133,9 @@ workflows:
 - workflow: hetzner-gitops-ci.yml
   classification: none
   publishes: []
+- workflow: holiday-light-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: home-elevator-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -143,6 +149,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: landscape-lighting-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: local-site-studio-ci.yml
@@ -251,7 +260,13 @@ workflows:
 - workflow: shopify-permission-drift-ci.yml
   classification: none
   publishes: []
+- workflow: skylight-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: sod-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: soffit-fascia-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml

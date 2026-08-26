@@ -855,6 +855,55 @@ products:
           preaudit_checklist_events: 0
           handoff_exports: 0
         note: Shipped browser-local pre-audit checklist; public deployment remains owner-gated.
+  - slug: kitchen-tile-backsplash-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local kitchen tile backsplash bid calculator (wall SF,
+          subway vs herringbone vs mosaic vs large-format, tile-only vs
+          new-prep vs demo-and-replace, outlet/cooktop/Schluter extras,
+          copyable proposal summary). Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser and
+          is opt-out. Baseline row.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added same-wall four-pattern comparison (subway vs herringbone vs
+          mosaic vs large-format, with the upgrade from subway). Public URL
+          remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added leftover-box round-up, van leftover credit, second-wall
+          coverage (laundry / pantry), leftoverBoxNote, and a crawlable
+          leftover-box article. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added you-supply vs owner-covers vs short/wrong-lot comparison
+          (install-only scoring, callback trip, rush tile for skipped
+          waste). Still no public URL; local event owner_supply_compared
+          is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added empty-weekday vs they-cook-around-you vs after-hours
+          comparison (occupied pace on tile and punch-list, overtime
+          wage plus a second evening trip, Saturday-number scoring).
+          Still no public URL; local event access_compared is opt-out
+          and stores no inputs.
   - slug: freelance-retainer-calculator
     surface: static-page-in-repo
     readings:
@@ -881,6 +930,72 @@ products:
           floats $7,800; month-end plus Net 30 floats $15,600. Currency
           and payment terms persist in the local draft. Public URL
           remains owner-gated.
+  - slug: real-estate-agent-photo-app
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          batch_checked_with_blockers: 0
+          reshoot_list_viewed: 0
+          reshoot_list_copied: 0
+        note: >-
+          Added a copyable reshoot / desk-fix list on the existing MLS
+          photo preflight (browser + CLI). Complementary to open download
+          PRs #1333, #1358, and #1385 — those export the evidence record;
+          this tells the photographer which rooms to recapture. Public URL
+          remains owner-gated (`deploy-settings`).
+  - slug: basement-finishing-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local basement finishing bid calculator (finished SF,
+          rec-room vs framed-finish vs legal-living, drop ceiling vs
+          drywall, carpet vs LVP, bath/egress/HVAC extras, copyable
+          proposal summary). Public URL remains owner-gated; the
+          local-first counter reports only to the user's own browser and
+          is opt-out. Baseline row.
+  - slug: skylight-install-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a local skylight install bid calculator (unit count,
+          tubular vs fixed vs solar-venting, replace-existing vs new
+          cut-in, asphalt vs tile/metal vs low-slope, shaft/ice-water/
+          laminated extras, copyable proposal summary). Public URL
+          remains owner-gated; the local-first counter reports only to
+          the user's own browser and is opt-out. Baseline row.
+  - slug: holiday-light-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculations: 0
+          local_summary_copies: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for holiday lighting
+          contractors to price hang-only versus hang-and-takedown versus
+          full-service storage from eave lineal feet, stories, and extras.
+          Public URL remains owner-gated; counters are local, aggregate, and
+          opt-out.
+  - slug: soffit-fascia-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: Shipped browser-local soffit and fascia bid calculator; public URL remains owner-gated.
   - slug: popcorn-ceiling-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1103,55 +1218,6 @@ products:
           cash-at-risk comparison (hire a writer vs file vs miss). Public URL
           remains owner-gated; the local-first counter reports only to the
           user's own browser and is opt-out. Baseline row.
-  - slug: kitchen-tile-backsplash-bid-calculator
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Shipped a local kitchen tile backsplash bid calculator (wall SF,
-          subway vs herringbone vs mosaic vs large-format, tile-only vs
-          new-prep vs demo-and-replace, outlet/cooktop/Schluter extras,
-          copyable proposal summary). Public URL remains owner-gated; the
-          local-first counter reports only to the user's own browser and
-          is opt-out. Baseline row.
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Added same-wall four-pattern comparison (subway vs herringbone vs
-          mosaic vs large-format, with the upgrade from subway). Public URL
-          remains owner-gated.
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Added leftover-box round-up, van leftover credit, second-wall
-          coverage (laundry / pantry), leftoverBoxNote, and a crawlable
-          leftover-box article. Public URL remains owner-gated.
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Added you-supply vs owner-covers vs short/wrong-lot comparison
-          (install-only scoring, callback trip, rush tile for skipped
-          waste). Still no public URL; local event owner_supply_compared
-          is opt-out and stores no inputs.
-      - as_of: 2026-08-26
-        signals:
-          live_url_visitors: null
-          local_events_reported: 0
-        note: >-
-          Added empty-weekday vs they-cook-around-you vs after-hours
-          comparison (occupied pace on tile and punch-list, overtime
-          wage plus a second evening trip, Saturday-number scoring).
-          Still no public URL; local event access_compared is opt-out
-          and stores no inputs.
   - slug: boiler-replacement-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -1411,21 +1477,6 @@ products:
           copyable proposal summary). Public URL remains owner-gated;
           the local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
-  - slug: real-estate-agent-photo-app
-    surface: static-page-in-repo
-    readings:
-      - as_of: 2026-08-25
-        signals:
-          live_url_visitors: null
-          batch_checked_with_blockers: 0
-          reshoot_list_viewed: 0
-          reshoot_list_copied: 0
-        note: >-
-          Added a copyable reshoot / desk-fix list on the existing MLS
-          photo preflight (browser + CLI). Complementary to open download
-          PRs #1333, #1358, and #1385 — those export the evidence record;
-          this tells the photographer which rooms to recapture. Public URL
-          remains owner-gated (`deploy-settings`).
   - slug: reverb-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -1557,6 +1608,19 @@ products:
           local_calculation_events: 0
           summary_copies: 0
         note: Shipped browser-local parking-lot striping bid calculator; public URL remains owner-gated.
+
+  - slug: landscape-lighting-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          local_calculation_events: 0
+          summary_copies: 0
+        note: >-
+          Shipped browser-local landscape lighting bid calculator
+          (fixtures vs trench vs transformer). Public URL remains
+          owner-gated; counters are local, aggregate, and opt-out.
 
 # Example of the shape, once a product has shipped:
 #
