@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Freight Accessorial Invoice Auditor | Find Duplicate Charges</title>
+  <meta name="description" content="Audit freight accessorial invoices for duplicate, over-expected, and missing-code charges before you pay. Free, private, and runs in your browser.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="./">
+  <meta property="og:title" content="Freight Accessorial Invoice Auditor">
+  <meta property="og:description" content="Find freight invoice overcharges privately in your browser and copy a factual review draft.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Freight Accessorial Invoice Auditor","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser tool that finds duplicate and over-billed freight accessorial charges.","featureList":"Duplicate and over-expected flags, evidence-aware priority, private CSV review export, factual dispute draft"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I audit freight accessorial charges?","acceptedAnswer":{"@type":"Answer","text":"Paste each billed line with the amount you expected from the rate confirmation. The default demo is two $125 liftgate lines on INV-1 (expected $75, evidence missing) and a $20 uncoded line that matches. That is $100.00 above expected across 3 flagged of 3 lines, 2 actionable. The page flags duplicates, overages, missing codes, and invalid amounts. It does not decide whether to pay or dispute."}},{"@type":"Question","name":"Should I dispute this detention charge?","acceptedAnswer":{"@type":"Answer","text":"Compare the billed detention line to the dock clock after free time. On 180 minutes on dock, 120 free, and $75/hour, 1.00 hour is billable — $75.00 expected. A $300.00 billed line is $225.00 above the clock, as if 4.00 hours. That is a review of the line, not a determination that the charge is wrong."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f1e8;--ink:#172033;--muted:#5b665e;--line:#d8d0c2;--panel:#fffdf8;--accent:#d36b35}
+    *{box-sizing:border-box}body{margin:0}main{max-width:980px;margin:auto;padding:32px 18px 56px}
+    h1{font-size:clamp(1.7rem,4vw,2.6rem);line-height:1.1;margin:.2rem 0 .7rem}h2{font-size:1.1rem;margin:0 0 12px}
+    p{color:var(--muted)}.lede{max-width:700px;font-size:1.15rem}
+    .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:18px 0}
+    table{width:100%;border-collapse:collapse}th,td{padding:6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    input,select,textarea,button{font:inherit}input,select{width:100%;padding:8px;border:1px solid #a9a092;border-radius:6px}
+    input:focus,select:focus,button:focus,textarea:focus{outline:3px solid #f0c19a;outline-offset:2px}
+    button{border:0;border-radius:8px;background:#17211b;color:white;padding:10px 14px;font-weight:700;cursor:pointer;margin:8px 8px 0 0}
+    button.secondary{background:#fff;color:var(--ink);border:1px solid #a9a092}
+    .results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .metric{border-top:4px solid var(--accent);padding:14px;background:#fff8f2;border-radius:8px}
+    .metric strong{display:block;font-size:1.35rem;color:var(--ink)}
+    .flag{color:#9a3412;font-weight:600}.small{font-size:.85rem}
+    .toggle{display:flex;align-items:center;gap:8px}.toggle input{width:auto;display:inline}
+    textarea{width:100%;min-height:160px;margin-top:10px;padding:10px;border:1px solid #a9a092;border-radius:6px}
+    footer{border-top:1px solid var(--line);padding-top:16px;color:var(--muted)}
+    a{color:#1f4f8a}
+    @media(max-width:720px){.results{grid-template-columns:1fr}th:nth-child(2),td:nth-child(2){display:none}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="small">PRIVATE, LOCAL-FIRST AUDIT</p>
+  <h1>Find freight accessorial overcharges before you pay.</h1>
+  <p class="lede">Paste billed accessorial lines and the amounts you expected from the rate confirmation. Get a review queue for duplicates, overages, missing codes, and missing evidence — then copy a factual draft.</p>
+  <p class="small"><a href="should-i-dispute-this-detention-charge.html">Should I dispute this detention charge?</a> — clock time after free time versus the billed detention line.</p>
+
+  <section class="panel">
+    <h2>Invoice lines</h2>
+    <p class="small">One row per charge. Invoice and reference are optional labels. Billed and expected are dollars.</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Reference</th>
+          <th>Code</th>
+          <th>Billed</th>
+          <th>Expected</th>
+          <th>Evidence</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <button id="add" type="button" class="secondary">Add charge</button>
+    <button id="download" type="button">Download review CSV</button>
+    <button id="copy" type="button" class="secondary">Copy dispute draft</button>
+    <span id="exportStatus" class="small" role="status" aria-live="polite"></span>
+  </section>
+
+  <section class="panel" aria-labelledby="results-heading">
+    <h2 id="results-heading">Review queue</h2>
+    <div class="results">
+      <div class="metric"><span>Above expected</span><strong id="recoverable">$0.00</strong><span class="small">across entered lines</span></div>
+      <div class="metric"><span>Flagged</span><strong id="flagged">0</strong><span class="small" id="flaggedOf">of 0 lines</span></div>
+      <div class="metric"><span>Actionable</span><strong id="actionable">0</strong><span class="small">overage plus missing or contradictory evidence</span></div>
+    </div>
+    <div id="queue" aria-live="polite"></div>
+    <label class="small" for="invoice">Invoice / PRO for the draft</label>
+    <input id="invoice" value="INV-1001">
+    <label class="small" for="carrier">Carrier or broker</label>
+    <input id="carrier" value="Regional LTL">
+    <textarea id="draft" readonly aria-label="Dispute draft"></textarea>
+  </section>
+
+  <section class="panel small">
+    <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous audit events on this device</label>
+    <p>Usage is optional, stays in this browser, and counts only audits, CSV downloads, and draft copies. No invoice content, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+  </section>
+
+  <footer class="small">
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+  import { auditCharges, auditTotals, csvForReview, disputeDraft } from "./audit.mjs";
+  import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
+
+  const tbody = document.getElementById("rows");
+  const queue = document.getElementById("queue");
+  const draft = document.getElementById("draft");
+  const money = (value) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value);
+  let results = [];
+  let usageTimer;
+
+  function add(row = {}) {
+    const tr = document.createElement("tr");
+    for (const key of ["invoice", "reference", "code", "billed", "expected"]) {
+      const td = document.createElement("td");
+      const input = document.createElement("input");
+      input.dataset.key = key;
+      input.value = row[key] ?? "";
+      if (key === "billed" || key === "expected") {
+        input.inputMode = "decimal";
+        input.setAttribute("aria-label", key);
+      }
+      input.addEventListener("input", () => render(true));
+      td.append(input);
+      tr.append(td);
+    }
+    const evidenceTd = document.createElement("td");
+    const evidence = document.createElement("select");
+    evidence.dataset.key = "evidence";
+    evidence.setAttribute("aria-label", "Evidence status");
+    evidence.innerHTML = '<option value="">Not selected</option><option value="missing">Evidence missing</option><option value="contradicts">Evidence contradicts</option><option value="supports">Evidence supports</option>';
+    evidence.value = row.evidence ?? "";
+    evidence.addEventListener("change", () => render(true));
+    evidenceTd.append(evidence);
+    tr.append(evidenceTd);
+    const removeTd = document.createElement("td");
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "secondary";
+    remove.textContent = "Remove";
+    remove.addEventListener("click", () => {
+      tr.remove();
+      render(true);
+    });
+    removeTd.append(remove);
+    tr.append(removeTd);
+    tbody.append(tr);
+  }
+
+  function rowsFromTable() {
+    return [...tbody.rows].map((tr) => {
+      const data = {};
+      for (const field of tr.querySelectorAll("input, select")) {
+        data[field.dataset.key] = field.value;
+      }
+      return data;
+    });
+  }
+
+  function render(track = false) {
+    results = auditCharges(rowsFromTable());
+    const totals = auditTotals(results);
+    document.getElementById("recoverable").textContent = money(totals.recoverable);
+    document.getElementById("flagged").textContent = String(totals.flagged);
+    document.getElementById("flaggedOf").textContent = `of ${results.length} lines`;
+    document.getElementById("actionable").textContent = String(totals.actionable);
+    queue.replaceChildren();
+    if (!results.length) {
+      const empty = document.createElement("p");
+      empty.textContent = "Add a charge to begin.";
+      queue.append(empty);
+    }
+    for (const row of results) {
+      const line = document.createElement("p");
+      line.className = row.flags.length ? "flag" : "";
+      const label = `${row.invoice || "Unlabelled"} / ${row.code || "No code"}`;
+      const amounts = `${money(row.billed)} billed, ${money(row.expected)} expected`;
+      const flags = row.flags.length ? row.flags.join("; ") : "No flag";
+      line.textContent = `${label}: ${amounts}. ${row.priority}. ${flags}`;
+      queue.append(line);
+    }
+    draft.value = disputeDraft({
+      invoice: document.getElementById("invoice").value,
+      carrier: document.getElementById("carrier").value,
+      results,
+    });
+    clearTimeout(usageTimer);
+    if (track) usageTimer = setTimeout(() => countUsage("audit_completed"), 800);
+  }
+
+  document.getElementById("add").addEventListener("click", () => {
+    add();
+    render(true);
+  });
+  document.getElementById("invoice").addEventListener("input", () => render());
+  document.getElementById("carrier").addEventListener("input", () => render());
+  document.getElementById("download").addEventListener("click", () => {
+    const blob = new Blob([csvForReview(results)], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "freight-accessorial-review.csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+    document.getElementById("exportStatus").textContent = "Downloaded locally";
+    countUsage("review_exported");
+  });
+  document.getElementById("copy").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(draft.value);
+      document.getElementById("exportStatus").textContent = "Draft copied locally";
+    } catch {
+      document.getElementById("exportStatus").textContent = "Copy the draft from the box";
+    }
+    countUsage("draft_copied");
+  });
+  document.getElementById("usage").checked = usageAllowed();
+  document.getElementById("usage").addEventListener("change", (event) => {
+    setUsageEnabled(event.target.checked);
+  });
+
+  add({ invoice: "INV-1", reference: "PO-8", code: "LIFT", billed: "125", expected: "75", evidence: "missing" });
+  add({ invoice: "INV-1", reference: "PO-8", code: "LIFT", billed: "125", expected: "75", evidence: "missing" });
+  add({ invoice: "INV-2", reference: "PO-9", code: "", billed: "20", expected: "20", evidence: "supports" });
+  render();
+</script>
+</body>
+</html>

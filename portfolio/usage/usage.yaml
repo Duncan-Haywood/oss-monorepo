@@ -6,6 +6,21 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: freight-accessorial-auditor
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_audit_events: 0
+          review_exports: 0
+          draft_copies: 0
+          detention_compares: 0
+        note: >-
+          Salvage of #1379 multi-line accessorial audit plus #1436 evidence
+          and dispute draft onto current main, with a detention clock extra.
+          Public URL remains owner-gated; the local-first counter reports
+          only to the user's own browser and is opt-out. Baseline row.
   - slug: cloud-egress-calculator
     surface: static-page-in-repo
     readings:
