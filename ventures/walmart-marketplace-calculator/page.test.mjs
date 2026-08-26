@@ -65,6 +65,7 @@ test("inputs and result fields for the primary journey are present", () => {
     "twoDayShippingCost", "twoDayCompare", "twoDayNote",
     "returnRatePct", "returnsCompare", "returnsNote",
     "leftoverUnits", "agedCompare", "agedNote",
+    "acosPct", "adsCompare", "adsNote",
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
@@ -100,4 +101,11 @@ test("the aged leftover table is wired to the comparison", () => {
   assert.match(scriptSource, /agedWfsNote/);
   assert.match(scriptSource, /aged_wfs_compared/);
   assert.match(markup, /should-i-pull-aged-wfs-inventory\.html/);
+});
+
+test("the Walmart Connect ads table is wired to the comparison", () => {
+  assert.match(scriptSource, /compareWalmartAds/);
+  assert.match(scriptSource, /walmartAdsNote/);
+  assert.match(scriptSource, /ads_compared/);
+  assert.match(markup, /should-i-run-walmart-connect-ads\.html/);
 });

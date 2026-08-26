@@ -417,3 +417,135 @@ export function settlementNote(projection) {
   const { sendEarlierDays, daysSooner, invoiceBy, carryCostSaved } = projection.earlierRun;
   return `${base} Dating this invoice ${sendEarlierDays} day${sendEarlierDays === 1 ? '' : 's'} earlier — by ${invoiceBy} — would catch the ${projection.earlierRun.runDate} run and be paid ${daysSooner} day${daysSooner === 1 ? '' : 's'} sooner, worth about ${money(carryCostSaved)} of carrying cost.`;
 }
+
+export const FACTOR_DEFAULTS = {
+  factorFeePct: 3,
+  advancePct: 90,
+  reserveDays: 35,
+};
+
+/**
+ * Invoice factoring versus waiting for the client to pay. Distinct from
+ * 2/10 Net 30: that discount is money you give the client. This fee is
+ * money you pay a third party to take the receivable. Advance arrives
+ * today; the reserve arrives after the client pays. Arithmetic only —
+ * it does not say to factor or to wait.
+ */
+export function compareFactor(input = {}) {
+  if (!input || typeof input !== "object") throw new Error("Enter invoice details.");
+  const amount = finiteNumber(input.amount, "Invoice amount");
+  if (amount <= 0) throw new Error("Invoice amount must be greater than zero");
+  const termsDays = Math.round(finiteNumber(input.termsDays, "Payment terms", 30));
+  if (termsDays < 0) throw new Error("Payment terms must be zero or more days");
+  const factorFeePct = finiteNumber(
+    input.factorFeePct,
+    "Factor fee",
+    FACTOR_DEFAULTS.factorFeePct,
+  );
+  if (factorFeePct < 0 || factorFeePct >= 100) {
+    throw new Error("Factor fee must be at least 0 and below 100");
+  }
+  const advancePct = finiteNumber(
+    input.advancePct,
+    "Advance percent",
+    FACTOR_DEFAULTS.advancePct,
+  );
+  if (advancePct <= 0 || advancePct > 100) {
+    throw new Error("Advance percent must be above 0 and at most 100");
+  }
+  const reserveDays = Math.round(finiteNumber(
+    input.reserveDays,
+    "Reserve days",
+    FACTOR_DEFAULTS.reserveDays,
+  ));
+  if (reserveDays < 0) throw new Error("Reserve days must be zero or more");
+  const annualCarryRate = finiteNumber(input.annualCarryRate, "Annual carrying-cost rate", 24);
+  if (annualCarryRate < 0) throw new Error("Annual carrying-cost rate must be non-negative");
+  if (annualCarryRate >= 1000) throw new Error("Annual carrying-cost rate must be below 1000%");
+
+  const fee = amount * (factorFeePct / 100);
+  const advanceFace = amount * (advancePct / 100);
+  const advanceNow = advanceFace - fee;
+  const reserve = amount - advanceFace;
+  const waitCash = amount;
+  const waitCarry = carryingCost(waitCash, annualCarryRate, termsDays);
+  const waitAfterFloat = waitCash - waitCarry;
+  const reserveCarry = carryingCost(reserve, annualCarryRate, reserveDays);
+  const factorAfterFloat = advanceNow + reserve - reserveCarry;
+  const factorPremium = factorAfterFloat - waitAfterFloat;
+
+  let breakEvenFeePct = null;
+  const feeThatMatches = amount - reserveCarry - waitAfterFloat;
+  if (amount > 0) {
+    breakEvenFeePct = (feeThatMatches / amount) * 100;
+    if (breakEvenFeePct < 0) breakEvenFeePct = null;
+  }
+
+  let breakEvenAnnualRate = null;
+  const waitDayValue = waitCash * termsDays;
+  const reserveDayValue = reserve * reserveDays;
+  if (waitDayValue !== reserveDayValue) {
+    // waitAfter = amount - amount*r*terms/365
+    // factorAfter = amount - fee - reserve*r*reserveDays/365
+    // set equal: fee = amount*r*(terms - reserveShare*reserveDays)/365
+    // r = fee * 365 / (amount*terms - reserve*reserveDays)
+    const denom = waitDayValue - reserveDayValue;
+    if (denom > 0) {
+      breakEvenAnnualRate = (fee * 365) / denom * 100;
+      if (breakEvenAnnualRate < 0) breakEvenAnnualRate = null;
+    }
+  }
+
+  return {
+    amount,
+    termsDays,
+    factorFeePct,
+    advancePct,
+    reserveDays,
+    annualCarryRate,
+    fee,
+    advanceFace,
+    advanceNow,
+    reserve,
+    waitCash,
+    waitCarry,
+    waitAfterFloat,
+    reserveCarry,
+    factorAfterFloat,
+    factorPremium,
+    factorBeatsWait: factorAfterFloat > waitAfterFloat,
+    breakEvenFeePct,
+    breakEvenAnnualRate,
+  };
+}
+
+/**
+ * One-sentence readout. Arithmetic only — it does not tell them to
+ * factor the invoice or to wait for the client.
+ */
+export function factorNote(comparison) {
+  const rate = `${comparison.annualCarryRate.toFixed(1)}%`;
+  const feeLine = comparison.breakEvenFeePct == null
+    ? ""
+    : ` Factoring and waiting match at a ${comparison.breakEvenFeePct.toFixed(2)}% factor fee.`;
+  if (comparison.factorBeatsWait) {
+    return (
+      `On this invoice, factoring at ${comparison.factorFeePct}% with a ` +
+      `${comparison.advancePct}% advance leaves ${money(comparison.factorAfterFloat)} ` +
+      `after the ${money(comparison.fee)} fee and ${money(comparison.reserveCarry)} ` +
+      `of modeled float on the reserve. Waiting ${comparison.termsDays} days for ` +
+      `${money(comparison.waitCash)} leaves ${money(comparison.waitAfterFloat)} — ` +
+      `${money(comparison.factorPremium)} behind — because ${rate} money for ` +
+      `${comparison.termsDays} days costs more than the factor fee.${feeLine}`
+    );
+  }
+  return (
+    `On this invoice, waiting ${comparison.termsDays} days for the full ` +
+    `${money(comparison.waitCash)} still leaves ${money(comparison.waitAfterFloat)} ` +
+    `after ${money(comparison.waitCarry)} of modeled carrying cost — ` +
+    `${money(-comparison.factorPremium)} ahead of factoring at ` +
+    `${comparison.factorFeePct}% (${money(comparison.factorAfterFloat)} after the ` +
+    `${money(comparison.fee)} fee). At ${rate}, the fee is larger than the float ` +
+    `you skip.${feeLine}`
+  );
+}
