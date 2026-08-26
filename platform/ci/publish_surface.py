@@ -56,6 +56,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -286,6 +287,73 @@ def render(rows) -> str:
     return "\n".join(out)
 
 
+# Destinations that serve exactly one thing per repository. Two workflows able
+# to publish to one of these at the same time do not merge their output -- the
+# live site ends up as whichever finished last.
+SINGLETON_DESTINATIONS = {
+    "uses actions/deploy-pages": "the repository's one GitHub Pages site",
+}
+
+VARS_RE = re.compile(r"vars\.([A-Z0-9_]+)")
+
+
+def singleton_collisions(rows) -> list[str]:
+    """
+    Workflows that could publish to the same one-per-repository destination.
+
+    This exists because the surface snapshot cannot see it. `--check` pins each
+    workflow's gates individually, so two workflows gating a `deploy-pages` job
+    on the SAME owner variable both look correct on their own row and the
+    collision is invisible.
+
+    It happened: #1718 and #1724 both landed a full Pages build gated on
+    `GITHUB_PAGES_ENABLED`, in different concurrency groups, twenty minutes
+    apart. One owner flip would have fired both on every push to `main` and left
+    the public site flapping between two different builds of the same products.
+    The hazard was already known -- a ledger entry and a code comment both
+    described it -- and was reintroduced anyway, because nothing failed. This is
+    the thing that fails.
+
+    A workflow whose publish step has no gate at all collides with every other
+    workflow reaching the same destination, since it always deploys.
+    """
+    problems = []
+
+    for marker, description in sorted(SINGLETON_DESTINATIONS.items()):
+        # variable name (or the always-deploys sentinel) -> workflows claiming it
+        claimants: dict[str, list[str]] = {}
+        for row in rows:
+            # A workflow no push can reach cannot race one on a merge.
+            if row["classification"] == "none":
+                continue
+            for step in row["publishes"]:
+                if step["step"] != marker:
+                    continue
+                names = sorted({v for gate in step["gates"] for v in VARS_RE.findall(gate)})
+                for key in names or ["<ungated>"]:
+                    claimants.setdefault(key, []).append(row["workflow"])
+
+        for key, workflows in sorted(claimants.items()):
+            distinct = sorted(set(workflows))
+            if len(distinct) < 2:
+                continue
+            if key == "<ungated>":
+                problems.append(
+                    f"{', '.join(distinct)}: each can publish to {description} with no owner "
+                    "gate, so every push to the default branch starts competing deployments. "
+                    "Give each its own variable, or consolidate them."
+                )
+            else:
+                problems.append(
+                    f"{', '.join(distinct)}: all gate publishing to {description} on the same "
+                    f"`vars.{key}`. Setting it once starts more than one deployment and the live "
+                    "site becomes whichever finished last. Give each workflow its own variable "
+                    "(see retail-pilot-intel-deploy-docs.yml) or consolidate them into one."
+                )
+
+    return problems
+
+
 def load_snapshot():
     if not SNAPSHOT.exists():
         return None
@@ -366,6 +434,26 @@ def main() -> int:
         return 0
 
     if args.check:
+        # Checked before the snapshot comparison, and reported separately: a
+        # collision is a defect in the configuration itself, not a drift from
+        # what was recorded. `--write` would happily snapshot a racing pair.
+        collisions = singleton_collisions(rows)
+        if collisions:
+            print(
+                f"{len(collisions)} workflow(s) can race for a one-per-repository "
+                "destination:\n",
+                file=sys.stderr,
+            )
+            for collision in collisions:
+                print(f"  - {collision}", file=sys.stderr)
+            print(
+                "\nGitHub serves one Pages site per repository. Two workflows able to "
+                "deploy on the same flip do not merge their output -- the live site "
+                "becomes whichever finished last.",
+                file=sys.stderr,
+            )
+            return 1
+
         problems = check(rows)
         if problems:
             print(f"{len(problems)} publish-surface change(s) not reflected in the snapshot:\n", file=sys.stderr)

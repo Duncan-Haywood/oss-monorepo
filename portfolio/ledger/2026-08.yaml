@@ -23350,3 +23350,51 @@ entries:
         primary journey, crawlability, and 288 files with zero dangling
         internal references.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed a live race on the one Pages origin. #1724 merged 20
+        minutes after #1718 and gated its deploy on the same
+        `GITHUB_PAGES_ENABLED`, from a second builder, in a different
+        concurrency group (`pages-deploy` vs `portfolio-pages`). GitHub serves
+        one Pages site per repository and nothing serialised them, so the owner
+        flip everyone is waiting on would have fired both on every push to
+        `main` and left the live site on whichever finished last -- flapping
+        between two builds of the same ~48 products, per push. Moved
+        `pages.yml` to its own `PAGES_PY_BUILDER`, following the precedent
+        `retail-pilot-intel-deploy-docs.yml` already set, so exactly one
+        workflow reads the owner flip. No work discarded: that workflow still
+        builds, tests and uploads on every push, so its builder stays
+        exercised. Verified with `publish_surface.py` -- three Pages deploy
+        paths now hold three separate variables.
+      - >-
+        The learning is that this hazard was already known and documented in
+        this very file, and a fourth session still reintroduced it. The
+        2026-08-26 entry above records a session discarding its own duplicate
+        builder and explicitly naming the separate-gate reasoning. The reason
+        the knowledge did not transfer is that it lived in a ledger row and a
+        code comment, not in a check -- nothing failed when a second workflow
+        claimed the same variable. `publish_surface.py` pins gates but treats
+        two workflows sharing one variable as unremarkable. A check that fails
+        when more than one workflow gates a `deploy-pages` job on the same
+        variable would have caught this at merge, and is the cheapest guard
+        against the fifth occurrence.
+      - >-
+        Also merged two independently-written artifact checkers rather than
+        letting one overwrite the other. `platform/pages/check.mjs` landed on
+        `main` mid-session from another session, adapted from the same #1723
+        `check_site.py` this session was working from. Each caught what the
+        other missed, so both sets are kept: theirs contributed sitemap-index
+        traversal, artifact-derived base path and the reverse
+        page-in-no-sitemap check; this session added hub-to-artifact
+        reachability in both directions (a product that ships, resolves every
+        link, appears in a sitemap and has no hub link is unreachable and
+        silent), the required no-warranty disclaimer per page, leaked test
+        payload and bookkeeping, a product-count floor for a discovery
+        collapse, and single-quoted / dynamic `import()` specifiers. Added
+        `journey.mjs` for the half no static check can reach -- whether the
+        calculator recomputes -- and verified 48 products / 217 pages clean
+        through both, with four injected regressions each caught.
+    mrr_end: null

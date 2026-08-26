@@ -183,3 +183,94 @@ class Snapshot(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SingletonCollisions(unittest.TestCase):
+    """
+    Two workflows able to publish to the one Pages site on the same owner flip.
+
+    This is the class of defect the snapshot cannot express: each workflow's own
+    row is correct in isolation, so `--check` passed while #1718 and #1724 both
+    gated a full Pages deploy on `GITHUB_PAGES_ENABLED`. The hazard had already
+    been written down twice -- a ledger entry and a workflow comment -- and was
+    reintroduced anyway, because nothing failed.
+    """
+
+    @staticmethod
+    def row(workflow, gates, classification="gated", step="uses actions/deploy-pages"):
+        return {
+            "workflow": workflow,
+            "classification": classification,
+            "publishes": [{"job": "deploy", "step": step, "gates": gates}],
+        }
+
+    def test_two_pages_deploys_on_one_variable_collide(self):
+        problems = ps.singleton_collisions([
+            self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+            self.row("pages.yml", ["github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'"]),
+        ])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
+        self.assertIn("pages.yml", problems[0])
+        self.assertIn("portfolio-pages.yml", problems[0])
+
+    def test_separate_variables_do_not_collide(self):
+        # The actual fix, and the shape retail-pilot-intel-deploy-docs.yml
+        # already used: one flip, one deployment.
+        self.assertEqual(
+            ps.singleton_collisions([
+                self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+                self.row("pages.yml", ["vars.PAGES_PY_BUILDER == 'true'"]),
+                self.row("retail-pilot-intel-deploy-docs.yml", ["vars.RETAIL_PILOT_INTEL_PAGES == 'true'"]),
+            ]),
+            [],
+        )
+
+    def test_one_workflow_alone_does_not_collide(self):
+        self.assertEqual(
+            ps.singleton_collisions([self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"])]),
+            [],
+        )
+
+    def test_two_ungated_pages_deploys_collide(self):
+        problems = ps.singleton_collisions([
+            self.row("a.yml", [], classification="live"),
+            self.row("b.yml", [], classification="live"),
+        ])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("no owner gate", problems[0])
+
+    def test_a_workflow_no_push_reaches_is_ignored(self):
+        # `none` means no publish step at all; it cannot race a merge.
+        self.assertEqual(
+            ps.singleton_collisions([
+                self.row("portfolio-pages.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"]),
+                self.row("archived.yml", ["vars.GITHUB_PAGES_ENABLED == 'true'"], classification="none"),
+            ]),
+            [],
+        )
+
+    def test_a_gate_naming_several_variables_claims_each(self):
+        # A workflow gated on two variables can be started by either, so it
+        # collides with anything claiming either one.
+        problems = ps.singleton_collisions([
+            self.row("a.yml", ["vars.ONE == 'true' && vars.TWO == 'true'"]),
+            self.row("b.yml", ["vars.TWO == 'true'"]),
+        ])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("vars.TWO", problems[0])
+
+    def test_a_different_destination_does_not_collide_with_pages(self):
+        # Vercel and Pages are separate origins; sharing a variable is fine.
+        self.assertEqual(
+            ps.singleton_collisions([
+                self.row("a.yml", ["vars.SHARED == 'true'"], step="uses amondnet/vercel-action"),
+                self.row("b.yml", ["vars.SHARED == 'true'"], step="uses amondnet/vercel-action"),
+            ]),
+            [],
+        )
+
+    def test_the_real_repository_has_no_collision(self):
+        rows, errors = ps.survey()
+        self.assertEqual(errors, [])
+        self.assertEqual(ps.singleton_collisions(rows), [])
