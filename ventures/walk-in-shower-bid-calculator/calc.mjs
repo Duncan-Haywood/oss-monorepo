@@ -495,6 +495,162 @@ export function tileSupplyNote(rows) {
   return `Zeroing the tile invoice drops the bid ${money(drop)}. A short-order callback puts ${money(callbackLift)} back on.`;
 }
 
+export const ACCESS_PRESETS = Object.freeze([
+  {
+    id: 'empty-weekday',
+    label: 'Weekday, they leave',
+    detail: 'They stay out of the only bath',
+  },
+  {
+    id: 'occupied-weekday',
+    label: 'Weekday, only bath still in use',
+    detail: 'Same wage, slower set and punch-list',
+  },
+  {
+    id: 'after-hours',
+    label: 'After-hours / weekend',
+    detail: 'Overtime wage plus a second evening trip',
+  },
+]);
+
+/**
+ * Starting pace and overtime when the owner will not leave
+ * the only bath, or wants Saturday / after 5pm so they can
+ * shower during the week. Occupied pace is a multiplier on
+ * the typed tile and site hours — working around a shower
+ * is slower, not a different wage. After-hours is
+ * time-and-a-half on the typed wage plus a second evening
+ * dispatch from the owner-tile callback trip, so a typed
+ * 9-hour site day does not inflate the extra trip.
+ */
+export function suggestedAccessKit() {
+  const owner = suggestedOwnerTileKit();
+  return {
+    occupiedPaceMultiplier: 1.25,
+    afterHoursWageMultiplier: 1.5,
+    afterHoursExtraTripHours: owner.hoursCallbackTrip,
+  };
+}
+
+/**
+ * Price the same shower three ways: they leave on a weekday,
+ * they still shower around you, or after-hours / weekend.
+ *
+ * Occupied keeps the typed wage and adds clock hours on
+ * the tile set and site / punch-list. After-hours keeps
+ * the typed hours and raises the wage, then adds a starting
+ * second evening trip because you cannot leave mud overnight
+ * in the only bath. Scope, tile invoice, and extras stay.
+ *
+ * A Saturday / labor-only price (options.installOnlyPrice,
+ * else the proposed price on the bid) is scored against
+ * each cost base. That is the "$45 / SF Saturday" number
+ * tile shops actually get shopped on.
+ */
+export function compareAccess(input, options = {}) {
+  const kit = suggestedAccessKit();
+  const hoursPer100Tile = number(input.hoursPer100Tile ?? 0, 'Hours per 100 sq ft of tile');
+  const siteHours = number(input.siteHours ?? 0, 'Site / travel hours');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const empty = calculateBid(input);
+  const occupied = calculateBid({
+    ...input,
+    hoursPer100Tile: hoursPer100Tile * kit.occupiedPaceMultiplier,
+    siteHours: siteHours * kit.occupiedPaceMultiplier,
+  });
+  const afterHours = calculateBid({
+    ...input,
+    hourlyWage: hourlyWage * kit.afterHoursWageMultiplier,
+    siteHours: siteHours + kit.afterHoursExtraTripHours,
+  });
+
+  const rows = [
+    {
+      access: 'empty-weekday',
+      label: ACCESS_PRESETS[0].label,
+      detail: ACCESS_PRESETS[0].detail,
+      bid: empty,
+    },
+    {
+      access: 'occupied-weekday',
+      label: ACCESS_PRESETS[1].label,
+      detail: ACCESS_PRESETS[1].detail,
+      bid: occupied,
+    },
+    {
+      access: 'after-hours',
+      label: ACCESS_PRESETS[2].label,
+      detail: ACCESS_PRESETS[2].detail,
+      bid: afterHours,
+    },
+  ].map((row) => ({
+    access: row.access,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    loadedWage: row.bid.loadedWage,
+    siteHours: row.bid.siteHours,
+    tileHours: row.bid.tileHours,
+    laborCost: row.bid.laborCost,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreLaborOnly(row.bid, installPrice),
+    liftFromEmpty: row.bid.price - empty.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the access table. Names the
+ * Saturday / after-hours loss when that number is on the
+ * table; otherwise names the bid lift from an empty weekday.
+ */
+export function accessNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Access comparison is missing rows');
+  }
+  const empty = rows.find((row) => row.access === 'empty-weekday');
+  const occupied = rows.find((row) => row.access === 'occupied-weekday');
+  const afterHours = rows.find((row) => row.access === 'after-hours');
+  if (!empty || !occupied || !afterHours) {
+    throw new Error('Access comparison is missing an access row');
+  }
+
+  const occupiedLift = occupied.price - empty.price;
+  const afterHoursLift = afterHours.price - empty.price;
+  if (empty.installOnly && afterHours.installOnly) {
+    const asked = empty.installOnly.price;
+    if (empty.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} you lose money even on an empty weekday. Walk-away after-hours is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (!empty.installOnly.belowBreakEven && afterHours.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the empty-weekday set covers. The same Saturday / after-hours number loses ${money(Math.abs(afterHours.installOnly.profit))} — walk-away then is ${money(afterHours.breakEvenPrice)}.`;
+    }
+    if (occupied.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} an empty weekday covers. Only-bath-still-in-use still loses ${money(Math.abs(occupied.installOnly.profit))} — walk-away then is ${money(occupied.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} every access window still holds a margin. After-hours still adds ${money(afterHoursLift)} to the bid.`;
+  }
+  return `Only-bath-still-in-use adds ${money(occupiedLift)} to the bid. After-hours / weekend adds ${money(afterHoursLift)}.`;
+}
+
 function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

@@ -952,6 +952,16 @@ products:
           door) and kitchen tile backsplash (a dry wall). Public URL
           remains owner-gated; the local-first counter reports only to
           the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added weekday vs only-bath-still-in-use vs Saturday /
+          after-hours comparison (time-and-a-half plus a second
+          evening trip). Distinct from kitchen-tile Saturday
+          (a dry splash) and toilet Saturday (a commode swap).
+          Public URL remains owner-gated.
 
 # Example of the shape, once a product has shipped:
 #
