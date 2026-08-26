@@ -93,3 +93,33 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+test('the customer-facing proposal has every field and control it needs', () => {
+  for (const id of [
+    'companyName', 'companyPhone', 'companyEmail', 'companyLicense', 'companyAddress',
+    'clientName', 'clientAddress', 'depositPercent', 'validDays',
+    'proposalScope', 'proposalExclusions', 'paymentTerms', 'proposalNotes',
+    'printProposal', 'forgetCompany', 'proposalStatus', 'proposalDoc',
+  ]) {
+    assert.ok(declaredIds.has(id), `missing #${id}`);
+  }
+  assert.match(scriptSource, /buildProposal/, 'the proposal builder is missing from the executable script');
+  assert.match(scriptSource, /renderProposalHtml/);
+  assert.match(scriptSource, /window\.print\(\)/, 'nothing actually sends the proposal to the printer');
+});
+
+test('printing sends the customer sheet and hides the contractor’s own numbers', () => {
+  const print = /@media print\s*\{([\s\S]*?)\n    \}/.exec(html);
+  assert.ok(print, 'no print stylesheet; the browser would print the whole calculator');
+  // The cost breakdown, wages, and margin all live inside <main>. If <main>
+  // printed, the homeowner would receive the contractor's loaded labour rate.
+  assert.match(print[1], /main[^;{]*\{?[^}]*display:\s*none/i,
+    'the calculator UI is not excluded from the printed sheet');
+  assert.match(print[1], /\.pr-shell\s*\{[^}]*display:\s*block/i,
+    'the proposal is not shown on the printed sheet');
+});
+
+test('the proposal promises the customer’s details are not stored', () => {
+  assert.match(markup, /customer&rsquo;s details are never saved|customer’s details are never saved/,
+    'the privacy claim the module actually enforces should be stated on the page');
+});

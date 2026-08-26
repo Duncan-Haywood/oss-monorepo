@@ -74,6 +74,30 @@ The arithmetic lives in [`calc.mjs`](calc.mjs). See
 
 Search phrase: [`how-much-to-charge-for-tuckpointing.html`](how-much-to-charge-for-tuckpointing.html).
 
+## Hand the customer a proposal
+
+The price is for you; the **proposal** is for the customer. Fill in your
+business details, the customer's name, the deposit split, and how long the
+price stands, then **Print proposal / Save as PDF** produces a one-page
+document: your header, their details, the scope, the total, the deposit and
+balance, a validity date, your payment terms, and a line for them to sign.
+
+The scope lines start from the job you just priced and are yours to edit —
+recalculating never overwrites wording you have changed.
+
+Two things it deliberately does not do:
+
+- **Your costs never reach the customer's copy.** Wages, burden, overhead,
+  margin, and the walk-away price are not on the printed sheet.
+- **It drafts no legal terms.** Every clause on the page is text you typed.
+  Warranty, lien, and cancellation wording depend on your jurisdiction and
+  your contract; this tool will not invent them for you.
+
+Your business block is saved on your device so you type it once, and
+**Forget my business details** removes it. The customer's name and address
+are never saved. See [`proposal.mjs`](proposal.mjs), its tests, and
+[`platform/proposal/`](../../platform/proposal/README.md).
+
 ## Privacy
 
 Everything runs in your browser. Your data is never uploaded, and we don't
@@ -92,7 +116,8 @@ Global Privacy Control. See [`usage.mjs`](usage.mjs) and
 
 Events counted: `bid_calculated`, `preset_applied`, `method_changed`,
 `access_changed`, `mortar_changed`, `proposed_price_compared`,
-`summary_copied`.
+`summary_copied`,
+`proposal_printed`, `company_forgotten`.
 
 ## Limitations
 
