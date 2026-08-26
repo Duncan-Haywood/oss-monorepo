@@ -629,6 +629,8 @@ ${items
     `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="favicon.ico" sizes="16x16">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Free small-business calculators">
   <meta property="og:description" content="Price a listing, bid a job, audit a freight bill, or produce a compliance record — free, and entirely in your browser.">
@@ -1472,6 +1474,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
+  await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
@@ -1527,19 +1530,55 @@ function crc32(buffer) {
   return crc ^ -1;
 }
 
-export function renderFavicon() {
-  const size = 16;
-  const ink = [36, 61, 53]; // the hub's accent green, so the tab matches the site
-  const mark = [197, 237, 181];
+// The mark, in one place. `renderFavicon` rasterises it to the 16x16 ICO every
+// browser fetches on its own; `renderFaviconSvg` emits the same geometry as
+// vector art for the icon the hub links explicitly. Sharing the constants is
+// what keeps the two from drifting into different logos.
+const ICON_SIZE = 16;
+const ICON_INK = [36, 61, 53]; // the hub's accent green, so the tab matches the site
+const ICON_MARK = [197, 237, 181];
 
-  // Three rising bars on a rounded square. Chosen after looking at it at
-  // actual size: anything with a diagonal turns to mush at 16px, while flat
-  // bars stay crisp and read as "numbers" rather than as a generic glyph.
-  const BARS = [
-    { x0: 3, x1: 4, top: 9 },
-    { x0: 7, x1: 8, top: 6 },
-    { x0: 11, x1: 12, top: 3 },
-  ];
+// Three rising bars on a rounded square. Chosen after looking at it at
+// actual size: anything with a diagonal turns to mush at 16px, while flat
+// bars stay crisp and read as "numbers" rather than as a generic glyph.
+const ICON_BARS = [
+  { x0: 3, x1: 4, top: 9 },
+  { x0: 7, x1: 8, top: 6 },
+  { x0: 11, x1: 12, top: 3 },
+];
+const ICON_BAR_BOTTOM = 12;
+const ICON_CORNER = 2; // matches the 2px corner the rasteriser cuts
+
+const rgbHex = (rgb) => '#' + rgb.map((c) => c.toString(16).padStart(2, '0')).join('');
+
+/**
+ * The same mark as `renderFavicon()`, as vector art.
+ *
+ * The `.ico` is a fixed raster: exactly right at 16px in a tab, and soft
+ * everywhere a browser shows it larger — a pinned tab, the bookmark bar, a
+ * phone home screen. A browser that understands `rel="icon"
+ * type="image/svg+xml"` prefers this and renders the mark crisply at any size,
+ * while the automatic `/favicon.ico` request still finds a file.
+ */
+export function renderFaviconSvg() {
+  const bars = ICON_BARS.map(
+    (b) =>
+      `<rect x="${b.x0}" y="${b.top}" width="${b.x1 - b.x0 + 1}" ` +
+      `height="${ICON_BAR_BOTTOM - b.top + 1}" fill="${rgbHex(ICON_MARK)}"/>`,
+  ).join('');
+
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${ICON_SIZE} ${ICON_SIZE}">` +
+    `<rect width="${ICON_SIZE}" height="${ICON_SIZE}" rx="${ICON_CORNER}" ` +
+    `fill="${rgbHex(ICON_INK)}"/>${bars}</svg>\n`
+  );
+}
+
+export function renderFavicon() {
+  const size = ICON_SIZE;
+  const ink = ICON_INK;
+  const mark = ICON_MARK;
+  const BARS = ICON_BARS;
   const raw = [];
   for (let y = 0; y < size; y += 1) {
     raw.push(0); // PNG filter byte: none
