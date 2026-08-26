@@ -310,6 +310,9 @@ workflows:
 - workflow: job-margin-variance-ci.yml
   classification: none
   publishes: []
+- workflow: junk-removal-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: kitchen-tile-backsplash-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -565,6 +568,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: sunroom-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: tender-bid-readiness-ci.yml
   classification: none
   publishes: []
 - workflow: tender-radar-ci.yml
