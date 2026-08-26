@@ -127,6 +127,9 @@ workflows:
 - workflow: contractor-bid-readiness-ci.yml
   classification: none
   publishes: []
+- workflow: countertop-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: cra-evidence-desk-ci.yml
   classification: none
   publishes: []
