@@ -69,6 +69,7 @@ test('the page script reads every input the calculator accepts', () => {
   assert.match(scriptSource, /result\.allInCpm/);
   assert.match(scriptSource, /result\.offered/);
   assert.match(scriptSource, /result\.rateForTarget/);
+  assert.match(scriptSource, /result\.loadedMilesToBreakEven/);
 });
 
 test('figures named in schema.org featureList are actually rendered', () => {
