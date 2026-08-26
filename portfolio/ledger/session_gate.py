@@ -460,7 +460,10 @@ def verdict(
     if meta < META_SHARE_THRESHOLD:
         return "PROCEED", [
             f"Recent meta-work share {meta:.0%} is below the {META_SHARE_THRESHOLD:.0%} "
-            "threshold — the fleet is spending on ventures, not on itself. Continue as briefed."
+            "threshold — the fleet is spending on ventures, not on itself. Continue as briefed.",
+            "Deploy-first still applies: if the venture you are on already has a built "
+            "surface with no public URL, that deploy is the work. Do not start a sibling "
+            "product. See `portfolio/DIRECTION.md` Current priority.",
         ]
     reasons = [
         f"{meta:.0%} of the last {WINDOW} ledger entries are portfolio meta-work, not venture "
@@ -469,6 +472,9 @@ def verdict(
         "Build product value: features, runnable apps, usage tracking, niche landing pages. "
         "Do not re-verify PRs, expand the decision queue, or write ledger entries that "
         "record looking without shipping.",
+        "Deploy-first: a product already on `main` with no public URL outranks a new "
+        "`build-now` candidate. Prepare the live URL; the owner flip is `deploy-settings` "
+        "(do not open a second ask). See `portfolio/DIRECTION.md` Current priority.",
     ]
     targets = build_targets() if targets is None else targets
     if targets is None:
@@ -606,7 +612,8 @@ def render(r: dict) -> str:
             "",
             "  Product-first routing (see portfolio/DIRECTION.md). Fleet capacity is already",
             "  paid for — spend it on shippable user value, not meta-work. Free full-feature,",
-            "  usage stats, disclaimers; no payment rails yet.",
+            "  usage stats, disclaimers; no payment rails yet. Deploy what is already on",
+            "  main before graduating another candidate.",
         ]
     return "\n".join(lines)
 
