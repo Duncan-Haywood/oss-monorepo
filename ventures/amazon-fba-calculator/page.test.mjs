@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareBulkBuy, compareCoupons, compareMcf, comparePrep, compareSubscribeSave } from "./calc.mjs";
+import { compareBulkBuy, compareCoupons, compareMcf, comparePrep, compareSellerPlans, compareSubscribeSave } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const couponSeo = readFileSync(new URL("./does-this-amazon-coupon-still-pay.html", import.meta.url), "utf8");
@@ -25,6 +25,10 @@ const bulkSeo = readFileSync(
 );
 const prepSeo = readFileSync(
   new URL("./should-i-pay-amazon-to-prep-inbound.html", import.meta.url),
+  "utf8",
+);
+const planSeo = readFileSync(
+  new URL("./individual-vs-professional.html", import.meta.url),
   "utf8",
 );
 
@@ -76,6 +80,7 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /Multi-Channel Fulfillment/i);
   assert.match(featureList[1], /supplier MOQ/i);
   assert.match(featureList[1], /you-prep vs Amazon inbound prep/i);
+  assert.match(featureList[1], /Individual vs Professional seller plan/i);
   assert.match(markup, /id="bulkCompare"/);
   assert.match(markup, /id="prepCompare"/);
   assert.match(markup, /should-i-pay-amazon-to-prep-inbound\.html/);
@@ -357,6 +362,60 @@ test("SEO page uses the same prep worked example the tests lock", () => {
   nearEnough(comparison.label.monthlyDelta, 24);
 });
 
+test("calculator page wires Individual vs Professional columns that match the row template", () => {
+  assert.match(markup, /id="planCompare"/);
+  assert.match(markup, /id="planVerdict"/);
+  assert.match(markup, /id="individualPerUnit"/);
+  const planMarkup = markup.split('id="planCompare"')[0];
+  const headerBlock = planMarkup.slice(planMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Account", "Fee / unit", "Profit", "Max buy"]);
+  assert.match(scriptSource, /compareSellerPlans/);
+  assert.match(scriptSource, /seller_plan_compared/);
+  assert.match(scriptSource, /money\(path\.profit\)/);
+  assert.match(scriptSource, /money\(path\.breakEvenBuyCost\)/);
+  assert.match(html, /individual-vs-professional\.html/);
+});
+
+test("SEO page uses the same seller-plan worked example the tests lock", () => {
+  const compared = compareSellerPlans({
+    salePrice: 29.99,
+    referralRate: 15,
+    length: 8,
+    width: 6,
+    height: 2,
+    weightLb: 0.75,
+    costOfGoods: 8,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 1,
+    storageRate: 0.87,
+    fbmShippingCost: 4.75,
+    packagingCost: 0.6,
+    otherCost: 0,
+    adsPerUnit: 0,
+    monthlySellerFee: 39.99,
+    monthlyUnits: 80,
+    targetMargin: 30,
+    fulfillmentMethod: "fba",
+  });
+  assert.match(planSeo, /40\.4 units a month/);
+  assert.match(planSeo, /\$10\.99/);
+  assert.match(planSeo, /\$10\.50/);
+  assert.match(planSeo, /\$0\.49/);
+  assert.match(planSeo, /\$39\.21/);
+  assert.match(planSeo, /\$7\.49/);
+  assert.match(planSeo, /href="\.\/"/);
+  assert.match(planSeo, /No warranty/);
+  assert.match(planSeo, /no SLA/);
+  assert.match(planSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  nearEnough(compared.professional.selected.profit, 10.99);
+  nearEnough(compared.individual.selected.profit, 10.5);
+  nearEnough(compared.profitDelta, 0.49);
+  nearEnough(compared.monthlyProfitDelta, 39.21);
+});
+
 test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);
@@ -370,4 +429,6 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(bulkSeo, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(prepSeo, /No warranty/);
   assert.match(prepSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(planSeo, /No warranty/);
+  assert.match(planSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

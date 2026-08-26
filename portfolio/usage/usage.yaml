@@ -387,6 +387,15 @@ products:
           bubble, optional shipment quote, monthly gap, break-even Amazon
           fee). Still no public URL; local event prep_compared is opt-out
           and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added Individual vs Professional seller-plan comparison
+          (break-even volume plus profit and max buy on the selected
+          FBA/FBM path). Still no public URL; local event
+          seller_plan_compared is opt-out and stores no inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:
