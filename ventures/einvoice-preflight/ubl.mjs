@@ -141,6 +141,30 @@ function taxCategoryFields(category) {
   return extras;
 }
 
+function taxBreakdown(root) {
+  const rows = [];
+  for (const subtotal of descendants(root, "TaxSubtotal")) {
+    const taxable = textOf(subtotal, "TaxableAmount", false);
+    const tax = textOf(subtotal, "TaxAmount", false);
+    const category = descendants(subtotal, "TaxCategory")[0];
+    const percent = category ? textOf(category, "Percent", false) : "";
+    let taxId = "";
+    if (category) {
+      for (const child of category.children) {
+        if (child.name === "ID") taxId = child.text.trim();
+      }
+    }
+    if (!taxable && !tax && !percent) continue;
+    const row = {};
+    if (percent) row.tax_percent = asNumber(percent);
+    if (taxable) row.taxable = asNumber(taxable);
+    if (tax) row.tax = asNumber(tax);
+    if (taxId) row.tax_category = taxId;
+    if (Object.keys(row).length) rows.push(row);
+  }
+  return rows;
+}
+
 function documentExemption(root) {
   const extras = {};
   for (const subtotal of descendants(root, "TaxSubtotal")) {
@@ -216,6 +240,8 @@ export function parseUblInvoice(source) {
   const payment = payeePayment(root);
   if (payment) invoice.payment = payment;
   Object.assign(invoice, documentExemption(root));
+  const breakdown = taxBreakdown(root);
+  if (breakdown.length) invoice.tax_breakdown = breakdown;
   return invoice;
 }
 
