@@ -22,8 +22,9 @@ whether a supplier MOQ still pays after the extra warehouse stay, and
 whether paying Amazon to prep inbound still beats you-prep, and
 whether Individual or Professional still pays at your monthly volume, and
 whether an Amazon Vine enrollment still pays after gifted leftover units
-versus units that would have sold, and whether Amazon inbound placement
-still beats extra freight on a split shipment** —
+versus units that would have sold, whether Amazon inbound placement
+still beats extra freight on a split shipment, and whether a return
+rate still leaves expected profit after handling and unsellable units** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 pick-fee jump at $10.
 
@@ -113,6 +114,16 @@ blended inbound / unit does not hide the cheaper total. Complementary
 to you-prep vs Amazon inbound prep (who labels the unit, not where it
 lands).
 
+Returns are a mix on the same SKU: a completed sale keeps the leftover,
+a return typically refunds the buyer and the referral, and the outbound
+pick fee plus inbound stay spent. Cost of goods comes back only when
+the unit can be sold again.
+[Do Amazon returns wipe FBA profit?](do-amazon-returns-wipe-the-profit.html)
+shows expected profit, the drag at 0 / 8 / 15 / 22%, and the return
+rate that takes leftover to zero. Complementary to aged-inventory
+removal (units that already sit) and to eBay’s return-rate view (a
+different marketplace).
+
 **After using the aged-inventory page, you can now see whether
 keeping 80 leftover units at 5% sell-through still beats a $0.32
 dispose after $1.50 / unit / month surcharge** — which used to mean
@@ -127,6 +138,11 @@ the Vine invite because 30 reviews looked free.
 sending 200 large-standard units to one warehouse at $85 freight plus
 $0.43 placement still beats $210 on Amazon’s split** — which used to
 mean following the split because the placement fee looked optional.
+
+**After using the returns page, you can now see whether a 15% return
+rate with $2.50 handling still leaves $7.75 on a $29.99 listing that
+looked like $10.99** — which used to mean buying the SKU because the
+completed-sale leftover looked fat.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -161,7 +177,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, and inbound-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, and returns-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -170,8 +186,9 @@ Multi-Channel Fulfillment comparison, usual-PO vs supplier-MOQ
 comparison, you-prep vs Amazon inbound prep comparison,
 Individual vs Professional seller-plan comparison,
 Vine leftover vs sellable enrollment comparison,
-aged-inventory keep vs return vs dispose comparison, and
-inbound placement vs split-freight comparison;
+aged-inventory keep vs return vs dispose comparison,
+inbound placement vs split-freight comparison, and
+expected profit after returns;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 

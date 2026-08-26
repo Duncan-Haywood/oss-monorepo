@@ -554,6 +554,15 @@ products:
           Added inbound-placement vs split-freight comparison
           (compareInboundPlacement). Public URL remains owner-gated; the
           local counter now also records inbound_placement_compared.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          return_rate_calculated: 0
+        note: >-
+          Added expected profit after returns (handling fee, unsellable
+          share, 0/8/15/22% sweep, wipe rate). Still no public URL;
+          local event return_rate_calculated is opt-out and stores no
+          inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:

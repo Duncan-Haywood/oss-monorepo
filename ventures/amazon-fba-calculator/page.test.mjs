@@ -88,6 +88,11 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /Individual vs Professional seller plan/i);
   assert.match(featureList[1], /seller-plan volume ladder/i);
   assert.match(featureList[1], /aged inventory vs remove vs dispose/i);
+  assert.match(featureList[1], /expected returns/i);
+  assert.match(featureList[1], /return-rate sweep/i);
+  assert.match(markup, /id="returnsCompare"/);
+  assert.match(markup, /id="returnRate"/);
+  assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);
   assert.match(markup, /id="bulkCompare"/);
   assert.match(markup, /id="prepCompare"/);
   assert.match(markup, /id="placementCompare"/);
@@ -369,6 +374,19 @@ test("SEO page uses the same prep worked example the tests lock", () => {
   nearEnough(comparison.labelBag.profit, 10.74);
   nearEnough(comparison.full.profit, 9.94);
   nearEnough(comparison.label.monthlyDelta, 24);
+});
+
+test("calculator page wires return-rate columns that match the row template", () => {
+  const returnsMarkup = markup.split('id="returnsCompare"')[0];
+  const headerBlock = returnsMarkup.slice(returnsMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Return rate", "Expected profit", "Drag", "Margin", "Max buy"]);
+  assert.match(scriptSource, /compareReturns/);
+  assert.match(scriptSource, /returnsSummary/);
+  assert.match(scriptSource, /return_rate_calculated/);
+  assert.match(html, /do-amazon-returns-wipe-the-profit\.html/);
 });
 
 test("calculator page wires inbound-placement columns that match the row template", () => {
