@@ -33,7 +33,7 @@ the job title, price, or other content. DNT and GPC disable counting.
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
-kind, express or implied. It is not financial or engineering advice, and it does
+kind, express or implied. It is not financial, engineering, or construction advice, and it does
 not replace a qualified professional. **You are responsible for reviewing and
 verifying its output before relying on it**, and for meeting any obligation it
 helps you prepare for. To the maximum extent permitted by law, the authors
