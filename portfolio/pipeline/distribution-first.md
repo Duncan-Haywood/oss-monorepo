@@ -22,6 +22,14 @@ Added 2026-08-19, one pass after the consolidation in
 > as a 4 because "there is no marketplace" is no longer the right reading — the
 > question is whether a person with this problem can find the product by
 > searching for it.
+>
+> **2026-08-25 addendum:** building the landing page is not the same as
+> deploying it. Search cannot find a file that only exists in this repo.
+> While `publish_surface.py` reports nothing live, the next distribution
+> task is a public URL for an already-built product, not another candidate
+> write-up. Host is GitHub Pages or the Hetzner product box
+> ([`../hosting/README.md`](../hosting/README.md)). See
+> [`../DIRECTION.md`](../DIRECTION.md) "Current priority".
 
 ## The finding this directory already contains
 

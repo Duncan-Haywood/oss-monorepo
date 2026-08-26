@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kitchen Hood Cleaning Bid Calculator | Restaurant Exhaust Cleaning Price</title>
+  <meta name="description" content="Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.">
+  <meta property="og:title" content="Kitchen Hood Cleaning Bid Calculator">
+  <meta property="og:description" content="Bid commercial kitchen exhaust the way the trade loses money by skipping — duct and fan first, hood count last.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Hood Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Canopy, filter, duct and fan labor hours, grease-load and access multipliers, after-hours premium, travel, consumables, overhead and margin, annual contract, walk-away price, hood-only vs system comparison"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you price kitchen hood cleaning?","acceptedAnswer":{"@type":"Answer","text":"Price the exhaust system, not the hood count: canopy square feet and filters, plus horizontal and vertical duct, plus the fan. Apply a grease-load multiplier, an access multiplier, after-hours labor if you work after close, travel, chemicals, and disposal. Then add overhead and the margin you intend to keep."}},{"@type":"Question","name":"Why do per-hood quotes lose money?","acceptedAnswer":{"@type":"Answer","text":"Two kitchens can share a 10-foot canopy and have completely different labor. Eight feet of horizontal duct is a short add-on. Thirty feet of vertical duct and a rooftop fan through a hatch is most of the job. A flat per-hood number cannot see that."}},{"@type":"Question","name":"How often should a restaurant hood be cleaned?","acceptedAnswer":{"@type":"Answer","text":"Operators commonly schedule from annually on light cooking to monthly on solid-fuel or 24-hour lines. Frequency is an authority-having-jurisdiction and operator decision. This calculator does not determine a required interval."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a4a12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .comp-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .comp-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    .comp-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .result { position: sticky; top: 15px; background: #3a2212; color: #f8f3ee; border-color: #3a2212; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #f0b27a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #9a4a12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f3d3b0; }
+    details { margin-top: 10px; font-size: .9rem; }
+    details p { margin: 8px 0 0; color: #4a5666; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .comp-head { display: none; }
+      .comp-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .comp-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .comp-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR KITCHEN EXHAUST CLEANING CONTRACTORS</p>
+    <h1>Bid the duct and the fan, not the hood count.</h1>
+    <p>Price a restaurant hood cleaning from the exhaust system your crew actually works: canopy and filters, then the horizontal and vertical duct, then the fan. Grease load, rooftop access, and after-hours labor change the hours more than the length of the hood. You get the job price, the annual contract, and the number below which the stop loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The exhaust system</h2>
+        <p class="hint">One row per part of the system. Minutes are one technician&rsquo;s time. Pick a component to start from a common figure, then replace it with minutes timed from your own crew.</p>
+        <div class="comp-row comp-head" aria-hidden="true">
+          <span>Component</span><span>Quantity</span><span>Minutes / unit</span><span>Access</span><span></span>
+        </div>
+        <div id="components"></div>
+        <button type="button" id="addComponent">+ Add a component</button>
+      </section>
+
+      <section>
+        <h2>Kitchen and schedule</h2>
+        <div class="fields">
+          <label>Grease load <select id="greaseLoad"></select></label>
+          <label>Cleans per year <input id="cleansPerYear" type="number" min="0" step="1" value="4"></label>
+          <label>After-hours premium on site labor (%) <input id="afterHoursPremium" type="number" min="0" step="1" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 650"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Grease load scales the production minutes. Cleans per year is the contract cadence you and the operator agree — it is not a code interval and this tool does not determine how often a hood must be cleaned.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Tech hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="28"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Crew size on site <input id="crewSize" type="number" min="1" step="1" value="2"></label>
+          <label>Round-trip travel (hours) <input id="travelHours" type="number" min="0" step="0.25" value="1"></label>
+          <label>Techs paid for the drive <input id="travelTechs" type="number" min="0" step="1" value="2"></label>
+          <label>Consumables per job <input id="consumablesPerJob" type="number" min="0" step="1" value="45"></label>
+          <label>Chemicals per hood sq ft <input id="consumablesPerHoodSqFt" type="number" min="0" step="0.05" value="0.4"></label>
+          <label>Grease disposal / job <input id="disposalFee" type="number" min="0" step="1" value="35"></label>
+          <label>Other cost / job <input id="otherJobCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Common questions</h2>
+        <details>
+          <summary>How do you price kitchen hood cleaning?</summary>
+          <p>Add the canopy, filters, duct, and fan as separate labor. Multiply by grease load and access, add after-hours and travel, then chemicals, disposal, overhead, and the margin you intend to keep.</p>
+        </details>
+        <details>
+          <summary>Why do per-hood quotes lose money?</summary>
+          <p>Two kitchens can share a 10-foot canopy and have completely different labor. A short horizontal run is a small add-on. A vertical chase and a rooftop fan through a hatch is most of the job.</p>
+        </details>
+        <details>
+          <summary>How often should a restaurant hood be cleaned?</summary>
+          <p>Operators commonly schedule from annually on light cooking to monthly on solid-fuel or 24-hour lines. Frequency is an operator and authority-having-jurisdiction decision. This calculator does not determine a required interval.</p>
+        </details>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">price per cleaning</div>
+      <dl>
+        <dt>On-site tech hours</dt><dd id="productionHours"></dd>
+        <dt>Wall-clock with this crew</dt><dd id="wallClock"></dd>
+        <dt>Travel labor</dt><dd id="travel"></dd>
+        <dt>Loaded labor (incl. after-hours)</dt><dd id="labor"></dd>
+        <dt>Consumables &amp; disposal</dt><dd id="supplies"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Profit on this clean</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>If you bid the hood only</dt><dd id="hoodOnly"></dd>
+        <dt>Duct &amp; fan add</dt><dd id="systemPremium"></dd>
+        <dt>Annual contract</dt><dd id="annual"></dd>
+        <dt>Monthly equivalent</dt><dd id="monthly"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting minutes and grease-load figures are common ballpark starting points, not a standard, a code requirement, or a guarantee. Time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, fire-code, or business advice, and it does not tell you what to charge or how often a hood must be cleaned. It is not an NFPA 96 determination and it does not replace a qualified professional or the authority having jurisdiction. Verify every figure against your own payroll, insurance, and job costs before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the kitchen, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, COMPONENT_PRESETS, GREASE_LOADS, ACCESS_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = [
+      'hourlyWage','burdenRate','crewSize','travelHours','travelTechs','afterHoursPremium',
+      'consumablesPerJob','consumablesPerHoodSqFt','disposalFee','otherJobCost',
+      'overheadRate','targetMargin','cleansPerYear','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING = [
+      { name: 'Canopy hood (listed sq ft)', quantity: 40, minutesPerUnit: 4, access: 'kitchen_floor' },
+      { name: 'Hood filters (each)', quantity: 6, minutesPerUnit: 4, access: 'kitchen_floor' },
+      { name: 'Horizontal duct (linear ft)', quantity: 12, minutesPerUnit: 8, access: 'above_ceiling' },
+      { name: 'Vertical duct (linear ft)', quantity: 20, minutesPerUnit: 15, access: 'rooftop_hard' },
+      { name: 'Rooftop exhaust fan (each)', quantity: 1, minutesPerUnit: 60, access: 'rooftop_hard' },
+    ];
+
+    const TYPE_OPTIONS = COMPONENT_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other component</option>';
+    const ACCESS_OPTIONS = ACCESS_PRESETS
+      .map(preset => `<option value="${preset.id}">${preset.label}</option>`)
+      .join('');
+
+    el('greaseLoad').innerHTML = GREASE_LOADS
+      .map(load => `<option value="${load.id}">${load.label}</option>`)
+      .join('');
+    el('greaseLoad').value = 'heavy';
+
+    const host = el('components');
+    let rowSeq = 0;
+    let cleansEdited = false;
+
+    function addRow(item) {
+      const id = `c${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'comp-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Component</span><select class="c-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="c-qty" id="${id}-qty" type="number" min="0" step="0.5"></label>
+        <label for="${id}-min"><span class="lbl">Minutes per unit</span><input class="c-min" id="${id}-min" type="number" min="0.1" step="0.5"></label>
+        <label for="${id}-acc"><span class="lbl">Access</span><select class="c-acc" id="${id}-acc">${ACCESS_OPTIONS}</select></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this component</span></button>`;
+
+      const typeField = row.querySelector('.c-type');
+      const minField = row.querySelector('.c-min');
+      const presetIndex = COMPONENT_PRESETS.findIndex(p => p.label === item.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.c-qty').value = item.quantity;
+      minField.value = item.minutesPerUnit;
+      row.querySelector('.c-acc').value = item.access || 'kitchen_floor';
+
+      typeField.addEventListener('change', () => {
+        const preset = COMPONENT_PRESETS[Number(typeField.value)];
+        if (preset && !minField.dataset.edited) minField.value = preset.minutesPerUnit;
+        count('bid_calculated');
+        update();
+      });
+      minField.addEventListener('input', () => { minField.dataset.edited = '1'; });
+      row.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('component_removed');
+        update();
+      });
+      host.append(row);
+    }
+
+    function readComponents() {
+      return [...host.querySelectorAll('.comp-row')].map(row => {
+        const preset = COMPONENT_PRESETS[Number(row.querySelector('.c-type').value)];
+        const access = ACCESS_PRESETS.find(item => item.id === row.querySelector('.c-acc').value);
+        return {
+          name: preset ? preset.label : '',
+          kind: preset ? preset.kind : 'other',
+          quantity: row.querySelector('.c-qty').value,
+          minutesPerUnit: row.querySelector('.c-min').value,
+          accessMultiplier: access ? access.multiplier : 1,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'price per cleaning';
+      ['productionHours','wallClock','travel','labor','supplies','overhead','cost','profit','hourlyRate','breakEven','hoodOnly','systemPremium','annual','monthly']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const components = readComponents();
+      if (components.length === 0) {
+        clearOutputs('Add a component to price', false);
+        el('split').innerHTML = '<li class="empty">Add the hood, duct, and fan above and the hour split appears here.</li>';
+        return;
+      }
+      const load = GREASE_LOADS.find(item => item.id === el('greaseLoad').value) || GREASE_LOADS[0];
+      let result;
+      try {
+        result = calculateBid({
+          components,
+          greaseMultiplier: load.multiplier,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.jobPrice);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'price per cleaning';
+      el('productionHours').textContent = `${result.productionHours.toFixed(1)} h`;
+      el('wallClock').textContent = result.wallClockHours === null ? 'n/a' : `${result.wallClockHours.toFixed(1)} h`;
+      el('travel').textContent = money(result.travelLaborCost);
+      el('labor').textContent = money(result.laborCost);
+      el('supplies').textContent = money(result.consumables + result.disposalFee + result.otherJobCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.jobCost);
+      el('profit').textContent = money(result.jobProfit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('hoodOnly').textContent = money(result.hoodOnlyPrice);
+      el('systemPremium').textContent = money(result.systemPremium);
+      el('annual').textContent = money(result.annualPrice);
+      el('monthly').textContent = money(result.monthlyEquivalent);
+
+      const kinds = [
+        ['hood', 'Canopy & filters'],
+        ['duct', 'Duct & clean-outs'],
+        ['fan', 'Fans & makeup air'],
+        ['other', 'Other'],
+      ].filter(([kind]) => result.hoursByKind[kind] > 0);
+      el('split').innerHTML = kinds.length === 0
+        ? '<li class="empty">No production hours yet — add quantities above.</li>'
+        : kinds.map(([kind, label]) => `<li><span>${label}</span><span>${result.kindShare[kind].toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${result.kindShare[kind].toFixed(1)}%"></span></span></li>`).join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this stop <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      }
+    }
+
+    function summaryText(result) {
+      const lines = result.components
+        .filter(row => row.quantity > 0)
+        .map(row => `- ${row.name}: ${row.quantity} (${row.hours.toFixed(1)} tech-h)`)
+        .join('\n');
+      return [
+        'KITCHEN EXHAUST CLEANING BID',
+        '',
+        `Proposed price per cleaning: ${money(result.jobPrice)}`,
+        `Annual contract (${result.cleansPerYear} cleans): ${money(result.annualPrice)}`,
+        `On-site tech hours: ${result.productionHours.toFixed(1)}`,
+        `If priced as hood-only: ${money(result.hoodOnlyPrice)} — duct and fan add ${money(result.systemPremium)}`,
+        '',
+        'SYSTEM',
+        lines || '- No components entered',
+        '',
+        'This is a draft for review. Confirm scope, access, grease load, insurance, taxes, and all pricing before sending. It is not a fire-code determination.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const load = GREASE_LOADS.find(item => item.id === el('greaseLoad').value) || GREASE_LOADS[0];
+      const result = calculateBid({
+        components: readComponents(),
+        greaseMultiplier: load.multiplier,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addComponent').addEventListener('click', () => {
+      addRow({ name: 'Horizontal duct (linear ft)', quantity: 0, minutesPerUnit: 8, access: 'kitchen_floor' });
+      count('component_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', () => {
+        if (id === 'cleansPerYear') cleansEdited = true;
+        update();
+      });
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('greaseLoad').addEventListener('change', () => {
+      const load = GREASE_LOADS.find(item => item.id === el('greaseLoad').value);
+      if (load && !cleansEdited) el('cleansPerYear').value = load.suggestedCleansPerYear;
+      count('bid_calculated');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING.forEach(addRow);
+    update();
+  </script>
+</body>
+</html>

@@ -1,7 +1,6 @@
 import json
 import contextlib
 import io
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -110,6 +109,49 @@ class ChecksTest(unittest.TestCase):
         rules = {error["rule"] for error in errors}
         self.assertIn("INV-018", rules)
         self.assertTrue(any("line tax percentages" in error["message"] for error in errors))
+
+    def test_prepaid_and_due_are_optional_and_must_balance(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["prepaid"] = 38
+        invoice["totals"]["due"] = 200
+        self.assertEqual(check_invoice(invoice), [])
+
+        invoice["totals"]["due"] = 238
+        errors = check_invoice(invoice)
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-029")["path"], "/totals/due")
+
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["prepaid"] = 300
+        errors = check_invoice(invoice)
+        self.assertIn("INV-028", {error["rule"] for error in errors})
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-028")["path"], "/totals/prepaid")
+
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["due"] = 0
+        errors = check_invoice(invoice)
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+        self.assertTrue(any("gross minus prepaid" in error["message"] for error in errors))
+
+    def test_ubl_prepaid_and_payable_map_into_remaining_balance(self):
+        matching = UBL_VALID.replace(
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>"
+            b"<cbc:PrepaidAmount>38</cbc:PrepaidAmount>"
+            b"<cbc:PayableAmount>200</cbc:PayableAmount>",
+        )
+        invoice = parse_ubl_invoice(matching)
+        self.assertEqual(invoice["totals"]["prepaid"], 38)
+        self.assertEqual(invoice["totals"]["due"], 200)
+        self.assertEqual(check_invoice(invoice), [])
+
+        mismatched = UBL_VALID.replace(
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>"
+            b"<cbc:PayableAmount>200</cbc:PayableAmount>",
+        )
+        errors = check_invoice(parse_ubl_invoice(mismatched))
+        self.assertIn("INV-029", {error["rule"] for error in errors})
 
     def test_tax_total_rounds_each_line_to_cents(self):
         invoice = json.loads(json.dumps(VALID))
@@ -678,14 +720,33 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 2)
             self.assertIn("::error file=broken.json,line=1,title=Unreadable invoice::", output.getvalue())
 
-    def test_cli_emits_no_github_annotations_for_valid_invoice(self):
+    def test_cli_emits_github_notice_for_valid_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
             invoice_path.write_text(json.dumps(VALID))
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 0)
-            self.assertEqual(output.getvalue(), "")
+            report = output.getvalue()
+            self.assertIn("::notice title=E-invoice preflight::Passed: 1 invoice(s)", report)
+            self.assertNotIn("INV-1", report)
+            self.assertNotIn("::error", report)
+
+    def test_cli_records_github_report_usage_separately(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([
+                    str(invoice_path), "--format", "github", "--usage-file", str(usage_path)
+                ]), 0)
+            self.assertEqual(json.loads(usage_path.read_text()), {"events": {
+                "invoice_preflight_attempted": 1,
+                "invoice_preflight_checked": 1,
+                "invoice_preflight_github_report": 1,
+            }})
 
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
@@ -914,7 +975,11 @@ class ChecksTest(unittest.TestCase):
             self.assertIn('id="invoice-0"', report)
             self.assertIn('caption>Findings grouped by validation rule', report)
             self.assertIn('scope="col"', report)
-            self.assertIn('href="#report-content"', report)
+            self.assertIn('href="#report-content">Skip to report content', report)
+            self.assertIn('<main id="report-content" aria-label="Preflight report">', report)
+            self.assertIn('role="status">Overall: FAIL', report)
+            self.assertIn('aria-labelledby="finding-summary-heading"', report)
+            self.assertIn('aria-label="Report metrics"', report)
             self.assertNotIn("PRIVATE-123", report)
             self.assertNotIn("<script", report.lower())
 
