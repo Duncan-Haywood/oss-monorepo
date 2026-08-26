@@ -211,6 +211,11 @@
     <p class="hint">What you'd want to be paid per hour if you were billing hourly instead.</p>
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
+    <div class="result" id="target-breakdown" aria-live="polite">
+      <strong>What makes up the target price</strong>
+      <p class="hint">A transparent decomposition of the supplied target rate and direct costs.</p>
+      <div class="table-scroll"><table class="sensitivity"><thead><tr><th>Component</th><th>Amount</th></tr></thead><tbody></tbody><tfoot><tr><th scope="row">Total target price</th><td></td></tr></tfoot></table></div>
+    </div>
     <div class="result" id="sensitivity" aria-live="polite"><strong>If the work takes longer</strong><p class="hint">A scenario view, not a prediction. Direct costs stay unchanged.</p><div class="table-scroll"><table class="sensitivity"><thead><tr><th>Extra time</th><th>Total hours</th><th>Effective rate</th><th>Gap to target</th></tr></thead><tbody></tbody></table></div></div>
     <div class="result" id="cost-spike" aria-live="polite">
       <strong>If costs rise before you start</strong>
@@ -428,7 +433,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { reviewQuote } from "./review.mjs";
@@ -448,6 +453,7 @@
   const discountAsk = document.getElementById("discount-ask");
   const billing = document.getElementById("billing");
   const killFee = document.getElementById("kill-fee");
+  const targetBreakdown = document.getElementById("target-breakdown");
 
   let lastReport = null;
 
@@ -535,6 +541,9 @@
          killFee.querySelector("#kill-fee-summary").textContent = killErr.message;
          killFee.querySelector("tbody").innerHTML = "";
        }
+       const breakdown = targetPriceBreakdown(quote);
+       targetBreakdown.querySelector("tbody").innerHTML = [["Delivery work", breakdown.delivery_labor], ["Admin and revisions", breakdown.hidden_time_labor], ["Direct costs", breakdown.direct_costs]].map(([label, value]) => `<tr><th scope="row">${label}</th><td>${safeCurrency} ${fmt(value)}</td></tr>`).join("");
+       targetBreakdown.querySelector("tfoot td").textContent = `${safeCurrency} ${fmt(breakdown.total)}`;
        recordEvent("quote_review_checked");
        recordEvent("cost_spike_compared");
        recordEvent("discount_ask_compared");

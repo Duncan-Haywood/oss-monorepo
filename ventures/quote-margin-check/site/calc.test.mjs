@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -402,4 +402,14 @@ test("a fixed quote that already matches hourly says so", () => {
   const report = calculate(quote);
   assert.equal(billingModelSummary(quote, report).hourly_minus_fixed, 0);
   assert.match(billingModelNote(quote, report), /the same as this fixed quote/);
+});
+
+test("breaks target price into delivery, hidden time, and direct costs", () => {
+  const quote = loadQuote({ price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  assert.deepEqual(targetPriceBreakdown(quote), {
+    delivery_labor: 1800,
+    hidden_time_labor: 825,
+    direct_costs: 480,
+    total: 3105,
+  });
 });

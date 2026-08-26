@@ -55,6 +55,18 @@ export function calculate(quote) {
   };
 }
 
+/** Breaks the target price into the inputs that produced it. */
+export function targetPriceBreakdown(quote) {
+  const hiddenHours = quote.admin_hours + quote.revision_hours;
+  return {
+    delivery_labor: quote.delivery_hours * quote.target_hourly_rate,
+    hidden_time_labor: hiddenHours * quote.target_hourly_rate,
+    direct_costs: quote.overhead + quote.subcontractor_cost,
+    total: (quote.delivery_hours + hiddenHours) * quote.target_hourly_rate
+      + quote.overhead + quote.subcontractor_cost,
+  };
+}
+
 /** Shows how the supplied quote behaves if the work takes longer than planned. */
 export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
   return percentages.map((percent) => {

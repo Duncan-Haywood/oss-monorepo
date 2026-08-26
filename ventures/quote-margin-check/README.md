@@ -98,6 +98,11 @@ freed hours could be rebooked at the supplied target rate. See
 The table is arithmetic on the figures you typed, not advice to
 cancel or finish, and not a forecast of other work.
 
+The browser also breaks the target price into delivery labor, hidden admin and
+revision time, and direct costs. This makes the arithmetic auditable instead
+of leaving the user to reverse-engineer one total; it is not a recommendation
+about what to charge.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
