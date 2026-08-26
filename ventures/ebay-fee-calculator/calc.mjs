@@ -138,6 +138,8 @@ export const INPUT_FIELDS = [
   'selfShipClaimRatePercent',
   'selfShipSellThroughPct',
   'monthlyGspListings',
+  'monthlyStoreOrders',
+  'monthlyStoreFee',
   'freeShipPrice',
   'buyerPaysSellThroughPct',
   'freeShipSellThroughPct',
@@ -2096,7 +2098,7 @@ function breakEvenStandardRate(input, extraOrders, skipExpected) {
  *     sale you already would have made.
  *
  * This is not Offsite (#1653): Offsite is a bill either way.
- * Open eBay PRs still own store, Best Offer, and international.
+ * Open eBay PRs still own Best Offer and international.
  * Extra-sale counts are inputs, not eBay’s Promoted Listings
  * attribution.
  */
@@ -3702,6 +3704,190 @@ export function globalShippingNote(comparison) {
 }
 
 /**
+ * Illustrative store-subscription assumptions. Monthly fee and the
+ * final-value rate each tier unlocks are inputs — not eBay's current
+ * published store prices. $7.95 / 12.95%, $27.95 / 12.55%, $74.95 /
+ * 11.85% is a Starter / Basic / Premium-shaped mix a seller overwrites
+ * from their own invoice.
+ */
+export const STORE_TIER_PRESETS = [
+  { id: 'starter', label: 'Starter (example)', monthlyFee: 7.95, finalValueRate: 12.95 },
+  { id: 'basic', label: 'Basic (example)', monthlyFee: 27.95, finalValueRate: 12.55 },
+  { id: 'premium', label: 'Premium (example)', monthlyFee: 74.95, finalValueRate: 11.85 },
+];
+export const DEFAULT_MONTHLY_STORE_ORDERS = 40;
+export const DEFAULT_MONTHLY_STORE_FEE = 0;
+
+/**
+ * Orders needed at this order's revenue for a cheaper final-value
+ * rate to cover the extra monthly subscription. Infinity when the
+ * store rate is not cheaper — paying more per order never recovers
+ * a subscription.
+ */
+export function storeBreakEvenOrders({
+  revenue,
+  currentFinalValueRate,
+  storeFinalValueRate,
+  monthlyFee,
+}) {
+  const orderRevenue = optionalNumber(revenue, 'Order revenue', 0);
+  const currentRate = optionalNumber(currentFinalValueRate, 'Current final value fee rate', 0);
+  const storeRate = optionalNumber(storeFinalValueRate, 'Store final value fee rate', 0);
+  const fee = optionalNumber(monthlyFee, 'Store monthly fee', 0);
+  const savingsPerOrder = orderRevenue * (currentRate - storeRate) / 100;
+  if (savingsPerOrder <= 1e-12) return Infinity;
+  return fee / savingsPerOrder;
+}
+
+/**
+ * Same SKU, the typed final-value rate versus example store tiers.
+ *
+ *   - No store / current rate — the headline final-value percent
+ *     minus any subscription the seller already pays.
+ *   - Starter / Basic / Premium — that same order at the example
+ *     store rate, then the monthly subscription is taken out of
+ *     monthly leftover. The subscription stays off per-order
+ *     invested cash so ROI on one sale stays honest.
+ *
+ * Complementary to Promoted Listings (a percent of a completed
+ * sale) and Top Rated Plus (a fee discount for free returns).
+ * Fees and rates are inputs, not eBay store policy. Complementary
+ * to Global Shipping (#1671). Open eBay PRs still own incoming
+ * Best Offer and international-vs-domestic (#1564).
+ */
+export function compareStoreTiers(input, tiers = STORE_TIER_PRESETS) {
+  if (!Array.isArray(tiers) || tiers.length === 0) {
+    throw new Error('At least one store tier is required');
+  }
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const monthlyOrders = optionalNumber(
+    firstPresent(input.monthlyStoreOrders, input.monthlyOrders),
+    'Monthly store orders',
+    DEFAULT_MONTHLY_STORE_ORDERS,
+  );
+  if (!Number.isInteger(monthlyOrders) || monthlyOrders < 1) {
+    throw new Error('Monthly store orders must be a whole number of at least 1');
+  }
+  const currentStoreFee = optionalNumber(
+    input.monthlyStoreFee,
+    'Current monthly store fee',
+    DEFAULT_MONTHLY_STORE_FEE,
+  );
+  const currentRate = optionalNumber(input.finalValueRate, 'Final value fee rate', 13.25);
+
+  const currentOrder = calculateOrder(input);
+  const currentMonthlyProfit = currentOrder.profit * monthlyOrders - currentStoreFee;
+
+  const makeRow = ({ id, label, monthlyFee, finalValueRate, order, isCurrent }) => {
+    const monthlyProfit = order.profit * monthlyOrders - monthlyFee;
+    return {
+      id,
+      label,
+      monthlyFee,
+      finalValueRate,
+      profit: order.profit,
+      feeTotal: order.feeTotal,
+      revenue: order.revenue,
+      monthlyProfit,
+      monthlyDelta: monthlyProfit - currentMonthlyProfit,
+      breakEvenOrders: isCurrent
+        ? 0
+        : storeBreakEvenOrders({
+          revenue: order.revenue,
+          currentFinalValueRate: currentRate,
+          storeFinalValueRate: finalValueRate,
+          monthlyFee,
+        }),
+      isCurrent,
+    };
+  };
+
+  const current = makeRow({
+    id: 'current',
+    label: 'No store / current rate',
+    monthlyFee: currentStoreFee,
+    finalValueRate: currentRate,
+    order: currentOrder,
+    isCurrent: true,
+  });
+
+  const storeRows = [];
+  for (const tier of tiers) {
+    const monthlyFee = optionalNumber(tier.monthlyFee, 'Store monthly fee', 0);
+    const finalValueRate = optionalNumber(tier.finalValueRate, 'Store final value fee rate', 0);
+    if (finalValueRate === currentRate && monthlyFee === currentStoreFee) continue;
+    const order = calculateOrder({ ...input, finalValueRate });
+    storeRows.push(makeRow({
+      id: String(tier.id ?? finalValueRate),
+      label: String(tier.label ?? `${finalValueRate}% store`),
+      monthlyFee,
+      finalValueRate,
+      order,
+      isCurrent: false,
+    }));
+  }
+
+  const rows = [current, ...storeRows].map((row) => ({
+    ...row,
+    vsCurrent: row.monthlyProfit - currentMonthlyProfit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.monthlyProfit));
+  const leaders = rows.filter((row) => Math.abs(row.monthlyProfit - maxProfit) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : 'tie';
+
+  const starter = rows.find((row) => row.id === 'starter');
+  const basic = rows.find((row) => row.id === 'basic');
+  const premium = rows.find((row) => row.id === 'premium');
+  const extraKeptOnStarter = starter ? starter.monthlyProfit - currentMonthlyProfit : 0;
+
+  return {
+    rows,
+    current: rows[0],
+    starter,
+    basic,
+    premium,
+    monthlyOrders,
+    currentStoreFee,
+    currentRate,
+    extraKeptOnStarter,
+    extraKeptOnBasic: basic ? basic.monthlyProfit - currentMonthlyProfit : 0,
+    extraKeptOnPremium: premium ? premium.monthlyProfit - currentMonthlyProfit : 0,
+    winner,
+    summary: storeTiersNote({
+      winner,
+      currentRate,
+      extraKeptOnStarter,
+      starter,
+    }),
+  };
+}
+
+export function storeTiersNote(comparison) {
+  if (!comparison || comparison.extraKeptOnStarter === undefined || !comparison.starter) {
+    throw new Error('Store comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { winner, currentRate, extraKeptOnStarter, starter } = comparison;
+  const gap = money(Math.abs(extraKeptOnStarter));
+  const ahead = extraKeptOnStarter >= 0 ? 'more' : 'less';
+  const feeLine = `Starter at ${money(starter.monthlyFee)} / ${starter.finalValueRate}% keeps ${gap} ${ahead} than staying at ${currentRate}% with no subscription.`;
+  const floor = Number.isFinite(starter.breakEvenOrders)
+    ? ` Starter still ties around ${starter.breakEvenOrders.toFixed(0)} of these sales.`
+    : ' No order count recovers Starter when its final-value rate is not cheaper.';
+  if (winner === 'tie') {
+    return `Starter and your current rate leave the same monthly leftover on these fees.${floor}`;
+  }
+  return `${feeLine}${floor}`;
+}
+
+/**
  * Illustrative free-shipping extras. 55% vs 70% is a 15-point
  * search-rank lift — both typed, not scraped from Seller Hub.
  * Leaving freeShipPrice empty bakes the typed shipping charged
@@ -3750,8 +3936,9 @@ function freeShipRow({
  * combined shipping (two already-sold items), Standard Envelope
  * (tracked vs ESE), quantity discount (N units, one box), and
  * seller coupon (public code, not postage). Global Shipping (#1671) is a hub label versus you-ship
- * international postage. Open eBay PRs still own store, incoming Best
- * Offer, and international. Rates are inputs, not eBay search
+ * international postage. Store subscription (#1672) is a monthly fee
+ * versus the no-store rate. Open eBay PRs still own incoming Best
+ * Offer and international. Rates are inputs, not eBay search
  * ranking.
  */
 export function compareFreeShipping(input) {

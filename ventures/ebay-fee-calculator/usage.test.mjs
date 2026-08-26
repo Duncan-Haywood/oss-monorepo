@@ -202,6 +202,14 @@ test('counts a Global Shipping comparison without storing postage or a claim rat
   assert.deepEqual(Object.keys(stored).sort(), ['global_shipping_compared', 'last_day']);
 });
 
+test('counts a store comparison without storing a fee or order count', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'store_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.store_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'store_compared']);
+});
+
 test('counts a free-shipping comparison without storing a list or sell-through', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'free_shipping_compared');

@@ -345,6 +345,16 @@ test('carries Managed Returns fields so a shared link does not drop them', () =>
   assert.equal(restored.monthlyManagedListings, 40);
 });
 
+test('carries store-subscription fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    monthlyStoreOrders: 80,
+    monthlyStoreFee: 7.95,
+  }));
+  assert.equal(restored.monthlyStoreOrders, 80);
+  assert.equal(restored.monthlyStoreFee, 7.95);
+});
+
 test('carries free-shipping fields so a shared link does not drop them', () => {
   const restored = decodeInputs(encodeInputs({
     price: 40,

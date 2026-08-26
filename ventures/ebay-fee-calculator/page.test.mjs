@@ -368,7 +368,7 @@ test('the Global Shipping table has one cell per column and a counted event', ()
   assert.match(page, /should-i-use-ebay-global-shipping-program\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Global Shipping Program vs you-ship/);
   const gspStart = page.indexOf('id="globalShippingTable"');
-  const gspEnd = page.indexOf('id="freeShipping"', gspStart);
+  const gspEnd = page.indexOf('id="storeTiers"', gspStart);
   const headerBlock = page.slice(gspStart, gspEnd === -1 ? undefined : gspEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
@@ -379,6 +379,26 @@ test('the Global Shipping table has one cell per column and a counted event', ()
     'If they keep it',
     'Expected after sell-through',
     'vs GSP',
+  ]);
+});
+
+test('the store-subscription table has one cell per column and a counted event', () => {
+  assert.match(page, /compareStoreTiers/);
+  assert.match(page, /id="storeTiers"/);
+  assert.match(page, /id="storeTiersVerdict"/);
+  assert.match(page, /store_compared/);
+  assert.match(page, /is-an-ebay-store-worth-it\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*store subscription vs no-store rate/);
+  const storeStart = page.indexOf('id="storeTiersTable"');
+  const storeEnd = page.indexOf('id="freeShipping"', storeStart);
+  const headerBlock = page.slice(storeStart, storeEnd === -1 ? undefined : storeEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Monthly fee',
+    'Final value',
+    'Monthly leftover',
+    'vs no store',
   ]);
 });
 
