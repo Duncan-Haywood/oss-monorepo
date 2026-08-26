@@ -175,3 +175,245 @@ export function earlyPayNote(comparison) {
     `${money(comparison.discountCost)} you keep by waiting still covers the float.${breakEven}`
   );
 }
+
+/* ------------------------------------------------------------------ *
+ * When the cash actually lands
+ *
+ * `calculateTerms` returns the contractual due date: invoice date plus
+ * the terms. That is the date the invoice says, and it is the date a
+ * late fee would start from — but it is very often not the date money
+ * arrives. Accounts-payable departments pay in runs: weekdays only, the
+ * 1st and 15th, once a month, one weekday a week. An invoice due on a
+ * Saturday, or due the 16th at a client who pays on the 1st and 15th,
+ * sits until the next run.
+ *
+ * Two decisions fall out of that, and neither is visible from the due
+ * date alone:
+ *   - the drift between "due" and "paid", and what those days cost at
+ *     the carrying rate the operator already types in; and
+ *   - that a longer term often costs nothing, because Net 45 and Net 30
+ *     can land on the very same run.
+ *
+ * Deterministic calendar arithmetic. It models the client's stated
+ * schedule; it does not predict whether a client actually pays on time.
+ * ------------------------------------------------------------------ */
+
+const WEEKDAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+export const PAY_RUN_SCHEDULES = [
+  { id: 'on-due', label: 'Exactly on the due date' },
+  { id: 'weekdays', label: 'Weekdays only (skips weekends)' },
+  { id: 'semimonthly', label: 'Twice a month (1st and 15th)' },
+  { id: 'monthly', label: 'Once a month, on a set day' },
+  { id: 'weekly', label: 'Once a week, on a set weekday' },
+];
+
+const SCHEDULE_IDS = PAY_RUN_SCHEDULES.map(s => s.id);
+
+function utcDate(year, month, day) {
+  return new Date(Date.UTC(year, month, day));
+}
+
+function daysInMonth(year, month) {
+  return utcDate(year, month + 1, 0).getUTCDate();
+}
+
+function addDays(date, count) {
+  return new Date(date.getTime() + count * DAY);
+}
+
+function diffDays(later, earlier) {
+  return Math.round((later.getTime() - earlier.getTime()) / DAY);
+}
+
+function toISO(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function parseISO(iso) {
+  const parts = typeof iso === 'string' && iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!parts) return null;
+  const date = new Date(`${iso}T00:00:00Z`);
+  if (Number.isNaN(date.getTime())) return null;
+  if (date.getUTCFullYear() !== Number(parts[1])) return null;
+  if (date.getUTCMonth() + 1 !== Number(parts[2])) return null;
+  if (date.getUTCDate() !== Number(parts[3])) return null;
+  return date;
+}
+
+// A monthly run day is clamped to the end of short months: "the 31st"
+// is the 28th or 29th in February, which is what AP systems do.
+function monthlyRunDay(year, month, payRunDay) {
+  return Math.min(payRunDay, daysInMonth(year, month));
+}
+
+function isPayRunDay(date, schedule, payRunDay, payRunWeekday) {
+  const weekday = date.getUTCDay();
+  if (schedule === 'weekdays') return weekday !== 0 && weekday !== 6;
+  if (schedule === 'weekly') return weekday === payRunWeekday;
+  if (schedule === 'semimonthly') return date.getUTCDate() === 1 || date.getUTCDate() === 15;
+  if (schedule === 'monthly') {
+    return date.getUTCDate() === monthlyRunDay(date.getUTCFullYear(), date.getUTCMonth(), payRunDay);
+  }
+  return true;
+}
+
+/** First pay-run date on or after `date`. */
+function nextPayRun(date, schedule, payRunDay, payRunWeekday) {
+  if (schedule === 'on-due') return date;
+  if (schedule === 'semimonthly') {
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    for (const candidate of [utcDate(year, month, 1), utcDate(year, month, 15), utcDate(year, month + 1, 1)]) {
+      if (candidate.getTime() >= date.getTime()) return candidate;
+    }
+    return utcDate(year, month + 1, 1);
+  }
+  if (schedule === 'monthly') {
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const thisMonth = utcDate(year, month, monthlyRunDay(year, month, payRunDay));
+    if (thisMonth.getTime() >= date.getTime()) return thisMonth;
+    return utcDate(year, month + 1, monthlyRunDay(year, month + 1, payRunDay));
+  }
+  // weekdays and weekly are at most a week out, so stepping is clearest.
+  let cursor = date;
+  for (let step = 0; step < 8; step += 1) {
+    if (isPayRunDay(cursor, schedule, payRunDay, payRunWeekday)) return cursor;
+    cursor = addDays(cursor, 1);
+  }
+  return cursor;
+}
+
+/** Latest pay-run date strictly before `date`, or null when every day pays. */
+function previousPayRun(date, schedule, payRunDay, payRunWeekday) {
+  if (schedule === 'on-due') return null;
+  let cursor = addDays(date, -1);
+  for (let step = 0; step < 400; step += 1) {
+    if (isPayRunDay(cursor, schedule, payRunDay, payRunWeekday)) return cursor;
+    cursor = addDays(cursor, -1);
+  }
+  return null;
+}
+
+function readSchedule(input) {
+  const schedule = input.payRun === undefined || input.payRun === '' ? 'weekdays' : String(input.payRun);
+  if (!SCHEDULE_IDS.includes(schedule)) throw new Error('Choose a payment schedule from the list.');
+  const payRunDay = Math.round(finiteNumber(input.payRunDay, 'Pay-run day of month', 1));
+  if (schedule === 'monthly' && (payRunDay < 1 || payRunDay > 31)) {
+    throw new Error('Pay-run day of month must be between 1 and 31');
+  }
+  const payRunWeekday = Math.round(finiteNumber(input.payRunWeekday, 'Pay-run weekday', 5));
+  if (schedule === 'weekly' && (payRunWeekday < 0 || payRunWeekday > 6)) {
+    throw new Error('Pay-run weekday must be between 0 (Sunday) and 6 (Saturday)');
+  }
+  return { schedule, payRunDay, payRunWeekday };
+}
+
+/**
+ * Projects the date cash actually lands, given the client's pay-run
+ * schedule, and prices the drift at the carrying rate already on the form.
+ */
+export function projectSettlement(input = {}) {
+  if (!input || typeof input !== 'object') throw new Error('Enter invoice details.');
+  const invoiceDate = parseISO(input.invoiceDate);
+  if (!invoiceDate) throw new Error('Enter a valid invoice date.');
+  const amount = Math.max(0, number(input.amount));
+  const termsDays = Math.max(0, Math.round(number(input.termsDays, 30)));
+  const annualCarryRate = Math.max(0, finiteNumber(input.annualCarryRate, 'Annual carrying-cost rate', 24));
+  const { schedule, payRunDay, payRunWeekday } = readSchedule(input);
+
+  const dueDate = addDays(invoiceDate, termsDays);
+  const settlement = nextPayRun(dueDate, schedule, payRunDay, payRunWeekday);
+  const driftDays = diffDays(settlement, dueDate);
+  const totalWaitDays = diffDays(settlement, invoiceDate);
+  const driftCarryCost = carryingCost(amount, annualCarryRate, driftDays);
+
+  // Catching the run before this one requires dating the invoice earlier
+  // by exactly the gap between the due date and that run.
+  const earlier = previousPayRun(settlement, schedule, payRunDay, payRunWeekday);
+  let earlierRun = null;
+  if (earlier && earlier.getTime() > invoiceDate.getTime()) {
+    const sendEarlierDays = diffDays(dueDate, earlier);
+    const daysSooner = diffDays(settlement, earlier);
+    // Only worth saying when batching gives leverage — moving the invoice
+    // earlier buys *more* days than it gives up. On a weekdays-only
+    // schedule every shift is 1-for-1, which is not an insight.
+    if (sendEarlierDays > 0 && daysSooner > sendEarlierDays) {
+      earlierRun = {
+        runDate: toISO(earlier),
+        sendEarlierDays,
+        daysSooner,
+        invoiceBy: toISO(addDays(earlier, -termsDays)),
+        carryCostSaved: carryingCost(amount, annualCarryRate, daysSooner),
+      };
+    }
+  }
+
+  return {
+    schedule,
+    scheduleLabel: PAY_RUN_SCHEDULES.find(s => s.id === schedule).label,
+    payRunDay,
+    payRunWeekday,
+    payRunWeekdayName: WEEKDAY_NAMES[((payRunWeekday % 7) + 7) % 7],
+    invoiceDate: toISO(invoiceDate),
+    dueDate: toISO(dueDate),
+    settlementDate: toISO(settlement),
+    driftDays,
+    totalWaitDays,
+    annualCarryRate,
+    driftCarryCost,
+    landsOnDueDate: driftDays === 0,
+    earlierRun,
+  };
+}
+
+const DEFAULT_TERMS_LADDER = [7, 15, 30, 45, 60];
+
+/**
+ * The same invoice under a ladder of payment terms, showing where cash
+ * lands for each. Terms that land on the same run as a shorter term cost
+ * the operator nothing in cash timing — that is the row worth seeing.
+ */
+export function compareTermsLandings(input = {}, ladder = DEFAULT_TERMS_LADDER) {
+  const own = Math.max(0, Math.round(number(input.termsDays, 30)));
+  const termsList = [...new Set([...ladder, own])].sort((a, b) => a - b);
+  const rows = termsList.map(termsDays => {
+    const projection = projectSettlement({ ...input, termsDays });
+    return {
+      termsDays,
+      dueDate: projection.dueDate,
+      settlementDate: projection.settlementDate,
+      driftDays: projection.driftDays,
+      totalWaitDays: projection.totalWaitDays,
+      isCurrent: termsDays === own,
+      landsWith: null,
+      freeExtraDays: 0,
+    };
+  });
+  // Annotate each row with the shortest term landing on the same day.
+  const firstBySettlement = new Map();
+  for (const row of rows) {
+    if (!firstBySettlement.has(row.settlementDate)) {
+      firstBySettlement.set(row.settlementDate, row.termsDays);
+      continue;
+    }
+    const shortest = firstBySettlement.get(row.settlementDate);
+    row.landsWith = shortest;
+    row.freeExtraDays = row.termsDays - shortest;
+  }
+  return rows;
+}
+
+/** One-sentence readout of the settlement projection. Arithmetic only. */
+export function settlementNote(projection) {
+  if (projection.schedule === 'on-due') {
+    return `Assuming payment exactly on the due date, cash lands ${projection.settlementDate}, ${projection.totalWaitDays} days after you invoice.`;
+  }
+  const base = projection.landsOnDueDate
+    ? `The due date ${projection.dueDate} is itself a pay-run day, so cash lands ${projection.settlementDate} — ${projection.totalWaitDays} days after you invoice.`
+    : `The invoice is due ${projection.dueDate}, but the next pay run is ${projection.settlementDate}, so cash lands ${projection.driftDays} day${projection.driftDays === 1 ? '' : 's'} later — ${projection.totalWaitDays} days after you invoice. Those ${projection.driftDays} day${projection.driftDays === 1 ? '' : 's'} cost about ${money(projection.driftCarryCost)} at ${projection.annualCarryRate.toFixed(1)}%.`;
+  if (!projection.earlierRun) return base;
+  const { sendEarlierDays, daysSooner, invoiceBy, carryCostSaved } = projection.earlierRun;
+  return `${base} Dating this invoice ${sendEarlierDays} day${sendEarlierDays === 1 ? '' : 's'} earlier — by ${invoiceBy} — would catch the ${projection.earlierRun.runDate} run and be paid ${daysSooner} day${daysSooner === 1 ? '' : 's'} sooner, worth about ${money(carryCostSaved)} of carrying cost.`;
+}
