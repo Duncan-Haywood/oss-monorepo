@@ -145,6 +145,206 @@ export function compareEarlyPay(input = {}) {
   };
 }
 
+const LATE_DEFAULTS = {
+  amount: 1200,
+  daysOverdue: 15,
+  annualCarryRate: 24,
+  waitDays: 30,
+  waitRecoveryPct: 70,
+  chaseHours: 3,
+  hourlyRate: 85,
+  chaseDays: 14,
+  chaseRecoveryPct: 85,
+  settlementDiscountPct: 10,
+  settlementDays: 5,
+  settlementRecoveryPct: 80,
+  collectionCommissionPct: 30,
+  collectionDays: 90,
+  collectionRecoveryPct: 45,
+};
+
+function percent(value, label, fallback) {
+  const parsed = finiteNumber(value, label, fallback);
+  if (parsed < 0 || parsed > 100) throw new Error(`${label} must be between 0 and 100`);
+  return parsed;
+}
+
+function days(value, label, fallback) {
+  const parsed = Math.round(finiteNumber(value, label, fallback));
+  if (parsed < 0) throw new Error(`${label} must be zero or more days`);
+  if (parsed > 1095) throw new Error(`${label} must be 1095 days or fewer`);
+  return parsed;
+}
+
+/**
+ * The invoice is already late. Four things the operator can actually do,
+ * scored on the same money: keep waiting, chase it themselves, offer a
+ * settlement to close it today, or hand it to a collection agency.
+ *
+ * Each path is expected value, not a promise: the cash it pays if it works,
+ * discounted by simple carrying cost over the days until that cash lands,
+ * times the share of the time the operator thinks it works — minus the chase
+ * labour, which is spent whether or not they ever get paid. That last term is
+ * why chasing an invoice yourself so often loses to a discount: the hours are
+ * certain and the recovery is not.
+ *
+ * Carrying cost is the same simple model the rest of this file uses, so at
+ * very long horizons with very expensive money it can exceed the invoice.
+ * Inputs are bounded (three years, under 1000%) rather than clamped, so the
+ * arithmetic the operator sees is the arithmetic they typed.
+ *
+ * Arithmetic only. It does not tell anyone to settle, to give up, or to send
+ * a debt to collections, and it does not model what any of those is allowed
+ * to do — collection practices and late fees are regulated and vary.
+ */
+export function compareLateInvoice(input = {}) {
+  if (!input || typeof input !== "object") throw new Error("Enter invoice details.");
+  const amount = finiteNumber(input.amount, "Invoice amount", LATE_DEFAULTS.amount);
+  if (amount <= 0) throw new Error("Invoice amount must be greater than zero");
+
+  const annualCarryRate = finiteNumber(
+    input.annualCarryRate, "Annual carrying-cost rate", LATE_DEFAULTS.annualCarryRate,
+  );
+  if (annualCarryRate < 0) throw new Error("Annual carrying-cost rate must be non-negative");
+  if (annualCarryRate >= 1000) throw new Error("Annual carrying-cost rate must be below 1000%");
+
+  const hourlyRate = finiteNumber(input.hourlyRate, "Your hourly rate", LATE_DEFAULTS.hourlyRate);
+  if (hourlyRate < 0) throw new Error("Your hourly rate must be non-negative");
+  const chaseHours = finiteNumber(input.chaseHours, "Hours spent chasing", LATE_DEFAULTS.chaseHours);
+  if (chaseHours < 0) throw new Error("Hours spent chasing must be non-negative");
+
+  const daysOverdue = days(input.daysOverdue, "Days overdue", LATE_DEFAULTS.daysOverdue);
+  const waitDays = days(input.waitDays, "Days to payment if you wait", LATE_DEFAULTS.waitDays);
+  const chaseDays = days(input.chaseDays, "Days to payment if you chase", LATE_DEFAULTS.chaseDays);
+  const settlementDays = days(input.settlementDays, "Days to settlement payment", LATE_DEFAULTS.settlementDays);
+  const collectionDays = days(input.collectionDays, "Days to a collections payout", LATE_DEFAULTS.collectionDays);
+
+  const waitRecoveryPct = percent(input.waitRecoveryPct, "Chance they pay if you wait", LATE_DEFAULTS.waitRecoveryPct);
+  const chaseRecoveryPct = percent(input.chaseRecoveryPct, "Chance they pay if you chase", LATE_DEFAULTS.chaseRecoveryPct);
+  const settlementRecoveryPct = percent(input.settlementRecoveryPct, "Chance they take the settlement", LATE_DEFAULTS.settlementRecoveryPct);
+  const collectionRecoveryPct = percent(input.collectionRecoveryPct, "Chance collections recovers", LATE_DEFAULTS.collectionRecoveryPct);
+
+  const settlementDiscountPct = finiteNumber(
+    input.settlementDiscountPct, "Settlement discount", LATE_DEFAULTS.settlementDiscountPct,
+  );
+  if (settlementDiscountPct < 0 || settlementDiscountPct >= 100) {
+    throw new Error("Settlement discount must be at least 0 and below 100");
+  }
+  const collectionCommissionPct = finiteNumber(
+    input.collectionCommissionPct, "Collection commission", LATE_DEFAULTS.collectionCommissionPct,
+  );
+  if (collectionCommissionPct < 0 || collectionCommissionPct >= 100) {
+    throw new Error("Collection commission must be at least 0 and below 100");
+  }
+
+  // Cash retained per dollar of invoice once float over `d` days is priced.
+  const floatFactor = d => 1 - (annualCarryRate / 100) * (d / 365);
+  const chaseCost = chaseHours * hourlyRate;
+
+  const build = (key, label, phrase, cashShare, toCash, recoveryPct, labour) => {
+    const cashIfPaid = amount * cashShare;
+    const carry = cashIfPaid - cashIfPaid * floatFactor(toCash);
+    const netIfPaid = cashIfPaid - carry;
+    return {
+      key,
+      label,
+      phrase,
+      cashIfPaid,
+      daysToCash: toCash,
+      recoveryPct,
+      carry,
+      netIfPaid,
+      labourCost: labour,
+      expected: (recoveryPct / 100) * netIfPaid - labour,
+    };
+  };
+
+  const paths = [
+    build("wait", "Keep waiting", "waiting it out", 1, waitDays, waitRecoveryPct, 0),
+    build("chase", "Chase it yourself", "chasing it yourself", 1, chaseDays, chaseRecoveryPct, chaseCost),
+    build("settle", "Offer a settlement", "offering a settlement", 1 - settlementDiscountPct / 100, settlementDays, settlementRecoveryPct, 0),
+    build("collections", "Send to collections", "sending it to collections", 1 - collectionCommissionPct / 100, collectionDays, collectionRecoveryPct, 0),
+  ];
+
+  const ranked = [...paths].sort((a, b) => b.expected - a.expected);
+  const best = ranked[0];
+  const runnerUp = ranked[1];
+  const bestOther = key => Math.max(...paths.filter(p => p.key !== key).map(p => p.expected));
+
+  // Each break-even is the input value at which that path exactly ties the
+  // best of the other three. Null means no value in the input's own legal
+  // range gets there — which is a real answer, not a missing one.
+  const inRange = (value, min, max) => (
+    Number.isFinite(value) && value >= min && value <= max ? value : null
+  );
+  const settleCeiling = settlementRecoveryPct > 0 && floatFactor(settlementDays) !== 0
+    ? (settlementRecoveryPct / 100) * amount * floatFactor(settlementDays)
+    : 0;
+  const collectCeiling = collectionRecoveryPct > 0 && floatFactor(collectionDays) !== 0
+    ? (collectionRecoveryPct / 100) * amount * floatFactor(collectionDays)
+    : 0;
+
+  return {
+    amount,
+    daysOverdue,
+    annualCarryRate,
+    hourlyRate,
+    chaseHours,
+    chaseCost,
+    settlementDiscountPct,
+    collectionCommissionPct,
+    // Float already burned while the invoice sat unpaid. Identical in every
+    // path, so it never changes the ranking — it is what the delay has
+    // already cost, shown so the ranking is not read as the whole bill.
+    sunkCarry: amount - amount * floatFactor(daysOverdue),
+    paths,
+    ranked,
+    best,
+    runnerUp,
+    gapToRunnerUp: best.expected - runnerUp.expected,
+    breakEven: {
+      chaseHours: hourlyRate > 0
+        ? inRange(
+          ((chaseRecoveryPct / 100) * amount * floatFactor(chaseDays) - bestOther("chase")) / hourlyRate,
+          0, Infinity,
+        )
+        : null,
+      settlementDiscountPct: settleCeiling > 0
+        ? inRange(100 * (1 - bestOther("settle") / settleCeiling), 0, 100)
+        : null,
+      collectionCommissionPct: collectCeiling > 0
+        ? inRange(100 * (1 - bestOther("collections") / collectCeiling), 0, 100)
+        : null,
+      collectionRecoveryPct: (() => {
+        const perPoint = amount * (1 - collectionCommissionPct / 100) * floatFactor(collectionDays);
+        if (perPoint <= 0) return null;
+        return inRange(100 * bestOther("collections") / perPoint, 0, 100);
+      })(),
+    },
+  };
+}
+
+/**
+ * One-sentence readout of the overdue comparison. Arithmetic only — it does
+ * not tell anyone to settle, to escalate, or to walk away.
+ */
+export function lateInvoiceNote(comparison) {
+  const { best, runnerUp, gapToRunnerUp, breakEven } = comparison;
+  const hours = breakEven.chaseHours == null ? "" : (
+    best.key === "chase"
+      ? ` It stops being the best path once chasing takes more than ${breakEven.chaseHours.toFixed(1)} hours at ${money(comparison.hourlyRate)}/hour.`
+      : ` Chasing it yourself only gets ahead of that if you close it in under ${breakEven.chaseHours.toFixed(1)} hours at ${money(comparison.hourlyRate)}/hour.`
+  );
+  const tie = gapToRunnerUp === 0
+    ? ` On these numbers ${runnerUp.phrase} is worth exactly the same.`
+    : ` That is ${money(gapToRunnerUp)} more than ${runnerUp.phrase} (${money(runnerUp.expected)}).`;
+  return (
+    `On a ${money(comparison.amount)} invoice ${comparison.daysOverdue} days overdue, ` +
+    `${best.phrase} is worth ${money(best.expected)} once you price ` +
+    `${best.recoveryPct}% odds, the wait, and any time you spend.${tie}${hours}`
+  );
+}
+
 /**
  * One-sentence readout. Arithmetic only — it does not tell them to offer
  * 2/10 Net 30 or to wait for the full invoice.
