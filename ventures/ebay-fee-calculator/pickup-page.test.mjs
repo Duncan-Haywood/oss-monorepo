@@ -118,6 +118,7 @@ test('disclaimers, privacy, sponsors, and cross-links are on the page', () => {
   assert.match(markup, /should-i-offer-a-partial-refund-on-ebay\.html/);
   assert.match(markup, /is-ebay-authenticity-guarantee-worth-it\.html/);
   assert.match(markup, /should-i-list-ebay-auction-or-buy-it-now\.html/);
+  assert.match(markup, /should-i-break-an-ebay-lot-into-individual-listings\.html/);
   assert.match(markup, /href="\.\/"/);
 });
 

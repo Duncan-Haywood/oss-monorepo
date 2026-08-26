@@ -99,6 +99,34 @@ test('carries local-pickup fields so a shared link does not drop them', () => {
   assert.equal(restored.monthlyPickupListings, 8);
 });
 
+test('carries lot-versus-singles fields so a shared link does not drop them', () => {
+  const restored = decodeInputs(encodeInputs({
+    price: 40,
+    lotPieceCount: 5,
+    singleExpectedPrice: 14,
+    lotSellThroughPct: 80,
+    singleSellThroughPct: 55,
+    lotInsertionFee: 0,
+    singleInsertionFee: 0.35,
+    singleShippingCharged: 5,
+    singleShippingCost: 4,
+    singlePackagingCost: 1,
+    lotListingMinutes: 8,
+    singleListingMinutes: 8,
+    lotListingWage: 18,
+    monthlyLotDecisions: 6,
+  }));
+  assert.equal(restored.lotPieceCount, 5);
+  assert.equal(restored.singleExpectedPrice, 14);
+  assert.equal(restored.lotSellThroughPct, 80);
+  assert.equal(restored.singleSellThroughPct, 55);
+  assert.equal(restored.singleInsertionFee, 0.35);
+  assert.equal(restored.singleShippingCost, 4);
+  assert.equal(restored.lotListingMinutes, 8);
+  assert.equal(restored.lotListingWage, 18);
+  assert.equal(restored.monthlyLotDecisions, 6);
+});
+
 test('round-trips known numeric inputs in stable order', () => {
   const encoded = encodeInputs({ price: 40, shippingCharged: 6, finalValueRate: 13.25 });
   assert.equal(encoded, 'price=40&shippingCharged=6&finalValueRate=13.25');

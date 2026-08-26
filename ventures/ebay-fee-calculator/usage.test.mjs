@@ -106,6 +106,14 @@ test('counts a local-pickup comparison without storing a wage or no-show rate', 
   assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'local_pickup_compared']);
 });
 
+test('counts a lot-versus-singles comparison without storing a piece count or wage', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'lot_vs_singles_compared');
+  const stored = JSON.parse(storage.getItem('ebay-fee-usage'));
+  assert.equal(stored.lot_vs_singles_compared, 1);
+  assert.deepEqual(Object.keys(stored).sort(), ['last_day', 'lot_vs_singles_compared']);
+});
+
 test('counts the return-rate view without storing a rate or cost', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'return_rate_viewed');
