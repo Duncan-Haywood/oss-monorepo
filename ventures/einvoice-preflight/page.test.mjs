@@ -17,9 +17,11 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /INV-032 through INV-034/);
   assert.match(page, /INV-035 and INV-036/);
   assert.match(page, /INV-037 and INV-038/);
+  assert.match(page, /INV-039 through INV-041/);
   assert.match(page, /Load a credit note without a reference/);
   assert.match(page, /Load a 0% line without a reason/);
   assert.match(page, /Load mixed rates without a breakdown/);
+  assert.match(page, /Load a buyer GLN that fails its check/);
 });
 
 test("disclaimer and optional sponsors are visible", () => {

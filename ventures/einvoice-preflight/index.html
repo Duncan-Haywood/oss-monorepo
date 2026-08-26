@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>E-invoice Preflight | Check JSON or UBL before submission</title>
-  <meta name="description" content="Free local e-invoice preflight: drop a JSON or UBL XML invoice or credit note to catch missing fields, arithmetic mistakes, mixed VAT rates without a per-rate breakdown, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
+  <meta name="description" content="Free local e-invoice preflight: drop a JSON or UBL XML invoice or credit note to catch missing fields, arithmetic mistakes, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <link rel="sitemap" type="application/xml" href="sitemap.xml">
@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
-    "featureList": "JSON and UBL invoice and credit-note checks, arithmetic totals, mixed-rate tax breakdown, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
+    "featureList": "JSON and UBL invoice and credit-note checks, arithmetic totals, mixed-rate tax breakdown, buyer and seller electronic addresses, prepaid versus amount due, document type and original-invoice reference, 0% tax exemption reason, VAT IBAN BIC and remittance typo catches, copyable repair checklist, local-only processing"
   }
   </script>
   <script type="application/ld+json">
@@ -40,7 +40,7 @@
         "name": "How do I check an e-invoice before submission?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Drop a JSON or UBL XML invoice or credit note, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
+          "text": "Drop a JSON or UBL XML invoice or credit note, or paste the JSON shape. The checker reports missing fields, date-shape mistakes, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity."
         }
       }
     ]
@@ -92,7 +92,8 @@
       invoice reference, a prepaid that does not leave the stated amount due, a
       missing remittance on an IBAN transfer, mixed VAT rates without a
       per-rate breakdown, a 0% line without an exemption
-      reason, and transposed VAT, IBAN, BIC, or
+      reason, a buyer electronic address that fails its GLN or EAS scheme,
+      and transposed VAT, IBAN, BIC, or
       RF values. After using this, you can now review a structured invoice in
       the browser in seconds, which used to mean running a CLI or waiting for a
       network rejection. Everything stays on this page.
@@ -114,6 +115,7 @@
         <button id="creditSample" class="secondary" type="button">Load a credit note without a reference</button>
         <button id="zeroSample" class="secondary" type="button">Load a 0% line without a reason</button>
         <button id="mixedSample" class="secondary" type="button">Load mixed rates without a breakdown</button>
+        <button id="endpointSample" class="secondary" type="button">Load a buyer GLN that fails its check</button>
         <button id="validSample" class="secondary" type="button">Load a passing example</button>
       </div>
       <p id="inputError" class="error" role="alert"></p>
@@ -140,11 +142,12 @@
       (INV-022 through INV-027), remittance matching (INV-030 and INV-031),
       credit-note document type plus original-invoice reference
       (INV-032 through INV-034), 0% or exempt lines that omit a tax
-      reason (INV-035 and INV-036), and mixed tax rates without a
-      per-rate breakdown (INV-037 and INV-038).
+      reason (INV-035 and INV-036), mixed tax rates without a
+      per-rate breakdown (INV-037 and INV-038), and optional buyer or
+      seller electronic addresses (INV-039 through INV-041).
       UBL XML is mapped into that shape, including CreditNote,
       BillingReference, payee account, branch,
-      PaymentID, TaxExemptionReason, and TaxSubtotal. It is <strong>not</strong>
+      PaymentID, TaxExemptionReason, TaxSubtotal, and EndpointID. It is <strong>not</strong>
       a Peppol, EN 16931, or tax-law validator and it does not submit anything.
     </p>
     <p class="muted">
@@ -243,6 +246,13 @@
       mixed.lines.push({ description: "Books", quantity: 1, unit_price: 100, tax_percent: 7, net: 100 });
       mixed.totals = { net: 300, tax: 45, gross: 345 };
       paste.value = JSON.stringify(mixed, null, 2);
+      filesInput.value = "";
+      dropped = [];
+    });
+    document.getElementById("endpointSample").addEventListener("click", () => {
+      const broken = structuredClone(VALID_EXAMPLE);
+      broken.customer.endpoint = { scheme: "0088", id: "1234567890129" };
+      paste.value = JSON.stringify(broken, null, 2);
       filesInput.value = "";
       dropped = [];
     });

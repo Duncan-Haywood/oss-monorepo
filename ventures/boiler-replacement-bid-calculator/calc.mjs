@@ -748,6 +748,177 @@ function money(value) {
   return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+export const SUPPLY_PRESETS = Object.freeze([
+  {
+    id: 'tech-supplied',
+    label: 'You supply the boiler',
+    detail: 'Plant invoice stays in the bid',
+  },
+  {
+    id: 'owner-fits',
+    label: 'Owner supplies — it matches',
+    detail: 'No plant invoice, same hang hours',
+  },
+  {
+    id: 'owner-wrong',
+    label: 'Owner supplies — wrong unit',
+    detail: 'Second trip plus adapters',
+  },
+]);
+
+/**
+ * Starting callback hours and adapter hardware when the
+ * owner's supply-house or online boiler does not match the
+ * plant. Taken from the extra-kit trip so a typed 16-hour
+ * steam conversion does not inflate the callback.
+ */
+export function suggestedOwnerCallbackKit() {
+  const extra = suggestedExtraKit();
+  return {
+    hoursCallbackTrip: extra.hoursTrip,
+    hoursWrongPlant: 3.5,
+    wrongPlantHardware: 280,
+  };
+}
+
+function scoreInstallOnly(bid, installPrice) {
+  if (installPrice === null) return null;
+  return {
+    price: installPrice,
+    profit: installPrice - bid.totalCost,
+    margin: installPrice === 0 ? 0 : (installPrice - bid.totalCost) / installPrice * 100,
+    hourlyRate: bid.totalHours === 0 ? null : installPrice / bid.totalHours,
+    belowBreakEven: installPrice < bid.totalCost,
+  };
+}
+
+/**
+ * Price the same plant three ways: you supply the boiler, the
+ * owner supplies one that matches, or the owner supplies one
+ * that does not match and costs a second trip.
+ *
+ * Owner rows zero the plant invoice and the fuel add-on and
+ * keep the current hang hours — setting a Ferguson crate is
+ * still a changeout. The wrong-unit row adds a starting
+ * callback trip, extra near-boiler hours, and an adapter kit
+ * on top of the current rates so a typed invoice does not
+ * leak into the "they bought it" case.
+ *
+ * An install-only price (options.installOnlyPrice, else the
+ * proposed price on the bid) is scored against each cost
+ * base. That is the $4,500 "just hang what I bought" number
+ * techs actually get shopped on.
+ */
+export function compareOwnerSupply(input, options = {}) {
+  const callback = suggestedOwnerCallbackKit();
+  const hoursTrip = number(input.hoursTrip ?? 0, 'Trip hours');
+  const hoursPlant = number(input.hoursPlant ?? 0, 'Plant hours');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+
+  let installPrice = null;
+  const rawInstall = options.installOnlyPrice !== undefined
+    ? options.installOnlyPrice
+    : input.proposedPrice;
+  if (rawInstall !== null && rawInstall !== undefined && rawInstall !== '') {
+    installPrice = number(rawInstall, 'Install-only price');
+  }
+
+  const tech = calculateBid(input);
+  const ownerFits = calculateBid({
+    ...input,
+    plantInvoice: 0,
+    fuelInvoicePerMbh: 0,
+    fuelHardware: 0,
+  });
+  const ownerWrong = calculateBid({
+    ...input,
+    plantInvoice: 0,
+    fuelInvoicePerMbh: 0,
+    fuelHardware: 0,
+    hoursTrip: hoursTrip + callback.hoursCallbackTrip,
+    hoursPlant: hoursPlant + callback.hoursWrongPlant,
+    otherCost: otherCost + callback.wrongPlantHardware,
+  });
+
+  const rows = [
+    {
+      supply: 'tech-supplied',
+      label: SUPPLY_PRESETS[0].label,
+      detail: SUPPLY_PRESETS[0].detail,
+      bid: tech,
+    },
+    {
+      supply: 'owner-fits',
+      label: SUPPLY_PRESETS[1].label,
+      detail: SUPPLY_PRESETS[1].detail,
+      bid: ownerFits,
+    },
+    {
+      supply: 'owner-wrong',
+      label: SUPPLY_PRESETS[2].label,
+      detail: SUPPLY_PRESETS[2].detail,
+      bid: ownerWrong,
+    },
+  ].map((row) => ({
+    supply: row.supply,
+    label: row.label,
+    detail: row.detail,
+    price: row.bid.price,
+    totalCost: row.bid.totalCost,
+    totalHours: row.bid.totalHours,
+    boilerMaterial: row.bid.boilerMaterial,
+    plantMaterial: row.bid.plantMaterial,
+    hoursTravel: row.bid.hoursTravel,
+    hoursPlant: row.bid.hoursPlant,
+    softCost: row.bid.softCost,
+    breakEvenPrice: row.bid.breakEvenPrice,
+    installOnly: scoreInstallOnly(row.bid, installPrice),
+    savedVsTech: tech.price - row.bid.price,
+  }));
+
+  const cheapest = Math.min(...rows.map((row) => row.price));
+  return rows.map((row) => ({
+    ...row,
+    cheapest: row.price === cheapest,
+    delta: row.price - cheapest,
+    installOnlyPrice: installPrice,
+  }));
+}
+
+/**
+ * One-line verdict for the owner-supplied table. Names the
+ * install-only loss when that number is on the table; otherwise
+ * names the bid drop from zeroing the plant.
+ */
+export function ownerSupplyNote(rows) {
+  if (!Array.isArray(rows) || rows.length < 3) {
+    throw new Error('Owner-supply comparison is missing rows');
+  }
+  const tech = rows.find((row) => row.supply === 'tech-supplied');
+  const fits = rows.find((row) => row.supply === 'owner-fits');
+  const wrong = rows.find((row) => row.supply === 'owner-wrong');
+  if (!tech || !fits || !wrong) {
+    throw new Error('Owner-supply comparison is missing a supply row');
+  }
+
+  const drop = tech.price - fits.price;
+  const callbackLift = wrong.price - fits.price;
+  if (tech.installOnly && fits.installOnly) {
+    const asked = tech.installOnly.price;
+    if (tech.installOnly.belowBreakEven && fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} hang-only you lose money even when they bought the boiler. Walk-away on the owner-supplied set is ${money(fits.breakEvenPrice)}.`;
+    }
+    if (tech.installOnly.belowBreakEven && !fits.installOnly.belowBreakEven) {
+      return `At ${money(asked)} the tech-supplied job loses ${money(Math.abs(tech.installOnly.profit))}. The same hang-only number covers the set if their unit actually matches.`;
+    }
+    if (wrong.installOnly?.belowBreakEven) {
+      return `At ${money(asked)} the set covers if their unit matches. A wrong-unit callback still loses ${money(Math.abs(wrong.installOnly.profit))} — walk-away then is ${money(wrong.breakEvenPrice)}.`;
+    }
+    return `At ${money(asked)} both supply paths hold a margin. A wrong-unit callback still adds ${money(callbackLift)} to the bid.`;
+  }
+  return `Zeroing the boiler invoice drops the bid ${money(drop)}. A wrong-unit callback puts ${money(callbackLift)} back on.`;
+}
+
 /**
  * Format a bid as a plain-text draft the tech can paste into
  * a proposal. Costs, wages, and invoices are omitted on purpose —

@@ -16,8 +16,9 @@ cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
 # http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
 # credit-note document type (INV-032 through INV-034), 0% / exempt
-# tax reasons (INV-035 and INV-036), and mixed-rate tax breakdown
-# (INV-037 and INV-038).
+# tax reasons (INV-035 and INV-036), mixed-rate tax breakdown
+# (INV-037 and INV-038), and buyer/seller electronic addresses
+# (INV-039 through INV-041).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
@@ -80,8 +81,8 @@ arithmetic check, not a tax-law determination:
   "due_date": "2026-09-23",
   "document_type": "invoice",
   "currency": "EUR",
-  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
-  "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976", "endpoint": {"scheme": "0088", "id": "1234567890128"}},
+  "customer": {"id": "DE456", "name": "Customer GmbH", "endpoint": {"scheme": "EM", "id": "ap@customer.example"}},
   "payment": {"iban": "DE89370400440532013000", "bic": "COBADEFFXXX", "remittance": "RF18539007547034"},
   "lines": [{"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200}],
   "totals": {"net": 200, "tax": 38, "gross": 238, "prepaid": 38, "due": 200}
@@ -97,6 +98,17 @@ VAT numbers. Failed checksums are `INV-023`; a `vat_id` that is not a known
 shape is `INV-022`. Messages never repeat the identifier. This is a typo
 catch, not a VIES registration lookup and not a determination that a party
 may charge tax. UBL `PartyTaxScheme/CompanyID` maps into `vat_id`.
+
+`supplier.endpoint` and `customer.endpoint` are optional. When supplied they
+are `{ "scheme": "<EAS>", "id": "<address>" }`. A missing or unknown Peppol
+EAS scheme is `INV-039`. An empty id is `INV-040`. A known scheme that fails
+its published shape — GS1 check digit on `0088` (GLN), an email shape on
+`EM`, or the digit length for `0007` / `0184` / `0190` / `0192` / `0208` /
+`0212` — is `INV-041`. Other known schemes only require a non-empty
+identifier. Messages never repeat the address. This is a typo catch, not a
+Peppol SMP lookup and not a claim that the party can receive e-invoices.
+UBL `Party/EndpointID` maps into `endpoint.id` and `schemeID` maps into
+`endpoint.scheme`.
 
 `payment.iban` is optional. When supplied, it is checked against published
 IBAN lengths and the ISO 13616 MOD-97 checksum. Failed checksums are
