@@ -48,7 +48,10 @@ who price off the raw wage are short before they start.
    show up as `Area N`.
 2. **Loaded labor.** Hourly wage × (1 + payroll burden %).
 3. **Other direct cost.** Supplies per square foot per month, plus equipment,
-   travel, and anything else billed to the job monthly.
+   travel, anything else billed to the job monthly, and **periodic services**
+   (lump cost per occurrence × times per year, averaged into the month). That
+   is how quarterly floor care or twice-yearly extraction belongs on a
+   recurring contract — not as a production-rate project invoiced once.
 4. **Overhead.** A percentage markup on that direct cost — office, admin, and
    sales recovery. It is not applied to itself or to profit.
 5. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a share

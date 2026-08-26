@@ -4,10 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Janitorial Bid Calculator | Commercial Cleaning Price Per Month</title>
-  <meta name="description" content="Price a commercial cleaning contract from production rates and day-porter shifts, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.">
+  <meta name="description" content="Price a commercial cleaning contract from production rates, day-porter shifts, and periodic floor care, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.">
   <meta property="og:title" content="Janitorial Bid Calculator">
   <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate, plus scheduled day-porter coverage.">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Janitorial Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Production-rate labor hours by area, day-porter and attendant shift pricing, custom names for unlisted spaces, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Janitorial Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Production-rate labor hours by area, day-porter and attendant shift pricing, periodic service costs averaged into the monthly, custom names for unlisted spaces, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in, saved bid that reopens on the next visit, shareable bid link"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a day porter on a janitorial contract?","acceptedAnswer":{"@type":"Answer","text":"Price the day porter as scheduled coverage: people × hours per shift × shifts per week × 52/12, then the same loaded wage, overhead, and margin as the night clean. Do not convert the porter into extra square feet or a faster production rate."}},{"@type":"Question","name":"Should I bake the day porter into the monthly cleaning price?","acceptedAnswer":{"@type":"Answer","text":"No. The night clean is production-rate work; the day porter is a person on site during business hours. Combining them hides how much of the bid is coverage."}},{"@type":"Question","name":"How do I price strip and wax with a janitorial contract?","acceptedAnswer":{"@type":"Answer","text":"Treat strip and wax as one-time project work invoiced separately from the monthly service so the remaining months are not underpriced."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
@@ -30,6 +30,8 @@
     .project-row { display: grid; grid-template-columns: minmax(0, 2.2fr) repeat(4, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .project-row.select-other { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) repeat(4, minmax(0, 1fr)) auto; }
     .project-row select, .project-row input { padding: 10px 7px; }
+    .periodic-row { display: grid; grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .periodic-row select, .periodic-row input { padding: 10px 7px; }
     .custom-name { display: none; }
     .select-other .custom-name { display: grid; }
     .project-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
@@ -83,7 +85,9 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .area-head { display: none; }
-      .area-row, .shift-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .area-row, .shift-row, .periodic-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .periodic-row label:first-child { grid-column: 1 / -1; }
+      .periodic-row .remove { grid-column: 1 / -1; }
       .area-row label, .shift-row label { font-size: .78rem; gap: 5px; }
       .area-row .lbl, .shift-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
       .shift-row label:first-child { grid-column: 1 / -1; }
@@ -131,6 +135,16 @@
         </div>
         <div id="projects"></div>
         <button type="button" id="addProject">+ Add project work</button>
+      </section>
+
+      <section>
+        <h2>Periodic services</h2>
+        <p class="hint">Quarterly floor care, twice-a-year extraction, annual windows — a lump cost per visit, spread across the year. This is not strip-and-wax project work (priced once from square feet). Cost × occurrences ÷ 12 goes into the monthly contract, including after a 5× to 3× schedule cut.</p>
+        <div class="periodic-row area-head" aria-hidden="true">
+          <span>Service</span><span>Cost / occurrence</span><span>Times / year</span><span></span>
+        </div>
+        <div id="periodicServices"></div>
+        <button type="button" id="addPeriodic">+ Add periodic service</button>
       </section>
 
       <section>
@@ -196,6 +210,7 @@
         <dt>Labor hours per month</dt><dd id="monthlyHours"></dd>
         <dt>Loaded labor cost</dt><dd id="labor"></dd>
         <dt>Supplies</dt><dd id="supplies"></dd>
+        <dt>Periodic work (monthly average)</dt><dd id="periodic"></dd>
         <dt>Equipment &amp; other</dt><dd id="equipment"></dd>
         <dt>Overhead</dt><dd id="overhead"></dd>
         <dt>Total monthly cost</dt><dd id="cost"></dd>
@@ -442,6 +457,7 @@
     const areasHost = el('areas');
     const projectsHost = el('projects');
     const shiftsHost = el('shifts');
+    const periodicHost = el('periodicServices');
     let rowSeq = 0;
     let shiftSeq = 0;
 
@@ -635,6 +651,35 @@
       });
     }
 
+    function addPeriodicRow(service = { name: '', costPerOccurrence: 0, occurrencesPerYear: 4 }) {
+      const row = document.createElement('div');
+      row.className = 'periodic-row';
+      row.innerHTML = `
+        <label>Service <input class="q-name" type="text" maxlength="80" placeholder="e.g. Quarterly floor care" value="${escapeHtml(service.name || '')}"></label>
+        <label>Cost / occurrence <input class="q-cost" type="number" min="0" step="1" value="${service.costPerOccurrence ?? 0}"></label>
+        <label>Times / year <input class="q-freq" type="number" min="0" step="1" value="${service.occurrencesPerYear ?? 4}"></label>
+        <button type="button" class="remove">Remove</button>
+      `;
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('periodic_service_added'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('periodic_service_removed');
+        update();
+      });
+      periodicHost.append(row);
+    }
+
+    function readPeriodic() {
+      return [...periodicHost.querySelectorAll('.periodic-row')].map(row => ({
+        name: row.querySelector('.q-name').value,
+        costPerOccurrence: row.querySelector('.q-cost').value,
+        occurrencesPerYear: row.querySelector('.q-freq').value,
+      }));
+    }
+
     function count(event) {
       recordUsage(localStorage, el('usageOptOut').checked, event);
     }
@@ -643,7 +688,7 @@
       el('price').textContent = message;
       el('price').className = `hero-number ${isError ? 'negative' : ''}`;
       el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly contract price';
-      ['hoursPerVisit','visitCapacity','visitUtilization','shiftHours','monthlyHours','labor','supplies','equipment','overhead','cost','profit','minimumFloor','perSqFt','hourlyRate','breakEven','annual','projectHours','projectDirect','projectPrice','firstMonth','firstMonthFloor']
+      ['hoursPerVisit','visitCapacity','visitUtilization','shiftHours','monthlyHours','labor','supplies','periodic','equipment','overhead','cost','profit','minimumFloor','perSqFt','hourlyRate','breakEven','annual','projectHours','projectDirect','projectPrice','firstMonth','firstMonthFloor']
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
       el('projectSplit').innerHTML = '';
@@ -668,6 +713,7 @@
           areas,
           shifts,
           projects: readProjects(),
+          periodicServices: readPeriodic(),
           ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
           proposedPrice: el('proposedPrice').value,
         });
@@ -685,6 +731,7 @@
       el('monthlyHours').textContent = `${result.monthlyHours.toFixed(1)} h`;
       el('labor').textContent = money(result.monthlyLaborCost);
       el('supplies').textContent = money(result.monthlySupplies);
+      el('periodic').textContent = result.hasPeriodicWork ? money(result.monthlyPeriodicCost) : 'none';
       el('equipment').textContent = money(result.equipmentMonthly + result.otherMonthly);
       el('overhead').textContent = money(result.monthlyOverhead);
       el('cost').textContent = money(result.monthlyCost);
@@ -755,6 +802,7 @@
       try {
         comparison = compareFrequencyReduction({
           areas,
+          periodicServices: readPeriodic(),
           ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         }, {
           currentWeekly: el('currentWeekly').value,
@@ -814,6 +862,7 @@
       try {
         comparison = compareSupplyResponsibility({
           areas,
+          periodicServices: readPeriodic(),
           ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         }, {
           restroomSharePercent: el('restroomSharePercent').value,
@@ -867,6 +916,7 @@
       try {
         comparison = compareInitialClean({
           areas,
+          periodicServices: readPeriodic(),
           ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         }, {
           visitMultiplier: el('initialVisitMultiplier').value,
@@ -914,6 +964,7 @@
         areas: readAreas(),
         shifts: readShifts(),
         projects: readProjects(),
+        periodicServices: readPeriodic(),
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
       });
@@ -968,6 +1019,11 @@
     el('addShift').addEventListener('click', () => {
       addShiftRow();
       count('shift_added');
+      update();
+    });
+    el('addPeriodic').addEventListener('click', () => {
+      addPeriodicRow();
+      count('periodic_service_added');
       update();
     });
 
@@ -1116,6 +1172,13 @@
           { key: 'shiftsPerWeek', kind: 'number' },
           { key: 'hourlyWage', kind: 'number' },
         ],
+      }, {
+        param: 'periodicServices',
+        fields: [
+          { key: 'name', kind: 'text' },
+          { key: 'costPerOccurrence', kind: 'number' },
+          { key: 'occurrencesPerYear', kind: 'number' },
+        ],
       }],
     };
 
@@ -1148,16 +1211,27 @@
         ...Object.fromEntries([...COST_IDS, ...FREQ_IDS, ...SUPPLY_IDS, ...INITIAL_IDS].map(id => [id, el(id).value])),
         areas: readAreaRows(),
         shifts: readShiftRows(),
+        periodicServices: readPeriodic(),
       };
     }
 
     function applyValues(values) {
       for (const [id, value] of Object.entries(values)) {
-        if (id === 'areas' || id === 'shifts') continue;
+        if (id === 'areas' || id === 'shifts' || id === 'periodicServices') continue;
         const field = el(id);
         if (!field) continue;
         field.value = value;
         field.dataset.edited = '1';
+      }
+      if (Array.isArray(values.periodicServices)) {
+        periodicHost.innerHTML = '';
+        for (const service of values.periodicServices) {
+          addPeriodicRow({
+            name: service.name || '',
+            costPerOccurrence: service.costPerOccurrence ?? 0,
+            occurrencesPerYear: service.occurrencesPerYear ?? 4,
+          });
+        }
       }
       if (Array.isArray(values.shifts)) {
         shiftsHost.innerHTML = '';

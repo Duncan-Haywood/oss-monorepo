@@ -363,6 +363,49 @@ test('bid summary omits the project block when there is no project work', () => 
   assert.doesNotMatch(text, /First-month invoice/);
 });
 
+test('periodic work is averaged into monthly cost and annual contract value', () => {
+  const baseline = calculateBid(office());
+  const result = calculateBid({
+    ...office(),
+    periodicServices: [{ name: 'Quarterly floor care', costPerOccurrence: 1200, occurrencesPerYear: 4 }],
+  });
+  assert.equal(result.monthlyPeriodicCost, 400);
+  assert.equal(result.annualPeriodicCost, 4800);
+  assert.ok(Math.abs(result.monthlyCost - (baseline.monthlyCost + 400 * 1.15)) < 1e-9);
+  assert.equal(result.periodicServices[0].name, 'Quarterly floor care');
+  assert.equal(result.hasPeriodicWork, true);
+});
+
+test('multiple periodic services aggregate and validate their inputs', () => {
+  const result = calculateBid({
+    ...office(),
+    periodicServices: [
+      { costPerOccurrence: 600, occurrencesPerYear: 12 },
+      { name: 'Annual extraction', costPerOccurrence: 1800, occurrencesPerYear: 1 },
+    ],
+  });
+  assert.equal(result.periodicServices[0].name, 'Periodic service 1');
+  assert.equal(result.monthlyPeriodicCost, 750);
+  assert.throws(
+    () => calculateBid({ ...office(), periodicServices: [{ costPerOccurrence: -1, occurrencesPerYear: 1 }] }),
+    /cost per occurrence/,
+  );
+  assert.throws(
+    () => calculateBid({ ...office(), periodicServices: [{ costPerOccurrence: 1, occurrencesPerYear: 'nope' }] }),
+    /occurrences per year/,
+  );
+});
+
+test('bid summary lists periodic work separately from one-time projects', () => {
+  const text = formatBidSummary(calculateBid({
+    ...office(),
+    periodicServices: [{ name: 'Quarterly floor care', costPerOccurrence: 1200, occurrencesPerYear: 4 }],
+  }));
+  assert.match(text, /PERIODIC SERVICES \(MONTHLY AVERAGE\)/);
+  assert.match(text, /Quarterly floor care/);
+  assert.doesNotMatch(text, /ONE-TIME PROJECT WORK/);
+});
+
 test('a 5× to 3× cut scales labor and leaves supplies and equipment on the job', () => {
   const comparison = compareFrequencyReduction(office(), { currentWeekly: 5, proposedWeekly: 3 });
   assert.equal(comparison.reductionFactor, 0.6);

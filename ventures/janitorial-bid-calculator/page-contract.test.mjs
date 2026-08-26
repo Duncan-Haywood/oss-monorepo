@@ -21,4 +21,5 @@ test('download writes the same proposal draft as copy', () => {
   assert.match(page, /formatBidSummary\(currentBid\(\)\)/);
   assert.match(page, /shifts: readShifts\(\)/);
   assert.match(page, /projects: readProjects\(\)/);
+  assert.match(page, /periodicServices: readPeriodic\(\)/);
 });
