@@ -568,19 +568,6 @@ function withExpectedReturns(path, {
   };
 }
 
-export function buyCostCheck(result, costOfGoods) {
-  const cost = number(costOfGoods, "Cost of goods");
-  const maxBuy = result.selected.breakEvenBuyCost;
-  const headroom = maxBuy - cost;
-  return {
-    cost,
-    maxBuy,
-    headroom,
-    status: headroom > 0 ? "below_ceiling" : headroom < 0 ? "above_ceiling" : "at_ceiling",
-    targetMarginPrice: result.selected.targetMarginPrice,
-  };
-}
-
 export const RETURN_RATE_PRESETS = [0, 8, 15, 22];
 
 /**
