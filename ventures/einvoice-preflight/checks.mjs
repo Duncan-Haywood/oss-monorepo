@@ -5,6 +5,7 @@
 import { inspectPaymentBic } from "./bic.mjs";
 import { inspectTaxBreakdown } from "./breakdown.mjs";
 import { inspectDocumentType } from "./document.mjs";
+import { inspectPartyEndpoint } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
@@ -107,6 +108,9 @@ export function checkInvoice(invoice) {
     }
     if (party && typeof party === "object" && !Array.isArray(party)) {
       for (const finding of inspectPartyVat(party, partyName)) {
+        fail(finding.rule, finding.message, finding.fix, finding.path);
+      }
+      for (const finding of inspectPartyEndpoint(party, partyName)) {
         fail(finding.rule, finding.message, finding.fix, finding.path);
       }
     }

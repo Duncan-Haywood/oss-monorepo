@@ -8,6 +8,19 @@ function localName(tag) {
   return trimmed.includes(":") ? trimmed.slice(trimmed.lastIndexOf(":") + 1) : trimmed;
 }
 
+function parseAttrs(token) {
+  const attrs = {};
+  const pattern = /([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+  let match = pattern.exec(token);
+  while (match) {
+    const raw = match[1];
+    const key = raw.includes(":") ? raw.slice(raw.lastIndexOf(":") + 1) : raw;
+    attrs[key] = match[2] !== undefined ? match[2] : match[3];
+    match = pattern.exec(token);
+  }
+  return attrs;
+}
+
 export function parseXmlTree(source) {
   const text = typeof source === "string" ? source : new TextDecoder().decode(source);
   if (/<!DOCTYPE/i.test(text) || /<!ENTITY/i.test(text)) {
@@ -24,7 +37,7 @@ export function parseXmlTree(source) {
     }
     if (token.startsWith("<")) {
       const selfClosing = /\/>$/.test(token);
-      const node = { name: localName(token.slice(1)), text: "", children: [] };
+      const node = { name: localName(token.slice(1)), text: "", children: [], attrs: parseAttrs(token) };
       stack[stack.length - 1].children.push(node);
       if (!selfClosing) stack.push(node);
       continue;
@@ -66,6 +79,12 @@ function party(node) {
       mapped.vat_id = vatId;
       break;
     }
+  }
+  const endpointNode = descendants(partyNode, "EndpointID")[0];
+  if (endpointNode) {
+    const id = endpointNode.text.trim();
+    const scheme = (endpointNode.attrs && endpointNode.attrs.schemeID) ? endpointNode.attrs.schemeID.trim() : "";
+    if (id || scheme) mapped.endpoint = { id, scheme };
   }
   return mapped;
 }
