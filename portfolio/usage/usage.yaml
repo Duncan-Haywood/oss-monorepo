@@ -1804,6 +1804,19 @@ products:
           (a dry splash) and toilet Saturday (a commode swap).
           Public URL remains owner-gated.
 
+  - slug: tiktok-shop-fee-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped local TikTok Shop fee calculator (organic vs affiliate after
+          returns, affiliate commission kept on refunds, announced 1 Oct 2026
+          schedule). Public URL remains owner-gated; the local-first counter
+          reports only to the user's own browser and is opt-out. Baseline row.
+
 # Example of the shape, once a product has shipped:
 #
 # products:
