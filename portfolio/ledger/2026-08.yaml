@@ -23289,61 +23289,6 @@ entries:
           users to open `index.html` from disk, which cannot work, since
           browsers refuse ES module imports over `file://`.
     mrr_end: null
-  - venture: cut-list-optimizer
-    agent_spend_usd: null
-    human_hours: 0
-    outcomes:
-      - >-
-        Webhook session (pull_request.edited on #1020). Merged #1020
-        (unit-aware ticket exports, 6/6 tests verified locally) and #1019
-        (local e-invoice preflight CLI, 5/5 verified), resolving #1019's
-        `portfolio/usage/usage.yaml` conflict by keeping both sides -- both
-        were additive appends after the same anchor.
-      - >-
-        Then found the product itself was dead. `ventures/cut-list-
-        optimizer/index.html` had opened `<textarea id="cuts">` and never
-        closed it since its first commit. textarea is an HTML raw-text
-        element, so the parser swallowed the results panel, the copy
-        button, the disclaimer, the opt-out, and the entire
-        `<script type="module">` as literal text. The script never ran; the
-        tool had never calculated anything for anyone. Three PRs (#1017,
-        #1020, and the original ship) merged on top of it. The reason
-        nothing caught it: `calc.test.mjs` imports `calc.mjs` directly and
-        never looks at the page, and the venture had no CI workflow at all,
-        so its PRs showed zero checks.
-      - >-
-        Concurrency: a second session found the same defect mid-run and
-        landed #1023 (repair, first CI workflow, split runs/copies
-        counters, a browser-accurate `page.test.mjs`) while this work was
-        in progress. Integrated rather than re-landed -- took their
-        `page.test.mjs` (its raw-text parser is strictly better than the
-        regex-and-tag-stack version written here, which their own test
-        would have caught), their workflow, their usage counters, and their
-        README correction that ES modules cannot load over `file://`. Kept
-        only the feature work on top.
-      - >-
-        Shipped on top: cuts are now planned against the offcuts a shop
-        already owns (consumed shortest-usable-first so long stock stays
-        whole; an untouched offcut counts as neither consumed stock nor
-        waste), plus price per stock piece, currency, the count of
-        purchases the rack avoided, and what that saved. 25 passing tests.
-        Verified in Chromium against the real page: default load, pricing,
-        unit switch, empty on-hand, malformed input, clipboard export, the
-        split counters, and mobile layout -- zero page errors.
-      - >-
-        Two defects the browser run surfaced that no unit test would have:
-        a 1/8" kerf (0.125) was rounded to 0.13 on the job ticket,
-        misstating the allowance the plan was built on, and on-hand rows
-        were double-labelled both "ON HAND 22.00 in" and "Stock 1". Both
-        fixed and covered.
-      - >-
-        Swept the five sibling static-page ventures for the same class of
-        defect -- no unclosed raw-text element and no missing script-driven
-        id in any of them. `etsy-profit-calculator` and
-        `shopify-a11y-evidence` still have no CI workflow, so their
-        committed tests never run; left as a scoped follow-up rather than
-        widening this PR into other ventures.
-    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
@@ -23405,6 +23350,61 @@ entries:
         merged one in a real browser instead: 33 tools listed, search,
         primary journey, crawlability, and 288 files with zero dangling
         internal references.
+    mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Webhook session (pull_request.edited on #1020). Merged #1020
+          (unit-aware ticket exports, 6/6 tests verified locally) and #1019
+          (local e-invoice preflight CLI, 5/5 verified), resolving #1019's
+          `portfolio/usage/usage.yaml` conflict by keeping both sides -- both
+          were additive appends after the same anchor.
+      - >-
+          Then found the product itself was dead. `ventures/cut-list-
+          optimizer/index.html` had opened `<textarea id="cuts">` and never
+          closed it since its first commit. textarea is an HTML raw-text
+          element, so the parser swallowed the results panel, the copy
+          button, the disclaimer, the opt-out, and the entire
+          `<script type="module">` as literal text. The script never ran; the
+          tool had never calculated anything for anyone. Three PRs (#1017,
+          #1020, and the original ship) merged on top of it. The reason
+          nothing caught it: `calc.test.mjs` imports `calc.mjs` directly and
+          never looks at the page, and the venture had no CI workflow at all,
+          so its PRs showed zero checks.
+      - >-
+          Concurrency: a second session found the same defect mid-run and
+          landed #1023 (repair, first CI workflow, split runs/copies
+          counters, a browser-accurate `page.test.mjs`) while this work was
+          in progress. Integrated rather than re-landed -- took their
+          `page.test.mjs` (its raw-text parser is strictly better than the
+          regex-and-tag-stack version written here, which their own test
+          would have caught), their workflow, their usage counters, and their
+          README correction that ES modules cannot load over `file://`. Kept
+          only the feature work on top.
+      - >-
+          Shipped on top: cuts are now planned against the offcuts a shop
+          already owns (consumed shortest-usable-first so long stock stays
+          whole; an untouched offcut counts as neither consumed stock nor
+          waste), plus price per stock piece, currency, the count of
+          purchases the rack avoided, and what that saved. 25 passing tests.
+          Verified in Chromium against the real page: default load, pricing,
+          unit switch, empty on-hand, malformed input, clipboard export, the
+          split counters, and mobile layout -- zero page errors.
+      - >-
+          Two defects the browser run surfaced that no unit test would have:
+          a 1/8" kerf (0.125) was rounded to 0.13 on the job ticket,
+          misstating the allowance the plan was built on, and on-hand rows
+          were double-labelled both "ON HAND 22.00 in" and "Stock 1". Both
+          fixed and covered.
+      - >-
+          Swept the five sibling static-page ventures for the same class of
+          defect -- no unclosed raw-text element and no missing script-driven
+          id in any of them. `etsy-profit-calculator` and
+          `shopify-a11y-evidence` still have no CI workflow, so their
+          committed tests never run; left as a scoped follow-up rather than
+          widening this PR into other ventures.
     mrr_end: null
   - venture: invoice-payment-terms-calculator
     agent_spend_usd: null
