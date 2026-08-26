@@ -6,6 +6,24 @@
 # retired honestly instead of quietly.
 period: 2026-08
 products:
+  - slug: walmart-marketplace-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          listing_profit_calculated: 0
+          fulfillment_path_compared: 0
+          price_match_checked: 0
+          category_preset_applied: 0
+        note: >-
+          Salvage of unique #1507 Walmart Marketplace WFS vs seller-fulfilled
+          profit calculator onto current main: category referral including the
+          per-item floor, size-tier WFS fulfillment, storage, inbound, the
+          seller-paid label, max buy cost, and whether a competitive match
+          still profits. Public URL remains owner-gated; the local-first
+          counter reports only to the user's own browser and is opt-out.
+          Baseline row.
   - slug: faire-wholesale-calculator
     surface: static-page-in-repo
     readings:
