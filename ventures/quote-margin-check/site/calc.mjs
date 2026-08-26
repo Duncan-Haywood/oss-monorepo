@@ -12,6 +12,13 @@ const FIELDS = [
   "target_hourly_rate",
 ];
 
+// Editable starting points, not pricing recommendations.
+export const QUOTE_PRESETS = {
+  website: { label: "Website project", price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 },
+  brand: { label: "Brand identity", price: 1800, delivery_hours: 18, admin_hours: 4, revision_hours: 5, overhead: 90, subcontractor_cost: 0, target_hourly_rate: 80 },
+  consulting: { label: "Consulting engagement", price: 1500, delivery_hours: 12, admin_hours: 3, revision_hours: 2, overhead: 40, subcontractor_cost: 0, target_hourly_rate: 100 },
+};
+
 /**
  * Validates and normalizes raw quote input, matching src/quote_margin.py's
  * load_quote(). Throws Error with a human-readable message on invalid input.

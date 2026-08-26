@@ -164,8 +164,17 @@
     it. Everything runs in this page; nothing you type is uploaded anywhere.
   </p>
 
-  <section aria-labelledby="calc-heading">
-    <h2 id="calc-heading">Quote details</h2>
+   <section aria-labelledby="calc-heading">
+     <h2 id="calc-heading">Quote details</h2>
+
+     <label for="preset">Start with a common quote</label>
+     <select id="preset">
+       <option value="website">Website project</option>
+       <option value="brand">Brand identity</option>
+       <option value="consulting">Consulting engagement</option>
+       <option value="custom">Custom values</option>
+     </select>
+     <p class="hint">These are editable examples, not pricing recommendations.</p>
 
     <!-- The form ships pre-filled so a first-time visitor sees a worked
          result immediately rather than an empty page. That makes the
@@ -476,7 +485,7 @@
 </main>
 
 <script type="module">
-  import { loadQuote, calculate, overrunScenarios, targetRateLadder, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote } from "./calc.mjs";
+  import { loadQuote, calculate, overrunScenarios, targetRateLadder, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
   import { quoteCsv } from "./export.mjs";
   import { formatReviewSummary } from "./summary.mjs";
   import { markdownReview } from "./markdown.mjs";
@@ -515,6 +524,7 @@
   const ids = ["currency", "price", "delivery_hours", "admin_hours", "revision_hours", "overhead", "subcontractor_cost", "target_hourly_rate"];
   const killIds = ["hours_done", "already_paid", "kill_fee", "sunk_costs"];
   const el = Object.fromEntries([...ids, ...killIds].map((id) => [id, document.getElementById(id)]));
+  const preset = document.getElementById("preset");
   const result = document.getElementById("result");
   const review = document.getElementById("review");
   const sensitivity = document.getElementById("sensitivity");
@@ -697,6 +707,7 @@
     const sharedQuote = decodeQuote(window.location.hash) ?? decodeQuote(window.location.search);
     if (sharedQuote) {
       writeInputs(sharedQuote);
+      if (preset) preset.value = "custom";
       dismissExampleNote();
     } else {
       const existingDraft = loadDraft();
@@ -722,6 +733,19 @@
   for (const id of draftFields) {
     el[id].addEventListener("input", update);
     el[id].addEventListener("input", dismissExampleNote, { once: true });
+    el[id].addEventListener("input", () => { if (preset) preset.value = "custom"; });
+  }
+  if (preset) {
+    preset.addEventListener("change", () => {
+      const values = QUOTE_PRESETS[preset.value];
+      if (!values) return;
+      for (const id of ids) {
+        if (id !== "currency" && values[id] !== undefined) el[id].value = values[id];
+      }
+      dismissExampleNote();
+      update();
+      recordEvent("quote_preset_selected");
+    });
   }
   for (const field of [extraHours, extraDirectCosts]) {
     field.addEventListener("input", () => {
@@ -744,6 +768,7 @@
       sunk_costs: "180",
     };
     for (const id of draftFields) el[id].value = defaults[id];
+    if (preset) preset.value = "website";
     if (exampleNote) exampleNote.hidden = false;
     persistDrafts = false;
     clearDraft();

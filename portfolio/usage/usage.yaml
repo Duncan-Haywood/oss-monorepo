@@ -373,6 +373,15 @@ products:
           Added a 50/75/100/125 hourly-target price ladder on the browser
           calculator. Hours and direct costs stay fixed; the table is
           arithmetic, not a recommended quote. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          quote_preset_selected: 0
+        note: >-
+          Added editable website, brand, and consulting quote starting points.
+          Presets are examples only. Public URL remains owner-gated, so this
+          is a zero baseline.
+
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:
