@@ -1,0 +1,33 @@
+name: commercial-photo-license-calculator
+description: Free browser-local worksheet for independent photographers to price commercial image usage rights and prepare a reviewable client quote.
+
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Independent photographers will return to a usage-rights calculator when commercial clients ask for territory, channels, term, or exclusivity pricing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent usage breakdown and copyable draft will help photographers avoid underpricing rights while keeping negotiation decisions in their control.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 10
+  protected: true
+
+kill_criteria:
+  - No return usage or organic referral signal after 60 days of a public landing page.
+  - No unsolicited feedback, star, fork, or referral after 90 days.
+
+links:
+  production: null
+  analytics: null

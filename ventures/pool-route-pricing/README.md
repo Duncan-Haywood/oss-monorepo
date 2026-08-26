@@ -6,7 +6,7 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 
 ## Privacy and usage
 
-Everything runs in your browser. Your route assumptions are never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We count anonymous local feature events only, with a visible opt-out. No people, IP addresses, or route content are recorded. The counter is not sent to the maintainers.
+Everything runs in your browser. Your route assumptions are never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. We count anonymous local feature events only, with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No people, IP addresses, or route content are recorded. The counter is not sent to the maintainers.
 
 ## Disclaimer
 

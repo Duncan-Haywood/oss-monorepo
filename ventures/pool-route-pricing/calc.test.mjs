@@ -18,3 +18,16 @@ test('solves monthly price for target margin', () => {
 test('rejects a target margin of 100 percent', () => {
   assert.throws(() => calculate({ accounts: 1, visits: 1, serviceMinutes: 1, driveMinutes: 1, laborRate: 1, chemicalCost: 1, overhead: 1, targetMargin: 100 }), /below 100/);
 });
+
+test('default 40-account weekly route includes windshield time', () => {
+  const result = calculate({
+    accounts: 40, visits: 4, serviceMinutes: 35, driveMinutes: 12,
+    laborRate: 28, chemicalCost: 18, overhead: 12, targetMargin: 35,
+  });
+  assert.equal(result.monthlyHours, 40 * 4 * (35 + 12) / 60);
+  assert.equal(result.labor, result.monthlyHours * 28);
+  assert.equal(result.variableCost, 2880);
+  assert.equal(result.overheadCost, 480);
+  assert.equal(result.minimumMonthlyPrice, result.minimumRouteRevenue / 40);
+  assert.ok(result.minimumMonthlyPrice > result.totalCost / 40);
+});
