@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: einvoice-preflight
+Version: 0.1.0
+Summary: Local, explainable preflight checks for structured e-invoice JSON
+Requires-Python: >=3.10
+License-File: LICENSE
+Dynamic: license-file
