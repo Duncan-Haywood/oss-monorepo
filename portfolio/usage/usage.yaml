@@ -2124,7 +2124,6 @@ products:
           Repair-and-merge of unique #1392 medical courier route margin
           calculator onto current main. Public URL remains owner-gated;
           usage is local-only and honors DNT/GPC. Baseline row.
-<<<<<<< HEAD
 
   - slug: cam-reconciliation-check
     surface: static-page-in-repo
@@ -2138,5 +2137,17 @@ products:
           Repair-and-merge of unique #1430 CAM reconciliation worksheet
           onto current main. Public URL remains owner-gated; usage is
           opt-out and honors DNT/GPC. Baseline row.
-=======
->>>>>>> origin/main
+
+  - slug: payment-reconciliation-workbench
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          reconciliation_run: 0
+          review_exported: 0
+        note: >-
+          Repair-and-merge of unique #1388 payment reconciliation
+          workbench onto current main. Also removes conflict markers
+          that landed in usage.yaml with #1430. Public URL remains
+          owner-gated; usage is opt-out and honors DNT/GPC. Baseline row.

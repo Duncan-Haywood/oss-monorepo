@@ -2832,3 +2832,34 @@ ventures:
       Pass: output is arithmetic and review prompts, not a lease
       interpretation, a payment demand, or a recoverability claim.
       Nothing the user enters leaves the browser.
+
+  - slug: payment-reconciliation-workbench
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      Matching is deterministic date-and-amount arithmetic. Adding
+      inference would make an exception less checkable against the
+      two CSVs the operator already has.
+    basis: >-
+      Graduated on 2026-08-26 as a browser-local payout-to-deposit
+      matcher (repair-and-merge of unique #1388). Distinct from
+      invoice-payment-terms (one invoice's due date) and CAM (lease
+      expense share): the buyer is an owner-operator comparing
+      processor payout CSVs to bank deposits. Distribution is
+      "Stripe bank deposit reconciliation CSV" and "Square payout
+      reconciliation".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: files never leave the browser, no money is moved, and
+      output is a review queue rather than a posting instruction.
