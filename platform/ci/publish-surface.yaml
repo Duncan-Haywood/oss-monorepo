@@ -145,6 +145,9 @@ workflows:
 - workflow: cut-list-optimizer-ci.yml
   classification: none
   publishes: []
+- workflow: deck-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: deck-staining-bid-calculator-ci.yml
   classification: none
   publishes: []

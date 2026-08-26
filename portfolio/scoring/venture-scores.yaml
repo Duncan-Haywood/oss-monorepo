@@ -4882,3 +4882,41 @@ ventures:
       permit determination. Starting part and hour figures are labelled
       ballpark starting points, and nothing the user enters leaves the
       browser.
+  - slug: deck-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 5
+      distribution: 7
+    composite: 6.667
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      There is no AI anywhere in the product. The value is a domain model —
+      height above grade, railing lineal feet, and stair runs — that is
+      arithmetic, and adding inference to it would only make the result less
+      checkable.
+    basis: >-
+      Graduated on 2026-08-25 as a browser-local deck bid calculator. Scored
+      above the marketplace fee calculators on defensibility (5): those
+      restate a published fee schedule, whereas the height-and-railing model
+      encodes how the trade actually estimates material and access, and the
+      incumbents here are paid bidding suites or homeowner cost pages rather
+      than a free walk-away price. Distribution 7: "how much to charge to
+      build a deck", "deck cost per square foot", and "deck railing cost per
+      foot" are lower-volume than the marketplace-fee queries but far less
+      saturated and bought by an operator with a real job on the line.
+      Distinct from the fence calculator (posts and gates) and the concrete
+      calculator (slabs).
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the contractor's own inputs, never a
+      recommended price, a building-code determination, or a structural
+      finding. The shipped material prices and hours are labelled ballpark
+      starting points rather than a lumberyard quote or IRC table, and
+      nothing the user enters leaves the browser.
