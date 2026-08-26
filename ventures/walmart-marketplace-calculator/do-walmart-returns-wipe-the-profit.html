@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Do Walmart returns wipe WFS profit? | Expected leftover after refunds</title>
+  <meta name="description" content="A completed Walmart sale can look profitable and still lose money once returns start. See expected WFS leftover after return handling and unsellable units, and the return rate that wipes the listing.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="do-walmart-returns-wipe-the-profit.html">
+  <meta property="og:title" content="Do Walmart returns wipe WFS profit?">
+  <meta property="og:description" content="The outbound WFS pick, inbound, and storage stay spent even when the buyer is refunded. Mix that leftover with your return rate.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Walmart Marketplace expected leftover after returns",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "expected leftover after returns, return drag, return-rate sweep, break-even return rate, WFS vs seller fulfilled after returns"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Do Walmart returns wipe WFS profit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "They can. On the calculator defaults — a $24.99 home listing, 15% referral, standard WFS fulfillment, $7 cost of goods, $1.10 inbound, $2.75 return handling, and 20% of returns unsellable — a completed WFS sale keeps $8.65. At an 18% return rate expected leftover is $5.34, $3.31 of drag. The return rate that takes expected leftover to zero is about 47.0%."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What costs stay when a Walmart customer returns a WFS order?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Walmart typically refunds the buyer and the referral fee. The outbound WFS fulfillment fee, inbound, storage, prep, and ads usually stay spent. A return-processing fee is often added. Cost of goods comes back only when the unit can be listed again. Seller-fulfilled listings keep the label you already bought instead of a WFS pick."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this the same as the WFS versus seller-fulfilled table or the 2-day page?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Those pages assume the order stayed sold. This page mixes the refunded-order leftover with the return rate you actually see. Price match holds take and returns fixed and drops the ticket. 2-day mixes Buy Box take with a faster label. Replace the handling fee and unsellable share from Seller Center; this page does not publish Walmart's live return-processing schedule."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.current td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Walmart Marketplace calculator</a></p>
+  <h1>Do Walmart returns wipe WFS profit?</h1>
+  <p>
+    Sellers search for “Walmart return rate profit” because the number
+    on a completed sale is not the number that hits the bank account. A
+    slice of orders come back. Walmart typically refunds the buyer and
+    the referral. The outbound WFS pick, inbound, and storage do not
+    come back. Cost of goods comes back only when the unit can be sold
+    again.
+  </p>
+  <p>
+    On the $24.99 home listing — 15% referral, standard WFS fulfillment,
+    $7.00 cost of goods, $1.10 inbound, and one month of storage — a
+    completed sale keeps <strong>$8.65</strong>. At an 18% return rate,
+    $2.75 handling, and 20% of returns unsellable, expected leftover is
+    <strong>$5.34</strong>: <strong>$3.31</strong> of drag. The return
+    rate that wipes expected leftover is about <strong>47.0%</strong>.
+    Seller-fulfilled on the same mix keeps <strong>$5.93</strong>
+    because there is no WFS pick left spent on the returned unit.
+  </p>
+  <form id="returnsForm" class="fields">
+    <label>Sale price <input id="salePrice" type="number" min="0" step="0.01" value="24.99"></label>
+    <label>Referral rate (%) <input id="referralRate" type="number" min="0" step="0.01" value="15"></label>
+    <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="7"></label>
+    <label>Inbound to WFS / unit <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.10"></label>
+    <label>WFS fulfillment fee <input id="fulfillmentFee" type="number" min="0" step="0.01" value="3.95"></label>
+    <label>Seller shipping you pay <input id="sellerShippingCost" type="number" min="0" step="0.01" value="4.50"></label>
+    <label>Expected return rate (%) <input id="returnRate" type="number" min="0" max="100" step="0.1" value="18"></label>
+    <label>Return handling / unit <input id="returnHandlingFee" type="number" min="0" step="0.01" value="2.75"></label>
+    <label>Unsellable return rate (%) <input id="unsellableReturnRate" type="number" min="0" max="100" step="0.1" value="20"></label>
+    <label>Units sold per month <input id="monthlyUnits" type="number" min="0" step="1" value="60"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Return rate</th>
+        <th scope="col">Expected leftover</th>
+        <th scope="col">Drag</th>
+        <th scope="col">Margin</th>
+        <th scope="col">Max buy</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p class="note">
+    Zero returns is always in the table so you can see the drag, not only
+    the mixed number. Open the
+    <a href="./#returns">Walmart Marketplace calculator</a>
+    to change size, storage, ads, or the fulfillment path. A completed
+    sale is a different question —
+    <a href="wfs-vs-seller-fulfilled.html">WFS vs seller fulfilled</a> —
+    and so is
+    <a href="should-i-offer-two-day-shipping-on-walmart.html">whether a 2-day label still beats WFS</a>.
+  </p>
+  <p>
+    Rates change by category, size, and account. This page does not publish
+    Walmart’s live return-processing schedule. It is arithmetic, not advice,
+    and it does not claim a listing is safe to keep.
+  </p>
+  <footer>
+    <p><strong>No warranty.</strong> This free page is not tax, financial, or business advice. Verify every output and fee against your Walmart Seller Center preview before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareReturns, returnsSummary } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "salePrice", "referralRate", "costOfGoods", "inboundPerUnit",
+      "fulfillmentFee", "sellerShippingCost", "returnRate", "returnHandlingFee",
+      "unsellableReturnRate", "monthlyUnits",
+    ];
+    const money = (value) => Number.isFinite(value) ? `$${value.toFixed(2)}` : "n/a";
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareReturns({
+          ...raw,
+          length: 8,
+          width: 6,
+          height: 2,
+          weightLb: 0.75,
+          monthsInStorage: 1,
+          storageRate: 0.75,
+          packagingCost: 0.5,
+          fulfillmentMethod: "wfs",
+        });
+        document.getElementById("summary").textContent = returnsSummary({
+          typedRate: result.returnRate,
+          handling: result.returnHandlingFee,
+          unsellable: result.unsellableReturnRate,
+          typed: result.typed,
+        });
+        document.getElementById("rows").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.returnRate}%</td><td>${money(row.profit)}</td><td>${money(row.returnDrag)}</td><td>${row.margin.toFixed(1)}%</td><td>${money(row.breakEvenBuyCost)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("rows").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "returns_compared");
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

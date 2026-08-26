@@ -63,6 +63,8 @@ test("inputs and result fields for the primary journey are present", () => {
     "category", "salePrice", "matchPrice", "referralRate", "referralMinimum",
     "costOfGoods", "profit", "compare", "matchResult", "usageOptOut",
     "twoDayShippingCost", "twoDayCompare", "twoDayNote",
+    "returnRate", "returnHandlingFee", "unsellableReturnRate",
+    "returnsCompare", "returnsNote",
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
@@ -84,4 +86,11 @@ test("the 2-day take table is wired to the comparison", () => {
   assert.match(scriptSource, /twoDayNote/);
   assert.match(scriptSource, /two_day_compared/);
   assert.match(markup, /should-i-offer-two-day-shipping-on-walmart\.html/);
+});
+
+test("the returns table is wired to the comparison", () => {
+  assert.match(scriptSource, /compareReturns/);
+  assert.match(scriptSource, /returnsSummary/);
+  assert.match(scriptSource, /returns_compared/);
+  assert.match(markup, /do-walmart-returns-wipe-the-profit\.html/);
 });

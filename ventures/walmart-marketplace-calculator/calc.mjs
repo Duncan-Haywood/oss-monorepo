@@ -558,6 +558,222 @@ export function twoDayNote(comparison) {
   return comparison.summary;
 }
 
+export const RETURN_RATE_PRESETS = [0, 10, 18, 28];
+
+export const RETURN_DEFAULTS = {
+  returnRate: 18,
+  returnHandlingFee: 2.75,
+  unsellableReturnRate: 20,
+};
+
+// Expected leftover after a share of Walmart orders come back. A
+// completed sale keeps the current path. A return typically refunds
+// the ticket and the referral; the outbound WFS pick (or the label
+// you already bought) stays spent; handling is added; cost of goods
+// comes back only when the unit can be listed again. Inbound,
+// storage, prep, and ads stay spent either way. Distinct from the
+// completed-sale WFS vs seller table and from 2-day take rate.
+function withExpectedReturns(path, {
+  salePrice,
+  referral,
+  costOfGoods,
+  fulfillmentFee,
+  returnRate,
+  returnHandlingFee,
+  unsellableRate,
+  targetMarginRate,
+}) {
+  const cashExcludingCogs = path.cashInvested - costOfGoods;
+  const keepShare = 1 - returnRate;
+  const cogsFactor = 1 - returnRate * (1 - unsellableRate);
+  const profitBeforeReturns = path.profit;
+  const expectedRevenue = keepShare * salePrice;
+  const expectedReferral = keepShare * referral;
+  const expectedHandling = returnRate * returnHandlingFee;
+  const expectedProfit =
+    expectedRevenue
+    - expectedReferral
+    - fulfillmentFee
+    - cashExcludingCogs
+    - expectedHandling
+    - costOfGoods * cogsFactor;
+  const expectedFeeTotal = expectedReferral + fulfillmentFee + expectedHandling;
+  const recoveredFixed =
+    fulfillmentFee + cashExcludingCogs + expectedHandling + costOfGoods * cogsFactor;
+  const percentRate = salePrice === 0 ? 0 : referral / salePrice;
+  const netKeepRate = keepShare * (1 - percentRate);
+  const targetDenom = keepShare * (1 - percentRate - targetMarginRate);
+  const maxBuyNumerator =
+    expectedRevenue - expectedReferral - fulfillmentFee - cashExcludingCogs - expectedHandling;
+  const stayValue =
+    salePrice - referral + returnHandlingFee - costOfGoods * (1 - unsellableRate);
+  let breakEvenReturnRate = null;
+  if (profitBeforeReturns <= 0) {
+    breakEvenReturnRate = 0;
+  } else if (stayValue > 0) {
+    breakEvenReturnRate = Math.min(1, profitBeforeReturns / stayValue);
+  }
+
+  return {
+    ...path,
+    fees: { ...path.fees, returnHandling: expectedHandling },
+    feeTotal: expectedFeeTotal,
+    profitBeforeReturns,
+    profit: expectedProfit,
+    costs: expectedFeeTotal + cashExcludingCogs + costOfGoods * cogsFactor,
+    margin: expectedRevenue === 0 ? 0 : (expectedProfit / expectedRevenue) * 100,
+    roi: path.cashInvested === 0 ? null : (expectedProfit / path.cashInvested) * 100,
+    breakEvenPrice: netKeepRate <= 0 ? Infinity : Math.max(0, recoveredFixed / netKeepRate),
+    targetMarginPrice: targetDenom <= 0 ? Infinity : Math.max(0, recoveredFixed / targetDenom),
+    breakEvenBuyCost: cogsFactor <= 0
+      ? (maxBuyNumerator >= 0 ? Infinity : 0)
+      : Math.max(0, maxBuyNumerator / cogsFactor),
+    expectedRevenue,
+    returnDrag: profitBeforeReturns - expectedProfit,
+    breakEvenReturnRate,
+  };
+}
+
+function listingAfterReturns(listing, input) {
+  const returnRatePct = takePercent(input.returnRate, "Return rate", 0);
+  const unsellableReturnPct = takePercent(
+    input.unsellableReturnRate,
+    "Unsellable return rate",
+    0,
+  );
+  const returnHandlingFee = number(input.returnHandlingFee, "Return handling fee", 0);
+  const returnRate = returnRatePct / 100;
+  const unsellableRate = unsellableReturnPct / 100;
+  const targetMarginRate = number(input.targetMargin, "Target margin", 0) / 100;
+  const assumptions = {
+    salePrice: listing.salePrice,
+    referral: listing.referral,
+    costOfGoods: number(input.costOfGoods, "Cost of goods"),
+    returnRate,
+    returnHandlingFee,
+    unsellableRate,
+    targetMarginRate,
+  };
+  const wfs = withExpectedReturns(listing.wfs, {
+    ...assumptions,
+    fulfillmentFee: listing.fulfillmentFee,
+  });
+  const seller = withExpectedReturns(listing.seller, {
+    ...assumptions,
+    fulfillmentFee: 0,
+  });
+  const selected = listing.fulfillmentMethod === "wfs" ? wfs : seller;
+  const wfsAdvantage = wfs.profit - seller.profit;
+  return {
+    ...listing,
+    returnRate: returnRatePct,
+    unsellableReturnRate: unsellableReturnPct,
+    returnHandlingFee,
+    selected,
+    wfs,
+    seller,
+    wfsAdvantage,
+    cheaperPath: wfsAdvantage > 0 ? "wfs" : wfsAdvantage < 0 ? "seller" : "tie",
+  };
+}
+
+/**
+ * Sweep the same listing across typical Walmart return rates plus the
+ * typed rate. Zero is always included so the seller can see the drag,
+ * not only the mixed leftover. Complementary to completed-sale WFS vs
+ * seller and to 2-day take — those assume the order stayed sold.
+ */
+export function compareReturns(input = {}) {
+  const typedRate = takePercent(
+    input.returnRate,
+    "Return rate",
+    RETURN_DEFAULTS.returnRate,
+  );
+  const handling = number(
+    input.returnHandlingFee,
+    "Return handling fee",
+    RETURN_DEFAULTS.returnHandlingFee,
+  );
+  const unsellable = takePercent(
+    input.unsellableReturnRate,
+    "Unsellable return rate",
+    RETURN_DEFAULTS.unsellableReturnRate,
+  );
+  const listing = calculateListing({
+    ...input,
+    returnRate: 0,
+    returnHandlingFee: 0,
+    unsellableReturnRate: 0,
+  });
+  const rates = [...new Set([...RETURN_RATE_PRESETS, typedRate])].sort((a, b) => a - b);
+  const rows = rates.map((rate) => {
+    const mixed = listingAfterReturns(listing, {
+      ...input,
+      returnRate: rate,
+      returnHandlingFee: handling,
+      unsellableReturnRate: unsellable,
+    });
+    return {
+      returnRate: rate,
+      isCurrent: Math.abs(rate - typedRate) < 1e-9,
+      profit: mixed.selected.profit,
+      profitBeforeReturns: mixed.selected.profitBeforeReturns,
+      returnDrag: mixed.selected.returnDrag,
+      margin: mixed.selected.margin,
+      breakEvenBuyCost: mixed.selected.breakEvenBuyCost,
+      wfsProfit: mixed.wfs.profit,
+      sellerProfit: mixed.seller.profit,
+      cheaperPath: mixed.cheaperPath,
+    };
+  });
+  const typed = listingAfterReturns(listing, {
+    ...input,
+    returnRate: typedRate,
+    returnHandlingFee: handling,
+    unsellableReturnRate: unsellable,
+  });
+  return {
+    returnRate: typedRate,
+    returnHandlingFee: handling,
+    unsellableReturnRate: unsellable,
+    rows,
+    typed,
+    breakEvenReturnRate: typed.selected.breakEvenReturnRate,
+    summary: returnsSummary({
+      typedRate,
+      handling,
+      unsellable,
+      typed,
+    }),
+  };
+}
+
+export function returnsSummary({ typedRate, handling, unsellable, typed }) {
+  const kept = typed.selected.profitBeforeReturns;
+  const expected = typed.selected.profit;
+  const drag = typed.selected.returnDrag;
+  const wipe = typed.selected.breakEvenReturnRate;
+  const wipePct = wipe === null ? null : wipe * 100;
+  const path = typed.fulfillmentMethod === "wfs" ? "WFS" : "seller-fulfilled";
+  if (typedRate === 0) {
+    return (
+      `${path} keeps ${moneyLabel(kept)} on a completed sale. ` +
+      `Type a return rate to mix that with the refunded-order leftover.`
+    );
+  }
+  const wipeLine = wipePct === null
+    ? "No finite return rate drives expected profit to zero on these costs."
+    : wipePct === 0
+      ? "The completed sale already loses money, so any return rate still loses."
+      : `The return rate that wipes expected profit is about ${wipePct.toFixed(1)}%.`;
+  return (
+    `At a ${typedRate}% return rate, ${moneyLabel(handling)} handling, ` +
+    `and ${unsellable}% unsellable, ${path} expects ${moneyLabel(expected)} ` +
+    `versus ${moneyLabel(kept)} on a completed sale — ${moneyLabel(drag)} of drag. ` +
+    wipeLine
+  );
+}
+
 export function calculateListing(input) {
   const salePrice = number(input.salePrice, "Sale price");
   const listed = listingAtPrice(input, salePrice);

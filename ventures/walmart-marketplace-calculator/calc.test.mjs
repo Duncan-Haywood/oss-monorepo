@@ -7,14 +7,18 @@ import {
   calculateListing,
   CATEGORY_PRESETS,
   classifySizeTier,
+  compareReturns,
   compareTwoDay,
   cubicFeet,
   DEFAULT_REFERRAL_MINIMUM,
   defaultFulfillmentFee,
   referralFee,
+  RETURN_DEFAULTS,
+  RETURN_RATE_PRESETS,
   STORAGE_PRESETS,
   TWO_DAY_DEFAULTS,
   twoDayNote,
+  returnsSummary,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -232,4 +236,85 @@ test("exports the two-day defaults the page starts from", () => {
   assert.equal(TWO_DAY_DEFAULTS.wfsTakePct, 80);
   assert.equal(TWO_DAY_DEFAULTS.twoDayTakePct, 70);
   assert.equal(TWO_DAY_DEFAULTS.standardTakePct, 35);
+});
+
+test("zero returns leaves the completed-sale leftover untouched", () => {
+  const completed = calculateListing(base);
+  const mixed = compareReturns({
+    ...base,
+    returnRate: 0,
+    returnHandlingFee: 2.75,
+    unsellableReturnRate: 20,
+  });
+  near(mixed.typed.selected.profit, completed.selected.profit, "no drag at 0%");
+  near(mixed.typed.selected.returnDrag, 0, "zero drag");
+  near(mixed.typed.selected.profitBeforeReturns, completed.selected.profit, "before");
+  assert.equal(mixed.typed.selected.breakEvenReturnRate > 0, true);
+});
+
+test("an 18% Walmart return rate drags WFS leftover and can wipe it", () => {
+  const completed = calculateListing(base);
+  const mixed = compareReturns({
+    ...base,
+    returnRate: 18,
+    returnHandlingFee: 2.75,
+    unsellableReturnRate: 20,
+  });
+  const referral = 24.99 * 0.15;
+  const fulfillment = defaultFulfillmentFee("standard", 0.75);
+  const cashExCogs = completed.wfs.cashInvested - 7;
+  const keep = 0.82;
+  const cogsFactor = 1 - 0.18 * 0.8;
+  const expected =
+    keep * 24.99
+    - keep * referral
+    - fulfillment
+    - cashExCogs
+    - 0.18 * 2.75
+    - 7 * cogsFactor;
+  near(mixed.typed.wfs.profit, expected, "WFS expected after returns");
+  near(mixed.typed.selected.profitBeforeReturns, completed.wfs.profit, "completed WFS");
+  assert.ok(mixed.typed.selected.returnDrag > 0, "returns drag leftover");
+  assert.ok(mixed.typed.selected.profit < completed.wfs.profit, "mixed is below completed");
+  assert.ok(mixed.typed.seller.profit > mixed.typed.wfs.profit, "seller keeps more: no WFS pick left spent");
+  const stayValue = 24.99 - referral + 2.75 - 7 * 0.8;
+  near(mixed.typed.selected.breakEvenReturnRate, completed.wfs.profit / stayValue, "wipe rate");
+  assert.deepEqual(mixed.rows.map((row) => row.returnRate), [0, 10, 18, 28]);
+  assert.equal(mixed.rows.find((row) => row.isCurrent).returnRate, 18);
+  assert.match(returnsSummary({
+    typedRate: mixed.returnRate,
+    handling: mixed.returnHandlingFee,
+    unsellable: mixed.unsellableReturnRate,
+    typed: mixed.typed,
+  }), /18% return rate/);
+  near(mixed.typed.wfs.profit, 5.3393633333333375, "locked WFS expected");
+  near(mixed.typed.selected.returnDrag, 3.310469999999996, "locked drag");
+  near(mixed.typed.selected.breakEvenReturnRate, 0.4703169036420811, "locked wipe");
+  near(mixed.typed.seller.profit, 5.9310300000000025, "locked seller expected");
+});
+
+test("100% unsellable returns still recover nothing of cost of goods", () => {
+  const mixed = compareReturns({
+    ...base,
+    returnRate: 100,
+    returnHandlingFee: 2.75,
+    unsellableReturnRate: 100,
+  });
+  const completed = calculateListing(base);
+  const cashExCogs = completed.wfs.cashInvested - 7;
+  const expected = 0 - 0 - completed.fulfillmentFee - cashExCogs - 2.75 - 7;
+  near(mixed.typed.wfs.profit, expected, "full refund, dead unit, handling");
+  assert.equal(mixed.typed.wfs.breakEvenBuyCost, 0);
+});
+
+test("rejects impossible return rates", () => {
+  assert.throws(() => compareReturns({ ...base, returnRate: 101 }), /at most 100/);
+  assert.throws(() => compareReturns({ ...base, unsellableReturnRate: 101 }), /at most 100/);
+});
+
+test("exports the return defaults the page starts from", () => {
+  assert.equal(RETURN_DEFAULTS.returnRate, 18);
+  assert.equal(RETURN_DEFAULTS.returnHandlingFee, 2.75);
+  assert.equal(RETURN_DEFAULTS.unsellableReturnRate, 20);
+  assert.deepEqual(RETURN_RATE_PRESETS, [0, 10, 18, 28]);
 });

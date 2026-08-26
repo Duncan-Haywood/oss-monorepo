@@ -1,5 +1,5 @@
 name: walmart-marketplace-calculator
-description: A private browser calculator for Walmart Marketplace sellers to compare WFS vs seller-fulfilled profit on the same listing after referral (including the per-item floor), fulfillment, storage, inbound, a competitive match price, and whether a 2-day label still beats WFS after take rate — including the maximum inventory buy cost.
+description: A private browser calculator for Walmart Marketplace sellers to compare WFS vs seller-fulfilled profit on the same listing after referral (including the per-item floor), fulfillment, storage, inbound, a competitive match price, whether a 2-day label still beats WFS after take rate, and whether returns still leave a profit after handling — including the maximum inventory buy cost.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -12,6 +12,10 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Seeing whether a seller-fulfilled 2-day label still beats WFS after take rate changes a Buy Box decision that a completed-sale WFS vs seller table hides.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing whether the shop's return rate still leaves a profit after WFS handling and unsellable units changes a sourcing or category decision that a completed-sale leftover hides.
     status: untested
     checked: null
     evidence: customer-contact

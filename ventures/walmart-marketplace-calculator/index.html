@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, 2-day vs WFS take-rate leftover, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, 2-day vs WFS take-rate leftover, expected leftover after returns, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
   }
   </script>
   <script type="application/ld+json">
@@ -57,6 +57,14 @@
           "@type": "Answer",
           "text": "WFS includes two-day delivery after inbound. A seller-fulfilled 2-day label plus pack time usually converts more than standard shipping and still often loses to WFS once take rate is mixed in. On the defaults WFS keeps $4.83 more per session than an $8.95 2-day label. Open the 2-day page to replace the label, minutes, and take rates from Seller Center."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "Do Walmart returns wipe WFS profit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "They can. On the defaults a completed WFS sale keeps $8.65. At an 18% return rate, $2.75 handling, and 20% unsellable, expected leftover is $5.34 — $3.31 of drag. The return rate that wipes expected leftover is about 47.0%. Open the returns page to replace the handling fee and unsellable share from Seller Center."
+        }
       }
     ]
   }
@@ -88,6 +96,7 @@
     table { width: 100%; border-collapse: collapse; font-size: .92rem; }
     th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
     th:first-child, td:first-child { text-align: left; }
+    tr.current td { font-weight: 700; }
     footer { margin-top: 25px; font-size: .82rem; color: #445064; }
     footer a { color: #1f4f8a; }
     .faq { margin-top: 18px; }
@@ -165,6 +174,9 @@
         <label>WFS take (%) <input id="wfsTakePct" type="number" min="0" max="100" step="0.1" value="80"></label>
         <label>2-day take (%) <input id="twoDayTakePct" type="number" min="0" max="100" step="0.1" value="70"></label>
         <label>Standard take (%) <input id="standardTakePct" type="number" min="0" max="100" step="0.1" value="35"></label>
+        <label id="returns">Expected return rate (%) <input id="returnRate" type="number" min="0" max="100" step="0.1" value="18"></label>
+        <label>Return handling / unit <input id="returnHandlingFee" type="number" min="0" step="0.01" value="2.75"></label>
+        <label>Unsellable return rate (%) <input id="unsellableReturnRate" type="number" min="0" max="100" step="0.1" value="20"></label>
       </div>
     </section>
     <section class="result">
@@ -197,7 +209,14 @@
         <thead><tr><th>Path</th><th>Take</th><th>Completed</th><th>Expected</th></tr></thead>
         <tbody id="twoDayCompare"></tbody>
       </table>
-      <p class="note">Transparent arithmetic from your inputs — not Walmart’s current fee schedule. Referral, WFS fulfillment, storage, and inbound vary by category, size, and account. Verify against Seller Center before buying inventory.</p>
+      <hr>
+      <h2>Same listing, after returns</h2>
+      <p id="returnsNote" class="note"></p>
+      <table>
+        <thead><tr><th>Return rate</th><th>Expected</th><th>Drag</th><th>Max buy</th></tr></thead>
+        <tbody id="returnsCompare"></tbody>
+      </table>
+      <p class="note">Transparent arithmetic from your inputs — not Walmart’s current fee schedule. Referral, WFS fulfillment, storage, inbound, and return handling vary by category, size, and account. Verify against Seller Center before buying inventory.</p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -214,6 +233,9 @@
       <a href="should-i-offer-two-day-shipping-on-walmart.html">Should I offer 2-day shipping on Walmart?</a>
       compares WFS (2-day included) against a seller-fulfilled 2-day label
       and standard shipping after take rate.
+      A completed sale can still lose money once refunds start:
+      <a href="do-walmart-returns-wipe-the-profit.html">Do Walmart returns wipe the profit?</a>
+      mixes the leftover with your return rate.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -233,7 +255,9 @@
       applyCategoryPreset,
       applyStoragePreset,
       calculateListing,
+      compareReturns,
       compareTwoDay,
+      returnsSummary,
       twoDayNote,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
@@ -245,6 +269,7 @@
       "packagingCost", "adsPerUnit", "otherCost", "monthlySellerFee",
       "monthlyUnits", "targetMargin", "twoDayShippingCost", "twoDayMinutes",
       "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct",
+      "returnRate", "returnHandlingFee", "unsellableReturnRate",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     let syncingFee = false;
@@ -319,15 +344,26 @@
         document.getElementById("twoDayCompare").innerHTML = twoDay.rows.map((row) =>
           `<tr><td>${row.label}</td><td>${row.takePct.toFixed(1)}%</td><td>${money(row.completedProfit)}</td><td>${money(row.expectedProfit)}</td></tr>`
         ).join("");
+        const returns = compareReturns(readInput());
+        document.getElementById("returnsNote").textContent = returnsSummary({
+          typedRate: returns.returnRate,
+          handling: returns.returnHandlingFee,
+          unsellable: returns.unsellableReturnRate,
+          typed: returns.typed,
+        });
+        document.getElementById("returnsCompare").innerHTML = returns.rows.map((row) =>
+          `<tr class="${row.isCurrent ? "current" : ""}"><td>${row.returnRate}%</td><td>${money(row.profit)}</td><td>${money(row.returnDrag)}</td><td>${money(row.breakEvenBuyCost)}</td></tr>`
+        ).join("");
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
         document.getElementById("label").textContent = "fix the inputs to see a result";
-        ["revenue", "referral", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "matchResult", "twoDayNote"].forEach((id) => {
+        ["revenue", "referral", "fees", "invested", "margin", "roi", "breakEven", "maxBuy", "targetMarginPrice", "advantage", "matchResult", "twoDayNote", "returnsNote"].forEach((id) => {
           document.getElementById(id).textContent = "";
         });
         document.getElementById("compare").innerHTML = "";
         document.getElementById("twoDayCompare").innerHTML = "";
+        document.getElementById("returnsCompare").innerHTML = "";
       }
     }
 
@@ -360,7 +396,9 @@
           ? "target_margin_calculated"
           : ["twoDayShippingCost", "twoDayMinutes", "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct"].includes(id)
             ? "two_day_compared"
-            : "listing_profit_calculated";
+            : ["returnRate", "returnHandlingFee", "unsellableReturnRate"].includes(id)
+              ? "returns_compared"
+              : "listing_profit_calculated";
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, event);
     }));
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
