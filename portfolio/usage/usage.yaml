@@ -761,6 +761,15 @@ products:
           stay that includes Oct–Dec months, plus months of peak storage
           that wipe leftover). Public URL remains owner-gated; local
           event storage_season_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          sfp_compared: 0
+        note: >-
+          Added Seller Fulfilled Prime vs FBA vs merchant fulfilled
+          (2-day label, pack time, Prime take). Public URL remains
+          owner-gated; local event sfp_compared is opt-out and stores
+          no inputs.
   - slug: einvoice-preflight
     surface: local-cli
     readings:

@@ -23,6 +23,8 @@ import {
   compareReturns,
   compareStorageSeasons,
   compareSizeTierPackaging,
+  compareSfp,
+  sfpNote,
   clampBoxToTier,
   nextCheaperWeightLb,
   nextLowerSizeTier,
@@ -1548,4 +1550,81 @@ test("compareSizeTierPackaging ignores a typed return mix and rejects a negative
   near(withReturns.current.profit, completed.current.profit, "return mix forced to 0");
   assert.throws(() => compareSizeTierPackaging({ salePrice: 20, repackCostPerUnit: -1 }), /Repack cost/);
   assert.throws(() => sizeTierPackagingNote({}), /missing rows/);
+});
+
+const SFP_BASE = {
+  salePrice: 29.99,
+  referralRate: 15,
+  length: 8,
+  width: 6,
+  height: 2,
+  weightLb: 0.75,
+  costOfGoods: 8,
+  inboundPerUnit: 1.2,
+  monthsInStorage: 1,
+  storageRate: 0.87,
+  fbmShippingCost: 4.75,
+  packagingCost: 0.6,
+  monthlySellerFee: 39.99,
+  monthlyUnits: 80,
+};
+
+test("compareSfp: default large-standard unit still prefers FBA over a 2-day label", () => {
+  const comparison = compareSfp(SFP_BASE);
+  assert.equal(comparison.winner, "fba");
+  assert.equal(comparison.sizeTier, "large_standard");
+  near(comparison.fulfillmentFee, 4.15, "large-standard 12 oz band");
+  near(comparison.laborCost, 1.8, "6 min at $18");
+  near(comparison.fba.completedProfit, 10.993291666666664, "FBA leftover");
+  near(comparison.sfp.completedProfit, 5.641624999999999, "SFP leftover");
+  near(comparison.fbm.completedProfit, 11.641624999999998, "FBM leftover");
+  near(comparison.fba.expectedProfit, 7.695304166666665, "70% take");
+  near(comparison.sfp.expectedProfit, 3.667056249999999, "65% take");
+  near(comparison.fbm.expectedProfit, 4.656649999999999, "40% take");
+  near(comparison.extraKeptOnSfp, -4.028247916666666, "FBA vs SFP gap");
+  near(comparison.monthlyExtraOnSfp, -460.3711904761904, "80 FBA units");
+  near(comparison.breakEvenSfpShipping, 2.752695512820514, "2-day ceiling");
+  near(comparison.breakEvenFbmTakePct, 66.10163243247112, "FBM take floor");
+  assert.equal(comparison.breakEvenSfpTakePct, Infinity);
+  assert.match(comparison.summary, /\$4\.03 more per session/);
+  assert.match(comparison.summary, /\$460\.37 on 80 FBA units/);
+  assert.match(comparison.summary, /\$2\.75/);
+  assert.equal(sfpNote(comparison), comparison.summary);
+});
+
+test("compareSfp: a $2.40 2-day label flips Seller Fulfilled Prime ahead of FBA", () => {
+  const comparison = compareSfp({ ...SFP_BASE, sfpShippingCost: 2.4 });
+  assert.equal(comparison.winner, "sfp");
+  near(comparison.extraKeptOnSfp, 0.2292520833333338, "cheap 2-day");
+  near(comparison.monthlyExtraOnSfp, 26.20023809523815, "monthly flip");
+  assert.match(comparison.summary, /\$0\.23 more per session/);
+  assert.match(comparison.summary, /\$26\.20 on 80 FBA units/);
+});
+
+test("compareSfp: FBM take at the floor ties FBA expected leftover", () => {
+  const comparison = compareSfp({ ...SFP_BASE, fbmTakePct: 66.10163243247112 });
+  near(comparison.fbm.expectedProfit, comparison.fba.expectedProfit, "FBM floor");
+});
+
+test("compareSfp: zero pack minutes still leaves FBA ahead on the default label", () => {
+  const comparison = compareSfp({ ...SFP_BASE, sfpMinutes: 0 });
+  assert.equal(comparison.winner, "fba");
+  near(comparison.laborCost, 0, "no pack time");
+  assert.ok(comparison.extraKeptOnSfp < 0);
+});
+
+test("compareSfp ignores a typed return mix and rejects impossible inputs", () => {
+  const withReturns = compareSfp({
+    ...SFP_BASE,
+    returnRate: 15,
+    unsellableReturnRate: 20,
+    returnHandlingFee: 2.5,
+  });
+  const completed = compareSfp(SFP_BASE);
+  near(withReturns.fba.completedProfit, completed.fba.completedProfit, "return mix forced to 0");
+  assert.throws(() => compareSfp({ salePrice: -1 }), /Sale price/);
+  assert.throws(() => compareSfp({ ...SFP_BASE, fbaTakePct: 0 }), /greater than zero/);
+  assert.throws(() => compareSfp({ ...SFP_BASE, sfpTakePct: 101 }), /at most 100/);
+  assert.throws(() => compareSfp({ ...SFP_BASE, monthlyUnits: 0 }), /greater than zero/);
+  assert.throws(() => sfpNote({}), /missing rows/);
 });

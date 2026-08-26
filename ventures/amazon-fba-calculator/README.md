@@ -26,7 +26,9 @@ versus units that would have sold, whether Amazon inbound placement
 still beats extra freight on a split shipment, and whether a return
 rate still leaves expected profit after handling and unsellable units, and
 whether sending inventory before Q4 still beats waiting until January,
-and whether a smaller carton still drops a size-tier fee cliff** —
+and whether a smaller carton still drops a size-tier fee cliff, and
+whether Seller Fulfilled Prime still beats FBA after a 2-day label
+and pack time** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 0.75-inch small-standard gate.
 
@@ -170,6 +172,21 @@ an 8×6×2 carton to 0.75 inch still keeps $0.80 more per unit
 mean leaving the box because the fee preview looked like a referral
 change.
 
+An SFP invite is a badge decision on the same SKU: keep FBA Prime,
+buy a 2-day label yourself, or drop to merchant fulfilled.
+[Should I use Seller Fulfilled Prime?](should-i-use-seller-fulfilled-prime.html)
+mixes take rate with the 2-day label and pack time so a
+completed-sale leftover does not hide a Prime-filter gap.
+Complementary to [FBA vs FBM](fba-vs-fbm.html) (no Prime take) and
+to [MCF for website orders](should-i-use-amazon-mcf-for-website-orders.html)
+(a non-Amazon checkout from FBA stock).
+
+**After using the SFP page, you can now see whether an $8.95 2-day
+label plus 6 minutes at $18 still loses $4.03 per session ($460.37
+on 80 FBA units) against FBA, and that the label has to fall to
+about $2.75 before SFP matches** — which used to mean leaving FBA
+because the Prime badge looked free to keep.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -203,7 +220,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, and storage-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, and sfp-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -214,8 +231,9 @@ Individual vs Professional seller-plan comparison,
 Vine leftover vs sellable enrollment comparison,
 aged-inventory keep vs return vs dispose comparison,
 inbound placement vs split-freight comparison,
-expected profit after returns, and
-peak vs off-peak Q4 storage;
+expected profit after returns,
+peak vs off-peak Q4 storage,
+and Seller Fulfilled Prime vs FBA vs FBM;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
