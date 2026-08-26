@@ -17,6 +17,7 @@ from xml.sax.saxutils import escape, quoteattr
 import fcntl
 
 from .checks import check_invoice
+from .facturx import EmbeddedInvoiceError, extract_embedded_invoice_xml, looks_like_pdf
 from .formats import DocumentError, detect_syntax, parse_cii_invoice
 from .ubl import parse_ubl_invoice
 
@@ -608,9 +609,9 @@ def _markdown_text(value: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, or UN/CEFACT CII e-invoice before submission. No tax advice or submission.")
+    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, UN/CEFACT CII, or Factur-X PDF e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
-    parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
+    parser.add_argument("invoice", type=Path, help="JSON/XML/PDF file, directory of those files, or '-' for stdin")
     parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
@@ -643,18 +644,18 @@ def main(argv: list[str] | None = None) -> int:
         # Keep a directory scan inside its selected root instead of following
         # symlinks into an unrelated location.
         paths = sorted(
-            path for pattern in ("*.json", "*.xml")
+            path for pattern in ("*.json", "*.xml", "*.pdf")
             for path in args.invoice.rglob(pattern)
             if path.is_file() or path.is_symlink()
         )
         if not paths:
-            read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON or XML invoices found."})
+            read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON, XML, or PDF invoices found."})
             sources = []
         elif args.max_files is not None and len(paths) > args.max_files:
             read_errors.append({
                 "file": args.invoice.as_posix(),
                 "error": (
-                    f"Directory contains {len(paths)} JSON/XML invoices, exceeding "
+                    f"Directory contains {len(paths)} JSON/XML/PDF invoices, exceeding "
                     f"--max-files {args.max_files}. Refusing to scan."
                 ),
             })
@@ -680,7 +681,9 @@ def main(argv: list[str] | None = None) -> int:
         report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         try:
             raw = source if source is not None else _read_file_limited(invoice_path, args.max_bytes)
-            is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
+            if looks_like_pdf(raw):
+                raw = extract_embedded_invoice_xml(raw)
+            is_xml = report_path.suffix.lower() in {".xml", ".pdf"} or raw.lstrip().startswith(b"<")
             if is_xml:
                 try:
                     syntax = detect_syntax(raw)
@@ -689,7 +692,7 @@ def main(argv: list[str] | None = None) -> int:
                 invoice = parse_cii_invoice(raw) if syntax == "cii" else parse_ubl_invoice(raw)
             else:
                 invoice = json.loads(raw)
-        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError) as exc:
+        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError, EmbeddedInvoiceError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
         reports.append((report_path, check_invoice(invoice)))

@@ -30,7 +30,11 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /Load a SEPA transfer without an IBAN/);
   assert.match(page, /Load a PO that repeats the invoice number/);
   assert.match(page, /Load a header discount that does not match its percent/);
-  assert.match(page, /CII \(XRechnung \/ Factur-X\)/);
+  assert.match(page, /Factur-X \.pdf/);
+  assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF unwrap/);
+  assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF with an embedded invoice/);
+  assert.match(page, /accept="[^"]*\.pdf/);
+  assert.match(page, /arrayBuffer\(\)/);
 });
 
 test("disclaimer and optional sponsors are visible", () => {
