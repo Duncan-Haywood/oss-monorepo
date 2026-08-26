@@ -35,11 +35,21 @@ listing two ways: skip the program at a lower sell-through, or pay the
 typed authenticity fee plus extra hub shipping for a higher sell-through
 and a lower authenticity-claim return rate.
 [Is eBay Authenticity Guarantee worth it?](is-ebay-authenticity-guarantee-worth-it.html).
+A **Local pickup vs the label** table then prices the same listing two
+ways: ship it at a higher sell-through and pay the outbound label, or
+offer pickup only, skip postage, pay meetup time, and take a no-show
+rate.
+[Should I offer local pickup on eBay?](should-i-offer-ebay-local-pickup.html).
 
 **After using the authenticity page, you can now see whether a 3% fee
 and an $8 hub label still beat skip-AG on that SKU** — which used to
 mean enrolling because “buyers trust the badge” and never pricing the
 label.
+
+**After using the pickup page, you can now see whether skipping a $5
+label still beats a 25-minute meetup after no-shows** — which used to
+mean offering pickup because “the buyer is local” and never pricing
+the drive.
 
 Open `index.html` in a browser. The calculation is local and works without an
 account, network request, or API key. It is arithmetic, not an estimate of the
@@ -82,6 +92,10 @@ drive that decision:
   sell-through with and without the program. The authenticity fee comes
   back on a return; the extra hub label does not. The table also names
   the hub-shipping ceiling that still ties skip-AG.
+- **Local pickup vs the label** — expected listing profit after
+  sell-through with shipping versus pickup. Meetup time is paid on
+  every scheduled handoff, including no-shows. The table also names
+  the outbound-label ceiling that still ties pickup.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
@@ -106,10 +120,12 @@ footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
 `batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
-`partial_refund_compared`, `authenticity_compared`, and
+`partial_refund_compared`, `authenticity_compared`,
+`local_pickup_compared`, and
 `price_sensitivity_viewed`.
 `price_sensitivity_viewed`, `listing_format_compared`,
-`partial_refund_compared`, and `authenticity_compared` are counted at most
+`partial_refund_compared`, `authenticity_compared`, and
+`local_pickup_compared` are counted at most
 once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.

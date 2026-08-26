@@ -84,7 +84,9 @@ test('the authenticity table has one cell per column and a counted event', () =>
   assert.match(page, /authenticity_compared/);
   assert.match(page, /is-ebay-authenticity-guarantee-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Authenticity Guarantee vs skip-AG/);
-  const headerBlock = page.slice(page.indexOf('id="authenticityTable"'));
+  const authStart = page.indexOf('id="authenticityTable"');
+  const authEnd = page.indexOf('id="localPickup"', authStart);
+  const headerBlock = page.slice(authStart, authEnd === -1 ? undefined : authEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
     'Path',
@@ -94,5 +96,25 @@ test('the authenticity table has one cell per column and a counted event', () =>
     'If it sells',
     'Expected after sell-through',
     'vs skip-AG',
+  ]);
+});
+
+test('the local-pickup table has one cell per column and a counted event', () => {
+  assert.match(page, /compareLocalPickup/);
+  assert.match(page, /id="localPickup"/);
+  assert.match(page, /id="localPickupVerdict"/);
+  assert.match(page, /local_pickup_compared/);
+  assert.match(page, /should-i-offer-ebay-local-pickup\.html/);
+  assert.match(page, /"featureList":\s*"[^"]*local pickup vs ship/);
+  const headerBlock = page.slice(page.indexOf('id="localPickupTable"'));
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, [
+    'Path',
+    'Sell-through',
+    'No-show',
+    'Time cost',
+    'If it sells',
+    'Expected after sell-through',
+    'vs ship',
   ]);
 });

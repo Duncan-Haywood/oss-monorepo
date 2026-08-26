@@ -40,6 +40,15 @@ export const INPUT_FIELDS = [
   'authenticitySellThroughPct',
   'authenticityReturnRatePercent',
   'monthlyAgListings',
+  'shipSellThroughPct',
+  'pickupSellThroughPct',
+  'pickupNoShowPct',
+  'pickupMinutes',
+  'pickupHourlyWage',
+  'pickupFeeCharged',
+  'pickupPackagingCost',
+  'pickupReturnRatePercent',
+  'monthlyPickupListings',
 ];
 
 export function calculateOrder(input) {
@@ -648,4 +657,216 @@ export function authenticityNote(comparison) {
     ? ` Extra hub shipping has to be about ${money(comparison.breakEvenExtraShip)} before Authenticity matches skip-AG.`
     : ' No extra hub shipping on these rates can match skip-AG.';
   return `${skipLine} ${agLine}${hub}`;
+}
+
+/**
+ * Illustrative local-pickup defaults. A $5 label on a $40 SKU still
+ * usually beats a 25-minute meetup once sell-through and no-shows are
+ * in the mix. The bulky case (a freight label) is the one that flips.
+ * Minutes and wage are inputs, not a published labor schedule.
+ */
+export const DEFAULT_SHIP_SELL_THROUGH = 70;
+export const DEFAULT_PICKUP_SELL_THROUGH = 35;
+export const DEFAULT_PICKUP_NO_SHOW = 20;
+export const DEFAULT_PICKUP_MINUTES = 25;
+export const DEFAULT_PICKUP_HOURLY_WAGE = 18;
+export const DEFAULT_PICKUP_FEE = 0;
+export const DEFAULT_PICKUP_PACKAGING = 0;
+export const DEFAULT_PICKUP_RETURN_RATE = 2;
+export const DEFAULT_MONTHLY_PICKUP_LISTINGS = 8;
+
+function pickupRow({
+  id,
+  label,
+  sellThroughPct,
+  noShowPct,
+  timeCost,
+  postageAndPack,
+  soldExpectedProfit,
+  completedProfit,
+  returnRatePercent,
+  expectedProfit,
+}) {
+  return {
+    id,
+    label,
+    sellThroughPct,
+    noShowPct,
+    timeCost,
+    postageAndPack,
+    soldExpectedProfit,
+    completedProfit,
+    returnRatePercent,
+    expectedProfit,
+    expectedProfitDelta: 0,
+  };
+}
+
+/**
+ * Same SKU, listed as a shipped sale or local pickup only.
+ *
+ *   - Ship it — existing completed-sale expected profit (typed return
+ *     rate, outbound label, pack, return postage) times ship
+ *     sell-through. No meetup time.
+ *   - Local pickup — no outbound label, no return postage, optional
+ *     pickup fee and light pack. A committed buyer still ghosts at the
+ *     typed no-show rate. Meetup time (minutes × wage) is paid on every
+ *     scheduled pickup, including no-shows. Sell-through is usually
+ *     lower because only local buyers can take it.
+ *
+ * Complementary to auction vs BIN (format), Authenticity Guarantee
+ * (hub label), and the one-case partial-refund table. Open eBay PRs
+ * still own promoted, store, Best Offer, international, and Managed
+ * Returns. Rates and the wage are inputs, not eBay pickup policy.
+ */
+export function compareLocalPickup(input) {
+  const listedPrice = optionalNumber(input.price, 'Item price');
+  if (listedPrice === undefined) {
+    throw new Error('Item price must be a non-negative number');
+  }
+
+  const shipSellThrough = requiredPercent(
+    input.shipSellThroughPct,
+    'Ship sell-through',
+    DEFAULT_SHIP_SELL_THROUGH,
+  );
+  const pickupSellThrough = requiredPercent(
+    input.pickupSellThroughPct,
+    'Pickup sell-through',
+    DEFAULT_PICKUP_SELL_THROUGH,
+  );
+  const noShow = requiredPercent(
+    input.pickupNoShowPct,
+    'Pickup no-show rate',
+    DEFAULT_PICKUP_NO_SHOW,
+  );
+  const minutes = optionalNumber(input.pickupMinutes, 'Pickup minutes', DEFAULT_PICKUP_MINUTES);
+  const wage = optionalNumber(input.pickupHourlyWage, 'Pickup hourly wage', DEFAULT_PICKUP_HOURLY_WAGE);
+  const pickupFee = optionalNumber(input.pickupFeeCharged, 'Pickup fee charged', DEFAULT_PICKUP_FEE);
+  const pickupPack = optionalNumber(input.pickupPackagingCost, 'Pickup packaging', DEFAULT_PICKUP_PACKAGING);
+  const pickupReturnRate = requiredPercent(
+    input.pickupReturnRatePercent,
+    'Pickup return rate',
+    DEFAULT_PICKUP_RETURN_RATE,
+  );
+  const monthlyListings = optionalNumber(
+    input.monthlyPickupListings,
+    'Monthly pickup listings',
+    DEFAULT_MONTHLY_PICKUP_LISTINGS,
+  );
+
+  const shipped = calculateOrder(input);
+  const pickupSold = calculateOrder({
+    ...input,
+    shippingCharged: pickupFee,
+    shippingCost: 0,
+    packagingCost: pickupPack,
+    returnShippingCost: 0,
+    returnRatePercent: pickupReturnRate,
+  });
+
+  const timeCost = (minutes / 60) * wage;
+  const showFrac = 1 - noShow / 100;
+  const pickupPerCommit = showFrac * pickupSold.expectedProfit - timeCost;
+  const shipPostage = (optionalNumber(input.shippingCost, 'Shipping cost', 0)
+    + optionalNumber(input.packagingCost, 'Packaging cost', 0)) * shipped.quantity;
+
+  const ship = pickupRow({
+    id: 'ship',
+    label: 'Ship it',
+    sellThroughPct: shipSellThrough,
+    noShowPct: 0,
+    timeCost: 0,
+    postageAndPack: shipPostage,
+    soldExpectedProfit: shipped.expectedProfit,
+    completedProfit: shipped.profit,
+    returnRatePercent: shipped.returnRatePercent,
+    expectedProfit: shipped.expectedProfit * (shipSellThrough / 100),
+  });
+  const pickup = pickupRow({
+    id: 'pickup',
+    label: 'Local pickup only',
+    sellThroughPct: pickupSellThrough,
+    noShowPct: noShow,
+    timeCost,
+    postageAndPack: pickupPack * pickupSold.quantity,
+    soldExpectedProfit: pickupSold.expectedProfit,
+    completedProfit: pickupSold.profit,
+    returnRatePercent: pickupReturnRate,
+    expectedProfit: pickupPerCommit * (pickupSellThrough / 100),
+  });
+  ship.expectedProfitDelta = ship.expectedProfit - pickup.expectedProfit;
+  pickup.expectedProfitDelta = pickup.expectedProfit - ship.expectedProfit;
+
+  const rows = [ship, pickup];
+  const winner = pickup.expectedProfit > ship.expectedProfit + 1e-9
+    ? 'pickup'
+    : pickup.expectedProfit < ship.expectedProfit - 1e-9
+      ? 'ship'
+      : 'tie';
+
+  let breakEvenPickupSellThrough = Infinity;
+  if (pickupPerCommit > 1e-12) {
+    const needed = ship.expectedProfit / pickupPerCommit * 100;
+    breakEvenPickupSellThrough = needed > 100 + 1e-9 ? Infinity : Math.max(0, needed);
+  }
+
+  let breakEvenNoShow = Infinity;
+  if (pickupSellThrough > 1e-12 && pickupSold.expectedProfit > 1e-12) {
+    const neededPerCommit = ship.expectedProfit / (pickupSellThrough / 100);
+    const showNeeded = (neededPerCommit + timeCost) / pickupSold.expectedProfit;
+    const noShowCeiling = (1 - showNeeded) * 100;
+    breakEvenNoShow = noShowCeiling < -1e-9 || noShowCeiling > 100 + 1e-9
+      ? Infinity
+      : Math.max(0, Math.min(100, noShowCeiling));
+  }
+
+  const shipAtLabel = (shippingCost) => (
+    calculateOrder({ ...input, shippingCost }).expectedProfit * (shipSellThrough / 100)
+  );
+  const atZeroLabel = shipAtLabel(0);
+  const atTenLabel = shipAtLabel(10);
+  const labelSlope = (atTenLabel - atZeroLabel) / 10;
+  let breakEvenShippingCost = Infinity;
+  if (Math.abs(labelSlope) > 1e-12) {
+    breakEvenShippingCost = (pickup.expectedProfit - atZeroLabel) / labelSlope;
+  }
+
+  return {
+    rows,
+    ship,
+    pickup,
+    winner,
+    timeCost,
+    pickupFee,
+    pickupPack,
+    pickupReturnRate,
+    monthlyListings,
+    extraKeptOnPickup: pickup.expectedProfit - ship.expectedProfit,
+    monthlyExtraOnPickup: (pickup.expectedProfit - ship.expectedProfit) * monthlyListings,
+    breakEvenPickupSellThrough,
+    breakEvenNoShow,
+    breakEvenShippingCost,
+    completedProfit: shipped.profit,
+    pickupCompletedProfit: pickupSold.profit,
+  };
+}
+
+export function localPickupNote(comparison) {
+  if (!comparison?.ship || !comparison?.pickup) {
+    throw new Error('Local-pickup comparison is missing rows');
+  }
+  const money = (value) => {
+    const sign = value < 0 ? '-' : '';
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { ship, pickup } = comparison;
+  const gap = money(Math.abs(pickup.expectedProfit - ship.expectedProfit));
+  const ahead = pickup.expectedProfit >= ship.expectedProfit ? 'more' : 'less';
+  const shipLine = `Shipping at ${ship.sellThroughPct}% sell-through, with ${money(ship.postageAndPack)} postage and pack, expects ${money(ship.expectedProfit)}.`;
+  const pickupLine = `Local pickup at ${pickup.sellThroughPct}% sell-through, a ${pickup.noShowPct}% no-show rate, and ${money(comparison.timeCost)} of meetup time expects ${money(pickup.expectedProfit)} — ${gap} ${ahead}.`;
+  const label = Number.isFinite(comparison.breakEvenShippingCost)
+    ? ` The outbound label has to be about ${money(comparison.breakEvenShippingCost)} before shipping matches pickup.`
+    : ' No outbound label on these rates can match pickup.';
+  return `${shipLine} ${pickupLine}${label}`;
 }
