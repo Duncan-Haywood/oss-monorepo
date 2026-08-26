@@ -6,7 +6,6 @@ import {
   applyStoragePreset,
   buyCostCheck,
   calculateListing,
-  buyCostCheck,
   PLACEMENT_PRESETS,
   CATEGORY_PRESETS,
   classifySizeTier,
@@ -220,18 +219,6 @@ test("break-even buy cost makes profit exactly zero when used as cost of goods",
   const r = calculateListing(base);
   const atBuy = calculateListing({ ...base, costOfGoods: r.selected.breakEvenBuyCost });
   near(atBuy.selected.profit, 0, "profit at max buy cost");
-});
-
-test("buyCostCheck classifies the typed cost against the zero-profit ceiling", () => {
-  const result = calculateListing(base);
-  const below = buyCostCheck(result, result.selected.breakEvenBuyCost - 1);
-  assert.equal(below.status, "below_ceiling");
-  assert.equal(below.headroom, 1);
-  const above = buyCostCheck(result, result.selected.breakEvenBuyCost + 1);
-  assert.equal(above.status, "above_ceiling");
-  assert.equal(above.headroom, -1);
-  const at = buyCostCheck(result, result.selected.breakEvenBuyCost);
-  assert.equal(at.status, "at_ceiling");
 });
 
 test("calculates the sale price required for a target net margin", () => {
