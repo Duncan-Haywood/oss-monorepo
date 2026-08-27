@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { blendedStorageRate, compareStorageSeasons, storageSeasonNote } from "./calc.mjs";
+import { INPUT_FIELDS, blendedStorageRate, compareStorageSeasons, storageSeasonNote } from "./calc.mjs";
 
 const html = readFileSync(new URL("./peak-vs-off-peak-storage.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -115,7 +115,7 @@ test("the calculator asks how much of the stay falls in peak", () => {
   const { markup, scripts } = parse(index);
   const script = scripts.join("\n");
   assert.ok(markup.includes('id="peakMonths"'), "index.html is missing #peakMonths");
-  assert.match(script, /"peakMonths",/, "peakMonths must be in the collected ids");
+  assert.ok(INPUT_FIELDS.includes("peakMonths"), "peakMonths must be in the collected ids");
   assert.match(script, /blendedStorageRate\(\{/, "the hero number must blend the two rates");
   // Both the fee placeholder and the result read the blended input; a stray
   // readInput() at either site would price a Q4 stay at the January rate.
