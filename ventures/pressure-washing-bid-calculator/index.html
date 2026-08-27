@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pressure Washing Bid Calculator | Price the Drive, Not Just the Driveway</title>
+  <meta name="description" content="Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.">
+  <meta property="og:title" content="Pressure Washing Bid Calculator">
+  <meta property="og:description" content="Bid the surfaces and the drive — not a flat price per square foot — and see what you actually keep per hour after you get there.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pressure Washing Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-surface production rates, travel and setup hours, chemical cost, minimum job, after-travel hourly rate, on-site vs after-travel comparison, walk-away price, proposed-price margin check, maintenance package, copyable bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a pressure washing job?","acceptedAnswer":{"@type":"Answer","text":"Split the job by surface (driveway, house siding, deck, fence), divide each by a production rate in square feet per hour, add drive time and setup, then load wage, chemicals, overhead, and margin. A flat price per square foot cannot see that house siding washes much slower than a driveway, or that a 40-minute drive each way can cut the after-travel hourly in half."}},{"@type":"Question","name":"Why is my pressure washing bid unprofitable even when the per-foot price looks fine?","acceptedAnswer":{"@type":"Answer","text":"Travel and setup are billed hours. A $200 driveway with 80 minutes of driving is a different job from a $200 driveway around the corner. This calculator reports the after-travel hourly so the drive is visible before the quote goes out."}},{"@type":"Question","name":"What is a typical pressure washing production rate?","acceptedAnswer":{"@type":"Answer","text":"Ballpark starting points only: about 1,000 sq ft/hour for a clean concrete driveway, 500 for a house soft wash, 350 for a wood deck, 250 for a roof. Real rates depend on equipment, soil, storey height, and hand work. Time your own crew and replace the starting figures."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13202c; background: #e8f1f8; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0b6b8a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(310px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d4e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #10243a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5b6c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9aafc0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .surface-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .surface-row select, .surface-row input { padding: 10px 7px; }
+    .surface-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6d7e; }
+    .surface-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9aafc0; background: #eef5fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dceaf3; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .copy { margin-top: 12px; width: 100%; background: #0b6b8a; color: #fff; border-color: #0b6b8a; }
+    .copy:hover { background: #095570; }
+    .result { position: sticky; top: 15px; background: #123247; color: #eef6fb; border-color: #123247; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #9ee0b4; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6ec8e6; }
+    .rates { width: 100%; border-collapse: collapse; font-size: .84rem; margin: 10px 0 0; }
+    .rates th, .rates td { text-align: left; padding: 5px 0; border-bottom: 1px solid #ffffff22; }
+    .rates td:last-child, .rates th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+    .rates .warn { color: #ffb0a2; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    .faq details { margin: 10px 0; }
+    .faq summary { cursor: pointer; font-weight: 650; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5b6c; }
+    footer a { color: #0b6b8a; }
+    .support { margin-top: 14px; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .surface-head { display: none; }
+      .surface-row { grid-template-columns: 1fr 1fr; border: 1px solid #d5e0e9; border-radius: 9px; padding: 11px; }
+      .surface-row label { font-size: .78rem; gap: 5px; }
+      .surface-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .surface-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PRESSURE WASHING &amp; SOFT-WASH CONTRACTORS</p>
+    <h1>Price the drive, not just the driveway.</h1>
+    <p>Bid a wash the way the job actually runs: each surface divided by the production rate your crew really hits, plus the drive, the setup, the chemical, and the minimum that covers showing up. You get the bid, what it works out to per square foot, and the after-travel hourly &mdash; the number a flat per-foot quote hides.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The job</h2>
+        <p class="hint">One row per surface. Production rate is square feet one technician covers per hour. Pick a surface to start from a common figure, then replace it with a rate timed from your own crew. Chemical is dollars for that surface on this job.</p>
+        <div class="surface-row surface-head" aria-hidden="true">
+          <span>Surface</span><span>Square feet</span><span>Sq ft / hour</span><span>Chemical $</span><span></span>
+        </div>
+        <div id="surfaces"></div>
+        <button type="button" id="addSurface">+ Add a surface</button>
+      </section>
+
+      <section>
+        <h2>Travel, labor, and costs</h2>
+        <div class="fields">
+          <label>Technician hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="22"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="25"></label>
+          <label>Round-trip drive (minutes) <input id="roundTripMinutes" type="number" min="0" step="5" value="40"></label>
+          <label>Setup &amp; pack-up (minutes) <input id="setupMinutes" type="number" min="0" step="5" value="20"></label>
+          <label>Water / meter this job <input id="waterCost" type="number" min="0" step="1" value="8"></label>
+          <label>Equipment wear &amp; fuel <input id="equipmentWear" type="number" min="0" step="1" value="15"></label>
+          <label>Other cost this job <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Minimum job <input id="minimumJob" type="number" min="0" step="5" value="175"></label>
+          <label>Maintenance visits / year <input id="packageVisits" type="number" min="1" max="24" step="1" value="1"></label>
+          <label>Package discount (%) <input id="packageDiscount" type="number" min="0" max="99.9" step="0.5" value="15"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 325"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Drive time is billed time. A forty-minute trip each way plus twenty minutes of setup is a full hour that never touches a surface &mdash; and on a small driveway that hour is most of the job. Payroll burden covers employer taxes, workers&rsquo; compensation, and insurance.</p>
+      </section>
+
+      <section class="faq">
+        <h2>How contractors actually use this</h2>
+        <details>
+          <summary>How do I price a pressure washing job?</summary>
+          <p>Split the property by surface. A driveway, a house wash, and a deck are three different production rates. Add the round-trip drive and the setup, then layer wage burden, chemicals, water, wear, overhead, and the margin you intend to keep. If that number is below your minimum job, bid the minimum.</p>
+        </details>
+        <details>
+          <summary>Why does a per-square-foot quote lose money?</summary>
+          <p>House siding soft-washes much slower than open concrete, and the drive does not care how many square feet are on the ticket. Two jobs of identical size can differ by an hour of unpaid travel. The after-travel hourly is the number that catches that before the quote is sent.</p>
+        </details>
+        <details>
+          <summary>Are the starting production rates a standard?</summary>
+          <p>No. They are common ballpark figures so a contractor who has never timed a surface can see that a roof and a parking lot are not the same job. Replace every rate with one timed from your own crew and equipment.</p>
+        </details>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Wash time</dt><dd id="washHours"></dd>
+        <dt>Travel + setup</dt><dd id="travelHours"></dd>
+        <dt>Total hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Chemicals</dt><dd id="chemicals"></dd>
+        <dt>Water, wear &amp; other</dt><dd id="passThrough"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Job cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per sq ft</dt><dd id="perSqFt"></dd>
+        <dt>On-site hourly</dt><dd id="onSiteHourly"></dd>
+        <dt>After-travel hourly</dt><dd id="afterTravelHourly"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Maintenance package</dt><dd id="package"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <button type="button" class="copy" id="copySummary">Copy bid summary</button>
+      <p id="copyStatus" class="note" hidden></p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the wash time goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>What you would bid to keep these hourly rates after the drive</strong></p>
+      <table class="rates" id="rateCard">
+        <thead><tr><th>After-travel hourly</th><th>Bid</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, chemical, and travel costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, surfaces, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, formatBidSummary, SURFACE_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = [
+      'hourlyWage','burdenRate','roundTripMinutes','setupMinutes','waterCost',
+      'equipmentWear','otherCost','overheadRate','targetMargin','minimumJob',
+      'packageVisits','packageDiscount','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    // A typical residential call: the homeowner asked about the driveway, but
+    // the siding is most of the day. The starting rows make that visible on
+    // the first paint, before anyone has typed a number.
+    const STARTING_SURFACES = [
+      { name: 'Concrete driveway', squareFeet: 1200, productionRate: 1000, chemicalCost: 18 },
+      { name: 'House siding (soft wash)', squareFeet: 2200, productionRate: 500, chemicalCost: 44 },
+      { name: 'Sidewalk / walkway', squareFeet: 250, productionRate: 900, chemicalCost: 3 },
+    ];
+
+    const TYPE_OPTIONS = SURFACE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other surface</option>';
+
+    const surfacesHost = el('surfaces');
+    let rowSeq = 0;
+
+    function suggestedChemical(preset, squareFeet) {
+      return Math.round(preset.chemicalPerSqFt * Number(squareFeet || 0) * 100) / 100;
+    }
+
+    function addSurfaceRow(surface) {
+      const id = `s${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'surface-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Surface</span><select class="s-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-sqft"><span class="lbl">Square feet</span><input class="s-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
+        <label for="${id}-rate"><span class="lbl">Sq ft washed per hour</span><input class="s-rate" id="${id}-rate" type="number" min="1" step="25"></label>
+        <label for="${id}-chem"><span class="lbl">Chemical $</span><input class="s-chem" id="${id}-chem" type="number" min="0" step="0.5"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this surface</span></button>`;
+
+      const typeField = row.querySelector('.s-type');
+      const rateField = row.querySelector('.s-rate');
+      const sqftField = row.querySelector('.s-sqft');
+      const chemField = row.querySelector('.s-chem');
+      const presetIndex = SURFACE_PRESETS.findIndex(p => p.label === surface.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      sqftField.value = surface.squareFeet;
+      rateField.value = surface.productionRate;
+      chemField.value = surface.chemicalCost;
+
+      // Picking a surface fills in its starting production rate and a
+      // chemical estimate from square footage, but never overwrites a
+      // figure the contractor has already changed themselves.
+      typeField.addEventListener('change', () => {
+        const preset = SURFACE_PRESETS[Number(typeField.value)];
+        if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
+        if (preset && !chemField.dataset.edited) chemField.value = suggestedChemical(preset, sqftField.value);
+        count('bid_calculated');
+        update();
+      });
+      sqftField.addEventListener('input', () => {
+        const preset = SURFACE_PRESETS[Number(typeField.value)];
+        if (preset && !chemField.dataset.edited) chemField.value = suggestedChemical(preset, sqftField.value);
+      });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      chemField.addEventListener('input', () => { chemField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('surface_removed');
+        update();
+      });
+      surfacesHost.append(row);
+    }
+
+    function readSurfaces() {
+      return [...surfacesHost.querySelectorAll('.surface-row')].map(row => {
+        const preset = SURFACE_PRESETS[Number(row.querySelector('.s-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          squareFeet: row.querySelector('.s-sqft').value,
+          productionRate: row.querySelector('.s-rate').value,
+          chemicalCost: row.querySelector('.s-chem').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['washHours','travelHours','totalHours','labor','chemicals','passThrough','overhead','cost','profit','perSqFt','onSiteHourly','afterTravelHourly','breakEven','package']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('rateCard').querySelector('tbody').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    let lastResult = null;
+
+    function update() {
+      const surfaces = readSurfaces();
+      if (surfaces.length === 0) {
+        lastResult = null;
+        clearOutputs('Add a surface to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one surface above and the wash-time split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          surfaces,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        lastResult = null;
+        clearOutputs(error.message, true);
+        return;
+      }
+      lastResult = result;
+
+      el('price').textContent = money(result.bidPrice);
+      el('price').className = result.minimumApplied ? 'hero-number' : 'hero-number';
+      el('priceLabel').textContent = result.minimumApplied
+        ? 'minimum job (cost-plus was lower)'
+        : 'job price';
+      el('washHours').textContent = `${result.washHours.toFixed(2)} h`;
+      el('travelHours').textContent = `${(result.travelHours + result.setupHours).toFixed(2)} h`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('chemicals').textContent = money(result.chemicalCost);
+      el('passThrough').textContent = money(result.waterCost + result.equipmentWear + result.otherCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerSqFt === null ? 'n/a' : `$${result.pricePerSqFt.toFixed(3)}`;
+      el('onSiteHourly').textContent = result.onSiteHourly === null ? 'n/a' : `${money(result.onSiteHourly)}/h`;
+      el('afterTravelHourly').textContent = result.afterTravelHourly === null ? 'n/a' : `${money(result.afterTravelHourly)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('package').textContent = result.packageVisits <= 1
+        ? 'one-time job'
+        : `${result.packageVisits} × ${money(result.annualPackageEach)} = ${money(result.annualPackageTotal)} / year`;
+
+      const worked = result.surfaces.filter(surface => surface.washHours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No surface has square footage yet — the travel still prices below.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.washHours - a.washHours)
+          .map(surface => `<li><span>${surface.name}</span><span>${surface.hoursShare.toFixed(0)}% of wash hours</span>
+            <span class="bar"><span style="width:${surface.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      el('rateCard').querySelector('tbody').innerHTML = result.rateCard.map(row => {
+        const warn = !row.coversCost || row.belowMinimum;
+        const note = !row.coversCost ? ' below cost' : row.belowMinimum ? ' below minimum' : '';
+        return `<tr class="${warn ? 'warn' : ''}"><td>${money(row.hourly)}/h${note}</td><td>${money(row.price)}</td></tr>`;
+      }).join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.afterTravelHourly === null ? 'n/a' : `${money(result.proposed.afterTravelHourly)}/h`;
+        if (result.proposed.belowBreakEven) {
+          verdict.innerHTML = `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`;
+        } else if (result.proposed.belowMinimum) {
+          verdict.innerHTML = `At ${money(result.proposed.price)} you keep ${money(result.proposed.profit)}, but it is <strong>below your ${money(result.minimumJob)} minimum</strong>. After-travel hourly would be ${rate}.`;
+        } else {
+          verdict.innerHTML = `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, ${rate} after the drive.`;
+        }
+      }
+    }
+
+    el('addSurface').addEventListener('click', () => {
+      addSurfaceRow({ name: '', squareFeet: 0, productionRate: 800, chemicalCost: 0 });
+      count('surface_added');
+      update();
+    });
+
+    el('copySummary').addEventListener('click', async () => {
+      if (!lastResult) return;
+      const text = formatBidSummary(lastResult);
+      const status = el('copyStatus');
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const area = document.createElement('textarea');
+          area.value = text;
+          document.body.append(area);
+          area.select();
+          document.execCommand('copy');
+          area.remove();
+        }
+        status.hidden = false;
+        status.textContent = 'Bid summary copied — paste it into a text or email.';
+        count('summary_copied');
+      } catch {
+        status.hidden = false;
+        status.textContent = 'Could not copy automatically. Select the numbers above and copy them yourself.';
+      }
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+
+    STARTING_SURFACES.forEach(addSurfaceRow);
+    update();
+  </script>
+</body>
+</html>

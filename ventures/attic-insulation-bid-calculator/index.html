@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Attic Insulation Bid Calculator | Price the Bags, Not the Attic</title>
+  <meta name="description" content="Price a blown-in attic insulation job from floor areas, existing versus target R-value, bag yield, air-sealing penetrations, and baffles — not a flat price per square foot. See bag count, walk-away price, and the margin a $1.50-a-foot special actually leaves.">
+  <meta property="og:title" content="Attic Insulation Bid Calculator">
+  <meta property="og:description" content="Bid blown-in attic insulation the way the trade does — bags come from the R-value delta. Air sealing and baffles decide whether the job pays.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Attic Insulation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-area attic takeoff, R-value delta bag count, cellulose/fiberglass/mineral wool yields, air-sealing penetrations, baffles, vaulted-ceiling exclusion, existing-fill removal, dumpster, travel, payroll burden, walk-away price, proposed-price margin check, private share link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f3ece0; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr); gap: 18px; align-items: start; }
+    section { background: #faf6ee; border: 1px solid #d4c6b0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a1a0a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #c4b39a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .area-row { display: grid; grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr)) auto auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .area-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b5d4c; }
+    .area-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .vault-check { display: flex; gap: 6px; align-items: center; font-weight: 550; padding-bottom: 8px; }
+    .vault-check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #c4b39a; background: #f3e8d4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #ead9bc; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .checks { display: grid; gap: 8px; margin: 4px 0 0; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    .result { position: sticky; top: 15px; background: #3a2a18; color: #f8f1e6; border-color: #3a2a18; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4a15a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #8a4b12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0ddb8; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    @media print {
+      body { background: #fff; color: #111; }
+      header, .controls, .summary-actions, .privacy, footer { display: none !important; }
+      main { max-width: none; padding: 0; }
+      .panel, .result { border: 1px solid #bbb; box-shadow: none; background: #fff; color: #111; }
+      .result { break-inside: avoid; }
+      .result h2, .result strong { color: #111; }
+      .muted, .warning { color: #333; }
+    }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .area-head { display: none; }
+      .area-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0d2bc; border-radius: 9px; padding: 11px; }
+      .area-row label { font-size: .78rem; gap: 5px; }
+      .area-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .area-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INSULATION CONTRACTORS</p>
+    <h1>Bid the bags, not the attic.</h1>
+    <p>Bags come from the R-value delta, not the floor area. An attic already at R-30 going to R-38 is not the same truckload as the same attic sitting at R-13 going to R-49, and a flat price per square foot cannot see the difference. Price the areas, the product, the air sealing, and the baffles — then see the walk-away number before a $1.50-a-foot special eats the week.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for blown-in attic insulation?</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The attic</h2>
+        <p class="hint">One row per section. Length × width is the floor. Existing R and target R decide the inches — and the bags. Check vaulted when that section cannot take loose-fill; it stays in the area split but buys nothing.</p>
+        <div class="area-row area-head" aria-hidden="true">
+          <span>Area</span><span>Length (ft)</span><span>Width (ft)</span><span>Existing R</span><span>Target R</span><span>Vaulted</span><span></span>
+        </div>
+        <div id="areas"></div>
+        <button type="button" id="addArea">+ Add an area</button>
+      </section>
+
+      <section>
+        <h2>The job</h2>
+        <div class="fields">
+          <label>Product
+            <select id="productType">
+              <option value="cellulose" selected>Loose-fill cellulose</option>
+              <option value="fiberglass">Blown fiberglass</option>
+              <option value="rockwool">Blown mineral wool</option>
+              <option value="other">Other / custom rates</option>
+            </select>
+          </label>
+          <label>R-value per inch <input id="rPerInch" type="number" min="0.1" step="0.1" value="3.7"></label>
+          <label>Settled cu ft / bag <input id="cuFtPerBag" type="number" min="0.1" step="0.5" value="25"></label>
+          <label>Price per bag <input id="pricePerBag" type="number" min="0" step="0.25" value="14"></label>
+          <label>Blow hours / 1,000 sq ft <input id="blowHoursPer1000" type="number" min="0" step="0.05" value="1.4"></label>
+          <label>Baffle count (eave bays) <input id="baffleCount" type="number" min="0" step="1" value="36"></label>
+          <label>Baffle price each <input id="bafflePrice" type="number" min="0" step="0.05" value="1.85"></label>
+          <label>Air-seal penetrations <input id="penetrations" type="number" min="0" step="1" value="18"></label>
+          <label>Removal hours / 1,000 sq ft <input id="removalHoursPer1000" type="number" min="0" step="0.1" value="2.4"></label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.5" value="14"></label>
+          <label>Travel speed (mph) <input id="speedMph" type="number" min="1" step="1" value="28"></label>
+        </div>
+        <div class="checks">
+          <label><input id="removeExisting" type="checkbox"> Remove existing fill</label>
+          <label><input id="addOn-hatchDam" type="checkbox"> Attic hatch dam / insulated cover</label>
+          <label><input id="addOn-recessedCans" type="checkbox"> Recessed-light boxes / IC covers</label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">R-per-inch and bag yield follow common product charts as a time-and-material budget you can edit — not a manufacturer coverage table, an energy-code requirement, or a finding that any attic is airtight, permitted, or rebate-eligible. Deeper fills multiply blow hours on that section because the bags have to be hauled and raked.</p>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Blower hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="32"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Setup / breakdown (hours) <input id="setupHours" type="number" min="0" step="0.05" value="0.75"></label>
+          <label>Minimum on-site hours <input id="minOnSiteHours" type="number" min="0" step="0.25" value="4"></label>
+          <label>Trip / truck fee <input id="tripFee" type="number" min="0" step="1" value="85"></label>
+          <label>Dumpster (if removing fill) <input id="dumpsterCost" type="number" min="0" step="5" value="375"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 2800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, respiratory workers&rsquo; compensation, liability insurance, and paid time off. A blower paid $32 often costs more than $41 in the attic. Underestimating that is how a $1.50-a-foot special loses money.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Attic / blowable / bags</dt><dd id="squares"></dd>
+        <dt>Inches added (area-weighted)</dt><dd id="inches"></dd>
+        <dt>R added (area-weighted)</dt><dd id="rAdded"></dd>
+        <dt>Blow hours</dt><dd id="blowHours"></dd>
+        <dt>Air-seal hours</dt><dd id="airSealHours"></dd>
+        <dt>Baffles + removal</dt><dd id="extraHours"></dd>
+        <dt>On-site hours</dt><dd id="onSiteHours"></dd>
+        <dt>Travel hours (round trip)</dt><dd id="travelHours"></dd>
+        <dt>Total labor hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Bag material</dt><dd id="bagMat"></dd>
+        <dt>Baffles + air-seal parts</dt><dd id="partsMat"></dd>
+        <dt>Add-on parts</dt><dd id="parts"></dd>
+        <dt>Dumpster + trip</dt><dd id="trip"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per attic sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the attic area goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting R-per-inch, bag yields, and hours are common ballpark numbers, not a manufacturer coverage chart, an energy-code table, or a guarantee &mdash; time your own crews and replace them. This is not a finding that any attic is airtight, permitted, or rebate-eligible.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether an attic may be blown. It is not a manufacturer, energy-code, rebate, or insurance inspection. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, attic sizes, R-values, wages, or prices. A share link encodes only the quote fields in the page hash; it is not sent to us.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, PRODUCT_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+
+    const COST_IDS = [
+      'rPerInch','cuFtPerBag','pricePerBag','blowHoursPer1000','baffleCount','bafflePrice',
+      'penetrations','removalHoursPer1000','milesOneWay','speedMph','hourlyWage','burdenRate',
+      'setupHours','minOnSiteHours','tripFee','dumpsterCost','otherCost','overheadRate',
+      'targetMargin','proposedPrice',
+    ];
+    const PRODUCT_RATE_IDS = ['rPerInch', 'cuFtPerBag', 'pricePerBag', 'blowHoursPer1000'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING_AREAS = [
+      { name: 'Main attic', lengthFt: 40, widthFt: 28, existingR: 13, targetR: 49, vaulted: false },
+      { name: 'Garage attic', lengthFt: 22, widthFt: 20, existingR: 19, targetR: 38, vaulted: false },
+    ];
+
+    const areasHost = el('areas');
+    let rowSeq = 0;
+
+    function addAreaRow(area) {
+      const id = `a${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'area-row';
+      row.innerHTML = `
+        <label for="${id}-name"><span class="lbl">Area</span><input class="a-name" id="${id}-name" type="text"></label>
+        <label for="${id}-len"><span class="lbl">Length (ft)</span><input class="a-len" id="${id}-len" type="number" min="0" step="0.5"></label>
+        <label for="${id}-wid"><span class="lbl">Width (ft)</span><input class="a-wid" id="${id}-wid" type="number" min="0" step="0.5"></label>
+        <label for="${id}-exist"><span class="lbl">Existing R</span><input class="a-exist" id="${id}-exist" type="number" min="0" step="1"></label>
+        <label for="${id}-target"><span class="lbl">Target R</span><input class="a-target" id="${id}-target" type="number" min="0" step="1"></label>
+        <label class="vault-check" for="${id}-vault"><input class="a-vault" id="${id}-vault" type="checkbox"><span class="lbl">Vaulted</span></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this area</span></button>`;
+      row.querySelector('.a-name').value = area.name || '';
+      row.querySelector('.a-len').value = area.lengthFt;
+      row.querySelector('.a-wid').value = area.widthFt;
+      row.querySelector('.a-exist').value = area.existingR;
+      row.querySelector('.a-target').value = area.targetR;
+      row.querySelector('.a-vault').checked = Boolean(area.vaulted);
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('area_removed');
+        update();
+      });
+      areasHost.append(row);
+    }
+
+    function readAreas() {
+      return [...areasHost.querySelectorAll('.area-row')].map(row => ({
+        name: row.querySelector('.a-name').value,
+        lengthFt: row.querySelector('.a-len').value,
+        widthFt: row.querySelector('.a-wid').value,
+        existingR: row.querySelector('.a-exist').value,
+        targetR: row.querySelector('.a-target').value,
+        vaulted: row.querySelector('.a-vault').checked,
+      }));
+    }
+
+    function readAddOns() {
+      return ADD_ON_PRESETS.map(preset => ({
+        ...preset,
+        enabled: el(`addOn-${preset.id}`).checked,
+      }));
+    }
+
+    function readInput() {
+      return {
+        areas: readAreas(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        removeExisting: el('removeExisting').checked,
+        addOns: readAddOns(),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyProductPreset(force) {
+      const preset = PRODUCT_PRESETS.find(item => item.id === el('productType').value);
+      if (!preset) return;
+      PRODUCT_RATE_IDS.forEach(id => {
+        const field = el(id);
+        if (force || !field.dataset.edited) {
+          field.value = preset[id];
+          delete field.dataset.edited;
+        }
+      });
+    }
+
+    const OUTPUT_IDS = [
+      'squares','inches','rAdded','blowHours','airSealHours','extraHours','onSiteHours','travelHours',
+      'totalHours','labor','bagMat','partsMat','parts','trip','overhead','cost','profit',
+      'perSqFt','hourlyRate','breakEven',
+    ];
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      OUTPUT_IDS.forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (payload.removeExisting !== undefined) el('removeExisting').checked = Boolean(payload.removeExisting);
+      if (Array.isArray(payload.addOns)) {
+        ADD_ON_PRESETS.forEach(preset => {
+          const match = payload.addOns.find(item => item.id === preset.id);
+          if (match) el(`addOn-${preset.id}`).checked = match.enabled !== false;
+        });
+      }
+      if (Array.isArray(payload.areas) && payload.areas.length) {
+        areasHost.innerHTML = '';
+        payload.areas.forEach(addAreaRow);
+      }
+      const product = PRODUCT_PRESETS.find(preset =>
+        Number(preset.rPerInch) === Number(payload.rPerInch) &&
+        Number(preset.cuFtPerBag) === Number(payload.cuFtPerBag) &&
+        Number(preset.pricePerBag) === Number(payload.pricePerBag) &&
+        Number(preset.blowHoursPer1000) === Number(payload.blowHoursPer1000)
+      );
+      el('productType').value = product ? product.id : 'other';
+      PRODUCT_RATE_IDS.forEach(id => {
+        if (payload[id] !== undefined) el(id).dataset.edited = '1';
+      });
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.areas.length === 0) {
+        clearOutputs('Add an area to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one attic area above and the area split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('squares').textContent = `${result.atticSqFt.toFixed(0)} / ${result.blowableSqFt.toFixed(0)} sq ft / ${result.bags} bags`;
+      el('inches').textContent = `${result.weightedInches.toFixed(1)} in`;
+      el('rAdded').textContent = `R-${result.weightedRAdded.toFixed(0)}`;
+      el('blowHours').textContent = `${result.blowHours.toFixed(2)} h`;
+      el('airSealHours').textContent = `${result.airSealHours.toFixed(2)} h${result.airSealShareOfLabor === null ? '' : ` (${result.airSealShareOfLabor.toFixed(0)}% of blow+seal+baffle+removal)`}`;
+      el('extraHours').textContent = `${(result.baffleHours + result.removalHours).toFixed(2)} h`;
+      el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h${result.minimumApplied ? ' (minimum)' : ''}`;
+      el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('bagMat').textContent = money(result.bagMaterial);
+      el('partsMat').textContent = money(result.baffleMaterial + result.airSealParts);
+      el('parts').textContent = money(result.addOnParts);
+      el('trip').textContent = money(result.dumpster + result.tripFee);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerAtticSqFt === null ? 'n/a' : `${money(result.pricePerAtticSqFt)}/ft²`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.areas.filter(area => area.floorSqFt > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No area has floor yet — set length and width above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.floorSqFt - a.floorSqFt)
+          .map(area => {
+            const note = area.vaulted
+              ? 'vaulted, no bags'
+              : area.alreadyAtTarget
+                ? 'already at target'
+                : `+${area.inchesAdded.toFixed(1)} in`;
+            return `<li><span>${area.name} (${area.lengthFt}×${area.widthFt}, R-${area.existingR}→R-${area.targetR}, ${note})</span><span>${area.areaShare.toFixed(0)}% of attic</span>
+            <span class="bar"><span style="width:${area.areaShare.toFixed(1)}%"></span></span></li>`;
+          })
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const areas = result.areas
+        .filter(area => area.floorSqFt > 0)
+        .map(area => {
+          const note = area.vaulted ? 'vaulted, no bags' : `+${area.inchesAdded.toFixed(1)} in, ${area.cuFt.toFixed(0)} cu ft`;
+          return `- ${area.name}: ${area.lengthFt} × ${area.widthFt} ft (R-${area.existingR} → R-${area.targetR}, ${note})`;
+        })
+        .join('\n');
+      const extras = [
+        result.removeExisting ? 'remove existing fill' : null,
+        ...result.addOns.map(item => item.label),
+      ].filter(Boolean).join('; ');
+      return [
+        'ATTIC INSULATION QUOTE',
+        '',
+        `Proposed price: ${money(result.price)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Attic: ${result.atticSqFt.toFixed(0)} sq ft (${result.blowableSqFt.toFixed(0)} blowable) → ${result.bags} bags, ${result.weightedInches.toFixed(1)} in added (about R-${result.weightedRAdded.toFixed(0)})`,
+        `Labor: ${result.totalHours.toFixed(2)} hours (${result.blowHours.toFixed(2)} blow + ${result.airSealHours.toFixed(2)} air seal + ${result.baffleHours.toFixed(2)} baffles)`,
+        extras ? `Scope extras: ${extras}` : 'Scope extras: none',
+        '',
+        'AREAS',
+        areas || '- No areas entered',
+        '',
+        'This is a draft for review. Confirm measurements, existing R, bag yield, access, insulation, taxes, and all pricing before sending. It is not a manufacturer, energy-code, rebate, or airtightness inspection.',
+      ].join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const hash = encodeShare(readInput());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addArea').addEventListener('click', () => {
+      addAreaRow({ name: '', lengthFt: 20, widthFt: 16, existingR: 19, targetR: 49, vaulted: false });
+      count('area_added');
+      update();
+    });
+
+    el('productType').addEventListener('change', () => {
+      applyProductPreset(true);
+      count('bid_calculated');
+      update();
+    });
+    PRODUCT_RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+    });
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    ['removeExisting', ...ADD_ON_PRESETS.map(preset => `addOn-${preset.id}`)].forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      try {
+        copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    const shared = decodeShare(location.hash);
+    if (shared) applyShare(shared);
+    if (!areasHost.querySelector('.area-row')) STARTING_AREAS.forEach(addAreaRow);
+    if (!shared) applyProductPreset(false);
+    update();
+  </script>
+</body>
+</html>

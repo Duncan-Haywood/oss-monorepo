@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Janitorial Bid Calculator | Commercial Cleaning Price Per Month</title>
-  <meta name="description" content="Price a commercial cleaning contract from production rates: labor hours per visit, payroll burden, supplies, overhead, and margin — plus price per square foot, effective hourly rate, and the walk-away number.">
+  <meta name="description" content="Price a commercial cleaning contract from production rates, day-porter shifts, and periodic floor care, see what a 5× to 3× cut actually costs, whether letting the building buy the paper still holds your margin, and whether throwing in the initial clean loses month 1.">
   <meta property="og:title" content="Janitorial Bid Calculator">
-  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Janitorial Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Production-rate labor hours by area, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check"}</script>
+  <meta property="og:description" content="Bid commercial cleaning the way the trade does — square feet divided by production rate, plus scheduled day-porter coverage.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Janitorial Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Production-rate labor hours by area, day-porter and attendant shift pricing, periodic service costs averaged into the monthly, custom names for unlisted spaces, payroll burden, supplies and overhead, monthly contract price, price per square foot, effective hourly rate, break-even walk-away price, proposed-price margin check, 5x vs 3x frequency-cut comparison, who-supplies restroom paper soap and liners, takeover initial-clean one-time vs thrown-in, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a day porter on a janitorial contract?","acceptedAnswer":{"@type":"Answer","text":"Price the day porter as scheduled coverage: people × hours per shift × shifts per week × 52/12, then the same loaded wage, overhead, and margin as the night clean. Do not convert the porter into extra square feet or a faster production rate."}},{"@type":"Question","name":"Should I bake the day porter into the monthly cleaning price?","acceptedAnswer":{"@type":"Answer","text":"No. The night clean is production-rate work; the day porter is a person on site during business hours. Combining them hides how much of the bid is coverage."}},{"@type":"Question","name":"How do I price strip and wax with a janitorial contract?","acceptedAnswer":{"@type":"Answer","text":"Treat strip and wax as one-time project work invoiced separately from the monthly service so the remaining months are not underpriced."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -22,17 +23,31 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    .custom-name { display: none; margin-top: 6px; }
-    .custom-name.visible { display: block; }
     .area-row { display: grid; grid-template-columns: minmax(0, 2.9fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .area-row select, .area-row input { padding: 10px 7px; }
+    .shift-row { display: grid; grid-template-columns: minmax(12rem, 2.8fr) repeat(4, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .shift-row select, .shift-row input { padding: 10px 7px; }
+    .project-row { display: grid; grid-template-columns: minmax(0, 2.2fr) repeat(4, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .project-row.select-other { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.4fr) repeat(4, minmax(0, 1fr)) auto; }
+    .project-row select, .project-row input { padding: 10px 7px; }
+    .periodic-row { display: grid; grid-template-columns: minmax(0, 2fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .periodic-row select, .periodic-row input { padding: 10px 7px; }
+    .custom-name { display: none; }
+    .select-other .custom-name { display: grid; }
+    .project-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    .space-cell { display: grid; gap: 6px; min-width: 0; }
+    .a-name-wrap { display: grid; gap: 5px; }
+    /* The column header says "Space type", not "name", so the name field
+       needs a visible label on desktop or contractors will not know what
+       to type. The shared .lbl rule is sr-only; undo that here. */
+    .area-row .a-name-wrap .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     .area-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     /* The header row already names the columns on desktop, so each field's own
        label is hidden visually but left in the accessibility tree — and shown
        again on mobile, where the header row is dropped. Hiding it with
        font-size:0 would be inherited by the input itself and make what the
        contractor types invisible. */
-    .area-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .area-row .lbl, .shift-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
     button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #e6ecf4; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
@@ -50,19 +65,32 @@
     .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fd6a8; }
     .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
     .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #765117; }
     .empty { font-size: .87rem; opacity: .84; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
     footer a { color: #1c7a5e; }
     .support { margin-top: 14px; }
-    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
     .summary-status { font-size: .8rem; color: #bce8cf; }
+    .compare { margin-top: 18px; min-width: 0; }
+    .compare table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    .compare th, .compare td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #e2e8f0; font-variant-numeric: tabular-nums; }
+    .compare th:first-child, .compare td:first-child { text-align: left; }
+    .compare thead th { font-size: .8rem; letter-spacing: .03em; color: #4a5666; }
+    .compare tr.hold { background: #e8f6ee; font-weight: 700; }
+    .compare tr.warn td { color: #9b2c1f; }
+    .compare-verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .9rem; background: #f3f6fa; }
+    .compare-verdict.bad { background: #fdf3f1; color: #7d2317; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
       .area-head { display: none; }
-      .area-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
-      .area-row label { font-size: .78rem; gap: 5px; }
-      .area-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
-      .area-row label:first-child { grid-column: 1 / -1; }
+      .area-row, .shift-row, .periodic-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .periodic-row label:first-child { grid-column: 1 / -1; }
+      .periodic-row .remove { grid-column: 1 / -1; }
+      .area-row label, .shift-row label { font-size: .78rem; gap: 5px; }
+      .area-row .lbl, .shift-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .shift-row label:first-child { grid-column: 1 / -1; }
+      .area-row .space-cell { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
     }
   </style>
@@ -71,19 +99,51 @@
   <header>
     <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
     <h1>Bid the building, not the square footage.</h1>
-    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, and the number below which the job loses money.</p>
+    <p>Price a janitorial contract the way the trade actually does: each space divided by the production rate your crew really hits, optional day-porter shifts priced as scheduled coverage, then wage burden, supplies, overhead, and the margin you intend to keep. You get the monthly price, what it works out to per square foot and per labor hour, the number below which the job loses money, what a 5×-to-3× schedule cut is actually worth — not 60% of today’s price — whether letting the building buy the paper still holds your margin, and whether throwing in the takeover clean still leaves a first month.</p>
+    <p class="hint" style="margin:0">Taking a second building? <a href="second-site.html">See whether it still pays after the drive</a>.</p>
   </header>
 
-  <main class="layout">
+  <main>
+  <div class="layout">
     <div>
       <section>
         <h2>The building</h2>
-        <p class="hint">One row per space type. Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew.</p>
+        <p class="hint">One row per space type. Add an optional proposal name when you need scope detail such as "Second-floor restrooms". Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew. A space that is not on the list (gym, server room, loading dock) is Other space: name it so the labor split and the copied bid say what you actually clean.</p>
         <div class="area-row area-head" aria-hidden="true">
           <span>Space type</span><span>Cleanable sq ft</span><span>Sq ft / hour</span><span>Cleans / week</span><span></span>
         </div>
         <div id="areas"></div>
         <button type="button" id="addArea">+ Add a space</button>
+      </section>
+
+      <section>
+        <h2>Day porter / scheduled shifts</h2>
+        <p class="hint">Optional. A day porter is a person on site during business hours, not extra square feet on the night clean. Hours = people &times; hours per shift &times; shifts per week &times; 52/12. Leave the wage blank to use the cleaner rate below; fill it in when the porter is paid more.</p>
+        <div class="shift-row area-head" aria-hidden="true">
+          <span>Role</span><span>People</span><span>Hours / shift</span><span>Shifts / week</span><span>Hourly wage</span><span></span>
+        </div>
+        <div id="shifts"></div>
+        <button type="button" id="addShift">+ Add a day-porter shift</button>
+      </section>
+
+      <section>
+        <h2>One-time / project work</h2>
+        <p class="hint">Strip and wax, carpet extraction, and the initial deep clean are invoiced once. Pricing them inside the monthly contract is how a contractor works eleven months at a loss after the building is caught up. Hours = square feet &divide; production rate &times; coats or passes.</p>
+        <div class="area-row area-head project-head" aria-hidden="true">
+          <span>Project type</span><span>Sq ft</span><span>Sq ft / hour</span><span>Coats / passes</span><span>Materials $</span><span></span>
+        </div>
+        <div id="projects"></div>
+        <button type="button" id="addProject">+ Add project work</button>
+      </section>
+
+      <section>
+        <h2>Periodic services</h2>
+        <p class="hint">Quarterly floor care, twice-a-year extraction, annual windows — a lump cost per visit, spread across the year. This is not strip-and-wax project work (priced once from square feet). Cost × occurrences ÷ 12 goes into the monthly contract, including after a 5× to 3× schedule cut.</p>
+        <div class="periodic-row area-head" aria-hidden="true">
+          <span>Service</span><span>Cost / occurrence</span><span>Times / year</span><span></span>
+        </div>
+        <div id="periodicServices"></div>
+        <button type="button" id="addPeriodic">+ Add periodic service</button>
       </section>
 
       <section>
@@ -96,9 +156,44 @@
           <label>Other cost / month <input id="otherMonthly" type="number" min="0" step="1" value="0"></label>
           <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Cleaners on each visit <input id="crewSize" type="number" min="1" step="1" value="1"></label>
+          <label>Available hours per cleaner / visit <input id="availableHoursPerCleaner" type="number" min="0.25" step="0.25" value="4"></label>
+          <label>Minimum monthly charge (optional) <input id="minimumMonthlyPrice" type="number" min="0" step="10" placeholder="e.g. 500"></label>
           <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1650"></label>
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off &mdash; the part of a cleaner&rsquo;s cost that never shows up on their pay rate. Underestimating it is the most common reason a janitorial bid that looked profitable was not.</p>
+      </section>
+
+      <section>
+        <h2>If they cut the schedule</h2>
+        <p class="hint">A prospect who asks for 3 days a week instead of 5 will often offer 60% of the current monthly price. Labor hours do drop with the visits. Supplies, equipment, and travel stay on the job, so the price that still holds your margin is higher than a linear cut. <a href="5x-vs-3x-cleaning-price.html">Why 60% of a 5-day price is not a 3-day bid</a>.</p>
+        <div class="fields">
+          <label>Current days / week <input id="currentWeekly" type="number" min="0.5" max="21" step="0.5" value="5"></label>
+          <label>Proposed days / week <input id="proposedWeekly" type="number" min="0" max="21" step="0.5" value="3"></label>
+          <label>Price they offered for the cut (optional) <input id="clientOfferMonthly" type="number" min="0" step="10" placeholder="e.g. 60% of today"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>If they want to buy the paper</h2>
+        <p class="hint">A facility manager who says “we’ll buy the paper, soap, and liners — take the supplies off” is not asking you to drop the whole line. Restroom stock is only a share of it. Chemicals, finish, and glass stay yours. And if they run out, the emergency fill you still make can cost more than stocking it yourself. <a href="should-i-let-them-buy-the-paper.html">Should I let the building buy the paper?</a></p>
+        <div class="fields">
+          <label>Restroom stock share of supplies (%) <input id="restroomSharePercent" type="number" min="0" max="100" step="1" value="65"></label>
+          <label>Emergency fill when they run out ($ / month) <input id="emergencyFillMonthly" type="number" min="0" step="1" value="35"></label>
+          <label>Price they offered after dropping supplies (optional) <input id="supplyOfferMonthly" type="number" min="0" step="10" placeholder="e.g. today minus supplies"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>If they want the initial thrown in</h2>
+        <p class="hint">A neglected or vacant building’s first visit is several regular cleans of labor plus extra chemicals. Prospects ask to “just include it.” Month 1 then carries a project on a periodic price — and if they cancel after 30 days, that giveaway is the whole relationship. <a href="should-i-throw-in-the-initial-clean.html">Should I throw in the initial clean?</a></p>
+        <div class="fields">
+          <label>Initial is how many regular visits <input id="initialVisitMultiplier" type="number" min="0.5" max="20" step="0.5" value="5"></label>
+          <label>Extra initial supplies ($) <input id="initialExtraSupplies" type="number" min="0" step="5" value="80"></label>
+          <label>Months to recover if baked into the monthly <input id="initialAmortizeMonths" type="number" min="1" max="60" step="1" value="12"></label>
+          <label>If they cancel after (months) <input id="initialCancelAfterMonths" type="number" min="1" max="36" step="1" value="1"></label>
+          <label>Monthly they offered including the initial (optional) <input id="initialOfferMonthly" type="number" min="0" step="10" placeholder="e.g. today's monthly"></label>
+        </div>
       </section>
     </div>
 
@@ -108,43 +203,229 @@
       <div id="priceLabel">monthly contract price</div>
       <dl>
         <dt>Labor hours per visit</dt><dd id="hoursPerVisit"></dd>
+        <dt>Visit capacity</dt><dd id="visitCapacity"></dd>
+        <dt>Visit utilization</dt><dd id="visitUtilization"></dd>
+        <dt>Day-porter hours per month</dt><dd id="shiftHours"></dd>
         <dt>Labor hours per month</dt><dd id="monthlyHours"></dd>
         <dt>Loaded labor cost</dt><dd id="labor"></dd>
         <dt>Supplies</dt><dd id="supplies"></dd>
+        <dt>Periodic work (monthly average)</dt><dd id="periodic"></dd>
         <dt>Equipment &amp; other</dt><dd id="equipment"></dd>
         <dt>Overhead</dt><dd id="overhead"></dd>
         <dt>Total monthly cost</dt><dd id="cost"></dd>
         <dt>Monthly profit</dt><dd id="profit"></dd>
+        <dt>Minimum charge floor</dt><dd id="minimumFloor"></dd>
         <dt>Price per sq ft / month</dt><dd id="perSqFt"></dd>
         <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
         <dt>Walk-away price</dt><dd id="breakEven"></dd>
         <dt>Annual contract value</dt><dd id="annual"></dd>
       </dl>
+      <div id="projectBlock" hidden>
+        <hr>
+        <p class="note" style="margin-bottom:4px"><strong>One-time project work</strong></p>
+        <dl>
+          <dt>Project labor hours</dt><dd id="projectHours"></dd>
+          <dt>Project labor + materials</dt><dd id="projectDirect"></dd>
+          <dt>One-time project price</dt><dd id="projectPrice"></dd>
+          <dt>First-month invoice</dt><dd id="firstMonth"></dd>
+          <dt>Walk-away first month</dt><dd id="firstMonthFloor"></dd>
+        </dl>
+        <ul class="split" id="projectSplit"></ul>
+      </div>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="downloadSummary">Download .txt</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+<p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the labor goes</strong></p>
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
     </section>
+  </div>
+
+  <section class="compare" id="frequencyCompare" hidden>
+    <h2>5× vs 3× is not a 40% discount</h2>
+    <p class="hint" id="compareHint">Labor scales with visits. The monthly supply line, equipment, and travel in this bid do not.</p>
+    <div class="table-scroll" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col" id="colCurrent">Current schedule</th>
+            <th scope="col" id="colReduced">Reduced schedule</th>
+            <th scope="col" id="colNaive">Linear cut of today&rsquo;s price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Days / week</th>
+            <td id="cmpCurrentDays"></td>
+            <td id="cmpReducedDays"></td>
+            <td id="cmpNaiveDays"></td>
+          </tr>
+          <tr>
+            <th scope="row">Labor hours / month</th>
+            <td id="cmpCurrentHours"></td>
+            <td id="cmpReducedHours"></td>
+            <td id="cmpNaiveHours"></td>
+          </tr>
+          <tr>
+            <th scope="row">Monthly cost</th>
+            <td id="cmpCurrentCost"></td>
+            <td id="cmpReducedCost"></td>
+            <td id="cmpNaiveCost"></td>
+          </tr>
+          <tr class="hold">
+            <th scope="row">Price that holds your margin</th>
+            <td id="cmpCurrentPrice"></td>
+            <td id="cmpReducedPrice"></td>
+            <td id="cmpNaivePrice"></td>
+          </tr>
+          <tr id="naiveMarginRow">
+            <th scope="row">Margin if you take the linear number</th>
+            <td colspan="2"></td>
+            <td id="cmpNaiveMargin"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="compareVerdict" class="compare-verdict"></div>
+    <div class="summary-actions">
+      <button type="button" id="copyFrequencyNote">Copy schedule-cut reply</button>
+      <span id="frequencyStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
+    </div>
+  </section>
+
+  <section class="compare" id="supplyCompare" hidden>
+    <h2>Who buys the paper is not “take the supplies off”</h2>
+    <p class="hint" id="supplyHint">Labor, equipment, and travel stay put. Only restroom stock moves — and an emergency fill after they run out is its own line.</p>
+    <div class="table-scroll" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Who buys restroom stock</th>
+            <th scope="col">Supplies you still pay</th>
+            <th scope="col">Monthly cost</th>
+            <th scope="col">Price that holds your margin</th>
+            <th scope="col">vs you-supply</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">You supply paper, soap, liners</th>
+            <td id="supYouPay"></td>
+            <td id="supYouCost"></td>
+            <td id="supYouPrice"></td>
+            <td id="supYouDelta">—</td>
+          </tr>
+          <tr class="hold">
+            <th scope="row">They buy restroom stock</th>
+            <td id="supRestroomPay"></td>
+            <td id="supRestroomCost"></td>
+            <td id="supRestroomPrice"></td>
+            <td id="supRestroomDelta"></td>
+          </tr>
+          <tr>
+            <th scope="row">They buy everything (drop the line)</th>
+            <td id="supAllPay"></td>
+            <td id="supAllCost"></td>
+            <td id="supAllPrice"></td>
+            <td id="supAllDelta"></td>
+          </tr>
+          <tr id="supFillRow">
+            <th scope="row">They buy restroom stock, you still fill</th>
+            <td id="supFillPay"></td>
+            <td id="supFillCost"></td>
+            <td id="supFillPrice"></td>
+            <td id="supFillDelta"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="supplyVerdict" class="compare-verdict"></div>
+    <div class="summary-actions">
+      <button type="button" id="copySupplyNote">Copy paper-handoff reply</button>
+      <span id="supplyStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
+    </div>
+  </section>
+
+  <section class="compare" id="initialCompare" hidden>
+    <h2>A free initial is not a free extra</h2>
+    <p class="hint" id="initialHint">The takeover clean is extra labor hours and extra chemicals on day one. The monthly does not pay for it unless you invoice it, bake it in, or eat it.</p>
+    <div class="table-scroll" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">How you handle the initial</th>
+            <th scope="col">They pay up front</th>
+            <th scope="col">Monthly that holds your margin</th>
+            <th scope="col">Month-1 profit at today&rsquo;s monthly</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Invoice the initial as a one-time</th>
+            <td id="initOneTime"></td>
+            <td id="initMonthlyOnly"></td>
+            <td id="initQuotedMonth1"></td>
+          </tr>
+          <tr>
+            <th scope="row" id="initAmortizeLabel">Bake it into the monthly</th>
+            <td id="initAmortizeUpfront">$0.00</td>
+            <td id="initAmortizeMonthly"></td>
+            <td id="initAmortizeMonth1"></td>
+          </tr>
+          <tr id="initThrownRow" class="hold">
+            <th scope="row">Throw it in at today&rsquo;s monthly</th>
+            <td>$0.00</td>
+            <td id="initThrownMonthly"></td>
+            <td id="initThrownMonth1"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="initialVerdict" class="compare-verdict"></div>
+    <div class="summary-actions">
+      <button type="button" id="copyInitialNote">Copy initial-clean reply</button>
+      <span id="initialStatus" class="summary-status" role="status" aria-live="polite" style="color:#1c7a5e"></span>
+    </div>
+  </section>
   </main>
+
+  <section>
+    <h2>Common bidding questions</h2>
+    <p><strong>How do I price a day porter on a janitorial contract?</strong> Price the person, not the floor. Hours = people &times; hours per shift &times; shifts per week &times; 52/12, then the same loaded wage, overhead, and margin as the night clean. An 8-hour weekday porter is about 173 hours a month &mdash; usually more labor than the entire after-hours production clean.</p>
+    <p><strong>Should I bake the day porter into the monthly cleaning price?</strong> No. The night clean is production-rate work; the day porter is coverage during business hours. Combining them hides how much of the bid is a body on site. This calculator keeps the two numbers separate and adds them into one monthly contract price.</p>
+    <p><strong>How do I price strip and wax with a janitorial contract?</strong> Treat it as one-time project work. Hours are the floor area divided by a production rate, times the number of finish coats. Add finish, stripper, and pads as materials. Keep that total off the monthly service price so you are not giving away eleven months of wax after the first invoice.</p>
+    <p><strong>Should the initial deep clean be in the monthly price?</strong> Usually no. An initial or post-construction clean is a different production rate and a one-time invoice. Mixing it into the recurring bid is how a contract that looked fine in month one loses money for the rest of the year.</p>
+    <p><strong>Why not bid the whole building by square foot?</strong> Restrooms, kitchens, and exam rooms take several times the labor of open office. Two 8,000 sq ft buildings can differ by 30% in hours. The labor split is there so that mix is visible before the price goes out.</p>
+  </section>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your building, wages, costs, or prices.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your building, wages, costs, or prices.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
-    import { calculateBid, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+    import { calculateBid, formatBidSummary, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, compareInitialClean, initialCleanNote, PRODUCTION_RATE_PRESETS, PROJECT_RATE_PRESETS, SHIFT_ROLE_PRESETS } from './calc.mjs';
+    import { escapeHtml, nameForRow } from './area-name.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
 
-    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','proposedPrice'];
+    const COST_IDS = ['hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','otherMonthly','overheadRate','targetMargin','minimumMonthlyPrice','proposedPrice','crewSize','availableHoursPerCleaner'];
+    const FREQ_IDS = ['currentWeekly','proposedWeekly','clientOfferMonthly'];
+    const SUPPLY_IDS = ['restroomSharePercent','emergencyFillMonthly','supplyOfferMonthly'];
+    const INITIAL_IDS = ['initialVisitMultiplier','initialExtraSupplies','initialAmortizeMonths','initialCancelAfterMonths','initialOfferMonthly'];
     const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const el = id => document.getElementById(id);
 
@@ -165,31 +446,63 @@
     const TYPE_OPTIONS = PRODUCTION_RATE_PRESETS
       .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
       .join('') + '<option value="other">Other space</option>';
+    const PROJECT_OPTIONS = PROJECT_RATE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other project</option>';
+    const SHIFT_OPTIONS = SHIFT_ROLE_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other role</option>';
 
     const areasHost = el('areas');
+    const projectsHost = el('projects');
+    const shiftsHost = el('shifts');
+    const periodicHost = el('periodicServices');
     let rowSeq = 0;
+    let shiftSeq = 0;
+
+    function syncOtherState(row) {
+      const isOther = row.querySelector('.a-type').value === 'other';
+      row.classList.toggle('is-other', isOther);
+      row.querySelector('.a-name').placeholder = isOther
+        ? 'e.g. Server room, gym, loading dock'
+        : 'optional, e.g. 2nd floor restrooms';
+    }
 
     function addAreaRow(area) {
       const id = `a${++rowSeq}`;
       const row = document.createElement('div');
       row.className = 'area-row';
       row.innerHTML = `
-        <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select><input class="custom-name" id="${id}-name" type="text" maxlength="80" placeholder="Name this space" aria-label="Custom space name"></label>
+        <div class="space-cell">
+          <label for="${id}-type"><span class="lbl">Space type</span><select class="a-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+          <label for="${id}-name" class="a-name-wrap"><span class="lbl">Name this space</span><input class="a-name" id="${id}-name" type="text" maxlength="80" autocomplete="off" spellcheck="false"></label>
+        </div>
         <label for="${id}-sqft"><span class="lbl">Cleanable sq ft</span><input class="a-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
         <label for="${id}-rate"><span class="lbl">Sq ft cleaned per hour</span><input class="a-rate" id="${id}-rate" type="number" min="1" step="50"></label>
         <label for="${id}-freq"><span class="lbl">Cleans per week</span><input class="a-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
         <button type="button" class="remove">Remove<span class="lbl"> this space</span></button>`;
 
       const typeField = row.querySelector('.a-type');
-      const nameField = row.querySelector('.custom-name');
+      const nameField = row.querySelector('.a-name');
       const rateField = row.querySelector('.a-rate');
-      const presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
+      let presetIndex = -1;
+      if (area.type !== undefined && area.type !== null && area.type !== '') {
+        presetIndex = area.type === 'other' ? -1 : Number(area.type);
+        if (!Number.isFinite(presetIndex) || presetIndex < 0) presetIndex = -1;
+      } else {
+        presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
+      }
       typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
-      nameField.value = presetIndex === -1 ? (area.name || '') : '';
-      nameField.classList.toggle('visible', typeField.value === 'other');
+      // Starting catalog rows pass the preset label as `name` with no `type`.
+      // Do not treat that label as a typed proposal name.
+      const startingCatalog = presetIndex !== -1
+        && area.type === undefined
+        && area.name === PRODUCTION_RATE_PRESETS[presetIndex].label;
+      nameField.value = startingCatalog ? '' : (area.name || '');
       row.querySelector('.a-sqft').value = area.squareFeet;
       rateField.value = area.productionRate;
       row.querySelector('.a-freq').value = area.cleaningsPerWeek;
+      syncOtherState(row);
 
       // Picking a space type fills in its starting production rate, but never
       // overwrites a rate the contractor has already changed themselves —
@@ -197,14 +510,20 @@
       typeField.addEventListener('change', () => {
         const preset = PRODUCTION_RATE_PRESETS[Number(typeField.value)];
         if (preset && !rateField.dataset.edited) rateField.value = preset.rate;
-        nameField.classList.toggle('visible', typeField.value === 'other');
+        syncOtherState(row);
         count('bid_calculated');
         update();
       });
       rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      nameField.addEventListener('change', () => {
+        if (nameField.value.trim()) count('space_named');
+      });
       row.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', update);
-        input.addEventListener('change', () => count('bid_calculated'));
+        input.addEventListener('change', () => {
+          if (input.classList.contains('a-name')) return;
+          count('bid_calculated');
+        });
       });
       row.querySelector('.remove').addEventListener('click', () => {
         row.remove();
@@ -215,15 +534,157 @@
     }
 
     function readAreas() {
-      return [...areasHost.querySelectorAll('.area-row')].map(row => {
+      return [...areasHost.querySelectorAll('.area-row')].map((row, index) => {
         const preset = PRODUCTION_RATE_PRESETS[Number(row.querySelector('.a-type').value)];
         return {
-          name: preset ? preset.label : row.querySelector('.custom-name').value,
+          // Typed proposal names win so two restrooms can be told apart.
+          // Space type is saved separately in readAreaRows() for restore.
+          name: nameForRow(preset?.label, row.querySelector('.a-name').value, index),
           squareFeet: row.querySelector('.a-sqft').value,
           productionRate: row.querySelector('.a-rate').value,
           cleaningsPerWeek: row.querySelector('.a-freq').value,
         };
       });
+    }
+
+    function addShiftRow(shift = {}) {
+      const id = `s${++shiftSeq}`;
+      const row = document.createElement('div');
+      row.className = 'shift-row';
+      row.innerHTML = `
+        <label for="${id}-role"><span class="lbl">Role</span><select class="s-role" id="${id}-role">${SHIFT_OPTIONS}</select></label>
+        <label for="${id}-people"><span class="lbl">People</span><input class="s-people" id="${id}-people" type="number" min="0" step="1"></label>
+        <label for="${id}-hours"><span class="lbl">Hours per shift</span><input class="s-hours" id="${id}-hours" type="number" min="0" step="0.5"></label>
+        <label for="${id}-freq"><span class="lbl">Shifts per week</span><input class="s-freq" id="${id}-freq" type="number" min="0" max="21" step="1"></label>
+        <label for="${id}-wage"><span class="lbl">Hourly wage (optional)</span><input class="s-wage" id="${id}-wage" type="number" min="0" step="0.25" placeholder="cleaner rate"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this shift</span></button>`;
+
+      const roleField = row.querySelector('.s-role');
+      const presetIndex = SHIFT_ROLE_PRESETS.findIndex(p => p.label === shift.name);
+      roleField.value = presetIndex === -1 && shift.name ? 'other' : String(presetIndex === -1 ? 0 : presetIndex);
+      row.querySelector('.s-people').value = shift.people ?? 1;
+      row.querySelector('.s-hours').value = shift.hoursPerShift ?? 8;
+      row.querySelector('.s-freq').value = shift.shiftsPerWeek ?? 5;
+      if (shift.hourlyWage !== undefined && shift.hourlyWage !== '') {
+        row.querySelector('.s-wage').value = shift.hourlyWage;
+      }
+
+      row.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count(input.classList.contains('s-role') ? 'shift_priced' : 'bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('shift_removed');
+        update();
+      });
+      shiftsHost.append(row);
+    }
+
+    function readShifts() {
+      return [...shiftsHost.querySelectorAll('.shift-row')].map(row => {
+        const preset = SHIFT_ROLE_PRESETS[Number(row.querySelector('.s-role').value)];
+        return {
+          name: preset ? preset.label : '',
+          people: row.querySelector('.s-people').value,
+          hoursPerShift: row.querySelector('.s-hours').value,
+          shiftsPerWeek: row.querySelector('.s-freq').value,
+          hourlyWage: row.querySelector('.s-wage').value,
+        };
+      });
+    }
+
+    function addProjectRow(project = {}) {
+      const id = `p${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'project-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Project type</span><select class="p-type" id="${id}-type">${PROJECT_OPTIONS}</select></label>
+        <label class="custom-name" for="${id}-name"><span class="lbl">Project name</span><input class="p-name" id="${id}-name" type="text" maxlength="80" placeholder="e.g. West wing windows"></label>
+        <label for="${id}-sqft"><span class="lbl">Project sq ft</span><input class="p-sqft" id="${id}-sqft" type="number" min="0" step="10"></label>
+        <label for="${id}-rate"><span class="lbl">Sq ft per hour</span><input class="p-rate" id="${id}-rate" type="number" min="1" step="10"></label>
+        <label for="${id}-passes"><span class="lbl">Coats / passes</span><input class="p-passes" id="${id}-passes" type="number" min="0" max="12" step="1"></label>
+        <label for="${id}-mat"><span class="lbl">Materials $</span><input class="p-mat" id="${id}-mat" type="number" min="0" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this project</span></button>`;
+
+      const typeField = row.querySelector('.p-type');
+      const rateField = row.querySelector('.p-rate');
+      const passesField = row.querySelector('.p-passes');
+      const nameField = row.querySelector('.p-name');
+      const presetIndex = PROJECT_RATE_PRESETS.findIndex(p => p.label === project.name);
+      const preset = PROJECT_RATE_PRESETS[presetIndex] || PROJECT_RATE_PRESETS[0];
+      const isOther = Boolean(project.name) && presetIndex === -1;
+      typeField.value = isOther ? 'other' : String(presetIndex === -1 ? 0 : presetIndex);
+      nameField.value = isOther ? project.name : '';
+      row.querySelector('.p-sqft').value = project.squareFeet ?? 0;
+      rateField.value = project.productionRate ?? preset.rate;
+      passesField.value = project.passes ?? preset.passes;
+      row.querySelector('.p-mat').value = project.materials ?? 0;
+      row.classList.toggle('select-other', isOther);
+
+      typeField.addEventListener('change', () => {
+        const next = PROJECT_RATE_PRESETS[Number(typeField.value)];
+        row.classList.toggle('select-other', !next);
+        if (next && !rateField.dataset.edited) rateField.value = next.rate;
+        if (next && !passesField.dataset.edited) passesField.value = next.passes;
+        count('project_priced');
+        update();
+      });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      passesField.addEventListener('input', () => { passesField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('project_priced'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('project_removed');
+        update();
+      });
+      projectsHost.append(row);
+    }
+
+    function readProjects() {
+      return [...projectsHost.querySelectorAll('.project-row')].map(row => {
+        const preset = PROJECT_RATE_PRESETS[Number(row.querySelector('.p-type').value)];
+        const customName = row.querySelector('.p-name').value.trim();
+        return {
+          name: preset ? preset.label : customName,
+          squareFeet: row.querySelector('.p-sqft').value,
+          productionRate: row.querySelector('.p-rate').value,
+          passes: row.querySelector('.p-passes').value,
+          materials: row.querySelector('.p-mat').value,
+        };
+      });
+    }
+
+    function addPeriodicRow(service = { name: '', costPerOccurrence: 0, occurrencesPerYear: 4 }) {
+      const row = document.createElement('div');
+      row.className = 'periodic-row';
+      row.innerHTML = `
+        <label>Service <input class="q-name" type="text" maxlength="80" placeholder="e.g. Quarterly floor care" value="${escapeHtml(service.name || '')}"></label>
+        <label>Cost / occurrence <input class="q-cost" type="number" min="0" step="1" value="${service.costPerOccurrence ?? 0}"></label>
+        <label>Times / year <input class="q-freq" type="number" min="0" step="1" value="${service.occurrencesPerYear ?? 4}"></label>
+        <button type="button" class="remove">Remove</button>
+      `;
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('periodic_service_added'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('periodic_service_removed');
+        update();
+      });
+      periodicHost.append(row);
+    }
+
+    function readPeriodic() {
+      return [...periodicHost.querySelectorAll('.periodic-row')].map(row => ({
+        name: row.querySelector('.q-name').value,
+        costPerOccurrence: row.querySelector('.q-cost').value,
+        occurrencesPerYear: row.querySelector('.q-freq').value,
+      }));
     }
 
     function count(event) {
@@ -234,29 +695,32 @@
       el('price').textContent = message;
       el('price').className = `hero-number ${isError ? 'negative' : ''}`;
       el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly contract price';
-      ['hoursPerVisit','monthlyHours','labor','supplies','equipment','overhead','cost','profit','perSqFt','hourlyRate','breakEven','annual']
+      ['hoursPerVisit','visitCapacity','visitUtilization','shiftHours','monthlyHours','labor','supplies','periodic','equipment','overhead','cost','profit','minimumFloor','perSqFt','hourlyRate','breakEven','annual','projectHours','projectDirect','projectPrice','firstMonth','firstMonthFloor']
         .forEach(id => { el(id).textContent = ''; });
       el('split').innerHTML = '';
+      el('projectSplit').innerHTML = '';
+      el('projectBlock').hidden = true;
       el('verdict').hidden = true;
-    }
-
-    function escapeHtml(value) {
-      return String(value).replace(/[&<>"']/g, character => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[character]));
+      el('frequencyCompare').hidden = true;
+      el('supplyCompare').hidden = true;
+      el('initialCompare').hidden = true;
     }
 
     function update() {
       const areas = readAreas();
-      if (areas.length === 0) {
-        clearOutputs('Add a space to price', false);
-        el('split').innerHTML = '<li class="empty">Add at least one space above and the labor split appears here.</li>';
+      const shifts = readShifts();
+      if (areas.length === 0 && shifts.length === 0) {
+        clearOutputs('Add a space or a day-porter shift', false);
+        el('split').innerHTML = '<li class="empty">Add a space or a day-porter shift and the labor split appears here.</li>';
         return;
        }
       let result;
       try {
         result = calculateBid({
           areas,
+          shifts,
+          projects: readProjects(),
+          periodicServices: readPeriodic(),
           ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
           proposedPrice: el('proposedPrice').value,
         });
@@ -267,72 +731,254 @@
 
       el('price').textContent = money(result.monthlyPrice);
       el('price').className = 'hero-number';
-      el('priceLabel').textContent = 'monthly contract price';
       el('hoursPerVisit').textContent = `${result.hoursPerVisitTotal.toFixed(2)} h`;
+      el('visitCapacity').textContent = `${result.visitCapacityHours.toFixed(2)} h`;
+      el('visitUtilization').textContent = `${result.visitUtilization.toFixed(0)}%`;
+      el('shiftHours').textContent = result.shiftMonthlyHours === 0 ? 'none' : `${result.shiftMonthlyHours.toFixed(1)} h`;
       el('monthlyHours').textContent = `${result.monthlyHours.toFixed(1)} h`;
       el('labor').textContent = money(result.monthlyLaborCost);
       el('supplies').textContent = money(result.monthlySupplies);
+      el('periodic').textContent = result.hasPeriodicWork ? money(result.monthlyPeriodicCost) : 'none';
       el('equipment').textContent = money(result.equipmentMonthly + result.otherMonthly);
       el('overhead').textContent = money(result.monthlyOverhead);
       el('cost').textContent = money(result.monthlyCost);
       el('profit').textContent = money(result.monthlyProfit);
+      el('minimumFloor').textContent = result.minimumPriceApplied
+        ? `${money(result.minimumMonthlyPrice)} applied`
+        : 'not applied';
+      el('priceLabel').textContent = result.minimumPriceApplied
+        ? 'monthly contract price (minimum charge applied)'
+        : 'monthly contract price';
       el('perSqFt').textContent = result.pricePerSqFtMonth === null ? 'n/a' : `$${result.pricePerSqFtMonth.toFixed(3)}`;
       el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
       el('breakEven').textContent = money(result.breakEvenMonthlyPrice);
       el('annual').textContent = money(result.annualPrice);
 
-      const worked = result.areas.filter(area => area.monthlyHours > 0);
+      el('projectBlock').hidden = !result.hasProjectWork;
+      if (result.hasProjectWork) {
+        el('projectHours').textContent = `${result.projectHours.toFixed(1)} h`;
+        el('projectDirect').textContent = money(result.projectLaborCost + result.projectMaterials);
+        el('projectPrice').textContent = money(result.projectPrice);
+        el('firstMonth').textContent = money(result.firstMonthInvoice);
+        el('firstMonthFloor').textContent = money(result.breakEvenFirstMonth);
+        const projectLines = result.projects.filter(project => project.hours > 0 || project.materials > 0);
+        el('projectSplit').innerHTML = projectLines
+          .map(project => `<li><span>${escapeHtml(project.name)}</span><span>${money(project.price)}</span></li>`)
+          .join('');
+      }
+
+      const worked = [
+        ...result.areas.filter(area => area.monthlyHours > 0),
+        ...result.shifts.filter(shift => shift.monthlyHours > 0),
+      ];
       el('split').innerHTML = worked.length === 0
-        ? '<li class="empty">No space is scheduled to be cleaned yet — set cleans per week above.</li>'
+        ? '<li class="empty">No space or shift is scheduled yet — set cleans per week or add a day-porter shift.</li>'
         : worked
           .slice()
           .sort((a, b) => b.monthlyHours - a.monthlyHours)
-          .map(area => `<li><span>${escapeHtml(area.name)}</span><span>${area.hoursShare.toFixed(0)}% of hours</span>
-            <span class="bar"><span style="width:${area.hoursShare.toFixed(1)}%"></span></span></li>`)
+          .map(item => `<li><span>${escapeHtml(item.name)}</span><span>${item.hoursShare.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${item.hoursShare.toFixed(1)}%"></span></span></li>`)
           .join('');
 
       const verdict = el('verdict');
-      if (result.proposed === null) {
+      if (result.proposed === null && !result.visitOverCapacity) {
         verdict.hidden = true;
+      } else if (result.proposed === null && result.visitOverCapacity) {
+        verdict.hidden = false;
+        verdict.className = 'verdict warn';
+        verdict.textContent = `Scheduling check: this scope needs ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit, above the crew's ${result.visitCapacityHours.toFixed(2)}-hour capacity.`;
       } else {
         verdict.hidden = false;
-        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : result.visitOverCapacity ? ' warn' : ''}`;
         const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
         verdict.innerHTML = result.proposed.belowBreakEven
           ? `At ${money(result.proposed.price)} a month this job <strong>loses ${money(Math.abs(result.proposed.profit))} a month</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenMonthlyPrice)}.`
-          : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+          : result.visitOverCapacity
+            ? `The scope needs <strong>${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit</strong>, but this crew has ${result.visitCapacityHours.toFixed(2)} hours available. Add cleaners, allow a longer shift, or revisit the scope before sending this bid.`
+            : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
       }
+
+      renderFrequencyCompare({ areas, result });
+      renderSupplyCompare({ areas });
+      renderInitialCompare({ areas });
     }
 
-    function summaryText(result) {
-      const spaces = result.areas
-        .filter(area => area.squareFeet > 0 && area.cleaningsPerWeek > 0)
-        .map(area => `- ${area.name}: ${area.squareFeet.toLocaleString('en-US')} sq ft, ${area.cleaningsPerWeek}x/week`)
-        .join('\n');
-      return [
-        'COMMERCIAL CLEANING BID',
-        '',
-        `Proposed monthly service: ${money(result.monthlyPrice)}`,
-        `Annual contract value: ${money(result.annualPrice)}`,
-        `Service labor: ${result.monthlyHours.toFixed(1)} hours/month`,
-        `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
-        '',
-        'SERVICE AREAS',
-        spaces || '- No service areas entered',
-        '',
-        `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit at the entered frequencies.`,
-        'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
-      ].join('\n');
+    function renderFrequencyCompare({ areas }) {
+      const panel = el('frequencyCompare');
+      let comparison;
+      try {
+        comparison = compareFrequencyReduction({
+          areas,
+          periodicServices: readPeriodic(),
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        }, {
+          currentWeekly: el('currentWeekly').value,
+          proposedWeekly: el('proposedWeekly').value,
+          clientOfferMonthly: el('clientOfferMonthly').value,
+        });
+      } catch {
+        panel.hidden = true;
+        return;
+      }
+
+      const currentLabel = `${comparison.currentWeekly}×/week`;
+      const reducedLabel = `${comparison.proposedWeekly}×/week`;
+      const naiveLabel = `${(comparison.reductionFactor * 100).toFixed(0)}% of ${currentLabel}`;
+      el('colCurrent').textContent = currentLabel;
+      el('colReduced').textContent = reducedLabel;
+      el('colNaive').textContent = naiveLabel;
+      el('cmpCurrentDays').textContent = `${comparison.currentWeekly}`;
+      el('cmpReducedDays').textContent = `${comparison.proposedWeekly}`;
+      el('cmpNaiveDays').textContent = `${comparison.proposedWeekly}`;
+      el('cmpCurrentHours').textContent = `${comparison.baseline.monthlyHours.toFixed(1)} h`;
+      el('cmpReducedHours').textContent = `${comparison.reduced.monthlyHours.toFixed(1)} h`;
+      el('cmpNaiveHours').textContent = `${comparison.reduced.monthlyHours.toFixed(1)} h`;
+      el('cmpCurrentCost').textContent = money(comparison.baseline.monthlyCost);
+      el('cmpReducedCost').textContent = money(comparison.reduced.monthlyCost);
+      el('cmpNaiveCost').textContent = money(comparison.reduced.monthlyCost);
+      el('cmpCurrentPrice').textContent = money(comparison.baseline.monthlyPrice);
+      el('cmpReducedPrice').textContent = money(comparison.priceToHoldTargetMargin);
+      el('cmpNaivePrice').textContent = money(comparison.naiveLinearPrice);
+      el('cmpNaiveMargin').textContent = `${comparison.naiveMargin.toFixed(1)}%`;
+      el('naiveMarginRow').className = comparison.naiveBelowBreakEven ? 'warn' : '';
+
+      const verdict = el('compareVerdict');
+      verdict.className = `compare-verdict${comparison.naiveBelowBreakEven ? ' bad' : ''}`;
+      const offer = comparison.clientOffer;
+      const offerLine = offer
+        ? (offer.belowBreakEven
+          ? ` Their offer of ${money(offer.price)} loses ${money(Math.abs(offer.profit))} a month on the reduced schedule.`
+          : ` Their offer of ${money(offer.price)} leaves a ${offer.margin.toFixed(1)}% margin (${money(offer.profit)}/month).`)
+        : '';
+      verdict.innerHTML = comparison.naiveBelowBreakEven
+        ? `A linear ${(comparison.reductionFactor * 100).toFixed(0)}% of today&rsquo;s price (${money(comparison.naiveLinearPrice)}) <strong>loses ${money(Math.abs(comparison.naiveProfit))} a month</strong> once travel and supplies stay on the job. The ${reducedLabel} price that still holds your margin is ${money(comparison.priceToHoldTargetMargin)}; walk-away is ${money(comparison.walkAwayAtReduced)}.${offerLine}`
+        : `The ${reducedLabel} price that still holds your margin is <strong>${money(comparison.priceToHoldTargetMargin)}</strong> — ${money(comparison.leftOnTable)} a month above a linear cut (${money(comparison.naiveLinearPrice)}, ${comparison.naiveMargin.toFixed(1)}% margin). Labor drops ${comparison.laborHoursDropped.toFixed(1)} hours; ${money(comparison.unscaledMonthly)} of supplies, equipment, and travel stay.${offerLine}`;
+
+      panel.hidden = false;
+      panel.dataset.note = frequencyReductionNote(comparison, { targetMargin: Number(el('targetMargin').value) });
     }
 
-    async function copySummary() {
-      const areas = readAreas();
-      const result = calculateBid({
-        areas,
+    function signedMoney(value) {
+      if (Math.abs(value) < 0.005) return '—';
+      return `${value > 0 ? '+' : '−'}${money(Math.abs(value))}`;
+    }
+
+    function renderSupplyCompare({ areas }) {
+      const panel = el('supplyCompare');
+      let comparison;
+      try {
+        comparison = compareSupplyResponsibility({
+          areas,
+          periodicServices: readPeriodic(),
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        }, {
+          restroomSharePercent: el('restroomSharePercent').value,
+          emergencyFillMonthly: el('emergencyFillMonthly').value,
+          clientOfferMonthly: el('supplyOfferMonthly').value,
+        });
+      } catch {
+        panel.hidden = true;
+        return;
+      }
+
+      el('supYouPay').textContent = money(comparison.youSupply.monthlySupplies);
+      el('supYouCost').textContent = money(comparison.youSupply.monthlyCost);
+      el('supYouPrice').textContent = money(comparison.youSupply.monthlyPrice);
+      el('supRestroomPay').textContent = money(comparison.theyBuyRestroom.monthlySupplies);
+      el('supRestroomCost').textContent = money(comparison.theyBuyRestroom.monthlyCost);
+      el('supRestroomPrice').textContent = money(comparison.theyBuyRestroom.monthlyPrice);
+      el('supRestroomDelta').textContent = signedMoney(-comparison.leftoverIfTheyBuyRestroom);
+      el('supAllPay').textContent = money(comparison.theyBuyAll.monthlySupplies);
+      el('supAllCost').textContent = money(comparison.theyBuyAll.monthlyCost);
+      el('supAllPrice').textContent = money(comparison.theyBuyAll.monthlyPrice);
+      el('supAllDelta').textContent = signedMoney(-comparison.leftoverIfTheyBuyAll);
+      el('supFillPay').textContent = `${money(comparison.theyBuyButYouFill.monthlySupplies)} + ${money(comparison.emergencyFillMonthly)} fill`;
+      el('supFillCost').textContent = money(comparison.theyBuyButYouFill.monthlyCost);
+      el('supFillPrice').textContent = money(comparison.theyBuyButYouFill.monthlyPrice);
+      el('supFillDelta').textContent = signedMoney(comparison.fillPremiumVsYouSupply);
+      el('supFillRow').className = comparison.fillCostsMoreThanYouSupply ? 'warn' : '';
+
+      const verdict = el('supplyVerdict');
+      verdict.className = `compare-verdict${comparison.naiveBelowBreakEvenAtFill || comparison.fillCostsMoreThanYouSupply ? ' bad' : ''}`;
+      const offer = comparison.clientOfferFill || comparison.clientOfferRestroom;
+      const offerLine = offer
+        ? (offer.belowBreakEven
+          ? ` Their offer of ${money(offer.price)} loses ${money(Math.abs(offer.profit))} a month against the cost you still carry.`
+          : ` Their offer of ${money(offer.price)} leaves a ${offer.margin.toFixed(1)}% margin (${money(offer.profit)}/month) on the restroom-handoff cost.`)
+        : '';
+      const fillLine = comparison.emergencyFillMonthly > 0
+        ? (comparison.fillCostsMoreThanYouSupply
+          ? ` If you still emergency-fill when they run out, the price that holds your margin is <strong>${money(comparison.theyBuyButYouFill.monthlyPrice)}</strong> — ${money(comparison.fillPremiumVsYouSupply)} a month above you-supplying.`
+          : ` Emergency-fill at ${money(comparison.emergencyFillMonthly)}/month prices at ${money(comparison.theyBuyButYouFill.monthlyPrice)}.`)
+        : '';
+      verdict.innerHTML = `If they take only the restroom stock, the price that still holds your margin is <strong>${money(comparison.theyBuyRestroom.monthlyPrice)}</strong> — ${money(comparison.leftoverIfTheyBuyRestroom)} a month below you-supplying (${money(comparison.youSupply.monthlyPrice)}), not a drop of the whole supplies line (${money(comparison.naiveDropPrice)}). Chemicals stay at ${money(comparison.chemicalSuppliesMonthly)}.${fillLine}${offerLine}`;
+
+      panel.hidden = false;
+      panel.dataset.note = supplyResponsibilityNote(comparison, { targetMargin: Number(el('targetMargin').value) });
+    }
+
+    function renderInitialCompare({ areas }) {
+      const panel = el('initialCompare');
+      let comparison;
+      try {
+        comparison = compareInitialClean({
+          areas,
+          periodicServices: readPeriodic(),
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        }, {
+          visitMultiplier: el('initialVisitMultiplier').value,
+          extraSupplies: el('initialExtraSupplies').value,
+          amortizeMonths: el('initialAmortizeMonths').value,
+          cancelAfterMonths: el('initialCancelAfterMonths').value,
+          clientOfferMonthly: el('initialOfferMonthly').value,
+        });
+      } catch {
+        panel.hidden = true;
+        return;
+      }
+
+      el('initOneTime').textContent = money(comparison.initialPrice);
+      el('initMonthlyOnly').textContent = money(comparison.monthly.monthlyPrice);
+      el('initQuotedMonth1').textContent = money(comparison.monthly.monthlyProfit);
+      el('initAmortizeLabel').textContent = `Bake it into the monthly over ${comparison.amortizeMonths} months`;
+      el('initAmortizeMonthly').textContent = money(comparison.amortizedMonthlyPrice);
+      el('initAmortizeMonth1').textContent = money(comparison.amortizedMonthlyPrice - comparison.amortizedMonthlyCost);
+      el('initThrownMonthly').textContent = money(comparison.monthly.monthlyPrice);
+      el('initThrownMonth1').textContent = signedMoney(comparison.thrownInMonth1Profit);
+      el('initThrownRow').className = comparison.thrownInBelowBreakEven ? 'hold warn' : 'hold';
+
+      const verdict = el('initialVerdict');
+      verdict.className = `compare-verdict${comparison.thrownInBelowBreakEven || comparison.thrownInCashIfCancel < 0 ? ' bad' : ''}`;
+      const offer = comparison.clientOffer;
+      const offerLine = offer
+        ? (offer.belowBreakEvenMonth1
+          ? ` Their offer of ${money(offer.price)} loses ${money(Math.abs(offer.month1Profit))} in month 1 against a ${money(comparison.walkAwayMonth1)} walk-away.`
+          : ` Their offer of ${money(offer.price)} leaves ${money(offer.month1Profit)} in month 1 (${offer.month1Margin.toFixed(1)}% margin).`)
+        : '';
+      const cancelLine = comparison.thrownInCashIfCancel < 0
+        ? ` If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, the giveaway finishes <strong>${money(Math.abs(comparison.thrownInCashIfCancel))} under water</strong> versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`
+        : ` If they cancel after ${comparison.cancelAfterMonths} month${comparison.cancelAfterMonths === 1 ? '' : 's'}, throwing it in keeps ${money(comparison.thrownInCashIfCancel)} versus ${money(comparison.quotedSeparatelyCashIfCancel)} if the initial was invoiced.`;
+      verdict.innerHTML = comparison.thrownInBelowBreakEven
+        ? `A ${comparison.visitMultiplier.toFixed(1)}× takeover (${comparison.initialHours.toFixed(1)} h plus ${money(comparison.extraSupplies)} of extra supplies) is a <strong>${money(comparison.initialPrice)} one-time</strong> if it still holds your margin. Throwing it in at today&rsquo;s monthly <strong>loses ${money(Math.abs(comparison.thrownInMonth1Profit))} in month 1</strong>. Baking it in over ${comparison.amortizeMonths} months is ${money(comparison.amortizedMonthlyPrice)} (${money(comparison.amortizedAddOn)} above today).${cancelLine}${offerLine}`
+        : `A ${comparison.visitMultiplier.toFixed(1)}× takeover is a <strong>${money(comparison.initialPrice)} one-time</strong>. Throwing it in at today&rsquo;s monthly leaves ${money(comparison.thrownInMonth1Profit)} in month 1 (${comparison.thrownInMonth1Margin.toFixed(1)}% margin), not the target. Baking it in over ${comparison.amortizeMonths} months is ${money(comparison.amortizedMonthlyPrice)}.${cancelLine}${offerLine}`;
+
+      panel.hidden = false;
+      panel.dataset.note = initialCleanNote(comparison, { targetMargin: Number(el('targetMargin').value) });
+    }
+
+    function currentBid() {
+      return calculateBid({
+        areas: readAreas(),
+        shifts: readShifts(),
+        projects: readProjects(),
+        periodicServices: readPeriodic(),
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
       });
-      const text = summaryText(result);
+    }
+
+    async function copySummary() {
+      const text = formatBidSummary(currentBid());
       try {
         await navigator.clipboard.writeText(text);
       } catch {
@@ -351,17 +997,135 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    function downloadSummary() {
+      const blob = new Blob([formatBidSummary(currentBid())], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'janitorial-bid-summary.txt';
+      link.hidden = true;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      count('summary_downloaded');
+      el('summaryStatus').textContent = 'Downloaded bid summary';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
     el('addArea').addEventListener('click', () => {
       addAreaRow({ name: '', squareFeet: 0, productionRate: 3000, cleaningsPerWeek: 5 });
       count('area_added');
       update();
     });
+    el('addProject').addEventListener('click', () => {
+      addProjectRow();
+      count('project_added');
+      update();
+    });
+    el('addShift').addEventListener('click', () => {
+      addShiftRow();
+      count('shift_added');
+      update();
+    });
+    el('addPeriodic').addEventListener('click', () => {
+      addPeriodicRow();
+      count('periodic_service_added');
+      update();
+    });
 
     COST_IDS.forEach(id => {
       el(id).addEventListener('input', update);
-      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+      el(id).addEventListener('change', () => count(
+        id === 'proposedPrice' ? 'proposed_price_compared'
+          : id === 'minimumMonthlyPrice' && el(id).value !== '' ? 'minimum_price_used' : 'bid_calculated',
+      ));
+    });
+    FREQ_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('frequency_reduction_compared'));
+    });
+    SUPPLY_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('supply_responsibility_compared'));
+    });
+    INITIAL_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'initialOfferMonthly' ? 'initial_clean_offer_compared' : 'initial_clean_compared'));
     });
     el('usageOptOut').addEventListener('change', update);
+    el('copySupplyNote').addEventListener('click', async () => {
+      const text = el('supplyCompare').dataset.note || '';
+      if (!text) return;
+      try {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const fallback = document.createElement('textarea');
+          fallback.value = text;
+          fallback.setAttribute('readonly', '');
+          fallback.style.position = 'fixed';
+          fallback.style.opacity = '0';
+          document.body.append(fallback);
+          fallback.select();
+          document.execCommand('copy');
+          fallback.remove();
+        }
+        count('supply_note_copied');
+        el('supplyStatus').textContent = 'Copied to clipboard';
+        setTimeout(() => { el('supplyStatus').textContent = ''; }, 2500);
+      } catch (error) {
+        el('supplyStatus').textContent = error.message;
+      }
+    });
+    el('copyInitialNote').addEventListener('click', async () => {
+      const text = el('initialCompare').dataset.note || '';
+      if (!text) return;
+      try {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const fallback = document.createElement('textarea');
+          fallback.value = text;
+          fallback.setAttribute('readonly', '');
+          fallback.style.position = 'fixed';
+          fallback.style.opacity = '0';
+          document.body.append(fallback);
+          fallback.select();
+          document.execCommand('copy');
+          fallback.remove();
+        }
+        count('initial_clean_note_copied');
+        el('initialStatus').textContent = 'Copied to clipboard';
+        setTimeout(() => { el('initialStatus').textContent = ''; }, 2500);
+      } catch (error) {
+        el('initialStatus').textContent = error.message;
+      }
+    });
+    el('copyFrequencyNote').addEventListener('click', async () => {
+      const text = el('frequencyCompare').dataset.note || '';
+      if (!text) return;
+      try {
+        try {
+          await navigator.clipboard.writeText(text);
+        } catch {
+          const fallback = document.createElement('textarea');
+          fallback.value = text;
+          fallback.setAttribute('readonly', '');
+          fallback.style.position = 'fixed';
+          fallback.style.opacity = '0';
+          document.body.append(fallback);
+          fallback.select();
+          document.execCommand('copy');
+          fallback.remove();
+        }
+        count('frequency_note_copied');
+        el('frequencyStatus').textContent = 'Copied to clipboard';
+        setTimeout(() => { el('frequencyStatus').textContent = ''; }, 2500);
+      } catch (error) {
+        el('frequencyStatus').textContent = error.message;
+      }
+    });
     el('copySummary').addEventListener('click', () => {
       try {
         copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
@@ -369,9 +1133,208 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('downloadSummary').addEventListener('click', () => {
+      try {
+        downloadSummary();
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
 
-    STARTING_AREAS.forEach(addAreaRow);
+    // Unlike the fixed-form calculators, most of what a cleaner re-enters here
+    // is the building itself: every space, its square feet, its production
+    // rate, and how often it is cleaned. Re-measuring that to re-price a job
+    // costs an hour, so `rows` carries the spaces alongside the flat rates.
+    // The lists come straight from the ones the readers above use, so a field
+    // added to the form is saved and shareable without touching this.
+    const CHOICE_IDS = [];
+    const AREA_TYPE_OPTIONS = [
+      ...PRODUCTION_RATE_PRESETS.map((preset, index) => String(index)),
+      'other',
+    ];
+    const BID_SPEC = {
+      key: 'janitorial-bid',
+      numbers: [...COST_IDS, ...FREQ_IDS, ...SUPPLY_IDS, ...INITIAL_IDS],
+      flags: [],
+      choices: {},
+      rows: {
+        param: 'areas',
+        fields: [
+          { key: 'type', kind: 'choice', options: AREA_TYPE_OPTIONS },
+          { key: 'name', kind: 'text' },
+          { key: 'squareFeet', kind: 'number' },
+          { key: 'productionRate', kind: 'number' },
+          { key: 'cleaningsPerWeek', kind: 'number' },
+        ],
+      },
+      extraRows: [{
+        param: 'shifts',
+        fields: [
+          { key: 'role', kind: 'choice', options: [
+            ...SHIFT_ROLE_PRESETS.map((_, index) => String(index)),
+            'other',
+          ] },
+          { key: 'people', kind: 'number' },
+          { key: 'hoursPerShift', kind: 'number' },
+          { key: 'shiftsPerWeek', kind: 'number' },
+          { key: 'hourlyWage', kind: 'number' },
+        ],
+      }, {
+        param: 'periodicServices',
+        fields: [
+          { key: 'name', kind: 'text' },
+          { key: 'costPerOccurrence', kind: 'number' },
+          { key: 'occurrencesPerYear', kind: 'number' },
+        ],
+      }],
+    };
+
+    // The rows are read off the live selects rather than through `readAreas()`,
+    // whose shape is what `calculateBid` wants (a preset *label*) rather than
+    // what the form holds. Round-tripping the form's own value is what keeps an
+    // "Other space" row from being restored as the first preset.
+    function readAreaRows() {
+      return [...areasHost.querySelectorAll('.area-row')].map(row => ({
+        type: row.querySelector('.a-type').value,
+        name: row.querySelector('.a-name').value,
+        squareFeet: row.querySelector('.a-sqft').value,
+        productionRate: row.querySelector('.a-rate').value,
+        cleaningsPerWeek: row.querySelector('.a-freq').value,
+      }));
+    }
+
+    function readShiftRows() {
+      return [...shiftsHost.querySelectorAll('.shift-row')].map(row => ({
+        role: row.querySelector('.s-role').value,
+        people: row.querySelector('.s-people').value,
+        hoursPerShift: row.querySelector('.s-hours').value,
+        shiftsPerWeek: row.querySelector('.s-freq').value,
+        hourlyWage: row.querySelector('.s-wage').value,
+      }));
+    }
+
+    function readSavable() {
+      return {
+        ...Object.fromEntries([...COST_IDS, ...FREQ_IDS, ...SUPPLY_IDS, ...INITIAL_IDS].map(id => [id, el(id).value])),
+        areas: readAreaRows(),
+        shifts: readShiftRows(),
+        periodicServices: readPeriodic(),
+      };
+    }
+
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        if (id === 'areas' || id === 'shifts' || id === 'periodicServices') continue;
+        const field = el(id);
+        if (!field) continue;
+        field.value = value;
+        field.dataset.edited = '1';
+      }
+      if (Array.isArray(values.periodicServices)) {
+        periodicHost.innerHTML = '';
+        for (const service of values.periodicServices) {
+          addPeriodicRow({
+            name: service.name || '',
+            costPerOccurrence: service.costPerOccurrence ?? 0,
+            occurrencesPerYear: service.occurrencesPerYear ?? 4,
+          });
+        }
+      }
+      if (Array.isArray(values.shifts)) {
+        shiftsHost.innerHTML = '';
+        for (const shift of values.shifts) {
+          const preset = SHIFT_ROLE_PRESETS[Number(shift.role)];
+          addShiftRow({
+            name: preset ? preset.label : '',
+            people: shift.people ?? 1,
+            hoursPerShift: shift.hoursPerShift ?? 8,
+            shiftsPerWeek: shift.shiftsPerWeek ?? 5,
+            hourlyWage: shift.hourlyWage ?? '',
+          });
+        }
+      }
+      if (!Array.isArray(values.areas)) return Array.isArray(values.shifts);
+      areasHost.innerHTML = '';
+      for (const area of values.areas) {
+        addAreaRow({
+          type: area.type,
+          name: area.name || '',
+          squareFeet: area.squareFeet ?? 0,
+          productionRate: area.productionRate ?? 3000,
+          cleaningsPerWeek: area.cleaningsPerWeek ?? 5,
+        });
+        // A restored rate is the contractor's own measured number, so the space
+        // type must not overwrite it the next time they change the dropdown.
+        areasHost.lastElementChild.querySelector('.a-rate').dataset.edited = '1';
+      }
+      return true;
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readSavable());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readSavable());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    const restoredAreas = applyValues(restored.values);
+    // Only fall back to the starting building when none was restored, or the
+    // sample spaces would be appended to the ones the visitor actually has.
+    if (!restoredAreas) STARTING_AREAS.forEach(addAreaRow);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a contractor stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender\u2019s numbers, not yours.'
+        : 'Picked up your last bid from this browser. \u201CStart a fresh bid\u201D clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
     update();
+    persist();
   </script>
 </body>
 </html>
