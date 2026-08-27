@@ -113,6 +113,7 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /size-tier packaging cliff/i);
   assert.match(featureList[1], /Seller Fulfilled Prime vs FBA vs FBM/i);
   assert.match(featureList[1], /restock vs low-inventory-level fee/i);
+  assert.match(featureList[1], /Vine leftover vs sellable/i);
   assert.match(featureList[1], /Amazon AWD vs send-all-to-FBA vs you-hold/i);
   assert.match(featureList[1], /Remote Fulfillment vs skip Canada vs a Canada FBA pile/i);
   assert.match(featureList[1], /break-even ACOS/i);
@@ -131,6 +132,10 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(scriptSource, /compareLiquidation/);
   assert.match(scriptSource, /liquidation_compared/);
   assert.match(scriptSource, /agedRemovalFee/);
+  assert.match(markup, /is-amazon-vine-worth-it\.html/);
+  assert.match(markup, /id="vine"/);
+  assert.match(scriptSource, /compareVine/);
+  assert.match(scriptSource, /vine_compared/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);

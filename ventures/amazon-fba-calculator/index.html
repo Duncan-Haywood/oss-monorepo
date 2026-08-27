@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, size-tier packaging cliff, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, restock vs low-inventory-level fee, net profit, margin, ROI, break-even price, max buy cost, target-margin price, break-even ACOS, target-margin ACOS, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, Seller Fulfilled Prime vs FBA vs FBM, Amazon AWD vs send-all-to-FBA vs you-hold, Remote Fulfillment vs skip Canada vs a Canada FBA pile, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose, FBA Liquidations vs dispose vs sell-elsewhere"
+    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, size-tier packaging cliff, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, restock vs low-inventory-level fee, Vine leftover vs sellable, net profit, margin, ROI, break-even price, max buy cost, target-margin price, break-even ACOS, target-margin ACOS, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, Seller Fulfilled Prime vs FBA vs FBM, Amazon AWD vs send-all-to-FBA vs you-hold, Remote Fulfillment vs skip Canada vs a Canada FBA pile, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose, FBA Liquidations vs dispose vs sell-elsewhere"
   }
   </script>
   <script type="application/ld+json">
@@ -704,6 +704,47 @@
     </table>
     <p id="liquidationNote" class="note"></p>
   </section>
+  <section class="pack" id="vine" aria-labelledby="vine-heading">
+    <h2 id="vine-heading">Does Amazon Vine still pay after the leftover units?</h2>
+    <p>
+      Vine enrollment is an upfront pile of units you give away (or sell at
+      the Vine referral) in exchange for a conversion lift on the rest of
+      the listing.
+      <a href="is-amazon-vine-worth-it.html">Is Amazon Vine worth it?</a>
+      already has the full math. This block uses the same
+      <code>compareVine</code> on the listing you just typed, so you do not
+      leave the page. Defaults match that page: 30 Vine units, 12% lift,
+      6-month horizon, 0% Vine referral.
+    </p>
+    <div class="fields" style="margin-bottom: 14px;">
+      <label>Vine units
+        <input id="vineUnits" type="number" min="1" step="1" value="30">
+      </label>
+      <label>Conversion lift (%)
+        <input id="conversionLiftPct" type="number" min="0" step="0.1" value="12">
+      </label>
+      <label>Horizon (months)
+        <input id="vineMonths" type="number" min="1" step="1" value="6">
+      </label>
+      <label>Vine referral rate (%)
+        <input id="vineReferralRate" type="number" min="0" step="0.1" value="0">
+      </label>
+    </div>
+    <p id="vineVerdict" class="verdict"></p>
+    <table id="vineTable">
+      <caption>Skip Vine, enroll leftover units, or treat Vine units as ones that would have sold</caption>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Horizon profit</th>
+          <th scope="col">Upfront</th>
+          <th scope="col">vs skip</th>
+        </tr>
+      </thead>
+      <tbody id="vineRows"></tbody>
+    </table>
+    <p id="vineNote" class="note"></p>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -884,6 +925,7 @@
       compareSubscribeSave,
       compareLowInventory,
       compareLiquidation,
+      compareVine,
       couponSummary,
       sizeTierPackagingNote,
       lowInventoryNote,
@@ -914,6 +956,7 @@
       "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
       "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
       "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
+      "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
@@ -1067,6 +1110,34 @@
         packCell(tr, signed(row.cash));
         packCell(tr, row.leftoverUnits.toFixed(2));
         packCell(tr, row.id === "liquidate" ? "Current" : signed(row.vsLiquidate));
+        return tr;
+      }));
+    }
+
+    // Surfaces skip Vine vs leftover enrollment vs sellable units on the
+    // calculator itself. The same arithmetic already backs
+    // is-amazon-vine-worth-it.html.
+    function renderVine(input) {
+      const result = compareVine(input);
+      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const verdict = document.getElementById("vineVerdict");
+      if (result.winner === "leftover") {
+        verdict.textContent = `Vine leftover units keep ${signed(result.extraKeptOnLeftover)} more than skipping Vine`;
+      } else if (result.winner === "sellable") {
+        verdict.textContent = `Treating Vine units as ones that would have sold keeps ${signed(result.extraKeptOnSellable)} more than skipping Vine`;
+      } else if (result.winner === "skip") {
+        verdict.textContent = `Skipping Vine keeps more than leftover enrollment by ${signed(Math.abs(result.extraKeptOnLeftover))}`;
+      } else {
+        verdict.textContent = "The three Vine paths leave the same cash on these rates";
+      }
+      document.getElementById("vineNote").textContent = result.summary;
+      document.getElementById("vineRows").replaceChildren(...result.rows.map((row) => {
+        const tr = document.createElement("tr");
+        if (result.winner === row.id) tr.className = "winner-row";
+        packCell(tr, row.label);
+        packCell(tr, signed(row.horizonProfit));
+        packCell(tr, signed(row.upfront));
+        packCell(tr, row.id === "skip" ? "Current" : signed(row.vsSkip));
         return tr;
       }));
     }
@@ -1465,6 +1536,13 @@
           document.getElementById("liquidationNote").textContent = "Fix the aged-pile fields to see the liquidation comparison.";
           document.getElementById("liquidationRows").replaceChildren();
         }
+        try {
+          renderVine(readInput());
+        } catch (vineError) {
+          document.getElementById("vineVerdict").textContent = vineError.message;
+          document.getElementById("vineNote").textContent = "Fix the Vine enrollment fields to see the leftover-vs-skip comparison.";
+          document.getElementById("vineRows").replaceChildren();
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -1558,6 +1636,9 @@
       "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
       "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
     ]);
+    const vineFields = new Set([
+      "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
+    ]);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
       if (autoFields.has(id) && !syncingFee) {
         document.getElementById(id).dataset.auto = "0";
@@ -1587,6 +1668,7 @@
           : returnFields.has(id) ? "return_rate_calculated"
           : lowInventoryFields.has(id) ? "low_inventory_compared"
           : liquidationFields.has(id) ? "liquidation_compared"
+          : vineFields.has(id) ? "vine_compared"
             : "listing_profit_calculated",
       );
     }));
