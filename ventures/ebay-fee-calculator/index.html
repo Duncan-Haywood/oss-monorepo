@@ -474,6 +474,21 @@
         </table>
       </div>
       <p id="promotedStandardEmpty" class="note" hidden>Enter a valid item price to compare Promoted Listings Standard with skipping the campaign.</p>
+      <p id="promotedRateCap" class="note"></p>
+      <p class="note">The same completed sale at several Standard rates, with extra-sale lift left at zero. This is the ad cut on a sale you already had — complementary to skip vs one campaign above. Salvaged from the leftover promoted-rate table on #1482 / #1633.</p>
+      <div class="table-scroll">
+        <table id="promotedRateTable" aria-describedby="promotedRateCap">
+          <thead>
+            <tr>
+              <th scope="col">Ad rate</th>
+              <th scope="col">Leftover</th>
+              <th scope="col">After returns</th>
+              <th scope="col">vs 0%</th>
+            </tr>
+          </thead>
+          <tbody id="promotedRateRows"></tbody>
+        </table>
+      </div>
     </section>
     <section class="sensitivity" id="promotedAdvanced">
       <h2>Promoted Listings Advanced vs skip</h2>
@@ -761,7 +776,7 @@
     <p class="support">Free and open source. If it saves you time, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
-    import { calculateOrder, calculateSourcingCeiling, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareCombinedShipping, combinedShippingNote, compareSellerInitiatedOffer, sellerInitiatedOfferNote, comparePromotedOffsite, promotedOffsiteNote, comparePromotedStandard, promotedStandardNote, comparePromotedAdvanced, promotedAdvancedNote, compareQuantityDiscount, quantityDiscountNote, compareSellerCoupon, sellerCouponNote, compareImmediatePayment, immediatePaymentNote, compareTopRatedPlus, topRatedPlusNote, compareManagedReturns, managedReturnsNote, compareGlobalShipping, globalShippingNote, compareStoreTiers, storeTiersNote, compareBestOffer, bestOfferNote, compareFreeShipping, freeShippingNote, compareInternational, internationalNote, comparePackageProtection, packageProtectionNote, compareEbayLabels, ebayLabelsNote, INPUT_FIELDS as ids } from './calc.mjs';
+    import { calculateOrder, calculateSourcingCeiling, calculateRepricingTable, calculatePromotedTable, maxAffordablePromotedRate, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, compareAuthenticity, authenticityNote, compareLocalPickup, localPickupNote, compareLotVsSingles, lotVsSinglesNote, compareStandardEnvelope, standardEnvelopeNote, compareCombinedShipping, combinedShippingNote, compareSellerInitiatedOffer, sellerInitiatedOfferNote, comparePromotedOffsite, promotedOffsiteNote, comparePromotedStandard, promotedStandardNote, comparePromotedAdvanced, promotedAdvancedNote, compareQuantityDiscount, quantityDiscountNote, compareSellerCoupon, sellerCouponNote, compareImmediatePayment, immediatePaymentNote, compareTopRatedPlus, topRatedPlusNote, compareManagedReturns, managedReturnsNote, compareGlobalShipping, globalShippingNote, compareStoreTiers, storeTiersNote, compareBestOffer, bestOfferNote, compareFreeShipping, freeShippingNote, compareInternational, internationalNote, comparePackageProtection, packageProtectionNote, compareEbayLabels, ebayLabelsNote, INPUT_FIELDS as ids } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
     import { repricingCsv } from './csv.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
@@ -987,6 +1002,20 @@
       document.getElementById('promotedStandardVerdict').textContent = promotedStandardNote(comparison);
       document.getElementById('promotedStandardEmpty').hidden = true;
       document.getElementById('promotedStandardTable').hidden = false;
+      const rateRows = calculatePromotedTable(input);
+      const breakEvenCap = maxAffordablePromotedRate(input);
+      const marginCap = maxAffordablePromotedRate(input, { forTargetMargin: true });
+      document.getElementById('promotedRateRows').innerHTML = rateRows.map(row => `
+        <tr class="${row.isCurrent ? 'winner' : ''}">
+          <td>${row.promotedRate.toFixed(1)}%${row.isCurrent ? ' (typed)' : ''}${row.isUnpromoted ? ' (skip ads)' : ''}</td>
+          <td class="${row.profit < 0 ? 'down' : ''}">${money(row.profit)}</td>
+          <td class="${row.expectedProfit < 0 ? 'down' : ''}">${money(row.expectedProfit)}</td>
+          <td class="${row.profitDelta > 0 ? 'up' : row.profitDelta < 0 ? 'down' : ''}">${row.isUnpromoted ? '—' : signedMoney(row.profitDelta)}</td>
+        </tr>`).join('');
+      const capLine = Number.isFinite(breakEvenCap)
+        ? `This completed sale still breaks even at about ${breakEvenCap.toFixed(1)}% Standard. The typed ${Number(input.targetMargin ?? 0).toFixed(1)}% margin still holds up to about ${marginCap.toFixed(1)}%.`
+        : 'Could not compute an ad-rate cap from these inputs.';
+      document.getElementById('promotedRateCap').textContent = capLine;
       if (sellerEditedInputs && !promotedStandardCounted) {
         promotedStandardCounted = true;
         recordUsage(localStorage, document.getElementById('usageOptOut').checked, 'promoted_standard_compared');
@@ -1398,6 +1427,8 @@
         document.getElementById('promotedStandardTable').hidden = true;
         document.getElementById('promotedStandardEmpty').hidden = false;
         document.getElementById('promotedStandardVerdict').textContent = '';
+        document.getElementById('promotedRateRows').innerHTML = '';
+        document.getElementById('promotedRateCap').textContent = '';
         document.getElementById('promotedAdvancedRows').innerHTML = '';
         document.getElementById('promotedAdvancedTable').hidden = true;
         document.getElementById('promotedAdvancedEmpty').hidden = false;

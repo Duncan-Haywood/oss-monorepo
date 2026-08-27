@@ -260,7 +260,7 @@ test('the Promoted Listings Standard table has one cell per column and a counted
   assert.match(page, /are-ebay-promoted-listings-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Promoted Listings Standard vs skip/);
   const standardStart = page.indexOf('id="promotedStandardTable"');
-  const standardEnd = page.indexOf('id="promotedAdvanced"', standardStart);
+  const standardEnd = page.indexOf('id="promotedRateTable"', standardStart);
   const headerBlock = page.slice(standardStart, standardEnd === -1 ? undefined : standardEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
@@ -272,6 +272,18 @@ test('the Promoted Listings Standard table has one cell per column and a counted
     'Expected after ads',
     'vs skip',
   ]);
+});
+
+test('the Promoted Listings Standard section also shows a rate ladder and an ad-rate cap', () => {
+  assert.match(page, /calculatePromotedTable/);
+  assert.match(page, /maxAffordablePromotedRate/);
+  assert.match(page, /id="promotedRateTable"/);
+  assert.match(page, /id="promotedRateCap"/);
+  const ladderStart = page.indexOf('id="promotedRateTable"');
+  const ladderEnd = page.indexOf('id="promotedAdvanced"', ladderStart);
+  const headerBlock = page.slice(ladderStart, ladderEnd === -1 ? undefined : ladderEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, ['Ad rate', 'Leftover', 'After returns', 'vs 0%']);
 });
 
 test('the Promoted Listings Advanced table has one cell per column and a counted event', () => {
