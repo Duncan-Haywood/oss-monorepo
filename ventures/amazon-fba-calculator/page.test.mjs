@@ -136,6 +136,9 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(markup, /id="vine"/);
   assert.match(scriptSource, /compareVine/);
   assert.match(scriptSource, /vine_compared/);
+  assert.match(markup, /id="sfp"/);
+  assert.match(scriptSource, /compareSfp/);
+  assert.match(scriptSource, /sfp_compared/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);

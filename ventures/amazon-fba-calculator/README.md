@@ -221,6 +221,9 @@ buy a 2-day label yourself, or drop to merchant fulfilled.
 [Should I use Seller Fulfilled Prime?](should-i-use-seller-fulfilled-prime.html)
 mixes take rate with the 2-day label and pack time so a
 completed-sale leftover does not hide a Prime-filter gap.
+The main calculator runs the same `compareSfp` math on the listing
+you just typed, so you do not leave the page to check the 2-day
+label and take-rate gap.
 Complementary to [FBA vs FBM](fba-vs-fbm.html) (no Prime take) and
 to [MCF for website orders](should-i-use-amazon-mcf-for-website-orders.html)
 (a non-Amazon checkout from FBA stock).
