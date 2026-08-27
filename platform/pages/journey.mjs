@@ -448,6 +448,21 @@ await step('a bid is still there when the customer calls back', async () => {
 //      tested; this is the plumbing between it and a person, which is where a
 //      feature like this actually fails.
 await step('saved bids survive the browser that holds them', async () => {
+  // The band on a tool page is where the intent is — someone has just saved a
+  // bid they care about — and the file is written on the hub. Without this link
+  // they are the one person never told the backup exists.
+  await page.goto(`${BASE}/water-heater-bid-calculator/`, { waitUntil: 'networkidle' });
+  await jobsReady();
+  await page.click('#pf-jobs-toggle');
+  const bandLink = page.locator('.pf-jobs-note a[href$="#backup-box"]');
+  check('the band on a tool page points at the backup panel',
+    (await bandLink.count()) === 1, `${await bandLink.count()} links`);
+  await bandLink.click();
+  await page.waitForLoadState('networkidle');
+  check('and following it lands on the hub with that panel on screen',
+    await page.isVisible('#backup-box')
+      && new URL(page.url()).hash === '#backup-box', page.url());
+
   await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
   check('the backup panel is on the hub', await page.isVisible('#backup-box'));
   check('and offers a download once there is something to back up',

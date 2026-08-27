@@ -404,6 +404,17 @@ Four rules the tests pin:
   their ceilings are read from `SHOP_RATE_FIELDS`, so a restored rate can never
   be one the calculator would reject.
 
+**The band on each tool page links to it.** The panel lives on the hub, because
+the store is site-wide and a per-tool control would either back up one tool's
+bids or misleadingly claim to back up all of them. But the person most likely to
+want a backup is the one who has just saved a bid they care about, and they are
+on a calculator — so without a link they were the one visitor never told it
+exists. The saved-bids note has always ended "clearing your browser data clears
+it"; it now offers the answer in the same sentence, at `<toRoot>#backup-box`.
+`injectSavedBids` takes the same relative prefix the chrome and the favicon are
+built from, because these pages are served at two depths and a hard-coded `../`
+is wrong at one of them.
+
 A backup file is also the only path by which a string from *outside* the browser
 reaches the saved-bid key, so it is the one place slugs are validated on the way
 in (`^[a-z0-9][a-z0-9-]*$` — the shape the build produces, and what the hub

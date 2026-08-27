@@ -25219,3 +25219,38 @@ entries:
         restored bid followed from the hub back to its tool and repriced. 0
         failed checks, 0 console errors, no off-origin request.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The backup existed and only the hub knew.** #1901 shipped the panel on
+        the hub, which is the right home — the store is site-wide, so a per-tool
+        control would either back up one tool's bids or misleadingly claim to
+        back up all of them. The cost of that placement is that the person most
+        likely to want a backup is the one who has just saved a bid they care
+        about, and they are standing on a calculator. They were the one visitor
+        never told it exists. The saved-bids note has always ended "clearing
+        your browser data clears it"; on 234 pages it now offers the answer in
+        the same sentence. #1902.
+      - >-
+        `injectSavedBids` takes the same relative prefix the chrome and the
+        favicon are built from rather than hard-coding `../`. These pages are
+        served at two depths — `/<slug>/` and the nested academy tools at
+        `/<slug>/<tool>/` — and a fixed prefix is wrong at one of them. Both are
+        pinned in `jobs.test.mjs`, and `backup.test.mjs` now pins the panel's id
+        from the other side: renaming `backup-box` would leave 234 links
+        pointing at nothing and nothing else would fail.
+      - >-
+        The link is `currentColor` plus an underline. The band inherits each
+        venture's own palette and 180 pages do not agree on a link colour, so
+        asserting one would have been the band restyling a page it does not own.
+      - >-
+        Verified: `platform/pages` 289 tests (2 new), the build (162 tools, 439
+        pages, no dead links), `clauses.mjs` (436 pages), `router/validate.py`,
+        `validate_usage.py`, and the three CI guards. The browser pass follows
+        the link from the band on `water-heater-bid-calculator` to the hub and
+        confirms the panel is on screen at `#backup-box`, then runs the whole
+        backup journey behind it. 0 failed checks, 0 console errors, no
+        off-origin request.
+    mrr_end: null

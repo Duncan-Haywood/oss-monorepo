@@ -115,6 +115,18 @@ test('the bar and its script land on a page with a form', () => {
   assert.match(out, new RegExp(SAVED_BIDS_KEY));
 });
 
+test('the band points at the backup panel, at the depth the page is served from', () => {
+  // The person most likely to want a backup is the one who has just saved a
+  // bid they care about — and the file is written on the hub, so without this
+  // link they are the one person never told it exists. These pages are served
+  // at two depths, so a hard-coded `../` would be wrong at one of them.
+  assert.match(injectSavedBids(page(inputs(6)), 'x', '../'), /href="\.\.\/#backup-box"/);
+  assert.match(injectSavedBids(page(inputs(6)), 'x', '../../'), /href="\.\.\/\.\.\/#backup-box"/);
+  // The sentence it answers must still be there: the offer only makes sense
+  // beside the statement of what it protects against.
+  assert.match(injectSavedBids(page(inputs(6)), 'x', '../'), /clearing your browser data clears it/);
+});
+
 test('injection is safe to run twice', () => {
   const once = injectSavedBids(page(inputs(6)), 'x');
   assert.equal(injectSavedBids(once, 'x'), once);

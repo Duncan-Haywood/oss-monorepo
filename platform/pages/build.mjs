@@ -1711,7 +1711,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
       // one adds.
-      const next = injectSavedBids(withRates, surface.slug);
+      const next = injectSavedBids(withRates, surface.slug, toRoot);
       if (next !== withRates) saved.push(relative);
       if (next === html) continue;
       await fs.writeFile(file, next);

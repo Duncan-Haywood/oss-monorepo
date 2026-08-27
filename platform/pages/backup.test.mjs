@@ -301,6 +301,13 @@ test('the hub script keeps the file on the device and counts without naming anyt
   }
 });
 
+test('the panel keeps the id every tool page links to', () => {
+  // `jobs.mjs` puts `<toRoot>#backup-box` in the band on 234 pages. Renaming
+  // this id would leave every one of those links pointing at nothing, and
+  // nothing else would fail.
+  assert.match(BACKUP_WIDGET_HTML, /id="backup-box"/);
+});
+
 test('the hub script redraws the bid list after a restore', () => {
   // Being told twelve bids arrived and shown the same eight rows reads as a
   // restore that did not happen.
