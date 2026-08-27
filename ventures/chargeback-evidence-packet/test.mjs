@@ -48,6 +48,13 @@ test("reviewed packets can be downloaded locally", () => {
   assert.match(html, /slice\(0,80\)/);
 });
 
+test("packet download stays local and uses a safe filename", () => {
+  assert.match(html, /new Blob\(\[content\],\{type:'text\/plain;charset=utf-8'\}\)/);
+  assert.match(html, /orderId=document\.querySelector\('#order'\)\.value\.trim\(\)\.replace\(\/\[\^a-zA-Z0-9_-\]\+\/g,'-'\)/);
+  assert.match(html, /packet_downloaded/);
+  assert.match(html, /Review reminder: This packet is a draft/);
+});
+
 test("packet export is local and records the reviewable packet fields", () => {
   assert.match(html, /Download packet JSON/);
   assert.match(html, /new Blob\(\[JSON\.stringify\(packet,null,2\)\]/);
