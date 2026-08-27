@@ -45,6 +45,18 @@ Check these before you verify, because two of the three fail silently.
   `SyntaxError: Unexpected identifier`. The calculator still renders; only the
   proposal is dead. Use the typographic apostrophe (`\u2019`), which is what
   the rest of the copy uses anyway.
+
+  The venture's own suite cannot see this — it reads `index.html` as text —
+  but **`platform/pages/check.mjs` catches it**, and precisely:
+
+  ```
+  foundation-repair-bid-calculator/index.html: inline <script> block 4 does not
+  parse, so the browser runs none of it -> SyntaxError: Unexpected identifier
+  ```
+
+  It runs `node --check` over every inline script on every published page, for
+  exactly this class of defect. Build and check before you reach for a browser;
+  it is seconds and it is certain.
 - **Not every calculator has a `readInput()`.** `roofing` and `concrete` built
   the same input literal at each call site, so the proposal would have been a
   third copy. Extract one function rather than paste a third — three copies is
