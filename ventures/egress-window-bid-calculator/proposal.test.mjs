@@ -276,6 +276,79 @@ test('empty and malformed templates yield no lines rather than throwing', () => 
   assert.deepEqual(scopeLines([null, 42, { noLine: true }, '   '], {}), []);
 });
 
+// ---- `each`: the itemised job ---------------------------------------------
+// Half the calculators here price a job made of rows — rooms, gutter runs,
+// trees, exhaust components — and the homeowner comparing three bids compares
+// the line items. Without `each` the best scope such a trade could draft is
+// the generic sentence the README says is worth less than no proposal.
+
+test('`each` prints one line per row, reading the row rather than the root', () => {
+  assert.deepEqual(
+    scopeLines([{ each: 'rooms', line: '{name} — {squareFeet} sq ft' }], {
+      name: 'THE WHOLE JOB',
+      rooms: [
+        { name: 'Living room', squareFeet: 280 },
+        { name: 'Kitchen', squareFeet: 180 },
+      ],
+    }),
+    ['Living room — 280 sq ft', 'Kitchen — 180 sq ft'],
+  );
+});
+
+test('`each` drops the row the contractor left at zero, not the whole line', () => {
+  const templates = [{ each: 'runs', when: 'linearFeet', line: 'Clear {linearFeet} ft of {name}' }];
+  assert.deepEqual(
+    scopeLines(templates, {
+      runs: [
+        { name: 'front gutter', linearFeet: 80 },
+        { name: 'garage gutter', linearFeet: 0 },
+        { name: 'rear gutter', linearFeet: 40 },
+      ],
+    }),
+    ['Clear 80 ft of front gutter', 'Clear 40 ft of rear gutter'],
+  );
+});
+
+test('a row missing a figure drops by the same rule as a top-level line', () => {
+  // The defect this exists to stop: `run.material` is really `run.name`, the
+  // lookup yields undefined rather than throwing, and the customer's quote
+  // reads "undefined ft of undefined" while every suite stays green.
+  assert.deepEqual(
+    scopeLines([{ each: 'trees', line: 'Remove the {species} — {dbhInches}" DBH' }], {
+      trees: [
+        { species: 'oak', dbhInches: 24 },
+        { species: 'pine' },
+      ],
+    }),
+    ['Remove the oak — 24" DBH'],
+  );
+});
+
+test('`each` carries the plural and rounding suffixes into each row', () => {
+  assert.deepEqual(
+    scopeLines([{ each: 'piles', line: '{quantity} {name} ({tons~2} ton{tons+s})' }], {
+      piles: [
+        { quantity: 6, name: 'mixed household junk', tons: 0.6 },
+        { quantity: 1, name: 'mattress', tons: 1 },
+      ],
+    }),
+    ['6 mixed household junk (0.6 tons)', '1 mattress (1 ton)'],
+  );
+});
+
+test('`each` on a missing, empty or non-array path yields nothing rather than throwing', () => {
+  const line = { each: 'rows', line: '{name}' };
+  assert.deepEqual(scopeLines([line], {}), []);
+  assert.deepEqual(scopeLines([line], { rows: [] }), []);
+  assert.deepEqual(scopeLines([line], { rows: 'not an array' }), []);
+  assert.deepEqual(scopeLines([line], { rows: [null, 7, { name: 'kept' }] }), ['kept']);
+});
+
+test('`each` reaches a nested array and does not truncate the rows', () => {
+  const rows = Array.from({ length: 30 }, (_, i) => ({ n: i + 1 }));
+  assert.equal(scopeLines([{ each: 'job.rows', line: 'Item {n}' }], { job: { rows } }).length, 30);
+});
+
 test('a plural suffix agrees with its count', () => {
   assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 1 }), ['1 gate']);
   assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 3 }), ['3 gates']);

@@ -41,6 +41,7 @@ import { createRequire } from 'node:module';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '../..');
 const DIST = path.join(ROOT, 'platform/pages/dist');
+const trades = JSON.parse(fs.readFileSync(path.join(HERE, 'trades.json'), 'utf8'));
 
 /** Playwright is a global install here, not a repo dependency. */
 function loadChromium() {
@@ -137,10 +138,19 @@ async function verifyOne(browser, slug, { origin }) {
     // The price the contractor sees, before anything is printed. Read from the
     // result panel rather than recomputed, so this compares two independent
     // paths to the same number.
-    const onScreenPrice = await page.evaluate(() => {
-      const node = document.querySelector('#price, #bidPrice, #quotedPrice, #visitPrice, #monthlyPrice');
+    //
+    // The headline figure is the quoted price on nearly every calculator here,
+    // but not on all of them: `lawn-care` leads with a per-visit price while
+    // the thing being sold — and the thing its own proposed-price field asks
+    // for — is the monthly contract. Comparing the sheet against the headline
+    // there would fail a correct proposal, so a trade may name the element
+    // that actually carries the price it quotes.
+    const priceSelector = trades[slug]?.screenPriceSelector
+      ?? '#price, #bidPrice, #quotedPrice, #visitPrice, #monthlyPrice';
+    const onScreenPrice = await page.evaluate((selector) => {
+      const node = document.querySelector(selector);
       return node ? node.textContent.trim() : null;
-    });
+    }, priceSelector);
 
     // The proposal refuses to print without these two, by design.
     await page.fill('#companyName', 'Verification Trades LLC');
