@@ -25350,3 +25350,79 @@ entries:
         user's money rather than the tool's use. Still a baseline row — the
         public URL remains owner-gated on `deploy-settings`.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Every won bid went back to waiting on the next restore.** Outcomes
+        shipped in #1903 and backup/restore in #1901; the two did not compose,
+        and nothing said so. The hub cannot `import`, so its inline script
+        carried a hand-written `normalizedBid` and `mergeBidStores` beside the
+        tested pair in `backup.mjs`. Both were the pre-outcome versions — the
+        normaliser returned `{name, at, fields}`, the merge resolved a name
+        collision on `at` alone — and neither was reachable from any test,
+        because the tests import the module and the browser runs the copy. So
+        the backup file was written without `outcome`, an incoming file lost it
+        on the way in, and a restore normalised the device's *own* store first,
+        stripping decisions off bids the file never mentioned. #1905.
+      - >-
+        The lesson is not "the copy was wrong", it is that there was a copy.
+        `resolveBidPair` describes this exact failure in its own comment and
+        exists to prevent it; it was never reachable from the browser. The fix
+        deletes both hand-written functions and embeds the tested ones through
+        `Function.prototype.toString`, the technique `BID_FOLLOW_UP_HELPERS`
+        already used one file over. Net −58 lines of hand-written code. The
+        remaining transcription in this area is the hub's `savedBids()`, which
+        is read-only and cannot lose data, but is the same risk.
+      - >-
+        Six tests evaluate the embedded source and assert it answers identically
+        to the module, including the round trip end to end and the case where a
+        file about one tool must not touch another's decisions. One asserts the
+        hand-written pair is gone, so the drift cannot come back. Driving
+        `origin/main`'s own two functions through the round trip reports the
+        outcome absent from the file at step one — the bug reproduced against
+        shipped code rather than argued for.
+      - >-
+        **And then the thing the tool still would not tell you: what the number
+        was.** Five increments made a bid a document, kept it, indexed it across
+        162 tools, got it off one browser and asked whether it was won. None
+        stored what the tool actually said, so the hub could list "waiting 19
+        days" and not what the customer had been quoted — which on the phone is
+        the only question being asked. Each bid now carries the figure the tool
+        led with, read off the page at save time and stored as the string on
+        screen. 160 of 234 pages ship a selector. #1906.
+      - >-
+        **It is deliberately not called a price, and measuring is what settled
+        that.** The hero is the quote on the ~100 trade calculators but profit
+        per unit on 48 seller-fee pages, and a net or best-case on a few more.
+        So the field is `amount`, the copy says "the figure it gave you", and
+        every row that draws one names its tool. The element is the site's own
+        `hero-number` convention plus one override for lawn-care, asserted equal
+        to `trades.json`'s `screenPriceSelector` so a saved bid cannot come to
+        disagree with the printed proposal.
+      - >-
+        The id-guessing fallback was written and then removed. Against the built
+        site it added four pages and a defect worth more than four pages:
+        `#total` is a cash position on `retainage-cashflow-calculator` and a
+        count of deadlines on `grant-deadline-tracker`. A saved bid showing a
+        figure the tool never led with is worse than one showing none, because
+        the wrong number is the one read back to a customer. The runtime guard
+        catches the same class from the other side — it refuses the count that
+        renders `0`, the unfilled form at `$0.00`, and the one `hero-number` on
+        the TikTok pages that holds a sentence of advice.
+      - >-
+        Verified: 341 tests in `platform/pages` (16 new across both), the build
+        (162 tools, 439 pages), `check.mjs`, `clauses.mjs` (436 pages),
+        `router/validate.py` (179 VENTURE.yaml), `validate_usage.py`,
+        `check_form_defaults.py`, `browser-signals.mjs` (156 modules). The
+        offline bundle is 15.03 MiB against the 16 MiB ceiling — the amount
+        costs ~730 bytes a page, leaving 989 KiB. Whole-site sweep: **162/162
+        tools answered with no errors**. Two Chromium journeys, 13 and 17
+        assertions, 0 page errors, no off-origin request.
+      - >-
+        CI was red on both PRs with the runner-outage signature: 3-second jobs,
+        empty `output.title/summary/text`, 404 on log download. Verified locally
+        and merged, per the rule CLAUDE.md added on 2026-08-27. The public URL
+        remains owner-gated on `deploy-settings`; no second ask was added.
+    mrr_end: null
