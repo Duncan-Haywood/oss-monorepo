@@ -1615,6 +1615,27 @@ products:
           first. Counted locally through the same opt-out, DNT/GPC-respecting
           path as every other hub event; the cache is the visitor's own
           browser storage and is never read back by anyone. Baseline row.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          shop_rates_saved: 0
+          shop_rates_applied: 0
+          shop_rates_opened: 0
+          pages_carrying_shop_rates: 103
+        note: >-
+          The shop-rates bar now reaches four tools it was silently skipping:
+          snow removal (which spells the per-person wage `operatorWage`, now
+          aliased rather than renamed), and tree service, appliance repair and
+          the portable-restroom quote, which share burden, overhead and margin
+          but price labour differently and now carry the fields they do share
+          while naming the one they cannot. 99 pages to 103, and 3 of those 4
+          are whole tools that previously offered nothing. The signal to read
+          once live is `shop_rates_applied / shop_rates_saved` — whether a
+          contractor who saves their rates once actually meets them on a second
+          tool, which is the return-visit premise of the hub. Same local,
+          aggregate, opt-out, DNT/GPC-respecting path as every other hub event;
+          the rates never leave the visitor's browser. Still a baseline row:
+          the public URL remains owner-gated on `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:

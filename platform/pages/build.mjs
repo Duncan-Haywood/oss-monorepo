@@ -1482,7 +1482,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // Last: the bar anchors under the site nav, so the chrome has to be there
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
-      const next = injectShopRates(chromed);
+      const next = injectShopRates(chromed, surface.slug);
       if (next !== chromed) rated.push(relative);
       if (next === html) continue;
       await fs.writeFile(file, next);

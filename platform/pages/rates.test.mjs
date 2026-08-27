@@ -5,11 +5,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  MIN_CARRIED_FIELDS,
+  PARTIAL_SHOP_RATE_PAGES,
+  SHOP_RATE_ALIASES,
   SHOP_RATE_FIELDS,
   SHOP_RATES_KEY,
   injectShopRates,
   normalizeRates,
   pageCarriesShopRates,
+  pageShopRateFields,
+  pageTakesShopRates,
   parseStoredRates,
   serializeRates,
 } from './rates.mjs';
@@ -44,14 +49,18 @@ const form = SHOP_RATE_FIELDS.map((f) => `<input id="${f.id}" type="number" valu
 const NO_SHARED_SHOP_RATES = {
   'tree-service-bid-calculator':
     'its wage field is a whole-crew rate (~$180/h), not a per-person wage. ' +
-    'Sharing would prefill one person\'s $17-22 as the crew rate and bid the job ~10x low.',
+    'Sharing would prefill one person\'s $17-22 as the crew rate and bid the job ~10x low. ' +
+    'Its burden, overhead and margin do match, and it now carries those three: see ' +
+    'PARTIAL_SHOP_RATE_PAGES.',
   'mobile-detailing-bid-calculator':
     'it has no wage input at all -- it takes a proposed quote and solves back to ' +
-    'an effective hourly rate -- and its "overhead" is dollars per job, not a percentage rate.',
+    'an effective hourly rate -- and its "overhead" is dollars per job, not a percentage rate. ' +
+    'That leaves one shared field, below MIN_CARRIED_FIELDS, so it gets no bar.',
   'snow-removal-bid-calculator':
-    'its per-person wage is `operatorWage`; the concept matches and it could join the ' +
-    'shared bar, but the rename reaches calc.mjs\'s input contract and its tests, so it ' +
-    'is the venture\'s change to make rather than a drive-by rename here.',
+    'its per-person wage is `operatorWage` rather than `hourlyWage`. The concept matches ' +
+    '("Operator hourly wage", $22), so rather than rename an id that reaches calc.mjs\'s ' +
+    'input contract, its tests and every bid link already shared, SHOP_RATE_ALIASES maps ' +
+    'the canonical field onto that id and the page carries the full set.',
 };
 
 test('every trade bid calculator on main carries all four shop-rate fields', async () => {
@@ -175,6 +184,114 @@ test('a marketplace fee calculator is left alone', () => {
 });
 
 // ---------------------------------------------------------------------------
+// Aliased and partial pages
+//
+// The four tools these cover were outside the shared bar for two different
+// reasons, neither of which was "this page cannot take shop rates": one spells a
+// field differently, three ask for only some of them. A contractor retyped the
+// same overhead on each.
+// ---------------------------------------------------------------------------
+
+test('an alias carries a field a page spells differently', async () => {
+  const html = await fs.readFile(
+    path.join(VENTURES, 'snow-removal-bid-calculator', 'index.html'),
+    'utf8',
+  );
+  // Without the slug it reads as a three-field page: the alias is what makes
+  // `operatorWage` the wage field, and it is per page rather than global.
+  assert.equal(pageShopRateFields(html).length, SHOP_RATE_FIELDS.length - 1);
+
+  const fields = pageShopRateFields(html, 'snow-removal-bid-calculator');
+  assert.equal(fields.length, SHOP_RATE_FIELDS.length);
+  assert.equal(fields.find((f) => f.id === 'hourlyWage').inputId, 'operatorWage');
+
+  const out = injectShopRates(html, 'snow-removal-bid-calculator');
+  assert.notEqual(out, html, 'the bar has to reach the page it was aliased for');
+  assert.match(out, /"inputId":"operatorWage"/);
+});
+
+test('an aliased id is only ever the one the venture actually uses', async () => {
+  // The alias writes into a real input on a real page. A stale entry — a
+  // venture that renamed the field again — would leave the bar offering a
+  // control that silently does nothing, so it fails here instead.
+  for (const [slug, aliases] of Object.entries(SHOP_RATE_ALIASES)) {
+    const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8').catch(() => null);
+    assert.ok(html !== null, `${slug} is aliased but no longer exists -- drop the entry`);
+    for (const [canonical, inputId] of Object.entries(aliases)) {
+      assert.ok(
+        SHOP_RATE_FIELDS.some((f) => f.id === canonical),
+        `${slug} aliases ${canonical}, which is not a shop-rate field`,
+      );
+      assert.match(
+        html,
+        new RegExp(`<input[^>]*\\bid="${inputId}"`, 'i'),
+        `${slug} no longer has an input called ${inputId}`,
+      );
+    }
+  }
+});
+
+test('a partial page carries the fields it shares and says why the rest are absent', async () => {
+  for (const [slug, note] of Object.entries(PARTIAL_SHOP_RATE_PAGES)) {
+    const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8').catch(() => null);
+    assert.ok(html !== null, `${slug} is listed as partial but no longer exists -- drop the entry`);
+
+    const fields = pageShopRateFields(html, slug);
+    assert.ok(
+      fields.length >= MIN_CARRIED_FIELDS && fields.length < SHOP_RATE_FIELDS.length,
+      `${slug} carries ${fields.length} fields, which is not a partial page any more`,
+    );
+    assert.ok(note.length > 40, `${slug} needs a real reason a visitor can read`);
+
+    const out = injectShopRates(html, slug);
+    assert.notEqual(out, html, `${slug} should get the bar`);
+    assert.ok(out.includes(note), `${slug} should show its note in the panel`);
+    // The whole point of the exclusion it replaces: the field whose meaning
+    // differs is never written, so it cannot be prefilled with a wrong number.
+    for (const field of SHOP_RATE_FIELDS) {
+      if (fields.some((f) => f.id === field.id)) continue;
+      assert.ok(
+        !out.includes(`"id":"${field.id}"`),
+        `${slug} must not carry ${field.id}, whose meaning differs there`,
+      );
+    }
+  }
+});
+
+test('an undocumented partial page still gets nothing', () => {
+  // The old all-or-nothing rule was right about the unread page: two of the
+  // four is not evidence that those two mean what they mean elsewhere.
+  const partial = page('<input id="overheadRate"><input id="targetMargin">');
+  assert.equal(pageTakesShopRates(partial, 'some-new-calculator'), false);
+  assert.equal(injectShopRates(partial, 'some-new-calculator'), partial);
+});
+
+test('one shared field is below the floor, however it is documented', () => {
+  const single = page('<input id="targetMargin">');
+  assert.equal(pageShopRateFields(single).length, 1);
+  assert.ok(MIN_CARRIED_FIELDS > 1);
+  assert.equal(pageTakesShopRates(single, 'mobile-detailing-bid-calculator'), false);
+});
+
+test('saving on a partial page merges rather than replacing what is stored', () => {
+  // A contractor who saved a wage on a four-field tool, then saves overhead and
+  // margin on a two-field one, must not lose the wage.
+  const out = injectShopRates(
+    page('<input id="overheadRate"><input id="targetMargin">'),
+    'appliance-repair-quote-calculator',
+  );
+  assert.match(out, /var merged = readAll\(\);/);
+  assert.match(out, /Object\.keys\(rates\)\.forEach/);
+});
+
+test('a saved set missing one field still opens the tools that have it', () => {
+  // Was `kept === FIELDS.length ? out : null`, which discarded three good rates
+  // because a fourth had never been saved.
+  const out = injectShopRates(page(form));
+  assert.match(out, /return kept > 0 \? out : null;/);
+});
+
+// ---------------------------------------------------------------------------
 // Injection
 // ---------------------------------------------------------------------------
 
@@ -241,7 +358,9 @@ test('a bid link keeps the sender numbers unless the visitor asks otherwise', ()
   // The rule `share.mjs` exists to protect: a link that computes a different
   // price for the recipient than the sender saw is worse than no link.
   const out = injectShopRates(page(form));
-  assert.match(out, /if \(!force && params\.has\(f\.id\)\)/);
+  // Both spellings: a bid link uses the ids of the page that made it, which for
+  // an aliased field is the page's own id rather than the canonical one.
+  assert.match(out, /if \(!force && \(params\.has\(f\.inputId\) \|\| params\.has\(f\.id\)\)\)/);
   // #1796 moved bid links into the fragment. Reading only location.search
   // would make every shared bid look like an ordinary page and overwrite it.
   assert.match(out, /location\.hash \|\| location\.search/);
