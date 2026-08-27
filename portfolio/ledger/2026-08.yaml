@@ -24552,3 +24552,52 @@ entries:
         against 15, 29 against 35, 11 against 29. Opening PRs for them would
         rebuild the 31-PR pile the previous run drained.
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The customer proposal now ships on 15 bid calculators, up from 3 this
+        morning.** Second batch: `exterior-painting`, `countertop`,
+        `retaining-wall`, `sunroom`, `garage-door`, `foundation-repair` — all
+        high-ticket trades where the homeowner collects three written bids and
+        the proposal is the artifact that decides which one wins. 86 calculators
+        still have none.
+      - >-
+        Three failure modes recur in every adoption batch, now written into
+        `platform/proposal/README.md` because two of the three fail silently.
+        **The disclaimer lands inside a single-quoted JS string**, so a straight
+        apostrophe in the trade sentence ("a licensed engineer's to specify")
+        closes it and the whole module dies with `SyntaxError: Unexpected
+        identifier` — the calculator still renders and only the proposal is
+        dead, which is exactly the kind of break a test that greps the HTML
+        cannot see. **Preset ids on the result are not always the one you want**:
+        `garage-door`'s `result.doorClass` is the *size* class the width falls
+        into, not the construction the contractor picked, and the lookup fails
+        to `undefined` rather than erroring, so the line just vanishes from the
+        quote. **Preset labels are written for the contractor**, and
+        `retaining-wall` lower-cased its way to "segmental block (srw) wall".
+      - >-
+        Both were caught by driving the page in a browser, not by `node --test`.
+        All 12 suites were green while `foundation-repair`'s proposal could not
+        parse and `garage-door` was silently dropping the door construction from
+        the customer's scope. The venture suites read the HTML as text; only a
+        real page load executes the module.
+      - >-
+        Two more figures were fixed for the customer's eyes rather than the
+        arithmetic: `retaining-wall` printed "0.67 ft of buried base course"
+        (now 8") and, from the earlier batch, `paver-patio` printed
+        `Excavate to 9.375"` — both derived decimals rendered as false
+        precision on a quote.
+      - >-
+        Verified: 15 venture suites (879 assertions), `platform/pages` 201,
+        `platform/proposal` 18, all green; `router/validate.py`,
+        `score_ventures.py --check`, `validate_usage.py`,
+        `publish_surface.py --check`, `clauses.mjs`, `check_form_defaults.py`,
+        `check_conflict_markers.py` all exit 0; site rebuilds to 162 products /
+        439 pages with no dead links. All 12 customer journeys driven in
+        Chromium, and print isolation re-checked on the *built* artifact with
+        shop rates saved and the panel open — the only element that prints is
+        `#proposalDoc`.
+    mrr_end: null
