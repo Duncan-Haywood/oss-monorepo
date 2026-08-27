@@ -311,7 +311,11 @@ def next_task(v: Venture) -> str:
         return "Explore: every recorded hypothesis is settled -- write the next one in VENTURE.yaml, then test it."
     if v.mrr is not None and v.monthly_cost is not None and v.mrr < v.monthly_cost:
         return "Review: monthly_cost exceeds mrr -- check against kill_criteria."
-    return "Continue: advance the venture's next documented roadmap task."
+    return (
+        "Continue: if this venture has no public URL, deploy the built surface "
+        "(see portfolio/DIRECTION.md Current priority); otherwise advance the "
+        "next documented roadmap task."
+    )
 
 
 def work_queue(ventures: list[Venture]) -> list[dict]:

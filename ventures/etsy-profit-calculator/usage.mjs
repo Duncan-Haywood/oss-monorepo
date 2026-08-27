@@ -1,6 +1,3 @@
-// Records an anonymous, aggregate-only local usage count: the event name and
-// the current day, kept in the visitor's own browser. It never stores the
-// prices, costs, or any calculator input, and never leaves the device.
 function honorsBrowserSignal() {
   try {
     return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;
