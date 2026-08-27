@@ -209,6 +209,15 @@ test('spreads one per-order fixed fee across a batch threshold', () => {
   near(calculateOrder({ ...input, price: batch.breakEvenPrice }).profit, 0, 'batch break-even');
 });
 
+// Guards the seller-visible payoff of charging the order fee once: batching
+// five units must beat five separate single-unit orders by four fixed fees.
+test('batching beats five separate single-unit orders', () => {
+  const single = calculateOrder({ price: 40, quantity: 1, fixedFee: 0.3 });
+  const batch = calculateOrder({ price: 40, quantity: 5, fixedFee: 0.3 });
+  near(batch.fees.fixed, 0.3, 'one fixed fee for the order');
+  near(batch.profit - single.profit * 5, 0.3 * 4, 'batch saves four duplicate fixed fees');
+});
+
 test('rejects fractional or zero batch quantities', () => {
   assert.throws(() => calculateOrder({ price: 10, quantity: 0 }), /whole number/);
   assert.throws(() => calculateOrder({ price: 10, quantity: 1.5 }), /whole number/);
