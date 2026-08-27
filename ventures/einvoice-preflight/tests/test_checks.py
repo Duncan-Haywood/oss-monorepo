@@ -818,6 +818,20 @@ class ChecksTest(unittest.TestCase):
                 "invoice_preflight_github_report": 1,
             }})
 
+    # The failing-JUnit case lives further down as
+    # test_cli_emits_junit_for_findings_without_invoice_contents, which also
+    # covers XML-escaping the filename. A second copy here would silently
+    # shadow it rather than add coverage, so only the clean case is new.
+    def test_cli_emits_passing_junit_for_clean_invoice(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "junit"]), 0)
+            self.assertIn('tests="1" failures="0"', output.getvalue())
+            self.assertNotIn("<failure", output.getvalue())
+
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
         with patch("sys.stdin", io.StringIO(json.dumps(VALID))), contextlib.redirect_stdout(output):
