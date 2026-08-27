@@ -247,6 +247,22 @@ test('calculator surfaces compareKitting on the quote itself', async () => {
   assert.equal(cells.length, columns, "renderKitting emits a different cell count than the header row");
 });
 
+test('calculator surfaces compareReturnDisposition on the quote itself', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /id="return-disposition"/);
+  assert.match(index, /compareReturnDisposition/);
+  assert.match(index, /returnDispositionSummary/);
+  assert.match(index, /id="dispositionRows"/);
+  assert.match(index, /return_disposition_compared/);
+  assert.match(index, /name="unitCost"/);
+  assert.match(index, /name="restockableRate"/);
+  const dispositionTable = index.match(/<table id="dispositionTable">[\s\S]*?<\/table>/);
+  assert.ok(dispositionTable, "index.html is missing the return-disposition comparison table");
+  const columns = dispositionTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderDisposition[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderDisposition emits a different cell count than the header row");
+});
+
 test('calculator surfaces compareAgedStorage on the quote itself', async () => {
   const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(index, /id="aged-storage"/);
