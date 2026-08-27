@@ -16,6 +16,13 @@ test('page exposes the line-by-line review export', async () => {
   assert.match(page, /id="report"/);
 });
 
+test('calculator copy falls back when the Clipboard API is denied', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\('copy'\)/);
+  assert.match(page, /async function copyText/);
+});
+
 test('page persists quote inputs locally', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /localStorage\.setItem\(saveKey/);
