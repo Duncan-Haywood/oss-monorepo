@@ -593,6 +593,56 @@
     </table>
     <p id="packNote" class="note"></p>
   </section>
+  <section class="pack" id="low-inventory" aria-labelledby="low-inventory-heading">
+    <h2 id="low-inventory-heading">Does restocking beat the low-inventory-level fee?</h2>
+    <p>
+      Amazon charges a per-unit low-inventory-level fee when both the
+      30-day and 90-day days of supply sit below 28 days. The dedicated
+      <a href="low-inventory-level-fee.html">low-inventory-level fee calculator</a>
+      already has the full math. This block uses the same
+      <code>compareLowInventory</code> on the listing you just typed, so
+      you do not leave the page to check whether sending extra units
+      beats paying the fee. Defaults match that page: 10 on-hand units,
+      30 sold last 30 days, 90 sold last 90 days.
+    </p>
+    <div class="fields" style="margin-bottom: 14px;">
+      <label>On-hand units
+        <input id="onHandUnits" type="number" min="0" step="1" value="10">
+      </label>
+      <label>Sold last 30 days
+        <input id="soldLast30Days" type="number" min="0" step="1" value="30">
+      </label>
+      <label>Sold last 90 days
+        <input id="soldLast90Days" type="number" min="0" step="1" value="90">
+      </label>
+      <label>Low-inventory fee / unit <span class="hint">optional; blank uses the size-tier band</span>
+        <input id="lowInventoryFee" type="number" min="0" step="0.01" placeholder="auto from size tier">
+      </label>
+      <label class="span2" style="display:flex;gap:.5rem;align-items:center;font-weight:600">
+        <input id="groceryExempt" type="checkbox" style="width:auto">
+        Grocery / gourmet exemption (you confirm)
+      </label>
+      <label class="span2" style="display:flex;gap:.5rem;align-items:center;font-weight:600">
+        <input id="newFnskuExempt" type="checkbox" style="width:auto">
+        New FNSKU exemption (you confirm)
+      </label>
+    </div>
+    <p id="lowInventoryVerdict" class="verdict"></p>
+    <table id="lowInventoryTable">
+      <caption>Stay thin and pay the fee versus restocking enough extra units to reach 28 days of supply</caption>
+      <thead>
+        <tr>
+          <th scope="col">Policy</th>
+          <th scope="col">Days of supply</th>
+          <th scope="col">Monthly LIL</th>
+          <th scope="col">Extra storage</th>
+          <th scope="col">Monthly gap</th>
+        </tr>
+      </thead>
+      <tbody id="lowInventoryRows"></tbody>
+    </table>
+    <p id="lowInventoryNote" class="note"></p>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -771,8 +821,10 @@
       compareSellerPlanVolumes,
       compareSizeTierPackaging,
       compareSubscribeSave,
+      compareLowInventory,
       couponSummary,
       sizeTierPackagingNote,
+      lowInventoryNote,
       placementSummary,
       returnsSummary,
       prepSummary,
@@ -796,6 +848,7 @@
       "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
       "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
       "repackCostPerUnit", "peakMonths",
+      "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
@@ -861,6 +914,61 @@
         return tr;
       }));
       document.getElementById("packNote").textContent = sizeTierPackagingNote(comparison);
+    }
+
+    // Surfaces restock vs the low-inventory-level fee on the calculator
+    // itself. The same arithmetic already backs low-inventory-level-fee.html;
+    // a seller who is already typing a listing should not have to leave the
+    // page to learn whether sending extra units beats paying the surcharge.
+    function renderLowInventory(input) {
+      const result = compareLowInventory(input);
+      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const verdict = document.getElementById("lowInventoryVerdict");
+      if (!result.applies) {
+        verdict.textContent = result.reason === "fbm"
+          ? "The low-inventory-level fee is FBA-only. Switch fulfillment to FBA to compare restocking against the fee."
+          : result.reason === "not_entered"
+            ? "Enter on-hand units and recent sold units to check whether restocking beats the fee."
+            : "No low-inventory-level surcharge on these windows";
+      } else if (result.cheaperPolicy === "restock") {
+        verdict.textContent = `Restocking to 28 days avoids ${signed(result.restockSavesPerMonth)} more per month`;
+      } else if (result.cheaperPolicy === "stay_thin") {
+        verdict.textContent = `Staying thin leaves ${signed(-result.restockSavesPerMonth)} more per month`;
+      } else {
+        verdict.textContent = "Both policies leave the same monthly cash";
+      }
+      document.getElementById("lowInventoryNote").textContent = lowInventoryNote(result);
+      const stayDays = Number.isFinite(result.bandDays) ? result.bandDays.toFixed(1) : "—";
+      const rows = [
+        {
+          id: "stay_thin",
+          label: "Stay thin",
+          days: stayDays,
+          lil: result.monthlyFee,
+          storage: 0,
+          gap: 0,
+        },
+        {
+          id: "restock",
+          label: `Restock ${result.extraUnitsTo28.toFixed(1)} to 28 days`,
+          days: "28.0",
+          lil: 0,
+          storage: result.extraStoragePerMonth,
+          gap: result.restockSavesPerMonth,
+        },
+      ];
+      document.getElementById("lowInventoryRows").replaceChildren(...rows.map((row) => {
+        const tr = document.createElement("tr");
+        if (result.cheaperPolicy === row.id || (result.cheaperPolicy === "tie" && result.applies)) {
+          tr.className = "winner-row";
+        }
+        packCell(tr, row.label);
+        packCell(tr, row.days);
+        packCell(tr, signed(row.lil));
+        packCell(tr, signed(row.storage));
+        packCell(tr, row.id === "stay_thin" ? "Current" : signed(row.gap));
+        return tr;
+      }));
     }
 
     function fulfillmentMethod() {
@@ -939,10 +1047,13 @@
       if (raw.largeInboundPerUnit === "") delete raw.largeInboundPerUnit;
       if (raw.largeMonthsInStorage === "") delete raw.largeMonthsInStorage;
       if (raw.amazonPrepFee === "") delete raw.amazonPrepFee;
+      if (raw.lowInventoryFee === "") delete raw.lowInventoryFee;
       return {
         ...raw,
         fulfillmentMethod: fulfillmentMethod(),
         lowPriceEligible: document.getElementById("lowPriceEligible").checked,
+        groceryExempt: document.getElementById("groceryExempt").checked,
+        newFnskuExempt: document.getElementById("newFnskuExempt").checked,
       };
     }
 
@@ -1238,6 +1349,15 @@
           document.getElementById("packNote").textContent = "Fix the carton dimensions and weight to see the size-tier comparison.";
           document.getElementById("packRows").replaceChildren();
         }
+        // Own try/catch, matching pack: a missing on-hand figure should not
+        // blank the headline profit result.
+        try {
+          renderLowInventory({ ...readInput(), sizeTier: result.sizeTier });
+        } catch (lowInventoryError) {
+          document.getElementById("lowInventoryVerdict").textContent = lowInventoryError.message;
+          document.getElementById("lowInventoryNote").textContent = "Fix the on-hand and sold-unit fields to see the restock comparison.";
+          document.getElementById("lowInventoryRows").replaceChildren();
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -1261,6 +1381,9 @@
         document.getElementById("packVerdict").textContent = "";
         document.getElementById("packNote").textContent = "";
         document.getElementById("packRows").replaceChildren();
+        document.getElementById("lowInventoryVerdict").textContent = "";
+        document.getElementById("lowInventoryNote").textContent = "";
+        document.getElementById("lowInventoryRows").replaceChildren();
       }
     }
 
@@ -1318,6 +1441,9 @@
       "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
       "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
     ]);
+    const lowInventoryFields = new Set([
+      "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
+    ]);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
       if (autoFields.has(id) && !syncingFee) {
         document.getElementById(id).dataset.auto = "0";
@@ -1345,12 +1471,19 @@
           : prepFields.has(id) ? "prep_compared"
           : placementFields.has(id) ? "inbound_placement_compared"
           : returnFields.has(id) ? "return_rate_calculated"
+          : lowInventoryFields.has(id) ? "low_inventory_compared"
             : "listing_profit_calculated",
       );
     }));
     document.getElementById("lowPriceEligible").addEventListener("change", () => {
       update();
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_price_fba_compared");
+    });
+    ["groceryExempt", "newFnskuExempt"].forEach((id) => {
+      document.getElementById(id).addEventListener("change", () => {
+        update();
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "low_inventory_compared");
+      });
     });
     document.querySelectorAll('input[name="fulfillmentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {

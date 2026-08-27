@@ -121,6 +121,9 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(markup, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(markup, /should-i-use-seller-fulfilled-prime\.html/);
   assert.match(markup, /low-inventory-level-fee\.html/);
+  assert.match(markup, /id="low-inventory"/);
+  assert.match(scriptSource, /compareLowInventory/);
+  assert.match(scriptSource, /low_inventory_compared/);
   assert.match(markup, /should-i-use-amazon-awd\.html/);
   assert.match(markup, /should-i-use-amazon-remote-fulfillment\.html/);
   assert.match(markup, /should-i-liquidate-aged-fba-inventory\.html/);
