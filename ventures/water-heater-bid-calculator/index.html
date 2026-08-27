@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Water Heater Replacement Bid Calculator | How Much to Charge to Replace a Water Heater</title>
+  <meta name="description" content="Price a residential water heater replacement from the tank or tankless type, the location, the vent, and the gas or electrical path — plus walk-away price, dollars per gallon, and how many times a typical 50-gallon electric garage swap this house really is.">
+  <meta property="og:title" content="Water Heater Replacement Bid Calculator">
+  <meta property="og:description" content="Bid the vent, the 3/4-inch gas upsize, and the attic carry — not a flat $1,200 installed guess — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Water Heater Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Tank vs tankless vs heat-pump takeoff, attic and crawl access hours, B-vent vs concentric sidewall, 3/4-inch gas upsize, 240 V and panel work, expansion tank and drip pan, walk-away price, dollars per gallon, typical-swap comparison, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to replace a water heater?","acceptedAnswer":{"@type":"Answer","text":"There is no flat installed price. A same-day 50-gallon electric tank in a garage is a different job from a condensing tankless on a 3/4-inch gas upsize with a sidewall vent and an attic carry. This calculator prices the heater type, the location, the vent, and the gas or electrical path from your own wage and material inputs."}},{"@type":"Question","name":"Is this a plumbing-code ruling or a first-hour-rating calculation?","acceptedAnswer":{"@type":"Answer","text":"No. Outputs are arithmetic on the numbers you enter. Capacity hints are starting points, not a first-hour rating, fuel-gas table, or manufacturer clearance you can stamp or submit."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #f3eee8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b1f; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d8cfc3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a4e42; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b8aa98; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b8aa98; background: #f6f0e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #eee4d6; }
+    .result { position: sticky; top: 15px; background: #3b2414; color: #f8f1e8; border-color: #3b2414; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0a36a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a4e42; }
+    footer a { color: #8a4b1f; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0d2b0; }
+    .opt { display: flex; gap: 8px; align-items: flex-start; font-weight: 500; }
+    .opt input { width: auto; }
+    .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields, .checks { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .no-print, footer, .summary-actions { display: none !important; }
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; color: #111; background: #fff; border: 1px solid #ccc; }
+      .hero-number { color: #111; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PLUMBERS AND WATER-HEATER INSTALLERS</p>
+    <h1>Price the vent, the gas upsize, and the attic — not a flat $1,200 swap.</h1>
+    <p>Homeowners search “how much to replace a water heater” and come back with one number. A 50-gallon electric tank in a garage is not a condensing tankless on a 3/4-inch gas upsize with a sidewall vent and an attic carry. Enter the machine, the location, and the path. You get the installed price, dollars per gallon, and how many times a typical garage swap this house really is.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The heater and the house</h2>
+        <p class="hint">The labor follows the type and the location. The gas line follows the tankless, not the old tank. Mixing those two is how a $1,200 bid fails on the first visit.</p>
+        <div class="fields">
+          <label>Heater type
+            <select id="heaterType"></select>
+          </label>
+          <label>Tank gallons
+            <select id="capacityGallons"></select>
+          </label>
+          <label>Tankless GPM
+            <select id="tanklessGpm"></select>
+          </label>
+          <label>Location
+            <select id="location"></select>
+          </label>
+          <label>Venting
+            <select id="venting"></select>
+          </label>
+          <label>Vent length (ft)
+            <input id="ventFeet" type="number" min="0" step="1">
+          </label>
+          <label>Gas line
+            <select id="gasLine"></select>
+          </label>
+          <label>Gas-line length (ft)
+            <input id="gasLineFeet" type="number" min="0" step="1">
+          </label>
+          <label>Electrical
+            <select id="electrical"></select>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Add-ons the flat price forgets</h2>
+        <p class="hint">These are the lines that turn a same-day tank swap into a real ticket. Starting dollars are takeoff points, not a standard.</p>
+        <div class="checks">
+          <label><input id="expansionTank" type="checkbox"> Expansion tank</label>
+          <label><input id="dripPan" type="checkbox"> Drip pan / drain</label>
+          <label><input id="condensate" type="checkbox"> Condensate drain or pump</label>
+          <label><input id="recirc" type="checkbox"> Recirculation pump</label>
+          <label><input id="haulAway" type="checkbox"> Haul away the old unit</label>
+          <label><input id="seismic" type="checkbox"> Seismic straps</label>
+          <label><input id="mixingValve" type="checkbox"> Mixing / tempering valve</label>
+          <label><input id="isolationValves" type="checkbox"> Tankless service valves</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your rates</h2>
+        <p class="hint">Starting hours and material dollars are takeoff points, not a standard. Replace them with the truck’s last invoice.</p>
+        <div class="fields">
+          <label>Hourly wage ($)
+            <input id="hourlyWage" type="number" min="0" step="1">
+          </label>
+          <label>Payroll burden (%)
+            <input id="burdenRate" type="number" min="0" step="1">
+          </label>
+          <label>Overhead on cost (%)
+            <input id="overheadRate" type="number" min="0" step="1">
+          </label>
+          <label>Target margin (% of price)
+            <input id="targetMargin" type="number" min="0" max="99" step="1">
+          </label>
+          <label>Permit / inspection ($)
+            <input id="permitFee" type="number" min="0" step="1">
+          </label>
+          <label>Heater hardware (optional, $)
+            <input id="heaterHardware" type="number" min="0" step="1">
+          </label>
+          <label>Other materials ($)
+            <input id="otherMaterials" type="number" min="0" step="1">
+          </label>
+          <label>Other hours
+            <input id="otherHours" type="number" min="0" step="0.25">
+          </label>
+          <label>Price already on the table ($)
+            <input id="proposedPrice" type="number" min="0" step="1" placeholder="optional">
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <p class="eyebrow" style="color:#e0a36a">YOUR BID</p>
+      <p id="price" class="hero-number">—</p>
+      <p id="priceLabel" class="note">installed price</p>
+      <dl>
+        <dt>Walk-away (total cost)</dt><dd id="breakEven"></dd>
+        <dt>Profit at target margin</dt><dd id="profit"></dd>
+        <dt>Labor hours</dt><dd id="laborHours"></dd>
+        <dt>Loaded wage</dt><dd id="loadedWage"></dd>
+        <dt>Labor cost</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Effective billing rate</dt><dd id="hourlyRate"></dd>
+        <dt>Dollars per gallon / GPM</dt><dd id="perUnit"></dd>
+        <dt>Vs a typical 50-gal electric garage swap</dt><dd id="vsBaseline"></dd>
+      </dl>
+      <hr>
+      <p class="note">Labor split</p>
+      <ul id="split" class="split"></ul>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions no-print">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <button type="button" id="printQuote">Print quote</button>
+        <span id="summaryStatus" class="summary-status"></span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing, electrical, engineering, code, legal, tax, financial, or contracting advice, and it does not replace a licensed plumber, electrician, or the authority having jurisdiction. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any permit, inspection, fuel-gas, or manufacturer obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Nothing leaves your browser. A share link encodes only the inputs you put in the address bar. Anonymous local usage counts stay on this device and never include the house, wages, or prices. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <label class="opt"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <label class="opt"><input id="draftOptOut" type="checkbox"> Do not keep a local draft of these inputs</label>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      ELECTRICAL,
+      GALLON_PRESETS,
+      GAS_LINES,
+      GPM_PRESETS,
+      HEATER_TYPES,
+      INPUT_FIELDS,
+      LOCATIONS,
+      VENTING,
+      calculateBid,
+      defaultInputs,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+
+    const DRAFT_KEY = 'water-heater-bid-draft';
+    const CHECKBOX_FIELDS = new Set([
+      'expansionTank', 'dripPan', 'condensate', 'recirc', 'haulAway', 'seismic', 'mixingValve', 'isolationValves',
+    ]);
+    const el = (id) => document.getElementById(id);
+    const money = (value) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+    function fillSelect(id, rows, getValue, getLabel) {
+      el(id).innerHTML = rows.map((row) => `<option value="${getValue(row)}">${getLabel(row)}</option>`).join('');
+    }
+
+    fillSelect('heaterType', HEATER_TYPES, (row) => row.id, (row) => row.label);
+    fillSelect('capacityGallons', GALLON_PRESETS, (row) => row, (row) => `${row} gal`);
+    fillSelect('tanklessGpm', GPM_PRESETS, (row) => row, (row) => `${row} GPM`);
+    fillSelect('location', LOCATIONS, (row) => row.id, (row) => row.label);
+    fillSelect('venting', VENTING, (row) => row.id, (row) => row.label);
+    fillSelect('gasLine', GAS_LINES, (row) => row.id, (row) => row.label);
+    fillSelect('electrical', ELECTRICAL, (row) => row.id, (row) => row.label);
+
+    function readInputs() {
+      const input = {};
+      for (const field of INPUT_FIELDS) {
+        const node = el(field);
+        input[field] = CHECKBOX_FIELDS.has(field) ? (node.checked ? 1 : 0) : node.value;
+      }
+      return input;
+    }
+
+    function writeInputs(input) {
+      const defaults = defaultInputs();
+      const merged = { ...defaults, ...input };
+      for (const field of INPUT_FIELDS) {
+        const node = el(field);
+        if (!node) continue;
+        if (CHECKBOX_FIELDS.has(field)) {
+          node.checked = Number(merged[field]) === 1;
+        } else {
+          node.value = merged[field] ?? '';
+        }
+      }
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function saveDraft() {
+      if (el('draftOptOut').checked) {
+        try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+        return;
+      }
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs())); } catch { /* ignore */ }
+    }
+
+    function loadDraft() {
+      const shared = decodeInputs(location.hash || location.search);
+      if (Object.keys(shared).length) return shared;
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        return raw ? JSON.parse(raw) : defaultInputs();
+      } catch {
+        return defaultInputs();
+      }
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'installed price';
+      ['breakEven', 'profit', 'laborHours', 'loadedWage', 'labor', 'materials', 'overhead', 'hourlyRate', 'perUnit', 'vsBaseline']
+        .forEach((id) => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    const HOUR_LABELS = {
+      base: 'Pull and set',
+      location: 'Access / carry',
+      vent: 'Venting',
+      gas: 'Gas line',
+      electrical: 'Electrical',
+      expansion: 'Expansion tank',
+      pan: 'Drip pan',
+      condensate: 'Condensate',
+      recirc: 'Recirc pump',
+      haul: 'Haul-away',
+      seismic: 'Seismic straps',
+      mixing: 'Mixing valve',
+      isolation: 'Service valves',
+      inspection: 'Inspection',
+      other: 'Other',
+    };
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInputs());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        saveDraft();
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'installed price';
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('profit').textContent = money(result.profit);
+      el('laborHours').textContent = `${result.laborHours.toFixed(1)} h`;
+      el('loadedWage').textContent = `${money(result.loadedWage)}/h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialsCost);
+      el('overhead').textContent = money(result.overhead);
+      el('hourlyRate').textContent = result.effectiveHourlyRate == null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('perUnit').textContent = result.pricePerGallon != null
+        ? `${money(result.pricePerGallon)} / gal`
+        : result.pricePerGpm != null
+          ? `${money(result.pricePerGpm)} / GPM`
+          : 'n/a';
+      el('vsBaseline').textContent = result.vsBaseline == null ? 'n/a' : `${result.vsBaseline.toFixed(2)}×`;
+
+      const worked = Object.entries(result.hours).filter(([, hours]) => hours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No labor hours yet.</li>'
+        : worked
+          .sort((a, b) => b[1] - a[1])
+          .map(([key, hours]) => {
+            const share = (hours / result.laborHours) * 100;
+            return `<li><span>${HOUR_LABELS[key] || key}</span><span>${hours.toFixed(1)} h</span>
+              <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`;
+          })
+          .join('');
+
+      const verdict = el('verdict');
+      const notes = [...result.warnings];
+      if (result.proposed) {
+        notes.unshift(
+          result.proposed.belowBreakEven
+            ? `At ${money(result.proposed.price)} this job loses ${money(Math.abs(result.proposed.profit))} before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+            : `At ${money(result.proposed.price)} you keep ${money(result.proposed.profit)} — a ${result.proposed.margin.toFixed(1)}% margin.`,
+        );
+      }
+      if (notes.length === 0) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed?.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = notes.map((line) => `<p>${line}</p>`).join('');
+      }
+      saveDraft();
+    }
+
+    function summaryText(result) {
+      return [
+        'WATER HEATER REPLACEMENT BID',
+        '',
+        `Proposed installed price: ${money(result.price)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Machine: ${result.heaterLabel}${result.family === 'tankless' ? `, ${result.tanklessGpm} GPM` : `, ${result.capacityGallons} gal`}`,
+        `Location: ${result.location}; vent: ${result.venting} (${result.ventFeet} ft)`,
+        `Gas: ${result.gasLine} (${result.gasLineFeet} ft); electrical: ${result.electrical}`,
+        `Labor: ${result.laborHours.toFixed(1)} hours`,
+        result.pricePerGallon == null ? '' : `Dollars per gallon: ${money(result.pricePerGallon)}`,
+        result.pricePerGpm == null ? '' : `Dollars per GPM: ${money(result.pricePerGpm)}`,
+        result.vsBaseline == null ? '' : `Vs typical 50-gal electric garage swap: ${result.vsBaseline.toFixed(2)}×`,
+        '',
+        'This is a draft for review. Confirm first-hour rating, fuel-gas sizing, electrical capacity, permits, manufacturer clearances, and all pricing before sending.',
+      ].filter(Boolean).join('\n');
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInputs());
+      await copyText(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const hash = encodeInputs(readInputs());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await copyText(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    INPUT_FIELDS.forEach((id) => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('draftOptOut').addEventListener('change', saveDraft);
+    el('copySummary').addEventListener('click', () => {
+      copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+    });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+    });
+    el('printQuote').addEventListener('click', () => {
+      count('quote_printed');
+      window.print();
+    });
+
+    writeInputs(loadDraft());
+    update();
+  </script>
+</body>
+</html>

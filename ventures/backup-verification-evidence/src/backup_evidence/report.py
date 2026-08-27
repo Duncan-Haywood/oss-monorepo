@@ -34,7 +34,7 @@ def _parse_timestamp(value: str) -> datetime:
     return parsed
 
 
-def classify_run(record: dict[str, Any]) -> dict[str, Any]:
+def classify_run(record: dict[str, Any], *, require_integrity: bool = False) -> dict[str, Any]:
     """Classify one backup run record. Never raises on customer-supplied input.
 
     `record` shape (all customer-supplied, nothing fetched or inferred):
@@ -44,7 +44,10 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
       artifact: {exists: bool, size_bytes: int, modified_at: str,
                  integrity: {result, format, detail} | null} | null
       expected: {max_age_hours: number, min_size_bytes: int} | null -- both optional
-      log_tail: str | null -- last lines of the tool's own output, for context only
+      log_tail: str -- last lines of the tool's own output, for context only.
+                Absent unless the operator passed `record --include-log-tail`:
+                backup output can carry paths, hostnames, or application data,
+                so it is kept out of the durable record by default.
     """
     reasons: list[str] = []
     missing = [field for field in REQUIRED_FIELDS if record.get(field) in (None, "")]
@@ -122,6 +125,21 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
             f"the artifact's integrity could not be established: "
             f"{integrity.get('detail', 'the integrity check did not complete')}"
         )
+
+    if require_integrity and integrity_result != integrity_mod.INTACT:
+        if integrity_result == integrity_mod.UNSUPPORTED:
+            reason = "the artifact format is unsupported by this tool"
+        elif integrity_result == integrity_mod.INCONCLUSIVE:
+            reason = "the integrity read did not reach a conclusive end"
+        else:
+            reason = "no end-to-end integrity check was recorded"
+        return {
+            "status": STATUS_INCONCLUSIVE,
+            "reasons": [f"integrity is required, but {reason}"],
+            "tool": record["tool"],
+            "finished_at": record["finished_at"],
+            "integrity": integrity,
+        }
 
     expected = record.get("expected") or {}
     size_bytes = artifact.get("size_bytes")
@@ -210,7 +228,9 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_history_report(records: list[dict[str, Any]]) -> dict[str, Any]:
+def build_history_report(
+    records: list[dict[str, Any]], *, require_integrity: bool = False
+) -> dict[str, Any]:
     """Classify a list of run records and summarize the most recent one.
 
     Records are sorted by `finished_at` where parseable; unparseable timestamps
@@ -225,7 +245,7 @@ def build_history_report(records: list[dict[str, Any]]) -> dict[str, Any]:
         return (0, record["finished_at"])
 
     ordered = sorted(records, key=sort_key)
-    findings = [classify_run(record) for record in ordered]
+    findings = [classify_run(record, require_integrity=require_integrity) for record in ordered]
     counts: dict[str, int] = {}
     for finding in findings:
         counts[finding["status"]] = counts.get(finding["status"], 0) + 1
@@ -269,6 +289,166 @@ def build_history_report(records: list[dict[str, Any]]) -> dict[str, Any]:
         "latest": latest,
         "findings": findings,
         "limitations": limitations,
+        "require_integrity": require_integrity,
+    }
+
+
+DEFAULT_SHRINK_RATIO = 0.20
+
+_STATUS_SEVERITY = {
+    STATUS_VERIFIED: 0,
+    STATUS_INCONCLUSIVE: 1,
+    STATUS_SUSPICIOUS: 2,
+    STATUS_FAILED: 3,
+}
+
+
+def _artifact_size_bytes(record: dict[str, Any]) -> int | None:
+    artifact = record.get("artifact") or {}
+    size = artifact.get("size_bytes")
+    if isinstance(size, bool) or not isinstance(size, (int, float)):
+        return None
+    if size < 0:
+        return None
+    return int(size)
+
+
+def _median(values: list[int]) -> float:
+    ordered = sorted(values)
+    count = len(ordered)
+    mid = count // 2
+    if count % 2:
+        return float(ordered[mid])
+    return (ordered[mid - 1] + ordered[mid]) / 2
+
+
+def _ordered_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    def sort_key(record: dict[str, Any]) -> tuple[int, str]:
+        try:
+            _parse_timestamp(str(record.get("finished_at", "")))
+        except (ValueError, TypeError):
+            return (1, str(record.get("finished_at", "")))
+        return (0, str(record["finished_at"]))
+
+    return sorted(records, key=sort_key)
+
+
+def build_trend(
+    records: list[dict[str, Any]],
+    shrink_ratio: float = DEFAULT_SHRINK_RATIO,
+) -> dict[str, Any]:
+    """Compare consecutive nights so a shrinking-but-green backup is visible.
+
+    A run can be `verified` (exit 0, size floor met) while the archive is
+    half yesterday's size -- a dropped table, a failed incremental, a
+    destination that filled up mid-write then recovered enough to look
+    "big enough". Per-run classification cannot see that. This does not
+    certify that growth is healthy; it only flags drops of `shrink_ratio`
+    (default 20%) versus the previous night or the median of prior nights.
+    """
+    if not isinstance(shrink_ratio, (int, float)) or not (0 < float(shrink_ratio) < 1):
+        shrink_ratio = DEFAULT_SHRINK_RATIO
+    else:
+        shrink_ratio = float(shrink_ratio)
+
+    ordered = _ordered_records(records)
+    findings = [classify_run(record) for record in ordered]
+    rows: list[dict[str, Any]] = []
+    alerts: list[dict[str, Any]] = []
+    previous_size: int | None = None
+    previous_status: str | None = None
+    previous_finished: Any = None
+    prior_sizes: list[int] = []
+
+    for record, finding in zip(ordered, findings):
+        size = _artifact_size_bytes(record)
+        size_change_pct = None
+        shrinking_vs_previous = False
+        shrinking_vs_median = False
+        status_regression = False
+
+        if previous_size is not None and size is not None and previous_size > 0:
+            size_change_pct = round(((size - previous_size) / previous_size) * 100, 1)
+            if size <= previous_size * (1 - shrink_ratio):
+                shrinking_vs_previous = True
+                alerts.append(
+                    {
+                        "kind": "shrinking_vs_previous",
+                        "finished_at": finding.get("finished_at"),
+                        "detail": (
+                            f"{finding.get('finished_at')} is {abs(size_change_pct):.1f}% smaller "
+                            f"than the previous run ({previous_finished}) -- "
+                            f"{previous_size} bytes to {size} bytes"
+                        ),
+                    }
+                )
+
+        if size is not None and len(prior_sizes) >= 3:
+            median = _median(prior_sizes)
+            if median > 0 and size <= median * (1 - shrink_ratio):
+                drop_pct = round(((median - size) / median) * 100, 1)
+                shrinking_vs_median = True
+                alerts.append(
+                    {
+                        "kind": "shrinking_vs_median",
+                        "finished_at": finding.get("finished_at"),
+                        "detail": (
+                            f"{finding.get('finished_at')} is {drop_pct:.1f}% below the "
+                            f"median of the previous {len(prior_sizes)} night(s) "
+                            f"({int(median)} bytes to {size} bytes)"
+                        ),
+                    }
+                )
+
+        previous_severity = _STATUS_SEVERITY.get(previous_status or "", -1)
+        current_severity = _STATUS_SEVERITY.get(finding["status"], 0)
+        if previous_status is not None and current_severity > previous_severity:
+            status_regression = True
+            alerts.append(
+                {
+                    "kind": "status_regression",
+                    "finished_at": finding.get("finished_at"),
+                    "detail": (
+                        f"{finding.get('finished_at')} worsened from {previous_status} "
+                        f"to {finding['status']}"
+                    ),
+                }
+            )
+
+        rows.append(
+            {
+                "finished_at": finding.get("finished_at"),
+                "tool": finding.get("tool"),
+                "status": finding["status"],
+                "size_bytes": size,
+                "previous_size_bytes": previous_size,
+                "size_change_pct": size_change_pct,
+                "shrinking_vs_previous": shrinking_vs_previous,
+                "shrinking_vs_median": shrinking_vs_median,
+                "status_regression": status_regression,
+            }
+        )
+
+        if size is not None:
+            prior_sizes.append(size)
+            previous_size = size
+        previous_status = finding["status"]
+        previous_finished = finding.get("finished_at")
+
+    return {
+        "shrink_ratio": shrink_ratio,
+        "row_count": len(rows),
+        "alert_count": len(alerts),
+        "latest": rows[-1] if rows else None,
+        "rows": rows,
+        "alerts": alerts,
+        "limitations": [
+            "A size drop is an observation, not a determination that data was lost.",
+            "Incremental backups and retention pruning can shrink a repository on purpose.",
+            f"Only drops of {int(round(shrink_ratio * 100))}% or more versus the previous "
+            "night or the prior-night median are flagged.",
+            "This does not replace a test restore.",
+        ],
     }
 
 
@@ -316,6 +496,38 @@ def markdown_report(report: dict[str, Any]) -> str:
             f"| {_cell(finding.get('finished_at'))} | {_cell(finding.get('tool'))} "
             f"| **{finding['status']}** | {reasons} |"
         )
+    trend = report.get("trend")
+    if trend:
+        lines.extend(["", "## Night-over-night trend", ""])
+        if trend["alerts"]:
+            lines.append("**Alerts**")
+            lines.extend(f"- {alert['detail']}" for alert in trend["alerts"])
+            lines.append("")
+        else:
+            lines.append("No size drop or status regression crossed the trend threshold.")
+            lines.append("")
+        lines.extend(
+            [
+                "| Finished at | Status | Size | vs previous | Flags |",
+                "|---|---|---|---|---|",
+            ]
+        )
+        for row in trend["rows"]:
+            size = "unknown" if row["size_bytes"] is None else f"{row['size_bytes']} bytes"
+            change = "—" if row["size_change_pct"] is None else f"{row['size_change_pct']:+.1f}%"
+            flags = []
+            if row["shrinking_vs_previous"]:
+                flags.append("smaller than previous")
+            if row["shrinking_vs_median"]:
+                flags.append("below prior median")
+            if row["status_regression"]:
+                flags.append("status worsened")
+            lines.append(
+                f"| {_cell(row.get('finished_at'))} | **{row['status']}** | {_cell(size)} "
+                f"| {_cell(change)} | {_cell(', '.join(flags) or '—')} |"
+            )
+        lines.append("")
+        lines.extend(f"- {limit}" for limit in trend["limitations"])
     lines.extend(["", "## Limits", ""])
     lines.extend(f"- {limit}" for limit in report["limitations"])
     return "\n".join(lines) + "\n"
