@@ -1,5 +1,5 @@
 name: freight-accessorial-auditor
-description: A private browser tool that finds duplicate and over-billed freight accessorial charges before a shipper pays.
+description: A private browser tool that imports a carrier's own invoice export, applies the shipper's contract rate card — flat or per hour, day, or hundredweight with a free allowance and a cap — and finds duplicate and over-billed freight accessorial charges before they pay, citing the contract term behind each expected amount, plus a detention clock check, a fuel-surcharge percent-of-linehaul check, and a comparison of eating an extra, billing the customer, or reviewing for a credit.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -7,10 +7,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
-  - claim: A deterministic local audit with a downloadable review queue can save enough review time to earn repeat use.
+  - claim: A deterministic local audit with a downloadable review queue and a detention clock check can save enough review time to earn repeat use.
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Shippers will import a whole invoice export rather than retype the lines they already suspect, and the duplicates a partial review misses are what makes the audit worth repeating.
+    status: untested
+    checked: null
+    evidence: in-repo
 economics:
   currency: USD
   mrr: null
@@ -21,7 +25,7 @@ budget:
   protected: true
 kill_criteria:
   - Fewer than three shippers run two audits within 90 days.
-  - Users cannot identify a real duplicate, overage, or contract mismatch in a supplied invoice.
+  - Users cannot identify a real duplicate, overage, or clock mismatch on a supplied invoice.
 links:
   production: null
   analytics: null

@@ -23,9 +23,12 @@ strategy, competitive analysis, and a 10-year roadmap.
 Early-stage / pre-product. Vision and constitution drafted; curriculum and
 platform design not yet started. `site/` is a static build (`npm run build`)
 that renders the constitution's markdown into a browsable HTML site
-(`docs/00-overview.md` and friends).
+(`docs/00-overview.md` and friends) and assembles every calculator under
+`tools/` into `dist/tools/`. The hub page is generated from each tool's
+own `<title>` and `<meta name="description">`, so adding a seventh
+calculator does not mean editing a second listing.
 
-Four learner-facing artifacts now exist, all free, zero-dependency,
+Six learner-facing artifacts now exist, all free, zero-dependency,
 client-side static pages (LICENSE, disclaimer, privacy line, local-first
 usage counting, unit tested), listed together on
 [`tools/index.html`](tools/index.html) — a hub page so someone who lands on
@@ -54,25 +57,29 @@ existing pages:
   (RC/RL × low/high-pass), with a design mode that solves for the missing
   component from a target cutoff and snaps it to a buyable standard value
   (24 passing unit tests).
+- [`tools/rc-time-calculator/`](tools/rc-time-calculator/) — capacitor charge
+  and discharge timing to a chosen voltage threshold, plus inverse delay design
+  that snaps the missing resistor or capacitor to a preferred value (6 passing
+  unit tests).
 
-All five are deliberately narrower than "the MVP": small, self-contained
+All six are deliberately narrower than "the MVP": small, self-contained
 tools for the Circuits corner of the planned EE track, not a curriculum.
 None is yet deployed to a live URL — publishing under the portfolio's name
-is owner-gated per `portfolio/DIRECTION.md`; all five are ready to deploy
+is owner-gated per `portfolio/DIRECTION.md`; all six are ready to deploy
 once that gate opens.
 
 ## Next steps
 
 - Review, argue with, and revise the constitution in `docs/` — it's a v1
   draft meant to be tightened, not treated as settled.
-- Add more small, self-contained EE tools in `tools/` (e.g. a capacitor
-  charge/discharge time calculator, a 555-timer astable/monostable
-  calculator) as further seeds of the Circuits track, each shippable and
-  testable independently of the full curriculum design. Add each one to
-  `tools/index.html` and to the CI matrix in
-  `.github/workflows/ai-engineering-academy-ci.yml`; the per-tool pages only
-  need the one back-link to `../`, so cross-links stay O(n) rather than
-  every page having to know about every other.
+- Add more small, self-contained EE tools in `tools/` as further seeds of
+  the Circuits track, each shippable and testable independently of the
+  full curriculum design. Drop a directory with an `index.html` (title +
+  description meta) under `tools/` and add it to the CI matrix in
+  `.github/workflows/ai-engineering-academy-ci.yml`; `npm run build` in
+  `site/` picks the new tool up for the hub, sitemap, and sidebar. The
+  per-tool pages only need the one back-link to `../`, so cross-links stay
+  O(n) rather than every page having to know about every other.
 - Prototype the fuller MVP scope: Electrical Engineering track (Circuits,
   Electronics, Embedded Systems) with 30–50 projects, AI tutoring, and
   portfolio generation.

@@ -1,0 +1,32 @@
+name: screened-porch-bid-calculator
+description: A private browser calculator for porch, lanai, and screen-enclosure crews that prices a residential screened porch from wall-screen square feet, knee wall, roof, ceiling, and mesh — the extras a floor-square-foot special cannot see — and shows the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Porch and lanai crews will use a panel-and-knee-wall-aware screened-porch bid calculator because a published price-per-square-foot special cannot see that a 12×16 enclosed porch is a different job than a 10×12 screen-in under an existing roof.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the screen share of direct cost are the two numbers a contractor actually decides on when a prospect asks them to match a $55/sf coupon, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Switching from a screen-in under an existing roof to a knee wall plus a new framed roof changes the resulting bid materially versus the same coupon written for floor square feet, so making that enclosure layer a required, explained output changes the price they send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified porch or lanai contractors use the calculator twice within 90 days.
+  - Contractors report that counting panels and knee wall is more work than their existing square-foot method without changing the price they would have bid.
+  - The starting panel-width and mesh figures prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
