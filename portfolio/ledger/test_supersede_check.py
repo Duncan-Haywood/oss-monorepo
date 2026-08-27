@@ -150,6 +150,155 @@ class TestSuperseded(RepoFixture):
         self.assertTrue(evaluate("feature", "main", fetch=False).superseded)
 
 
+class TestIdenticalMergeProof(RepoFixture):
+    """The second proof: does replaying the branch on main change main at all?
+
+    The line scan cannot see a feature main re-implemented under a different
+    filename with different wording, which is how this repository's whole open
+    queue came to read NOT SUPERSEDED while none of it was mergeable either.
+    """
+
+    def test_a_reworded_reimplementation_on_main_is_recognised(self):
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(
+            self.repo,
+            "calc.mjs",
+            "export function total(a, b) {\n  return a + b;\n}\n"
+            "export function csvCell(value) {\n"
+            "  return /[\",\\n]/.test(value) ? `\"${value}\"` : value;\n"
+            "}\n",
+        )
+        commit(self.repo, "add a CSV cell escaper")
+
+        git(self.repo, "checkout", "-q", "main")
+        write(
+            self.repo,
+            "calc.mjs",
+            "export function total(a, b) {\n  return a + b;\n}\n"
+            "// Quote a cell a spreadsheet would otherwise split on.\n"
+            "export function csvCell(cell) {\n"
+            "  const needsQuotes = /[\",\\r\\n]/.test(String(cell));\n"
+            "  return needsQuotes ? `\"${String(cell).replaceAll('\"', '\"\"')}\"` : cell;\n"
+            "}\n",
+        )
+        commit(self.repo, "the same escaper, written independently and better")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        # The line scan alone cannot see it: nothing matches textually.
+        self.assertTrue(any(f.unmatched for f in verdict.files))
+        self.assertTrue(verdict.identical_merge)
+        self.assertTrue(verdict.superseded)
+        self.assertEqual(
+            supersede_check.main(["feature", "--base", "main", "--no-fetch"]), 0
+        )
+
+    def test_the_report_names_which_proof_fired_and_what_it_folds_in(self):
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "calc.mjs", "export function total(a, b) {\n  return a - b;\n}\n")
+        commit(self.repo, "branch changes the operator")
+        git(self.repo, "checkout", "-q", "main")
+        write(self.repo, "calc.mjs", "export function total(first, second) {\n  return first + second;\n}\n")
+        commit(self.repo, "main rewrote the same function")
+
+        text = render(evaluate("feature", "main", fetch=False), "feature", "main")
+        self.assertIn("SUPERSEDED (identical-merge proof)", text)
+        self.assertIn("re-derivation, not a merge", text)
+
+    def test_a_new_file_main_lacks_survives_the_replay(self):
+        """The strategy resolves conflicts, so it cannot swallow a new surface."""
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(
+            self.repo,
+            "share.mjs",
+            "export function encodeInputs(input) {\n"
+            "  return new URLSearchParams(input).toString();\n"
+            "}\n",
+        )
+        commit(self.repo, "add sharing")
+        git(self.repo, "checkout", "-q", "main")
+        write(self.repo, "unrelated.mjs", "export function somethingElse() {}\n")
+        commit(self.repo, "main moves on elsewhere")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.identical_merge)
+        self.assertFalse(verdict.superseded)
+        self.assertEqual(
+            supersede_check.main(["feature", "--base", "main", "--no-fetch"]), 1
+        )
+
+
+class TestShallowClone(unittest.TestCase):
+    """A scheduled session's clone is shallow, and that used to defeat the tool.
+
+    Both histories get cut off before they meet, so `git merge-base` exits
+    non-zero and every branch reads as unrelated to `main` -- the tool then
+    answers "cannot decide" for the whole queue and the caller goes back to
+    guessing, which is the one outcome it exists to prevent.
+    """
+
+    # The origin is built once: 260-odd commits is the only slow part of this
+    # fixture, and every test wants the same history.
+    @classmethod
+    def setUpClass(cls):
+        cls._origin_tmp = tempfile.TemporaryDirectory()
+        cls.origin = str(Path(cls._origin_tmp.name) / "origin")
+        os.makedirs(cls.origin)
+        git(cls.origin, "init", "-q", "-b", "main")
+        git(cls.origin, "config", "user.email", "test@example.com")
+        git(cls.origin, "config", "user.name", "Test")
+        write(cls.origin, "calc.mjs", "export function total(a, b) {\n  return a + b;\n}\n")
+        commit(cls.origin, "base")
+        # Deeper than the --deepen=200 first attempt, so the fixture exercises
+        # the unshallow escalation rather than only the cheap deepen. Empty
+        # commits keep them cheap; only their count matters here.
+        for n in range(260):
+            git(cls.origin, "commit", "-q", "--allow-empty", "-m", f"commit {n}")
+
+        git(cls.origin, "checkout", "-q", "-b", "feature")
+        write(cls.origin, "share.mjs", "export function encodeInputs(input) {}\n")
+        commit(cls.origin, "add sharing")
+        git(cls.origin, "checkout", "-q", "main")
+        write(cls.origin, "unrelated.mjs", "export function somethingElse() {}\n")
+        commit(cls.origin, "main moves on")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls._origin_tmp.cleanup()
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self._cwd = os.getcwd()
+        self.addCleanup(os.chdir, self._cwd)
+
+        # A fresh clone per test: unshallowing mutates the clone, so tests
+        # would otherwise stop seeing the shallow state they are about.
+        self.clone = str(Path(self._tmp.name) / "clone")
+        subprocess.run(
+            ["git", "clone", "-q", "--depth", "1", "--no-single-branch",
+             f"file://{self.origin}", self.clone],
+            check=True, capture_output=True, text=True,
+        )
+        os.chdir(self.clone)
+
+    def test_the_clone_really_is_shallow(self):
+        self.assertTrue(supersede_check.is_shallow())
+
+    def test_a_verdict_is_still_reached_from_a_shallow_clone(self):
+        verdict = evaluate("origin/feature", "origin/main")
+        self.assertFalse(verdict.superseded)
+        self.assertTrue(any("share.mjs" in f.path for f in verdict.files))
+
+    def test_no_fetch_reports_the_missing_ancestor_rather_than_passing(self):
+        """Failing closed matters: exit 0 here would greenlight a wrongful close."""
+        self.assertEqual(
+            supersede_check.main(
+                ["origin/feature", "--base", "origin/main", "--no-fetch"]
+            ),
+            2,
+        )
+
+
 class TestSignificance(unittest.TestCase):
     def test_structural_and_empty_lines_carry_no_evidence(self):
         for line in ["", "   ", "}", "  });", "---", "// ", "'''"]:

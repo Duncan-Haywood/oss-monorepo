@@ -38,7 +38,25 @@ product, reviewing the diff, or trusting anyone's summary:
 If the remainder is empty, the close is safe. If it is not, the remainder is
 precisely the work the close would drop, and the tool prints it.
 
-Two deliberate biases, both toward keeping work:
+That scan is deliberately conservative, and on a repository where `main` moves
+this fast it went silent: sibling branches keep landing the same feature under a
+different filename with reworded comments, so the lines still read as absent. On
+2026-08-27 the scan said NOT SUPERSEDED for 65 of the 66 open pull requests, none
+of which could be merged either. A gate that never opens is a gate nobody uses.
+
+So there is a second, independent question, decided by git rather than by string
+matching:
+
+    replay the branch on top of the base, resolving every conflicting hunk in
+    the base's favour, and compare the resulting tree to the base's
+
+Identical trees mean the branch contributes no content -- the same tree object,
+not merely equivalent content -- and that holds however the base spells the
+feature. A file the base lacks merges cleanly and changes the tree, so the
+strategy hides nothing. Either proof is enough for exit 0; the report names
+which one fired and what it does not cover.
+
+Two deliberate biases in the line scan, both toward keeping work:
 
 *Textual, not semantic.* A feature reimplemented on `main` with different
 wording reads as not-superseded here. That is a false positive, and the right
@@ -69,7 +87,9 @@ import argparse
 import re
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass, field
+from pathlib import Path
 
 # Lines that carry no evidence of a feature. A close is not made safe by the
 # base branch also containing a `}` or a blank line, and counting those as
@@ -96,10 +116,11 @@ class Verdict:
     head: str
     merge_base: str
     files: list[FileVerdict]
+    identical_merge: bool = False
 
     @property
     def superseded(self) -> bool:
-        return not any(f.unmatched for f in self.files)
+        return self.identical_merge or not any(f.unmatched for f in self.files)
 
     @property
     def unmatched_total(self) -> int:
@@ -197,14 +218,118 @@ def base_contains(base: str, needles: list[str]) -> set[str]:
     return found
 
 
+def is_shallow() -> bool:
+    """Whether this clone's history is truncated."""
+    return _git("rev-parse", "--is-shallow-repository", check=False).strip() == "true"
+
+
+def _find_merge_base(base: str, head: str, *, fetch: bool = True) -> str:
+    """The commit `base` and `head` diverged from, deepening the clone if needed.
+
+    A scheduled session's clone is shallow. Both histories are then cut off
+    before they meet, `git merge-base` exits non-zero, and every branch in the
+    repository reads as unrelated to `main` -- so this tool answers "cannot
+    decide" for the entire queue and the caller falls back to the guess it
+    exists to replace. That is not a hypothetical: on 2026-08-27 a session found
+    all 66 open pull requests reporting no merge base, from a clone that was
+    simply shallow.
+
+    `--deepen` only helps when the divergence is recent. Two branches cut from
+    `main` a few hundred commits back need the whole history, so an unshallow is
+    the escalation -- once, and only when the clone really is truncated, since
+    on a complete clone a missing merge base is the genuine answer.
+    """
+    merge_base = _git("merge-base", base, head, check=False).strip()
+    if merge_base or not fetch or not is_shallow():
+        if merge_base:
+            return merge_base
+        raise RuntimeError(
+            f"{base} and {head} have no common ancestor"
+            + ("" if is_shallow() else " -- they are unrelated histories, and "
+               "supersession is not a question git can answer about them")
+        )
+
+    _git("fetch", "--quiet", "--deepen=200", "origin", check=False)
+    merge_base = _git("merge-base", base, head, check=False).strip()
+    if merge_base:
+        return merge_base
+
+    _git("fetch", "--quiet", "--unshallow", "origin", check=False)
+    merge_base = _git("merge-base", base, head, check=False).strip()
+    if merge_base:
+        return merge_base
+    raise RuntimeError(
+        f"{base} and {head} have no common ancestor even after unshallowing "
+        "this clone -- they are unrelated histories"
+    )
+
+
+def merges_to_base(base: str, head: str) -> bool:
+    """Whether merging `head` into `base`, base winning, changes nothing at all.
+
+    The textual scan above is deliberately conservative, and on this repository
+    that makes it silent: `main` absorbs a branch's feature from a sibling
+    branch, reworded and under a different filename, and every line still reads
+    as absent. On 2026-08-27 that was the verdict for 65 of 66 open pull
+    requests -- none closable, none mergeable, the queue growing.
+
+    This is the second, independent question, and it is decided by git rather
+    than by string matching: replay the branch on top of the base, resolving
+    every conflicting hunk in the base's favour, and compare the resulting tree
+    to the base's. Identical trees mean the branch contributes no content --
+    not "equivalent content", the same tree object. A new file the base lacks
+    merges cleanly and changes the tree, so nothing is hidden by the strategy.
+
+    The one thing it folds into "superseded": an edit that conflicts with work
+    the base has since done in the same place. Base wins, so the edit vanishes.
+    That is the right reading here -- the branch edited a version of the code
+    that no longer exists, and reapplying it is re-derivation against the new
+    code rather than a merge -- but it is a judgement, so `render` says so.
+
+    Runs in a throwaway worktree: the caller's checkout is never touched.
+    """
+    with tempfile.TemporaryDirectory() as scratch:
+        worktree = str(Path(scratch) / "replay")
+        if subprocess.run(
+            ["git", "worktree", "add", "--detach", "--quiet", worktree, head],
+            capture_output=True, text=True, check=False,
+        ).returncode != 0:
+            return False
+        try:
+            def wt(*args: str) -> subprocess.CompletedProcess:
+                return subprocess.run(
+                    ["git", *args], cwd=worktree,
+                    capture_output=True, text=True, check=False,
+                )
+
+            if wt("merge", "-X", "theirs", "--no-edit", base).returncode != 0:
+                # add/add and modify/delete conflicts survive `-X theirs`, so
+                # finish the same policy by hand: take the base's side, and
+                # drop what the base does not have.
+                for path in wt("diff", "--diff-filter=U", "--name-only").stdout.split("\n"):
+                    if not path:
+                        continue
+                    if wt("checkout", "--theirs", "--", path).returncode == 0:
+                        wt("add", "--", path)
+                    else:
+                        wt("rm", "--quiet", "-f", "--", path)
+                if wt("commit", "--no-edit", "--quiet").returncode != 0:
+                    return False
+            merged = wt("rev-parse", "HEAD^{tree}").stdout.strip()
+        finally:
+            subprocess.run(
+                ["git", "worktree", "remove", "--force", worktree],
+                capture_output=True, text=True, check=False,
+            )
+    base_tree = _git("rev-parse", f"{base}^{{tree}}", check=False).strip()
+    return bool(merged) and merged == base_tree
+
+
 def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
     head = resolve_head(head_ref, fetch=fetch)
     base = resolve_head(base_ref, fetch=False)
 
-    merge_base = _git("merge-base", base, head, check=False).strip()
-    if not merge_base:
-        _git("fetch", "--quiet", "--deepen=200", "origin", check=False)
-        merge_base = _git("merge-base", base, head).strip()
+    merge_base = _find_merge_base(base, head, fetch=fetch)
 
     paths = [p for p in _git(
         "diff", "--name-only", f"{merge_base}..{head}"
@@ -237,11 +362,58 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
             )
         )
 
-    return Verdict(base=base, head=head, merge_base=merge_base, files=files)
+    # Only asked when the cheap scan says work would be dropped: the replay
+    # costs a worktree and a merge, and it cannot change a verdict that is
+    # already "superseded".
+    identical = bool(any(f.unmatched for f in files)) and merges_to_base(base, head)
+
+    return Verdict(
+        base=base,
+        head=head,
+        merge_base=merge_base,
+        files=files,
+        identical_merge=identical,
+    )
 
 
 def render(verdict: Verdict, ref: str, base_ref: str, samples: int = 3) -> str:
     out: list[str] = []
+    if verdict.identical_merge:
+        out.append(
+            f"SUPERSEDED (identical-merge proof) — replaying {ref} on top of "
+            f"{base_ref},"
+        )
+        out.append(f"resolving every conflict in {base_ref}'s favour, produces "
+                   f"{base_ref}'s tree exactly.")
+        out.append("")
+        out.append(
+            f"The line scan below found {verdict.unmatched_total} line(s) it could "
+            "not match, but"
+        )
+        out.append("the merge says they carry no content: git produces the same tree "
+                   "object either")
+        out.append("way. That covers the case the line scan cannot — a feature "
+                   f"{base_ref} re-implemented")
+        out.append("under a different filename or with different wording.")
+        out.append("")
+        out.append("One judgement is folded in: an edit that conflicts with work "
+                   f"{base_ref} has since")
+        out.append("done in the same place loses, and so reads as superseded. That is "
+                   "the intended")
+        out.append(f"reading — the branch edited code {base_ref} no longer has, so "
+                   "reapplying it is")
+        out.append("re-derivation, not a merge — but check the lines below if the "
+                   "branch was")
+        out.append("supposed to change behaviour rather than add a surface.")
+        out.append("")
+        out.append("Closing drops no content. Say what supersedes it in the close "
+                   "comment anyway,")
+        out.append("so the next session does not have to re-derive this.")
+        out.append("")
+        for f in [f for f in verdict.files if f.unmatched]:
+            out.append(f"  {f.path} — {len(f.unmatched)}/{f.added} lines the scan "
+                       "could not match")
+        return "\n".join(out).rstrip()
     if verdict.superseded:
         out.append(f"SUPERSEDED — {ref} adds nothing {base_ref} does not already have.")
         out.append("")

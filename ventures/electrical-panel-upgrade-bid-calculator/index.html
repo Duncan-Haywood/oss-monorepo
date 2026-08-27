@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Electrical Panel Upgrade Bid Calculator | Price the Feeder, the Circuits, and the Utility — Not Just the Amp Rating</title>
+  <meta name="description" content="Price a 100A to 200A electrical panel or service upgrade from feeder feet, circuit landing, AFCI/GFCI, underground vs overhead, grounding, meter socket, and temporary power — not a published price per amp. See the walk-away number before you match a cheaper panel-swap quote.">
+  <meta property="og:title" content="Electrical Panel Upgrade Bid Calculator">
+  <meta property="og:description" content="A same-amp garage panel swap is not the same job as a 100A to 200A underground service with twenty AFCI breakers and a finished-space feeder. Bid the path and the landing.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Electrical Panel Upgrade Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Same-amp panel swap versus service upgrade hours, overhead mast versus underground path, meter-main versus main-breaker, finished-space access, feeder feet, circuit landing, AFCI/GFCI, new grounding, temporary power, utility disconnect, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2430; background: #e8edf4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #b45309; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c9d2e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1420330d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5568; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9aa8bc; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9aa8bc; background: #eef2f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dfe6f2; }
+    .result { position: sticky; top: 15px; background: #1a2740; color: #eef3fb; border-color: #1a2740; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #f0b429; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5568; }
+    footer a { color: #b45309; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f6d58a; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR LICENSED ELECTRICIANS</p>
+    <h1>Bid the feeder, the circuits, and the utility.</h1>
+    <p>Price a panel replacement or 100A-to-200A service upgrade the way the trade actually loses money: the can, the landing of existing circuits, AFCI/GFCI, feeder feet, overhead versus underground, new grounding, a meter socket, temporary power, and the utility disconnect. You get the bid, the price per amp of new service, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The service</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing panel style or path never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting service…</option>
+            </select>
+          </label>
+          <label>Service path
+            <select id="service">
+              <option value="overhead" selected>Overhead mast / weatherhead</option>
+              <option value="underground">Underground service lateral</option>
+            </select>
+          </label>
+          <label>Panel style
+            <select id="panelStyle">
+              <option value="main-breaker" selected>Main-breaker panel</option>
+              <option value="meter-main">Meter-main combo</option>
+            </select>
+          </label>
+          <label>Panel location
+            <select id="location">
+              <option value="garage" selected>Garage / unfinished</option>
+              <option value="basement">Basement / utility room</option>
+              <option value="finished">Finished living space</option>
+            </select>
+          </label>
+          <label>Existing service (amps) <input id="existingAmps" type="number" min="1" step="1" value="100"></label>
+          <label>New service (amps) <input id="newAmps" type="number" min="1" step="1" value="100"></label>
+          <label>Feeder / SE run (ft) <input id="feederFeet" type="number" min="0" step="1" value="8"></label>
+          <label>Circuits to land <input id="circuitCount" type="number" min="0" step="1" value="10"></label>
+          <label>AFCI / GFCI breakers <input id="afciCount" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="replaceMeterSocket" type="checkbox"> Replace meter socket</label>
+          <label class="check"><input id="newGrounding" type="checkbox"> New grounding electrodes</label>
+          <label class="check"><input id="temporaryPower" type="checkbox"> Temporary power / generator</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours to swap the panel <input id="hoursPanelSwap" type="number" min="0" step="0.25" value="4"></label>
+          <label>Hours for a service change <input id="hoursServiceChange" type="number" min="0" step="0.25" value="6"></label>
+          <label>Hours for an underground path <input id="hoursUnderground" type="number" min="0" step="0.25" value="5"></label>
+          <label>Hours for finished-space access <input id="hoursFinishedAccess" type="number" min="0" step="0.25" value="3"></label>
+          <label>Hours / feeder foot <input id="hoursPerFeederFoot" type="number" min="0" step="0.01" value="0.15"></label>
+          <label>Hours / circuit landed <input id="hoursPerCircuit" type="number" min="0" step="0.05" value="0.35"></label>
+          <label>Hours / AFCI or GFCI <input id="hoursPerAfci" type="number" min="0" step="0.05" value="0.2"></label>
+          <label>Hours to replace the meter socket <input id="hoursMeterSocket" type="number" min="0" step="0.25" value="3"></label>
+          <label>Hours for new grounding <input id="hoursGrounding" type="number" min="0" step="0.25" value="2.5"></label>
+          <label>Hours for temporary power <input id="hoursTemporaryPower" type="number" min="0" step="0.25" value="2"></label>
+          <label>Hours for utility coordination <input id="hoursUtilityCoordination" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="2"></label>
+          <label>Panel cost <input id="panelCost" type="number" min="0" step="10" value="280"></label>
+          <label>Standard breaker each <input id="breakerCostEach" type="number" min="0" step="1" value="12"></label>
+          <label>AFCI / GFCI each <input id="afciCostEach" type="number" min="0" step="1" value="48"></label>
+          <label>SE / SER $ / ft <input id="seCablePerFoot" type="number" min="0" step="0.5" value="8"></label>
+          <label>Mast / weatherhead kit <input id="mastKitCost" type="number" min="0" step="5" value="185"></label>
+          <label>Meter socket cost <input id="meterSocketCost" type="number" min="0" step="10" value="320"></label>
+          <label>Ground-rod kit <input id="groundRodKit" type="number" min="0" step="5" value="95"></label>
+          <label>Temporary power cost <input id="tempPowerCost" type="number" min="0" step="5" value="175"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="185"></label>
+          <label>Utility disconnect / reconnect <input id="utilityFee" type="number" min="0" step="10" value="250"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="52"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="34"></label>
+          <label>Travel, lift, dump fees <input id="travelAndEquipment" type="number" min="0" step="5" value="165"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="30"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 4500"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $52/h journeyman loaded at 34% is $69.68. Quoting the raw wage on a published per-amp special is how a finished-space 200A underground job that looked fine turns into a two-day loss after the first feeder pull.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">panel / service price</div>
+      <dl>
+        <dt>Service change</dt><dd id="scope"></dd>
+        <dt>Path and extras</dt><dd id="access"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials + fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per amp of new service</dt><dd id="perAmp"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, an electrical specification, or a building-code determination &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not electrical, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your amps, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-upgrade-an-electrical-panel.html">How much to charge to upgrade an electrical panel</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedPanelCost,
+      suggestedServiceKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'existingAmps','newAmps','feederFeet','circuitCount','afciCount',
+      'hoursPanelSwap','hoursServiceChange','hoursUnderground','hoursFinishedAccess',
+      'hoursPerFeederFoot','hoursPerCircuit','hoursPerAfci','hoursMeterSocket',
+      'hoursGrounding','hoursTemporaryPower','hoursUtilityCoordination','siteHours',
+      'panelCost','breakerCostEach','afciCostEach','seCablePerFoot','mastKitCost',
+      'meterSocketCost','groundRodKit','tempPowerCost','permitFee','utilityFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['replaceMeterSocket','newGrounding','temporaryPower'];
+    const SELECT_IDS = ['service','panelStyle','location'];
+    const SUGGESTED_PANEL_IDS = ['panelCost'];
+    const SUGGESTED_PATH_IDS = ['seCablePerFoot','mastKitCost','hoursUnderground'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyPanelCost(force) {
+      const rates = suggestedPanelCost(el('panelStyle').value, el('newAmps').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyServiceKit(force) {
+      const rates = suggestedServiceKit(el('service').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('service').value = job.service;
+      el('panelStyle').value = job.panelStyle;
+      el('location').value = job.location;
+      el('existingAmps').value = job.existingAmps;
+      el('newAmps').value = job.newAmps;
+      applyPanelCost(true);
+      applyServiceKit(true);
+      [...SUGGESTED_PANEL_IDS, ...SUGGESTED_PATH_IDS].forEach(id => { el(id).dataset.edited = ''; });
+      el('feederFeet').value = job.feederFeet;
+      el('circuitCount').value = job.circuitCount;
+      el('afciCount').value = job.afciCount;
+      el('replaceMeterSocket').checked = job.replaceMeterSocket;
+      el('newGrounding').checked = job.newGrounding;
+      el('temporaryPower').checked = job.temporaryPower;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'panel / service price';
+      ['scope','access','hours','labor','materials','soft','overhead','cost','profit','perAmp','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'panel / service price';
+      el('scope').textContent = result.ampUpgrade
+        ? `${result.existingAmps}A → ${result.newAmps}A`
+        : `same-amp ${result.newAmps}A swap`;
+      const extraBits = [
+        result.service === 'underground' ? 'underground' : 'overhead',
+        result.panelStyle === 'meter-main' ? 'meter-main' : null,
+        result.location === 'finished' ? 'finished space' : null,
+        result.replaceMeterSocket ? 'meter socket' : null,
+        result.newGrounding ? 'new grounding' : null,
+        result.temporaryPower ? 'temp power' : null,
+        result.afciCount ? `${result.afciCount} AFCI/GFCI` : null,
+      ].filter(Boolean);
+      el('access').textContent = extraBits.join(', ') || 'standard garage swap';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perAmp').textContent = result.pricePerNewAmp === null ? 'n/a' : money(result.pricePerNewAmp);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Panel swap', result.hourShares.panel],
+        ['Service / path / meter / utility', result.hourShares.service],
+        ['Feeder + circuits + AFCI', result.hourShares.landing],
+        ['Grounding + temp power', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Materials + fees', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('panelStyle').addEventListener('change', () => {
+      applyPanelCost(false);
+      count('bid_calculated');
+      update();
+    });
+    el('newAmps').addEventListener('change', () => {
+      applyPanelCost(false);
+    });
+    el('service').addEventListener('change', () => {
+      applyServiceKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_PANEL_IDS, ...SUGGESTED_PATH_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('location').addEventListener('change', () => {
+      count('bid_calculated');
+      update();
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
