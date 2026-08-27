@@ -198,6 +198,15 @@ test("calculator page can export and import a portable draft file", async () => 
   assert.match(page, /Download draft/);
 });
 
+test("calculator page can download a private plain-text review summary", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="download-summary"/);
+  assert.match(page, /Download review summary/);
+  assert.match(page, /quote-margin-review\.txt/);
+  assert.match(page, /review_summary_downloaded/);
+  assert.match(page, /formatReviewSummary/);
+});
+
 test("calculator page can download a local JSON report", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="download-report"/);

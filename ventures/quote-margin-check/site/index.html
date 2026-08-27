@@ -362,6 +362,7 @@
     <div class="actions">
       <button type="button" id="clear-draft">Reset to example</button>
       <button type="button" id="copy-summary">Copy review summary</button>
+      <button type="button" id="download-summary">Download review summary</button>
       <button type="button" id="copy-markdown">Copy review as Markdown</button>
       <button type="button" id="download-markdown">Download review</button>
       <button type="button" id="copy-csv">Copy as CSV</button>
@@ -437,7 +438,7 @@
       walks the hours, direct costs, leftover rate, and target price.
     </p>
     <p>
-      Copy a plain-text review summary for an email or proposal note, or
+      Copy or download a plain-text review summary for an email or proposal note, or
       copy or download the current review as a spreadsheet-safe CSV. Currency
       labels with commas or quotes stay in one cell, and the file includes
       the time-overrun, cost-rise, discount-ask, fixed-vs-hourly, and kill-fee rows shown
@@ -900,6 +901,22 @@
     } catch {
       copyStatus.textContent = "Couldn't access the clipboard in this browser.";
     }
+  });
+  document.getElementById("download-summary").addEventListener("click", () => {
+    if (!lastReport) {
+      copyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r));
+    const blob = new Blob([summary + "\n"], { type: "text/plain;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "quote-margin-review.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    copyStatus.textContent = "Downloaded quote-margin-review.txt.";
+    recordEvent("review_summary_downloaded");
   });
   function currentMarkdown() {
     const { quote, r } = lastReport;

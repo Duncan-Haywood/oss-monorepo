@@ -186,7 +186,9 @@ browser also counts `history_saved`, `history_deleted`, and `history_cleared`
 when local review snapshots are stored or removed. A `report_downloaded`
 event is counted when the JSON report is saved locally. CSV copy
 and download events happen only when the user invokes those actions. Copying
-the review summary records `review_summary_copied` the same way. Restoring
+the review summary records `review_summary_copied` the same way. Downloading
+that same plain-text note as `quote-margin-review.txt` records
+`review_summary_downloaded`. Restoring
 or resetting a local draft records `draft_restored` or `draft_reset`. The
 export contains the same arithmetic report as the page and quotes currency
 labels safely for spreadsheet import. These events contain no quote values
