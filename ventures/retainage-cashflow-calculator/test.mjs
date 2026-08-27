@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary } from './calc.mjs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, summaryText, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -333,6 +333,25 @@ test('the page offers a private JSON evidence snapshot', () => {
   assert.match(page, /id="jsonSnapshot"/);
   assert.match(page, /evidenceSnapshot\(/);
   assert.match(page, /retainage-cashflow:snapshot-downloads/);
+});
+
+test('summary export contains modeled values and safety boundary', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
+  const summary = summaryText({ projectName: 'Main Street remodel', result: computeAll(parsed.values) });
+  assert.match(summary, /Main Street remodel/);
+  assert.match(summary, /Retainage withheld: \$10000\.00/);
+  assert.match(summary, /Retainage still unpaid: \$10000\.00/);
+  assert.match(summary, /Total modeled cash outstanding: \$25739\.73/);
+  assert.match(summary, /Not legal, tax, financial, or engineering advice/);
+  assert.doesNotMatch(summary, /Hello /);
+});
+
+test('the page offers a compact cash-summary download', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="downloadSummary"/);
+  assert.match(page, /summaryText\(/);
+  assert.match(page, /retainage-cash-flow-summary\.txt/);
+  assert.match(page, /retainage-cashflow:summary-downloads/);
 });
 
 test('the page restores drafts through decodeDraft, not a bare JSON.parse', () => {

@@ -400,3 +400,18 @@ export function paymentScheduleSummary(rows, currency = '$') {
   });
   return ['Payment milestone schedule', '=========================', ...lines, '', 'Review this schedule against invoices, payment applications, and bank records before relying on it.'].join('\n');
 }
+
+export function summaryText({ projectName, result, currency = '$' }) {
+  const project = projectName?.trim() || '[project name]';
+  const stillUnpaid = result.retainageStillUnpaid ?? result.retainageWithheld;
+  return [
+    `Retainage cash-flow summary: ${project}`,
+    `Retainage withheld: ${currency}${result.retainageWithheld.toFixed(2)}`,
+    `Retainage still unpaid: ${currency}${stillUnpaid.toFixed(2)}`,
+    `Earned but unpaid: ${currency}${result.earnedUnpaid.toFixed(2)}`,
+    `Modeled carrying cost: ${currency}${result.carryingCost.toFixed(2)}`,
+    `Total modeled cash outstanding: ${currency}${result.totalCashOutstanding.toFixed(2)}`,
+    '',
+    'Numbers-only snapshot for a bookkeeper. The full worksheet export includes delay scenarios, release math, and the follow-up draft. Scenario only. Review the contract, payment terms, and local requirements. Not legal, tax, financial, or engineering advice.',
+  ].join('\n');
+}

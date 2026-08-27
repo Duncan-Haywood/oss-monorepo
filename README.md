@@ -131,6 +131,11 @@ and preserve the legal, privacy, and safety guardrails in
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). Pull requests are reviewed in
 proportion to risk and merged when their relevant checks are green.
 
+The venture list is allowed to grow when a new candidate is materially
+different from existing products and can be launched without new spend or
+payment collection. Adjacent improvements should still land in the closest
+existing venture to avoid duplicate products.
+
 ## History
 
 Ventures were merged in with `git subtree`, so each one's full commit history
