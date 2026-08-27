@@ -25,9 +25,39 @@ arithmetic and layout in the browser, like everything else here.
 - `ventures/concrete-bid-calculator`
 - `ventures/paver-patio-bid-calculator`
 - `ventures/basement-finishing-bid-calculator`
+- `ventures/exterior-painting-bid-calculator`
+- `ventures/countertop-bid-calculator`
+- `ventures/retaining-wall-bid-calculator`
+- `ventures/sunroom-bid-calculator`
+- `ventures/garage-door-bid-calculator`
+- `ventures/foundation-repair-bid-calculator`
 
-The other bid calculators have not adopted it yet. See "Adding it to another
+The other 86 bid calculators have not adopted it yet. See "Adding it to another
 calculator".
+
+## Three things that have gone wrong in every adoption batch
+
+Check these before you verify, because two of the three fail silently.
+
+- **The disclaimer lands inside a single-quoted JS string.** A straight
+  apostrophe in the trade sentence — "a licensed engineer's to specify" —
+  closes it, and the whole module fails to parse with
+  `SyntaxError: Unexpected identifier`. The calculator still renders; only the
+  proposal is dead. Use the typographic apostrophe (`\u2019`), which is what
+  the rest of the copy uses anyway.
+- **Not every calculator has a `readInput()`.** `roofing` and `concrete` built
+  the same input literal at each call site, so the proposal would have been a
+  third copy. Extract one function rather than paste a third — three copies is
+  how the pasted summary and the printed sheet come to be priced from
+  different fields.
+- **Preset labels are written for the contractor, not the customer.** They read
+  as shorthand a homeowner should never see: `basement-finishing` would have
+  printed "Rec room — paint, drop ceiling, carpet (the cheap special)" on the
+  quote. Read the labels before you put one on a customer's sheet. Related:
+  a preset id on the result may not be the one you want — `garage-door`'s
+  `result.doorClass` is the *size* class the width falls into, not the
+  construction the contractor chose, and the lookup fails to `undefined`
+  rather than erroring.
 
 ## The published page is not the page you tested
 
