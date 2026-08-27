@@ -61,6 +61,9 @@ workflows:
 - workflow: appliance-repair-quote-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: appointment-deposit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -553,6 +556,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
+  classification: none
+  publishes: []
+- workflow: sponsor-ready-ci.yml
   classification: none
   publishes: []
 - workflow: spray-foam-bid-calculator-ci.yml
