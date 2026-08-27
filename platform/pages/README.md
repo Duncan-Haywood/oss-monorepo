@@ -90,8 +90,12 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   back or across: someone arriving from a search result at
   `does-subscribe-and-save-still-pay.html` saw one calculator and had no route to
   the other 32. The build injects a bar at the top of every published page ("←
-  All N free tools") and a footer offering four sibling tools — same category
-  first — plus the hub and the optional sponsor link.
+  All N free tools") and a footer offering four sibling tools — same sub-group
+  first, then the rest of the category — plus the hub and the optional sponsor
+  link. The sub-group tier matters because "same category" stopped being a
+  signal once `trades` reached 110: without it a metal-roof page offered
+  whichever four the rotation landed on, and a roofer was shown a music-lesson
+  break-even. Now the offer is another roofing, siding, or gutter bid.
 
   It is injected at build time rather than committed into each venture for two
   reasons. A calculator lands on `main` most days and injection covers each new
@@ -116,8 +120,12 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   branch.
 
 - **A machine-readable catalog.** `catalog.json` lists every tool with its URL,
-  category, and description — the flat thing an AI assistant answering "is there
-  a free tool for X" can fetch in one request instead of parsing the hub. The
+  category, sub-category, and description — the flat thing an AI assistant
+  answering "is there a free tool for X" can fetch in one request instead of
+  parsing the hub. `subcategory` is present only where a category is
+  sub-divided, so a consumer filtering on the key never meets an empty value;
+  it is what lets "a gutter bid calculator" be answered by a filter rather than
+  by reading 110 trade descriptions. The
   deploy workflow also reads it back off the live origin to pick the product page
   it verifies, so a renamed venture cannot make verification pass vacuously.
 
@@ -131,6 +139,40 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   trimmed version drops most of what the longer-described tools say about
   themselves. `check.mjs` fails the build if a published tool is missing from
   it, or if it names one that did not ship.
+
+## How the hub is organised
+
+Two levels, both derived from the slug in `build.mjs` — there is no manifest to
+keep in step, for the same reason venture discovery has none.
+
+`CATEGORY_RULES` gives the `<h2>` sections. `SUBCATEGORY_RULES` sub-divides a
+section that has outgrown one list; only `trades` has them today.
+
+That second level exists because `trades` reached **110 of the 161 tools**: an
+alphabetical wall from `artificial-turf` to `window-replacement` in which a
+roofer looking for the metal-roof calculator had to read past sixty trades that
+were not theirs. Search finds a tool you can already name. A directory also has
+to work for the visitor who is browsing, and browsing 110 undifferentiated cards
+is not browsing. The eight families — roofing, openings, MEP, interior, site
+work, landscape, cleaning, and getting paid — put the largest at 19.
+
+Both levels are keyword tests rather than slug lists, deliberately. A bid
+calculator lands on `main` most days, and a hand-maintained list would silently
+drop each new one into the catch-all within a week. Two consequences:
+
+- **Order matters.** The first matching rule wins, so a narrow rule precedes a
+  broad one it overlaps: `window-cleaning-bid-calculator` is cleaning work, not
+  a window replacement, and its rule has to run first.
+- **The catch-all is a net, not a bucket.** A trade slug no keyword claims falls
+  to "More trade bids", and `build.test.mjs` fails when anything lands there.
+  The fix is a keyword; the test is how anyone finds out one is needed.
+
+Categories are also what `relatedTools` and the machine surfaces read, so a
+mis-filed tool is not only badly placed on the hub — it is offered to the wrong
+visitor at the foot of every sibling page, and described to assistants under the
+wrong heading in `llms.txt`. Five tools were filed in "More free tools" until
+2026-08-27 for want of a keyword, `tiktok-shop-fee-calculator` among them: a
+marketplace tool a seller would only have found by searching for it by name.
 
 ## Shop rates, carried between tools
 

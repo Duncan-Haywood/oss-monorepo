@@ -108,25 +108,40 @@ const CATEGORY_RULES = [
     id: 'marketplace',
     title: 'Marketplace seller tools',
     blurb: 'Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.',
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell)/.test(slug),
+    // `tiktok-shop` and `delivery-app` sell through someone else's storefront and
+    // pay someone else's fee schedule, which is what this section is: they sat in
+    // the catch-all, where a seller looking for their marketplace never scrolled.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app)/.test(slug),
   },
   {
     id: 'trades',
     title: 'Trade & contractor bids',
     blurb: 'Bid a job the way the trade does: materials, crew hours, burden, overhead, and what the extras really cost.',
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer)/.test(slug),
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence)/.test(slug),
   },
   {
     id: 'logistics',
     title: 'Logistics, freight & cloud cost',
     blurb: 'Normalise a quote, audit a bill, or size a transfer window before you sign for it.',
-    test: (slug) => /^(3pl|freight|cut-list|cloud-egress|egress-window)/.test(slug),
+    // `ltl-`, `owner-operator-` and `medical-courier-` are freight arithmetic that
+    // was landing in the catch-all only because the slug did not start with "3pl".
+    test: (slug) => /^(3pl|freight|cut-list|cloud-egress|ltl-|owner-operator|medical-courier)/.test(slug),
   },
   {
     id: 'evidence',
     title: 'Compliance checks & evidence records',
     blurb: 'Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.',
-    test: (slug) => /(evidence|preflight|drift|tracker)$/.test(slug) || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission)/.test(slug),
+    test: (slug) =>
+      /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
+      || /^(einvoice|backup|dns|grant|shopify-a11y|shopify-permission|consent-change|cra-|public-record|repository-branch)/.test(slug),
+  },
+  {
+    id: 'backoffice',
+    title: 'Back-office money & contracts',
+    blurb: 'Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.',
+    test: (slug) =>
+      /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
+      || /^(cash-runway|invoice-payment-terms|cam-|saas-seat|subscription-price|seller-net-sheet|appointment-deposit)/.test(slug),
   },
 ];
 
@@ -138,6 +153,102 @@ const FALLBACK_CATEGORY = {
 
 export function categoryFor(slug) {
   return CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
+}
+
+/**
+ * Sub-groups inside a category, so a section that has grown past a screenful is
+ * still scannable.
+ *
+ * `trades` is why this exists. It reached 105 tools — an alphabetical wall from
+ * `artificial-turf` to `window-replacement` in which a roofer looking for the
+ * metal-roof calculator has to read past sixty trades that are not theirs. The
+ * hub's search finds a tool you can already name; a directory has to also work
+ * for the visitor who is browsing, and browsing 105 undifferentiated cards is
+ * not browsing.
+ *
+ * Rules are keyword tests rather than a slug list on purpose. A bid calculator
+ * lands here most days, and a hand-maintained list would silently drop each new
+ * one into "More …" within a week — the same staleness the venture discovery in
+ * this file exists to avoid. A slug no rule claims falls to the category's own
+ * trailing group, which is a visible bucket rather than a missing tool.
+ *
+ * Ordered per category: the first matching rule wins, so a narrow rule
+ * (`window-cleaning` is cleaning work) must precede a broad one (`window-…` is
+ * an opening).
+ */
+const SUBCATEGORY_RULES = {
+  trades: [
+    {
+      id: 'trades-paid',
+      title: 'Getting paid & job margin',
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence)/.test(slug),
+    },
+    {
+      id: 'trades-cleaning',
+      title: 'Cleaning, restoration & insulation',
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam)/.test(slug),
+    },
+    {
+      id: 'trades-roof',
+      title: 'Roofing, siding & gutters',
+      test: (slug) => /^(roofing|flat-roof|metal-roof|siding|soffit-fascia|gutter-|skylight|stucco|tuckpointing|exterior-painting)/.test(slug),
+    },
+    {
+      id: 'trades-openings',
+      title: 'Windows, doors & garage',
+      test: (slug) => /^(window-replacement|egress-window|entry-door|interior-door|patio-door|garage-door|plantation-shutter|automatic-driveway-gate)/.test(slug),
+    },
+    {
+      id: 'trades-mep',
+      title: 'HVAC, plumbing & electrical',
+      test: (slug) => /^(furnace|boiler|mini-split|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-)/.test(slug),
+    },
+    {
+      id: 'trades-interior',
+      title: 'Interior finishes & remodels',
+      test: (slug) => /^(painting|drywall|flooring|carpet-install|hardwood-refinishing|kitchen-tile|countertop|cabinet-refinishing|crown-molding|popcorn-ceiling|basement-finishing|walk-in-|sunroom|screened-porch|home-elevator|stair-lift|wheelchair-ramp|fireplace-insert)/.test(slug),
+    },
+    {
+      id: 'trades-site',
+      title: 'Concrete, masonry & site work',
+      test: (slug) => /^(concrete|asphalt-|gravel-driveway|paver-patio|retaining-wall|parking-lot|french-drain|foundation-repair|epoxy-garage|pole-barn|shed-install)/.test(slug),
+    },
+    {
+      id: 'trades-outdoor',
+      title: 'Landscape, deck & pool',
+      test: (slug) => /^(artificial-turf|sod-install|lawn-care|irrigation-|tree-service|landscape-lighting|holiday-light|snow-removal|fence|deck-|deck-bid|pergola|hot-tub|pool-plaster|vinyl-liner)/.test(slug),
+    },
+  ],
+};
+
+const SUBCATEGORY_FALLBACKS = {
+  trades: { id: 'trades-other', title: 'More trade bids' },
+};
+
+/**
+ * The sub-group `slug` belongs to, or `null` when its category is small enough
+ * that the hub shows one flat list.
+ */
+export function subcategoryFor(slug) {
+  const rules = SUBCATEGORY_RULES[categoryFor(slug).id];
+  if (!rules) return null;
+  return rules.find((rule) => rule.test(slug)) ?? SUBCATEGORY_FALLBACKS[categoryFor(slug).id];
+}
+
+/**
+ * Split one category's tools into its sub-groups, dropping empty ones and
+ * keeping `SUBCATEGORY_RULES` order. Returns a single unnamed group when the
+ * category has no sub-groups, so callers render one code path either way.
+ */
+export function groupBySubcategory(categoryId, items) {
+  const rules = SUBCATEGORY_RULES[categoryId];
+  if (!rules) return [{ subcategory: null, items }];
+  return [...rules, SUBCATEGORY_FALLBACKS[categoryId]]
+    .map((subcategory) => ({
+      subcategory,
+      items: items.filter((item) => subcategoryFor(item.slug)?.id === subcategory.id),
+    }))
+    .filter((group) => group.items.length > 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -598,21 +709,16 @@ export function renderHub(surfaces, baseUrl) {
     },
   };
 
-  const sections = groups
-    .map(
-      ({ category, items }) => `
-      <section class="group" data-group="${category.id}">
-        <h2>${escapeHtml(category.title)}</h2>
-        <p class="group-blurb">${escapeHtml(category.blurb)}</p>
-        <ul class="cards">
-${items
-  .map(
-    (surface) => `          <li class="card" data-search="${escapeHtml(
-      surface.searchIndex ??
-        searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug]),
-    )}">
+  // A tool card. `headingLevel` follows the section it lands in so the document
+  // outline stays legal: a card is an h3 in a flat category and an h4 under a
+  // sub-group's h3. Screen-reader heading navigation is the browse path for
+  // anyone not using the search box, so it has to describe the real nesting.
+  const renderCard = (surface, headingLevel) => `          <li class="card" data-search="${escapeHtml(
+    surface.searchIndex ??
+      searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug]),
+  )}">
             <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
-              <h3>${escapeHtml(surface.title)}</h3>
+              <h${headingLevel}>${escapeHtml(surface.title)}</h${headingLevel}>
             </a>
             <p>${escapeHtml(surface.description)}</p>
             ${
@@ -620,12 +726,36 @@ ${items
                 ? `<p class="meta">${surface.pageCount} question${surface.pageCount === 1 ? '' : 's'} answered</p>`
                 : ''
             }
-          </li>`,
-  )
-  .join('\n')}
-        </ul>
-      </section>`,
-    )
+          </li>`;
+
+  const sections = groups
+    .map(({ category, items }) => {
+      const subgroups = groupBySubcategory(category.id, items);
+      // One unnamed sub-group means the category is small enough to read as a
+      // flat list; rendering a lone sub-heading over it would be noise.
+      const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
+      const body = flat
+        ? `        <ul class="cards">
+${items.map((surface) => renderCard(surface, 3)).join('\n')}
+        </ul>`
+        : subgroups
+            .map(
+              ({ subcategory, items: subItems }) => `        <section class="subgroup" data-subgroup="${subcategory.id}">
+          <h3>${escapeHtml(subcategory.title)} <span class="subgroup-count">${subItems.length}</span></h3>
+          <ul class="cards">
+${subItems.map((surface) => renderCard(surface, 4)).join('\n')}
+          </ul>
+        </section>`,
+            )
+            .join('\n');
+
+      return `
+      <section class="group" data-group="${category.id}">
+        <h2>${escapeHtml(category.title)}</h2>
+        <p class="group-blurb">${escapeHtml(category.blurb)}</p>
+${body}
+      </section>`;
+    })
     .join('\n');
 
   return `<!doctype html>
@@ -678,9 +808,16 @@ ${items
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
     .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
             padding: 17px 18px; }
-    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .subgroup { margin-top: 26px; }
+    .subgroup[hidden] { display: none; }
+    .subgroup h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; opacity: .7; letter-spacing: 0; }
+    .card h3, .card h4 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
     .card a { color: inherit; text-decoration: none; }
-    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card a:hover h3, .card a:focus-visible h3,
+    .card a:hover h4, .card a:focus-visible h4 { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; font-size: .89rem; line-height: 1.5; color: var(--muted); }
     .card .meta { margin-top: 9px; font-size: .78rem; font-weight: 650; color: var(--accent); }
     .yours { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
@@ -782,7 +919,10 @@ ${DISCLAIMER_HTML}
     const count = document.getElementById('count');
     const empty = document.getElementById('empty');
     const cards = [...document.querySelectorAll('.card')];
-    const groups = [...document.querySelectorAll('.group')];
+    // Sub-groups and their parent sections both empty out on a query. Each is
+    // decided from its own descendant cards, so one flat list covers both and
+    // the order within it does not matter.
+    const groups = [...document.querySelectorAll('.subgroup, .group')];
     const total = cards.length;
 
     // Every query word must hit, so "ebay return" narrows to the eBay tool
@@ -1128,17 +1268,29 @@ export function upToRoot(relativePath) {
 
 /**
  * Up to `limit` other tools to offer at the foot of `slug`'s pages: same
- * category first, then the rest of the site. Rotating the list by the tool's
- * own position means neighbouring tools do not all advertise the same four,
- * while keeping the choice deterministic — the build has to be reproducible.
+ * sub-group first, then the rest of the category, then the rest of the site.
+ * Rotating each list by the tool's own position means neighbouring tools do not
+ * all advertise the same four, while keeping the choice deterministic — the
+ * build has to be reproducible.
+ *
+ * The sub-group tier matters most in `trades`, where "same category" is 110
+ * tools: without it a metal-roof page offers whichever four the rotation lands
+ * on, and a roofer is shown a music-lesson break-even. Same sub-group means the
+ * offer is another roofing, siding, or gutter bid — work the same visitor sells.
  */
 export function relatedTools(surfaces, slug, limit = 4) {
   const others = surfaces.filter((surface) => surface.slug !== slug);
   if (others.length === 0) return [];
 
   const category = categoryFor(slug).id;
-  const sameCategory = others.filter((surface) => categoryFor(surface.slug).id === category);
-  const rest = others.filter((surface) => categoryFor(surface.slug).id !== category);
+  const subcategory = subcategoryFor(slug)?.id ?? null;
+  const inCategory = (surface) => categoryFor(surface.slug).id === category;
+  const inSubcategory = (surface) =>
+    subcategory !== null && inCategory(surface) && subcategoryFor(surface.slug)?.id === subcategory;
+
+  const sameSubcategory = others.filter(inSubcategory);
+  const sameCategory = others.filter((surface) => inCategory(surface) && !inSubcategory(surface));
+  const rest = others.filter((surface) => !inCategory(surface));
 
   const rotate = (list) => {
     if (list.length === 0) return list;
@@ -1146,7 +1298,7 @@ export function relatedTools(surfaces, slug, limit = 4) {
     return [...list.slice(offset), ...list.slice(0, offset)];
   };
 
-  return [...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
+  return [...rotate(sameSubcategory), ...rotate(sameCategory), ...rotate(rest)].slice(0, limit);
 }
 
 /**
@@ -1387,6 +1539,10 @@ export function renderCatalog(surfaces, baseUrl) {
         name: surface.title,
         url: `${baseUrl}${surface.slug}/`,
         category: categoryFor(surface.slug).title,
+        // Present only where the category is sub-grouped. An assistant asked for
+        // "a gutter bid calculator" can filter on this instead of reading 110
+        // trade descriptions to work out which ones are roof work.
+        ...(subcategoryFor(surface.slug) ? { subcategory: subcategoryFor(surface.slug).title } : {}),
         description: surface.description,
         pages: surface.pageCount,
       })),
@@ -1425,14 +1581,24 @@ export function renderCatalog(surfaces, baseUrl) {
 export function renderLlmsTxt(surfaces, baseUrl) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
 
+  const bullet = (surface) =>
+    `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`;
+
   const sections = groupByCategory(surfaces).map(({ category, items }) => {
-    const bullets = items
-      .map(
-        (surface) =>
-          `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`,
-      )
-      .join('\n');
-    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${bullets}\n`;
+    const subgroups = groupBySubcategory(category.id, items);
+    // Sub-headings for a sub-grouped category, so a model reading this file can
+    // answer "which of these is a roofing tool" from the structure rather than
+    // by matching prose across 110 sibling bullets.
+    const body =
+      subgroups.length === 1 && subgroups[0].subcategory === null
+        ? items.map(bullet).join('\n')
+        : subgroups
+            .map(
+              ({ subcategory, items: subItems }) =>
+                `### ${subcategory.title}\n\n${subItems.map(bullet).join('\n')}`,
+            )
+            .join('\n\n');
+    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${body}\n`;
   });
 
   // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
