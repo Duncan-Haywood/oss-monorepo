@@ -23980,3 +23980,54 @@ entries:
         the number on screen. A negative assertion over the whole script found
         what a positive assertion on the two known call sites could not.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **A scheduled session's clone is shallow, and that alone makes the
+        whole PR queue look unmergeable.** Both histories are truncated before
+        they meet, so `git merge-base origin/main <branch>` fails for *every*
+        branch in the repository: `git merge` refuses with "unrelated
+        histories", `git diff origin/main <branch>` reports 2,807 files and
+        364k deletions for what is a 3-file change, and
+        `supersede_check.py` exits 2 with an empty error. All 66 open PRs read
+        that way. `git fetch --unshallow` first — it is one command and it is
+        the difference between triage and guessing. Same shape as the
+        already-recorded "absent CI is not failed CI": the environment reads as
+        a catastrophic branch.
+      - >-
+        `supersede_check.py` now unshallows itself and carries a second,
+        independent proof (#1850). The line scan is textual, which is the right
+        bias against destroying work, but `main` here keeps absorbing a
+        branch's feature from a *sibling* branch under a different filename, so
+        the scan said NOT SUPERSEDED for 65 of 66 open PRs — none of which were
+        mergeable either. A gate that never opens is a gate nobody uses. The
+        new proof replays the branch on `main` with `main` winning every
+        conflict and compares tree objects: identical trees mean no content,
+        however `main` spells the feature. It certifies 26 of the 66 and still
+        refuses every branch that adds a file `main` lacks. This is the
+        2026-08-26 entry's manual technique turned into something checkable.
+      - >-
+        Confirming the earlier triage finding at full scope: **all 66 open PRs
+        are superseded.** Only 10 add any file `main` lacks, and each of those
+        is a differently-named duplicate — `site/csv.mjs` against `export.mjs`,
+        `free-shipping.html` against `should-i-offer-free-shipping-on-etsy.html`,
+        a root `index.html` against the `site/` surface, a janitorial
+        `draft.mjs` against `share.mjs`'s `saveBid`. Merging any of them
+        regresses `main`. The leftover diffs on the largest ones (#1099, #1122,
+        #1134) are resurrections of code `main` deliberately removed, and
+        #1099's is broken on its face (`errors.append` in a function whose list
+        was renamed). No branch without a PR carries unique work either.
+      - >-
+        Ran the full `Portfolio validate` job locally, since Actions has been
+        allocating no runners since 2026-08-26: **`main` was red.**
+        `venture-scores.yaml` carried `sponsor-ready` twice, byte-identical,
+        both copies added by the single commit #1837 — which merged at
+        00:42 UTC on 2026-08-27, inside the outage, so nothing checked it.
+        Fixed here. Everything else passes: 36 validate steps, 159 venture
+        node suites, 15 venture Python suites. One apparent failure
+        (`photo-editing` `test_unreadable_render_input_is_reported_for_review`)
+        is this sandbox running as root, which bypasses the `chmod(0)` the test
+        depends on; it passes for a non-root runner.
+    mrr_end: null
