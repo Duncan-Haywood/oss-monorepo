@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 import {
   EXCLUDED_FIELD_IDS,
+  SAVED_BIDS_CLAUSE,
+  addSavedBidsClause,
   MAX_SAVED_BIDS,
   MIN_SAVEABLE_FIELDS,
   SAVED_BIDS_KEY,
@@ -176,6 +178,73 @@ test('the explanation is in the markup, not built by script', () => {
 test('the slug is JSON-encoded into the script, not interpolated raw', () => {
   const out = injectSavedBids(page(inputs(6)), 'a"b');
   assert.match(out, /var SLUG = "a\\"b"/);
+});
+
+// ---------------------------------------------------------------------------
+// Structured data — #1894's lesson, applied to this feature
+// ---------------------------------------------------------------------------
+
+const ld = (list, spacing = '') =>
+  `<script type="application/ld+json">{"@type":"WebApplication","featureList":${spacing}"${list}"}</script>`;
+
+test('the clause is appended to a page’s feature list', () => {
+  const out = addSavedBidsClause(page(ld('Roof squares, waste factor')));
+  assert.match(out, /"featureList":"Roof squares, waste factor, saved bids you can name, reopen and reprice"/);
+});
+
+/**
+ * The repo uses both spellings. A strict match on `"featureList":"` reported 37
+ * calculators as having no feature list at all.
+ */
+test('both spellings of the key are matched', () => {
+  assert.ok(addSavedBidsClause(page(ld('A', ' '))).includes(SAVED_BIDS_CLAUSE));
+  assert.ok(addSavedBidsClause(page(ld('A', ''))).includes(SAVED_BIDS_CLAUSE));
+});
+
+/** `ev-charger` nests its node under `@graph`, so a top-level lookup misses it. */
+test('a feature list nested under @graph is still found', () => {
+  const nested = page(
+    '<script type="application/ld+json">{"@graph":[{"@type":"WebApplication","featureList":"A, B"}]}</script>',
+  );
+  assert.match(addSavedBidsClause(nested), /"featureList":"A, B, saved bids/);
+});
+
+test('an escaped quote inside the list does not end it early', () => {
+  const out = addSavedBidsClause(page(ld('A 12\\" run, B')));
+  assert.match(out, /"featureList":"A 12\\" run, B, saved bids you can name, reopen and reprice"/);
+});
+
+test('appending is idempotent', () => {
+  const once = addSavedBidsClause(page(ld('A')));
+  assert.equal(addSavedBidsClause(once), once);
+});
+
+test('a page with no feature list is left alone rather than given one', () => {
+  const bare = page('<p>no json-ld here</p>');
+  assert.equal(addSavedBidsClause(bare), bare);
+});
+
+test('an empty feature list is not turned into a list of one claim', () => {
+  const empty = page(ld(''));
+  assert.equal(addSavedBidsClause(empty), empty);
+});
+
+/**
+ * The coupling that matters: the claim ships in the same statement as the
+ * feature, so a page can never advertise saved bids it does not have. This is
+ * the reverse-direction guard #1894 had to add as a separate test.
+ */
+test('injecting the band declares the feature', () => {
+  const out = injectSavedBids(page(ld('A') + inputs(6)), 'x');
+  assert.match(out, /data-pf-jobs-root/);
+  assert.ok(out.includes(SAVED_BIDS_CLAUSE));
+});
+
+test('a page that does not get the band never claims the feature', () => {
+  const tooSmall = page(ld('A') + inputs(MIN_SAVEABLE_FIELDS - 1));
+  const out = injectSavedBids(tooSmall, 'x');
+  assert.ok(!out.includes(SAVED_BIDS_CLAUSE));
+  assert.equal(out, tooSmall);
 });
 
 // ---------------------------------------------------------------------------
