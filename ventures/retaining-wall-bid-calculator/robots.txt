@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://example.invalid/retaining-wall-bid-calculator/sitemap.xml

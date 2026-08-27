@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/sitemap.xml

@@ -1,0 +1,27 @@
+name: cra-evidence-desk
+description: A local SBOM and advisory matcher that drafts customer-reviewed Cyber Resilience Act incident evidence without filing or certifying compliance.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small software vendors need a fast local way to identify affected components and assemble a reporting draft.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Explicit coverage and source disclosure make a deterministic evidence report useful enough to revisit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: EUR
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified software vendors run two reports within 90 days.
+  - Users cannot identify an actionable component/advisory match in a supplied fixture within five minutes.
+links:
+  production: null
+  analytics: null
