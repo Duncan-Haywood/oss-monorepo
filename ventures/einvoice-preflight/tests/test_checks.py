@@ -1,7 +1,6 @@
 import json
 import contextlib
 import io
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -39,6 +38,27 @@ class ChecksTest(unittest.TestCase):
             main(["--version"])
         self.assertEqual(raised.exception.code, 0)
         self.assertEqual(output.getvalue(), "einvoice-preflight 0.1.0\n")
+
+    def test_cli_checklist_groups_findings_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(path), "--format", "checklist"]), 1)
+            checklist = output.getvalue()
+            self.assertIn("Status: FAIL", checklist)
+            self.assertIn("Checked: 1 invoice(s)", checklist)
+            self.assertIn("Observations: 1", checklist)
+            self.assertIn("[ ] Review invoice.json", checklist)
+            self.assertIn("INV-017", checklist)
+            self.assertIn("/totals/gross", checklist)
+            self.assertIn("Fix:", checklist)
+            self.assertNotIn("INV-1", checklist)
+            self.assertNotIn("200", checklist)
+            self.assertNotIn("238", checklist)
 
     def test_ubl_invoice_maps_to_supported_shape(self):
         self.assertEqual(check_invoice(parse_ubl_invoice(UBL_VALID)), [])
@@ -90,6 +110,49 @@ class ChecksTest(unittest.TestCase):
         self.assertIn("INV-018", rules)
         self.assertTrue(any("line tax percentages" in error["message"] for error in errors))
 
+    def test_prepaid_and_due_are_optional_and_must_balance(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["prepaid"] = 38
+        invoice["totals"]["due"] = 200
+        self.assertEqual(check_invoice(invoice), [])
+
+        invoice["totals"]["due"] = 238
+        errors = check_invoice(invoice)
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-029")["path"], "/totals/due")
+
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["prepaid"] = 300
+        errors = check_invoice(invoice)
+        self.assertIn("INV-028", {error["rule"] for error in errors})
+        self.assertEqual(next(error for error in errors if error["rule"] == "INV-028")["path"], "/totals/prepaid")
+
+        invoice = json.loads(json.dumps(VALID))
+        invoice["totals"]["due"] = 0
+        errors = check_invoice(invoice)
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+        self.assertTrue(any("gross minus prepaid" in error["message"] for error in errors))
+
+    def test_ubl_prepaid_and_payable_map_into_remaining_balance(self):
+        matching = UBL_VALID.replace(
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>"
+            b"<cbc:PrepaidAmount>38</cbc:PrepaidAmount>"
+            b"<cbc:PayableAmount>200</cbc:PayableAmount>",
+        )
+        invoice = parse_ubl_invoice(matching)
+        self.assertEqual(invoice["totals"]["prepaid"], 38)
+        self.assertEqual(invoice["totals"]["due"], 200)
+        self.assertEqual(check_invoice(invoice), [])
+
+        mismatched = UBL_VALID.replace(
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>",
+            b"<cbc:TaxInclusiveAmount>238</cbc:TaxInclusiveAmount>"
+            b"<cbc:PayableAmount>200</cbc:PayableAmount>",
+        )
+        errors = check_invoice(parse_ubl_invoice(mismatched))
+        self.assertIn("INV-029", {error["rule"] for error in errors})
+
     def test_tax_total_rounds_each_line_to_cents(self):
         invoice = json.loads(json.dumps(VALID))
         invoice["lines"] = [
@@ -97,6 +160,24 @@ class ChecksTest(unittest.TestCase):
             {"description": "B", "quantity": 1, "unit_price": 0.03, "tax_percent": 19, "net": 0.03},
         ]
         invoice["totals"] = {"net": 0.06, "tax": 0.02, "gross": 0.08}
+        self.assertEqual(check_invoice(invoice), [])
+
+    def test_fractional_quantity_is_not_rounded_before_line_calculation(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["lines"] = [{
+            "description": "Fabric",
+            "quantity": 1.25,
+            "unit_price": 10,
+            "tax_percent": 19,
+            "net": 12.50,
+        }]
+        invoice["totals"] = {"net": 12.50, "tax": 2.38, "gross": 14.88}
+        self.assertEqual(check_invoice(invoice), [])
+
+    def test_fractional_tax_percentage_is_not_rounded_before_tax_calculation(self):
+        invoice = json.loads(json.dumps(VALID))
+        invoice["lines"][0]["tax_percent"] = 19.5
+        invoice["totals"] = {"net": 200, "tax": 39, "gross": 239}
         self.assertEqual(check_invoice(invoice), [])
 
     def test_line_net_is_required(self):
@@ -142,7 +223,45 @@ class ChecksTest(unittest.TestCase):
             usage_path = Path(directory) / "usage.json"
             invoice_path.write_text(json.dumps(VALID))
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
-            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
+
+    def test_cli_counts_attempted_use_when_input_cannot_be_parsed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "broken.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text("{not-json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(
+                    main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]),
+                    2,
+                )
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1}},
+            )
+
+    def test_cli_counts_attempt_once_and_checked_per_valid_invoice_in_batch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            invoices = root / "invoices"
+            invoices.mkdir()
+            (invoices / "valid.json").write_text(json.dumps(VALID))
+            (invoices / "broken.json").write_text("{not-json")
+            usage_path = root / "usage.json"
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(
+                    main([str(invoices), "--format", "json", "--usage-file", str(usage_path)]),
+                    2,
+                )
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
 
     def test_cli_writes_report_to_output_file(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -156,6 +275,32 @@ class ChecksTest(unittest.TestCase):
             report = json.loads(report_path.read_text())
             self.assertEqual(report["status"], "pass")
             self.assertFalse(list(report_path.parent.glob(".preflight.json.*")))
+
+    def test_cli_remediation_csv_groups_findings_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            first["totals"]["gross"] = 200
+            second = json.loads(json.dumps(VALID))
+            second["invoice_number"] = "INV-2"
+            second["totals"]["gross"] = 201
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation-csv"]), 1)
+            lines = output.getvalue().splitlines()
+            self.assertEqual(lines[0], "rule,occurrences,message,fix")
+            self.assertIn("INV-017,2,Gross total does not equal net plus tax.", lines[1])
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_csv_surfaces_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation-csv"]), 2)
+            self.assertIn("INV-READ,1,Invoice could not be read.", output.getvalue())
 
     def test_cli_reports_output_write_failure_without_partial_file(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -173,7 +318,10 @@ class ChecksTest(unittest.TestCase):
             invoice_path.write_text(json.dumps(VALID))
             usage_path.write_text(json.dumps({"events": {"invoice_preflight_checked": "unknown"}}))
             self.assertEqual(main([str(invoice_path), "--format", "json", "--usage-file", str(usage_path)]), 0)
-            self.assertEqual(json.loads(usage_path.read_text()), {"events": {"invoice_preflight_checked": 1}})
+            self.assertEqual(
+                json.loads(usage_path.read_text()),
+                {"events": {"invoice_preflight_attempted": 1, "invoice_preflight_checked": 1}},
+            )
 
     def test_usage_write_failure_does_not_fail_preflight(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -213,6 +361,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["reports"][0]["status"], "fail")
             self.assertEqual(report["reports"][0]["observations"], 1)
             self.assertEqual(report["reports"][0]["errors"][0]["rule"], "INV-017")
+            self.assertEqual(report["errors"][0]["file"], "invoice.json")
 
     def test_cli_json_single_file_includes_adapter_summary(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -238,6 +387,7 @@ class ChecksTest(unittest.TestCase):
                 "fix": "Set gross total to 238.00 or correct the totals.",
             }])
             self.assertEqual(report["errors"][0]["rule"], "INV-017")
+            self.assertEqual(report["errors"][0]["file"], "invoice.json")
 
     def test_cli_json_groups_repeated_fixes_without_invoice_values(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -255,7 +405,42 @@ class ChecksTest(unittest.TestCase):
             report = json.loads(output.getvalue())
             self.assertEqual(report["fixes"][0]["rule"], "INV-017")
             self.assertEqual(report["fixes"][0]["occurrences"], 2)
+            self.assertEqual(
+                {(error["file"], error["rule"]) for error in report["errors"]},
+                {("first.json", "INV-017"), ("second.json", "INV-017")},
+            )
             self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_groups_findings_by_file_and_rule(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice = json.loads(json.dumps(VALID))
+            invoice["totals"]["gross"] = 200
+            invoice["lines"][0]["net"] = 201
+            invoice_path.write_text(json.dumps(invoice))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "remediation"]), 1)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["status"], "fail")
+            self.assertEqual(report["files_checked"], 1)
+            self.assertEqual({item["rule"] for item in report["items"]}, {"INV-012", "INV-017"})
+            gross = next(item for item in report["items"] if item["rule"] == "INV-017")
+            self.assertEqual(gross["occurrences"], 1)
+            self.assertEqual(gross["paths"], ["/totals/gross"])
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_reports_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(Path(directory)), "--format", "remediation"]), 2)
+            report = json.loads(output.getvalue())
+            self.assertEqual(report["status"], "fail")
+            self.assertEqual(report["exit_code"], 2)
+            self.assertEqual(report["items"], [])
+            self.assertEqual(len(report["read_errors"]), 1)
 
     def test_cli_json_success_reports_machine_result_contract(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -483,7 +668,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["schema_version"], 1)
             self.assertEqual(report["exit_code"], 2)
             self.assertEqual(report["files_checked"], 0)
-            self.assertEqual(report["read_errors"][0]["error"], "No JSON or XML invoices found.")
+            self.assertEqual(report["read_errors"][0]["error"], "No JSON, XML, or PDF invoices found.")
 
     def test_cli_json_max_files_refusal_keeps_machine_readable_contract(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -561,14 +746,33 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 2)
             self.assertIn("::error file=broken.json,line=1,title=Unreadable invoice::", output.getvalue())
 
-    def test_cli_emits_no_github_annotations_for_valid_invoice(self):
+    def test_cli_emits_github_notice_for_valid_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
             invoice_path.write_text(json.dumps(VALID))
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 0)
-            self.assertEqual(output.getvalue(), "")
+            report = output.getvalue()
+            self.assertIn("::notice title=E-invoice preflight::Passed: 1 invoice(s)", report)
+            self.assertNotIn("INV-1", report)
+            self.assertNotIn("::error", report)
+
+    def test_cli_records_github_report_usage_separately(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([
+                    str(invoice_path), "--format", "github", "--usage-file", str(usage_path)
+                ]), 0)
+            self.assertEqual(json.loads(usage_path.read_text()), {"events": {
+                "invoice_preflight_attempted": 1,
+                "invoice_preflight_checked": 1,
+                "invoice_preflight_github_report": 1,
+            }})
 
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
@@ -793,6 +997,15 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("Overall: FAIL", report)
             self.assertIn("INV-017", report)
             self.assertIn("invoice&lt;review&gt;.json", report)
+            self.assertIn('href="#invoice-0"', report)
+            self.assertIn('id="invoice-0"', report)
+            self.assertIn('caption>Findings grouped by validation rule', report)
+            self.assertIn('scope="col"', report)
+            self.assertIn('href="#report-content">Skip to report content', report)
+            self.assertIn('<main id="report-content" aria-label="Preflight report">', report)
+            self.assertIn('role="status">Overall: FAIL', report)
+            self.assertIn('aria-labelledby="finding-summary-heading"', report)
+            self.assertIn('aria-label="Report metrics"', report)
             self.assertNotIn("PRIVATE-123", report)
             self.assertNotIn("<script", report.lower())
 

@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Patio Door Bid Calculator | Price the Panels, the Glass, and the Opening — Not Just $1,800 Installed</title>
+  <meta name="description" content="Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — not a published $1,800-installed 6-foot vinyl special. See the walk-away number before you match a cheaper quote.">
+  <meta property="og:title" content="Patio Door Bid Calculator">
+  <meta property="og:description" content="A 6-foot vinyl 2-panel retrofit on the ground is not the same job as a 16-foot 4-panel impact-rated new-construction unit with a transom and a balcony. Bid the panels and the extras.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Patio Door Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "2-panel versus 3-panel versus 4-panel, vinyl versus aluminum versus fiberglass versus wood-clad, dual-pane versus triple versus impact glass, retrofit versus new-construction, ground patio versus balcony, rolling screen, transom, interior trim, sill pan, threshold rebuild, tear-out, walk-away price, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2834; background: #e4eaf0; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2a5a7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c4d0dc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c28340d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5c6c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #7a8ea0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #7a8ea0; background: #eef3f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dce6ee; }
+    .result { position: sticky; top: 15px; background: #1c2e42; color: #eef4f8; border-color: #1c2e42; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7eb6d6; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5c6c; }
+    footer a { color: #2a5a7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #c8dce8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR WINDOW AND DOOR SHOPS</p>
+    <h1>Bid the panels, the glass, and the opening.</h1>
+    <p>Price a sliding glass or patio-door replacement the way the trade actually loses money: extra panels, impact glass, a full-frame new-construction wrap, a transom, a sill pan, and balcony access. You get the bid, the hours the first 4-panel unit actually consumes, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The opening</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing configuration, frame, glazing, install method, or access never overwrites a rate you already typed. This prices a sliding or patio unit — not a pedestrian entry door, and not a window replacement.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Configuration
+            <select id="config">
+              <option value="two-6" selected>6-foot 2-panel</option>
+              <option value="two-8">8-foot 2-panel</option>
+              <option value="three-9">9-foot 3-panel</option>
+              <option value="three-12">12-foot 3-panel</option>
+              <option value="four-12">12-foot 4-panel</option>
+              <option value="four-16">16-foot 4-panel</option>
+            </select>
+          </label>
+          <label>Frame
+            <select id="frame">
+              <option value="vinyl" selected>Vinyl</option>
+              <option value="aluminum">Aluminum</option>
+              <option value="fiberglass">Fiberglass</option>
+              <option value="wood-clad">Wood-clad</option>
+            </select>
+          </label>
+          <label>Glazing
+            <select id="glazing">
+              <option value="dual" selected>Dual-pane Low-E</option>
+              <option value="triple">Triple-pane</option>
+              <option value="impact">Impact / hurricane</option>
+            </select>
+          </label>
+          <label>Install method
+            <select id="install">
+              <option value="retrofit" selected>Retrofit / pocket (existing frame)</option>
+              <option value="newcon">New-construction (full frame + wrap)</option>
+            </select>
+          </label>
+          <label>Access
+            <select id="access">
+              <option value="ground" selected>Ground patio</option>
+              <option value="balcony">Second-story balcony</option>
+            </select>
+          </label>
+          <label class="check"><input id="addScreen" type="checkbox"> Rolling screen</label>
+          <label class="check"><input id="addTransom" type="checkbox"> Transom</label>
+          <label class="check"><input id="addInteriorTrim" type="checkbox"> Interior trim / casing</label>
+          <label class="check"><input id="addSillPan" type="checkbox"> Sill pan / exterior flashing</label>
+          <label class="check"><input id="addThreshold" type="checkbox"> Threshold / sill rebuild</label>
+          <label class="check"><input id="tearOut" type="checkbox" checked> Tear-out / haul the old door</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="1"></label>
+          <label>Hours to set the unit <input id="hoursSet" type="number" min="0" step="0.1" value="4.5"></label>
+          <label>Frame set-hour premium <input id="hoursSetPremium" type="number" min="0" step="0.05" value="0"></label>
+          <label>Glazing set-hour premium <input id="hoursGlazingPremium" type="number" min="0" step="0.05" value="0"></label>
+          <label>Set-hour factor (new-con) <input id="setHourFactor" type="number" min="0" step="0.02" value="1"></label>
+          <label>New-construction wrap hours <input id="hoursNewcon" type="number" min="0" step="0.1" value="0"></label>
+          <label>Balcony / access hours <input id="hoursAccess" type="number" min="0" step="0.1" value="0"></label>
+          <label>Hours for a screen <input id="hoursScreen" type="number" min="0" step="0.1" value="0.9"></label>
+          <label>Hours for a transom <input id="hoursTransom" type="number" min="0" step="0.1" value="1.4"></label>
+          <label>Hours for interior trim <input id="hoursInteriorTrim" type="number" min="0" step="0.1" value="1.2"></label>
+          <label>Hours for a sill pan / flashing <input id="hoursSillPan" type="number" min="0" step="0.1" value="1.5"></label>
+          <label>Hours for a threshold rebuild <input id="hoursThreshold" type="number" min="0" step="0.1" value="1.3"></label>
+          <label>Hours to tear out the old unit <input id="hoursTearOut" type="number" min="0" step="0.1" value="1.4"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Patio-door unit cost <input id="unitCost" type="number" min="0" step="10" value="980"></label>
+          <label>Config unit-cost multiplier <input id="unitCostMultiplier" type="number" min="0" step="0.05" value="1"></label>
+          <label>Glazing cost factor <input id="glazingCostFactor" type="number" min="0" step="0.02" value="1"></label>
+          <label>Screen <input id="screenCost" type="number" min="0" step="5" value="95"></label>
+          <label>Transom <input id="transomCost" type="number" min="0" step="5" value="380"></label>
+          <label>Interior trim <input id="trimCost" type="number" min="0" step="5" value="140"></label>
+          <label>Sill pan / flashing <input id="sillPanCost" type="number" min="0" step="5" value="165"></label>
+          <label>Threshold rebuild <input id="thresholdCost" type="number" min="0" step="5" value="95"></label>
+          <label>Dump / haul-away <input id="dumpFee" type="number" min="0" step="5" value="65"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="0"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="48"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, truck, recovery <input id="travelAndEquipment" type="number" min="0" step="5" value="110"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="32"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 1800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $48/h installer loaded at 32% is $63.36. Quoting the raw wage on a published $1,800-installed special is how a 4-panel impact balcony unit that looked fine turns into a two-day loss after the first sill-pan rebuild.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">patio-door price</div>
+      <dl>
+        <dt>Unit and access</dt><dd id="scope"></dd>
+        <dt>Opening and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Door + extras</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or a door design &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, may be taken offline without notice; there is no availability SLA.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-replace-a-sliding-glass-door.html">How much to charge to replace a sliding glass door</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedConfigKit,
+      suggestedFrameKit,
+      suggestedGlazingKit,
+      suggestedInstallKit,
+      suggestedAccessKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const FIELD_IDS = [
+      'hoursTrip','hoursSet','hoursSetPremium','hoursGlazingPremium','setHourFactor',
+      'hoursNewcon','hoursAccess','hoursScreen','hoursTransom','hoursInteriorTrim',
+      'hoursSillPan','hoursThreshold','hoursTearOut','siteHours',
+      'unitCost','unitCostMultiplier','glazingCostFactor','screenCost','transomCost',
+      'trimCost','sillPanCost','thresholdCost','dumpFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['addScreen','addTransom','addInteriorTrim','addSillPan','addThreshold','tearOut'];
+    const SELECT_IDS = ['config','frame','glazing','install','access'];
+    const SUGGESTED_CONFIG_IDS = ['hoursSet','hoursInteriorTrim','unitCostMultiplier'];
+    const SUGGESTED_FRAME_IDS = ['unitCost','hoursSetPremium'];
+    const SUGGESTED_GLAZING_IDS = ['glazingCostFactor','hoursGlazingPremium'];
+    const SUGGESTED_INSTALL_IDS = ['setHourFactor','hoursNewcon'];
+    const SUGGESTED_ACCESS_IDS = ['hoursAccess'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyKit(force, rates, ids) {
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+      if (ids) {
+        /* keep ids referenced so a future kit field is not silently dropped */
+      }
+    }
+
+    function applyConfigKit(force) {
+      applyKit(force, suggestedConfigKit(el('config').value), SUGGESTED_CONFIG_IDS);
+    }
+    function applyFrameKit(force) {
+      applyKit(force, suggestedFrameKit(el('frame').value), SUGGESTED_FRAME_IDS);
+    }
+    function applyGlazingKit(force) {
+      applyKit(force, suggestedGlazingKit(el('glazing').value), SUGGESTED_GLAZING_IDS);
+    }
+    function applyInstallKit(force) {
+      applyKit(force, suggestedInstallKit(el('install').value), SUGGESTED_INSTALL_IDS);
+    }
+    function applyAccessKit(force) {
+      applyKit(force, suggestedAccessKit(el('access').value), SUGGESTED_ACCESS_IDS);
+    }
+
+    function applyJob(job) {
+      el('config').value = job.config;
+      el('frame').value = job.frame;
+      el('glazing').value = job.glazing;
+      el('install').value = job.install;
+      el('access').value = job.access;
+      applyConfigKit(true);
+      applyFrameKit(true);
+      applyGlazingKit(true);
+      applyInstallKit(true);
+      applyAccessKit(true);
+      [...SUGGESTED_CONFIG_IDS, ...SUGGESTED_FRAME_IDS, ...SUGGESTED_GLAZING_IDS, ...SUGGESTED_INSTALL_IDS, ...SUGGESTED_ACCESS_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('addScreen').checked = job.addScreen;
+      el('addTransom').checked = job.addTransom;
+      el('addInteriorTrim').checked = job.addInteriorTrim;
+      el('addSillPan').checked = job.addSillPan;
+      el('addThreshold').checked = job.addThreshold;
+      el('tearOut').checked = job.tearOut;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'patio-door price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'patio-door price';
+      el('scope').textContent = `${result.config} · ${result.frame} · ${result.glazing} · ${result.install} · ${result.access}`;
+      const extraBits = [
+        result.addScreen ? 'screen' : null,
+        result.addTransom ? 'transom' : null,
+        result.addInteriorTrim ? 'interior trim' : null,
+        result.addSillPan ? 'sill pan' : null,
+        result.addThreshold ? 'threshold rebuild' : null,
+        result.tearOut ? 'tear-out' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard brochure hang';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Set the unit', result.hourShares.set],
+        ['New-construction wrap', result.hourShares.wrap],
+        ['Access / balcony', result.hourShares.access],
+        ['Screen / transom / trim / sill / tear-out', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Door + extras', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('config').addEventListener('change', () => {
+      applyConfigKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('frame').addEventListener('change', () => {
+      applyFrameKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('glazing').addEventListener('change', () => {
+      applyGlazingKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('install').addEventListener('change', () => {
+      applyInstallKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_CONFIG_IDS, ...SUGGESTED_FRAME_IDS, ...SUGGESTED_GLAZING_IDS, ...SUGGESTED_INSTALL_IDS, ...SUGGESTED_ACCESS_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    // This venture already lists its selects; reuse that rather than restating it.
+    const CHOICE_IDS = [...SELECT_IDS];
+    const BID_SPEC = {
+      key: 'patio-door-bid',
+      numbers: [...FIELD_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+  </script>
+</body>
+</html>

@@ -1,24 +1,30 @@
-// Formats a private, plain-text review note. Keeping this pure makes the
-// download content testable without a browser or access to quote inputs.
+// Plain-text handoff for a quote review. It contains supplied figures and
+// derived arithmetic, but deliberately avoids presenting a profitability or
+// pricing recommendation.
 
-export function reviewSummary(quote, report, checks) {
+export function formatReviewSummary(quote, report, checks) {
+  const money = (value) => `${quote.currency} ${value.toFixed(2)}`;
+  const flags = checks
+    .filter((check) => check.level === "attention")
+    .map((check) => `- ${check.title}: ${check.detail}`);
+
   return [
-    "QUOTE MARGIN REVIEW",
-    "Arithmetic comparison for the quote supplied by the user",
+    "QUOTE MARGIN CHECK",
+    "Arithmetic review for discussion, not pricing or financial advice.",
     "",
-    `Quoted price: ${quote.currency} ${quote.price.toFixed(2)}`,
+    `Quoted price: ${money(quote.price)}`,
     `Total working hours: ${report.total_hours.toFixed(2)}`,
-    `Direct costs: ${quote.currency} ${report.direct_costs.toFixed(2)}`,
-    `Effective hourly rate: ${quote.currency} ${report.effective_hourly_rate.toFixed(2)}/hour`,
-    `Supplied target hourly rate: ${quote.currency} ${quote.target_hourly_rate.toFixed(2)}/hour`,
-    `Price at supplied target: ${quote.currency} ${report.target_price.toFixed(2)}`,
-    `Gap to supplied target: ${quote.currency} ${report.gap_to_target.toFixed(2)}`,
-    `Left after direct costs: ${quote.currency} ${report.cost_coverage.toFixed(2)}`,
+    `Direct costs: ${money(report.direct_costs)}`,
+    `Effective hourly rate: ${money(report.effective_hourly_rate)}/hour`,
+    `Target hourly rate supplied: ${money(quote.target_hourly_rate)}/hour`,
+    `Price at target rate: ${money(report.target_price)}`,
+    `Gap to target price: ${money(report.gap_to_target)}`,
+    `Left after direct costs: ${money(report.cost_coverage)}`,
+    `Minimum increase to reach target: ${money(report.minimum_price_adjustment)}`,
     "",
     "Review observations:",
-    ...checks.map((check) => `- ${check.title}: ${check.detail}`),
+    ...(flags.length ? flags : ["- No arithmetic attention flags from these inputs."]),
     "",
-    "Assumptions: figures are supplied by the user; time overruns, taxes, payment fees, and other costs may change the result.",
-    "This is not a profitability determination, pricing advice, tax advice, or financial advice. Review and verify before relying on it.",
+    "Review the scope, assumptions, and arithmetic before relying on this output.",
   ].join("\n");
 }
