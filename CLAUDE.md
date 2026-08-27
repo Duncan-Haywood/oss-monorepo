@@ -175,6 +175,27 @@ run on it. If a PR shows no checks, verify locally (`node --test`, the
 venture's suite, a browser pass) and record what you ran; do not read the
 blank as a failure.
 
+**And while the runner outage lasts, red CI is not failed CI either.** Since
+2026-08-26 every workflow in the repo fails without a runner, so checks now
+arrive *red* rather than absent — which reads very differently and is the
+easier mistake. On 2026-08-27 four PRs verified green locally each came back
+with `validate`, `check`, `test`, `build`, `site-test` and `page-integrity`
+failing; so did the merge of #1849, the commit that queued the outage itself,
+and every other session's merge that hour.
+
+Tell them apart in one call, before you debug anything:
+
+```
+python3 -c "import json,subprocess;                                        \
+  j=json.loads(subprocess.run(['gh','api','repos/{owner}/{repo}/actions/jobs/<job_id>'], \
+  capture_output=True,text=True).stdout); print(j['started_at'], j['completed_at'])"
+```
+
+An outage job runs **3-6 seconds**, has empty `output.title/summary/text`, and
+404s on log download. A real `Portfolio validate` installs Python and Node and
+runs 36 steps; it cannot finish in five seconds. If you see that signature,
+the failure is not yours: verify locally and say so, do not "fix" green code.
+
 ## Ledger (minimal)
 
 Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned

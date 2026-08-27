@@ -50,6 +50,13 @@ AI-wrap by default.
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been
   wrong three times in one hour, and each time the feature existed only on the
   branch being closed.
+- **A red check is not a failed check right now.** The repo-wide runner outage
+  (owner decision #1849) fails every workflow in 3-6 seconds with no runner, so
+  checks arrive *red*, not absent — including on `main` and on the commit that
+  queued the outage. An outage job has empty check-run output and 404s on log
+  download; a real `Portfolio validate` installs Python and Node and runs 36
+  steps, so it cannot finish in five seconds. Verify locally, record what you
+  ran, and do not "fix" code the check never executed. See `CLAUDE.md`.
 - **`git fetch --unshallow` first.** A scheduled session's clone is shallow, so
   every branch reads as an unrelated history: no merge base, `git merge` refuses,
   and a normal PR looks like a 2,800-file catastrophe. That is the clone, not the
