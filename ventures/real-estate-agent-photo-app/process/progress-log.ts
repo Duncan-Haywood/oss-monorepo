@@ -7,6 +7,20 @@ import type { ProgressEntry } from "./types";
  */
 export const progressLog: ProgressEntry[] = [
   {
+    date: "2026-08-27",
+    agent: "cursor/branch-and-pr-integration-4d4e",
+    summary:
+      "Remeshed the leftover MLS preflight export extra: a run can now copy a short handoff summary in addition to the dated Markdown and JSON downloads.",
+    changes: [
+      "research/src/components/PhotoCheckTool.tsx adds Copy handoff summary next to the dated Markdown and JSON downloads. The text lists filenames, rule ids, and skipped files — never photo pixels — and states it is evidence only.",
+      "Added an opt-out local handoff_summary_copied usage event. Clipboard write falls back to execCommand when the Clipboard API is unavailable.",
+    ],
+    nextUp: [
+      "Human: run the check against a real delivery folder once a concierge listing exists.",
+      "Agent: keep leftover wording PRs open until supersede_check.py exits 0.",
+    ],
+  },
+  {
     date: "2026-08-24",
     agent: "session/agent_0f91c692-9c76-4ae5-bc98-79b2014f706e",
     summary:
