@@ -112,6 +112,7 @@ test("null figures are rendered defensively", () => {
 test("the landing copy names the affiliate-return problem in the first screen", () => {
   assert.match(markup, /The 6% is not what you keep/);
   assert.match(markup, /affiliate-commission-on-returns\.html/);
+  assert.match(markup, /should-i-offer-free-shipping-on-tiktok-shop\.html/);
   assert.match(markup, /No warranty/);
   assert.match(markup, /Nothing leaves your browser/);
 });
