@@ -476,9 +476,32 @@ RESI, 45</textarea>
     document.getElementById("exportStatus").textContent = "Downloaded locally";
     countUsage("review_exported");
   });
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // file:// pages and browsers that deny clipboard access
+      }
+    }
+    fallbackCopy(text);
+  }
   document.getElementById("copy").addEventListener("click", async () => {
     try {
-      await navigator.clipboard.writeText(draft.value);
+      await copyText(draft.value);
       document.getElementById("exportStatus").textContent = "Draft copied locally";
     } catch {
       document.getElementById("exportStatus").textContent = "Copy the draft from the box";
