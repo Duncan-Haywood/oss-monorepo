@@ -220,17 +220,63 @@ export function parseBackup(text) {
 const bidKey = (bid) => bid.name;
 
 /**
+ * Which of two copies of the same job this device should keep.
+ *
+ * The fields are decided by `at`, which is the rule this merge has always
+ * used: the later pricing is the current one.
+ *
+ * The outcome cannot ride along with them, and that is the whole reason this
+ * function exists. Marking a bid won does not re-price it, so `at` does not
+ * move — a contractor who marks "14 Oak St" won on the phone and then restores
+ * that backup onto the laptop has two records with an identical `at`, one
+ * decided and one not. Under `at` alone the laptop's copy is "unchanged" and
+ * the win is silently dropped, which is the same class of defect as the bid
+ * link that quietly lost `quantity`: nothing fails, and the number the
+ * contractor sees afterwards is wrong.
+ *
+ * So the outcome is resolved on its own two rules, in order:
+ *
+ *   1. A decided bid beats an undecided one, whichever side it came from.
+ *      Waiting is the absence of information, not a competing claim — no
+ *      device ever asserts "this is still out", it only fails to say otherwise.
+ *   2. Between two decided copies, the later `decidedAt` wins. A bid marked
+ *      lost in June and won in August was won.
+ *
+ * Returns the record to keep, which may be a blend of the two sides.
+ */
+export function resolveBidPair(mine, theirs) {
+  const base = theirs.at > mine.at ? theirs : mine;
+  const other = base === theirs ? mine : theirs;
+
+  if (base.outcome && other.outcome) {
+    // Missing `decidedAt` sorts before any real timestamp, so a copy that
+    // records when it was decided beats one that only records that it was.
+    const keep = (other.decidedAt ?? '') > (base.decidedAt ?? '') ? other : base;
+    if (keep === base) return base;
+    return { ...base, outcome: keep.outcome, ...(keep.decidedAt ? { decidedAt: keep.decidedAt } : {}) };
+  }
+
+  const decided = base.outcome ? base : other.outcome ? other : null;
+  if (!decided || decided === base) return base;
+  return { ...base, outcome: decided.outcome, ...(decided.decidedAt ? { decidedAt: decided.decidedAt } : {}) };
+}
+
+/**
  * Merge a backup into what this device already holds.
  *
  * Never subtractive: every bid on the device is still in the result unless the
  * per-tool cap pushed it out, and a bid pushed out by the cap is counted in
  * `dropped` so the page can say so. A job present on both sides is matched by
  * name within its tool — the same key `jobs.mjs` uses when saving replaces a
- * row — and the later `at` wins, because that is the only "which of these is
- * current" the data carries.
+ * row — and `resolveBidPair` above decides what to keep of each: the later `at`
+ * takes the pricing, and the outcome is resolved separately because marking a
+ * bid won does not move `at`.
  *
  * `added` / `replaced` / `unchanged` are counts of the *incoming* bids, so they
  * always sum to the number of bids in the file that this device could take.
+ * "Unchanged" means the stored record came through the merge untouched — a file
+ * that carries only the news that a bid was won counts as `replaced`, because
+ * something on this device did change.
  */
 export function mergeBids(current, incoming) {
   const result = {};
@@ -253,7 +299,7 @@ export function mergeBids(current, incoming) {
       // A store that somehow holds the same name twice keeps the newer one; the
       // merge is also the only pass that would ever notice.
       const existing = byName.get(bidKey(bid));
-      if (!existing || bid.at > existing.at) byName.set(bidKey(bid), bid);
+      byName.set(bidKey(bid), existing ? resolveBidPair(existing, bid) : bid);
     }
 
     for (const bid of theirs) {
@@ -261,12 +307,12 @@ export function mergeBids(current, incoming) {
       if (!existing) {
         byName.set(bidKey(bid), bid);
         added++;
-      } else if (bid.at > existing.at) {
-        byName.set(bidKey(bid), bid);
-        replaced++;
-      } else {
-        unchanged++;
+        continue;
       }
+      const kept = resolveBidPair(existing, bid);
+      byName.set(bidKey(bid), kept);
+      if (kept === existing) unchanged++;
+      else replaced++;
     }
 
     const merged = [...byName.values()].sort(

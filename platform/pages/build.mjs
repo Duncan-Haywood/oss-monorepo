@@ -37,7 +37,7 @@ import {
   renderServiceWorker,
 } from './offline.mjs';
 import { injectShopRates } from './rates.mjs';
-import { injectSavedBids } from './jobs.mjs';
+import { BID_FOLLOW_UP_HELPERS, injectSavedBids } from './jobs.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -906,6 +906,15 @@ ${subgroups
     .bids .bid-name { font-size: .92rem; font-weight: 650; }
     .bids .bid-where { font-size: .8rem; color: var(--muted); }
     .bids .bid-when { font-size: .74rem; color: var(--muted); margin-left: auto; }
+    /* Not muted, unlike every other line of prose in this panel: it is the
+       sentence the section is worth opening for. */
+    .bids .bid-summary { color: var(--ink); font-weight: 600; margin: 0 0 12px; }
+    .bids .bid-state { font-size: .74rem; border: 1px solid var(--line); border-radius: 999px;
+                       padding: 1px 8px; color: var(--muted); }
+    /* The one row state that is asking for something. */
+    .bids .bid-state[data-state="waiting"] { color: var(--accent); border-color: var(--accent); }
+    .bids li a:has(.bid-state[data-state="won"]) .bid-name,
+    .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
     .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
     .bids .bid-more button { font: inherit; font-size: .82rem; color: var(--accent);
                              background: none; border: 0; padding: 0; cursor: pointer;
@@ -982,8 +991,13 @@ ${contents}
         you to the tool that priced it with your saved bids showing, ready to
         restore. These are kept in this browser only — never uploaded, and
         clearing your browser data clears them, so download a backup below if
-        they matter.
+        they matter. Mark one won or lost in the tool that priced it and it
+        stops counting as waiting here.
       </p>
+      <!-- The reason to open the hub rather than the tool: how many quotes are
+           still out, and how long the oldest has been. Drawn only when there is
+           something to say — see followUpSentence. -->
+      <p class="bid-summary" id="bidsSummary" hidden></p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
@@ -1215,6 +1229,11 @@ ${DISCLAIMER_HTML}
     // them would look like data loss. Only the counting below is gated.
     const BIDS_KEY = 'portfolio-saved-bids';
 
+    // The same function bodies the calculator band runs and the tests here
+    // exercise, embedded rather than re-written — so the hub and the tool can
+    // never disagree about how old a waiting bid is. See BID_FOLLOW_UP_HELPERS.
+${BID_FOLLOW_UP_HELPERS}
+
     // How many rows are shown before the list is cut. A contractor keeps up to
     // 25 bids per tool, so a busy one crosses this easily — hence the count
     // below rather than a silent truncation.
@@ -1238,7 +1257,13 @@ ${DISCLAIMER_HTML}
           const { name, at } = bid;
           if (typeof name !== 'string' || !name) continue;
           if (typeof at !== 'string' || !at) continue;
-          rows.push({ slug, name, at });
+          // Anything that is not one of the two decided states is waiting,
+          // including a value written by a version of the site this page has
+          // never seen. Waiting is the safe reading: it shows the bid and
+          // offers to chase it, where trusting an unknown string could hide a
+          // live quote behind a state nothing here can clear.
+          const outcome = bid.outcome === 'won' || bid.outcome === 'lost' ? bid.outcome : null;
+          rows.push({ slug, name, at, outcome });
         }
       }
 
@@ -1274,7 +1299,15 @@ ${DISCLAIMER_HTML}
 
       const shown = bidsExpanded ? rows.length : Math.min(rows.length, BIDS_SHOWN);
 
-      for (const { slug, name, at, card } of rows.slice(0, shown)) {
+      // Counted over every row, not the eight drawn: "3 bids are waiting" must
+      // mean three on this device, or the number contradicts the "Show all"
+      // button directly beneath it.
+      const summary = document.getElementById('bidsSummary');
+      const sentence = followUpSentence(rows, Date.now());
+      summary.textContent = sentence;
+      summary.hidden = sentence === '';
+
+      for (const { slug, name, at, outcome, card } of rows.slice(0, shown)) {
         const item = document.createElement('li');
         const link = document.createElement('a');
         // The anchor jobs.mjs answers: the band opens and scrolls into view, so
@@ -1298,7 +1331,18 @@ ${DISCLAIMER_HTML}
         when.className = 'bid-when';
         when.textContent = at.slice(0, 10);
 
-        link.append(label, where, when);
+        // Every row says which of the three states it is in, including the
+        // waiting ones with no age yet. A badge only on the old bids would
+        // leave the rest looking untracked, and the visitor could not tell a
+        // bid saved this morning from one this feature had failed to read.
+        const state = document.createElement('span');
+        state.className = 'bid-state';
+        state.dataset.state = outcome || 'waiting';
+        state.textContent = outcome
+          ? outcome === 'won' ? 'Won' : 'Lost'
+          : bidWaitingPhrase(bidWaitingDays(at, Date.now())) || 'Waiting';
+
+        link.append(label, where, state, when);
         // The event carries no name and no slug — how often the index is used,
         // never for what. record() is already silent under DNT/GPC and the
         // opt-out.

@@ -1455,6 +1455,45 @@ test('following a saved bid counts the act, never the customer', async () => {
   assert.ok(!/record\('saved_bid_followed:' ?\+/.test(script), 'the event names nothing');
 });
 
+test('the hub says how many quotes are still out, and how old the oldest is', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<p class="bid-summary" id="bidsSummary" hidden><\/p>/,
+    'the line ships empty and hidden — a visitor with no saved bids sees nothing');
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  assert.match(script, /followUpSentence\(rows, Date\.now\(\)\)/,
+    'counted over every row, not the eight drawn, or the number contradicts the "Show all" button');
+  assert.match(script, /summary\.hidden = sentence === ''/);
+});
+
+test('the hub and the calculator band share one definition of a waiting bid', async () => {
+  // These bodies are embedded from jobs.mjs by toString rather than re-written
+  // here, because the hub script and the band script are assembled separately:
+  // two hand-written copies would drift, and the drift would be invisible —
+  // the hub saying a bid is nine days old and the tool saying ten.
+  const hub = await read('index.html');
+  const tool = await read('fence-bid-calculator', 'index.html');
+  for (const name of ['bidWaitingDays', 'bidWaitingPhrase', 'followUpSentence']) {
+    assert.ok(hub.includes(`var ${name} = function ${name}(`), `${name} is not embedded in the hub`);
+    assert.ok(tool.includes(`var ${name} = function ${name}(`), `${name} is not embedded in the band`);
+  }
+});
+
+test('an outcome the hub does not recognise leaves the bid in the chase list', async () => {
+  // Hiding a live quote behind a state this page cannot clear is worse than
+  // showing it in the wrong column: the bid would never be chased again.
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'));
+  assert.match(script, /bid\.outcome === 'won' \|\| bid\.outcome === 'lost' \? bid\.outcome : null/);
+});
+
+test('every saved-bid row says which of the three states it is in', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  assert.match(script, /state\.dataset\.state = outcome \|\| 'waiting'/,
+    'a row with no badge would look untracked rather than open');
+  assert.match(script, /bidWaitingPhrase\(bidWaitingDays\(at, Date\.now\(\)\)\) \|\| 'Waiting'/);
+});
+
 test('opting out is wired to remove the personalised row, not just stop counting', async () => {
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function yourTools'));

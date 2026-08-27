@@ -25254,3 +25254,69 @@ entries:
         backup journey behind it. 0 failed checks, 0 console errors, no
         off-origin request.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The tool knew the price and never asked whether the job was won.**
+        Five shipped increments made a bid a document, kept it, indexed it
+        across 162 tools and got it off one browser — and every one of them
+        stops at the moment the contractor's money is actually decided. A saved
+        bid had no state beyond existing, so nothing in the portfolio ever said
+        "this quote is nineteen days old and you have not heard back". For a
+        one-truck trade that is the largest recoverable revenue there is: not
+        the job priced wrong, the quote nobody chased.
+      - >-
+        Each saved bid now carries an outcome — waiting, won or lost — set from
+        a select on its own row, and the band and the hub both open with one
+        sentence built from every bid on the device: "3 bids are waiting on an
+        answer, the oldest saved 19 days ago. You have won 4 of the 7 you have
+        heard back on." 234 pages, injected, no per-venture edit. Waiting is the
+        *absence* of the other two rather than a stored value, so every bid
+        saved before this reads correctly and nothing migrates.
+      - >-
+        **Two ways it would have failed silently, both found before shipping.**
+        Saving over "14 Oak St" is the common case — the customer asks what it
+        costs without the tear-off — and the old code spliced the row out and
+        unshifted a fresh one, which would have moved a won job back into the
+        chase list on every re-price. And `mergeBids` resolved a same-name bid
+        by `at`: marking a bid won does not move `at`, so a win recorded on the
+        phone arrived at the laptop as "unchanged" and was discarded. The fields
+        still resolve on `at`; the outcome resolves on its own clock, where a
+        decision beats the absence of one and the later `decidedAt` beats an
+        earlier one.
+      - >-
+        **The offline bundle has 166 KB of headroom left, down from 954 KB.**
+        The service worker precaches all 234 pages, so a kilobyte of injected
+        script is a quarter of a megabyte in the bundle, and the 16 MB ceiling
+        (`the offline bundle stays small enough to fetch on mobile data`) is the
+        real constraint on any further injection. The first draft of this
+        feature breached it by 49 KB. The fix was not to raise the number: the
+        prose moved out of the injected strings into module JSDoc where it costs
+        nothing per page, and `stripForInjection` drops indentation and
+        comment-only lines from the three shared helpers mechanically. The next
+        per-page injection will not fit — the bundle needs a caching strategy
+        that is not "precache everything" before it takes another one.
+      - >-
+        The three follow-up helpers are embedded into both the hub script and
+        the band script by `Function.prototype.toString` rather than written
+        twice. The established shape here is to mirror a tested pure function by
+        hand in each inline script; that is a standing invitation to drift, and
+        this drift would have been invisible — the hub saying a bid is nine days
+        old and the calculator saying ten. A test evaluates the injected source
+        and asserts it answers identically to the module.
+      - >-
+        Verified in Chromium against the built site, not only in Node: save,
+        the waiting badge at 19 days, mark won, the win counted, persistence
+        across a reload, the re-price carry-forward, reopening, a second bid on
+        a second tool, the hub summary and badges, and the hub link landing on
+        the band — 22 assertions, zero page errors. 34 new Node tests (323 total
+        in `platform/pages`), `check.mjs` clean on 439 pages, `check_pages.mjs`
+        clean on 448.
+      - >-
+        Reading once live: `bid_marked_won / (bid_marked_won +
+        bid_marked_lost)`. It is the first signal in this portfolio about the
+        user's money rather than the tool's use. Still a baseline row — the
+        public URL remains owner-gated on `deploy-settings`.
+    mrr_end: null
