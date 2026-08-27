@@ -411,7 +411,19 @@ products:
           Added an optional time-buffer percentage that prices the same
           target rate against buffered hours. Public URL remains
           owner-gated; the counter stores only aggregate local events.
-
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          overrun_sensitivity_compared: 0
+        note: >-
+          Two fixes found while draining the PR queue. The target-rate hours
+          budget is a signed figure and went negative once direct costs
+          passed the price, so the page told a freelancer the quote
+          "supports -4.00 total hours"; it now says there is no time budget
+          and why. The overrun sensitivity table was also the only scenario
+          panel with no usage signal, so nothing recorded whether it was
+          read. Public URL remains owner-gated; the counter stores only
+          aggregate local events and remains opt-out.
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:

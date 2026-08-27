@@ -33,6 +33,23 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertEqual(result["target_rate_hours"], -1)
         self.assertEqual(result["hours_cushion"], -2)
 
+    def test_markdown_says_no_hours_budget_instead_of_a_negative_hour_count(self) -> None:
+        """target_rate_hours is signed and goes negative once direct costs pass
+        the price. The row used to print it straight -- "-1.00 (-2.00 over)" --
+        which reads as a quantity of hours. A negative there means there is no
+        budget to spend. Mirrors the wording in site/index.html."""
+        quote = load_quote({"price": 100, "delivery_hours": 1, "overhead": 150, "target_hourly_rate": 50})
+        row = next(line for line in markdown(quote, calculate(quote)).splitlines() if "Hours supported" in line)
+        self.assertIn("none — direct costs leave nothing to pay for time", row)
+        self.assertNotIn("-1.00", row)
+
+    def test_markdown_reports_the_overrun_without_a_sign(self) -> None:
+        """"-9.40 over" said the same thing twice and disagreed with the
+        browser build, which has always used the absolute value."""
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75})
+        row = next(line for line in markdown(quote, calculate(quote)).splitlines() if "Hours supported" in line)
+        self.assertIn("25.60 (9.40 over)", row)
+
     def test_defaults_optional_costs_and_time(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
         self.assertEqual(calculate(quote)["effective_hourly_rate"], 100)

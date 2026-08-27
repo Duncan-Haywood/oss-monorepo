@@ -74,3 +74,25 @@ test("names the hours the price can absorb when the estimate is longer", () => {
   assert.equal(budget.level, "note");
   assert.match(budget.detail, /supports 12\.50 total hours/);
 });
+
+test("says there is no hours budget rather than a negative count of hours", () => {
+  // target_rate_hours is a signed figure and goes negative once direct costs
+  // pass the price; this line used to render it straight, so a freelancer was
+  // told "the quote supports -4.00 total hours". A negative there is not a
+  // quantity of hours -- it means there is no budget to spend at all.
+  const [quote, report] = reportFor({ currency: "USD", price: 800, delivery_hours: 20, admin_hours: 4, revision_hours: 3, overhead: 500, subcontractor_cost: 600, target_hourly_rate: 75 });
+  const budget = reviewQuote(quote, report).find((check) => check.title === "Target-rate hours budget");
+  assert.equal(budget.level, "note");
+  assert.doesNotMatch(budget.detail, /-\d/);
+  assert.match(budget.detail, /no time budget at the target rate/);
+  assert.match(budget.detail, /exceed the USD 800\.00 quoted price by USD 300\.00/);
+  assert.match(budget.detail, /27\.00 estimated hours are unpaid/);
+});
+
+test("distinguishes costs that exactly use the price from costs that exceed it", () => {
+  const [quote, report] = reportFor({ currency: "USD", price: 1100, delivery_hours: 20, admin_hours: 4, revision_hours: 3, overhead: 500, subcontractor_cost: 600, target_hourly_rate: 75 });
+  const budget = reviewQuote(quote, report).find((check) => check.title === "Target-rate hours budget");
+  assert.equal(report.cost_coverage, 0);
+  assert.match(budget.detail, /use the whole USD 1100\.00 quoted price/);
+  assert.doesNotMatch(budget.detail, /exceed/);
+});
