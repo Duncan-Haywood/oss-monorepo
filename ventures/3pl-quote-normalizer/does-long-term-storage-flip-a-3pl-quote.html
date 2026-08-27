@@ -28,7 +28,10 @@
     .note{color:#52605d;font-size:.9rem}
     a{color:#123b36;font-weight:700}
     @media(max-width:700px){body{padding:12px}form{grid-template-columns:1fr}main,.card{padding:16px}}
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
 <main>

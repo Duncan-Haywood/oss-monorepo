@@ -21,7 +21,10 @@
     th:first-child, td:first-child { text-align: left; }
     .cta { display: inline-block; margin: 18px 0; padding: 12px 16px; background: #2d2218; color: #f6efe3; border-radius: 8px; text-decoration: none; font-weight: 700; }
     footer { margin-top: 36px; font-size: .85rem; color: #5c5346; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="index.html">← Stair lift bid calculator</a></p>
