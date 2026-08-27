@@ -8,6 +8,12 @@ import {
   BID_FOLLOW_UP_HELPERS,
   BID_OUTCOMES,
   BID_AMOUNT_HELPER,
+  BID_PRICE_BAND_HELPERS,
+  MIN_PRICE_BAND_SIDE,
+  PRICE_BAND_CLAUSE,
+  bidAmountValue,
+  formatBidAmount,
+  priceBandSentence,
   EXCLUDED_FIELD_IDS,
   HEADLINE_AMOUNT_OVERRIDES,
   SAVED_BIDS_CLAUSE,
@@ -807,4 +813,151 @@ test('the feature list says a saved bid keeps its figure', () => {
   // #1894: a feature that never names itself in featureList is invisible to
   // the only channel that brings these tools traffic.
   assert.match(SAVED_BIDS_CLAUSE, /figure the tool gave you/);
+});
+
+// ---------------------------------------------------------------------------
+// Where this tool's quotes tip from won to lost
+// ---------------------------------------------------------------------------
+
+const decided = (outcome, amount) => ({ name: amount, at: AT, outcome, amount });
+
+test('a headline figure reads back as a number this can compare', () => {
+  assert.deepEqual(bidAmountValue('$1,035'), { currency: '$', value: 1035, text: '$1,035' });
+  assert.deepEqual(bidAmountValue('£240.50'), { currency: '£', value: 240.5, text: '£240.50' });
+  // A unit appended to the quote is a second fact about it, not a second quote.
+  assert.deepEqual(bidAmountValue('$589.38 · 13.2 h'),
+    { currency: '$', value: 589.38, text: '$589.38' });
+  // A seller-fee page can answer with a loss.
+  assert.deepEqual(bidAmountValue('-$1.20'), { currency: '$', value: -1.2, text: '-$1.20' });
+});
+
+test('anything it cannot read with certainty is refused, not guessed at', () => {
+  // A range: averaging its low end reports a figure nobody was quoted.
+  assert.equal(bidAmountValue('$1,200–$1,800'), null);
+  // Symbol after the digits — whether that comma is a decimal point is a guess.
+  assert.equal(bidAmountValue('1.234,56 €'), null);
+  // A comma that is not a thousands separator.
+  assert.equal(bidAmountValue('$1,5'), null);
+  // And everything normalizeHeadlineAmount already refuses stays refused.
+  assert.equal(bidAmountValue('0'), null);
+  assert.equal(bidAmountValue('$0.00'), null);
+  assert.equal(bidAmountValue(42), null);
+});
+
+test('an average is written to the precision its own tool answers in', () => {
+  // A trade quote in the thousands gains nothing from .00 on a phone.
+  assert.equal(formatBidAmount('$', 1840.5), '$1,841');
+  assert.equal(formatBidAmount('$', 24500), '$24,500');
+  // A seller-fee page answers in cents; rounding $2.35 to $2 misstates it.
+  assert.equal(formatBidAmount('$', 2.35), '$2.35');
+  assert.equal(formatBidAmount('£', -1.2), '-£1.20');
+});
+
+test('the band brackets where the price tips when wins and losses separate', () => {
+  const sentence = priceBandSentence([
+    decided('won', '$1,800'), decided('won', '$2,400'),
+    decided('lost', '$2,600'), decided('lost', '$3,200'),
+  ]);
+  assert.match(sentence, /The 2 you won here averaged \$2,100, the 2 you lost, \$2,900\./);
+  assert.match(sentence, /Every bid you won was \$2,400 or under, and every one you lost \$2,600 or over\./);
+});
+
+test('and says the opposite when they overlap, because that is the useful reading', () => {
+  // Won as high as $2,400 and lost as low as $2,050: the jobs in that range
+  // were not decided on price, and dropping it will not win them.
+  const sentence = priceBandSentence([
+    decided('won', '$1,800'), decided('won', '$2,400'),
+    decided('lost', '$2,050'), decided('lost', '$3,200'),
+  ]);
+  assert.match(sentence, /You have won as high as \$2,400 and lost as low as \$2,050, so price alone has not been deciding these\./);
+});
+
+test('winning and losing at the same figure reads correctly, not as a nonsense range', () => {
+  // Why the overlap clause names its two edges instead of "between X and Y":
+  // here they are the same figure, and a range would say "between $2,000 and
+  // $2,000".
+  const sentence = priceBandSentence([
+    decided('won', '$900'), decided('won', '$2,000'),
+    decided('lost', '$2,000'), decided('lost', '$3,000'),
+  ]);
+  assert.match(sentence, /won as high as \$2,000 and lost as low as \$2,000/);
+});
+
+test('two a side, because one win and one loss is a pair of anecdotes', () => {
+  assert.equal(MIN_PRICE_BAND_SIDE, 2);
+  const thin = [decided('won', '$1,800'), decided('lost', '$2,600'), decided('lost', '$3,000')];
+  assert.equal(priceBandSentence(thin), '');
+  assert.match(priceBandSentence(thin.concat(decided('won', '$1,900'))), /you won here averaged/);
+});
+
+test('a waiting bid is not evidence either way and a figureless one cannot be', () => {
+  const rows = [
+    decided('won', '$1,800'), decided('won', '$2,400'),
+    decided('lost', '$2,600'), decided('lost', '$3,200'),
+    { name: 'still out', at: AT, amount: '$9,999' },
+    { name: 'no figure', at: AT, outcome: 'lost' },
+  ];
+  // The two extra rows must not move either average or either edge.
+  assert.equal(priceBandSentence(rows), priceBandSentence(rows.slice(0, 4)));
+});
+
+test('mixed currencies on one tool are refused rather than converted', () => {
+  // This feature has no exchange rates and must never acquire any: $2,000
+  // against £2,000 is not a comparison, it is a wrong answer.
+  assert.equal(priceBandSentence([
+    decided('won', '$1,800'), decided('won', '£1,900'),
+    decided('lost', '$2,600'), decided('lost', '$3,200'),
+  ]), '');
+});
+
+test('nothing to say draws nothing', () => {
+  assert.equal(priceBandSentence([]), '');
+  assert.equal(priceBandSentence(null), '');
+  assert.equal(priceBandSentence([decided('won', '$1'), null, 'not a bid']), '');
+});
+
+test('the injected price-band helpers answer exactly as the module does', () => {
+  // Same guarantee as the follow-up helpers, and the same reason: #1905 was a
+  // hand-written copy of a tested function going stale in the browser while
+  // every test passed. These are averages read next to a customer's name.
+  const evaluated = new Function(`${BID_AMOUNT_HELPER}
+${BID_PRICE_BAND_HELPERS}
+    return { bidAmountValue: bidAmountValue, formatBidAmount: formatBidAmount, priceBandSentence: priceBandSentence };`)();
+
+  for (const value of ['$1,035', '$589.38 · 13.2 h', '$1,200–$1,800', '$1,5', '-£1.20', '0']) {
+    assert.deepEqual(evaluated.bidAmountValue(value), bidAmountValue(value), JSON.stringify(value));
+  }
+  assert.equal(evaluated.formatBidAmount('$', 1840.5), formatBidAmount('$', 1840.5));
+  const rows = [
+    decided('won', '$1,800'), decided('won', '$2,400'),
+    decided('lost', '$2,050'), decided('lost', '$3,200'),
+  ];
+  assert.equal(evaluated.priceBandSentence(rows), priceBandSentence(rows));
+});
+
+test('the band ships only where the tool has a figure to compare', () => {
+  const withHero = injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator');
+  assert.match(withHero, /id="pf-jobs-band"/);
+  assert.match(withHero, /var priceBandSentence =/);
+  assert.match(withHero, /where your price tips/);
+
+  // A tool that saves no amounts could never produce a sentence, so it pays for
+  // neither the paragraph nor the ~1 KB of functions on every one of its pages.
+  const without = injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator');
+  assert.doesNotMatch(without, /id="pf-jobs-band"/);
+  assert.doesNotMatch(without, /var priceBandSentence =/);
+  assert.doesNotMatch(without, /where your price tips/);
+});
+
+test('the feature list claims the comparison only on the pages that can draw it', () => {
+  // #1894 in both directions: a feature that never names itself is invisible to
+  // search, and a page that names one it does not have is making it up.
+  const list = '<script type="application/ld+json">{"featureList":"prices a fence"}</script>';
+  assert.match(
+    injectSavedBids(page(inputs(4) + hero('price'), list), 'fence-bid-calculator'),
+    new RegExp(PRICE_BAND_CLAUSE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+  );
+  const without = injectSavedBids(page(inputs(4), list), 'cleaning-dilution-calculator');
+  assert.match(without, /saved bids you can name/);
+  assert.doesNotMatch(without, /have averaged against the ones you lost/);
 });
