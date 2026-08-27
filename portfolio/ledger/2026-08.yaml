@@ -24031,3 +24031,50 @@ entries:
         is this sandbox running as root, which bypasses the `chmod(0)` the test
         depends on; it passes for a non-root runner.
     mrr_end: null
+  - venture: 3pl-quote-normalizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The 3PL Quote Normalizer was dead in the browser on `main`, and every
+        check said it was fine.** Two missing semicolons in the page's inline
+        module — `...addEventListener('change', () => {})document.querySelector(...)`,
+        twice — where ASI cannot recover because the `)` and the `document` sit
+        on the same line. The module failed to *parse*, so the browser ran none
+        of it: no submit handler, no live recalculation, no local saving, no
+        usage events. The page rendered its whole 36-field form and its results
+        panel stayed empty forever. Fixed; verified in Chromium that the
+        headline, all four comparison tables, recalculation on edit, the copy
+        button, and both localStorage writes now work.
+      - >-
+        Nothing in the repository could have caught it. The venture's own 92
+        tests all passed — they cover `calc.mjs`, which was correct; the
+        breakage was in the wiring that calls it. `check.mjs` read the page as a
+        *document* (links resolve, disclaimer present, canonical right, sitemaps
+        agree) and the defect was in the page as a *program*. It was found by
+        sweeping all 161 published pages in a real browser and collecting
+        `pageerror` events — one page had one, and it was total.
+      - >-
+        So the publish gate now parse-checks every inline `<script>` on every
+        page it is about to publish, via `node --check` on the extracted body
+        (`.mjs` for `type="module"`, `.js` otherwise — the same parser the
+        browser uses, and it never executes the code). A parse error is the one
+        class of JS defect that is statically decidable with no false
+        positives, so the gate is narrow on purpose: it does not claim the
+        calculator computes the right number, only that the browser will get as
+        far as trying. Malformed `application/ld+json` is caught the same pass.
+        Adds ~5s to a full artifact check. Six tests cover the gate itself,
+        including that ESM syntax and non-executable `type` values stay green.
+      - >-
+        Independently re-confirmed the previous entry's finding across the
+        whole queue: **no open PR is mergeable.** All 61 open at the start of
+        this run were replayed against `main` — every one conflicts, and every
+        one targets a venture `main` is now ahead of, usually by 4-20x
+        (`quote-margin-check`: 241 KB on `main` against 53 KB on the branch).
+        Closed the 27 that `supersede_check.py` certifies with the
+        identical-merge proof, each with the proof and a pointer in the close
+        comment. The remaining 34 exit 1 only on differently-named duplicates.
+        The queue is not a backlog of work to merge; it is 61 re-derivations of
+        what `main` already carries, and each session that treats it as a merge
+        queue spends its run re-discovering that.
+    mrr_end: null

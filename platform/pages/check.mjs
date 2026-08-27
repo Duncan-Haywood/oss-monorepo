@@ -31,6 +31,11 @@
 
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 const PLACEHOLDER_ORIGIN = 'https://example.invalid';
 
@@ -78,6 +83,16 @@ const LOC_RE = /<loc>([^<]+)<\/loc>/g;
 // liability — the one defect in this file with legal weight rather than just
 // broken-link weight.
 const DISCLAIMER_MARKER = /no warranty/i;
+
+// Every `<script>` on a page, with its attributes and its inline body. Used to
+// parse-check the bodies; `SCRIPT_OR_STYLE_RE` above strips them instead.
+const SCRIPT_BLOCK_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+const TYPE_ATTR_RE = /\btype\s*=\s*["']([^"']+)["']/i;
+
+// Script types the browser executes as JavaScript. A bare `<script>` with no
+// type is a classic script; `module` is ESM. Anything else on this page is
+// data (`application/ld+json`) or a template, and is not parsed as JS.
+const JS_SCRIPT_TYPES = new Set(['', 'module', 'text/javascript', 'application/javascript', 'module-shim']);
 
 // Bookkeeping and test payload that exists for the repo, not for a visitor.
 // Finding any of it here means the copy filter in build.mjs regressed.
@@ -160,6 +175,91 @@ async function collectSitemapUrls(site, basePath, relative, seen, out, problems)
  *   finding almost nothing, emitting a hub that looks fine with three tools on
  *   it, and every check below passing.
  */
+/**
+ * Parse-check every inline `<script>` on the pages that shipped.
+ *
+ * This exists because of `3pl-quote-normalizer`, which published with two
+ * missing semicolons — `...})document.querySelector(...)` twice, where ASI
+ * cannot help because the `)` and the `document` are on the same line. The
+ * module therefore failed to *parse*, so the browser ran none of it: no submit
+ * handler, no live recalculation, no local saving, no usage events. The page
+ * rendered its full form and its results panel stayed empty forever.
+ *
+ * Nothing else here would have caught it. Every link resolved, the disclaimer
+ * was present, the canonical was right, the sitemaps agreed — a dead product
+ * passes all of it, because every existing check reads the page as a document
+ * and this defect is in the page as a program. The venture's own suite tested
+ * `calc.mjs`, which was fine; the breakage was in the wiring that calls it.
+ *
+ * A parse error is the one class of JavaScript defect that can be caught
+ * statically with certainty and no false positives: the file either is
+ * grammatical or it is not. So the gate is narrow on purpose — it says nothing
+ * about whether the calculator computes the right number (that is
+ * `journey.mjs`), only that the browser will get as far as trying.
+ *
+ * `node --check` is the same parser the site's own modules are written for, and
+ * unlike importing the source it never executes it. Extension decides the goal:
+ * `.mjs` parses as ESM, `.js` as a classic script, matching what the `type`
+ * attribute tells the browser.
+ */
+async function checkInlineScripts(site, servedPages, problems) {
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-parse-'));
+  const jobs = [];
+
+  for (const relative of servedPages) {
+    const html = await fs.readFile(path.join(site, relative), 'utf8');
+    let index = 0;
+    for (const match of html.matchAll(SCRIPT_BLOCK_RE)) {
+      const [, attrs, body] = match;
+      if (!body.trim()) continue; // external script; its file is checked as a file
+      const type = (TYPE_ATTR_RE.exec(attrs)?.[1] ?? '').trim().toLowerCase();
+      index += 1;
+
+      // JSON-LD is what search engines and assistants read for a rich result.
+      // It is data rather than code, so `node --check` is the wrong parser, but
+      // a broken block is the same silent failure: consumers skip it and the
+      // page still looks fine to everyone else.
+      if (type === 'application/ld+json') {
+        try {
+          JSON.parse(body);
+        } catch (error) {
+          problems.push(`${relative}: inline JSON-LD block ${index} is not valid JSON -> ${error.message}`);
+        }
+        continue;
+      }
+      if (!JS_SCRIPT_TYPES.has(type)) continue;
+
+      const extension = type === 'module' || type === 'module-shim' ? 'mjs' : 'js';
+      const scratchFile = path.join(scratch, `${relative.replace(/[^\w.-]/g, '_')}.${index}.${extension}`);
+      await fs.writeFile(scratchFile, body);
+      jobs.push({ relative, index, scratchFile });
+    }
+  }
+
+  // Bounded concurrency: one `node --check` per inline script, a few hundred on
+  // a full artifact, and spawning them all at once is what makes a check that
+  // should take seconds take minutes.
+  const LIMIT = 8;
+  let next = 0;
+  async function worker() {
+    while (next < jobs.length) {
+      const job = jobs[next++];
+      try {
+        await execFileAsync(process.execPath, ['--check', job.scratchFile]);
+      } catch (error) {
+        const detail = String(error.stderr || error.message)
+          .split('\n')
+          .find((line) => /^\w*(Syntax)?Error\b/.test(line.trim())) ?? 'failed to parse';
+        problems.push(
+          `${job.relative}: inline <script> block ${job.index} does not parse, so the browser runs none of it -> ${detail.trim()}`,
+        );
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(LIMIT, jobs.length) }, worker));
+  await fs.rm(scratch, { recursive: true, force: true });
+}
+
 export async function checkSite(site, { minProducts = 1 } = {}) {
   const problems = [];
 
@@ -228,6 +328,8 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
 
   const files = await walk(site);
   const servedPages = files.filter((f) => f.endsWith('.html'));
+
+  await checkInlineScripts(site, servedPages, problems);
 
   // ---- Disclaimers and leaked payload -------------------------------------
   for (const product of productDirs) {
