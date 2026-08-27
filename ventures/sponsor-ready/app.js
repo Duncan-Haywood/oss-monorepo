@@ -5,6 +5,8 @@ const GITHUB_API = "https://api.github.com";
 const SPONSORSHIP_KEYWORDS = ["sponsor", "sponsoring", "donate", "funding", "buy me a coffee", "ko-fi", "patreon", "open collective"];
 const RATE_LIMIT_ERROR =
   "GitHub's public API rate limit was hit. This tool makes unauthenticated requests, capped at 60/hour per visitor IP — try again in a few minutes.";
+const NETWORK_ERROR =
+  "Could not reach api.github.com. Check your connection — a VPN, corporate proxy, or content blocker can block requests to GitHub's API.";
 
 // Usage counting lives in usage.js (loaded first). DNT/GPC and the page
 // opt-out skip the write entirely. Never store which repo was scanned.
@@ -22,9 +24,22 @@ function parseRepoInput(raw) {
 }
 
 async function fetchJson(path) {
-  const res = await fetch(`${GITHUB_API}${path}`, {
-    headers: { Accept: "application/vnd.github+json" },
-  });
+  let res;
+  try {
+    res = await fetch(`${GITHUB_API}${path}`, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+  } catch {
+    // `fetch` rejects rather than resolving for a dropped connection, a
+    // blocked request, or a proxy that strips CORS headers. Reported as a
+    // distinct outcome so every caller can say *why* the scan stopped.
+    //
+    // Deliberately NOT degraded to "this file is absent". A blocked
+    // FUNDING.yml lookup scored as "no funding file" would tell someone who
+    // has one to go add it — a confidently wrong checklist is worse than an
+    // honest failure, and this tool's whole output is a list of things to fix.
+    return { ok: false, status: 0, data: null, networkError: true };
+  }
   if (res.status === 404) return { ok: false, status: 404, data: null };
   if (!res.ok) {
     const remaining = res.headers.get("x-ratelimit-remaining");
@@ -75,16 +90,23 @@ function fundingYmlHasEntries(yamlText) {
   });
 }
 
-// Fetches and normalizes everything scoreRepo() needs. Throws on
-// network failure, an unknown repo (404 on the base repo lookup), or a
-// mid-scan rate limit. Individual missing sub-resources degrade to
-// "not present" rather than failing the whole check.
+// Fetches and normalizes everything scoreRepo() needs. Throws on an unknown
+// repo (404 on the base lookup), a mid-scan rate limit, or an unreachable API.
+//
+// A sub-resource that answers 404 degrades to "not present" — that is a real
+// answer from GitHub and means the file genuinely is not there. A sub-resource
+// we could not reach at all does not: it is indistinguishable from absent, and
+// guessing "absent" would put "add a FUNDING.yml" on the checklist of someone
+// who already has one.
 async function fetchRepoFacts(owner, repo) {
   const base = `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
 
   const repoRes = await fetchJson(base);
   if (repoRes.rateLimited) {
     throw new Error(RATE_LIMIT_ERROR);
+  }
+  if (repoRes.networkError) {
+    throw new Error(NETWORK_ERROR);
   }
   if (!repoRes.ok) {
     throw new Error(repoRes.status === 404 ? `No public repo found at ${owner}/${repo}.` : `GitHub API returned an unexpected error (status ${repoRes.status}).`);
@@ -101,6 +123,9 @@ async function fetchRepoFacts(owner, repo) {
   if ([communityRes, fundingRes, fundingRootRes, readmeRes].some((r) => r.rateLimited)) {
     throw new Error(RATE_LIMIT_ERROR);
   }
+  if ([communityRes, fundingRes, fundingRootRes, readmeRes].some((r) => r.networkError)) {
+    throw new Error(NETWORK_ERROR);
+  }
 
   // Repo-level FUNDING.yml wins. If the scanned repo has none, GitHub still
   // shows the Sponsor button from the account's public `.github` default file
@@ -114,6 +139,9 @@ async function fetchRepoFacts(owner, repo) {
     ]);
     if ([orgFundingRes, orgFundingRootRes].some((r) => r.rateLimited)) {
       throw new Error(RATE_LIMIT_ERROR);
+    }
+    if ([orgFundingRes, orgFundingRootRes].some((r) => r.networkError)) {
+      throw new Error(NETWORK_ERROR);
     }
     fundingRes2 = orgFundingRes.ok ? orgFundingRes : orgFundingRootRes;
   }
@@ -206,6 +234,12 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// The repo this tool lives in. Used as the worked example rather than a
+// well-known third-party project: the page would otherwise open by publicly
+// scoring somebody else's work, and a low score on a stranger's repo reads as a
+// judgement the tool has no standing to make. Scoring ourselves does not.
+const EXAMPLE_REPO = "Duncan-Haywood/monorepo-projects";
+
 function initApp() {
   const form = document.getElementById("scan-form");
   const input = document.getElementById("repo-input");
@@ -218,6 +252,17 @@ function initApp() {
     optout.checked = !isUsageEnabled();
     optout.addEventListener("change", () => setUsageEnabled(!optout.checked));
   }
+
+  // Goes through requestSubmit rather than calling the scan directly, so the
+  // example takes the same validation, error, rate-limit, and tracking path as
+  // anything a visitor types. An example with its own code path is an example
+  // that can pass while the real thing is broken.
+  const example = document.getElementById("example-repo");
+  example?.addEventListener("click", () => {
+    input.value = EXAMPLE_REPO;
+    track("example_used");
+    form.requestSubmit();
+  });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();

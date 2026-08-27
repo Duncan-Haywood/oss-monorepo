@@ -27,3 +27,10 @@ test('page does not recommend turning Sponsors on', () => {
   assert.match(page, /never tells you/);
   assert.doesNotMatch(page, /you should |must enable /i);
 });
+
+test('offers a worked example so a first visit does not start on an empty box', () => {
+  assert.match(page, /id="example-repo"/);
+  // Scoring ourselves rather than a stranger's repo is a deliberate choice;
+  // if the example ever points elsewhere that should be a conscious edit.
+  assert.match(page, /this tool's own repo/i);
+});

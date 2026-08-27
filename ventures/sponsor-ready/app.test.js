@@ -215,3 +215,47 @@ test("fetchRepoFacts does not recurse into .github/.github when scanning the .gi
     globalThis.fetch = originalFetch;
   }
 });
+
+test("the example repo parses through the same input path a visitor types", () => {
+  // The example is fed to requestSubmit(), so it must survive parseRepoInput
+  // exactly as pasted text would. A malformed constant would fail only at
+  // runtime, in the one flow a first-time visitor is most likely to use.
+  assert.deepStrictEqual(parseRepoInput("Duncan-Haywood/monorepo-projects"), {
+    owner: "Duncan-Haywood",
+    repo: "monorepo-projects",
+  });
+});
+
+test("an unreachable API is reported, never scored as a missing file", async () => {
+  // The regression this guards: a blocked FUNDING.yml request scored as
+  // "no funding file" would put "add a FUNDING.yml" on the checklist of a
+  // maintainer who already has one. Silence is not evidence of absence.
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    const path = String(url);
+    if (path.endsWith("/repos/octocat/hello-world")) {
+      return jsonResponse(200, { description: "hi", homepage: "", topics: [], license: { key: "mit" }, pushed_at: "2026-08-01T00:00:00Z", archived: false }, "10");
+    }
+    if (path.includes("/community/profile")) return jsonResponse(200, { files: {} }, "9");
+    if (path.includes("/readme")) return jsonResponse(200, { content: Buffer.from("# Hello").toString("base64") }, "8");
+    throw new TypeError("Failed to fetch"); // what a blocked request looks like
+  };
+  try {
+    await assert.rejects(() => fetchRepoFacts("octocat", "hello-world"), /Could not reach api\.github\.com/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("an unreachable base lookup names the cause instead of leaking 'Failed to fetch'", async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => { throw new TypeError("Failed to fetch"); };
+  try {
+    await assert.rejects(
+      () => fetchRepoFacts("octocat", "hello-world"),
+      (err) => /Could not reach api\.github\.com/.test(err.message) && /proxy|blocker/i.test(err.message),
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
