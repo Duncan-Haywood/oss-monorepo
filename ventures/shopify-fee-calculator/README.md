@@ -49,7 +49,9 @@ savings, and how many orders cover Grow or Advanced.
 [Shopify POS vs online fees](shopify-pos-vs-online-fees.html) answers the
 counter-vs-checkout question: whether a cheaper in-person tap still beats
 the same SKU sold online after postage markup, and how many taps recover a
-card reader.
+card reader. The main calculator runs the same
+`compareOnlineVsPos` math on the order you just typed, so you do not
+leave the page to check the tap versus checkout leftover.
 [Should I buy Shopify Shipping labels?](should-i-buy-shopify-shipping-labels.html)
 answers the postage question: whether a Pirate Ship, Shippo, or carrier-account
 quote still beats the Shopify Shipping label after card fees, and what you
