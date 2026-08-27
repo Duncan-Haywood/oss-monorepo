@@ -269,6 +269,8 @@ test("calculator page copies a proposal-ready review summary", async () => {
   assert.match(page, /formatReviewSummary/);
   assert.match(page, /review_summary_copied/);
   assert.match(page, /Copy review summary/);
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\("copy"\)/);
 });
 
 test("calculator page renders the fixed-vs-hourly comparison and records the event", async () => {
