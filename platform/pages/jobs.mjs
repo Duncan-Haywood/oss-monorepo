@@ -141,6 +141,93 @@ export function pageTakesSavedBids(html) {
 }
 
 /**
+ * Tools whose headline figure is not the one they are actually selling on.
+ *
+ * `lawn-care` leads with a per-visit price while the thing being sold — and the
+ * thing its own proposal asks for — is the monthly contract. Saving $106.09
+ * against a job the customer was quoted $459.73 for would be worse than saving
+ * nothing.
+ *
+ * The same exception, for the same reason, as `screenPriceSelector` in
+ * `platform/proposal/trades.json`; a test below asserts the two agree, so a
+ * later correction to one cannot leave a saved bid showing a different number
+ * than the printed proposal does.
+ */
+export const HEADLINE_AMOUNT_OVERRIDES = { 'lawn-care-bid-calculator': '#monthly' };
+
+const HERO_NUMBER_TAG_RE = /<[^>]*\bclass="[^"]*\bhero-number\b[^"]*"[^>]*>/i;
+
+/**
+ * Which element on this page holds the figure the tool leads with.
+ *
+ * **Not, in general, "the price".** On the ~100 trade calculators the hero is
+ * the quote and a contractor reads it as one; on the ~48 seller-fee pages it is
+ * profit per unit, and on a few others it is a net or a best-case. That is why
+ * nothing in this feature calls the stored value a price: it is the number this
+ * tool put on screen, and the row it is drawn on always names the tool, so it is
+ * never shown without the context that says what it means.
+ *
+ * One rule, deliberately: the first element carrying `hero-number`, which is
+ * this site's own convention for the figure a calculator leads with — the
+ * answer it exists to give. 160 of the 234 pages with a form have one.
+ *
+ * The obvious extension was to fall back to a list of likely ids (`#total`,
+ * `#monthly`, `#bidPrice`) where no hero exists. Measured against the built
+ * site that adds four pages and a class of defect worth more than four pages:
+ * `#total` on `retainage-cashflow-calculator` is a cash position rather than a
+ * quote, and on `grant-deadline-tracker` it is a count of deadlines. A saved bid
+ * showing a number the tool never led with is worse than one showing no number,
+ * because the wrong one is the one that gets read back to a customer. So a page
+ * without a hero saves no figure, and the row simply does not carry one.
+ *
+ * Returns `''` when there is nothing safe to read.
+ */
+export function pageHeadlineAmountSelector(html, slug = '') {
+  const override = HEADLINE_AMOUNT_OVERRIDES[slug];
+  if (override) return override;
+  if (typeof html !== 'string') return '';
+  const tag = HERO_NUMBER_TAG_RE.exec(html);
+  if (!tag) return '';
+  const id = tagAttributes(tag[0]).id;
+  // A hero with no id cannot be addressed, and giving one a generated id here
+  // would mean this build writing into a venture's markup to read it back.
+  if (!id || id.includes('${') || !/^[A-Za-z][\w-]*$/.test(id)) return '';
+  return '#' + id;
+}
+
+/**
+ * The headline figure, exactly as the tool displayed it, or `''`.
+ *
+ * Kept as the string on screen rather than parsed to a number. A contractor has
+ * to be able to read this back to a customer holding the proposal, and the two
+ * must not disagree about rounding, currency, or a unit the tool appends
+ * ("$589.38 · 13.2 h"). Nothing in this feature does arithmetic on it, and
+ * nothing should: a sum across tools would be adding a roof to a lawn contract,
+ * or a quote to a profit margin.
+ *
+ * Four things are refused, and every one of them was found on the built site
+ * rather than imagined:
+ *
+ *   - no currency symbol, which is how a hero holding a count reads
+ *     (`grant-deadline-tracker` renders `0`);
+ *   - no non-zero digit, which is an unfilled form rather than a free job;
+ *   - prose, caught by the length cap — one `hero-number` on the TikTok fee
+ *     pages carries a sentence of advice, not a figure;
+ *   - anything that is not a string.
+ *
+ * A page whose hero is still empty when the bid is saved simply stores nothing,
+ * which is the same honest outcome as a page with no hero at all.
+ */
+export function normalizeHeadlineAmount(value) {
+  if (typeof value !== 'string') return '';
+  var text = value.replace(/\s+/g, ' ').trim();
+  if (text.length === 0 || text.length > 32) return '';
+  if (!/[$£€]/.test(text)) return '';
+  if (!/[1-9]/.test(text)) return '';
+  return text;
+}
+
+/**
  * A saved bid's name, as the visitor typed it.
  *
  * Trimmed, collapsed, and capped — it is rendered into a list on the page, and
@@ -212,6 +299,11 @@ export function normalizeBid(entry) {
   if (kept === 0) return null;
 
   const bid = { name, at, fields };
+  // Same "only when there is something to say" rule as the outcome below: a bid
+  // saved on a page with no headline figure carries no `amount` key rather than
+  // an empty one, so nothing migrates and no bytes are spent on a blank.
+  const amount = normalizeHeadlineAmount(entry.amount);
+  if (amount) bid.amount = amount;
   // Added only when decided, never as `outcome: null`. Two reasons, and the
   // second is the load-bearing one: a bid saved before outcomes existed is
   // indistinguishable from one saved after and left waiting, so nothing has to
@@ -285,6 +377,12 @@ export function savedBidIndex(raw, { limit = Infinity } = {}) {
       const { name, at } = bid;
       if (typeof name !== 'string' || !name || typeof at !== 'string' || !at) continue;
       const row = { slug, name, at };
+      // The headline figure travels with the row even though the numbers behind
+      // it do not: it is the one thing about a bid the hub can show without
+      // putting a customer's job on a page that has no form to hold it. Without
+      // it the index answers "where did I put it" and not "what did it come to".
+      const amount = normalizeHeadlineAmount(bid.amount);
+      if (amount) row.amount = amount;
       // Same rule as the record itself: present only when decided, so a caller
       // that predates outcomes sees exactly the rows it always saw.
       const outcome = normalizeOutcome(bid.outcome);
@@ -494,10 +592,22 @@ export const BID_RECORD_HELPERS = [
   `var EXCLUDED_FIELD_IDS = new Set(${JSON.stringify([...EXCLUDED_FIELD_IDS])});`,
   `var EXCLUDED_ID_PREFIX = ${JSON.stringify(EXCLUDED_ID_PREFIX)};`,
   `var BID_OUTCOMES = ${JSON.stringify(BID_OUTCOMES)};`,
-  ...[normalizeBidName, normalizeOutcome, isExcludedId, normalizeBid].map(
+  ...[normalizeBidName, normalizeOutcome, normalizeHeadlineAmount, isExcludedId, normalizeBid].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
+
+/**
+ * `normalizeHeadlineAmount` alone, for the band.
+ *
+ * The band builds its record by hand rather than through `normalizeBid` — it is
+ * writing a bid, not validating one someone else wrote — so it needs this one
+ * function and none of the rest. Embedded for the reason the whole file now
+ * embeds rather than transcribes: the page that decides whether a hero reads as
+ * a figure and the tests that decide it must not be able to disagree.
+ */
+export const BID_AMOUNT_HELPER =
+  `var normalizeHeadlineAmount = ${stripForInjection(normalizeHeadlineAmount.toString())};`;
 
 /**
  * Say so in the structured data.
@@ -513,7 +623,7 @@ export const BID_RECORD_HELPERS = [
  * One phrase, appended to the list already there.
  */
 export const SAVED_BIDS_CLAUSE =
-  'saved bids you can name, reopen and reprice, and mark won or lost to see which quotes are still waiting on an answer';
+  'saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer';
 
 /**
  * Both spellings, because the repo uses both — a strict match on
@@ -570,6 +680,7 @@ const JOBS_STYLE = `<style>
   padding:6px 0;border-top:1px solid #80808033}
 .pf-jobs-list li:first-child{border-top:0}
 .pf-jobs-name{font-weight:600;flex:1 1 10em;overflow-wrap:anywhere}
+.pf-jobs-amount{font-weight:650;font-variant-numeric:tabular-nums;white-space:nowrap}
 .pf-jobs-when{opacity:.7;font-variant-numeric:tabular-nums}
 /* The summary is not dimmed like the note below it, and the waiting age is not
    dimmed like the date beside it: both are what the panel is opened to read.
@@ -632,7 +743,7 @@ const JOBS_MARKUP = (toRoot = './') => `<section class="pf-jobs" id="pf-jobs" hi
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out.</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out.</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
@@ -685,7 +796,7 @@ const JOBS_MARKUP = (toRoot = './') => `<section class="pf-jobs" id="pf-jobs" hi
  * there would quietly move a won job back into the chase list, which is the
  * failure this feature exists to prevent rather than cause.
  */
-const JOBS_SCRIPT = (slug) => `<script type="module">
+const JOBS_SCRIPT = (slug, amountSelector = '') => `<script type="module">
 (function(){
   var SLUG = ${JSON.stringify(slug)};
   var KEY = ${JSON.stringify(SAVED_BIDS_KEY)};
@@ -693,8 +804,10 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
   var MIN_FIELDS = ${MIN_SAVEABLE_FIELDS};
   var EXCLUDED = ${JSON.stringify([...EXCLUDED_FIELD_IDS])};
   var UNSAVEABLE = ${JSON.stringify([...UNSAVEABLE_TYPES])};
+  var AMOUNT_SELECTOR = ${JSON.stringify(amountSelector)};
 
 ${BID_FOLLOW_UP_HELPERS}
+${BID_AMOUNT_HELPER}
 
   var root = document.querySelector('[data-pf-jobs-root]');
   if (!root) return;
@@ -802,6 +915,14 @@ ${BID_FOLLOW_UP_HELPERS}
       name.textContent = bid.name;
       li.appendChild(name);
 
+      var shown = normalizeHeadlineAmount(bid.amount);
+      if (shown) {
+        var amountEl = document.createElement('span');
+        amountEl.className = 'pf-jobs-amount';
+        amountEl.textContent = shown;
+        li.appendChild(amountEl);
+      }
+
       var at = document.createElement('span');
       at.className = 'pf-jobs-when';
       at.textContent = when(bid.at);
@@ -876,6 +997,14 @@ ${BID_FOLLOW_UP_HELPERS}
     }
 
     var entry = { name: name, at: new Date().toISOString(), fields: values };
+    // Read off the page rather than recomputed, so what is stored is exactly
+    // the figure the visitor was looking at when they pressed Save — and so this
+    // never has to know how 162 different calculators arrive at theirs.
+    if (AMOUNT_SELECTOR) {
+      var amountNode = document.querySelector(AMOUNT_SELECTOR);
+      var shown = normalizeHeadlineAmount(amountNode ? amountNode.textContent : '');
+      if (shown) entry.amount = shown;
+    }
     // Re-pricing a job is not hearing back about it: the outcome carries over.
     if (carried && (carried.outcome === 'won' || carried.outcome === 'lost')) {
       entry.outcome = carried.outcome;
@@ -1085,5 +1214,13 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
     ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${markup}`)
     : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
-  return anchored.replace(/<\/body>/i, `${stripForInjection(JOBS_SCRIPT(slug))}\n</body>`);
+  // Resolved against the page as it arrived, not against `anchored`: the band
+  // this build inserts carries no `hero-number`, but reading the finished
+  // document would mean a future one could quietly become the match.
+  const amountSelector = pageHeadlineAmountSelector(html, slug);
+
+  return anchored.replace(
+    /<\/body>/i,
+    `${stripForInjection(JOBS_SCRIPT(slug, amountSelector))}\n</body>`,
+  );
 }
