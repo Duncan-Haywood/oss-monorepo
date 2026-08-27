@@ -560,13 +560,22 @@ const DISCLAIMER_HTML = `
         not counted at all.
       </p>`;
 
-export function renderHub(surfaces, baseUrl) {
-  const groups = [...CATEGORY_RULES, FALLBACK_CATEGORY]
+/**
+ * The category sections, in the order the hub shows them, with empty ones
+ * dropped. Shared so the hub, `llms.txt`, and anything else that groups the
+ * catalogue cannot drift into showing different sets of tools.
+ */
+export function groupByCategory(surfaces) {
+  return [...CATEGORY_RULES, FALLBACK_CATEGORY]
     .map((category) => ({
       category,
       items: surfaces.filter((s) => categoryFor(s.slug).id === category.id),
     }))
     .filter((group) => group.items.length > 0);
+}
+
+export function renderHub(surfaces, baseUrl) {
+  const groups = groupByCategory(surfaces);
 
   const itemList = {
     '@context': 'https://schema.org',
@@ -760,6 +769,7 @@ ${DISCLAIMER_HTML}
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
         <a href="catalog.json">Machine-readable catalog</a> ·
+        <a href="llms.txt">llms.txt</a> ·
         <a href="sitemap.xml">Sitemap</a>
       </p>
     </footer>
@@ -1386,6 +1396,70 @@ export function renderCatalog(surfaces, baseUrl) {
   )}\n`;
 }
 
+/**
+ * `/llms.txt` — the same catalogue as `catalog.json`, at the path an assistant
+ * actually looks for.
+ *
+ * `catalog.json` is richer, but nothing points at it: a model answering "is
+ * there a free tool that prices a fence install" has no reason to guess that
+ * filename, and `robots.txt` has no directive that would name it. `llms.txt`
+ * (llmstxt.org) is a well-known path, so it gets fetched without being
+ * discovered first — which is the whole difference for a portfolio whose
+ * growth plan is organic search and AI discovery rather than ad spend
+ * (`portfolio/DIRECTION.md`, "What we are doing").
+ *
+ * Markdown, not JSON, and deliberately so: the format is read by a model, not
+ * parsed by a client, and a link list under a heading survives being chunked
+ * into a context window in a way a nested object does not.
+ *
+ * Carries `fullDescription`, not the trimmed `description` the hub cards show.
+ * A card has a fixed height and `readMeta` trims to it; this file has no
+ * layout, and the trimmed copy drops most of what 24 of these tools say about
+ * themselves — which is the half a model matches a query against. The hub's
+ * own search indexes the full text for exactly that reason.
+ *
+ * Descriptions are flattened to one line each. A stray newline inside a bullet
+ * silently ends the list item, so a tool whose meta description wrapped would
+ * publish its second half as body prose.
+ */
+export function renderLlmsTxt(surfaces, baseUrl) {
+  const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
+
+  const sections = groupByCategory(surfaces).map(({ category, items }) => {
+    const bullets = items
+      .map(
+        (surface) =>
+          `- [${oneLine(surface.title)}](${baseUrl}${surface.slug}/): ${oneLine(surface.fullDescription || surface.description)}`,
+      )
+      .join('\n');
+    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${bullets}\n`;
+  });
+
+  // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
+  // short of context. The tools themselves never belong here; these are the
+  // machine surfaces that describe them.
+  const optional = [
+    '## Optional',
+    '',
+    `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
+    `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
+    `- [Source](${SOURCE_URL_PREFIX.replace('/blob/main/', '')}): MIT-licensed source for every tool on this site.`,
+    '',
+  ].join('\n');
+
+  return `# Free calculators and checks for people who run a small business
+
+> ${surfaces.length} free, browser-only tools for marketplace sellers, trade contractors, logistics buyers, and small teams preparing compliance evidence. No account, no payment, no upload: every calculation runs in the visitor's own browser and the numbers they type never leave their device.
+
+Each tool is a static page that works offline once opened, and is free with no
+gated features. They are estimates and records to act on, not professional
+advice or a determination made on anyone's behalf; each page carries its own
+limitations.
+
+${sections.join('\n')}
+${optional}`;
+}
+
 export function renderNotFound(baseUrl) {
   return `<!doctype html>
 <html lang="en">
@@ -1580,6 +1654,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());

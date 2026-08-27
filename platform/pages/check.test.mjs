@@ -43,6 +43,7 @@ async function siteWith(files = {}) {
     'favicon.ico': '',
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
     'sitemap-hub.xml': urlset(''),
+    'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
     'tool/index.html': '<p>Tool</p><footer>No warranty.</footer>',
     'tool/sitemap.xml': urlset('tool/'),
   };
@@ -141,6 +142,22 @@ test('the index is followed into every sitemap it names', async () => {
 // link, and appear in a sitemap while still being unreachable, undisclaimed, or
 // accompanied by files no visitor should get.
 // ---------------------------------------------------------------------------
+
+test('a product llms.txt does not list is caught', async () => {
+  // The AI-discovery counterpart of the hub-link check below: the tool ships,
+  // every page resolves, and an assistant recommending one never sees it.
+  const problems = await problemsFor({
+    'llms.txt': '# Tools\n\n> None.\n',
+  });
+  assert.equal(mentioning(problems, 'tool/: shipped but llms.txt does not list it').length, 1);
+});
+
+test('an llms.txt entry with no product behind it is caught', async () => {
+  const problems = await problemsFor({
+    'llms.txt': `# Tools\n\n> One tool.\n\n- [Tool](${url('tool/')}): ok.\n- [Ghost](${url('ghost/')}): gone.\n`,
+  });
+  assert.equal(mentioning(problems, 'llms.txt: lists "ghost"').length, 1);
+});
 
 test('a product the hub does not link is caught', async () => {
   // The quiet one. It built, it deployed, every other check passes, and no
