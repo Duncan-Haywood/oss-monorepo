@@ -245,6 +245,7 @@
           </select>
         </label>
         <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="1"></label>
+        <label>Of those, months in Oct–Dec peak <input id="peakMonths" type="number" min="0" step="0.1" value="0"></label>
         <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87"></label>
         <p class="note span2">A stay that crosses October–December is a timing question, not this blended rate. <a href="peak-vs-off-peak-storage.html" style="color:#9ec5ff">Should you send inventory before Q4 peak storage?</a></p>
         <label>FBA fulfillment fee <span class="hint" id="sizeHint"></span>
@@ -756,6 +757,7 @@
       applyCategoryPreset,
       applyPlacementPreset,
       applyStoragePreset,
+      blendedStorageRate,
       calculateListing,
       buyCostCheck,
       compareBulkBuy,
@@ -793,7 +795,7 @@
       "amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee",
       "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
       "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
-      "repackCostPerUnit",
+      "repackCostPerUnit", "peakMonths",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
@@ -900,7 +902,10 @@
     }
 
     function decisionSummary() {
-      const result = calculateListing(readInput());
+      // Same blended input as the on-screen result. Reading readInput() here
+      // would paste a profit that disagrees with the number the seller is
+      // looking at whenever any of the stay falls in Oct-Dec.
+      const result = calculateListing(listingInput());
       const path = result.selected;
       const advantage = result.fbaAdvantage > 0
         ? `${money(result.fbaAdvantage)} more with FBA`
@@ -951,9 +956,32 @@
       }
     }
 
+    // The listing form carries one storage-rate field, but a stay that crosses
+    // October-December is billed at two rates. blendedStorageRate already
+    // models that split for peak-vs-off-peak.html; without this the hero
+    // number quietly prices a Q4 stay at the January rate.
+    //
+    // Peak months default to 0, so a seller who does not answer gets exactly
+    // the single-rate arithmetic this page produced before.
+    function listingInput() {
+      const input = readInput();
+      const months = Number(input.monthsInStorage);
+      const peak = Number(input.peakMonths);
+      if (!Number.isFinite(months) || !Number.isFinite(peak) || peak <= 0 || peak > months) {
+        return input;
+      }
+      return {
+        ...input,
+        storageRate: blendedStorageRate({
+          offPeakMonths: months - peak,
+          peakMonths: peak,
+        }),
+      };
+    }
+
     function updateFeePlaceholder() {
       try {
-        const result = calculateListing({ ...readInput(), fulfillmentFee: undefined });
+        const result = calculateListing({ ...listingInput(), fulfillmentFee: undefined });
         const field = document.getElementById("fulfillmentFee");
         field.placeholder = result.suggestedFulfillment.toFixed(2);
         document.getElementById("sizeHint").textContent =
@@ -1003,7 +1031,7 @@
     function update() {
       updateFeePlaceholder();
       try {
-        const result = calculateListing(readInput());
+        const result = calculateListing(listingInput());
         const profitEl = document.getElementById("profit");
         profitEl.textContent = money(result.selected.profit);
         profitEl.className = `hero-number ${result.selected.profit < 0 ? "negative" : "positive"}`;
