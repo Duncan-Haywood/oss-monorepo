@@ -75,6 +75,13 @@ test("reports discount room above target without recommending a price", () => {
   assert.equal(calculate(quote).minimum_price_adjustment, 0);
 });
 
+test("reports target-rate capacity from the quoted price", () => {
+  const quote = loadQuote({ price: 1500, delivery_hours: 10, admin_hours: 2, revision_hours: 1, overhead: 100, target_hourly_rate: 100 });
+  const result = calculate(quote);
+  assert.equal(result.target_rate_hours, 14);
+  assert.equal(result.hours_cushion, 1);
+});
+
 test("currency defaults and is trimmed", () => {
   const quote = loadQuote({ currency: " USD ", price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
   assert.equal(quote.currency, "USD");
