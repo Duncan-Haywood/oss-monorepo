@@ -209,6 +209,17 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
 
+      # A calculator whose shipped defaults fail constraint validation cannot be
+      # submitted at all: the browser refuses before dispatching the event, so
+      # the page's own handler never runs and the button silently does nothing.
+      # calc.mjs tests all pass in that state, because the arithmetic is fine.
+      - name: Check every calculator's default form state can actually be submitted
+        run: python3 platform/ci/check_form_defaults.py
+
+      - name: Form-default checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_form_defaults
+
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
 
