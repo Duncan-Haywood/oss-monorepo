@@ -48,6 +48,13 @@ test("browser page can download the grouped remediation CSV", () => {
   assert.match(page, /einvoice-preflight-remediation\.csv/);
 });
 
+test("copy checklist falls back when the Clipboard API is denied", () => {
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\("copy"\)/);
+  assert.match(page, /async function copyText/);
+  assert.match(page, /await copyText\(text\)/);
+});
+
 test("disclaimer and optional sponsors are visible", () => {
   assert.match(page, /No warranty/);
   assert.match(page, /not legal, tax, financial, or accounting advice/i);
