@@ -35,7 +35,9 @@ Use [Should I pay the 3PL to kit, or skip the bundle](./should-i-pay-the-3pl-to-
 to price assembly, extra component picks, and extra receiving against
 kitting before inbound and against selling the hero SKU. That is a different
 decision from leftover pallets, from return rates, and from restock vs keep.
-The table names the kit-fee and AOV-lift flips.
+The table names the kit-fee and AOV-lift flips. The main calculator runs the
+same `compareKitting` math on the quote you just typed, so you do not leave
+the page to check whether the kit fee still beats skipping the bundle.
 Use [Create a 3PL negotiation brief](./negotiation.html) to turn two
 normalized monthly totals into a factual ask — the gap, not a recommended
 provider.
