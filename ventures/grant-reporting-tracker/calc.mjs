@@ -3,15 +3,52 @@ export function parseDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-export function addMonths(value, months) {
+// Month arithmetic in UTC, clamping to the last day of a shorter target month
+// so 31 January plus one month is 28 February rather than 3 March. Accepts a
+// negative shift, which `sampleGrants` needs to work backwards from a report
+// date to the award date that produces it.
+function shiftMonths(value, months) {
   const date = parseDate(value);
-  if (!date || !Number.isFinite(months) || months < 1) return null;
+  if (!date) return null;
   const day = date.getUTCDate();
   date.setUTCDate(1);
-  date.setUTCMonth(date.getUTCMonth() + Math.floor(months));
+  date.setUTCMonth(date.getUTCMonth() + Math.trunc(months));
   const lastDay = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
   date.setUTCDate(Math.min(day, lastDay));
   return date.toISOString().slice(0, 10);
+}
+
+export function addMonths(value, months) {
+  if (!Number.isFinite(months) || months < 1) return null;
+  return shiftMonths(value, Math.floor(months));
+}
+
+/**
+ * Three awards that demonstrate every status the queue can show.
+ *
+ * The dates are derived from `today` rather than written down, because a
+ * hard-coded sample decays: a fixture dated 2026-03-15 reads as one more
+ * overdue row a year later, and a first-time visitor cannot tell the example
+ * from a bug. Working backwards from the report date means the sample shows an
+ * overdue award, one due inside the month, and one on track, whenever it runs.
+ *
+ * Clamping in `shiftMonths` can move a derived report date by a day or two when
+ * the month lengths differ. The offsets below are far enough from the 0 and 30
+ * day status boundaries that the drift cannot change which status each row
+ * lands in.
+ */
+export function sampleGrants(today = new Date().toISOString().slice(0, 10)) {
+  const awardDateFor = (reportInDays, intervalMonths) => {
+    const base = parseDate(today);
+    if (!base) return null;
+    const report = new Date(base.getTime() + reportInDays * 86400000).toISOString().slice(0, 10);
+    return shiftMonths(report, -intervalMonths);
+  };
+  return [
+    { name: 'Community food program', funder: 'Local foundation', awardDate: awardDateFor(-21, 6), intervalMonths: 6, awardAmount: 24000, spentAmount: 8500 },
+    { name: 'After-school literacy', funder: 'State education agency', awardDate: awardDateFor(14, 12), intervalMonths: 12, awardAmount: 48000, spentAmount: 31200 },
+    { name: 'Winter shelter capital', funder: 'Regional health trust', awardDate: awardDateFor(96, 3), intervalMonths: 3, awardAmount: 15000, spentAmount: 15000 },
+  ];
 }
 
 export function reviewGrant(grant, today = new Date().toISOString().slice(0, 10)) {
