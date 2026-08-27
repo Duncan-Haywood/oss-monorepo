@@ -37,11 +37,17 @@ arithmetic and layout in the browser, like everything else here.
 - `ventures/electrical-panel-upgrade-bid-calculator`
 - `ventures/sewer-line-replace-bid-calculator`
 - `ventures/fence-bid-calculator`
+- `ventures/attic-insulation-bid-calculator`
+- `ventures/ev-charger-bid-calculator`
+- `ventures/standby-generator-bid-calculator`
+- `ventures/water-heater-bid-calculator`
+- `ventures/furnace-bid-calculator`
+- `ventures/mini-split-bid-calculator`
 
-The other 80 bid calculators have not adopted it yet. See "Adding it to another
+The other 74 bid calculators have not adopted it yet. See "Adding it to another
 calculator".
 
-## Four things that have gone wrong in every adoption batch
+## Five things that have gone wrong in every adoption batch
 
 Check these before you verify, because two of the three fail silently.
 
@@ -94,13 +100,30 @@ Check these before you verify, because two of the three fail silently.
   Nothing legitimate on a quote reads `undefined`, `NaN`, or `null`, so grep the
   rendered sheet for them as the last step of a browser pass.
 
+- **The input reader is not always called `readInput`.** `ev-charger`,
+  `standby-generator` and `water-heater` call theirs `readInputs()`, plural.
+  The proposal shipped calling `readInput()`, which is undefined at runtime, so
+  the button set a status of `readInput is not defined` and printed nothing —
+  and every text-level test stayed green, because the string `readInput` is
+  present either way. `grep -c 'function readInput'` does not tell them apart;
+  it matches `readInputs` as a substring. Grep for the open parenthesis:
+
+  ```
+  grep -oE 'function readInputs?\(' ventures/<slug>/index.html
+  ```
+
+  `page.test.mjs` now asserts that whatever reader the proposal calls is a
+  function the page actually defines.
+
 ## A calculator that already prints something
 
-Five of the remaining calculators — `window-replacement` among them — shipped an
-`@media print` block of their own **before** the proposal existed, which prints
-the contractor's internal bid sheet: cost, overhead, profit, walk-away price.
-That sheet is a feature someone uses, so adopting the proposal must not silently
-replace it.
+Five calculators — `window-replacement`, `attic-insulation`, `ev-charger`,
+`standby-generator` and `water-heater` — shipped an `@media print` block of
+their own **before** the proposal existed, which prints the contractor's
+internal bid sheet: cost, overhead, profit, walk-away price. That sheet is a
+feature someone uses, so adopting the proposal must not silently replace it.
+All five have now adopted, so no remaining calculator is in this class — but
+read this section before adding a print stylesheet to one that is not.
 
 Keep both, separated by a body class rather than by deleting the older rules.
 `printProposal` sets `printing-proposal`, `afterprint` clears it, and the
