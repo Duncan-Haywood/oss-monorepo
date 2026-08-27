@@ -24240,3 +24240,37 @@ entries:
         446 pages sound, 437 published pages with no dead links. The products are healthy; what is
         missing is a public URL, still the single `GITHUB_PAGES_ENABLED` flip."
     mrr_end: 0
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - "**Four trade tools were outside the shared shop-rates bar, and three of them for a reason
+        that was about this repository rather than about the page.** `rates.mjs` gated injection on
+        all four canonical ids being present, so `snow-removal-bid-calculator` — whose per-person
+        wage is spelled `operatorWage` (“Operator hourly wage”, $22) — got no bar at
+        all, losing burden, overhead and margin along with the wage. Its own test file already said
+        so and deferred: “the rename reaches calc.mjs's input contract and its tests, so it is
+        the venture's change to make.” It is not: a build-time alias carries the field without
+        touching the venture, its tests, or any bid link already shared with that key in the fragment."
+      - "The all-or-nothing rule was written against a real risk — half-prefilling a field whose
+        meaning nobody had checked — but “nobody has checked” is a fact about this file.
+        Read the three partial pages and their labels match exactly: `tree-service-bid-calculator`
+        asks “Payroll burden (%)”, “Overhead on direct cost (%)” and “Target
+        net margin (%)” under those ids and caps margin at 99.9 like every other tool, and got
+        nothing because its *fourth* field is a whole-crew rate. Now it carries the three and the
+        panel says why the crew wage is left alone; same for appliance repair and the portable-restroom
+        quote, whose labour rate is loaded. `mobile-detailing-bid-calculator` shares one field, below
+        the floor, and still gets nothing. A partial page needs an entry in `PARTIAL_SHOP_RATE_PAGES`
+        — which is to say, someone read it — or it is skipped exactly as before. 99 pages
+        to 103."
+      - "Two defects in the existing bar fell out of the same change. Storage read was
+        `kept === FIELDS.length ? out : null`, so a saved set missing any one field was discarded
+        whole: a contractor who saved three rates on a three-field tool then met a stranger's ballpark
+        in all four on the next one. And save replaced the stored blob rather than merging, so saving
+        overhead and margin on a two-field tool would have wiped the wage. Both verified in Chromium
+        against the built artifact: rates entered on `deck-bid-calculator` arrive as `operatorWage` on
+        snow removal, burden/overhead/margin arrive on tree service with `crewHourlyRate` untouched at
+        180, a partial save from appliance repair leaves the wage intact, and a three-field save
+        reports “Using your shop rates. Crew hourly wage is not saved yet” rather than
+        silently applying nothing."
+    mrr_end: 0
