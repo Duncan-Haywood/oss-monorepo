@@ -172,7 +172,9 @@ leaving the pile because removal looked like giving up.
 keeps $68.86 more than an 8% FBA Liquidations recovery ($236.80 vs
 $167.94), and that elsewhere leftover can fall to about $3.14
 before liquidations match** — which used to mean disposing the pile
-because Amazon’s recovery percent looked like the only exit.
+because Amazon’s recovery percent looked like the only exit. The
+same comparison now also runs on the [main calculator](index.html)
+from the listing you already typed.
 
 **After using the Vine page, you can now see whether leftover units
 still beat skipping after a $419.95 gift, and why a hero SKU that
