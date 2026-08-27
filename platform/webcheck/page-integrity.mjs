@@ -1,0 +1,347 @@
+// Shared page-integrity checks for the portfolio's browser-local products.
+//
+// Why this exists
+// ---------------
+// `cut-list-optimizer/index.html` opened `<textarea id="cuts">` and never closed
+// it. HTML treats textarea as a raw-text element, so the parser fed the button,
+// the results panel, the liability disclaimer, the usage opt-out, `</main>` and
+// the entire `<script type="module">` into the textarea as literal text. The
+// script never ran: the tool had never calculated anything since the day it
+// shipped. Three separate pull requests merged green over the top of it, because
+// every venture's tests import `calc.mjs` directly and none of them ever look at
+// the page.
+//
+// The lesson recorded in the ledger for that repair is not "close your tags" but
+// that no venture had a DOM-level test at all, so a completely dead product was
+// indistinguishable from a working one in CI. That gap is portfolio-wide, so the
+// guard belongs here rather than in one venture.
+//
+// Design constraints
+// ------------------
+// Venture CI is a bare `node --test` inside the venture directory, with no
+// package.json, no node_modules and no build step. So this module is
+// dependency-free and does its own parsing: no jsdom, no browser, no install
+// step to keep working. It is imported by relative path.
+//
+// What it deliberately does NOT do: assert that the arithmetic is right. That is
+// each venture's `calc.test.mjs`, which is a better place for it. This module
+// answers one question those tests cannot — would a browser actually run this
+// page at all, and does the script only reach for elements that exist.
+//
+// The second dead product
+// -----------------------
+// `3pl-quote-normalizer/index.html` shipped an inline module with two missing
+// semicolons: `form.addEventListener('change', e => {...})document.querySelector(...)`.
+// ASI cannot recover when the `)` and the `document` share a line, so the module
+// failed to *parse* and the browser ran none of it — no submit handler, no
+// recalculation, no saving. The page rendered its whole 36-field form and the
+// results panel stayed empty forever.
+//
+// Every check above passed it: the script tag was present and non-empty, no tag
+// was unclosed, and every id it looked up existed. The venture's own 92 tests
+// passed too, because they assert that strings appear in the HTML file, not that
+// the file is a runnable program. So the page was dead and everything was green.
+//
+// A parse error is the one class of JS defect that is statically decidable with
+// no false positives, which makes it exactly the right thing for a repo-wide
+// gate to insist on. `checkScriptSyntax` below therefore runs the real parser
+// over every inline script body — it never executes the code, and it does not
+// claim the calculator computes the right number, only that the browser will get
+// as far as trying.
+
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
+// Elements whose content a browser does not parse as markup. Leaving one open
+// silently discards the remainder of the document with no parse error anywhere.
+// `title` is RCDATA rather than raw text, but fails the same way and for the
+// same reason, so it is checked alongside them.
+const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style', 'title'];
+
+// `type` values a browser executes as JavaScript. An absent type means classic
+// script. Anything else — `text/template`, `application/ld+json`, an HTML
+// import — is data the JS parser has no business reading, so it is left alone
+// (JSON-LD gets its own check below, since it fails just as silently).
+const JS_SCRIPT_TYPES = new Set(['', 'module', 'text/javascript', 'application/javascript', 'module/javascript']);
+
+function scriptType(tag) {
+  return (/\btype\s*=\s*["']?([^"'\s>]*)/i.exec(tag)?.[1] ?? '').toLowerCase();
+}
+
+/**
+ * Walk `source` the way a browser's tokenizer does, so an unclosed raw-text
+ * element really does swallow everything after it.
+ *
+ * A plain regex over the file would happily match markup the parser had already
+ * buried inside a textarea — exactly the mistake that let a dead page ship, since
+ * the tags all *looked* present in the file. `markup` therefore holds only what
+ * the browser would still parse as elements, and `scripts` only script bodies
+ * that would actually execute.
+ *
+ * @param {string} source raw HTML file contents
+ * @returns {{markup: string, scripts: string[], unclosed: string|null}}
+ */
+export function parsePage(source) {
+  const RAW = new RegExp(`<(${RAW_TEXT_ELEMENTS.join('|')})\\b[^>]*>`, 'i');
+  let rest = source;
+  let markup = '';
+  const scripts = [];
+  const scriptTags = [];
+  for (;;) {
+    const open = rest.match(RAW);
+    if (!open) return { markup: markup + rest, scripts, scriptTags, unclosed: null };
+    const tag = open[1].toLowerCase();
+    const contentStart = open.index + open[0].length;
+    // Keep the open tag itself: it may carry the id the script looks up.
+    markup += rest.slice(0, contentStart);
+    const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
+    // No closing tag: the rest of the document is this element's text content
+    // and never becomes markup at all.
+    if (!closer) return { markup, scripts, scriptTags, unclosed: tag };
+    if (tag === 'script') {
+      scripts.push(rest.slice(contentStart, contentStart + closer.index));
+      // Parallel to `scripts`, so a caller can tell a module from a classic
+      // script and JSON-LD data from code without re-scanning the source.
+      scriptTags.push(open[0]);
+    }
+    markup += closer[0];
+    rest = rest.slice(contentStart + closer.index + closer[0].length);
+  }
+}
+
+// One scratch directory per process, created only if a page actually has an
+// inline script to check. `node --check` needs a real path, and the extension is
+// what selects the parser goal: .mjs parses `import`/`export` at top level, .js
+// does not, which is exactly the distinction `type="module"` makes in a browser.
+let scratchDir = null;
+function scratchPath(name) {
+  scratchDir ??= mkdtempSync(join(tmpdir(), 'page-integrity-'));
+  return join(scratchDir, name);
+}
+
+/**
+ * Turn `node --check` stderr into one line that says where to look.
+ *
+ * These pages are frequently minified onto a single line, so node's own excerpt
+ * — the whole offending line with a caret under it — can be tens of thousands of
+ * characters and is useless in a CI log. Report the position and a short window
+ * of source around it instead, which is what actually finds the defect.
+ *
+ * @param {string} stderr raw output from `node --check`
+ * @param {string} body the script source that was checked
+ * @returns {string} a single-line description
+ */
+function describeParseFailure(stderr, body) {
+  const lines = stderr.split('\n');
+  const message = lines.find((line) => /^\w*(SyntaxError|Error):/.test(line.trim()))?.trim() ?? 'SyntaxError';
+  // node's first stderr line is `<path>:<line>`, and the caret line that follows
+  // the source excerpt gives the column.
+  const lineNo = Number(/:(\d+)$/.exec(lines[0]?.trim() ?? '')?.[1]);
+  const caret = lines.findIndex((line) => /^\s*\^+\s*$/.test(line));
+  const column = caret > 0 ? lines[caret].indexOf('^') : -1;
+
+  let where = Number.isFinite(lineNo) ? `line ${lineNo}` : 'unknown position';
+  const sourceLine = body.split('\n')[lineNo - 1] ?? '';
+  // node truncates its excerpt for a very long line — and these pages are often
+  // minified onto one — after which the caret no longer lines up with the real
+  // column. Only quote a position when the excerpt is verbatim, so the pointer
+  // is either exactly right or absent. A confidently wrong column is worse than
+  // none: it sends the reader to the wrong place in a 30,000-character line.
+  if (column >= 0 && lines[caret - 1] === sourceLine) {
+    where += `, column ${column + 1}`;
+    const from = Math.max(0, column - 60);
+    const excerpt = sourceLine.slice(from, column + 60);
+    if (excerpt.trim()) where += `: ...${excerpt}...`;
+  }
+  return `${message} at ${where}`;
+}
+
+/**
+ * Parse every inline script the browser would execute, and every JSON-LD block.
+ *
+ * Uses `node --check`, which runs V8's parser and never executes the code. That
+ * is the same parser the pages are written for, and a parse failure is not a
+ * matter of opinion — so this can be a hard gate across all 161 products without
+ * ever crying wolf on working code.
+ *
+ * @param {string[]} scripts inline script bodies, from parsePage
+ * @param {string[]} scriptTags the matching open tags, from parsePage
+ * @returns {string[]} findings; empty means every block parses
+ */
+export function checkScriptSyntax(scripts, scriptTags = []) {
+  const findings = [];
+  scripts.forEach((body, index) => {
+    const tag = scriptTags[index] ?? '';
+    const type = scriptType(tag);
+    // A src= tag with no inline body has nothing to parse here; the referenced
+    // file is a real module and is checked wherever modules are checked.
+    if (!body.trim()) return;
+
+    if (type === 'application/ld+json') {
+      // Structured data fails the same silent way code does: search engines and
+      // AI crawlers drop a malformed block without telling anyone.
+      try {
+        JSON.parse(body);
+      } catch (error) {
+        findings.push(`inline JSON-LD block ${index + 1} is not valid JSON, so crawlers discard it -> ${error.message}`);
+      }
+      return;
+    }
+    if (!JS_SCRIPT_TYPES.has(type)) return;
+
+    // The extension selects the parser goal. `.mjs` parses top-level
+    // `import`/`export`, matching `type="module"`. A classic script must use
+    // `.cjs` and not `.js`: since v22 node sniffs module syntax in a `.js` file
+    // and re-parses it as a module, which would quietly accept an `import` that
+    // a browser rejects in a non-module script.
+    const file = scratchPath(`s${index}.${type === 'module' ? 'mjs' : 'cjs'}`);
+    writeFileSync(file, body);
+    try {
+      execFileSync(process.execPath, ['--check', file], { stdio: 'pipe' });
+    } catch (error) {
+      findings.push(
+        `inline <script> block ${index + 1} does not parse, so the browser runs none of it -> ${
+          describeParseFailure(String(error.stderr ?? error.message ?? ''), body)
+        }`,
+      );
+    }
+  });
+  return findings;
+}
+
+/**
+ * Ids declared by elements the browser would actually create.
+ *
+ * `scriptSource` is included because several pages build part of their UI at
+ * runtime — the eBay calculator injects its share and reset buttons through
+ * `innerHTML` — so an id can be perfectly real without ever appearing in the
+ * static markup. Treating those as undeclared would fail a working page, and a
+ * check that cries wolf is one the next session turns off.
+ */
+export function declaredIds(markup, scriptSource = '') {
+  const ids = new Set([...markup.matchAll(/\bid=["']([\w:.-]+)["']/g)].map((m) => m[1]));
+  for (const m of scriptSource.matchAll(/\bid=\\?["']([\w:.-]+)\\?["']/g)) ids.add(m[1]);
+  return ids;
+}
+
+/**
+ * Ids the script asks the document for.
+ *
+ * Covers the three lookup spellings used across the portfolio's pages:
+ * `getElementById('x')`, `querySelector('#x')` and the one-character `$('x')`
+ * helper several ventures define. Quotes may be single, double or backtick, but
+ * a template literal containing `${...}` is skipped — the id is computed at
+ * runtime and cannot be checked statically without guessing.
+ */
+export function queriedIds(scriptSource) {
+  const ids = new Set();
+  const add = (raw) => {
+    if (raw && !raw.includes('${')) ids.add(raw);
+  };
+  for (const m of scriptSource.matchAll(/getElementById\(\s*["'`]([^"'`]+)["'`]\s*\)/g)) add(m[1]);
+  for (const m of scriptSource.matchAll(/querySelector(?:All)?\(\s*["'`]#([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
+  for (const m of scriptSource.matchAll(/(?<![\w$.])\$\(\s*["'`]([\w:.-]+)["'`]\s*\)/g)) add(m[1]);
+  return ids;
+}
+
+/**
+ * Run every generic integrity check over one page.
+ *
+ * Returns a list of problems rather than throwing, so a caller can report all of
+ * them at once instead of one per run, and so the checker itself is testable.
+ *
+ * @param {string} html raw file contents
+ * @param {object} [options]
+ * @param {string[]} [options.requiredIds] ids the primary journey depends on
+ * @param {(string|RegExp)[]} [options.requiredText] text that must survive parsing
+ *   as real markup — the liability disclaimer and privacy note the playbook
+ *   requires on every user-facing surface. A page can carry these in the file and
+ *   still not show them, which is precisely what happened to cut-list-optimizer.
+ * @returns {string[]} human-readable findings; empty means the page is sound
+ */
+export function checkPageIntegrity(html, options = {}) {
+  const { requiredIds = [], requiredText = [] } = options;
+  const findings = [];
+  const { markup, scripts, scriptTags, unclosed } = parsePage(html);
+
+  if (unclosed) {
+    findings.push(
+      `<${unclosed}> is never closed: everything after it is swallowed as text instead of parsed as markup, ` +
+        `so the rest of the page — including any script — never runs.`,
+    );
+    // Every later check would report the swallowed remainder as "missing",
+    // which buries the one finding that explains all of them.
+    return findings;
+  }
+
+  for (const tag of RAW_TEXT_ELEMENTS) {
+    const opened = (html.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (html.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    if (opened !== closed) findings.push(`<${tag}> is opened ${opened}x but closed ${closed}x`);
+  }
+
+  // An unresolved merge is a parse error in a script and dead text in markup.
+  // Concurrent sessions edit these pages constantly, so this is a live risk.
+  for (const marker of ['<<<<<<<', '>>>>>>>']) {
+    if (html.includes(marker)) findings.push(`unresolved merge conflict marker ${marker} left in the page`);
+  }
+
+  const scriptSource = scripts.join('\n');
+  const ids = declaredIds(markup, scriptSource);
+
+  if (/<script\b[^>]*type=["']module["']/i.test(html)) {
+    if (!/<script\b[^>]*type=["']module["']/i.test(markup)) {
+      findings.push('the module script tag was swallowed by an earlier element and would never execute');
+    } else if (scriptSource.trim() === '' && !/<script\b[^>]*\bsrc=/i.test(markup)) {
+      findings.push('the module script parsed as empty and has no src: the page loads no application code');
+    }
+  }
+
+  // Run before the id checks: when a script does not parse, none of its element
+  // lookups happen either, and reporting them as missing ids buries the one
+  // finding that explains the dead page.
+  const syntax = checkScriptSyntax(scripts, scriptTags);
+  if (syntax.length) return [...findings, ...syntax];
+
+  const missingQueried = [...queriedIds(scriptSource)].filter((id) => !ids.has(id));
+  if (missingQueried.length) {
+    findings.push(
+      `the script looks up ids that no element declares: ${missingQueried.join(', ')} ` +
+        `(each is a null dereference the moment that line runs)`,
+    );
+  }
+
+  const missingRequired = requiredIds.filter((id) => !ids.has(id));
+  if (missingRequired.length) {
+    findings.push(`ids required by the primary journey are missing from the rendered page: ${missingRequired.join(', ')}`);
+  }
+
+  for (const needle of requiredText) {
+    const present = needle instanceof RegExp ? needle.test(markup) : markup.includes(needle);
+    if (!present) {
+      findings.push(`required text is not present as real markup: ${needle instanceof RegExp ? needle.source : JSON.stringify(needle)}`);
+    }
+  }
+
+  return findings;
+}
+
+// A venture wanting assertions stronger than the repo-wide sweep — the exact ids
+// its primary journey depends on, its own disclaimer wording — adds a
+// `page.test.mjs` that calls checkPageIntegrity directly. `node --test` picks it
+// up with no configuration:
+//
+//     import { test } from 'node:test';
+//     import assert from 'node:assert/strict';
+//     import { readFileSync } from 'node:fs';
+//     import { checkPageIntegrity } from '../../platform/webcheck/page-integrity.mjs';
+//
+//     test('the page would run in a browser', () => {
+//       const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+//       assert.deepEqual(checkPageIntegrity(html, {
+//         requiredIds: ['price', 'profit'],
+//         requiredText: [/<strong>No warranty\.<\/strong>/],
+//       }), []);
+//     });

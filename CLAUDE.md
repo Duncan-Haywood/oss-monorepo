@@ -19,6 +19,12 @@ free, with usage tracked and disclaimers in place. Features, fixes, landing
 pages, SEO, integrations (behind env vars), and VM-runnable apps beat ledger
 entries and analysis documents.
 
+**Deploy-first.** Products already on `main` with no public URL outrank new
+candidates. Prepare a GitHub Pages artifact or a Hetzner product-box
+deploy; do not clone another undeployed calculator. The host is decided
+([`portfolio/hosting/`](portfolio/hosting/README.md)). The owner flip is
+`deploy-settings` — do not add a second ask. See `portfolio/DIRECTION.md`.
+
 Target super-niches where users have money and a real problem — especially
 tools that help them earn more. Low variable cost, traditional software, AI
 only where it clearly helps. Payment and payout rails stay off; GitHub
@@ -39,34 +45,34 @@ Named tasks, venture work, red CI, and PRs you are driving skip the gate.
 
 ## Ship without review ceremony
 
-**Merge when CI is green.** No human code review. Fix forward.
+**Merge when CI is green.** No human code review. Fix forward. Rely on the
+owner as little as possible. Product PRs are the work — merge them.
 
 Before merge: run or read CI; scope stays in-bounds; new user-facing surfaces
 have disclaimers and usage tracking.
 
-**Agent-decidable — verify and merge yourself:**
+**Merge yourself after CI is green:**
 
-- `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
-- Free full-feature products, usage instrumentation, sponsor links
-  (building privately; merging `ventures/*` is a separate gate)
+- `platform/`, `portfolio/`, docs, tests, CI
+- Usage tracking, disclaimers, free-tier features, GitHub Sponsors links
+- `ventures/*` product code (calculators, apps, CLIs). Do not wait. Do not
+  open a queue row asking whether a product PR may merge.
 
-`python3 platform/ci/publish_surface.py` currently shows nothing live on
-push to `main`. That does not make venture app code agent-decidable on
-its own — the owner-only list below still covers breaking changes to it,
-and Ask 9 (`venture-gate-premise`) is still open.
+Answered 2026-08-25: yes, agents merge product PRs. That question is closed.
+Do not re-ask it.
 
-**Owner-only — flag only when it blocks product work you cannot finish:**
+**Only flag the owner when you cannot finish without them:**
 
 - Taking or moving money (billing, payout rails, live Stripe)
 - Registering accounts needing card, government ID, domain, or bank
 - Publishing under the portfolio's public name (store listing, npm publish,
   production domain) — building the artifact privately is always allowed
 - Enabling unattended automation that spends paid API budget
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
 `python3 portfolio/ledger/decision_queue.py` lists owner decisions already
 queued. Do not add duplicate asks. Do not expand the queue with items that
-do not block shipping.
+do not block shipping. Do not add "should we merge this product PR?"
 
 If a prior verification exists, run
 `python3 portfolio/ledger/verification_status.py` before re-running tests —
@@ -77,8 +83,11 @@ do not re-verify unchanged PRs.
 Screening is done — see `portfolio/pipeline/README.md`. Do not produce another
 candidate list. Either:
 
-1. Build a `build-now` candidate (`session_gate.py` names the top one), or
-2. Graduate and build a new niche not in `screened-out.md`.
+1. Deploy a product that is already on `main` and still has no public URL, or
+2. Build a `build-now` candidate (`session_gate.py` names the top one), or
+3. Graduate and build a new niche not in `screened-out.md`.
+
+(1) comes first while `publish_surface.py` reports nothing live.
 
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture.
@@ -115,6 +124,45 @@ Exit 1 prints the lines the close would destroy. The rule above covers a
 survivor that is *another PR*; this covers a survivor that is *`main`
 itself*, which is the claim that has actually been wrong.
 
+Exit 0 now comes from either of two proofs, and the report names which:
+the original line scan, or an **identical-merge proof** — replaying the
+branch on `main` with `main` winning every conflict produces `main`'s tree
+exactly. The second exists because the first went silent: on 2026-08-27 it
+said NOT SUPERSEDED for 65 of 66 open PRs, none of which were mergeable
+either, because `main` keeps absorbing the same feature from a sibling
+branch under a different filename. A gate that never opens is a gate
+nobody uses.
+
+A **NOT SUPERSEDED** verdict may now carry a **RENAME SUSPECTED** section.
+It fires when most of a file's unmatched lines have a close twin already in
+`main` under different identifiers, and it prints each pair with the file
+the twin lives in:
+
+```
+  branch  export function largestCostComponent(result) {
+  base    export function largestCostDriver(result) {
+          ↳ ventures/3pl-quote-normalizer/calc.mjs  (85% alike)
+```
+
+This is the case neither proof above catches: the branch spells the feature
+`largestCostComponent`, `main` spells it `largestCostDriver`, so no line
+matches and no merge replay is clean, yet the work is shipped. Merging such
+a branch adds a second button, a second storage key, or a weaker copy of a
+live function.
+
+**It does not license a close, and the exit code stays 1.** Similarity is
+evidence to read, not a verdict: the one word that differs between two
+93%-alike lines can be the fix the branch exists to make. Read the pairs.
+If they are the same feature, close naming the *twin's file* — the rename
+report is what you looked at, not what decided it. If the branch changes
+what the twin does, that difference is the work and it still has to merge.
+
+**Your clone is shallow.** `git fetch --unshallow` before any of this.
+Without it there is no merge base with `main`, so `git merge` refuses with
+"unrelated histories" and `git diff origin/main <branch>` reports thousands
+of files. That is the clone, not the branch — do not read it as a conflict
+or as a reason to close anything.
+
 On 2026-08-24 between 17:24 and 17:25, two sessions closed finished,
 tested features minutes apart — #1006 ("superseded by the merged eBay
 calculator follow-up work") and #1016 ("already represented on main"). In
@@ -150,6 +198,27 @@ agent-permission-harness checks are failing" when neither check had ever
 run on it. If a PR shows no checks, verify locally (`node --test`, the
 venture's suite, a browser pass) and record what you ran; do not read the
 blank as a failure.
+
+**And while the runner outage lasts, red CI is not failed CI either.** Since
+2026-08-26 every workflow in the repo fails without a runner, so checks now
+arrive *red* rather than absent — which reads very differently and is the
+easier mistake. On 2026-08-27 four PRs verified green locally each came back
+with `validate`, `check`, `test`, `build`, `site-test` and `page-integrity`
+failing; so did the merge of #1849, the commit that queued the outage itself,
+and every other session's merge that hour.
+
+Tell them apart in one call, before you debug anything:
+
+```
+python3 -c "import json,subprocess;                                        \
+  j=json.loads(subprocess.run(['gh','api','repos/{owner}/{repo}/actions/jobs/<job_id>'], \
+  capture_output=True,text=True).stdout); print(j['started_at'], j['completed_at'])"
+```
+
+An outage job runs **3-6 seconds**, has empty `output.title/summary/text`, and
+404s on log download. A real `Portfolio validate` installs Python and Node and
+runs 36 steps; it cannot finish in five seconds. If you see that signature,
+the failure is not yours: verify locally and say so, do not "fix" green code.
 
 ## Ledger (minimal)
 
