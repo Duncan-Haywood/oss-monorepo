@@ -3512,3 +3512,16 @@ products:
           current main. Distinct from the no-show fee calculator: this sets
           the commitment before booking. Public URL remains owner-gated;
           usage is opt-out and honors DNT/GPC. Baseline row.
+  - slug: sponsor-ready
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          scan_completed: 0
+          summary_copied: 0
+        note: >-
+          Salvage of unique closed #922 GitHub Sponsors readiness checklist
+          onto current main. Distinct from grant-deadline-tracker and
+          grant-reporting-tracker. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.
