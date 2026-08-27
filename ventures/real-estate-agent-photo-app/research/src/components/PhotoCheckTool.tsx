@@ -27,7 +27,7 @@ function markdownCell(value: string): string {
   return value.replaceAll("|", "\\|").replaceAll("\n", " ");
 }
 
-function buildReportMarkdown(run: RunSummary): string {
+export function reportMarkdown(run: RunSummary): string {
   const findingCount = run.reports.reduce((count, report) => count + report.findings.length, 0);
   const blockingCount = run.reports.reduce(
     (count, report) => count + report.findings.filter((finding) => finding.severity === "blocking").length,
@@ -58,6 +58,9 @@ function buildReportMarkdown(run: RunSummary): string {
     "| --- | --- | --- | --- |",
     ...rows,
     "",
+    ...(run.skipped.length > 0
+      ? ["## Skipped files", "", ...run.skipped.map((name) => `- ${markdownCell(name)}`), ""]
+      : []),
     "## Scope and limitations",
     "",
     `This record checks file headers and filenames only: format, byte size, long edge, aspect ratio, branding/watermark filename tokens, and staged-photo pairing. It does not check ${UNIMPLEMENTED_RULES.join(", ")}. Those require a human review or the specific MLS board's rules.`,
@@ -227,7 +230,7 @@ export function PhotoCheckTool() {
 
   function downloadReport() {
     if (!run) return;
-    const blob = new Blob([buildReportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
+    const blob = new Blob([reportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
