@@ -249,6 +249,50 @@ export function restoreMismatch(savedIds, formIds) {
 }
 
 /**
+ * Say so in the structured data.
+ *
+ * `featureList` is the machine-readable list of what a tool does — what a
+ * search engine and an answer engine read when someone asks for something that
+ * keeps a contractor's quotes. #1894 is the precedent and the warning: the
+ * customer proposal shipped on 100 calculators and named itself in none of
+ * them, so the portfolio's largest feature was invisible to the only channel
+ * that brings these tools traffic. This one ships on more pages than that and
+ * would have repeated it.
+ *
+ * One phrase, appended to the list already there.
+ */
+export const SAVED_BIDS_CLAUSE = 'saved bids you can name, reopen and reprice';
+
+/**
+ * Both spellings, because the repo uses both — a strict match on
+ * `"featureList":"` reported 37 calculators as having no feature list at all
+ * (#1894). The value is matched with `(?:[^"\\]|\\.)*` so an escaped quote
+ * inside the list does not end it early.
+ */
+const FEATURE_LIST_RE = /("featureList"\s*:\s*")((?:[^"\\]|\\.)*)(")/;
+
+/**
+ * Append the clause to a page's feature list.
+ *
+ * Returns the html unchanged when the page carries no `featureList` — 30 of the
+ * venture entry pages do not, and inventing a JSON-LD node for them is not this
+ * function's business — and when the clause is already there, so the pass is
+ * safe to run twice.
+ *
+ * Called only from `injectSavedBids`, and only once the band is known to be
+ * going in. That coupling is the point: the claim and the feature ship in the
+ * same statement, so a page can never advertise saved bids it does not have.
+ * It is the reverse-direction guard #1894 had to add as a separate test.
+ */
+export function addSavedBidsClause(html) {
+  if (typeof html !== 'string') return html;
+  if (html.includes(SAVED_BIDS_CLAUSE)) return html;
+  return html.replace(FEATURE_LIST_RE, (match, open, list, close) =>
+    list.trim() === '' ? match : `${open}${list}, ${SAVED_BIDS_CLAUSE}${close}`,
+  );
+}
+
+/**
  * Scoped under `.pf-jobs`, and — like the chrome and the shop-rates bar — it
  * takes its colours from the host page rather than from the operating system.
  * Most ventures here are deliberately light-only and carry no
@@ -629,9 +673,12 @@ export function injectSavedBids(html, slug = '') {
   const bodyOpen = html.match(/<body[^>]*>/i);
   if (!bodyOpen || !/<\/body>/i.test(html)) return html;
 
-  const withStyle = html.replace(/<\/head>/i, `${JOBS_STYLE}\n</head>`);
+  // The claim goes in with the feature, never on its own. See the clause above.
+  const declared = addSavedBidsClause(html);
+
+  const withStyle = declared.replace(/<\/head>/i, `${JOBS_STYLE}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
-  const stylePrefix = withStyle === html ? `${JOBS_STYLE}\n` : '';
+  const stylePrefix = withStyle === declared ? `${JOBS_STYLE}\n` : '';
 
   const rates = withStyle.match(/<section class="pf-rates"[\s\S]*?<\/section>/i);
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);

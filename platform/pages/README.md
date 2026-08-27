@@ -282,6 +282,23 @@ re-priced without the tear-off. The band is `display:none` in print — it lists
 customer names and street addresses, and the proposal sheet exists so a
 homeowner receives their own price and nothing else.
 
+**The feature names itself in the structured data.** `featureList` is what a
+search engine and an answer engine read when someone asks for something that
+keeps a contractor's quotes, and #1894 is the precedent: the customer proposal
+shipped on 100 calculators naming itself in none of them, so the portfolio's
+largest feature was invisible to the only channel that brings these tools
+traffic. `addSavedBidsClause` appends one phrase, and it is called *from*
+`injectSavedBids` once the band is known to be going in — so the claim and the
+feature ship in the same statement and a page can never advertise saved bids it
+does not have. That coupling replaces the separate reverse-direction test the
+proposal needed. 196 pages declare it; the 38 that carry the band without a
+`featureList` are skipped rather than given a JSON-LD node they never had.
+
+Two shapes to know before scripting against this data, both of which produced a
+false reading for #1894: the repo uses both `"featureList":"…"` and
+`"featureList": "…"`, and `ev-charger` nests its node under `@graph`. Match on
+`"featureList"\s*:\s*"` and walk the parsed tree.
+
 Counting is the same convention: `saved_bids_opened`, `bid_saved`,
 `bid_restored`, `bid_deleted` and `bid_restore_refused` in
 `portfolio-hub-usage`, local only, silent under DNT/GPC and the site-wide
