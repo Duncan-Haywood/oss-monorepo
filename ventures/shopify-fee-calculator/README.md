@@ -206,8 +206,10 @@ inputs and run it yourself.
 Everything runs in your browser. Your prices, costs, and shop data are never
 uploaded. There are no accounts, cookies, tracking pixels, or analytics
 vendors. The optional local counter records only the event name and day in your
-browser; it never records the inputs. Turn it off with the checkbox in the
-footer, or your browser's Do Not Track / Global Privacy Control setting.
+browser; it never records the inputs — including `handoff_opened`, which says
+an item arrived from the channel comparison and nothing about what it was. Turn
+it off with the checkbox in the footer, or your browser's Do Not Track / Global
+Privacy Control setting.
 
 The page can copy a private share link containing the current numeric inputs and
 payment path, or copy a text order summary for a partner or spreadsheet. The
@@ -215,6 +217,29 @@ link is encoded in the URL and is never sent to this project; do not put
 sensitive information in calculator fields because URLs may be retained by
 browser history or messaging tools. Sharing and summary-copy events are counted
 locally without recording the calculation values.
+
+## Arriving from the channel comparison
+
+[`where-to-sell-calculator`](../where-to-sell-calculator/) puts one item through
+eBay, Etsy, Amazon, an own store and a direct sale, and then offers **"keep
+going with this item"** into whichever channel's own calculator goes deeper.
+Following the own-store link fills in the price, what you paid, both postage
+figures, packaging and your monthly order count — and leaves everything else at
+this page's starting figures. **Check the plan and the payment rates against
+your own Shopify billing before trusting the result.**
+
+Monthly order count travels because the Shopify plan is a monthly fee, and
+amortising it over real order volume is the reason an own store can win on fees
+and lose on cash. Arriving without it would price the plan against this page's
+example order count rather than yours.
+
+Two link shapes therefore reach this page, and they behave differently on
+purpose. A **share link** is one token carrying the whole scenario: it decodes
+completely or it is refused, so whoever opens it sees exactly what the sender
+saw. A **handoff link** carries only what the other calculator knew, fills that
+in, and leaves the rest alone — refusing it would leave the comparison's
+own-store row with no way through, which is where it was before. A link that is
+truncated or mangled falls back to this page's example numbers and says so.
 
 ## Support
 

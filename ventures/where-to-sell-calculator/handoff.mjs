@@ -85,6 +85,31 @@ export const HANDOFFS = [
       otherCost: 'otherCost',
     },
   },
+  {
+    channel: 'own-store',
+    slug: 'shopify-fee-calculator',
+    label: 'Shopify fee & profit calculator',
+    // What it adds: the question this page cannot ask, which is *which
+    // processor*. An own store has no marketplace commission, so the whole
+    // decision is Shopify Payments against PayPal or Stripe — and Shopify
+    // charges an extra third-party transaction fee on top of the outside
+    // processor's own rate, which generic fee pages leave out. Plus promos,
+    // Shop Pay Installments, shipping labels, POS, refunds and chargebacks.
+    //
+    // `monthlyOrders` travels because the Shopify plan is a monthly fee, and
+    // amortising it is the whole reason an own store can win on fees and lose
+    // on cash. Arriving without it would price the plan against this page's
+    // default order count rather than the seller's.
+    fields: {
+      price: 'price',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'costOfGoods',
+      packagingCost: 'packagingCost',
+      otherCost: 'otherCost',
+      monthlyOrders: 'monthlyOrders',
+    },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);

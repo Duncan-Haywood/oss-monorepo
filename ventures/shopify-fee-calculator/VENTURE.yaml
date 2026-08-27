@@ -15,6 +15,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: A merchant who has just seen an own store win the cross-channel comparison will read the Shopify Payments versus PayPal/Stripe split when the item carries over, and will not if it means retyping the order — so the handoff, not the depth of this page, decides whether its scenarios are used.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
