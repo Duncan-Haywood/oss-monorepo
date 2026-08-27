@@ -67,6 +67,8 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /free shipping vs charged shipping comparison/i);
   assert.match(featureList[1], /listing auto-renew allocation/i);
   assert.match(markup, /listing-renewal\.html/);
+  assert.match(markup, /what-price-keeps-this-etsy-profit\.html/);
+  assert.match(markup, /id="target-profit"/);
   assert.match(markup, /id="plusTable"/);
   assert.match(markup, /id="listingsPerMonth"/);
   assert.match(markup, /id="monthlyPlusFee"/);
