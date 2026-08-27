@@ -1,0 +1,32 @@
+name: tuckpointing-bid-calculator
+description: A private browser calculator for masonry contractors that prices tuckpointing from wall area, grind-versus-smear, scaffold versus swing stage, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent masonry contractors will use a joint-and-access bid calculator because the generic "$8 / sq ft tuckpointing special" they are shopped on cannot see that a ground-level Type N smear of a ranch veneer is a different job from a three-story historic lime grind with a swing stage, lintels, and cut-and-replace brick.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published smear dump) are the two figures a mason actually decides on when an owner asks them to match a cheaper ground-level quote on a grind-and-scaffold job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing smear, grind-and-point, and rebuild on the same wall, with scaffold hours and mortar chemistry, changes the bid enough that masons notice which method keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified masonry contractors use the calculator twice within 90 days.
+  - Masons report that splitting grind, access, and extras is more work than their existing per-foot method without changing the price they would have bid.
+  - The starting hours and mortar rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
