@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readRecords, reconcile } from '../src/reconcile.mjs';
+import { readRecords, reconcile, explanation } from '../src/reconcile.mjs';
 
 const csv = `date,net\n2026-08-20,100.00\n2026-08-21,25.50`;
 test('normalizes common CSV headers and matches within settlement tolerance', () => {
@@ -27,4 +27,77 @@ test('matches a payout split across multiple bank deposits', () => {
   assert.equal(result[0].status, 'matched');
   assert.equal(result[0].deposits.length, 2);
   assert.equal(result[0].deposits.reduce((sum, deposit) => sum + deposit.cents, 0), 10000);
+});
+
+test('names a processor fee as the likely cause of a near-miss exception', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  // 2.9% + 30c is the shape of a card-processor deduction.
+  const deposits = readRecords('date,amount\n2026-08-21,96.80', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint.difference, 320);
+  assert.equal(payoutRow.hint.feeLike, true);
+  assert.match(explanation(payoutRow), /deposit is 3\.20 \(3\.20%\) short — consistent with a processor fee/);
+  // The deposit half of the pair carries the same hint, so the operator sees
+  // the explanation whichever row they are looking at.
+  const depositRow = result.find(row => row.status === 'unmatched deposit');
+  assert.equal(depositRow.hint, payoutRow.hint);
+  // The deposit row has no payout date of its own, so the sentence has to name
+  // both sides. Phrased as "this payout" it pointed at an empty table cell.
+  assert.match(explanation(depositRow), /^Payout 2026-08-20 pairs with deposit 2026-08-21:/);
+  assert.equal(explanation(depositRow), explanation(payoutRow));
+});
+
+test('refuses to call a large shortfall a fee, and still reports the gap', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-21,40.00', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint.difference, 6000);
+  assert.equal(payoutRow.hint.feeLike, false);
+  assert.match(explanation(payoutRow), /verify against the processor statement/);
+});
+
+test('a deposit larger than its payout is never read as a fee', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-21,102.00', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint.feeLike, false);
+  assert.match(explanation(payoutRow), /deposit is 2\.00 \(2\.00%\) over/);
+});
+
+test('does not pair a deposit outside the date tolerance', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-09-30,96.80', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint, undefined);
+  assert.equal(explanation(payoutRow), '');
+});
+
+test('offers one deposit as the explanation for only one payout', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-21,96.80', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const hinted = result.filter(row => row.status === 'unmatched payout' && row.hint);
+  assert.equal(hinted.length, 1);
+});
+
+test('prefers the closest amount over the closest date', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  // The 2026-08-20 deposit is the same day but far off; the next day is a cent away.
+  const deposits = readRecords('date,amount\n2026-08-20,10.00\n2026-08-21,99.99', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint.deposit.date, '2026-08-21');
+  assert.equal(payoutRow.hint.difference, 1);
+});
+
+test('matched rows carry no explanation', () => {
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-21,100.00', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  assert.equal(result[0].status, 'matched');
+  assert.equal(explanation(result[0]), '');
 });
