@@ -167,6 +167,26 @@ drop each new one into the catch-all within a week. Two consequences:
   to "More trade bids", and `build.test.mjs` fails when anything lands there.
   The fix is a keyword; the test is how anyone finds out one is needed.
 
+### The contents index
+
+Grouping alone does not shorten the page. The hub is **36,400px — 43 screens —
+at 390px wide**, and the trades section spans 28 of them: the only route to
+"Compliance checks" was scrolling past every trade card above it, and the only
+alternative was a search box that needs the visitor to already know the tool's
+name. The person reading this is often a contractor standing on a job site.
+
+So the hub carries a contents index under the search box, listing every section
+and every trade family with its count — the whole catalogue's shape in about
+500px on a phone. It is **plain in-page anchors**, so it works before the script
+runs and for a visitor who blocks it; `build.test.mjs` asserts every fragment
+resolves to a real element id, because a stale anchor fails silently. It hides
+while a search is active: its counts are of the whole catalogue, and leaving it
+over a filtered page would state a number the page below contradicts.
+
+It uses CSS multi-column rather than grid. One section holds eight sub-groups
+and the rest hold none, and grid sizes every cell in a row to the tallest, which
+left four columns of white space beside trades.
+
 Categories are also what `relatedTools` and the machine surfaces read, so a
 mis-filed tool is not only badly placed on the hub — it is offered to the wrong
 visitor at the foot of every sibling page, and described to assistants under the

@@ -740,7 +740,7 @@ ${items.map((surface) => renderCard(surface, 3)).join('\n')}
         </ul>`
         : subgroups
             .map(
-              ({ subcategory, items: subItems }) => `        <section class="subgroup" data-subgroup="${subcategory.id}">
+              ({ subcategory, items: subItems }) => `        <section class="subgroup" id="${subcategory.id}" data-subgroup="${subcategory.id}">
           <h3>${escapeHtml(subcategory.title)} <span class="subgroup-count">${subItems.length}</span></h3>
           <ul class="cards">
 ${subItems.map((surface) => renderCard(surface, 4)).join('\n')}
@@ -750,13 +750,43 @@ ${subItems.map((surface) => renderCard(surface, 4)).join('\n')}
             .join('\n');
 
       return `
-      <section class="group" data-group="${category.id}">
+      <section class="group" id="${category.id}" data-group="${category.id}">
         <h2>${escapeHtml(category.title)}</h2>
         <p class="group-blurb">${escapeHtml(category.blurb)}</p>
 ${body}
       </section>`;
     })
     .join('\n');
+
+  // A contents index, because the hub is 43 screens tall on a phone and a
+  // contractor reading it is often standing on a job site. Without this, the
+  // only route to "Compliance checks" is scrolling past 28 screens of trade
+  // cards, and the only alternative is a search box that needs the visitor to
+  // already know what the tool is called.
+  //
+  // Plain in-page anchors, so it works before — and without — the script.
+  const contents = `
+    <nav class="contents" id="contents" aria-label="Jump to a section">
+${groups
+  .map(({ category, items }) => {
+    const subgroups = groupBySubcategory(category.id, items).filter((g) => g.subcategory);
+    const children = subgroups.length
+      ? `
+        <ul>
+${subgroups
+  .map(
+    ({ subcategory, items: subItems }) =>
+      `          <li><a href="#${subcategory.id}">${escapeHtml(subcategory.title)} <span>${subItems.length}</span></a></li>`,
+  )
+  .join('\n')}
+        </ul>`
+      : '';
+    return `      <div class="contents-group">
+        <a class="contents-top" href="#${category.id}">${escapeHtml(category.title)} <span>${items.length}</span></a>${children}
+      </div>`;
+  })
+  .join('\n')}
+    </nav>`;
 
   return `<!doctype html>
 <html lang="en">
@@ -801,6 +831,26 @@ ${body}
                     border: 1px solid var(--line); border-radius: 9px;
                     background: var(--panel); color: var(--ink); }
     .count { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
+    /* Multi-column rather than grid: one section holds eight sub-groups and the
+       rest hold none, and grid would size every cell in the row to that tallest
+       one, leaving four columns of white space beside it. Columns just flow. */
+    .contents { margin-top: 26px; padding: 16px 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px;
+                columns: 210px; column-gap: 22px; }
+    .contents[hidden] { display: none; }
+    .contents-group { break-inside: avoid; margin: 0 0 14px; }
+    .contents ul { list-style: none; margin: 6px 0 0; padding: 0; }
+    .contents li { margin-top: 2px; }
+    .contents a { color: inherit; text-decoration: none; display: block;
+                  padding: 3px 0; font-size: .88rem; line-height: 1.35; }
+    .contents a:hover, .contents a:focus-visible { color: var(--accent); text-decoration: underline; }
+    .contents .contents-top { font-weight: 700; font-size: .93rem; }
+    .contents li a { color: var(--muted); padding-left: 10px;
+                     border-left: 1px solid var(--line); }
+    .contents span { font-weight: 600; opacity: .65; }
+    /* Anchor targets clear the section heading of the viewport edge, so a jump
+       lands on the heading rather than on its first row of cards. */
+    .group, .subgroup { scroll-margin-top: 14px; }
     .group { margin-top: 38px; }
     .group h2 { font-size: 1.3rem; margin: 0 0 4px; letter-spacing: -.02em; }
     .group-blurb { color: var(--muted); margin: 0 0 16px; font-size: .95rem; line-height: 1.5; }
@@ -872,6 +922,8 @@ ${body}
       <p class="count" id="count"></p>
     </div>
 
+${contents}
+
     <!-- Filled in by script from counts held on this device; a visitor with no
          history, no storage, or an opt-out never sees it. -->
     <section class="yours" id="yours" hidden>
@@ -918,6 +970,7 @@ ${DISCLAIMER_HTML}
     const q = document.getElementById('q');
     const count = document.getElementById('count');
     const empty = document.getElementById('empty');
+    const contents = document.getElementById('contents');
     const cards = [...document.querySelectorAll('.card')];
     // Sub-groups and their parent sections both empty out on a query. Each is
     // decided from its own descendant cards, so one flat list covers both and
@@ -962,6 +1015,10 @@ ${DISCLAIMER_HTML}
       }
       empty.style.display = shown === 0 ? 'block' : 'none';
       count.textContent = words.length ? shown + ' of ' + total + ' tools' : total + ' tools';
+      // The contents index answers "where is my section"; a query has already
+      // answered it. Leaving it up would also lie, since its counts are of the
+      // whole catalogue and the page below is filtered.
+      if (contents) contents.hidden = words.length > 0;
     }
     q.addEventListener('input', filter);
     filter();
