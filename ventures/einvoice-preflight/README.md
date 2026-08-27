@@ -28,8 +28,10 @@ cd ventures/einvoice-preflight
 # (INV-039 through INV-041), invoice period start/end
 # (INV-042 and INV-043), and payment means vs IBAN
 # (INV-044 through INV-046), buyer / purchase-order
-# references (INV-047 through INV-049), and header
-# allowances or charges (INV-050 through INV-052).
+# references (INV-047 through INV-049), header
+# allowances or charges (INV-050 through INV-052),
+# and payment terms days vs due date
+# (INV-053 and INV-054).
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
@@ -225,6 +227,19 @@ and optional `TaxCategory/ID` as `tax_category`).
 earlier than `issue_date`; this is a date-shape and document-consistency check,
 not a judgment about payment terms or legal requirements. UBL `DueDate` is
 mapped into the same optional field.
+
+`payment.terms_days` is optional. When supplied it is a positive whole number
+of days (Net-N). An empty or non-integer value is `INV-053`. When both
+`issue_date` and `due_date` are present ISO dates, a due date that is not
+issue date plus those days is `INV-054`. Terms without a due date stay
+clean — the due date is not required just because terms are named.
+Omitted terms stay clean. Messages never repeat party or account data.
+The expected due date may appear in the fix. This is arithmetic, not a
+Peppol profile determination and not a claim that the buyer must pay by
+that date. UBL `PaymentTerms/SettlementPeriod/DurationMeasure` with
+`unitCode="DAY"` maps into `payment.terms_days`. CII
+`SpecifiedTradePaymentTerms/SpecifiedPeriod/DurationMeasure` with the
+same unit maps the same way.
 
 `buyer_reference` and `order_reference` are optional (EN 16931 BT-10 /
 BT-13). When supplied they must be non-empty text, not a placeholder such

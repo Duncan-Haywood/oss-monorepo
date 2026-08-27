@@ -526,9 +526,26 @@ def _parse_cii_totals(settlement: Any) -> dict[str, Any]:
     }
 
 
+def _cii_terms_days(settlement: Any) -> str | None:
+    """Map SpecifiedTradePaymentTerms duration in days when unitCode is DAY."""
+    if settlement is None:
+        return None
+    terms = settlement.find(f"{{{RAM}}}SpecifiedTradePaymentTerms")
+    if terms is None:
+        return None
+    period = terms.find(f"{{{RAM}}}SpecifiedPeriod")
+    search = period if period is not None else terms
+    for measure in search.findall(f"{{{RAM}}}DurationMeasure"):
+        unit = (measure.get("unitCode") or "").strip().upper()
+        value = (measure.text or "").strip()
+        if value and unit in {"DAY", "D"}:
+            return value
+    return None
+
+
 def _parse_cii_payment(settlement: Any) -> dict[str, Any]:
     means = None if settlement is None else settlement.find(f"{{{RAM}}}SpecifiedTradeSettlementPaymentMeans")
-    return {
+    payment = {
         "means_code": _text(means, f"{{{RAM}}}TypeCode"),
         "account": _first(
             _text(means, f"{{{RAM}}}PayeePartyCreditorFinancialAccount", f"{{{RAM}}}IBANID"),
@@ -537,6 +554,10 @@ def _parse_cii_payment(settlement: Any) -> dict[str, Any]:
         "remittance": _text(settlement, f"{{{RAM}}}PaymentReference"),
         "terms": _text(settlement, f"{{{RAM}}}SpecifiedTradePaymentTerms", f"{{{RAM}}}Description"),
     }
+    terms_days = _cii_terms_days(settlement)
+    if terms_days:
+        payment["terms_days"] = terms_days
+    return payment
 
 
 def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
@@ -634,6 +655,8 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
         payment["means_code"] = payment_src["means_code"]
     if payment_src.get("remittance"):
         payment["remittance"] = payment_src["remittance"]
+    if payment_src.get("terms_days"):
+        payment["terms_days"] = payment_src["terms_days"]
     if payment:
         invoice["payment"] = payment
     return invoice
