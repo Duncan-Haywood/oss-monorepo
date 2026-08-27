@@ -24,6 +24,8 @@ python3 src/quote_margin.py examples/website-redesign.json --format markdown
 python3 src/quote_margin.py examples/website-redesign.json --format csv > quote-review.csv
 # Compare every proposal JSON in a folder
 python3 src/quote_margin.py proposals/ --batch --format csv > quote-comparison.csv
+# Which of those quotes stop clearing the target if the work runs long?
+python3 src/quote_margin.py proposals/ --batch --format json > quote-review.json
 ```
 
 The report distinguishes the customer's inputs from derived arithmetic. It does
@@ -56,6 +58,34 @@ and are never uploaded. Downloading or opening a file records anonymous
 `draft_exported` / `draft_imported` events locally.
 Batch CSV emits one comparison row per filename, making a folder of recurring
 proposal reviews easy to sort and filter without exposing the proposal data.
+
+### The what-if tables in the CLI
+
+Time overrun, direct-cost rises, discount asks, the price ladder, and fixed
+vs hourly used to be browser-only: a folder of quotes checked from a script
+got a strictly smaller answer than one quote typed into the page. All five
+now appear in every CLI format, computed by the same arithmetic as
+`site/calc.mjs` (`tests/test_quote_margin.py` runs both implementations on
+one quote and compares every field, so the two surfaces cannot drift apart).
+
+- `--format markdown` adds a section per table, each stating what it holds
+  fixed.
+- `--format json` adds `overrun_scenarios`, `direct_cost_spikes`,
+  `discount_asks`, `target_rate_ladder`, and `billing_models`, plus
+  `survives_overrun_percent`. `--batch --format json` includes them per quote.
+- `--format csv` adds `measure,value,unit` rows for the overrun and cost-rise
+  breakpoints.
+
+`survives_overrun_percent` is the largest listed overrun (10, 25, or 50) at
+which the quote still reaches the supplied target. `0` means only the planned
+hours hold; an empty value means the quote is already below target at planned
+hours, where running long is not what went wrong. Batch CSV carries it and
+`gap_to_target_at_plus_25_percent_hours` as columns, so a folder of quotes can
+be sorted by which ones stop clearing the target first if the work runs long.
+
+Every one of these is arithmetic on the supplied inputs. None is a forecast of
+delivery time, of costs, or of what a client will accept, and none is a
+recommendation about what to charge.
 When a quote clears the supplied target, `discount_room` shows the arithmetic
 amount by which the quote could be reduced before reaching that target. A zero
 value means the quote is already at or below target; it is a boundary check, not

@@ -290,6 +290,21 @@ products:
           owner-gated, so there is no traffic signal to read yet; the
           page's counter reports only to the visitor's own browser.
           Baseline row for the browser surface.
+      - as_of: 2026-08-27
+        signals:
+          report_generated_events: 0
+          batch_report_generated_events: 0
+        note: >-
+          Brought the CLI to parity with the browser: time overrun,
+          direct-cost rises, discount asks, the price ladder, and fixed
+          vs hourly now appear in the markdown, JSON, and CSV reports,
+          and batch CSV gained a survives_overrun_percent column so a
+          folder of quotes can be sorted by which stop clearing the
+          target first if the work runs long. A cross-implementation
+          test compares the Python and site/calc.mjs tables field by
+          field. The --usage-log counter still records only the event
+          name, format, and timestamp -- never quote values -- and
+          remains opt-in per invocation.
   - slug: quote-margin-check
     surface: static-page-in-repo
     readings:

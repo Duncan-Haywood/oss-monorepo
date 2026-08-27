@@ -115,6 +115,85 @@ def discount_ask_scenarios(
     return rows
 
 
+def overrun_scenarios(
+    quote: Quote,
+    result: dict[str, float],
+    percentages: tuple[int, ...] = (10, 25, 50),
+) -> list[dict[str, float]]:
+    """Same price and direct costs, more hours. Mirrors ``overrunScenarios``.
+
+    The quoted price is fixed, so every hour the job runs long comes out of the
+    effective rate. This is the arithmetic of a fixed quote running long, not a
+    forecast that it will.
+    """
+    rows = []
+    for percent in percentages:
+        hours = result["total_hours"] * (1 + percent / 100)
+        rows.append(
+            {
+                "percent": float(percent),
+                "total_hours": hours,
+                "effective_hourly_rate": (quote.price - result["direct_costs"]) / hours,
+                "gap_to_target": quote.price - (hours * quote.target_hourly_rate + result["direct_costs"]),
+            }
+        )
+    return rows
+
+
+def direct_cost_spike_scenarios(
+    quote: Quote,
+    result: dict[str, float],
+    percentages: tuple[int, ...] = (10, 25, 50),
+) -> list[dict[str, float]]:
+    """Same hours and price, higher overhead and subcontractor cost.
+
+    Mirrors ``directCostSpikeScenarios``. Complements ``overrun_scenarios``,
+    which moves time and holds costs fixed. The 0% row is the quote as entered
+    so a row can be read without referring back to ``result``.
+    """
+    percents = (0, *(percent for percent in percentages if percent != 0))
+    rows = []
+    for percent in percents:
+        direct_costs = result["direct_costs"] * (1 + percent / 100)
+        target_price = result["total_hours"] * quote.target_hourly_rate + direct_costs
+        gap_to_target = quote.price - target_price
+        rows.append(
+            {
+                "percent": float(percent),
+                "direct_costs": direct_costs,
+                "effective_hourly_rate": (quote.price - direct_costs) / result["total_hours"],
+                "target_price": target_price,
+                "gap_to_target": gap_to_target,
+                "extra_gap": gap_to_target - result["gap_to_target"],
+                "cost_coverage": quote.price - direct_costs,
+            }
+        )
+    return rows
+
+
+def target_rate_ladder(
+    quote: Quote,
+    result: dict[str, float],
+    rates: tuple[float, ...] = (50, 75, 100, 125),
+) -> list[dict[str, float]]:
+    """The quote each nearby hourly target would need, at the supplied hours.
+
+    Mirrors ``targetRateLadder``. A comparison of negotiation anchors against
+    the quote as entered — arithmetic only, not pricing advice.
+    """
+    rows = []
+    for rate in rates:
+        target_price = result["total_hours"] * rate + result["direct_costs"]
+        rows.append(
+            {
+                "hourly_rate": float(rate),
+                "target_price": target_price,
+                "difference_from_quote": target_price - quote.price,
+            }
+        )
+    return rows
+
+
 def compare_billing_models(
     quote: Quote,
     result: dict[str, float],
@@ -163,6 +242,44 @@ def billing_model_note(quote: Quote, result: dict[str, float]) -> str:
     )
 
 
+def sensitivity(quote: Quote, result: dict[str, float]) -> dict[str, list[dict[str, float | None]]]:
+    """Every what-if table the browser draws, in one payload.
+
+    The browser has long shown time overrun, direct-cost spikes, discount asks,
+    the price ladder, and fixed-vs-hourly side by side, while the CLI reported
+    only the base result. Someone checking a folder of quotes from a script was
+    getting a strictly smaller answer than someone typing one quote into the
+    page. Building all five here keeps the JSON, batch JSON, and Markdown
+    reports from drifting apart again.
+    """
+    return {
+        "overrun_scenarios": overrun_scenarios(quote, result),
+        "direct_cost_spikes": direct_cost_spike_scenarios(quote, result),
+        "discount_asks": discount_ask_scenarios(quote, result),
+        "target_rate_ladder": target_rate_ladder(quote, result),
+        "billing_models": compare_billing_models(quote, result),
+    }
+
+
+def survives_overrun_percent(quote: Quote, result: dict[str, float]) -> float | None:
+    """Largest listed overrun the quote still meets the supplied target at.
+
+    ``None`` when the quote misses the target at planned hours, because no
+    amount of running long fixes that. This is the one figure a spreadsheet
+    user sorting a folder of quotes actually filters on: which of these die
+    first if the work runs long.
+    """
+    if result["gap_to_target"] < 0:
+        return None
+    survived = 0.0
+    for row in overrun_scenarios(quote, result):
+        if row["gap_to_target"] >= 0:
+            survived = row["percent"]
+        else:
+            break
+    return survived
+
+
 def markdown(quote: Quote, result: dict[str, float]) -> str:
     status = "above target" if result["gap_to_target"] >= 0 else "below target"
     billing = compare_billing_models(quote, result)
@@ -199,6 +316,69 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         )
     lines.extend(
         [
+            "",
+            "## If the work runs long",
+            "",
+            "Quoted price and direct costs stay fixed; only hours move.",
+            "",
+            "| Extra time | Hours | Effective rate | Gap to target |",
+            "|---|---:|---:|---:|",
+        ]
+    )
+    for row in overrun_scenarios(quote, result):
+        lines.append(
+            f"| +{row['percent']:.0f}% | {row['total_hours']:.2f} | {quote.currency} {row['effective_hourly_rate']:.2f}/hour | {quote.currency} {row['gap_to_target']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## If direct costs rise before work starts",
+            "",
+            "Hours and the quoted price stay fixed; only overhead and subcontractor cost move.",
+            "",
+            "| Cost rise | Direct costs | Effective rate | Gap to target |",
+            "|---|---:|---:|---:|",
+        ]
+    )
+    for row in direct_cost_spike_scenarios(quote, result):
+        label = "as quoted" if row["percent"] == 0 else f"+{row['percent']:.0f}%"
+        lines.append(
+            f"| {label} | {quote.currency} {row['direct_costs']:.2f} | {quote.currency} {row['effective_hourly_rate']:.2f}/hour | {quote.currency} {row['gap_to_target']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## If the client asks for a discount",
+            "",
+            "Hours and direct costs stay fixed; only the quoted price moves. Hours to cut is the scope that would have to leave for the supplied target to still hold — blank when the discounted price no longer covers direct costs, which cutting scope cannot fix.",
+            "",
+            "| Discount | Price | Effective rate | Gap to target | Hours to cut |",
+            "|---|---:|---:|---:|---:|",
+        ]
+    )
+    for row in discount_ask_scenarios(quote, result):
+        label = "as quoted" if row["percent"] == 0 else f"-{row['percent']:.0f}%"
+        hours_to_cut = "—" if row["hours_to_cut"] is None else f"{row['hours_to_cut']:.2f}"
+        lines.append(
+            f"| {label} | {quote.currency} {row['discounted_price']:.2f} | {quote.currency} {row['effective_hourly_rate']:.2f}/hour | {quote.currency} {row['gap_to_target']:.2f} | {hours_to_cut} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## The same job at other hourly targets",
+            "",
+            "| Hourly target | Price it implies | Difference from this quote |",
+            "|---|---:|---:|",
+        ]
+    )
+    for row in target_rate_ladder(quote, result):
+        lines.append(
+            f"| {quote.currency} {row['hourly_rate']:.2f}/hour | {quote.currency} {row['target_price']:.2f} | {quote.currency} {row['difference_from_quote']:.2f} |"
+        )
+    lines.extend(
+        [
+            "",
+            "Every table above is an arithmetic what-if on the supplied inputs, not a forecast of delivery time, costs, or what a client will accept.",
             "",
             "This is a customer-supplied estimate, not tax, financial, or business advice. It does not certify profitability or account for every cost. Review the assumptions before using the result.",
         ]
@@ -245,16 +425,34 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
             ("hourly_minus_fixed_at_planned_hours", f"{result['target_price'] - quote.price:.2f}", currency),
         )
     )
+    # The sensitivity rows a spreadsheet user would otherwise have to rebuild
+    # by hand, one column per what-if, using the same measure/value/unit shape.
+    for row in overrun_scenarios(quote, result):
+        percent = f"{row['percent']:.0f}"
+        writer.writerow((f"effective_hourly_rate_at_plus_{percent}_percent_hours", f"{row['effective_hourly_rate']:.2f}", per_hour))
+        writer.writerow((f"gap_to_target_at_plus_{percent}_percent_hours", f"{row['gap_to_target']:.2f}", currency))
+    for row in direct_cost_spike_scenarios(quote, result):
+        if row["percent"] == 0:
+            continue
+        writer.writerow((f"gap_to_target_at_plus_{row['percent']:.0f}_percent_direct_costs", f"{row['gap_to_target']:.2f}", currency))
+    survives = survives_overrun_percent(quote, result)
+    writer.writerow(("survives_overrun_percent", "" if survives is None else f"{survives:.0f}", "percent"))
 
 
 def batch_csv_report(reports: list[tuple[str, Quote, dict[str, float]]]) -> None:
     """Write a comparison table for several quote files."""
     writer = csv.writer(sys.stdout, lineterminator="\n")
-    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "break_even_price", "effective_hourly_rate", "target_price", "gap_to_target"))
+    # `survives_overrun_percent` is the column that makes a folder of quotes
+    # sortable by the question the batch exists to answer: which of these stop
+    # meeting the target first if the work runs long. Blank means the quote
+    # already misses the target at planned hours.
+    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "break_even_price", "effective_hourly_rate", "target_price", "gap_to_target", "gap_to_target_at_plus_25_percent_hours", "survives_overrun_percent"))
     for name, quote, result in reports:
         # `name` is a filename from the scanned directory and `currency` is
         # typed into the quote file: both are free text reaching a spreadsheet.
-        writer.writerow((safe_text(name), safe_text(quote.currency), f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['break_even_price']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}"))
+        overrun_25 = next(row for row in overrun_scenarios(quote, result) if row["percent"] == 25)
+        survives = survives_overrun_percent(quote, result)
+        writer.writerow((safe_text(name), safe_text(quote.currency), f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['break_even_price']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}", f"{overrun_25['gap_to_target']:.2f}", "" if survives is None else f"{survives:.0f}"))
 
 
 def load_reports(directory: Path) -> list[tuple[str, Quote, dict[str, float]]]:
@@ -267,7 +465,9 @@ def load_reports(directory: Path) -> list[tuple[str, Quote, dict[str, float]]]:
     return reports
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    """Run the CLI. ``argv`` defaults to ``sys.argv[1:]`` so callers — tests
+    included — can invoke it without reassigning ``sys.argv``."""
     parser = argparse.ArgumentParser(
         description="Check a quote against a supplied hourly-rate target",
         epilog="No warranty. Arithmetic only, not tax, financial, or business advice. Review and verify every assumption before relying on this output.",
@@ -276,13 +476,13 @@ def main() -> int:
     parser.add_argument("--batch", action="store_true", help="read every .json quote in the input directory")
     parser.add_argument("--format", choices=("json", "markdown", "csv"), default="markdown")
     parser.add_argument("--usage-log", type=Path)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.batch:
         reports = load_reports(args.input)
         if args.format == "csv":
             batch_csv_report(reports)
         elif args.format == "json":
-            print(json.dumps({"reports": [{"file": name, "inputs": quote.__dict__, "result": result} for name, quote, result in reports], "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
+            print(json.dumps({"reports": [{"file": name, "inputs": quote.__dict__, "result": result, "survives_overrun_percent": survives_overrun_percent(quote, result), **sensitivity(quote, result)} for name, quote, result in reports], "disclaimer": "Arithmetic only; not tax, financial, or business advice. Every scenario is a what-if on the supplied inputs, not a forecast."}, indent=2))
         else:
             for index, (name, quote, result) in enumerate(reports):
                 if index:
@@ -292,7 +492,7 @@ def main() -> int:
         quote = load_quote(json.loads(args.input.read_text(encoding="utf-8")))
         result = calculate(quote)
         if args.format == "json":
-            print(json.dumps({"inputs": quote.__dict__, "result": result, "billing_models": compare_billing_models(quote, result), "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
+            print(json.dumps({"inputs": quote.__dict__, "result": result, "survives_overrun_percent": survives_overrun_percent(quote, result), **sensitivity(quote, result), "disclaimer": "Arithmetic only; not tax, financial, or business advice. Every scenario is a what-if on the supplied inputs, not a forecast."}, indent=2))
         elif args.format == "csv":
             csv_report(quote, result)
         else:
