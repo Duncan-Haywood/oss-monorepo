@@ -247,6 +247,22 @@ test('calculator surfaces compareKitting on the quote itself', async () => {
   assert.equal(cells.length, columns, "renderKitting emits a different cell count than the header row");
 });
 
+test('calculator surfaces compareAgedStorage on the quote itself', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /id="aged-storage"/);
+  assert.match(index, /compareAgedStorage/);
+  assert.match(index, /agedStorageSummary/);
+  assert.match(index, /id="agedRows"/);
+  assert.match(index, /aged_storage_compared/);
+  assert.match(index, /name="leftoverPallets"/);
+  assert.match(index, /name="longTermStoragePerPallet"/);
+  const agedTable = index.match(/<table id="agedTable">[\s\S]*?<\/table>/);
+  assert.ok(agedTable, "index.html is missing the aged-storage comparison table");
+  const columns = agedTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderAged[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderAged emits a different cell count than the header row");
+});
+
 test('inbound SEO page explains the container-fee arithmetic', async () => {
   const page = await readFile(new URL('./pallet-vs-carton-inbound.html', import.meta.url), 'utf8');
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');

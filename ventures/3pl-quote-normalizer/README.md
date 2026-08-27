@@ -24,7 +24,9 @@ Use [Does long-term storage flip a 3PL quote](./does-long-term-storage-flip-a-3p
 to put leftover pallets on the long-term storage line the signed card usually
 omits. That shows the monthly surcharge versus the quote as written, whether
 that aged path still beats in-house, and how many months of the hold eat a
-liquidation recovery.
+liquidation recovery. The main calculator runs the same
+`compareAgedStorage` math on the quote you just typed, so you do not leave
+the page to check leftover long-term storage.
 Use [Should I restock a 3PL return or let the customer keep it](./should-i-restock-or-let-the-customer-keep-a-3pl-return.html)
 to price a return that just arrived — restock sellable units, destroy the
 unit, or skip the label and let the customer keep it. That is a different
