@@ -39,9 +39,40 @@ test("copy action degrades gracefully when Clipboard API is unavailable", () => 
   assert.match(html, /Select the draft and copy it manually/);
 });
 
-test("packet download stays local and uses a safe filename", () => {
-  assert.match(html, /new Blob\(\[draft\.value\],\{type:'text\/plain;charset=utf-8'\}\)/);
-  assert.match(html, /order\.replace\(\/\[\^a-z0-9_\-\]\+\/gi,'-'\)/);
+test("reviewed packets can be downloaded locally", () => {
+  assert.match(html, /id="download"/);
+  assert.match(html, /new Blob\(\[content\]/);
   assert.match(html, /packet_downloaded/);
-  assert.match(html, /Review and redact it before sharing/);
+  assert.match(html, /URL\.createObjectURL/);
+  assert.match(html, /const orderId=.*replace\(/);
+  assert.match(html, /slice\(0,80\)/);
+});
+
+test("packet download stays local and uses a safe filename", () => {
+  assert.match(html, /new Blob\(\[content\],\{type:'text\/plain;charset=utf-8'\}\)/);
+  assert.match(html, /orderId=document\.querySelector\('#order'\)\.value\.trim\(\)\.replace\(\/\[\^a-zA-Z0-9_-\]\+\/g,'-'\)/);
+  assert.match(html, /packet_downloaded/);
+  assert.match(html, /Review reminder: This packet is a draft/);
+});
+
+test("packet export is local and records the reviewable packet fields", () => {
+  assert.match(html, /Download packet JSON/);
+  assert.match(html, /new Blob\(\[JSON\.stringify\(packet,null,2\)\]/);
+  assert.match(html, /packet_exported/);
+  assert.match(html, /orderDate:document\.querySelector\('#date'\)\.value/);
+  assert.match(html, /missingEvidence:missing\.map/);
+});
+
+test("optional sponsors and no-warranty are visible", () => {
+  assert.match(html, /GitHub Sponsors/);
+  assert.match(html, /No warranty/);
+});
+
+test("draft persistence is explicit and browser-local", () => {
+  assert.match(html, /id="save"/);
+  assert.match(html, /id="restore"/);
+  assert.match(html, /chargeback-packet-draft/);
+  assert.match(html, /draft_saved/);
+  assert.match(html, /draft_restored/);
+  assert.match(html, /only in this browser/);
 });
