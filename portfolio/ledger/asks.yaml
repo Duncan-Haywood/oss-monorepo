@@ -210,7 +210,8 @@ decisions:
     `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
     secrets as the way the portfolio goes live.
   unlocks:
-    - "**33 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes."
+    - "**161 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Was recorded as 33 until 2026-08-27; the portfolio grew ~5x since and the figure had not kept up, understating the payoff of this one flip.)"
+    - "Verified publishable on 2026-08-27, not merely assumed: `node platform/pages/build.mjs` produces 161 tools / 434 pages, and `node platform/pages/check.mjs dist` returns \"looks publishable: 161 products, 437 pages, no dead links\" (exit 0). Every inline script on every page parses, and all 446 pages pass the integrity sweep. There is no unfinished build work between this flip and a stranger using one of these tools."
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist. It no longer reads this variable: GitHub serves one Pages site per repo, so it moved to `RETAIL_PILOT_INTEL_PAGES` rather than racing the calculators for the origin."
   blocked_by: []
