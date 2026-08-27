@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flooring Bid Calculator | LVP Hardwood Tile Install Price</title>
+  <meta name="description" content="Price a flooring install from waste, tear-out, and stairs — not a flat dollar per square foot. See purchased material, kitchen tile demo hours, tread labor, and the walk-away price.">
+  <meta property="og:title" content="Flooring Bid Calculator">
+  <meta property="og:description" content="Bid the waste and the tear-out, not the room count. Purchased material, demo hours, stairs, and the number below which the job loses money.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Flooring Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Waste-adjusted purchased material, tear-out hours by room, stair tread labor, walk-away break-even price, price per square foot installed, effective hourly billing rate, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much waste should I add to an LVP flooring bid?","acceptedAnswer":{"@type":"Answer","text":"Straight-lay LVP commonly starts around 8% waste; diagonal or herringbone often needs 12% or more. Waste is extra material you buy, not extra floor the customer sees. This calculator applies your waste percent to purchased square footage and underlayment, then shows the dollars that waste actually costs."}},{"@type":"Question","name":"Why does a price per square foot underbid a kitchen or stairs?","acceptedAnswer":{"@type":"Answer","text":"Tear-out is a different job from the install. Ceramic tile demo can take more hours than laying new LVP in the same room. Stairs are priced per tread, not as hallway square footage. A blended $/sq ft on the finished floor cannot see either one."}},{"@type":"Question","name":"Is this a quote I can send a customer?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you enter — a draft to check against your own invoices, payroll, and a walk-through. Copy the bid summary, then verify every figure before you send a price."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .room-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 2fr) repeat(3, minmax(0, 0.9fr)) minmax(0, 1.5fr) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .room-row select, .room-row input { padding: 10px 7px; }
+    .room-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    .room-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #3b2414; color: #f8f3ee; border-color: #3b2414; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b06a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #8a4b12; }
+    .support { margin-top: 14px; }
+     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #f0d3a4; }
+    details.faq { margin-top: 8px; }
+    details.faq + details.faq { margin-top: 10px; }
+    details.faq summary { cursor: pointer; font-weight: 650; }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .room-head { display: none; }
+      .room-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .room-row label { font-size: .78rem; gap: 5px; }
+      .room-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .room-row label:first-child, .room-row label:nth-child(2), .room-row label:nth-child(6) { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR FLOORING INSTALLERS AND SMALL SHOPS</p>
+    <h1>Bid the waste and the tear-out, not the room count.</h1>
+    <p>Price a flooring install the way the job actually costs: purchased material after waste, demo hours that are not the same as install hours, and stairs by the tread. You get the job price, what it works out to per installed square foot and per labor hour, and the number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The rooms</h2>
+        <p class="hint">One row per room or floor type. Waste is extra material you buy — it is not extra floor the customer sees. Tear-out is a different job from the install; tile demo in a kitchen is why a flat $/sq ft on the living room underbids the house.</p>
+        <div class="room-row room-head" aria-hidden="true">
+          <span>Room</span><span>Material</span><span>Sq ft</span><span>Waste %</span><span>Sq ft / hour</span><span>Tear-out</span><span></span>
+        </div>
+        <div id="rooms"></div>
+        <button type="button" id="addRoom">+ Add a room</button>
+      </section>
+
+      <section>
+        <h2>Stairs, transitions, and prep</h2>
+        <p class="hint">Stairs are not hallway square footage. Thirteen treads can take as long as the kitchen. Transitions, furniture moves, leveling, and shoe moulding are the extras a walk-through finds and a room-count quote forgets.</p>
+        <div class="fields">
+          <label>Stair treads <input id="stairTreads" type="number" min="0" step="1" value="13"></label>
+          <label>Hours per tread <input id="hoursPerTread" type="number" min="0" step="0.05" value="0.4"></label>
+          <label>Material per tread <input id="stairMaterialEach" type="number" min="0" step="0.5" value="18"></label>
+          <label>Transitions (each) <input id="transitionCount" type="number" min="0" step="1" value="6"></label>
+          <label>Hours per transition <input id="hoursPerTransition" type="number" min="0" step="0.05" value="0.15"></label>
+          <label>Material per transition <input id="transitionMaterialEach" type="number" min="0" step="0.5" value="12"></label>
+          <label>Rooms to move furniture <input id="furnitureRooms" type="number" min="0" step="1" value="2"></label>
+          <label>Hours per furniture room <input id="hoursPerFurnitureRoom" type="number" min="0" step="0.1" value="0.75"></label>
+          <label>Leveling / patch sq ft <input id="levelingSqFt" type="number" min="0" step="10" value="80"></label>
+          <label>Leveling hours / 100 sq ft <input id="hoursPer100Leveling" type="number" min="0" step="0.1" value="0.8"></label>
+          <label>Leveling material / sq ft <input id="levelingMaterialPerSqFt" type="number" min="0" step="0.05" value="0.9"></label>
+          <label>Baseboard / shoe (linear ft) <input id="baseboardLf" type="number" min="0" step="1" value="140"></label>
+          <label>Hours / 100 linear ft <input id="hoursPer100Baseboard" type="number" min="0" step="0.1" value="1.2"></label>
+          <label>Baseboard material / ft <input id="baseboardMaterialPerLf" type="number" min="0" step="0.05" value="1.1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Flooring cost / purchased sq ft <input id="materialCostPerSqFt" type="number" min="0" step="0.05" value="2.40"></label>
+          <label>Underlayment / purchased sq ft <input id="underlaymentCostPerSqFt" type="number" min="0" step="0.05" value="0.35"></label>
+          <label>Installer hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="28"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Dump / disposal ticket <input id="dumpFee" type="number" min="0" step="1" value="85"></label>
+          <label>Travel / trip <input id="travelCost" type="number" min="0" step="1" value="40"></label>
+          <label>Other job cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="12"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 4800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Flooring cost is what <em>you</em> pay the supplier, applied to purchased square footage after waste. Payroll burden covers employer taxes, workers&rsquo; compensation, and paid time off &mdash; the part of a helper&rsquo;s cost that never shows up on their wage.</p>
+      </section>
+
+      <section>
+        <h2>Questions installers actually type</h2>
+        <details class="faq">
+          <summary>How much waste should I add to an LVP bid?</summary>
+          <p>Straight-lay LVP commonly starts around 8%. Diagonal or herringbone often needs 12% or more. Waste is extra material you buy, not extra floor the customer sees. Change the percent on each room; the bid shows the dollars that waste costs.</p>
+        </details>
+        <details class="faq">
+          <summary>Why does a price per square foot underbid a kitchen or stairs?</summary>
+          <p>Tear-out is a different job from the install. Ceramic tile demo can take more hours than laying new LVP in the same room. Stairs are priced per tread, not as hallway square footage. A blended $/sq ft on the finished floor cannot see either one.</p>
+        </details>
+        <details class="faq">
+          <summary>Is this a quote I can send a customer?</summary>
+          <p>No. It is arithmetic on the numbers you enter — a draft to check against your own invoices, payroll, and a walk-through. Copy the bid summary, then verify every figure before you send a price.</p>
+        </details>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Installed square feet</dt><dd id="installed"></dd>
+        <dt>Purchased square feet (with waste)</dt><dd id="purchased"></dd>
+        <dt>Waste material cost</dt><dd id="wasteCost"></dd>
+        <dt>Install hours</dt><dd id="installHours"></dd>
+        <dt>Tear-out hours</dt><dd id="tearoutHours"></dd>
+        <dt>Stair + extra hours</dt><dd id="extraHours"></dd>
+        <dt>Total labor hours</dt><dd id="laborHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Materials, dump, travel</dt><dd id="materials"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Job profit</dt><dd id="profit"></dd>
+        <dt>Price per installed sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="downloadSummary">Download .txt</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting waste and production figures are common ballpark numbers, not an industry standard, a benchmark, or a guarantee &mdash; replace them with your last few jobs.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and a walk-through, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rooms, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, MATERIAL_PRESETS, TEAROUT_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const COST_IDS = [
+      'materialCostPerSqFt','underlaymentCostPerSqFt','stairTreads','hoursPerTread','stairMaterialEach',
+      'transitionCount','hoursPerTransition','transitionMaterialEach','furnitureRooms','hoursPerFurnitureRoom',
+      'levelingSqFt','hoursPer100Leveling','levelingMaterialPerSqFt','baseboardLf','hoursPer100Baseboard',
+      'baseboardMaterialPerLf','hourlyWage','burdenRate','dumpFee','travelCost','otherCost','overheadRate',
+      'targetMargin','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const STARTING_ROOMS = [
+      { name: 'Living room', material: 'LVP / vinyl plank (straight lay)', squareFeet: 280, wastePct: 8, installSqFtPerHour: 80, tearout: 'Carpet and pad' },
+      { name: 'Kitchen', material: 'LVP / vinyl plank (straight lay)', squareFeet: 180, wastePct: 8, installSqFtPerHour: 80, tearout: 'Ceramic tile' },
+      { name: 'Hallway', material: 'LVP / vinyl plank (straight lay)', squareFeet: 64, wastePct: 8, installSqFtPerHour: 80, tearout: 'Carpet and pad' },
+    ];
+
+    const MATERIAL_OPTIONS = MATERIAL_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other material</option>';
+    const TEAROUT_OPTIONS = TEAROUT_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('');
+
+    const roomsHost = el('rooms');
+    let rowSeq = 0;
+
+    function addRoomRow(room) {
+      const id = `r${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'room-row';
+      row.innerHTML = `
+        <label for="${id}-name"><span class="lbl">Room</span><input class="r-name" id="${id}-name" type="text" maxlength="48"></label>
+        <label for="${id}-mat"><span class="lbl">Material</span><select class="r-mat" id="${id}-mat">${MATERIAL_OPTIONS}</select></label>
+        <label for="${id}-sqft"><span class="lbl">Installed sq ft</span><input class="r-sqft" id="${id}-sqft" type="number" min="0" step="1"></label>
+        <label for="${id}-waste"><span class="lbl">Waste %</span><input class="r-waste" id="${id}-waste" type="number" min="0" step="0.5"></label>
+        <label for="${id}-rate"><span class="lbl">Sq ft installed per hour</span><input class="r-rate" id="${id}-rate" type="number" min="1" step="1"></label>
+        <label for="${id}-tear"><span class="lbl">Tear-out</span><select class="r-tear" id="${id}-tear">${TEAROUT_OPTIONS}</select></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this room</span></button>`;
+
+      const matField = row.querySelector('.r-mat');
+      const wasteField = row.querySelector('.r-waste');
+      const rateField = row.querySelector('.r-rate');
+      const tearField = row.querySelector('.r-tear');
+      const matIndex = MATERIAL_PRESETS.findIndex(p => p.label === room.material);
+      const tearIndex = TEAROUT_PRESETS.findIndex(p => p.label === room.tearout);
+      matField.value = matIndex === -1 ? 'other' : String(matIndex);
+      tearField.value = tearIndex === -1 ? '0' : String(tearIndex);
+      row.querySelector('.r-name').value = room.name || '';
+      row.querySelector('.r-sqft').value = room.squareFeet;
+      wasteField.value = room.wastePct;
+      rateField.value = room.installSqFtPerHour;
+
+      matField.addEventListener('change', () => {
+        const preset = MATERIAL_PRESETS[Number(matField.value)];
+        if (preset) {
+          if (!wasteField.dataset.edited) wasteField.value = preset.wastePct;
+          if (!rateField.dataset.edited) rateField.value = preset.installSqFtPerHour;
+        }
+        count('bid_calculated');
+        update();
+      });
+      wasteField.addEventListener('input', () => { wasteField.dataset.edited = '1'; });
+      rateField.addEventListener('input', () => { rateField.dataset.edited = '1'; });
+      row.querySelectorAll('input, select').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('room_removed');
+        update();
+      });
+      roomsHost.append(row);
+    }
+
+    function readRooms() {
+      return [...roomsHost.querySelectorAll('.room-row')].map(row => {
+        const preset = MATERIAL_PRESETS[Number(row.querySelector('.r-mat').value)];
+        const tear = TEAROUT_PRESETS[Number(row.querySelector('.r-tear').value)] || TEAROUT_PRESETS[0];
+        const typedName = row.querySelector('.r-name').value.trim();
+        return {
+          name: typedName || (preset ? preset.label : ''),
+          squareFeet: row.querySelector('.r-sqft').value,
+          wastePct: row.querySelector('.r-waste').value,
+          installSqFtPerHour: row.querySelector('.r-rate').value,
+          tearoutHoursPer100: tear.hoursPer100,
+          disposalPerSqFt: tear.disposalPerSqFt,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['installed','purchased','wasteCost','installHours','tearoutHours','extraHours','laborHours','labor','materials','overhead','cost','profit','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      const rooms = readRooms();
+      if (rooms.length === 0) {
+        clearOutputs('Add a room to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one room above and the hour split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid({
+          rooms,
+          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+          proposedPrice: el('proposedPrice').value,
+        });
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('installed').textContent = `${result.installedSqFt.toLocaleString('en-US')} sq ft`;
+      el('purchased').textContent = `${result.purchasedSqFt.toFixed(1)} sq ft`;
+      el('wasteCost').textContent = money(result.wasteMaterialCost);
+      el('installHours').textContent = `${result.roomInstallHours.toFixed(2)} h`;
+      el('tearoutHours').textContent = `${result.roomTearoutHours.toFixed(2)} h`;
+      el('extraHours').textContent = `${result.extraHours.toFixed(2)} h`;
+      el('laborHours').textContent = `${result.laborHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materials);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.jobCost);
+      el('profit').textContent = money(result.profit);
+      el('perSqFt').textContent = result.pricePerInstalledSqFt === null ? 'n/a' : `$${result.pricePerInstalledSqFt.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const lines = [
+        ...result.rooms.filter(room => room.hours > 0).map(room => ({
+          name: `${room.name} (${room.squareFeet} sq ft)`,
+          share: room.hoursShare,
+        })),
+      ];
+      if (result.extras.stairs.hours > 0) {
+        lines.push({ name: `Stairs (${result.extras.stairs.count} treads)`, share: result.stairHoursShare });
+      }
+      const otherExtra = result.extraHours - result.extras.stairs.hours;
+      if (otherExtra > 0 && result.laborHours > 0) {
+        lines.push({ name: 'Transitions, furniture, prep', share: otherExtra / result.laborHours * 100 });
+      }
+      el('split').innerHTML = lines.length === 0
+        ? '<li class="empty">No hours yet — add square footage or extras above.</li>'
+        : lines
+          .slice()
+          .sort((a, b) => b.share - a.share)
+          .map(line => `<li><span>${line.name}</span><span>${line.share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${Math.min(100, line.share).toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const rooms = result.rooms
+        .filter(room => room.squareFeet > 0)
+        .map(room => `- ${room.name}: ${room.squareFeet.toLocaleString('en-US')} sq ft installed, ${room.purchasedSqFt.toFixed(1)} sq ft purchased (${room.wastePct}% waste)`)
+        .join('\n');
+      return [
+        'FLOORING INSTALL BID',
+        '',
+        `Proposed job price: ${money(result.price)}`,
+        `Walk-away (cost) price: ${money(result.breakEvenPrice)}`,
+        `Installed area: ${result.installedSqFt.toLocaleString('en-US')} sq ft`,
+        `Purchased material: ${result.purchasedSqFt.toFixed(1)} sq ft`,
+        `Price per installed sq ft: ${result.pricePerInstalledSqFt === null ? 'n/a' : '$' + result.pricePerInstalledSqFt.toFixed(2)}`,
+        `Labor: ${result.laborHours.toFixed(1)} hours`,
+        '',
+        'ROOMS',
+        rooms || '- No rooms entered',
+        '',
+        result.extras.stairs.count > 0 ? `Stairs: ${result.extras.stairs.count} treads` : 'Stairs: none',
+        result.extras.transitions.count > 0 ? `Transitions: ${result.extras.transitions.count}` : 'Transitions: none',
+        '',
+        'This is a draft for review. Confirm measurements, waste, tear-out, materials, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const rooms = readRooms();
+      const result = calculateBid({
+        rooms,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function downloadSummary() {
+      const rooms = readRooms();
+      const result = calculateBid({
+        rooms,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      });
+      const blob = new Blob([summaryText(result)], { type: 'text/plain;charset=utf-8' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'flooring-install-bid.txt';
+      link.click();
+      URL.revokeObjectURL(link.href);
+      count('summary_downloaded');
+      el('summaryStatus').textContent = 'Downloaded flooring-install-bid.txt';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addRoom').addEventListener('click', () => {
+      addRoomRow({ name: '', material: '', squareFeet: 0, wastePct: 8, installSqFtPerHour: 80, tearout: 'None — empty or new construction' });
+      count('room_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('downloadSummary').addEventListener('click', () => {
+      try {
+        downloadSummary();
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_ROOMS.forEach(addRoomRow);
+    update();
+  </script>
+</body>
+</html>
