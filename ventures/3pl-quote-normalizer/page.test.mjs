@@ -83,6 +83,21 @@ test('calculator exposes editable return fee assumptions', async () => {
   assert.match(script, /Return handling \/ order/);
 });
 
+test('dedicated export page uses the live calculator record and is linked', async () => {
+  const page = await readFile(new URL('./export.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(page, /exportCsv/);
+  assert.match(page, /exportJson/);
+  assert.match(page, /review_record_exported/);
+  assert.match(page, /3pl-quote-normalized\.csv/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  assert.match(index, /export\.html/);
+  assert.match(sitemap, /export\.html/);
+});
+
 test('calculator exposes a local CSV export from its live form', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   const script = await readFile(new URL('./export-page.mjs', import.meta.url), 'utf8');

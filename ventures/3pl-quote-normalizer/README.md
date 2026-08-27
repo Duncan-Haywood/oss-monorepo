@@ -50,6 +50,9 @@ gap; the table names that case. That is a different decision from leftover
 pallets already on the floor, from restock vs keep, and from kitting.
 The [pallet vs carton inbound](./pallet-vs-carton-inbound.html) page walks
 the fee ÷ units arithmetic.
+Use [Download a reviewable 3PL record](./export.html) when you want that
+CSV or JSON from a dedicated page — it loads the quote saved on the
+calculator in this browser.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet, or **Download JSON record** for a procurement or
 ERP adapter, without retyping figures. The JSON record is versioned and includes
