@@ -872,6 +872,15 @@ products:
           Added a private hash share link and copyable order summary on
           the main Shopify fee calculator. The link encodes inputs only
           and is never uploaded. Public URL remains owner-gated.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          handoff_opened: 0
+        note: >-
+          Added a partial-link decoder alongside the existing whole-scenario
+          share token, so where-to-sell-calculator's own-store row can hand an
+          item in. handoff_opened separates an arrival from a full share link
+          (share_link_opened). Public URL remains owner-gated.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:
@@ -924,6 +933,15 @@ products:
           previously ended at a ranking with no way through. eBay and Etsy
           already had one; own-store and local still have no prefillable
           target. Public URL remains owner-gated.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          handoff_own-store: 0
+        note: >-
+          Extended the handoff to the own-store row. All four channels with a
+          dedicated calculator now carry the item through; local/direct and the
+          free-text "other" channel have no target by design. Public URL remains
+          owner-gated.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:

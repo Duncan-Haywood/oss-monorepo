@@ -401,17 +401,13 @@
   <script type="module">
     import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, compareOnlineVsPos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
-    import { encodeShareState, decodeShareState } from "./share.mjs";
+    import {
+      encodeShareState, decodeShareState, decodeInputs,
+      FIELD_IDS, ORDER_FIELDS as ids, PROMO_FIELDS as promoIds,
+      INSTALLMENT_FIELDS as installmentIds, LABEL_FIELDS as labelIds,
+      POS_FIELDS as posIds,
+    } from "./share.mjs";
 
-    const ids = [
-      "price", "shippingCharged", "paymentsRate", "paymentsFixed", "shopifyTxnRate",
-      "processorRate", "processorFixed", "costOfGoods", "shippingCost", "packagingCost",
-      "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin", "targetProfit",
-    ];
-    const promoIds = ["percentOff", "amountOff"];
-    const installmentIds = ["installmentRate", "installmentFixed", "installmentSharePct", "extraOrdersFromInstallments"];
-    const labelIds = ["shopifyLabelCost", "ownLabelCost"];
-    const posIds = ["posPaymentsRate", "posPaymentsFixed", "posHardwareCost"];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => {
       if (Math.abs(value) < 0.005) return "same";
@@ -445,6 +441,28 @@
       promoIds.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
       const radio = document.querySelector(`input[name="paymentMethod"][value="${state.paymentMethod}"]`);
       if (radio) radio.checked = true;
+    }
+
+    /**
+     * Apply a partial link — a handoff that knows the item and nothing else.
+     *
+     * Returns how many values it actually set, so the caller can tell an
+     * empty or unreadable link from a real one and say which it was. Untouched
+     * fields keep this page's starting figures rather than being zeroed into
+     * something that reads like an answer.
+     */
+    function applyPartial(values) {
+      let applied = 0;
+      for (const id of FIELD_IDS) {
+        if (!(id in values)) continue;
+        document.getElementById(id).value = String(values[id]);
+        applied += 1;
+      }
+      if (values.paymentMethod) {
+        const radio = document.querySelector(`input[name="paymentMethod"][value="${values.paymentMethod}"]`);
+        if (radio) { radio.checked = true; applied += 1; }
+      }
+      return applied;
     }
 
     function update() {
@@ -651,14 +669,26 @@
         status.textContent = error.message || "Could not copy a summary.";
       }
     });
-    try {
-      const hash = location.hash.replace(/^#/, "");
-      if (hash) {
+    // Two link shapes arrive here. A full share link is one base64 token and
+    // must decode completely or be refused — the recipient sees exactly what
+    // the sender saw, or is told so. A handoff from where-to-sell-calculator
+    // is ordinary query text carrying only the item, and must fill in what it
+    // knows and leave this page's plan, promo, and POS figures alone.
+    const hash = location.hash.replace(/^#/, "");
+    if (hash) {
+      try {
         applyShare(decodeShareState(hash));
         recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_opened");
+      } catch {
+        const applied = applyPartial(decodeInputs(hash));
+        if (applied > 0) {
+          recordUsage(localStorage, document.getElementById("usageOptOut").checked, "handoff_opened");
+          document.getElementById("shareStatus").textContent =
+            `Loaded ${applied} value${applied === 1 ? "" : "s"} from the link. Everything else is this page's own starting figure — check the plan and the payment rates against your own Shopify billing.`;
+        } else {
+          document.getElementById("shareStatus").textContent = "That share link could not be read. Showing the example numbers.";
+        }
       }
-    } catch {
-      document.getElementById("shareStatus").textContent = "That share link could not be read. Showing the example numbers.";
     }
     update();
   </script>
