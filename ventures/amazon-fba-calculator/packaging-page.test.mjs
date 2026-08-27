@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareSizeTierPackaging, sizeTierPackagingNote } from "./calc.mjs";
+import { INPUT_FIELDS, compareSizeTierPackaging, sizeTierPackagingNote } from "./calc.mjs";
 
 const html = readFileSync(new URL("./does-smaller-box-cut-amazon-fba-fees.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -119,7 +119,10 @@ test("the calculator page carries the size-tier section renderPack writes into",
   }
   assert.match(script, /compareSizeTierPackaging/, "renderPack must import the comparison");
   assert.match(script, /sizeTierPackagingNote/, "the note must come from calc.mjs, not be retyped");
-  assert.match(script, /"repackCostPerUnit",/, "repackCostPerUnit must be in the collected ids");
+  // The list the page collects now lives in calc.mjs, so share.mjs and the
+  // page cannot disagree about which inputs exist. Assert membership there
+  // rather than grepping the inline script for a string that has moved.
+  assert.ok(INPUT_FIELDS.includes("repackCostPerUnit"), "repackCostPerUnit must be in the collected ids");
 });
 
 test("the calculator's size-tier table renders one cell per column", () => {

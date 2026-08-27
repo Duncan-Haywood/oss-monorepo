@@ -287,13 +287,46 @@ promise uptime, backups of anything you type, or that a URL will keep
 working. Do not use this as a system of record. If a tool needs to
 survive, export your inputs and run it yourself.
 
+## Keeping a scenario, and arriving from the channel comparison
+
+**Copy link to these numbers** puts every input in the URL, after the `#`. That
+link reopens this page with the same scenario, so you can bookmark a SKU, come
+back to it after the supplier quote lands, or send it to whoever else has to
+agree the restock still pays.
+
+Browsers never send the part of a URL after the `#` to a server, so the numbers
+travel only inside the browser of whoever opens the link. Nothing is uploaded,
+and no copy of the scenario exists anywhere but in that link.
+
+The same mechanism carries an item in from
+[`where-to-sell-calculator`](../where-to-sell-calculator/), which compares one
+item across eBay, Etsy, Amazon, an own store and a direct sale, and then offers
+**"keep going with this item"** into whichever channel's own calculator goes
+deeper. Arriving that way fills in the sale price, what you paid, your own
+postage cost, and packaging — the four figures that page knows — and leaves
+everything else at this page's starting figures. **Check the referral rate and
+the size tier against your own Amazon fee preview before trusting the result**;
+they are illustrative defaults, not your account's numbers.
+
+Postage charged to the buyer is deliberately *not* carried across. Amazon
+charges its referral fee on the order total, but this page takes the item price
+and derives fulfilment from the size tier rather than from what the buyer paid
+for postage — so folding postage into the sale price would inflate the referral
+fee and print a worse number than you will actually see.
+
+A link that has been truncated or mangled is ignored field by field: anything
+unreadable falls back to this page's own starting figure rather than arriving
+as a zero that looks like an answer.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your prices, costs, and inventory data are
 never uploaded. There are no accounts, cookies, tracking pixels, or analytics
 vendors. The optional local counter records only the event name and day in your
-browser; it never records the inputs. Turn it off with the checkbox in the
-footer, or your browser's Do Not Track / Global Privacy Control setting.
+browser; it never records the inputs — including `share_link_copied` and
+`shared_link_opened`, which say that a link was made or followed and nothing
+about what was in it. Turn it off with the checkbox in the footer, or your
+browser's Do Not Track / Global Privacy Control setting.
 
 ## Support
 
@@ -307,7 +340,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, remote-fulfillment-page.test.mjs, and liquidation-page.test.mjs
+node --test        # runs calc.test.mjs, share.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, remote-fulfillment-page.test.mjs, and liquidation-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -325,7 +358,8 @@ restock vs low-inventory-level fee,
 Amazon AWD vs send-all-to-FBA vs you-hold,
 Remote Fulfillment vs skip Canada vs a Canada FBA pile,
 and FBA Liquidations vs dispose vs sell-elsewhere;
-`usage.mjs` holds the anonymous
+`share.mjs` encodes and decodes the scenario link, over the field list
+`calc.mjs` exports so the two cannot drift; `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is

@@ -50,6 +50,45 @@ const PLACEMENT_PATHS = /** @type {const} */ (["minimal", "partial", "optimized"
 
 const FULFILLMENT_METHODS = new Set(["fba", "fbm"]);
 
+/**
+ * Every numeric input on the page, in the order the page asks for them.
+ *
+ * This lives here rather than in `index.html` so `share.mjs` and the page read
+ * the same list. The alternative — an allowlist maintained beside the encoder —
+ * is how a shared link silently loses a field: `where-to-sell-calculator`
+ * shipped exactly that, dropping `quantity` and `targetMargin`, so the
+ * recipient computed a different profit than the sender saw and nothing went
+ * red. `share.test.mjs` also checks this list against the `id` attributes in
+ * `index.html`, so a new input is shareable the day it ships.
+ */
+export const INPUT_FIELDS = [
+  "salePrice", "referralRate", "length", "width", "height", "weightLb",
+  "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
+  "inboundPerUnit", "fbmShippingCost", "fbmHandlingCost", "packagingCost", "adsPerUnit",
+  "otherCost", "monthlySellerFee", "individualPerUnit", "monthlyUnits", "targetMargin",
+  "returnRate", "returnHandlingFee", "unsellableReturnRate",
+  "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
+  "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
+  "snsPercent", "snsEnrollPct",
+  "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
+  "smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage",
+  "amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee",
+  "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
+  "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
+  "repackCostPerUnit", "peakMonths",
+  "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
+  "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
+  "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
+  "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
+  "sfpShippingCost", "sfpMinutes", "sfpHourlyWage", "fbaTakePct", "sfpTakePct", "fbmTakePct",
+];
+
+/** The page's checkbox inputs, carried as `1`/`0` so a link can turn one off. */
+export const TOGGLE_FIELDS = ["lowPriceEligible", "groceryExempt", "newFnskuExempt"];
+
+/** Values the `fulfillmentMethod` radio accepts. */
+export const FULFILLMENT_VALUES = [...FULFILLMENT_METHODS];
+
 function number(value, name, fallback = 0) {
   if (value === undefined || value === null || value === "") {
     const result = Number(fallback);

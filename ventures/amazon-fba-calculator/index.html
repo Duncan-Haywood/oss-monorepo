@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, size-tier packaging cliff, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, restock vs low-inventory-level fee, Vine leftover vs sellable, net profit, margin, ROI, break-even price, max buy cost, target-margin price, break-even ACOS, target-margin ACOS, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, Seller Fulfilled Prime vs FBA vs FBM, Amazon AWD vs send-all-to-FBA vs you-hold, Remote Fulfillment vs skip Canada vs a Canada FBA pile, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose, FBA Liquidations vs dispose vs sell-elsewhere"
+    "featureList": "FBA vs FBM comparison, Individual vs Professional seller plan, seller-plan volume ladder, size-tier fulfillment, size-tier packaging cliff, storage, inbound, inbound placement vs split freight, expected returns, return-rate sweep, peak vs off-peak Q4 storage, restock vs low-inventory-level fee, Vine leftover vs sellable, net profit, margin, ROI, break-even price, max buy cost, target-margin price, break-even ACOS, target-margin ACOS, Low-Price FBA vs raising the list price, coupon vs list profit, coupon break-even volume, Subscribe & Save vs list profit, S&S enroll-share mixed month, Multi-Channel Fulfillment vs Amazon vs you-ship, Seller Fulfilled Prime vs FBA vs FBM, Amazon AWD vs send-all-to-FBA vs you-hold, Remote Fulfillment vs skip Canada vs a Canada FBA pile, usual PO vs supplier MOQ, you-prep vs Amazon inbound prep, aged inventory vs remove vs dispose, FBA Liquidations vs dispose vs sell-elsewhere, shareable scenario link, prefill from the cross-channel comparison"
   }
   </script>
   <script type="application/ld+json">
@@ -559,7 +559,14 @@
       <label>Scenario name <input id="scenarioName" maxlength="80" placeholder="Spring restock"></label>
       <button id="saveScenario" type="button">Save current inputs</button>
       <button id="copySummary" type="button">Copy decision summary</button>
+      <button id="copyLink" type="button">Copy link to these numbers</button>
     </div>
+    <p class="note" id="shareStatus" aria-live="polite">
+      The link carries your inputs in its own address, after the
+      <code>#</code>. Browsers never send that part to a server, so opening it
+      reproduces this page in whoever's browser follows it without the numbers
+      passing through anyone else.
+    </p>
     <div id="scenarioList" class="scenario-list" aria-live="polite"></div>
   </section>
   <section class="pack" id="size-tier-pack" aria-labelledby="pack-heading">
@@ -987,28 +994,10 @@
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
     import { deleteScenario, listScenarios, saveScenario } from "./scenarios.mjs";
-
-    const ids = [
-      "salePrice", "referralRate", "length", "width", "height", "weightLb",
-      "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
-      "inboundPerUnit", "fbmShippingCost", "fbmHandlingCost", "packagingCost", "adsPerUnit",
-      "otherCost", "monthlySellerFee", "individualPerUnit", "monthlyUnits", "targetMargin",
-      "returnRate", "returnHandlingFee", "unsellableReturnRate",
-      "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
-      "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
-      "snsPercent", "snsEnrollPct",
-      "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
-      "smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage",
-      "amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee",
-      "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
-      "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
-      "repackCostPerUnit", "peakMonths",
-      "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
-      "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
-      "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
-      "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
-      "sfpShippingCost", "sfpMinutes", "sfpHourlyWage", "fbaTakePct", "sfpTakePct", "fbmTakePct",
-    ];
+    import { decodeInputs, encodeInputs } from "./share.mjs";
+    // Single-sourced from calc.mjs so the page and the share link can never
+    // disagree about which inputs exist.
+    import { INPUT_FIELDS as ids, TOGGLE_FIELDS as toggleIds } from "./calc.mjs";
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
     const formatAcos = (value) => (value === null || value === undefined ? "n/a" : `${value.toFixed(1)}%`);
@@ -1802,6 +1791,60 @@
         return;
       }
     });
+    /**
+     * Apply whatever a shared or handed-off link carries, over the defaults.
+     *
+     * Only fields the link actually names are touched, so a two-field handoff
+     * from the cross-channel comparison fills in the price and the cost of
+     * goods and leaves this page's own referral rate, size tier, and storage
+     * assumptions alone — rather than zeroing them into a number that looks
+     * like an answer.
+     */
+    function applySharedLink() {
+      const shared = decodeInputs(location.hash || location.search);
+      let applied = 0;
+      for (const id of ids) {
+        if (!(id in shared)) continue;
+        document.getElementById(id).value = String(shared[id]);
+        applied += 1;
+      }
+      for (const id of toggleIds) {
+        if (!(id in shared)) continue;
+        document.getElementById(id).checked = shared[id];
+        applied += 1;
+      }
+      if (shared.fulfillmentMethod) {
+        const radio = document.querySelector(
+          `input[name="fulfillmentMethod"][value="${shared.fulfillmentMethod}"]`,
+        );
+        if (radio) { radio.checked = true; applied += 1; }
+      }
+      if (applied > 0) {
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shared_link_opened");
+        document.getElementById("shareStatus").textContent =
+          `Loaded ${applied} value${applied === 1 ? "" : "s"} from the link. Everything else is this page's own starting figure — check the referral rate and size tier against your own fee preview.`;
+      }
+    }
+
+    document.getElementById("copyLink").addEventListener("click", async () => {
+      const query = encodeInputs(readInput());
+      const url = `${location.origin}${location.pathname}#${query}`;
+      const status = document.getElementById("shareStatus");
+      try {
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(url);
+        else window.prompt("Copy this link:", url);
+        // Put it in the address bar too, so the browser's own bookmark and
+        // back button carry the scenario even if the clipboard was refused.
+        location.hash = query;
+        status.textContent = "Link copied. It carries your inputs and nothing else.";
+        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+      } catch {
+        status.textContent = "Could not reach the clipboard — the address bar now holds the same link.";
+        location.hash = query;
+      }
+    });
+
+    applySharedLink();
     update();
     renderScenarios();
   </script>

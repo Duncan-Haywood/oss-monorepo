@@ -915,6 +915,15 @@ products:
           separable from ordinary fee use; event name and day only, opt-out,
           DNT/GPC honoured, never leaves the browser. Public URL still
           owner-gated, so this stays a zero baseline.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          handoff_amazon: 0
+        note: >-
+          Extended the "keep going with this item" handoff to Amazon, which
+          previously ended at a ranking with no way through. eBay and Etsy
+          already had one; own-store and local still have no prefillable
+          target. Public URL remains owner-gated.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -1060,6 +1069,17 @@ products:
           (2-day label, pack time, Prime take). Public URL remains
           owner-gated; local event sfp_compared is opt-out and stores
           no inputs.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          share_link_copied: 0
+          shared_link_opened: 0
+        note: >-
+          Added a shareable scenario link (every input in the URL fragment) and
+          prefill from where-to-sell-calculator's handoff. The two counters
+          separate "made a link" from "arrived on one", which is what will say
+          whether the cross-tool handoff is worth keeping. Public URL remains
+          owner-gated.
   - slug: einvoice-preflight
     surface: local-cli
     readings:

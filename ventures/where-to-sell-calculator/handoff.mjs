@@ -62,6 +62,29 @@ export const HANDOFFS = [
     },
     combine: { materialCost: ['itemCost', 'packagingCost'] },
   },
+  {
+    channel: 'amazon',
+    slug: 'amazon-fba-calculator',
+    label: 'Amazon FBA vs FBM calculator',
+    // What it adds: the FBA-versus-FBM split this page cannot make (it prices
+    // Amazon as one channel), plus size-tier fulfilment, storage by month,
+    // inbound placement, returns, Low-Price FBA, coupons, Subscribe & Save,
+    // Vine, and Seller Fulfilled Prime.
+    //
+    // `shippingCharged` has no home here and is deliberately dropped rather
+    // than mapped: Amazon's referral fee is charged on the order total, but
+    // this calculator takes the sale price and derives fulfilment from the
+    // size tier instead of from what the buyer was charged for postage.
+    // Folding postage into `salePrice` would inflate the referral fee and
+    // print a worse number than the seller will actually see.
+    fields: {
+      price: 'salePrice',
+      itemCost: 'costOfGoods',
+      shippingCost: 'fbmShippingCost',
+      packagingCost: 'packagingCost',
+      otherCost: 'otherCost',
+    },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);
