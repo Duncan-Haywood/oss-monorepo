@@ -346,6 +346,121 @@ await step('usage counting around shop rates', async () => {
   check('nested product hub renders', (await page.locator('h1').count()) > 0, await page.title());
 });
 
+// 6b. Saved bids (`jobs.mjs`) — the Friday half of a bid.
+//
+//     The unit tests cover the storage shape and the restore rule as pure
+//     functions. What only a browser can show is that a restored bid actually
+//     reprices to the number the contractor saved, on a page whose rows were
+//     built at runtime — which is the whole promise, and the one thing a
+//     half-working restore would fake convincingly.
+const jobsReady = () => page.waitForFunction(
+  () => !document.querySelector('[data-pf-jobs-root]')?.hidden, null, { timeout: 5000 });
+
+// Every currency figure the page shows, in order. Comparing the whole set
+// rather than one element keeps this generic across tools that name their
+// output differently — and a restore that got one line right and another wrong
+// would still be caught.
+const figures = () => page.evaluate(
+  () => (document.body.innerText.match(/\$[\d,]+(?:\.\d{2})?/g) || []).join('|'));
+
+await step('a bid is still there when the customer calls back', async () => {
+  const SLUG = 'water-heater-bid-calculator';
+  await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
+  await jobsReady();
+  check('saved-bids band appears on a bid calculator', await page.isVisible('#pf-jobs-toggle'));
+  await page.click('#pf-jobs-toggle');
+
+  // Price something that is not the tool's defaults, so a restore that quietly
+  // did nothing could not pass by leaving the form where it started.
+  const ids = (await page.evaluate(() => {
+    const out = [];
+    document.querySelectorAll('input[type="number"][id]').forEach((n) => {
+      if (!n.id.startsWith('pf-') && n.id !== 'usageOptOut') out.push(n.id);
+    });
+    return out;
+  })).slice(0, 4);
+  for (const [i, id] of ids.entries()) {
+    await page.fill(`#${id}`, String(11 + i * 7));
+    await page.dispatchEvent(`#${id}`, 'input');
+  }
+  const priced = await figures();
+  check('the tool prices the job', /\$[\d,]/.test(priced), priced.slice(0, 40));
+
+  await page.fill('#pf-jobs-name', '14 Oak St — Mrs Reid');
+  await page.click('[data-pf-jobs="save"]');
+  check('the bid saves under the name the contractor gave it',
+    (await page.textContent('#pf-jobs-status')).includes('Saved “14 Oak St'),
+    await page.textContent('#pf-jobs-status'));
+
+  // A fresh load is the actual journey: Tuesday's tab is long closed.
+  await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
+  await jobsReady();
+  await page.click('#pf-jobs-toggle');
+  check('it is still there after the tab was closed',
+    (await page.textContent('#pf-jobs-status')).includes('1 saved bid'),
+    await page.textContent('#pf-jobs-status'));
+
+  await page.click('[data-pf-jobs="restore"]');
+  check('restoring reprices to exactly the bid that was saved',
+    (await figures()) === priced, `${(await figures()).slice(0, 40)} vs ${priced.slice(0, 40)}`);
+
+  // The rule the module exists to enforce. A form carrying a field this bid
+  // never priced must not be half-filled: the result would be a real,
+  // plausible, different job that looks finished.
+  const before = await figures();
+  await page.evaluate(() => {
+    const extra = document.createElement('input');
+    extra.id = 'row2-qty';
+    extra.type = 'number';
+    extra.value = '9';
+    document.body.appendChild(extra);
+  });
+  await page.click('[data-pf-jobs="restore"]');
+  const refused = await page.textContent('#pf-jobs-status');
+  check('a form that no longer matches refuses the restore',
+    refused.includes('Not restored') && refused.includes('never priced'), refused);
+  check('and leaves the form exactly as it was', (await figures()) === before);
+
+  // Bids belong to the tool that priced them. A roof bid appearing under siding
+  // would be a list of the wrong jobs at the moment a contractor trusts it.
+  await page.goto(`${BASE}/siding-bid-calculator/`, { waitUntil: 'networkidle' });
+  await jobsReady();
+  await page.click('#pf-jobs-toggle');
+  check('another tool shows none of this tool’s bids',
+    !(await page.isVisible('#pf-jobs-list')));
+
+  const jobCounts = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+  check('saves and restores are counted, and refusals separately',
+    jobCounts.bid_saved >= 1 && jobCounts.bid_restored >= 1 && jobCounts.bid_restore_refused >= 1,
+    JSON.stringify(jobCounts));
+  // The names are customer names and street addresses. They stay in the bid.
+  check('and the usage counter holds no customer name',
+    !/Oak|Reid/.test(JSON.stringify(jobCounts)));
+});
+
+// 6c. An itemised calculator, whose rows do not exist until its module runs.
+await step('an itemised bid keeps its rows', async () => {
+  await page.goto(`${BASE}/roofing-bid-calculator/`, { waitUntil: 'networkidle' });
+  await jobsReady();
+  await page.click('#pf-jobs-toggle');
+  const priced = await figures();
+  await page.fill('#pf-jobs-name', 'Section test');
+  await page.click('[data-pf-jobs="save"]');
+  check('an itemised bid saves its runtime rows',
+    (await page.textContent('#pf-jobs-status')).includes('Saved'),
+    await page.textContent('#pf-jobs-status'));
+  await page.click('[data-pf-jobs="restore"]');
+  check('and restores to the same price',
+    (await figures()) === priced, await page.textContent('#pf-jobs-status'));
+
+  // The band lists other customers' names, and the proposal sheet exists so a
+  // homeowner receives their own price and nothing else.
+  await page.emulateMedia({ media: 'print' });
+  check('the band is not on the printed proposal', !(await page.isVisible('.pf-jobs')));
+  await page.emulateMedia({ media: 'screen' });
+});
+
 // 7. Sitemap URLs are absolute and free of repo paths — the regression that
 //    shipped 69 unusable entries before the sitemaps were generated.
 const sitemapXml = await (await page.request.get(`${BASE}/sitemap.xml`)).text();

@@ -242,6 +242,52 @@ only, silent under DNT/GPC and the site-wide opt-out. The prefill deliberately
 does not fire the venture's own `bid_calculated` event — a page that loaded is
 not a bid someone priced.
 
+## Saved bids
+
+`jobs.mjs` keeps a finished bid, so the tool still has it when the customer
+calls back. Where the rates bar carries the four numbers that describe the
+*business* across tools, this carries the many numbers that describe one *job*,
+and deliberately never crosses tools.
+
+The gap it closes is the second half of a bid. `platform/proposal` made
+Tuesday — measure, price, hand over a printed proposal — a finished document.
+Friday, when the customer rings back asking what the number was and what it
+looks like without the tear-off, the tool was a blank form. `share.mjs` could
+already encode a bid into a URL fragment, but only for a contractor who thought
+to copy that link somewhere first, and nothing on the page ever said they
+should.
+
+Every field on the page is saved together under a name the visitor types, and
+restoring puts the whole job back. Because a bid never crosses tools, no field
+needs its meaning reviewed the way a shared rate does — which is why this
+reaches 234 pages against the rates bar's 103. Excluded: `usageOptOut`, which
+is a fact about the browser rather than the job, and anything the chrome itself
+injects.
+
+**A restore is atomic or refused**, and that rule shapes the module. The
+itemised calculators build their inputs at runtime, so a bid saved with four
+rooms can meet a form with one. Writing back only the fields that still exist
+would leave a real, plausible, *smaller* job on screen — the same defect as the
+bid link that silently dropped `quantity`, where the recipient priced something
+the sender never saw. So the saved field set is compared against the form's
+current set, in both directions, before anything is written: fewer fields than
+saved means part of the job is missing, more means the form carries rows the
+bid never priced. Either way the form is left untouched and the band says which
+way it differs. `restoreMismatch` is exported so that rule is tested as a pure
+function rather than only through a browser.
+
+Bids are keyed by slug and capped at 25 per tool, oldest dropped. Saving under
+a name already used replaces that row, which is the common case: the same job
+re-priced without the tear-off. The band is `display:none` in print — it lists
+customer names and street addresses, and the proposal sheet exists so a
+homeowner receives their own price and nothing else.
+
+Counting is the same convention: `saved_bids_opened`, `bid_saved`,
+`bid_restored`, `bid_deleted` and `bid_restore_refused` in
+`portfolio-hub-usage`, local only, silent under DNT/GPC and the site-wide
+opt-out. The names never reach the counter. `bid_restored / bid_saved` is the
+reading that matters — whether a saved bid is actually returned to.
+
 ## Offline and installable
 
 The people these tools are for are often somewhere with no signal at the moment
