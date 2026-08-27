@@ -24483,3 +24483,72 @@ entries:
         resolves — and `publish_surface.py` still reports 0 live. The single
         remaining step is the `deploy-settings` flip.
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The proposal — the artifact that wins the job — went from 3 bid
+        calculators to 9.** `platform/proposal` has been built, tested and
+        documented since it shipped, and adopted by three ventures out of 101.
+        Every other calculator ended at a number and a paste-able blurb, which
+        is where the tool stopped and the contractor's evening started.
+        `deck`, `roofing`, `siding`, `concrete`, `paver-patio` and
+        `basement-finishing` now print a one-page customer proposal: business
+        block, customer block, scope drafted from the priced job, deposit
+        split, price-held-until date, and a signature line.
+      - >-
+        **The published page is not the page the venture tests, and that gap
+        was leaking the contractor's margin.** Each proposal's print stylesheet
+        hides `header, main, footer` — an allow-list over the *venture's*
+        markup. `build.mjs` publishes something wider: a `<nav>`, an `<aside>`
+        and a shop-rates `<section>` injected as siblings of `<main>`. Printing
+        from `ventures/<slug>/index.html` looked correct while the built page
+        carried site navigation, the "more tools" footer, and
+        `.pf-rates-list` — which renders the contractor's saved crew wage,
+        payroll burden, overhead and target net margin. A contractor who had
+        saved their rates and left that panel open would have handed the
+        customer their margin stapled to the quote. Both injectors now carry
+        their own `@media print` rule; `build.test.mjs` fails if either goes
+        missing. This also repaired the three ventures that adopted the
+        proposal months ago and shipped with the same defect.
+      - >-
+        Found only by verifying against a served build, per the module
+        README's own instruction to check in a browser rather than with
+        `node --test` alone. Worst case reproduced and re-checked after the
+        fix: rates saved, panel open, `print` media emulated — the rate list
+        holds `Crew hourly wage: $42/h … Target net margin: 22%` and does not
+        print. The only top-level element that prints is `#proposalDoc`.
+      - >-
+        Two scope drafts were wrong for a customer's eyes rather than wrong
+        arithmetically. `basement-finishing` drew its lines from preset labels
+        written for the contractor choosing between them, so the homeowner's
+        quote read "Rec room — paint, drop ceiling, carpet (the cheap
+        special)" and "Ceiling: Drop ceiling — the cheap special". `paver-patio`
+        printed `Excavate to 9.375"`, false precision on a derived decimal.
+        Both fixed at the source of the draft.
+      - >-
+        `roofing` and `concrete` had no reusable `readInput()` — each built the
+        same input literal at two call sites, and the proposal would have been
+        a third. Extracted to one function per venture rather than copied
+        again; three copies of that literal is how the pasted summary and the
+        printed sheet come to be priced from different fields.
+      - >-
+        Verified: 9 venture suites (571 assertions), `platform/pages` 201,
+        `platform/proposal` 18, all green; `router/validate.py`,
+        `score_ventures.py --check`, `validate_usage.py`,
+        `publish_surface.py --check`, `clauses.mjs`, `check_form_defaults.py`,
+        `check_conflict_markers.py`, `check_duplicate_symbols.py` all exit 0;
+        site rebuilds to 162 products / 439 pages with no dead links. Six
+        customer journeys driven end-to-end in Chromium against the built
+        artifact — price a job, print, confirm the sheet carries the price and
+        not the wages, confirm deposit + balance equals the printed total.
+      - >-
+        The open PR queue was empty at the start of this run and no branch
+        carried unique work: the top six by commits-ahead
+        (`festive-mccarthy-xrn3ua/qb5q6b/jwkwz5`, `3pl-quote-normalizer-compare`
+        and siblings) are each a strict subset of `main` by filename — 9 files
+        against 15, 29 against 35, 11 against 29. Opening PRs for them would
+        rebuild the 31-PR pile the previous run drained.
+    mrr_end: null

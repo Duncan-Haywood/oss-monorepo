@@ -19,9 +19,39 @@ arithmetic and layout in the browser, like everything else here.
 - `ventures/tuckpointing-bid-calculator` — reference implementation
 - `ventures/metal-roof-bid-calculator`
 - `ventures/walk-in-shower-bid-calculator`
+- `ventures/deck-bid-calculator`
+- `ventures/roofing-bid-calculator`
+- `ventures/siding-bid-calculator`
+- `ventures/concrete-bid-calculator`
+- `ventures/paver-patio-bid-calculator`
+- `ventures/basement-finishing-bid-calculator`
 
 The other bid calculators have not adopted it yet. See "Adding it to another
 calculator".
+
+## The published page is not the page you tested
+
+The venture's own print stylesheet hides `header`, `main` and `footer`. That is
+an allow-list over *the venture's* markup, and `platform/pages/build.mjs`
+publishes something wider: it injects a `<nav>`, an `<aside>` and a shop-rates
+`<section>` as siblings of `<main>`, none of which those three selectors reach.
+
+Printing from `ventures/<slug>/index.html` therefore looked correct while the
+published page carried the site navigation, the "more tools" footer, and — the
+one that mattered — `.pf-rates-list`, which renders the contractor's saved crew
+wage, payroll burden, overhead and target net margin. A contractor who had saved
+their rates and left that panel open would have handed the customer their margin
+stapled to the quote.
+
+Both injectors now carry their own `@media print` rule, so a calculator adopting
+the proposal later is covered without touching it, and
+`build.test.mjs` fails if either rule goes missing. **Verify against a built
+site, not the venture directory:**
+
+```
+node platform/pages/build.mjs --out=dist
+cd dist && python3 -m http.server 8899   # then print from the served page
+```
 
 ## What it does and does not do
 

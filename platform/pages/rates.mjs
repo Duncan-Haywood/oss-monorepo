@@ -251,6 +251,18 @@ const RATES_STYLE = `<style>
 .pf-rates-note{margin:10px 0 0;opacity:.72}
 .pf-rates :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 @media (max-width:780px){.pf-rates{padding:8px 14px 0}}
+
+/* Never print this band, and this one is not cosmetic.
+ *
+ * .pf-rates-list renders the contractor's saved crew wage, payroll burden,
+ * overhead and target net margin. Nine bid calculators also print a customer
+ * proposal (platform/proposal), and the whole point of that sheet is that the
+ * homeowner receives the price without the cost structure behind it — its own
+ * print rules hide header, main and footer for exactly that reason. This band
+ * is injected as a sibling of the page's main element, so it fell outside that
+ * allow-list: a contractor who had saved their rates and left the panel open
+ * would have handed the customer their margin along with the quote. */
+@media print{.pf-rates{display:none !important}}
 </style>`;
 
 /** "a, b and c" — the carried fields named the way the page labels them. */
