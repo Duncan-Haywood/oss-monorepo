@@ -234,6 +234,33 @@ def _positive_int(value: str) -> int:
     return parsed
 
 
+def _collect_invoice_paths(root: Path, max_depth: int | None) -> list[Path]:
+    """List JSON/XML/PDF invoices under root without following directory links.
+
+    ``--max-depth`` matches ``find -maxdepth``: 1 is files in the scan root,
+    2 includes one subdirectory, and so on. Deeper directories are not walked
+    so a nested export dump cannot expand a CI job.
+    """
+    paths: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        current = Path(dirpath)
+        try:
+            relative_dir = current.relative_to(root)
+        except ValueError:
+            dirnames.clear()
+            continue
+        depth = 0 if relative_dir == Path(".") else len(relative_dir.parts)
+        if max_depth is not None and depth + 1 >= max_depth:
+            dirnames.clear()
+        for name in filenames:
+            path = current / name
+            if path.suffix.lower() not in {".json", ".xml", ".pdf"}:
+                continue
+            if path.is_symlink() or path.is_file():
+                paths.append(path)
+    return sorted(paths)
+
+
 def _read_limited(stream: Any, limit: int | None) -> bytes:
     """Read at most one byte beyond a configured input limit."""
     raw = stream.read() if limit is None else stream.read(limit + 1)
@@ -670,6 +697,11 @@ def main(argv: list[str] | None = None) -> int:
         type=_positive_int,
         help="refuse an input invoice larger than this many bytes",
     )
+    parser.add_argument(
+        "--max-depth",
+        type=_positive_int,
+        help="refuse to walk more than this many path components below a directory (1 is the scan root only)",
+    )
     args = parser.parse_args(argv)
     if args.usage_file:
         # Count attempted invocations separately from successfully parsed files.
@@ -688,12 +720,9 @@ def main(argv: list[str] | None = None) -> int:
         sources = [] if source is None else [(Path("stdin.json"), source)]
     elif args.invoice.is_dir():
         # Keep a directory scan inside its selected root instead of following
-        # symlinks into an unrelated location.
-        paths = sorted(
-            path for pattern in ("*.json", "*.xml", "*.pdf")
-            for path in args.invoice.rglob(pattern)
-            if path.is_file() or path.is_symlink()
-        )
+        # symlinks into an unrelated location, and stop descending when
+        # --max-depth is set so a nested dump cannot expand the walk.
+        paths = _collect_invoice_paths(args.invoice, args.max_depth)
         if not paths:
             read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON, XML, or PDF invoices found."})
             sources = []
