@@ -84,6 +84,7 @@ vendors `proposal.mjs`. `verify.mjs` drives the built page in a real browser.
 | `jobTitle` | the line under WORK. A template, same syntax as a scope line |
 | `scope` | the drafted scope. Strings, or `{ line, when }` where `when` names a field that must be truthy, or `{ each, line, when }` for one line per row |
 | `fields` | customer-readable words for preset ids — `{ select: "pump" }` for the option text, plus `map` to rewrite it |
+| `rowFields` | the same, one level down, for a trade priced from rows: `{ "components": { "name": { "map": {…} } } }`. An unmapped value falls through to the row's own |
 | `placeholders` | the greyed-out example text in the form |
 | `disclaimerTail` | the sentence appended to the shared footer disclaimer |
 | `priceField` | the result field holding the price, when it is not `price` |
@@ -120,6 +121,18 @@ the calculator exists to argue with: `metal-roof`'s starting preset reads
 "40×30 ranch, 4/12, 5V overlay (the $950/square special)", and it shipped as the
 job title on customers' quotes until `verify.mjs` caught it. Anything with
 "cheap", "special" or a rate in it needs a `map`.
+
+**A row's labels are written for the contractor too**, and `fields` only reaches
+the top of the result, so until 2026-08-27 they went to the customer exactly as
+the estimator's form spells them. `hood-cleaning` drafted "Canopy hood (listed
+sq ft) — 40": the parenthetical is an instruction to the person typing the
+number, and the 40 has no unit at all. `rowFields` maps a field inside a named
+collection, so the same bid now reads "40 sq ft of canopy hood". Unlike the
+top-level `map`, an unmapped value falls through to the row's own rather than to
+`undefined` — `scopeLines` drops a line with a missing placeholder, so a preset
+nobody mapped would otherwise delete a component from the scope the customer is
+agreeing to. Falling through prints the old wording, which is a defect to fix
+and not a component silently gone.
 
 Both of these fail *silently* — `undefined` renders as the word "undefined", and
 a bad label renders perfectly — which is why the browser check below exists

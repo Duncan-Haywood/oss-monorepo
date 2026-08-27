@@ -242,9 +242,50 @@ function markup(trade) {
  * A mapped value of `""` drops the line, which is how "No backup this bid"
  * becomes silence on the sheet rather than a line saying nothing was done.
  */
-function declaredFields(fields = {}) {
+/**
+ * Row-level rewriting, for the trades that price a job made of rows.
+ *
+ * `fields` above reaches the top of the result only, so a row's own words go to
+ * the customer exactly as the *estimator's form* spells them — and a form label
+ * is written for the person entering the number, not the person reading the
+ * quote. `hood-cleaning` printed "Canopy hood (listed sq ft) — 40", where the
+ * parenthetical is an instruction to the estimator and the 40 has no unit.
+ *
+ * `rowFields` in trades.json maps a field inside a named collection:
+ *
+ *   "rowFields": {
+ *     "components": { "name": { "map": { "Canopy hood (listed sq ft)": "sq ft of canopy hood" } } }
+ *   }
+ *
+ * An unmapped value falls through to the row's own, never to `undefined`. That
+ * matters more here than at the top level: a missing placeholder makes
+ * `scopeLines` drop the whole line, so a preset nobody added to the map would
+ * silently delete a component from the scope the customer is agreeing to.
+ * Falling through prints today's wording, which is the defect this fixes rather
+ * than a new one.
+ */
+export function declaredRowFields(rowFields = {}) {
+  return Object.entries(rowFields).map(([collection, fields]) => {
+    const assignments = Object.entries(fields).map(([name, spec]) => {
+      // Read the source off the untouched row, so two mapped fields can both
+      // key off the same original value regardless of the order written here.
+      const source = `row[${jsString(spec.from || name)}]`;
+      return spec.map
+        ? `            ${JSON.stringify(name)}: (${JSON.stringify(spec.map)})[${source}] ?? ${source},`
+        : `            ${JSON.stringify(name)}: ${source},`;
+    });
+    return `        ${JSON.stringify(collection)}: (Array.isArray(result[${jsString(collection)}]) ? result[${jsString(collection)}] : [])
+          .map(row => ({
+            ...row,
+${assignments.join('\n')}
+          })),`;
+  });
+}
+
+function declaredFields(fields = {}, rowFields = {}) {
+  const rowLines = declaredRowFields(rowFields);
   const entries = Object.entries(fields);
-  if (!entries.length) return '';
+  if (!entries.length && !rowLines.length) return '';
   const lines = entries.map(([name, spec]) => {
     const map = spec.map ? JSON.stringify(spec.map) : null;
     if (spec.select) {
@@ -268,7 +309,7 @@ function declaredFields(fields = {}) {
     function proposalFields(result) {
       return {
         ...result,
-${lines.join('\n')}
+${[...lines, ...rowLines].join('\n')}
       };
     }
 `;
@@ -277,7 +318,7 @@ ${lines.join('\n')}
 function wiring({ slug, trade, reader, calcFn, priceExpression }) {
   const scopeTemplates = JSON.stringify(trade.scope, null, 2)
     .split('\n').map((line, index) => (index === 0 ? line : `      ${line}`)).join('\n');
-  const fields = declaredFields(trade.fields);
+  const fields = declaredFields(trade.fields, trade.rowFields);
   const values = fields ? 'proposalFields(result)' : 'result';
 
   return `
