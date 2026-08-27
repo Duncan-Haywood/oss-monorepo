@@ -139,7 +139,9 @@ that already sit) and to Q4 peak storage (when the cube sits).
 on-hand units at 1 sale/day still lose $26.70 / month to the
 surcharge, and that restocking 18 units avoids $25.83 / month after
 $0.87 extra storage** — which used to mean staying thin because
-28 days looked like extra warehouse cost.
+28 days looked like extra warehouse cost. The same comparison now
+also runs on the [main calculator](index.html) from the listing you
+already typed.
 
 Inbound placement is a create-shipment decision on the same SKU: pay
 Amazon to accept one warehouse, or pay extra freight to follow the
