@@ -1,5 +1,5 @@
 name: amazon-fba-calculator
-description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost.
+description: A private browser calculator for Amazon sellers to compare FBA vs FBM profit on the same listing after referral, fulfillment, storage, inbound, and cost of goods — including the maximum inventory buy cost, whether Low-Price FBA still beats raising the list price, whether a coupon still hits the target after the redemption fee, whether Subscribe & Save still pays after only some units enroll, whether a website order shipped MCF still beats selling the unit on Amazon, whether Seller Fulfilled Prime still beats FBA after a 2-day label and pack time, whether a supplier MOQ still pays after extra FBA storage, whether paying Amazon to prep inbound still beats you-prep, whether Individual or Professional still pays at the seller's monthly volume — including a 10/20/40/80/200 volume ladder — whether an Amazon Vine enrollment still pays after gifted leftover units versus units that would have sold, whether keeping aged FBA inventory still beats a return removal or dispose after storage and the aged-inventory surcharge, whether FBA Liquidations still beat dispose or pulling the units to sell elsewhere, whether restocking to 28 days still beats Amazon's low-inventory-level surcharge after extra inbound and storage, whether Amazon inbound placement still beats extra freight on a split shipment, whether a return rate still leaves expected profit after handling and unsellable units, whether sending inventory before Q4 still beats waiting until January after peak cubic-foot storage, whether a smaller carton still drops a size-tier fee cliff, whether Amazon AWD still beats sending the whole lot to FBA or holding it yourself after receive, transfer, and bulk storage, and whether Amazon Remote Fulfillment still beats skipping Canada or sending a dedicated Canada pile after the remote surcharge and first CA inbound.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,34 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Seeing the maximum buy cost next to both fulfillment paths changes a sourcing decision before the seller pays for inventory.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will return to compare inbound placement against split freight on a real shipment, because the listing inbound field hides that trade.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will skip or keep Amazon inbound placement when they can see one-warehouse freight plus the placement fee against extra freight on the optimized split.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing January versus a Q4 storage stay changes whether a seller inbounds before peak rates.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will park a fresh PO in AWD or send it to FBA when they can see receive, transfer, and bulk storage on the same leftover pile.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will open Canada with Remote Fulfillment or send a dedicated pile when they can see the remote surcharge against first CA inbound and take rate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A seller arriving from the cross-channel comparison with the item already filled in will read the FBA-versus-FBM split, where one asked to retype eighty inputs will not — so the handoff, not the depth of this page, decides whether its scenarios are used at all.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will come back to a saved scenario link for the same SKU when the supplier quote or the fee preview changes, rather than re-entering the listing from scratch.
     status: untested
     checked: null
     evidence: customer-contact

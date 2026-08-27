@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Septic Pumping Bid Calculator | Price the Lid, the Hose, and the Extra Gallons — Not Just a Pump Special</title>
+  <meta name="description" content="Price a septic tank pump from buried lids, hose run, extra tanks, baffles, risers, inspection, dump tickets, and after-hours dispatch — not a published $325 pump special. See the walk-away number before you match a cheaper per-gallon quote.">
+  <meta property="og:title" content="Septic Pumping Bid Calculator">
+  <meta property="og:description" content="A 1,000-gallon exposed-lid driveway stop is not the same job as a buried two-tank system with a 150-foot hose. Bid the access and the extra gallons.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Septic Pumping Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Exposed lid versus buried locate-and-dig, extra gallons over the included pump, hose beyond the included run, extra tanks and pump chambers, baffles, risers, inspection report, after-hours dispatch, dump trip fee, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2430; background: #e8edf4; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #b45309; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c9d2e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1420330d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5568; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9aa8bc; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9aa8bc; background: #eef2f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dfe6f2; }
+    .result { position: sticky; top: 15px; background: #1a2740; color: #eef3fb; border-color: #1a2740; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #f0b429; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5568; }
+    footer a { color: #b45309; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f6d58a; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR LICENSED SEPTIC PUMPERS</p>
+    <h1>Bid the lid, the hose, and the extra gallons.</h1>
+    <p>Price a septic pump the way the trade actually loses money: the included gallons, then the buried lid, the hose beyond the truck, extra tanks and pump chambers, baffles, risers, a written inspection, dump tickets, and after-hours dispatch. You get the bid, the price per gallon pumped, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The stop</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing access or tank size never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting stop…</option>
+            </select>
+          </label>
+          <label>Lid access
+            <select id="access">
+              <option value="exposed" selected>Exposed lid, truck at tank</option>
+              <option value="buried">Buried lid, locate and dig</option>
+            </select>
+          </label>
+          <label>Primary tank (gallons) <input id="tankGallons" type="number" min="1" step="50" value="1000"></label>
+          <label>Extra tank / chamber gallons <input id="extraTankGallons" type="number" min="0" step="50" value="0"></label>
+          <label>Extra tanks / chambers <input id="extraTankCount" type="number" min="0" step="1" value="0"></label>
+          <label>Hose run (ft) <input id="hoseFeet" type="number" min="0" step="5" value="40"></label>
+          <label>Risers to install <input id="riserCount" type="number" min="0" step="1" value="0"></label>
+          <label class="check"><input id="replaceBaffles" type="checkbox"> Replace inlet / outlet baffles</label>
+          <label class="check"><input id="inspectionReport" type="checkbox"> Written inspection / report</label>
+          <label class="check"><input id="afterHours" type="checkbox"> After-hours / emergency dispatch</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Gallons included in the base pump <input id="includedGallons" type="number" min="1" step="50" value="1000"></label>
+          <label>Hose feet included <input id="includedHoseFeet" type="number" min="0" step="5" value="50"></label>
+          <label>Hours for a base pump <input id="hoursBasePump" type="number" min="0" step="0.25" value="1"></label>
+          <label>Hours / extra 100 gallons <input id="hoursPerExtra100Gal" type="number" min="0" step="0.05" value="0.15"></label>
+          <label>Hours to locate and dig a buried lid <input id="hoursBuriedLid" type="number" min="0" step="0.25" value="0"></label>
+          <label>Hours / extra hose foot <input id="hoursPerHoseFoot" type="number" min="0" step="0.005" value="0.01"></label>
+          <label>Hours / extra tank <input id="hoursPerExtraTank" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Hours to replace baffles <input id="hoursBaffles" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Hours / riser <input id="hoursPerRiser" type="number" min="0" step="0.25" value="0.6"></label>
+          <label>Hours for an inspection report <input id="hoursInspection" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Hours for after-hours dispatch <input id="hoursAfterHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Dump trip fee <input id="dumpTripFee" type="number" min="0" step="5" value="80"></label>
+          <label>Disposal $ / gallon <input id="disposalPerGallon" type="number" min="0" step="0.01" value="0.08"></label>
+          <label>Baffle kit <input id="baffleKitCost" type="number" min="0" step="5" value="85"></label>
+          <label>Riser each <input id="riserCostEach" type="number" min="0" step="5" value="145"></label>
+          <label>After-hours fee <input id="afterHoursFee" type="number" min="0" step="5" value="125"></label>
+          <label>Permit / report fee <input id="permitFee" type="number" min="0" step="5" value="45"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, gloves, wash-down <input id="travelAndEquipment" type="number" min="0" step="5" value="55"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 325"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $38/h pumper loaded at 32% is $50.16. Quoting the raw wage on a published pump special is how a buried two-tank job that looked fine turns into a loss after the first locate-and-dig.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">pump / service price</div>
+      <dl>
+        <dt>Gallons pumped</dt><dd id="scope"></dd>
+        <dt>Access and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Dump + kits + fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per gallon pumped</dt><dd id="perGallon"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and dump rates are common ballpark figures, not an industry standard, a septic design, or an environmental determination &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not septic, environmental, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your gallons, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-pump-a-septic-tank.html">How much to charge to pump a septic tank</a>.</p>
+    <p class="support">Free and open source. If it wins you a stop, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedDisposal,
+      suggestedAccessHours,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'tankGallons','extraTankGallons','extraTankCount','hoseFeet','riserCount',
+      'includedGallons','includedHoseFeet',
+      'hoursBasePump','hoursPerExtra100Gal','hoursBuriedLid','hoursPerHoseFoot',
+      'hoursPerExtraTank','hoursBaffles','hoursPerRiser','hoursInspection',
+      'hoursAfterHours','siteHours',
+      'dumpTripFee','disposalPerGallon','baffleKitCost','riserCostEach',
+      'afterHoursFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['replaceBaffles','inspectionReport','afterHours'];
+    const SELECT_IDS = ['access'];
+    const SUGGESTED_DUMP_IDS = ['dumpTripFee','disposalPerGallon'];
+    const SUGGESTED_ACCESS_IDS = ['hoursBuriedLid'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyDisposal(force) {
+      const rates = suggestedDisposal(el('tankGallons').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyAccessHours(force) {
+      const rates = suggestedAccessHours(el('access').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('access').value = job.access;
+      el('tankGallons').value = job.tankGallons;
+      applyDisposal(true);
+      applyAccessHours(true);
+      [...SUGGESTED_DUMP_IDS, ...SUGGESTED_ACCESS_IDS].forEach(id => { el(id).dataset.edited = ''; });
+      el('extraTankGallons').value = job.extraTankGallons;
+      el('extraTankCount').value = job.extraTankCount;
+      el('hoseFeet').value = job.hoseFeet;
+      el('riserCount').value = job.riserCount;
+      el('replaceBaffles').checked = job.replaceBaffles;
+      el('inspectionReport').checked = job.inspectionReport;
+      el('afterHours').checked = job.afterHours;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'pump / service price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perGallon','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'pump / service price';
+      el('scope').textContent = `${result.totalGallons.toLocaleString('en-US')} gal`;
+      const extraBits = [
+        result.buriedLid ? 'buried lid' : 'exposed lid',
+        result.extraHoseFeet ? `${result.extraHoseFeet} ft extra hose` : null,
+        result.extraTankCount ? `${result.extraTankCount} extra tank${result.extraTankCount === 1 ? '' : 's'}` : null,
+        result.replaceBaffles ? 'baffles' : null,
+        result.riserCount ? `${result.riserCount} riser${result.riserCount === 1 ? '' : 's'}` : null,
+        result.inspectionReport ? 'inspection' : null,
+        result.afterHours ? 'after-hours' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard driveway pump';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perGallon').textContent = result.pricePerGallon === null ? 'n/a' : money(result.pricePerGallon);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Base pump + extra gallons', result.hourShares.pump],
+        ['Lid + hose + extra tanks', result.hourShares.access],
+        ['Baffles + risers + inspection + emergency', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Dump + kits + fees', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('access').addEventListener('change', () => {
+      applyAccessHours(false);
+      count('bid_calculated');
+      update();
+    });
+    el('tankGallons').addEventListener('change', () => {
+      applyDisposal(false);
+    });
+
+    [...SUGGESTED_DUMP_IDS, ...SUGGESTED_ACCESS_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

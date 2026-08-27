@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retaining Wall Bid Calculator | Price Height, Drainage, and Geogrid — Not Just Linear Feet</title>
+  <meta name="description" content="Price a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a per-linear-foot quote hides — then see price per foot, crew hours, and the walk-away number.">
+  <meta property="og:title" content="Retaining Wall Bid Calculator">
+  <meta property="og:description" content="Bid a retaining wall the way the job actually costs — height, drainage, and geogrid — before you match a cheaper per-foot quote.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Retaining Wall Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Face-area material takeoff, drain-stone cubic yards, geogrid layers, corner adders, engineer and permit step, price per linear foot, walk-away price, proposed-price margin check, copyable bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1914; background: #efe8dc; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #6b4f2a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d4c7b0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a20100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b09a78; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b09a78; background: #f4eee4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e8dcc8; }
+    .result { position: sticky; top: 15px; background: #3a2c1c; color: #f7f1e6; border-color: #3a2c1c; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4b483; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a5348; }
+    footer a { color: #6b4f2a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #e8d6b0; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR HARDSCAPE AND LANDSCAPE CONTRACTORS</p>
+    <h1>Bid the height and the drain, not the linear foot.</h1>
+    <p>A flat per-foot quote treats a 40 ft, 3 ft garden wall as the same job as a 40 ft, 6 ft engineered wall. Face area, drain-stone volume, and geogrid layers grow with height. An engineer stamp does not shrink on a short, tall wall. Price those extras separately &mdash; then see the price, the dollars per foot, and the number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The wall</h2>
+        <p class="hint">Start from a common residential wall, then replace length and height with the job you actually walked.</p>
+        <div class="fields">
+          <label>Starting layout <select id="wallPreset"></select></label>
+          <label>Wall length (ft) <input id="lengthFeet" type="number" min="0.1" step="1" value="40"></label>
+          <label>Exposed height (ft) <input id="exposedHeightFeet" type="number" min="0.1" step="0.25" value="3"></label>
+          <label>Embedment below grade (ft) <input id="embedmentFeet" type="number" min="0" step="0.01" value="0.67"></label>
+          <label>Wall type <select id="wallTypePreset"></select></label>
+          <label>Wall-type labor factor <input id="wallTypeFactor" type="number" min="0.01" step="0.01" value="1"></label>
+          <label>Block / face material per sq ft <input id="blockCostPerSf" type="number" min="0" step="0.5" value="12"></label>
+          <label>Cap cost per linear foot <input id="capCostPerFoot" type="number" min="0" step="0.5" value="8"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Height, drainage, and extras</h2>
+        <p class="hint">Height multiplies face labor. Drain stone grows with face area. Geogrid layers and engineer fees are a step, not a foot. Corners are extra cuts that do not get cheaper on a short wall.</p>
+        <div class="fields">
+          <label>Height / access <select id="heightPreset"></select></label>
+          <label>Height labor factor <input id="heightFactor" type="number" min="0.01" step="0.01" value="1"></label>
+          <label>Hours per face sq ft (easy access) <input id="hoursPerFaceSqFt" type="number" min="0.01" step="0.01" value="0.1"></label>
+          <label>90° corners <input id="corners" type="number" min="0" step="1" value="0"></label>
+          <label>Hours per corner <input id="hoursPerCorner" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Drain-stone depth behind wall (ft) <input id="stoneDepthFeet" type="number" min="0" step="0.25" value="1"></label>
+          <label>Drain stone per cu yd <input id="stoneCostPerCuYd" type="number" min="0" step="1" value="55"></label>
+          <label>Perforated drain pipe per ft <input id="drainPipeCostPerFoot" type="number" min="0" step="0.5" value="4"></label>
+          <label>Geogrid layers <input id="geogridLayers" type="number" min="0" step="1" value="0"></label>
+          <label>Geogrid depth into retained soil (ft) <input id="geogridDepthFeet" type="number" min="0" step="0.5" value="6"></label>
+          <label>Geogrid per sq yd <input id="geogridCostPerSqYd" type="number" min="0" step="0.5" value="4"></label>
+          <label>Excavation hours <input id="excavationHours" type="number" min="0" step="0.5" value="4"></label>
+          <label>Drain-placement hours <input id="drainHours" type="number" min="0" step="0.5" value="2"></label>
+          <label>Engineer / permit <select id="engineerPreset"></select></label>
+          <label>Engineer and permit fee <input id="engineerAndPermitFee" type="number" min="0" step="1" value="0"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="38"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel, machine, and dump <input id="travelAndEquipment" type="number" min="0" step="1" value="150"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="22"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 4500"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Matching a cheaper per-foot quote after leaving it out is how a sold job becomes a loss.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">install price</div>
+      <dl>
+        <dt>Wall size</dt><dd id="wallSize"></dd>
+        <dt>Face area</dt><dd id="faceArea"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Block, cap, stone, grid, pipe</dt><dd id="material"></dd>
+        <dt>Engineer, permit, travel</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per linear foot</dt><dd id="perFoot"></dd>
+        <dt>Price per face sq ft</dt><dd id="perFace"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+        <dt>Walk-away per foot</dt><dd id="breakEvenFoot"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Wall-type factors, height factors, and extras are common ballpark starting points, not an industry standard, a benchmark, an engineered design, or a guarantee. Time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or soils advice, and it does not tell you what to charge. It is not an engineered wall design, a permit approval, or a geotechnical determination. Verify every figure against your own payroll, invoices, manufacturer tables, AHJ requirements, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your wall size, wages, costs, or prices.</p>
+    <p>See also: <a href="./how-much-to-charge-for-a-retaining-wall.html">how much to charge for a retaining wall</a>.</p>
+    <p class="support">Free and open source. If it keeps you from matching a losing per-foot quote, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      suggestedGeogridLayers,
+      suggestedHeightFactor,
+      WALL_TYPE_PRESETS,
+      HEIGHT_PRESETS,
+      ENGINEER_PRESETS,
+      WALL_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'lengthFeet','exposedHeightFeet','embedmentFeet','blockCostPerSf','capCostPerFoot',
+      'stoneCostPerCuYd','stoneDepthFeet','drainPipeCostPerFoot','geogridLayers',
+      'geogridDepthFeet','geogridCostPerSqYd','wallTypeFactor','heightFactor',
+      'hoursPerFaceSqFt','corners','hoursPerCorner','excavationHours','drainHours',
+      'hourlyWage','burdenRate','engineerAndPermitFee','travelAndEquipment',
+      'overheadRate','targetMargin','proposedPrice',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(select, items, getValue, getLabel) {
+      select.innerHTML = items.map((item, index) =>
+        `<option value="${getValue(item, index)}">${getLabel(item)}</option>`
+      ).join('');
+    }
+
+    fillSelect(el('wallPreset'), WALL_PRESETS, (_, index) => String(index), item => item.label);
+    fillSelect(el('wallTypePreset'), WALL_TYPE_PRESETS, item => item.id, item => item.label);
+    fillSelect(el('heightPreset'), HEIGHT_PRESETS, item => item.id, item => item.label);
+    fillSelect(el('engineerPreset'), ENGINEER_PRESETS, item => item.id, item => item.label);
+    el('wallPreset').value = '0';
+    el('wallTypePreset').value = 'segmental';
+    el('heightPreset').value = 'garden';
+    el('engineerPreset').value = 'none';
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'install price';
+      ['wallSize','faceArea','hours','labor','material','soft','overhead','cost','profit','perFoot','perFace','hourlyRate','breakEven','breakEvenFoot']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'install price';
+      el('wallSize').textContent = `${result.lengthFeet.toFixed(0)} ft × ${result.exposedHeightFeet.toFixed(1)} ft exposed`;
+      el('faceArea').textContent = `${result.faceAreaSqFt.toFixed(0)} sq ft (${result.stoneCuYd.toFixed(1)} cu yd stone)`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('material').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perFoot').textContent = money(result.pricePerFoot);
+      el('perFace').textContent = result.pricePerFaceSqFt === null ? 'n/a' : `${money(result.pricePerFaceSqFt)}/sf`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('breakEvenFoot').textContent = money(result.breakEvenPerFoot);
+
+      const parts = [
+        ['Labor', result.shares.labor],
+        ['Material', result.shares.material],
+        ['Engineer, permit & travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ].filter(part => part[1] > 0);
+      el('split').innerHTML = parts
+        .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${Math.min(share, 100).toFixed(1)}%"></span></span></li>`)
+        .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} (${money(result.proposed.perFoot)}/ft) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} (${money(result.proposed.perFoot)}/ft) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      }
+    }
+
+    async function copySummary() {
+      const text = formatBidSummary(calculateBid(readInput()));
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('wallPreset').addEventListener('change', () => {
+      const preset = WALL_PRESETS[Number(el('wallPreset').value)];
+      if (!preset) return;
+      el('lengthFeet').value = preset.lengthFeet;
+      el('exposedHeightFeet').value = preset.exposedHeightFeet;
+      if (!el('embedmentFeet').dataset.edited) el('embedmentFeet').value = preset.embedmentFeet;
+      if (!el('corners').dataset.edited) el('corners').value = preset.corners;
+      if (!el('geogridLayers').dataset.edited) el('geogridLayers').value = preset.geogridLayers;
+      if (!el('excavationHours').dataset.edited) el('excavationHours').value = preset.excavationHours;
+      if (!el('heightFactor').dataset.edited) el('heightFactor').value = suggestedHeightFactor(preset.exposedHeightFeet);
+      count('wall_preset_applied');
+      update();
+    });
+    el('embedmentFeet').addEventListener('input', () => { el('embedmentFeet').dataset.edited = '1'; });
+    el('corners').addEventListener('input', () => { el('corners').dataset.edited = '1'; });
+    el('geogridLayers').addEventListener('input', () => { el('geogridLayers').dataset.edited = '1'; });
+    el('excavationHours').addEventListener('input', () => { el('excavationHours').dataset.edited = '1'; });
+
+    el('wallTypePreset').addEventListener('change', () => {
+      const preset = WALL_TYPE_PRESETS.find(item => item.id === el('wallTypePreset').value);
+      if (!preset) return;
+      if (!el('wallTypeFactor').dataset.edited) el('wallTypeFactor').value = preset.factor;
+      if (!el('blockCostPerSf').dataset.edited) el('blockCostPerSf').value = preset.blockCostPerSf;
+      count('wall_type_changed');
+      update();
+    });
+    el('wallTypeFactor').addEventListener('input', () => { el('wallTypeFactor').dataset.edited = '1'; });
+    el('blockCostPerSf').addEventListener('input', () => { el('blockCostPerSf').dataset.edited = '1'; });
+
+    el('heightPreset').addEventListener('change', () => {
+      const preset = HEIGHT_PRESETS.find(item => item.id === el('heightPreset').value);
+      if (preset && !el('heightFactor').dataset.edited) el('heightFactor').value = preset.factor;
+      count('height_changed');
+      update();
+    });
+    el('heightFactor').addEventListener('input', () => { el('heightFactor').dataset.edited = '1'; });
+
+    el('engineerPreset').addEventListener('change', () => {
+      const preset = ENGINEER_PRESETS.find(item => item.id === el('engineerPreset').value);
+      if (preset && !el('engineerAndPermitFee').dataset.edited) el('engineerAndPermitFee').value = preset.fee;
+      count('engineer_changed');
+      update();
+    });
+    el('engineerAndPermitFee').addEventListener('input', () => { el('engineerAndPermitFee').dataset.edited = '1'; });
+
+    el('exposedHeightFeet').addEventListener('change', () => {
+      const height = Number(el('exposedHeightFeet').value);
+      if (!Number.isFinite(height) || height <= 0) return;
+      if (!el('geogridLayers').dataset.edited) el('geogridLayers').value = suggestedGeogridLayers(height);
+      if (!el('heightFactor').dataset.edited) el('heightFactor').value = suggestedHeightFactor(height);
+    });
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
