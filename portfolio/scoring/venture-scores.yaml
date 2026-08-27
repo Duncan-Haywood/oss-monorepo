@@ -5961,3 +5961,34 @@ ventures:
       metadata. It never recommends turning Sponsors on, never promises
       income, and never stores which repo was scanned. The visitor's
       browser calls api.github.com directly.
+
+  - slug: marketplace-fee-compare
+    scores:
+      ai_leverage: 2
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 8
+    composite: 6.833
+    rater_b: null
+    floor: 2
+    floor_dimension: ai_leverage
+    floor_note: >-
+      AI is intentionally absent from the arithmetic core. Six published
+      fee schedules compared side by side is a correctness problem, and a
+      seller checking which channel to list on needs to see the sum, not
+      a summary of it.
+    basis: >-
+      Registered 2026-08-27. Shipped without a score row, which failed
+      `score_ventures.py --check` -- and therefore Portfolio validate --
+      for every open pull request in the repository, not only its own.
+      Scored one below its where-to-sell-calculator sibling on
+      defensibility: that venture is the portfolio's own cross-channel
+      comparison on the same high-intent queries, so this one is
+      differentiating against a sibling as well as against the ad-funded
+      incumbents. Distribution matches at 8 for the same reason -- "where
+      to sell online" and "etsy vs ebay fees" are the queries both answer.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
