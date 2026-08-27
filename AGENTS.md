@@ -50,6 +50,11 @@ AI-wrap by default.
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been
   wrong three times in one hour, and each time the feature existed only on the
   branch being closed.
+- **`git fetch --unshallow` first.** A scheduled session's clone is shallow, so
+  every branch reads as an unrelated history: no merge base, `git merge` refuses,
+  and a normal PR looks like a 2,800-file catastrophe. That is the clone, not the
+  branch. `supersede_check.py` now unshallows itself, but `git merge` and
+  `git diff origin/main <branch>` do not.
 
 **Rely on the owner as little as possible.** Merge product work. Do not
 invent a review gate.
