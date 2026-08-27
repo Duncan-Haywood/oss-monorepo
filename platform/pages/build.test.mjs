@@ -36,6 +36,7 @@ import {
   renderVentureSitemap,
   searchTokens,
   subcategoryFor,
+  groupByCategory,
   groupBySubcategory,
   truncate,
   REPO_ROOT,
@@ -253,12 +254,23 @@ test('every hub link resolves to a file that exists', async () => {
   const { outDir } = await site();
   const hub = stripRawText(await read('index.html'));
 
-  const hrefs = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
+  const all = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
+  const hrefs = all.filter((h) => !h.startsWith('#'));
   assert.ok(hrefs.length > 20, 'the hub should link to every tool');
 
   const hub_ = path.join(outDir, 'index.html');
   for (const href of hrefs) {
     await fs.access(hrefTarget(href, hub_, outDir));
+  }
+
+  // The contents index is in-page anchors, which resolve to an element rather
+  // than a file. A stale one is silent — the click just does nothing — so it is
+  // checked here rather than skipped.
+  const ids = new Set([...hub.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]));
+  const fragments = all.filter((h) => h.startsWith('#'));
+  assert.ok(fragments.length > 5, 'the hub should carry a contents index');
+  for (const fragment of fragments) {
+    assert.ok(ids.has(fragment.slice(1)), `${fragment} points at no element on the hub`);
   }
 });
 
@@ -987,6 +999,27 @@ test('every discovered tool lands in exactly one rendered group', async () => {
     const occurrences = hub.split(`href="${surface.slug}/"`).length - 1;
     assert.equal(occurrences, 1, `${surface.slug} appears ${occurrences} times`);
   }
+});
+
+// The hub is 43 screens tall on a phone, and the trades section alone spans 28
+// of them. Without an index the only route to a later section is scrolling past
+// all of it, and the only alternative is knowing what the tool is called.
+test('the contents index reaches every section and sub-group', async () => {
+  const { surfaces } = await site();
+  const hub = renderHub(surfaces, BASE);
+  const nav = hub.split('<nav class="contents"')[1].split('</nav>')[0];
+
+  for (const { category, items } of groupByCategory(surfaces)) {
+    assert.ok(nav.includes(`href="#${category.id}"`), `no contents link for ${category.id}`);
+    for (const { subcategory } of groupBySubcategory(category.id, items)) {
+      if (!subcategory) continue;
+      assert.ok(nav.includes(`href="#${subcategory.id}"`), `no contents link for ${subcategory.id}`);
+    }
+  }
+
+  // Anchors, not a script hook: the index has to work before the script runs
+  // and for a visitor who blocks it.
+  assert.ok(!nav.includes('onclick'), 'the index is plain anchors');
 });
 
 test('the hub sub-divides the trades section and leaves small ones flat', async () => {

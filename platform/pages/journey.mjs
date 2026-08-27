@@ -125,6 +125,27 @@ check('no sub-group is itself a wall', biggestSubgroup > 0 && biggestSubgroup <=
   `largest holds ${biggestSubgroup}`);
 
 
+// 1b. The contents index. On a phone the hub is tens of screens tall, so a
+// visitor who is not searching needs a route to a section that is not scrolling
+// past every section above it. A broken anchor here fails silently — the click
+// simply does nothing — so it is clicked, not just counted.
+const contentsLinks = await page.locator('.contents a').count();
+check('the contents index lists sections', contentsLinks >= 6, `${contentsLinks} links`);
+
+const target = await page.locator('.contents a').last().getAttribute('href');
+const beforeJump = await page.evaluate(() => window.scrollY);
+await page.locator('.contents a').last().click();
+await page.waitForTimeout(400);
+const jumped = await page.evaluate((sel) => {
+  const el = document.querySelector(sel);
+  return el ? Math.abs(el.getBoundingClientRect().top) : Infinity;
+}, target);
+check('the last contents link jumps to its section',
+  jumped < 120 && (await page.evaluate(() => window.scrollY)) > beforeJump,
+  `${target} landed ${Math.round(jumped)}px from the viewport top`);
+
+await page.evaluate(() => window.scrollTo(0, 0));
+
 // 2. Search.
 await page.fill('#q', 'ebay');
 await page.waitForTimeout(150);
@@ -139,6 +160,9 @@ const staleSubgroups = await page.evaluate(() =>
   [...document.querySelectorAll('.subgroup:not([hidden])')].filter(
     (s) => ![...s.querySelectorAll('.card')].some((c) => !c.hidden)).length);
 check('search hides sub-groups it emptied', staleSubgroups === 0, `${staleSubgroups} left showing`);
+// Its counts are of the whole catalogue, so leaving it up over a filtered page
+// would state a number the page below contradicts.
+check('the contents index steps aside during a search', await page.locator('.contents').isHidden());
 
 await page.fill('#q', 'zzzznotathing');
 await page.waitForTimeout(150);
@@ -152,6 +176,7 @@ check('clearing search restores every tool',
   (await page.locator('.card:not([hidden])').count()) === cardCount);
 check('clearing search restores every sub-group',
   (await page.locator('.subgroup:not([hidden])').count()) === subgroupCount);
+check('clearing search brings the contents index back', await page.locator('.contents').isVisible());
 
 // 3. Usage counting is local, and the opt-out actually stops it.
 const storageKey = await page.evaluate(() =>
