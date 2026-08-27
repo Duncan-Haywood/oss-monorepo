@@ -39,6 +39,13 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /Unwrapped factur-x\.xml \(CII\) from the PDF/);
 });
 
+test("browser page can download the grouped remediation CSV", () => {
+  assert.match(page, /id="downloadRemediationCsv"/);
+  assert.match(page, /Download remediation CSV/);
+  assert.match(page, /buildRemediationCsv/);
+  assert.match(page, /einvoice-preflight-remediation\.csv/);
+});
+
 test("disclaimer and optional sponsors are visible", () => {
   assert.match(page, /No warranty/);
   assert.match(page, /not legal, tax, financial, or accounting advice/i);

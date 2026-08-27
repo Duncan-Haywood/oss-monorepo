@@ -228,3 +228,40 @@ export function buildJsonReport({ reports, readErrors }) {
     })),
   };
 }
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  if (/[",\n\r]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
+  return text;
+}
+
+export function buildRemediationCsv({ reports, readErrors }) {
+  const grouped = new Map();
+  for (const report of reports) {
+    for (const finding of report.errors) {
+      const item = grouped.get(finding.rule) || {
+        rule: finding.rule,
+        occurrences: 0,
+        message: finding.message,
+        fix: finding.fix,
+      };
+      item.occurrences += 1;
+      grouped.set(finding.rule, item);
+    }
+  }
+  const rows = [...grouped.keys()].sort().map((rule) => grouped.get(rule));
+  if (readErrors.length) {
+    rows.push({
+      rule: "INV-READ",
+      occurrences: readErrors.length,
+      message: "Invoice could not be read.",
+      fix: "Resolve the read error and run the preflight again.",
+    });
+  }
+  const header = ["rule", "occurrences", "message", "fix"];
+  const lines = [
+    header.join(","),
+    ...rows.map((row) => header.map((key) => csvCell(row[key])).join(",")),
+  ];
+  return `${lines.join("\n")}\n`;
+}

@@ -19,7 +19,9 @@ When a PDF unwraps, the result names the standard attachment
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
-# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
+# http://127.0.0.1:8765/ — same rule IDs as the CLI. After a check,
+# Download remediation CSV is the same one-row-per-rule queue as
+# --format remediation-csv. Other CLI formats include VAT/IBAN/BIC/RF
 # credit-note document type (INV-032 through INV-034), 0% / exempt
 # tax reasons (INV-035 and INV-036), mixed-rate tax breakdown
 # (INV-037 and INV-038), buyer/seller electronic addresses
