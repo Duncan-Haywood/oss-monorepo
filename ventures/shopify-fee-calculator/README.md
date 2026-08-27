@@ -54,6 +54,9 @@ card reader.
 answers the postage question: whether a Pirate Ship, Shippo, or carrier-account
 quote still beats the Shopify Shipping label after card fees, and what you
 keep if checkout charges Shopify’s rate while you buy the cheaper label.
+The main calculator runs the same `compareShippingLabels` math on the
+order you just typed, so you do not leave the page to check the label
+spread after card fees.
 [Should I offer Shop Pay Installments?](should-i-offer-shop-pay-installments.html)
 answers the installment question: whether the extra Shop Pay Installments
 rate still pays after you blend the share of checkouts that use it, and how

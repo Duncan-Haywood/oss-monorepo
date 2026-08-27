@@ -103,3 +103,17 @@ test("index and sitemap point at the label comparison", () => {
   assert.match(index, /should-i-buy-shopify-shipping-labels\.html/);
   assert.match(sitemap, /should-i-buy-shopify-shipping-labels\.html/);
 });
+
+test("index surfaces compareShippingLabels on the order itself", () => {
+  assert.match(index, /compareShippingLabels/);
+  assert.match(index, /id="labelCompare"/);
+  assert.match(index, /id="labelHeadline"/);
+  assert.match(index, /shipping_labels_compared/);
+  assert.match(index, /id="shopifyLabelCost"/);
+  assert.match(index, /id="ownLabelCost"/);
+  const table = index.match(/<table id="labelTable">[\s\S]*?<\/table>/);
+  assert.ok(table, "index.html is missing the shipping-label comparison table");
+  const columns = table[0].match(/<th\b/g).length;
+  const cells = (index.match(/labels\.rows\.map[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "label row emits a different cell count than the header");
+});

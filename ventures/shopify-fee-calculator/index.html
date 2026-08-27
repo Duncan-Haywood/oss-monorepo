@@ -242,6 +242,39 @@
         <tbody id="installmentCompare"></tbody>
       </table>
       <p id="installmentNote" class="note"></p>
+      <hr>
+      <h2>Shopify Shipping vs your own label</h2>
+      <p class="note">
+        The dedicated
+        <a href="should-i-buy-shopify-shipping-labels.html">Shopify Shipping vs own-label calculator</a>
+        already has the full math. This block uses the same
+        <code>compareShippingLabels</code> on the order you just typed,
+        so you do not leave the page. Empty Shopify label falls back to
+        Shipping you pay; empty own label uses $4.25 (Pirate Ship / Shippo
+        default on that page).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>Shopify Shipping label
+          <input id="shopifyLabelCost" type="number" min="0" step="0.01" value="5.49">
+        </label>
+        <label>Own / third-party label
+          <input id="ownLabelCost" type="number" min="0" step="0.01" value="4.25">
+        </label>
+      </div>
+      <p id="labelHeadline" class="note"></p>
+      <table id="labelTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Label</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs Shopify label</th>
+          </tr>
+        </thead>
+        <tbody id="labelCompare"></tbody>
+      </table>
+      <p id="labelNote" class="note"></p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -332,7 +365,7 @@
     <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
   </footer>
   <script type="module">
-    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
+    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
     import { encodeShareState, decodeShareState } from "./share.mjs";
 
@@ -343,6 +376,7 @@
     ];
     const promoIds = ["percentOff", "amountOff"];
     const installmentIds = ["installmentRate", "installmentFixed", "installmentSharePct", "extraOrdersFromInstallments"];
+    const labelIds = ["shopifyLabelCost", "ownLabelCost"];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => {
       if (Math.abs(value) < 0.005) return "same";
@@ -364,6 +398,7 @@
         ...Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value])),
         ...Object.fromEntries(promoIds.map((id) => [id, document.getElementById(id).value])),
         ...Object.fromEntries(installmentIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(labelIds.map((id) => [id, document.getElementById(id).value])),
         paymentMethod: paymentMethod(),
         planId: document.getElementById("plan").value,
       };
@@ -453,6 +488,16 @@
           : Number.isFinite(installment.breakEvenExtraOrders)
             ? `Need about ${installment.breakEvenExtraOrders.toFixed(1)} extra orders / month for the mix to match turning installments off.`
             : "The blended mix cannot cover the extra installment fee from volume alone.";
+
+        const labels = compareShippingLabels(readInput());
+        document.getElementById("labelHeadline").textContent = labels.summary;
+        document.getElementById("labelCompare").innerHTML = labels.rows.map((row) => {
+          const delta = row.id === "shopify" ? "—" : signedMoney(row.profitDelta);
+          return `<tr><td>${row.label}</td><td>${money(row.labelCost)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("labelNote").textContent = Number.isFinite(labels.monthlyExtraOnOwn)
+          ? `Own-label leftover vs Shopify Shipping is ${signedMoney(labels.monthlyExtraOnOwn)} / month at this volume.`
+          : "Fix the label quotes to compare Shopify Shipping with your own postage.";
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -469,6 +514,9 @@
         document.getElementById("installmentCompare").innerHTML = "";
         document.getElementById("installmentHeadline").textContent = "Fix the inputs to compare Shop Pay Installments.";
         document.getElementById("installmentNote").textContent = "";
+        document.getElementById("labelCompare").innerHTML = "";
+        document.getElementById("labelHeadline").textContent = "Fix the inputs to compare shipping labels.";
+        document.getElementById("labelNote").textContent = "";
       }
     }
 
@@ -487,6 +535,7 @@
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
     promoIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
     installmentIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    labelIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       const event = id === "targetMargin"
         ? "target_margin_calculated"
@@ -502,6 +551,9 @@
     }));
     installmentIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shop_pay_installments_compared");
+    }));
+    labelIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shipping_labels_compared");
     }));
     document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
