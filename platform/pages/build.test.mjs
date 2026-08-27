@@ -1380,6 +1380,17 @@ test('the saved-bid index is absent until script fills it', async () => {
   assert.match(hub, /<ul id="bidsList"><\/ul>/, 'the list ships empty');
 });
 
+test('the backup panel ships on the hub, outside the section that hides when empty', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<section class="support backup" id="backup-box" hidden>/,
+    'drawn by script only — a file picker that cannot work without script should not appear');
+  // It must sit *after* `#bids` closes: nested inside, the restore control
+  // would be hidden on exactly the browser it exists for — the new phone with
+  // no saved bids at all.
+  const bidsEnd = hub.indexOf('</section>', hub.indexOf('id="bids"'));
+  assert.ok(hub.indexOf('id="backup-box"') > bidsEnd, 'the backup panel is a sibling, not a child');
+});
+
 test('the saved-bid index links to the band anchor, never to a bid name', async () => {
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function savedBids'));

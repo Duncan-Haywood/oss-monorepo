@@ -38,6 +38,7 @@ import {
 } from './offline.mjs';
 import { injectShopRates } from './rates.mjs';
 import { injectSavedBids } from './jobs.mjs';
+import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -928,6 +929,21 @@ ${subgroups
     .offline button[disabled] { opacity: .6; cursor: progress; }
     .offline #offline-status:empty { display: none; }
     .offline #offline-status { margin: 10px 0 0; font-size: .85rem; }
+    .backup p { margin: 8px 0 0; font-size: .9rem; line-height: 1.5; color: var(--muted); }
+    .backup .backup-actions { display: flex; flex-wrap: wrap; align-items: center;
+                              gap: 8px 12px; margin-top: 12px; }
+    .backup .backup-actions label { font-size: .85rem; font-weight: 650; color: var(--ink); }
+    .backup button { font: inherit; font-weight: 650; padding: 10px 16px; border-radius: 9px;
+                     border: 1px solid var(--accent); background: var(--accent);
+                     color: var(--accent-ink); cursor: pointer; }
+    .backup input[type=file] { font: inherit; font-size: .85rem; max-width: 100%; }
+    .backup .backup-note { font-size: .82rem; }
+    .backup #backup-status:empty { display: none; }
+    .backup #backup-status { margin: 10px 0 0; font-size: .85rem; color: var(--ink); }
+    /* Same reason the saved-bid list is hidden in print: the counts here are
+       about a customer list, and the sheet a homeowner receives is not where
+       that belongs. */
+    @media print { .backup { display: none; } }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </style>
 </head>
@@ -965,11 +981,19 @@ ${contents}
         Bids you saved in any tool on this site, newest first. Opening one takes
         you to the tool that priced it with your saved bids showing, ready to
         restore. These are kept in this browser only — never uploaded, and
-        clearing your browser data clears them.
+        clearing your browser data clears them, so download a backup below if
+        they matter.
       </p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
+
+    <!-- Directly under the list it backs up, and deliberately still drawn when
+         that list is empty: the browser with no saved bids is exactly the one
+         where "restore from a backup" is the only thing that helps, and a
+         control tucked inside the hidden section above would be unreachable
+         there. The script re-words it for the two cases. -->
+${BACKUP_WIDGET_HTML}
 
     <!-- Filled in by script from counts held on this device; a visitor with no
          history, no storage, or an opt-out never sees it. -->
@@ -1311,6 +1335,7 @@ ${DISCLAIMER_HTML}
     }
 
     showSavedBids();
+${BACKUP_WIDGET_SCRIPT}
 ${OFFLINE_WIDGET_SCRIPT}
   </script>
 </body>

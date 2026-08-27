@@ -1734,6 +1734,44 @@ products:
           aggregate, opt-out and DNT/GPC-respecting path; the event carries no
           name and no slug. Still a baseline row: the public URL remains
           owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          bids_backup_downloaded: 0
+          bids_backup_restored: 0
+          bids_backup_rejected: 0
+        note: >-
+          Backup and restore for saved bids. Everything the three rows above
+          built stands on one `localStorage` key in one browser, and the hub's
+          own copy said so — "clearing your browser data clears them." That is
+          honest and it is also a single point of loss with no way out of it:
+          the job priced on the phone on Tuesday is not on the laptop on
+          Friday, a reinstalled browser takes every bid with it, and Safari
+          evicts script-written storage on a site nobody has opened for seven
+          days, which is exactly the cadence a fortnightly tool has. Each of
+          those ends in a blank form and a customer asking what the number was
+          — the failure saved bids exist to prevent, arriving through the
+          storage rather than through the tool. The hub now writes every saved
+          bid plus the shop rates into a file the visitor keeps, and reads one
+          back on any browser on this origin. No account and no server: there
+          is nowhere here to upload to and no wish for one. A restore merges
+          and never deletes (the newer save wins where a job is on both sides,
+          so an old backup cannot take a re-priced job back in time), and
+          nothing is dropped silently — unreadable entries and bids past the
+          25-per-tool cap are counted in the status line. Shop rates are taken
+          only where there are none to overwrite, because they prefill 103
+          calculator pages and a file must not silently reprice them.
+          `bids_backup_restored` is the reading that matters: a restore is
+          either a visitor who had already lost their bids once or one working
+          across two devices, and both are stronger return-visit evidence than
+          a page view. `bids_backup_rejected` is watched separately and is not
+          a failure — it counts a wrong file refused rather than half-imported;
+          a number that climbs against `bids_backup_restored` would say the
+          file is hard to find again rather than hard to read. Same local,
+          aggregate, opt-out and DNT/GPC-respecting path as every other hub
+          event; no event carries a name, a slug, or a count of what was in the
+          file, and the file itself never leaves the browser. Still a baseline
+          row: the public URL remains owner-gated on `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
