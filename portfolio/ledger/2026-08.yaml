@@ -1,5 +1,76 @@
 period: 2026-08
 entries:
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **All 161 published browser products compute.** First run of
+        `platform/pages/sweep.mjs` against a complete `build.mjs` artifact —
+        it had never been run on a full build, because Playwright is not a
+        repo dependency and CI has been dark since #1842. Installed it
+        out-of-tree against the sandbox's own Chromium
+        (`CHROME_PATH=/opt/pw-browsers/chromium`) and swept every tool: load,
+        perturb, press, watch for `pageerror`. 161/161 answered. That is the
+        first end-to-end evidence any of these products work in a browser, and
+        it is the precondition `DIRECTION.md` sets for publishing.
+      - >-
+        The sweep's two findings were both false alarms, and both are fixed
+        (#1860). `grant-reporting-tracker` reads as dead because `perturb`
+        only touches `input[type=number]`, so "Add grant" was pressed with an
+        empty required name and the form correctly refused; driven by hand it
+        computes next report 2026-04-15, Overdue, restricted balance 38000.00.
+        `sponsor-ready` calls `api.github.com`, which this runner cannot reach
+        through a proxy Chromium does not trust — the page handled it and
+        printed "Failed to fetch". `fillBlanks` now supplies empty text/date
+        fields before the action, and an off-site request failure reads
+        `needs-network` rather than failing the sweep. Verified it still
+        catches real breakage: a `calc.mjs` replaced with an unparseable
+        module gives `ERRORS — pageerror: Unexpected end of input`, exit 1.
+      - >-
+        Two false alarms out of two findings is how a gate stops being read,
+        and this is the last check between ~161 products and the public.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `supersede_check.py` now reports **RENAME SUSPECTED** (#1859): when
+        most of one file's unmatched lines have a close twin in the same
+        venture on the base, it prints each pair and names the file the twin
+        lives in. This is the case neither existing proof catches — the branch
+        spells the feature `largestCostComponent`, `main` spells it
+        `largestCostDriver`, so no line matches and no merge replay is clean,
+        yet the work is shipped. Confirmed by hand on nine PRs before building
+        it (#1122, #1069, #1529, #1099, #1085, #1314, #1313, #1080, #1323) and
+        then across the queue: 21 of 31 scanned PRs flag it, the whole
+        `quote-margin-check` cluster among them.
+      - >-
+        Exit stays 1 and rename never implies `superseded`. The tool exists
+        because #1006, #1014 and #1016 were closed on a reasonable-feeling
+        inference; a similarity score that auto-approved closes would rebuild
+        that mistake with a number behind it. Two calibrations worth keeping:
+        the share is measured per *file*, because a rename lands in one module
+        beside genuinely new tests (#1323 averages 44% across the branch and
+        63% in the module that matters); and append-only records are exempt,
+        because every `usage.yaml` reading resembles every other by
+        construction — `local_comparisons: 0` pairs at 95% with
+        `local_comparisons: 1`.
+      - >-
+        Merged no queue PR this run, and that was the finding rather than a
+        shortfall. Every one examined would have regressed a live product:
+        duplicate buttons, a second `localStorage` key competing with
+        `share.mjs`, and in #1323's case an `index.html` reverted to an older
+        version. This corroborates the previous session's independent
+        conclusion from the identical-merge replay.
+      - >-
+        The Actions runner outage (#1842) is still live after ~32 hours — jobs
+        on `main` at 06:16 and on a PR at 07:11 both died in 3 seconds. It now
+        gates the Pages deploy in practice: the `deploy-settings` flip cannot
+        produce a site while no runner will build one. Owner-only; notified,
+        no duplicate ask opened.
+    mrr_end: null
   - venture: grant-reporting-tracker
     agent_spend_usd: null
     human_hours: 0
