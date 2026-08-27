@@ -24601,3 +24601,78 @@ entries:
         shop rates saved and the panel open — the only element that prints is
         `#proposalDoc`.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The customer proposal now ships on 27 bid calculators, up from 15 this
+        morning.** Two batches in one session (#1885, #1886): window-replacement,
+        solar-pv, basement-waterproofing, electrical-panel-upgrade,
+        sewer-line-replace, fence; then attic-insulation, ev-charger,
+        standby-generator, water-heater, furnace, mini-split. 74 still have none.
+      - >-
+        **A whole class of calculator is now closed.** Five pages shipped an
+        `@media print` block of their own *before* the proposal existed, printing
+        the contractor's internal bid sheet — cost, overhead, profit, walk-away
+        price — and three of them have a "Print quote" button wired to it, so
+        that sheet is a feature someone uses. Replacing it would have removed
+        working functionality to add some. All five now keep both, separated by a
+        `printing-proposal` body class: plain Ctrl+P still gives the internal
+        sheet, `printProposal` sets the flag, `afterprint` clears it, and the
+        print buttons clear it too because a cancelled dialogue does not reliably
+        deliver `afterprint`. The safety property is unchanged — whenever the
+        customer's sheet prints, `main` is hidden outright rather than by an
+        allow-list.
+      - >-
+        The trap inside that: the internal block has to hide `#proposalDoc`, but
+        a bare `#proposalDoc` is an **id** selector and outranks
+        `body.printing-proposal .pr-shell`, so the customer's copy printed
+        **blank**. Scoped `body:not(.printing-proposal) #proposalDoc` instead —
+        mutually exclusive selectors cannot race on specificity.
+      - >-
+        **`grep -c 'function readInput'` is not a survey.** It matches
+        `readInputs` as a substring, and `ev-charger`, `standby-generator` and
+        `water-heater` call theirs plural. All three shipped a proposal calling
+        `readInput()` — undefined at runtime, so the button set a status of
+        `readInput is not defined` and printed nothing, while every text-level
+        test stayed green because the string is present either way. `page.test.mjs`
+        now asserts the reader the proposal calls is one the page defines, and
+        the assertion was negative-tested against the real defect.
+      - >-
+        Six more defects found by **reading the printed sheets**, not by running
+        the suites: `fence` drafted `undefined ft of undefined` (its rows carry
+        `name`/`linearFeet`, not `material`/`feet`); `water-heater`'s
+        `result.addons` is an object of flags, not an array, so the scope threw
+        on `.map`; `mini-split` reached for three selects whose real ids end in
+        `Preset`, and printed "12,000 BTU each" for a single zone; `furnace`
+        printed "a 80% afue furnace", `.toLowerCase()` having destroyed the
+        acronym; `electrical-panel-upgrade` titled a same-amp swap "100 A to
+        100 A"; `attic-insulation` would have printed `9.72972972972973 in` of
+        insulation, the same false precision as `paver-patio`'s
+        `Excavate to 9.375"`.
+      - >-
+        Estimator shorthand stripped rather than printed on customers' quotes:
+        `(tankless killer)`, `(use the harder one)`, `(easy access)`,
+        `(longer feeder)`. One kept deliberately — `attic-insulation` prints the
+        bag count, because depth markers plus bags installed is how a homeowner
+        checks they got the R-value they paid for.
+      - >-
+        Verified across both batches: 1,041 tests green (12 venture suites,
+        `platform/pages` 201, `platform/proposal` 18);
+        `portfolio/router/validate.py`, `score_ventures.py --check`,
+        `validate_usage.py`, `publish_surface.py --check`, `clauses.mjs`,
+        `check_form_defaults.py`, `check_conflict_markers.py` and
+        `check_duplicate_symbols.py` all exit 0; site rebuilds to 162 products /
+        439 pages with no dead links. All 12 customer journeys driven in Chromium
+        against the *built* artifact with shop rates saved and the panel open,
+        and the four dual-print pages driven internal → proposal → internal.
+      - >-
+        Housekeeping finding, so the next session does not redo it: the open-PR
+        queue was **empty** at the start of the run, and a `supersede_check.py`
+        sweep of the 170 unmerged remote branches found **no unique work** in the
+        39 it covered — including all six `rematch-*` branches, which are fully
+        superseded by `main`. CI was red on both PRs and on every `main` commit
+        today: 2–5 second jobs, empty `output.*`, 404 on log download — the
+        documented runner outage, not the code.
+    mrr_end: null
