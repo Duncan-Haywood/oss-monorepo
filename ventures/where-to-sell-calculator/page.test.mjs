@@ -347,3 +347,10 @@ test('a saved channel that says nothing about `enabled` is not switched on', () 
   assert.match(merge, /channel\.enabled !== false/,
     'and must fall back to the preset default');
 });
+
+test('share-link copy falls back when the Clipboard API is unavailable', () => {
+  assert.match(html, /function fallbackCopy/);
+  assert.match(html, /execCommand\("copy"\)/);
+  assert.match(html, /share_link_copied/);
+  assert.doesNotMatch(html, /window\.prompt\("Copy this share link:/);
+});

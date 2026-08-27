@@ -857,6 +857,18 @@
     document.getElementById("usageOptOut").addEventListener("change", (event) => {
       writeOptOut(localStorage, event.target.checked);
     });
+    function fallbackCopy(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand("copy");
+      textarea.remove();
+      if (!copied) throw new Error("copy failed");
+    }
     document.getElementById("share").addEventListener("click", async () => {
       const status = document.getElementById("share-status");
       try {
@@ -864,11 +876,16 @@
         const url = new URL(window.location.href);
         url.search = `?c=${encodeComparison(readShared(), channels)}`;
         if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(url.href);
-          status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+          try {
+            await navigator.clipboard.writeText(url.href);
+            status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+          } catch {
+            fallbackCopy(url.href);
+            status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
+          }
         } else {
-          window.prompt("Copy this share link:", url.href);
-          status.textContent = "Share link ready to copy.";
+          fallbackCopy(url.href);
+          status.textContent = "Share link copied. It contains your assumptions, not your saved usage data.";
         }
         recordUsage(localStorage, optedOut(), "share_link_copied");
       } catch (error) {

@@ -40,6 +40,9 @@ test("the page imports the comparison it claims to run", () => {
   assert.match(scriptSource, /countUsage\("calculation"\)/);
   assert.match(scriptSource, /countUsage\("summary_copied"\)/);
   assert.match(scriptSource, /countUsage\("review-export"\)/);
+  assert.match(scriptSource, /function fallbackCopy/);
+  assert.match(scriptSource, /execCommand\("copy"\)/);
+  assert.match(scriptSource, /copyText\(/);
 });
 
 test("figures named in schema.org featureList are actually rendered", () => {
