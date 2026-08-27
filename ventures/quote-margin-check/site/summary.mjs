@@ -16,7 +16,7 @@ export function formatReviewSummary(quote, report, checks, decision = null) {
     "Arithmetic review for discussion, not pricing or financial advice.",
     ...nextStep,
     `Quoted price: ${money(quote.price)}`,
-    `Total working hours: ${report.total_hours.toFixed(2)}`,
+    `Total working hours: ${report.total_hours.toFixed(2)} (${report.hidden_hours.toFixed(2)} admin/revision hours)`,
     `Direct costs: ${money(report.direct_costs)}`,
     `Effective hourly rate: ${money(report.effective_hourly_rate)}/hour`,
     `Target hourly rate supplied: ${money(quote.target_hourly_rate)}/hour`,

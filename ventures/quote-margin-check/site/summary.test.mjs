@@ -11,6 +11,7 @@ test("formats a review summary with derived arithmetic and attention flags", () 
   const summary = formatReviewSummary(quote, report, reviewQuote(quote, report), reviewDecision(report, quote));
 
   assert.match(summary, /Quoted price: USD 1000\.00/);
+  assert.match(summary, /Total working hours: 15\.00 \(5\.00 admin\/revision hours\)/);
   assert.match(summary, /Effective hourly rate: USD 66\.67\/hour/);
   assert.match(summary, /The quote is below the supplied target/);
   assert.match(summary, /Minimum increase to reach target: USD 500\.00/);
@@ -25,6 +26,15 @@ test("states when there are no arithmetic attention flags", () => {
 
   assert.match(summary, /No arithmetic attention flags/);
   assert.doesNotMatch(summary, /undefined/);
+});
+
+test("creates a concise handoff with hidden time", () => {
+  const quote = loadQuote({ currency: "USD", price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  const report = calculate(quote);
+  const summary = formatReviewSummary(quote, report, reviewQuote(quote, report));
+  assert.match(summary, /Total working hours: 35\.00 \(11\.00 admin\/revision hours\)/);
+  assert.match(summary, /Effective hourly rate: USD 54\.86\/hour/);
+  assert.doesNotMatch(summary, /should send|must revise|recommended/i);
 });
 
 test("includes the local next-step prompt without recommending a price", () => {
