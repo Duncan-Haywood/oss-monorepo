@@ -555,6 +555,9 @@ workflows:
 - workflow: source-silence-detector-ci.yml
   classification: none
   publishes: []
+- workflow: spray-foam-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: stair-lift-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -607,6 +610,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: vendor-change-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: vendor-watch-ci.yml
   classification: none
   publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml

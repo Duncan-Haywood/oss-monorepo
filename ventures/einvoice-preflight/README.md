@@ -3,19 +3,25 @@
 **Validate a structured invoice before submission.** After using this, you can
 now see which fields, totals, VAT digits, or payment instructions would fail a
 local preflight — in the browser or in CI — which used to mean waiting for a
-network rejection. Open `index.html` and drop a JSON or UBL XML file, or run
-the CLI below. The page never uploads the invoice.
+network rejection. Open `index.html` and drop a JSON, UBL, CII, or Factur-X
+PDF file, or run the CLI below. The page never uploads the invoice.
 
-This free local CLI also checks a small, transparent JSON, UBL XML, or
-UN/CEFACT CII (XRechnung CII / Factur-X) invoice for missing fields and
-arithmetic mistakes, then prints rule IDs and plain-language fixes. It is
-aimed at bookkeepers and ERP integrators searching for an e-invoice
-preflight check. CII is the XML an ERP actually emits when it is not UBL.
+This free local CLI also checks a small, transparent JSON, UBL XML,
+UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
+for missing fields and arithmetic mistakes, then prints rule IDs and
+plain-language fixes. It is aimed at bookkeepers and ERP integrators
+searching for an e-invoice preflight check. CII is the XML an ERP actually
+emits when it is not UBL; a Factur-X PDF is only the envelope around that XML.
+When a PDF unwraps, the result names the standard attachment
+(`factur-x.xml`, `zugferd-invoice.xml`, or `xrechnung.xml`) and the syntax
+(CII or UBL). Custom attachment names are not echoed.
 
 ```sh
 cd ventures/einvoice-preflight
 # Browser: open index.html, or `python3 -m http.server 8765` and visit
-# http://127.0.0.1:8765/ — same rule IDs as the CLI, including VAT/IBAN/BIC/RF
+# http://127.0.0.1:8765/ — same rule IDs as the CLI. After a check,
+# Download remediation CSV is the same one-row-per-rule queue as
+# --format remediation-csv. Other CLI formats include VAT/IBAN/BIC/RF
 # credit-note document type (INV-032 through INV-034), 0% / exempt
 # tax reasons (INV-035 and INV-036), mixed-rate tax breakdown
 # (INV-037 and INV-038), buyer/seller electronic addresses
@@ -28,6 +34,7 @@ PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-credit-note.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-mixed-rate.json
 PYTHONPATH=src python3 -m einvoice_preflight examples/cii-invoice.xml
+PYTHONPATH=src python3 -m einvoice_preflight examples/factur-x-invoice.pdf
 PYTHONPATH=src python3 -m einvoice_preflight examples/ubl-invoice.xml
 # The one example that is meant to fail: six planted defects, annotated at the
 # top of the file and pinned by tests/test_examples.py. Exits 1.
@@ -38,6 +45,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation-csv > remediation.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation
@@ -61,11 +69,14 @@ The package has a focused GitHub Actions workflow that installs the command,
 runs the standard-library test suite, and smoke-tests the installed entry point
 whenever this venture changes.
 Pass `-`
-as the filename to read one JSON or UBL XML invoice from standard input, which
-is useful for ERP adapters and CI pipelines. SARIF reports use `stdin.json` as
-the artifact name for piped input. Directories are scanned recursively for both
-`.json` and `.xml` files. XML input maps common UBL Invoice, CreditNote, and
-DebitNote elements into the same checks. It is
+as the filename to read one JSON, UBL XML, CII XML, or Factur-X PDF invoice from
+standard input, which is useful for ERP adapters and CI pipelines. SARIF reports
+use `stdin.json` as the artifact name for piped input. Directories are scanned
+recursively for `.json`, `.xml`, and `.pdf` files. A Factur-X / ZUGFeRD /
+XRechnung PDF is unwrapped to its embedded invoice XML before the same checks
+run. Encrypted PDFs and scanned paper PDFs with no attachment are refused.
+XML input maps common UBL Invoice, CreditNote, and
+DebitNote elements, and CII CrossIndustryInvoice, into the same checks. It is
 not a full Peppol or EN 16931 conformance validator. Use
 `--max-files N` in CI or ERP jobs to refuse a directory scan when more than `N`
 invoice files are present. This bounds accidental scans of a broad working
@@ -81,8 +92,11 @@ for selecting the correct format, tax treatment, and submission process.
 ## Input shape
 
 The supported v0 JSON shape is intentionally small and format-neutral. UBL XML
-input maps common `Invoice`, `CreditNote`, `DebitNote`, line, party, tax, and
-monetary-total elements into this shape. When an invoice contains multiple UBL `TaxTotal`
+and UN/CEFACT CII (XRechnung CII / Factur-X XML) both map into this shape.
+A Factur-X / ZUGFeRD / XRechnung PDF is unwrapped to that embedded XML first.
+UBL input maps common `Invoice`, `CreditNote`, `DebitNote`, line, party, tax, and
+monetary-total elements. CII maps `CrossIndustryInvoice` header, parties, lines,
+tax, payment, and totals the same way. When an invoice contains multiple UBL `TaxTotal`
 elements, their `TaxAmount` values are added to obtain the invoice tax total.
 This keeps split tax schemes from being silently ignored; it is still an
 arithmetic check, not a tax-law determination:
@@ -312,7 +326,13 @@ findings and `2` for read errors.
 `--format csv` produces one spreadsheet row per finding, plus explicit pass and
 read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
 `message`, `fix`, and `error`, making it suitable for triage queues without
- exposing invoice values or contents.
+exposing invoice values or contents.
+`--format remediation-csv` produces one spreadsheet row per rule across the
+batch, with an occurrence count, check message, and recommended fix. It is
+useful when an operator wants a compact queue of repeated fixes rather than
+one row per invoice. Read errors are represented as `INV-READ`; invoice
+values, numbers, and line contents are never included. The JSON
+`--format remediation` queue stays the per-invoice adapter payload.
 `--format junit` produces a JUnit XML report for CI dashboards. Each invoice is
 one testcase; failed checks are failures and unreadable files are errors. The
 report contains only local filenames, rule IDs, JSON Pointer paths, observations,
@@ -348,8 +368,9 @@ negative, or non-numeric values before any invoice is read. It refuses an
 oversized regular file before reading it and reads stdin only through `N+1`
 bytes, returning a structured exit-2 read error when the limit is exceeded.
 
-Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
-or HTML when a directory is empty or a `--max-files` limit refuses the scan.
+Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, remediation-csv,
+JUnit, Markdown, or HTML when a directory is empty or a `--max-files` limit
+refuses the scan.
 These input errors are reported in the selected format and the command exits
 `2`, so CI and ERP adapters do not need to special-case an unstructured stderr
 or stdout message.

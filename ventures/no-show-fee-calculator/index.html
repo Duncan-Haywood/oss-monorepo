@@ -184,6 +184,16 @@
             <label for="serviceName">What you call the booking</label>
             <input type="text" id="serviceName" name="serviceName" placeholder="e.g. training session, appointment, class" />
           </div>
+          <div class="field">
+            <label for="collectionMethod">How you plan to collect the fee</label>
+            <select id="collectionMethod" name="collectionMethod">
+              <option value="payment-method" selected>Charge the payment method on file</option>
+              <option value="invoice">Send an invoice for the fee</option>
+              <option value="booking">Collect it when the booking is made</option>
+              <option value="contact">Contact the client to arrange payment</option>
+            </select>
+            <p class="hint">This only changes the draft wording. Confirm your payment processor and booking-system rules before using it.</p>
+          </div>
         </fieldset>
 
         <button type="submit">Calculate</button>

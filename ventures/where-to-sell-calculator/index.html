@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, expected monthly profit, break-even price, price needed to match the best channel, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
+    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, orders needed to cover a monthly plan, expected monthly profit, break-even price, price needed to match the best channel, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
   }
   </script>
   <script type="application/ld+json">
@@ -140,6 +140,11 @@
     tbody tr.fastest:not(.best) th::after { content: " · faster / day"; color: #c9bcff; font-weight: 700; font-size: .8rem; }
     tbody tr.best.fastest th::after { content: " · best · faster / day"; color: #c9bcff; font-weight: 700; font-size: .8rem; }
     td.money { font-variant-numeric: tabular-nums; }
+    /* On a wide screen the column heading carries the label, so the per-cell
+       label is redundant. It stays in the markup (rather than being generated
+       by CSS) so that in card mode below it is real text every assistive
+       technology reads, not decorative ::before content. */
+    .cell-label { display: none; }
     /* The shelf-time table sits on a white section rather than inside the dark
        verdict panel, so its leading row needs a light tint — the dark .best
        shade would put light text on light background here. */
@@ -165,6 +170,49 @@
     footer { margin-top: 25px; font-size: .82rem; color: #4a4270; }
     footer a { color: #4b32a8; }
     @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .fields, details .fields { grid-template-columns: 1fr; } }
+
+    /* Fourteen keep columns and ten shelf columns do not fit a phone. Rather
+       than leave the seller dragging a table sideways — losing the channel
+       name, which is the row's only anchor, as soon as they scroll — each
+       row becomes a card with the channel as its heading and every figure on
+       its own labelled line. "Where should I sell this?" is a question asked
+       while standing over the item, so the phone layout is the one that has
+       to read well. */
+    @media (max-width: 700px) {
+      .scroller { overflow-x: visible; }
+      table { min-width: 0; }
+      table, tbody, tbody tr, tbody th, tbody td { display: block; width: auto; }
+      /* A table-caption inside a block-display table shrink-wraps to its
+         longest word and renders as a one-word-wide column of text. */
+      caption { display: block; width: auto; }
+      /* Hidden visually, kept for assistive technology and for the caption's
+         reading order; each cell carries its own label in card mode. */
+      thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+      tbody tr {
+        border: 1px solid #4a3d99; border-radius: 10px;
+        padding: 4px 12px 8px; margin-bottom: 10px; background: #2c2064;
+      }
+      tbody tr.best { background: #3b2c80; border-color: #7a67e0; }
+      tbody tr.fastest:not(.best) { background: #322764; }
+      tbody th[scope="row"] {
+        font-size: 1.05rem; padding: 9px 0 7px;
+        border-bottom: 1px solid #4a3d99; margin-bottom: 3px;
+      }
+      tbody td {
+        display: flex; justify-content: space-between; align-items: baseline;
+        gap: 12px; padding: 5px 0; border-bottom: none; text-align: right;
+      }
+      .cell-label { display: inline; font-size: .82rem; color: #c3b9ee; text-align: left; }
+      .cell-value { font-variant-numeric: tabular-nums; }
+      /* The shelf-time table sits on white. Reuse the card shape, invert the
+         palette so light text is not left on a light card. */
+      .rates tbody tr {
+        background: #f7f5ff; border-color: #c9c0ee; color: #191430;
+      }
+      .rates tbody tr.shelf-best { background: #ebe6ff; border-color: #4b32a8; }
+      .rates tbody th[scope="row"] { border-bottom-color: #d0cbe8; }
+      .rates .cell-label { color: #574d80; }
+    }
   </style>
 </head>
 <body>
@@ -270,6 +318,7 @@
               <th scope="col" title="Your estimate of how long this listing sits before it sells. Replace the illustrative starting points with your last similar listings.">Days to sell</th>
               <th scope="col" title="What you keep divided by days to sell. Empty when you have not given a pace.">You keep / day</th>
               <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
+              <th scope="col" title="Minimum whole orders needed to recover a monthly plan.">Orders to cover plan</th>
               <th scope="col">Price to match best</th>
             </tr>
           </thead>
@@ -299,6 +348,11 @@
         orders come back — return postage, units you cannot list again, and
         fees the channel does not refund. <strong>Return drag</strong> is the
         gap between a completed sale and that expected keep.
+        <strong>Orders to cover plan</strong> is the minimum whole-order volume
+        needed to recover a channel’s monthly subscription from this item’s
+        profit before that plan. “—” means the item’s unit economics cannot
+        recover the plan at any volume; “0” means the channel has no monthly
+        plan.
       </p>
       <p class="note">
         Transparent arithmetic from the rates you entered — not any
@@ -665,6 +719,49 @@
       nav.hidden = false;
     }
 
+    // One [label, value, class, title] tuple per value column. Below ~700px
+    // the table is restyled into one card per channel and the same declaration
+    // supplies the label printed beside each figure. Declaring both here keeps
+    // the card labels and the <thead> headings from drifting.
+    function resultCells(result, comparison) {
+      return [
+        ["Price", money(result.price), ""],
+        ["Fees", money(result.feeTotal), ""],
+        ["You keep", money(result.profit), ""],
+        ["After returns", money(result.expectedProfit), ""],
+        ["Return drag", money(result.returnDrag), ""],
+        ["Margin", `${result.margin.toFixed(1)}%`, ""],
+        ["Return on cash", result.roi === null ? "—" : `${result.roi.toFixed(0)}%`, ""],
+        ["Gives up", result.isBest ? "—" : money(result.gapVsBest), ""],
+        ["Monthly keep", `${money(result.monthlyProfit)}${comparison.rankingsDiverge && result.isBestMonthly ? " · best month" : ""}`, ""],
+        ["Days to sell", result.daysToSell === null ? "—" : String(result.daysToSell), ""],
+        ["You keep / day", result.profitPerDay === null ? "—" : money(result.profitPerDay), "", result.monthlyProfitAtVelocity === null ? "" : `About ${money(result.monthlyProfitAtVelocity)} in a 30-day month at this pace.`],
+        ["Break-even price", money(result.breakEvenPrice), result.price < result.breakEvenPrice ? " negative" : ""],
+        ["Orders to cover plan", result.ordersToCoverPlan === null ? "—" : String(result.ordersToCoverPlan), ""],
+        ["Price to match best", result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest), ""],
+      ];
+    }
+
+    function shelfCells(result) {
+      return [
+        ["Sells within horizon", `${result.velocity.sellThroughPct.toFixed(0)}%`, ""],
+        ["Days to sell", result.velocity.daysToSell.toFixed(0), ""],
+        ["If it sells", money(result.velocity.soldValue), ""],
+        ["If it does not", money(result.velocity.unsoldValue), result.velocity.unsoldValue < 0 ? " negative-ink" : ""],
+        ["One listing is worth", money(result.velocity.listedValue), ""],
+        ["Days on the shelf", result.velocity.shelfDays.toFixed(0), ""],
+        ["Per 30 days", money(result.velocity.valuePer30Days), ""],
+        ["Gives up", result.isShelfBest ? "—" : money(result.shelfGapVsBest), ""],
+        ["Sell-through to match", result.sellThroughToMatchBest === null ? "—" : `${result.sellThroughToMatchBest.toFixed(1)}%`, ""],
+      ];
+    }
+
+    function renderCells(cells) {
+      return cells.map(([label, value, cls, title]) =>
+        `<td class="money${cls}"${title ? ` title="${title}"` : ""}><span class="cell-label">${label}</span><span class="cell-value">${value}</span></td>`
+      ).join("");
+    }
+
     function update() {
       let comparison;
       try {
@@ -710,19 +807,7 @@
         .map((result) => `
           <tr class="${result.isBest ? "best" : ""}${result.isBestOnVelocity ? " fastest" : ""}">
             <th scope="row" style="text-align:left;font-weight:650">${result.label}</th>
-            <td class="money">${money(result.price)}</td>
-            <td class="money">${money(result.feeTotal)}</td>
-            <td class="money">${money(result.profit)}</td>
-            <td class="money">${money(result.expectedProfit)}</td>
-            <td class="money">${money(result.returnDrag)}</td>
-            <td class="money">${result.margin.toFixed(1)}%</td>
-            <td class="money">${result.roi === null ? "—" : `${result.roi.toFixed(0)}%`}</td>
-            <td class="money">${result.isBest ? "—" : money(result.gapVsBest)}</td>
-            <td class="money">${money(result.monthlyProfit)}${comparison.rankingsDiverge && result.isBestMonthly ? " · best month" : ""}</td>
-            <td class="money">${result.daysToSell === null ? "—" : result.daysToSell}</td>
-            <td class="money" title="${result.monthlyProfitAtVelocity === null ? "" : `About ${money(result.monthlyProfitAtVelocity)} in a 30-day month at this pace.`}">${result.profitPerDay === null ? "—" : money(result.profitPerDay)}</td>
-            <td class="money${result.price < result.breakEvenPrice ? " negative" : ""}">${money(result.breakEvenPrice)}</td>
-            <td class="money">${result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest)}</td>
+            ${renderCells(resultCells(result, comparison))}
           </tr>`).join("");
 
       const shelf = comparison.shelf;
@@ -744,17 +829,7 @@
         .map((result) => `
           <tr class="${result.isShelfBest ? "shelf-best" : ""}">
             <th scope="row" style="text-align:left;font-weight:650">${result.label}</th>
-            <td class="money">${result.velocity.sellThroughPct.toFixed(0)}%</td>
-            <td class="money">${result.velocity.daysToSell.toFixed(0)}</td>
-            <td class="money">${money(result.velocity.soldValue)}</td>
-            <td class="money${result.velocity.unsoldValue < 0 ? " negative-ink" : ""}">${money(result.velocity.unsoldValue)}</td>
-            <td class="money">${money(result.velocity.listedValue)}</td>
-            <td class="money">${result.velocity.shelfDays.toFixed(0)}</td>
-            <td class="money">${money(result.velocity.valuePer30Days)}</td>
-            <td class="money">${result.isShelfBest ? "—" : money(result.shelfGapVsBest)}</td>
-            <td class="money">${result.sellThroughToMatchBest === null
-              ? "—"
-              : `${result.sellThroughToMatchBest.toFixed(1)}%`}</td>
+            ${renderCells(shelfCells(result))}
           </tr>`).join("");
     }
 

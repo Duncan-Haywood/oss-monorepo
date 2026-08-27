@@ -276,6 +276,32 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["status"], "pass")
             self.assertFalse(list(report_path.parent.glob(".preflight.json.*")))
 
+    def test_cli_remediation_csv_groups_findings_without_invoice_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first = json.loads(json.dumps(VALID))
+            first["totals"]["gross"] = 200
+            second = json.loads(json.dumps(VALID))
+            second["invoice_number"] = "INV-2"
+            second["totals"]["gross"] = 201
+            (root / "first.json").write_text(json.dumps(first))
+            (root / "second.json").write_text(json.dumps(second))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation-csv"]), 1)
+            lines = output.getvalue().splitlines()
+            self.assertEqual(lines[0], "rule,occurrences,message,fix")
+            self.assertIn("INV-017,2,Gross total does not equal net plus tax.", lines[1])
+            self.assertNotIn("INV-1", output.getvalue())
+
+    def test_cli_remediation_csv_surfaces_read_errors(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory) / "broken.json").write_text("not json")
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([directory, "--format", "remediation-csv"]), 2)
+            self.assertIn("INV-READ,1,Invoice could not be read.", output.getvalue())
+
     def test_cli_reports_output_write_failure_without_partial_file(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
@@ -642,7 +668,7 @@ class ChecksTest(unittest.TestCase):
             self.assertEqual(report["schema_version"], 1)
             self.assertEqual(report["exit_code"], 2)
             self.assertEqual(report["files_checked"], 0)
-            self.assertEqual(report["read_errors"][0]["error"], "No JSON or XML invoices found.")
+            self.assertEqual(report["read_errors"][0]["error"], "No JSON, XML, or PDF invoices found.")
 
     def test_cli_json_max_files_refusal_keeps_machine_readable_contract(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -720,14 +746,33 @@ class ChecksTest(unittest.TestCase):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 2)
             self.assertIn("::error file=broken.json,line=1,title=Unreadable invoice::", output.getvalue())
 
-    def test_cli_emits_no_github_annotations_for_valid_invoice(self):
+    def test_cli_emits_github_notice_for_valid_invoice(self):
         with tempfile.TemporaryDirectory() as directory:
             invoice_path = Path(directory) / "invoice.json"
             invoice_path.write_text(json.dumps(VALID))
             output = io.StringIO()
             with contextlib.redirect_stdout(output):
                 self.assertEqual(main([str(invoice_path), "--format", "github"]), 0)
-            self.assertEqual(output.getvalue(), "")
+            report = output.getvalue()
+            self.assertIn("::notice title=E-invoice preflight::Passed: 1 invoice(s)", report)
+            self.assertNotIn("INV-1", report)
+            self.assertNotIn("::error", report)
+
+    def test_cli_records_github_report_usage_separately(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            usage_path = Path(directory) / "usage.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([
+                    str(invoice_path), "--format", "github", "--usage-file", str(usage_path)
+                ]), 0)
+            self.assertEqual(json.loads(usage_path.read_text()), {"events": {
+                "invoice_preflight_attempted": 1,
+                "invoice_preflight_checked": 1,
+                "invoice_preflight_github_report": 1,
+            }})
 
     def test_cli_reads_valid_invoice_from_stdin(self):
         output = io.StringIO()
@@ -956,7 +1001,11 @@ class ChecksTest(unittest.TestCase):
             self.assertIn('id="invoice-0"', report)
             self.assertIn('caption>Findings grouped by validation rule', report)
             self.assertIn('scope="col"', report)
-            self.assertIn('href="#report-content"', report)
+            self.assertIn('href="#report-content">Skip to report content', report)
+            self.assertIn('<main id="report-content" aria-label="Preflight report">', report)
+            self.assertIn('role="status">Overall: FAIL', report)
+            self.assertIn('aria-labelledby="finding-summary-heading"', report)
+            self.assertIn('aria-label="Report metrics"', report)
             self.assertNotIn("PRIVATE-123", report)
             self.assertNotIn("<script", report.lower())
 

@@ -27,6 +27,7 @@ export function markdownReview(quote, report, checks, options = {}) {
     `- Price at target rate: ${money(report.target_price)}`,
     `- Gap to target price: ${money(report.gap_to_target)}`,
     `- Left after direct costs: ${money(report.cost_coverage)}`,
+    `- Minimum increase to reach target: ${money(report.minimum_price_adjustment)}`,
     "",
     "## Pre-send observations",
     "",

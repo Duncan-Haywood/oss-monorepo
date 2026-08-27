@@ -59,7 +59,13 @@ or `refused`.
 `--usage-file` is opt-in. It writes one local JSON file of event names and
 counts (`snapshot_captured`, `report_generated`) — never domains, answers, IP
 addresses, resolver names, or request content. Omit the flag to record
-nothing.
+nothing. Use `--no-usage` to keep the flag in a script but skip the counter
+for one run. Report and usage files are replaced atomically so a CI consumer
+never sees a half-written artifact.
+
+Markdown reports include the observed before/after answers so a reviewer can
+see what changed without opening the JSON snapshots. Pipe characters, backticks,
+and newlines in DNS text are escaped so they cannot break the table.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, medical, or

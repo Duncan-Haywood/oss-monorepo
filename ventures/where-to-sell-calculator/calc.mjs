@@ -276,6 +276,13 @@ export function calculateChannel(channel, shared = {}) {
   // Cash that must be recovered before any percentage fee is covered. Used for
   // both break-even and the price that reaches a given profit.
   const fixedCash = paymentFixed + perListingFee + subscriptionShare + cashInvested;
+  // Profit already carries the amortized plan share. Adding it back answers
+  // "how many whole sales of this item recover the monthly fee?" — 0 when
+  // there is no plan, null when the unit economics cannot recover it.
+  const profitBeforeSubscription = profit + subscriptionShare;
+  const ordersToCoverPlan = monthlyFee > 0 && profitBeforeSubscription > 0
+    ? Math.ceil(monthlyFee / profitBeforeSubscription)
+    : monthlyFee > 0 ? null : 0;
 
   // Expected value of one listing attempt once some share of orders come back.
   // A completed sale keeps `profit`. A return refunds the buyer, may refund a
@@ -433,6 +440,7 @@ export function calculateChannel(channel, shared = {}) {
     roi: cashInvested === 0 ? null : (profit / cashInvested) * 100,
     percentRate: percentRate * 100,
     fixedCash,
+    ordersToCoverPlan,
     expectedMonthlySales,
     // When volume is at least one, the per-sale profit already carries its
     // share of the monthly plan, so multiplying recovers the plan once.

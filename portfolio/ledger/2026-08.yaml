@@ -1,5 +1,35 @@
 period: 2026-08
 entries:
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a newly researched small-nonprofit workflow into a runnable
+        browser vertical slice and landed it on `main` (#1193): add awards,
+        sort a reporting review queue, show restricted balances, export CSV,
+        and persist the queue locally. No account, network, payment, or paid
+        API dependency; disclaimer, local opt-in aggregate usage counting, SEO
+        metadata, sitemap and robots.txt in place. Public demand still
+        untested.
+      - >-
+        The persistence that shipped with it had a defect worth recording,
+        because the tests it came with could not see it. The queue was restored
+        with `JSON.parse(...); return Array.isArray(value) ? value : []` — which
+        accepts a *damaged* array. One `null` row left by an interrupted write
+        reached `reviewGrant` and threw on `grant.awardDate`, so the whole
+        saved queue rendered blank and the awards looked lost. #1188 had
+        already written the fix (a `loadGrants` that drops non-object rows) and
+        the regression test for it, in the PR that #1193 superseded; the fix
+        was salvaged out rather than closed with it. Verified both ways in
+        headless Chromium against the same seeded damaged value: `main`
+        renders no rows, the fix renders the surviving award.
+      - >-
+        The lesson is about where the tests were pointed. `calc.test.mjs`
+        covered the arithmetic and passed throughout; the load path lived
+        inline in a script tag in `index.html`, where no test could reach it.
+        Extracting it into `calc.mjs` is what made it testable, and the first
+        test written against it failed.
   - venture: portfolio-pages
     agent_spend_usd: null
     human_hours: 0
@@ -23797,4 +23827,61 @@ entries:
         same leftover on index.html. Distinct from the unit-profit match,
         2-day take, returns, aged leftover, and Connect ads. No open Walmart
         feature PR at selection. Hosting still waits on deploy-settings.
+    mrr_end: null
+  - venture: janitorial-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Backfilled record: the venture shipped in #1034 on 2026-08-24 and no
+        ledger entry was ever written for it. The entry drafted alongside it
+        was dropped deliberately, not lost: a later session remeshed that
+        branch onto current main and said so in its review on #1045 ("drops
+        the ledger-only YAML from the original branch"), keeping the PR to the
+        test change. That is a defensible call for the PR and it left nobody
+        holding the record, so 405 entries later the file had zero mentions of
+        the venture — worth noting as a failure mode of remeshing a branch: the
+        parts that are not the headline change need a new home, not just
+        removal. A free browser-local bid calculator for
+        commercial cleaning contractors that prices a recurring janitorial
+        contract from per-space production rates (cleanable sq ft ÷ the rate a
+        crew actually hits) rather than the blended price-per-square-foot rule
+        the trade is taught. In the shipped default an 8,000 sq ft office has
+        restrooms at 7% of floor area and 21% of labor hours, which is the
+        whole argument for the model. Payroll burden is a required, explained
+        input for the same reason: $17/hr costs about $22 loaded. Reports
+        price per sq ft, effective hourly rate, the labor split, and the
+        walk-away price; a proposed price is scored against the same cost base
+        and flagged when under water. Free, no payment rails, disclaimers,
+        opt-out local usage counters. It has since gained day-porter shifts,
+        project work, periodic services, save-and-share, and three SEO landing
+        pages, reaching 147 tests.
+      - >-
+        Finding worth generalising, and the reason this backfill is worth
+        writing rather than skipping: **unit tests and a structural page test
+        both passed on a page that was unusable.** Driving the served page in
+        Chromium before #1034 opened caught two defects neither could see. The
+        area-row inputs inherited `font-size: 0` from their visually-hidden
+        labels, so everything a contractor typed was invisible — the value was
+        in the DOM, every id resolved, the arithmetic was right. And the
+        `<datalist>`-backed space-name field rejected keyboard input outright:
+        keydown fired on the correct element and the value never changed. Both
+        are silent; both survive every test that does not actually type into
+        the page. #1023 established that a static product can be dead while
+        its unit tests stay green. This narrows it: a page can parse, load,
+        and resolve every element lookup and still not be usable.
+      - >-
+        Second-order finding from #1045, two days later: **the guard against
+        silent failure failed silently itself.** `page.test.mjs` was added
+        with a parser that walks raw-text elements the way a browser does,
+        precisely so an unclosed `<textarea>`/`<script>`/`<style>` could not
+        hide the rest of the document from it. As the file grew to 234 lines
+        across many sessions, that parse was replaced with two plain regexes
+        over the raw source — which is the exact blind spot the suite existed
+        to close, since the swallowed tags still look present to a regex. No
+        test failed when that happened, because a weakened guard passes. It
+        was restored in #1045. The lesson for the other calculators now
+        copying this pattern: a structural check needs its own negative test
+        (assert it fails on deliberately broken input), or it will be
+        loosened by accident and nothing will say so.
     mrr_end: null

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { EAA_PREAUDIT_CHECKS, checklistExport, checklistPercent } from "@/lib/pricing/eaa-checklist";
+import { readChecklistDraft, writeChecklistDraft } from "@/lib/pricing/eaa-draft";
 
 const USAGE_KEY = "local-site-studio:eaa-preaudit-events";
 const OPT_OUT_KEY = "local-site-studio:eaa-preaudit-usage-opt-out";
@@ -20,20 +21,22 @@ function recordUsage(event: string) {
 
 export function EaaPreauditChecklist() {
   const [checked, setChecked] = useState<string[]>([]);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const [optedOut, setOptedOut] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [savedAt, setSavedAt] = useState<string | null>(null);
   const percent = checklistPercent(checked);
 
   useEffect(() => {
     let active = true;
     try {
-      const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || "[]");
-      const savedChecked = Array.isArray(saved) && saved.every((item) => typeof item === "string") ? saved : [];
+      const savedChecked = readChecklistDraft(localStorage.getItem(DRAFT_KEY));
       const savedOptedOut = localStorage.getItem(OPT_OUT_KEY) === "true";
       queueMicrotask(() => {
         if (!active) return;
         setChecked(savedChecked);
         setOptedOut(savedOptedOut);
+        setSavedAt(savedChecked.length > 0 ? "saved on this device" : null);
         recordUsage("preaudit_opened");
         setHydrated(true);
       });
@@ -51,7 +54,7 @@ export function EaaPreauditChecklist() {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(checked));
+      localStorage.setItem(DRAFT_KEY, writeChecklistDraft(checked));
     } catch {
       // Draft recovery is best effort; the checklist remains usable without storage.
     }
@@ -61,8 +64,20 @@ export function EaaPreauditChecklist() {
     setChecked((current) => {
       const next = current.includes(id) ? current.filter((item) => item !== id) : [...current, id];
       recordUsage("preaudit_check_toggled");
+      setSavedAt("saved just now");
       return next;
     });
+  }
+
+  function resetDraft() {
+    setChecked([]);
+    setSavedAt(null);
+    recordUsage("preaudit_draft_reset");
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // Reset still clears the on-screen checks when storage is blocked.
+    }
   }
 
   function downloadNotes() {
@@ -73,6 +88,17 @@ export function EaaPreauditChecklist() {
     link.download = "accessibility-evidence-preaudit.txt";
     link.click();
     URL.revokeObjectURL(link.href);
+  }
+
+  async function copyNotes() {
+    try {
+      await navigator.clipboard.writeText(checklistExport(checked));
+      recordUsage("preaudit_notes_copied");
+      setCopyState("copied");
+      window.setTimeout(() => setCopyState("idle"), 2500);
+    } catch {
+      setCopyState("failed");
+    }
   }
 
   function setUsagePreference(value: boolean) {
@@ -94,7 +120,7 @@ export function EaaPreauditChecklist() {
         <p className="text-2xl font-semibold text-zinc-900" aria-live="polite">{percent}% ready</p>
       </div>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-        Mark what you have checked, then download a plain-text handoff for your team or auditor.
+        Mark what you have checked, then download or copy a plain-text handoff for your team or auditor.
         Your checklist stays in this browser so you can return to it. This does not test your shop
         and an unchecked item is not proof of a failure.
       </p>
@@ -109,9 +135,25 @@ export function EaaPreauditChecklist() {
           </label>
         ))}
       </div>
-      <button type="button" onClick={downloadNotes} className="mt-6 rounded-full bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-700">
-        Download handoff notes
-      </button>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button type="button" onClick={downloadNotes} className="rounded-full bg-zinc-900 px-5 py-3 text-sm font-medium text-white hover:bg-zinc-700">
+          Download handoff notes
+        </button>
+        <button type="button" onClick={copyNotes} className="rounded-full border border-zinc-300 px-5 py-3 text-sm font-medium text-zinc-900 hover:bg-zinc-50">
+          {copyState === "copied" ? "Copied" : "Copy handoff notes"}
+        </button>
+      </div>
+      {copyState === "failed" && (
+        <p className="mt-2 text-sm text-amber-700" role="status">
+          Clipboard access was unavailable. Use the download button instead.
+        </p>
+      )}
+      <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
+        <span aria-live="polite">{savedAt ? `Draft ${savedAt}.` : "No saved checks yet."}</span>
+        <button type="button" onClick={resetDraft} className="underline underline-offset-2 hover:text-zinc-900">
+          Reset saved draft
+        </button>
+      </div>
       <label className="mt-5 flex items-center gap-2 text-xs text-zinc-500">
         <input type="checkbox" checked={optedOut} onChange={(event) => setUsagePreference(event.target.checked)} />
         Don&apos;t count anonymous feature-use events on this device

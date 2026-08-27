@@ -65,6 +65,12 @@ function number(value, name, fallback = 0) {
   return result;
 }
 
+function wholeNumber(value, name, fallback = 0) {
+  const result = number(value, name, fallback);
+  if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
+  return result;
+}
+
 export function applyCategoryPreset(input, categoryId) {
   const preset = CATEGORY_PRESETS[categoryId];
   if (!preset) throw new Error(`Unknown Amazon category: ${categoryId}`);
@@ -415,6 +421,30 @@ export function calculateListing(input) {
     return path;
   }
 
+  // Ads sit in cashInvested, so profit already includes the current PPC spend.
+  // Add the spend back to see how much advertising the unit can still carry
+  // before it loses money, or before it misses the seller's target margin.
+  // ACOS is that spend as a percent of the sale price — the number PPC
+  // campaigns are actually managed against.
+  function attachAdLimits(path) {
+    const profitBeforeAds = path.profit + adsPerUnit;
+    const breakEvenAds = Math.max(0, profitBeforeAds);
+    const targetProfit = salePrice * targetMarginRate;
+    const targetMarginAds = Math.max(0, profitBeforeAds - targetProfit);
+    const acos = (ads) => (salePrice <= 0 ? null : (ads / salePrice) * 100);
+    return {
+      ...path,
+      profitBeforeAds,
+      breakEvenAds,
+      breakEvenAcos: acos(breakEvenAds),
+      currentAcos: acos(adsPerUnit),
+      targetMarginAds,
+      targetMarginAcos: acos(targetMarginAds),
+      adsStillPay: path.profit >= -1e-9,
+      targetMarginReachableWithAds: profitBeforeAds + 1e-9 >= targetProfit,
+    };
+  }
+
   const fbaCash = sharedCash + inboundPerUnit + storagePerUnit;
   const fba = finish(
     pathResult({
@@ -456,14 +486,14 @@ export function calculateListing(input) {
     returnHandlingFee,
     unsellableRate,
   };
-  const fbaAfterReturns = withExpectedReturns(fba, {
+  const fbaAfterReturns = attachAdLimits(withExpectedReturns(fba, {
     ...returnAssumptions,
     fulfillmentFee,
-  });
-  const fbmAfterReturns = withExpectedReturns(fbm, {
+  }));
+  const fbmAfterReturns = attachAdLimits(withExpectedReturns(fbm, {
     ...returnAssumptions,
     fulfillmentFee: 0,
-  });
+  }));
 
   const selected = fulfillmentMethod === "fba" ? fbaAfterReturns : fbmAfterReturns;
   const fbaAdvantage = fbaAfterReturns.profit - fbmAfterReturns.profit;
@@ -2009,6 +2039,134 @@ export function compareAgedInventory(input) {
       agedUnits,
       horizonMonths,
     }),
+  };
+}
+
+/**
+ * Months of the remaining stay that fall after the aged-inventory threshold.
+ * Age is counted at the end of each future month: a unit already stored for
+ * `monthsAlreadyStored` months, held one more month, is age
+ * `monthsAlreadyStored + 1`. Surcharge applies when that age is strictly
+ * greater than `agedStartsAfterMonths` (the usual “after 6 months” reading).
+ *
+ * Complementary to compareAgedInventory, which applies a typed per-unit AIS
+ * every month of the horizon. This answers a different question: how many of
+ * the remaining months will actually be billed at the surcharge.
+ */
+export function agedSurchargeMonths({
+  monthsAlreadyStored,
+  additionalMonths,
+  agedStartsAfterMonths,
+}) {
+  const already = number(monthsAlreadyStored, "Months already stored");
+  const extra = number(additionalMonths, "Additional months");
+  const threshold = number(agedStartsAfterMonths, "Aged surcharge starts after months", 6);
+  let surchargeMonths = 0;
+  for (let month = 1; month <= extra; month += 1) {
+    if (already + month > threshold) surchargeMonths += 1;
+  }
+  return surchargeMonths;
+}
+
+function warehouseCostPerUnit({
+  cubicFeet,
+  additionalMonths,
+  monthsAlreadyStored,
+  agedStartsAfterMonths,
+  storageRate,
+  agedSurchargePerCuFt,
+}) {
+  const cuFt = number(cubicFeet, "Cubic feet");
+  const extra = number(additionalMonths, "Additional months");
+  const storage = number(storageRate, "Storage rate");
+  const surcharge = number(agedSurchargePerCuFt, "Aged surcharge per cu ft");
+  const surchargeMonths = agedSurchargeMonths({
+    monthsAlreadyStored,
+    additionalMonths: extra,
+    agedStartsAfterMonths,
+  });
+  return {
+    surchargeMonths,
+    storagePerUnit: cuFt * storage * extra,
+    surchargePerUnit: cuFt * surcharge * surchargeMonths,
+    warehousePerUnit: cuFt * storage * extra + cuFt * surcharge * surchargeMonths,
+  };
+}
+
+/**
+ * Forward-looking hold-vs-remove for units already in FBA.
+ *
+ * Cost of goods, inbound already paid, storage already billed, and the
+ * professional monthly plan are sunk either way and are excluded. The hold
+ * path assumes the remaining units sell at `salePrice` after
+ * `expectedMonthsToSell` more months, paying referral, fulfillment, ads, and
+ * the *future* warehouse bill. The remove path pays the removal/disposal fee
+ * and recovers `salvagePerUnit` (liquidation, FBM elsewhere, or $0).
+ *
+ * Distinct from compareAgedInventory (keep / return / dispose over a sell-
+ * through horizon with a flat per-unit AIS). Salvaged from #1495.
+ */
+export function compareHoldVsRemove(input) {
+  const remainingUnits = wholeNumber(input.remainingUnits, "Remaining units", 1);
+  if (remainingUnits < 1) throw new Error("Remaining units must be at least 1");
+  const expectedMonthsToSell = number(input.expectedMonthsToSell, "Expected months to sell", 2);
+  const monthsAlreadyStored = number(input.monthsAlreadyStored, "Months already stored");
+  const agedStartsAfterMonths = number(input.agedStartsAfterMonths, "Aged surcharge starts after months", 6);
+  const storageRate = number(input.storageRate, "Storage rate");
+  const agedSurchargePerCuFt = number(input.agedSurchargePerCuFt, "Aged surcharge per cu ft");
+  const removalFeePerUnit = number(input.removalFeePerUnit, "Removal fee per unit");
+  const salvagePerUnit = number(input.salvagePerUnit, "Salvage per unit");
+  const cubicFeet = number(input.cubicFeet, "Cubic feet");
+  const salePrice = number(input.salePrice, "Sale price");
+  const referralRate = number(input.referralRate, "Referral rate");
+  const fulfillmentFee = number(input.fulfillmentFee, "Fulfillment fee");
+  const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
+
+  const referral = salePrice * (referralRate / 100);
+  const sellingCosts = referral + fulfillmentFee + adsPerUnit;
+  const removeNetPerUnit = salvagePerUnit - removalFeePerUnit;
+
+  function outcome(additionalMonths) {
+    const warehouse = warehouseCostPerUnit({
+      cubicFeet,
+      additionalMonths,
+      monthsAlreadyStored,
+      agedStartsAfterMonths,
+      storageRate,
+      agedSurchargePerCuFt,
+    });
+    const holdNetPerUnit = salePrice - sellingCosts - warehouse.warehousePerUnit;
+    return {
+      additionalMonths,
+      ...warehouse,
+      holdNetPerUnit,
+      holdTotal: holdNetPerUnit * remainingUnits,
+      removeNetPerUnit,
+      removeTotal: removeNetPerUnit * remainingUnits,
+      holdAdvantage: (holdNetPerUnit - removeNetPerUnit) * remainingUnits,
+    };
+  }
+
+  const expected = outcome(expectedMonthsToSell);
+  const holdAdvantage = expected.holdAdvantage;
+  let monthsUntilRemoveWins = null;
+  for (let month = 0; month <= 36; month += 1) {
+    if (outcome(month).holdAdvantage < 0) {
+      monthsUntilRemoveWins = month;
+      break;
+    }
+  }
+
+  return {
+    remainingUnits,
+    expectedMonthsToSell,
+    monthsAlreadyStored,
+    agedStartsAfterMonths,
+    sellingCosts,
+    ...expected,
+    betterPath: holdAdvantage > 0 ? "hold" : holdAdvantage < 0 ? "remove" : "tie",
+    monthsUntilRemoveWins,
+    scenarios: [1, 2, 3, 6].map(outcome),
   };
 }
 

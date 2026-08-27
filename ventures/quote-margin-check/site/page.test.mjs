@@ -54,9 +54,12 @@ test("SEO page numbers match the calculator defaults", async () => {
 test("calculator page renders the discount-ask table and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="discount-ask"/);
+  assert.match(page, /id="copy-discounts"/);
+  assert.match(page, /Copy discount ladder/);
   assert.match(page, /discountAskScenarios/);
   assert.match(page, /discountAskSummary/);
   assert.match(page, /discount_ask_compared/);
+  assert.match(page, /discount_ladder_copied/);
   assert.match(page, /if-they-ask-for-10-percent-off\.html/);
   assert.match(page, /Hours to cut to hold target/);
   assert.match(page, /quoteCsv/);
@@ -310,8 +313,8 @@ test("calculator page offers editable quote starting points, not recommendations
 
 test("calculator page shows the target-rate hours budget without recommending a cut", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, /targetHoursBudget/);
-  assert.match(page, /Target-rate hours budget/);
+  assert.match(page, /r\.target_rate_hours/);
+  assert.match(page, /Hours supported at target rate/);
   assert.match(page, /hours_budget_shown/);
   assert.doesNotMatch(page, /should cut hours|must reduce scope/i);
 });

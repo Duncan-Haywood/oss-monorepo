@@ -74,6 +74,22 @@ test('can count a named feature event without recording content', () => {
   assert.equal(JSON.parse(storage.getItem('ebay-fee-usage')).share_link_copied, 1);
 });
 
+test('does not break the calculator when stored usage JSON is malformed', () => {
+  const storage = {
+    getItem: () => '{not-json',
+    setItem: () => {},
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false, 'order_profit_calculated'));
+});
+
+test('does not break the calculator when browser storage is unavailable', () => {
+  const storage = {
+    getItem: () => { throw new Error('storage blocked'); },
+    setItem: () => { throw new Error('storage blocked'); },
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false, 'order_profit_calculated'));
+});
+
 test('counts listing-format comparison without storing a price or rate', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'listing_format_compared');

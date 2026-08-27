@@ -26,7 +26,7 @@ The report distinguishes the customer's inputs from derived arithmetic. It does
 not recommend prices, provide tax or financial advice, or claim that a quote is
 profitable. The customer decides what costs and target rate are appropriate.
 
-The `After direct costs` line makes the amount left before the user's own
+The `Break-even price` line is the same cash as direct costs: the quoted price that covers overhead and subcontractors with nothing left for labor. The `After direct costs` line makes the amount left before the user's own
 compensation visible, while `Gap to target price` compares the quote with the
 supplied target rate. Both are arithmetic signals, not a profitability verdict.
 The CSV format emits stable `measure,value,unit` columns with spreadsheet-safe
@@ -39,7 +39,9 @@ fragment (not sent as a referrer) and a plain-text review summary for an email o
 proposal note. It includes the quote's arithmetic, the supplied target
 comparison, and only attention-level review observations. Copying the summary
 records an anonymous `review_summary_copied` event locally; quote values are
-never stored in that event or sent anywhere. The browser can also remember
+never stored in that event or sent anywhere. The discount-ask table also has
+its own **Copy discount ladder** control for a spreadsheet-safe CSV of the
+percent-off rows; that records `discount_ladder_copied` the same way. The browser can also remember
 the current worksheet in local storage on this device. Restoring or resetting
 that draft records anonymous `draft_restored` / `draft_reset` events; quote
 values stay in the browser. The browser can also download those same quote
@@ -52,7 +54,9 @@ proposal reviews easy to sort and filter without exposing the proposal data.
 When a quote clears the supplied target, `discount_room` shows the arithmetic
 amount by which the quote could be reduced before reaching that target. A zero
 value means the quote is already at or below target; it is a boundary check, not
-a recommendation to discount.
+a recommendation to discount. `minimum_price_adjustment` is the complementary
+raise: how much the quoted price would need to increase to reach the supplied
+target. It is zero when the quote is already at or above target.
 
 The browser also shows a small pre-send review: arithmetic observations for
 direct costs above the price, a gap below the supplied target, hidden time, and
@@ -60,6 +64,11 @@ quotes with no revision hours. These are prompts to review your own assumptions,
 not a profitability verdict or pricing advice. After that review, three
 buttons let you record send, revise, or hold locally — a workflow note, not a
 recommendation.
+
+When hidden time reaches at least 25% of the supplied total, the pre-send review
+asks you to confirm the scope and revision limit. This is a prompt about your
+inputs, not a recommendation or a profitability determination. The result also
+shows the time mix: delivery hours versus admin and revision hours.
 
 You can also supply a time-buffer percentage. The browser shows the price that
 would correspond to your target hourly rate if planned hours grew by that

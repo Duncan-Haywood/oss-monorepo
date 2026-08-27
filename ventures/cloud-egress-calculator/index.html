@@ -10,7 +10,7 @@
   <meta property="og:title" content="Cloud Egress Cost Calculator">
   <meta property="og:description" content="See the monthly cost of storage and outbound transfer before migrating a workload.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cloud Egress Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for comparing object storage, request, and data egress costs.","featureList":"Two-provider monthly comparison, annualized savings, break-even outbound transfer, private JSON review export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Cloud Egress Cost Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private browser calculator for comparing object storage, request, and data egress costs.","featureList":"Two-provider monthly comparison, annualized savings, break-even outbound transfer, copyable decision summary, private JSON review export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does S3 egress cost?","acceptedAnswer":{"@type":"Answer","text":"Egress is billed per gigabyte of outbound transfer at the rate on your current price sheet. On the default 500 GB stored, 2 million requests, and 100 GB outbound example, a $0.023 / $0.40 / $0.09 sheet is $21.30 per month. An alternative at $0.006 / $0.36 / $0.00 is $3.72. The $17.58 gap is $210.96 per year. Paste your quoted rates; this page does not fetch provider prices."}},{"@type":"Question","name":"Does a cheaper storage rate still win after egress?","acceptedAnswer":{"@type":"Answer","text":"Only when outbound transfer is low enough. If cheap storage has a higher egress rate, the page shows the break-even outbound volume. Above that volume the other option is cheaper. The comparison is arithmetic from the rates you enter, not a migration recommendation."}}]}</script>
   <style>
     :root{font:16px/1.5 system-ui,sans-serif;color:#172033;background:#f5f7fb;--ink:#172033;--muted:#58657a;--line:#d9e0eb;--panel:#fff;--accent:#2457d6}
@@ -76,13 +76,14 @@
     </div>
     <p id="annualImpact" class="small"></p>
     <p id="breakEven" class="small"></p>
+    <button id="copySummary" type="button">Copy decision summary</button>
     <button id="export" type="button">Download private review JSON</button>
     <span id="exportStatus" class="small" role="status" aria-live="polite"></span>
   </section>
 
   <section class="panel small">
     <label class="toggle"><input id="usage" type="checkbox" checked> Count anonymous calculation events on this device</label>
-    <p>Usage is optional, stays in this browser, and counts only calculations and exports. No inputs, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
+    <p>Usage is optional, stays in this browser, and counts only calculations, copied summaries, and exports. No inputs, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
   </section>
 
   <footer class="small">
@@ -92,7 +93,7 @@
   </footer>
 </main>
 <script type="module">
-  import { compareScenarios, reviewRecord } from "./calc.mjs";
+  import { compareScenarios, decisionSummary, reviewRecord } from "./calc.mjs";
   import { countUsage, setUsageEnabled, usageAllowed } from "./usage.mjs";
 
   const $ = (id) => document.getElementById(id);
@@ -150,6 +151,21 @@
   $("usage").checked = usageAllowed();
   $("usage").addEventListener("change", (event) => setUsageEnabled(event.target.checked));
   calculate();
+
+  $("copySummary").addEventListener("click", async () => {
+    try {
+      const load = workload();
+      const text = decisionSummary({
+        first: { name: $("aName").value, ...load, storageRate: +$("aStorage").value, requestRate: +$("aRequests").value, egressRate: +$("aEgress").value },
+        second: { name: $("bName").value, ...load, storageRate: +$("bStorage").value, requestRate: +$("bRequests").value, egressRate: +$("bEgress").value },
+      });
+      await navigator.clipboard.writeText(text);
+      $("exportStatus").textContent = "Copied";
+      countUsage("summary_copied");
+    } catch (error) {
+      $("exportStatus").textContent = error?.message || "Clipboard unavailable.";
+    }
+  });
 
   $("export").addEventListener("click", () => {
     try {

@@ -51,6 +51,7 @@ const narfSeo = readFileSync(
   new URL("./should-i-use-amazon-remote-fulfillment.html", import.meta.url),
   "utf8",
 );
+const acosSeo = readFileSync(new URL("./break-even-acos.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -114,6 +115,8 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /restock vs low-inventory-level fee/i);
   assert.match(featureList[1], /Amazon AWD vs send-all-to-FBA vs you-hold/i);
   assert.match(featureList[1], /Remote Fulfillment vs skip Canada vs a Canada FBA pile/i);
+  assert.match(featureList[1], /break-even ACOS/i);
+  assert.match(featureList[1], /target-margin ACOS/i);
   assert.match(markup, /peak-vs-off-peak-storage\.html/);
   assert.match(markup, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(markup, /should-i-use-seller-fulfilled-prime\.html/);
@@ -135,6 +138,30 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(markup, /id="snsCompare"/);
   assert.match(markup, /does-this-amazon-coupon-still-pay\.html/);
   assert.match(markup, /does-subscribe-and-save-still-pay\.html/);
+  assert.match(markup, /break-even-acos\.html/);
+  assert.match(markup, /id="currentAcos"/);
+  assert.match(markup, /id="breakEvenAcos"/);
+  assert.match(markup, /id="targetMarginAcos"/);
+});
+
+test("the FBA vs FBM row template includes break-even ACOS", () => {
+  const compareMarkup = markup.split('id="compare"')[0];
+  const headerBlock = compareMarkup.slice(compareMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th(?:\s[^>]*)?>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Path", "Fees", "Profit", "Max buy", "Break-even ACOS"]);
+  assert.match(scriptSource, /formatAcos\(path\.breakEvenAcos\)/);
+  assert.match(scriptSource, /formatAcos\(result\.selected\.currentAcos\)/);
+  assert.match(scriptSource, /formatAcos\(result\.selected\.breakEvenAcos\)/);
+  assert.match(scriptSource, /break_even_acos_calculated/);
+});
+
+test("ACOS SEO page names the question and keeps the playbook footer", () => {
+  assert.match(acosSeo, /What is break-even ACOS on Amazon/);
+  assert.match(acosSeo, /No warranty/);
+  assert.match(acosSeo, /Best-effort hosting, no SLA/);
+  assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
 test("calculator page wires the Low-Price FBA comparison", () => {
@@ -575,4 +602,7 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(narfSeo, /No warranty/);
   assert.match(narfSeo, /Best-effort hosting, no SLA/);
   assert.match(narfSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(acosSeo, /No warranty/);
+  assert.match(acosSeo, /Best-effort hosting, no SLA/);
+  assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

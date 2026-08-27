@@ -565,6 +565,28 @@ test("generatePolicyText supports a selected currency symbol", () => {
   assert.match(text, /50% of the session price \(€37\.50\)/);
 });
 
+test("generatePolicyText includes the selected collection method", () => {
+  const text = generatePolicyText({
+    businessName: "Riverside Training",
+    serviceName: "session",
+    noticeHours: 24,
+    feePercent: 50,
+    feeAmount: 37.5,
+    collectionMethod: "invoice",
+  });
+  assert.match(text, /send an invoice for the cancellation or no-show fee/);
+});
+
+test("generatePolicyText uses a safe collection fallback for unknown methods", () => {
+  const text = generatePolicyText({
+    noticeHours: 24,
+    feePercent: 100,
+    feeAmount: 10,
+    collectionMethod: "unsupported-value",
+  });
+  assert.match(text, /contact you to arrange payment/);
+});
+
 test("generatePolicyText falls back to placeholders when name/service are blank", () => {
   const text = generatePolicyText({
     businessName: "",
@@ -584,8 +606,8 @@ test("generatePolicyText always ends with the non-warranty disclaimer", () => {
 });
 
 test("buildShareUrl encodes supported inputs without server state", () => {
-  const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", depositPercent: "50", businessName: "Riverside & Co", serviceName: "training session", ignored: "secret" }, "https://example.test/calculator");
-  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&depositPercent=50&businessName=Riverside+%26+Co&serviceName=training+session");
+  const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", depositPercent: "50", businessName: "Riverside & Co", serviceName: "training session", collectionMethod: "invoice", ignored: "secret" }, "https://example.test/calculator");
+  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&depositPercent=50&businessName=Riverside+%26+Co&serviceName=training+session&collectionMethod=invoice");
   assert.equal(url.includes("ignored"), false);
 });
 
@@ -855,6 +877,7 @@ test("the draft field set matches the shareable field set", () => {
   // bug this guards: both are derived from SHARE_FIELDS in calc.mjs.
   assert.ok(DRAFT_FIELDS.includes("currency"));
   assert.ok(DRAFT_FIELDS.includes("serviceName"));
+  assert.ok(DRAFT_FIELDS.includes("collectionMethod"));
   assert.equal(new Set(DRAFT_FIELDS).size, DRAFT_FIELDS.length);
 });
 

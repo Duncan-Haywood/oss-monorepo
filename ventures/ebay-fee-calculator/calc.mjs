@@ -316,6 +316,9 @@ export function calculateOrder(input) {
 export function calculateSourcingCeiling(input, targetRoi) {
   const target = Number(targetRoi);
   if (!Number.isFinite(target) || target < 0) throw new Error('Target ROI must be a non-negative number');
+  // Validate the seller's actual inputs first so a bad cost of goods or
+  // quantity is not silently replaced by the zero-cost, one-unit baseline.
+  const current = calculateOrder(input);
   const baseline = calculateOrder({ ...input, costOfGoods: 0, quantity: 1 });
   const otherCashPerUnit = Number(input.shippingCost ?? 0) + Number(input.packagingCost ?? 0) + Number(input.otherCost ?? 0);
   const targetRate = target / 100;
@@ -324,6 +327,8 @@ export function calculateSourcingCeiling(input, targetRoi) {
   return {
     targetRoi: target,
     maximumAcquisitionCost,
+    maximumBatchAcquisitionCost: maximumAcquisitionCost * current.quantity,
+    quantity: current.quantity,
     currentAcquisitionCost: Number(input.costOfGoods ?? 0),
     isReachable: numerator >= 0,
     amountOverCeiling: Math.max(0, Number(input.costOfGoods ?? 0) - maximumAcquisitionCost),

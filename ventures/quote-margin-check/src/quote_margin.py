@@ -50,14 +50,23 @@ def calculate(quote: Quote) -> dict[str, float]:
     direct_costs = quote.overhead + quote.subcontractor_cost
     effective_rate = (quote.price - direct_costs) / total_hours
     target_price = total_hours * quote.target_hourly_rate + direct_costs
+    hidden_hours = quote.admin_hours + quote.revision_hours
+    target_rate_hours = (quote.price - direct_costs) / quote.target_hourly_rate
     return {
         "total_hours": total_hours,
         "direct_costs": direct_costs,
         "effective_hourly_rate": effective_rate,
         "target_price": target_price,
+        "break_even_price": direct_costs,
         "gap_to_target": quote.price - target_price,
         "cost_coverage": quote.price - direct_costs,
         "discount_room": max(0, quote.price - target_price),
+        "minimum_price_adjustment": max(0.0, target_price - quote.price),
+        "delivery_hours": quote.delivery_hours,
+        "hidden_hours": hidden_hours,
+        "hidden_time_percent": (hidden_hours / total_hours) * 100,
+        "target_rate_hours": target_rate_hours,
+        "hours_cushion": target_rate_hours - total_hours,
     }
 
 
@@ -167,11 +176,14 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Quoted price | {quote.currency} {quote.price:.2f} |",
         f"| Total working hours | {result['total_hours']:.2f} |",
         f"| Direct costs | {quote.currency} {result['direct_costs']:.2f} |",
+        f"| Break-even price (direct costs only) | {quote.currency} {result['break_even_price']:.2f} |",
         f"| Effective hourly rate | {quote.currency} {result['effective_hourly_rate']:.2f}/hour |",
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
+        f"| Hours supported at target rate | {result['target_rate_hours']:.2f} ({result['hours_cushion']:.2f} {'remaining' if result['hours_cushion'] >= 0 else 'over'}) |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
         f"| Maximum discount before target | {quote.currency} {result['discount_room']:.2f} |",
+        f"| Minimum increase to reach target | {quote.currency} {result['minimum_price_adjustment']:.2f} |",
         "",
         "## Fixed quote vs hourly at your target",
         "",
@@ -194,22 +206,43 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def safe_text(value: str) -> str:
+    """Neutralise a cell a spreadsheet would evaluate as a formula.
+
+    Mirrors ``safeText`` in ``site/export.mjs``. Excel, LibreOffice, and
+    Sheets treat a cell opening with = + - or @ as a formula, so a currency
+    label or quote filename of ``=1+1`` becomes live arithmetic for whoever
+    opens the file. A leading apostrophe is the standard inert prefix.
+
+    Only for free-text cells: every numeric cell is formatted ``.2f`` and a
+    negative gap legitimately starts with ``-``, which must stay a number.
+    """
+    text = str(value)
+    return f"'{text}" if text[:1] in "=+-@\t\r" else text
+
+
 def csv_report(quote: Quote, result: dict[str, float]) -> None:
     """Write one spreadsheet-friendly result row per measure."""
     writer = csv.writer(sys.stdout, lineterminator="\n")
     writer.writerow(("measure", "value", "unit"))
+    currency = safe_text(quote.currency)
+    per_hour = safe_text(f"{quote.currency}/hour")
     writer.writerows(
         (
-            ("quoted_price", f"{quote.price:.2f}", quote.currency),
+            ("quoted_price", f"{quote.price:.2f}", currency),
             ("total_working_hours", f"{result['total_hours']:.2f}", "hours"),
-            ("direct_costs", f"{result['direct_costs']:.2f}", quote.currency),
-            ("effective_hourly_rate", f"{result['effective_hourly_rate']:.2f}", f"{quote.currency}/hour"),
-            ("target_price", f"{result['target_price']:.2f}", quote.currency),
-            ("gap_to_target", f"{result['gap_to_target']:.2f}", quote.currency),
-            ("cost_coverage", f"{result['cost_coverage']:.2f}", quote.currency),
-            ("discount_room", f"{result['discount_room']:.2f}", quote.currency),
-            ("hourly_bill_at_planned_hours", f"{result['target_price']:.2f}", quote.currency),
-            ("hourly_minus_fixed_at_planned_hours", f"{result['target_price'] - quote.price:.2f}", quote.currency),
+            ("direct_costs", f"{result['direct_costs']:.2f}", currency),
+            ("break_even_price", f"{result['break_even_price']:.2f}", currency),
+            ("effective_hourly_rate", f"{result['effective_hourly_rate']:.2f}", per_hour),
+            ("target_price", f"{result['target_price']:.2f}", currency),
+            ("gap_to_target", f"{result['gap_to_target']:.2f}", currency),
+            ("target_rate_hours", f"{result['target_rate_hours']:.2f}", "hours"),
+            ("hours_cushion", f"{result['hours_cushion']:.2f}", "hours"),
+            ("cost_coverage", f"{result['cost_coverage']:.2f}", currency),
+            ("discount_room", f"{result['discount_room']:.2f}", currency),
+            ("minimum_price_adjustment", f"{result['minimum_price_adjustment']:.2f}", currency),
+            ("hourly_bill_at_planned_hours", f"{result['target_price']:.2f}", currency),
+            ("hourly_minus_fixed_at_planned_hours", f"{result['target_price'] - quote.price:.2f}", currency),
         )
     )
 
@@ -217,9 +250,11 @@ def csv_report(quote: Quote, result: dict[str, float]) -> None:
 def batch_csv_report(reports: list[tuple[str, Quote, dict[str, float]]]) -> None:
     """Write a comparison table for several quote files."""
     writer = csv.writer(sys.stdout, lineterminator="\n")
-    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "effective_hourly_rate", "target_price", "gap_to_target"))
+    writer.writerow(("quote", "currency", "quoted_price", "total_hours", "direct_costs", "break_even_price", "effective_hourly_rate", "target_price", "gap_to_target"))
     for name, quote, result in reports:
-        writer.writerow((name, quote.currency, f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}"))
+        # `name` is a filename from the scanned directory and `currency` is
+        # typed into the quote file: both are free text reaching a spreadsheet.
+        writer.writerow((safe_text(name), safe_text(quote.currency), f"{quote.price:.2f}", f"{result['total_hours']:.2f}", f"{result['direct_costs']:.2f}", f"{result['break_even_price']:.2f}", f"{result['effective_hourly_rate']:.2f}", f"{result['target_price']:.2f}", f"{result['gap_to_target']:.2f}"))
 
 
 def load_reports(directory: Path) -> list[tuple[str, Quote, dict[str, float]]]:

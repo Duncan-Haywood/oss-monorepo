@@ -1,0 +1,32 @@
+name: spray-foam-bid-calculator
+description: A private browser calculator for spray-foam insulation crews that prices a residential job from board feet, open vs closed vs hybrid cell, rim-joist footage, and ignition coating — the extras an attic-square-foot special cannot see — and shows the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Spray-foam crews will use a board-foot-aware bid calculator because a published price-per-attic-square-foot special cannot see that 8" of open-cell on a 1,200 sf floor plus a closed-cell rim is a different job than the same coupon written for bags of blown-in.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the foam share of direct cost are the two numbers a contractor actually decides on when a prospect asks them to match a $3.50/sf coupon, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Switching from open-cell attic floor to closed-cell cathedral plus an ignition barrier changes the resulting bid materially versus the same coupon written for attic square feet, so making that board-foot layer a required, explained output changes the price they send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified spray-foam contractors use the calculator twice within 90 days.
+  - Contractors report that counting board feet and rim joists is more work than their existing attic-square-foot method without changing the price they would have bid.
+  - The starting cell rates and waste percents prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

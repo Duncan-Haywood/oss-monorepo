@@ -93,10 +93,16 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {number} input.otherMonthly       Anything else billed to this job monthly.
  * @param {number} input.overheadRate       Business overhead as a % on direct cost.
  * @param {number} input.targetMargin       Net profit as a % of the final price.
+ * @param {number|null} [input.minimumMonthlyPrice] Optional floor for small or
+ *   inconvenient accounts. The target-margin price is used when it is higher.
  * @param {Array<{name?: string, squareFeet: number, productionRate: number, passes?: number, materials?: number}>} [input.projects]
  *   Optional one-time work (strip and wax, extraction, initial clean). Priced
  *   with the same loaded wage, overhead, and margin as the monthly contract,
  *   but invoiced once — not rolled into the recurring price.
+ * @param {Array<{name?: string, costPerOccurrence: number, occurrencesPerYear: number}>} [input.periodicServices]
+ *   Recurring lump work (quarterly floor care, twice-yearly extraction)
+ *   priced as cost × visits/year, then averaged into the monthly contract.
+ *   Distinct from `projects`, which are production-rate jobs invoiced once.
  * @param {number|null} input.proposedPrice Optional: a price already on the
  *   table, so the contractor can see the margin it actually leaves.
  */
@@ -122,6 +128,13 @@ export function calculateBid(input) {
   );
   if (!Number.isInteger(crewSize)) throw new Error('Crew size must be a whole number');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const hasMinimumPrice = input.minimumMonthlyPrice !== null
+    && input.minimumMonthlyPrice !== undefined
+    && input.minimumMonthlyPrice !== '';
+  const minimumMonthlyPrice = hasMinimumPrice
+    ? number(input.minimumMonthlyPrice, 'Minimum monthly price')
+    : null;
 
   const loadedWage = hourlyWage * (1 + burdenRate / 100);
 
@@ -179,16 +192,33 @@ export function calculateBid(input) {
   const monthlyLaborCost = areaMonthlyLaborCost + shiftMonthlyLaborCost;
   const monthlySupplies = totalSquareFeet * suppliesPerSqFtMonth;
 
+  const periodicServices = (Array.isArray(input.periodicServices) ? input.periodicServices : []).map((service, index) => {
+    const name = service.name?.trim() || `Periodic service ${index + 1}`;
+    const costPerOccurrence = number(service.costPerOccurrence ?? 0, `${name}: cost per occurrence`);
+    const occurrencesPerYear = number(service.occurrencesPerYear ?? 0, `${name}: occurrences per year`);
+    return {
+      name,
+      costPerOccurrence,
+      occurrencesPerYear,
+      annualCost: costPerOccurrence * occurrencesPerYear,
+    };
+  });
+  const annualPeriodicCost = periodicServices.reduce((sum, service) => sum + service.annualCost, 0);
+  const monthlyPeriodicCost = annualPeriodicCost / 12;
+
   // Overhead is a markup on the direct cost of servicing this job, which is
   // how a small contractor recovers office, admin, and sales cost. It is
   // deliberately not applied to itself or to profit.
-  const directCost = monthlyLaborCost + monthlySupplies + equipmentMonthly + otherMonthly;
+  const directCost = monthlyLaborCost + monthlySupplies + equipmentMonthly + otherMonthly + monthlyPeriodicCost;
   const monthlyOverhead = directCost * overheadRate / 100;
   const monthlyCost = directCost + monthlyOverhead;
 
   // Margin is a share of price, not a markup on cost, because that is how the
   // customer's number is quoted and how the contractor's P&L reads it.
-  const monthlyPrice = monthlyCost / (1 - targetMargin / 100);
+  const targetMarginPrice = monthlyCost / (1 - targetMargin / 100);
+  const monthlyPrice = minimumMonthlyPrice === null
+    ? targetMarginPrice
+    : Math.max(targetMarginPrice, minimumMonthlyPrice);
   const monthlyProfit = monthlyPrice - monthlyCost;
 
   const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
@@ -267,6 +297,9 @@ export function calculateBid(input) {
     otherMonthly,
     monthlyOverhead,
     monthlyCost,
+    targetMarginPrice,
+    minimumMonthlyPrice,
+    minimumPriceApplied: minimumMonthlyPrice !== null && minimumMonthlyPrice > targetMarginPrice,
     monthlyPrice,
     monthlyProfit,
     annualPrice: monthlyPrice * 12,
@@ -286,6 +319,10 @@ export function calculateBid(input) {
       // A bid below break-even is the failure this tool exists to catch.
       belowBreakEven: proposedPrice < monthlyCost,
     },
+    periodicServices,
+    monthlyPeriodicCost,
+    annualPeriodicCost,
+    hasPeriodicWork: annualPeriodicCost > 0,
     projects,
     projectHours,
     projectLaborCost,
@@ -342,15 +379,29 @@ export function formatBidSummary(result) {
         `First-month invoice (monthly + project): ${money(result.firstMonthInvoice)}`,
       ]
     : [];
+  const periodicLines = (result.periodicServices || [])
+    .filter(service => service.annualCost > 0)
+    .map(service => `- ${service.name}: ${money(service.costPerOccurrence)} × ${service.occurrencesPerYear}/year (${money(service.annualCost / 12)}/month)`)
+    .join('\n');
+  const periodicBlock = result.hasPeriodicWork
+    ? [
+        '',
+        'PERIODIC SERVICES (MONTHLY AVERAGE)',
+        periodicLines || '- No periodic rows entered',
+        `Periodic work in the monthly: ${money(result.monthlyPeriodicCost)}`,
+      ]
+    : [];
   return [
     'COMMERCIAL CLEANING BID',
     '',
     `Proposed monthly service: ${money(result.monthlyPrice)}`,
+    ...(result.minimumPriceApplied ? [`Minimum charge floor applied: ${money(result.minimumMonthlyPrice)}`] : []),
     `Annual contract value: ${money(result.annualPrice)}`,
     `Service labor: ${result.monthlyHours.toFixed(1)} hours/month`,
     `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
     ...porterBlock,
     ...projectBlock,
+    ...periodicBlock,
     '',
     'SERVICE AREAS',
     spaces || '- No service areas entered',

@@ -98,6 +98,28 @@ test('no proposed price means no comparison, and empty string counts as none', (
   assert.equal(calculateBid({ ...office(), proposedPrice: 0 }).proposed.price, 0);
 });
 
+test('a minimum monthly price protects small accounts without lowering the target price', () => {
+  const bid = calculateBid(office());
+  const floored = calculateBid({ ...office(), minimumMonthlyPrice: bid.monthlyPrice + 250 });
+  assert.equal(floored.minimumMonthlyPrice, bid.monthlyPrice + 250);
+  assert.equal(floored.minimumPriceApplied, true);
+  assert.equal(floored.monthlyPrice, bid.monthlyPrice + 250);
+  assert.ok(floored.monthlyProfit > bid.monthlyProfit);
+  assert.match(formatBidSummary(floored), /Minimum charge floor applied/);
+
+  const lowerFloor = calculateBid({ ...office(), minimumMonthlyPrice: bid.monthlyPrice - 250 });
+  assert.equal(lowerFloor.minimumPriceApplied, false);
+  assert.equal(lowerFloor.monthlyPrice, bid.monthlyPrice);
+  assert.doesNotMatch(formatBidSummary(lowerFloor), /Minimum charge floor applied/);
+});
+
+test('an empty minimum monthly price leaves the margin calculation unchanged', () => {
+  const bid = calculateBid(office());
+  const empty = calculateBid({ ...office(), minimumMonthlyPrice: '' });
+  assert.equal(empty.minimumMonthlyPrice, null);
+  assert.equal(empty.monthlyPrice, bid.monthlyPrice);
+});
+
 test('turns labor hours into a per-visit crew capacity check', () => {
   const result = calculateBid({ ...office(), crewSize: 2, shiftHours: 1.5 });
   assert.equal(result.visitCapacityHours, 3);
@@ -159,6 +181,14 @@ test('a nameless area still reports under a stable label', () => {
   assert.equal(result.areas[1].name, 'Area 2');
 });
 
+test('custom area names are preserved for proposal-ready scope', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [{ name: 'Second-floor restrooms', squareFeet: 500, productionRate: 1200, cleaningsPerWeek: 5 }],
+  });
+  assert.equal(result.areas[0].name, 'Second-floor restrooms');
+});
+
 test('a building with no cleanable area reports no per-unit ratios instead of dividing by zero', () => {
   const result = calculateBid({
     ...office(),
@@ -186,6 +216,7 @@ test('inputs that would silently produce a nonsense bid are rejected', () => {
   assert.throws(() => calculateBid({ ...office(), hourlyWage: 'abc' }), /Hourly wage must be a number/);
   assert.throws(() => calculateBid({ ...office(), targetMargin: 100 }), /less than 100/);
   assert.throws(() => calculateBid({ ...office(), overheadRate: -1 }), /Overhead must be at least 0/);
+  assert.throws(() => calculateBid({ ...office(), minimumMonthlyPrice: -1 }), /Minimum monthly price must be at least 0/);
 });
 
 test('production-rate presets are usable positive numbers', () => {
@@ -338,6 +369,49 @@ test('bid summary omits the project block when there is no project work', () => 
   const text = formatBidSummary(calculateBid(office()));
   assert.doesNotMatch(text, /ONE-TIME PROJECT WORK/);
   assert.doesNotMatch(text, /First-month invoice/);
+});
+
+test('periodic work is averaged into monthly cost and annual contract value', () => {
+  const baseline = calculateBid(office());
+  const result = calculateBid({
+    ...office(),
+    periodicServices: [{ name: 'Quarterly floor care', costPerOccurrence: 1200, occurrencesPerYear: 4 }],
+  });
+  assert.equal(result.monthlyPeriodicCost, 400);
+  assert.equal(result.annualPeriodicCost, 4800);
+  assert.ok(Math.abs(result.monthlyCost - (baseline.monthlyCost + 400 * 1.15)) < 1e-9);
+  assert.equal(result.periodicServices[0].name, 'Quarterly floor care');
+  assert.equal(result.hasPeriodicWork, true);
+});
+
+test('multiple periodic services aggregate and validate their inputs', () => {
+  const result = calculateBid({
+    ...office(),
+    periodicServices: [
+      { costPerOccurrence: 600, occurrencesPerYear: 12 },
+      { name: 'Annual extraction', costPerOccurrence: 1800, occurrencesPerYear: 1 },
+    ],
+  });
+  assert.equal(result.periodicServices[0].name, 'Periodic service 1');
+  assert.equal(result.monthlyPeriodicCost, 750);
+  assert.throws(
+    () => calculateBid({ ...office(), periodicServices: [{ costPerOccurrence: -1, occurrencesPerYear: 1 }] }),
+    /cost per occurrence/,
+  );
+  assert.throws(
+    () => calculateBid({ ...office(), periodicServices: [{ costPerOccurrence: 1, occurrencesPerYear: 'nope' }] }),
+    /occurrences per year/,
+  );
+});
+
+test('bid summary lists periodic work separately from one-time projects', () => {
+  const text = formatBidSummary(calculateBid({
+    ...office(),
+    periodicServices: [{ name: 'Quarterly floor care', costPerOccurrence: 1200, occurrencesPerYear: 4 }],
+  }));
+  assert.match(text, /PERIODIC SERVICES \(MONTHLY AVERAGE\)/);
+  assert.match(text, /Quarterly floor care/);
+  assert.doesNotMatch(text, /ONE-TIME PROJECT WORK/);
 });
 
 test('a 5× to 3× cut scales labor and leaves supplies and equipment on the job', () => {

@@ -35,8 +35,10 @@ test("every raw-text element is closed", () => {
 test("the page imports the comparison it claims to run", () => {
   assert.match(scriptSource, /compareScenarios/);
   assert.match(scriptSource, /reviewRecord/);
+  assert.match(scriptSource, /decisionSummary/);
   assert.match(scriptSource, /breakEvenEgressGb/);
   assert.match(scriptSource, /countUsage\("calculation"\)/);
+  assert.match(scriptSource, /countUsage\("summary_copied"\)/);
   assert.match(scriptSource, /countUsage\("review-export"\)/);
 });
 
@@ -47,6 +49,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
     ["Two-provider monthly comparison", /compareScenarios/],
     ["annualized savings", /annualSavings/],
     ["break-even outbound transfer", /breakEvenEgressGb/],
+    ["copyable decision summary", /decisionSummary/],
     ["private JSON review export", /reviewRecord/],
   ];
   for (const [claim, pattern] of claims) {

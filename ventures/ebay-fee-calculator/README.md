@@ -279,6 +279,8 @@ drive that decision:
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
+- **Sourcing ceiling** — the highest acquisition cost per item, plus the batch
+  budget, that still reaches the target ROI after all other cash costs.
 - **Repricing sensitivity** — profit, margin, and the signed change against
   your current price at listing prices 10% and 20% either side of it.
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
@@ -460,6 +462,9 @@ once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
 
+Usage recording is best-effort. If local storage is blocked, full, or contains
+invalid old data, the calculator continues to work and simply skips that count.
+
 ## Support
 
 The tool is free and full-featured. The
@@ -474,7 +479,7 @@ sellers do not re-enter them, including the expected return rate and return
 postage. **Copy shareable link** puts those assumptions in the URL fragment
 for a collaborator; anyone with the link can read the figures, so do not
 share sensitive information. Nothing is uploaded. **Download repricing CSV**
-exports the price-sensitivity table (item price, offset, net, margin, unit
+exports the price-sensitivity table (item price, units, offset, net, margin, unit
 profit, and change versus the current list). Use **Reset saved inputs**
 to remove the local setup.
 

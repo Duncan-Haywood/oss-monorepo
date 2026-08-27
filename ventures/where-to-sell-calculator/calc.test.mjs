@@ -46,6 +46,18 @@ test("a monthly plan is spread over the orders it carries", () => {
   assert.ok(thin.profit < result.profit, "fewer orders must carry more of the plan");
 });
 
+test("subscription channels show orders needed to recover their monthly plan", () => {
+  const result = calculateChannel(preset("own-store"), shared);
+  assert.equal(result.ordersToCoverPlan, 2);
+
+  const impossible = calculateChannel(
+    { ...preset("own-store"), commissionRate: 99, paymentRate: 0 },
+    shared,
+  );
+  assert.equal(impossible.ordersToCoverPlan, null);
+  assert.equal(calculateChannel(preset("ebay"), shared).ordersToCoverPlan, 0);
+});
+
 test("subscription can be excluded, and is zero for channels without one", () => {
   const excluded = calculateChannel(preset("own-store"), { ...shared, includeSubscription: false });
   close(excluded.fees.subscription, 0, "excluded subscription");

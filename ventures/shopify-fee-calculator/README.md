@@ -5,7 +5,8 @@ after **Shopify Payments** or a **third-party processor** (PayPal, Stripe, and
 the rest), including the extra Shopify third-party transaction fee that generic
 fee pages skip. From the same inputs it reports net profit, margin, return on
 the cash you put into the order (plus a share of the monthly plan), the
-break-even listing price, the price that hits a target margin, and whether
+break-even listing price, the price that hits a target margin or a target
+dollar profit, and whether
 Basic, Grow, Advanced, or Plus leaves more at your monthly volume.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
@@ -34,6 +35,11 @@ defaults from a plan picker, allocates the monthly Shopify plan across
 expected monthly orders, shows **both paths on the same order**, and ranks
 **every plan at that volume** so the upgrade question is extra monthly cost
 divided by per-order fee savings.
+
+The target-profit result is a pricing aid, not a recommendation: it solves the
+entered fee model for the item price that leaves the dollar profit you specify.
+Shipping charged, variable costs, fixed fees, and allocated plan cost all stay
+visible in the arithmetic.
 
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.

@@ -15,7 +15,19 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertEqual(result["total_hours"], 35)
         self.assertAlmostEqual(result["effective_hourly_rate"], 54.8571428, places=6)
         self.assertEqual(result["target_price"], 3105)
+        self.assertEqual(result["break_even_price"], 480)
         self.assertEqual(result["gap_to_target"], -705)
+        self.assertEqual(result["minimum_price_adjustment"], 705)
+        self.assertEqual(result["hidden_hours"], 11)
+        self.assertEqual(result["hidden_time_percent"], (11 / 35) * 100)
+        self.assertEqual(result["target_rate_hours"], 25.6)
+        self.assertAlmostEqual(result["hours_cushion"], -9.4)
+
+    def test_reports_negative_target_rate_hours_when_costs_exceed_price(self) -> None:
+        quote = load_quote({"price": 100, "delivery_hours": 1, "overhead": 150, "target_hourly_rate": 50})
+        result = calculate(quote)
+        self.assertEqual(result["target_rate_hours"], -1)
+        self.assertEqual(result["hours_cushion"], -2)
 
     def test_defaults_optional_costs_and_time(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
@@ -39,11 +51,14 @@ class QuoteMarginTests(unittest.TestCase):
     def test_reports_price_left_after_direct_costs(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 125, "subcontractor_cost": 75, "target_hourly_rate": 80})
         self.assertEqual(calculate(quote)["cost_coverage"], 800)
+        self.assertEqual(calculate(quote)["break_even_price"], 200)
         self.assertEqual(calculate(quote)["discount_room"], 0)
+        self.assertEqual(calculate(quote)["minimum_price_adjustment"], 0)
 
     def test_reports_discount_room_above_target(self) -> None:
         quote = load_quote({"price": 4000, "delivery_hours": 10, "target_hourly_rate": 100})
         self.assertEqual(calculate(quote)["discount_room"], 3000)
+        self.assertEqual(calculate(quote)["minimum_price_adjustment"], 0)
 
     def test_discount_ask_keeps_hours_and_direct_costs_fixed(self) -> None:
         quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75})
@@ -69,15 +84,42 @@ class QuoteMarginTests(unittest.TestCase):
                 "quoted_price,2400.00,EUR",
                 "total_working_hours,24.00,hours",
                 "direct_costs,0.00,EUR",
+                "break_even_price,0.00,EUR",
                 "effective_hourly_rate,100.00,EUR/hour",
                 "target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
+                "target_rate_hours,32.00,hours",
+                "hours_cushion,8.00,hours",
                 "cost_coverage,2400.00,EUR",
                 "discount_room,600.00,EUR",
+                "minimum_price_adjustment,0.00,EUR",
                 "hourly_bill_at_planned_hours,1800.00,EUR",
                 "hourly_minus_fixed_at_planned_hours,-600.00,EUR",
             ],
         )
+
+    def test_csv_report_neutralises_a_formula_in_the_currency_label(self) -> None:
+        # Mirrors "neutralises a formula typed into the currency label" in
+        # site/export.test.mjs: the two implementations must agree.
+        quote = load_quote({"currency": "=1+1", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            csv_report(quote, calculate(quote))
+        lines = output.getvalue().splitlines()
+        self.assertEqual(lines[1], "quoted_price,2400.00,'=1+1")
+        self.assertIn("effective_hourly_rate,100.00,'=1+1/hour", lines)
+        for line in lines[1:]:
+            unit = line.rsplit(",", 1)[-1]
+            self.assertFalse(unit.startswith("="), f"unit cell {unit!r} would evaluate as a formula")
+
+    def test_csv_report_keeps_a_negative_value_numeric(self) -> None:
+        # The guard must not reach the value column: -600.00 is a number the
+        # recipient sums, and an apostrophe would make it text.
+        quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            csv_report(quote, calculate(quote))
+        self.assertIn("hourly_minus_fixed_at_planned_hours,-600.00,EUR", output.getvalue().splitlines())
 
     def test_currency_defaults_and_is_trimmed(self) -> None:
         quote = load_quote({"currency": " USD ", "price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})

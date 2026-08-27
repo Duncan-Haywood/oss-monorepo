@@ -18,9 +18,15 @@ test("calculates hidden time and target price", () => {
   assert.equal(result.total_hours, 35);
   assert.ok(Math.abs(result.effective_hourly_rate - 54.8571428) < 1e-6);
   assert.equal(result.target_price, 3105);
+  assert.equal(result.break_even_price, 480);
   assert.equal(result.gap_to_target, -705);
+  assert.equal(result.minimum_price_adjustment, 705);
   assert.equal(result.buffered_hours, 42);
   assert.equal(result.buffered_target_price, 3630);
+  assert.equal(result.hidden_hours, 11);
+  assert.equal(result.hidden_time_percent, (11 / 35) * 100);
+  assert.equal(result.target_rate_hours, 25.6);
+  assert.ok(Math.abs(result.hours_cushion + 9.4) < 1e-9);
 });
 
 test("defaults the time buffer to zero", () => {
@@ -60,11 +66,13 @@ test("reports price left after direct costs", () => {
   const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 125, subcontractor_cost: 75, target_hourly_rate: 80 });
   assert.equal(calculate(quote).cost_coverage, 800);
   assert.equal(calculate(quote).discount_room, 0);
+  assert.equal(calculate(quote).minimum_price_adjustment, 0);
 });
 
 test("reports discount room above target without recommending a price", () => {
   const quote = loadQuote({ price: 4000, delivery_hours: 10, target_hourly_rate: 100 });
   assert.equal(calculate(quote).discount_room, 3000);
+  assert.equal(calculate(quote).minimum_price_adjustment, 0);
 });
 
 test("currency defaults and is trimmed", () => {

@@ -125,6 +125,7 @@
   .result dt { color: var(--muted); font-size: 0.85rem; margin-top: 0.6rem; }
   .result dt:first-child { margin-top: 0; }
   .result dd { margin: 0; font-size: 1.1rem; }
+  .result dd.warning { color: var(--bad); }
   .error { color: var(--bad); }
   .checks { margin: 0.75rem 0 0; padding: 0; list-style: none; }
   .checks li { border-left: 4px solid var(--border); padding: 0.55rem 0.75rem; margin-top: 0.55rem; background: var(--panel); }
@@ -294,6 +295,7 @@
           <tbody></tbody>
         </table>
       </div>
+      <p class="actions"><button type="button" id="copy-discounts">Copy discount ladder</button> <span id="discount-copy-status" class="hint" role="status" aria-live="polite"></span></p>
     </div>
     <div class="result" id="billing" aria-live="polite">
       <strong>Fixed quote vs hourly at your target</strong>
@@ -594,15 +596,18 @@
       result.innerHTML = `
         <div class="status ${above ? "good" : "bad"}">${above ? "Above target" : "Below target"} (arithmetic comparison only)</div>
         <dl>
-          <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
+           <dt>Total working hours</dt><dd>${fmt(r.total_hours)}</dd>
+           <dt>Time mix</dt><dd>${fmt(r.delivery_hours)} delivery + ${fmt(r.hidden_hours)} admin/revision (${fmt(r.hidden_time_percent)}% hidden time)</dd>
            <dt>Direct costs</dt><dd>${safeCurrency} ${fmt(r.direct_costs)}</dd>
+           <dt>Break-even price (direct costs only)</dt><dd>${safeCurrency} ${fmt(r.break_even_price)}</dd>
            <dt>Effective hourly rate</dt><dd><strong>${safeCurrency} ${fmt(r.effective_hourly_rate)}/hour</strong></dd>
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
-           <dt>Target-rate hours budget</dt><dd>${fmt(targetHoursBudget(quote, r))} total hours</dd>
+           <dt>Hours supported at target rate</dt><dd class="${r.hours_cushion < 0 ? "warning" : ""}">${fmt(r.target_rate_hours)} hours (${fmt(Math.abs(r.hours_cushion))} ${r.hours_cushion >= 0 ? "remaining" : "over"})</dd>
            <dt>Maximum discount before target</dt><dd>${safeCurrency} ${fmt(r.discount_room)}</dd>
+           <dt>Minimum increase to reach target</dt><dd>${safeCurrency} ${fmt(r.minimum_price_adjustment)}</dd>
         </dl>
        `;
        review.querySelector(".checks").innerHTML = reviewQuote(quote, r).map((check) => `<li class="${check.level}"><strong>${escapeHtml(check.title)}</strong>${escapeHtml(check.detail)}</li>`).join("");
@@ -855,6 +860,32 @@
   const copyBtn = document.getElementById("copy-csv");
   const downloadBtn = document.getElementById("download-csv");
   const copyStatus = document.getElementById("copy-status");
+  const discountCopyBtn = document.getElementById("copy-discounts");
+  const discountCopyStatus = document.getElementById("discount-copy-status");
+  discountCopyBtn.addEventListener("click", async () => {
+    if (!lastReport) {
+      discountCopyStatus.textContent = "Fix the inputs above first.";
+      return;
+    }
+    const { quote, r } = lastReport;
+    const rows = [
+      "discount_percent,quote_price,effective_hourly_rate,hours_to_cut,gap_to_target",
+      ...discountAskScenarios(quote, r).map((scenario) => [
+        scenario.percent,
+        scenario.discounted_price,
+        scenario.effective_hourly_rate,
+        scenario.hours_to_cut === null ? "" : scenario.hours_to_cut,
+        scenario.gap_to_target,
+      ].map((value) => Number.isFinite(Number(value)) && value !== "" ? Number(value).toFixed(2) : String(value)).join(",")),
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(rows + "\n");
+      discountCopyStatus.textContent = "Copied — paste into a spreadsheet.";
+      recordEvent("discount_ladder_copied");
+    } catch {
+      discountCopyStatus.textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
   summaryBtn.addEventListener("click", async () => {
     if (!lastReport) {
       copyStatus.textContent = "Fix the inputs above first.";

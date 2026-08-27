@@ -100,8 +100,16 @@ test('sourcing ceiling stays per item across batches and flags unreachable targe
   const single = calculateSourcingCeiling({ ...input, quantity: 1 }, 100);
   const batch = calculateSourcingCeiling(input, 100);
   near(batch.maximumAcquisitionCost, single.maximumAcquisitionCost, 'batch ceiling remains per item');
+  near(batch.maximumBatchAcquisitionCost, batch.maximumAcquisitionCost * 3, 'batch buy budget is the per-item ceiling times units');
+  near(single.maximumBatchAcquisitionCost, single.maximumAcquisitionCost, 'one unit budget matches the per-item ceiling');
   assert.equal(calculateSourcingCeiling({ price: 10, finalValueRate: 90, shippingCost: 5 }, 100).isReachable, false);
   assert.throws(() => calculateSourcingCeiling(input, -1), /non-negative/);
+});
+
+test('sourcing ceiling does not hide invalid acquisition costs', () => {
+  assert.throws(() => calculateSourcingCeiling({ price: 40, costOfGoods: 'not-a-number' }, 50), /Cost of goods/);
+  assert.throws(() => calculateSourcingCeiling({ price: 40, costOfGoods: -1 }, 50), /Cost of goods/);
+  assert.throws(() => calculateSourcingCeiling({ price: 40, quantity: 1.5 }, 50), /whole number/);
 });
 
 test('margin is zero rather than NaN when revenue is zero', () => {

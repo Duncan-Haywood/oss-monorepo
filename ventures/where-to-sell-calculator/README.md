@@ -30,6 +30,9 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
 - **The fee percentage is not the decision.** What matters is the price each
   channel needs to leave you the same money — a channel with higher fees still
   wins if you can list higher there. That is the last column of the table.
+- **A monthly plan needs a volume reality check.** The table shows the minimum
+  whole-order count needed for this item's economics to recover a subscription,
+  or `—` when no order volume can recover it.
 - **Per-sale profit is not monthly cash.** A direct sale that keeps $33 and
   happens four times a month loses to a marketplace that keeps $26 and happens
   forty times. Put expected sales on each channel; a monthly plan is spread
@@ -70,9 +73,9 @@ link can read those assumptions, so do not include confidential costs.
 
 Use **Download comparison CSV** to take the ranked table into a spreadsheet.
 The file has one row per compared channel and includes fees, keep, expected
-keep after returns, monthly keep, days to sell, profit per day, and the
-break-even / match-the-leader prices. It is calculated results only — not
-your saved usage counts.
+keep after returns, monthly keep, days to sell, profit per day, orders to
+cover a monthly plan, and the break-even / match-the-leader prices. It is
+calculated results only — not your saved usage counts.
 
 ### Reading the table
 
@@ -89,6 +92,9 @@ questions the ranking alone does not:
   not counted as invested; that keeps the figure comparable across channels
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
+- **Orders to cover plan** — the minimum whole-order volume needed to recover a
+  monthly subscription from this item's profit before that plan. It is `0` for
+  channels without a monthly plan and `—` when the economics cannot recover it.
 - **Monthly keep** — per-sale profit times the sales you expect on that
   channel. Leave the per-channel field blank to use the shared monthly-orders
   figure. When volumes differ, the hero can name a different winner for the
@@ -110,6 +116,12 @@ money working", break-even answers "how far can I move the price", cash
 per day answers "do I wait on the cheaper channel or list where it moves",
 and after returns answers "does the completed-sale winner still win in the
 mix I actually ship".
+
+On a narrow screen the comparison becomes one card per channel instead of a
+wide table, with the channel as the card's heading and every figure on its
+own labelled line. "Where should I sell this?" is often asked while standing
+over the item — at a thrift store, a garage sale, a storage unit — so the
+phone layout shows the same numbers rather than a table dragged sideways.
 
 ### The second table: what a listing is worth, not what a sale is worth
 

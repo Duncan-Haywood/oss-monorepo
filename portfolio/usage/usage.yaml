@@ -72,7 +72,6 @@ products:
           release_schedule_views: 0
           share_link_copies: 0
         note: Added modeled retainage-reduction schedule and a shareable worksheet hash link; public URL remains owner-gated.
-
   - slug: 3pl-quote-normalizer
     surface: static-page-in-repo
     readings:
@@ -126,7 +125,6 @@ products:
           qualified_pilots: 0
           github_annotation_comparisons: 0
         note: Shipped fixture-backed local comparison and CI warning output; customer demand remains untested.
-        note: Shipped fixture-backed local comparison; customer demand remains untested.
       - as_of: 2026-08-24
         signals:
           markdown_reports_rendered: 1
@@ -2047,6 +2045,17 @@ products:
           event accessorials_compared is opt-out and stores no inputs.
 
   - slug: repository-branch-hygiene
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_inventory_runs: 0
+        note: >-
+          Baseline row completing a slug-only stub that had carried no surface
+          and no readings. The venture is a read-only branch inventory CLI at
+          prototype stage with no public URL; nothing has been measured yet, so
+          this records an honest zero rather than implying a reading was taken.
   - slug: dns-configuration-evidence
     surface: local-cli
     readings:
@@ -2076,6 +2085,8 @@ products:
           Added a static landing page so the CLI has a public entry once
           Pages is enabled. Public URL remains owner-gated; no repository
           data is collected.
+      - as_of: 2026-08-26
+        signals:
           local_observations_compared: 0
           local_inconclusive_observations: 0
           qualified_operators: 0
@@ -2128,6 +2139,18 @@ products:
           prices bags from the R-value delta, air sealing, and access a
           flat attic special hides; public URL remains owner-gated and
           the browser counter is local and opt-out. Baseline row.
+  - slug: spray-foam-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Rematched the unique spray-foam bid calculator (board feet, cell,
+          rim, ignition coating) that an attic-square-foot special cannot
+          see; public URL remains owner-gated and the browser counter is
+          local and opt-out. Baseline row.
   - slug: window-replacement-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -3444,3 +3467,35 @@ products:
           short-load fee, walk-away price). Distinct from concrete lifting.
           Public URL remains owner-gated; the browser counter is local,
           opt-out, and honors DNT/GPC. Baseline row.
+  - slug: grant-reporting-tracker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped private browser deadline queue and CSV export; public publishing is owner-gated, so this is the initial baseline.
+  - slug: vendor-watch
+    surface: process-host-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          check_started: 0
+        note: >-
+          Repair-and-merge of unique #905 vendor page change monitor. In-memory
+          snapshots only; usage events are event name + path + day, never the
+          checked URL. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          check_started: 0
+          check_unchanged: 0
+          check_changed: 0
+        note: >-
+          Snapshots moved into the visitor's own browser, so a baseline now
+          survives a restart and is never answered from another visitor's
+          snapshot. check_changed and check_unchanged are the outcome signals
+          worth watching: before this, a returning visitor could only ever see
+          check_first_snapshot, so repeat value was unmeasurable rather than
+          merely unmeasured. Public URL remains owner-gated.

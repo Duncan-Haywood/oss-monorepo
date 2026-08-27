@@ -226,6 +226,7 @@
           <dt>Break-even item price</dt><dd id="breakEven"></dd>
           <dt>Price for target margin</dt><dd id="targetMarginPrice"></dd>
           <dt>Max buy for target ROI</dt><dd id="sourcingCeiling"></dd>
+          <dt>Batch buy budget at that ceiling</dt><dd id="sourcingCeilingBatch"></dd>
           <dt>Max item cost at target margin</dt><dd id="maxCostOfGoods"></dd>
           <dt>Expected profit after returns</dt><dd id="expectedProfit"></dd>
           <dt>Cash one return still eats</dt><dd id="cashEatenPerReturn"></dd>
@@ -234,7 +235,7 @@
         <hr>
         <p id="ceilingStatus" class="note"></p>
         <p class="note">Cash recovered is sale revenue after modeled fees. The checkpoint compares it with your modeled cash outlay; it does not account for sell-through speed, returns, taxes, storage, labor, or opportunity cost. The surplus is the same arithmetic as net profit, shown in sourcing language.</p>
-        <p class="note">Transparent arithmetic from your inputs. The fixed fee is charged once per batch order; other listed costs are per unit. This is not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status. The sourcing ceiling is the modeled buy cost at your target ROI. Max item cost at target margin is the same sale solved for cost instead of ROI. Neither is a recommendation to buy or pass.</p>
+        <p class="note">Transparent arithmetic from your inputs. The fixed fee is charged once per batch order; other listed costs are per unit. This is not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status. The sourcing ceiling is the modeled buy cost at your target ROI. The batch buy budget is that ceiling times the unit count. Max item cost at target margin is the same sale solved for cost instead of ROI. Neither is a recommendation to buy or pass.</p>
       </section>
     </div>
     <section class="sensitivity">
@@ -1314,6 +1315,7 @@
         document.getElementById('breakEven').textContent = Number.isFinite(result.breakEvenPrice) ? money(result.breakEvenPrice) : 'never';
         document.getElementById('targetMarginPrice').textContent = Number.isFinite(result.targetMarginPrice) ? money(result.targetMarginPrice) : 'unreachable';
         document.getElementById('sourcingCeiling').textContent = ceiling.isReachable ? money(ceiling.maximumAcquisitionCost) : 'unreachable';
+        document.getElementById('sourcingCeilingBatch').textContent = ceiling.isReachable ? money(ceiling.maximumBatchAcquisitionCost) : 'unreachable';
         document.getElementById('maxCostOfGoods').textContent = result.maxCostOfGoods > 0 ? money(result.maxCostOfGoods) : 'unreachable';
         const ceilingStatus = document.getElementById('ceilingStatus');
         ceilingStatus.className = ceiling.amountOverCeiling > 0 ? 'note warning' : 'note';
@@ -1344,6 +1346,7 @@
         document.getElementById('breakEven').textContent = '';
         document.getElementById('targetMarginPrice').textContent = '';
         document.getElementById('sourcingCeiling').textContent = '';
+        document.getElementById('sourcingCeilingBatch').textContent = '';
         document.getElementById('maxCostOfGoods').textContent = '';
         document.getElementById('ceilingStatus').textContent = '';
         document.getElementById('expectedProfit').textContent = '';

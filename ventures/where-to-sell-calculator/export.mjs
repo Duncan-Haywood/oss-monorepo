@@ -16,6 +16,7 @@ const HEADERS = [
   "profit_per_day",
   "monthly_profit_at_velocity",
   "break_even_price",
+  "orders_to_cover_plan",
   "price_to_match_best",
 ];
 
@@ -58,6 +59,7 @@ export function comparisonCsv(comparison) {
       money(result.profitPerDay),
       money(result.monthlyProfitAtVelocity),
       money(result.breakEvenPrice),
+      count(result.ordersToCoverPlan),
       money(result.priceToMatchBest),
     ]);
   return [HEADERS, ...rows].map((row) => row.map(escapeCell).join(",")).join("\n") + "\n";
