@@ -2,13 +2,21 @@
 // derived arithmetic, but deliberately avoids presenting a profitability or
 // pricing recommendation.
 
-export function formatReviewSummary(quote, report, checks, decision = null) {
+export function formatReviewSummary(quote, report, checks, decision = null, extras = {}) {
   const money = (value) => `${quote.currency} ${value.toFixed(2)}`;
   const flags = checks
     .filter((check) => check.level === "attention")
     .map((check) => `- ${check.title}: ${check.detail}`);
   const nextStep = decision?.title
     ? [`Next-step prompt: ${decision.title}`, ""]
+    : [];
+  const overrunRows = Array.isArray(extras.overrunRows) ? extras.overrunRows : [];
+  const overrun = overrunRows.length
+    ? [
+        "Time-overrun scenarios (not a prediction):",
+        ...overrunRows.map((scenario) => `+${scenario.percent}% time: ${scenario.total_hours.toFixed(2)} hours, ${money(scenario.effective_hourly_rate)}/hour, gap ${money(scenario.gap_to_target)}`),
+        "",
+      ]
     : [];
 
   return [
@@ -25,6 +33,7 @@ export function formatReviewSummary(quote, report, checks, decision = null) {
     `Left after direct costs: ${money(report.cost_coverage)}`,
     `Minimum increase to reach target: ${money(report.minimum_price_adjustment)}`,
     "",
+    ...overrun,
     "Review observations:",
     ...(flags.length ? flags : ["- No arithmetic attention flags from these inputs."]),
     "",

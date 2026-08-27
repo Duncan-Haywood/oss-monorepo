@@ -267,6 +267,7 @@ test("calculator page copies a proposal-ready review summary", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="copy-summary"/);
   assert.match(page, /formatReviewSummary/);
+  assert.match(page, /overrunRows: overrunScenarios/);
   assert.match(page, /review_summary_copied/);
   assert.match(page, /Copy review summary/);
   assert.match(page, /function fallbackCopy/);

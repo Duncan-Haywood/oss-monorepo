@@ -916,7 +916,7 @@
       return;
     }
     const { quote, r } = lastReport;
-    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r), reviewDecision(r, quote));
+    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r), reviewDecision(r, quote), { overrunRows: overrunScenarios(quote, r) });
     try {
       await copyText(summary);
       copyStatus.textContent = "Copied — paste into an email or proposal note.";
@@ -931,7 +931,7 @@
       return;
     }
     const { quote, r } = lastReport;
-    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r), reviewDecision(r, quote));
+    const summary = formatReviewSummary(quote, r, reviewQuote(quote, r), reviewDecision(r, quote), { overrunRows: overrunScenarios(quote, r) });
     const blob = new Blob([summary + "\n"], { type: "text/plain;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
