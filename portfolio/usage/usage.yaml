@@ -2000,6 +2000,15 @@ products:
   - slug: tiktok-shop-fee-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added a live free-shipping comparison (charge vs eat the label vs
+          bake postage into the item). Same customer total is a referral tie
+          and not an affiliate tie when commission is on item price only.
+          Public URL remains owner-gated.
       - as_of: 2026-08-24
         signals:
           live_url_visitors: null

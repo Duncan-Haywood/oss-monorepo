@@ -6,7 +6,10 @@ import {
   breakEvenPrice,
   calculateOrder,
   compareFeeSchedules,
+  compareFreeShipping,
   compareOrganicVsAffiliate,
+  extraOrdersToMatch,
+  freeShippingNote,
   DAYS_PER_MONTH,
   FEE_SCHEDULE_PRESETS,
   maxBuyCost,
@@ -244,4 +247,57 @@ test("empty optional fields default instead of throwing", () => {
   near(result.revenue, 10, "defaults");
   near(result.affiliateFee, 0, "no affiliate");
   near(result.expectedProfit, 10 - 0.6 - 2, "just referral and COGS");
+});
+
+const shipped = () => ({ ...sample(), shippingCharged: 4.99 });
+
+test("same customer total is a referral tie but not an affiliate tie", () => {
+  const comparison = compareFreeShipping(shipped());
+  near(comparison.charged.result.feeBase, comparison.absorb.result.feeBase, "fee base");
+  near(comparison.absorbRaisesAffiliate, 4.99 * 0.15, "commission on the moved label");
+  assert.equal(comparison.referralTie, true);
+  assert.ok(
+    comparison.absorb.result.expectedProfit < comparison.charged.result.expectedProfit,
+    "baking the label into the item pays the creator more, so leftover falls",
+  );
+  assert.match(freeShippingNote(comparison), /item price only/);
+});
+
+test("commission on the full customer total makes absorb a leftover tie", () => {
+  const comparison = compareFreeShipping({ ...shipped(), affiliateOnItemOnly: false });
+  near(comparison.absorbRaisesAffiliate, 0, "same affiliate base");
+  near(
+    comparison.absorb.result.expectedProfit,
+    comparison.charged.result.expectedProfit,
+    "same leftover when commission already sat on shipping",
+  );
+});
+
+test("eating the label drops the fee base and needs extra orders to match", () => {
+  const comparison = compareFreeShipping(shipped());
+  assert.ok(comparison.eatLabel.result.feeBase < comparison.charged.result.feeBase);
+  assert.ok(comparison.eatLabel.result.expectedProfit < comparison.charged.result.expectedProfit);
+  assert.ok(comparison.extraOrdersForEat > 0);
+  const extra = extraOrdersToMatch(comparison.charged.result, comparison.eatLabel.result);
+  near(extra, comparison.extraOrdersForEat, "same lift helper");
+});
+
+test("a high enough free-shipping price already wins and needs no extra volume", () => {
+  const comparison = compareFreeShipping({ ...shipped(), freeShipPrice: 32 });
+  assert.ok(comparison.raised.result.expectedProfit > comparison.charged.result.expectedProfit);
+  assert.equal(comparison.extraOrdersForRaised, 0);
+  assert.equal(comparison.winner, "raised");
+  assert.match(freeShippingNote(comparison), /more per order/);
+});
+
+test("a losing free-shipping path cannot catch up at a non-positive leftover", () => {
+  const comparison = compareFreeShipping({
+    ...shipped(),
+    freeShipPrice: 1,
+    returnRate: 0,
+  });
+  assert.ok(comparison.charged.result.expectedProfit > 0);
+  assert.ok(comparison.raised.result.expectedProfit < 0);
+  assert.equal(comparison.extraOrdersForRaised, null);
+  assert.match(freeShippingNote(comparison), /cannot catch up/);
 });

@@ -320,6 +320,110 @@ export function priceForTargetMargin(input) {
   );
 }
 
+/**
+ * Extra monthly orders a weaker path needs to match a stronger path's
+ * expected leftover. Null when the weaker path cannot catch up (zero or
+ * negative leftover while the stronger path is still positive).
+ */
+export function extraOrdersToMatch(stronger, weaker) {
+  const strongMonthly = stronger.monthlyProfit;
+  const weakPerOrder = weaker.expectedProfit;
+  if (strongMonthly <= weaker.monthlyProfit + 1e-9) return 0;
+  if (weakPerOrder <= 1e-9) return null;
+  return strongMonthly / weakPerOrder - weaker.monthlyOrders;
+}
+
+/**
+ * Three ways to handle postage on the same TikTok Shop SKU.
+ *
+ * Charging shipping and baking that charge into the item price look like
+ * a tie on referral: the published fee base is item + shipping charged.
+ * They are not a tie when creator commission is on item price only —
+ * moving the label into the item raises the affiliate payout. Eating the
+ * label (free shipping, same item price) drops the fee base and leaves
+ * postage as a cost you already pay.
+ *
+ * `freeShipPrice` is the list price you would actually put on a
+ * free-shipping listing. It defaults to item + shipping charged (same
+ * customer total) so the affiliate-on-item-only trap is visible without
+ * inventing a second price.
+ */
+export function compareFreeShipping(input = {}) {
+  const itemPrice = number(input.itemPrice, "Item price");
+  const shippingCharged = optionalNumber(input.shippingCharged, "Shipping charged", 0);
+  const freeShipPrice = optionalNumber(
+    input.freeShipPrice,
+    "Free-shipping item price",
+    itemPrice + shippingCharged,
+  );
+  const affiliateOnItemOnly = input.affiliateOnItemOnly !== false;
+
+  const charged = calculateOrder(input);
+  const eatLabel = calculateOrder({ ...input, shippingCharged: 0 });
+  const absorbPrice = itemPrice + shippingCharged;
+  const absorb = calculateOrder({ ...input, itemPrice: absorbPrice, shippingCharged: 0 });
+  const raised = calculateOrder({ ...input, itemPrice: freeShipPrice, shippingCharged: 0 });
+
+  const paths = [
+    { id: "charged", label: "Charge shipping", itemPrice, shippingCharged, result: charged },
+    { id: "eat", label: "Free shipping, same item price", itemPrice, shippingCharged: 0, result: eatLabel },
+    { id: "absorb", label: "Free shipping, same customer total", itemPrice: absorbPrice, shippingCharged: 0, result: absorb },
+    { id: "raised", label: "Free shipping at typed price", itemPrice: freeShipPrice, shippingCharged: 0, result: raised },
+  ];
+  const unique = [];
+  const seen = new Set();
+  for (const path of paths) {
+    const key = `${path.itemPrice.toFixed(4)}+${path.shippingCharged.toFixed(4)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(path);
+  }
+
+  const winner = unique.reduce((best, path) =>
+    path.result.expectedProfit > best.result.expectedProfit ? path : best,
+  );
+
+  return {
+    affiliateOnItemOnly,
+    absorbPrice,
+    freeShipPrice,
+    charged: paths[0],
+    eatLabel: paths[1],
+    absorb: paths[2],
+    raised: paths[3],
+    paths: unique,
+    winner: winner.id,
+    absorbRaisesAffiliate: absorb.affiliateFee - charged.affiliateFee,
+    referralTie: Math.abs(absorb.referralFee - charged.referralFee) < 1e-9,
+    extraOrdersForEat: extraOrdersToMatch(charged, eatLabel),
+    extraOrdersForRaised: extraOrdersToMatch(charged, raised),
+  };
+}
+
+export function freeShippingNote(comparison) {
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const charged = comparison.charged.result;
+  const raised = comparison.raised.result;
+  const delta = raised.expectedProfit - charged.expectedProfit;
+  if (comparison.affiliateOnItemOnly && comparison.absorbRaisesAffiliate > 1e-9 && comparison.referralTie) {
+    const extra = money(comparison.absorbRaisesAffiliate);
+    if (Math.abs(comparison.raised.itemPrice - comparison.absorbPrice) < 1e-9) {
+      return `Referral is a tie (same fee base), but moving the label into the item price pays creators ${extra} more because commission is on item price only.`;
+    }
+  }
+  if (delta >= -1e-9) {
+    return `Free shipping at ${money(comparison.freeShipPrice)} keeps ${money(delta)} more per order after returns than charging shipping.`;
+  }
+  const extra = comparison.extraOrdersForRaised;
+  if (extra == null) {
+    return `Free shipping at ${money(comparison.freeShipPrice)} loses ${money(-delta)} per order and cannot catch up at a non-positive leftover.`;
+  }
+  return `Free shipping at ${money(comparison.freeShipPrice)} keeps ${money(-delta)} less per order. About ${extra.toFixed(1)} extra orders per month would match charging shipping.`;
+}
+
 export function maxBuyCost(input) {
   const probe = { ...input, cogs: 0 };
   const atZero = calculateOrder(probe);
