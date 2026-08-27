@@ -2,6 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+test('calculator includes the report region used by the page script', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /querySelector\('#report'\)/);
+  assert.match(page, /id="report"/);
+  assert.match(page, /aria-label="Copyable quote review report"/);
+});
+
 test('page persists quote inputs locally', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /localStorage\.setItem\(saveKey/);
