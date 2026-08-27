@@ -1,20 +1,33 @@
-// Copy-ready handoff text for a quote review. It reports arithmetic from the
-// supplied inputs without turning the result into pricing or profitability advice.
+// Plain-text handoff for a quote review. It contains supplied figures and
+// derived arithmetic, but deliberately avoids presenting a profitability or
+// pricing recommendation.
 
-export function quoteSummary(quote, report) {
-  const status = report.gap_to_target >= 0 ? "above" : "below";
-  const gap = Math.abs(report.gap_to_target).toFixed(2);
-  const hiddenHours = (quote.admin_hours + quote.revision_hours).toFixed(2);
+export function formatReviewSummary(quote, report, checks, decision = null) {
+  const money = (value) => `${quote.currency} ${value.toFixed(2)}`;
+  const flags = checks
+    .filter((check) => check.level === "attention")
+    .map((check) => `- ${check.title}: ${check.detail}`);
+  const nextStep = decision?.title
+    ? [`Next-step prompt: ${decision.title}`, ""]
+    : [];
 
   return [
-    "Quote margin review",
-    `Status: ${status} the supplied target price (arithmetic comparison only)`,
-    `Quoted price: ${quote.currency} ${quote.price.toFixed(2)}`,
-    `Effective hourly rate: ${quote.currency} ${report.effective_hourly_rate.toFixed(2)}/hour`,
-    `Target hourly rate: ${quote.currency} ${quote.target_hourly_rate.toFixed(2)}/hour`,
-    `Total working hours: ${report.total_hours.toFixed(2)} (${hiddenHours} admin/revision hours)`,
-    `Direct costs: ${quote.currency} ${report.direct_costs.toFixed(2)}`,
-    `Target price gap: ${quote.currency} ${report.gap_to_target.toFixed(2)} (${gap} ${quote.currency} ${status} target)`,
-    "Arithmetic only, not tax, financial, or business advice. Review and verify every assumption before relying on this output.",
+    "QUOTE MARGIN CHECK",
+    "Arithmetic review for discussion, not pricing or financial advice.",
+    ...nextStep,
+    `Quoted price: ${money(quote.price)}`,
+    `Total working hours: ${report.total_hours.toFixed(2)} (${report.hidden_hours.toFixed(2)} admin/revision hours)`,
+    `Direct costs: ${money(report.direct_costs)}`,
+    `Effective hourly rate: ${money(report.effective_hourly_rate)}/hour`,
+    `Target hourly rate supplied: ${money(quote.target_hourly_rate)}/hour`,
+    `Price at target rate: ${money(report.target_price)}`,
+    `Gap to target price: ${money(report.gap_to_target)}`,
+    `Left after direct costs: ${money(report.cost_coverage)}`,
+    `Minimum increase to reach target: ${money(report.minimum_price_adjustment)}`,
+    "",
+    "Review observations:",
+    ...(flags.length ? flags : ["- No arithmetic attention flags from these inputs."]),
+    "",
+    "Review the scope, assumptions, and arithmetic before relying on this output.",
   ].join("\n");
 }

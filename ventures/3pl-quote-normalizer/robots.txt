@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://duncan-haywood.github.io/monorepo-projects/ventures/3pl-quote-normalizer/sitemap.xml

@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Standby Generator Installation Bid Calculator | How Much to Charge to Install a Whole-House Generator</title>
+  <meta name="description" content="Price a residential standby generator install from the nameplate feeder, transfer switch, pad, gas or propane line, and setback — plus walk-away price, dollars per kW, and how many times a typical 22 kW natural-gas hang this house really is.">
+  <meta property="og:title" content="Standby Generator Installation Bid Calculator">
+  <meta property="og:description" content="Bid the transfer switch, the pad, and the fuel line — not a flat $8,000 installed guess — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Standby Generator Installation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Nameplate feeder and voltage-drop copper, automatic or manual transfer switch, precast or poured pad, natural-gas or propane line, setback labor, walk-away price, dollars per kW, typical-hang comparison, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to install a standby generator?","acceptedAnswer":{"@type":"Answer","text":"There is no flat installed price. A typical 22 kW natural-gas hang beside the house is a different job from a far-yard propane set with a 400 A automatic transfer switch. This calculator prices the feeder, the ATS, the pad, the fuel line, and the setback from your own wage and material inputs."}},{"@type":"Question","name":"Is this a load calculation or a code ruling?","acceptedAnswer":{"@type":"Answer","text":"No. Outputs are arithmetic on the numbers you enter. The recommended-kW hint is a starting point, not a NEC 220 or manufacturer load calculation you can stamp or submit."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5f7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #14303b; color: #f2f7f8; border-color: #14303b; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6fc6d6; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c5f7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce0e8; }
+    .opt { display: flex; gap: 8px; align-items: flex-start; font-weight: 500; }
+    .opt input { width: auto; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #fff; padding: 0; }
+      .no-print, footer, .summary-actions { display: none !important; }
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; color: #111; background: #fff; border: 1px solid #ccc; }
+      .hero-number { color: #111; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR ELECTRICAL CONTRACTORS AND GENERATOR DEALERS</p>
+    <h1>Price the run, the switch, and the fuel — not a flat $8,000 hang.</h1>
+    <p>Homeowners search “how much to install a standby generator” and come back with one number. A 22 kW natural-gas hang beside the house is not a far-yard propane set with a 400 A automatic transfer switch. Enter the machine, the service, the pad, and the setback. You get the installed price, dollars per kW, and how many times a typical hang this house really is.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The machine and the house</h2>
+        <p class="hint">The feeder follows the generator nameplate. The transfer switch follows the service. Mixing those two is how a 200 A bid fails on a 400 A house.</p>
+        <div class="fields">
+          <label>Generator size
+            <select id="presetKw"></select>
+          </label>
+          <label>Running kW
+            <input id="generatorKw" type="number" min="1" max="48" step="1">
+          </label>
+          <label>What it has to carry
+            <select id="loadMode"></select>
+          </label>
+          <label>Fuel
+            <select id="fuel"></select>
+          </label>
+          <label>Service amps
+            <select id="serviceAmps"></select>
+          </label>
+          <label>Transfer switch
+            <select id="transferSwitch"></select>
+          </label>
+          <label>ATS amps
+            <select id="atsAmps"></select>
+          </label>
+          <label>Pad
+            <select id="padType"></select>
+          </label>
+          <label>Location / setback
+            <select id="location"></select>
+          </label>
+          <label>Gas meter
+            <select id="gasMeter"></select>
+          </label>
+          <label>Feeder length (ft, one way)
+            <input id="feederFeet" type="number" min="0" step="1">
+          </label>
+          <label>Gas or propane line (ft)
+            <input id="gasLineFeet" type="number" min="0" step="1">
+          </label>
+          <label>Trench (ft)
+            <input id="trenchFeet" type="number" min="0" step="1">
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your rates</h2>
+        <p class="hint">Starting hours and material dollars are takeoff points, not a standard. Replace them with the truck’s last invoice.</p>
+        <div class="fields">
+          <label>Hourly wage ($)
+            <input id="hourlyWage" type="number" min="0" step="1">
+          </label>
+          <label>Payroll burden (%)
+            <input id="burdenRate" type="number" min="0" step="1">
+          </label>
+          <label>Overhead on cost (%)
+            <input id="overheadRate" type="number" min="0" step="1">
+          </label>
+          <label>Target margin (% of price)
+            <input id="targetMargin" type="number" min="0" max="99" step="1">
+          </label>
+          <label>Permit / inspection ($)
+            <input id="permitFee" type="number" min="0" step="1">
+          </label>
+          <label>Generator hardware (optional, $)
+            <input id="generatorHardware" type="number" min="0" step="1">
+          </label>
+          <label>Other materials ($)
+            <input id="otherMaterials" type="number" min="0" step="1">
+          </label>
+          <label>Other hours
+            <input id="otherHours" type="number" min="0" step="0.25">
+          </label>
+          <label>Price already on the table ($)
+            <input id="proposedPrice" type="number" min="0" step="1" placeholder="optional">
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <p class="eyebrow" style="color:#9ad4e0">YOUR BID</p>
+      <p id="price" class="hero-number">—</p>
+      <p id="priceLabel" class="note">installed price</p>
+      <dl>
+        <dt>Walk-away (total cost)</dt><dd id="breakEven"></dd>
+        <dt>Profit at target margin</dt><dd id="profit"></dd>
+        <dt>Labor hours</dt><dd id="laborHours"></dd>
+        <dt>Loaded wage</dt><dd id="loadedWage"></dd>
+        <dt>Labor cost</dt><dd id="labor"></dd>
+        <dt>Materials</dt><dd id="materials"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Effective billing rate</dt><dd id="hourlyRate"></dd>
+        <dt>Dollars per kW</dt><dd id="perKw"></dd>
+        <dt>Nameplate / feeder breaker</dt><dd id="circuit"></dd>
+        <dt>Copper</dt><dd id="copper"></dd>
+        <dt>Vs a typical 22 kW NG hang</dt><dd id="vsBaseline"></dd>
+      </dl>
+      <hr>
+      <p class="note">Labor split</p>
+      <ul id="split" class="split"></ul>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions no-print">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <button type="button" id="printQuote">Print quote</button>
+        <span id="summaryStatus" class="summary-status"></span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not electrical, engineering, code, legal, tax, financial, or contracting advice, and it does not replace a licensed electrician, plumber, or the authority having jurisdiction. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any permit, inspection, fuel-gas, or manufacturer obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Nothing leaves your browser. A share link encodes only the inputs you put in the address bar. Anonymous local usage counts stay on this device and never include the house, wages, or prices. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <label class="opt"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <label class="opt"><input id="draftOptOut" type="checkbox"> Do not keep a local draft of these inputs</label>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      ATS_AMPS,
+      FUELS,
+      GENERATOR_PRESETS,
+      GAS_METERS,
+      INPUT_FIELDS,
+      LOAD_MODES,
+      LOCATIONS,
+      PAD_TYPES,
+      SERVICE_AMPS,
+      TRANSFER_SWITCHES,
+      calculateBid,
+      defaultInputs,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+
+    const DRAFT_KEY = 'standby-generator-bid-draft';
+    const el = (id) => document.getElementById(id);
+    const money = (value) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+    function fillSelect(id, rows, getValue, getLabel) {
+      el(id).innerHTML = rows.map((row) => `<option value="${getValue(row)}">${getLabel(row)}</option>`).join('');
+    }
+
+    fillSelect('presetKw', GENERATOR_PRESETS, (row) => row.generatorKw, (row) => row.label);
+    fillSelect('loadMode', LOAD_MODES, (row) => row.id, (row) => row.label);
+    fillSelect('fuel', FUELS, (row) => row.id, (row) => row.label);
+    fillSelect('serviceAmps', SERVICE_AMPS, (row) => row, (row) => `${row} A`);
+    fillSelect('transferSwitch', TRANSFER_SWITCHES, (row) => row.id, (row) => row.label);
+    fillSelect('atsAmps', ATS_AMPS, (row) => row, (row) => `${row} A`);
+    fillSelect('padType', PAD_TYPES, (row) => row.id, (row) => row.label);
+    fillSelect('location', LOCATIONS, (row) => row.id, (row) => row.label);
+    fillSelect('gasMeter', GAS_METERS, (row) => row.id, (row) => row.label);
+
+    function readInputs() {
+      const input = {};
+      for (const field of INPUT_FIELDS) {
+        input[field] = el(field).value;
+      }
+      return input;
+    }
+
+    function writeInputs(input) {
+      const defaults = defaultInputs();
+      const merged = { ...defaults, ...input };
+      for (const field of INPUT_FIELDS) {
+        if (el(field)) el(field).value = merged[field] ?? '';
+      }
+      const preset = GENERATOR_PRESETS.find((row) => String(row.generatorKw) === String(merged.generatorKw));
+      el('presetKw').value = preset ? String(preset.generatorKw) : String(GENERATOR_PRESETS[3].generatorKw);
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function saveDraft() {
+      if (el('draftOptOut').checked) {
+        try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+        return;
+      }
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs())); } catch { /* ignore */ }
+    }
+
+    function loadDraft() {
+      const shared = decodeInputs(location.hash || location.search);
+      if (Object.keys(shared).length) return shared;
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        return raw ? JSON.parse(raw) : defaultInputs();
+      } catch {
+        return defaultInputs();
+      }
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'installed price';
+      ['breakEven', 'profit', 'laborHours', 'loadedWage', 'labor', 'materials', 'overhead', 'hourlyRate', 'perKw', 'circuit', 'copper', 'vsBaseline']
+        .forEach((id) => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    const HOUR_LABELS = {
+      base: 'Set and start-up',
+      pad: 'Pad',
+      transfer: 'Transfer switch',
+      feeder: 'Feeder',
+      trench: 'Trench',
+      gas: 'Gas / propane',
+      meter: 'Meter upgrade',
+      location: 'Setback / path',
+      liquid: 'Liquid-cooled package',
+      inspection: 'Inspection',
+      commission: 'Commissioning',
+      other: 'Other',
+    };
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInputs());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        saveDraft();
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'installed price';
+      el('breakEven').textContent = money(result.breakEvenPrice);
+      el('profit').textContent = money(result.profit);
+      el('laborHours').textContent = `${result.laborHours.toFixed(1)} h`;
+      el('loadedWage').textContent = `${money(result.loadedWage)}/h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialsCost);
+      el('overhead').textContent = money(result.overhead);
+      el('hourlyRate').textContent = result.effectiveHourlyRate == null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('perKw').textContent = money(result.pricePerKw);
+      el('circuit').textContent = `${result.nameplateAmps.toFixed(0)} A nameplate → ${result.breakerAmps} A breaker`;
+      el('copper').textContent = result.wire.upsizedFromAmpacity
+        ? `#${result.wire.awg} (${result.wire.voltageDropPercent.toFixed(1)}% drop; upsized from #${result.wire.ampacityAwg})`
+        : `#${result.wire.awg} (${result.wire.voltageDropPercent.toFixed(1)}% drop)`;
+      el('vsBaseline').textContent = result.vsBaseline == null ? 'n/a' : `${result.vsBaseline.toFixed(2)}×`;
+
+      const worked = Object.entries(result.hours).filter(([, hours]) => hours > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No labor hours yet.</li>'
+        : worked
+          .sort((a, b) => b[1] - a[1])
+          .map(([key, hours]) => {
+            const share = (hours / result.laborHours) * 100;
+            return `<li><span>${HOUR_LABELS[key] || key}</span><span>${hours.toFixed(1)} h</span>
+              <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`;
+          })
+          .join('');
+
+      const verdict = el('verdict');
+      const notes = [...result.warnings];
+      if (result.proposed) {
+        notes.unshift(
+          result.proposed.belowBreakEven
+            ? `At ${money(result.proposed.price)} this job loses ${money(Math.abs(result.proposed.profit))} before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+            : `At ${money(result.proposed.price)} you keep ${money(result.proposed.profit)} — a ${result.proposed.margin.toFixed(1)}% margin.`,
+        );
+      }
+      if (notes.length === 0) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed?.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = notes.map((line) => `<p>${line}</p>`).join('');
+      }
+      saveDraft();
+    }
+
+    function summaryText(result) {
+      return [
+        'STANDBY GENERATOR INSTALL BID',
+        '',
+        `Proposed installed price: ${money(result.price)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Machine: ${result.generatorKw} kW ${result.fuel === 'propane' ? 'propane' : 'natural gas'}`,
+        `Service / ATS: ${result.serviceAmps} A service, ${result.atsAmps} A ${result.transferSwitch} transfer switch`,
+        `Feeder: ${result.feederFeet} ft, #${result.wire.awg} copper, ${result.breakerAmps} A breaker`,
+        `Fuel line: ${result.gasLineFeet} ft; trench: ${result.trenchFeet} ft`,
+        `Labor: ${result.laborHours.toFixed(1)} hours`,
+        `Dollars per kW: ${money(result.pricePerKw)}`,
+        result.vsBaseline == null ? '' : `Vs typical 22 kW NG hang: ${result.vsBaseline.toFixed(2)}×`,
+        '',
+        'This is a draft for review. Confirm load calculation, fuel-gas sizing, permits, manufacturer clearances, and all pricing before sending.',
+      ].filter(Boolean).join('\n');
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInputs());
+      await copyText(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    async function copyShare() {
+      const hash = encodeInputs(readInputs());
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await copyText(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+      el('summaryStatus').textContent = 'Share link copied';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('presetKw').addEventListener('change', () => {
+      el('generatorKw').value = el('presetKw').value;
+      count('bid_calculated');
+      update();
+    });
+    INPUT_FIELDS.forEach((id) => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('draftOptOut').addEventListener('change', saveDraft);
+    el('copySummary').addEventListener('click', () => {
+      copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+    });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+    });
+    el('printQuote').addEventListener('click', () => {
+      count('quote_printed');
+      window.print();
+    });
+
+    writeInputs(loadDraft());
+    update();
+  </script>
+</body>
+</html>
