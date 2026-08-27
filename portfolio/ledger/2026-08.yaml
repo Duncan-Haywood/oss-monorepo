@@ -24843,3 +24843,81 @@ entries:
         mapping, since `hood-cleaning` prints "Canopy hood (listed sq ft) — 40"
         and `map` in `trades.json` only reaches select values, not row fields.
     mrr_end: null
+  - venture: bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Both follow-ups the last entry recorded are shipped** (#1891, #1892),
+        and the first was worse than its one-line description implied.
+      - >-
+        `janitorial`'s three scenario panels — schedule cut, paper handoff,
+        initial clean — each rebuilt their calculator input inline and left out
+        `shifts` and `projects`. The parameter is spread straight into
+        `calculateBid`, so a contract with a day porter was compared against a
+        cost base with no porter wages in it. Measured in Chromium on the page's
+        own worked example plus one porter: the headline price is $7,141.86 and
+        the schedule-cut panel went on reporting a 3x/week price of **$1,069.37**
+        — the figure for a building with no porter at all — against a walk-away
+        of $5,192.99. A contractor reading it would have cut their price to a
+        fifth of the floor. `update()` now reads once and prices all three
+        panels from the same bid the headline priced, which is what the comment
+        above `readInput()` already said the extraction was for.
+      - >-
+        Two more defects surfaced from including the shifts. `unscaledMonthly`
+        counted only supplies, equipment and travel, so the panel said "$65.00
+        stays" on a job where $3,771.73/month of porter labour also stays — it
+        is scheduled against the building's week, not the cleaning cadence, and
+        does not fall when visits are cut. And project rows were missing from
+        `BID_SPEC` and `readSavable()`, so saving a bid or sending a bid link
+        silently dropped every strip-and-wax on the job: sender 1 row, recipient
+        0, the exact failure `share.mjs`'s own header says it exists to prevent.
+        Both fixed and both re-checked in a browser before and after.
+      - >-
+        `hood-cleaning` drafted "Canopy hood (listed sq ft) — 40" because
+        `fields` in `trades.json` reaches the top of the result only, so a row's
+        words went to the customer as the *estimator's form* spells them. The
+        parenthetical is an instruction to the person typing the number and the
+        40 had no unit. `rowFields` now maps a field inside a named collection
+        and it drafts "40 sq ft of canopy hood". An unmapped value falls through
+        to the row's own rather than to `undefined`, deliberately: `scopeLines`
+        drops a line with a missing placeholder, so a preset nobody mapped would
+        otherwise delete a component from the scope the customer signs. Checked
+        by test, with a second that fails if a preset is added without wording.
+      - >-
+        Worth keeping from both: **a shared helper being extracted is not the
+        same as its call sites being migrated to it.** `readInput()` existed in
+        `janitorial` and was documented as the cure for exactly this, and three
+        call sites still had their own literal. `page-contract.test.mjs` now
+        fails if any panel reintroduces one — the two new assertions were run
+        against the previous `index.html` to confirm they fail there, which is
+        what separates a regression guard from a description of the code.
+      - >-
+        Verified: 190 janitorial tests (5 new), 54 `platform/proposal` (3 new),
+        201 `platform/pages`, 50 hood-cleaning; `verify.mjs` drives all 100
+        adopted calculators in Chromium and passes; `sweep.mjs` answered
+        162/162 and `journey.mjs` had 0 failed checks; the site rebuilds to 162
+        products / 439 pages with no dead links; `clauses.mjs`,
+        `check_pages_links.py` against the built site, and the rest of the CI
+        validators exit 0.
+      - >-
+        The **runner outage is still on** and is now the normal reading, not a
+        surprise: every check on both PRs came back red in 2-6 seconds with
+        empty `output.title/summary/text` and a 404 on log download. Told apart
+        from real failure by that signature before merging, per `CLAUDE.md`.
+        Nothing an agent can do about it, and it should not stop a verified
+        merge.
+      - >-
+        Housekeeping: the open-PR queue was **empty** at the start of the run for
+        the fourth session running, so the merge quota again had nothing
+        repairable to act on; the two PRs merged here are this session's own.
+        Deploy is still the owner's `deploy-settings` flip and nothing an agent
+        builds changes that.
+      - >-
+        Next: `mobile-detailing` remains the one bid calculator with no proposal
+        and that is still correct — it is a quote check, not a build-up. The open
+        thread worth picking up is that no bid calculator has a **sensitivity
+        view**: 101 of them price a job and none answer "how wrong can my
+        estimate be before this job loses money", which is the question behind
+        the walk-away price they already show.
+    mrr_end: null
