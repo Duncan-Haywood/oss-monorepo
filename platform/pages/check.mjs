@@ -41,6 +41,10 @@ const REQUIRED_ROOT_FILES = [
   'robots.txt',
   '404.html',
   '.nojekyll',
+  // The AI-discovery entry point. It ships from the same catalogue as the hub,
+  // so a build that drops it drops the site's machine-readable front door
+  // without any page 404ing to show it.
+  'llms.txt',
   // Browsers request /favicon.ico on their own for every page, so if it is
   // missing every page load logs a 404 and opens an anonymous blank tab.
   'favicon.ico',
@@ -200,6 +204,26 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       }
     }
     if (!DISCLAIMER_MARKER.test(hubHtml)) problems.push('index.html: carries no disclaimer');
+  }
+
+  // Same reachability argument as the hub, for the machine-readable door. A
+  // tool missing from llms.txt is invisible to an assistant recommending one,
+  // and nothing else in the artifact would show it: every page still resolves.
+  const llms = await fs.readFile(path.join(site, 'llms.txt'), 'utf8').catch(() => null);
+  if (llms !== null) {
+    const listed = new Set(
+      [...llms.matchAll(/\]\((?:[^)]*?)\/([^/)]+)\/\)/g)].map((m) => m[1]),
+    );
+    for (const product of productDirs) {
+      if (!listed.has(product)) {
+        problems.push(`${product}/: shipped but llms.txt does not list it, so AI discovery misses it`);
+      }
+    }
+    for (const slug of listed) {
+      if (!productDirs.includes(slug)) {
+        problems.push(`llms.txt: lists "${slug}" but no such product shipped`);
+      }
+    }
   }
 
   const files = await walk(site);

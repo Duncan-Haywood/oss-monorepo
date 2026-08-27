@@ -121,6 +121,17 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   deploy workflow also reads it back off the live origin to pick the product page
   it verifies, so a renamed venture cannot make verification pass vacuously.
 
+- **`llms.txt`.** The same catalogue as Markdown, at the well-known path an
+  assistant looks for ([llmstxt.org](https://llmstxt.org)). `catalog.json` is
+  richer but nothing points at it — a model has no reason to guess the filename,
+  and `robots.txt` has no directive that would name it — so a portfolio whose
+  growth plan is organic search and AI discovery needs the conventional path
+  too. It carries each tool's *full* meta description rather than the trimmed
+  card copy, for the same reason the hub's search indexes the full text: the
+  trimmed version drops most of what the longer-described tools say about
+  themselves. `check.mjs` fails the build if a published tool is missing from
+  it, or if it names one that did not ship.
+
 ## Shop rates, carried between tools
 
 `rates.mjs` injects a small bar under the site nav on every **trade bid
@@ -380,9 +391,9 @@ can be run against any branch, and publishing the live site from a feature
 branch is not a mistake anyone would notice quickly.
 
 After deploying, the workflow fetches the real public URL — the front page,
-both sitemaps, `robots.txt`, `catalog.json`, and one product — and fails if any
-of them does not return 200, or if `sitemap.xml` comes back without a sitemap
-index. A completed deploy step is not evidence that anything serves; this makes
+both sitemaps, `robots.txt`, `catalog.json`, `llms.txt`, and one product — and
+fails if any of them does not return 200, if `sitemap.xml` comes back without a
+sitemap index, or if `llms.txt` comes back with no tool entries. A completed deploy step is not evidence that anything serves; this makes
 "deployed" a fact rather than an inference. The product it fetches is named by
 the catalog it just downloaded rather than hardcoded: a hardcoded slug stops
 proving anything the moment that venture is renamed, and reports the rename as

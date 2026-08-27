@@ -141,7 +141,7 @@ jobs:
           [ "$tools" -ge 20 ] || { echo "::error::catalog.json lists only ${tools} tools"; exit 1; }
           slug=$(python3 -c "import json;print(json.load(open('catalog.json'))['tools'][0]['slug'])")
 
-          for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/${slug}/"; do
+          for path in "/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/${slug}/"; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \
                      --retry-all-errors "${base}${path}")
             echo "${code}  ${base}${path}"
@@ -149,4 +149,8 @@ jobs:
           done
           curl -sS "${base}/sitemap.xml" | grep -q "<sitemapindex" \
             || { echo "::error::sitemap.xml served without a sitemap index"; exit 1; }
+          # A 200 on llms.txt is not enough: Pages would serve an empty file
+          # just as happily, and an assistant reading it would find no tools.
+          curl -sS "${base}/llms.txt" | grep -q "^- \[" \
+            || { echo "::error::llms.txt served without any tool entries"; exit 1; }
           echo "Published and verified: ${base}/ (product page /${slug}/)"

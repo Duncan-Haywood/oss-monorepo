@@ -567,6 +567,67 @@ test('a 404 page routes visitors back to the index', async () => {
 });
 
 // ---------------------------------------------------------------------------
+// AI discovery (llms.txt)
+// ---------------------------------------------------------------------------
+//
+// Organic search and AI discovery are the whole acquisition route here, and a
+// tool missing from llms.txt fails silently in the same way a tool missing from
+// the sitemap does: everything still builds, every page still resolves, and the
+// assistant recommending a free calculator simply never sees it.
+
+test('llms.txt lists every published tool at its real URL', async () => {
+  const { surfaces } = await site();
+  const llms = await read('llms.txt');
+
+  for (const surface of surfaces) {
+    assert.ok(
+      llms.includes(`](${BASE}${surface.slug}/)`),
+      `${surface.slug} is served but absent from llms.txt`,
+    );
+  }
+});
+
+test('llms.txt opens with the h1 and blockquote summary the format expects', async () => {
+  const lines = (await read('llms.txt')).split('\n');
+  assert.match(lines[0], /^# \S/, 'llms.txt must start with a single h1');
+  assert.ok(
+    lines.slice(0, 5).some((line) => line.startsWith('> ')),
+    'llms.txt needs a blockquote summary near the top',
+  );
+});
+
+test('llms.txt keeps each tool on one line, so no description leaks into prose', async () => {
+  const { surfaces } = await site();
+  const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
+
+  // Three trailing bullets under "Optional" describe the machine surfaces
+  // rather than a tool, so the count is tools plus those.
+  assert.equal(bullets.length, surfaces.length + 3);
+  for (const bullet of bullets) {
+    assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
+  }
+});
+
+test('llms.txt carries each tool full self-description, not the trimmed card copy', async () => {
+  const { surfaces } = await site();
+  const llms = await read('llms.txt');
+
+  // The card copy is truncated with an ellipsis to fit a fixed-height tile.
+  // Publishing that here would drop most of what the longer-described tools
+  // say about themselves — the half a model matches a query against.
+  const trimmed = surfaces.filter((s) => s.description !== s.fullDescription);
+  assert.ok(trimmed.length > 0, 'expected at least one tool whose card copy is truncated');
+  for (const surface of trimmed) {
+    const full = surface.fullDescription.replace(/\s+/g, ' ').trim();
+    assert.ok(llms.includes(full), `${surface.slug} is listed with trimmed card copy`);
+  }
+});
+
+test('the hub links llms.txt so it is reachable, not only well-known', async () => {
+  assert.match(await read('index.html'), /href="llms\.txt"/);
+});
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
