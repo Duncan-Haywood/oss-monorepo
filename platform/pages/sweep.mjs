@@ -83,6 +83,63 @@ if (slugs.length === 0) {
 }
 console.log(`Sweeping ${slugs.length} tools at ${BASE}\n`);
 
+// Plausible text for a field the visitor would have to fill before the tool
+// will do anything. Keyed loosely off the field's own name so a date field gets
+// a date and an email field something with an `@`: a tool that validates its
+// input is doing its job, and feeding it "x" would fail it for being careful.
+const SAMPLE_TEXT = [
+  [/mail/i, 'someone@example.com'],
+  [/url|link|site|repo/i, 'https://example.com/thing'],
+  [/phone|tel/i, '555-0100'],
+  [/date/i, '2026-01-15'],
+  [/time/i, '09:00'],
+];
+
+function sampleFor(name, type) {
+  if (type === 'date') return '2026-01-15';
+  if (type === 'time') return '09:00';
+  if (type === 'email') return 'someone@example.com';
+  if (type === 'url') return 'https://example.com/thing';
+  for (const [pattern, value] of SAMPLE_TEXT) if (pattern.test(name)) return value;
+  return 'Example';
+}
+
+/** Fill empty text-ish fields the primary action would otherwise refuse to run
+ * without; returns how many were filled.
+ *
+ * Without this, a tool whose form is "name, funder, then four numbers" reads as
+ * dead: `perturb` changes the numbers, the action button is pressed, the form
+ * rejects it for the empty required name, and the output is identical. That is
+ * exactly what `grant-reporting-tracker` did on 2026-08-27 while working
+ * perfectly for a visitor who typed a name — and a sweep that cries wolf twice
+ * is a sweep whose real findings get skimmed past.
+ *
+ * Only *empty* fields are filled. A field the page pre-filled is the author's
+ * own worked example and knows better than this list does.
+ */
+async function fillBlanks(limit = 6) {
+  let filled = 0;
+  const selector =
+    'input[type=text], input[type=date], input[type=email], input[type=url], '
+    + 'input[type=tel], input[type=time], input:not([type]), textarea';
+  for (const el of (await page.$$(selector)).slice(0, limit)) {
+    try {
+      if ((await el.inputValue()).trim()) continue;
+      const [name, type] = await el.evaluate((node) => [
+        node.name || node.id || node.placeholder || '',
+        node.type || 'text',
+      ]);
+      await el.fill(sampleFor(name, type));
+      await el.dispatchEvent('input');
+      await el.dispatchEvent('change');
+      filled += 1;
+    } catch {
+      // Hidden, readonly, or behind a disclosure. Try the next.
+    }
+  }
+  return filled;
+}
+
 /** Change up to `limit` inputs; returns how many actually took a new value. */
 async function perturb(limit = 4) {
   let touched = 0;
@@ -139,18 +196,36 @@ async function pressPrimaryAction() {
   return '';
 }
 
+// `needs-network` joins `links-only` as reported-but-not-failed: the runner
+// cannot reach the API, so the sweep has no opinion on whether the tool works.
+const PASSING = new Set(['ok', 'links-only', 'needs-network']);
+
 const results = [];
 for (const slug of slugs) {
   const errors = [];
+  // A request to somewhere other than the site under test that could not be
+  // made. Almost every tool here is offline by construction, but a couple call
+  // a public API from the browser, and this runner reaches it through a proxy
+  // whose certificate Chromium does not trust. That is a fact about the sandbox,
+  // not about the product: `sponsor-ready` handled it correctly on 2026-08-27,
+  // printing "Failed to fetch" where a visitor would see the answer, and the
+  // sweep still called it dead. Recorded separately so the distinction survives.
+  const offsite = [];
   const onPageError = (error) => errors.push(`pageerror: ${error.message}`);
   const onConsole = (message) => {
     if (message.type() === 'error') errors.push(`console: ${message.text().slice(0, 160)}`);
   };
+  const onRequestFailed = (request) => {
+    const url = request.url();
+    if (!url.startsWith(BASE)) offsite.push(`${new URL(url).host}: ${request.failure()?.errorText}`);
+  };
   page.on('pageerror', onPageError);
   page.on('console', onConsole);
+  page.on('requestfailed', onRequestFailed);
 
   let verdict = 'ok';
   let detail = '';
+  let filled = 0;
 
   try {
     await page.goto(`${BASE}/${slug}/`, { waitUntil: 'load' });
@@ -172,6 +247,12 @@ for (const slug of slugs) {
           presses.push(loaded);
           await page.waitForTimeout(300);
         }
+      }
+      // Then supply anything still blank, so the action below is not refused
+      // for an empty required field the visitor would simply have typed.
+      if (!presses.length) {
+        filled = await fillBlanks();
+        if (filled) await page.waitForTimeout(200);
       }
       const pressed = await pressPrimaryAction();
       if (pressed) presses.push(pressed);
@@ -197,7 +278,13 @@ for (const slug of slugs) {
       (nodes) => nodes.some((node) => (node.textContent ?? '').trim().length > 20),
     );
 
-    if (errors.length) {
+    // A failed off-site request explains the console error it also produced, so
+    // this is asked before `errors` — otherwise the same one fact gets reported
+    // twice, once as an error and once as no response.
+    if (offsite.length && !errors.some((e) => e.startsWith('pageerror:'))) {
+      verdict = 'needs-network';
+      detail = `calls ${offsite[0]} — unreachable from this runner, not a product fault`;
+    } else if (errors.length) {
       verdict = 'ERRORS';
       detail = errors.slice(0, 2).join(' | ');
     } else if (before !== after) {
@@ -211,10 +298,11 @@ for (const slug of slugs) {
       verdict = 'links-only';
       detail = 'no form controls; renders as a landing page';
     } else {
-      verdict = touched === 0 && presses.length === 0 ? 'NO-CONTROLS' : 'NO-RESPONSE';
-      detail = touched === 0 && presses.length === 0
+      const acted = touched + filled;
+      verdict = acted === 0 && presses.length === 0 ? 'NO-CONTROLS' : 'NO-RESPONSE';
+      detail = acted === 0 && presses.length === 0
         ? `${interactive} control(s) on the page, none of them usable`
-        : `changed ${touched} control(s), pressed ${presses.length || 'no'} button(s); output identical`;
+        : `changed ${touched}, filled ${filled}, pressed ${presses.length || 'no'} button(s); output identical`;
     }
   } catch (error) {
     verdict = 'LOAD-FAILED';
@@ -223,15 +311,16 @@ for (const slug of slugs) {
 
   page.off('pageerror', onPageError);
   page.off('console', onConsole);
+  page.off('requestfailed', onRequestFailed);
 
   results.push({ slug, verdict, detail });
-  const flag = verdict === 'ok' || verdict === 'links-only' ? '   ' : '>> ';
+  const flag = PASSING.has(verdict) ? '   ' : '>> ';
   console.log(`${flag}${verdict.padEnd(12)} ${slug}${detail ? `  — ${detail}` : ''}`);
 }
 
 await browser.close();
 
-const broken = results.filter((r) => r.verdict !== 'ok' && r.verdict !== 'links-only');
+const broken = results.filter((r) => !PASSING.has(r.verdict));
 console.log(`\n${results.length - broken.length}/${results.length} tools answered with no errors`);
 if (broken.length) {
   console.log('\nNeeds a look — a tool that does not respond is a dead product to whoever lands on it:');
