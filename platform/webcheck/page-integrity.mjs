@@ -27,12 +27,48 @@
 // each venture's `calc.test.mjs`, which is a better place for it. This module
 // answers one question those tests cannot — would a browser actually run this
 // page at all, and does the script only reach for elements that exist.
+//
+// The second dead product
+// -----------------------
+// `3pl-quote-normalizer/index.html` shipped an inline module with two missing
+// semicolons: `form.addEventListener('change', e => {...})document.querySelector(...)`.
+// ASI cannot recover when the `)` and the `document` share a line, so the module
+// failed to *parse* and the browser ran none of it — no submit handler, no
+// recalculation, no saving. The page rendered its whole 36-field form and the
+// results panel stayed empty forever.
+//
+// Every check above passed it: the script tag was present and non-empty, no tag
+// was unclosed, and every id it looked up existed. The venture's own 92 tests
+// passed too, because they assert that strings appear in the HTML file, not that
+// the file is a runnable program. So the page was dead and everything was green.
+//
+// A parse error is the one class of JS defect that is statically decidable with
+// no false positives, which makes it exactly the right thing for a repo-wide
+// gate to insist on. `checkScriptSyntax` below therefore runs the real parser
+// over every inline script body — it never executes the code, and it does not
+// claim the calculator computes the right number, only that the browser will get
+// as far as trying.
+
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 // Elements whose content a browser does not parse as markup. Leaving one open
 // silently discards the remainder of the document with no parse error anywhere.
 // `title` is RCDATA rather than raw text, but fails the same way and for the
 // same reason, so it is checked alongside them.
 const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style', 'title'];
+
+// `type` values a browser executes as JavaScript. An absent type means classic
+// script. Anything else — `text/template`, `application/ld+json`, an HTML
+// import — is data the JS parser has no business reading, so it is left alone
+// (JSON-LD gets its own check below, since it fails just as silently).
+const JS_SCRIPT_TYPES = new Set(['', 'module', 'text/javascript', 'application/javascript', 'module/javascript']);
+
+function scriptType(tag) {
+  return (/\btype\s*=\s*["']?([^"'\s>]*)/i.exec(tag)?.[1] ?? '').toLowerCase();
+}
 
 /**
  * Walk `source` the way a browser's tokenizer does, so an unclosed raw-text
@@ -52,9 +88,10 @@ export function parsePage(source) {
   let rest = source;
   let markup = '';
   const scripts = [];
+  const scriptTags = [];
   for (;;) {
     const open = rest.match(RAW);
-    if (!open) return { markup: markup + rest, scripts, unclosed: null };
+    if (!open) return { markup: markup + rest, scripts, scriptTags, unclosed: null };
     const tag = open[1].toLowerCase();
     const contentStart = open.index + open[0].length;
     // Keep the open tag itself: it may carry the id the script looks up.
@@ -62,11 +99,116 @@ export function parsePage(source) {
     const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
     // No closing tag: the rest of the document is this element's text content
     // and never becomes markup at all.
-    if (!closer) return { markup, scripts, unclosed: tag };
-    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    if (!closer) return { markup, scripts, scriptTags, unclosed: tag };
+    if (tag === 'script') {
+      scripts.push(rest.slice(contentStart, contentStart + closer.index));
+      // Parallel to `scripts`, so a caller can tell a module from a classic
+      // script and JSON-LD data from code without re-scanning the source.
+      scriptTags.push(open[0]);
+    }
     markup += closer[0];
     rest = rest.slice(contentStart + closer.index + closer[0].length);
   }
+}
+
+// One scratch directory per process, created only if a page actually has an
+// inline script to check. `node --check` needs a real path, and the extension is
+// what selects the parser goal: .mjs parses `import`/`export` at top level, .js
+// does not, which is exactly the distinction `type="module"` makes in a browser.
+let scratchDir = null;
+function scratchPath(name) {
+  scratchDir ??= mkdtempSync(join(tmpdir(), 'page-integrity-'));
+  return join(scratchDir, name);
+}
+
+/**
+ * Turn `node --check` stderr into one line that says where to look.
+ *
+ * These pages are frequently minified onto a single line, so node's own excerpt
+ * — the whole offending line with a caret under it — can be tens of thousands of
+ * characters and is useless in a CI log. Report the position and a short window
+ * of source around it instead, which is what actually finds the defect.
+ *
+ * @param {string} stderr raw output from `node --check`
+ * @param {string} body the script source that was checked
+ * @returns {string} a single-line description
+ */
+function describeParseFailure(stderr, body) {
+  const lines = stderr.split('\n');
+  const message = lines.find((line) => /^\w*(SyntaxError|Error):/.test(line.trim()))?.trim() ?? 'SyntaxError';
+  // node's first stderr line is `<path>:<line>`, and the caret line that follows
+  // the source excerpt gives the column.
+  const lineNo = Number(/:(\d+)$/.exec(lines[0]?.trim() ?? '')?.[1]);
+  const caret = lines.findIndex((line) => /^\s*\^+\s*$/.test(line));
+  const column = caret > 0 ? lines[caret].indexOf('^') : -1;
+
+  let where = Number.isFinite(lineNo) ? `line ${lineNo}` : 'unknown position';
+  const sourceLine = body.split('\n')[lineNo - 1] ?? '';
+  // node truncates its excerpt for a very long line — and these pages are often
+  // minified onto one — after which the caret no longer lines up with the real
+  // column. Only quote a position when the excerpt is verbatim, so the pointer
+  // is either exactly right or absent. A confidently wrong column is worse than
+  // none: it sends the reader to the wrong place in a 30,000-character line.
+  if (column >= 0 && lines[caret - 1] === sourceLine) {
+    where += `, column ${column + 1}`;
+    const from = Math.max(0, column - 60);
+    const excerpt = sourceLine.slice(from, column + 60);
+    if (excerpt.trim()) where += `: ...${excerpt}...`;
+  }
+  return `${message} at ${where}`;
+}
+
+/**
+ * Parse every inline script the browser would execute, and every JSON-LD block.
+ *
+ * Uses `node --check`, which runs V8's parser and never executes the code. That
+ * is the same parser the pages are written for, and a parse failure is not a
+ * matter of opinion — so this can be a hard gate across all 161 products without
+ * ever crying wolf on working code.
+ *
+ * @param {string[]} scripts inline script bodies, from parsePage
+ * @param {string[]} scriptTags the matching open tags, from parsePage
+ * @returns {string[]} findings; empty means every block parses
+ */
+export function checkScriptSyntax(scripts, scriptTags = []) {
+  const findings = [];
+  scripts.forEach((body, index) => {
+    const tag = scriptTags[index] ?? '';
+    const type = scriptType(tag);
+    // A src= tag with no inline body has nothing to parse here; the referenced
+    // file is a real module and is checked wherever modules are checked.
+    if (!body.trim()) return;
+
+    if (type === 'application/ld+json') {
+      // Structured data fails the same silent way code does: search engines and
+      // AI crawlers drop a malformed block without telling anyone.
+      try {
+        JSON.parse(body);
+      } catch (error) {
+        findings.push(`inline JSON-LD block ${index + 1} is not valid JSON, so crawlers discard it -> ${error.message}`);
+      }
+      return;
+    }
+    if (!JS_SCRIPT_TYPES.has(type)) return;
+
+    // The extension selects the parser goal. `.mjs` parses top-level
+    // `import`/`export`, matching `type="module"`. A classic script must use
+    // `.cjs` and not `.js`: since v22 node sniffs module syntax in a `.js` file
+    // and re-parses it as a module, which would quietly accept an `import` that
+    // a browser rejects in a non-module script.
+    const file = scratchPath(`s${index}.${type === 'module' ? 'mjs' : 'cjs'}`);
+    writeFileSync(file, body);
+    try {
+      execFileSync(process.execPath, ['--check', file], { stdio: 'pipe' });
+    } catch (error) {
+      findings.push(
+        `inline <script> block ${index + 1} does not parse, so the browser runs none of it -> ${
+          describeParseFailure(String(error.stderr ?? error.message ?? ''), body)
+        }`,
+      );
+    }
+  });
+  return findings;
 }
 
 /**
@@ -122,7 +264,7 @@ export function queriedIds(scriptSource) {
 export function checkPageIntegrity(html, options = {}) {
   const { requiredIds = [], requiredText = [] } = options;
   const findings = [];
-  const { markup, scripts, unclosed } = parsePage(html);
+  const { markup, scripts, scriptTags, unclosed } = parsePage(html);
 
   if (unclosed) {
     findings.push(
@@ -156,6 +298,12 @@ export function checkPageIntegrity(html, options = {}) {
       findings.push('the module script parsed as empty and has no src: the page loads no application code');
     }
   }
+
+  // Run before the id checks: when a script does not parse, none of its element
+  // lookups happen either, and reporting them as missing ids buries the one
+  // finding that explains the dead page.
+  const syntax = checkScriptSyntax(scripts, scriptTags);
+  if (syntax.length) return [...findings, ...syntax];
 
   const missingQueried = [...queriedIds(scriptSource)].filter((id) => !ids.has(id));
   if (missingQueried.length) {
