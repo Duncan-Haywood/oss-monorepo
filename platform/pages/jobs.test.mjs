@@ -18,6 +18,7 @@ import {
   pageTakesSavedBids,
   parseStoredBids,
   restoreMismatch,
+  savedBidIndex,
   serializeBids,
 } from './jobs.mjs';
 
@@ -162,7 +163,7 @@ test('the band is hidden in print', () => {
 /** With scripting off there is nothing behind the buttons. */
 test('the band starts hidden and is revealed by script', () => {
   const out = injectSavedBids(page(inputs(6)), 'x');
-  assert.match(out, /<section class="pf-jobs" hidden data-pf-jobs-root>/);
+  assert.match(out, /<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>/);
   assert.match(out, /root\.hidden = false/);
 });
 
@@ -360,4 +361,79 @@ test('every bid calculator on main carries a form worth remembering', async () =
     if (!pageTakesSavedBids(html)) without.push(slug);
   }
   assert.deepEqual(without, [], `these ship no static form: ${without.join(', ')}`);
+});
+
+// The hub's saved-bid index. These run here rather than in build.test.mjs
+// because the ordering and hardening rules belong to the store, and the hub's
+// script is a transcription of this function into a page it cannot import.
+
+test('savedBidIndex flattens every tool into one list, newest first', () => {
+  const raw = serializeBids({
+    'gutter-bid-calculator': [
+      { name: '14 Oak St — Mrs Reid', at: '2026-08-25T09:00:00.000Z', fields: { a: '1' } },
+    ],
+    'metal-roof-bid-calculator': [
+      { name: 'Hollis barn', at: '2026-08-27T11:30:00.000Z', fields: { a: '2' } },
+      { name: 'Prior job', at: '2026-08-20T08:00:00.000Z', fields: { a: '3' } },
+    ],
+  });
+
+  assert.deepEqual(
+    savedBidIndex(raw).map((row) => [row.slug, row.name]),
+    [
+      ['metal-roof-bid-calculator', 'Hollis barn'],
+      ['gutter-bid-calculator', '14 Oak St — Mrs Reid'],
+      ['metal-roof-bid-calculator', 'Prior job'],
+    ],
+  );
+});
+
+test('savedBidIndex never hands out the numbers, only where to find them', () => {
+  const raw = serializeBids({
+    'deck-bid-calculator': [
+      { name: 'Job', at: '2026-08-27T11:30:00.000Z', fields: { hourlyWage: '55' } },
+    ],
+  });
+  assert.deepEqual(Object.keys(savedBidIndex(raw)[0]).sort(), ['at', 'name', 'slug']);
+});
+
+test('savedBidIndex orders totally, so equal timestamps cannot swap between renders', () => {
+  const at = '2026-08-27T11:30:00.000Z';
+  const bids = {
+    'b-tool': [{ name: 'z', at, fields: { a: '1' } }, { name: 'a', at, fields: { a: '1' } }],
+    'a-tool': [{ name: 'm', at, fields: { a: '1' } }],
+  };
+  const once = savedBidIndex(serializeBids(bids)).map((r) => `${r.slug}/${r.name}`);
+  assert.deepEqual(once, ['a-tool/m', 'b-tool/a', 'b-tool/z']);
+  // Same input, re-parsed: the sort must not depend on key iteration order.
+  assert.deepEqual(savedBidIndex(serializeBids(bids)).map((r) => `${r.slug}/${r.name}`), once);
+});
+
+test('savedBidIndex survives whatever is actually in storage', () => {
+  for (const raw of ['', 'not json', '{}', '{"bids":null}', '{"bids":{"x":"nope"}}', null]) {
+    assert.deepEqual(savedBidIndex(raw), []);
+  }
+  // A row missing a name or a timestamp is skipped rather than rendered blank.
+  assert.deepEqual(
+    savedBidIndex('{"v":1,"bids":{"t":[{"name":"","at":"2026-08-27","fields":{"a":"1"}},{"name":"n"}]}}'),
+    [],
+  );
+});
+
+test('savedBidIndex caps the list it hands the hub', () => {
+  const list = Array.from({ length: 30 }, (_, i) => ({
+    name: `job ${i}`,
+    at: `2026-08-${String(i + 1).padStart(2, '0')}T09:00:00.000Z`,
+    fields: { a: '1' },
+  }));
+  assert.equal(savedBidIndex(serializeBids({ 'a-tool': list }), { limit: 8 }).length, 8);
+  assert.equal(savedBidIndex(serializeBids({ 'a-tool': list })).length, MAX_SAVED_BIDS);
+});
+
+test('the band carries the id the hub links to, and opens on that anchor', () => {
+  const html = injectSavedBids(page(inputs(4)), 'gutter-bid-calculator');
+  assert.match(html, /<section class="pf-jobs" id="pf-jobs"/);
+  // The hub sends visitors to /<slug>/#pf-jobs; landing there must open the
+  // panel rather than leaving a collapsed strip under the anchor.
+  assert.match(html, /location\.hash === '#pf-jobs'/);
 });

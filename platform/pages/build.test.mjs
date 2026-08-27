@@ -1364,6 +1364,71 @@ test('a stored slug is validated before it reaches a selector or a link', async 
     'stored values are written as text, never as markup');
 });
 
+// ---------------------------------------------------------------------------
+// "Your saved bids"
+//
+// The cross-tool index. Bids are stored and restored per tool; this answers the
+// question that was left over — which tool priced the job the customer is
+// ringing about. Same shape of test as the row above: a Node test can hold the
+// degradation and the hardening, and the browser pass covers the behaviour.
+// ---------------------------------------------------------------------------
+
+test('the saved-bid index is absent until script fills it', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<section class="bids" id="bids" hidden>/,
+    'a visitor with script off, no storage, or no saved bids must not see an empty panel');
+  assert.match(hub, /<ul id="bidsList"><\/ul>/, 'the list ships empty');
+});
+
+test('the saved-bid index links to the band anchor, never to a bid name', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'));
+  assert.match(script, /link\.href = slug \+ '\/#pf-jobs'/,
+    "the link is built from the validated slug and the band's own anchor");
+  // A bid name is a customer's name or address. A fragment lands in browser
+  // history and in anything the visitor shares, so it must never carry one.
+  assert.ok(!/href[^\n]*name/.test(script), 'a bid name must never reach the URL');
+});
+
+test('a stored bid is written as text and its slug validated before it is used', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'));
+  assert.match(script, /textContent = name/, 'a visitor-typed name is never markup');
+  assert.ok(!/innerHTML\s*=/.test(script), 'stored values are written as text, never as markup');
+  assert.match(script, /\/\^\[a-z0-9\]\[a-z0-9-\]\*\$\/\.test\(slug\)/,
+    'any page on this origin can write the key; the slug shape check must survive');
+});
+
+test('the saved-bid index survives a storage key holding anything at all', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'));
+  // A throw here would take the hub's script down with it, and the catalogue
+  // below is the whole page.
+  assert.match(script, /catch \{ return \[\]; \}/);
+  assert.match(script, /Array\.isArray\(list\)/);
+});
+
+test('the visitor\'s own saved bids are shown even when counting is off', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
+  // Unlike yourTools(), which is derived from counts and is genuinely empty
+  // under an opt-out, these are the visitor's own documents — the tool pages
+  // show them to someone who opted out and the hub hiding them would read as
+  // data loss. Only the counting is gated, by record() itself.
+  assert.ok(!/optedOut\(\)/.test(script),
+    'saved bids are the visitor\'s data, not a count, so the opt-out must not empty the list');
+});
+
+test('following a saved bid counts the act, never the customer', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  assert.match(script, /record\('saved_bid_followed'\)/);
+  assert.match(script, /record\('saved_bid_index_shown'\)/);
+  // record() is silent under DNT/GPC and the opt-out; what matters here is that
+  // neither event carries the name or the slug.
+  assert.ok(!/record\('saved_bid_followed:' ?\+/.test(script), 'the event names nothing');
+});
+
 test('opting out is wired to remove the personalised row, not just stop counting', async () => {
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function yourTools'));

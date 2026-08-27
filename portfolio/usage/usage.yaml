@@ -1678,6 +1678,40 @@ products:
           the bids and the customer names in them never leave the browser and
           are never read back by anyone. Still a baseline row: the public URL
           remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          saved_bid_index_shown: 0
+          saved_bid_followed: 0
+          tools_reachable_from_a_saved_bid: 162
+        note: >-
+          The saved-bid index on the hub. Saved bids were already kept per tool
+          and restored per tool, and that is unchanged — a bid never crosses
+          tools, because the form it was priced on is the only form it fits.
+          What was left over was the question "which tool was it?": the store is
+          one `localStorage` key on one origin, so the hub has held every
+          visitor's whole bid list since the feature shipped and displayed none
+          of it. A contractor who saved "14 Oak St — Mrs Reid" in the gutter
+          calculator on Tuesday had to remember that on Friday, out of 162
+          tools, before the saved bid was worth anything. The hub now lists
+          every saved bid newest-first with the tool that priced it, linking to
+          `/<slug>/#pf-jobs`, where the band opens on arrival. The signal to
+          read once live is `saved_bid_followed / bid_saved` — whether a saved
+          bid is returned to *through the hub*, which separates "the tool
+          remembered" from "the contractor found it again". Read it beside
+          `bid_restored`: a `saved_bid_followed` that does not become a
+          `bid_restored` means the index sent someone to a form that had since
+          changed shape, and the refusal message is where they stopped.
+          Deliberately not gated on the counting opt-out, unlike "pick up where
+          you left off": that row is derived from counts and is genuinely empty
+          without them, whereas these are the visitor's own saved documents and
+          the tool pages already show them to someone who has opted out. Only
+          the two events are gated, by the same local, aggregate, opt-out and
+          DNT/GPC-respecting path as every other hub event. Neither event
+          carries a bid name or a slug — how often the index is used, never for
+          what, and no customer name reaches a URL, a fragment, or the counter.
+          Still a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:

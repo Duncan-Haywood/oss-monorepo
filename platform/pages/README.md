@@ -305,6 +305,46 @@ Counting is the same convention: `saved_bids_opened`, `bid_saved`,
 opt-out. The names never reach the counter. `bid_restored / bid_saved` is the
 reading that matters — whether a saved bid is actually returned to.
 
+### Finding the bid again: the hub's index
+
+Bids are saved per tool and restored per tool, and that does not change — the
+form a bid was priced on is the only form it fits. What was left over is the
+other half of the same question. A contractor saves "14 Oak St — Mrs Reid" in
+the gutter calculator on Tuesday. Friday the customer rings back, and the only
+route to that bid was remembering which of 162 tools priced it, opening it, and
+opening the band. The store is a single `localStorage` key on one origin, so the
+hub has held the whole list since the feature shipped and showed none of it.
+
+So the hub carries **Your saved bids**: every saved bid across every tool,
+newest first, each row naming the job, the tool that priced it, and the date.
+The link is `/<slug>/#pf-jobs` — the band's own anchor, which is why
+`JOBS_MARKUP` carries an `id`. Landing on it opens the panel and scrolls it into
+view, so the visitor arrives at their bid list rather than at the top of a
+calculator. `savedBidIndex()` is exported from `jobs.mjs` and tested as a pure
+function; the hub's script is a transcription of it into a page that cannot
+import.
+
+Four rules the tests pin, each of which was a way to get this wrong:
+
+- **A bid name never reaches the URL.** It is a customer's name or their street
+  address, and a fragment lands in browser history and in anything the visitor
+  shares. The link carries the slug and the anchor, nothing else. The name is
+  never counted either — `saved_bid_index_shown` and `saved_bid_followed` say
+  how often the index is used and never for what.
+- **Stored values are text, and slugs are validated.** Any page on this origin
+  can write the key, so a slug is used only in the shape the build produces
+  (`querySelector` and `href` are both built from it) and a name is written with
+  `textContent`. A stored name that is markup renders as the characters typed.
+- **A withdrawn tool is not linked, and its bids are not deleted.** A slug the
+  hub is not showing would link to a 404, so the row is skipped — but
+  `parseStoredBids` deliberately keeps unknown slugs, and the hub is a reader.
+- **The counting opt-out does not empty this list**, unlike "pick up where you
+  left off" above. That row is derived from counts and genuinely has nothing to
+  show without them. These are the visitor's own saved documents; the tool pages
+  show them to someone who has opted out, and the hub hiding them would read as
+  data loss. Only the two events are gated. The section is `display:none` in
+  print, for the reason the band is.
+
 ## Offline and installable
 
 The people these tools are for are often somewhere with no signal at the moment
