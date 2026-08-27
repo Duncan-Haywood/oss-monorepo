@@ -330,3 +330,28 @@ test("calculator page shows the target-rate hours budget without recommending a 
   assert.match(page, /hours_budget_shown/);
   assert.doesNotMatch(page, /should cut hours|must reduce scope/i);
 });
+
+test("the hours-budget field says none rather than a negative hour count", async () => {
+  // The dl renders r.target_rate_hours, which is signed and goes negative once
+  // direct costs pass the price. Guard the branch that catches that here: the
+  // dl is built by a template literal, so calc.test.mjs stays green whatever
+  // this field renders.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /r\.cost_coverage <= 0 \? `none — direct costs leave nothing to pay for time`/);
+});
+
+test("every scenario panel on the page reports a usage signal of its own", async () => {
+  // The overrun table shipped without one, so nothing recorded whether the
+  // time-overrun view was ever read while every panel beside it was counted.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  for (const event of [
+    "overrun_sensitivity_compared",
+    "cost_spike_compared",
+    "discount_ask_compared",
+    "billing_model_compared",
+    "rate_ladder_compared",
+    "hours_budget_shown",
+  ]) {
+    assert.match(page, new RegExp(`recordEvent\\("${event}"\\)`), `${event} is not recorded`);
+  }
+});

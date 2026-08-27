@@ -526,6 +526,10 @@
       recordEvent(event);
       if (event !== "report_generated") return;
       recordEvent("quote_review_checked");
+      // The overrun table was the one scenario panel on this page with no
+      // signal of its own, so nothing said whether the time-overrun view was
+      // read at all — the question portfolio/usage/ exists to answer.
+      recordEvent("overrun_sensitivity_compared");
       recordEvent("cost_spike_compared");
       recordEvent("discount_ask_compared");
       recordEvent("billing_model_compared");
@@ -614,7 +618,7 @@
            <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
-           <dt>Hours supported at target rate</dt><dd class="${r.hours_cushion < 0 ? "warning" : ""}">${fmt(r.target_rate_hours)} hours (${fmt(Math.abs(r.hours_cushion))} ${r.hours_cushion >= 0 ? "remaining" : "over"})</dd>
+           <dt>Hours supported at target rate</dt><dd class="${r.hours_cushion < 0 ? "warning" : ""}">${r.cost_coverage <= 0 ? `none — direct costs leave nothing to pay for time` : `${fmt(r.target_rate_hours)} hours (${fmt(Math.abs(r.hours_cushion))} ${r.hours_cushion >= 0 ? "remaining" : "over"})`}</dd>
            <dt>Maximum discount before target</dt><dd>${safeCurrency} ${fmt(r.discount_room)}</dd>
            <dt>Minimum increase to reach target</dt><dd>${safeCurrency} ${fmt(r.minimum_price_adjustment)}</dd>
         </dl>

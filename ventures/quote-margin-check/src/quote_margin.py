@@ -297,7 +297,17 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         f"| Effective hourly rate | {quote.currency} {result['effective_hourly_rate']:.2f}/hour |",
         f"| Price at supplied target rate | {quote.currency} {result['target_price']:.2f} |",
         f"| Gap to target price | {quote.currency} {result['gap_to_target']:.2f} |",
-        f"| Hours supported at target rate | {result['target_rate_hours']:.2f} ({result['hours_cushion']:.2f} {'remaining' if result['hours_cushion'] >= 0 else 'over'}) |",
+        # `target_rate_hours` is signed, and goes negative when direct costs
+        # exceed the price. Printing "-4.00 (31.00 over)" reads as a quantity
+        # of hours; what a negative there means is that there is no budget to
+        # spend. Keeps the browser build's wording (site/index.html).
+        f"| Hours supported at target rate | "
+        + (
+            "none — direct costs leave nothing to pay for time"
+            if result["cost_coverage"] <= 0
+            else f"{result['target_rate_hours']:.2f} ({abs(result['hours_cushion']):.2f} {'remaining' if result['hours_cushion'] >= 0 else 'over'})"
+        )
+        + " |",
         f"| After direct costs | {quote.currency} {result['cost_coverage']:.2f} |",
         f"| Maximum discount before target | {quote.currency} {result['discount_room']:.2f} |",
         f"| Minimum increase to reach target | {quote.currency} {result['minimum_price_adjustment']:.2f} |",
