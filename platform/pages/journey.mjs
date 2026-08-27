@@ -439,6 +439,115 @@ await step('a bid is still there when the customer calls back', async () => {
     !/Oak|Reid/.test(JSON.stringify(jobCounts)));
 });
 
+// 6bb. Backup and restore (`backup.mjs`) — the bids surviving the browser.
+//
+//      Everything above stands on one `localStorage` key in one browser, and
+//      the hub says so. What only a browser pass can show is the journey out of
+//      that: a real download, a real file picker, and the same bid arriving on a
+//      browser whose store has been emptied. The merge arithmetic is unit
+//      tested; this is the plumbing between it and a person, which is where a
+//      feature like this actually fails.
+await step('saved bids survive the browser that holds them', async () => {
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  check('the backup panel is on the hub', await page.isVisible('#backup-box'));
+  check('and offers a download once there is something to back up',
+    await page.isVisible('#backup-download'), await page.textContent('#backup-copy'));
+
+  const download = await Promise.all([
+    page.waitForEvent('download'),
+    page.click('#backup-download'),
+  ]).then(([d]) => d);
+  check('the file is named for the day it was taken',
+    /^saved-bids-\d{4}-\d{2}-\d{2}\.json$/.test(download.suggestedFilename()),
+    download.suggestedFilename());
+
+  const backupPath = `${process.env.TMPDIR || '/tmp'}/journey-${download.suggestedFilename()}`;
+  await download.saveAs(backupPath);
+  const { readFile, writeFile } = await import('node:fs/promises');
+  const written = JSON.parse(await readFile(backupPath, 'utf8'));
+  check('the file holds the bid that was saved',
+    JSON.stringify(written.bids).includes('14 Oak St'), Object.keys(written.bids).join(','));
+  check('and the shop rates saved earlier in this run', Boolean(written.rates),
+    JSON.stringify(written.rates));
+
+  // The case the feature exists for: a browser that has none of this. Emptying
+  // the key is what a "clear browsing data", a new phone, or a seven-day
+  // storage eviction leaves behind.
+  await page.evaluate(() => {
+    localStorage.removeItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-shop-rates');
+  });
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  check('with nothing saved, the bid list is gone', !(await page.isVisible('#bids')));
+  check('but the restore offer is not — this is the browser that needs it',
+    await page.isVisible('#backup-file'));
+  check('and it says so rather than offering a download of nothing',
+    !(await page.isVisible('#backup-download'))
+      && (await page.textContent('#backup-title')).includes('another browser'),
+    await page.textContent('#backup-title'));
+
+  // A file that is not ours must be refused, and must change nothing.
+  const junkPath = `${process.env.TMPDIR || '/tmp'}/journey-not-a-backup.json`;
+  await writeFile(junkPath, JSON.stringify({ hello: 'world', bids: { a: [] } }));
+  await page.setInputFiles('#backup-file', junkPath);
+  await page.waitForFunction(
+    () => document.getElementById('backup-status').textContent.trim() !== ''
+      && !document.getElementById('backup-status').textContent.includes('Reading'),
+    null, { timeout: 5000 });
+  check('a file from somewhere else is refused',
+    (await page.textContent('#backup-status')).includes('not a backup from this site'),
+    await page.textContent('#backup-status'));
+  check('and nothing was written', await page.evaluate(
+    () => localStorage.getItem('portfolio-saved-bids') === null));
+
+  // The real restore.
+  await page.setInputFiles('#backup-file', backupPath);
+  await page.waitForFunction(
+    () => document.getElementById('backup-status').textContent.includes('Restored'),
+    null, { timeout: 5000 });
+  const restored = await page.textContent('#backup-status');
+  check('the backup restores, and says what it did', restored.includes('1 bid added'), restored);
+  check('the shop rates came back too, because there were none to overwrite',
+    restored.includes('shop rates were restored'), restored);
+  check('the bid list redraws immediately rather than on the next visit',
+    await page.isVisible('#bids')
+      && (await page.textContent('#bidsList')).includes('14 Oak St'),
+    await page.textContent('#bidsList'));
+
+  // Restoring the same file again is the accident a person actually makes.
+  // Nothing should double, and the page should say why nothing happened.
+  await page.setInputFiles('#backup-file', backupPath);
+  await page.waitForFunction(
+    () => document.getElementById('backup-status').textContent.includes('already here'),
+    null, { timeout: 5000 });
+  const twice = await page.textContent('#backup-status');
+  check('restoring the same file twice adds nothing and says so',
+    twice.includes('1 bid already here') && !twice.includes('added'), twice);
+  check('and the shop rates in this browser are kept, never overwritten from a file',
+    twice.includes('were kept'), twice);
+  const rows = await page.locator('#bidsList li').count();
+  check('the bid is listed once, not twice', rows === 1, `${rows} rows`);
+
+  // Follow the restored bid back to the tool and reprice it: a restore that put
+  // the row on the hub but not the numbers in the form would pass every check
+  // above.
+  await page.click('#bidsList li a');
+  await page.waitForLoadState('networkidle');
+  await page.click('[data-pf-jobs="restore"]');
+  check('the restored bid still reprices on the tool that saved it',
+    (await page.textContent('#pf-jobs-status')).includes('Restored'),
+    await page.textContent('#pf-jobs-status'));
+
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const backupCounts = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+  check('downloads, restores and refusals are counted separately',
+    backupCounts.bids_backup_downloaded >= 1 && backupCounts.bids_backup_restored >= 2
+      && backupCounts.bids_backup_rejected >= 1, JSON.stringify(backupCounts));
+  check('and the counter still holds no customer name',
+    !/Oak|Reid/.test(JSON.stringify(backupCounts)));
+});
+
 // 6c. An itemised calculator, whose rows do not exist until its module runs.
 await step('an itemised bid keeps its rows', async () => {
   await page.goto(`${BASE}/roofing-bid-calculator/`, { waitUntil: 'networkidle' });

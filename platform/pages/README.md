@@ -353,6 +353,71 @@ Four rules the tests pin, each of which was a way to get this wrong:
   data loss. Only the two events are gated. The section is `display:none` in
   print, for the reason the band is.
 
+### Getting the bids off this browser
+
+Everything above stands on one `localStorage` key in one browser, and the hub's
+own copy said so: *"clearing your browser data clears them."* That sentence was
+honest and it was also the whole problem. The portfolio's clearest return-visit
+feature had a single point of loss and no way out of it:
+
+- The job was priced on the phone on Tuesday. Friday is at the desk, and that
+  laptop's browser has never seen any of it.
+- The phone is replaced, the browser reinstalled, or "clear browsing data" is
+  tapped to fix something unrelated.
+- Safari evicts script-written storage on a site the visitor has not opened for
+  seven days. A tool used once a fortnight is exactly that shape.
+
+Each of those ends with a blank form and a customer on the phone asking what the
+number was — the failure saved bids exist to prevent, arriving through the
+storage instead of through the tool.
+
+`backup.mjs` is the way out that needs no account and no server, because there
+is nowhere here to upload to and no wish for one: **a file the visitor holds.**
+"Download a backup" writes every saved bid on the device, plus the shop rates,
+into `saved-bids-<date>.json`. "Restore from a backup file" reads one back on
+any browser on this origin. The Blob never leaves the page; the pure functions
+live in `backup.mjs` and the hub's script is a transcription of them, same as
+`savedBidIndex`.
+
+Four rules the tests pin:
+
+- **A restore never deletes.** The file is merged into what the device already
+  holds, never written over it. Someone restoring last month's backup onto the
+  phone that has this week's bids must not lose this week, and cannot be
+  expected to know that in advance. Where the same job is on both sides the
+  newer `at` wins — the only ordering the data carries. Restoring the same file
+  twice is a no-op that says "already here" rather than a list that doubles.
+- **Nothing is dropped silently.** Entries the file could not carry, slugs that
+  failed validation, and bids pushed past the 25-per-tool cap are counted and
+  named in the status line. A list that quietly stops looks exactly like a tool
+  that forgot, which is the defect this feature area keeps re-learning.
+- **The panel is drawn even with nothing saved.** It sits *after* `#bids`
+  closes rather than inside it: `#bids` is `hidden` until there is at least one
+  bid, so a restore control nested there would be unreachable on the new phone
+  or the fresh laptop — the one browser it exists for. The copy re-words itself
+  for that case ("Bids saved on another browser?") and the download button
+  hides, because there is nothing to download.
+- **Shop rates are restored only where there are none to lose.** They are the
+  visitor's own business numbers and every trade calculator prefills from them;
+  a restore that overwrote the ones set in this browser would silently reprice
+  36 tools from a file. The status line says which happened. The four fields and
+  their ceilings are read from `SHOP_RATE_FIELDS`, so a restored rate can never
+  be one the calculator would reject.
+
+A backup file is also the only path by which a string from *outside* the browser
+reaches the saved-bid key, so it is the one place slugs are validated on the way
+in (`^[a-z0-9][a-z0-9-]*$` — the shape the build produces, and what the hub
+later builds a `querySelector` and an `href` from), the file is size-capped
+before `JSON.parse` sees it, and a `kind`/`v` mismatch is refused outright
+rather than half-imported.
+
+Counting is the site convention: `bids_backup_downloaded`,
+`bids_backup_restored` and `bids_backup_rejected` in `portfolio-hub-usage`,
+local only, silent under DNT/GPC and the site-wide opt-out. No name, no slug,
+no count of what was in the file. `bids_backup_restored` is the reading that
+matters — a restore is a visitor who had already lost the bids once, or who
+uses two devices, and either is a stronger return-visit signal than a page view.
+
 ## Offline and installable
 
 The people these tools are for are often somewhere with no signal at the moment

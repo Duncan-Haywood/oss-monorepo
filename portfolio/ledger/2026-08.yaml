@@ -25128,3 +25128,94 @@ entries:
         withdrawn tool, a slug that is a CSS selector, a name that is
         `<img onerror>`, and malformed JSON in the key. 0 console errors.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The bid the browser could lose.** Saved bids, the hub's index of them,
+        and the shop-rates bar all stand on `localStorage` in one browser, and
+        the hub's own copy said so — "clearing your browser data clears them."
+        Honest, and a single point of loss with no way out: the job priced on
+        the phone on Tuesday is not on the laptop on Friday, a reinstalled
+        browser takes every bid with it, and Safari evicts script-written
+        storage on a site nobody has opened for seven days, which is exactly
+        the cadence a fortnightly tool has. Each of those ends in a blank form
+        and a customer asking what the number was — the failure the feature
+        exists to prevent, arriving through the storage instead of the tool.
+        `platform/pages/backup.mjs` gives the visitor a file: every saved bid
+        plus the shop rates written to `saved-bids-<date>.json`, read back on
+        any browser on this origin. No account and no server — there is nowhere
+        here to upload to and no wish for one. #1901.
+      - >-
+        **A restore merges and never deletes**, which is the rule that shaped
+        the module. Someone restoring last month's backup onto the phone that
+        holds this week's bids must not lose this week, and cannot be expected
+        to know that in advance; where a job is on both sides the newer save
+        wins, so an old file cannot take a re-priced job back in time. And
+        nothing is dropped silently: entries the file could not carry, slugs
+        that failed validation, and bids past the 25-per-tool cap are counted
+        and named in the status line. A list that quietly stops looks exactly
+        like a tool that forgot, which is the defect this feature area has now
+        re-learned three times (#1894, #1899, here).
+      - >-
+        **The panel is drawn on a browser with nothing saved**, and that
+        placement is the feature. `#bids` is `hidden` until there is at least
+        one bid, so a restore control nested inside it would have been
+        unreachable on the new phone or the fresh laptop — the one browser it
+        exists for. It sits after that section closes and re-words itself
+        ("Bids saved on another browser?"), with the download button hidden
+        because there is nothing to download. `build.test.mjs` pins the sibling
+        relationship, since nesting it would fail silently and only for the
+        visitor who needed it.
+      - >-
+        Shop rates ride along but are restored **only where there are none to
+        overwrite**. They prefill 103 calculator pages, so a file that replaced
+        them would silently reprice every trade tool from someone else's
+        snapshot; the status line says which of the two happened. The four
+        fields and their ceilings are interpolated from `SHOP_RATE_FIELDS` and
+        a test pins that transcription, so a restored rate can never be one the
+        calculator would then reject.
+      - >-
+        A backup file is the only path by which a string from *outside* the
+        browser reaches the saved-bid key, so it is the one place slugs are
+        validated on the way in — the hub builds a `querySelector` and an
+        `href` from them. The file is size-capped before `JSON.parse` sees it,
+        and a `kind`/`v` mismatch is refused outright rather than
+        half-imported: a partial restore the visitor was told was a whole one
+        is worse than a refusal they can act on.
+      - >-
+        `bids_backup_restored` is the reading to take once the URL is live. A
+        restore is either a visitor who had already lost their bids once or one
+        working across two devices, and both are stronger return-visit evidence
+        than a page view. `bids_backup_rejected` is counted separately and is
+        **not** a failure signal — it is a wrong file refused rather than
+        half-imported; climbing against `bids_backup_restored` would say the
+        file is hard to find again, not hard to read.
+      - >-
+        **The open-PR queue was empty at the start of this run** — 0 open PRs
+        by `list_pull_requests`, so the three-PR merge quota had nothing to
+        act on and this run's merge is its own product work. Three branches
+        dated today (`rematch-1633`, `rematch-1564`, `rematch-1364`) were
+        checked directly rather than trusted from the previous entry:
+        `priceToMatchProfit`, `PROMOTED_RATE_PRESETS`,
+        `maxAffordablePromotedRate`, `calculatePromotedTable` and
+        `3pl-quote-normalizer/export.html` are all already on `main`. That is
+        the third consecutive run to find the backlog genuinely drained; a
+        session on a generic brief should build.
+      - >-
+        **CI red is still the runner outage, not the branch.** Verified locally
+        and merged on that basis, as policy directs.
+      - >-
+        Verified: `platform/pages` 287 tests (29 new — 28 in `backup.test.mjs`,
+        1 in `build.test.mjs`), the build (162 tools, 439 pages, no dead
+        links), `clauses.mjs` (436 pages), `router/validate.py` (179
+        VENTURE.yaml), `validate_usage.py` plus its 14 unit tests. The browser
+        pass is in `journey.mjs`, not a scratch file: a real download captured
+        from Chromium, the store then emptied to stand in for a cleared
+        browser, a foreign JSON file refused with nothing written, the backup
+        restored with the bid list redrawing in place, the same file restored a
+        second time adding nothing and keeping the browser's own rates, and the
+        restored bid followed from the hub back to its tool and repriced. 0
+        failed checks, 0 console errors, no off-origin request.
+    mrr_end: null
