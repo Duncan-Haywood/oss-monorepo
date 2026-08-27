@@ -19,7 +19,10 @@
     th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
     th:first-child, td:first-child { text-align: left; }
     footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
