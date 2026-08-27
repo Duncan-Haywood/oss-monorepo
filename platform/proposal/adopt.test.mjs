@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { companyKey, detectFunctions, disclaimerFor, jsString, priceExpressionFor, resultKeysOf } from './adopt.mjs';
+import { companyKey, detectFunctions, disclaimerFor, jsString, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VENTURES = path.resolve(HERE, '../../ventures');
@@ -43,6 +43,33 @@ test('the reader is matched on its parenthesis, not as a prefix', () => {
 test('the calculator function is read off its actual call site', () => {
   assert.equal(detectFunctions('function readInput(){}\nconst r = calculateJob(readInput())').calcFn, 'calculateJob');
   assert.equal(detectFunctions('function readInput(){}\nconst r = calculateSeason(readInput())').calcFn, 'calculateSeason');
+});
+
+test('a reader called with the rows update already read is still a call site', () => {
+  // The house pattern is `readInput(rows = readRows())`, so a calculator whose
+  // only call site is the one inside `update` passes its rows positionally.
+  // Requiring a literal `readInput()` blocked `painting` and
+  // `pressure-washing`, neither of which has a second call site to write it.
+  assert.equal(
+    detectFunctions('function readInput(surfaces = readSurfaces()){}\nresult = calculateBid(readInput(surfaces))').calcFn,
+    'calculateBid',
+  );
+});
+
+test('a reader that cannot be called with no arguments is refused', () => {
+  // The generated proposal calls `readInput()`. A parameter with no default is
+  // then `undefined`, and the calculator either throws inside the print
+  // handler or — worse — prices the job without its rows and puts that number
+  // on a customer's quote.
+  assert.equal(readerTakesNoArguments('function readInput(rows) {', 'readInput'), false);
+  assert.equal(readerTakesNoArguments('function readInput() {', 'readInput'), true);
+  assert.equal(readerTakesNoArguments('function readInput(rows = readRows()) {', 'readInput'), true);
+  assert.equal(readerTakesNoArguments('function readInput(a = one(), b = two()) {', 'readInput'), true);
+  assert.equal(readerTakesNoArguments('function readInput(a = one(), b) {', 'readInput'), false);
+  // A default whose own call takes arguments carries a comma that a naive
+  // split would read as a second, defaultless parameter.
+  assert.equal(readerTakesNoArguments('function readInput(rows = readRows(a, b)) {', 'readInput'), true);
+  assert.equal(readerTakesNoArguments('const x = 1', 'readInput'), false);
 });
 
 test('a calculator with no `proposed` field is not asked for one', () => {
@@ -117,6 +144,26 @@ test('every generated page carries exactly one proposal section', () => {
     if (sections !== 1 || docs !== 1) wrong.push(`${slug}: ${sections} section(s), ${docs} doc(s)`);
   }
   assert.deepEqual(wrong, []);
+});
+
+test('a closing js marker never swallows the line after it', () => {
+  // `// proposal:end` is a line comment. Without a newline after it, whatever
+  // followed the insertion point is pulled onto the comment and commented out.
+  // `painting` and `janitorial` each import a third module after `usage.mjs`,
+  // and both shipped proposals that died at click time on `COST_IDS is not
+  // defined` / `restoreBid is not defined` — while `check.mjs` reported the
+  // page publishable, because a commented-out import still parses.
+  const swallowed = [];
+  for (const slug of Object.keys(trades)) {
+    const html = fs.readFileSync(path.join(VENTURES, slug, 'index.html'), 'utf8');
+    for (const line of html.split('\n')) {
+      const at = line.indexOf('// proposal:end');
+      if (at < 0) continue;
+      const after = line.slice(at + '// proposal:end'.length);
+      if (after.trim() !== '') swallowed.push(`${slug}: ${after.trim()}`);
+    }
+  }
+  assert.deepEqual(swallowed, []);
 });
 
 test('every generated page is marked, so a re-run replaces rather than layers', () => {

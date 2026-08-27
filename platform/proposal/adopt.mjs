@@ -60,19 +60,39 @@ const MARK = {
 /** Strip every previously generated region, leaving the page's own content. */
 function stripGenerated(html) {
   let next = html;
-  for (const [open, close] of Object.values(MARK)) {
+  for (const [kind, [open, close]] of Object.entries(MARK)) {
     for (;;) {
       const from = next.indexOf(open);
       if (from < 0) break;
       const to = next.indexOf(close, from);
       if (to < 0) throw new Error(`unterminated ${open} marker`);
-      next = next.slice(0, from) + next.slice(to + close.length);
+      let end = to + close.length;
+      // A js region owns the newline after its closing marker (see `wrap`), so
+      // it has to come out with the region — otherwise a re-run adds a blank
+      // line to the page every time. The css and html markers are spliced
+      // against existing text and own no newline of their own.
+      if (kind === 'js' && next[end] === '\n') end += 1;
+      next = next.slice(0, from) + next.slice(end);
     }
   }
   return next;
 }
 
-const wrap = (kind, body) => `${MARK[kind][0]}${body}${MARK[kind][1]}`;
+/**
+ * Close a generated region.
+ *
+ * The js markers are **line comments**, so the closing marker has to end its
+ * line. Without that newline everything after the insertion point is pulled
+ * onto the comment and commented out — and the failure is invisible to every
+ * text-level check, because a page with an import commented out still parses.
+ * `painting` and `janitorial` each import a third module after `usage.mjs`,
+ * and both shipped a proposal that died on `COST_IDS is not defined` /
+ * `restoreBid is not defined` at click time while `check.mjs` called the page
+ * publishable. The wiring region had the same shape at the other end,
+ * emitting `// proposal:end  </script>`; that one only worked because the HTML
+ * parser closes a script tag inside a comment.
+ */
+const wrap = (kind, body) => `${MARK[kind][0]}${body}${MARK[kind][1]}${kind === 'js' ? '\n' : ''}`;
 
 // ---------------------------------------------------------------------------
 // The page edit
@@ -397,11 +417,72 @@ ${fields}
  * it matches the plural as a substring — and a proposal calling the wrong one
  * throws `readInput is not defined` at click time while every text-level test
  * stays green. Match the open parenthesis.
+ *
+ * The call site is matched with **any** arguments, not only `readInput()`.
+ * The house pattern is `function readInput(rows = readRows())`, so `update`
+ * passes rows it has already read and every other caller takes the default —
+ * and a calculator whose only call site happens to be the one inside `update`
+ * is not thereby unable to adopt. What the generated proposal actually needs
+ * is that the reader is callable with *no* arguments, and that is checked
+ * directly by `readerTakesNoArguments` rather than inferred from a call site.
  */
 function detectFunctions(html) {
   const reader = /function\s+(readInputs?)\s*\(/.exec(html)?.[1];
-  const calcFn = /\b(calculate[A-Za-z]*|priceJob|priceBid)\s*\(\s*(readInputs?)\s*\(\s*\)\s*\)/.exec(html)?.[1];
+  const calcFn = /\b(calculate[A-Za-z]*|priceJob|priceBid)\s*\(\s*(readInputs?)\s*\(/.exec(html)?.[1];
   return { reader, calcFn };
+}
+
+/**
+ * Whether `readInput()` — with the empty argument list the generated proposal
+ * uses — yields a whole input.
+ *
+ * A reader declared `function readInput(rows)` with no default is called by
+ * the proposal as `readInput()`, so `rows` is `undefined`: the calculator
+ * either throws inside the print handler or, worse, prices the job without
+ * its rows and puts that number on a customer's quote. Neither is visible to
+ * a text-level test. Every declared parameter must therefore carry a default.
+ */
+function readerTakesNoArguments(html, reader) {
+  if (!reader) return false;
+  const at = new RegExp(`function\\s+${reader}\\s*\\(`).exec(html);
+  if (!at) return false;
+  // Balance the parenthesis rather than matching `[^)]*`: the first `)` in
+  // `readInput(a = one(), b)` belongs to the default's own call, and stopping
+  // there hides the parameter that has no default at all.
+  const open = at.index + at[0].length - 1;
+  let depth = 0;
+  let close = -1;
+  for (let i = open; i < html.length; i += 1) {
+    if (html[i] === '(') depth += 1;
+    else if (html[i] === ')') { depth -= 1; if (depth === 0) { close = i; break; } }
+  }
+  if (close < 0) return false;
+  const params = html.slice(open + 1, close).trim();
+  if (params === '') return true;
+  return splitParameters(params).every(param => param.includes('='));
+}
+
+/**
+ * Split a parameter list on the commas that separate parameters, ignoring the
+ * commas inside a default value — `rows = readRows(a, b)` is one parameter,
+ * and a naive `.split(',')` reads it as two, the second of which has no `=`
+ * and would fail the check above.
+ */
+function splitParameters(params) {
+  const out = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < params.length; i += 1) {
+    const ch = params[i];
+    if (ch === '(' || ch === '[' || ch === '{') depth += 1;
+    else if (ch === ')' || ch === ']' || ch === '}') depth -= 1;
+    else if (ch === ',' && depth === 0) {
+      out.push(params.slice(start, i));
+      start = i + 1;
+    }
+  }
+  out.push(params.slice(start));
+  return out.map(part => part.trim()).filter(part => part !== '');
 }
 
 /**
@@ -494,6 +575,9 @@ function inspect(slug) {
   const html = generated ? stripGenerated(raw) : raw;
   const { reader, calcFn } = detectFunctions(html);
   if (!reader) problems.push('no readInput()/readInputs() to read the job from');
+  else if (!readerTakesNoArguments(html, reader)) {
+    problems.push(`${reader}() has a parameter with no default, so the proposal would price the job without it`);
+  }
   if (!calcFn) problems.push('no calculate*(readInput()) call to price it with');
   if (!/const el = id => document\.getElementById\(id\)|function el\(/.test(html)) problems.push('no el() helper');
   if (!/function count\(/.test(html)) problems.push('no count() helper');
@@ -665,7 +749,7 @@ export function disclaimerFor(trade) {
   return tail ? `${spine} ${tail}` : spine;
 }
 
-export { adopt, inspect, sync, restyle, detectFunctions, priceExpressionFor, resultKeysOf };
+export { adopt, inspect, sync, restyle, detectFunctions, readerTakesNoArguments, priceExpressionFor, resultKeysOf };
 
 // ---------------------------------------------------------------------------
 // CLI

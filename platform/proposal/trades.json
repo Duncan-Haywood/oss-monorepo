@@ -948,6 +948,50 @@
     },
     "disclaimerTail": "It is not a roof design, a deck-condition determination, or a drainage calculation; concealed deck damage is priced separately once exposed."
   },
+  "flooring-bid-calculator": {
+    "jobTitle": "Flooring installation — {installedSqFt~0} sq ft",
+    "scope": [
+      "Supply and install new flooring in the areas listed below",
+      {
+        "each": "rooms",
+        "when": "squareFeet",
+        "line": "{name} — {squareFeet~0} sq ft"
+      },
+      {
+        "line": "Take up and dispose of the existing floor covering",
+        "when": "roomTearoutHours"
+      },
+      {
+        "line": "Level and patch {extras.leveling.count~0} sq ft of subfloor",
+        "when": "extras.leveling.count"
+      },
+      {
+        "line": "Finish {extras.stairs.count~0} stair tread{extras.stairs.count+s}",
+        "when": "extras.stairs.count"
+      },
+      {
+        "line": "Fit {extras.transitions.count~0} transition{extras.transitions.count+s} at doorways and floor changes",
+        "when": "extras.transitions.count"
+      },
+      {
+        "line": "Install {extras.baseboard.count~0} linear ft of baseboard",
+        "when": "extras.baseboard.count"
+      },
+      {
+        "line": "Move and replace furniture in {extras.furniture.count~0} room{extras.furniture.count+s}",
+        "when": "extras.furniture.count"
+      },
+      "Material ordered at {purchasedSqFt~0} sq ft so there is enough for cuts and waste",
+      "Vacuum the work area and remove all installation debris on completion"
+    ],
+    "placeholders": {
+      "companyName": "Rivergate Flooring LLC",
+      "scope": "Living room, kitchen and hallway in luxury vinyl plank\nTake up the existing carpet and pad",
+      "exclusions": "Subfloor replacement or structural repair found once the old floor is up\nAsbestos or lead testing and abatement",
+      "notes": "Acclimate the material on site for 48 hours before install. Please clear breakables from the rooms."
+    },
+    "disclaimerTail": "It is not a subfloor, moisture, or structural assessment; conditions found once the existing floor is up may change the scope."
+  },
   "french-drain-bid-calculator": {
     "jobTitle": "French drain — {linearFeet~0} lf",
     "fields": {
@@ -1037,6 +1081,32 @@
       "notes": "Expect the surface to settle; a top-up after one season is normal."
     },
     "disclaimerTail": "It is not a drainage design or a determination that the subgrade will carry heavy vehicles."
+  },
+  "gutter-cleaning-bid-calculator": {
+    "jobTitle": "Gutter cleaning — {totalLinearFeet~0} linear ft",
+    "priceField": "visitPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Hand-clear the gutters and flush the downspouts on the runs listed below",
+      {
+        "each": "runs",
+        "when": "linearFeet",
+        "line": "{name} — {linearFeet~0} ft, {storyLabel}"
+      },
+      {
+        "line": "Clear and flush {totalDownspouts~0} downspout{totalDownspouts+s}",
+        "when": "totalDownspouts"
+      },
+      "Bag the debris and remove it from the property",
+      "Leave the downspouts running clear at the outlets"
+    ],
+    "placeholders": {
+      "companyName": "Eaveline Exterior Care LLC",
+      "scope": "Clear all gutters and downspouts\nFlush and check for flow",
+      "exclusions": "Gutter repair, resealing, or re-hanging\nRoof or fascia repair",
+      "notes": "Someone does not need to be home. We will leave a note when the work is done."
+    },
+    "disclaimerTail": "Cleaning clears debris; it is not a roof, gutter, fascia, or drainage inspection, and it is not a warranty against future clogs or overflow."
   },
   "gutter-guard-bid-calculator": {
     "jobTitle": "Gutter guards — {linealFeet} lf",
@@ -1275,6 +1345,55 @@
     },
     "disclaimerTail": "Residential elevators are governed by the elevator code and inspection regime in force locally; this is a price, not a code determination or an inspection."
   },
+  "hood-cleaning-bid-calculator": {
+    "jobTitle": "Kitchen exhaust cleaning — {hoodCount~0} hood system{hoodCount+s}",
+    "priceField": "jobPrice",
+    "depositPercent": 0,
+    "fields": {
+      "greaseLabel": {
+        "select": "greaseLoad",
+        "map": {
+          "light": "light grease load",
+          "moderate": "moderate grease load",
+          "heavy": "heavy grease load",
+          "extra_heavy": "extra-heavy grease load"
+        }
+      }
+    },
+    "scope": [
+      "Clean the kitchen exhaust system components listed below",
+      {
+        "each": "components",
+        "when": "quantity",
+        "line": "{name} — {quantity~0}"
+      },
+      {
+        "line": "Scheduled for a {greaseLabel}",
+        "when": "greaseLabel"
+      },
+      {
+        "line": "Scrape accessible duct and plenum surfaces to bare metal",
+        "when": "hoursByKind.duct"
+      },
+      {
+        "line": "Clean the fan housing and blade and re-seat the fan on its hinge",
+        "when": "hoursByKind.fan"
+      },
+      "Mask and protect the cooking line, then wash down and degrease the surrounding surfaces",
+      "Leave a dated service record and affix the service sticker",
+      {
+        "line": "Return {cleansPerYear~0} time{cleansPerYear+s} a year on the agreed schedule",
+        "when": "cleansPerYear"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Ashgate Hood & Duct LLC",
+      "scope": "Canopy, filters, horizontal and vertical duct, rooftop fan\nQuarterly service schedule",
+      "exclusions": "Fan motor, bearing, or belt replacement\nAccess panel or clean-out door fabrication",
+      "notes": "Work performed after close. Please leave the roof hatch key and clear the cooking line."
+    },
+    "disclaimerTail": "Cleaning is performed to the accessible surfaces of the system; it is not a fire-code determination, a fire-suppression inspection, or a statement that any required cleaning interval has been met."
+  },
   "hot-tub-bid-calculator": {
     "jobTitle": "Hot tub installation",
     "fields": {
@@ -1444,6 +1563,77 @@
     },
     "disclaimerTail": "Blow-out reduces freeze risk; it cannot guarantee that components already cracked or holding water will survive the winter."
   },
+  "janitorial-bid-calculator": {
+    "jobTitle": "Janitorial service — {totalSquareFeet~0} sq ft",
+    "priceField": "monthlyPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Recurring janitorial service for the areas listed below",
+      {
+        "each": "areas",
+        "when": "squareFeet",
+        "line": "{name} — {squareFeet~0} sq ft, {cleaningsPerWeek~1} time{cleaningsPerWeek+s} a week"
+      },
+      {
+        "each": "shifts",
+        "when": "hoursPerShift",
+        "line": "{name} — {people~0} on site {hoursPerShift~1} h, {shiftsPerWeek~1} shift{shiftsPerWeek+s} a week"
+      },
+      {
+        "each": "periodicServices",
+        "when": "occurrencesPerYear",
+        "line": "{name} — {occurrencesPerYear~0} time{occurrencesPerYear+s} a year"
+      },
+      {
+        "each": "projects",
+        "when": "squareFeet",
+        "line": "One-time: {name} — {squareFeet~0} sq ft"
+      },
+      "Supply the labour, equipment, and consumables needed for the scope above",
+      "Secure the premises on leaving and report anything found damaged or unsafe"
+    ],
+    "placeholders": {
+      "companyName": "Meridian Facility Services LLC",
+      "scope": "Nightly service Monday to Friday\nRestrooms serviced and restocked each visit",
+      "exclusions": "Carpet extraction and floor refinishing beyond the periodic schedule\nBiohazard, construction, or post-flood cleanup",
+      "notes": "Crew badged and background-checked. Access and alarm codes to be issued before the start date."
+    },
+    "disclaimerTail": "It is a cleaning service specification, not a disinfection, indoor-air-quality, or infection-control certification."
+  },
+  "junk-removal-bid-calculator": {
+    "jobTitle": "Junk removal — {totalCubicYards~1} cu yd",
+    "priceField": "bidPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Load and haul away the material listed below",
+      {
+        "each": "piles",
+        "when": "quantity",
+        "line": "{quantity~2} × {name}"
+      },
+      {
+        "line": "Estimated at {estimatedTons~2} ton{estimatedTons+s} across {dumpRuns~0} disposal run{dumpRuns+s}",
+        "when": "estimatedTons"
+      },
+      {
+        "line": "Carry the load down stairs from the pickup point",
+        "when": "stairsHours"
+      },
+      {
+        "line": "Long carry between the pickup point and the truck",
+        "when": "longCarryHours"
+      },
+      "Sweep the area once the load is out",
+      "Dispose of everything at a licensed transfer station or recycler"
+    ],
+    "placeholders": {
+      "companyName": "Clearhaul Removal LLC",
+      "scope": "Clear the garage and haul away\nOne mattress and one appliance included",
+      "exclusions": "Hazardous waste, paint, solvents, and chemicals\nItems requiring demolition or disassembly beyond hand tools",
+      "notes": "Volume is estimated from the walkthrough; the final figure is confirmed on the truck before we leave."
+    },
+    "disclaimerTail": "Volumes and weights are estimates made before loading; regulated, hazardous, or over-weight material may require separate handling and is not included."
+  },
   "kitchen-tile-backsplash-bid-calculator": {
     "jobTitle": "Tile backsplash — {wallSf~0} sq ft",
     "fields": {
@@ -1558,6 +1748,38 @@
     },
     "disclaimerTail": "It is not an electrical design or a determination that the existing exterior circuit has capacity."
   },
+  "lawn-care-bid-calculator": {
+    "jobTitle": "Lawn maintenance — {visitsPerWeek~0} visit{visitsPerWeek+s} a week",
+    "priceField": "monthlyPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Recurring grounds maintenance covering the services listed below",
+      {
+        "each": "services",
+        "when": "hoursPerVisit",
+        "line": "{name}"
+      },
+      {
+        "line": "Turf area of about {turfAcres~2} acres",
+        "when": "turfAcres"
+      },
+      {
+        "line": "{visitsPerWeek~0} visit{visitsPerWeek+s} a week across a {serviceWeeksPerYear~0}-week season",
+        "when": "serviceWeeksPerYear"
+      },
+      "Billed as a monthly amount, the same through the season",
+      "Blow clippings off drives, walks, and patios before leaving",
+      "Bag or remove clippings and debris as agreed for the property"
+    ],
+    "placeholders": {
+      "companyName": "Grovepoint Lawn & Landscape LLC",
+      "scope": "Weekly mow, edge, and blow through the season\nBed weeding twice a month",
+      "exclusions": "Fertilisation, weed control, and pest applications\nIrrigation repair and seasonal shutdown",
+      "notes": "Billed monthly at the same amount through the season. Please keep gates unlocked and pets in on service day."
+    },
+    "disclaimerTail": "It is a maintenance schedule, not a turf health, agronomic, or irrigation assessment, and it does not guarantee the condition or appearance of the lawn.",
+    "screenPriceSelector": "#monthly"
+  },
   "mold-remediation-bid-calculator": {
     "jobTitle": "Mould remediation — {affectedSqFt~0} sq ft",
     "fields": {
@@ -1603,6 +1825,72 @@
       "notes": "Clearance testing arranged with an independent hygienist."
     },
     "disclaimerTail": "Remediation addresses the affected area described; it does not identify or correct the moisture source, and it is not an air-quality or health assessment."
+  },
+  "moving-bid-calculator": {
+    "jobTitle": "Local move — {totalCubicFeet~0} cu ft",
+    "scope": [
+      "Load, transport, and unload the inventory listed below",
+      {
+        "each": "inventory",
+        "when": "cubicFeet",
+        "line": "{name} — {cubicFeet~0} cu ft"
+      },
+      "Blanket-wrap the furniture and protect floors and doorways at both addresses",
+      {
+        "line": "Stair carry at the addresses noted",
+        "when": "stairHours"
+      },
+      {
+        "line": "Long carry between the door and the truck",
+        "when": "carryHours"
+      },
+      {
+        "line": "Elevator use at the addresses noted",
+        "when": "elevatorHours"
+      },
+      {
+        "line": "Packing service as agreed",
+        "when": "packingHours"
+      },
+      "Disassemble and reassemble the items the crew takes apart",
+      "Place the furniture in the rooms you direct at the destination"
+    ],
+    "placeholders": {
+      "companyName": "Kestrel Moving Co. LLC",
+      "scope": "Three bedroom house, load and unload\nBlanket wrap and floor protection at both ends",
+      "exclusions": "Packing of boxes unless listed above\nDisconnection of appliances, gas, or electrical",
+      "notes": "Please have boxes sealed and labelled by the room they go to. Reserve the elevator and loading zone if the building requires it."
+    },
+    "disclaimerTail": "It is an estimate from the inventory described; it is not an inventory certification or a valuation of your goods."
+  },
+  "painting-bid-calculator": {
+    "jobTitle": "Painting — {paintableSqFt~0} sq ft of surface",
+    "scope": [
+      "Prepare and paint the surfaces listed below",
+      {
+        "each": "surfaces",
+        "when": "quantity",
+        "line": "{name} — {quantity~0} {unitLabel}, {coats~0} coat{coats+s}"
+      },
+      {
+        "line": "Fill, caulk, and sand the surfaces before painting",
+        "when": "prepHours"
+      },
+      "Mask and protect floors, fixtures, and anything not being painted",
+      {
+        "line": "Apply {paintGallons~1} gallons of the agreed product",
+        "when": "paintGallons"
+      },
+      "Remove and refit switch and outlet plates",
+      "Clean up daily and leave the rooms usable"
+    ],
+    "placeholders": {
+      "companyName": "Halden Painting LLC",
+      "scope": "Walls, ceilings and trim through the main floor\nTwo coats over a spot-primed surface",
+      "exclusions": "Wallpaper removal and plaster repair beyond routine filling\nLead-safe work practices unless separately quoted",
+      "notes": "Colours to be confirmed in writing before we start. Please clear small furniture from the rooms."
+    },
+    "disclaimerTail": "Coverage and finish depend on the condition of the existing surface; it is not a substrate, moisture, or lead assessment."
   },
   "parking-lot-striping-bid-calculator": {
     "jobTitle": "Parking lot striping — {totalStalls} stalls",
@@ -1759,6 +2047,32 @@
       "notes": "Footings sized to the local frost depth."
     },
     "disclaimerTail": "It is not an engineered design; span, footing and uplift requirements are set by the authority having jurisdiction."
+  },
+  "pest-control-bid-calculator": {
+    "jobTitle": "Pest control service — {frequencyLabel}",
+    "priceField": "recurringPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Recurring pest service, {frequencyLabel}, {visitsPerYear~0} visit{visitsPerYear+s} a year",
+      {
+        "each": "services",
+        "when": "everyVisit",
+        "line": "{name} at every scheduled visit"
+      },
+      {
+        "line": "Initial service included as the first visit at no additional charge",
+        "when": "waiveInitial"
+      },
+      "Apply products according to their label directions",
+      "Leave a service record after each visit noting what was treated and what was found"
+    ],
+    "placeholders": {
+      "companyName": "Bellweather Pest Solutions LLC",
+      "scope": "Quarterly exterior perimeter and interior service\nRodent stations checked each visit",
+      "exclusions": "Termite and wood-destroying-organism treatment\nExclusion carpentry and structural repair",
+      "notes": "We will call the day before each visit. Interior service only needs access if there is activity inside."
+    },
+    "disclaimerTail": "Results vary with conditions and access; it is not a guarantee of elimination, a wood-destroying-organism report, or a health or structural inspection."
   },
   "plantation-shutter-bid-calculator": {
     "jobTitle": "Plantation shutters — {openings} opening{openings+s}",
@@ -1980,6 +2294,32 @@
       "notes": "Ceilings installed before 1980 are sampled before any scraping starts."
     },
     "disclaimerTail": "Textured ceilings applied before the 1980s may contain asbestos; scraping does not begin until a sample has been tested, and abatement is a separately licensed activity that is not included."
+  },
+  "pressure-washing-bid-calculator": {
+    "jobTitle": "Pressure washing — {totalSquareFeet~0} sq ft",
+    "priceField": "bidPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Clean the surfaces listed below",
+      {
+        "each": "surfaces",
+        "when": "squareFeet",
+        "line": "{name} — {squareFeet~0} sq ft"
+      },
+      "Pre-treat, dwell, and rinse using the method suited to each surface",
+      "Protect plantings and rinse them down before and after the wash",
+      {
+        "line": "Return for {packageVisits~0} scheduled wash{packageVisits+es} in the agreed package",
+        "when": "packageDiscount"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Bright Face Exterior Wash LLC",
+      "scope": "Driveway, walkway and house siding\nSoft wash on the siding, surface cleaner on the concrete",
+      "exclusions": "Oxidation removal, sealing, and staining\nRepair of loose siding, mortar, or wood found during the wash",
+      "notes": "We need access to an outside tap and a standard outlet. Please close windows before the visit."
+    },
+    "disclaimerTail": "Cleaning improves appearance but cannot remove every stain; it is not a sealing, restoration, or surface-condition assessment, and some staining is permanent."
   },
   "radon-mitigation-bid-calculator": {
     "jobTitle": "Radon mitigation — {suctionPoints} suction point{suctionPoints+s}",
@@ -2682,6 +3022,44 @@
     },
     "disclaimerTail": "Flange, subfloor or drain damage is only visible once the existing fixture is lifted; that repair is quoted separately."
   },
+  "tree-service-bid-calculator": {
+    "jobTitle": "Tree work — {totalDbh~0} in of combined trunk diameter",
+    "priceField": "recommendedPrice",
+    "scope": [
+      "Carry out the tree work listed below",
+      {
+        "each": "trees",
+        "when": "onSiteHours",
+        "line": "{name} — {dbhInches~0} in diameter, about {heightFeet~0} ft"
+      },
+      {
+        "each": "trees",
+        "when": "grindStump",
+        "line": "Grind the stump of the {name} below grade and backfill"
+      },
+      {
+        "each": "trees",
+        "when": "nearStructure",
+        "line": "Rope and lower the {name} in sections, clear of the structure"
+      },
+      {
+        "line": "Chip and remove the brush from the property",
+        "when": "dumpFees"
+      },
+      {
+        "line": "Crane set for the sections that cannot be lowered by rope",
+        "when": "craneCost"
+      },
+      "Rake the work area and leave the site clear"
+    ],
+    "placeholders": {
+      "companyName": "Ironwood Tree Care LLC",
+      "scope": "Remove the backyard oak in sections\nGrind the stump and haul the brush",
+      "exclusions": "Utility line disconnection or reconnection\nLawn or hardscape repair from equipment access",
+      "notes": "Permits, where the municipality requires them, are quoted separately. Please move vehicles off the drive."
+    },
+    "disclaimerTail": "It is a work quote, not an arborist report, a tree risk assessment, or an opinion on the health or stability of any tree left standing."
+  },
   "vinyl-liner-bid-calculator": {
     "jobTitle": "Pool liner replacement — {waterSurfaceSf} sq ft",
     "fields": {
@@ -2940,5 +3318,30 @@
       "notes": "Built to a 1:12 running slope with level landings at every turn."
     },
     "disclaimerTail": "Slope, landing, width and handrail requirements are set by the ADA and by the code in force locally; this quote follows the configuration you specify and is not a compliance determination."
+  },
+  "window-cleaning-bid-calculator": {
+    "jobTitle": "Window cleaning — {totalPanes~0} pane{totalPanes+s}",
+    "priceField": "pricePerVisit",
+    "depositPercent": 0,
+    "scope": [
+      "Clean the glass listed below",
+      {
+        "each": "groups",
+        "when": "panes",
+        "line": "{name} — {panes~0} pane{panes+s}, {sides~0} side{sides+s}"
+      },
+      "Wipe the sills and frames and detail the edges on each pane cleaned",
+      {
+        "line": "Return {visitsPerMonth~0} time{visitsPerMonth+s} a month on the agreed schedule",
+        "when": "visitsPerMonth"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Clearview Window Care LLC",
+      "scope": "Storefront glass inside and out\nMonthly service schedule",
+      "exclusions": "Hard-water stain removal and glass restoration\nScreen or track repair",
+      "notes": "Please keep the display area clear on service day. We work around opening hours where we can."
+    },
+    "disclaimerTail": "Cleaning removes surface soiling; it is not glass restoration, and mineral etching, scratches, or failed seals cannot be cleaned out."
   }
 }

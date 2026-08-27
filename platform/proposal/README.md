@@ -16,26 +16,35 @@ arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-**88 of the 101 bid calculators**, and the list is no longer worth keeping by
+**100 of the 101 bid calculators**, and the list is no longer worth keeping by
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
 ready, and what is blocked.
 
-27 of those were hand-ported, one batch of six at a time. The remaining 61 are
+27 of those were hand-ported, one batch of six at a time. The remaining 73 are
 generated from `trades.json` by `adopt.mjs`, and their pages carry
 `proposal:begin` / `proposal:end` markers so a re-run replaces the generated
 regions rather than layering a second proposal on top.
 
-The 13 that have not adopted all fail the same precondition: they build their
-input object inline at each call site instead of having one `readInput()`, so
-there is no single function the proposal can call to price the job the
-contractor is looking at. Extracting that reader is the work, and it is the
-same fix the README already recommends for its own sake:
+The last twelve to adopt were the **itemised** trades — flooring, gutter
+cleaning, hood cleaning, janitorial, junk removal, lawn care, moving, painting,
+pest control, pressure washing, tree service, window cleaning — and they needed
+two things the module did not have.
 
-```
-flooring  gutter-cleaning  hood-cleaning  janitorial  junk-removal  lawn-care
-mobile-detailing  moving  painting  pest-control  pressure-washing
-tree-service  window-cleaning
-```
+They each built their input object inline at every call site rather than having
+one `readInput()`, so there was no single function the proposal could call to
+price the job on screen. Extracting that reader is worth doing for its own
+sake: `flooring` had the same literal three times, and `janitorial` six.
+
+And they price a job made of **rows** — rooms, gutter runs, trees, exhaust
+components — where every earlier trade priced one thing. A homeowner collecting
+three bids compares the line items, so `scopeLines` grew `each` (see
+`proposal.mjs`); without it the best scope these could draft was the generic
+sentence this README says is worth less than no proposal.
+
+**`mobile-detailing` is deliberately not adopted.** It is a quote check rather
+than a build-up: its inputs are hours and costs, with nothing describing the
+work, so its drafted scope could only be "Perform the work described above".
+That is the one case where no proposal beats a generic one.
 
 ## Adopting a calculator
 
@@ -73,12 +82,13 @@ vendors `proposal.mjs`. `verify.mjs` drives the built page in a real browser.
 | key | what it is |
 |---|---|
 | `jobTitle` | the line under WORK. A template, same syntax as a scope line |
-| `scope` | the drafted scope. Strings, or `{ line, when }` where `when` names a field that must be truthy |
+| `scope` | the drafted scope. Strings, or `{ line, when }` where `when` names a field that must be truthy, or `{ each, line, when }` for one line per row |
 | `fields` | customer-readable words for preset ids — `{ select: "pump" }` for the option text, plus `map` to rewrite it |
 | `placeholders` | the greyed-out example text in the form |
 | `disclaimerTail` | the sentence appended to the shared footer disclaimer |
 | `priceField` | the result field holding the price, when it is not `price` |
 | `depositPercent` | the default deposit, when 30% is wrong for the trade |
+| `screenPriceSelector` | the element `verify.mjs` compares the sheet against, when the headline figure is not the price quoted |
 | `palette` | overrides for the colours otherwise read off the page |
 
 Template syntax, all of it in `scopeLines`:
@@ -87,6 +97,16 @@ Template syntax, all of it in `scopeLines`:
 - `{field.nested}` — dotted paths
 - `{count} gate{count+s}` — plural suffix, empty when the count is exactly 1
 - `{yards~2}` — rounded to 2 decimals and thousands-grouped
+- `{ "each": "rooms", "when": "hours", "line": "{name} — {squareFeet~0} sq ft" }`
+  — one line per row of `result.rooms`, with `{field}` and `when` reading the
+  **row** rather than the result root. Rows are never truncated: every row the
+  contractor entered is one they intend to be paid for.
+
+`screenPriceSelector` exists because the headline figure is the quoted price on
+nearly every calculator here, but not all. `lawn-care` leads with a per-visit
+number while the thing being sold — and the thing its own proposed-price field
+asks for — is the monthly contract, so comparing the sheet against `#price`
+would fail a correct proposal.
 
 ### Two things `trades.json` must get right
 
