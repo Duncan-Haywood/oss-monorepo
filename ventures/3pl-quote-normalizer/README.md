@@ -48,6 +48,8 @@ carton, and loose receiving into the same per-unit rate and see which line
 wins at your inbound volume. A monthly minimum can hide a real receiving
 gap; the table names that case. That is a different decision from leftover
 pallets already on the floor, from restock vs keep, and from kitting.
+The same comparison now also runs on the [main calculator](./index.html)
+from the quote you already typed.
 The [pallet vs carton inbound](./pallet-vs-carton-inbound.html) page walks
 the fee ÷ units arithmetic.
 Use [Download a reviewable 3PL record](./export.html) when you want that
