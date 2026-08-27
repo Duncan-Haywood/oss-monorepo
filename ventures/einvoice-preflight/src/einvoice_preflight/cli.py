@@ -401,6 +401,43 @@ def _remediation_report(
     }
 
 
+def _remediation_csv_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build one spreadsheet row per rule across the batch for triage queues."""
+    grouped: dict[str, dict[str, str | int]] = {}
+    for _, findings in reports:
+        for finding in findings:
+            detail = grouped.setdefault(
+                finding["rule"],
+                {
+                    "rule": finding["rule"],
+                    "occurrences": 0,
+                    "message": finding["message"],
+                    "fix": finding["fix"],
+                },
+            )
+            detail["occurrences"] = int(detail["occurrences"]) + 1
+    rows = [grouped[rule] for rule in sorted(grouped)]
+    if read_errors:
+        rows.append({
+            "rule": "INV-READ",
+            "occurrences": len(read_errors),
+            "message": "Invoice could not be read.",
+            "fix": "Resolve the read error and run the preflight again.",
+        })
+    output = io.StringIO()
+    writer = csv.DictWriter(
+        output,
+        fieldnames=("rule", "occurrences", "message", "fix"),
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    writer.writerows(rows)
+    return output.getvalue()
+
+
 def _checklist_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
@@ -620,7 +657,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, UN/CEFACT CII, or Factur-X PDF e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
     parser.add_argument("invoice", type=Path, help="JSON/XML/PDF file, directory of those files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "remediation-csv", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
@@ -728,6 +765,8 @@ def main(argv: list[str] | None = None) -> int:
         report = _jsonl_report(reports, read_errors)
     elif args.format == "remediation":
         report = json.dumps(_remediation_report(reports, read_errors), indent=2) + "\n"
+    elif args.format == "remediation-csv":
+        report = _remediation_csv_report(reports, read_errors)
     elif args.format == "checklist":
         report = _checklist_report(reports, read_errors)
     elif args.format == "markdown":

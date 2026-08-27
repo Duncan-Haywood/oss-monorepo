@@ -43,6 +43,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format github
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format markdown > review.md
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format html > review.html
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format csv > triage.csv
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation-csv > remediation.csv
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > preflight.junit.xml
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation
@@ -323,7 +324,13 @@ findings and `2` for read errors.
 `--format csv` produces one spreadsheet row per finding, plus explicit pass and
 read-error rows. Its stable columns are `file`, `status`, `rule`, `path`,
 `message`, `fix`, and `error`, making it suitable for triage queues without
- exposing invoice values or contents.
+exposing invoice values or contents.
+`--format remediation-csv` produces one spreadsheet row per rule across the
+batch, with an occurrence count, check message, and recommended fix. It is
+useful when an operator wants a compact queue of repeated fixes rather than
+one row per invoice. Read errors are represented as `INV-READ`; invoice
+values, numbers, and line contents are never included. The JSON
+`--format remediation` queue stays the per-invoice adapter payload.
 `--format junit` produces a JUnit XML report for CI dashboards. Each invoice is
 one testcase; failed checks are failures and unreadable files are errors. The
 report contains only local filenames, rule IDs, JSON Pointer paths, observations,
@@ -359,8 +366,9 @@ negative, or non-numeric values before any invoice is read. It refuses an
 oversized regular file before reading it and reads stdin only through `N+1`
 bytes, returning a structured exit-2 read error when the limit is exceeded.
 
-Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, JUnit, Markdown,
-or HTML when a directory is empty or a `--max-files` limit refuses the scan.
+Machine-readable formats remain valid JSON, JSONL, SARIF, CSV, remediation-csv,
+JUnit, Markdown, or HTML when a directory is empty or a `--max-files` limit
+refuses the scan.
 These input errors are reported in the selected format and the command exits
 `2`, so CI and ERP adapters do not need to special-case an unstructured stderr
 or stdout message.
