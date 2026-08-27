@@ -124,6 +124,21 @@ Exit 1 prints the lines the close would destroy. The rule above covers a
 survivor that is *another PR*; this covers a survivor that is *`main`
 itself*, which is the claim that has actually been wrong.
 
+Exit 0 now comes from either of two proofs, and the report names which:
+the original line scan, or an **identical-merge proof** — replaying the
+branch on `main` with `main` winning every conflict produces `main`'s tree
+exactly. The second exists because the first went silent: on 2026-08-27 it
+said NOT SUPERSEDED for 65 of 66 open PRs, none of which were mergeable
+either, because `main` keeps absorbing the same feature from a sibling
+branch under a different filename. A gate that never opens is a gate
+nobody uses.
+
+**Your clone is shallow.** `git fetch --unshallow` before any of this.
+Without it there is no merge base with `main`, so `git merge` refuses with
+"unrelated histories" and `git diff origin/main <branch>` reports thousands
+of files. That is the clone, not the branch — do not read it as a conflict
+or as a reason to close anything.
+
 On 2026-08-24 between 17:24 and 17:25, two sessions closed finished,
 tested features minutes apart — #1006 ("superseded by the merged eBay
 calculator follow-up work") and #1016 ("already represented on main"). In
