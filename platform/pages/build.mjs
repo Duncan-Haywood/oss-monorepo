@@ -891,6 +891,24 @@ ${subgroups
                   color: var(--ink); text-decoration: none; background: var(--bg); }
     .yours li a:hover, .yours li a:focus-visible { border-color: var(--accent); color: var(--accent); }
     .yours .times { display: block; font-size: .72rem; color: var(--muted); margin-top: 3px; padding-left: 4px; }
+    .bids { margin-top: 30px; padding: 16px 18px 18px; background: var(--panel);
+            border: 1px solid var(--line); border-radius: 13px; }
+    .bids h2 { font-size: 1.05rem; margin: 0 0 4px; letter-spacing: -.01em; }
+    .bids p { color: var(--muted); margin: 0 0 12px; font-size: .87rem; line-height: 1.5; }
+    .bids ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .bids li { margin: 0; }
+    .bids li a { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+                 border: 1px solid var(--line); border-radius: 11px; padding: 9px 13px;
+                 color: var(--ink); text-decoration: none; background: var(--bg); }
+    .bids li a:hover, .bids li a:focus-visible { border-color: var(--accent); }
+    .bids li a:hover .bid-name, .bids li a:focus-visible .bid-name { color: var(--accent); }
+    .bids .bid-name { font-size: .92rem; font-weight: 650; }
+    .bids .bid-where { font-size: .8rem; color: var(--muted); }
+    .bids .bid-when { font-size: .74rem; color: var(--muted); margin-left: auto; }
+    /* A bid name is a customer's name or their street address. It is the
+       visitor's own data on their own device, but it has no place on a sheet
+       they hand to somebody else. */
+    @media print { .bids { display: none; } }
     .empty { display: none; color: var(--muted); font-style: italic; margin-top: 30px; }
     footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 24px;
              font-size: .87rem; line-height: 1.6; color: var(--muted); }
@@ -933,6 +951,20 @@ ${subgroups
     </div>
 
 ${contents}
+
+    <!-- Filled in by script from the saved bids on this device. Above "pick up
+         where you left off" deliberately: a contractor whose customer just rang
+         back wants the job, not the tool that priced it. -->
+    <section class="bids" id="bids" hidden>
+      <h2>Your saved bids</h2>
+      <p>
+        Bids you saved in any tool on this site, newest first. Opening one takes
+        you to the tool that priced it with your saved bids showing, ready to
+        restore. These are kept in this browser only — never uploaded, and
+        clearing your browser data clears them.
+      </p>
+      <ul id="bidsList"></ul>
+    </section>
 
     <!-- Filled in by script from counts held on this device; a visitor with no
          history, no storage, or an opt-out never sees it. -->
@@ -1136,6 +1168,104 @@ ${DISCLAIMER_HTML}
     // Turning counting off should take the shortcut away with it, in the same
     // click rather than on the next visit.
     optout.addEventListener('change', showYourTools);
+
+    // The saved-bid index.
+    //
+    // Saved bids are stored per tool and restored per tool — a bid never
+    // crosses tools, because the form it was priced on is the only form it
+    // fits. What was left unanswered is "which tool was it?": the store is a
+    // single key on this one origin, so the hub has held every visitor's whole
+    // bid list all along and showed none of it. On Friday, when the customer
+    // rings back, that is the difference between one click and remembering
+    // which of 162 calculators priced the job on Tuesday.
+    //
+    // Deliberately not gated on the opt-out, unlike "pick up where you left
+    // off" above. That list is derived from counts, so opting out of counting
+    // genuinely empties it. These are the visitor's own saved documents; the
+    // tool pages show them to someone who has opted out, and the hub hiding
+    // them would look like data loss. Only the counting below is gated.
+    const BIDS_KEY = 'portfolio-saved-bids';
+
+    function savedBids(limit = 8) {
+      let parsed;
+      try { parsed = JSON.parse(localStorage.getItem(BIDS_KEY) || '{}'); } catch { return []; }
+      const bids = parsed && typeof parsed === 'object' ? parsed.bids : null;
+      if (!bids || typeof bids !== 'object') return [];
+
+      const rows = [];
+      for (const [slug, list] of Object.entries(bids)) {
+        // Any page on this origin can write this key, so a slug is used only in
+        // the shape the build produces and the link is built from that — never
+        // from the stored string as given. Same rule as yourTools() above.
+        if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue;
+        if (!Array.isArray(list)) continue;
+        for (const bid of list) {
+          if (!bid || typeof bid !== 'object') continue;
+          const { name, at } = bid;
+          if (typeof name !== 'string' || !name) continue;
+          if (typeof at !== 'string' || !at) continue;
+          rows.push({ slug, name, at });
+        }
+      }
+
+      // Newest first, with slug and name breaking ties so two bids saved in the
+      // same second cannot swap places between renders.
+      rows.sort((a, b) =>
+        b.at.localeCompare(a.at) || a.slug.localeCompare(b.slug) || a.name.localeCompare(b.name));
+      return rows.slice(0, limit);
+    }
+
+    function showSavedBids() {
+      const section = document.getElementById('bids');
+      const list = document.getElementById('bidsList');
+      list.replaceChildren();
+
+      for (const { slug, name, at } of savedBids()) {
+        // Only offer a tool the hub is actually showing: a bid left behind by a
+        // tool since renamed or withdrawn would link to a 404. The bid stays on
+        // disk — jobs.mjs keeps unknown slugs for exactly this reason — it is
+        // just not offered a link that goes nowhere.
+        const card = document.querySelector('[data-tool="' + slug + '"]');
+        if (!card) continue;
+
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        // The anchor jobs.mjs answers: the band opens and scrolls into view, so
+        // the visitor arrives at their bid list rather than at the top of a
+        // calculator. The bid's name is never put in the URL — it is a
+        // customer's name, and a fragment lands in browser history and in
+        // anything the visitor shares.
+        link.href = slug + '/#pf-jobs';
+
+        const label = document.createElement('span');
+        label.className = 'bid-name';
+        // textContent, never innerHTML: the name is typed by the visitor and
+        // read back out of storage any page on this origin can write.
+        label.textContent = name;
+
+        const where = document.createElement('span');
+        where.className = 'bid-where';
+        where.textContent = card.querySelector('h3, h4')?.textContent.trim() || slug;
+
+        const when = document.createElement('span');
+        when.className = 'bid-when';
+        when.textContent = at.slice(0, 10);
+
+        link.append(label, where, when);
+        // The event carries no name and no slug — how often the index is used,
+        // never for what. record() is already silent under DNT/GPC and the
+        // opt-out.
+        link.addEventListener('click', () => record('saved_bid_followed'));
+
+        item.append(link);
+        list.append(item);
+      }
+
+      section.hidden = list.childElementCount === 0;
+      if (!section.hidden) record('saved_bid_index_shown');
+    }
+
+    showSavedBids();
 ${OFFLINE_WIDGET_SCRIPT}
   </script>
 </body>

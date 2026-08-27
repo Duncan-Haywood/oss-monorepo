@@ -217,6 +217,43 @@ export function parseStoredBids(raw) {
   return out;
 }
 
+/**
+ * Every saved bid across every tool, newest first.
+ *
+ * Bids are stored per tool and restored per tool, and that stays true — a bid
+ * never crosses tools, for the reason the module header gives. What crosses is
+ * the *question* "where did I put it". A contractor saves "14 Oak St — Mrs
+ * Reid" in the gutter calculator on Tuesday; on Friday the customer rings back
+ * and the only route to that bid is remembering which of 162 tools priced it,
+ * opening it, and opening the band. The store is a single key on one origin, so
+ * the hub already holds the answer and simply never showed it.
+ *
+ * Returns `{ slug, name, at }` and deliberately not `fields`: the hub lists
+ * bids, it does not restore them, and handing it the numbers would put a
+ * customer's job on a page that has no form to put it in.
+ *
+ * Ties on `at` fall back to slug then name so the order is total — two bids
+ * saved in the same second must not swap places between renders.
+ */
+export function savedBidIndex(raw, { limit = Infinity } = {}) {
+  const store = typeof raw === 'string' ? parseStoredBids(raw) : (raw ?? {});
+  const rows = [];
+  for (const [slug, list] of Object.entries(store)) {
+    if (!Array.isArray(list)) continue;
+    for (const bid of list) {
+      if (!bid || typeof bid !== 'object') continue;
+      const { name, at } = bid;
+      if (typeof name !== 'string' || !name || typeof at !== 'string' || !at) continue;
+      rows.push({ slug, name, at });
+    }
+  }
+  rows.sort(
+    (a, b) =>
+      b.at.localeCompare(a.at) || a.slug.localeCompare(b.slug) || a.name.localeCompare(b.name),
+  );
+  return Number.isFinite(limit) ? rows.slice(0, Math.max(0, limit)) : rows;
+}
+
 /** The stored form. Versioned so a later shape can be told apart from this one. */
 export function serializeBids(bids) {
   const out = {};
@@ -344,7 +381,11 @@ const JOBS_STYLE = `<style>
  * storage plus scripting; with scripting off there is nothing behind the
  * control, and a button that does nothing is worse than no button.
  */
-const JOBS_MARKUP = `<section class="pf-jobs" hidden data-pf-jobs-root>
+// `id` is load-bearing, not decoration: it is the anchor the hub's saved-bid
+// index links to (`/<slug>/#pf-jobs`). Without it a visitor sent from the hub
+// lands at the top of a calculator and has to find the band themselves, which
+// is most of the friction that index exists to remove.
+const JOBS_MARKUP = `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
   <p class="pf-jobs-line">
     <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
@@ -619,13 +660,27 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
     if (saved > 0) say(saved === 1 ? '1 saved bid.' : saved + ' saved bids.');
 
     var toggle = el('pf-jobs-toggle');
-    toggle.addEventListener('click', function(){
-      var panel = el('pf-jobs-panel');
-      var open = panel.hidden;
-      panel.hidden = !open;
+    var setOpen = function(open){
+      el('pf-jobs-panel').hidden = !open;
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       if (open) bump('saved_bids_opened');
+    };
+    toggle.addEventListener('click', function(){
+      setOpen(el('pf-jobs-panel').hidden);
     });
+
+    // Arriving from the hub's saved-bid index, which links to '#pf-jobs'. The
+    // band is collapsed by default, so landing on the anchor alone would show a
+    // closed strip and the visitor would have to open it themselves — one more
+    // step in the journey that index exists to shorten. The panel is opened
+    // here rather than by :target because its state is the toggle's to own.
+    //
+    // Checked after the field-count guard above: on a page with no form the
+    // band is already gone and there is nothing to open.
+    if (location.hash === '#pf-jobs') {
+      setOpen(true);
+      try { root.scrollIntoView({ block: 'start' }); } catch (e) {}
+    }
 
     el('pf-jobs-name').addEventListener('keydown', function(event){
       // Enter in a bare text box inside a page-level form would submit it and
