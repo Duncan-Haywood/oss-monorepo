@@ -3499,3 +3499,16 @@ products:
           worth watching: before this, a returning visitor could only ever see
           check_first_snapshot, so repeat value was unmeasurable rather than
           merely unmeasured. Public URL remains owner-gated.
+  - slug: appointment-deposit-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          deposit_calculated: 0
+          policy_copied: 0
+        note: >-
+          Salvage of unique closed #1218 appointment deposit calculator onto
+          current main. Distinct from the no-show fee calculator: this sets
+          the commitment before booking. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.

@@ -5901,3 +5901,34 @@ ventures:
       yields, waste percents, and coating rates are labelled ballpark starting
       points rather than a standard, and nothing the user enters leaves the
       browser.
+  - slug: appointment-deposit-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 4
+      distribution: 7
+    composite: 6.5
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The calculator is deterministic deposit and cash arithmetic. Adding
+      inference would make a booking policy less checkable against the
+      operator's own price and notice hours.
+    basis: >-
+      Salvage of unique closed #1218 onto current main. Distinct from
+      no-show-fee-calculator (a charge after a missed slot) and from
+      invoice-payment-terms deposit pages: this one is for salons, trainers,
+      tutors, and photographers choosing an upfront booking deposit and
+      copying a policy draft. Distribution is "appointment deposit
+      calculator" and "how much deposit should I charge".
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on the operator's own price and
+      percent, plus a draft they review before publishing. It never
+      recommends a deposit, a cancellation rule, or a legal determination.
+      Nothing the user enters leaves the browser.
