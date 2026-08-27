@@ -1,0 +1,27 @@
+name: change-order-margin-calculator
+description: A private browser tool that turns a contractor's scope change into a costed, margin-aware change-order price and approval summary.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small contractors lose margin when scope changes are priced from a rough lump sum instead of loaded labor and direct cost.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A fast approval-ready summary will be reused on active jobs because it makes the added price and remaining margin explicit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified contractors use the tool twice within 90 days.
+  - Users cannot price a real change order faster than their spreadsheet or calculator.
+links:
+  production: null
+  analytics: null
