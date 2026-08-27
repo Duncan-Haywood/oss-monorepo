@@ -24379,3 +24379,42 @@ entries:
         first-time visitor cannot see the tool work without supplying their
         own — the highest-value onboarding work still open.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drove all 430 built pages in headless Chromium at a 390px viewport,
+        which no session had done. 91 of them scrolled sideways. For an
+        audience of contractors and marketplace sellers on phones that is not
+        cosmetic: reading the last column of a comparison table scrolled the
+        form they were filling in off the screen. Now 3, in #1876 and #1877.
+      - >-
+        The cause was two independent defects that looked like one, and the
+        first pass got it wrong. A wide table, and a `1fr` grid track — which
+        is `minmax(auto,1fr)`, so its min-content floor held the column at
+        603px inside a 354px container however narrow the phone was. Testing
+        each candidate rule on its own said 49 pages were "tables" and 42 were
+        "something else"; in fact 42 had both, and neither rule alone reached
+        zero on them. #1876 shipped that misreading and #1877 corrected it.
+      - >-
+        The blanket fix was measured and rejected. `*{min-width:0}` cleared all
+        42 rather than 39, and clipped text on four pages — ten clipped leaves
+        on the Shopify subscriptions page alone. Three more fixed pages does
+        not buy four broken ones, so the scoped rule shipped. Worth keeping:
+        the cheap check that caught it was counting leaf elements whose
+        scrollWidth exceeds their clientWidth, before and after.
+      - >-
+        `display:block` on a table can strip its semantics, so that was
+        verified rather than assumed: the accessibility tree read over CDP is
+        identical with the rule active and inactive (table=1, row=7,
+        columnheader=7, cell=42) and the scroll region is Tab-reachable.
+        Chromium only — older Safari/VoiceOver may differ, and the media query
+        limits the exposure to small viewports.
+      - >-
+        The same sweep found 11 form controls across 10 products with no
+        accessible name (#1875), three of them the tool's primary file input —
+        backup-verification-evidence, einvoice-preflight, and
+        payment-reconciliation-workbench were unusable without sight. Now 0 of
+        430.
+    mrr_end: null
