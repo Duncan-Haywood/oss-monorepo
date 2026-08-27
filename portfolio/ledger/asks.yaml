@@ -51,6 +51,46 @@
 
 decisions:
 
+- id: actions-runners-unavailable
+  asks: []
+  prs: [1842]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-26"
+  action: >-
+    Restore GitHub Actions runner allocation for this repository: check
+    Settings → Billing → Spending limit for Actions (and that the payment
+    method is current), then re-run any failed workflow to confirm. Since
+    roughly 22:10–23:25 UTC on 2026-08-26 every workflow in the repo dies in
+    3–6 seconds with `runner_id: 0`, an empty check-run output and a 404 on
+    log download. No agent can fix this; it is an account-level setting.
+  unlocks:
+    - "**Verification for the whole fleet.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build are the guards that stop a stale branch reverting newer work or re-declaring an existing export. All of them are dark, so every merge is landing on local verification alone."
+    - "The Pages build that `deploy-settings` would publish. That flip cannot produce a site while no runner will build one, so this ask now gates that one in practice."
+  blocked_by: []
+  note: >-
+    Recorded as a queue item on 2026-08-27, having been reported only on
+    #1842 and in the 2026-08 ledger until then. It belongs here because it
+    is owner-only and because it silently weakens every other row: a granted
+    ask still cannot ship if nothing can build.
+
+
+    Why it reads as normal and is not. `AGENTS.md` already warns that bot
+    pull requests opened with `GITHUB_TOKEN` show *zero* checks, so a session
+    is trained to treat a blank check list as expected and verify locally.
+    This outage looks identical at a glance and is not the same thing: these
+    runs exist, were scheduled, and failed before their first step. A run
+    that dies with no runner is not a red test and not an absent check —
+    it is no signal at all.
+
+
+    Cost while it stands, measured 2026-08-27T02:41Z: 4.5 hours, 72 commits
+    merged to `main` with no workflow having run on any of them. That number
+    only grows, and none of it is recoverable after the fact — the guards
+    cannot be replayed against history. Until it clears, run the workflows'
+    own commands locally before merging and say in the pull request exactly
+    what was run, which is what the merges in this window have been doing.
+
 - id: routine-trigger-cadence
   asks: []
   prs: [788]
