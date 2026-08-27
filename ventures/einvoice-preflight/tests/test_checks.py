@@ -1067,6 +1067,25 @@ class ChecksTest(unittest.TestCase):
             self.assertIn("Read errors", report)
             self.assertIn("broken.json", report)
 
+    def test_cli_writes_report_artifact_without_stdout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            output_path = Path(directory) / "reports" / "review.json"
+            invoice_path.write_text(json.dumps(VALID))
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(main([str(invoice_path), "--format", "json", "--output", str(output_path)]), 0)
+            self.assertEqual(output.getvalue(), "")
+            report = json.loads(output_path.read_text())
+            self.assertEqual(report["status"], "pass")
+
+    def test_cli_output_write_failure_is_an_input_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            invoice_path = Path(directory) / "invoice.json"
+            invoice_path.write_text(json.dumps(VALID))
+            with contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(main([str(invoice_path), "--format", "html", "--output", directory]), 2)
+
 
 if __name__ == "__main__":
     unittest.main()
