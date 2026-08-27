@@ -643,6 +643,67 @@
     </table>
     <p id="lowInventoryNote" class="note"></p>
   </section>
+  <section class="pack" id="liquidation" aria-labelledby="liquidation-heading">
+    <h2 id="liquidation-heading">Do FBA Liquidations still beat dispose?</h2>
+    <p>
+      Units that already sit are a leftover-pile decision: keep paying
+      storage and the aged-inventory surcharge, recover a percent of
+      list through FBA Liquidations, pay to send them back and sell
+      elsewhere, or pay to dispose.
+      <a href="should-i-liquidate-aged-fba-inventory.html">Should I liquidate aged FBA inventory?</a>
+      already has the full math. This block uses the same
+      <code>compareLiquidation</code> on the listing you just typed, so
+      you do not leave the page. Removal fee here is the return-removal
+      line, not the Multi-Channel Fulfillment field above. Defaults
+      match the dedicated page: 80 aged units, 5% monthly sell-through,
+      8% recovery, $0.30 liquidation fee, $1.04 return removal, $4
+      elsewhere leftover, $0.32 dispose.
+    </p>
+    <div class="fields" style="margin-bottom: 14px;">
+      <label>Aged units
+        <input id="agedUnits" type="number" min="1" step="1" value="80">
+      </label>
+      <label>Monthly sell-through (%)
+        <input id="monthlySellThroughPct" type="number" min="0" max="100" step="0.1" value="5">
+      </label>
+      <label>Horizon (months)
+        <input id="horizonMonths" type="number" min="1" step="1" value="3">
+      </label>
+      <label>Aged-inventory surcharge ($ / unit / mo)
+        <input id="aisPerUnit" type="number" min="0" step="0.01" value="1.50">
+      </label>
+      <label>Recovery of list (%)
+        <input id="recoveryPct" type="number" min="0" max="100" step="0.1" value="8">
+      </label>
+      <label>Liquidation fee / unit
+        <input id="liquidationFee" type="number" min="0" step="0.01" value="0.30">
+      </label>
+      <label>Return removal fee
+        <input id="agedRemovalFee" type="number" min="0" step="0.01" value="1.04">
+      </label>
+      <label>Elsewhere leftover / unit
+        <input id="elsewhereNet" type="number" min="0" step="0.01" value="4.00">
+      </label>
+      <label>Dispose fee / unit
+        <input id="disposalFee" type="number" min="0" step="0.01" value="0.32">
+      </label>
+    </div>
+    <p id="liquidationVerdict" class="verdict"></p>
+    <table id="liquidationTable">
+      <caption>Keep, liquidate, remove-and-sell-elsewhere, or dispose the leftover pile</caption>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Per unit</th>
+          <th scope="col">Pile cash</th>
+          <th scope="col">Leftover units</th>
+          <th scope="col">vs Liquidations</th>
+        </tr>
+      </thead>
+      <tbody id="liquidationRows"></tbody>
+    </table>
+    <p id="liquidationNote" class="note"></p>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -822,9 +883,11 @@
       compareSizeTierPackaging,
       compareSubscribeSave,
       compareLowInventory,
+      compareLiquidation,
       couponSummary,
       sizeTierPackagingNote,
       lowInventoryNote,
+      liquidationNote,
       placementSummary,
       returnsSummary,
       prepSummary,
@@ -849,6 +912,8 @@
       "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
       "repackCostPerUnit", "peakMonths",
       "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
+      "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
+      "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
@@ -967,6 +1032,41 @@
         packCell(tr, signed(row.lil));
         packCell(tr, signed(row.storage));
         packCell(tr, row.id === "stay_thin" ? "Current" : signed(row.gap));
+        return tr;
+      }));
+    }
+
+    // Surfaces FBA Liquidations vs dispose vs sell-elsewhere on the
+    // calculator itself. The same arithmetic already backs
+    // should-i-liquidate-aged-fba-inventory.html. agedRemovalFee is passed
+    // as removalFee so the MCF return-removal field above is not reused.
+    function renderLiquidation(input) {
+      const result = compareLiquidation({
+        ...input,
+        removalFee: input.agedRemovalFee,
+      });
+      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const verdict = document.getElementById("liquidationVerdict");
+      if (result.winner === "elsewhere") {
+        verdict.textContent = `Selling elsewhere keeps ${signed(result.extraElsewhereVsLiquidate)} more than FBA Liquidations`;
+      } else if (result.winner === "liquidate") {
+        verdict.textContent = `FBA Liquidations keeps ${signed(result.extraLiquidateVsDispose)} more than dispose`;
+      } else if (result.winner === "dispose") {
+        verdict.textContent = `Disposing loses ${signed(Math.abs(result.extraLiquidateVsDispose))} less than FBA Liquidations`;
+      } else if (result.winner === "keep") {
+        verdict.textContent = `Keeping still beats FBA Liquidations by ${signed(Math.abs(result.extraKeepVsLiquidate))}`;
+      } else {
+        verdict.textContent = "The four paths leave the same cash on these rates";
+      }
+      document.getElementById("liquidationNote").textContent = liquidationNote(result);
+      document.getElementById("liquidationRows").replaceChildren(...result.rows.map((row) => {
+        const tr = document.createElement("tr");
+        if (result.winner === row.id) tr.className = "winner-row";
+        packCell(tr, row.label);
+        packCell(tr, signed(row.perUnit));
+        packCell(tr, signed(row.cash));
+        packCell(tr, row.leftoverUnits.toFixed(2));
+        packCell(tr, row.id === "liquidate" ? "Current" : signed(row.vsLiquidate));
         return tr;
       }));
     }
@@ -1358,6 +1458,13 @@
           document.getElementById("lowInventoryNote").textContent = "Fix the on-hand and sold-unit fields to see the restock comparison.";
           document.getElementById("lowInventoryRows").replaceChildren();
         }
+        try {
+          renderLiquidation(readInput());
+        } catch (liquidationError) {
+          document.getElementById("liquidationVerdict").textContent = liquidationError.message;
+          document.getElementById("liquidationNote").textContent = "Fix the aged-pile fields to see the liquidation comparison.";
+          document.getElementById("liquidationRows").replaceChildren();
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -1384,6 +1491,9 @@
         document.getElementById("lowInventoryVerdict").textContent = "";
         document.getElementById("lowInventoryNote").textContent = "";
         document.getElementById("lowInventoryRows").replaceChildren();
+        document.getElementById("liquidationVerdict").textContent = "";
+        document.getElementById("liquidationNote").textContent = "";
+        document.getElementById("liquidationRows").replaceChildren();
       }
     }
 
@@ -1444,6 +1554,10 @@
     const lowInventoryFields = new Set([
       "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
     ]);
+    const liquidationFields = new Set([
+      "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
+      "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
+    ]);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
       if (autoFields.has(id) && !syncingFee) {
         document.getElementById(id).dataset.auto = "0";
@@ -1472,6 +1586,7 @@
           : placementFields.has(id) ? "inbound_placement_compared"
           : returnFields.has(id) ? "return_rate_calculated"
           : lowInventoryFields.has(id) ? "low_inventory_compared"
+          : liquidationFields.has(id) ? "liquidation_compared"
             : "listing_profit_calculated",
       );
     }));

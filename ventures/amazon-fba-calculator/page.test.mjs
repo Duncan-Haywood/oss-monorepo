@@ -127,6 +127,10 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(markup, /should-i-use-amazon-awd\.html/);
   assert.match(markup, /should-i-use-amazon-remote-fulfillment\.html/);
   assert.match(markup, /should-i-liquidate-aged-fba-inventory\.html/);
+  assert.match(markup, /id="liquidation"/);
+  assert.match(scriptSource, /compareLiquidation/);
+  assert.match(scriptSource, /liquidation_compared/);
+  assert.match(scriptSource, /agedRemovalFee/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);
