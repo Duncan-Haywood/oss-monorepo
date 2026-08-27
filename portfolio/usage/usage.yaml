@@ -2455,6 +2455,17 @@ products:
           Repair-and-merge of unique #1230 cash runway planner onto
           current main. Public URL remains owner-gated; usage is opt-in
           and local-only. Baseline row.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          forecast_runs: 0
+          csv_exported: 0
+        note: >-
+          Salvaged the unique work from #1226 onto current main: the
+          forecast now names the first week cash goes negative, rejects a
+          fractional collection delay it used to round up silently, and
+          reports a bad figure instead of leaving Download CSV inert.
+          Public URL remains owner-gated.
 
   - slug: ltl-freight-class-estimator
     surface: static-page-in-repo

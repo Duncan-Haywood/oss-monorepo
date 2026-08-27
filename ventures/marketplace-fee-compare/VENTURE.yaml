@@ -11,10 +11,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  # Onward traffic can only be observed once real visitors reach a public URL,
+  # which is still owner-gated — no session can check this one from the repo,
+  # so it is customer-contact rather than in-repo. `usage-counter` was not a
+  # value the schema accepts and failed Portfolio validate on every PR.
   - claim: The comparison sends measurable traffic onward to the per-channel calculators it links, making it a hub for the seller-tool family rather than a seventh competitor to it.
     status: untested
     checked: null
-    evidence: usage-counter
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
