@@ -44,3 +44,87 @@ test('the partial-retainage article answers the search question and points back'
   assert.match(article, /No warranty/);
   assert.match(article, /Best-effort hosting, no SLA/);
 });
+
+// Dependency-free structural checks. An unclosed textarea/script/style can
+// swallow the rest of the worksheet without a browser error, and a regex
+// over the raw file would still pass.
+const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
+
+function parseRawText(source) {
+  const rawOpen = /<(textarea|script|style)\b[^>]*>/i;
+  let rest = source;
+  let markup = '';
+  const scripts = [];
+  for (;;) {
+    const open = rest.match(rawOpen);
+    if (!open) return { markup: markup + rest, scripts, unclosed: null };
+    const tag = open[1].toLowerCase();
+    const contentStart = open.index + open[0].length;
+    markup += rest.slice(0, contentStart);
+    const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
+    if (!closer) return { markup, scripts, unclosed: tag };
+    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
+    rest = rest.slice(contentStart + closer.index + closer[0].length);
+  }
+}
+
+function derive(source) {
+  const { markup, scripts, unclosed } = parseRawText(source);
+  return {
+    markup,
+    unclosed,
+    scriptSource: scripts.join('\n'),
+    declaredIds: new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((match) => match[1])),
+  };
+}
+
+const { markup, scriptSource, declaredIds, unclosed } = derive(page);
+
+test('every raw-text element is closed', () => {
+  assert.equal(unclosed, null, `<${unclosed}> swallows the remainder of the page`);
+  for (const tag of RAW_TEXT_ELEMENTS) {
+    const opened = (page.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (page.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    assert.equal(opened, closed, `<${tag}> is opened ${opened}x but closed ${closed}x`);
+  }
+});
+
+test('the module script survives parsing and would execute', () => {
+  assert.match(markup, /<script type="module">/);
+  assert.match(scriptSource, /from '\.\/calc\.mjs'/);
+  assert.match(scriptSource, /parseInputs/);
+  assert.match(scriptSource, /computeAll/);
+  assert.match(scriptSource, /followUpDraft/);
+});
+
+test('every element the script queries exists in parsed markup', () => {
+  const queried = new Set([
+    ...scriptSource.matchAll(/\$\(\s*'([\w-]+)'\s*\)/g),
+    ...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g),
+  ].map((match) => match[1]));
+  assert.ok(queried.size > 0);
+  assert.deepEqual([...queried].filter((id) => !declaredIds.has(id)), []);
+});
+
+test('the primary journey, disclaimer, and privacy note are rendered markup', () => {
+  for (const id of [
+    'form', 'contractValue', 'retainagePct', 'paidToDate', 'daysOutstanding',
+    'annualCarryingRatePct', 'output', 'retainage', 'unpaid', 'carrying',
+    'total', 'draftSection', 'draft', 'copy', 'usage', 'errors',
+  ]) {
+    assert.ok(declaredIds.has(id), `#${id} is missing`);
+  }
+  assert.match(markup, /No warranty/);
+  assert.match(markup, /never uploaded/i);
+});
+
+test('the structural guards actually fail on a swallowed document', () => {
+  const broken = page.replace('</style>', '');
+  assert.notEqual(broken, page, 'index.html no longer contains </style>');
+  const d = derive(broken);
+  assert.equal(d.unclosed, 'style');
+  assert.doesNotMatch(d.markup, /<script type="module">/);
+  assert.doesNotMatch(d.scriptSource, /parseInputs/);
+  assert.ok(d.declaredIds.size < declaredIds.size);
+});
