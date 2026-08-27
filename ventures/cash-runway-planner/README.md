@@ -2,6 +2,8 @@
 
 Small service businesses often know their profit and still run out of cash because invoices arrive later than bills. Cash Runway Planner turns starting cash, weekly income, invoice collection delay, and recurring costs into a 12-week low-balance forecast.
 
+When the forecast dips below zero it names **the first week cash goes negative**, which is usually earlier than the lowest week and is the date an invoice or a bill has to move in front of.
+
 Open `index.html` in a browser. No account, server, API key, or upload is required. Draft values stay in your browser and can be cleared with **Reset**.
 
 After a forecast, **Download CSV** creates a spreadsheet-friendly copy of the
