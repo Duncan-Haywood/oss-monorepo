@@ -561,6 +561,37 @@
     </div>
     <div id="scenarioList" class="scenario-list" aria-live="polite"></div>
   </section>
+  <section class="pack" id="size-tier-pack" aria-labelledby="pack-heading">
+    <h2 id="pack-heading">Does a smaller box drop the FBA size tier?</h2>
+    <p>
+      A carton that is a quarter-inch over a gate pays the next tier.
+      The table clamps your current pack to the next-lower tier’s
+      dimensional limits and, separately, to the next cheaper weight
+      band. It is not a claim the product still fits that box.
+      <a href="does-smaller-box-cut-amazon-fba-fees.html">Does a smaller box cut Amazon FBA fees?</a>
+    </p>
+    <div class="fields" style="max-width: 320px; margin-bottom: 14px;">
+      <label>Extra prep for the smaller carton
+        <input id="repackCostPerUnit" type="number" min="0" step="0.01" value="0">
+      </label>
+    </div>
+    <p id="packVerdict" class="verdict"></p>
+    <table id="packTable">
+      <thead>
+        <tr>
+          <th scope="col">Carton</th>
+          <th scope="col">Size tier</th>
+          <th scope="col">Fulfillment</th>
+          <th scope="col">Storage</th>
+          <th scope="col">Extra prep</th>
+          <th scope="col">FBA profit</th>
+          <th scope="col">vs current</th>
+        </tr>
+      </thead>
+      <tbody id="packRows"></tbody>
+    </table>
+    <p id="packNote" class="note"></p>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -736,8 +767,10 @@
       comparePrep,
       compareSellerPlans,
       compareSellerPlanVolumes,
+      compareSizeTierPackaging,
       compareSubscribeSave,
       couponSummary,
+      sizeTierPackagingNote,
       placementSummary,
       returnsSummary,
       prepSummary,
@@ -760,11 +793,73 @@
       "amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee",
       "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
       "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
+      "repackCostPerUnit",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
+    const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
     const formatAcos = (value) => (value === null || value === undefined ? "n/a" : `${value.toFixed(1)}%`);
     let syncingFee = false;
     let syncingPlacement = false;
+
+    function packCell(row, text) {
+      const cell = row.insertCell();
+      cell.textContent = text;
+      return cell;
+    }
+
+    function cartonLabel(pack) {
+      return `${Number(pack.length).toFixed(2)}×${Number(pack.width).toFixed(2)}×${Number(pack.height).toFixed(2)} in, ${Number(pack.weightLb).toFixed(2)} lb`;
+    }
+
+    // Surfaces the size-tier packaging comparison on the calculator itself.
+    // The same arithmetic already backs does-smaller-box-cut-amazon-fba-fees.html;
+    // a seller who is already typing dimensions should not have to leave the
+    // page to learn a quarter-inch is costing them a tier.
+    function renderPack(input) {
+      const comparison = compareSizeTierPackaging(input);
+      const verdict = document.getElementById("packVerdict");
+      if (comparison.winner === "drop_tier") {
+        verdict.textContent = `A smaller carton keeps ${money(comparison.dropTier.profitDelta)} more per unit (${money(comparison.dropTier.monthlyDelta)} / month at this volume).`;
+      } else if (comparison.winner === "drop_weight") {
+        verdict.textContent = `Dropping a weight band keeps ${money(comparison.dropWeight.profitDelta)} more per unit. The size tier does not change.`;
+      } else if (comparison.alreadyCheapestStandardBand) {
+        verdict.textContent = "This carton is already in the cheapest illustrative small-standard band.";
+      } else {
+        verdict.textContent = "A smaller carton does not keep more on these rates after the extra prep you entered.";
+      }
+      const rows = [
+        { key: "current", label: "Current carton", item: comparison.current, delta: null },
+      ];
+      if (comparison.dropTier) {
+        rows.push({
+          key: "drop_tier",
+          label: `Drop to ${comparison.dropTier.targetTierLabel}`,
+          item: comparison.dropTier,
+          delta: comparison.dropTier.profitDelta,
+        });
+      }
+      if (comparison.dropWeight) {
+        rows.push({
+          key: "drop_weight",
+          label: "Next cheaper weight band",
+          item: comparison.dropWeight,
+          delta: comparison.dropWeight.profitDelta,
+        });
+      }
+      document.getElementById("packRows").replaceChildren(...rows.map((row) => {
+        const tr = document.createElement("tr");
+        if (row.key === comparison.winner) tr.className = "winner";
+        packCell(tr, `${row.label} (${cartonLabel(row.item.pack)})`);
+        packCell(tr, row.item.sizeTierLabel);
+        packCell(tr, money(row.item.fulfillmentFee));
+        packCell(tr, money(row.item.storagePerUnit));
+        packCell(tr, money(row.item.packExtra));
+        packCell(tr, money(row.item.profit));
+        packCell(tr, row.delta === null ? "—" : signedMoney(row.delta));
+        return tr;
+      }));
+      document.getElementById("packNote").textContent = sizeTierPackagingNote(comparison);
+    }
 
     function fulfillmentMethod() {
       return document.querySelector('input[name="fulfillmentMethod"]:checked').value;
@@ -1105,6 +1200,16 @@
           document.getElementById("placementCarry").textContent = "";
           document.getElementById("placementCompare").innerHTML = "";
         }
+
+        // Own try/catch, matching the sections above: a carton the tier tables
+        // cannot classify should not blank the headline profit result.
+        try {
+          renderPack(readInput());
+        } catch (packError) {
+          document.getElementById("packVerdict").textContent = packError.message;
+          document.getElementById("packNote").textContent = "Fix the carton dimensions and weight to see the size-tier comparison.";
+          document.getElementById("packRows").replaceChildren();
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -1125,6 +1230,9 @@
         document.getElementById("bulkCompare").innerHTML = "";
         document.getElementById("prepCompare").innerHTML = "";
         document.getElementById("placementCompare").innerHTML = "";
+        document.getElementById("packVerdict").textContent = "";
+        document.getElementById("packNote").textContent = "";
+        document.getElementById("packRows").replaceChildren();
       }
     }
 
