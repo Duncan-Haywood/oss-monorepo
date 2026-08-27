@@ -41,7 +41,8 @@ works one $19.99 SKU through both paths, fee by fee.
 [Should I offer free shipping?](should-i-offer-free-shipping-on-tiktok-shop.html)
 compares charging postage, eating the label, and moving it into the item
 price. Referral is a tie at the same customer total; creator commission
-on item price only is not.
+on item price only is not. The same comparison now also runs on the
+[main calculator](index.html) from the SKU you already typed.
 
 ## How it works
 
