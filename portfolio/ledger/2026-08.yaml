@@ -24206,3 +24206,37 @@ entries:
         next: `supersede_check.py` returns NOT SUPERSEDED for all of these, so
         its verdict alone cannot drain this queue.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - "**The hub put 110 of its 161 tools in one alphabetical list, and that is the page the Pages
+        flip publishes.** Trades ran from `artificial-turf` to `window-replacement` with no
+        subdivision: a roofer looking for the metal-roof calculator read past sixty trades that were
+        not theirs. Search only serves a visitor who can already name the tool; browsing 110
+        undifferentiated cards is not browsing. Split into eight keyword-derived families, largest 19
+        (#1865), and added a contents index under the search box (#1866) because grouping made the
+        page scannable without making it shorter \u2014 measured at 390px it is 36,400px, 43 screens,
+        with the trades section spanning 28 of them. The index puts all 14 destinations in ~500px."
+      - "Five tools sat in the \u201cMore free tools\u201d catch-all only for want of a keyword,
+        `tiktok-shop-fee-calculator` among them \u2014 a marketplace tool a seller would have found
+        only by searching its name. Category is not just hub placement: `relatedTools` and the machine
+        surfaces read the same rules, so a mis-filed tool is also offered to the wrong visitor at the
+        foot of every sibling page and described under the wrong heading in `llms.txt`. The trades
+        families now tier `relatedTools` too, and `catalog.json` carries `subcategory`."
+      - "**`supersede_check.py`\u2019s second proof did not open the gate either.** Ran it over all 34
+        open PRs after #1850: 33 completed, **every one exit 1**, 21 with RENAME SUSPECTED, none exit
+        0. The unshallow fix worked \u2014 these are real verdicts, not the environment failing \u2014
+        but the identical-merge proof is defeated by the same thing the line scan is: `main` absorbs
+        each feature from a sibling branch under a different name, so no line matches and no replay is
+        clean. Reading the rename pairs by hand is still the only route, and for this queue it is
+        conclusive: PR 1069 adds a \u201cDownload dated JSON report\u201d button beside `main`\u2019s
+        button of the *identical label*; 1302\u2019s `buildReviewSummary` is a shorter copy of
+        `formatReviewSummary`; 1314\u2019s `csv.mjs` is a subset of `export.mjs`; 1294 adds a second
+        \u201cReset to example\u201d button. Merging any of them ships duplicate UI into a live
+        product. Zero were mergeable; none were closed, because that call wants the owner\u2019s eye
+        on the pairs and this repository\u2019s history of premature closes is why."
+      - "Whole-portfolio browser sweep on the merged base: **161/161 tools answered with no errors**,
+        446 pages sound, 437 published pages with no dead links. The products are healthy; what is
+        missing is a public URL, still the single `GITHUB_PAGES_ENABLED` flip."
+    mrr_end: 0
