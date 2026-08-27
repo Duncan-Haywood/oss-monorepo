@@ -1,0 +1,32 @@
+name: concrete-lifting-bid-calculator
+description: A private browser calculator for concrete-lifting contractors that prices a mudjacking or polyjacking job from slab area, void depth, method, access path, extra holes, and joint seal — and shows the cubic feet a per-square-foot special cannot see and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent concrete-lifting crews will use a void-volume bid calculator because the generic "$4.50 / sq ft" or "$75 / hole" special they are shopped on cannot see that an 80-square-foot sidewalk with a one-inch void and the truck at the curb is a different job from a 400-square-foot driveway with a four-inch void, polyurethane, a backyard hose run, and extra holes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published per-square-foot special) are the two figures a crew actually decides on when a homeowner asks them to match a cheaper lift quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating void cubic feet, backyard access, extra holes, joint seal, and occupied-building containment as their own hours, instead of a blended add-on to a $4.50/sf special, changes the bid enough that shops notice which part of a high number is the first four-inch poly backyard hang.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified concrete-lifting contractors use the calculator twice within 90 days.
+  - Contractors report that splitting void volume and extras versus a sidewalk special is more work than their existing per-square-foot method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

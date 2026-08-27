@@ -55,3 +55,45 @@ export function printReport(dbPath = DEFAULT_DB, day: string): void {
     console.log(`  ${k}: ${v}`);
   }
 }
+
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function isIsoDate(value: string): boolean {
+  return ISO_DATE.test(value);
+}
+
+/** Shift a YYYY-MM-DD date by a whole number of UTC days. */
+export function shiftIsoDate(isoDate: string, days: number): string {
+  if (!isIsoDate(isoDate)) {
+    throw new Error("shiftIsoDate expects YYYY-MM-DD");
+  }
+  const [year, month, day] = isoDate.split("-").map(Number) as [number, number, number];
+  const utc = new Date(Date.UTC(year, month - 1, day));
+  utc.setUTCDate(utc.getUTCDate() + days);
+  return utc.toISOString().slice(0, 10);
+}
+
+/**
+ * Most recent calendar day that has either a door aggregate or a POS close.
+ * Returns null when the store database is empty.
+ */
+export function latestDayWithActivity(dbPath: string): string | null {
+  const db = openDb(dbPath);
+  const aggregate = db
+    .prepare(`SELECT MAX(date(bucket_start)) AS d FROM aggregate_events`)
+    .get() as { d: string | null };
+  const sale = db
+    .prepare(`SELECT MAX(date(closed_at)) AS d FROM sale_events`)
+    .get() as { d: string | null };
+  const candidates = [aggregate.d, sale.d].filter(
+    (value): value is string => typeof value === "string" && isIsoDate(value),
+  );
+  if (candidates.length === 0) {
+    return null;
+  }
+  return candidates.sort().at(-1) ?? null;
+}
+
+export function summaryHasActivity(summary: DailySummary): boolean {
+  return summary.entries > 0 || summary.purchases > 0 || summary.bounces > 0;
+}

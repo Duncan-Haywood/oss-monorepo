@@ -1,5 +1,5 @@
 name: backup-verification-evidence
-description: A free local CLI that turns a backup job's real exit code and artifact stat into a source-linked verified/suspicious/failed/inconclusive record, so a silent backup failure (clean exit, empty or stale file) is never reported as success.
+description: A free local CLI and browser page that turns a backup job's real exit code and artifact stat into a source-linked verified/suspicious/failed/inconclusive record, and compares nights so a shrinking-but-green archive is visible.
 stage: prototype
 owner: duncan
 hypotheses:
