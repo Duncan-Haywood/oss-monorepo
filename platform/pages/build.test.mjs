@@ -1455,6 +1455,47 @@ test('following a saved bid counts the act, never the customer', async () => {
   assert.ok(!/record\('saved_bid_followed:' ?\+/.test(script), 'the event names nothing');
 });
 
+test('no injected script carries a template literal across a line break', async () => {
+  // The guard on stripForInjection, which the chrome, shop-rates and saved-bids
+  // scripts all pass through: it removes leading whitespace, so a template
+  // literal spanning two lines would silently lose the indentation *inside the
+  // string* and change text a visitor reads. The ventures' own modules do span
+  // lines that way — which is exactly why the strip is applied to the injected
+  // strings only and never to venture code.
+  //
+  // An odd count of unescaped backticks on a line means a literal opened or
+  // closed on it and continues onto the next.
+  for (const file of ['index.html', ['fence-bid-calculator', 'index.html']]) {
+    const html = await read(...[].concat(file));
+    const injected = [...html.matchAll(/<script(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/g)]
+      .map((m) => m[1])
+      // The venture's own module is the one script on the page the build did
+      // not write; it is identified by the marker only injected scripts carry.
+      .filter((body) => /pf-jobs|pf-rates|pf-chrome|portfolio-hub-usage/.test(body));
+    assert.ok(injected.length > 0, `no injected script found in ${file}`);
+    for (const body of injected) {
+      for (const [n, line] of body.split('\n').entries()) {
+        const ticks = (line.match(/(?<!\\)`/g) || []).length;
+        assert.equal(ticks % 2, 0,
+          `injected script line ${n} leaves a template literal open: ${line.trim().slice(0, 80)}`);
+      }
+    }
+  }
+});
+
+test('the injected scripts ship without their prose', async () => {
+  // ~19 KB of unminified source sat on each of 234 pages and again in the
+  // opt-in offline bundle, which has a fixed 16 MB budget. Stripping the
+  // comment lines and the indentation is worth ~976 KB across the bundle.
+  const html = await read('fence-bid-calculator', 'index.html');
+  const band = html.slice(html.indexOf('var SLUG'), html.indexOf('</script>', html.indexOf('var SLUG')));
+  assert.ok(band.length > 0, 'the saved-bids script is not on the page');
+  const commentLines = band.split('\n').filter((line) => line.trim().startsWith('//'));
+  assert.deepEqual(commentLines, [], 'a whole-line comment survived into the shipped script');
+  const indented = band.split('\n').filter((line) => /^\s+\S/.test(line));
+  assert.deepEqual(indented, [], 'leading indentation survived into the shipped script');
+});
+
 test('the hub says how many quotes are still out, and how old the oldest is', async () => {
   const hub = await read('index.html');
   assert.match(hub, /<p class="bid-summary" id="bidsSummary" hidden><\/p>/,

@@ -25288,16 +25288,24 @@ entries:
         earlier one.
       - >-
         **The offline bundle has 166 KB of headroom left, down from 954 KB.**
-        The service worker precaches all 234 pages, so a kilobyte of injected
-        script is a quarter of a megabyte in the bundle, and the 16 MB ceiling
+        Correcting what #1903's own body said: the worker does *not* precache
+        these pages on install. `SHELL` is precached; `BUNDLE` is fetched only
+        when the visitor taps "Save all tools for offline" on the hub, so no
+        jobsite visitor is handed 16 MB they did not ask for. The byte
+        constraint is real all the same — that opt-in bundle spans 234 pages, so
+        a kilobyte of injected script is a quarter of a megabyte in it, and the
+        16 MB ceiling
         (`the offline bundle stays small enough to fetch on mobile data`) is the
         real constraint on any further injection. The first draft of this
         feature breached it by 49 KB. The fix was not to raise the number: the
         prose moved out of the injected strings into module JSDoc where it costs
         nothing per page, and `stripForInjection` drops indentation and
         comment-only lines from the three shared helpers mechanically. The next
-        per-page injection will not fit — the bundle needs a caching strategy
-        that is not "precache everything" before it takes another one.
+        per-page injection will not fit. The fix is not a different caching
+        strategy — the opt-in shape is already right — but a smaller per-page
+        payload: the injected band, rates bar and chrome are ~19 KB of
+        unminified source on every one of 234 pages, and nothing in the build
+        minifies them.
       - >-
         The three follow-up helpers are embedded into both the hub script and
         the band script by `Function.prototype.toString` rather than written
@@ -25314,6 +25322,28 @@ entries:
         the band — 22 assertions, zero page errors. 34 new Node tests (323 total
         in `platform/pages`), `check.mjs` clean on 439 pages, `check_pages.mjs`
         clean on 448.
+      - >-
+        **And then the payload itself: 976 KB out of the offline bundle,
+        leaving more headroom than before this feature started.** The injected
+        chrome, shop-rates and saved-bids scripts shipped ~19 KB of unminified
+        source — comments and indentation included — on each of 234 pages, and
+        nothing in the build minified them. All three now pass through
+        `stripForInjection`. The bundle is 15.61 MB against a 16 MB ceiling:
+        1.16 MB free, where the baseline before this session was 954 KB.
+      - >-
+        The transform is applied to the injected strings *only*, never to
+        venture code, and that boundary is load-bearing: stripping indentation
+        would corrupt a template literal spanning two lines, and the ventures'
+        own modules do exactly that (`row.innerHTML = ` opening a multi-line
+        literal on `fence` and `deck`). The injected scripts have no such
+        literal, which is now a test rather than an observation — every line of
+        every injected script must leave its backticks balanced.
+      - >-
+        Verified with the repo's own whole-site sweep after the strip:
+        **162/162 tools answered with no errors**, on a 390px viewport. That is
+        the check this change needed and the narrow journey could not give —
+        the strip touches the chrome and the rates bar on every page, not only
+        the band the journey drives.
       - >-
         Reading once live: `bid_marked_won / (bid_marked_won +
         bid_marked_lost)`. It is the first signal in this portfolio about the

@@ -50,6 +50,8 @@
  * arithmetic meaning here (price divided by zero), which is why the forms cap
  * it below 100 and this does too.
  */
+import { stripForInjection } from './jobs.mjs';
+
 export const SHOP_RATE_FIELDS = [
   { id: 'hourlyWage', label: 'Crew hourly wage', prefix: '$', suffix: '/h', max: 100000 },
   { id: 'burdenRate', label: 'Payroll burden', suffix: '%', max: 500 },
@@ -613,5 +615,5 @@ export function injectShopRates(html, slug = '') {
     ? withStyle.replace(nav[0], `${nav[0]}\n${stylePrefix}${markup}`)
     : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
-  return anchored.replace(/<\/body>/i, `${RATES_SCRIPT(fields)}\n</body>`);
+  return anchored.replace(/<\/body>/i, `${stripForInjection(RATES_SCRIPT(fields))}\n</body>`);
 }
