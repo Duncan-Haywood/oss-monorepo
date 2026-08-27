@@ -1648,6 +1648,36 @@ products:
           aggregate, opt-out, DNT/GPC-respecting path as every other hub event;
           the rates never leave the visitor's browser. Still a baseline row:
           the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          saved_bids_opened: 0
+          bid_saved: 0
+          bid_restored: 0
+          bid_restore_refused: 0
+          bid_deleted: 0
+          pages_carrying_saved_bids: 234
+        note: >-
+          Saved bids: every calculator with a form now keeps a finished bid
+          under a name the contractor chooses, and restores the whole job from
+          it. The gap this closes is the second half of a bid — the tool made
+          Tuesday's proposal a real document and still met Friday's "what was
+          that number again?" with a blank form. 234 pages, which is wider than
+          the shop-rates bar because it needs no per-field review: a bid never
+          crosses tools, so every field on the page is carried and none of them
+          has to mean the same thing anywhere else. The signal to read once
+          live is `bid_restored / bid_saved` — whether a saved bid is actually
+          returned to, which is the clearest return-visit evidence this
+          portfolio can collect without accounts. `bid_restore_refused` is
+          watched separately and is not a failure: it counts the times a form
+          no longer matched the saved job and the restore was declined rather
+          than half-applied. A number that climbs relative to `bid_restored`
+          would say the itemised tools change shape more than expected and the
+          rule needs to recreate rows rather than refuse. Same local,
+          aggregate, opt-out, DNT/GPC-respecting path as every other hub event;
+          the bids and the customer names in them never leave the browser and
+          are never read back by anyone. Still a baseline row: the public URL
+          remains owner-gated on `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
