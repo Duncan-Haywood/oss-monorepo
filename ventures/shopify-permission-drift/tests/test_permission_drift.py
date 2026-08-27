@@ -1,11 +1,12 @@
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
-from permission_drift import compare, load_inventory, markdown_report, usage_event, write_report
+from permission_drift import compare, load_inventory, render_markdown, usage_event, write_report
 
 
 class PermissionDriftTests(unittest.TestCase):
@@ -43,14 +44,49 @@ class PermissionDriftTests(unittest.TestCase):
             self.assertEqual(saved, report)
             self.assertNotIn("scopes", saved["metadata"])
 
-    def test_markdown_report_is_reviewable_and_escapes_cells(self):
+    def test_cli_output_remains_json_when_display_format_is_markdown(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "report.json"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(Path(__file__).parents[1] / "src/permission_drift.py"),
+                    str(Path(__file__).parents[1] / "examples/before.json"),
+                    str(Path(__file__).parents[1] / "examples/after.json"),
+                    "--format", "markdown",
+                    "--output", str(path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            self.assertIn("Shopify permission drift", result.stdout)
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), compare(self.before, self.after))
+
+    def test_github_format_emits_one_warning_per_change(self):
+        root = Path(__file__).parents[1]
+        result = subprocess.run(
+            [sys.executable, str(root / "src/permission_drift.py"), str(root / "examples/before.json"), str(root / "examples/after.json"), "--format", "github"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        warnings = [line for line in result.stdout.splitlines() if line.startswith("::warning")]
+        self.assertEqual(len(warnings), 2)
+        self.assertTrue(all('title=Shopify permission drift::' in line for line in warnings))
+    def test_markdown_report_is_approval_ready_and_discloses_limits(self):
         report = compare(self.before, self.after)
-        report["changes"].append({"kind": "note|check", "app": "merchant\napp", "added": ["read_reports"]})
-        rendered = markdown_report(report)
-        self.assertIn("# Shopify permission drift review", rendered)
-        self.assertIn("note\\|check", rendered)
-        self.assertNotIn("merchant\napp", rendered)
-        self.assertIn("Evidence only: the merchant decides", rendered)
+        rendered = render_markdown(report)
+        self.assertIn("# Shopify permission drift: changed", rendered)
+        self.assertIn("**Scopes Changed**", rendered)
+        self.assertIn("`read_reports`", rendered)
+        self.assertIn("Evidence only", rendered)
+        self.assertIn("No warranty", rendered)
+
+    def test_markdown_unchanged_report_is_explicit(self):
+        rendered = render_markdown(compare(self.before, self.before))
+        self.assertIn("No app, scope, webhook", rendered)
+        self.assertIn("Review required:** no", rendered)
 
     def test_rejects_invalid_capture_time_and_duplicate_scopes(self):
         invalid_time = dict(self.before, captured_at="not-a-timestamp")

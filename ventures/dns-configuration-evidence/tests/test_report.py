@@ -42,6 +42,21 @@ class ReportTests(unittest.TestCase):
         output = markdown_report(build_report(snapshot([observation("a", ["one"])]), snapshot([observation("a", ["two"])])))
         self.assertIn("not a security, deliverability, or compliance warranty", output)
         self.assertIn("Inconclusive observations are not reported as unchanged", output)
+        self.assertIn("`one`", output)
+        self.assertIn("`two`", output)
+
+    def test_markdown_marks_missing_answers_as_uncertain(self):
+        output = markdown_report(build_report(snapshot([observation("a", status="timeout")]), snapshot([observation("a", ["one"])])))
+        self.assertIn("timeout (not observed)", output)
+
+    def test_markdown_escapes_answers_for_table_cells(self):
+        output = markdown_report(build_report(
+            snapshot([observation("a", ["v|1", "quoted`value", "line\nbreak"])]),
+            snapshot([observation("a", ["v|1", "quoted`value", "line\nbreak"])]),
+        ))
+        self.assertIn("v&#124;1", output)
+        self.assertIn("quoted&#96;value", output)
+        self.assertIn("line<br>break", output)
 
     def test_duplicate_observations_are_rejected(self):
         duplicate = observation("a", ["one"])

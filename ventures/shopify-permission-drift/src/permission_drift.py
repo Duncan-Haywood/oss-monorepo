@@ -9,13 +9,16 @@ import sys
 
 
 REQUIRED = ("captured_at", "api_version", "source", "authorization_state", "apps")
+DISCLAIMER = (
+    "No warranty. This tool is provided free and as-is, without warranty of any kind, "
+    "express or implied. It is not legal, financial, security, or compliance advice, "
+    "and it does not replace a qualified professional. You are responsible for reviewing "
+    "and verifying its output before relying on it."
+)
 
 
-def load_inventory(path: Path) -> dict:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ValueError(f"cannot read inventory: {exc}") from exc
+def validate_inventory(data: dict) -> dict:
+    """Reject incomplete inventories so capture and compare share one schema."""
     if not isinstance(data, dict) or any(key not in data for key in REQUIRED):
         raise ValueError("inventory must include captured_at, api_version, source, authorization_state, and apps")
     for field in REQUIRED[:-1]:
@@ -28,6 +31,14 @@ def load_inventory(path: Path) -> dict:
     if not isinstance(data["apps"], list):
         raise ValueError("inventory apps must be a list")
     return data
+
+
+def load_inventory(path: Path) -> dict:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"cannot read inventory: {exc}") from exc
+    return validate_inventory(data)
 
 
 def _mapping(inventory: dict) -> dict[str, dict]:
@@ -87,40 +98,48 @@ def write_report(path: Path, report: dict) -> None:
         raise ValueError(f"cannot write report: {exc}") from exc
 
 
-def _markdown_cell(value: object) -> str:
-    return str(value).replace("|", "\\|").replace("\n", " ")
-
-
-def markdown_report(report: dict) -> str:
-    """Render a ticket-friendly report without adding customer data."""
+def render_markdown(report: dict) -> str:
+    """Render a report that can be pasted into an approval ticket."""
+    metadata = report["metadata"]
     lines = [
-        "# Shopify permission drift review",
+        f"# Shopify permission drift: {report['status']}",
         "",
-        f"- **Status:** {report['status']}",
         f"- **Review required:** {'yes' if report['review_required'] else 'no'}",
-        f"- **Before capture:** {_markdown_cell(report['metadata']['before_captured_at'])}",
-        f"- **After capture:** {_markdown_cell(report['metadata']['after_captured_at'])}",
-        f"- **Sources:** {_markdown_cell(report['metadata']['before_source'])} -> {_markdown_cell(report['metadata']['after_source'])}",
+        f"- **Before:** `{metadata['before_source']}` ({metadata['before_captured_at']})",
+        f"- **After:** `{metadata['after_source']}` ({metadata['after_captured_at']})",
         "",
-        "| Finding | App | Added | Removed | Before | After |",
-        "| --- | --- | --- | --- | --- | --- |",
     ]
-    for change in report["changes"]:
-        lines.append(
-            "| " + " | ".join(
-                _markdown_cell(change.get(field, ""))
-                for field in ("kind", "app", "added", "removed", "before", "after")
-            ) + " |"
-        )
-    lines.extend(["", "> Evidence only: the merchant decides what each change means.", ""])
-    return "\n".join(lines)
+    if report["changes"]:
+        lines.append("## Changes")
+        lines.append("")
+        for change in report["changes"]:
+            kind = change["kind"].replace("_", " ")
+            if kind.endswith(" changed") and "added" in change:
+                detail = []
+                if change["added"]:
+                    detail.append("added: " + ", ".join(f"`{item}`" for item in change["added"]))
+                if change["removed"]:
+                    detail.append("removed: " + ", ".join(f"`{item}`" for item in change["removed"]))
+                lines.append(f"- **{kind.title()}** for `{change['app']}` ({'; '.join(detail)})")
+            elif "app" in change:
+                lines.append(f"- **{kind.title()}**: `{change['app']}`")
+            else:
+                lines.append(f"- **{kind.title()}**: `{change['before']}` -> `{change['after']}`")
+        lines.append("")
+    else:
+        lines.extend(["No app, scope, webhook, authorization-state, or API-version changes were found.", ""])
+    lines.extend(["> Evidence only: the merchant decides what each change means.", ">", f"> {DISCLAIMER}"])
+    return "\n".join(lines) + "\n"
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Compare two customer-authorized Shopify app inventory exports.")
+    parser = argparse.ArgumentParser(
+        description="Compare two customer-authorized Shopify app inventory exports.",
+        epilog=DISCLAIMER,
+    )
     parser.add_argument("before", type=Path)
     parser.add_argument("after", type=Path)
-    parser.add_argument("--format", choices=("text", "json", "markdown"), default="text")
+    parser.add_argument("--format", choices=("text", "markdown", "json", "github"), default="text")
     parser.add_argument("--output", type=Path, help="write the report as a portable JSON artifact")
     parser.add_argument("--usage-log", type=Path, help="opt-in aggregate event log")
     args = parser.parse_args()
@@ -138,13 +157,21 @@ def main() -> int:
     if args.format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))
     elif args.format == "markdown":
-        print(markdown_report(report))
+        print(render_markdown(report), end="")
+    elif args.format == "github":
+        # json.dumps escapes newlines, so a change carrying one cannot end the
+        # workflow command early and inject a second one.
+        for change in report["changes"]:
+            print(f"::warning title=Shopify permission drift::{json.dumps(change, sort_keys=True)}")
+        if not report["changes"]:
+            print("No Shopify permission drift detected.")
     else:
         print(f"Status: {report['status']}")
         print("Review required: yes" if report["review_required"] else "Review required: no")
         for change in report["changes"]:
             print(f"- {change}")
         print("Evidence only: the merchant decides what each change means.")
+        print(DISCLAIMER)
     return 0
 
 
