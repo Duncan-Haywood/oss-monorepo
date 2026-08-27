@@ -613,7 +613,6 @@
            <dt>Price at your target rate</dt><dd>${safeCurrency} ${fmt(r.target_price)}</dd>
            <dt>Price at target rate with ${fmt(quote.time_buffer_percent)}% time buffer</dt><dd>${safeCurrency} ${fmt(r.buffered_target_price)}</dd>
            <dt>Gap to target price</dt><dd>${safeCurrency} ${fmt(r.gap_to_target)}</dd>
-           <dt>Hours this price supports at target rate</dt><dd>${fmt(r.target_rate_hours)} hours (${fmt(r.hours_cushion)} hours ${r.hours_cushion >= 0 ? "remaining" : "over"})</dd>
            <dt>Left after direct costs</dt><dd>${safeCurrency} ${fmt(r.cost_coverage)}</dd>
            <dt>Hours supported at target rate</dt><dd class="${r.hours_cushion < 0 ? "warning" : ""}">${fmt(r.target_rate_hours)} hours (${fmt(Math.abs(r.hours_cushion))} ${r.hours_cushion >= 0 ? "remaining" : "over"})</dd>
            <dt>Maximum discount before target</dt><dd>${safeCurrency} ${fmt(r.discount_room)}</dd>
