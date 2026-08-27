@@ -275,6 +275,40 @@
         <tbody id="labelCompare"></tbody>
       </table>
       <p id="labelNote" class="note"></p>
+      <hr>
+      <h2>Shopify POS vs online checkout</h2>
+      <p class="note">
+        The dedicated
+        <a href="shopify-pos-vs-online-fees.html">POS vs online calculator</a>
+        already has the full math. This block uses the same
+        <code>compareOnlineVsPos</code> on the order you just typed,
+        so you do not leave the page. Defaults match that page (2.6% + $0.10
+        in person, $49 card reader).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>In-person card rate (%)
+          <input id="posPaymentsRate" type="number" min="0" step="0.01" value="2.6">
+        </label>
+        <label>In-person fixed fee
+          <input id="posPaymentsFixed" type="number" min="0" step="0.01" value="0.10">
+        </label>
+        <label>Card reader cost
+          <input id="posHardwareCost" type="number" min="0" step="0.01" value="49">
+        </label>
+      </div>
+      <p id="posHeadline" class="note"></p>
+      <table id="posTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs online</th>
+          </tr>
+        </thead>
+        <tbody id="posCompare"></tbody>
+      </table>
+      <p id="posNote" class="note"></p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -365,7 +399,7 @@
     <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
   </footer>
   <script type="module">
-    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
+    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, compareShippingLabels, compareOnlineVsPos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
     import { encodeShareState, decodeShareState } from "./share.mjs";
 
@@ -377,6 +411,7 @@
     const promoIds = ["percentOff", "amountOff"];
     const installmentIds = ["installmentRate", "installmentFixed", "installmentSharePct", "extraOrdersFromInstallments"];
     const labelIds = ["shopifyLabelCost", "ownLabelCost"];
+    const posIds = ["posPaymentsRate", "posPaymentsFixed", "posHardwareCost"];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => {
       if (Math.abs(value) < 0.005) return "same";
@@ -399,6 +434,7 @@
         ...Object.fromEntries(promoIds.map((id) => [id, document.getElementById(id).value])),
         ...Object.fromEntries(installmentIds.map((id) => [id, document.getElementById(id).value])),
         ...Object.fromEntries(labelIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(posIds.map((id) => [id, document.getElementById(id).value])),
         paymentMethod: paymentMethod(),
         planId: document.getElementById("plan").value,
       };
@@ -498,6 +534,23 @@
         document.getElementById("labelNote").textContent = Number.isFinite(labels.monthlyExtraOnOwn)
           ? `Own-label leftover vs Shopify Shipping is ${signedMoney(labels.monthlyExtraOnOwn)} / month at this volume.`
           : "Fix the label quotes to compare Shopify Shipping with your own postage.";
+
+        const pos = compareOnlineVsPos(readInput());
+        const posRows = [pos.online, pos.inPersonSameTicket, pos.inPersonPickup];
+        document.getElementById("posHeadline").textContent = pos.extraKeptOnPickup > 1e-9
+          ? `In-person pickup keeps ${signedMoney(pos.extraKeptOnPickup)} more than online checkout on this ticket.`
+          : pos.extraKeptOnPickup < -1e-9
+            ? `Online checkout keeps ${signedMoney(-pos.extraKeptOnPickup)} more than in-person pickup on this ticket.`
+            : "Online checkout and in-person pickup leave the same profit on this ticket.";
+        document.getElementById("posCompare").innerHTML = posRows.map((row) => {
+          const delta = row === pos.online ? "—" : signedMoney(row.profit - pos.online.profit);
+          return `<tr><td>${row.label}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("posNote").textContent = pos.ordersToRecoverHardware == null
+          ? (pos.posHardwareCost > 0
+            ? "The in-person path does not recover the card reader from extra leftover on this ticket."
+            : "No card-reader cost typed, so there is nothing to recover.")
+          : `About ${Math.ceil(pos.ordersToRecoverHardware)} in-person order${Math.ceil(pos.ordersToRecoverHardware) === 1 ? "" : "s"} recover the ${money(pos.posHardwareCost)} reader.`;
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -517,6 +570,9 @@
         document.getElementById("labelCompare").innerHTML = "";
         document.getElementById("labelHeadline").textContent = "Fix the inputs to compare shipping labels.";
         document.getElementById("labelNote").textContent = "";
+        document.getElementById("posCompare").innerHTML = "";
+        document.getElementById("posHeadline").textContent = "Fix the inputs to compare POS vs online.";
+        document.getElementById("posNote").textContent = "";
       }
     }
 
@@ -536,6 +592,7 @@
     promoIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
     installmentIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
     labelIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    posIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       const event = id === "targetMargin"
         ? "target_margin_calculated"
@@ -554,6 +611,9 @@
     }));
     labelIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shipping_labels_compared");
+    }));
+    posIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "pos_online_compared");
     }));
     document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
