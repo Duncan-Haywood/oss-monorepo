@@ -46,6 +46,38 @@ than a build-up: its inputs are hours and costs, with nothing describing the
 work, so its drafted scope could only be "Perform the work described above".
 That is the one case where no proposal beats a generic one.
 
+## Say so in the structured data
+
+A calculator that prints a proposal has to **name it in its JSON-LD
+`featureList`**. That string is the machine-readable list of what the tool does
+— what a search engine and an AI assistant read when someone asks for something
+that prints a contractor's quote. All 100 adopters shipped without it, so the
+portfolio's largest feature was invisible to the only channel that brings these
+tools traffic.
+
+The clause is one phrase, appended to the existing list:
+
+```
+, printable customer proposal with scope, deposit split, price-held date and signature line
+```
+
+`discoverability.test.mjs` holds three things down. The important one is the
+second direction: **a calculator must never advertise a proposal it cannot
+print.** `mobile-detailing` is the live case — deliberately not adopted, and a
+visitor arriving from a search for "contractor proposal" must not land on it.
+The test also fails on a repeated clause, because appending is how this gets
+maintained and appending twice is how a feature list becomes keyword stuffing
+over three batches.
+
+Note both spellings occur in this repo — `"featureList":"…"` and
+`"featureList": "…"` — and `ev-charger` nests its node under `@graph` rather
+than at the top level. Match on `"featureList":\s*"` and walk the parsed tree;
+a top-level lookup silently misses that page.
+
+Meta descriptions are deliberately left alone: they are already at their useful
+length and tuned per trade, and appending pushes the important half out of the
+search snippet.
+
 ## Adopting a calculator
 
 Two files, then two commands.
