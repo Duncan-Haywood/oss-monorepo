@@ -1712,6 +1712,28 @@ products:
           what, and no customer name reaches a URL, a fragment, or the counter.
           Still a baseline row: the public URL remains owner-gated on
           `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          saved_bid_index_expanded: 0
+          bids_drawn_before_the_cut: 8
+        note: >-
+          Follow-up on the index above, and a correction to it: the list drew
+          eight rows and said nothing about the rest. Bids are capped at 25 per
+          tool, so a contractor working across three or four tools passes eight
+          quickly, and the section's own copy promises "bids you saved in any
+          tool" — a silent stop at eight contradicts it, and the likeliest
+          reading of a missing job is that the tool forgot it, which is the one
+          thing this feature exists to disprove. The list now says "Showing the
+          8 most recent of N saved bids" and offers "Show all N". N counts only
+          rows the visitor could actually open: the withdrawn-tool filter runs
+          before the cut rather than after, so the number offered is never
+          larger than the number of links behind it. `saved_bid_index_expanded`
+          is the reading — how often eight is not enough, which is what would
+          justify raising the default or grouping the list by tool. Same local,
+          aggregate, opt-out and DNT/GPC-respecting path; the event carries no
+          name and no slug. Still a baseline row: the public URL remains
+          owner-gated on `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:

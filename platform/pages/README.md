@@ -338,6 +338,14 @@ Four rules the tests pin, each of which was a way to get this wrong:
 - **A withdrawn tool is not linked, and its bids are not deleted.** A slug the
   hub is not showing would link to a 404, so the row is skipped — but
   `parseStoredBids` deliberately keeps unknown slugs, and the hub is a reader.
+- **The list never cuts silently.** Eight rows are drawn; a contractor keeps up
+  to 25 bids *per tool*, so a busy one crosses that easily. Past eight the
+  section says "Showing the 8 most recent of N saved bids" and offers "Show all
+  N". A silent stop would contradict the copy above it ("bids you saved in any
+  tool"), and someone looking for a job from three weeks ago would read the
+  absence as the tool having forgotten it. `N` counts only rows the visitor
+  could actually open — the withdrawn-tool filter runs before the cut, not
+  after.
 - **The counting opt-out does not empty this list**, unlike "pick up where you
   left off" above. That row is derived from counts and genuinely has nothing to
   show without them. These are the visitor's own saved documents; the tool pages
