@@ -863,6 +863,29 @@
   const copyStatus = document.getElementById("copy-status");
   const discountCopyBtn = document.getElementById("copy-discounts");
   const discountCopyStatus = document.getElementById("discount-copy-status");
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("copy failed");
+  }
+  async function copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return;
+      } catch {
+        // file:// pages and browsers that deny clipboard access
+      }
+    }
+    fallbackCopy(text);
+  }
   discountCopyBtn.addEventListener("click", async () => {
     if (!lastReport) {
       discountCopyStatus.textContent = "Fix the inputs above first.";
@@ -880,7 +903,7 @@
       ].map((value) => Number.isFinite(Number(value)) && value !== "" ? Number(value).toFixed(2) : String(value)).join(",")),
     ].join("\n");
     try {
-      await navigator.clipboard.writeText(rows + "\n");
+      await copyText(rows + "\n");
       discountCopyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("discount_ladder_copied");
     } catch {
@@ -895,7 +918,7 @@
     const { quote, r } = lastReport;
     const summary = formatReviewSummary(quote, r, reviewQuote(quote, r), reviewDecision(r, quote));
     try {
-      await navigator.clipboard.writeText(summary);
+      await copyText(summary);
       copyStatus.textContent = "Copied — paste into an email or proposal note.";
       recordEvent("review_summary_copied");
     } catch {
@@ -930,7 +953,7 @@
       return;
     }
     try {
-      await navigator.clipboard.writeText(currentMarkdown());
+      await copyText(currentMarkdown());
       copyStatus.textContent = "Copied Markdown review.";
       recordEvent("markdown_copied");
     } catch {
@@ -975,7 +998,7 @@
       return;
     }
     try {
-      await navigator.clipboard.writeText(currentCsv());
+      await copyText(currentCsv());
       copyStatus.textContent = "Copied — paste into a spreadsheet.";
       recordEvent("csv_copied");
     } catch {
