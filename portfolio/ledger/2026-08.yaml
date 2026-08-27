@@ -24676,3 +24676,70 @@ entries:
         today: 2–5 second jobs, empty `output.*`, 404 on log download — the
         documented runner outage, not the code.
     mrr_end: null
+  - venture: bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The customer proposal reaches **88 of 101 bid calculators**, up from 27,
+        in one run rather than the twelve sessions six-at-a-time would have
+        taken. The hand-port is retired: `platform/proposal/adopt.mjs` writes the
+        stylesheet, form, print rules and wiring, `trades.json` holds the 61
+        trade entries (job title, scope templates, customer wording for preset
+        ids, disclaimer tail), and generated regions are fenced with
+        `proposal:begin`/`proposal:end` so re-running applies edited copy instead
+        of layering a second proposal. Adopting twice leaves the page identical.
+      - >-
+        **The lesson worth keeping: the five traps the README says every batch
+        hit are all invisible to text-level tests, so the check had to become a
+        browser.** `platform/proposal/verify.mjs` drives each built page in
+        Chromium and walks *every option of every select*, not just the
+        defaults — which is where the damage was, because checking defaults
+        proves nothing about the contractor who picks the second entry in a
+        dropdown.
+      - >-
+        Four defects it found live on `main`, none of which any suite could see:
+        14 calculators rendered the proposal status line at under 2:1 (the colour
+        was copied from `.summary-status`, correct in the dark result panel and
+        unreadable in the light section the proposal sits in — and that line is
+        where "Add your business name before printing" appears, so a contractor
+        whose print did nothing could not read why); `metal-roof` printed its
+        preset label as the customer's job title, "40×30 ranch, 4/12, 5V overlay
+        (the $950/square special)", handing the homeowner an internal per-square
+        rate and a nickname for their house; `tuckpointing` printed "Point-only
+        smear — no grind (the cheap special)" as its first scope line; and a
+        yardage rendered as `48.888888888888886 yd²`.
+      - >-
+        Generalisation, since preset labels here are *deliberately* written in
+        the bidder's voice (they name the lowball number the calculator argues
+        with): any label reaching a customer needs a `map` in `trades.json`.
+        `verify.mjs` now fails on money outside the price table, on
+        "cheap"/"special"/"brochure", and on three-or-more-decimal floats.
+        `scopeLines` drops a line whose figure is missing rather than printing
+        the word "undefined", and carries `{n+s}` plurals and `{n~2}` rounding.
+      - >-
+        Verified: 88/88 `verify.mjs` including the option sweep; 42
+        (`platform/proposal`) + 201 (`platform/pages`) + 22
+        (`platform/webcheck`) tests; all 88 adopted venture suites; site rebuilds
+        to 162 products / 440 pages with no dead links;
+        `check_form_defaults.py`, `publish_surface.py --check`,
+        `validate_workflows.py`, `clauses.mjs`, `browser-signals.mjs`,
+        `validate_usage.py` and `router/validate.py` all exit 0. Printed sheets
+        read by eye for `sump-pump` and `pole-barn`.
+      - >-
+        Housekeeping, so the next session does not redo it: the open-PR queue was
+        **empty** again at the start of this run. CI was red on #1888 with the
+        documented outage signature — 8-second job, empty `output.*`, 404 on log
+        download — as it was on every `main` commit today; merged on the local
+        verification above.
+      - >-
+        Next: **13 calculators cannot adopt** because they build their input
+        object inline at each call site instead of having one `readInput()`, so
+        there is no single function the proposal can call to price the job on
+        screen — `flooring`, `gutter-cleaning`, `hood-cleaning`, `janitorial`,
+        `junk-removal`, `lawn-care`, `mobile-detailing`, `moving`, `painting`,
+        `pest-control`, `pressure-washing`, `tree-service`, `window-cleaning`.
+        Extracting that reader is worth doing for its own sake: duplicated input
+        literals are how a pasted summary and a printed sheet come to be priced
+        from different fields.
+    mrr_end: null
