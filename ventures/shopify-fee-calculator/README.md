@@ -57,7 +57,9 @@ keep if checkout charges Shopify’s rate while you buy the cheaper label.
 [Should I offer Shop Pay Installments?](should-i-offer-shop-pay-installments.html)
 answers the installment question: whether the extra Shop Pay Installments
 rate still pays after you blend the share of checkouts that use it, and how
-many extra orders cover the gap.
+many extra orders cover the gap. The main calculator runs the same
+`compareShopPayInstallments` math on the order you just typed, so you do
+not leave the page to check the extra fee and the lift that covers it.
 [Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
 answers the return question: whether issuing credit or exchanging still beats
 sending cash after the return label, restock, and expected redemption.
