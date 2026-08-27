@@ -109,7 +109,9 @@ A Vine invite is a launch decision on the same SKU: gift leftover
 units, gift units that would have sold, or skip.
 [Is Amazon Vine worth it?](is-amazon-vine-worth-it.html)
 shows enrollment cost after the pick fee, leftover over the typed
-months, and the conversion lift that still ties.
+months, and the conversion lift that still ties. The main calculator
+runs the same `compareVine` math on the listing you just typed, so you
+do not leave the page to check leftover enrollment versus skip.
 
 Units that already sit are a leftover-pile decision on the same SKU:
 keep paying storage and the aged-inventory surcharge, pay to send
