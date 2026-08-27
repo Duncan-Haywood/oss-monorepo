@@ -24978,3 +24978,77 @@ entries:
         `check_duplicate_symbols.py` all exit 0; site rebuilds to 162 products /
         439 pages with no dead links.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Every calculator forgot the bid the moment the tab closed.** The
+        proposal work made Tuesday a finished document — measure, price, hand
+        the customer a printed sheet. Friday, when they ring back asking what
+        the number was and what it looks like without the tear-off, the tool
+        was a blank form. `share.mjs` could already encode a bid into a URL
+        fragment, but only for someone who thought to copy that link somewhere
+        before closing the tab, and nothing on the page ever suggested they
+        should. `platform/pages/jobs.mjs` saves the whole form under a name the
+        contractor types and restores the job exactly as it was priced.
+      - >-
+        It reaches **234 pages** against the shop-rates bar's 103, and the
+        reason is worth keeping: a bid never crosses tools, so no field needs
+        its meaning reviewed the way a shared wage does. Every field on the
+        page is carried. That is why this landed site-wide in one pass where
+        the proposal took a dozen sessions of six-at-a-time porting — a
+        cross-tool feature pays a per-field review cost that a per-tool feature
+        does not.
+      - >-
+        **A restore is atomic or refused, and that rule is the module.** The
+        itemised calculators build their inputs at runtime, so a bid saved with
+        four rooms can meet a form with one. Writing back only the fields that
+        still exist leaves a real, plausible, *smaller* job on screen — the
+        same defect as the bid link that silently dropped `quantity` and had
+        the recipient price something the sender never saw. The saved field set
+        is compared against the form's in both directions before anything is
+        written; a mismatch leaves the form untouched and says which way it
+        differs. Rejected the alternative of clicking the venture's own
+        "add row" control: it needs per-venture knowledge of a button spelled
+        differently on a hundred tools, and it fails silently when the guess is
+        wrong, producing exactly the half-restore this refuses.
+      - >-
+        Two things the band had to be taught that are not obvious from the
+        feature: it is `display:none` in print, because it lists customer names
+        and street addresses and the proposal sheet exists so a homeowner
+        receives their own price and nothing else — the band is a sibling of
+        `main`, so it fell outside those sheets' allow-list. And `usageOptOut`
+        is never part of a bid: restoring one must not switch counting back on
+        because it happened to be on when the bid was saved.
+      - >-
+        `bid_restored / bid_saved` is the reading to take once the URL is live —
+        the clearest return-visit evidence this portfolio can collect without
+        accounts, which is the signal `DIRECTION.md` says to double down on.
+        `bid_restore_refused` is counted separately and is **not** a failure
+        signal; if it climbs relative to `bid_restored`, the itemised tools
+        change shape more than expected and the rule should recreate rows
+        rather than decline.
+      - >-
+        **CI red is still the runner outage, not the branch.** All four checks
+        on #1895 returned in 3 seconds with empty `output.title/summary/text`
+        and a 404 on log download — the signature `CLAUDE.md` documents. Merged
+        on local verification, as policy directs. Do not debug green code
+        against these.
+      - >-
+        Verified: `platform/pages` 236 tests (35 new in `jobs.test.mjs`), the
+        build (162 tools, saved bids on 234 pages), `check.mjs` (439 pages, no
+        dead links), `router/validate.py` (179 VENTURE.yaml),
+        `validate_usage.py` plus its 14 unit tests. The browser pass is in
+        `journey.mjs` rather than a scratch file: a bid saved, the page fully
+        reloaded, the bid restored to the identical figure set, the refusal in
+        both directions with the form verified unchanged, per-tool isolation,
+        the itemised roofing calculator whose section rows are built at
+        runtime, and print suppression. 0 failed checks, 0 console errors.
+      - >-
+        **The open-PR queue was empty at the start of this run** — 0 open PRs,
+        so there was nothing to repair or merge before building. Taken with the
+        previous entry's finding that 169 of 169 unmerged remote branches are
+        superseded by `main`, the collaborative backlog is genuinely drained;
+        a session arriving on a generic brief should build, not re-sweep it.
+    mrr_end: null
