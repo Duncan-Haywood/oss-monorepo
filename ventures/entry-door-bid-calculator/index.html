@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entry Door Bid Calculator | Price the Opening, the Lights, and the Rot — Not Just $1,200 Installed</title>
+  <meta name="description" content="Price an entry-door replacement from sidelights, transom, out-of-square openings, jamb rot, brickmold, storm door, and paint — not a published $1,200-installed steel special. See the walk-away number before you match a cheaper quote.">
+  <meta property="og:title" content="Entry Door Bid Calculator">
+  <meta property="og:description" content="A 36-inch steel prehung in a square one-story opening is not the same job as a fiberglass unit with two sidelights, a transom, eight feet of rot, and a storm door. Bid the opening and the extras.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Entry Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"36-inch versus double versus sidelights, steel versus fiberglass versus wood, slab versus prehung, out-of-square opening, jamb and sill rot, transom, brickmold, storm door, smart-lock prep, paint, tear-out, second-story access, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2b2218; background: #efe6d8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b2a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d4c4ae; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2b22180d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c4d3d; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9a8468; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9a8468; background: #f4ebe0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #eadccb; }
+    .result { position: sticky; top: 15px; background: #3a2418; color: #f7efe4; border-color: #3a2418; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b07a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c4d3d; }
+    footer a { color: #8a4b2a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d2b4; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR DOOR AND CARPENTRY SHOPS</p>
+    <h1>Bid the opening, the lights, and the rot.</h1>
+    <p>Price an entry-door replacement the way the trade actually loses money: sidelights, a transom, an out-of-square rough opening, jamb and sill rot, brickmold, a storm door, and paint. You get the bid, the hours the first sidelight unit actually consumes, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The opening</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing configuration, material, hang style, or stories never overwrites a rate you already typed. This prices a pedestrian entry unit — not a garage door, and not a window replacement.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Configuration
+            <select id="config">
+              <option value="single-36" selected>36&quot; single prehung</option>
+              <option value="single-42">42&quot; single prehung</option>
+              <option value="double">Double / 6-foot pair</option>
+              <option value="sidelite-one">36&quot; + one sidelight</option>
+              <option value="sidelite-two">36&quot; + two sidelights</option>
+            </select>
+          </label>
+          <label>Material
+            <select id="material">
+              <option value="steel" selected>Steel</option>
+              <option value="fiberglass">Fiberglass</option>
+              <option value="wood">Wood / stain-grade</option>
+            </select>
+          </label>
+          <label>Hang style
+            <select id="hangStyle">
+              <option value="prehung" selected>Full prehung unit</option>
+              <option value="slab">Slab only (existing jamb)</option>
+            </select>
+          </label>
+          <label>Access
+            <select id="stories">
+              <option value="one" selected>One story / ground porch</option>
+              <option value="two">Second-story / hard access</option>
+            </select>
+          </label>
+          <label>Jamb / sill rot (lf) <input id="rotFeet" type="number" min="0" step="0.5" value="0"></label>
+          <label class="check"><input id="outOfSquare" type="checkbox"> Out-of-square opening (shim / plane / rebuild)</label>
+          <label class="check"><input id="addTransom" type="checkbox"> Transom</label>
+          <label class="check"><input id="addBrickmold" type="checkbox"> Replace brickmold / exterior trim</label>
+          <label class="check"><input id="addStormDoor" type="checkbox"> Storm door</label>
+          <label class="check"><input id="addSmartLock" type="checkbox"> Extra deadbolt / smart-lock prep</label>
+          <label class="check"><input id="addPaint" type="checkbox"> Paint or stain the unit</label>
+          <label class="check"><input id="tearOut" type="checkbox" checked> Tear-out / haul the old door</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="1"></label>
+          <label>Hours to hang the unit <input id="hoursHang" type="number" min="0" step="0.1" value="2.5"></label>
+          <label>Material hang-hour premium <input id="hoursHangPremium" type="number" min="0" step="0.05" value="0"></label>
+          <label>Hang-hour factor (slab) <input id="hangHourFactor" type="number" min="0" step="0.02" value="1"></label>
+          <label>Second-story hours <input id="hoursStory" type="number" min="0" step="0.1" value="0"></label>
+          <label>Hours if out-of-square <input id="hoursOutOfSquare" type="number" min="0" step="0.1" value="1.5"></label>
+          <label>Hours / rot foot <input id="hoursPerRotFoot" type="number" min="0" step="0.05" value="0.45"></label>
+          <label>Hours for a transom <input id="hoursTransom" type="number" min="0" step="0.1" value="1.25"></label>
+          <label>Hours for brickmold <input id="hoursBrickmold" type="number" min="0" step="0.1" value="1.2"></label>
+          <label>Hours for a storm door <input id="hoursStormDoor" type="number" min="0" step="0.1" value="1.5"></label>
+          <label>Hours for lock / smart-lock prep <input id="hoursSmartLock" type="number" min="0" step="0.1" value="0.6"></label>
+          <label>Hours to paint or stain <input id="hoursPaint" type="number" min="0" step="0.1" value="2"></label>
+          <label>Hours to tear out the old unit <input id="hoursTearOut" type="number" min="0" step="0.1" value="1"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Door unit cost <input id="unitCost" type="number" min="0" step="10" value="420"></label>
+          <label>Config unit-cost multiplier <input id="unitCostMultiplier" type="number" min="0" step="0.05" value="1"></label>
+          <label>Hang-style unit-cost factor <input id="unitCostFactor" type="number" min="0" step="0.02" value="1"></label>
+          <label>Transom <input id="transomCost" type="number" min="0" step="5" value="220"></label>
+          <label>Brickmold <input id="brickmoldCost" type="number" min="0" step="5" value="85"></label>
+          <label>Storm door <input id="stormDoorCost" type="number" min="0" step="5" value="280"></label>
+          <label>Lock / smart lock <input id="lockCost" type="number" min="0" step="5" value="95"></label>
+          <label>Paint / stain material <input id="paintMaterial" type="number" min="0" step="1" value="48"></label>
+          <label>Rot repair / ft <input id="rotPerFoot" type="number" min="0" step="0.5" value="14"></label>
+          <label>Dump / haul-away <input id="dumpFee" type="number" min="0" step="5" value="45"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="0"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, truck, recovery <input id="travelAndEquipment" type="number" min="0" step="5" value="85"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="32"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 1200"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $42/h installer loaded at 32% is $55.44. Quoting the raw wage on a published $1,200-installed special is how a sidelight unit with rot that looked fine turns into a two-day loss after the first out-of-square shim.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">entry-door price</div>
+      <dl>
+        <dt>Unit and access</dt><dd id="scope"></dd>
+        <dt>Opening and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Door + extras</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or a door design &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-replace-a-front-door.html">How much to charge to replace a front door</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedConfigKit,
+      suggestedMaterialKit,
+      suggestedHangStyleKit,
+      suggestedStoryKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'rotFeet',
+      'hoursTrip','hoursHang','hoursHangPremium','hangHourFactor','hoursStory',
+      'hoursOutOfSquare','hoursPerRotFoot','hoursTransom','hoursBrickmold',
+      'hoursStormDoor','hoursSmartLock','hoursPaint','hoursTearOut','siteHours',
+      'unitCost','unitCostMultiplier','unitCostFactor','transomCost','brickmoldCost',
+      'stormDoorCost','lockCost','paintMaterial','rotPerFoot','dumpFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['outOfSquare','addTransom','addBrickmold','addStormDoor','addSmartLock','addPaint','tearOut'];
+    const SELECT_IDS = ['config','material','hangStyle','stories'];
+    const SUGGESTED_CONFIG_IDS = ['hoursHang','hoursPaint','unitCostMultiplier'];
+    const SUGGESTED_MATERIAL_IDS = ['unitCost','hoursHangPremium'];
+    const SUGGESTED_HANG_IDS = ['hangHourFactor','unitCostFactor'];
+    const SUGGESTED_STORY_IDS = ['hoursStory'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyKit(force, rates, ids) {
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+      if (ids) {
+        /* keep ids referenced so a future kit field is not silently dropped */
+      }
+    }
+
+    function applyConfigKit(force) {
+      applyKit(force, suggestedConfigKit(el('config').value), SUGGESTED_CONFIG_IDS);
+    }
+    function applyMaterialKit(force) {
+      applyKit(force, suggestedMaterialKit(el('material').value), SUGGESTED_MATERIAL_IDS);
+    }
+    function applyHangKit(force) {
+      applyKit(force, suggestedHangStyleKit(el('hangStyle').value), SUGGESTED_HANG_IDS);
+    }
+    function applyStoryKit(force) {
+      applyKit(force, suggestedStoryKit(el('stories').value), SUGGESTED_STORY_IDS);
+    }
+
+    function applyJob(job) {
+      el('config').value = job.config;
+      el('material').value = job.material;
+      el('hangStyle').value = job.hangStyle;
+      el('stories').value = job.stories;
+      applyConfigKit(true);
+      applyMaterialKit(true);
+      applyHangKit(true);
+      applyStoryKit(true);
+      [...SUGGESTED_CONFIG_IDS, ...SUGGESTED_MATERIAL_IDS, ...SUGGESTED_HANG_IDS, ...SUGGESTED_STORY_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('rotFeet').value = job.rotFeet;
+      el('outOfSquare').checked = job.outOfSquare;
+      el('addTransom').checked = job.addTransom;
+      el('addBrickmold').checked = job.addBrickmold;
+      el('addStormDoor').checked = job.addStormDoor;
+      el('addSmartLock').checked = job.addSmartLock;
+      el('addPaint').checked = job.addPaint;
+      el('tearOut').checked = job.tearOut;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'entry-door price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'entry-door price';
+      el('scope').textContent = `${result.config} · ${result.material} · ${result.hangStyle} · ${result.stories}`;
+      const extraBits = [
+        result.outOfSquare ? 'out-of-square' : null,
+        result.rotFeet ? `${result.rotFeet} ft rot` : null,
+        result.addTransom ? 'transom' : null,
+        result.addBrickmold ? 'brickmold' : null,
+        result.addStormDoor ? 'storm door' : null,
+        result.addSmartLock ? 'smart lock' : null,
+        result.addPaint ? 'paint / stain' : null,
+        result.tearOut ? 'tear-out' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard brochure hang';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Hang the unit', result.hourShares.hang],
+        ['Stories / access', result.hourShares.access],
+        ['Opening (square / rot)', result.hourShares.opening],
+        ['Lights / trim / storm / paint / tear-out', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Door + extras', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('config').addEventListener('change', () => {
+      applyConfigKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('material').addEventListener('change', () => {
+      applyMaterialKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('hangStyle').addEventListener('change', () => {
+      applyHangKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('stories').addEventListener('change', () => {
+      applyStoryKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_CONFIG_IDS, ...SUGGESTED_MATERIAL_IDS, ...SUGGESTED_HANG_IDS, ...SUGGESTED_STORY_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://example.invalid/lawn-care-bid-calculator/sitemap.xml
