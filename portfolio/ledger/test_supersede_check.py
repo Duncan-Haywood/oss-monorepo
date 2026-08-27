@@ -337,5 +337,161 @@ class TestRendering(RepoFixture):
         )
 
 
+class TestRenameSuspected(RepoFixture):
+    """The #1323 shape: main re-implemented the feature under other identifiers.
+
+    The line scan is exact, so a base that spells the same function
+    `largestCostDriver` where the branch spells it `largestCostComponent`
+    reports every one of those lines missing. That verdict is literally correct
+    and reads as "this branch carries unique work", which is how sessions came
+    to hold thirty-odd branches whose features were all already shipped.
+    """
+
+    def branch_with_renamed_copy(self):
+        """A base with the feature under one name, a branch under another.
+
+        Both files sit inside one venture directory because that is the scope
+        a twin is searched in -- see `neighbourhood`.
+        """
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(
+            self.repo,
+            "ventures/normalizer/driver.mjs",
+            "export function largestCostComponent(result) {\n"
+            "  const component = result.components.reduce((largest, name) =>\n"
+            "    result.quote[name] > result.quote[largest] ? name : largest,\n"
+            "    result.components[0],\n"
+            "  );\n"
+            "  return { name: component, amount: result.quote[component] };\n"
+            "}\n",
+        )
+        commit(self.repo, "add cost component")
+
+        git(self.repo, "checkout", "-q", "main")
+        write(
+            self.repo,
+            "ventures/normalizer/calc.mjs",
+            "export function largestCostDriver(result) {\n"
+            "  const component = result.components.reduce((largest, current) =>\n"
+            "    result.quote[current] > result.quote[largest] ? current : largest,\n"
+            "    result.components[0],\n"
+            "  );\n"
+            "  return { name: component, amount: result.quote[component] };\n"
+            "}\n",
+        )
+        commit(self.repo, "add cost driver under its own name")
+
+    def test_a_renamed_reimplementation_is_flagged(self):
+        self.branch_with_renamed_copy()
+        verdict = evaluate("feature", "main", fetch=False)
+
+        self.assertFalse(verdict.superseded)
+        self.assertTrue(verdict.rename_suspected)
+
+    def test_the_report_names_the_twin_and_where_it_lives(self):
+        """A reader has to be able to go and look; a score alone is not evidence."""
+        self.branch_with_renamed_copy()
+        text = render(evaluate("feature", "main", fetch=False), "feature", "main")
+
+        self.assertIn("RENAME SUSPECTED", text)
+        self.assertIn("largestCostDriver", text)
+        self.assertIn("calc.mjs", text)
+
+    def test_a_suspected_rename_still_exits_nonzero(self):
+        """Similarity is evidence to read, never a licence to close unread.
+
+        The one word that differs between two 93%-alike lines can be the fix
+        the branch exists to make.
+        """
+        self.branch_with_renamed_copy()
+        self.assertEqual(
+            supersede_check.main(["feature", "--base", "main", "--no-fetch"]), 1
+        )
+
+    def test_genuinely_new_work_is_not_flagged_as_a_rename(self):
+        """The direction that matters: #1006 must not read as already-shipped."""
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(
+            self.repo,
+            "share.mjs",
+            "export function encodeInputs(input) {\n"
+            "  const params = new URLSearchParams();\n"
+            "  for (const [key, value] of Object.entries(input)) {\n"
+            "    if (Number.isFinite(value)) params.set(key, String(value));\n"
+            "  }\n"
+            "  return params.toString();\n"
+            "}\n",
+        )
+        commit(self.repo, "add sharing")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.rename_suspected)
+        self.assertNotIn(
+            "RENAME SUSPECTED", render(verdict, "feature", "main")
+        )
+
+    def test_append_only_records_are_exempt(self):
+        """Every reading in usage.yaml resembles every other by construction.
+
+        `local_comparisons: 0` pairs at 95% with `local_comparisons: 1`, which
+        is true and says nothing about whether the branch's work exists.
+        """
+        write(
+            self.repo,
+            "portfolio/usage/usage.yaml",
+            "readings:\n"
+            "  - as_of: 2026-08-24\n"
+            "    signals:\n"
+            "      local_comparisons: 1\n"
+            "      shortlist_exported: 4\n"
+            "    note: Shipped fixture-backed local comparison and CI warning output.\n",
+        )
+        commit(self.repo, "a usage reading")
+
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(
+            self.repo,
+            "portfolio/usage/usage.yaml",
+            "readings:\n"
+            "  - as_of: 2026-08-24\n"
+            "    signals:\n"
+            "      local_comparisons: 1\n"
+            "      shortlist_exported: 4\n"
+            "    note: Shipped fixture-backed local comparison and CI warning output.\n"
+            "  - as_of: 2026-08-25\n"
+            "    signals:\n"
+            "      local_comparisons: 0\n"
+            "      reports_exported: 0\n"
+            "    note: Shipped fixture-backed local comparison; demand remains untested.\n",
+        )
+        commit(self.repo, "another reading")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.superseded)
+        self.assertFalse(verdict.rename_suspected)
+
+
+class TestNeighbourhood(unittest.TestCase):
+    """Where a renamed twin is looked for."""
+
+    def test_a_venture_directory_is_the_search_scope(self):
+        self.assertEqual(
+            supersede_check.neighbourhood([
+                "ventures/quote-margin-check/site/csv.mjs",
+                "ventures/quote-margin-check/README.md",
+            ]),
+            ["ventures/quote-margin-check"],
+        )
+
+    def test_shallow_paths_contribute_their_own_directory(self):
+        self.assertEqual(
+            supersede_check.neighbourhood(["platform/build.mjs"]), ["platform"]
+        )
+
+    def test_a_repository_root_file_has_no_neighbourhood(self):
+        """Searching the whole tree pairs a calculator with an unrelated one."""
+        self.assertEqual(supersede_check.neighbourhood(["README.md"]), [])
+
+
 if __name__ == "__main__":
     unittest.main()

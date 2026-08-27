@@ -133,6 +133,30 @@ either, because `main` keeps absorbing the same feature from a sibling
 branch under a different filename. A gate that never opens is a gate
 nobody uses.
 
+A **NOT SUPERSEDED** verdict may now carry a **RENAME SUSPECTED** section.
+It fires when most of a file's unmatched lines have a close twin already in
+`main` under different identifiers, and it prints each pair with the file
+the twin lives in:
+
+```
+  branch  export function largestCostComponent(result) {
+  base    export function largestCostDriver(result) {
+          ↳ ventures/3pl-quote-normalizer/calc.mjs  (85% alike)
+```
+
+This is the case neither proof above catches: the branch spells the feature
+`largestCostComponent`, `main` spells it `largestCostDriver`, so no line
+matches and no merge replay is clean, yet the work is shipped. Merging such
+a branch adds a second button, a second storage key, or a weaker copy of a
+live function.
+
+**It does not license a close, and the exit code stays 1.** Similarity is
+evidence to read, not a verdict: the one word that differs between two
+93%-alike lines can be the fix the branch exists to make. Read the pairs.
+If they are the same feature, close naming the *twin's file* — the rename
+report is what you looked at, not what decided it. If the branch changes
+what the twin does, that difference is the work and it still has to merge.
+
 **Your clone is shallow.** `git fetch --unshallow` before any of this.
 Without it there is no merge base with `main`, so `git merge` refuses with
 "unrelated histories" and `git diff origin/main <branch>` reports thousands

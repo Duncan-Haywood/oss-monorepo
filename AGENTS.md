@@ -50,6 +50,13 @@ AI-wrap by default.
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been
   wrong three times in one hour, and each time the feature existed only on the
   branch being closed.
+- **Read the RENAME SUSPECTED section if the report prints one.** Exit 1 with
+  that section means the branch's lines are `main`'s own lines with the
+  identifiers changed — `largestCostComponent` where `main` says
+  `largestCostDriver`. The report prints each pair and the file the twin lives
+  in. Merging that branch adds a duplicate button or a weaker copy of a live
+  function; it is not new work. It is still not a licence to close unread — the
+  one word that differs can be the point of the branch.
 - **A red check is not a failed check right now.** The repo-wide runner outage
   (owner decision #1849) fails every workflow in 3-6 seconds with no runner, so
   checks arrive *red*, not absent — including on `main` and on the commit that

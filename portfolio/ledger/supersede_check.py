@@ -84,6 +84,7 @@ superseded) and 1 when it would drop work, so it can gate an automated close.
 from __future__ import annotations
 
 import argparse
+import difflib
 import re
 import subprocess
 import sys
@@ -102,12 +103,65 @@ _TRIVIAL = re.compile(r"^[\s{}()\[\];,.:+*/<>|&#=~`'\"-]*$")
 _MIN_SIGNIFICANT_LENGTH = 12
 
 
+# A line and its closest twin in the base tree, with the ratio that paired them.
+# `base_path` is where the twin lives, which is the whole point: it is almost
+# always a *different* file from the one the branch edited.
+@dataclass
+class NearMatch:
+    line: str
+    base_line: str
+    base_path: str
+    ratio: float
+
+
+# Two lines this similar are the same line with identifiers renamed. Below it,
+# ordinary same-language boilerplate starts pairing with itself -- every
+# `const x = Number(...)` in a calculator resembles every other -- and the
+# report turns into noise that hides the real twins.
+_RENAME_RATIO = 0.75
+
+# The share of one file's unmatched lines that must have a twin before it is
+# called a rename rather than a few coincidental echoes.
+#
+# Measured per file, not across the branch. A rename lands in one module: the
+# #1323 shape is a `calc.mjs` that is entirely the base's own `calc.mjs` with
+# `largestCostComponent` written where the base says `largestCostDriver`, sat
+# beside a genuinely new test file and a new usage note. Averaged over the
+# branch that reads 44% and stays silent; the module that matters is at 63%.
+_RENAME_SHARE = 0.6
+
+# Below this, a single coincidence in a small file clears the share on its own.
+_RENAME_MIN_TWINS = 3
+
+# Append-only records are exempt from the rename report. They are not features
+# and cannot be renamed into one: every reading in `usage.yaml` is the same six
+# keys with a different number, so `local_comparisons: 0` pairs at 95% with
+# `local_comparisons: 1`, and `reports_exported: 0` at 80% with an unrelated
+# venture's `shortlist_exported: 0`. Both pairs are true and neither means the
+# branch's work exists already -- which is the only question here.
+_RECORD_FILES = re.compile(
+    r"(^|/)(usage/usage\.yaml"
+    r"|ledger/\d{4}-\d{2}\.yaml"
+    r"|ledger/(verifications|asks)\.yaml"
+    r"|progress-log\.ts)$"
+)
+
+
 @dataclass
 class FileVerdict:
     path: str
     added: int
     unmatched: list[str] = field(default_factory=list)
     missing_from_base: bool = False
+    near: list[NearMatch] = field(default_factory=list)
+
+    @property
+    def rename_suspected(self) -> bool:
+        if _RECORD_FILES.search(self.path):
+            return False
+        if len(self.near) < _RENAME_MIN_TWINS:
+            return False
+        return len(self.near) / len(self.unmatched) >= _RENAME_SHARE
 
 
 @dataclass
@@ -125,6 +179,26 @@ class Verdict:
     @property
     def unmatched_total(self) -> int:
         return sum(len(f.unmatched) for f in self.files)
+
+    @property
+    def near_total(self) -> int:
+        return sum(len(f.near) for f in self.files)
+
+    @property
+    def renamed_files(self) -> list[FileVerdict]:
+        return [f for f in self.files if f.rename_suspected]
+
+    @property
+    def rename_suspected(self) -> bool:
+        """Whether some file's unmatched lines are the base's own code, renamed.
+
+        Deliberately not folded into `superseded`. A twin at 93% similarity is
+        strong evidence and still not proof: the one word that differs can be
+        the fix the branch exists to make -- `> ` where the base has `>=` is a
+        99% twin and an off-by-one either way. This flags the branch to be
+        read, and leaves the exit code saying "do not close".
+        """
+        return not self.superseded and bool(self.renamed_files)
 
 
 def _git(*args: str, check: bool = True) -> str:
@@ -216,6 +290,89 @@ def base_contains(base: str, needles: list[str]) -> set[str]:
         if result.returncode == 0:
             found.add(needle)
     return found
+
+
+def neighbourhood(paths: list[str]) -> list[str]:
+    """The directories a renamed twin would plausibly live in.
+
+    A feature re-implemented under another filename lands beside the original:
+    `site/csv.mjs` against `site/export.mjs`, `draft.mjs` against `share.mjs`.
+    Searching the whole tree instead would pair a calculator's arithmetic with
+    the same arithmetic in an unrelated venture, which is true and useless.
+
+    Two levels is what `ventures/<slug>` and `platform/<area>` need; a path
+    shallower than that contributes its own directory.
+    """
+    dirs: set[str] = set()
+    for path in paths:
+        parts = path.split("/")
+        dirs.add("/".join(parts[:2]) if len(parts) > 2 else (
+            parts[0] if len(parts) > 1 else ""
+        ))
+    return sorted(d for d in dirs if d)
+
+
+def base_neighbourhood_lines(base: str, dirs: list[str]) -> dict[str, str]:
+    """Every significant line in those directories on the base, to its file.
+
+    One `git grep` over the base tree rather than a `git show` per file: a
+    venture here runs to thirty-odd files and the whole point is that this
+    stays cheap enough to run on every close.
+
+    A line living in more than one file keeps the first seen. The report names
+    a twin so a reader can go and look; which of two identical copies it names
+    does not change what they will find.
+    """
+    if not dirs:
+        return {}
+    result = subprocess.run(
+        ["git", "grep", "-I", "-n", "-e", "", base, "--", *dirs],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    lines: dict[str, str] = {}
+    prefix = f"{base}:"
+    for entry in result.stdout.splitlines():
+        if not entry.startswith(prefix):
+            continue
+        rest = entry[len(prefix):]
+        path, _, tail = rest.partition(":")
+        _, _, content = tail.partition(":")
+        stripped = content.strip()
+        if stripped and significant(stripped) and stripped not in lines:
+            lines[stripped] = path
+    return lines
+
+
+def nearest_in_base(
+    unmatched: list[str], corpus: dict[str, str]
+) -> list[NearMatch]:
+    """Pair each unmatched line with its closest twin in the base, if any.
+
+    `difflib` on every pair would be quadratic over tens of thousands of lines.
+    `get_close_matches` does the same comparison but stops early on candidates
+    whose length alone puts them out of reach, which is most of them.
+    """
+    if not corpus:
+        return []
+    keys = list(corpus)
+    matches: list[NearMatch] = []
+    for line in unmatched:
+        stripped = line.strip()
+        close = difflib.get_close_matches(stripped, keys, n=1, cutoff=_RENAME_RATIO)
+        if not close:
+            continue
+        twin = close[0]
+        matches.append(
+            NearMatch(
+                line=stripped,
+                base_line=twin,
+                base_path=corpus[twin],
+                ratio=difflib.SequenceMatcher(None, stripped, twin).ratio(),
+            )
+        )
+    return matches
 
 
 def is_shallow() -> bool:
@@ -367,6 +524,15 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
     # already "superseded".
     identical = bool(any(f.unmatched for f in files)) and merges_to_base(base, head)
 
+    # Nor is the rename search worth its `git grep` when the branch is already
+    # accounted for, or when the merge replay just proved the same thing more
+    # cheaply.
+    if not identical and any(f.unmatched for f in files):
+        corpus = base_neighbourhood_lines(base, neighbourhood(paths))
+        for f in files:
+            if f.unmatched:
+                f.near = nearest_in_base(f.unmatched, corpus)
+
     return Verdict(
         base=base,
         head=head,
@@ -437,6 +603,52 @@ def render(verdict: Verdict, ref: str, base_ref: str, samples: int = 3) -> str:
             out.append(f"      {line.strip()[:100]}")
         if len(f.unmatched) > samples:
             out.append(f"      ... and {len(f.unmatched) - samples} more")
+        out.append("")
+
+    if verdict.rename_suspected:
+        out.append(_render_rename(verdict, ref, base_ref, samples))
+    return "\n".join(out).rstrip()
+
+
+def _render_rename(verdict: Verdict, ref: str, base_ref: str, samples: int) -> str:
+    """The renamed-twin report appended under a NOT SUPERSEDED verdict.
+
+    Its own function because it says the opposite of the verdict above it and
+    the two must not read as one paragraph: the scan says do not close, and
+    this says the work may nonetheless already be shipped under other names.
+    Both are true, and only reading the pairs settles it.
+    """
+    flagged = verdict.renamed_files
+    twins = sum(len(f.near) for f in flagged)
+    out = [
+        f"RENAME SUSPECTED — in {len(flagged)} file(s), most unmatched lines "
+        f"({twins} of",
+        f"{sum(len(f.unmatched) for f in flagged)}) have a close twin already in "
+        f"{base_ref}, under a different name.",
+        "",
+        "The scan above compares lines, so a feature "
+        f"{base_ref} re-implemented with its",
+        "functions, files, or ids renamed reads as missing when it is present. "
+        "Each pair",
+        "below is one line and the base line it most resembles.",
+        "",
+        "This does not license a close, and the exit code still says so. Read the "
+        "pairs:",
+        f"if they are the same feature, {ref} is spent and should be closed naming "
+        "the",
+        "twin's file — not this scan. If the branch changes what the twin does, "
+        "that",
+        "difference is the work, and it still has to merge.",
+        "",
+    ]
+    for f in flagged:
+        out.append(f"  {f.path} — {len(f.near)}/{len(f.unmatched)} with a twin")
+        for match in sorted(f.near, key=lambda m: -m.ratio)[:samples]:
+            out.append(f"      branch  {match.line[:88]}")
+            out.append(f"      base    {match.base_line[:88]}")
+            out.append(f"              ↳ {match.base_path}  ({match.ratio:.0%} alike)")
+        if len(f.near) > samples:
+            out.append(f"      ... and {len(f.near) - samples} more pair(s)")
         out.append("")
     return "\n".join(out).rstrip()
 
