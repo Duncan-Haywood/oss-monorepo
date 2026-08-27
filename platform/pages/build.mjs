@@ -121,7 +121,11 @@ const CATEGORY_RULES = [
   {
     id: 'trades',
     title: 'Trade & contractor bids',
-    blurb: 'Bid a job the way the trade does: materials, crew hours, burden, overhead, and what the extras really cost.',
+    // Names the proposal because it is the half a visitor is searching for.
+    // The bid arithmetic is what the contractor needs; the printed quote is
+    // what wins them the job, and it was invisible on the one page most
+    // visitors land on.
+    blurb: 'Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.',
     test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence)/.test(slug),
   },
   {

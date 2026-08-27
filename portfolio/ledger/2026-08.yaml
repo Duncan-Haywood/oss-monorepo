@@ -24921,3 +24921,60 @@ entries:
         estimate be before this job loses money", which is the question behind
         the walk-away price they already show.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The customer proposal was invisible to search and AI discovery on all
+        100 calculators that ship it.** Not one named it in its JSON-LD
+        `featureList` — the machine-readable list of what a tool does, and what a
+        search engine or an assistant reads when someone asks for something that
+        prints a contractor's quote. The portfolio's largest feature could not be
+        found through the only channel that brings these tools traffic. Added to
+        all 100, plus the site index, whose trades blurb described the internal
+        bid arithmetic and never mentioned the printed quote.
+      - >-
+        The guard that matters is the reverse direction, and it is now a test: **a
+        calculator must never advertise a proposal it cannot print.**
+        `mobile-detailing` is the live case — deliberately not adopted, because
+        its inputs are hours and costs with nothing describing the work, so its
+        drafted scope could only be "Perform the work described above". A visitor
+        arriving from a search for "contractor proposal" must not land on it.
+        Negative-tested by injecting the claim; the assertion fails as intended.
+      - >-
+        Two shapes to know before scripting anything against this structured
+        data, both of which produced a false reading first time: the repo uses
+        both `"featureList":"…"` and `"featureList": "…"`, and a strict match on
+        the first reported 37 calculators as having no feature list at all;
+        `ev-charger` nests its node under `@graph`, so a top-level lookup misses
+        it entirely. Match on `"featureList":\s*"` and walk the parsed tree.
+      - >-
+        **Independent re-verification of the whole rollout.** Concurrent sessions
+        took the proposal from 27 to 100 calculators in #1888–#1893 while this
+        one was down. All 100 customer journeys were re-driven in Chromium
+        against the built artifact from a harness written before those batches
+        existed: every sheet carries the price and no wage, burden, overhead or
+        margin; deposit plus balance equals the printed total exactly; nav,
+        aside and `.pf-rates` lay out to nothing; none prints undefined, NaN or
+        null. No defects found — the concurrent work holds up.
+      - >-
+        **The branch sweep finished: 169 of 169 unmerged remote branches are
+        superseded by `main`, none carries unique work.** A previous entry
+        recorded only the 39 covered when it was sampled; this supersedes that
+        figure, so no future session needs to spend three hours re-deriving it.
+        The single branch outside that set is `tmp/ssh-key-smoke`, a one-shot
+        diagnostic workflow for the owner-held `HETZNER_SSH_KEY` secret. It is
+        left open and unmerged deliberately: it is not product value, its
+        subject is a secret no agent can supply, and merging it would add an
+        unattended deploy-adjacent workflow the owner has not approved.
+      - >-
+        Verified: 1,130 venture page tests, `platform/pages` 201,
+        `platform/proposal` 58 (4 of them new), all green; JSON-LD parses on all
+        100 with the clause present exactly once and no duplicates;
+        `portfolio/router/validate.py`, `score_ventures.py --check`,
+        `validate_usage.py`, `publish_surface.py --check`, `clauses.mjs`,
+        `check_form_defaults.py`, `check_conflict_markers.py` and
+        `check_duplicate_symbols.py` all exit 0; site rebuilds to 162 products /
+        439 pages with no dead links.
+    mrr_end: null
