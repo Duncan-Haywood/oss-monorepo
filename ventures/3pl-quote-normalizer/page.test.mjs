@@ -231,6 +231,22 @@ test('inbound page compares pallet, carton, and loose receiving', async () => {
   assert.equal(cells.length, columns, "renderInbound emits a different cell count than the header row");
 });
 
+test('calculator surfaces compareKitting on the quote itself', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /id="kitting"/);
+  assert.match(index, /compareKitting/);
+  assert.match(index, /kittingSummary/);
+  assert.match(index, /id="kittingRows"/);
+  assert.match(index, /kitting_compared/);
+  assert.match(index, /name="kitFee"/);
+  assert.match(index, /name="aovLift"/);
+  const kittingTable = index.match(/<table id="kittingTable">[\s\S]*?<\/table>/);
+  assert.ok(kittingTable, "index.html is missing the kitting comparison table");
+  const columns = kittingTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderKitting[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderKitting emits a different cell count than the header row");
+});
+
 test('inbound SEO page explains the container-fee arithmetic', async () => {
   const page = await readFile(new URL('./pallet-vs-carton-inbound.html', import.meta.url), 'utf8');
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
