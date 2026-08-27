@@ -243,3 +243,60 @@ test('a data-tool literal inside a script is not read as a hub link', async () =
   });
   assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems)}`);
 });
+
+test('an inline module that does not parse is caught', async () => {
+  // The real defect, from `3pl-quote-normalizer`: a missing semicolon between
+  // an `addEventListener` call and the next statement. ASI cannot recover,
+  // because the `)` and the `document` are on the same line, so the whole
+  // module fails to parse and the browser runs none of it — no submit handler,
+  // no live recalculation, no usage events. Every other check passed: the
+  // links resolved, the disclaimer was there, the sitemaps agreed.
+  const problems = await problemsFor({
+    'tool/index.html':
+      '<script type="module">' +
+      "form.addEventListener('change', () => {})document.querySelector('#x').focus();" +
+      '</script><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'does not parse').length, 1);
+});
+
+test('a classic inline script that does not parse is caught', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<script>function broken( {</script><footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'does not parse').length, 1);
+});
+
+test('a well-formed inline module passes', async () => {
+  // The gate must not go red on ESM syntax a classic-script parser rejects,
+  // which is what would happen if `type="module"` were checked as a script.
+  const problems = await problemsFor({
+    'tool/share.mjs': 'export const x = 1;',
+    'tool/index.html':
+      '<script type="module">import { x } from "./share.mjs"; document.title = String(x);</script>' +
+      '<footer>No warranty.</footer>',
+    'tool/sitemap.xml': urlset('tool/'),
+  });
+  assert.deepEqual(mentioning(problems, 'does not parse'), []);
+});
+
+test('a template script is not parsed as JavaScript', async () => {
+  // `type` values the browser does not execute are data, not code. Parsing
+  // them would fail the gate on a page that works perfectly.
+  const problems = await problemsFor({
+    'tool/index.html':
+      '<script type="text/x-template"><div>{{ not js }}</div></script><footer>No warranty.</footer>',
+  });
+  assert.deepEqual(mentioning(problems, 'does not parse'), []);
+});
+
+test('malformed JSON-LD is caught', async () => {
+  // Not code, but the same silent failure: search engines and assistants skip
+  // the block and the page looks fine to everyone else.
+  const problems = await problemsFor({
+    'tool/index.html':
+      '<script type="application/ld+json">{"@type":"SoftwareApplication",}</script>' +
+      '<footer>No warranty.</footer>',
+  });
+  assert.equal(mentioning(problems, 'not valid JSON').length, 1);
+});
