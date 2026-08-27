@@ -28,10 +28,33 @@
 // Not part of CI: it needs Playwright, which is not a dependency of this repo.
 // PLAYWRIGHT overrides the module path for a global install.
 
-const { chromium } = await import(process.env.PLAYWRIGHT || 'playwright');
+// Playwright ships CommonJS, so a PLAYWRIGHT that names its entry *file*
+// resolves the exports under `.default`, while a bare specifier on the
+// resolution path gives them directly. Accept either, and say which it is when
+// neither resolves.
+//
+// This file had the plain destructure until 2026-08-27, which meant it threw
+// `Cannot read properties of undefined (reading 'launch')` for anyone following
+// the `PLAYWRIGHT=/path/to/playwright/index.js` form documented above — so the
+// whole-site sweep did not run at all. `journey.mjs` had already been fixed the
+// same way; this file was missed, and the cost was real: `3pl-quote-normalizer`
+// shipped to `main` with a module that failed to parse, which is precisely the
+// defect a sweep exists to catch, and no sweep was running to catch it.
+const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
+const chromium = playwright.chromium ?? playwright.default?.chromium;
+if (!chromium) {
+  console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +
+    'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');
+  process.exit(2);
+}
 
 const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, '');
-const LAUNCH = process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {};
+// `CHROME_PATH` is the spelling `journey.mjs` and the README use; `CHROMIUM_PATH`
+// was this file's own and is still honoured so an existing invocation keeps
+// working. Two names for one knob is how a sweep gets run without the override
+// it needed and dies on a browser download it cannot do.
+const chromePath = process.env.CHROME_PATH || process.env.CHROMIUM_PATH;
+const LAUNCH = chromePath ? { executablePath: chromePath } : {};
 
 // Buttons that produce a file, the clipboard, or an empty form rather than a
 // result. Clicking one proves nothing about whether the tool computes, and

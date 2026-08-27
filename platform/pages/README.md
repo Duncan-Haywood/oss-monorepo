@@ -346,8 +346,19 @@ flip. If Playwright is installed globally rather than beside the repo, point
 `sweep.mjs` is the other axis: shallow and total, over **every** published tool.
 
 ```bash
-node platform/pages/sweep.mjs        # same BASE_URL / PLAYWRIGHT env vars
+node platform/pages/sweep.mjs        # same BASE_URL / PLAYWRIGHT / CHROME_PATH env vars
 ```
+
+**Run this before claiming the site works.** Until 2026-08-27 it could not run
+at all in the form documented here: it destructured `chromium` straight off the
+dynamic import, which is `undefined` when `PLAYWRIGHT` names Playwright's entry
+*file* (it ships CommonJS, so the exports arrive under `.default`), and it read
+the browser override from `CHROMIUM_PATH` while this README and `journey.mjs`
+say `CHROME_PATH`. Either mistake ends the run before the first page loads.
+`journey.mjs` had already been fixed for the first; this file was missed. The
+cost was `3pl-quote-normalizer`, which reached `main` with a module that failed
+to parse — the whole calculator inert — which is exactly what this sweep is for.
+Both spellings of the browser override are accepted now.
 
 It answers the one question a site assembled from ~60 independently-written
 ventures raises: does each one still compute? For every tool it loads the page
