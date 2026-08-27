@@ -201,13 +201,12 @@
 <body>
   <header>
     <p class="eyebrow">FOR AMAZON SELLERS</p>
-    <h1>Know whether FBA or FBM leaves more — and whether thin stock is costing you the listing.</h1>
+    <h1>Know whether FBA or FBM leaves more — and the most you can pay for the unit.</h1>
     <p>
       Enter the listing price, category, size, and what you paid. The
       calculator shows referral, fulfillment, storage, and inbound on FBA
-      against the shipping you pay on FBM, then whether a low-inventory-level
-      surcharge is cheaper than sending enough units to stay at 28 days.
-      Everything runs in this page; nothing is uploaded.
+      against the shipping you pay on FBM. Everything runs in this page;
+      nothing is uploaded.
     </p>
   </header>
   <main class="layout">
@@ -1454,7 +1453,6 @@
       }
       update();
     }));
-    const inventoryIds = new Set(["onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee"]);
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       recordUsage(
         localStorage,
