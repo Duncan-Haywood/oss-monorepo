@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from src.quote_margin import batch_csv_report, calculate, csv_report, load_quote, load_reports, main
+from src.quote_margin import batch_csv_report, billing_model_note, billing_model_summary, calculate, change_order_price, compare_billing_models, csv_report, discount_ask_scenarios, load_quote, load_reports, main
 
 
 class QuoteMarginTests(unittest.TestCase):
@@ -15,9 +15,19 @@ class QuoteMarginTests(unittest.TestCase):
         self.assertEqual(result["total_hours"], 35)
         self.assertAlmostEqual(result["effective_hourly_rate"], 54.8571428, places=6)
         self.assertEqual(result["target_price"], 3105)
+        self.assertEqual(result["break_even_price"], 480)
         self.assertEqual(result["gap_to_target"], -705)
+        self.assertEqual(result["minimum_price_adjustment"], 705)
+        self.assertEqual(result["hidden_hours"], 11)
+        self.assertEqual(result["hidden_time_percent"], (11 / 35) * 100)
         self.assertEqual(result["target_rate_hours"], 25.6)
         self.assertAlmostEqual(result["hours_cushion"], -9.4)
+
+    def test_reports_negative_target_rate_hours_when_costs_exceed_price(self) -> None:
+        quote = load_quote({"price": 100, "delivery_hours": 1, "overhead": 150, "target_hourly_rate": 50})
+        result = calculate(quote)
+        self.assertEqual(result["target_rate_hours"], -1)
+        self.assertEqual(result["hours_cushion"], -2)
 
     def test_defaults_optional_costs_and_time(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
@@ -41,6 +51,26 @@ class QuoteMarginTests(unittest.TestCase):
     def test_reports_price_left_after_direct_costs(self) -> None:
         quote = load_quote({"price": 1000, "delivery_hours": 10, "overhead": 125, "subcontractor_cost": 75, "target_hourly_rate": 80})
         self.assertEqual(calculate(quote)["cost_coverage"], 800)
+        self.assertEqual(calculate(quote)["break_even_price"], 200)
+        self.assertEqual(calculate(quote)["discount_room"], 0)
+        self.assertEqual(calculate(quote)["minimum_price_adjustment"], 0)
+
+    def test_reports_discount_room_above_target(self) -> None:
+        quote = load_quote({"price": 4000, "delivery_hours": 10, "target_hourly_rate": 100})
+        self.assertEqual(calculate(quote)["discount_room"], 3000)
+        self.assertEqual(calculate(quote)["minimum_price_adjustment"], 0)
+
+    def test_discount_ask_keeps_hours_and_direct_costs_fixed(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75})
+        result = calculate(quote)
+        rows = discount_ask_scenarios(quote, result)
+        self.assertEqual([row["percent"] for row in rows], [0, 5, 10, 15, 20])
+        ten = next(row for row in rows if row["percent"] == 10)
+        self.assertEqual(ten["discounted_price"], 2160)
+        self.assertEqual(ten["effective_hourly_rate"], 48)
+        self.assertAlmostEqual(ten["hours_to_cut"], 12.6, places=9)
+        self.assertEqual(result["total_hours"], 35)
+        self.assertEqual(result["direct_costs"], 480)
 
     def test_csv_report_is_ready_for_spreadsheet_import(self) -> None:
         quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
@@ -54,14 +84,42 @@ class QuoteMarginTests(unittest.TestCase):
                 "quoted_price,2400.00,EUR",
                 "total_working_hours,24.00,hours",
                 "direct_costs,0.00,EUR",
+                "break_even_price,0.00,EUR",
                 "effective_hourly_rate,100.00,EUR/hour",
                 "target_price,1800.00,EUR",
                 "gap_to_target,600.00,EUR",
                 "target_rate_hours,32.00,hours",
                 "hours_cushion,8.00,hours",
                 "cost_coverage,2400.00,EUR",
+                "discount_room,600.00,EUR",
+                "minimum_price_adjustment,0.00,EUR",
+                "hourly_bill_at_planned_hours,1800.00,EUR",
+                "hourly_minus_fixed_at_planned_hours,-600.00,EUR",
             ],
         )
+
+    def test_csv_report_neutralises_a_formula_in_the_currency_label(self) -> None:
+        # Mirrors "neutralises a formula typed into the currency label" in
+        # site/export.test.mjs: the two implementations must agree.
+        quote = load_quote({"currency": "=1+1", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            csv_report(quote, calculate(quote))
+        lines = output.getvalue().splitlines()
+        self.assertEqual(lines[1], "quoted_price,2400.00,'=1+1")
+        self.assertIn("effective_hourly_rate,100.00,'=1+1/hour", lines)
+        for line in lines[1:]:
+            unit = line.rsplit(",", 1)[-1]
+            self.assertFalse(unit.startswith("="), f"unit cell {unit!r} would evaluate as a formula")
+
+    def test_csv_report_keeps_a_negative_value_numeric(self) -> None:
+        # The guard must not reach the value column: -600.00 is a number the
+        # recipient sums, and an apostrophe would make it text.
+        quote = load_quote({"currency": "EUR", "price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            csv_report(quote, calculate(quote))
+        self.assertIn("hourly_minus_fixed_at_planned_hours,-600.00,EUR", output.getvalue().splitlines())
 
     def test_currency_defaults_and_is_trimmed(self) -> None:
         quote = load_quote({"currency": " USD ", "price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
@@ -96,3 +154,31 @@ class QuoteMarginTests(unittest.TestCase):
                 batch_csv_report(reports)
             self.assertEqual(output.getvalue().splitlines()[1].split(",")[0], "a.json")
             self.assertEqual(len(output.getvalue().splitlines()), 3)
+
+    def test_compares_fixed_quote_to_hourly_at_the_same_hours(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "admin_hours": 5, "revision_hours": 6, "overhead": 180, "subcontractor_cost": 300, "target_hourly_rate": 75})
+        result = calculate(quote)
+        rows = compare_billing_models(quote, result)
+        self.assertEqual([row["percent"] for row in rows], [0, 10, 25, 50])
+        self.assertEqual(rows[0]["hourly_total"], 3105)
+        self.assertEqual(rows[0]["hourly_minus_fixed"], 705)
+        self.assertEqual(rows[3]["hourly_total"], 4417.5)
+        self.assertTrue(billing_model_summary(quote, result)["fixed_is_below_hourly"])
+        note = billing_model_note(quote, result)
+        self.assertIn("3105.00", note)
+        self.assertIn("more than", note)
+        self.assertIn("not a recommendation", note)
+
+    def test_prices_extra_scope_at_the_quote_target_rate(self) -> None:
+        quote = load_quote({"price": 2400, "delivery_hours": 24, "target_hourly_rate": 75})
+        self.assertEqual(
+            change_order_price(quote, 4, 60),
+            {"extra_hours": 4.0, "extra_direct_costs": 60.0, "target_price": 360.0},
+        )
+
+    def test_rejects_invalid_change_order_inputs(self) -> None:
+        quote = load_quote({"price": 1000, "delivery_hours": 10, "target_hourly_rate": 100})
+        with self.assertRaises(ValueError):
+            change_order_price(quote, -1)
+        with self.assertRaises(ValueError):
+            change_order_price(quote, 1, float("inf"))
