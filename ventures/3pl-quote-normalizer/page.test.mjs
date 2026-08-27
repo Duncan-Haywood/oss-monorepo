@@ -9,6 +9,13 @@ test('calculator includes the report region used by the page script', async () =
   assert.match(page, /aria-label="Copyable quote review report"/);
 });
 
+test('page exposes the line-by-line review export', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /Show line-by-line export/);
+  assert.match(page, /summary\(r\)/);
+  assert.match(page, /id="report"/);
+});
+
 test('page persists quote inputs locally', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /localStorage\.setItem\(saveKey/);

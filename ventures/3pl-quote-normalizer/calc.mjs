@@ -896,20 +896,20 @@ export function kittingSummary(input = {}) {
   ].join("\n");
 }
 
+const componentLabels = { receiving: "Receiving", storage: "Storage", pickPack: "Pick and pack", packaging: "Packaging", shipping: "Shipping", returns: "Returns", fixed: "Fixed fees" };
+
 export function negotiationLines(result) {
   const driver = largestCostDriver(result);
   return [
     `Monthly volume: ${result.orders} orders`,
     `Largest normalized cost driver: ${driver.label} (${money(driver.amount)}, ${driver.share}% of subtotal)`,
-    ...result.components.map((component) => `${component}: ${money(result.quote[component])}`),
+    ...result.components.map((component) => `${componentLabels[component] || component}: ${money(result.quote[component])}`),
     `Subtotal before minimum: ${money(result.quote.subtotal)}`,
     `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
     `Total estimated 3PL cost: ${money(result.quote.total)}`,
     `True cost per order: ${money(result.perOrder)}`,
   ];
 }
-
-const componentLabels = { receiving: "Receiving", storage: "Storage", pickPack: "Pick and pack", packaging: "Packaging", shipping: "Shipping", returns: "Returns", fixed: "Fixed fees" };
 
 export function largestCostDriver(result) {
   const component = result.components.reduce((largest, current) =>
