@@ -357,6 +357,10 @@ const JOBS_STYLE = `<style>
 .pf-jobs-name{font-weight:600;flex:1 1 10em;overflow-wrap:anywhere}
 .pf-jobs-when{opacity:.7;font-variant-numeric:tabular-nums}
 .pf-jobs-note{margin:10px 0 0;opacity:.72}
+/* The band inherits each venture's own colours, and 180 pages do not agree on
+   a link colour. currentColor plus an underline reads as a link on every one
+   of them without asserting a palette this band does not own. */
+.pf-jobs-note a{color:currentColor;text-decoration:underline}
 .pf-jobs :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 @media (max-width:780px){.pf-jobs{padding:8px 14px 0}}
 
@@ -385,7 +389,21 @@ const JOBS_STYLE = `<style>
 // index links to (`/<slug>/#pf-jobs`). Without it a visitor sent from the hub
 // lands at the top of a calculator and has to find the band themselves, which
 // is most of the friction that index exists to remove.
-const JOBS_MARKUP = `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+/**
+ * The band, and the one route off this browser.
+ *
+ * The note has always ended "clearing your browser data clears it", which was
+ * true and had no answer. `backup.mjs` is the answer, and it lives on the hub —
+ * so the person most likely to want it, the one who has just saved a bid they
+ * care about, was the one person never told it exists. A calculator page is
+ * where the intent is; the hub is where the file is written. One link closes
+ * the distance.
+ *
+ * `toRoot` is the same relative prefix the chrome and the favicon are built
+ * from, because these pages are served at two depths (`/<slug>/` and
+ * `/<slug>/some-question.html`) and a hard-coded `../` is wrong at one of them.
+ */
+const JOBS_MARKUP = (toRoot = './') => `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
   <p class="pf-jobs-line">
     <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
@@ -398,7 +416,7 @@ const JOBS_MARKUP = `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-r
       <button type="button" data-pf-jobs="save">Save this bid</button>
     </div>
     <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
-    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it. Bids are kept per tool, so these are the ones you saved here.</p>
+    <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="${toRoot}#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
   </div>
 </section>`;
 
@@ -719,7 +737,7 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
  * two bands sit together above the form in the same order on every tool — your
  * rates, then your bids.
  */
-export function injectSavedBids(html, slug = '') {
+export function injectSavedBids(html, slug = '', toRoot = './') {
   if (typeof html !== 'string') return html;
   if (html.includes(JOBS_MARKER)) return html;
 
@@ -738,9 +756,10 @@ export function injectSavedBids(html, slug = '') {
   const rates = withStyle.match(/<section class="pf-rates"[\s\S]*?<\/section>/i);
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);
   const anchor = rates ? rates[0] : nav ? nav[0] : null;
+  const markup = JOBS_MARKUP(toRoot);
   const anchored = anchor
-    ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${JOBS_MARKUP}`)
-    : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${JOBS_MARKUP}`);
+    ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${markup}`)
+    : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
   return anchored.replace(/<\/body>/i, `${JOBS_SCRIPT(slug)}\n</body>`);
 }
