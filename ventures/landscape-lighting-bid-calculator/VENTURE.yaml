@@ -1,0 +1,32 @@
+name: landscape-lighting-bid-calculator
+description: A private browser calculator for landscape lighting contractors that prices low-voltage outdoor lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent landscape lighting contractors will use a fixtures-versus-trench bid calculator because the generic "$150 a light installed" special they are shopped on cannot see that six path lights on an existing transformer is a different job from an 18-fixture architectural install with well lights, a new transformer, irrigated-turf trench, and a driveway saw-cut.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-fixture dump) are the two figures a contractor actually decides on when an owner asks them to match a cheaper walkway quote on a new-system job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing fixtures-only, new-system, and existing-add-on on the same yard, with trench hours and a transformer invoice, changes the bid enough that contractors notice which scope keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified landscape lighting contractors use the calculator twice within 90 days.
+  - Contractors report that splitting fixtures, trench, and extras is more work than their existing per-light method without changing the price they would have bid.
+  - The starting hours and light rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

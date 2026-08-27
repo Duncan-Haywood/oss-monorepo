@@ -50,6 +50,10 @@
       <a href="./index.html">Full quote normalizer</a> ·
       <a href="./compare.html">Compare two quotes</a> ·
       <a href="./sensitivity.html">Volume sensitivity</a> ·
+      <a href="./returns-sensitivity.html">Return-fee flip</a> ·
+      <a href="./does-long-term-storage-flip-a-3pl-quote.html">Long-term storage</a> ·
+      <a href="./should-i-restock-or-let-the-customer-keep-a-3pl-return.html">Restock vs keep</a> ·
+      <a href="./should-i-pay-the-3pl-to-kit.html">Kitting</a> ·
       <a href="./pallet-vs-carton-inbound.html">Why pallet inbound is usually cheaper</a>
     </p>
   </header>
@@ -91,6 +95,7 @@
       </div>
       <p id="status" class="note"></p>
       <button class="secondary" id="copy" type="button">Copy inbound comparison</button>
+      <button class="secondary" id="optout" type="button">Turn usage counting off</button>
       <p class="note">Arithmetic from your rate card, not a warehouse quote or a recommendation to change how you ship.</p>
     </section>
   </main>
@@ -113,7 +118,7 @@
     <p>
       Everything runs in your browser. Your data is never uploaded; there are
       no accounts, cookies, or analytics vendors. Anonymous feature events are
-      counted only in local storage.
+      counted only in local storage and can be deleted with the button above.
     </p>
     <p>
       Free to use.
@@ -123,7 +128,7 @@
   </footer>
   <script type="module">
     import { compareInboundMethods, inboundComparisonSummary, money } from "./calc.mjs";
-    import { record } from "./usage.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
 
     const form = document.querySelector("#inbound");
     const rows = document.querySelector("#rows");
@@ -194,6 +199,10 @@
       } catch {
         copy.textContent = "Copy unavailable";
       }
+    });
+    document.querySelector("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      document.querySelector("#optout").textContent = "Usage counting is off";
     });
     render();
   </script>

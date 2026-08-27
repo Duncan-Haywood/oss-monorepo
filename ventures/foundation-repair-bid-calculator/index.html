@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Foundation Repair Bid Calculator | Price Access, Depth, and Straps — Not Just Piers</title>
+  <meta name="description" content="Price helical piers, hydraulic push piers, or bowed-wall stabilization from pier count, installed depth past included footage, interior versus exterior access, engineering stamp, carbon-fiber straps, and plumbing under the slab — not a published price per pier. See the walk-away number before you match a cheaper pier quote.">
+  <meta property="og:title" content="Foundation Repair Bid Calculator">
+  <meta property="og:description" content="An 8-pier brochure house with exterior access is not the same job as a 6-pier interior house with an engineering stamp and four carbon-fiber straps. Bid the access and the straps.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Foundation Repair Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Helical pier hours, hydraulic push-pier hours, extra shaft past included footage, interior bracket labor, poor lot access, carbon-fiber straps, steel I-beams, grade beam, slab jacking, engineering stamp, plumbing reroute, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2118; background: #efe6d8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4a1c; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d8c9b4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a4e42; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b9a68c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b9a68c; background: #f6efe4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #eee2d0; }
+    .result { position: sticky; top: 15px; background: #3c2418; color: #f7efe4; border-color: #3c2418; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d4a574; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a4e42; }
+    footer a { color: #8a4a1c; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8d2b4; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR FOUNDATION-REPAIR CONTRACTORS</p>
+    <h1>Bid the access, the extra shaft, and the straps.</h1>
+    <p>Price a foundation-repair job the way the trade actually loses money: helical or push piers, installed depth past the footage already in the pier price, interior brackets versus exterior access, an engineering stamp, carbon-fiber straps on a bowed wall, and plumbing under the slab. You get the bid, the price per pier, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Picking a method never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting house…</option>
+            </select>
+          </label>
+          <label>Method
+            <select id="methodId">
+              <option value="helical" selected>Helical piers (exterior or interior brackets)</option>
+              <option value="push">Hydraulic push / resistance piers</option>
+              <option value="wall_stabilize">Bowed-wall stabilization (straps / I-beams, no piers)</option>
+            </select>
+          </label>
+          <label>Pier count <input id="pierCount" type="number" min="0" step="1" value="8"></label>
+          <label>Average installed depth (ft) <input id="averageDepthFt" type="number" min="0" step="0.5" value="12"></label>
+          <label>Included depth in pier price (ft) <input id="depthIncludedFt" type="number" min="0" step="0.5" value="10"></label>
+          <label>Carbon-fiber straps <input id="carbonFiberStraps" type="number" min="0" step="1" value="0"></label>
+          <label>Steel I-beams <input id="steelIBeams" type="number" min="0" step="1" value="0"></label>
+          <label>Grade beam (lf) <input id="gradeBeamLf" type="number" min="0" step="1" value="0"></label>
+          <label>Slab jacking (sq ft) <input id="slabJackingSqFt" type="number" min="0" step="10" value="0"></label>
+          <label class="check"><input id="interiorAccess" type="checkbox"> Interior brackets (crawl / basement)</label>
+          <label class="check"><input id="poorAccess" type="checkbox"> Poor lot access / no equipment path</label>
+          <label class="check"><input id="engineeringStamp" type="checkbox"> Engineering stamp this bid</label>
+          <label class="check"><input id="plumbingReroute" type="checkbox"> Plumbing reroute under the slab</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours / pier <input id="hoursPerPier" type="number" min="0" step="0.05" value="2.4"></label>
+          <label>Hours / installed foot <input id="hoursPerDepthFt" type="number" min="0" step="0.01" value="0.08"></label>
+          <label>Hours / interior pier <input id="hoursInteriorPerPier" type="number" min="0" step="0.1" value="1.6"></label>
+          <label>Hours for poor lot access <input id="hoursPoorAccess" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Hours / carbon-fiber strap <input id="hoursPerStrap" type="number" min="0" step="0.1" value="2.8"></label>
+          <label>Hours / steel I-beam <input id="hoursPerIBeam" type="number" min="0" step="0.1" value="4.2"></label>
+          <label>Hours / grade-beam lf <input id="hoursPerGradeBeamLf" type="number" min="0" step="0.05" value="0.45"></label>
+          <label>Hours / 100 sq ft slab jacking <input id="hoursPer100Slab" type="number" min="0" step="0.1" value="1.8"></label>
+          <label>Hours to coordinate engineering <input id="hoursEngineering" type="number" min="0" step="0.25" value="2.5"></label>
+          <label>Hours to reroute plumbing <input id="hoursPlumbingReroute" type="number" min="0" step="0.25" value="3.5"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="3"></label>
+          <label>Pier + bracket each <input id="pierCostEach" type="number" min="0" step="10" value="420"></label>
+          <label>Extra shaft $ / ft <input id="extraDepthCostPerFt" type="number" min="0" step="1" value="18"></label>
+          <label>Interior bracket adder each <input id="interiorBracketCost" type="number" min="0" step="5" value="95"></label>
+          <label>Carbon-fiber strap each <input id="strapCostEach" type="number" min="0" step="5" value="185"></label>
+          <label>Steel I-beam each <input id="iBeamCostEach" type="number" min="0" step="10" value="420"></label>
+          <label>Grade beam $ / lf <input id="gradeBeamCostPerLf" type="number" min="0" step="1" value="28"></label>
+          <label>Slab jacking $ / sq ft <input id="slabJackCostPerSqFt" type="number" min="0" step="0.5" value="8"></label>
+          <label>Engineering stamp fee <input id="engineeringFee" type="number" min="0" step="25" value="850"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="25" value="275"></label>
+          <label>Plumbing reroute allowance <input id="plumbingAllowance" type="number" min="0" step="25" value="650"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="34"></label>
+          <label>Travel, torque, dump fees <input id="travelAndEquipment" type="number" min="0" step="25" value="285"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 11800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $42/h tech loaded at 34% is $56.28. Quoting the raw wage on a published per-pier special is how an interior-access house that looked fine turns into a week-long loss after the first cramped bracket.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">foundation-repair price</div>
+      <dl>
+        <dt>Piers / extra shaft</dt><dd id="scope"></dd>
+        <dt>Access</dt><dd id="access"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Materials + fees</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per pier</dt><dd id="perPier"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a settlement warranty, or an engineering specification &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not structural-engineering, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your pier count, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-for-foundation-repair.html">How much to charge for foundation repair</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      METHOD_PRESETS,
+      suggestedMethod,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'pierCount','averageDepthFt','depthIncludedFt','carbonFiberStraps','steelIBeams',
+      'gradeBeamLf','slabJackingSqFt','hoursPerPier','hoursPerDepthFt','hoursInteriorPerPier',
+      'hoursPoorAccess','hoursPerStrap','hoursPerIBeam','hoursPerGradeBeamLf','hoursPer100Slab',
+      'hoursEngineering','hoursPlumbingReroute','siteHours','pierCostEach','extraDepthCostPerFt',
+      'interiorBracketCost','strapCostEach','iBeamCostEach','gradeBeamCostPerLf','slabJackCostPerSqFt',
+      'engineeringFee','permitFee','plumbingAllowance','hourlyWage','burdenRate',
+      'travelAndEquipment','overheadRate','targetMargin','proposedPrice',
+    ];
+    const FLAG_IDS = ['interiorAccess','poorAccess','engineeringStamp','plumbingReroute'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyMethodRates(methodId, force) {
+      const rates = suggestedMethod(methodId);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('methodId').value = job.methodId;
+      applyMethodRates(job.methodId, true);
+      ['hoursPerPier','pierCostEach','hoursPerDepthFt','depthIncludedFt'].forEach(id => { el(id).dataset.edited = ''; });
+      el('pierCount').value = job.pierCount;
+      el('averageDepthFt').value = job.averageDepthFt;
+      el('carbonFiberStraps').value = job.carbonFiberStraps;
+      el('steelIBeams').value = job.steelIBeams;
+      el('gradeBeamLf').value = job.gradeBeamLf;
+      el('slabJackingSqFt').value = job.slabJackingSqFt;
+      el('interiorAccess').checked = job.interiorAccess;
+      el('poorAccess').checked = job.poorAccess;
+      el('engineeringStamp').checked = job.engineeringStamp;
+      el('plumbingReroute').checked = job.plumbingReroute;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'foundation-repair price';
+      ['scope','access','hours','labor','materials','soft','overhead','cost','profit','perPier','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'foundation-repair price';
+      el('scope').textContent = `${result.pierCount} pier${result.pierCount === 1 ? '' : 's'} / ${result.extraDepthLf} lf extra shaft`;
+      const accessBits = [
+        result.interiorAccess ? 'interior' : 'exterior',
+        result.poorAccess ? 'poor lot' : null,
+        result.carbonFiberStraps ? `${result.carbonFiberStraps} strap${result.carbonFiberStraps === 1 ? '' : 's'}` : null,
+      ].filter(Boolean);
+      el('access').textContent = accessBits.join(', ');
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perPier').textContent = result.pricePerPier === null ? 'n/a' : money(result.pricePerPier);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Piers + shaft', result.hourShares.piers],
+        ['Interior / lot access', result.hourShares.access],
+        ['Straps + I-beams', result.hourShares.walls],
+        ['Grade beam + slab', result.hourShares.structure],
+        ['Engineering + plumbing', result.hourShares.soft],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Materials + fees', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const method = METHOD_PRESETS.find(item => item.id === el('methodId').value);
+      const text = formatBidSummary(calculateBid(readInput()), method?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('methodId').addEventListener('change', () => {
+      applyMethodRates(el('methodId').value, false);
+      count('bid_calculated');
+      update();
+    });
+
+    ['hoursPerPier','pierCostEach','hoursPerDepthFt','depthIncludedFt']
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>
