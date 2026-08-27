@@ -204,6 +204,44 @@
         <a href="basic-vs-grow.html">Should I upgrade from Shopify Basic to Grow?</a>
         walks through that search question with the same arithmetic.
       </p>
+      <hr>
+      <h2>Card vs Shop Pay Installments</h2>
+      <p class="note">
+        The dedicated
+        <a href="should-i-offer-shop-pay-installments.html">Shop Pay Installments calculator</a>
+        already has the full math. This block uses the same
+        <code>compareShopPayInstallments</code> on the order you just typed,
+        so you do not leave the page. Defaults match that page (5.99% + $0.30,
+        15% of checkouts).
+      </p>
+      <div class="fields" style="margin-bottom: 12px;">
+        <label>Shop Pay Installments (%)
+          <input id="installmentRate" type="number" min="0" step="0.01" value="5.99">
+        </label>
+        <label>Installments fixed fee
+          <input id="installmentFixed" type="number" min="0" step="0.01" value="0.30">
+        </label>
+        <label>Installment share of checkouts (%)
+          <input id="installmentSharePct" type="number" min="0" max="100" step="0.1" value="15">
+        </label>
+        <label>Extra monthly orders from installments
+          <input id="extraOrdersFromInstallments" type="number" min="0" step="0.1" value="0">
+        </label>
+      </div>
+      <p id="installmentHeadline" class="note"></p>
+      <table id="installmentTable">
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Rate</th>
+            <th scope="col">Fee / order</th>
+            <th scope="col">Profit / order</th>
+            <th scope="col">vs card</th>
+          </tr>
+        </thead>
+        <tbody id="installmentCompare"></tbody>
+      </table>
+      <p id="installmentNote" class="note"></p>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -294,7 +332,7 @@
     <p>Selling the same item somewhere else too? The <a href="../where-to-sell-calculator/">where-to-sell calculator</a> ranks your own store against eBay, Etsy, Amazon and a direct sale on one item.</p>
   </footer>
   <script type="module">
-    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
+    import { applyPlanPreset, calculateOrder, comparePlans, comparePromos, compareShopPayInstallments, defaultPromoSet, promoComparisonSummary } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
     import { encodeShareState, decodeShareState } from "./share.mjs";
 
@@ -304,6 +342,7 @@
       "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin", "targetProfit",
     ];
     const promoIds = ["percentOff", "amountOff"];
+    const installmentIds = ["installmentRate", "installmentFixed", "installmentSharePct", "extraOrdersFromInstallments"];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => {
       if (Math.abs(value) < 0.005) return "same";
@@ -324,6 +363,7 @@
       return {
         ...Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value])),
         ...Object.fromEntries(promoIds.map((id) => [id, document.getElementById(id).value])),
+        ...Object.fromEntries(installmentIds.map((id) => [id, document.getElementById(id).value])),
         paymentMethod: paymentMethod(),
         planId: document.getElementById("plan").value,
       };
@@ -401,6 +441,18 @@
           document.getElementById("planBreakEven").textContent =
             `${toLabel} starts covering its extra ${money(nextUp.extraMonthly)} / month at ${ordersLabel(nextUp.breakEvenOrders)} on this payment path (about ${money(nextUp.feeSavings)} less in fees per order).`;
         }
+
+        const installment = compareShopPayInstallments(readInput());
+        document.getElementById("installmentHeadline").textContent = installment.summary;
+        document.getElementById("installmentCompare").innerHTML = installment.rows.map((row) => {
+          const delta = row.id === "card" ? "—" : signedMoney(row.profitDelta);
+          return `<tr><td>${row.label}</td><td>${row.rate.toFixed(2)}% + ${money(row.fixed)}</td><td>${money(row.feeTotal)}</td><td>${money(row.profit)}</td><td>${delta}</td></tr>`;
+        }).join("");
+        document.getElementById("installmentNote").textContent = installment.liftPays
+          ? `Typed lift of ${installment.extraOrdersFromInstallments} extra orders covers the extra fee.`
+          : Number.isFinite(installment.breakEvenExtraOrders)
+            ? `Need about ${installment.breakEvenExtraOrders.toFixed(1)} extra orders / month for the mix to match turning installments off.`
+            : "The blended mix cannot cover the extra installment fee from volume alone.";
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -414,6 +466,9 @@
         document.getElementById("planCompare").innerHTML = "";
         document.getElementById("planHeadline").textContent = "Fix the inputs to compare plans.";
         document.getElementById("planBreakEven").textContent = "";
+        document.getElementById("installmentCompare").innerHTML = "";
+        document.getElementById("installmentHeadline").textContent = "Fix the inputs to compare Shop Pay Installments.";
+        document.getElementById("installmentNote").textContent = "";
       }
     }
 
@@ -431,6 +486,7 @@
     document.getElementById("plan").addEventListener("change", applyPlan);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
     promoIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    installmentIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       const event = id === "targetMargin"
         ? "target_margin_calculated"
@@ -443,6 +499,9 @@
     }));
     promoIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "promos_compared");
+    }));
+    installmentIds.forEach((id) => document.getElementById(id).addEventListener("change", () => {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "shop_pay_installments_compared");
     }));
     document.querySelectorAll('input[name="paymentMethod"]').forEach((el) => {
       el.addEventListener("change", () => {
