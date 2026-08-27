@@ -32,8 +32,7 @@
 // **A restore never deletes.** The file is merged into what is already on the
 // device, never written over it. Someone restoring last month's backup onto the
 // phone that has this week's bids must not lose this week — and cannot be
-// expected to know that in advance. Where the same job appears in both, the
-// newer `at` wins, which is the only ordering the data actually carries.
+// expected to know that in advance.
 //
 // **Nothing is dropped silently.** Names the file could not carry, entries that
 // failed validation, and bids pushed past the 25-per-tool cap are all counted
@@ -41,11 +40,17 @@
 // keeps re-learning: a list that quietly stops looks exactly like a tool that
 // forgot, and the visitor has no way to tell the two apart.
 //
-// The pure functions live here and are tested here; the hub's script is a
-// transcription of them into a page that cannot import, same as
-// `savedBidIndex`.
+// Where the same job appears in both, the newer `at` wins the *numbers*, but
+// not the decision: `resolveBidPair` resolves an outcome on its own clock,
+// because marking a bid won does not re-price it and so does not move `at`.
+//
+// The pure functions live here and are tested here. The hub cannot import, so
+// the two that decide what a bid *is* — `normalizeBid` and `mergeBids` — are
+// embedded into its script as their own source rather than written out beside
+// it. They were transcribed by hand once, and the copy went stale the day bids
+// gained outcomes: see `BACKUP_MERGE_HELPERS`.
 
-import { MAX_SAVED_BIDS, normalizeBid } from './jobs.mjs';
+import { BID_RECORD_HELPERS, MAX_SAVED_BIDS, normalizeBid, stripForInjection } from './jobs.mjs';
 import { normalizeRates, SHOP_RATE_FIELDS } from './rates.mjs';
 
 /**
@@ -327,6 +332,33 @@ export function mergeBids(current, incoming) {
 }
 
 /**
+ * The record shape and the merge, as source, for the hub's inline script.
+ *
+ * The hub used to carry its own `normalizedBid` and its own `mergeBidStores`,
+ * written out by hand beside the tested ones. Both were the pre-outcome
+ * versions: the normaliser returned `{ name, at, fields }`, and the merge
+ * resolved a name collision on `at` alone. Together they meant a contractor
+ * could mark a job won, download a backup, restore it, and find every decision
+ * they had recorded quietly gone — including on bids the file never mentioned,
+ * because a restore normalises the device's own store on the way in.
+ *
+ * `resolveBidPair`'s own comment describes exactly this failure and exists to
+ * prevent it. It was never reachable from the browser. Embedding the tested
+ * definitions is the fix, and the drift test below is what keeps it fixed:
+ * there is now one implementation, and the page runs it.
+ *
+ * `MAX_SAVED_BIDS` is not emitted here — the script that takes this block
+ * already declares it, and a second declaration in the same scope is a
+ * syntax error rather than a shadow.
+ */
+export const BACKUP_MERGE_HELPERS = [
+  BID_RECORD_HELPERS,
+  ...[bidKey, resolveBidPair, mergeBids].map(
+    (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
+  ),
+].join('\n');
+
+/**
  * What the page says after a restore.
  *
  * Built here rather than in the hub script so the wording is tested: this
@@ -434,6 +466,12 @@ export const BACKUP_WIDGET_SCRIPT = `
     // reject.
     const RATE_FIELDS = ${JSON.stringify(SHOP_RATE_FIELDS.map(({ id, max }) => ({ id, max })))};
 
+    // normalizeBid() and mergeBids(), as this repository's tests run them.
+    // Embedded rather than transcribed: the hand-written pair that stood here
+    // predated bid outcomes and silently dropped every won/lost decision
+    // through a backup round trip. See BACKUP_MERGE_HELPERS.
+${BACKUP_MERGE_HELPERS}
+
     function readBidStore() {
       let parsed;
       try { parsed = JSON.parse(localStorage.getItem(BIDS_KEY) || '{}'); } catch { return {}; }
@@ -442,34 +480,10 @@ export const BACKUP_WIDGET_SCRIPT = `
       const out = {};
       for (const [slug, list] of Object.entries(bids)) {
         if (!SLUG_RE.test(slug) || !Array.isArray(list)) continue;
-        const kept = list.map(normalizedBid).filter(Boolean).slice(0, MAX_SAVED_BIDS);
+        const kept = list.map((entry) => normalizeBid(entry)).filter(Boolean).slice(0, MAX_SAVED_BIDS);
         if (kept.length > 0) out[slug] = kept;
       }
       return out;
-    }
-
-    // The same shape jobs.mjs stores and normalizeBid() validates: a name, a
-    // timestamp, and a flat map of form values. Anything else on this key came
-    // from a crashed write or a hand-edited file and is not a bid.
-    function normalizedBid(entry) {
-      if (!entry || typeof entry !== 'object') return null;
-      const name = typeof entry.name === 'string'
-        ? entry.name.replace(/\\s+/g, ' ').trim().slice(0, 60) : '';
-      if (!name) return null;
-      if (typeof entry.at !== 'string' || !entry.at) return null;
-      const source = entry.fields;
-      if (!source || typeof source !== 'object' || Array.isArray(source)) return null;
-      const fields = {};
-      let kept = 0;
-      for (const [id, value] of Object.entries(source)) {
-        if (!id || id.startsWith('pf-') || id === 'usageOptOut') continue;
-        if (typeof value !== 'string' && typeof value !== 'boolean') continue;
-        if (typeof value === 'string' && value.length > 2000) continue;
-        fields[id] = value;
-        kept++;
-      }
-      if (kept === 0) return null;
-      return { name: name, at: entry.at, fields: fields };
     }
 
     function countBids(store) {
@@ -556,7 +570,7 @@ export const BACKUP_WIDGET_SCRIPT = `
           return;
         }
 
-        const merged = mergeBidStores(readBidStore(), parsed.bids);
+        const merged = mergeBids(readBidStore(), parsed.bids);
         try {
           localStorage.setItem(BIDS_KEY, JSON.stringify({ v: 1, bids: merged.bids }));
         } catch {
@@ -646,7 +660,7 @@ export const BACKUP_WIDGET_SCRIPT = `
         if (!Array.isArray(list)) { skipped += 1; continue; }
         const kept = [];
         for (const entry of list) {
-          const bid = normalizedBid(entry);
+          const bid = normalizeBid(entry);
           if (bid) kept.push(bid); else skipped++;
         }
         if (kept.length > 0) bids[slug] = kept;
@@ -670,35 +684,6 @@ export const BACKUP_WIDGET_SCRIPT = `
       }
       return { ok: true, bids: bids, rates: rates, skipped: skipped,
         at: typeof parsed.at === 'string' ? parsed.at : null };
-    }
-
-    // Never subtractive. Everything already on this device survives unless the
-    // per-tool cap pushed it out, and the cap's casualties are counted so the
-    // status line can say so rather than the list quietly getting shorter.
-    function mergeBidStores(current, incoming) {
-      const result = {};
-      let added = 0, replaced = 0, unchanged = 0, dropped = 0;
-      const slugs = new Set([...Object.keys(current), ...Object.keys(incoming)]);
-      for (const slug of slugs) {
-        const byName = new Map();
-        for (const bid of (current[slug] || [])) {
-          const seen = byName.get(bid.name);
-          if (!seen || bid.at > seen.at) byName.set(bid.name, bid);
-        }
-        for (const bid of (incoming[slug] || [])) {
-          const seen = byName.get(bid.name);
-          if (!seen) { byName.set(bid.name, bid); added++; }
-          else if (bid.at > seen.at) { byName.set(bid.name, bid); replaced++; }
-          else unchanged++;
-        }
-        const merged = [...byName.values()].sort(
-          (a, b) => b.at.localeCompare(a.at) || a.name.localeCompare(b.name));
-        if (merged.length > MAX_SAVED_BIDS) dropped += merged.length - MAX_SAVED_BIDS;
-        const kept = merged.slice(0, MAX_SAVED_BIDS);
-        if (kept.length > 0) result[slug] = kept;
-      }
-      return { bids: result, added: added, replaced: replaced,
-        unchanged: unchanged, dropped: dropped };
     }
 
     function restoreSummaryText(counts) {

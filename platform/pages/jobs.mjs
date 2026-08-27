@@ -468,6 +468,38 @@ export const BID_FOLLOW_UP_HELPERS = [bidWaitingDays, bidWaitingPhrase, followUp
   .join('\n');
 
 /**
+ * `normalizeBid` and its whole closure, as source, for embedding in an injected
+ * script.
+ *
+ * This exists because the hub's backup panel had transcribed it by hand and the
+ * copy went stale. `backup.mjs` shipped a `normalizedBid` that returned
+ * `{ name, at, fields }` — the shape a bid had before outcomes existed — so the
+ * browser silently dropped `outcome` and `decidedAt` on the way into a backup
+ * file, on the way out of one, and off the bids already on the device, because
+ * a restore re-reads the local store through the same function. Marking "14 Oak
+ * St" won and then restoring any backup put it back in the chase list. Nothing
+ * failed; the module was correct and tested throughout; only the copy the
+ * browser actually ran was wrong.
+ *
+ * So the rule this file already applies to the follow-up helpers now applies to
+ * the record shape too: an injected script gets the tested definition through
+ * `Function.prototype.toString`, never a paraphrase. Anything added to a bid
+ * from here on is carried by every consumer without a second edit.
+ *
+ * The constants come first because the functions close over them, and they are
+ * emitted as literals rather than as source: `EXCLUDED_FIELD_IDS` is a `Set`,
+ * whose `toString` is not its contents.
+ */
+export const BID_RECORD_HELPERS = [
+  `var EXCLUDED_FIELD_IDS = new Set(${JSON.stringify([...EXCLUDED_FIELD_IDS])});`,
+  `var EXCLUDED_ID_PREFIX = ${JSON.stringify(EXCLUDED_ID_PREFIX)};`,
+  `var BID_OUTCOMES = ${JSON.stringify(BID_OUTCOMES)};`,
+  ...[normalizeBidName, normalizeOutcome, isExcludedId, normalizeBid].map(
+    (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
+  ),
+].join('\n');
+
+/**
  * Say so in the structured data.
  *
  * `featureList` is the machine-readable list of what a tool does — what a

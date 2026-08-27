@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
   BACKUP_KIND,
+  BACKUP_MERGE_HELPERS,
   BACKUP_VERSION,
   BACKUP_WIDGET_HTML,
   BACKUP_WIDGET_SCRIPT,
@@ -14,7 +15,7 @@ import {
   parseBackup,
   restoreSummary,
 } from './backup.mjs';
-import { MAX_SAVED_BIDS } from './jobs.mjs';
+import { MAX_SAVED_BIDS, normalizeBid } from './jobs.mjs';
 import { SHOP_RATE_FIELDS } from './rates.mjs';
 
 const bid = (name, at, fields = { roofArea: '2400' }) => ({ name, at, fields });
@@ -410,4 +411,110 @@ test('a backup carrying an outcome this site does not know reads as waiting', ()
   const file = buildBackup({ bids: { g: [decided(OAK, AT, 'archived', '2026-08-24T09:00:00.000Z')] } });
   const parsed = parseBackup(JSON.stringify(file));
   assert.equal('outcome' in parsed.bids.g[0], false);
+});
+
+// ---------------------------------------------------------------------------
+// What the browser actually runs
+//
+// Every test above this line exercises the module. The hub used to run a
+// hand-written second copy of `normalizeBid` and `mergeBids`, and that copy
+// predated outcomes — so all of the above passed while a contractor's won and
+// lost decisions were destroyed by any backup round trip on the live site.
+// These tests evaluate the source the page is given.
+// ---------------------------------------------------------------------------
+
+/**
+ * The embedded helpers, in a scope shaped like the hub script's.
+ *
+ * `MAX_SAVED_BIDS` is declared by the script that takes the block, not by the
+ * block, so the harness has to supply it exactly as the hub does — and this is
+ * also the test that the two agree about the cap.
+ */
+const hubHelpers = () =>
+  new Function(`const MAX_SAVED_BIDS = ${MAX_SAVED_BIDS};
+${BACKUP_MERGE_HELPERS}
+return { normalizeBid: normalizeBid, mergeBids: mergeBids, resolveBidPair: resolveBidPair };`)();
+
+test('the hub normalises a bid exactly as the module does', () => {
+  const { normalizeBid: hub } = hubHelpers();
+  for (const entry of [
+    decided(OAK, AT, 'won', '2026-08-24T09:00:00.000Z'),
+    decided(OAK, AT, 'lost'),
+    bid(OAK, AT),
+    bid('  spaced   out  ', AT),
+    decided(OAK, AT, 'archived', '2026-08-24T09:00:00.000Z'),
+    { name: OAK, at: AT, fields: { roofArea: '2400', usageOptOut: 'true', 'pf-x': '1' } },
+    { name: '', at: AT, fields: { a: '1' } },
+    null,
+  ]) {
+    assert.deepEqual(hub(entry), normalizeBid(entry), JSON.stringify(entry));
+  }
+});
+
+test('the hub merges exactly as the module does', () => {
+  const { mergeBids: hub } = hubHelpers();
+  const mine = { g: [decided(OAK, AT, 'won', '2026-08-24T09:00:00.000Z')] };
+  const theirs = { g: [bid(OAK, '2026-08-26T10:00:00.000Z', { roofArea: '3000' })] };
+  assert.deepEqual(hub(mine, theirs), mergeBids(mine, theirs));
+  assert.deepEqual(hub(theirs, mine), mergeBids(theirs, mine));
+  assert.deepEqual(hub({}, theirs), mergeBids({}, theirs));
+});
+
+test('a win survives the round trip the hub actually performs', () => {
+  // The defect, driven end to end through the page's own code: mark 14 Oak St
+  // won, download a backup, restore it. Every step below is the hub's, and
+  // before this fix the bid came back out of it waiting.
+  const { normalizeBid: hub, mergeBids: hubMerge } = hubHelpers();
+  const onDevice = { g: [decided(OAK, AT, 'won', '2026-08-24T09:00:00.000Z')] };
+
+  // readBidStore(): the device's own store, normalised on the way out.
+  const read = { g: onDevice.g.map((entry) => hub(entry)).filter(Boolean) };
+  assert.equal(read.g[0].outcome, 'won', 'the backup file was written without the win');
+
+  // The file, and parseBackupText() reading it back.
+  const file = JSON.parse(JSON.stringify({ bids: read }));
+  const incoming = { g: file.bids.g.map((entry) => hub(entry)).filter(Boolean) };
+
+  // The restore merges the file into the store it just read.
+  const merged = hubMerge(read, incoming);
+  assert.equal(merged.bids.g[0].outcome, 'won', 'restoring a backup un-won the bid');
+  assert.equal(merged.bids.g[0].decidedAt, '2026-08-24T09:00:00.000Z');
+});
+
+test('restoring a backup does not un-decide a bid the file never mentioned', () => {
+  // The worst shape of the same defect: the device normalises its *whole*
+  // store on the way into a restore, so a file about the siding calculator
+  // could strip the outcomes off every bid in the gutter one.
+  const { normalizeBid: hub, mergeBids: hubMerge } = hubHelpers();
+  const onDevice = {
+    g: [decided(OAK, AT, 'won', '2026-08-24T09:00:00.000Z')],
+    s: [bid('elsewhere', AT)],
+  };
+  const read = {};
+  for (const [slug, list] of Object.entries(onDevice)) {
+    read[slug] = list.map((entry) => hub(entry)).filter(Boolean);
+  }
+  const merged = hubMerge(read, { s: [bid('elsewhere', '2026-08-26T10:00:00.000Z')] });
+  assert.equal(merged.bids.g[0].outcome, 'won');
+});
+
+test('the hub carries no second normaliser and no second merge to drift from', () => {
+  // The fix is not that the copy was corrected — it is that there is no copy.
+  // A future field added to a bid must reach the browser without a second
+  // edit, which is the whole reason the block is embedded by toString.
+  assert.ok(!/function normalizedBid\b/.test(BACKUP_WIDGET_SCRIPT),
+    'the hub script still defines its own bid normaliser');
+  assert.ok(!/function mergeBidStores\b/.test(BACKUP_WIDGET_SCRIPT),
+    'the hub script still defines its own merge');
+  assert.ok(BACKUP_WIDGET_SCRIPT.includes(BACKUP_MERGE_HELPERS),
+    'the hub script does not carry the embedded helpers');
+});
+
+test('every embedded line leaves its backticks balanced', () => {
+  // `stripForInjection` joins trimmed lines, which would corrupt a template
+  // literal spanning two of them. None of these functions has one; this is the
+  // guard that notices when one gains it.
+  for (const line of BACKUP_MERGE_HELPERS.split('\n')) {
+    assert.equal((line.match(/`/g) ?? []).length % 2, 0, line);
+  }
 });
