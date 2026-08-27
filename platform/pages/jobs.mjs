@@ -154,6 +154,31 @@ export function normalizeBidName(value) {
 }
 
 /**
+ * What happened to the bid, once the customer answered.
+ *
+ * Three states, and the third is the absence of the other two: a bid with no
+ * outcome is *waiting*, which is the state every bid starts in and the only one
+ * worth a nudge. Storing "waiting" explicitly would be storing the default on
+ * every record for no gain, so an undecided bid carries no `outcome` key at all
+ * — which is also what makes every bid saved before this shipped read correctly
+ * as waiting rather than as corrupt.
+ *
+ * Why the tool tracks this at all: a one-truck contractor's largest lost
+ * revenue is not the bid they priced wrong, it is the bid nobody ever chased.
+ * The proposal made Tuesday a document and saved bids made Friday a lookup;
+ * neither of them ever said "this quote is nineteen days old and you have not
+ * heard back". Won and lost are the other half — over a season they are the
+ * only evidence in the tool of whether the shop rate is pitched right, and they
+ * cost the contractor two clicks to record.
+ */
+export const BID_OUTCOMES = ['won', 'lost'];
+
+/** `'won'`, `'lost'`, or `null` for waiting — never anything else. */
+export function normalizeOutcome(value) {
+  return BID_OUTCOMES.indexOf(value) === -1 ? null : value;
+}
+
+/**
  * Keep only what a bid can hold.
  *
  * Storage is the visitor's own disk and can contain anything — a half-written
@@ -185,7 +210,22 @@ export function normalizeBid(entry) {
     kept++;
   }
   if (kept === 0) return null;
-  return { name, at, fields };
+
+  const bid = { name, at, fields };
+  // Added only when decided, never as `outcome: null`. Two reasons, and the
+  // second is the load-bearing one: a bid saved before outcomes existed is
+  // indistinguishable from one saved after and left waiting, so nothing has to
+  // migrate; and `serializeBids` writes this object straight to the visitor's
+  // disk, where a null on every record is bytes bought for nothing.
+  const outcome = normalizeOutcome(entry.outcome);
+  if (outcome) {
+    bid.outcome = outcome;
+    // When it was decided, not when it was priced. `at` cannot serve: marking a
+    // bid won does not re-price it, so `at` stays put — which is exactly why
+    // `mergeBids` needs a second instant to tell two devices apart.
+    if (typeof entry.decidedAt === 'string' && entry.decidedAt) bid.decidedAt = entry.decidedAt;
+  }
+  return bid;
 }
 
 /**
@@ -244,7 +284,12 @@ export function savedBidIndex(raw, { limit = Infinity } = {}) {
       if (!bid || typeof bid !== 'object') continue;
       const { name, at } = bid;
       if (typeof name !== 'string' || !name || typeof at !== 'string' || !at) continue;
-      rows.push({ slug, name, at });
+      const row = { slug, name, at };
+      // Same rule as the record itself: present only when decided, so a caller
+      // that predates outcomes sees exactly the rows it always saw.
+      const outcome = normalizeOutcome(bid.outcome);
+      if (outcome) row.outcome = outcome;
+      rows.push(row);
     }
   }
   rows.sort(
@@ -285,6 +330,143 @@ export function restoreMismatch(savedIds, formIds) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Follow-up: how old a waiting bid is, and what the visitor is told about it
+// ---------------------------------------------------------------------------
+//
+// These three are the only logic in this file that runs in three places — the
+// saved-bids band on a calculator, the hub's index of every saved bid, and the
+// tests here. Both of those pages are inline scripts assembled at build time,
+// so the established shape in this repo (see `savedBids()` in `build.mjs`
+// mirroring `savedBidIndex` above) is to write the rule twice and test one
+// copy. That is a standing invitation for the two to drift, and the drift would
+// be invisible: the hub would say a bid is nine days old and the calculator ten.
+//
+// So these are injected by `.toString()` instead, through
+// `BID_FOLLOW_UP_HELPERS`. The browser runs the same function body the tests
+// run, which is why they are written in ES5 — `var`, no arrows, no template
+// literals — and are self-contained apart from each other.
+
+/**
+ * Whole days between a bid's save time and now, or `null` if the stored
+ * timestamp is not a date.
+ *
+ * Clamped at zero. A device whose clock moved backwards — or a bid restored
+ * from a backup written by a machine running fast — must not report a bid
+ * saved "-2 days ago", and there is nothing useful to say about a negative age
+ * that "today" does not already say.
+ */
+export function bidWaitingDays(at, nowMs) {
+  var t = Date.parse(at);
+  if (t !== t) return null;
+  var days = Math.floor((nowMs - t) / 86400000);
+  return days < 0 ? 0 : days;
+}
+
+/**
+ * The per-row nudge: `waiting 9 days`.
+ *
+ * Empty for a bid saved today and for one with no readable date. A bid priced
+ * this morning is not late, and a badge saying "waiting 0 days" on every fresh
+ * bid would train the contractor to stop reading the column that exists to be
+ * read on the nineteenth day.
+ */
+export function bidWaitingPhrase(days) {
+  if (typeof days !== 'number' || !(days > 0)) return '';
+  return 'waiting ' + days + (days === 1 ? ' day' : ' days');
+}
+
+/**
+ * The summary above a list of bids.
+ *
+ * Two independent clauses, either of which may be absent:
+ *
+ *   "3 bids are waiting on an answer, the oldest saved 19 days ago."
+ *   "You have won 4 of the 7 you have heard back on."
+ *
+ * The first is the reason this feature exists. The second is the only thing in
+ * the portfolio that tells a contractor whether their pricing wins work, and it
+ * is deliberately a bare count rather than a percentage: at seven decided bids
+ * a percentage reads as a statistic the sample cannot support, and "4 of 7" is
+ * the same fact without the false precision.
+ *
+ * Returns `''` when there is nothing to say, so a caller can hide the line
+ * rather than draw an empty one.
+ */
+export function followUpSentence(rows, nowMs) {
+  if (!rows || !rows.length) return '';
+
+  var waiting = 0;
+  var won = 0;
+  var lost = 0;
+  var oldest = -1;
+
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    if (!row || typeof row !== 'object') continue;
+    if (row.outcome === 'won') { won++; continue; }
+    if (row.outcome === 'lost') { lost++; continue; }
+    waiting++;
+    var days = bidWaitingDays(row.at, nowMs);
+    if (days !== null && days > oldest) oldest = days;
+  }
+
+  var parts = [];
+  if (waiting > 0) {
+    // `oldest` stays -1 when no waiting bid had a readable date, and the clause
+    // then drops the age rather than inventing one.
+    var ago = oldest < 0 ? '' : oldest === 0 ? 'today' : oldest === 1 ? '1 day ago' : oldest + ' days ago';
+    if (waiting === 1) {
+      parts.push('1 bid is waiting on an answer' + (ago ? ', saved ' + ago : '') + '.');
+    } else {
+      var tail = !ago ? '' : oldest === 0 ? ', all saved today' : ', the oldest saved ' + ago;
+      parts.push(waiting + ' bids are waiting on an answer' + tail + '.');
+    }
+  }
+
+  var decided = won + lost;
+  if (decided > 0) {
+    parts.push('You have won ' + won + ' of the ' + decided + ' you have heard back on.');
+  }
+
+  return parts.join(' ');
+}
+
+/**
+ * Drop the indentation and the whole-line comments from a function's source.
+ *
+ * These bodies ship inside every one of the ~230 pages the build produces, and
+ * the service worker caches all of them for jobsite use — so a kilobyte here is
+ * a quarter of a megabyte in the offline bundle, which has a fixed budget
+ * (`the offline bundle stays small enough to fetch on mobile data`).
+ *
+ * Only two things are removed, both mechanically: leading whitespace, and lines
+ * whose first non-space characters are `//`. Lines are still joined with
+ * newlines, so no statement can run into the one below it, and nothing inside a
+ * string literal is touched. That keeps the guarantee this whole arrangement
+ * exists for — the browser runs the tested code, not a paraphrase of it —
+ * while not paying to ship the prose twice.
+ */
+export function stripForInjection(source) {
+  return String(source)
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line !== '' && !line.startsWith('//'))
+    .join('\n');
+}
+
+/**
+ * The three above, as source, for embedding in an injected script.
+ *
+ * `Function.prototype.toString` returns the exact characters of the definition,
+ * so the browser gets the tested body rather than a hand-copied paraphrase of
+ * it. Assigned to `var` bindings in declaration order; `followUpSentence` calls
+ * `bidWaitingDays`, and both are hoisted into the same scope before either runs.
+ */
+export const BID_FOLLOW_UP_HELPERS = [bidWaitingDays, bidWaitingPhrase, followUpSentence]
+  .map((fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`)
+  .join('\n');
+
 /**
  * Say so in the structured data.
  *
@@ -298,7 +480,8 @@ export function restoreMismatch(savedIds, formIds) {
  *
  * One phrase, appended to the list already there.
  */
-export const SAVED_BIDS_CLAUSE = 'saved bids you can name, reopen and reprice';
+export const SAVED_BIDS_CLAUSE =
+  'saved bids you can name, reopen and reprice, and mark won or lost to see which quotes are still waiting on an answer';
 
 /**
  * Both spellings, because the repo uses both — a strict match on
@@ -356,6 +539,14 @@ const JOBS_STYLE = `<style>
 .pf-jobs-list li:first-child{border-top:0}
 .pf-jobs-name{font-weight:600;flex:1 1 10em;overflow-wrap:anywhere}
 .pf-jobs-when{opacity:.7;font-variant-numeric:tabular-nums}
+/* The summary is not dimmed like the note below it, and the waiting age is not
+   dimmed like the date beside it: both are what the panel is opened to read.
+   A decided row steps back, because the list is scanned for the open ones. */
+.pf-jobs-summary{margin:0 0 10px;font-weight:600}
+.pf-jobs-age{font-variant-numeric:tabular-nums}
+.pf-jobs-state{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
+  border:1px solid #80808059;border-radius:7px;padding:3px 6px}
+.pf-jobs-list li[data-pf-jobs-decided] .pf-jobs-name{font-weight:500;opacity:.75}
 .pf-jobs-note{margin:10px 0 0;opacity:.72}
 /* The band inherits each venture's own colours, and 180 pages do not agree on
    a link colour. currentColor plus an underline reads as a link on every one
@@ -409,12 +600,13 @@ const JOBS_MARKUP = (toRoot = './') => `<section class="pf-jobs" id="pf-jobs" hi
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, and restoring one puts the whole job back exactly as you priced it.</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out.</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
       <button type="button" data-pf-jobs="save">Save this bid</button>
     </div>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
     <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
     <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="${toRoot}#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
   </div>
@@ -435,6 +627,31 @@ const JOBS_MARKUP = (toRoot = './') => `<section class="pf-jobs" id="pf-jobs" hi
  * saved *bid* is a different job from the one on screen, and putting one there
  * without being asked would overwrite the measurements someone is mid-way
  * through typing.
+ *
+ * Comments below are sparse on purpose, and the reasoning that would otherwise
+ * sit in them is here instead: this string is inlined into every page the build
+ * produces and cached by the service worker for all of them, so a line of prose
+ * in the script costs a quarter of a kilobyte across the offline bundle. The
+ * three decisions worth recording:
+ *
+ * **The outcome control is a `<select>`, not a Won button and a Lost button.**
+ * The row already carries Restore and Delete; two more buttons wrap it onto
+ * three lines on a phone. A select also reads as the state it is — a bid *is*
+ * waiting, or won — where a pair of buttons reads as an action, and it gives a
+ * way back from a mis-click that two buttons would need a third to offer.
+ *
+ * **The waiting age is drawn only on undecided bids.** A won job is not waiting
+ * for anything, and how long ago a lost one was priced is not a number anybody
+ * acts on. `bidWaitingPhrase` returns nothing for a bid saved today for the
+ * same reason: a bid priced this morning is not late, and a badge on every
+ * fresh row would train the contractor to stop reading the column that exists
+ * to be read on the nineteenth day.
+ *
+ * **Re-saving a bid keeps its outcome.** Saving over "14 Oak St" is the common
+ * case — the customer asked what it costs without the tear-off — and re-pricing
+ * a job is not the same event as hearing back about it. Dropping the outcome
+ * there would quietly move a won job back into the chase list, which is the
+ * failure this feature exists to prevent rather than cause.
  */
 const JOBS_SCRIPT = (slug) => `<script type="module">
 (function(){
@@ -444,6 +661,8 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
   var MIN_FIELDS = ${MIN_SAVEABLE_FIELDS};
   var EXCLUDED = ${JSON.stringify([...EXCLUDED_FIELD_IDS])};
   var UNSAVEABLE = ${JSON.stringify([...UNSAVEABLE_TYPES])};
+
+${BID_FOLLOW_UP_HELPERS}
 
   var root = document.querySelector('[data-pf-jobs-root]');
   if (!root) return;
@@ -534,9 +753,17 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
     var ul = el('pf-jobs-list');
     ul.textContent = '';
     ul.hidden = list.length === 0;
+
+    var summary = el('pf-jobs-summary');
+    var sentence = followUpSentence(list, Date.now());
+    summary.textContent = sentence;
+    summary.hidden = sentence === '';
+
     for (var i = 0; i < list.length; i++) {
       var bid = list[i];
+      var outcome = bid.outcome === 'won' || bid.outcome === 'lost' ? bid.outcome : '';
       var li = document.createElement('li');
+      if (outcome) li.setAttribute('data-pf-jobs-decided', outcome);
 
       var name = document.createElement('span');
       name.className = 'pf-jobs-name';
@@ -547,6 +774,31 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
       at.className = 'pf-jobs-when';
       at.textContent = when(bid.at);
       li.appendChild(at);
+
+      if (!outcome) {
+        var phrase = bidWaitingPhrase(bidWaitingDays(bid.at, Date.now()));
+        if (phrase) {
+          var age = document.createElement('span');
+          age.className = 'pf-jobs-age';
+          age.textContent = phrase;
+          li.appendChild(age);
+        }
+      }
+
+      var state = document.createElement('select');
+      state.className = 'pf-jobs-state';
+      state.setAttribute('data-pf-jobs-state', '');
+      state.setAttribute('data-pf-jobs-index', String(i));
+      state.setAttribute('aria-label', 'Outcome of the bid named ' + bid.name);
+      var options = [['', 'Waiting'], ['won', 'Won'], ['lost', 'Lost']];
+      for (var o = 0; o < options.length; o++) {
+        var option = document.createElement('option');
+        option.value = options[o][0];
+        option.textContent = options[o][1];
+        if (options[o][0] === outcome) option.selected = true;
+        state.appendChild(option);
+      }
+      li.appendChild(state);
 
       var restore = document.createElement('button');
       restore.type = 'button';
@@ -586,10 +838,18 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
     // customer asks what it costs without the tear-off and the contractor saves
     // over their own row rather than growing a list of near-identical names.
     var replaced = false;
+    var carried = null;
     for (var j = 0; j < list.length; j++) {
-      if (list[j].name === name) { list.splice(j, 1); replaced = true; break; }
+      if (list[j].name === name) { carried = list.splice(j, 1)[0]; replaced = true; break; }
     }
-    list.unshift({ name: name, at: new Date().toISOString(), fields: values });
+
+    var entry = { name: name, at: new Date().toISOString(), fields: values };
+    // Re-pricing a job is not hearing back about it: the outcome carries over.
+    if (carried && (carried.outcome === 'won' || carried.outcome === 'lost')) {
+      entry.outcome = carried.outcome;
+      if (typeof carried.decidedAt === 'string' && carried.decidedAt) entry.decidedAt = carried.decidedAt;
+    }
+    list.unshift(entry);
 
     var dropped = list.length > MAX;
     if (!writeMine(list)) {
@@ -655,6 +915,29 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
     say('Restored “' + bid.name + '” — ' + written + ' fields. The bid below is repriced from it.');
   };
 
+  var setOutcome = function(index, value){
+    var list = mine();
+    var bid = list[index];
+    if (!bid) { render(); return; }
+
+    if (value === 'won' || value === 'lost') {
+      bid.outcome = value;
+      bid.decidedAt = new Date().toISOString();
+    } else {
+      delete bid.outcome;
+      delete bid.decidedAt;
+    }
+
+    if (!writeMine(list)) { say('This browser would not update its storage.'); return; }
+    render();
+    bump(value === 'won' ? 'bid_marked_won' : value === 'lost' ? 'bid_marked_lost' : 'bid_marked_waiting');
+    say(
+      value === 'won' ? 'Marked “' + bid.name + '” won.'
+        : value === 'lost' ? 'Marked “' + bid.name + '” lost.'
+        : '“' + bid.name + '” is waiting on an answer again.'
+    );
+  };
+
   var remove = function(index){
     var list = mine();
     var bid = list[index];
@@ -715,6 +998,15 @@ const JOBS_SCRIPT = (slug) => `<script type="module">
       if (!isFinite(index)) return;
       if (action === 'restore') restore(index);
       else if (action === 'delete') remove(index);
+    });
+
+    // A select fires 'change', not 'click' — its own listener, not a branch above.
+    el('pf-jobs-panel').addEventListener('change', function(event){
+      var select = event.target;
+      if (!select || !select.hasAttribute || !select.hasAttribute('data-pf-jobs-state')) return;
+      var index = Number(select.getAttribute('data-pf-jobs-index'));
+      if (!isFinite(index)) return;
+      setOutcome(index, select.value);
     });
   };
 

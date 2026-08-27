@@ -325,3 +325,89 @@ test('the transcribed rate ceilings match the ones rates.mjs enforces', () => {
     );
   }
 });
+
+// ---------------------------------------------------------------------------
+// Outcomes across two devices
+// ---------------------------------------------------------------------------
+
+const decided = (name, at, outcome, decidedAt) => ({
+  ...bid(name, at),
+  outcome,
+  ...(decidedAt ? { decidedAt } : {}),
+});
+
+const OAK = '14 Oak St — Mrs Reid';
+const AT = '2026-08-20T10:00:00.000Z';
+
+test('a win recorded on one device is not lost by merging the other way', () => {
+  // The case this whole resolution exists for. Marking a bid won does not
+  // re-price it, so both copies carry the same `at` — and under "later at
+  // wins" alone the incoming decision would be counted "unchanged" and thrown
+  // away, leaving a won job sitting in the chase list on this device forever.
+  const phone = { g: [decided(OAK, AT, 'won', '2026-08-25T09:00:00.000Z')] };
+  const laptop = { g: [bid(OAK, AT)] };
+
+  const merged = mergeBids(laptop, phone);
+  assert.equal(merged.bids.g[0].outcome, 'won');
+  assert.equal(merged.bids.g[0].decidedAt, '2026-08-25T09:00:00.000Z');
+  // Something on this device changed, so the sentence the visitor reads must
+  // not call it unchanged.
+  assert.equal(merged.replaced, 1);
+  assert.equal(merged.unchanged, 0);
+});
+
+test('an older backup does not un-decide a bid this device has already settled', () => {
+  // The same merge in the other direction. Waiting is the absence of news, not
+  // a competing claim: a file written before the customer answered must not
+  // reopen a job the contractor has since won.
+  const stale = { g: [bid(OAK, AT)] };
+  const here = { g: [decided(OAK, AT, 'won', '2026-08-25T09:00:00.000Z')] };
+
+  const merged = mergeBids(here, stale);
+  assert.equal(merged.bids.g[0].outcome, 'won');
+  assert.equal(merged.unchanged, 1);
+  assert.equal(merged.replaced, 0);
+});
+
+test('between two decisions the later one wins', () => {
+  const june = { g: [decided(OAK, AT, 'lost', '2026-06-01T09:00:00.000Z')] };
+  const august = { g: [decided(OAK, AT, 'won', '2026-08-01T09:00:00.000Z')] };
+
+  assert.equal(mergeBids(june, august).bids.g[0].outcome, 'won');
+  assert.equal(mergeBids(august, june).bids.g[0].outcome, 'won');
+});
+
+test('a decision that says when beats one that only says what', () => {
+  const dated = { g: [decided(OAK, AT, 'won', '2026-08-25T09:00:00.000Z')] };
+  const undated = { g: [decided(OAK, AT, 'lost')] };
+  assert.equal(mergeBids(undated, dated).bids.g[0].outcome, 'won');
+  assert.equal(mergeBids(dated, undated).bids.g[0].outcome, 'won');
+});
+
+test('the later pricing still takes the numbers, and keeps the decision', () => {
+  // Fields and outcome are resolved on different clocks, so a bid re-priced on
+  // one device and decided on the other has to come out of the merge with both.
+  const repriced = {
+    g: [{ ...bid(OAK, '2026-08-26T10:00:00.000Z', { roofArea: '3000' }) }],
+  };
+  const won = { g: [decided(OAK, AT, 'won', '2026-08-25T09:00:00.000Z')] };
+
+  const merged = mergeBids(won, repriced);
+  assert.equal(merged.bids.g[0].fields.roofArea, '3000');
+  assert.equal(merged.bids.g[0].at, '2026-08-26T10:00:00.000Z');
+  assert.equal(merged.bids.g[0].outcome, 'won');
+});
+
+test('an outcome survives being written to a backup file and read back', () => {
+  const file = buildBackup({ bids: { g: [decided(OAK, AT, 'lost', '2026-08-24T09:00:00.000Z')] } });
+  const parsed = parseBackup(JSON.stringify(file));
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.bids.g[0].outcome, 'lost');
+  assert.equal(parsed.bids.g[0].decidedAt, '2026-08-24T09:00:00.000Z');
+});
+
+test('a backup carrying an outcome this site does not know reads as waiting', () => {
+  const file = buildBackup({ bids: { g: [decided(OAK, AT, 'archived', '2026-08-24T09:00:00.000Z')] } });
+  const parsed = parseBackup(JSON.stringify(file));
+  assert.equal('outcome' in parsed.bids.g[0], false);
+});

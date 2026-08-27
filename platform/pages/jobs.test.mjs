@@ -5,21 +5,28 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  BID_FOLLOW_UP_HELPERS,
+  BID_OUTCOMES,
   EXCLUDED_FIELD_IDS,
   SAVED_BIDS_CLAUSE,
   addSavedBidsClause,
+  bidWaitingDays,
+  bidWaitingPhrase,
+  followUpSentence,
   MAX_SAVED_BIDS,
   MIN_SAVEABLE_FIELDS,
   SAVED_BIDS_KEY,
   injectSavedBids,
   normalizeBid,
   normalizeBidName,
+  normalizeOutcome,
   pageSaveableFieldIds,
   pageTakesSavedBids,
   parseStoredBids,
   restoreMismatch,
   savedBidIndex,
   serializeBids,
+  stripForInjection,
 } from './jobs.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -202,7 +209,10 @@ const ld = (list, spacing = '') =>
 
 test('the clause is appended to a page’s feature list', () => {
   const out = addSavedBidsClause(page(ld('Roof squares, waste factor')));
-  assert.match(out, /"featureList":"Roof squares, waste factor, saved bids you can name, reopen and reprice"/);
+  // Built from the constant, not spelled out: the wording is product copy that
+  // changes when the feature does, and a literal here fails the next time it
+  // does without saying anything about whether appending still works.
+  assert.ok(out.includes(`"featureList":"Roof squares, waste factor, ${SAVED_BIDS_CLAUSE}"`));
 });
 
 /**
@@ -224,7 +234,7 @@ test('a feature list nested under @graph is still found', () => {
 
 test('an escaped quote inside the list does not end it early', () => {
   const out = addSavedBidsClause(page(ld('A 12\\" run, B')));
-  assert.match(out, /"featureList":"A 12\\" run, B, saved bids you can name, reopen and reprice"/);
+  assert.ok(out.includes(`"featureList":"A 12\\" run, B, ${SAVED_BIDS_CLAUSE}"`));
 });
 
 test('appending is idempotent', () => {
@@ -448,4 +458,240 @@ test('the band carries the id the hub links to, and opens on that anchor', () =>
   // The hub sends visitors to /<slug>/#pf-jobs; landing there must open the
   // panel rather than leaving a collapsed strip under the anchor.
   assert.match(html, /location\.hash === '#pf-jobs'/);
+});
+
+// ---------------------------------------------------------------------------
+// Outcomes: won, lost, and the absence of both
+// ---------------------------------------------------------------------------
+
+test('only the two decided states are outcomes', () => {
+  assert.deepEqual(BID_OUTCOMES, ['won', 'lost']);
+  assert.equal(normalizeOutcome('won'), 'won');
+  assert.equal(normalizeOutcome('lost'), 'lost');
+  // Everything else is waiting, including the shapes a future version of the
+  // site or a hand-edited backup could put here.
+  for (const junk of ['waiting', 'WON', '', null, undefined, 0, 1, {}, ['won']]) {
+    assert.equal(normalizeOutcome(junk), null, `expected ${JSON.stringify(junk)} to read as waiting`);
+  }
+});
+
+test('a waiting bid carries no outcome key at all', () => {
+  // The load-bearing compatibility property: every bid saved before outcomes
+  // existed must be byte-identical to one saved after and left undecided, so
+  // nothing has to migrate and no record grows a null.
+  const bid = normalizeBid({ name: 'n', at: '2026-08-01T09:00:00.000Z', fields: { a: '1' } });
+  assert.deepEqual(bid, { name: 'n', at: '2026-08-01T09:00:00.000Z', fields: { a: '1' } });
+  assert.equal('outcome' in bid, false);
+  assert.equal('decidedAt' in bid, false);
+});
+
+test('a decided bid keeps its outcome and when it was decided', () => {
+  const bid = normalizeBid({
+    name: 'n',
+    at: '2026-08-01T09:00:00.000Z',
+    fields: { a: '1' },
+    outcome: 'won',
+    decidedAt: '2026-08-20T12:00:00.000Z',
+  });
+  assert.equal(bid.outcome, 'won');
+  assert.equal(bid.decidedAt, '2026-08-20T12:00:00.000Z');
+});
+
+test('a junk outcome is dropped rather than stored or thrown', () => {
+  const bid = normalizeBid({
+    name: 'n',
+    at: '2026-08-01T09:00:00.000Z',
+    fields: { a: '1' },
+    outcome: 'maybe',
+    decidedAt: '2026-08-20T12:00:00.000Z',
+  });
+  assert.equal('outcome' in bid, false);
+  // decidedAt without a decision is meaningless and would survive into the next
+  // merge as a tiebreak for an outcome that is not there.
+  assert.equal('decidedAt' in bid, false);
+});
+
+test('an outcome survives a round trip through storage', () => {
+  const raw = serializeBids({
+    't': [{ name: 'n', at: '2026-08-01T09:00:00.000Z', fields: { a: '1' }, outcome: 'lost', decidedAt: '2026-08-09T00:00:00.000Z' }],
+  });
+  assert.deepEqual(parseStoredBids(raw).t[0], {
+    name: 'n',
+    at: '2026-08-01T09:00:00.000Z',
+    fields: { a: '1' },
+    outcome: 'lost',
+    decidedAt: '2026-08-09T00:00:00.000Z',
+  });
+});
+
+test('the hub index carries the outcome, and omits it while waiting', () => {
+  const raw = serializeBids({
+    't': [
+      { name: 'won one', at: '2026-08-02T09:00:00.000Z', fields: { a: '1' }, outcome: 'won' },
+      { name: 'open one', at: '2026-08-01T09:00:00.000Z', fields: { a: '1' } },
+    ],
+  });
+  assert.deepEqual(savedBidIndex(raw), [
+    { slug: 't', name: 'won one', at: '2026-08-02T09:00:00.000Z', outcome: 'won' },
+    { slug: 't', name: 'open one', at: '2026-08-01T09:00:00.000Z' },
+  ]);
+});
+
+// ---------------------------------------------------------------------------
+// How old a waiting bid is
+// ---------------------------------------------------------------------------
+
+const AT = '2026-08-01T09:00:00.000Z';
+const ms = (iso) => Date.parse(iso);
+
+test('waiting age is whole days', () => {
+  assert.equal(bidWaitingDays(AT, ms('2026-08-01T09:00:00.000Z')), 0);
+  assert.equal(bidWaitingDays(AT, ms('2026-08-02T08:59:00.000Z')), 0);
+  assert.equal(bidWaitingDays(AT, ms('2026-08-02T09:00:00.000Z')), 1);
+  assert.equal(bidWaitingDays(AT, ms('2026-08-20T09:00:00.000Z')), 19);
+});
+
+test('a clock that moved backwards reports today, not a negative age', () => {
+  assert.equal(bidWaitingDays(AT, ms('2026-07-01T09:00:00.000Z')), 0);
+});
+
+test('an unreadable timestamp has no age rather than a wrong one', () => {
+  for (const junk of ['', 'someday', null, undefined, {}, 17]) {
+    assert.equal(bidWaitingDays(junk, ms(AT)), null);
+  }
+});
+
+test('the waiting badge is silent on a bid that is not late yet', () => {
+  assert.equal(bidWaitingPhrase(0), '');
+  assert.equal(bidWaitingPhrase(null), '');
+  assert.equal(bidWaitingPhrase(1), 'waiting 1 day');
+  assert.equal(bidWaitingPhrase(19), 'waiting 19 days');
+});
+
+// ---------------------------------------------------------------------------
+// The summary sentence
+// ---------------------------------------------------------------------------
+
+const NOW = ms('2026-08-20T09:00:00.000Z');
+const row = (props) => ({ at: AT, ...props });
+
+test('nothing saved says nothing', () => {
+  assert.equal(followUpSentence([], NOW), '');
+  assert.equal(followUpSentence(null, NOW), '');
+});
+
+test('the waiting clause counts the open bids and ages the oldest', () => {
+  assert.equal(
+    followUpSentence([row({}), row({ at: '2026-08-19T09:00:00.000Z' })], NOW),
+    '2 bids are waiting on an answer, the oldest saved 19 days ago.',
+  );
+});
+
+test('one waiting bid is described in the singular', () => {
+  assert.equal(followUpSentence([row({})], NOW), '1 bid is waiting on an answer, saved 19 days ago.');
+  assert.equal(
+    followUpSentence([row({ at: '2026-08-19T09:00:00.000Z' })], NOW),
+    '1 bid is waiting on an answer, saved 1 day ago.',
+  );
+});
+
+test('bids priced today are not described as overdue', () => {
+  const today = { at: '2026-08-20T08:00:00.000Z' };
+  assert.equal(followUpSentence([today], NOW), '1 bid is waiting on an answer, saved today.');
+  assert.equal(
+    followUpSentence([today, { at: '2026-08-20T07:00:00.000Z' }], NOW),
+    '2 bids are waiting on an answer, all saved today.',
+  );
+});
+
+test('decided bids are counted, not turned into a percentage', () => {
+  const rows = [
+    row({ outcome: 'won' }),
+    row({ outcome: 'won' }),
+    row({ outcome: 'lost' }),
+  ];
+  assert.equal(followUpSentence(rows, NOW), 'You have won 2 of the 3 you have heard back on.');
+});
+
+test('both clauses appear together when there is both news and a chase', () => {
+  assert.equal(
+    followUpSentence([row({}), row({ outcome: 'won' })], NOW),
+    '1 bid is waiting on an answer, saved 19 days ago. You have won 1 of the 1 you have heard back on.',
+  );
+});
+
+test('an outcome nobody recognises is counted as waiting, never dropped', () => {
+  // A row whose outcome came from a newer version of the site still has to be
+  // chased: hiding a live quote behind a state this page cannot clear is the
+  // one failure worse than showing it in the wrong column.
+  assert.equal(
+    followUpSentence([row({ outcome: 'archived' })], NOW),
+    '1 bid is waiting on an answer, saved 19 days ago.',
+  );
+});
+
+test('a waiting bid with no readable date still counts, without an age', () => {
+  assert.equal(followUpSentence([{ at: 'someday' }], NOW), '1 bid is waiting on an answer.');
+});
+
+// ---------------------------------------------------------------------------
+// The hub and the calculator run the same code
+// ---------------------------------------------------------------------------
+
+test('injection strips prose and indentation, and only that', () => {
+  const src = [
+    'function f(a) {',
+    '  // a comment that costs a quarter of a megabyte across the bundle',
+    '  var s = "keep  // this";',
+    '',
+    '  return s;',
+    '}',
+  ].join('\n');
+  assert.equal(stripForInjection(src), 'function f(a) {\nvar s = "keep  // this";\nreturn s;\n}');
+});
+
+test('the injected helpers answer exactly as the module does', () => {
+  // The point of embedding these by toString rather than re-writing them: the
+  // hub, the calculator band and these tests cannot disagree about how old a
+  // bid is. Evaluated here so a change that breaks the embedding is caught in
+  // Node rather than by a visitor reading two different numbers.
+  const evaluated = new Function(`${BID_FOLLOW_UP_HELPERS}
+    return { bidWaitingDays: bidWaitingDays, bidWaitingPhrase: bidWaitingPhrase, followUpSentence: followUpSentence };`)();
+
+  const rows = [row({}), row({ outcome: 'won' }), row({ at: '2026-08-18T09:00:00.000Z' })];
+  assert.equal(evaluated.followUpSentence(rows, NOW), followUpSentence(rows, NOW));
+  assert.equal(evaluated.bidWaitingDays(AT, NOW), bidWaitingDays(AT, NOW));
+  assert.equal(evaluated.bidWaitingPhrase(19), bidWaitingPhrase(19));
+});
+
+// ---------------------------------------------------------------------------
+// What the band ships
+// ---------------------------------------------------------------------------
+
+test('the band ships the outcome control and the summary line', () => {
+  const html = injectSavedBids(page(inputs(4)), 'fence-bid-calculator');
+  assert.match(html, /id="pf-jobs-summary"/);
+  assert.match(html, /data-pf-jobs-state/);
+  // The select fires change, not click, and the panel's click delegate would
+  // never see it.
+  assert.match(html, /addEventListener\('change'/);
+  // The three states, in the order a bid moves through them.
+  assert.match(html, /\[\['', 'Waiting'\], \['won', 'Won'\], \['lost', 'Lost'\]\]/);
+});
+
+test('re-pricing a job does not move it back into the chase list', () => {
+  const html = injectSavedBids(page(inputs(4)), 'fence-bid-calculator');
+  // Saving over a bid of the same name splices the old row out; its outcome has
+  // to be carried onto the replacement, or marking a job won and then re-saving
+  // it silently un-wins it.
+  assert.match(html, /entry\.outcome = carried\.outcome/);
+});
+
+test('the feature list says the tool tracks outcomes', () => {
+  // #1894's lesson: a feature no search engine or answer engine can see is a
+  // feature the only channel that brings these tools traffic does not know
+  // about. The claim ships with the control, in the same statement.
+  const html = injectSavedBids(page(inputs(4), ld('Fence panels')), 'fence-bid-calculator');
+  assert.ok(html.includes(SAVED_BIDS_CLAUSE));
+  assert.match(SAVED_BIDS_CLAUSE, /won or lost/);
 });

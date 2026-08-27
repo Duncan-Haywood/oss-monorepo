@@ -1772,6 +1772,45 @@ products:
           event; no event carries a name, a slug, or a count of what was in the
           file, and the file itself never leaves the browser. Still a baseline
           row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          bid_marked_won: 0
+          bid_marked_lost: 0
+          bid_marked_waiting: 0
+          pages_carrying_bid_outcomes: 234
+        note: >-
+          Bid outcomes and follow-up. The four rows above make a bid a document,
+          keep it, index it and get it off one browser — and then stop at the
+          moment the contractor's money is actually decided. A one-truck trade's
+          largest lost revenue is not the job priced wrong; it is the quote
+          nobody chased. Nothing in the tool ever said "this quote is nineteen
+          days old and you have not heard back", because a saved bid had no
+          state beyond existing. Each one now carries an outcome — waiting, won
+          or lost — set from a select on its own row, and the band and the hub
+          both open with one sentence built from every bid on the device: "3
+          bids are waiting on an answer, the oldest saved 19 days ago. You have
+          won 4 of the 7 you have heard back on." Waiting is the absence of the
+          other two rather than a stored value, so every bid saved before this
+          shipped reads correctly and nothing migrates. Two correctness rules
+          are worth recording because both would fail silently: re-pricing a job
+          carries its outcome forward (saving over "14 Oak St" is the common
+          case, and a re-price is not the same event as hearing back, so
+          dropping it would move a won job back into the chase list), and a
+          backup merge resolves the outcome on its own clock (marking a bid won
+          does not move `at`, so under "later save wins" alone a win recorded on
+          the phone would be discarded as "unchanged" when that file reached the
+          laptop). The reading to take once live is `bid_marked_won /
+          (bid_marked_won + bid_marked_lost)` — a win rate the contractor can
+          see, and the first outcome signal in this portfolio that is about the
+          user's money rather than the tool's use. Read `bid_marked_waiting`
+          beside them: it counts a decision undone, and a number that climbs
+          would say the control is being hit by accident rather than used.
+          Counts are per event and carry no name, no slug and no amount; the
+          bids and the customer names in them never leave the browser. Same
+          local, aggregate, opt-out and DNT/GPC-respecting path as every other
+          hub event. Still a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
