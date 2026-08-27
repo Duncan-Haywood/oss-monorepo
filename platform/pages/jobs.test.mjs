@@ -7,7 +7,9 @@ import { fileURLToPath } from 'node:url';
 import {
   BID_FOLLOW_UP_HELPERS,
   BID_OUTCOMES,
+  BID_AMOUNT_HELPER,
   EXCLUDED_FIELD_IDS,
+  HEADLINE_AMOUNT_OVERRIDES,
   SAVED_BIDS_CLAUSE,
   addSavedBidsClause,
   bidWaitingDays,
@@ -20,6 +22,8 @@ import {
   normalizeBid,
   normalizeBidName,
   normalizeOutcome,
+  normalizeHeadlineAmount,
+  pageHeadlineAmountSelector,
   pageSaveableFieldIds,
   pageTakesSavedBids,
   parseStoredBids,
@@ -694,4 +698,113 @@ test('the feature list says the tool tracks outcomes', () => {
   const html = injectSavedBids(page(inputs(4), ld('Fence panels')), 'fence-bid-calculator');
   assert.ok(html.includes(SAVED_BIDS_CLAUSE));
   assert.match(SAVED_BIDS_CLAUSE, /won or lost/);
+});
+
+// ---------------------------------------------------------------------------
+// The figure the tool gave
+// ---------------------------------------------------------------------------
+
+const hero = (id, text = '$1,035') => `<p id="${id}" class="hero-number">${text}</p>`;
+
+test('a hero figure is read as an amount, and anything else is not', () => {
+  assert.equal(normalizeHeadlineAmount('$1,035'), '$1,035');
+  assert.equal(normalizeHeadlineAmount('  $106.09\n'), '$106.09');
+  assert.equal(normalizeHeadlineAmount('$589.38 · 13.2 h'), '$589.38 · 13.2 h');
+  assert.equal(normalizeHeadlineAmount('£240'), '£240');
+
+  // Found on the built site, each of them: a hero holding a count, an
+  // unfilled form, a hero carrying a sentence of advice, and an empty one.
+  assert.equal(normalizeHeadlineAmount('0'), '');
+  assert.equal(normalizeHeadlineAmount('$0.00'), '');
+  assert.equal(normalizeHeadlineAmount(
+    'Referral is a tie (same fee base), but moving the shipping'), '');
+  assert.equal(normalizeHeadlineAmount(''), '');
+  assert.equal(normalizeHeadlineAmount('   '), '');
+
+  assert.equal(normalizeHeadlineAmount(null), '');
+  assert.equal(normalizeHeadlineAmount(1035), '');
+});
+
+test('the amount element is the hero, or nothing', () => {
+  assert.equal(pageHeadlineAmountSelector(page(hero('price'))), '#price');
+  assert.equal(pageHeadlineAmountSelector(page(`${hero('price')}${hero('other')}`)), '#price');
+  assert.equal(pageHeadlineAmountSelector(page('<p class="hero-number">$5</p>')), '');
+  assert.equal(pageHeadlineAmountSelector(page('<p id="total">$25,739.73</p>')), '',
+    'an id that merely looks like a price must not be guessed at');
+  assert.equal(pageHeadlineAmountSelector(page(inputs(4))), '');
+  assert.equal(pageHeadlineAmountSelector(null), '');
+});
+
+test('a tool whose headline is not what it sells on names the element that is', () => {
+  // lawn-care leads with a per-visit price and sells a monthly contract.
+  assert.equal(
+    pageHeadlineAmountSelector(page(hero('price', '$106.09')), 'lawn-care-bid-calculator'),
+    '#monthly',
+  );
+});
+
+test('the override agrees with the one the printed proposal is verified against', async () => {
+  // Two places answer "which element carries the price this tool quotes". They
+  // are allowed to be in two files; they are not allowed to disagree, or the
+  // saved bid says one number and the customer's sheet says another.
+  const trades = JSON.parse(
+    await fs.readFile(path.join(HERE, '..', 'proposal', 'trades.json'), 'utf8'),
+  );
+  for (const [slug, trade] of Object.entries(trades)) {
+    if (!trade.screenPriceSelector) continue;
+    assert.equal(HEADLINE_AMOUNT_OVERRIDES[slug], trade.screenPriceSelector, slug);
+  }
+  for (const [slug, selector] of Object.entries(HEADLINE_AMOUNT_OVERRIDES)) {
+    if (!trades[slug]) continue;
+    assert.equal(trades[slug].screenPriceSelector, selector, slug);
+  }
+});
+
+test('a bid keeps the figure it was saved at, and only when there is one', () => {
+  const base = { name: 'x', at: '2026-08-20T10:00:00.000Z', fields: { a: '1' } };
+  assert.equal(normalizeBid({ ...base, amount: '$1,035' }).amount, '$1,035');
+  // Absent rather than empty, so every bid saved before this reads unchanged
+  // and no byte is spent on a blank.
+  assert.equal('amount' in normalizeBid(base), false);
+  assert.equal('amount' in normalizeBid({ ...base, amount: '0' }), false);
+  assert.equal('amount' in normalizeBid({ ...base, amount: { $: 5 } }), false);
+});
+
+test('the hub index carries the figure, not the numbers behind it', () => {
+  const rows = savedBidIndex({
+    g: [{ name: 'x', at: '2026-08-20T10:00:00.000Z', fields: { a: '1' }, amount: '$1,035' }],
+    h: [{ name: 'y', at: '2026-08-19T10:00:00.000Z', fields: { a: '1' } }],
+  });
+  assert.equal(rows[0].amount, '$1,035');
+  assert.equal('fields' in rows[0], false, 'the index must not carry the job');
+  assert.equal('amount' in rows[1], false);
+});
+
+test('the band captures the headline figure and draws it', () => {
+  const html = injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator');
+  assert.match(html, /var AMOUNT_SELECTOR = "#price"/);
+  assert.match(html, /entry\.amount = shown/);
+  assert.match(html, /pf-jobs-amount/);
+});
+
+test('a tool with no headline figure ships no selector rather than a guess', () => {
+  const html = injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator');
+  assert.match(html, /var AMOUNT_SELECTOR = ""/);
+  // And the guard is still shipped, so a bid restored from a device that did
+  // capture one still draws it.
+  assert.match(html, /var normalizeHeadlineAmount =/);
+});
+
+test('the injected amount guard answers exactly as the module does', () => {
+  const evaluated = new Function(`${BID_AMOUNT_HELPER}
+    return normalizeHeadlineAmount;`)();
+  for (const value of ['$1,035', '0', '$0.00', ' £240 ', '', 'a sentence about fees']) {
+    assert.equal(evaluated(value), normalizeHeadlineAmount(value), JSON.stringify(value));
+  }
+});
+
+test('the feature list says a saved bid keeps its figure', () => {
+  // #1894: a feature that never names itself in featureList is invisible to
+  // the only channel that brings these tools traffic.
+  assert.match(SAVED_BIDS_CLAUSE, /figure the tool gave you/);
 });

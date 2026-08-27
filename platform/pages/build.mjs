@@ -37,7 +37,12 @@ import {
   renderServiceWorker,
 } from './offline.mjs';
 import { injectShopRates } from './rates.mjs';
-import { BID_FOLLOW_UP_HELPERS, injectSavedBids, stripForInjection } from './jobs.mjs';
+import {
+  BID_AMOUNT_HELPER,
+  BID_FOLLOW_UP_HELPERS,
+  injectSavedBids,
+  stripForInjection,
+} from './jobs.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -904,6 +909,9 @@ ${subgroups
     .bids li a:hover, .bids li a:focus-visible { border-color: var(--accent); }
     .bids li a:hover .bid-name, .bids li a:focus-visible .bid-name { color: var(--accent); }
     .bids .bid-name { font-size: .92rem; font-weight: 650; }
+    .bids .bid-amount { font-size: .86rem; font-weight: 650; white-space: nowrap;
+      font-variant-numeric: tabular-nums; }
+    .bids .bid-amount[hidden] { display: none; }
     .bids .bid-where { font-size: .8rem; color: var(--muted); }
     .bids .bid-when { font-size: .74rem; color: var(--muted); margin-left: auto; }
     /* Not muted, unlike every other line of prose in this panel: it is the
@@ -1231,8 +1239,14 @@ ${DISCLAIMER_HTML}
 
     // The same function bodies the calculator band runs and the tests here
     // exercise, embedded rather than re-written — so the hub and the tool can
-    // never disagree about how old a waiting bid is. See BID_FOLLOW_UP_HELPERS.
+    // never disagree about how old a waiting bid is, or about whether what a
+    // tool put on screen reads as a figure at all. See BID_FOLLOW_UP_HELPERS.
+    //
+    // Declared here rather than relied on from the backup block further down:
+    // that block also carries this function, but it is assigned after
+    // showSavedBids() has already run once on load.
 ${BID_FOLLOW_UP_HELPERS}
+${BID_AMOUNT_HELPER}
 
     // How many rows are shown before the list is cut. A contractor keeps up to
     // 25 bids per tool, so a busy one crosses this easily — hence the count
@@ -1263,7 +1277,11 @@ ${BID_FOLLOW_UP_HELPERS}
           // offers to chase it, where trusting an unknown string could hide a
           // live quote behind a state nothing here can clear.
           const outcome = bid.outcome === 'won' || bid.outcome === 'lost' ? bid.outcome : null;
-          rows.push({ slug, name, at, outcome });
+          // Read through the same guard the band saved it with, not trusted as
+          // stored: any page on this origin can write this key, and this string
+          // is put on screen next to a customer's name.
+          const amount = normalizeHeadlineAmount(bid.amount) || null;
+          rows.push({ slug, name, at, amount, outcome });
         }
       }
 
@@ -1307,7 +1325,7 @@ ${BID_FOLLOW_UP_HELPERS}
       summary.textContent = sentence;
       summary.hidden = sentence === '';
 
-      for (const { slug, name, at, outcome, card } of rows.slice(0, shown)) {
+      for (const { slug, name, at, amount, outcome, card } of rows.slice(0, shown)) {
         const item = document.createElement('li');
         const link = document.createElement('a');
         // The anchor jobs.mjs answers: the band opens and scrolls into view, so
@@ -1322,6 +1340,18 @@ ${BID_FOLLOW_UP_HELPERS}
         // textContent, never innerHTML: the name is typed by the visitor and
         // read back out of storage any page on this origin can write.
         label.textContent = name;
+
+        // What the tool came to. The index has always been able to say where a
+        // bid lives and how long it has been out; without this it could not say
+        // the one thing the contractor is actually being asked on the phone.
+        // The row names its tool two spans along, which is what fixes the
+        // meaning: a quote on the trade calculators, profit per unit on the
+        // seller-fee ones. Absent where the tool has no headline figure — see
+        // pageHeadlineAmountSelector — so the row is built around it missing.
+        const figure = document.createElement('span');
+        figure.className = 'bid-amount';
+        figure.textContent = amount || '';
+        figure.hidden = !amount;
 
         const where = document.createElement('span');
         where.className = 'bid-where';
@@ -1342,7 +1372,7 @@ ${BID_FOLLOW_UP_HELPERS}
           ? outcome === 'won' ? 'Won' : 'Lost'
           : bidWaitingPhrase(bidWaitingDays(at, Date.now())) || 'Waiting';
 
-        link.append(label, where, state, when);
+        link.append(label, figure, where, state, when);
         // The event carries no name and no slug — how often the index is used,
         // never for what. record() is already silent under DNT/GPC and the
         // opt-out.
