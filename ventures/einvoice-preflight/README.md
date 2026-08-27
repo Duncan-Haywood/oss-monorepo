@@ -50,7 +50,7 @@ PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format junit > prefli
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format summary
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format remediation
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --format checklist
-PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --format json
+PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --max-depth 2 --format json
 PYTHONPATH=src python3 -m einvoice_preflight ./invoices/ --max-files 500 --max-bytes 1048576 --format json
 cat invoice.json | PYTHONPATH=src python3 -m einvoice_preflight - --format json
 PYTHONPATH=src python3 -m einvoice_preflight examples/valid-invoice.json --usage-file ~/.local/state/einvoice-preflight/usage.json
@@ -360,6 +360,12 @@ file instead of stdout. Parent directories are created when needed. A failed
 write returns exit code `2` and never replaces an existing report with a partial
 file.
 
+`--max-depth N` limits how far a directory scan descends. `1` checks only
+files in the scan root; `2` includes one subdirectory. Deeper folders are
+not walked, so a nested export dump cannot expand a CI job. The same
+positive-integer syntax as `--max-files` applies. Files below the bound are
+skipped rather than failing the scan, so a top-level folder next to an
+archive still checks.
 `--max-files N` accepts a positive integer, including the usual `+N` CLI
 notation, and rejects zero, negative, or non-numeric values before any invoice
 is read.
