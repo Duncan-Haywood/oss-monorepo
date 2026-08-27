@@ -32,7 +32,9 @@ to price a return that just arrived — restock sellable units, destroy the
 unit, or skip the label and let the customer keep it. That is a different
 decision from leftover pallets already on the floor and from raising the
 return rate against in-house. The table names the unit-cost and restockable-rate
-flips.
+flips. The main calculator runs the same
+`compareReturnDisposition` math on the quote you just typed, so you do
+not leave the page to check restock vs destroy vs customer-keeps.
 Use [Should I pay the 3PL to kit, or skip the bundle](./should-i-pay-the-3pl-to-kit.html)
 to price assembly, extra component picks, and extra receiving against
 kitting before inbound and against selling the hero SKU. That is a different
