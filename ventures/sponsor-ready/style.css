@@ -93,6 +93,36 @@ body {
   filter: brightness(1.08);
 }
 
+.example-line {
+  text-align: center;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  max-width: 46rem;
+  margin: 0.6rem auto 0;
+}
+
+/* A button, not a link: it performs an action on this page rather than
+   navigating, and screen-reader users should be told which. Styled as a link
+   because that is what "one small optional thing to try" looks like. */
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  filter: brightness(1.3);
+}
+
+.link-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
 .loading,
 .error {
   text-align: center;
