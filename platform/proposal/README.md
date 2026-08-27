@@ -31,11 +31,17 @@ arithmetic and layout in the browser, like everything else here.
 - `ventures/sunroom-bid-calculator`
 - `ventures/garage-door-bid-calculator`
 - `ventures/foundation-repair-bid-calculator`
+- `ventures/window-replacement-bid-calculator`
+- `ventures/solar-pv-bid-calculator`
+- `ventures/basement-waterproofing-bid-calculator`
+- `ventures/electrical-panel-upgrade-bid-calculator`
+- `ventures/sewer-line-replace-bid-calculator`
+- `ventures/fence-bid-calculator`
 
-The other 86 bid calculators have not adopted it yet. See "Adding it to another
+The other 80 bid calculators have not adopted it yet. See "Adding it to another
 calculator".
 
-## Three things that have gone wrong in every adoption batch
+## Four things that have gone wrong in every adoption batch
 
 Check these before you verify, because two of the three fail silently.
 
@@ -70,6 +76,46 @@ Check these before you verify, because two of the three fail silently.
   `result.doorClass` is the *size* class the width falls into, not the
   construction the contractor chose, and the lookup fails to `undefined`
   rather than erroring.
+
+- **A result field that is not the one you want prints as `undefined`.** The
+  same failure as `garage-door`'s `doorClass`, and it recurs because every
+  calculator names its result differently. `fence` has no `run.material` and no
+  `run.feet` — the label is `run.name` and the length is `run.linearFeet`, and
+  the totals field is `totalLinearFeet`, not `totalFeet`. The drafted scope read
+  `undefined ft of undefined` and the job title read `undefined ft`, and every
+  suite was green. Read the result object at runtime before writing
+  `suggestScope`, rather than guessing from the input field names:
+
+  ```
+  node -e "import('./ventures/<slug>/calc.mjs').then(m =>
+    console.log(Object.keys(m.calculateBid(<a valid input>))))"
+  ```
+
+  Nothing legitimate on a quote reads `undefined`, `NaN`, or `null`, so grep the
+  rendered sheet for them as the last step of a browser pass.
+
+## A calculator that already prints something
+
+Five of the remaining calculators — `window-replacement` among them — shipped an
+`@media print` block of their own **before** the proposal existed, which prints
+the contractor's internal bid sheet: cost, overhead, profit, walk-away price.
+That sheet is a feature someone uses, so adopting the proposal must not silently
+replace it.
+
+Keep both, separated by a body class rather than by deleting the older rules.
+`printProposal` sets `printing-proposal`, `afterprint` clears it, and the
+existing print button clears it too — `afterprint` does not reliably fire when
+the user cancels the dialogue, and a stale flag turns every later Ctrl+P into
+the customer's copy. The safety property is unchanged: whenever the customer's
+sheet is the one printing, `main` is hidden outright rather than by an
+allow-list.
+
+One trap inside the trap. The internal block needs to hide `#proposalDoc` so a
+previewed proposal does not print stapled to the contractor's sheet — but a bare
+`#proposalDoc` is an **id** selector and outranks `body.printing-proposal
+.pr-shell`, so the customer's copy printed blank. Scope it as
+`body:not(.printing-proposal) #proposalDoc` instead: mutually exclusive
+selectors cannot race on specificity.
 
 ## The published page is not the page you tested
 
