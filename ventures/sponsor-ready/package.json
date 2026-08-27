@@ -1,0 +1,9 @@
+{
+  "name": "sponsor-ready",
+  "private": true,
+  "description": "Free client-side GitHub Sponsors readiness checklist.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "python3 -m http.server 8000"
+  }
+}
