@@ -72,6 +72,34 @@ function check(label, ok, detail = '') {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${label}${detail ? '  -> ' + detail : ''}`);
 }
 
+/**
+ * Run one section so that a throw inside it is a reported failure, not the end
+ * of the run.
+ *
+ * Playwright's default is to throw after a 30s wait, and the steps below click
+ * buttons that only exist when the step before them worked — so one broken
+ * feature two thirds of the way down used to abort the process with a raw
+ * TimeoutError and take every later check with it. That is not hypothetical:
+ * the share-link step (5b) had been throwing on a hidden `apply` button, so
+ * sections 6 through 9 — sitemaps, every sitemap URL, the 404, and mobile —
+ * had not run in this harness for as long as that step was broken. A harness
+ * that stops at its first problem reports one defect and hides the rest, which
+ * is the opposite of what it is for.
+ *
+ * Sections are still ordered, not independent: several assert exact usage
+ * counts, so a later section may legitimately depend on an earlier one having
+ * run. A skipped section is therefore reported loudly rather than papered over.
+ */
+async function step(label, run) {
+  try {
+    await run();
+  } catch (error) {
+    failures += 1;
+    const detail = String(error?.message ?? error).split('\n')[0];
+    console.log(`FAIL  ${label} threw, later checks may be affected  -> ${detail}`);
+  }
+}
+
 // 1. The front page.
 await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
 check('hub h1 renders', /decisions that cost real money/.test(await page.textContent('h1')));
@@ -83,6 +111,7 @@ check('a substantial number of tools are listed', cardCount >= 30, `${cardCount}
 
 const groupCount = await page.locator('.group').count();
 check('tools are grouped', groupCount >= 2, `${groupCount} groups`);
+
 
 // 2. Search.
 await page.fill('#q', 'ebay');
@@ -176,76 +205,96 @@ if (await sibling.count()) {
 //     This is the one journey that spans two products, so nothing inside either
 //     venture's own suite can cover it: the value only exists because they share
 //     an origin, and it can only break at the seam.
+// Defined outside the section because section 7 waits on the bar too, and a
+// section that throws must not take a later section's helper with it.
 const ratesReady = () => page.waitForFunction(
   () => !document.querySelector('[data-pf-rates-root]')?.hidden, null, { timeout: 5000 });
 
-await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
-await ratesReady();
-check('shop-rates bar appears on a bid calculator', await page.isVisible('#pf-rates-toggle'));
+await step('shop rates carried between tools', async () => {
+  await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
+  await ratesReady();
+  check('shop-rates bar appears on a bid calculator', await page.isVisible('#pf-rates-toggle'));
 
-for (const [id, value] of [['hourlyWage', '56'], ['burdenRate', '34'], ['overheadRate', '12'], ['targetMargin', '26']]) {
-  await page.fill(`#${id}`, value);
-}
-await page.click('#pf-rates-toggle');
-await page.click('[data-pf-rates="save"]');
+  for (const [id, value] of [['hourlyWage', '56'], ['burdenRate', '34'], ['overheadRate', '12'], ['targetMargin', '26']]) {
+    await page.fill(`#${id}`, value);
+  }
+  await page.click('#pf-rates-toggle');
+  await page.click('[data-pf-rates="save"]');
 
-await page.goto(`${BASE}/interior-door-bid-calculator/`, { waitUntil: 'networkidle' });
-await ratesReady();
-const carried = await page.evaluate(() =>
-  ['hourlyWage', 'burdenRate', 'overheadRate', 'targetMargin']
-    .map((id) => document.getElementById(id).value).join('/'));
-check('saved rates carry into another trade calculator', carried === '56/34/12/26', carried);
-check('the receiving tool still prices the job',
-  /\$[\d,]/.test(await page.textContent('#price')), await page.textContent('#price'));
+  await page.goto(`${BASE}/interior-door-bid-calculator/`, { waitUntil: 'networkidle' });
+  await ratesReady();
+  const carried = await page.evaluate(() =>
+    ['hourlyWage', 'burdenRate', 'overheadRate', 'targetMargin']
+      .map((id) => document.getElementById(id).value).join('/'));
+  check('saved rates carry into another trade calculator', carried === '56/34/12/26', carried);
+  check('the receiving tool still prices the job',
+    /\$[\d,]/.test(await page.textContent('#price')), await page.textContent('#price'));
 
-// The rule `share.mjs` exists to protect: a recipient must see the price the
-// sender saw. Their own saved rates must not quietly reprice someone's bid.
-await page.goto(
-  `${BASE}/interior-door-bid-calculator/#hourlyWage=39&burdenRate=25&overheadRate=10&targetMargin=18`,
-  { waitUntil: 'networkidle' });
-await ratesReady();
-check('a bid link keeps the sender’s rates',
-  (await page.inputValue('#hourlyWage')) === '39', await page.inputValue('#hourlyWage'));
+  // The rule `share.mjs` exists to protect: a recipient must see the price the
+  // sender saw. Their own saved rates must not quietly reprice someone's bid.
+  await page.goto(
+    `${BASE}/interior-door-bid-calculator/#hourlyWage=39&burdenRate=25&overheadRate=10&targetMargin=18`,
+    { waitUntil: 'networkidle' });
+  // The step above is a *hash-only* change from the previous URL — the same page
+  // was just visited without a fragment — so the browser treats it as an in-page
+  // jump and does not reload. Nothing re-reads the link, and the assertion below
+  // then inspects a form still holding whatever the previous step left in it.
+  //
+  // That is how this check reported a share-link regression that does not exist:
+  // it read `56` (the rates carried in moments earlier) and called it the
+  // visitor's rates overwriting the sender's. `share.mjs` is fine — a recipient
+  // opening this link in a fresh tab, or on any real load, gets 39. The harness
+  // was wrong, and it then died on the hidden `apply` button below, taking every
+  // later step with it.
+  //
+  // A recipient's browser always *loads* the link. Reload so this one does too.
+  await page.reload({ waitUntil: 'networkidle' });
+  await ratesReady();
+  check('a bid link keeps the sender’s rates',
+    (await page.inputValue('#hourlyWage')) === '39', await page.inputValue('#hourlyWage'));
 
-await page.click('#pf-rates-toggle');
-await page.click('[data-pf-rates="apply"]');
-check('...until the visitor asks for their own',
-  (await page.inputValue('#hourlyWage')) === '56', await page.inputValue('#hourlyWage'));
+  await page.click('#pf-rates-toggle');
+  await page.click('[data-pf-rates="apply"]');
+  check('...until the visitor asks for their own',
+    (await page.inputValue('#hourlyWage')) === '56', await page.inputValue('#hourlyWage'));
 
-await page.click('[data-pf-rates="clear"]');
-await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
-await ratesReady();
-check('forgetting them returns a never-opened tool to its own default',
-  (await page.inputValue('#hourlyWage')) === '36', await page.inputValue('#hourlyWage'));
+  await page.click('[data-pf-rates="clear"]');
+  await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
+  await ratesReady();
+  check('forgetting them returns a never-opened tool to its own default',
+    (await page.inputValue('#hourlyWage')) === '36', await page.inputValue('#hourlyWage'));
+});
 
 // Step 3 turned the site-wide opt-out on and never turned it off, so at this
 // point nothing above should have been counted — including the shop rates. That
 // is worth asserting rather than working around: an opt-out that a later feature
 // quietly ignores is a broken promise, not a missing number.
-const silenced = await page.evaluate(
-  () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
-check('the site-wide opt-out silences shop-rate counting too',
-  !silenced.shop_rates_saved && !silenced.shop_rates_applied, JSON.stringify(silenced));
+await step('usage counting around shop rates', async () => {
+  const silenced = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+  check('the site-wide opt-out silences shop-rate counting too',
+    !silenced.shop_rates_saved && !silenced.shop_rates_applied, JSON.stringify(silenced));
 
-// Then take the opt-out off and do it once more, so the counting itself is
-// covered. A prefill is not a bid the visitor priced: counting it as one would
-// inflate the only adoption number this portfolio has.
-await page.evaluate(() => localStorage.removeItem('portfolio-hub-optout'));
-await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
-await ratesReady();
-await page.click('#pf-rates-toggle');
-await page.click('[data-pf-rates="save"]');
-await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
-await ratesReady();
-const ratesCounts = await page.evaluate(
-  () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
-check('the prefill records itself and not a false bid',
-  ratesCounts.shop_rates_saved >= 1 && ratesCounts.shop_rates_applied >= 1
-    && !ratesCounts.bid_calculated, JSON.stringify(ratesCounts));
+  // Then take the opt-out off and do it once more, so the counting itself is
+  // covered. A prefill is not a bid the visitor priced: counting it as one would
+  // inflate the only adoption number this portfolio has.
+  await page.evaluate(() => localStorage.removeItem('portfolio-hub-optout'));
+  await page.goto(`${BASE}/metal-roof-bid-calculator/`, { waitUntil: 'networkidle' });
+  await ratesReady();
+  await page.click('#pf-rates-toggle');
+  await page.click('[data-pf-rates="save"]');
+  await page.goto(`${BASE}/crown-molding-bid-calculator/`, { waitUntil: 'networkidle' });
+  await ratesReady();
+  const ratesCounts = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+  check('the prefill records itself and not a false bid',
+    ratesCounts.shop_rates_saved >= 1 && ratesCounts.shop_rates_applied >= 1
+      && !ratesCounts.bid_calculated, JSON.stringify(ratesCounts));
 
-// 6. A product mounted from a subdirectory.
-await page.goto(`${BASE}/ai-engineering-academy/`, { waitUntil: 'networkidle' });
-check('nested product hub renders', (await page.locator('h1').count()) > 0, await page.title());
+  // 6. A product mounted from a subdirectory.
+  await page.goto(`${BASE}/ai-engineering-academy/`, { waitUntil: 'networkidle' });
+  check('nested product hub renders', (await page.locator('h1').count()) > 0, await page.title());
+});
 
 // 7. Sitemap URLs are absolute and free of repo paths — the regression that
 //    shipped 69 unusable entries before the sitemaps were generated.
