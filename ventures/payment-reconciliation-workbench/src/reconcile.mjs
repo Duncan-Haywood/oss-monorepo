@@ -46,7 +46,83 @@ export function reconcile(payouts, deposits, toleranceDays = 3) {
     } else matches.push({ status: 'unmatched payout', payout });
   }
   available.filter(deposit => !deposit.used).forEach(deposit => matches.push({ status: 'unmatched deposit', deposit, deposits: [deposit] }));
-  return matches;
+  return explainExceptions(matches, toleranceDays);
+}
+
+// A processor payout and its bank deposit legitimately differ whenever the
+// processor nets its fee out of the transfer, or a refund lands in the same
+// batch. Those rows are the bulk of a real exception list, and the tool used to
+// hand them back as two unexplained halves the operator had to line up by eye —
+// which is the manual spreadsheet comparison this product exists to remove.
+//
+// Pairing each unmatched payout with its nearest unmatched deposit and naming
+// the gap is what makes the queue actionable. The pairing is a hint, never a
+// match: the amounts genuinely disagree, so the operator still has to decide
+// whether the difference is a fee they accept or a discrepancy they chase.
+const FEE_LIKE_MIN_PERCENT = 0.1;
+// Card processors land between roughly 2.5% and 3.5% plus a fixed cent charge.
+// Six percent leaves room for a small payout where the fixed charge dominates,
+// while still refusing to call a half-missing deposit a fee.
+const FEE_LIKE_MAX_PERCENT = 6;
+
+export function explainExceptions(matches, toleranceDays = 3) {
+  const day = 86400000;
+  const spare = matches.filter(match => match.status === 'unmatched deposit');
+  const claimed = new Set();
+  const hints = new Map();
+  for (const match of matches) {
+    if (match.status !== 'unmatched payout') continue;
+    let best = null;
+    for (const candidate of spare) {
+      if (claimed.has(candidate)) continue;
+      if (Math.abs(candidate.deposit.time - match.payout.time) > toleranceDays * day) continue;
+      // Closest amount first, then closest date — a deposit a cent away is a
+      // far better explanation than one a day closer but hundreds off.
+      const rank = best === null ? -1
+        : (Math.abs(candidate.deposit.cents - match.payout.cents) - Math.abs(best.deposit.cents - match.payout.cents))
+          || (Math.abs(candidate.deposit.time - match.payout.time) - Math.abs(best.deposit.time - match.payout.time));
+      if (rank < 0) best = candidate;
+    }
+    if (!best) continue;
+    // One deposit explains at most one payout. Offering the same deposit as the
+    // answer to two exceptions would invite double-counting it in the books.
+    claimed.add(best);
+    const difference = match.payout.cents - best.deposit.cents;
+    const percent = match.payout.cents === 0 ? null : (difference / match.payout.cents) * 100;
+    const hint = {
+      deposit: best.deposit,
+      payout: match.payout,
+      difference,
+      percent,
+      // Only a shortfall can be a fee: a deposit larger than its payout is
+      // never explained by the processor deducting something.
+      feeLike: percent !== null && difference > 0 && percent >= FEE_LIKE_MIN_PERCENT && percent <= FEE_LIKE_MAX_PERCENT,
+    };
+    hints.set(match, hint);
+    hints.set(best, hint);
+  }
+  return matches.map(match => (hints.has(match) ? { ...match, hint: hints.get(match) } : match));
+}
+
+/**
+ * One-line plain-English reading of a hint, shared by the table and the CSV.
+ *
+ * The same hint is attached to both halves of a pair, so the sentence names
+ * both dates rather than saying "this payout" — on the deposit row that phrase
+ * would point at an empty column.
+ */
+export function explanation(match) {
+  if (!match.hint) return '';
+  const { difference, percent, deposit, payout, feeLike } = match.hint;
+  const pair = `Payout ${payout.date} pairs with deposit ${deposit.date}`;
+  if (difference === 0) return `${pair}: same amount, but outside the date tolerance.`;
+  const size = (Math.abs(difference) / 100).toFixed(2);
+  const share = percent === null ? '' : ` (${Math.abs(percent).toFixed(2)}%)`;
+  const direction = difference > 0 ? 'short' : 'over';
+  const reading = feeLike
+    ? 'consistent with a processor fee deducted from the transfer'
+    : 'verify against the processor statement';
+  return `${pair}: deposit is ${size}${share} ${direction} — ${reading}.`;
 }
 
 function findDepositGroup(candidates, target) {
