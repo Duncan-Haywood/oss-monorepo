@@ -176,9 +176,20 @@ RESI, 45</textarea>
       const input = document.createElement("input");
       input.dataset.key = key;
       input.value = row[key] ?? "";
+      // Every cell input is named, not just the numeric ones. A column header
+      // does not become an input's accessible name, so the text cells were
+      // announced as "edit text, blank" with nothing to say which column a
+      // screen-reader user had landed in.
+      input.setAttribute("aria-label", {
+        invoice: "invoice number",
+        reference: "reference",
+        code: "accessorial code",
+        billed: "billed",
+        units: "quantity or hours",
+        expected: "expected",
+      }[key]);
       if (key === "billed" || key === "expected" || key === "units") {
         input.inputMode = "decimal";
-        input.setAttribute("aria-label", key === "units" ? "quantity or hours" : key);
       }
       if (key === "units") {
         // Only per-unit rules read it, so it stays unlabelled work for a flat

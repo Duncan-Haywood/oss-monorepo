@@ -46,7 +46,7 @@
     <h2>Run records</h2>
     <p class="note" id="status">No records loaded yet. Drop files, paste JSON, or load the shrinking-dump example.</p>
     <div class="drop" id="drop" tabindex="0">Drop one or more <code>.json</code> run records here, or choose files.
-      <p><input id="files" type="file" accept="application/json,.json" multiple></p>
+      <p><input id="files" type="file" aria-label="Backup report JSON files" accept="application/json,.json" multiple></p>
     </div>
     <label for="paste">Or paste a run record, an array of records, or <code>{"records":[...]}</code></label>
     <textarea id="paste" spellcheck="false" placeholder='{"tool":"restic","exit_code":0,"finished_at":"2026-08-24T03:00:00Z","artifact":{"exists":true,"size_bytes":48000000}}'></textarea>

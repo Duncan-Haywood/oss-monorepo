@@ -110,7 +110,7 @@
       <div id="drop" class="drop">
         <p><strong>Drop .json, .xml, or Factur-X .pdf files here</strong>, or choose them.</p>
         <p class="muted">Up to 50 files, 1&nbsp;MB each. Multiple files also flag repeated invoice numbers.</p>
-        <input id="files" type="file" accept=".json,.xml,.pdf,application/json,text/xml,application/xml,application/pdf" multiple>
+        <input id="files" type="file" aria-label="Invoice files to check (JSON, XML, or PDF)" accept=".json,.xml,.pdf,application/json,text/xml,application/xml,application/pdf" multiple>
       </div>
       <p class="muted">Or paste one JSON invoice:</p>
       <textarea id="paste" aria-label="Pasted invoice JSON" placeholder='{"invoice_number":"INV-1001", ...}'></textarea>
