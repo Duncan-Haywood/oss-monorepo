@@ -531,6 +531,168 @@ export function followUpSentence(rows, nowMs) {
 }
 
 /**
+ * How many decided bids each side needs before the price band is drawn.
+ *
+ * Two, not one. One win and one loss is a pair of anecdotes, and a tool that
+ * told a contractor "you won at $1,800 and lost at $2,000" would be inviting
+ * them to reprice a season's work off two data points. Two a side is still a
+ * small sample — which is why the sentence reports counts and never a
+ * percentage or a "sweet spot", the same restraint `followUpSentence` applies
+ * to "4 of 7".
+ */
+export const MIN_PRICE_BAND_SIDE = 2;
+
+/**
+ * The money in a stored headline figure, as a number this can compare.
+ *
+ * `normalizeHeadlineAmount` deliberately keeps the string the tool displayed
+ * and does no arithmetic on it, because a sum across tools would be adding a
+ * roof to a lawn contract. This function is the narrow exception, and the
+ * narrowness is the whole design: it is only ever used to compare a tool's own
+ * bids against each other, where every figure is the same kind of number in the
+ * same currency, and it refuses anything it cannot read with certainty.
+ *
+ * Refused, all of them cases the built site actually produces or could:
+ *
+ *   - two currency symbols, which is how a range renders (`$1,200–$1,800`) —
+ *     averaging the low end of a range would report a figure nobody was quoted;
+ *   - a symbol that does not precede its digits (`1 234,56 €`), because
+ *     deciding whether that comma is a decimal point is a guess;
+ *   - a comma group that is not a thousands separator (`$1,5`);
+ *   - anything `normalizeHeadlineAmount` already refuses.
+ *
+ * A trailing unit is kept out of the number but does not disqualify it:
+ * `$589.38 · 13.2 h` reads as 589.38, because the hours are a second fact about
+ * the same quote rather than a second quote.
+ *
+ * `text` is the exact substring that was on screen, so a caller can show the
+ * figure the visitor saw rather than a re-rendering of it.
+ */
+export function bidAmountValue(display) {
+  var text = normalizeHeadlineAmount(display);
+  if (!text) return null;
+  if ((text.match(/[$£€]/g) || []).length !== 1) return null;
+  var found = /([-−]?)\s*([$£€])\s*(\d[\d,]*(?:\.\d+)?)/.exec(text);
+  if (!found) return null;
+  var digits = found[3];
+  if (digits.indexOf(',') !== -1 && !/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(digits)) return null;
+  var sign = found[1] === '' ? 1 : -1;
+  return {
+    currency: found[2],
+    value: sign * Number(digits.replace(/,/g, '')),
+    text: (sign < 0 ? '-' : '') + found[2] + digits,
+  };
+}
+
+/**
+ * One side of the comparison: its average, and the bid at its outer edge.
+ *
+ * `direction` is `1` for the won side, whose edge is its dearest bid, and `-1`
+ * for the lost side, whose edge is its cheapest. Written once with a sign
+ * rather than twice with `>` and `<` because it ships inside 160 pages the
+ * service worker caches whole, and a second near-identical loop is a hundred
+ * bytes a page for nothing.
+ */
+export function bidPriceSide(side, direction) {
+  var total = 0;
+  var edge = side[0];
+  for (var i = 0; i < side.length; i++) {
+    total += side[i].value;
+    if ((side[i].value - edge.value) * direction > 0) edge = side[i];
+  }
+  return { average: total / side.length, edge: edge };
+}
+
+/**
+ * An average, written the way the tool that produced it would write it.
+ *
+ * Two decimal places under 100 and none above. A seller-fee page answers in
+ * cents — rounding a $2.35 profit per unit to $2 misstates it by 15% — while a
+ * trade quote in the thousands gains nothing from `.00` and loses a little
+ * readability on a phone. The threshold is on the value being written, so a
+ * single tool never renders one of its two averages to a different precision
+ * than the other unless they genuinely straddle it.
+ *
+ * Only averages go through here. Every figure quoted back as an actual bid is
+ * the stored string, so no number a contractor reads to a customer has been
+ * through a rounding rule this file invented.
+ */
+export function formatBidAmount(currency, value) {
+  var decimals = Math.abs(value) < 100 ? 2 : 0;
+  var fixed = Math.abs(value).toFixed(decimals);
+  var parts = fixed.split('.');
+  var whole = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return (value < 0 ? '-' : '') + currency + whole + (parts[1] ? '.' + parts[1] : '');
+}
+
+/**
+ * Where this tool's quotes tip from won to lost.
+ *
+ * The one thing in the portfolio that answers "am I pricing this right?" with
+ * the contractor's own history rather than an industry average. Every ingredient
+ * was already on disk — the figure each bid was saved at, and whether the
+ * customer said yes — and until now nothing put the two together, so a
+ * contractor with a season of decided bids could see that they had won 11 of 19
+ * and still not see that every one they lost was over $2,600.
+ *
+ * Scoped to a single tool by construction: the caller passes one tool's bids,
+ * because a quote off the roofing calculator and a profit-per-unit off an eBay
+ * fee page are not comparable quantities. Mixed currencies inside one tool are
+ * refused outright rather than converted — this feature has no rates and should
+ * never acquire any.
+ *
+ * Two sentences. The first is the centre of each group; the second is the
+ * actionable part, and which one it is depends on the data:
+ *
+ *   - **Separated.** Nothing won costs more than anything lost, so there is a
+ *     real threshold between them and the contractor can see where it is.
+ *   - **Overlapping.** They have won above the price they have lost at, which
+ *     says the opposite and is worth saying just as loudly: price is not what
+ *     decided those jobs, and dropping it will not win them. Phrased as the two
+ *     edges rather than as a range so that the case where they are equal — won
+ *     and lost at the same figure — reads correctly instead of as "between
+ *     $2,000 and $2,000".
+ *
+ * Returns `''` — draw nothing — below `MIN_PRICE_BAND_SIDE` on either side, on
+ * mixed currencies, and when no decided bid carries a readable figure.
+ */
+export function priceBandSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var won = [];
+  var lost = [];
+  var currency = '';
+
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'won' && bid.outcome !== 'lost') continue;
+    var parsed = bidAmountValue(bid.amount);
+    if (!parsed) continue;
+    if (currency === '') currency = parsed.currency;
+    else if (parsed.currency !== currency) return '';
+    if (bid.outcome === 'won') won.push(parsed); else lost.push(parsed);
+  }
+
+  if (won.length < MIN_PRICE_BAND_SIDE || lost.length < MIN_PRICE_BAND_SIDE) return '';
+
+  var high = bidPriceSide(won, 1);
+  var low = bidPriceSide(lost, -1);
+
+  var centre = 'The ' + won.length + ' you won here averaged ' +
+    formatBidAmount(currency, high.average) + ', the ' + lost.length + ' you lost, ' +
+    formatBidAmount(currency, low.average) + '.';
+
+  var edge = high.edge.value < low.edge.value
+    ? 'Every bid you won was ' + high.edge.text + ' or under, and every one you lost ' +
+      low.edge.text + ' or over.'
+    : 'You have won as high as ' + high.edge.text + ' and lost as low as ' + low.edge.text +
+      ', so price alone has not been deciding these.';
+
+  return centre + ' ' + edge;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -610,6 +772,26 @@ export const BID_AMOUNT_HELPER =
   `var normalizeHeadlineAmount = ${stripForInjection(normalizeHeadlineAmount.toString())};`;
 
 /**
+ * The price band's three functions, as source.
+ *
+ * Emitted after `BID_AMOUNT_HELPER` and not usable without it: `bidAmountValue`
+ * reads its input through `normalizeHeadlineAmount`, which is the point — the
+ * comparison can only ever see figures the save path would itself have stored,
+ * so a value written by some future version of this store cannot walk into an
+ * average.
+ *
+ * Injected only into pages that capture a headline figure. A tool with no hero
+ * number saves no amounts, so this code could never produce a sentence there,
+ * and it ships on ~230 pages that the service worker caches whole.
+ */
+export const BID_PRICE_BAND_HELPERS = [
+  `var MIN_PRICE_BAND_SIDE = ${MIN_PRICE_BAND_SIDE};`,
+  ...[bidAmountValue, bidPriceSide, formatBidAmount, priceBandSentence].map(
+    (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
+  ),
+].join('\n');
+
+/**
  * Say so in the structured data.
  *
  * `featureList` is the machine-readable list of what a tool does — what a
@@ -624,6 +806,19 @@ export const BID_AMOUNT_HELPER =
  */
 export const SAVED_BIDS_CLAUSE =
   'saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer';
+
+/**
+ * The second clause, for the pages that can actually draw the price band.
+ *
+ * Kept separate from `SAVED_BIDS_CLAUSE` rather than folded into it, and that
+ * split is the same guard the function below already enforced in one direction:
+ * a page with no headline figure stores no amounts, so it can never show this
+ * comparison, and appending the phrase there would advertise a feature the page
+ * does not have. 160 of the 234 pages with a form carry a hero number; only
+ * those get the sentence.
+ */
+export const PRICE_BAND_CLAUSE =
+  'and, once a few are decided, what your won bids on this tool have averaged against the ones you lost';
 
 /**
  * Both spellings, because the repo uses both — a strict match on
@@ -645,12 +840,17 @@ const FEATURE_LIST_RE = /("featureList"\s*:\s*")((?:[^"\\]|\\.)*)(")/;
  * going in. That coupling is the point: the claim and the feature ship in the
  * same statement, so a page can never advertise saved bids it does not have.
  * It is the reverse-direction guard #1894 had to add as a separate test.
+ *
+ * `withPriceBand` extends the claim to the won-against-lost comparison, and is
+ * passed only for a page that captures a headline figure — see
+ * `PRICE_BAND_CLAUSE` for why the two are not one string.
  */
-export function addSavedBidsClause(html) {
+export function addSavedBidsClause(html, withPriceBand = false) {
   if (typeof html !== 'string') return html;
   if (html.includes(SAVED_BIDS_CLAUSE)) return html;
+  const clause = withPriceBand ? `${SAVED_BIDS_CLAUSE} ${PRICE_BAND_CLAUSE}` : SAVED_BIDS_CLAUSE;
   return html.replace(FEATURE_LIST_RE, (match, open, list, close) =>
-    list.trim() === '' ? match : `${open}${list}, ${SAVED_BIDS_CLAUSE}${close}`,
+    list.trim() === '' ? match : `${open}${list}, ${clause}${close}`,
   );
 }
 
@@ -686,6 +886,10 @@ const JOBS_STYLE = `<style>
    dimmed like the date beside it: both are what the panel is opened to read.
    A decided row steps back, because the list is scanned for the open ones. */
 .pf-jobs-summary{margin:0 0 10px;font-weight:600}
+/* The price band is the panel's one piece of reading rather than tracking, so
+   it is set apart from the list without being dimmed out of it. */
+.pf-jobs-band{margin:0 0 10px;padding:8px 10px;border-left:3px solid #80808059;
+  background:#8080800f;border-radius:0 7px 7px 0;font-variant-numeric:tabular-nums}
 .pf-jobs-age{font-variant-numeric:tabular-nums}
 .pf-jobs-state{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
   border:1px solid #80808059;border-radius:7px;padding:3px 6px}
@@ -737,19 +941,20 @@ const JOBS_STYLE = `<style>
  * from, because these pages are served at two depths (`/<slug>/` and
  * `/<slug>/some-question.html`) and a hard-coded `../` is wrong at one of them.
  */
-const JOBS_MARKUP = (toRoot = './') => `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
+const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
   <p class="pf-jobs-line">
     <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out.</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips.' : ''}</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
       <button type="button" data-pf-jobs="save">Save this bid</button>
     </div>
-    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>${withPriceBand ? `
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>` : ''}
     <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
     <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="${toRoot}#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
   </div>
@@ -808,6 +1013,7 @@ const JOBS_SCRIPT = (slug, amountSelector = '') => `<script type="module">
 
 ${BID_FOLLOW_UP_HELPERS}
 ${BID_AMOUNT_HELPER}
+${amountSelector ? BID_PRICE_BAND_HELPERS : ''}
 
   var root = document.querySelector('[data-pf-jobs-root]');
   if (!root) return;
@@ -893,6 +1099,8 @@ ${BID_AMOUNT_HELPER}
     return typeof at === 'string' ? at.slice(0, 10) : '';
   };
 
+  var bandShown = '';
+
   var render = function(){
     var list = mine();
     var ul = el('pf-jobs-list');
@@ -903,6 +1111,18 @@ ${BID_AMOUNT_HELPER}
     var sentence = followUpSentence(list, Date.now());
     summary.textContent = sentence;
     summary.hidden = sentence === '';
+
+    // Absent on a tool with no headline figure: the build emits neither the
+    // paragraph nor the functions there, so this element is the guard. Counted
+    // when the reading changes rather than on every render, so a contractor
+    // marking three bids in a row is three readings and not thirty.
+    var band = el('pf-jobs-band');
+    if (band) {
+      var reading = priceBandSentence(list);
+      band.textContent = reading;
+      band.hidden = reading === '';
+      if (reading !== '' && reading !== bandShown) { bandShown = reading; bump('bid_price_band_shown'); }
+    }
 
     for (var i = 0; i < list.length; i++) {
       var bid = list[i];
@@ -1199,8 +1419,16 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
   const bodyOpen = html.match(/<body[^>]*>/i);
   if (!bodyOpen || !/<\/body>/i.test(html)) return html;
 
+  // Resolved against the page as it arrived, not against the assembled
+  // document: the band this build inserts carries no `hero-number`, but reading
+  // the finished document would mean a future one could quietly become the
+  // match. Decided here rather than at the bottom because three things now
+  // depend on it — the feature-list claim, the paragraph, and the paragraph's
+  // element.
+  const amountSelector = pageHeadlineAmountSelector(html, slug);
+
   // The claim goes in with the feature, never on its own. See the clause above.
-  const declared = addSavedBidsClause(html);
+  const declared = addSavedBidsClause(html, amountSelector !== '');
 
   const withStyle = declared.replace(/<\/head>/i, `${JOBS_STYLE}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
@@ -1209,15 +1437,10 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
   const rates = withStyle.match(/<section class="pf-rates"[\s\S]*?<\/section>/i);
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);
   const anchor = rates ? rates[0] : nav ? nav[0] : null;
-  const markup = JOBS_MARKUP(toRoot);
+  const markup = JOBS_MARKUP(toRoot, amountSelector !== '');
   const anchored = anchor
     ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${markup}`)
     : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
-
-  // Resolved against the page as it arrived, not against `anchored`: the band
-  // this build inserts carries no `hero-number`, but reading the finished
-  // document would mean a future one could quietly become the match.
-  const amountSelector = pageHeadlineAmountSelector(html, slug);
 
   return anchored.replace(
     /<\/body>/i,

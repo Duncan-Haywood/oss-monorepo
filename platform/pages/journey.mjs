@@ -356,12 +356,25 @@ await step('usage counting around shop rates', async () => {
 const jobsReady = () => page.waitForFunction(
   () => !document.querySelector('[data-pf-jobs-root]')?.hidden, null, { timeout: 5000 });
 
-// Every currency figure the page shows, in order. Comparing the whole set
+// Every currency figure the *tool* shows, in order. Comparing the whole set
 // rather than one element keeps this generic across tools that name their
 // output differently — and a restore that got one line right and another wrong
 // would still be caught.
-const figures = () => page.evaluate(
-  () => (document.body.innerText.match(/\$[\d,]+(?:\.\d{2})?/g) || []).join('|'));
+//
+// The injected bands are excluded, and that is not tidiness. Since #1906 a
+// saved-bid row prints the figure its bid was saved at, so a scrape of the
+// whole body reads one contractor's other quotes as part of this tool's answer:
+// saving a bid and then restoring it appeared to reprice the job, because the
+// list above the form had grown a row. Both "restores to the same price" checks
+// have been failing on `main` for that reason since it landed, and the failure
+// was in the measurement rather than in the product.
+const figures = () => page.evaluate(() => {
+  const text = Array.from(document.body.children)
+    .filter((node) => !/^pf-(jobs|rates|chrome)\b/.test(node.className || ''))
+    .map((node) => node.innerText || '')
+    .join('\n');
+  return (text.match(/\$[\d,]+(?:\.\d{2})?/g) || []).join('|');
+});
 
 await step('a bid is still there when the customer calls back', async () => {
   const SLUG = 'water-heater-bid-calculator';
@@ -437,6 +450,101 @@ await step('a bid is still there when the customer calls back', async () => {
   // The names are customer names and street addresses. They stay in the bid.
   check('and the usage counter holds no customer name',
     !/Oak|Reid/.test(JSON.stringify(jobCounts)));
+});
+
+// 6bc. The price band (`priceBandSentence`) — what the decided bids add up to.
+//
+//      The arithmetic is unit tested against rows built by hand. What only a
+//      browser can show is that the figures reaching it are the ones this tool
+//      actually printed: the band reads `bid.amount`, which was scraped off the
+//      page's own hero at save time, so a selector that pointed at the wrong
+//      element would produce a confident average of the wrong numbers. Four
+//      bids are priced here at four different sizes for that reason, and the
+//      sentence is checked against the figures the page itself showed.
+await step('four decided bids say where this tool’s price tips', async () => {
+  const SLUG = 'water-heater-bid-calculator';
+  await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
+  // This step needs a known store and the backup step below needs the one the
+  // step above built, so it borrows rather than clears: whatever is on the
+  // device is put back before this step returns, including on the way out of a
+  // failed check.
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  await jobsReady();
+  await page.click('#pf-jobs-toggle');
+  try {
+
+  const ids = (await page.evaluate(() => {
+    const out = [];
+    document.querySelectorAll('input[type="number"][id]').forEach((n) => {
+      if (!n.id.startsWith('pf-') && n.id !== 'usageOptOut') out.push(n.id);
+    });
+    return out;
+  })).slice(0, 4);
+
+  // Each job is priced by scaling the first field, so the four bids come out
+  // in a known order without this test knowing what the tool prices.
+  const hero = () => page.evaluate(() => {
+    const node = document.querySelector('.hero-number');
+    return node ? node.textContent.replace(/\s+/g, ' ').trim() : '';
+  });
+  const shown = [];
+  for (const [n, size] of [8, 14, 20, 26].entries()) {
+    for (const [i, id] of ids.entries()) {
+      await page.fill(`#${id}`, String(size + i * 3));
+      await page.dispatchEvent(`#${id}`, 'input');
+    }
+    shown.push(await hero());
+    await page.fill('#pf-jobs-name', `Job ${n + 1}`);
+    await page.click('[data-pf-jobs="save"]');
+  }
+  check('four jobs price to four different figures', new Set(shown).size === 4, shown.join(' '));
+
+  // Nothing yet: four bids, none of them decided.
+  check('an undecided list says nothing about price', !(await page.isVisible('#pf-jobs-band')));
+
+  // Newest first, so row 0 is Job 4 (the dearest) and row 3 is Job 1.
+  // Win the two cheapest, lose the two dearest — the separated case.
+  const mark = async (index, value) => {
+    await page.selectOption(`select[data-pf-jobs-index="${index}"]`, value);
+    await page.waitForTimeout(50);
+  };
+  await mark(3, 'won');
+  await mark(2, 'won');
+  await mark(1, 'lost');
+  check('one decided side is not a comparison', !(await page.isVisible('#pf-jobs-band')));
+  await mark(0, 'lost');
+
+  const band = (await page.textContent('#pf-jobs-band')).replace(/\s+/g, ' ').trim();
+  check('the band reads once both sides have two', await page.isVisible('#pf-jobs-band'), band);
+  check('it counts both sides', /The 2 you won here averaged .*, the 2 you lost, /.test(band), band);
+  // The two cheapest were won and the two dearest lost, so the edges are the
+  // figures this page printed for Job 2 and Job 3 — not a re-rendering of them.
+  check('and quotes the tool’s own figures at the edges',
+    band.includes(shown[1]) && band.includes(shown[2]), `${band} :: ${shown.join(' ')}`);
+  check('and names the threshold rather than an overlap',
+    /Every bid you won was .* or under, and every one you lost .* or over\./.test(band), band);
+
+  // Undo one: the reading has to follow the data back down.
+  await mark(0, '');
+  check('taking a side back below two withdraws the reading',
+    !(await page.isVisible('#pf-jobs-band')));
+
+  const counts = await page.evaluate(
+    () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+  check('the reading is counted', counts.bid_price_band_shown >= 1, JSON.stringify(counts));
+  check('and the counter still holds no customer name and no figure',
+    !/Job |\$/.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
 });
 
 // 6bb. Backup and restore (`backup.mjs`) — the bids surviving the browser.
