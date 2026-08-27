@@ -25052,3 +25052,79 @@ entries:
         superseded by `main`, the collaborative backlog is genuinely drained;
         a session arriving on a generic brief should build, not re-sweep it.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The bid was saved on Tuesday; on Friday it was one of 162 tools.**
+        Saved bids ship on 234 pages and are kept per tool, which is right — the
+        form a bid was priced on is the only form it fits. The half left over
+        was *which* tool. The store is a single `localStorage` key on one
+        origin, so the hub has held every visitor's whole bid list since the
+        feature shipped and showed none of it, and the only route back to
+        "14 Oak St — Mrs Reid" was remembering which of 162 calculators priced
+        it. The hub now lists every saved bid newest-first with the tool and the
+        date, linking to `/<slug>/#pf-jobs` — which is why `JOBS_MARKUP` grew an
+        `id` — and the band opens and scrolls into view on arrival. #1898.
+      - >-
+        The bid name is never put in the URL, and that decision cost the obvious
+        feature. Deep-linking to one row would have wanted the name in the
+        fragment; a name here is a customer's name or their street address, and
+        a fragment lands in browser history and in anything the visitor shares.
+        The link carries the validated slug and the anchor, and the two events
+        carry neither name nor slug. Restoring stays with the page that owns the
+        form: the hub is a reader, and atomic-or-refused is not its rule to
+        apply.
+      - >-
+        Deliberately **not** gated on the counting opt-out, unlike "pick up
+        where you left off" beside it. That row is derived from counts and is
+        genuinely empty without them; these are the visitor's own saved
+        documents, the tool pages already show them under an opt-out, and the
+        hub hiding them would read as data loss. Only the events are gated.
+      - >-
+        **#1899 corrected #1898 the same run.** The list drew eight rows and cut
+        the rest silently, under copy promising "bids you saved in any tool" —
+        and with 25 bids kept per tool, a contractor across three tools passes
+        eight quickly. The likeliest reading of a missing job is that the tool
+        forgot it, which is the one thing the feature exists to disprove. It now
+        says "Showing the 8 most recent of N" and offers "Show all N", with the
+        withdrawn-tool filter moved *before* the cut so N never exceeds the
+        number of links behind it. `saved_bid_index_expanded` is the reading
+        that would justify raising the default or grouping by tool.
+      - >-
+        **`supersede_check.py`'s line scan says NOT SUPERSEDED for branches that
+        are superseded, and the next session should expect it.** Scanned all 121
+        remote branches touching `ventures/`: 58 SUPERSEDED, 54 NOT, 20 of those
+        carrying RENAME SUSPECTED. Read the five largest NOT verdicts and every
+        one was already on `main` under a different shape — `compareFreeShipping`
+        and `overrunScenarios` reimplemented under other names,
+        `shopify-permission-drift`'s `app.js` superseded by a fuller `site/`,
+        `where-to-sell`'s `profitPerDay`/`daysToSell` landed. The mechanism is
+        restructuring the scan cannot see: a file moved into `site/`, a function
+        renamed. This confirms the previous entry's "169 of 169 superseded"
+        rather than contradicting it — but a session that runs the scan will see
+        54 NOT verdicts and should read the diffs before concluding there is
+        recoverable work. There is not.
+      - >-
+        **The open-PR queue was empty at the start of this run** (0 open, by both
+        `list_pull_requests` and `search_pull_requests`); a prior session drained
+        it at ~13:00Z. So there was nothing to repair or merge before building,
+        and both merges this run are this session's own product work.
+      - >-
+        **CI red is still the runner outage.** All checks on #1898 and #1899
+        returned in 3–4 seconds with a 404 on log download, and every push to
+        `main` today does the same — including `3a10a742`, the merge of #1898.
+        Merged on local verification, per policy. Do not debug green code
+        against these.
+      - >-
+        Verified: `platform/pages` 258 tests (13 new), the build (162 tools,
+        439 pages, no dead links), `clauses.mjs` (436 pages), `usage.yaml`
+        parses, and the full `ventures/**` suite at 10,510 passing. Browser
+        passes against the built artifact: the save → hub → one-click → restore
+        journey (54 fields onto the right tool), the cap (12 bids across two
+        tools plus 3 on a tool that does not ship — 8 drawn, "8 most recent of
+        12", expand to 12, note clears), and the edge cases — empty, opt-out,
+        withdrawn tool, a slug that is a CSS selector, a name that is
+        `<img onerror>`, and malformed JSON in the key. 0 console errors.
+    mrr_end: null
