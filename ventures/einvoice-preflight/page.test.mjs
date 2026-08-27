@@ -22,6 +22,7 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /INV-044 through INV-046/);
   assert.match(page, /INV-047 through INV-049/);
   assert.match(page, /INV-050 through INV-052/);
+  assert.match(page, /INV-053 and INV-054/);
   assert.match(page, /Load a credit note without a reference/);
   assert.match(page, /Load a 0% line without a reason/);
   assert.match(page, /Load mixed rates without a breakdown/);
@@ -30,6 +31,7 @@ test("browser page is discoverable and names the user job", () => {
   assert.match(page, /Load a SEPA transfer without an IBAN/);
   assert.match(page, /Load a PO that repeats the invoice number/);
   assert.match(page, /Load a header discount that does not match its percent/);
+  assert.match(page, /Load terms days that do not match the due date/);
   assert.match(page, /Factur-X \.pdf/);
   assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF unwrap/);
   assert.match(page, /Factur-X \/ ZUGFeRD \/ XRechnung PDF with an embedded invoice/);
