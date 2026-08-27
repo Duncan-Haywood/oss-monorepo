@@ -35,6 +35,8 @@ import {
   renderSitemapIndex,
   renderVentureSitemap,
   searchTokens,
+  subcategoryFor,
+  groupBySubcategory,
   truncate,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -608,6 +610,25 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   }
 });
 
+// Both machine surfaces exist so an assistant can answer "which of these is a
+// gutter tool" without reading 110 sibling descriptions and guessing.
+test('the machine surfaces carry the sub-group a trade tool belongs to', async () => {
+  const llms = await read('llms.txt');
+  const subheads = llms.split('\n').filter((line) => line.startsWith('### '));
+  assert.ok(subheads.length > 1, 'the trades section is sub-divided in llms.txt too');
+  assert.ok(subheads.some((line) => line.includes('Roofing')));
+
+  const catalog = JSON.parse(await read('catalog.json'));
+  const roof = catalog.tools.find((t) => t.slug === 'metal-roof-bid-calculator');
+  assert.equal(roof.category, 'Trade & contractor bids');
+  assert.equal(roof.subcategory, 'Roofing, siding & gutters');
+
+  // Absent rather than null where a category is not sub-divided, so a consumer
+  // filtering on the key never has to special-case an empty value.
+  const ebay = catalog.tools.find((t) => t.slug === 'ebay-fee-calculator');
+  assert.ok(!('subcategory' in ebay));
+});
+
 test('llms.txt carries each tool full self-description, not the trimmed card copy', async () => {
   const { surfaces } = await site();
   const llms = await read('llms.txt');
@@ -900,6 +921,65 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('something-brand-new').id, 'more');
 });
 
+// These four sat in "More free tools" — the section a visitor reads last, if at
+// all — while the category they belong to was one scroll above them. A seller
+// looking for the TikTok Shop fee tool had no reason to keep scrolling past the
+// marketplace section that did not contain it.
+test('tools that belong to a named category are not left in the catch-all', () => {
+  assert.equal(categoryFor('tiktok-shop-fee-calculator').id, 'marketplace');
+  assert.equal(categoryFor('delivery-app-margin-calculator').id, 'marketplace');
+  assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
+  assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
+  assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
+});
+
+test('sub-groups only apply where a category is large enough to need them', () => {
+  assert.equal(subcategoryFor('ebay-fee-calculator'), null, 'marketplace reads as one list');
+  assert.equal(subcategoryFor('cut-list-optimizer'), null, 'logistics reads as one list');
+  assert.equal(subcategoryFor('metal-roof-bid-calculator').id, 'trades-roof');
+  assert.equal(subcategoryFor('quote-margin-check').id, 'trades-paid');
+});
+
+// Narrow rules have to precede broad ones. `window-cleaning-bid-calculator` is
+// sold by a window cleaner, not a window installer; if the "Windows, doors &
+// garage" rule ran first it would file the cleaner's tool under replacements.
+test('a narrower sub-group rule wins over the broad one it overlaps', () => {
+  assert.equal(subcategoryFor('window-cleaning-bid-calculator').id, 'trades-cleaning');
+  assert.equal(subcategoryFor('window-replacement-bid-calculator').id, 'trades-openings');
+  assert.equal(subcategoryFor('gutter-cleaning-bid-calculator').id, 'trades-cleaning');
+  assert.equal(subcategoryFor('gutter-install-bid-calculator').id, 'trades-roof');
+});
+
+// The catch-all sub-group is a safety net for a slug no keyword claims, not a
+// place tools are meant to accumulate. If a new bid calculator lands here, the
+// fix is a keyword — this test is how anyone finds out it is needed.
+test('every published trade tool lands in a named sub-group', async () => {
+  const { surfaces } = await site();
+  const homeless = surfaces
+    .filter((s) => categoryFor(s.slug).id === 'trades')
+    .filter((s) => subcategoryFor(s.slug).id === 'trades-other')
+    .map((s) => s.slug);
+  assert.deepEqual(homeless, [], 'add a keyword to SUBCATEGORY_RULES.trades for these');
+});
+
+test('grouping by sub-group keeps every tool and drops empty groups', () => {
+  const trades = [
+    { slug: 'metal-roof-bid-calculator' },
+    { slug: 'siding-bid-calculator' },
+    { slug: 'quote-margin-check' },
+  ];
+  const groups = groupBySubcategory('trades', trades);
+  assert.deepEqual(
+    groups.map((g) => g.subcategory.id),
+    ['trades-paid', 'trades-roof'],
+    'only the sub-groups with tools in them, in rule order',
+  );
+  assert.equal(groups.flatMap((g) => g.items).length, trades.length);
+
+  const flat = groupBySubcategory('marketplace', [{ slug: 'ebay-fee-calculator' }]);
+  assert.deepEqual(flat, [{ subcategory: null, items: [{ slug: 'ebay-fee-calculator' }] }]);
+});
+
 test('every discovered tool lands in exactly one rendered group', async () => {
   const { surfaces } = await site();
   const hub = renderHub(surfaces, BASE);
@@ -907,6 +987,56 @@ test('every discovered tool lands in exactly one rendered group', async () => {
     const occurrences = hub.split(`href="${surface.slug}/"`).length - 1;
     assert.equal(occurrences, 1, `${surface.slug} appears ${occurrences} times`);
   }
+});
+
+test('the hub sub-divides the trades section and leaves small ones flat', async () => {
+  const { surfaces } = await site();
+  const hub = renderHub(surfaces, BASE);
+
+  const trades = hub.split('data-group="trades"')[1].split('</section>\n      </section>')[0];
+  const rendered = [...trades.matchAll(/data-subgroup="([^"]+)"/g)].map((m) => m[1]);
+  assert.ok(rendered.length > 1, 'the 100+ trade tools are broken into families');
+  assert.ok(rendered.includes('trades-roof'));
+
+  const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
+  assert.ok(
+    !marketplace.includes('data-subgroup'),
+    'a section that fits on a screen gets no sub-headings',
+  );
+});
+
+// The sub-group heading is an h3, so a card beneath it has to be an h4 or the
+// outline claims the card is a sibling of the heading above it. Heading order is
+// how a screen-reader user browses a directory this long.
+test('card headings sit one level below the section that holds them', async () => {
+  const { surfaces } = await site();
+  const hub = renderHub(surfaces, BASE);
+
+  const levels = [...hub.matchAll(/<h([1-6])[ >]/g)].map((m) => Number(m[1]));
+  const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
+  assert.equal(skip, undefined, 'no heading level is skipped anywhere on the hub');
+
+  const roof = hub.split('data-subgroup="trades-roof"')[1].split('</section>')[0];
+  assert.ok(roof.includes('<h4>'), 'a card under a sub-group heading is an h4');
+  const marketplace = hub.split('data-group="marketplace"')[1].split('</section>')[0];
+  assert.ok(marketplace.includes('<h3>'), 'a card in a flat category stays an h3');
+});
+
+// A category of 110 makes "same category" almost meaningless as a signal: the
+// rotation would offer a roofer whichever four tools it landed on.
+test('related tools prefer the sub-group before the wider category', () => {
+  const surfaces = [
+    { slug: 'metal-roof-bid-calculator', title: 'A' },
+    { slug: 'furnace-bid-calculator', title: 'B' },
+    { slug: 'siding-bid-calculator', title: 'C' },
+    { slug: 'ebay-fee-calculator', title: 'D' },
+  ];
+  const related = relatedTools(surfaces, 'metal-roof-bid-calculator', 3);
+  assert.deepEqual(
+    related.map((s) => s.slug),
+    ['siding-bid-calculator', 'furnace-bid-calculator', 'ebay-fee-calculator'],
+    'a roofing sibling first, then the rest of the trades, then off-category',
+  );
 });
 
 test('isPublishable keeps web assets and drops the rest', () => {
