@@ -2,16 +2,19 @@
 // derived arithmetic, but deliberately avoids presenting a profitability or
 // pricing recommendation.
 
-export function formatReviewSummary(quote, report, checks) {
+export function formatReviewSummary(quote, report, checks, decision = null) {
   const money = (value) => `${quote.currency} ${value.toFixed(2)}`;
   const flags = checks
     .filter((check) => check.level === "attention")
     .map((check) => `- ${check.title}: ${check.detail}`);
+  const nextStep = decision?.title
+    ? [`Next-step prompt: ${decision.title}`, ""]
+    : [];
 
   return [
     "QUOTE MARGIN CHECK",
     "Arithmetic review for discussion, not pricing or financial advice.",
-    "",
+    ...nextStep,
     `Quoted price: ${money(quote.price)}`,
     `Total working hours: ${report.total_hours.toFixed(2)}`,
     `Direct costs: ${money(report.direct_costs)}`,

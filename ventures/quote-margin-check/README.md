@@ -37,7 +37,8 @@ the time-overrun, cost-rise, discount-ask, and kill-fee rows already on the
 page. The browser can also copy a share link that keeps quote figures in the URL
 fragment (not sent as a referrer) and a plain-text review summary for an email or
 proposal note. It includes the quote's arithmetic, the supplied target
-comparison, and only attention-level review observations. Copying the summary
+comparison, the local next-step prompt (send / revise / hold remains yours),
+and only attention-level review observations. Copying the summary
 records an anonymous `review_summary_copied` event locally; quote values are
 never stored in that event or sent anywhere. The discount-ask table also has
 its own **Copy discount ladder** control for a spreadsheet-safe CSV of the
