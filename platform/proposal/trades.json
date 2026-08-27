@@ -1360,12 +1360,28 @@
         }
       }
     },
+    "rowFields": {
+      "components": {
+        "name": {
+          "map": {
+            "Canopy hood (listed sq ft)": "sq ft of canopy hood",
+            "Hood filters (each)": "hood filters",
+            "Horizontal duct (linear ft)": "linear ft of horizontal duct",
+            "Vertical duct (linear ft)": "linear ft of vertical duct",
+            "Rooftop exhaust fan (each)": "rooftop exhaust fan",
+            "Wall exhaust fan (each)": "wall exhaust fan",
+            "Makeup-air unit (each)": "makeup-air unit",
+            "Clean-out door work (each)": "clean-out door"
+          }
+        }
+      }
+    },
     "scope": [
       "Clean the kitchen exhaust system components listed below",
       {
         "each": "components",
         "when": "quantity",
-        "line": "{name} — {quantity~0}"
+        "line": "{quantity~0} {name}"
       },
       {
         "line": "Scheduled for a {greaseLabel}",

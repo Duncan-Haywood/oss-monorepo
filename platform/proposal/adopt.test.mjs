@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { companyKey, detectFunctions, disclaimerFor, jsString, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
+import { companyKey, declaredRowFields, detectFunctions, disclaimerFor, jsString, priceExpressionFor, readerTakesNoArguments, resultKeysOf } from './adopt.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VENTURES = path.resolve(HERE, '../../ventures');
@@ -186,4 +186,38 @@ test('every select a trade reads is a select the page actually has', () => {
     }
   }
   assert.deepEqual(missing, []);
+});
+
+test('a row field is rewritten from its own map, and falls through when unmapped', () => {
+  const [generated] = declaredRowFields({
+    components: { name: { map: { 'Canopy hood (listed sq ft)': 'sq ft of canopy hood' } } },
+  });
+  assert.match(generated, /Array\.isArray\(result\['components'\]\)/);
+  assert.match(generated, /"sq ft of canopy hood"/);
+  // The fallback is the safety property. `scopeLines` drops a line whose
+  // placeholder is missing, so without `?? row['name']` a component preset
+  // nobody added to the map would delete itself from the scope the customer
+  // signs, rather than merely reading badly.
+  assert.match(generated, /\?\? row\['name'\]/);
+});
+
+test('a row field reads its source off the untouched row', () => {
+  // Two mapped fields keying off the same original value must not depend on the
+  // order they were written in, so both read `row[...]` rather than each other.
+  const [generated] = declaredRowFields({
+    components: { unit: { from: 'name', map: { 'Hood filters (each)': 'filters' } } },
+  });
+  assert.match(generated, /"unit": \(\{[^}]*\}\)\[row\['name'\]\] \?\? row\['name'\]/);
+});
+
+test('every component a hood-cleaning bid can list has customer wording', async () => {
+  // The map turns the estimator's form labels ("Canopy hood (listed sq ft)",
+  // where the parenthetical tells the estimator what to type) into the words a
+  // customer reads. A preset added later without a mapping still prints, but it
+  // prints the form label — so this fails instead, at the point of adding it.
+  const { COMPONENT_PRESETS } = await import('../../ventures/hood-cleaning-bid-calculator/calc.mjs');
+  const map = trades['hood-cleaning-bid-calculator'].rowFields.components.name.map;
+  for (const preset of COMPONENT_PRESETS) {
+    assert.ok(map[preset.label], `no customer wording for component preset "${preset.label}"`);
+  }
 });

@@ -548,7 +548,7 @@
         {
           "each": "components",
           "when": "quantity",
-          "line": "{name} — {quantity~0}"
+          "line": "{quantity~0} {name}"
         },
         {
           "line": "Scheduled for a {greaseLabel}",
@@ -578,6 +578,11 @@
       return {
         ...result,
         "greaseLabel": ({"light":"light grease load","moderate":"moderate grease load","heavy":"heavy grease load","extra_heavy":"extra-heavy grease load"})[el('greaseLoad')?.value],
+        "components": (Array.isArray(result['components']) ? result['components'] : [])
+          .map(row => ({
+            ...row,
+            "name": ({"Canopy hood (listed sq ft)":"sq ft of canopy hood","Hood filters (each)":"hood filters","Horizontal duct (linear ft)":"linear ft of horizontal duct","Vertical duct (linear ft)":"linear ft of vertical duct","Rooftop exhaust fan (each)":"rooftop exhaust fan","Wall exhaust fan (each)":"wall exhaust fan","Makeup-air unit (each)":"makeup-air unit","Clean-out door work (each)":"clean-out door"})[row['name']] ?? row['name'],
+          })),
       };
     }
 
