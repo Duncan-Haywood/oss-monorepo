@@ -836,9 +836,14 @@
         el('split').innerHTML = '<li class="empty">Add a space or a day-porter shift and the labor split appears here.</li>';
         return;
        }
+      // Read once, price everything from it. The three scenario panels used to
+      // rebuild this object inline and each left out `shifts` and `projects`,
+      // so a contract with a day-porter shift was compared against a cost base
+      // that did not include that porter's wages.
+      const input = readInput(areas, shifts);
       let result;
       try {
-        result = calculateBid(readInput(areas, shifts));
+        result = calculateBid(input);
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -913,20 +918,16 @@
             : `At ${money(result.proposed.price)} a month you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
       }
 
-      renderFrequencyCompare({ areas, result });
-      renderSupplyCompare({ areas });
-      renderInitialCompare({ areas });
+      renderFrequencyCompare({ input });
+      renderSupplyCompare({ input });
+      renderInitialCompare({ input });
     }
 
-    function renderFrequencyCompare({ areas }) {
+    function renderFrequencyCompare({ input }) {
       const panel = el('frequencyCompare');
       let comparison;
       try {
-        comparison = compareFrequencyReduction({
-          areas,
-          periodicServices: readPeriodic(),
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-        }, {
+        comparison = compareFrequencyReduction(input, {
           currentWeekly: el('currentWeekly').value,
           proposedWeekly: el('proposedWeekly').value,
           clientOfferMonthly: el('clientOfferMonthly').value,
@@ -967,7 +968,7 @@
         : '';
       verdict.innerHTML = comparison.naiveBelowBreakEven
         ? `A linear ${(comparison.reductionFactor * 100).toFixed(0)}% of today&rsquo;s price (${money(comparison.naiveLinearPrice)}) <strong>loses ${money(Math.abs(comparison.naiveProfit))} a month</strong> once travel and supplies stay on the job. The ${reducedLabel} price that still holds your margin is ${money(comparison.priceToHoldTargetMargin)}; walk-away is ${money(comparison.walkAwayAtReduced)}.${offerLine}`
-        : `The ${reducedLabel} price that still holds your margin is <strong>${money(comparison.priceToHoldTargetMargin)}</strong> — ${money(comparison.leftOnTable)} a month above a linear cut (${money(comparison.naiveLinearPrice)}, ${comparison.naiveMargin.toFixed(1)}% margin). Labor drops ${comparison.laborHoursDropped.toFixed(1)} hours; ${money(comparison.unscaledMonthly)} of supplies, equipment, and travel stay.${offerLine}`;
+        : `The ${reducedLabel} price that still holds your margin is <strong>${money(comparison.priceToHoldTargetMargin)}</strong> — ${money(comparison.leftOnTable)} a month above a linear cut (${money(comparison.naiveLinearPrice)}, ${comparison.naiveMargin.toFixed(1)}% margin). Labor drops ${comparison.laborHoursDropped.toFixed(1)} hours; ${money(comparison.unscaledMonthly)} of supplies, equipment, and travel stay${comparison.unscaledShiftLabor > 0 ? `, and so does ${money(comparison.unscaledShiftLabor)} of scheduled shift labor` : ''}.${offerLine}`;
 
       panel.hidden = false;
       panel.dataset.note = frequencyReductionNote(comparison, { targetMargin: Number(el('targetMargin').value) });
@@ -978,15 +979,11 @@
       return `${value > 0 ? '+' : '−'}${money(Math.abs(value))}`;
     }
 
-    function renderSupplyCompare({ areas }) {
+    function renderSupplyCompare({ input }) {
       const panel = el('supplyCompare');
       let comparison;
       try {
-        comparison = compareSupplyResponsibility({
-          areas,
-          periodicServices: readPeriodic(),
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-        }, {
+        comparison = compareSupplyResponsibility(input, {
           restroomSharePercent: el('restroomSharePercent').value,
           emergencyFillMonthly: el('emergencyFillMonthly').value,
           clientOfferMonthly: el('supplyOfferMonthly').value,
@@ -1032,15 +1029,11 @@
       panel.dataset.note = supplyResponsibilityNote(comparison, { targetMargin: Number(el('targetMargin').value) });
     }
 
-    function renderInitialCompare({ areas }) {
+    function renderInitialCompare({ input }) {
       const panel = el('initialCompare');
       let comparison;
       try {
-        comparison = compareInitialClean({
-          areas,
-          periodicServices: readPeriodic(),
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-        }, {
+        comparison = compareInitialClean(input, {
           visitMultiplier: el('initialVisitMultiplier').value,
           extraSupplies: el('initialExtraSupplies').value,
           amortizeMonths: el('initialAmortizeMonths').value,
@@ -1288,6 +1281,23 @@
           { key: 'hourlyWage', kind: 'number' },
         ],
       }, {
+        // Project rows were absent from this spec until 2026-08-27, so a saved
+        // bid or a shared link silently dropped every strip-and-wax or carpet
+        // extraction on the job and the recipient priced a smaller contract
+        // than the sender saw.
+        param: 'projects',
+        fields: [
+          { key: 'type', kind: 'choice', options: [
+            ...PROJECT_RATE_PRESETS.map((_, index) => String(index)),
+            'other',
+          ] },
+          { key: 'name', kind: 'text' },
+          { key: 'squareFeet', kind: 'number' },
+          { key: 'productionRate', kind: 'number' },
+          { key: 'passes', kind: 'number' },
+          { key: 'materials', kind: 'number' },
+        ],
+      }, {
         param: 'periodicServices',
         fields: [
           { key: 'name', kind: 'text' },
@@ -1321,18 +1331,33 @@
       }));
     }
 
+    // Like `readShiftRows`, the form's own values rather than `readProjects()`'s
+    // preset *labels*, so an "Other" project is restored as Other rather than
+    // as the first preset.
+    function readProjectRows() {
+      return [...projectsHost.querySelectorAll('.project-row')].map(row => ({
+        type: row.querySelector('.p-type').value,
+        name: row.querySelector('.p-name').value,
+        squareFeet: row.querySelector('.p-sqft').value,
+        productionRate: row.querySelector('.p-rate').value,
+        passes: row.querySelector('.p-passes').value,
+        materials: row.querySelector('.p-mat').value,
+      }));
+    }
+
     function readSavable() {
       return {
         ...Object.fromEntries([...COST_IDS, ...FREQ_IDS, ...SUPPLY_IDS, ...INITIAL_IDS].map(id => [id, el(id).value])),
         areas: readAreaRows(),
         shifts: readShiftRows(),
+        projects: readProjectRows(),
         periodicServices: readPeriodic(),
       };
     }
 
     function applyValues(values) {
       for (const [id, value] of Object.entries(values)) {
-        if (id === 'areas' || id === 'shifts' || id === 'periodicServices') continue;
+        if (id === 'areas' || id === 'shifts' || id === 'projects' || id === 'periodicServices') continue;
         const field = el(id);
         if (!field) continue;
         field.value = value;
@@ -1361,7 +1386,25 @@
           });
         }
       }
-      if (!Array.isArray(values.areas)) return Array.isArray(values.shifts);
+      if (Array.isArray(values.projects)) {
+        projectsHost.innerHTML = '';
+        for (const project of values.projects) {
+          const preset = PROJECT_RATE_PRESETS[Number(project.type)];
+          addProjectRow({
+            name: preset ? preset.label : (project.name || ''),
+            squareFeet: project.squareFeet ?? 0,
+            productionRate: project.productionRate ?? 0,
+            passes: project.passes ?? 1,
+            materials: project.materials ?? 0,
+          });
+          // A restored rate and pass count are the contractor's own measured
+          // numbers, so changing the project type later must not overwrite them.
+          const restored = projectsHost.lastElementChild;
+          restored.querySelector('.p-rate').dataset.edited = '1';
+          restored.querySelector('.p-passes').dataset.edited = '1';
+        }
+      }
+      if (!Array.isArray(values.areas)) return Array.isArray(values.shifts) || Array.isArray(values.projects);
       areasHost.innerHTML = '';
       for (const area of values.areas) {
         addAreaRow({
