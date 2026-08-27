@@ -13,6 +13,13 @@ test('the form exposes every calculator field so a saved or shared link can rest
   }
 });
 
+test('the result panel shows the item price that holds a typed leftover', () => {
+  assert.match(page, /id="targetProfit"/);
+  assert.match(page, /id="targetProfitPrice"/);
+  assert.match(page, /targetProfitPrice/);
+  assert.match(page, /target_profit_calculated/);
+});
+
 test('the result panel shows a sourcing ceiling for the typed target ROI', () => {
   assert.match(page, /id="targetRoi"/);
   assert.match(page, /id="sourcingCeiling"/);

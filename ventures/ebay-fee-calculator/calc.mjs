@@ -22,6 +22,7 @@ export const INPUT_FIELDS = [
   'otherCost',
   'targetMargin',
   'targetRoi',
+  'targetProfit',
   'returnRatePercent',
   'returnShippingCost',
   'feeRefundOnReturnPercent',
@@ -310,7 +311,45 @@ export function calculateOrder(input) {
     // Null-equivalent Infinity means even every order coming back still pays
     // (no sunk shipping/fees). Zero means the completed sale already loses.
     breakEvenReturnRate,
+    // Inverse of leftover: the item price that holds a typed leftover
+    // after the same fee stack. Complementary to targetMarginPrice
+    // (percent of revenue) and calculateSourcingCeiling (max buy for ROI).
+    // Salvaged from #1564.
+    targetProfitPrice: priceToMatchProfit(input, input.targetProfit ?? 0),
   };
+}
+
+/**
+ * Item price that leaves `targetProfit` after the typed fee stack.
+ *
+ * Percentage fees sit on item plus shipping charged, so this is not
+ * leftover plus costs — a $1 leftover target is not a $1 price move.
+ * Salvaged from #1564 onto current main. Not eBay's live fee schedule.
+ */
+export function priceToMatchProfit(input, targetProfit) {
+  const profit = Number(targetProfit);
+  if (!Number.isFinite(profit)) throw new Error('Target profit must be a number');
+  const number = (value, name) => {
+    const result = Number(value);
+    if (!Number.isFinite(result) || result < 0) throw new Error(`${name} must be a non-negative number`);
+    return result;
+  };
+  const quantity = number(input.quantity ?? 1, 'Units');
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
+  const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
+  const finalValueRate = number(input.finalValueRate ?? 13.25, 'Final value fee rate');
+  const fixedFee = number(input.fixedFee ?? 0.3, 'Per-order fixed fee');
+  const promotedRate = number(input.promotedRate ?? 0, 'Promoted listings rate');
+  const intlFeeRate = number(input.intlFeeRate ?? 0, 'International fee rate');
+  const costOfGoods = number(input.costOfGoods ?? 0, 'Cost of goods');
+  const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
+  const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const percentRate = (finalValueRate + promotedRate + intlFeeRate) / 100;
+  if (percentRate >= 1) return Infinity;
+  const fixedPerUnit = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
+  const price = (profit / quantity + fixedPerUnit) / (1 - percentRate) - shippingCharged;
+  return Math.round(Math.max(0, price) * 100) / 100;
 }
 
 export function calculateSourcingCeiling(input, targetRoi) {
