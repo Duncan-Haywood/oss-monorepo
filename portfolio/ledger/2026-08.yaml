@@ -24418,3 +24418,68 @@ entries:
         payment-reconciliation-workbench were unusable without sight. Now 0 of
         430.
     mrr_end: null
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The open PR queue was 31 PRs and 30 of them were already on
+        `main`.** Every one was compared against current `main` by reading
+        both implementations, not by trusting an exit code. Exactly one
+        carried unique, non-regressive work: #1226, repaired onto current
+        `main` and merged. The other 30 are closed, each naming the file on
+        `main` that supersedes it. The queue is now empty for the first time.
+      - >-
+        Merging them as written would have damaged live products, which is
+        why "drain the queue" cannot mean "merge the queue". #1342 would have
+        replaced a 400-line `calc.mjs` with its 60-line ancestor and dropped
+        the schedule and evidence exports. #1085 would have put a second,
+        thinner permission checker at the venture root, shadowing the real one
+        under `site/`. #1226 itself, merged unrepaired, would have deleted
+        `csv()` and the Download CSV button.
+      - >-
+        The pattern is renaming, and it is why `supersede_check.py` reported
+        NOT SUPERSEDED for all 31. The clearest case: **six** open PRs
+        implemented the single expression `(price - direct_costs) /
+        target_hourly_rate` under six different names — `target_rate_hours`,
+        `maximum_hours_at_target`, `max_hours_at_target`, `target_hours`,
+        `target_hours_at_price`, `target_hours_capacity` — against `main`'s
+        `targetHoursBudget`. Three more re-implemented CSV escaping already in
+        `export.mjs`, two of them reusing its exact function name `csvCell`.
+        Five re-implemented local drafts and history; two of those used
+        `main`'s exact storage keys, so merging either would have left two
+        modules writing one key in different shapes.
+      - >-
+        Reading a superseded branch is still worth the time, because the
+        delta is where the work is. #1226's salvage turned up a Download CSV
+        button that threw and did nothing on a bad figure, and a fractional
+        collection delay silently rounded up. #1284 and #1047 were closed as
+        superseded but each named one real gap, both since shipped in #1880:
+        `quote-margin-check` told a freelancer the quote "supports -4.00 total
+        hours" when direct costs exceeded the price, and the overrun table was
+        the only scenario panel with no usage signal.
+      - >-
+        **`Portfolio validate` had been red on `main` for every open PR**, from
+        one missing row — `marketplace-fee-compare` shipped a `VENTURE.yaml`
+        with no entry in `venture-scores.yaml` and an `evidence:` value the
+        schema rejects, failing four gates at once (`validate.py`,
+        `score_ventures.py --check`, the scoring suite, `test_allocate`).
+        Fixed in #1226 and #1879. Sessions reading a red check on their own PR
+        were reading someone else's missing row.
+      - >-
+        The second Pages builder was blind to a whole venture, so the
+        cross-check `hosting/README.md` relies on could not fire. `build.mjs`
+        has an `ENTRY_OVERRIDES` map for `ai-engineering-academy`, whose six
+        electronics calculators live under `tools/`;
+        `platform/ci/build_pages_site.py` had none, so seven public pages were
+        published and checked by nothing. Adding it (#1879) immediately found
+        six references escaping the product root. A test now parses
+        `ENTRY_OVERRIDES` out of `build.mjs` and asserts the two maps match, so
+        the next override cannot re-open the blind spot from one side.
+      - >-
+        Deployment is the only thing left, and it is not an agent's to do. The
+        artifact builds clean — 162 products, 437 pages, every local reference
+        resolves — and `publish_surface.py` still reports 0 live. The single
+        remaining step is the `deploy-settings` flip.
+    mrr_end: null
