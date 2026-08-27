@@ -905,6 +905,10 @@ ${subgroups
     .bids .bid-name { font-size: .92rem; font-weight: 650; }
     .bids .bid-where { font-size: .8rem; color: var(--muted); }
     .bids .bid-when { font-size: .74rem; color: var(--muted); margin-left: auto; }
+    .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
+    .bids .bid-more button { font: inherit; font-size: .82rem; color: var(--accent);
+                             background: none; border: 0; padding: 0; cursor: pointer;
+                             text-decoration: underline; }
     /* A bid name is a customer's name or their street address. It is the
        visitor's own data on their own device, but it has no place on a sheet
        they hand to somebody else. */
@@ -964,6 +968,7 @@ ${contents}
         clearing your browser data clears them.
       </p>
       <ul id="bidsList"></ul>
+      <p class="bid-more" id="bidsMore" hidden></p>
     </section>
 
     <!-- Filled in by script from counts held on this device; a visitor with no
@@ -1186,7 +1191,12 @@ ${DISCLAIMER_HTML}
     // them would look like data loss. Only the counting below is gated.
     const BIDS_KEY = 'portfolio-saved-bids';
 
-    function savedBids(limit = 8) {
+    // How many rows are shown before the list is cut. A contractor keeps up to
+    // 25 bids per tool, so a busy one crosses this easily — hence the count
+    // below rather than a silent truncation.
+    const BIDS_SHOWN = 8;
+
+    function savedBids() {
       let parsed;
       try { parsed = JSON.parse(localStorage.getItem(BIDS_KEY) || '{}'); } catch { return []; }
       const bids = parsed && typeof parsed === 'object' ? parsed.bids : null;
@@ -1212,22 +1222,35 @@ ${DISCLAIMER_HTML}
       // same second cannot swap places between renders.
       rows.sort((a, b) =>
         b.at.localeCompare(a.at) || a.slug.localeCompare(b.slug) || a.name.localeCompare(b.name));
-      return rows.slice(0, limit);
+      // Every row, uncut. The caller decides how many to draw, and says so.
+      return rows;
     }
+
+    let bidsExpanded = false;
 
     function showSavedBids() {
       const section = document.getElementById('bids');
       const list = document.getElementById('bidsList');
+      const more = document.getElementById('bidsMore');
       list.replaceChildren();
+      more.replaceChildren();
 
-      for (const { slug, name, at } of savedBids()) {
-        // Only offer a tool the hub is actually showing: a bid left behind by a
-        // tool since renamed or withdrawn would link to a 404. The bid stays on
-        // disk — jobs.mjs keeps unknown slugs for exactly this reason — it is
-        // just not offered a link that goes nowhere.
-        const card = document.querySelector('[data-tool="' + slug + '"]');
-        if (!card) continue;
+      // Only offer a tool the hub is actually showing: a bid left behind by a
+      // tool since renamed or withdrawn would link to a 404. The bid stays on
+      // disk — jobs.mjs keeps unknown slugs for exactly this reason — it is
+      // just not offered a link that goes nowhere.
+      //
+      // Filtered before the cut, not after, so the count below is a count of
+      // rows the visitor could actually open.
+      const rows = [];
+      for (const row of savedBids()) {
+        const card = document.querySelector('[data-tool="' + row.slug + '"]');
+        if (card) rows.push({ ...row, card });
+      }
 
+      const shown = bidsExpanded ? rows.length : Math.min(rows.length, BIDS_SHOWN);
+
+      for (const { slug, name, at, card } of rows.slice(0, shown)) {
         const item = document.createElement('li');
         const link = document.createElement('a');
         // The anchor jobs.mjs answers: the band opens and scrolls into view, so
@@ -1261,8 +1284,30 @@ ${DISCLAIMER_HTML}
         list.append(item);
       }
 
+      // Never a silent cut. The section says "bids you saved in any tool", so a
+      // list that quietly stopped at eight would be stating something the page
+      // contradicts — and the contractor looking for the job they saved three
+      // weeks ago would conclude the tool had forgotten it.
+      const hidden = rows.length - shown;
+      more.hidden = hidden === 0;
+      if (hidden > 0) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = 'Show all ' + rows.length;
+        button.addEventListener('click', () => {
+          bidsExpanded = true;
+          record('saved_bid_index_expanded');
+          showSavedBids();
+        });
+        more.append(
+          document.createTextNode(
+            'Showing the ' + shown + ' most recent of ' + rows.length + ' saved bids. '),
+          button,
+        );
+      }
+
       section.hidden = list.childElementCount === 0;
-      if (!section.hidden) record('saved_bid_index_shown');
+      if (!section.hidden && !bidsExpanded) record('saved_bid_index_shown');
     }
 
     showSavedBids();

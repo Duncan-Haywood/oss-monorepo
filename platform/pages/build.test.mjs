@@ -1419,6 +1419,21 @@ test('the visitor\'s own saved bids are shown even when counting is off', async 
     'saved bids are the visitor\'s data, not a count, so the opt-out must not empty the list');
 });
 
+test('the saved-bid list never cuts silently', async () => {
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  // The section promises "bids you saved in any tool". A list that quietly
+  // stopped at eight would state something the page contradicts, and a
+  // contractor looking for a job from three weeks ago would read it as the
+  // tool having forgotten it.
+  assert.match(script, /Showing the ' \+ shown \+ ' most recent of ' \+ rows\.length/);
+  assert.match(script, /'Show all ' \+ rows\.length/);
+  assert.match(hub, /<p class="bid-more" id="bidsMore" hidden><\/p>/);
+  // Counted before the cut is applied, so the number offered is a number of
+  // rows the visitor could actually open.
+  assert.match(script, /if \(card\) rows\.push/);
+});
+
 test('following a saved bid counts the act, never the customer', async () => {
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function showSavedBids'));
