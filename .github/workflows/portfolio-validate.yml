@@ -59,11 +59,14 @@ on:
     paths:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
+      - "ventures/**/*.html"
+      - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
+      - "portfolio/usage/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -85,11 +88,14 @@ on:
     paths:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
+      - "ventures/**/*.html"
+      - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
+      - "portfolio/usage/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -121,6 +127,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # For the liability-clause check below. Everything else in this job is
+      # Python; the Pages tooling that knows which pages get published is not.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
       - name: Install dependencies
         run: pip install -r portfolio/router/requirements.txt pytest
@@ -180,6 +192,16 @@ jobs:
           git config --global user.name "CI"
           python3 -m unittest test_supersede_check
 
+      # usage.yaml is the portfolio's only honest signal while revenue is zero,
+      # and nothing read it in CI: #1387 left it unparseable and no check
+      # noticed. These two steps are that missing guard.
+      - name: Validate the usage ledger is readable
+        run: python3 portfolio/usage/validate_usage.py
+
+      - name: Usage-validator unit tests
+        working-directory: portfolio/usage
+        run: python3 -m unittest test_validate_usage
+
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
 
@@ -187,8 +209,53 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
 
+      # A calculator whose shipped defaults fail constraint validation cannot be
+      # submitted at all: the browser refuses before dispatching the event, so
+      # the page's own handler never runs and the button silently does nothing.
+      # calc.mjs tests all pass in that state, because the arithmetic is fine.
+      - name: Check every calculator's default form state can actually be submitted
+        run: python3 platform/ci/check_form_defaults.py
+
+      - name: Form-default checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_form_defaults
+
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
+
+      # Backstop for the per-venture no-warranty check now wired into each
+      # venture's own CI. A venture workflow only fires on its own paths, so it
+      # cannot cover a slug whose workflow was never created -- which is
+      # exactly how carpet-install-bid-calculator reached main with no CI at
+      # all, already inside the Pages build. This walks every surface the Pages
+      # site would publish, so a new venture is covered before anyone
+      # remembers to give it a workflow.
+      #
+      # The no-SLA half is not checked here: build.mjs injects it into every
+      # published page, so it holds by construction.
+      - name: Every published page carries the no-warranty clause
+        run: node platform/pages/clauses.mjs
+
+      - name: Clause-checker unit tests
+        run: node --test platform/pages/clauses.test.mjs
+
+      # Every venture footer offers the local usage counter's opt-out "with Do
+      # Not Track / Global Privacy Control", and Global Privacy Control is a
+      # valid opt-out signal under CCPA and several state privacy laws. That
+      # promise held in 150 of 155 usage modules and was tested in 23: the
+      # per-venture test is six boilerplate lines, so it got skipped, and five
+      # ventures shipped a counter that ignored both signals.
+      #
+      # Checked centrally for the same reason as the clause above -- one guard
+      # covers a venture that does not have its own workflow yet. The check is
+      # behavioural, not a grep: reading `globalPrivacyControl` proves nothing
+      # if the module never branches on it, so each recorder is called under
+      # each signal with a storage spy.
+      - name: Usage counters honour Do Not Track and Global Privacy Control
+        run: node platform/privacy/browser-signals.mjs
+
+      - name: Browser-signal checker unit tests
+        run: node --test platform/privacy/browser-signals.test.mjs
 
       - name: Publish-surface unit tests
         working-directory: platform/ci

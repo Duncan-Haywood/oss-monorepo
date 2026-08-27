@@ -29,6 +29,11 @@ Prefer products that:
 - Can go live free and full-featured while usage is recorded
 - Need only an API key (or similar) to unlock — build the product, document the key
 
+**Deploy what is already built before starting another product.** If a
+venture on `main` still has no public URL, that deploy is the next task.
+See [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) "Current priority".
+Do not open a second `deploy-settings` ask.
+
 Use traditional software patterns. Add AI where it clearly helps; do not
 AI-wrap by default.
 
@@ -45,32 +50,54 @@ AI-wrap by default.
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been
   wrong three times in one hour, and each time the feature existed only on the
   branch being closed.
+- **Read the RENAME SUSPECTED section if the report prints one.** Exit 1 with
+  that section means the branch's lines are `main`'s own lines with the
+  identifiers changed — `largestCostComponent` where `main` says
+  `largestCostDriver`. The report prints each pair and the file the twin lives
+  in. Merging that branch adds a duplicate button or a weaker copy of a live
+  function; it is not new work. It is still not a licence to close unread — the
+  one word that differs can be the point of the branch.
+- **A red check is not a failed check right now.** The repo-wide runner outage
+  (owner decision #1849) fails every workflow in 3-6 seconds with no runner, so
+  checks arrive *red*, not absent — including on `main` and on the commit that
+  queued the outage. An outage job has empty check-run output and 404s on log
+  download; a real `Portfolio validate` installs Python and Node and runs 36
+  steps, so it cannot finish in five seconds. Verify locally, record what you
+  ran, and do not "fix" code the check never executed. See `CLAUDE.md`.
+- **`git fetch --unshallow` first.** A scheduled session's clone is shallow, so
+  every branch reads as an unrelated history: no merge base, `git merge` refuses,
+  and a normal PR looks like a 2,800-file catastrophe. That is the clone, not the
+  branch. `supersede_check.py` now unshallows itself, but `git merge` and
+  `git diff origin/main <branch>` do not.
 
-Agent-decidable (merge yourself after CI):
+**Rely on the owner as little as possible.** Merge product work. Do not
+invent a review gate.
 
-- `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
+Merge yourself after CI is green:
+
+- `platform/`, `portfolio/`, docs, tests, CI
 - Usage tracking, disclaimers, free-tier features, GitHub Sponsors links
+- `ventures/*` product code. Answered 2026-08-25: yes, merge it. Do not
+  re-ask.
 
-`python3 platform/ci/publish_surface.py` currently reports nothing live on
-push to `main`. That does not make `ventures/*` app code agent-decidable
-on its own — Ask 9 (`venture-gate-premise`) is still open.
-
-Owner-only (flag only when it **blocks** product work you cannot finish):
+Only flag the owner when you cannot finish without them:
 
 - Payment collection, payout rails, live billing
 - Account registration needing card / ID / domain / bank
 - Public publishing (store listing, npm publish, production domain)
 - Unattended paid automation (scheduled jobs calling paid APIs)
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
 See `python3 portfolio/ledger/decision_queue.py` for what the owner has
-already been asked; do not duplicate asks.
+already been asked; do not duplicate asks. Do not add "may I merge a
+product PR?"
 
 ## Every user-facing product includes
 
-1. **Liability disclaimers** — no advice-of-record, no compliance warranties.
-   Copy the wording from [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it
-   goes in the README *and* somewhere the user sees it (footer, about, `--help`).
+1. **Liability disclaimers** — no advice-of-record, no compliance warranties,
+   and no SLA on hosted URLs. Copy the wording from
+   [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) §5b; it goes in the README
+   *and* somewhere the user sees it (footer, about, `--help`).
 2. **Usage stats** — anonymous events only (feature used, page viewed), never
    people: no PII, no IPs, no content, no analytics vendor. Rules and the file
    readings land in: [`portfolio/usage/`](portfolio/usage/README.md).
@@ -86,6 +113,11 @@ fully without a key; a user's own key unlocks the AI parts), and the definition
 of done.
 
 ## Graduating from the pipeline
+
+If anything already on `main` still has no public URL, deploy that first
+(prepare a GitHub Pages artifact or a Hetzner product-box deploy; the
+owner flip is `deploy-settings`). See [`portfolio/hosting/`](portfolio/hosting/README.md).
+Do not add Cloudflare or Vercel. Only then:
 
 If `session_gate.py` names a `build-now` candidate, graduate it:
 
