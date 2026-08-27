@@ -23885,3 +23885,98 @@ entries:
         (assert it fails on deliberately broken input), or it will be
         loosened by accident and nothing will say so.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a portfolio-wide privacy guard and fixed the five ventures it
+        caught (#1843). Every footer offers the usage counter's opt-out "with
+        Do Not Track / Global Privacy Control", and GPC is a legally
+        recognised opt-out signal under CCPA and several state privacy laws.
+        Of 155 usage modules, 150 honoured both signals and 23 had a test
+        either way; 3pl-quote-normalizer, invoice-payment-terms-calculator,
+        mobile-detailing-bid-calculator, shopify-a11y-evidence and
+        vendor-rate-break-even honoured neither and counted visitors who had
+        signalled opt-out. All five now call the same guard the other 150 use.
+      - >-
+        Finding worth generalising: **the gap opened because the test was
+        boilerplate.** Six near-identical lines per venture is exactly the
+        test that gets skipped, and 132 of 155 ventures skipped it. Ninety-five
+        percent compliance with no enforcement is not a safe number — it is
+        five silent violations waiting for someone to count. The fix that
+        holds is one central guard in the shape of `platform/pages/clauses.mjs`,
+        not another line in a per-venture checklist, and it covers a venture
+        that has no workflow of its own yet.
+      - >-
+        Second finding, on how to write such a guard: **it must be behavioural,
+        and it must refuse to pass what it could not drive.** Grepping for
+        `globalPrivacyControl` proves nothing — a module can read it into a
+        variable it never branches on. But calling each recorder is not enough
+        either: a recorder the driver fails to reach writes nothing under a
+        signal and looks identical to one that obeys. So a control run with no
+        signal set decides whether the module was executed at all, and anything
+        that writes nothing there is reported `undrivable` rather than passed.
+        Four modules needed a factory unwrap, a `window` global, or their own
+        allowlisted event names before they could be driven honestly.
+      - >-
+        Third finding, the one that nearly caused a wrong fix: **a probe can
+        manufacture the bug it reports.** The driver first passed a probe
+        string as a third positional argument; in modules whose third parameter
+        is a navigator override rather than an event name, that string has no
+        `globalPrivacyControl` property, so the guard under test was bypassed
+        and the module read as failing. `consent-change-record` and
+        `job-margin-variance` were both accused this way and are both correct.
+        Two arguments is as far as the signatures across ventures agree.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged four stale PRs after repair (#1182, #1560, #1516, #1500) and
+        restored the red `portfolio-validate` job on main (#1842): the
+        publish-surface snapshot had gone stale when two test-only workflows
+        landed without an entry, so the shared job was red for every PR in the
+        repo regardless of its own change.
+      - >-
+        **GitHub Actions has been failing repo-wide to allocate runners since
+        between 22:10 and 23:25 UTC on 2026-08-26.** amazon-fba-calculator CI
+        run 79 (22:09:34) succeeded in 26s; run 80 (23:25:21) failed in 6s, and
+        every run since across all 210 workflows dies in 3-6s with `runner_id:
+        0`, an empty check-run output and a 404 on log download. This is not a
+        test failure. Owner action is needed (Actions spending limit or
+        billing); an agent cannot fix it. Reported on #1842 and pushed to the
+        owner. Until it clears, every merge is landing unverified, so verify
+        locally with the commands the workflows run and say in the PR what was
+        run. `AGENTS.md` already warns that bot PRs using `GITHUB_TOKEN` show
+        *zero* checks, which is why an outage this broad reads as normal.
+      - >-
+        Finding worth generalising, on triaging the 90-PR backlog: **almost all
+        of it is superseded, and neither the PR title nor `supersede_check.py`
+        will tell you.** main ran from #1042 to #1839 while these branches sat,
+        absorbing the same features from sibling branches. `supersede_check.py`
+        is deliberately textual, so a feature reimplemented on main under a
+        different filename or with reworded comments still reads NOT
+        SUPERSEDED — correct as a bias against destroying work, useless as a
+        triage signal here. What worked: merge main into the branch favouring
+        main on every conflict, then diff against main. What survives is the
+        only content main lacks. Read that as a signal, never as a merge —
+        on a stale base it happily reverts newer main files, and it produced
+        broken code on #1099 and would have reverted #1843 through #1492.
+      - >-
+        Applying it: 1 of 15 triaged branches carried mergeable work as-is.
+        The wins were not the headline features, which had all landed — they
+        were the leftovers: an in-page section main exposed only on a separate
+        landing page (#1560), a `blendedStorageRate()` that existed on main
+        with no caller so the calculator priced a Q4 stay at the January rate
+        (#1516), an input label, one regression test. The repair that pays is
+        reset-every-conflict-to-main and port the leftover by hand.
+      - >-
+        Bug found while doing that, worth its own note: #1516's test asserting
+        no `calculateListing(readInput())` survives anywhere on the page caught
+        a third call site nobody was looking at — `decisionSummary()`, behind
+        "Copy decision summary". It would have pasted a profit disagreeing with
+        the number on screen. A negative assertion over the whole script found
+        what a positive assertion on the two known call sites could not.
+    mrr_end: null
