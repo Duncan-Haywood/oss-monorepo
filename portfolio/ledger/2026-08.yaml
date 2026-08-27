@@ -24274,3 +24274,68 @@ entries:
         reports “Using your shop rates. Crew hourly wage is not saved yet” rather than
         silently applying nothing."
     mrr_end: 0
+  - venture: marketplace-fee-compare
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The portfolio had seven marketplace fee calculators and no way to
+        compare them.** eBay, Etsy, Amazon, Walmart, TikTok Shop, Shopify and
+        Faire each answer their own channel thoroughly; none answers the
+        question a multi-channel seller starts with — of the places I can list
+        this, which leaves the most in my pocket? Answering it meant six tabs,
+        the same item retyped six times, and six numbers compared by hand.
+        Shipped `ventures/marketplace-fee-compare` (#1869): one item in, six
+        channels ranked by net profit, each row linking onward to the deep tool
+        for what a headline rate cannot carry. It is deliberately a triage tool
+        rather than a seventh fee engine, and the fee defaults are lifted from
+        the sibling calculators so the two agree by construction.
+      - >-
+        Three modelling decisions that a flat "which is cheapest" page would
+        have got wrong. Percentages are charged on the **whole order including
+        buyer-paid shipping**, which is how all six actually bill and the most
+        common way a free-shipping margin goes negative. Subscriptions are
+        spread over the seller's own monthly order count rather than ignored,
+        which is what stops a $39.99 Amazon plan looking free at three orders a
+        month. And marketplace fees stay out of invested cash, matching the
+        split the eBay and Etsy calculators already use, so ROI stays
+        comparable across channels that charge very differently.
+      - >-
+        **The own-store row is the honesty problem in this product.** A Shopify
+        checkout charges no referral fee and therefore tops the table on almost
+        any item — arithmetically true and operationally misleading, because it
+        sends the seller no buyers. Left as a footnote the page would recommend
+        "leave the marketplaces" to nearly every visitor. So the caveat is
+        attached to the win: when that row ranks first the page names the best
+        channel that does bring demand, the gap between them, and calls the gap
+        the advertising budget. Faire is excluded from the ranking for the
+        same class of reason — wholesale economics turn on order size and
+        reorders, so a retail per-item row would look comparable and not be.
+      - >-
+        Verified during the runner outage rather than around it: 51 new tests
+        (including the explainer article's worked numbers pinned to the model,
+        so the two cannot drift), 7235 in the full venture suite, 200 in
+        `platform/pages`, clean conflict-marker/duplicate-symbol/workflow
+        validators, and the primary journey driven in headless Chromium against
+        the **built** Pages artifact — first paint counts nothing, a keystroke
+        burst records one event rather than three, a negative cost hides the
+        stale table and recovers, and all nine cross-links return 200.
+        `clauses.mjs` caught a real defect on the first build (the explainer
+        page had no no-warranty clause) and it was fixed before the commit.
+      - >-
+        On the eight red checks: every job ran 2-4 seconds, `deploy` reported
+        completing one second before it started, `output.title/summary/text`
+        were empty and log download 404'd — and the last six
+        `portfolio-pages.yml` runs on `main` itself are red at 4-16 seconds,
+        including the merge that is currently HEAD. The outage, not the branch.
+      - >-
+        Confirming the queue finding already recorded below rather than
+        repeating it: all 34 open PRs traced feature-by-feature against `main`,
+        every one superseded. Adding to that record — #1069 would have put a
+        **third** export button in a component that already has a Markdown and
+        a JSON one, and #1099's SARIF-for-XML fix is unnecessary because the
+        shipped CLI already does it (ran it on `ubl-invoice-with-defects.xml`
+        and got valid SARIF 2.1.0). The three-PR merge quota could not be met
+        without damaging live products; a bulk close naming each twin is the
+        owner's call and has been raised with them.
+    mrr_end: null
