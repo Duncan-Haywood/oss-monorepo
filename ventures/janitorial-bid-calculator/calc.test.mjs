@@ -181,6 +181,14 @@ test('a nameless area still reports under a stable label', () => {
   assert.equal(result.areas[1].name, 'Area 2');
 });
 
+test('custom area names are preserved for proposal-ready scope', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [{ name: 'Second-floor restrooms', squareFeet: 500, productionRate: 1200, cleaningsPerWeek: 5 }],
+  });
+  assert.equal(result.areas[0].name, 'Second-floor restrooms');
+});
+
 test('a building with no cleanable area reports no per-unit ratios instead of dividing by zero', () => {
   const result = calculateBid({
     ...office(),

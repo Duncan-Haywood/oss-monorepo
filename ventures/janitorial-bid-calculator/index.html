@@ -36,8 +36,7 @@
     .select-other .custom-name { display: grid; }
     .project-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     .space-cell { display: grid; gap: 6px; min-width: 0; }
-    .a-name-wrap { display: none; }
-    .area-row.is-other .a-name-wrap { display: grid; gap: 5px; }
+    .a-name-wrap { display: grid; gap: 5px; }
     /* The column header says "Space type", not "name", so the name field
        needs a visible label on desktop or contractors will not know what
        to type. The shared .lbl rule is sr-only; undo that here. */
@@ -109,7 +108,7 @@
     <div>
       <section>
         <h2>The building</h2>
-        <p class="hint">One row per space type. Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew. A space that is not on the list (gym, server room, loading dock) is Other space: name it so the labor split and the copied bid say what you actually clean.</p>
+        <p class="hint">One row per space type. Add an optional proposal name when you need scope detail such as "Second-floor restrooms". Production rate is cleanable square feet one cleaner covers per hour — pick a space type to start from a common figure, then replace it with a rate timed from your own crew. A space that is not on the list (gym, server room, loading dock) is Other space: name it so the labor split and the copied bid say what you actually clean.</p>
         <div class="area-row area-head" aria-hidden="true">
           <span>Space type</span><span>Cleanable sq ft</span><span>Sq ft / hour</span><span>Cleans / week</span><span></span>
         </div>
@@ -466,7 +465,7 @@
       row.classList.toggle('is-other', isOther);
       row.querySelector('.a-name').placeholder = isOther
         ? 'e.g. Server room, gym, loading dock'
-        : '';
+        : 'optional, e.g. 2nd floor restrooms';
     }
 
     function addAreaRow(area) {
@@ -486,11 +485,20 @@
       const typeField = row.querySelector('.a-type');
       const nameField = row.querySelector('.a-name');
       const rateField = row.querySelector('.a-rate');
-      const presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
+      let presetIndex = -1;
+      if (area.type !== undefined && area.type !== null && area.type !== '') {
+        presetIndex = area.type === 'other' ? -1 : Number(area.type);
+        if (!Number.isFinite(presetIndex) || presetIndex < 0) presetIndex = -1;
+      } else {
+        presetIndex = PRODUCTION_RATE_PRESETS.findIndex(p => p.label === area.name);
+      }
       typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
-      // Only an Other row keeps a typed name. A preset match uses the
-      // catalog label so a later local-draft restore can still look it up.
-      nameField.value = presetIndex === -1 ? (area.name || '') : '';
+      // Starting catalog rows pass the preset label as `name` with no `type`.
+      // Do not treat that label as a typed proposal name.
+      const startingCatalog = presetIndex !== -1
+        && area.type === undefined
+        && area.name === PRODUCTION_RATE_PRESETS[presetIndex].label;
+      nameField.value = startingCatalog ? '' : (area.name || '');
       row.querySelector('.a-sqft').value = area.squareFeet;
       rateField.value = area.productionRate;
       row.querySelector('.a-freq').value = area.cleaningsPerWeek;
@@ -529,9 +537,8 @@
       return [...areasHost.querySelectorAll('.area-row')].map((row, index) => {
         const preset = PRODUCTION_RATE_PRESETS[Number(row.querySelector('.a-type').value)];
         return {
-          // Other rows take the typed name; presets keep the catalog label so
-          // a later local-draft restore can still match the space type. A
-          // leftover name in a hidden field is ignored on purpose.
+          // Typed proposal names win so two restrooms can be told apart.
+          // Space type is saved separately in readAreaRows() for restore.
           name: nameForRow(preset?.label, row.querySelector('.a-name').value, index),
           squareFeet: row.querySelector('.a-sqft').value,
           productionRate: row.querySelector('.a-rate').value,
@@ -1249,11 +1256,9 @@
       if (!Array.isArray(values.areas)) return Array.isArray(values.shifts);
       areasHost.innerHTML = '';
       for (const area of values.areas) {
-        const preset = PRODUCTION_RATE_PRESETS[Number(area.type)];
-        // addAreaRow() matches a space type by label, so hand it the label the
-        // saved index stands for; an "Other space" row has none by design.
         addAreaRow({
-          name: preset ? preset.label : (area.name || ''),
+          type: area.type,
+          name: area.name || '',
           squareFeet: area.squareFeet ?? 0,
           productionRate: area.productionRate ?? 3000,
           cleaningsPerWeek: area.cleaningsPerWeek ?? 5,
