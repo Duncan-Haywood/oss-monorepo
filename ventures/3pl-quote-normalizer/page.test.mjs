@@ -217,6 +217,18 @@ test('inbound page compares pallet, carton, and loose receiving', async () => {
   assert.match(index, /inbound.html/);
   assert.match(sitemap, /inbound.html/);
   assert.match(robots, /Sitemap:/);
+  assert.match(index, /id="inbound-methods"/);
+  assert.match(index, /compareInboundMethods/);
+  assert.match(index, /inboundComparisonSummary/);
+  assert.match(index, /name="palletInboundFee"/);
+  assert.match(index, /name="cartonInboundFee"/);
+  assert.match(index, /id="inboundRows"/);
+  assert.match(index, /inbound_methods_compared/);
+  const inboundTable = index.match(/<table id="inboundTable">[\s\S]*?<\/table>/);
+  assert.ok(inboundTable, "index.html is missing the inbound comparison table");
+  const columns = inboundTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderInbound[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderInbound emits a different cell count than the header row");
 });
 
 test('inbound SEO page explains the container-fee arithmetic', async () => {
