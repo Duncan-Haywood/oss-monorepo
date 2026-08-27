@@ -111,7 +111,12 @@ const CATEGORY_RULES = [
     // `tiktok-shop` and `delivery-app` sell through someone else's storefront and
     // pay someone else's fee schedule, which is what this section is: they sat in
     // the catch-all, where a seller looking for their marketplace never scrolled.
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app)/.test(slug),
+    //
+    // `marketplace-fee-compare` is the cross-channel tool the rest of this
+    // section feeds into, so it belongs here for the same reason — landing in
+    // the catch-all would hide the one page that answers "which of these?" from
+    // the readers of all the pages that answer "how much on this one?".
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare)/.test(slug),
   },
   {
     id: 'trades',

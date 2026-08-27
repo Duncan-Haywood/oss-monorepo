@@ -2246,6 +2246,26 @@ products:
           United Inches, story access, and tear-out a per-window special
           hides; public URL remains owner-gated and the browser counter
           is local and opt-out. Baseline row.
+  - slug: marketplace-fee-compare
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          comparisons_run: 0
+          comparisons_copied: 0
+        note: >-
+          Shipped a cross-channel net-profit comparison: one item priced
+          against eBay, Etsy, Amazon, Walmart, TikTok Shop and an own-store
+          checkout at once. The portfolio already had a deep calculator for
+          each of those and none for the question a multi-channel seller
+          starts with, so this is a new answer rather than a seventh fee
+          engine — every row links onward to the per-channel tool for what a
+          headline rate cannot carry. Public URL remains owner-gated on
+          `GITHUB_PAGES_ENABLED`, so this is a zero baseline rather than a
+          demand result; the browser counters are local and opt-out. The
+          onward-click hypothesis in VENTURE.yaml is not measurable until a
+          public URL exists.
 # Example of the shape, once a product has shipped:
 #
 # products:
