@@ -24743,3 +24743,103 @@ entries:
         literals are how a pasted summary and a printed sheet come to be priced
         from different fields.
     mrr_end: null
+  - venture: bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The customer proposal now reaches 100 of the 101 bid calculators**, up
+        from 88 — the rollout is finished. The twelve that were left are the
+        *itemised* trades (flooring, gutter-cleaning, hood-cleaning, janitorial,
+        junk-removal, lawn-care, moving, painting, pest-control,
+        pressure-washing, tree-service, window-cleaning), and they were blocked
+        on two things rather than the one the last entry named.
+      - >-
+        The named blocker was real: each built its calculator input inline at
+        every call site instead of having one `readInput()`. `flooring` had the
+        same literal three times and `janitorial` six. Extracted one reader per
+        venture on the house pattern `readInput(rows = readRows())`, so `update`
+        passes rows it has already read and every other caller takes the default.
+      - >-
+        **The second blocker was the module's, not the pages'.** All 88 earlier
+        trades price *one thing* — a roof, a water heater — and `scopeLines` had
+        no way to say "one line per row". These price a job made of rooms,
+        gutter runs, trees, exhaust components, and a homeowner collecting three
+        bids compares the line items. Without iteration the best scope they could
+        draft was "Perform the work described above", which the README is
+        explicit is worth less than no proposal. `scopeLines` grew `each`: the
+        row is the scope for `{field}` and `when`, a row missing a figure drops
+        by the same rule as a top-level line, and rows are never truncated
+        because "…and 4 more" on a document someone signs is a dispute.
+      - >-
+        **The generator was commenting out the line after its own marker, and
+        every text-level check called the page publishable.** `// proposal:end`
+        is a line comment and `wrap` emitted it with no trailing newline, so
+        whatever followed the insertion point was pulled onto the comment.
+        `painting` and `janitorial` each import a third module after
+        `usage.mjs`; both shipped a proposal that died at click time on
+        `COST_IDS is not defined` / `restoreBid is not defined`, because a
+        commented-out import still *parses*. The wiring region had the same
+        shape at the other end (`// proposal:end  </script>`) and only worked
+        because the HTML parser closes a script tag inside a comment. Fixed in
+        `wrap`, with `stripGenerated` taking the newline back out so a re-run
+        stays idempotent; re-adopting all 73 generated pages self-heals it, and
+        the only change to the 61 pre-existing ones is that newline.
+      - >-
+        Two more found the same way. `lawn-care` printed its monthly contract
+        while the page's headline is per-visit — its own proposed-price field
+        asks for a monthly, so the monthly is right and `verify.mjs`'s
+        assumption that the headline is always the quoted price was wrong; a
+        trade can now name the element to compare against
+        (`screenPriceSelector`). And the adoption precondition demanded a
+        literal `calculate*(readInput())` call site, which `painting` and
+        `pressure-washing` have nowhere to write; widened to allow arguments and
+        replaced with the property it stood in for — the reader must be callable
+        with *no* arguments, checked by balancing its parameter list. That also
+        closes a hole: `function readInput(rows)` with no default previously
+        passed, and would have priced the job without its rows.
+      - >-
+        Reading the printed sheets by eye still earns its place, after every
+        mechanical check is green. It caught `tree-service` printing the species
+        preset's contractor-facing example list ("Hardwood (oak, maple, hickory,
+        beech)") beside a tree already named "Backyard oak", and `lawn-care`
+        about to print the service rows' raw unit ids ("Turf mowing — 10,000
+        sqft"). Neither is visible to `verify.mjs`, which checks for money,
+        shorthand and unrounded floats — not for redundancy or a machine's
+        vocabulary.
+      - >-
+        Verified: 100/100 `verify.mjs` in Chromium against the built artifact
+        including the every-option sweep; 51 (`platform/proposal`, 13 new) + 201
+        (`platform/pages`) + 22 (`platform/webcheck`); 7,410 assertions across
+        all 100 adopted venture suites; site rebuilds to 162 products / 439 pages
+        with no dead links; `router/validate.py`, `score_ventures.py --check`,
+        `validate_usage.py`, `publish_surface.py --check`,
+        `check_form_defaults.py`, `check_conflict_markers.py`,
+        `check_duplicate_symbols.py`, `validate_workflows.py`,
+        `check_pages_links.py`, `clauses.mjs` and `browser-signals.mjs` all exit
+        0.
+      - >-
+        **`mobile-detailing` is deliberately not adopted, which is why this is
+        100 and not 101.** It is a quote check, not a build-up: its inputs are
+        hours and costs with nothing describing the work, so its drafted scope
+        could only be the generic sentence. One case where no proposal beats a
+        generic one — do not "finish" it by adopting it.
+      - >-
+        Housekeeping: the open-PR queue was **empty** at the start of this run
+        for the third session running, so the merge quota had nothing repairable
+        to act on. The unmerged remote branches were re-checked and still carry
+        no unique work.
+      - >-
+        Next, and deliberately left out of #1890 because it changes numbers a
+        contractor acts on: **`janitorial`'s three scenario panels price a
+        narrower input than the bid.** `renderFrequencyCompare`,
+        `renderSupplyCompare` and `renderInitialCompare` each pass
+        `{ areas, periodicServices, ...costs }`, omitting `shifts` and
+        `projects`, while `calc.mjs` documents the parameter as "Same shape as
+        `calculateBid`". On a contract with a day-porter shift the comparison's
+        cost base excludes that labour, so a frequency cut looks cheaper than it
+        is and a client's lowball offer is scored against a smaller base. It
+        needs its own analysis and tests. Also worth doing: per-row label
+        mapping, since `hood-cleaning` prints "Canopy hood (listed sq ft) — 40"
+        and `map` in `trades.json` only reaches select values, not row fields.
+    mrr_end: null
