@@ -24339,3 +24339,43 @@ entries:
         without damaging live products; a bulk close naming each twin is the
         owner's call and has been raised with them.
     mrr_end: null
+  - venture: cam-reconciliation-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and unusable, found by driving the built Pages artifact in
+        headless Chromium rather than by reading code: pressing "Check
+        reconciliation math" did nothing — no result, no error text, no console
+        message. `min` doubles as the step base for `input type=number`, so
+        `min="0.01" step="1"` made the shipped default 10000 a step mismatch,
+        and the browser refuses such a form *before* dispatching `submit`. The
+        page's own handler never ran. Every whole square-foot area a visitor
+        would plausibly type failed identically.
+      - >-
+        Nothing in the repo could have caught it. `calc.mjs` and its 4 tests
+        are correct, because the arithmetic was never the problem; the page
+        loads clean, so a load audit sees health; every link resolves, so the
+        Pages link check is green. Test suites that pass on a product nobody
+        can operate are the lesson here, not the one-character fix.
+      - >-
+        `should-i-factor-this-invoice.html` carried the same mistake on
+        `advancePct` (`min="0.01" step="0.1"`, `value="90"`). Lower severity and
+        recorded as such: that page recomputes on `input` and never submits, so
+        its math kept working — the damage was an invalid-styled field whose
+        spinner arrows stepped to 89.91 / 90.01.
+      - >-
+        Both fixed with `step="any"`. `platform/ci/check_form_defaults.py`
+        stops recurrence across all 161 products, scoped to what a browser
+        actually blocks — inputs inside a `<form>`, prefilled, not
+        script-written `${...}` — because the unscoped version flagged ~30
+        cosmetic mismatches that would have buried these two. Calibrated
+        against a Chromium sweep of all 430 built pages: it reports exactly the
+        browser's two findings and no others. Merged as #1871.
+      - >-
+        Journey sweep over all 161 products now leaves 14 showing no result,
+        down from 15; all 14 are paste/upload evidence tools awaiting user
+        input by design. Of those, 8 offer no example data at all, so a
+        first-time visitor cannot see the tool work without supplying their
+        own — the highest-value onboarding work still open.
+    mrr_end: null
