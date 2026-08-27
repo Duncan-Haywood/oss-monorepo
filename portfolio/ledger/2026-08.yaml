@@ -24149,3 +24149,60 @@ entries:
         what `main` already carries, and each session that treats it as a merge
         queue spends its run re-discovering that.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The parse gate added for the 3PL breakage lived in the publish gate,
+        which nothing reaches.** `platform/ci/publish_surface.py` still reports
+        "No workflow publishes anything on a push to main" — Pages remains
+        behind the owner-set `GITHUB_PAGES_ENABLED` flip — so `check.mjs` and
+        its new `node --check` pass only run when an artifact is built, which
+        no push does. The same class of defect could therefore ship again
+        through an ordinary pull request. Moved the guarantee into
+        `checkPageIntegrity`, which `check_pages.mjs` runs over every page on
+        every PR, closing the gap at the gate that actually runs today (#1862).
+      - >-
+        Two details the publish-gate version gets away with and a PR gate
+        cannot. A classic script must be parsed as `.cjs`, not `.js`: since
+        v22 node sniffs module syntax in a `.js` file and re-parses it as a
+        module, quietly accepting an `import` a browser rejects outside
+        `type="module"`. And a parse failure must return early — a script that
+        never runs looks up no ids, so without that the one finding explaining
+        the dead page is buried under the id findings it causes. Positions are
+        quoted only when node's excerpt is verbatim, because node truncates on
+        a long line and these pages are minified onto one; a confidently wrong
+        column in a 30,000-character line is worse than none.
+      - >-
+        Verified no false positives across the portfolio: 446 pages sweep clean
+        in 6.8s (~6s added). Both historical dead-page defects are now pinned as
+        tests against the real blobs in git history rather than reconstructions
+        — `cut-list-optimizer` at its three broken revisions, and
+        `3pl-quote-normalizer` at `6ccd73c^`, where the finding names `document`,
+        the token ASI could not recover at. 22/22 unit tests. Mutation-tested end
+        to end: a broken page fails the sweep with exit 1.
+      - >-
+        **The Pages artifact is publishable today.** Built and gated it end to
+        end on `main`: `build.mjs` produces 161 tools / 434 pages, and
+        `check.mjs dist` returns "looks publishable: 161 products, 437 pages, no
+        dead links" (exit 0). The only thing between 161 working products and a
+        stranger using one is the `GITHUB_PAGES_ENABLED` variable. That is worth
+        stating plainly because it is easy to assume the deploy is blocked on
+        unfinished work: it is not, and no further build work is needed before
+        the flip.
+      - >-
+        Independently re-confirmed the previous entry's verdict on the queue.
+        Swept all 34 remaining open PRs by identical-merge replay and by
+        checking whether each branch's added exported symbols exist anywhere in
+        `main`; hand-read the pairs for eight. Every one is a differently-named
+        re-derivation of shipped work: #1047's overrun sensitivity is
+        `overrunScenarios` on `main`, #1342's `summaryText` collides by name
+        with `main`'s own, #1313's `draft.mjs` is a weaker `share.mjs` with a
+        second storage key, #1085 adds a second copy of `site/index.html` at the
+        venture root, #1529 duplicates `should-i-offer-free-shipping-on-etsy.html`,
+        and #1314/#1269/#1164 propose CSV hardening `export.mjs` already has
+        (both the formula guard and RFC-4180 quoting). Note for whoever runs it
+        next: `supersede_check.py` returns NOT SUPERSEDED for all of these, so
+        its verdict alone cannot drain this queue.
+    mrr_end: null
