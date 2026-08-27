@@ -136,6 +136,7 @@
         <button id="copy" class="secondary" type="button" disabled>Copy checklist</button>
         <button id="downloadMd" class="secondary" type="button" disabled>Download Markdown</button>
         <button id="downloadJson" class="secondary" type="button" disabled>Download JSON</button>
+        <button id="downloadRemediationCsv" class="secondary" type="button" disabled>Download remediation CSV</button>
       </div>
       <p id="copyStatus" class="muted" aria-live="polite"></p>
       <div id="results"></div>
@@ -179,7 +180,7 @@
     <p>Free and open source. If it caught a defect before a rejection, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed. See the <a href="README.md">README</a>.</p>
   </footer>
   <script type="module">
-    import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, summarizePreflight } from "./report.mjs";
+    import { preflightDocuments, buildChecklist, buildMarkdown, buildJsonReport, buildRemediationCsv, summarizePreflight } from "./report.mjs";
     import { recordUsage } from "./usage.mjs";
 
     const VALID_EXAMPLE = {
@@ -205,6 +206,7 @@
     const copyBtn = document.getElementById("copy");
     const downloadMd = document.getElementById("downloadMd");
     const downloadJson = document.getElementById("downloadJson");
+    const downloadRemediationCsv = document.getElementById("downloadRemediationCsv");
     const optedOut = () => document.getElementById("usageOptOut").checked;
 
     let latest = null;
@@ -355,6 +357,7 @@
       copyBtn.disabled = false;
       downloadMd.disabled = false;
       downloadJson.disabled = false;
+      downloadRemediationCsv.disabled = false;
     }
 
     function escapeHtml(value) {
@@ -389,6 +392,7 @@
         copyBtn.disabled = true;
         downloadMd.disabled = true;
         downloadJson.disabled = true;
+        downloadRemediationCsv.disabled = true;
         return;
       }
       const result = await preflightDocuments(inputs);
@@ -417,6 +421,11 @@
     downloadJson.addEventListener("click", () => {
       if (!latest) return;
       download("einvoice-preflight.json", JSON.stringify(buildJsonReport(latest), null, 2) + "\n", "application/json");
+      recordUsage(localStorage, optedOut(), "report_downloaded");
+    });
+    downloadRemediationCsv.addEventListener("click", () => {
+      if (!latest) return;
+      download("einvoice-preflight-remediation.csv", buildRemediationCsv(latest), "text/csv");
       recordUsage(localStorage, optedOut(), "report_downloaded");
     });
   </script>
