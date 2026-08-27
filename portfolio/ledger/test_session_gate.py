@@ -57,8 +57,11 @@ def test_recorded_revenue_routes_to_the_earning_venture():
 
 def test_venture_work_proceeds_as_briefed():
     """Meta-share below threshold means the fleet is spending on ventures."""
-    call, _ = sg.verdict(revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=99.0)
+    call, reasons = sg.verdict(
+        revenue=False, meta=sg.META_SHARE_THRESHOLD - 0.01, cadence=99.0
+    )
     assert call == "PROCEED"
+    assert "Deploy-first" in " ".join(reasons)
 
 
 def test_meta_threshold_is_a_boundary_not_a_range():
@@ -91,6 +94,8 @@ def test_build_names_the_candidate_to_start():
     joined = " ".join(reasons)
     assert "some-candidate" in joined
     assert "candidates/some-candidate.md" in joined
+    assert "Deploy-first" in joined
+    assert "deploy-settings" in joined
 
 
 def test_build_falls_back_to_researching_a_new_candidate():

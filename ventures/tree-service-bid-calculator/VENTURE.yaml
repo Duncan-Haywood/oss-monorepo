@@ -1,0 +1,32 @@
+name: tree-service-bid-calculator
+description: A private browser calculator for independent tree-service owners that prices a removal stop from DBH-squared wood volume, access, targets, stump grinding, haul, travel, loaded crew cost, and margin — and shows the walk-away price, the per-inch sanity check, and which tree is actually carrying the job.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent tree-service owners will use a DBH-squared bid calculator because the per-inch and day-rate rules of thumb they use today cannot see that a 24-inch backyard oak is four times the wood of a 12-inch street pine, which is how a "two trees, one price" bid that looked fine loses money on the big one.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Access, stump grinding, haul, and the drive out there are the four lines most often left out of a small crew's quote, so making each a required, explained input changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the price-per-inch sanity check are the two numbers an owner actually decides on when a homeowner asks them to sharpen their pencil, more than the headline bid itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified tree-service owners use the calculator twice within 90 days.
+  - Owners report that splitting a stop by tree, access, and haul is more work than their existing method without changing the price they would have bid.
+  - The DBH-squared hour model proves so far from real crews' times that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null
