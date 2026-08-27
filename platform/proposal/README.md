@@ -9,47 +9,149 @@ Every bid calculator in `ventures/` ends at a number and a plain-text blurb to
 paste somewhere. That is where the tool stopped and the contractor's evening
 started — retyping the scope into Word, remembering the deposit split, guessing
 how long the price should stand. The proposal is the artifact that wins or loses
-the job, and none of the thirty-four calculators produced one.
+the job, and none of the calculators produced one.
 
 Adopting it costs a contractor nothing and no marginal cent to run: it is
 arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-- `ventures/tuckpointing-bid-calculator` — reference implementation
-- `ventures/metal-roof-bid-calculator`
-- `ventures/walk-in-shower-bid-calculator`
-- `ventures/deck-bid-calculator`
-- `ventures/roofing-bid-calculator`
-- `ventures/siding-bid-calculator`
-- `ventures/concrete-bid-calculator`
-- `ventures/paver-patio-bid-calculator`
-- `ventures/basement-finishing-bid-calculator`
-- `ventures/exterior-painting-bid-calculator`
-- `ventures/countertop-bid-calculator`
-- `ventures/retaining-wall-bid-calculator`
-- `ventures/sunroom-bid-calculator`
-- `ventures/garage-door-bid-calculator`
-- `ventures/foundation-repair-bid-calculator`
-- `ventures/window-replacement-bid-calculator`
-- `ventures/solar-pv-bid-calculator`
-- `ventures/basement-waterproofing-bid-calculator`
-- `ventures/electrical-panel-upgrade-bid-calculator`
-- `ventures/sewer-line-replace-bid-calculator`
-- `ventures/fence-bid-calculator`
-- `ventures/attic-insulation-bid-calculator`
-- `ventures/ev-charger-bid-calculator`
-- `ventures/standby-generator-bid-calculator`
-- `ventures/water-heater-bid-calculator`
-- `ventures/furnace-bid-calculator`
-- `ventures/mini-split-bid-calculator`
+**88 of the 101 bid calculators**, and the list is no longer worth keeping by
+hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
+ready, and what is blocked.
 
-The other 74 bid calculators have not adopted it yet. See "Adding it to another
-calculator".
+27 of those were hand-ported, one batch of six at a time. The remaining 61 are
+generated from `trades.json` by `adopt.mjs`, and their pages carry
+`proposal:begin` / `proposal:end` markers so a re-run replaces the generated
+regions rather than layering a second proposal on top.
 
-## Five things that have gone wrong in every adoption batch
+The 13 that have not adopted all fail the same precondition: they build their
+input object inline at each call site instead of having one `readInput()`, so
+there is no single function the proposal can call to price the job the
+contractor is looking at. Extracting that reader is the work, and it is the
+same fix the README already recommends for its own sake:
 
-Check these before you verify, because two of the three fail silently.
+```
+flooring  gutter-cleaning  hood-cleaning  janitorial  junk-removal  lawn-care
+mobile-detailing  moving  painting  pest-control  pressure-washing
+tree-service  window-cleaning
+```
+
+## Adopting a calculator
+
+Two files, then two commands.
+
+1. Add an entry to `trades.json` keyed by the venture slug:
+
+   ```json
+   "sump-pump-bid-calculator": {
+     "jobTitle": "Sump pump replacement — {pumpLabel}",
+     "fields": { "pumpLabel": { "select": "pump" } },
+     "scope": [
+       "Supply and install a {pumpLabel}",
+       { "line": "{extraDischargeFeet} ft of extra discharge", "when": "extraDischargeFeet" },
+       "Test the pump under water and leave the basin clean"
+     ],
+     "placeholders": { "scope": "...", "exclusions": "...", "notes": "..." },
+     "disclaimerTail": "It is not a drainage design."
+   }
+   ```
+
+2. Generate and check it:
+
+   ```
+   node platform/proposal/adopt.mjs <slug>
+   node platform/pages/build.mjs
+   node platform/proposal/verify.mjs <slug>
+   ```
+
+`adopt.mjs` writes the stylesheet, the form, the print rules and the wiring, and
+vendors `proposal.mjs`. `verify.mjs` drives the built page in a real browser.
+
+### What the trade entry controls
+
+| key | what it is |
+|---|---|
+| `jobTitle` | the line under WORK. A template, same syntax as a scope line |
+| `scope` | the drafted scope. Strings, or `{ line, when }` where `when` names a field that must be truthy |
+| `fields` | customer-readable words for preset ids — `{ select: "pump" }` for the option text, plus `map` to rewrite it |
+| `placeholders` | the greyed-out example text in the form |
+| `disclaimerTail` | the sentence appended to the shared footer disclaimer |
+| `priceField` | the result field holding the price, when it is not `price` |
+| `depositPercent` | the default deposit, when 30% is wrong for the trade |
+| `palette` | overrides for the colours otherwise read off the page |
+
+Template syntax, all of it in `scopeLines`:
+
+- `{field}` — the value, or the whole line is dropped if it is missing
+- `{field.nested}` — dotted paths
+- `{count} gate{count+s}` — plural suffix, empty when the count is exactly 1
+- `{yards~2}` — rounded to 2 decimals and thousands-grouped
+
+### Two things `trades.json` must get right
+
+**Read the result object, not the input fields.** Each calculator names its
+result differently. `fence` has no `run.material` and no `run.feet` — the label
+is `run.name` and the length is `run.linearFeet`. `sump-pump`'s `result.pump` is
+`'half-hp'`, the preset *id*, not `'1/2 HP submersible'`.
+
+**Preset labels are written for the contractor.** They name the lowball number
+the calculator exists to argue with: `metal-roof`'s starting preset reads
+"40×30 ranch, 4/12, 5V overlay (the $950/square special)", and it shipped as the
+job title on customers' quotes until `verify.mjs` caught it. Anything with
+"cheap", "special" or a rate in it needs a `map`.
+
+Both of these fail *silently* — `undefined` renders as the word "undefined", and
+a bad label renders perfectly — which is why the browser check below exists
+rather than another text-level test.
+
+## What `verify.mjs` checks
+
+It fills the two fields the proposal refuses to print without, clicks "Print
+proposal", and asserts against the rendered document and its computed styles:
+
+1. Nothing reads `undefined`, `NaN`, or `null`.
+2. At least one scope line carries a figure. (Not "the scope is non-empty": the
+   one line with no placeholders in it always survives, so an entry whose every
+   figure-bearing template missed still looks populated.)
+3. The price on the sheet is the price on the screen, compared as numbers.
+4. No cost, wage, burden, overhead, margin, or break-even figure appears.
+5. **Every option of every select**, one at a time — not just the defaults —
+   checked for money outside the price table, contractor shorthand, unrounded
+   floats and holes. Checking the defaults proves nothing about the contractor
+   who picks the second entry in a dropdown.
+6. In print: `main`, `header`, `footer`, the injected nav and the saved-rates
+   panel are all gone, and the proposal is visible.
+7. The status line clears 4.5:1 against what is actually behind it.
+
+Run it against the built site, not the venture directory — `build.mjs` injects
+a nav, an aside and a shop-rates panel that the venture's own print stylesheet
+never sees.
+
+## What it found on its first run
+
+Every one of these was live on `main`, and every one was invisible to a green
+test suite:
+
+- **14 calculators rendered the status line at under 2:1.** The hand-ports took
+  the colour from `.summary-status`, which is correct inside the dark result
+  panel and unreadable in the light section the proposal actually sits in. That
+  line is where "Add your business name before printing" appears, so a
+  contractor whose print did nothing could not read why. `adopt.mjs --restyle`
+  repoints all of them at each page's own muted tone.
+- **`metal-roof` printed the contractor's preset label as the job title** —
+  "40×30 ranch, 4/12, 5V overlay (the $950/square special)" — handing the
+  homeowner an internal per-square rate and a nickname for their house.
+- **`tuckpointing` printed "Point-only smear — no grind (the cheap special)"**
+  as the first scope line.
+- **A yardage rendered as `48.888888888888886 yd²`** on a customer's quote.
+
+## Five things that went wrong in every hand-ported batch
+
+**`adopt.mjs` now makes all five impossible**, and they are kept here because
+the 27 hand-ported calculators still carry hand-written wiring, and because the
+reasoning explains what the generator is doing. If you are adding a trade to
+`trades.json` you do not need this section.
 
 - **The disclaimer lands inside a single-quoted JS string.** A straight
   apostrophe in the trade sentence — "a licensed engineer's to specify" —
@@ -197,14 +299,18 @@ venture therefore vendors its own copy, the same way `usage.mjs` is vendored.
 
 **This directory holds the canonical file.** Fix it here, then copy it out.
 `sync.test.mjs` fails if any venture copy has drifted, which is what keeps a fix
-from landing in one calculator and not the other thirty-three.
+from landing in one calculator and not the other eighty-seven.
 
 ```
-cp platform/proposal/proposal.mjs      ventures/<slug>/proposal.mjs
-cp platform/proposal/proposal.test.mjs ventures/<slug>/proposal.test.mjs
+node platform/proposal/adopt.mjs --sync
 ```
 
-## Adding it to another calculator
+## Adding it by hand
+
+**Use `adopt.mjs` instead** — see "Adopting a calculator" above. This section
+describes the hand-port, which is now only relevant for a calculator that fails
+`adopt.mjs`'s preconditions and cannot be made to pass them, or for editing one
+of the 27 pages that were ported before the generator existed.
 
 The module is generic; only five things are per-trade. Copy the two files above,
 then take the rest from `ventures/tuckpointing-bid-calculator/index.html`:

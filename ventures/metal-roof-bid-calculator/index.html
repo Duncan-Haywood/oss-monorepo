@@ -50,7 +50,7 @@
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
     textarea { width: 100%; box-sizing: border-box; border: 1px solid #b6a08c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
-    .proposal-status { font-size: .8rem; color: #8a3d1c; }
+    .proposal-status { font-size: .8rem; color: #4a5666; }
 
     /* The proposal document. Screen preview and printed sheet share this one
        block of rules, so what the contractor checks is what the customer gets.
@@ -637,14 +637,20 @@
       const values = Object.fromEntries(
         [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
       );
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
       return {
         ...values,
         // The customer is quoted the price the contractor is considering when
         // they typed one; otherwise the calculated price. Printing a different
         // number from the one on screen would be the worst bug this can have.
         price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
-        jobTitle: preset ? preset.label : 'Metal roof / standing seam',
+        // Described from the job, not from the preset the contractor started
+        // with. `JOB_PRESETS[…].label` is written for the person bidding — the
+        // starting preset here reads "40×30 ranch, 4/12, 5V overlay (the
+        // $950/square special)", so the homeowner was handed a quote titled
+        // with the contractor's own per-square rate and a nickname for their
+        // house.
+        jobTitle: `Metal roof — ${el('panel').selectedOptions[0]?.textContent ?? 'metal roofing'}`
+          + `, ${result.squares.toFixed(2)} squares`,
         scope: el('proposalScope').value,
       };
     }

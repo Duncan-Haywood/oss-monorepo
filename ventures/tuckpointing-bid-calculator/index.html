@@ -55,7 +55,7 @@
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
     textarea { width: 100%; box-sizing: border-box; border: 1px solid #b6a08c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
-    .proposal-status { font-size: .8rem; color: #8a3d1c; }
+    .proposal-status { font-size: .8rem; color: #5c4d40; }
 
     /* The proposal document. Screen preview and printed sheet share this one
        block of rules, so what the contractor checks is what the customer gets.
@@ -518,7 +518,17 @@
     function suggestScope(result) {
       const scope = el('proposalScope');
       if (scope.dataset.edited) return;
-      const method = METHOD_PRESETS.find(item => item.id === result.method)?.label ?? result.method;
+      // Not `METHOD_PRESETS[…].label`: those are written for the person
+      // bidding, and the first one reads "Point-only smear — no grind (the
+      // cheap special)". On a customer's quote that is the mason describing
+      // their own work as the cheap option. Say what is being done instead.
+      const CUSTOMER_METHOD = {
+        smear: 'Surface pointing over the existing joints',
+        grind: 'Grind out and repoint the joints',
+        rebuild: 'Cut out and relay the affected courses',
+      };
+      const method = CUSTOMER_METHOD[result.method]
+        ?? METHOD_PRESETS.find(item => item.id === result.method)?.label ?? result.method;
       const access = ACCESS_PRESETS.find(item => item.id === result.access)?.label ?? result.access;
       const mortar = MORTAR_PRESETS.find(item => item.id === result.mortar)?.label ?? result.mortar;
       const suggested = [
