@@ -1233,6 +1233,19 @@ const CHROME_STYLE = `<style id="pf-chrome-style">
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
+
+/* Site chrome is not part of anything a visitor prints.
+ *
+ * Nine bid calculators produce a customer proposal (platform/proposal), whose
+ * own print stylesheet hides header, main and footer so the homeowner's copy
+ * carries the price and not the contractor's wages. That allow-list was written
+ * against the venture's own markup — it cannot know about the nav and aside
+ * this build injects as siblings of main, so on the published site the
+ * customer's quote came out with the site navigation and the "more tools"
+ * footer stapled to it. The rule belongs here, with the markup it hides, rather
+ * than in each venture: a calculator that adopts the proposal next week is
+ * covered without touching it. */
+@media print{.pf-chrome{display:none !important}}
 </style>`;
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were

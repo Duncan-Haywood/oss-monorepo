@@ -1682,6 +1682,33 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   assert.match(style, /--pf-line:rgba\(128,128,128/, 'lines are neutral on either background');
 });
 
+test('nothing this build injects reaches a printed customer proposal', async () => {
+  // The nine calculators that produce a customer proposal print a sheet whose
+  // whole premise is that the homeowner sees the price and not the cost
+  // structure behind it. That sheet's own stylesheet hides `header, main,
+  // footer` — an allow-list written against the venture's markup, which cannot
+  // know about the `<nav>`, `<aside>` and shop-rates `<section>` this build
+  // injects as siblings of `<main>`.
+  //
+  // `.pf-rates` is the one that matters: it renders the contractor's saved crew
+  // wage, payroll burden, overhead and target net margin. A contractor who had
+  // saved their rates and left the panel open would have handed the customer
+  // their margin stapled to the quote.
+  const html = await read('deck-bid-calculator', 'index.html');
+  assert.ok(html.includes('id="proposalDoc"'),
+    'deck-bid-calculator no longer carries a proposal; point this test at one that does');
+
+  const chromeStyle = html.match(/<style id="pf-chrome-style">([\s\S]*?)<\/style>/)[1];
+  assert.match(chromeStyle, /@media print\{\.pf-chrome\{display:none !important\}\}/,
+    'the site navigation would print on the customer’s proposal');
+
+  const styles = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]);
+  const ratesStyle = styles.find((style) => style.includes('.pf-rates-list'));
+  assert.ok(ratesStyle, 'the shop-rates band is no longer injected; this test needs rewriting');
+  assert.match(ratesStyle, /@media print\{\.pf-rates\{display:none !important\}\}/,
+    'the contractor’s wage, burden, overhead and margin would print on the customer’s proposal');
+});
+
 test('injected head tags do not disturb the page they land in', async () => {
   const html = await read('ebay-fee-calculator', 'index.html');
   assert.equal((html.match(/<\/head>/gi) ?? []).length, 1);
