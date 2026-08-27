@@ -50,26 +50,33 @@ AI-wrap by default.
   lines the close would destroy. See `CLAUDE.md` for why: the claim has been
   wrong three times in one hour, and each time the feature existed only on the
   branch being closed.
+- **`git fetch --unshallow` first.** A scheduled session's clone is shallow, so
+  every branch reads as an unrelated history: no merge base, `git merge` refuses,
+  and a normal PR looks like a 2,800-file catastrophe. That is the clone, not the
+  branch. `supersede_check.py` now unshallows itself, but `git merge` and
+  `git diff origin/main <branch>` do not.
 
-Agent-decidable (merge yourself after CI):
+**Rely on the owner as little as possible.** Merge product work. Do not
+invent a review gate.
 
-- `platform/`, `portfolio/`, docs, tests, CI — internal surfaces
+Merge yourself after CI is green:
+
+- `platform/`, `portfolio/`, docs, tests, CI
 - Usage tracking, disclaimers, free-tier features, GitHub Sponsors links
+- `ventures/*` product code. Answered 2026-08-25: yes, merge it. Do not
+  re-ask.
 
-`python3 platform/ci/publish_surface.py` currently reports nothing live on
-push to `main`. That does not make `ventures/*` app code agent-decidable
-on its own — Ask 9 (`venture-gate-premise`) is still open.
-
-Owner-only (flag only when it **blocks** product work you cannot finish):
+Only flag the owner when you cannot finish without them:
 
 - Payment collection, payout rails, live billing
 - Account registration needing card / ID / domain / bank
 - Public publishing (store listing, npm publish, production domain)
 - Unattended paid automation (scheduled jobs calling paid APIs)
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
 See `python3 portfolio/ledger/decision_queue.py` for what the owner has
-already been asked; do not duplicate asks.
+already been asked; do not duplicate asks. Do not add "may I merge a
+product PR?"
 
 ## Every user-facing product includes
 

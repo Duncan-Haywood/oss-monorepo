@@ -1,0 +1,49 @@
+name: faire-wholesale-calculator
+description: A private browser calculator for Faire brands and independent retailers that shows net payout after marketplace commission, the first-order new-customer fee, payout-speed processing, Faire Direct, whether next-day payout still beats waiting after modeled carrying cost, whether a Faire Open House 0% window still leaves more after a deeper retailer discount, whether Promoted Listings still cover last-click organic first orders, whether a keep-it credit still beats taking a return, and whether a Pay Now discount still covers Faire remittance wait — and, on the buyer side, landed cost versus shelf price after unsold units.
+
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Faire brands will return to a calculator that prices the first marketplace order separately from a reorder and Faire Direct, because a flat 15% page hides the new-customer fee.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Independent retailers will use a landed-cost view that keeps unsold opening-order units in the cost, rather than a sell-through-assumed margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Brands will skip or take Faire Open House when they can see a 20% event discount eat the waived commission, and when extra new first orders flip the pile.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Brands will skip or run Faire Promoted Listings when they can see last-click organic eat the extra first order, and when a second extra order flips the pile.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Brands will offer a keep-it credit instead of taking a Faire return when they can see the outbound label and first-order fee are already sunk.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Brands will skip or offer Faire Pay Now when they can see a 2% discount lose leftover if remittance stays on the 60-day payout schedule, and when a faster remittance or an extra first order flips the pile.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three brands or retailers use the calculator twice within 90 days of a public URL.
+  - Users report that the first-order versus reorder gap never changes a wholesale price.
+
+links:
+  production: null
+  analytics: null
