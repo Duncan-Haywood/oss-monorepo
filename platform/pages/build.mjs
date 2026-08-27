@@ -37,7 +37,7 @@ import {
   renderServiceWorker,
 } from './offline.mjs';
 import { injectShopRates } from './rates.mjs';
-import { BID_FOLLOW_UP_HELPERS, injectSavedBids } from './jobs.mjs';
+import { BID_FOLLOW_UP_HELPERS, injectSavedBids, stripForInjection } from './jobs.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1702,7 +1702,7 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     </p>
   </div>
 </aside>
-${CHROME_SCRIPT(slug)}`;
+${stripForInjection(CHROME_SCRIPT(slug))}`;
 
   const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.

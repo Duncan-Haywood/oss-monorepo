@@ -1053,5 +1053,5 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
     ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${markup}`)
     : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
-  return anchored.replace(/<\/body>/i, `${JOBS_SCRIPT(slug)}\n</body>`);
+  return anchored.replace(/<\/body>/i, `${stripForInjection(JOBS_SCRIPT(slug))}\n</body>`);
 }
