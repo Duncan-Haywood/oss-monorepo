@@ -1,21 +1,42 @@
-// Creates a plain-text review that a freelancer can paste into a proposal
-// thread. It reports supplied assumptions and arithmetic observations without
-// turning them into pricing or profitability advice.
-export function quoteSummary(quote, report, scenarios) {
-  const status = report.gap_to_target >= 0 ? "Above supplied target" : "Below supplied target";
+// Plain-text handoff for a quote review. It contains supplied figures and
+// derived arithmetic, but deliberately avoids presenting a profitability or
+// pricing recommendation.
+
+export function formatReviewSummary(quote, report, checks, decision = null, extras = {}) {
+  const money = (value) => `${quote.currency} ${value.toFixed(2)}`;
+  const flags = checks
+    .filter((check) => check.level === "attention")
+    .map((check) => `- ${check.title}: ${check.detail}`);
+  const nextStep = decision?.title
+    ? [`Next-step prompt: ${decision.title}`, ""]
+    : [];
+  const overrunRows = Array.isArray(extras.overrunRows) ? extras.overrunRows : [];
+  const overrun = overrunRows.length
+    ? [
+        "Time-overrun scenarios (not a prediction):",
+        ...overrunRows.map((scenario) => `+${scenario.percent}% time: ${scenario.total_hours.toFixed(2)} hours, ${money(scenario.effective_hourly_rate)}/hour, gap ${money(scenario.gap_to_target)}`),
+        "",
+      ]
+    : [];
+
   return [
-    "Quote margin review",
-    `Quoted price: ${quote.currency} ${quote.price.toFixed(2)}`,
-    `Total working hours: ${report.total_hours.toFixed(2)} (delivery ${quote.delivery_hours.toFixed(2)}, admin ${quote.admin_hours.toFixed(2)}, revisions ${quote.revision_hours.toFixed(2)})`,
-    `Direct costs: ${quote.currency} ${report.direct_costs.toFixed(2)} (overhead ${quote.overhead.toFixed(2)}, subcontractor ${quote.subcontractor_cost.toFixed(2)})`,
-    `Effective hourly rate: ${quote.currency} ${report.effective_hourly_rate.toFixed(2)}/hour`,
-    `Price at supplied target rate: ${quote.currency} ${report.target_price.toFixed(2)}`,
-    `Gap to supplied target: ${quote.currency} ${report.gap_to_target.toFixed(2)}`,
-    `Arithmetic status: ${status}`,
+    "QUOTE MARGIN CHECK",
+    "Arithmetic review for discussion, not pricing or financial advice.",
+    ...nextStep,
+    `Quoted price: ${money(quote.price)}`,
+    `Total working hours: ${report.total_hours.toFixed(2)} (${report.hidden_hours.toFixed(2)} admin/revision hours)`,
+    `Direct costs: ${money(report.direct_costs)}`,
+    `Effective hourly rate: ${money(report.effective_hourly_rate)}/hour`,
+    `Target hourly rate supplied: ${money(quote.target_hourly_rate)}/hour`,
+    `Price at target rate: ${money(report.target_price)}`,
+    `Gap to target price: ${money(report.gap_to_target)}`,
+    `Left after direct costs: ${money(report.cost_coverage)}`,
+    `Minimum increase to reach target: ${money(report.minimum_price_adjustment)}`,
     "",
-    "Time-overrun scenarios (not a prediction):",
-    ...scenarios.map((scenario) => `+${scenario.percent}% time: ${scenario.total_hours.toFixed(2)} hours, ${quote.currency} ${scenario.effective_hourly_rate.toFixed(2)}/hour, gap ${quote.currency} ${scenario.gap_to_target.toFixed(2)}`),
+    ...overrun,
+    "Review observations:",
+    ...(flags.length ? flags : ["- No arithmetic attention flags from these inputs."]),
     "",
-    "Review the scope, assumptions, and arithmetic before relying on this summary. It is not financial or business advice.",
+    "Review the scope, assumptions, and arithmetic before relying on this output.",
   ].join("\n");
 }

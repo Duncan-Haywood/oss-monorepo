@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Holiday Light Bid Calculator | How Much to Charge to Hang Christmas Lights</title>
+  <meta name="description" content="Price Christmas lights from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $3 / LF hang special cannot see.">
+  <meta property="og:title" content="Holiday Light Bid Calculator">
+  <meta property="og:description" content="Bid holiday lights the way the trade does — hang, take-down, and extras, not a published hang dump — and see the margin before you send the price.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Holiday Light Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Eave lineal feet, hang-only vs hang-and-takedown vs full-service comparison, 1-story vs 2-story vs 3-story access, C9 vs icicle vs commercial LED, peaks trees bushes columns extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #24362c; background: #e8efe8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.6rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f6b4f; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d0c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #24362c0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5a6b60; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #9aaf9e; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .checks { display: grid; gap: 8px; margin-top: 12px; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9aaf9e; background: #eef6f0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dceae0; }
+    .result { position: sticky; top: 15px; background: #1e3528; color: #eef6f0; border-color: #1e3528; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #d8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #c4a574; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5a6b60; }
+    footer a { color: #2f6b4f; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #ecd8b8; }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    th, td { text-align: left; padding: 7px 4px; border-bottom: 1px solid #ffffff24; }
+    th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .75; }
+    td:last-child, th:last-child { text-align: right; }
+    .cheap { color: #d8e6a9; font-weight: 700; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR HOLIDAY LIGHTING CONTRACTORS</p>
+    <h1>Bid the hang, the take-down, and the extras.</h1>
+    <p>Price Christmas lights the way the trade actually loses money: a 1-story ranch C9 hang-only versus hang-and-takedown, two-story lift versus 3-story lift, then peaks, tree wraps, and bushes — not the published $3 / LF hang special. You get the job price, what it works out to per lineal foot of eave, and the number below which the hang loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The house</h2>
+        <p class="hint">Pick a common job to start, then replace every rate with a light invoice and a crew you have timed. Changing scope, stories, or light type fills starting hours and material only when you have not already edited that field.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Scope <select id="scope"></select></label>
+          <label>Stories <select id="stories"></select></label>
+          <label>Light type <select id="lightType"></select></label>
+          <label>Eave lineal feet <input id="eaveLf" type="number" min="0" step="1" value="140"></label>
+          <label>Travel miles <input id="travelMiles" type="number" min="0" step="1" value="8"></label>
+          <label>Peaks / gables <input id="peaks" type="number" min="0" step="1" value="0"></label>
+          <label>Tree wraps <input id="trees" type="number" min="0" step="1" value="0"></label>
+          <label>Bush / shrub nets <input id="bushes" type="number" min="0" step="1" value="0"></label>
+          <label>Column wraps <input id="columns" type="number" min="0" step="1" value="0"></label>
+        </div>
+        <div class="checks">
+          <label><input id="includeTimer" type="checkbox"> Timer / photocell</label>
+          <label><input id="steepPitch" type="checkbox"> Steep-pitch premium</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Hours and material rates</h2>
+        <p class="hint">These start from the scope, stories, and light type you picked. They are ballpark crew figures, not a light catalog or a guarantee.</p>
+        <div class="fields">
+          <label>Trip hours <input id="hoursTrip" type="number" min="0" step="0.1"></label>
+          <label>Hours / mile <input id="hoursPerMile" type="number" min="0" step="0.01"></label>
+          <label>Hours / LF <input id="hoursPerLf" type="number" min="0" step="0.01"></label>
+          <label>Access hours <input id="hoursAccess" type="number" min="0" step="0.1"></label>
+          <label>Access premium hours / LF <input id="accessPremiumPerLf" type="number" min="0" step="0.001"></label>
+          <label>Type hours / LF <input id="hoursTypePerLf" type="number" min="0" step="0.001"></label>
+          <label>Hours / peak <input id="hoursPerPeak" type="number" min="0" step="0.05"></label>
+          <label>Hours / tree <input id="hoursPerTree" type="number" min="0" step="0.05"></label>
+          <label>Hours / bush <input id="hoursPerBush" type="number" min="0" step="0.05"></label>
+          <label>Hours / column <input id="hoursPerColumn" type="number" min="0" step="0.05"></label>
+          <label>Timer hours <input id="hoursTimer" type="number" min="0" step="0.05"></label>
+          <label>Steep hours <input id="hoursSteep" type="number" min="0" step="0.1"></label>
+          <label>Site / punch-list hours <input id="siteHours" type="number" min="0" step="0.1"></label>
+          <label>Take-down ratio <input id="takedownRatio" type="number" min="0" step="0.05"></label>
+          <label>Contractor lights $ / LF <input id="productPerLf" type="number" min="0" step="0.1"></label>
+          <label>Type $ / LF <input id="typeMaterialPerLf" type="number" min="0" step="0.1"></label>
+          <label>Lift $ <input id="liftInvoice" type="number" min="0" step="5"></label>
+          <label>Storage $ <input id="storageInvoice" type="number" min="0" step="5"></label>
+          <label>Peak $ each <input id="peakEach" type="number" min="0" step="1"></label>
+          <label>Tree wrap $ each <input id="treeEach" type="number" min="0" step="1"></label>
+          <label>Bush net $ each <input id="bushEach" type="number" min="0" step="1"></label>
+          <label>Column wrap $ each <input id="columnEach" type="number" min="0" step="1"></label>
+          <label>Timer $ <input id="timerInvoice" type="number" min="0" step="1"></label>
+          <label>Travel $ / mile <input id="travelPerMile" type="number" min="0" step="0.1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="32"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="30"></label>
+          <label>Travel &amp; equipment <input id="travelAndEquipment" type="number" min="0" step="1" value="55"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 420"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, liability insurance, and paid time off. Underestimating it is how a $3 / LF hang that looked profitable was not.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">holiday-light price</div>
+      <dl>
+        <dt>Eave length</dt><dd id="area"></dd>
+        <dt>Travel</dt><dd id="travel"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Lights &amp; type</dt><dd id="finishCost"></dd>
+        <dt>Stories, take-down, extras</dt><dd id="extra"></dd>
+        <dt>Travel &amp; other</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per LF</dt><dd id="perLf"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Same house, three scopes</strong></p>
+      <table>
+        <thead><tr><th>Scope</th><th>Hours</th><th>Price</th></tr></thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not electrical, lighting-design, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your eave, wages, costs, or prices.</p>
+    <p>Looking up <a href="how-much-to-charge-to-hang-christmas-lights.html">how much to charge to hang Christmas lights</a>? The article walks the hang-versus-take-down math this calculator uses.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      compareScope,
+      formatBidSummary,
+      suggestedScopeKit,
+      suggestedStoryKit,
+      suggestedTypeKit,
+      suggestedExtraKit,
+      SCOPE_PRESETS,
+      STORY_PRESETS,
+      TYPE_PRESETS,
+      JOB_PRESETS,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+
+    const JOB_IDS = [
+      'scope', 'stories', 'lightType', 'eaveLf',
+      'travelMiles', 'peaks', 'trees', 'bushes', 'columns',
+    ];
+    const FLAG_IDS = ['includeTimer', 'steepPitch'];
+    const RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerLf', 'hoursAccess',
+      'accessPremiumPerLf', 'hoursTypePerLf', 'hoursPerPeak',
+      'hoursPerTree', 'hoursPerBush', 'hoursPerColumn', 'hoursTimer',
+      'hoursSteep', 'siteHours', 'takedownRatio', 'productPerLf',
+      'typeMaterialPerLf', 'liftInvoice', 'storageInvoice', 'peakEach',
+      'treeEach', 'bushEach', 'columnEach', 'timerInvoice', 'travelPerMile',
+    ];
+    const COST_IDS = [
+      'hourlyWage', 'burdenRate', 'travelAndEquipment', 'otherCost',
+      'overheadRate', 'targetMargin', 'proposedPrice',
+    ];
+    const SCOPE_RATE_IDS = [
+      'hoursPerLf', 'productPerLf', 'takedownRatio', 'storageInvoice',
+    ];
+    const STORY_RATE_IDS = ['hoursAccess', 'accessPremiumPerLf', 'liftInvoice'];
+    const TYPE_RATE_IDS = ['hoursTypePerLf', 'typeMaterialPerLf'];
+    const EXTRA_RATE_IDS = [
+      'hoursTrip', 'hoursPerMile', 'hoursPerPeak', 'hoursPerTree',
+      'hoursPerBush', 'hoursPerColumn', 'hoursTimer', 'hoursSteep',
+      'siteHours', 'peakEach', 'treeEach', 'bushEach', 'columnEach',
+      'timerInvoice', 'travelPerMile',
+    ];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    function fillSelect(id, presets) {
+      el(id).innerHTML = presets.map(item => `<option value="${item.id}">${item.label}</option>`).join('');
+    }
+
+    fillSelect('scope', SCOPE_PRESETS);
+    fillSelect('stories', STORY_PRESETS);
+    fillSelect('lightType', TYPE_PRESETS);
+    el('jobPresets').innerHTML = '<option value="">Choose a starting job…</option>'
+      + JOB_PRESETS.map((job, index) => `<option value="${index}">${job.label}</option>`).join('');
+
+    function applyKit(kit, ids) {
+      for (const id of ids) {
+        const field = el(id);
+        if (field.dataset.edited) continue;
+        if (kit[id] !== undefined) field.value = kit[id];
+      }
+    }
+
+    function applyScopeKit() {
+      applyKit(suggestedScopeKit(el('scope').value), SCOPE_RATE_IDS);
+    }
+
+    function applyStoryKit() {
+      applyKit(suggestedStoryKit(el('stories').value), STORY_RATE_IDS);
+    }
+
+    function applyTypeKit() {
+      applyKit(suggestedTypeKit(el('lightType').value), TYPE_RATE_IDS);
+    }
+
+    function applyExtraKit() {
+      applyKit(suggestedExtraKit(), EXTRA_RATE_IDS);
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(
+        [...JOB_IDS, ...RATE_IDS, ...COST_IDS].map(id => [id, el(id).value]),
+      );
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      return values;
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'holiday-light price';
+      ['area','travel','hours','labor','finishCost','extra','soft','overhead','cost','profit','perLf','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('compare').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'holiday-light price';
+      el('area').textContent = `${result.eaveLf.toLocaleString('en-US')} LF`;
+      el('travel').textContent = `${result.travelMiles} mi · ${result.hoursTravel.toFixed(1)} h`;
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('finishCost').textContent = money(result.finishMaterial);
+      el('extra').textContent = money(result.extraCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perLf').textContent = result.pricePerLf === null ? 'n/a' : `$${result.pricePerLf.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const hourRows = [
+        ['Travel', result.hourShares.travel],
+        ['Hang', result.hourShares.hang],
+        ['Stories / access', result.hourShares.access],
+        ['Light type', result.hourShares.type],
+        ['Peaks', result.hourShares.peaks],
+        ['Trees', result.hourShares.trees],
+        ['Bushes', result.hourShares.bushes],
+        ['Columns', result.hourShares.columns],
+        ['Timer', result.hourShares.timer],
+        ['Steep pitch', result.hourShares.steep],
+        ['Take-down', result.hourShares.takedown],
+        ['Site', result.hourShares.site],
+      ].filter(row => row[1] > 0);
+      el('split').innerHTML = hourRows.length === 0
+        ? '<li class="empty">Hours appear here once the eave has length.</li>'
+        : hourRows
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, share]) => `<li><span>${name}</span><span>${share.toFixed(0)}% of hours</span>
+            <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const compared = compareScope(readInput());
+      el('compare').innerHTML = compared.map(row => `<tr class="${row.cheapest ? 'cheap' : ''}">
+        <td>${row.label}${row.cheapest ? ' · lowest' : ''}</td>
+        <td>${row.totalHours.toFixed(1)} h</td>
+        <td>${money(row.price)}</td>
+      </tr>`).join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const text = formatBidSummary(result, preset ? preset.label : 'Holiday lights');
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applyJob(index) {
+      const job = JOB_PRESETS[index];
+      if (!job) return;
+      for (const id of RATE_IDS) delete el(id).dataset.edited;
+      el('eaveLf').value = job.eaveLf;
+      el('scope').value = job.scope;
+      el('stories').value = job.stories;
+      el('lightType').value = job.lightType;
+      el('travelMiles').value = job.travelMiles;
+      el('peaks').value = job.peaks;
+      el('trees').value = job.trees;
+      el('bushes').value = job.bushes;
+      el('columns').value = job.columns;
+      el('includeTimer').checked = job.includeTimer;
+      el('steepPitch').checked = job.steepPitch;
+      applyScopeKit();
+      applyStoryKit();
+      applyTypeKit();
+      applyExtraKit();
+    }
+
+    el('jobPresets').addEventListener('change', () => {
+      if (el('jobPresets').value === '') return;
+      applyJob(Number(el('jobPresets').value));
+      count('preset_applied');
+      update();
+    });
+    el('scope').addEventListener('change', () => {
+      applyScopeKit();
+      count('scope_changed');
+      update();
+    });
+    el('stories').addEventListener('change', () => {
+      applyStoryKit();
+      count('stories_changed');
+      update();
+    });
+    el('lightType').addEventListener('change', () => {
+      applyTypeKit();
+      count('type_changed');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; update(); });
+      el(id).addEventListener('change', () => count('bid_calculated'));
+    });
+    [...JOB_IDS, ...COST_IDS].forEach(id => {
+      if (id === 'scope' || id === 'stories' || id === 'lightType') return;
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    applyScopeKit();
+    applyStoryKit();
+    applyTypeKit();
+    applyExtraKit();
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const CHOICE_IDS = ['scope', 'stories', 'lightType'];
+    const BID_SPEC = {
+      key: 'holiday-light-bid',
+      numbers: [...JOB_IDS, ...RATE_IDS, ...COST_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, BID_SPEC, readInput());
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const query = encodeBid(BID_SPEC, readInput());
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(BID_SPEC, {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+  </script>
+</body>
+</html>
