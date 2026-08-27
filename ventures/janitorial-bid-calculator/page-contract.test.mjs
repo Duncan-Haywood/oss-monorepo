@@ -43,3 +43,36 @@ test('download writes the same proposal draft as copy', () => {
   assert.equal(page.split('projects: readProjects()').length - 1, 1);
   assert.doesNotMatch(page, /calculateBid\(\{/);
 });
+
+test('every scenario panel prices the same input the headline priced', () => {
+  // The defect this pins: `renderFrequencyCompare`, `renderSupplyCompare` and
+  // `renderInitialCompare` each built their own input literal from `areas`,
+  // `periodicServices` and the cost ids — omitting `shifts` and `projects`.
+  // A contract with a day porter was then compared against a cost base with no
+  // porter wages in it, so a frequency cut looked far cheaper than it was and a
+  // client's lowball offer was scored against a smaller base. `update()` now
+  // reads once and hands the same object to all three.
+  assert.match(page, /const input = readInput\(areas, shifts\);/);
+  assert.match(page, /result = calculateBid\(input\);/);
+  for (const render of ['renderFrequencyCompare', 'renderSupplyCompare', 'renderInitialCompare']) {
+    assert.match(page, new RegExp(`${render}\\(\\{ input \\}\\)`));
+    assert.match(page, new RegExp(`function ${render}\\(\\{ input \\}\\)`));
+  }
+  for (const compare of ['compareFrequencyReduction', 'compareSupplyResponsibility', 'compareInitialClean']) {
+    assert.match(page, new RegExp(`${compare}\\(input, \\{`));
+    // No panel may reintroduce an input literal of its own.
+    assert.doesNotMatch(page, new RegExp(`${compare}\\(\\{`));
+  }
+});
+
+test('a saved or shared bid carries the one-time projects with it', () => {
+  // Project rows were absent from BID_SPEC and from `readSavable()`, so saving
+  // a bid or sending a link silently dropped every strip-and-wax and carpet
+  // extraction on the job: the recipient priced a smaller contract than the
+  // sender saw, which is the failure `share.mjs` exists to prevent.
+  assert.match(page, /param: 'projects'/);
+  assert.match(page, /projects: readProjectRows\(\)/);
+  assert.match(page, /function readProjectRows\(\)/);
+  assert.match(page, /if \(Array\.isArray\(values\.projects\)\)/);
+  assert.match(page, /id === 'projects'/);
+});

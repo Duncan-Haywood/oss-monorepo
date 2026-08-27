@@ -490,6 +490,12 @@ export function compareFrequencyReduction(input, options = {}) {
     laborHoursDropped: baseline.monthlyHours - reduced.monthlyHours,
     laborCostDropped: baseline.monthlyLaborCost - reduced.monthlyLaborCost,
     unscaledMonthly: baseline.monthlySupplies + baseline.equipmentMonthly + baseline.otherMonthly,
+    // A day porter is scheduled against the building's own week, not against
+    // the cleaning cadence, so their wages are the largest thing that does
+    // *not* fall when visits are cut — often several times the supplies and
+    // equipment combined. Reported separately so the page can say so rather
+    // than leaving it inside a labour figure the reader takes for scaling.
+    unscaledShiftLabor: baseline.shiftMonthlyLaborCost,
     suppliesUnchanged: Math.abs(reduced.monthlySupplies - baseline.monthlySupplies) < 1e-9,
     equipmentUnchanged: Math.abs(reduced.equipmentMonthly - baseline.equipmentMonthly) < 1e-9,
     clientOffer: reduced.proposed,
@@ -510,7 +516,7 @@ export function frequencyReductionNote(comparison, { targetMargin } = {}) {
     : `A linear ${pct.toFixed(0)}% of the ${comparison.currentWeekly}× price is ${money(comparison.naiveLinearPrice)}, which leaves a ${comparison.naiveMargin.toFixed(1)}% margin at ${comparison.proposedWeekly}× — ${money(Math.abs(comparison.leftOnTable))} a month ${comparison.leftOnTable > 0 ? 'below' : 'above'} the price that holds a ${marginPct}% target.`;
   return [
     `At ${comparison.proposedWeekly}×/week the monthly price that still holds a ${marginPct}% margin is ${money(comparison.priceToHoldTargetMargin)}, not a linear ${direction} of the ${comparison.currentWeekly}× price (${money(comparison.baseline.monthlyPrice)}).`,
-    `Labor drops with the visits (${comparison.baseline.monthlyHours.toFixed(1)} h → ${comparison.reduced.monthlyHours.toFixed(1)} h). Supplies, equipment, and travel stay on the job (${money(comparison.unscaledMonthly)}/month in this bid).`,
+    `Labor drops with the visits (${comparison.baseline.monthlyHours.toFixed(1)} h → ${comparison.reduced.monthlyHours.toFixed(1)} h). Supplies, equipment, and travel stay on the job (${money(comparison.unscaledMonthly)}/month in this bid).${comparison.unscaledShiftLabor > 0 ? ` Scheduled shift labor stays too — ${money(comparison.unscaledShiftLabor)}/month of day-porter wages are not part of that drop.` : ''}`,
     naiveLine,
   ].join(' ');
 }
