@@ -745,6 +745,54 @@
     </table>
     <p id="vineNote" class="note"></p>
   </section>
+  <section class="pack" id="sfp" aria-labelledby="sfp-heading">
+    <h2 id="sfp-heading">Does Seller Fulfilled Prime still beat FBA?</h2>
+    <p>
+      An SFP invite keeps the Prime badge if you buy a 2-day label and pack
+      on time. Merchant fulfilled is the cheaper Ground label without Prime.
+      <a href="should-i-use-seller-fulfilled-prime.html">Should I use Seller Fulfilled Prime?</a>
+      already has the full math. This block uses the same
+      <code>compareSfp</code> on the listing you just typed, so you do not
+      leave the page. Defaults match that page: $8.95 2-day label, 6 minutes
+      at $18, 70% FBA take, 65% SFP take, 40% FBM take. FBM shipping and
+      monthly units come from the listing form above.
+    </p>
+    <div class="fields" style="margin-bottom: 14px;">
+      <label>SFP 2-day label
+        <input id="sfpShippingCost" type="number" min="0" step="0.01" value="8.95">
+      </label>
+      <label>SFP pack minutes
+        <input id="sfpMinutes" type="number" min="0" step="0.1" value="6">
+      </label>
+      <label>SFP hourly wage
+        <input id="sfpHourlyWage" type="number" min="0" step="0.01" value="18">
+      </label>
+      <label>FBA take (%)
+        <input id="fbaTakePct" type="number" min="0" max="100" step="0.1" value="70">
+      </label>
+      <label>SFP take (%)
+        <input id="sfpTakePct" type="number" min="0" max="100" step="0.1" value="65">
+      </label>
+      <label>FBM take (%)
+        <input id="fbmTakePct" type="number" min="0" max="100" step="0.1" value="40">
+      </label>
+    </div>
+    <p id="sfpVerdict" class="verdict"></p>
+    <table id="sfpTable">
+      <caption>FBA Prime, Seller Fulfilled Prime, and merchant fulfilled on the same visitor pool</caption>
+      <thead>
+        <tr>
+          <th scope="col">Path</th>
+          <th scope="col">Take</th>
+          <th scope="col">Expected / session</th>
+          <th scope="col">Monthly</th>
+          <th scope="col">vs FBA</th>
+        </tr>
+      </thead>
+      <tbody id="sfpRows"></tbody>
+    </table>
+    <p id="sfpNote" class="note"></p>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -926,7 +974,9 @@
       compareLowInventory,
       compareLiquidation,
       compareVine,
+      compareSfp,
       couponSummary,
+      sfpNote,
       sizeTierPackagingNote,
       lowInventoryNote,
       liquidationNote,
@@ -957,6 +1007,7 @@
       "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
       "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
       "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
+      "sfpShippingCost", "sfpMinutes", "sfpHourlyWage", "fbaTakePct", "sfpTakePct", "fbmTakePct",
     ];
     const money = (value) => `$${value.toFixed(2)}`;
     const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
@@ -1138,6 +1189,35 @@
         packCell(tr, signed(row.horizonProfit));
         packCell(tr, signed(row.upfront));
         packCell(tr, row.id === "skip" ? "Current" : signed(row.vsSkip));
+        return tr;
+      }));
+    }
+
+    // Surfaces FBA vs Seller Fulfilled Prime vs FBM on the calculator
+    // itself. The same arithmetic already backs
+    // should-i-use-seller-fulfilled-prime.html.
+    function renderSfp(input) {
+      const result = compareSfp(input);
+      const signed = (value) => `${value < 0 ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const verdict = document.getElementById("sfpVerdict");
+      if (result.winner === "sfp") {
+        verdict.textContent = `Seller Fulfilled Prime keeps ${signed(result.extraKeptOnSfp)} more per session than FBA`;
+      } else if (result.winner === "fbm") {
+        verdict.textContent = `Merchant fulfilled keeps ${signed(result.extraKeptOnFbm)} more per session than FBA`;
+      } else if (result.winner === "fba") {
+        verdict.textContent = `FBA keeps more than Seller Fulfilled Prime by ${signed(Math.abs(result.extraKeptOnSfp))}`;
+      } else {
+        verdict.textContent = "The three fulfillment paths leave the same expected leftover on these rates";
+      }
+      document.getElementById("sfpNote").textContent = sfpNote(result);
+      document.getElementById("sfpRows").replaceChildren(...result.rows.map((row) => {
+        const tr = document.createElement("tr");
+        if (result.winner === row.id) tr.className = "winner-row";
+        packCell(tr, row.label);
+        packCell(tr, `${row.takePct.toFixed(1)}%`);
+        packCell(tr, signed(row.expectedProfit));
+        packCell(tr, signed(row.monthlyProfit));
+        packCell(tr, row.id === "fba" ? "Current" : signed(row.vsFba));
         return tr;
       }));
     }
@@ -1543,6 +1623,13 @@
           document.getElementById("vineNote").textContent = "Fix the Vine enrollment fields to see the leftover-vs-skip comparison.";
           document.getElementById("vineRows").replaceChildren();
         }
+        try {
+          renderSfp(readInput());
+        } catch (sfpError) {
+          document.getElementById("sfpVerdict").textContent = sfpError.message;
+          document.getElementById("sfpNote").textContent = "Fix the SFP label and take-rate fields to see the Prime-badge comparison.";
+          document.getElementById("sfpRows").replaceChildren();
+        }
       } catch (error) {
         document.getElementById("profit").textContent = error.message;
         document.getElementById("profit").className = "hero-number error";
@@ -1639,6 +1726,9 @@
     const vineFields = new Set([
       "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
     ]);
+    const sfpFields = new Set([
+      "sfpShippingCost", "sfpMinutes", "sfpHourlyWage", "fbaTakePct", "sfpTakePct", "fbmTakePct",
+    ]);
     ids.forEach((id) => document.getElementById(id).addEventListener("input", () => {
       if (autoFields.has(id) && !syncingFee) {
         document.getElementById(id).dataset.auto = "0";
@@ -1669,6 +1759,7 @@
           : lowInventoryFields.has(id) ? "low_inventory_compared"
           : liquidationFields.has(id) ? "liquidation_compared"
           : vineFields.has(id) ? "vine_compared"
+          : sfpFields.has(id) ? "sfp_compared"
             : "listing_profit_calculated",
       );
     }));
