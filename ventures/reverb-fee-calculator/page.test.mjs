@@ -10,13 +10,16 @@ import {
   compareShippingPaths,
   compareSafeShipping,
   compareConsignment,
+  compareBump,
 } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const seo = readFileSync(new URL('./should-i-take-this-reverb-offer.html', import.meta.url), 'utf8');
 const shippingSeo = readFileSync(new URL('./should-i-include-shipping-on-reverb.html', import.meta.url), 'utf8');
+const absorbSeo = readFileSync(new URL('./should-i-eat-the-shipping-on-reverb.html', import.meta.url), 'utf8');
 const safeShippingSeo = readFileSync(new URL('./should-i-buy-reverb-safe-shipping.html', import.meta.url), 'utf8');
 const consignmentSeo = readFileSync(new URL('./should-i-consign-this-reverb-listing.html', import.meta.url), 'utf8');
+const bumpSeo = readFileSync(new URL('./should-i-bump-this-reverb-listing.html', import.meta.url), 'utf8');
 
 function money(value) {
   return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
@@ -31,7 +34,9 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(featureList[1], /offer versus list/i);
   assert.match(featureList[1], /Reverb versus eBay/i);
   assert.match(featureList[1], /shipping included versus buyer-pays/i);
+  assert.match(featureList[1], /absorb the label/i);
   assert.match(html, /id="offerPrice"/);
+  assert.match(html, /id="meetupCost"/);
   assert.match(html, /id="compareRows"/);
   assert.match(html, /id="crossoverOffer"/);
   assert.match(html, /id="shippingRows"/);
@@ -47,6 +52,7 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /GitHub Sponsors/);
   assert.match(html, /should-i-take-this-reverb-offer.html/);
   assert.match(html, /should-i-include-shipping-on-reverb.html/);
+  assert.match(html, /should-i-eat-the-shipping-on-reverb.html/);
   assert.match(html, /should-i-buy-reverb-safe-shipping.html/);
   assert.match(featureList[1], /shop consignment versus self-list/i);
   assert.match(html, /id="shopSalePrice"/);
@@ -55,6 +61,10 @@ test('the calculator page wires the compare the schema.org featureList names', (
   assert.match(html, /id="consignmentRows"/);
   assert.match(html, /compareConsignment/);
   assert.match(html, /should-i-consign-this-reverb-listing.html/);
+  assert.match(featureList[1], /bump versus take the offer/i);
+  assert.match(html, /id="bumpRows"/);
+  assert.match(html, /compareBump/);
+  assert.match(html, /should-i-bump-this-reverb-listing.html/);
 });
 
 test('the SEO page uses the same worked example the calculator defaults produce', () => {
@@ -89,6 +99,18 @@ test('the shipping SEO page uses the same worked example the calculator defaults
   assert.ok(shippingSeo.includes(money(shipping.extraMarketplaceOnIncluded)), `missing extra marketplace ${money(shipping.extraMarketplaceOnIncluded)}`);
 });
 
+test('the absorb-the-label SEO page uses the same fourth path the calculator paints', () => {
+  const shipping = compareShippingPaths(REVERB_DEFAULTS);
+  assert.match(absorbSeo, /Should I eat the shipping on Reverb/i);
+  assert.match(absorbSeo, /href="\.\/#shipping-compare"/);
+  assert.match(absorbSeo, /No warranty/);
+  assert.match(absorbSeo, /no SLA/i);
+  assert.ok(absorbSeo.includes(money(shipping.absorbed.profit)), `missing absorbed ${money(shipping.absorbed.profit)}`);
+  assert.ok(absorbSeo.includes(signed(shipping.rows[3].vsBuyerPays)), `missing absorbed delta ${signed(shipping.rows[3].vsBuyerPays)}`);
+  assert.ok(absorbSeo.includes(signed(shipping.absorbVsIncluded)), `missing absorb vs included ${signed(shipping.absorbVsIncluded)}`);
+  assert.ok(absorbSeo.includes(money(shipping.included.profit)), `missing included ${money(shipping.included.profit)}`);
+});
+
 test('the Safe Shipping SEO page uses the same worked example the calculator defaults produce', () => {
   const comparison = compareSafeShipping(REVERB_DEFAULTS);
   assert.match(safeShippingSeo, /Should I buy Reverb Safe Shipping/i);
@@ -121,4 +143,21 @@ test('the consignment SEO page uses the same worked example the calculator defau
   assert.ok(consignmentSeo.includes(money(comparison.breakEvenShopCash)), `missing break-even cash ${money(comparison.breakEvenShopCash)}`);
   assert.match(consignmentSeo, /listing it yourself still leaves/i);
   assert.doesNotMatch(consignmentSeo, /you should consign/i);
+});
+
+test('the bump SEO page uses the same worked example the calculator defaults produce', () => {
+  const bump = compareBump(REVERB_DEFAULTS);
+  assert.match(bumpSeo, /Should I bump this Reverb listing/i);
+  assert.match(bumpSeo, /href="\.\/#bump-compare"/);
+  assert.match(bumpSeo, /No warranty/);
+  assert.match(bumpSeo, /no SLA/i);
+  assert.ok(bumpSeo.includes(money(bump.offerNoBump.profit)), `missing offer no-bump ${money(bump.offerNoBump.profit)}`);
+  assert.ok(bumpSeo.includes(money(bump.offerWithBump.profit)), `missing offer with bump ${money(bump.offerWithBump.profit)}`);
+  assert.ok(bumpSeo.includes(money(bump.listNoBump.profit)), `missing list no-bump ${money(bump.listNoBump.profit)}`);
+  assert.ok(bumpSeo.includes(money(bump.listWithBump.profit)), `missing list with bump ${money(bump.listWithBump.profit)}`);
+  assert.ok(bumpSeo.includes(signed(bump.rows[1].vsOfferNoBump)), `missing offer-with-bump delta ${signed(bump.rows[1].vsOfferNoBump)}`);
+  assert.ok(bumpSeo.includes(signed(bump.rows[3].vsOfferNoBump)), `missing list-with-bump delta ${signed(bump.rows[3].vsOfferNoBump)}`);
+  assert.ok(bumpSeo.includes(money(bump.offerThatCoversBump)), `missing cover offer ${money(bump.offerThatCoversBump)}`);
+  assert.ok(bumpSeo.includes(money(bump.extraSaleToCoverBump)), `missing extra sale ${money(bump.extraSaleToCoverBump)}`);
+  assert.ok(bumpSeo.includes(money(bump.cashBumpSavesVsOfferIfYouReachList)), `missing list save ${money(bump.cashBumpSavesVsOfferIfYouReachList)}`);
 });

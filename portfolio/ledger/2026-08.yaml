@@ -1,5 +1,99 @@
 period: 2026-08
 entries:
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated a newly researched small-nonprofit workflow into a runnable
+        browser vertical slice and landed it on `main` (#1193): add awards,
+        sort a reporting review queue, show restricted balances, export CSV,
+        and persist the queue locally. No account, network, payment, or paid
+        API dependency; disclaimer, local opt-in aggregate usage counting, SEO
+        metadata, sitemap and robots.txt in place. Public demand still
+        untested.
+      - >-
+        The persistence that shipped with it had a defect worth recording,
+        because the tests it came with could not see it. The queue was restored
+        with `JSON.parse(...); return Array.isArray(value) ? value : []` — which
+        accepts a *damaged* array. One `null` row left by an interrupted write
+        reached `reviewGrant` and threw on `grant.awardDate`, so the whole
+        saved queue rendered blank and the awards looked lost. #1188 had
+        already written the fix (a `loadGrants` that drops non-object rows) and
+        the regression test for it, in the PR that #1193 superseded; the fix
+        was salvaged out rather than closed with it. Verified both ways in
+        headless Chromium against the same seeded damaged value: `main`
+        renders no rows, the fix renders the surviving award.
+      - >-
+        The lesson is about where the tests were pointed. `calc.test.mjs`
+        covered the arithmetic and passed throughout; the load path lived
+        inline in a script tag in `index.html`, where no test could reach it.
+        Extracting it into `calc.mjs` is what made it testable, and the first
+        test written against it failed.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Built and merged the portfolio's public site (#1718, extended by #1724):
+        `platform/pages/build.mjs` assembles every static venture surface into
+        the one GitHub Pages site a repository gets, behind a searchable hub
+        with the §5b no-warranty and no-SLA copy, a privacy line, and an
+        optional Sponsors link. 33 tools at merge; 37 by the end of the same
+        session, with no manual step — discovery is automatic, so a calculator
+        that lands on `main` is on the site on the next push.
+      - >-
+        The thing worth knowing: the owner flip everyone was waiting on was
+        worth far less than the queue said. GitHub serves one Pages site per
+        repository, and the only workflow that could claim it built
+        `retail-pilot-intel`'s passcode-gated internal docs. Setting
+        `GITHUB_PAGES_ENABLED` would have published a docs app and left every
+        calculator dark. `publish_surface.py` reported the gate honestly — it
+        reports what publishes, not whether what publishes is worth anything,
+        and nobody had checked the second question in seven days. The
+        `deploy-settings` ask was updated in place rather than duplicated, and
+        `retail-pilot-intel` moved to its own variable so one flip cannot make
+        two deployments race for the origin.
+      - >-
+        A cheaper lesson, twice over: the tests that assert the *built site*
+        rather than the build functions caught both real defects — nine links
+        that would have 404'd for visitors, and a JSON-LD block a venture title
+        containing a closing script tag could have broken out of. Neither turns
+        anything red on its own; the site builds fine and the visitor simply
+        cannot get there. Verified end to end in headless Chromium at a 390px
+        viewport: hub, search, click-through, a calculation that recomputes,
+        local usage counting, zero console errors, zero off-origin requests.
+      - >-
+        Deploy-first's build half is now done for every static product, and no
+        future calculator needs deploy work at all. What remains is the owner
+        flip, which no agent can do. `portfolio/DIRECTION.md` was updated to say
+        so, so the next session spends its time on depth in the tools that will
+        go live rather than on a thirty-eighth front page.
+    mrr_end: null
+  - venture: repository-branch-hygiene
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued the newly graduated branch-hygiene product with a CSV approval
+        queue export for spreadsheet and ticket workflows. The export includes
+        classifications, reasons, and non-executable review actions; it never
+        emits deletion commands or performs Git operations. Thirteen focused
+        tests pass and the real CLI smoke test produced the expected four-row
+        queue with risk mode failing closed. Buyer pilots and public publishing
+        remain unresolved.
+    mrr_end: null
+  - venture: backup-verification-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Hardened the local backup evidence record: command output is no longer
+        retained by default because logs can contain paths, hostnames, or
+        application data; --include-log-tail is an explicit bounded opt-in.
+        Added regression tests and verified 76 tests pass. No network, account,
+        payment, or deployment dependency was added.
+    mrr_end: null
   - venture: retainage-cashflow-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -13,6 +107,18 @@ entries:
         opt-out local usage counter, MIT license, SEO metadata, sitemap, and
         robots.txt. Public publishing remains owner-gated; first usage reading
         is recorded as zero.
+    mrr_end: null
+  - venture: public-record-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Graduated the public-record watch candidate into a local offline CLI:
+        customer-authorized register snapshots produce added, removed, changed,
+        and unchanged findings with the source URL preserved. Includes tests,
+        visible disclaimer, local aggregate usage counter, MIT license, and
+        privacy-first boundaries. Ten-practitioner distribution probe and any
+        hosted scheduler remain unresolved.
     mrr_end: null
   - venture: shopify-a11y-evidence
     agent_spend_usd: null
@@ -23205,6 +23311,7 @@ entries:
           CI-red rule against fixing what a base-branch failure someone else
           already owns.
     mrr_end: null
+
   - venture: cut-list-optimizer
     agent_spend_usd: null
     human_hours: 0
@@ -23272,4 +23379,604 @@ entries:
         code?" queue row. Remaining owner flags are money, legal-person
         accounts, public publishing, unattended paid spend, and secrets
         only they can paste.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Made every page on the new Pages site carry the liability clauses
+        before it gets a URL. `PRODUCT_PLAYBOOK.md` §5b requires the
+        no-warranty *and* the no-SLA clause on every hosted surface; the
+        second was checked only on the hub. Audited all 192 published pages
+        against the built tree: 20 pages across 10 ventures (`3pl-quote-
+        normalizer`, `ai-engineering-academy`, `amazon-fba-calculator`,
+        `cut-list-optimizer`, `ebay-fee-calculator`, `einvoice-preflight`,
+        `shopify-a11y-evidence`, `shopify-fee-calculator`,
+        `shopify-permission-drift`, `where-to-sell-calculator`,
+        `automatic-driveway-gate-bid-calculator`) carried no
+        availability statement at all. Added it to each, and added a test
+        over the built tree so the 184th page cannot ship without one --
+        verified the test goes red when a clause is removed (it caught
+        `automatic-driveway-gate-bid-calculator` the moment that venture merged
+        mid-session). Also emitted a
+        generated `favicon.ico`: browsers request it per page regardless of
+        markup, so all 192 pages were logging a 404 and opening as blank
+        tabs. Learned that the disclaimer gap was invisible to per-venture
+        CI because it is only a gap once the pages are hosted -- which they
+        were not until #1718 landed the site.
+      - >-
+        Duplicate avoided rather than merged: this session had a complete
+        second Pages builder (`platform/site/`, Python, 40 tests) when
+        #1718 merged an equivalent one 20 minutes earlier. Compared both --
+        #1718's published a strict superset (33 surfaces to 32, plus
+        `EXCLUDED_SLUGS` and a separate `RETAIL_PILOT_INTEL_PAGES` gate so
+        one owner flip cannot make two deployments race) -- and discarded
+        this session's rather than opening a competing PR. Verified the
+        merged one in a real browser instead: 33 tools listed, search,
+        primary journey, crawlability, and 288 files with zero dangling
+        internal references.
+    mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Webhook session (pull_request.edited on #1020). Merged #1020
+          (unit-aware ticket exports, 6/6 tests verified locally) and #1019
+          (local e-invoice preflight CLI, 5/5 verified), resolving #1019's
+          `portfolio/usage/usage.yaml` conflict by keeping both sides -- both
+          were additive appends after the same anchor.
+      - >-
+          Then found the product itself was dead. `ventures/cut-list-
+          optimizer/index.html` had opened `<textarea id="cuts">` and never
+          closed it since its first commit. textarea is an HTML raw-text
+          element, so the parser swallowed the results panel, the copy
+          button, the disclaimer, the opt-out, and the entire
+          `<script type="module">` as literal text. The script never ran; the
+          tool had never calculated anything for anyone. Three PRs (#1017,
+          #1020, and the original ship) merged on top of it. The reason
+          nothing caught it: `calc.test.mjs` imports `calc.mjs` directly and
+          never looks at the page, and the venture had no CI workflow at all,
+          so its PRs showed zero checks.
+      - >-
+          Concurrency: a second session found the same defect mid-run and
+          landed #1023 (repair, first CI workflow, split runs/copies
+          counters, a browser-accurate `page.test.mjs`) while this work was
+          in progress. Integrated rather than re-landed -- took their
+          `page.test.mjs` (its raw-text parser is strictly better than the
+          regex-and-tag-stack version written here, which their own test
+          would have caught), their workflow, their usage counters, and their
+          README correction that ES modules cannot load over `file://`. Kept
+          only the feature work on top.
+      - >-
+          Shipped on top: cuts are now planned against the offcuts a shop
+          already owns (consumed shortest-usable-first so long stock stays
+          whole; an untouched offcut counts as neither consumed stock nor
+          waste), plus price per stock piece, currency, the count of
+          purchases the rack avoided, and what that saved. 25 passing tests.
+          Verified in Chromium against the real page: default load, pricing,
+          unit switch, empty on-hand, malformed input, clipboard export, the
+          split counters, and mobile layout -- zero page errors.
+      - >-
+          Two defects the browser run surfaced that no unit test would have:
+          a 1/8" kerf (0.125) was rounded to 0.13 on the job ticket,
+          misstating the allowance the plan was built on, and on-hand rows
+          were double-labelled both "ON HAND 22.00 in" and "Stock 1". Both
+          fixed and covered.
+      - >-
+          Swept the five sibling static-page ventures for the same class of
+          defect -- no unclosed raw-text element and no missing script-driven
+          id in any of them. `etsy-profit-calculator` and
+          `shopify-a11y-evidence` still have no CI workflow, so their
+          committed tests never run; left as a scoped follow-up rather than
+          widening this PR into other ventures.
+    mrr_end: null
+  - venture: invoice-payment-terms-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the pay-run settlement model (#1753): the calculator now
+        shows when cash actually lands, not only the contractual due date.
+        Accounts-payable departments pay in runs, so a Net 30 invoice dated
+        2026-08-24 is due 2026-09-23 but lands 2026-10-01 at a client paying
+        the 1st and 15th -- eight days of drift, about $6.31 on $1,200 at
+        24%, which no late fee covers because it is not lateness. Five
+        schedules, drift priced at the carrying rate already on the form,
+        and a Net 7/15/30/45/60 ladder. 40 tests; verified in a headless
+        browser against the built Pages artifact.
+      - >-
+        The differentiated finding is that longer terms are frequently free:
+        because runs are batched, Net 15 and Net 30 both land 2026-10-01 at a
+        monthly-on-the-1st client. Fifteen extra days of terms at zero cost in
+        cash timing is a concession a freelancer can trade in a negotiation,
+        and no invoice calculator surveyed surfaces it. Measured going forward
+        by the new `settlement_projected` counter against `calculation`.
+      - >-
+        Integration over ownership: #1729 shipped invoice factoring to this
+        same venture mid-session. Both sides were pure appends to one base, so
+        the merge replayed both rather than choosing -- 11 exports, both test
+        suites, all six FAQ entries, both hypotheses. Learned that the useful
+        check for "is this really superseded" is running the other branch's
+        own tests against the survivor: it retired #1098 and #1400 (3/3 and
+        5/5 passing against `main`) and would have caught a false supersede.
+        `supersede_check.py` said NOT SUPERSEDED for all four PRs closed this
+        session because it compares added lines exactly and the survivors had
+        reworded the same facts -- the flag is about wording, not capability,
+        and each close says so rather than hiding it.
+    mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1738: the Pages deploy job is now gated on
+        `github.ref == 'refs/heads/main'`, and the workflow fetches the real
+        public URL after deploying -- front page, both sitemaps, robots.txt,
+        one product -- failing on any non-200 or a sitemap.xml served without
+        an index. `workflow_dispatch` runs against any branch, so the old gate
+        would have published the live site from a feature branch. Also landed
+        `journey.mjs` (from #1723): a browser pass over the hub, search and
+        its empty state, the usage opt-out across a reload, a click into a
+        calculator, a cross-product link, sitemap sampling, the 404, and a
+        375px viewport. Ran it for real against the built artifact over HTTP
+        before merging -- 17/17, zero console errors.
+      - >-
+        The finding that started the session: the artifact one owner flip from
+        being public was handing crawlers sitemaps that mostly did not work.
+        53 of 216 `<loc>` values were bare relative paths, which sitemaps.org
+        forbids, so a crawler discards the entire file -- 15 of 35 ventures
+        silently unindexed. 14 more carried a `ventures/` segment the site
+        does not serve, so every URL 404d. 70 published pages were in no
+        sitemap at all. None of it turns anything red: the site builds, each
+        sitemap looks plausible by eye, and the pages just never get indexed.
+        Organic search is the portfolio's whole acquisition plan, so this was
+        worth more than another calculator.
+      - >-
+        The expensive lesson is duplication, not the defect. FOUR sessions
+        found and fixed the same sitemap and disclaimer gaps inside about
+        forty minutes -- #1723, #1736, this one, and a fourth that landed the
+        no-SLA injection while the PR for it was being written. Three of the
+        four fixes were wasted work. What made the difference was checking
+        `main` and the other branch *before* writing, not after: reading
+        #1723's diff showed its generate-from-output approach beat the
+        rewrite-in-place one already written here, so that implementation was
+        dropped rather than defended, and only the part nothing else covered
+        was shipped. Two PRs opened this session were closed as genuinely
+        superseded, each verified by reading the survivor rather than assuming.
+      - >-
+        Chasing per-page compliance loses to the merge rate. `main` went red
+        three times in half an hour on the PRODUCT_PLAYBOOK 5b no-SLA clause:
+        #1731 fixed 20 pages, #1763 fixed 8 more that landed after it, and 2
+        more were already uncovered by the time that merged. A calculator
+        lands here most days, so the sweep can never catch up and each sweep
+        conflicts with the open branches editing those same product files.
+        Injecting the clause at build time -- only where the page does not
+        already word it itself -- ends the recurrence, which is the same
+        reasoning the nav chrome already used and which a fourth session
+        reached independently.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed two blind spots in the one-Pages-deployer invariant #1735 added.
+        It matched the literal string `actions/deploy-pages`, so a workflow
+        deploying with `peaceiris/actions-gh-pages` or
+        `JamesIves/github-pages-deploy-action` -- the same single Pages site
+        reached by a different name, and both already listed in
+        `PUBLISH_ACTIONS` -- was invisible to it, and the race #1735 had just
+        resolved could come back with nothing turning red. It also read only
+        `vars.*`, so two deploys sharing a `secrets.X != ''` gate were reported
+        as ungated: the right verdict for the wrong reason, with a message
+        telling the reader to add a gate both workflows already had. Both
+        reproduced against `main` first, then fixed. A test now asserts that
+        every Pages-deploying action `PUBLISH_ACTIONS` recognises is one the
+        invariant checks, so the two lists cannot drift apart again.
+      - >-
+        Learned what this fleet's cadence costs when the overlap gate is
+        skipped, by paying it three times in one session. Set out to build the
+        Pages hub, found #1718 already ahead mid-run, and discarded a complete
+        working builder rather than open a fourth competing PR. Rewrote the
+        work as a consolidation of the duplicate publishers -- and #1735 landed
+        that, with an equivalent invariant, before it could merge. Rewrote
+        again as three doc and guard fixes; by the next fetch `main` had fixed
+        the docs, the committed conflict markers in this ledger and in
+        `cut-list-optimizer/VENTURE.yaml`, and three separate calculators
+        missing their no-SLA clause. Four independent Pages hubs were written
+        for the same ~30 calculators on 2026-08-26 (#1718, #1723, #1724, and
+        this session's discarded first attempt). What shipped here is only what
+        `main` genuinely still lacked, re-checked against a fresh fetch
+        immediately before pushing rather than asserted from an earlier read.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Consolidated two implementations of the one-Pages-deployer invariant
+        that ended up on `main` together, and fixed a hole in how it was wired
+        in. #1735's `check_single_pages_deployer` (hardened by #1762) and
+        #1776's `check_one_origin_per_gate` both enforce the same rule, and both
+        defined a module-level `PAGES_DEPLOY_ACTIONS`, so the later assignment
+        silently rebound the earlier one: #1776's function was quietly matching
+        three actions its own docstring said it did not. Git merged the two
+        cleanly because they never touched the same lines. Kept the more capable
+        implementation (three Pages actions, `vars.` and `secrets.`, dot and
+        bracket syntax), folded #1776's incident docstring and its two unique
+        test shapes into it, and deleted the duplicate.
+      - >-
+        Found and fixed a live hole while consolidating: the conflict check sat
+        inside `main()`'s `--check` branch, below an early-returning
+        `if args.write:` -- so `--write` never ran it, while the comment directly
+        above claimed "re-running with --write must not be able to bless it".
+        A conflicting surface could be laundered by rewriting the snapshot,
+        which is the one escape the check exists to close. Moved it ahead of
+        both branches. Reproduced the failure against `main`'s code first (the
+        new test fails there, passes on the fix) rather than asserting it.
+      - >-
+        Learned that merging into a fast-moving `main` can produce a semantic
+        collision with no textual conflict. This one was created by merging
+        #1762 -- a PR whose whole subject was duplicate Pages publishers -- into
+        a `main` that had meanwhile grown a second copy of that PR's own check.
+        Neither `--check`, `validate_workflows.py`, nor the test suites noticed:
+        every test passed, because each function was tested against itself. The
+        tell was reading the merged file rather than trusting the green run.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added four checks to the Pages artifact check that the version on main
+        did not have, and one assertion to the browser journey. Reachability
+        both ways (a product that ships, resolves every link and appears in a
+        sitemap while carrying no hub link is unreachable, and it is the only
+        failure in this class that is completely silent), the required
+        no-warranty disclaimer on every product page and the hub, leaked test
+        payload and repo bookkeeping, and a product-count floor for a discovery
+        collapse. Also widened module-specifier matching to both quote styles
+        and dynamic `import()`: the double-quote-only pattern could not see
+        `from './calc.mjs'`, so a calculator could lose its module and still
+        pass every check.
+      - >-
+        The journey gained the assertion it lacked: change an input and require
+        the output to move. `the tool computes a figure` passed whether or not
+        the arithmetic ran, because every tool ships worked-example defaults and
+        shows money from load. A tool whose calc.mjs throws renders its form,
+        shows its defaults, satisfies every static check, and is useless to a
+        visitor. Verified on 58 products / 244 pages: 128 unit tests, 21 of 21
+        journey checks, four calculators driven, zero console errors, and four
+        regressions injected into a real build each caught.
+      - >-
+        A false positive worth recording, because of how it was found. The
+        reachability check scraped `data-tool` from the whole hub document, and
+        a concurrent session added an offline widget that builds hub cards by
+        string concatenation -- so the hub's own inline script contains the
+        literal `data-tool="' + slug + '"`. The check read that as a link to a
+        product of that name and failed the build on a healthy site. A hub link
+        is markup and script is not, so the scrape now strips script blocks
+        first. None of the synthetic fixtures had a script in the hub; only
+        building the real site caught it, which is the argument for checking the
+        artifact rather than the sources restated against my own check.
+      - >-
+        Learned that the duplication rate on this surface is now the dominant
+        cost, and that it is a scheduling problem rather than a quality one. In
+        about an hour main accumulated two Pages builders, three artifact
+        checkers and two browser journeys, plus a fourth builder an earlier
+        session had already discarded. Every one was competent. Sessions
+        correctly pick the same highest-value gap because DIRECTION.md says
+        deploy-first, then cannot see each other until merge. Two of this
+        session's own deliverables were superseded mid-run and dropped rather
+        than defended -- a separate-variable fix for the two-workflow Pages
+        deploy race (main removed the second deploy job outright, which is
+        better) and a collision guard (main's `check_single_pages_deployer` is
+        equivalent with wider tests). Dropping both was cheaper than arguing for
+        them, but the cheapest fix is upstream: fewer concurrent sessions aimed
+        at one surface, or a claim mechanism before work starts. Five merges of
+        main were needed to land a four-file change.
+    mrr_end: null
+  - venture: trade-bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped save-and-share across all 36 trade bid calculators (#1774,
+        #1783): the whole form is kept in the visitor's own browser as they
+        type, "Copy bid link" reproduces a bid from a URL anywhere, and "Start
+        a fresh bid" clears it. Every one of these tools previously opened to an
+        empty form, so a contractor pricing five jobs a week retyped their wage,
+        burden, overhead, markup and every material rate each time, and closing
+        the tab lost the bid. That is the structural reason a pricing tool gets
+        used once; return usage was not merely low here, it was impossible.
+      - >-
+        Built it as a spec-driven module whose field list is passed in from the
+        page rather than kept in the module, because the failure this repo has
+        already shipped is the other way round -- a share.mjs with its own
+        hand-written allowlist, a form that grew past it, and a link that
+        silently dropped two fields so the recipient priced a different job.
+        page.test.mjs now fails if the form and the link ever disagree, and that
+        guard was checked by injecting the drift rather than assumed to work.
+      - >-
+        Learned that a bid link is a rate sheet. It carries wage, burden,
+        overhead and target margin, and the address bar does not say so -- a
+        contractor could paste one to the customer they are bidding. The
+        disclosure beside the button and in the privacy note is pinned by tests
+        in every venture; it is a guardrail, not copy.
+      - >-
+        Learned the same concurrency cost the previous entry names, from the
+        other side. Main moved 61 commits across four fetches during the run and
+        added 24 more bid calculators, five of which arrived needing the wiring
+        after it was already written -- one landing in the same minute as the
+        merge, which is why a second PR was needed. Nothing was dropped or
+        argued over this time: each arrival was integrated and wired, and the
+        five disclaimer conflicts all resolved by keeping both sides. The
+        durable fix is a CI gate requiring share.mjs in every
+        ventures/*-bid-calculator. It was deliberately not added: with ~380 open
+        PRs it would turn the in-flight calculator PRs red mid-review. Worth
+        revisiting when the backlog is thinner, or scoped to calculators added
+        after a cutoff so it binds new work without breaking work in flight.
+      - >-
+        Also restored a red Portfolio Pages on main. Four calculators had
+        shipped without the no-SLA clause, failing the build test on eight
+        pages; confirmed red on origin/main in a clean worktree first, then
+        resolved to main's own wording when a concurrent session fixed it
+        differently, so the site states the clause once rather than twice.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added `platform/ci/check_duplicate_symbols.py`, which fails a pull
+        request whose Python defines the same top-level name twice. This is the
+        follow-up flagged on #1787 rather than bundled into it, and it catches
+        that PR's own defect mechanically: run against the commit before #1787
+        it reports "`PAGES_DEPLOY_ACTIONS` is defined at line 299 and again at
+        406", which is exactly what took a manual read of the merged file to
+        find. Python rebinds silently, so two sessions writing the same constant
+        into one module is invisible to git (no shared lines, no conflict), to
+        the interpreter, and to the test suites (each function was tested
+        against itself and each passed).
+      - >-
+        Learned the check needs to be narrow to be worth having. Scoped to
+        top-level `def`/`class` and UPPER_CASE constants only: a `def` inside
+        `if TYPE_CHECKING:` or an `except ImportError:` fallback is a deliberate
+        alternative binding, and flagging those would make it a check people
+        learn to skip. Against all 349 tracked Python files it reports zero,
+        so it lands as a hard failure with no cleanup debt. Nine of its 24 tests
+        are false-positive cases rather than detections, because a check that
+        runs unfiltered over every Python file does more harm wrong than absent.
+      - >-
+        Python-only on purpose, and verified rather than assumed: a second
+        top-level `const X` in an ES module is a parse-time SyntaxError
+        ("Identifier 'X' has already been declared"), so `platform/pages/
+        build.mjs` -- the other file this fleet collides on -- cannot reach
+        `main` carrying one. Also noticed in passing, and deliberately not fixed
+        here to keep the change to its subject:
+        `portfolio/pipeline/probes/validate_probe_index.py` has an invalid
+        escape sequence `'\.'`, a DeprecationWarning on 3.12 that becomes a
+        SyntaxError on 3.14.
+    mrr_end: null
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the cross-tool handoff (#1725). The comparison page now carries
+        the item into the winning channel's own calculator -- price, postage,
+        cost of goods, packaging -- instead of ending at a ranking the reader
+        would have to retype to act on. eBay and Etsy today, being the two whose
+        calculators already read `location.hash`; a channel gains a link the day
+        its calculator learns to. A channel with no prefillable calculator gets
+        no link rather than one that would quietly show its own defaults.
+      - >-
+        The mapping is checked against the other side rather than restated.
+        `itemCost` here is `costOfGoods` on eBay and `materialCost` on Etsy, and
+        a name the receiver does not recognise is dropped silently rather than
+        raising -- the reader then prices an item they never entered. So
+        `handoff.test.mjs` imports each target's own field list from that
+        venture and fails here if a rename lands there. Writing the test first
+        caught a live instance: `Number('')` is 0, so a blank field would have
+        arrived as an explicit zero and overridden the target's default.
+      - >-
+        A cost the target has no field for is summed, not dropped. Etsy has no
+        packaging input because packaging is part of what it calls materials, so
+        it folds into `materialCost`; dropping it would have understated cost
+        and overstated profit on arrival.
+      - >-
+        Learned the same duplication lesson the portfolio-pages entry above
+        records, from the other side, and acted on it. Four separate pieces of
+        this session's work were superseded mid-run by other sessions -- a Pages
+        builder, cross-page navigation, a no-SLA clause fix, and a deploy-race
+        guard -- and each was dropped rather than defended after a merits
+        comparison. Checking open PRs at the start caught none of them: all four
+        arrived as merges, not as PRs. What finally landed was chosen by asking
+        which venture the swarm was *not* touching. `where-to-sell-calculator`
+        had one commit in the last hundred against `ebay-fee-calculator`'s 148,
+        and the change went in first try. Picking by contention rather than by
+        obviousness is the cheap half of the fix a claim mechanism would do
+        properly.
+      - >-
+        Independently verified the site that the pending owner flip will
+        publish, which nothing had done -- the suites operate on markup strings.
+        Served the built artifact under the real `/monorepo-projects/` prefix
+        and crawled all 37 landing pages in Chromium: every one loads, has an
+        h1, no page errors, no failed requests. The handoff itself was driven
+        end to end there too: a $72 item costing $18 plus $1.75 packaging
+        arrives on eBay with costOfGoods 18 and computes $33.01, and on Etsy
+        with materialCost 19.75.
+    mrr_end: null
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Deepened the Walmart Marketplace calculator with hold vs permanent
+        match vs a time-boxed promo after Buy Box take. The existing match
+        field held take fixed, so a seller could see unit profit at $21.99
+        and still not know whether winning more of the Buy Box covered the
+        thinner leftover. Defaults ($24.99 list, $21.99 match, 60 completed
+        sales at 40% hold take, 70% match take, 10-day promo at 80%):
+        permanently matching keeps $121.49 more ($640.48 vs $518.99). A
+        20-day promo flips ahead of the permanent match. A 50% match take
+        flips the leftover back to holding. 89/89 tests; Chromium CDP
+        verified defaults plus both flips on the dedicated page and the
+        same leftover on index.html. Distinct from the unit-profit match,
+        2-day take, returns, aged leftover, and Connect ads. No open Walmart
+        feature PR at selection. Hosting still waits on deploy-settings.
+    mrr_end: null
+  - venture: janitorial-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Backfilled record: the venture shipped in #1034 on 2026-08-24 and no
+        ledger entry was ever written for it. The entry drafted alongside it
+        was dropped deliberately, not lost: a later session remeshed that
+        branch onto current main and said so in its review on #1045 ("drops
+        the ledger-only YAML from the original branch"), keeping the PR to the
+        test change. That is a defensible call for the PR and it left nobody
+        holding the record, so 405 entries later the file had zero mentions of
+        the venture — worth noting as a failure mode of remeshing a branch: the
+        parts that are not the headline change need a new home, not just
+        removal. A free browser-local bid calculator for
+        commercial cleaning contractors that prices a recurring janitorial
+        contract from per-space production rates (cleanable sq ft ÷ the rate a
+        crew actually hits) rather than the blended price-per-square-foot rule
+        the trade is taught. In the shipped default an 8,000 sq ft office has
+        restrooms at 7% of floor area and 21% of labor hours, which is the
+        whole argument for the model. Payroll burden is a required, explained
+        input for the same reason: $17/hr costs about $22 loaded. Reports
+        price per sq ft, effective hourly rate, the labor split, and the
+        walk-away price; a proposed price is scored against the same cost base
+        and flagged when under water. Free, no payment rails, disclaimers,
+        opt-out local usage counters. It has since gained day-porter shifts,
+        project work, periodic services, save-and-share, and three SEO landing
+        pages, reaching 147 tests.
+      - >-
+        Finding worth generalising, and the reason this backfill is worth
+        writing rather than skipping: **unit tests and a structural page test
+        both passed on a page that was unusable.** Driving the served page in
+        Chromium before #1034 opened caught two defects neither could see. The
+        area-row inputs inherited `font-size: 0` from their visually-hidden
+        labels, so everything a contractor typed was invisible — the value was
+        in the DOM, every id resolved, the arithmetic was right. And the
+        `<datalist>`-backed space-name field rejected keyboard input outright:
+        keydown fired on the correct element and the value never changed. Both
+        are silent; both survive every test that does not actually type into
+        the page. #1023 established that a static product can be dead while
+        its unit tests stay green. This narrows it: a page can parse, load,
+        and resolve every element lookup and still not be usable.
+      - >-
+        Second-order finding from #1045, two days later: **the guard against
+        silent failure failed silently itself.** `page.test.mjs` was added
+        with a parser that walks raw-text elements the way a browser does,
+        precisely so an unclosed `<textarea>`/`<script>`/`<style>` could not
+        hide the rest of the document from it. As the file grew to 234 lines
+        across many sessions, that parse was replaced with two plain regexes
+        over the raw source — which is the exact blind spot the suite existed
+        to close, since the swallowed tags still look present to a regex. No
+        test failed when that happened, because a weakened guard passes. It
+        was restored in #1045. The lesson for the other calculators now
+        copying this pattern: a structural check needs its own negative test
+        (assert it fails on deliberately broken input), or it will be
+        loosened by accident and nothing will say so.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a portfolio-wide privacy guard and fixed the five ventures it
+        caught (#1843). Every footer offers the usage counter's opt-out "with
+        Do Not Track / Global Privacy Control", and GPC is a legally
+        recognised opt-out signal under CCPA and several state privacy laws.
+        Of 155 usage modules, 150 honoured both signals and 23 had a test
+        either way; 3pl-quote-normalizer, invoice-payment-terms-calculator,
+        mobile-detailing-bid-calculator, shopify-a11y-evidence and
+        vendor-rate-break-even honoured neither and counted visitors who had
+        signalled opt-out. All five now call the same guard the other 150 use.
+      - >-
+        Finding worth generalising: **the gap opened because the test was
+        boilerplate.** Six near-identical lines per venture is exactly the
+        test that gets skipped, and 132 of 155 ventures skipped it. Ninety-five
+        percent compliance with no enforcement is not a safe number — it is
+        five silent violations waiting for someone to count. The fix that
+        holds is one central guard in the shape of `platform/pages/clauses.mjs`,
+        not another line in a per-venture checklist, and it covers a venture
+        that has no workflow of its own yet.
+      - >-
+        Second finding, on how to write such a guard: **it must be behavioural,
+        and it must refuse to pass what it could not drive.** Grepping for
+        `globalPrivacyControl` proves nothing — a module can read it into a
+        variable it never branches on. But calling each recorder is not enough
+        either: a recorder the driver fails to reach writes nothing under a
+        signal and looks identical to one that obeys. So a control run with no
+        signal set decides whether the module was executed at all, and anything
+        that writes nothing there is reported `undrivable` rather than passed.
+        Four modules needed a factory unwrap, a `window` global, or their own
+        allowlisted event names before they could be driven honestly.
+      - >-
+        Third finding, the one that nearly caused a wrong fix: **a probe can
+        manufacture the bug it reports.** The driver first passed a probe
+        string as a third positional argument; in modules whose third parameter
+        is a navigator override rather than an event name, that string has no
+        `globalPrivacyControl` property, so the guard under test was bypassed
+        and the module read as failing. `consent-change-record` and
+        `job-margin-variance` were both accused this way and are both correct.
+        Two arguments is as far as the signatures across ventures agree.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged four stale PRs after repair (#1182, #1560, #1516, #1500) and
+        restored the red `portfolio-validate` job on main (#1842): the
+        publish-surface snapshot had gone stale when two test-only workflows
+        landed without an entry, so the shared job was red for every PR in the
+        repo regardless of its own change.
+      - >-
+        **GitHub Actions has been failing repo-wide to allocate runners since
+        between 22:10 and 23:25 UTC on 2026-08-26.** amazon-fba-calculator CI
+        run 79 (22:09:34) succeeded in 26s; run 80 (23:25:21) failed in 6s, and
+        every run since across all 210 workflows dies in 3-6s with `runner_id:
+        0`, an empty check-run output and a 404 on log download. This is not a
+        test failure. Owner action is needed (Actions spending limit or
+        billing); an agent cannot fix it. Reported on #1842 and pushed to the
+        owner. Until it clears, every merge is landing unverified, so verify
+        locally with the commands the workflows run and say in the PR what was
+        run. `AGENTS.md` already warns that bot PRs using `GITHUB_TOKEN` show
+        *zero* checks, which is why an outage this broad reads as normal.
+      - >-
+        Finding worth generalising, on triaging the 90-PR backlog: **almost all
+        of it is superseded, and neither the PR title nor `supersede_check.py`
+        will tell you.** main ran from #1042 to #1839 while these branches sat,
+        absorbing the same features from sibling branches. `supersede_check.py`
+        is deliberately textual, so a feature reimplemented on main under a
+        different filename or with reworded comments still reads NOT
+        SUPERSEDED — correct as a bias against destroying work, useless as a
+        triage signal here. What worked: merge main into the branch favouring
+        main on every conflict, then diff against main. What survives is the
+        only content main lacks. Read that as a signal, never as a merge —
+        on a stale base it happily reverts newer main files, and it produced
+        broken code on #1099 and would have reverted #1843 through #1492.
+      - >-
+        Applying it: 1 of 15 triaged branches carried mergeable work as-is.
+        The wins were not the headline features, which had all landed — they
+        were the leftovers: an in-page section main exposed only on a separate
+        landing page (#1560), a `blendedStorageRate()` that existed on main
+        with no caller so the calculator priced a Q4 stay at the January rate
+        (#1516), an input label, one regression test. The repair that pays is
+        reset-every-conflict-to-main and port the leftover by hand.
+      - >-
+        Bug found while doing that, worth its own note: #1516's test asserting
+        no `calculateListing(readInput())` survives anywhere on the page caught
+        a third call site nobody was looking at — `decisionSummary()`, behind
+        "Copy decision summary". It would have pasted a profit disagreeing with
+        the number on screen. A negative assertion over the whole script found
+        what a positive assertion on the two known call sites could not.
     mrr_end: null

@@ -4,14 +4,17 @@ If you are comparing S3-compatible storage providers, this browser-local calcula
 
 Open `index.html` directly, or serve this directory with any static HTTP server. Enter the rates from each provider's current price sheet; the calculator intentionally does not fetch or endorse prices.
 
-**After using this, you can now** see which quoted sheet is cheaper on *your* stored GB, requests, and outbound transfer — and the cache-hit rate at which a CDN still loses to origin-only — which used to take a spreadsheet plus two pricing pages.
+**After using this, you can now** see which quoted sheet is cheaper on *your* stored GB, requests, and outbound transfer — the cache-hit rate at which a CDN still loses to origin-only — whether a second-region replica still beats paying the cross-region pull every month — and the restore volume at which infrequent / archive storage still loses to the standard class — which used to take a spreadsheet plus two pricing pages.
 
 ## What it does
 
 - Compares two monthly scenarios using storage, request, and egress charges.
 - Shows the cheaper option, annualized savings, savings percentage, and a break-even outbound-transfer volume when the crossing is a positive GB figure.
+- Copies a short decision summary for a migration ticket (totals and the cheaper option only — no stored-GB, request, or rate-sheet inputs).
 - Downloads a portable JSON review record with the workload and calculated totals, while omitting provider rate inputs.
 - Compares origin-only egress against a CDN on the same download volume (`does-a-cdn-cut-s3-egress.html`), including miss-fetch cost and the hit-rate floor.
+- Compares keep-pulling a dataset across regions against copying it once (`does-a-replica-beat-cross-region-pull.html`), including the seed, change-sync, payback months, and the pull volume where they match.
+- Compares keeping a bucket on the standard class against infrequent / archive storage after retrieve fees (`does-infrequent-access-still-beat-standard.html`), including the restore-GB ceiling.
 - Runs without an account, API key, network call, or paid dependency.
 - Includes crawler-readable metadata, JSON-LD, sitemap, and `robots.txt`.
 
@@ -27,13 +30,13 @@ Then open `http://localhost:8877`.
 
 ## Research And Business Case
 
-Target users are small SaaS teams, agencies, and self-hosters moving media, exports, or backups between object-storage providers. Their painful question is not the advertised storage rate; it is whether outbound transfer and request charges erase the apparent saving. Existing provider calculators are vendor-specific, while generic cloud calculators are broad and often require a provider selection before showing the arithmetic. This tool is provider-neutral, transparent, local-first, and searchable for “how much will S3 egress cost?” and “does CloudFront cut S3 egress?”
+Target users are small SaaS teams, agencies, and self-hosters moving media, exports, or backups between object-storage providers. Their painful question is not the advertised storage rate; it is whether outbound transfer and request charges erase the apparent saving. Existing provider calculators are vendor-specific, while generic cloud calculators are broad and often require a provider selection before showing the arithmetic. This tool is provider-neutral, transparent, local-first, and searchable for “how much will S3 egress cost?”, “does CloudFront cut S3 egress?”, and “S3 infrequent access restore cost”.
 
 The product can later support saved local scenarios, provider price-sheet imports, or a user-supplied API key for optional document parsing. It does not need those features to deliver value today. Hosting is static and marginal cost is zero. A future paid model could sell team scenario history or provider-maintained rate imports, but there is no paywall or payment collection in this version.
 
 The main risks are stale user-supplied rates and confusing estimates with an invoice. The interface says to use a current price sheet and labels the result as a comparison, not a quote or financial/technical determination. No customer data leaves the browser.
 
-This is a different product from `egress-window-bid-calculator` (a residential egress-window install bid). Overlap checked 2026-08-26: no open PR besides #1409 shipped a cloud egress calculator; #1409 is the source of the two-provider core (conflicted, validate/test red). This branch salvages that core onto current `main` and adds the CDN extra.
+This is a different product from `egress-window-bid-calculator` (a residential egress-window install bid). Overlap checked 2026-08-26: replica vs cross-region pull landed on `main` during this run (`compareReplica`); do not rebuild it. #1409 and #1267 are older cores of the two-provider calculator (leave them open). Distinct from the CDN extra (internet downloads) and the replica extra (a second copy). No open PR covers infrequent-access restore vs standard.
 
 ## Privacy And Usage
 

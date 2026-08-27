@@ -9,6 +9,7 @@ from .iban import inspect_payment_iban, looks_like_complete_iban, normalize_iban
 from .means import inspect_payment_means, looks_like_known_means, normalize_means
 from .period import inspect_invoice_period, parse_iso_date
 from .reference import inspect_commercial_references, looks_like_placeholder, normalize_reference
+from .terms import inspect_payment_terms, parse_terms_days
 from .remittance import inspect_payment_remittance, looks_like_structured_rf, normalize_remittance
 from .tax import inspect_tax_exemption, looks_like_exemption_category, normalize_tax_category
 from .vat import inspect_party_vat, looks_like_complete_vat, normalize_vat
@@ -26,6 +27,8 @@ __all__ = [
     "inspect_payment_iban",
     "inspect_payment_means",
     "inspect_payment_remittance",
+    "inspect_payment_terms",
+    "parse_terms_days",
     "looks_like_known_means",
     "inspect_tax_breakdown",
     "inspect_tax_exemption",

@@ -90,6 +90,25 @@ Keep the note to one line. If a number moved, say what you think moved it; if
 it didn't, say that — "listed for two weeks, still zero, stopping work on it"
 is a genuinely useful row and costs nothing to write.
 
+## Check it before you push
+
+```
+python3 portfolio/usage/validate_usage.py
+```
+
+It parses the file and enforces the two rules above: every product needs a
+`surface` and at least one reading, every reading needs a date, numeric (or
+null) signals, and a note, and no signal name may look like a person rather
+than an event. One product may appear once per surface it ships on — a CLI and
+a browser page are separate things to measure — but two rows for the same
+surface split one history in half, so that is an error.
+
+`portfolio-validate` runs this on every push and pull request touching
+`portfolio/usage/`. It exists because nothing read this file in CI: a merge
+resolution in #1387 left a stray blank line and a three-space `- slug:` under
+`products:`, the whole file stopped parsing as YAML, and it stayed that way
+with every check green.
+
 ## How to read it
 
 - **Any product with returning users outranks every candidate in

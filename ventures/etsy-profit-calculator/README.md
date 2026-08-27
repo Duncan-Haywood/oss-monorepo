@@ -24,6 +24,10 @@ visit, so the calculator keeps them:
   filled in, or send it to a partner or bookkeeper — opening the link shows
   exactly the numbers you configured. A link's values always take precedence
   over whatever a browser had saved.
+- **Copyable order summary.** **Copy order summary** writes a plain-text
+  fee breakdown — revenue, each fee line, cash invested, leftover, margin,
+  return on cash, and the target-margin price — so you can paste it into a
+  note or a buyer conversation without screenshotting the page.
 
 The link and the saved copy contain only the numbers you typed into the fee and
 cost fields. They never include anything else, and nothing is uploaded.
@@ -63,6 +67,10 @@ Enter a target margin to calculate the item price needed to reach it, then
 compare prices $10 below and above the current price. This turns a fee
 calculation into a quick pricing decision without uploading product data or
 relying on Etsy's changing fee schedule.
+
+You can also enter a target dollar profit per order. This is useful when labor,
+packing time, or a minimum return matters more than a percentage margin. Both
+targets use the same visible fee and cost assumptions as the order result.
 
 ## Is Etsy Plus worth it this month?
 
@@ -258,6 +266,16 @@ sale). One sale recovers the fee. Zero sales still cost $0.20 — $0.60
 a year at a four-month window. Charging $0.20 on every order
 overstates listing cost by $0.20 across those two sales, or $0.80
 across five. The page does not turn auto-renew on or off.
+
+## What price keeps a leftover I name?
+
+The order calculator already solves leftover at the price you typed,
+including a Target profit per order field under Reprice for a goal.
+[what-price-keeps-this-etsy-profit.html](what-price-keeps-this-etsy-profit.html)
+is the same `priceForProfit` arithmetic on its own landing. On the
+default $30 listing the current leftover is $21.23; the item price that
+keeps $20 is $28.65, $10 is $17.60, and $30 is $39.70. The page does
+not recommend a list price.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the calculator does.

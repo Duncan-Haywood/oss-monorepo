@@ -1,3 +1,5 @@
+import { displayAreaName } from './area-name.mjs';
+
 // Pure bid arithmetic for a commercial cleaning (janitorial) contract. No
 // network, no state: every rate, wage, and production figure is an input, so
 // the result stays a transparent calculation the contractor can check against
@@ -36,6 +38,29 @@ export const PRODUCTION_RATE_PRESETS = Object.freeze([
   { label: 'Stairwells', rate: 1500 },
 ]);
 
+// One-time project work that rides on the same bid — initial cleans, strip
+// and wax, carpet extraction. Rates are ballpark starter figures in cleanable
+// square feet per cleaner-hour, NOT a standard or a quote. "Passes" is coats
+// of finish or extra machine passes; hours = square feet ÷ rate × passes.
+export const PROJECT_RATE_PRESETS = Object.freeze([
+  { label: 'Strip & wax (VCT)', rate: 250, passes: 2 },
+  { label: 'Carpet extraction', rate: 300, passes: 1 },
+  { label: 'Initial deep clean', rate: 1500, passes: 1 },
+  { label: 'Post-construction clean', rate: 800, passes: 1 },
+  { label: 'Hard-floor machine scrub', rate: 2000, passes: 1 },
+]);
+
+// Common day-porter / attendant roles. These are priced as scheduled shifts,
+// not production rates — the customer is buying a person on site during
+// business hours, not a cleaned square-foot count.
+export const SHIFT_ROLE_PRESETS = Object.freeze([
+  { label: 'Day porter / lobby attendant' },
+  { label: 'Restroom attendant' },
+  { label: 'Floor walker / floater' },
+  { label: 'After-hours supervisor' },
+  { label: 'Mailroom / dock attendant' },
+]);
+
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
@@ -51,7 +76,14 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {Array<{name?: string, squareFeet: number, productionRate: number, cleaningsPerWeek: number}>} input.areas
  *   One row per distinct space type. Splitting the building this way is the
  *   whole point: a single blended rate hides the restroom labor that sinks
- *   underpriced bids.
+ *   underpriced bids. May be empty when the contract is shift-only.
+ * @param {Array<{name?: string, people: number, hoursPerShift: number, shiftsPerWeek: number, hourlyWage?: number|string}>} [input.shifts]
+ *   Optional day-porter / attendant rows. Priced as scheduled headcount, not
+ *   square feet: people × hours × shifts/week × 52/12. An omitted hourly
+ *   wage uses the contract cleaner wage.
+ * @param {number} [input.crewSize]         Cleaners available on each night-clean visit.
+ * @param {number} [input.shiftHours]       Hours available per cleaner on that visit.
+ * @param {number} [input.availableHoursPerCleaner] Alias for shiftHours used by the form.
  * @param {number} input.hourlyWage         What the cleaner is paid per hour.
  * @param {number} input.burdenRate         Payroll burden as a % on top of wage
  *   (employer taxes, workers' compensation, insurance, paid time off).
@@ -61,12 +93,25 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
  * @param {number} input.otherMonthly       Anything else billed to this job monthly.
  * @param {number} input.overheadRate       Business overhead as a % on direct cost.
  * @param {number} input.targetMargin       Net profit as a % of the final price.
+ * @param {number|null} [input.minimumMonthlyPrice] Optional floor for small or
+ *   inconvenient accounts. The target-margin price is used when it is higher.
+ * @param {Array<{name?: string, squareFeet: number, productionRate: number, passes?: number, materials?: number}>} [input.projects]
+ *   Optional one-time work (strip and wax, extraction, initial clean). Priced
+ *   with the same loaded wage, overhead, and margin as the monthly contract,
+ *   but invoiced once — not rolled into the recurring price.
+ * @param {Array<{name?: string, costPerOccurrence: number, occurrencesPerYear: number}>} [input.periodicServices]
+ *   Recurring lump work (quarterly floor care, twice-yearly extraction)
+ *   priced as cost × visits/year, then averaged into the monthly contract.
+ *   Distinct from `projects`, which are production-rate jobs invoiced once.
  * @param {number|null} input.proposedPrice Optional: a price already on the
  *   table, so the contractor can see the margin it actually leaves.
  */
 export function calculateBid(input) {
   const areasInput = Array.isArray(input.areas) ? input.areas : [];
-  if (areasInput.length === 0) throw new Error('Add at least one area to price');
+  const shiftsInput = Array.isArray(input.shifts) ? input.shifts : [];
+  if (areasInput.length === 0 && shiftsInput.length === 0) {
+    throw new Error('Add at least one area or day-porter shift to price');
+  }
 
   const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
   const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');
@@ -75,12 +120,26 @@ export function calculateBid(input) {
   const otherMonthly = number(input.otherMonthly ?? 0, 'Other monthly cost');
   const overheadRate = number(input.overheadRate ?? 0, 'Overhead');
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
+  const crewSize = number(input.crewSize ?? 1, 'Crew size', { allowZero: false });
+  const shiftHours = number(
+    input.availableHoursPerCleaner ?? input.shiftHours ?? 4,
+    'Available hours per cleaner',
+    { allowZero: false },
+  );
+  if (!Number.isInteger(crewSize)) throw new Error('Crew size must be a whole number');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
+
+  const hasMinimumPrice = input.minimumMonthlyPrice !== null
+    && input.minimumMonthlyPrice !== undefined
+    && input.minimumMonthlyPrice !== '';
+  const minimumMonthlyPrice = hasMinimumPrice
+    ? number(input.minimumMonthlyPrice, 'Minimum monthly price')
+    : null;
 
   const loadedWage = hourlyWage * (1 + burdenRate / 100);
 
   const areas = areasInput.map((area, index) => {
-    const label = area.name?.trim() || `Area ${index + 1}`;
+    const label = displayAreaName('', area.name, index);
     const squareFeet = number(area.squareFeet ?? 0, `${label}: cleanable square feet`);
     // A zero production rate would divide by zero and report a free clean, so
     // it is rejected rather than defaulted — the contractor has to state how
@@ -100,43 +159,147 @@ export function calculateBid(input) {
     };
   });
 
+  const shifts = shiftsInput.map((shift, index) => {
+    const label = shift.name?.trim() || `Shift ${index + 1}`;
+    const people = number(shift.people ?? 0, `${label}: people`);
+    const hoursPerShift = number(shift.hoursPerShift ?? 0, `${label}: hours per shift`);
+    const shiftsPerWeek = number(shift.shiftsPerWeek ?? 0, `${label}: shifts per week`);
+    const hasOwnWage = shift.hourlyWage !== null && shift.hourlyWage !== undefined && shift.hourlyWage !== '';
+    const shiftWage = hasOwnWage ? number(shift.hourlyWage, `${label}: hourly wage`) : hourlyWage;
+    const shiftLoadedWage = shiftWage * (1 + burdenRate / 100);
+    // The customer is buying coverage, not a production rate: one person on
+    // an 8-hour weekday shift is 8 × 5 × 52/12 hours a month, whether they
+    // spend that time on restrooms, trash, or standing in the lobby.
+    const monthlyHours = people * hoursPerShift * shiftsPerWeek * WEEKS_PER_MONTH;
+    return {
+      name: label,
+      people,
+      hoursPerShift,
+      shiftsPerWeek,
+      hourlyWage: shiftWage,
+      loadedWage: shiftLoadedWage,
+      monthlyHours,
+      monthlyLaborCost: monthlyHours * shiftLoadedWage,
+    };
+  });
+
   const totalSquareFeet = areas.reduce((sum, a) => sum + a.squareFeet, 0);
-  const monthlyHours = areas.reduce((sum, a) => sum + a.monthlyHours, 0);
-  const monthlyLaborCost = monthlyHours * loadedWage;
+  const areaMonthlyHours = areas.reduce((sum, a) => sum + a.monthlyHours, 0);
+  const shiftMonthlyHours = shifts.reduce((sum, s) => sum + s.monthlyHours, 0);
+  const monthlyHours = areaMonthlyHours + shiftMonthlyHours;
+  const areaMonthlyLaborCost = areaMonthlyHours * loadedWage;
+  const shiftMonthlyLaborCost = shifts.reduce((sum, s) => sum + s.monthlyLaborCost, 0);
+  const monthlyLaborCost = areaMonthlyLaborCost + shiftMonthlyLaborCost;
   const monthlySupplies = totalSquareFeet * suppliesPerSqFtMonth;
+
+  const periodicServices = (Array.isArray(input.periodicServices) ? input.periodicServices : []).map((service, index) => {
+    const name = service.name?.trim() || `Periodic service ${index + 1}`;
+    const costPerOccurrence = number(service.costPerOccurrence ?? 0, `${name}: cost per occurrence`);
+    const occurrencesPerYear = number(service.occurrencesPerYear ?? 0, `${name}: occurrences per year`);
+    return {
+      name,
+      costPerOccurrence,
+      occurrencesPerYear,
+      annualCost: costPerOccurrence * occurrencesPerYear,
+    };
+  });
+  const annualPeriodicCost = periodicServices.reduce((sum, service) => sum + service.annualCost, 0);
+  const monthlyPeriodicCost = annualPeriodicCost / 12;
 
   // Overhead is a markup on the direct cost of servicing this job, which is
   // how a small contractor recovers office, admin, and sales cost. It is
   // deliberately not applied to itself or to profit.
-  const directCost = monthlyLaborCost + monthlySupplies + equipmentMonthly + otherMonthly;
+  const directCost = monthlyLaborCost + monthlySupplies + equipmentMonthly + otherMonthly + monthlyPeriodicCost;
   const monthlyOverhead = directCost * overheadRate / 100;
   const monthlyCost = directCost + monthlyOverhead;
 
   // Margin is a share of price, not a markup on cost, because that is how the
   // customer's number is quoted and how the contractor's P&L reads it.
-  const monthlyPrice = monthlyCost / (1 - targetMargin / 100);
+  const targetMarginPrice = monthlyCost / (1 - targetMargin / 100);
+  const monthlyPrice = minimumMonthlyPrice === null
+    ? targetMarginPrice
+    : Math.max(targetMarginPrice, minimumMonthlyPrice);
   const monthlyProfit = monthlyPrice - monthlyCost;
 
   const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
+  const projectsInput = Array.isArray(input.projects) ? input.projects : [];
+  const projects = projectsInput.map((project, index) => {
+    const label = project.name?.trim() || `Project ${index + 1}`;
+    const squareFeet = number(project.squareFeet ?? 0, `${label}: project square feet`);
+    const productionRate = number(project.productionRate ?? 0, `${label}: project production rate`, { allowZero: false });
+    const passes = number(project.passes ?? 1, `${label}: passes`, { min: 0 });
+    const materials = number(project.materials ?? 0, `${label}: project materials`);
+    const hours = productionRate === 0 ? 0 : (squareFeet / productionRate) * passes;
+    const laborCost = hours * loadedWage;
+    const directCost = laborCost + materials;
+    const overhead = directCost * overheadRate / 100;
+    const cost = directCost + overhead;
+    const price = cost / (1 - targetMargin / 100);
+    return {
+      name: label,
+      squareFeet,
+      productionRate,
+      passes,
+      hours,
+      laborCost,
+      materials,
+      overhead,
+      cost,
+      price,
+      profit: price - cost,
+    };
+  });
+
+  const projectHours = projects.reduce((sum, project) => sum + project.hours, 0);
+  const projectLaborCost = projects.reduce((sum, project) => sum + project.laborCost, 0);
+  const projectMaterials = projects.reduce((sum, project) => sum + project.materials, 0);
+  const projectOverhead = projects.reduce((sum, project) => sum + project.overhead, 0);
+  const projectCost = projects.reduce((sum, project) => sum + project.cost, 0);
+  const projectPrice = projects.reduce((sum, project) => sum + project.price, 0);
+  const projectProfit = projectPrice - projectCost;
+  const share = hours => (monthlyHours === 0 ? 0 : hours / monthlyHours * 100);
+  const hoursPerVisitTotal = areas.reduce((sum, a) => sum + (a.cleaningsPerWeek > 0 ? a.hoursPerCleaning : 0), 0);
+  const visitCapacityHours = crewSize * shiftHours;
+  const visitUtilization = hoursPerVisitTotal === 0 || visitCapacityHours === 0
+    ? 0
+    : hoursPerVisitTotal / visitCapacityHours * 100;
+
   return {
     areas: areas.map(area => ({
       ...area,
-      // Share of total labor hours. This is the line that shows a contractor
-      // that 8% of the floor area is eating 30% of the labor.
-      hoursShare: monthlyHours === 0 ? 0 : area.monthlyHours / monthlyHours * 100,
+      // Share of total labor hours (production + shifts). This is the line
+      // that shows a contractor that 8% of the floor area is eating 30% of
+      // the labor — and that a day porter can dwarf both.
+      hoursShare: share(area.monthlyHours),
+    })),
+    shifts: shifts.map(shift => ({
+      ...shift,
+      hoursShare: share(shift.monthlyHours),
     })),
     totalSquareFeet,
     loadedWage,
-    hoursPerVisitTotal: areas.reduce((sum, a) => sum + (a.cleaningsPerWeek > 0 ? a.hoursPerCleaning : 0), 0),
+    hoursPerVisitTotal,
+    crewSize,
+    shiftHours,
+    visitCapacityHours,
+    visitUtilization,
+    visitOverCapacity: hoursPerVisitTotal > visitCapacityHours,
+    areaMonthlyHours,
+    shiftMonthlyHours,
     monthlyHours,
+    areaMonthlyLaborCost,
+    shiftMonthlyLaborCost,
     monthlyLaborCost,
     monthlySupplies,
     equipmentMonthly,
     otherMonthly,
     monthlyOverhead,
     monthlyCost,
+    targetMarginPrice,
+    minimumMonthlyPrice,
+    minimumPriceApplied: minimumMonthlyPrice !== null && minimumMonthlyPrice > targetMarginPrice,
     monthlyPrice,
     monthlyProfit,
     annualPrice: monthlyPrice * 12,
@@ -156,7 +319,97 @@ export function calculateBid(input) {
       // A bid below break-even is the failure this tool exists to catch.
       belowBreakEven: proposedPrice < monthlyCost,
     },
+    periodicServices,
+    monthlyPeriodicCost,
+    annualPeriodicCost,
+    hasPeriodicWork: annualPeriodicCost > 0,
+    projects,
+    projectHours,
+    projectLaborCost,
+    projectMaterials,
+    projectOverhead,
+    projectCost,
+    projectPrice,
+    projectProfit,
+    // One-time work is invoiced with the first month, not amortized into the
+    // recurring price — mixing them is how a contractor underprices the
+    // contract for the remaining eleven months.
+    firstMonthInvoice: monthlyPrice + projectPrice,
+    breakEvenFirstMonth: monthlyCost + projectCost,
+    hasProjectWork: projectHours > 0 || projectMaterials > 0,
   };
+}
+
+function money(value) {
+  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Plain-text bid draft a contractor can paste into a proposal. One-time
+ * project work is listed separately from the monthly contract so the first
+ * invoice is not mistaken for the recurring price.
+ */
+export function formatBidSummary(result) {
+  const spaces = result.areas
+    .filter(area => area.squareFeet > 0 && area.cleaningsPerWeek > 0)
+    .map(area => `- ${area.name}: ${area.squareFeet.toLocaleString('en-US')} sq ft, ${area.cleaningsPerWeek}x/week`)
+    .join('\n');
+  const porterLines = (result.shifts || [])
+    .filter(shift => shift.monthlyHours > 0)
+    .map(shift => `- ${shift.name}: ${shift.people} × ${shift.hoursPerShift} h × ${shift.shiftsPerWeek}/week (${shift.monthlyHours.toFixed(1)} h/month)`)
+    .join('\n');
+  const porterBlock = porterLines
+    ? [
+        '',
+        'DAY PORTER / SCHEDULED SHIFTS',
+        porterLines,
+        `Day-porter hours per month: ${result.shiftMonthlyHours.toFixed(1)}`,
+      ]
+    : [];
+  const projectLines = (result.projects || [])
+    .filter(project => project.squareFeet > 0 || project.materials > 0)
+    .map(project => `- ${project.name}: ${project.squareFeet.toLocaleString('en-US')} sq ft, ${project.passes} pass${project.passes === 1 ? '' : 'es'}, ${project.hours.toFixed(1)} h — ${money(project.price)}`)
+    .join('\n');
+  const projectBlock = result.hasProjectWork
+    ? [
+        '',
+        'ONE-TIME PROJECT WORK',
+        projectLines || '- No project rows entered',
+        `One-time project total: ${money(result.projectPrice)}`,
+        `First-month invoice (monthly + project): ${money(result.firstMonthInvoice)}`,
+      ]
+    : [];
+  const periodicLines = (result.periodicServices || [])
+    .filter(service => service.annualCost > 0)
+    .map(service => `- ${service.name}: ${money(service.costPerOccurrence)} × ${service.occurrencesPerYear}/year (${money(service.annualCost / 12)}/month)`)
+    .join('\n');
+  const periodicBlock = result.hasPeriodicWork
+    ? [
+        '',
+        'PERIODIC SERVICES (MONTHLY AVERAGE)',
+        periodicLines || '- No periodic rows entered',
+        `Periodic work in the monthly: ${money(result.monthlyPeriodicCost)}`,
+      ]
+    : [];
+  return [
+    'COMMERCIAL CLEANING BID',
+    '',
+    `Proposed monthly service: ${money(result.monthlyPrice)}`,
+    ...(result.minimumPriceApplied ? [`Minimum charge floor applied: ${money(result.minimumMonthlyPrice)}`] : []),
+    `Annual contract value: ${money(result.annualPrice)}`,
+    `Service labor: ${result.monthlyHours.toFixed(1)} hours/month`,
+    `Price per square foot: $${result.pricePerSqFtMonth === null ? 'n/a' : result.pricePerSqFtMonth.toFixed(3)}/sq ft/month`,
+    ...porterBlock,
+    ...projectBlock,
+    ...periodicBlock,
+    '',
+    'SERVICE AREAS',
+    spaces || '- No service areas entered',
+    '',
+    `Scope basis: ${result.hoursPerVisitTotal.toFixed(2)} labor hours per visit at the entered frequencies.`,
+    `Crew capacity: ${result.crewSize} cleaner(s) × ${result.shiftHours.toFixed(2)} hours = ${result.visitCapacityHours.toFixed(2)} hours per visit (${result.visitUtilization.toFixed(0)}% used).`,
+    'This is a draft for review. Confirm scope, schedule, insurance, taxes, and all pricing before sending.',
+  ].join('\n');
 }
 
 /**

@@ -5,15 +5,22 @@ Amazon** against **merchant fulfilled (FBM)** on the same listing — referral
 fee, size-tier fulfillment, monthly storage, inbound, and the shipping label
 you buy yourself — then reports net profit, margin, return on the cash in the
 unit, the break-even sale price, the price that hits a target margin, and the
-**maximum you can pay for inventory** before the unit loses money.
+**maximum you can pay for inventory** both before the unit loses money and
+while preserving your target margin.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
 an estimate of the fees Amazon will charge: enter the rates from your current
 fee preview, and verify them there.
 
+**Save current inputs** keeps named sourcing scenarios (a restock, an FBM
+test) in this browser so you can switch between them without retyping. Nothing
+is uploaded. **Copy decision summary** writes leftover profit, margin, max buy,
+and FBA vs FBM into the clipboard.
+
 **After using this, you can now see whether FBA or FBM leaves more on a real
-SKU, the most you can pay a supplier for that unit, whether staying under
+SKU, the most you can pay a supplier for that unit, the highest ACOS each
+path can still carry, whether staying under
 Amazon’s Low-Price FBA threshold still beats a real raise, and whether a
 coupon still hits your target after the redemption fee, whether
 Subscribe & Save still pays when only some units enroll, whether a
@@ -28,8 +35,10 @@ rate still leaves expected profit after handling and unsellable units, and
 whether sending inventory before Q4 still beats waiting until January,
 and whether a smaller carton still drops a size-tier fee cliff, and
 whether Seller Fulfilled Prime still beats FBA after a 2-day label
-and pack time, and whether FBA Liquidations still beat dispose or
-pulling leftover units to sell elsewhere** —
+and pack time, and whether Amazon AWD still beats sending the whole
+lot to FBA after receive, transfer, and bulk storage, and
+whether Amazon Remote Fulfillment still beats skipping Canada
+or sending a dedicated Canada pile** —
 which used to mean a spreadsheet that forgot storage, inbound, or the
 0.75-inch small-standard gate.
 
@@ -113,18 +122,26 @@ rate) and to 3PL long-term storage (a different warehouse).
 
 FBA Liquidations is the recovery on that same leftover pile: Amazon
 pays a percent of list, or you pay the return-removal fee and sell
-the units elsewhere. The keep/remove/dispose page treats a return as
-a fee with no resale.
+the units on eBay, your site, or a jobber.
 [Should I liquidate aged FBA inventory?](should-i-liquidate-aged-fba-inventory.html)
-shows pile cash, the elsewhere leftover that still matches
-liquidations, and the monthly sell-through that still ties.
+shows leftover cash after recovery, the elsewhere leftover that still
+ties liquidations, and the monthly sell-through that still ties.
 
-**After using the liquidation page, you can now see whether pulling
-80 leftover units and selling them elsewhere at $4 leftover still
-keeps $68.86 more than an 8% FBA Liquidations recovery ($236.80 vs
-$167.94), and that elsewhere leftover can fall to about $3.14
-before liquidations match** — which used to mean disposing the pile
-because the aged-inventory page only compared fees.
+Units that are still selling, but sitting thin, are a quantity
+decision on the same SKU: pay the low-inventory-level surcharge on
+each FBA shipment, or send enough units to cover 28 days.
+[Does restocking beat the low-inventory-level fee?](low-inventory-level-fee.html)
+shows both historical windows, the surcharge band, extra inbound,
+and extra storage. Complementary to aged-inventory removal (units
+that already sit) and to Q4 peak storage (when the cube sits).
+
+**After using the low-inventory page, you can now see whether 10
+on-hand units at 1 sale/day still lose $26.70 / month to the
+surcharge, and that restocking 18 units avoids $25.83 / month after
+$0.87 extra storage** — which used to mean staying thin because
+28 days looked like extra warehouse cost. The same comparison now
+also runs on the [main calculator](index.html) from the listing you
+already typed.
 
 Inbound placement is a create-shipment decision on the same SKU: pay
 Amazon to accept one warehouse, or pay extra freight to follow the
@@ -149,6 +166,15 @@ different marketplace).
 keeping 80 leftover units at 5% sell-through still beats a $0.32
 dispose after $1.50 / unit / month surcharge** — which used to mean
 leaving the pile because removal looked like giving up.
+
+**After using the liquidation page, you can now see whether pulling
+80 leftover $29.99 units and selling them elsewhere at $4 leftover
+keeps $68.86 more than an 8% FBA Liquidations recovery ($236.80 vs
+$167.94), and that elsewhere leftover can fall to about $3.14
+before liquidations match** — which used to mean disposing the pile
+because Amazon’s recovery percent looked like the only exit. The
+same comparison now also runs on the [main calculator](index.html)
+from the listing you already typed.
 
 **After using the Vine page, you can now see whether leftover units
 still beat skipping after a $419.95 gift, and why a hero SKU that
@@ -203,6 +229,46 @@ on 80 FBA units) against FBA, and that the label has to fall to
 about $2.75 before SFP matches** — which used to mean leaving FBA
 because the Prime badge looked free to keep.
 
+A fresh supplier PO is an inbound-bulk decision on the same SKU:
+send the whole lot to FBA now, park it in Amazon Warehousing and
+Distribution and replenish a working FBA stock, or hold it yourself
+and drip inbound.
+[Should I use Amazon AWD?](should-i-use-amazon-awd.html)
+keeps receive, transfer, and bulk storage on separate lines so a
+blended inbound / unit does not hide the cheaper pile.
+Complementary to [inbound placement](inbound-placement-fee.html)
+(which FC), to [aged inventory](should-i-remove-aged-amazon-inventory.html)
+(units already sitting), to [Q4 storage](peak-vs-off-peak-storage.html)
+(when you send), and to [supplier MOQ](does-this-amazon-moq-still-pay.html)
+(how many you buy).
+
+**After using the AWD page, you can now see whether a $0.15 AWD
+receive plus a $0.68 transfer still keeps $165.33 more on 400 units
+than sending the lot to FBA now ($4723.93 vs $4558.60), and that the
+transfer has to rise to about $1.09 before FBA matches** — which used
+to mean inbounding the whole PO because AWD looked like an extra hop.
+
+Canada or Mexico demand on a SKU already sitting in US FBA is an
+expansion decision: skip that border, fulfill from the US pile with
+Remote Fulfillment, or send a dedicated Canada pile.
+[Should I use Amazon Remote Fulfillment?](should-i-use-amazon-remote-fulfillment.html)
+mixes the remote surcharge with Canada inbound and take rate so a
+blended inbound / unit does not hide the first CA shipment.
+Complementary to [Amazon AWD](should-i-use-amazon-awd.html)
+(where a fresh US PO parks), to
+[inbound placement](inbound-placement-fee.html) (which US FC),
+to [MCF](should-i-use-amazon-mcf-for-website-orders.html)
+(a website order from FBA stock), and to
+[Seller Fulfilled Prime](should-i-use-seller-fulfilled-prime.html)
+(a US Prime badge).
+
+**After using the Remote Fulfillment page, you can now see whether a
+$1.25 remote surcharge still keeps $5.12 more per Canada session
+than skipping ($204.86 on 40 sessions) against a $5.20 first Canada
+inbound, and that the remote fee has to rise to about $1.75 before
+the pile matches** — which used to mean sending a second pile
+because local Prime looked free to open.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -236,7 +302,7 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, and liquidation-page.test.mjs
+node --test        # runs calc.test.mjs, usage.test.mjs, page.test.mjs, vine-page.test.mjs, aged-inventory-page.test.mjs, inbound-page.test.mjs, returns-page.test.mjs, storage-page.test.mjs, packaging-page.test.mjs, sfp-page.test.mjs, low-inventory-page.test.mjs, awd-page.test.mjs, remote-fulfillment-page.test.mjs, and liquidation-page.test.mjs
 ```
 
 `calc.mjs` holds the fee/profit/ROI arithmetic, size-tier classification,
@@ -250,6 +316,9 @@ inbound placement vs split-freight comparison,
 expected profit after returns,
 peak vs off-peak Q4 storage,
 Seller Fulfilled Prime vs FBA vs FBM,
+restock vs low-inventory-level fee,
+Amazon AWD vs send-all-to-FBA vs you-hold,
+Remote Fulfillment vs skip Canada vs a Canada FBA pile,
 and FBA Liquidations vs dispose vs sell-elsewhere;
 `usage.mjs` holds the anonymous
 local counter; `index.html` is the calculator UI.

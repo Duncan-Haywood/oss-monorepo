@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { comparisonMessage, normalizeComparison, savingsPercent } from "./compare.mjs";
+import { comparisonMessage, negotiationBrief, normalizeComparison, savingsPercent } from "./compare.mjs";
 import { targetMessage } from "./compare.mjs";
 
 test("compares finite non-negative totals", () => {
@@ -31,3 +31,11 @@ test("uses provider names in the shareable decision summary", () => {
   assert.equal(targetMessage({ ...result, target: 1250, firstWithinTarget: true, secondWithinTarget: false }, "Northstar 3PL", "Harbor Fulfillment"), "Northstar 3PL is within the $1,250.00 target ($50.00 under). Harbor Fulfillment is above the $1,250.00 target by $100.00.");
 });
 test("rejects an invalid optional target", () => assert.equal(normalizeComparison({ first: "100", second: "120", target: "-1" }).error, "The target monthly total must be a non-negative number."));
+test("builds a factual negotiation brief from the monthly gap", () => {
+  const result = normalizeComparison({ first: "1200", second: "1350" });
+  const brief = negotiationBrief(result, "Northstar 3PL", "Harbor Fulfillment");
+  assert.match(brief, /Northstar 3PL is lower by \$150\.00 per month/);
+  assert.match(brief, /Ask Harbor Fulfillment/);
+  assert.match(brief, /\$1,800\.00 per year/);
+  assert.doesNotMatch(brief, /should switch|must choose|recommend/);
+});

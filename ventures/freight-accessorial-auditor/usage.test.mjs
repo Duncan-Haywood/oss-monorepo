@@ -15,8 +15,10 @@ test("usage is aggregate, opt-out, and storage failures are harmless", () => {
   const storage = memoryStorage();
   countUsage("audit_completed", storage);
   countUsage("audit_completed", storage);
+  countUsage("pass_through_compared", storage);
   assert.deepEqual(JSON.parse(storage.getItem("freight-accessorial-auditor:usage")), {
     audit_completed: 2,
+    pass_through_compared: 1,
   });
   setUsageEnabled(false, storage);
   assert.equal(usageAllowed(storage), false);

@@ -43,6 +43,15 @@ const sfpSeo = readFileSync(
   new URL("./should-i-use-seller-fulfilled-prime.html", import.meta.url),
   "utf8",
 );
+const awdSeo = readFileSync(
+  new URL("./should-i-use-amazon-awd.html", import.meta.url),
+  "utf8",
+);
+const narfSeo = readFileSync(
+  new URL("./should-i-use-amazon-remote-fulfillment.html", import.meta.url),
+  "utf8",
+);
+const acosSeo = readFileSync(new URL("./break-even-acos.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -58,6 +67,7 @@ function parse(source) {
     const closer = new RegExp(`</${tag}\\s*>`, "i").exec(rest.slice(contentStart));
     if (!closer) return { markup, scripts, unclosed: tag };
     if (tag === "script") scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
     rest = rest.slice(contentStart + closer.index + closer[0].length);
   }
 }
@@ -102,10 +112,25 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /peak vs off-peak Q4 storage/i);
   assert.match(featureList[1], /size-tier packaging cliff/i);
   assert.match(featureList[1], /Seller Fulfilled Prime vs FBA vs FBM/i);
+  assert.match(featureList[1], /restock vs low-inventory-level fee/i);
+  assert.match(featureList[1], /Amazon AWD vs send-all-to-FBA vs you-hold/i);
+  assert.match(featureList[1], /Remote Fulfillment vs skip Canada vs a Canada FBA pile/i);
+  assert.match(featureList[1], /break-even ACOS/i);
+  assert.match(featureList[1], /target-margin ACOS/i);
   assert.match(markup, /peak-vs-off-peak-storage\.html/);
   assert.match(markup, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(markup, /should-i-use-seller-fulfilled-prime\.html/);
+  assert.match(markup, /low-inventory-level-fee\.html/);
+  assert.match(markup, /id="low-inventory"/);
+  assert.match(scriptSource, /compareLowInventory/);
+  assert.match(scriptSource, /low_inventory_compared/);
+  assert.match(markup, /should-i-use-amazon-awd\.html/);
+  assert.match(markup, /should-i-use-amazon-remote-fulfillment\.html/);
   assert.match(markup, /should-i-liquidate-aged-fba-inventory\.html/);
+  assert.match(markup, /id="liquidation"/);
+  assert.match(scriptSource, /compareLiquidation/);
+  assert.match(scriptSource, /liquidation_compared/);
+  assert.match(scriptSource, /agedRemovalFee/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);
@@ -120,6 +145,30 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(markup, /id="snsCompare"/);
   assert.match(markup, /does-this-amazon-coupon-still-pay\.html/);
   assert.match(markup, /does-subscribe-and-save-still-pay\.html/);
+  assert.match(markup, /break-even-acos\.html/);
+  assert.match(markup, /id="currentAcos"/);
+  assert.match(markup, /id="breakEvenAcos"/);
+  assert.match(markup, /id="targetMarginAcos"/);
+});
+
+test("the FBA vs FBM row template includes break-even ACOS", () => {
+  const compareMarkup = markup.split('id="compare"')[0];
+  const headerBlock = compareMarkup.slice(compareMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th(?:\s[^>]*)?>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Path", "Fees", "Profit", "Max buy", "Break-even ACOS"]);
+  assert.match(scriptSource, /formatAcos\(path\.breakEvenAcos\)/);
+  assert.match(scriptSource, /formatAcos\(result\.selected\.currentAcos\)/);
+  assert.match(scriptSource, /formatAcos\(result\.selected\.breakEvenAcos\)/);
+  assert.match(scriptSource, /break_even_acos_calculated/);
+});
+
+test("ACOS SEO page names the question and keeps the playbook footer", () => {
+  assert.match(acosSeo, /What is break-even ACOS on Amazon/);
+  assert.match(acosSeo, /No warranty/);
+  assert.match(acosSeo, /Best-effort hosting, no SLA/);
+  assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
 test("calculator page wires the Low-Price FBA comparison", () => {
@@ -439,6 +488,30 @@ test("SEO page uses the same inbound-placement worked example the tests lock", (
   assert.equal(comparison.winner, "minimal");
 });
 
+test("the listing and inbound-placement scripts actually execute", () => {
+  assert.match(scriptSource, /compareInboundPlacement/);
+  assert.match(scriptSource, /calculateListing/);
+  assert.match(markup, /id="inbound-placement"/);
+  for (const id of [
+    "placementUnits",
+    "freightMinimal",
+    "freightPartial",
+    "freightOptimized",
+    "placementMinimalPerUnit",
+    "placementPartialPerUnit",
+    "placementCompare",
+    "placementVerdict",
+  ]) {
+    assert.match(markup, new RegExp(`id="${id}"`));
+  }
+});
+
+test("SEO page names the inbound-placement question and links back", () => {
+  assert.match(placementSeo, /inbound placement/i);
+  assert.match(placementSeo, /<a href="\.\/#inbound-placement">/);
+  assert.match(placementSeo, /No warranty/);
+});
+
 test("calculator page wires Individual vs Professional columns that match the row template", () => {
   assert.match(markup, /id="planCompare"/);
   assert.match(markup, /id="planVerdict"/);
@@ -498,6 +571,15 @@ test("SEO page uses the same seller-plan worked example the tests lock", () => {
   nearEnough(compared.monthlyProfitDelta, 39.21);
 });
 
+test("named sourcing scenarios stay on this device", () => {
+  assert.match(html, /id="saveScenario"/);
+  assert.match(html, /id="scenarioName"/);
+  assert.match(html, /id="copySummary"/);
+  assert.match(html, /from "\.\/scenarios\.mjs"/);
+  assert.match(html, /scenario_saved/);
+  assert.match(html, /decision_summary_copied/);
+});
+
 test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(html, /No warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);
@@ -521,4 +603,13 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(sfpSeo, /No warranty/);
   assert.match(sfpSeo, /Best-effort hosting, no SLA/);
   assert.match(sfpSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(awdSeo, /No warranty/);
+  assert.match(awdSeo, /Best-effort hosting, no SLA/);
+  assert.match(awdSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(narfSeo, /No warranty/);
+  assert.match(narfSeo, /Best-effort hosting, no SLA/);
+  assert.match(narfSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(acosSeo, /No warranty/);
+  assert.match(acosSeo, /Best-effort hosting, no SLA/);
+  assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });

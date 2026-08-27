@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useSyncExternalStore } from "react";
 import { AlertTriangle, CheckCircle2, ClipboardCopy, ShieldAlert, UploadCloud } from "lucide-react";
 
 import {
@@ -9,18 +9,66 @@ import {
   UNIMPLEMENTED_RULES,
   buildReshootPlan,
   checkBatch,
+  createEvidenceReport,
   formatReshootPlan,
   isListingPhoto,
   type PhotoReport,
   type ReshootKind,
 } from "@/lib/photo-spec";
-import { recordUsageEvent } from "@/lib/usage";
+import { isUsageEnabled, recordUsageEvent, setUsageEnabled } from "@/lib/usage";
 
 type RunSummary = {
   reports: PhotoReport[];
   skipped: string[];
   checkedAt: string;
 };
+
+function markdownCell(value: string): string {
+  return value.replaceAll("|", "\\|").replaceAll("\n", " ");
+}
+
+export function reportMarkdown(run: RunSummary): string {
+  const findingCount = run.reports.reduce((count, report) => count + report.findings.length, 0);
+  const blockingCount = run.reports.reduce(
+    (count, report) => count + report.findings.filter((finding) => finding.severity === "blocking").length,
+    0,
+  );
+  const rows = run.reports.flatMap((report) => {
+    if (report.findings.length === 0) {
+      return [`| ${markdownCell(report.info.name)} | No findings | pass | File header checks passed |`];
+    }
+    return report.findings.map(
+      (finding) =>
+        `| ${markdownCell(report.info.name)} | ${markdownCell(finding.rule)} | ${finding.severity} | ${markdownCell(finding.detail)} |`,
+    );
+  });
+
+  return [
+    "# Listing Lens photo preflight record",
+    "",
+    `- Checked at: ${run.checkedAt}`,
+    `- Spec: ${SPEC_ID} (${SPEC_DATE})`,
+    `- Photos checked: ${run.reports.length}`,
+    `- Findings: ${findingCount} (${blockingCount} blocking)`,
+    `- Non-photo files skipped: ${run.skipped.length}`,
+    "",
+    "## Findings",
+    "",
+    "| File | Rule | Severity | Detail |",
+    "| --- | --- | --- | --- |",
+    ...rows,
+    "",
+    ...(run.skipped.length > 0
+      ? ["## Skipped files", "", ...run.skipped.map((name) => `- ${markdownCell(name)}`), ""]
+      : []),
+    "## Scope and limitations",
+    "",
+    `This record checks file headers and filenames only: format, byte size, long edge, aspect ratio, branding/watermark filename tokens, and staged-photo pairing. It does not check ${UNIMPLEMENTED_RULES.join(", ")}. Those require a human review or the specific MLS board's rules.`,
+    "",
+    "A clean findings table is not a warranty that a board or portal will accept these photos. Review and verify this record before relying on it.",
+    "",
+  ].join("\n");
+}
 
 async function toFileList(files: File[]): Promise<Array<{ name: string; data: Uint8Array }>> {
   return Promise.all(
@@ -29,6 +77,11 @@ async function toFileList(files: File[]): Promise<Array<{ name: string; data: Ui
       data: new Uint8Array(await file.arrayBuffer()),
     })),
   );
+}
+
+export function photoReadErrorMessage(error: unknown): string {
+  const detail = error instanceof Error ? error.message.trim() : "The browser could not read one or more files.";
+  return `Could not read the selected photos. ${detail} Try selecting them again.`;
 }
 
 function severityStyle(severity: "blocking" | "degrading"): string {
@@ -112,14 +165,85 @@ function ReshootList({ reports }: { reports: PhotoReport[] }) {
   );
 }
 
+// The JSON sibling of the Markdown record below: same run, machine-readable,
+// for agents who file preflight evidence rather than read it.
+function downloadJsonReport(run: RunSummary): void {
+  const evidence = createEvidenceReport(run.reports, run.skipped, run.checkedAt);
+  const payload = {
+    product: "Listing Lens MLS Photo Preflight",
+    report_type: evidence.reportType,
+    spec_id: evidence.specId,
+    spec_date: evidence.specDate,
+    checked_at: evidence.checkedAt,
+    checked_photos: evidence.checkedPhotos,
+    scope: "File headers and filenames only; not an MLS acceptance determination.",
+    unimplemented_rules: evidence.unimplementedRules,
+    photos: evidence.photos.map((report) => ({
+      name: report.info.name,
+      format: report.info.format,
+      width: report.info.width,
+      height: report.info.height,
+      bytes: report.info.nbytes,
+      findings: report.findings,
+    })),
+    skipped_non_photo_files: evidence.skippedFiles,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `listing-lens-photo-preflight-${SPEC_DATE}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+  recordUsageEvent("json_report_downloaded");
+}
+
+// Usage-enabled state lives in localStorage, which the server cannot read, so
+// it is subscribed to as an external store rather than copied into state inside
+// an effect. That keeps the server render ("off") and the first client render
+// consistent without a setState-in-effect, which react-hooks flags.
+const usageListeners = new Set<() => void>();
+
+function subscribeUsage(onChange: () => void): () => void {
+  usageListeners.add(onChange);
+  return () => {
+    usageListeners.delete(onChange);
+  };
+}
+
 export function PhotoCheckTool() {
   const [run, setRun] = useState<RunSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [readError, setReadError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const usageEnabled = useSyncExternalStore(
+    subscribeUsage,
+    () => isUsageEnabled(),
+    () => false,
+  );
+
+  const toggleUsage = useCallback(() => {
+    setUsageEnabled(!isUsageEnabled());
+    // forEach, not for...of: this project targets an ES level whose Set is not iterable.
+    usageListeners.forEach((listener) => listener());
+  }, []);
+
+  function downloadReport() {
+    if (!run) return;
+    const blob = new Blob([reportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `listing-lens-preflight-${run.checkedAt.slice(0, 10)}.md`;
+    link.click();
+    URL.revokeObjectURL(url);
+    recordUsageEvent("report_downloaded");
+  }
 
   const handleFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     setIsProcessing(true);
+    setReadError(null);
     try {
       const files = Array.from(fileList);
       const skipped = files.filter((f) => !isListingPhoto(f.name)).map((f) => f.name);
@@ -134,6 +258,11 @@ export function PhotoCheckTool() {
       if (buildReshootPlan(reports).items.length > 0) {
         recordUsageEvent("reshoot_list_viewed");
       }
+    } catch (error) {
+      // File access can fail after the picker accepts a file (for example when
+      // a temporary mobile file disappears). Keep the page usable and explain
+      // the recovery instead of leaving the user with a stuck-looking run.
+      setReadError(photoReadErrorMessage(error));
     } finally {
       setIsProcessing(false);
     }
@@ -153,7 +282,7 @@ export function PhotoCheckTool() {
         <UploadCloud className="h-8 w-8 text-brand-300" aria-hidden="true" />
         <p className="text-base font-medium text-white">
           Drag listing photos here, or click to choose files
-        </p>
+           </p>
         <p className="text-sm text-slate-400">JPEG or PNG. Nothing is uploaded — checks run in this tab.</p>
         <input
           ref={inputRef}
@@ -167,6 +296,12 @@ export function PhotoCheckTool() {
 
       {isProcessing && <p className="mt-4 text-sm text-slate-400">Checking…</p>}
 
+      {readError && (
+        <p role="alert" className="mt-4 rounded-lg border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {readError}
+        </p>
+      )}
+
       {run && (
         <div className="mt-8">
           <p className="text-sm text-slate-400">
@@ -175,8 +310,26 @@ export function PhotoCheckTool() {
             {new Date(run.checkedAt).toLocaleString()}.
             {run.skipped.length > 0 && (
               <> Skipped {run.skipped.length} non-photo file{run.skipped.length === 1 ? "" : "s"}.</>
-            )}
-          </p>
+             )}
+           </p>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={downloadReport}
+              className="rounded-lg border border-brand-300/40 bg-brand-400/10 px-4 py-2 text-sm font-semibold text-brand-100 transition hover:bg-brand-400/20"
+            >
+              Download dated Markdown record
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadJsonReport(run)}
+              className="rounded-lg border border-brand-400/40 bg-brand-500/10 px-3 py-2 text-sm font-medium text-brand-100 hover:bg-brand-500/20"
+            >
+              Download dated JSON report
+            </button>
+            <span className="text-xs text-slate-500">Contains filenames and findings, never photo pixels.</span>
+          </div>
 
           <ul className="mt-4 divide-y divide-white/10 overflow-hidden rounded-xl border border-white/10">
             {run.reports.map((report) => (
@@ -232,6 +385,16 @@ export function PhotoCheckTool() {
           {UNIMPLEMENTED_RULES.join(", ")} — those need a human look or a specific MLS
           board&apos;s own rules, which vary by board. No portal account is used, nothing is
           uploaded, and this is not a warranty that any specific MLS will accept your photos.
+        </p>
+        <p className="mt-3 text-xs text-slate-500">
+          <strong className="text-slate-300">No warranty.</strong> This free tool is provided as-is,
+          is not legal, financial, or professional real-estate advice, and does not replace a qualified
+          MLS professional. Review and verify every result before relying on it; the authors accept no
+          liability to the maximum extent permitted by law.
+        </p>
+        <p className="mt-3 text-xs text-slate-500">
+          Local usage counting is currently {usageEnabled ? "on" : "off"}. It records only feature names
+          in this browser and never sends data anywhere. <button type="button" onClick={toggleUsage} className="text-brand-200 underline">Turn {usageEnabled ? "off" : "on"}</button>
         </p>
       </div>
     </div>

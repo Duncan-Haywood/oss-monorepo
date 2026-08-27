@@ -1,5 +1,7 @@
 import json
+import os
 import sys
+import time
 import tempfile
 import unittest
 from pathlib import Path
@@ -76,6 +78,25 @@ class RecordCommandTests(unittest.TestCase):
             self.assertEqual(ctx.exception.code, 1)
             record = json.loads(output.read_text(encoding="utf-8"))
             self.assertEqual(record["exit_code"], 1)
+
+    def test_record_does_not_persist_command_output_by_default(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "run.json"
+            with self.assertRaises(SystemExit) as ctx:
+                main(["record", "--tool", "backup", "--output", str(output), "--", "sh", "-c", "printf 'secret-path'"])
+            self.assertEqual(ctx.exception.code, 0)
+            self.assertNotIn("log_tail", json.loads(output.read_text(encoding="utf-8")))
+
+    def test_record_can_opt_in_to_command_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "run.json"
+            with self.assertRaises(SystemExit) as ctx:
+                main([
+                    "record", "--tool", "backup", "--include-log-tail",
+                    "--output", str(output), "--", "sh", "-c", "printf 'diagnostic'",
+                ])
+            self.assertEqual(ctx.exception.code, 0)
+            self.assertEqual(json.loads(output.read_text(encoding="utf-8"))["log_tail"], "diagnostic")
 
 
 class CheckCommandTests(unittest.TestCase):
@@ -174,6 +195,35 @@ class CheckCommandTests(unittest.TestCase):
                 main(["check", str(record_path)])
             self.assertEqual(ctx.exception.code, 0)
 
+    def test_check_can_require_end_to_end_integrity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            record_path = Path(directory) / "run.json"
+            record_path.write_text(
+                json.dumps({
+                    "tool": "restic", "exit_code": 0,
+                    "finished_at": "2026-08-24T03:00:00Z",
+                    "artifact": {"exists": True, "size_bytes": 100},
+                }), encoding="utf-8"
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                main(["check", str(record_path), "--require-integrity"])
+            self.assertEqual(ctx.exception.code, 1)
+
+    def test_check_require_integrity_accepts_intact_artifact(self):
+        with tempfile.TemporaryDirectory() as directory:
+            record_path = Path(directory) / "run.json"
+            record_path.write_text(
+                json.dumps({
+                    "tool": "tar", "exit_code": 0,
+                    "finished_at": "2026-08-24T03:00:00Z",
+                    "artifact": {"exists": True, "size_bytes": 100,
+                                  "integrity": {"result": "intact", "format": "tar"}},
+                }), encoding="utf-8"
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                main(["check", str(record_path), "--require-integrity"])
+            self.assertEqual(ctx.exception.code, 0)
+
 
 if __name__ == "__main__":
     unittest.main()
@@ -257,6 +307,59 @@ class VerifyCommandTests(unittest.TestCase):
             usage = Path(directory) / "usage.json"
             self._run(["verify", str(artifact), "--usage-file", str(usage)])
             self.assertEqual(json.loads(usage.read_text())["artifact_verified"], 1)
+
+    def test_json_evidence_can_be_written_to_a_local_handoff_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            output = Path(directory) / "evidence.json"
+            self.assertEqual(
+                self._run(["verify", "--format", "json", "--output", str(output), str(artifact)]),
+                0,
+            )
+            payload = json.loads(output.read_text(encoding="utf-8"))
+            self.assertEqual(payload["artifacts"][0]["result"], "intact")
+            self.assertEqual(payload["artifacts"][0]["path"], str(artifact))
+            self.assertNotIn("log_tail", payload)
+
+    def test_fresh_intact_archive_passes_age_check(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            self.assertEqual(self._run(["verify", "--max-age-hours", "1", str(artifact)]), 0)
+
+    def test_old_intact_archive_is_stale_and_exits_two(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz")
+            old = time.time() - 48 * 3600
+            os.utime(artifact, (old, old))
+            buffer = io.StringIO()
+            stdout, sys.stdout = sys.stdout, buffer
+            try:
+                self.assertEqual(self._run(["verify", "--format", "json", "--max-age-hours", "24", str(artifact)]), 2)
+            finally:
+                sys.stdout = stdout
+            result = json.loads(buffer.getvalue())["artifacts"][0]
+            self.assertEqual(result["result"], "stale")
+            self.assertEqual(result["freshness"]["result"], "stale")
+
+    def test_corrupt_artifact_keeps_corrupt_exit_priority_when_stale(self):
+        with tempfile.TemporaryDirectory() as directory:
+            artifact = _tar_gz(Path(directory) / "nightly.tar.gz", truncate_tar=True)
+            old = time.time() - 48 * 3600
+            os.utime(artifact, (old, old))
+            self.assertEqual(self._run(["verify", "--max-age-hours", "24", str(artifact)]), 1)
+
+    def test_missing_artifact_is_unchecked_with_age_check(self):
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "missing.tar.gz"
+            buffer = io.StringIO()
+            stdout, sys.stdout = sys.stdout, buffer
+            try:
+                self.assertEqual(self._run(["verify", "--format", "json", "--max-age-hours", "24", str(missing)]), 2)
+            finally:
+                sys.stdout = stdout
+            result = json.loads(buffer.getvalue())["artifacts"][0]
+            self.assertEqual(result["result"], "unchecked")
+            self.assertEqual(result["freshness"]["result"], "unchecked")
 
 
 class RecordIntegrityTests(unittest.TestCase):

@@ -80,6 +80,30 @@ material figures. **They are not an industry standard, a waterproofing
 warranty, or a building-code determination.** Picking a bench or glass type
 never overwrites a rate the contractor has already changed.
 
+## Hand the customer a proposal
+
+The price is for you; the **proposal** is for the customer. Fill in your
+business details, the customer's name, the deposit split, and how long the
+price stands, then **Print proposal / Save as PDF** produces a one-page
+document: your header, their details, the scope, the total, the deposit and
+balance, a validity date, your payment terms, and a line for them to sign.
+
+The scope lines start from the job you just priced and are yours to edit —
+recalculating never overwrites wording you have changed.
+
+Two things it deliberately does not do:
+
+- **Your costs never reach the customer's copy.** Wages, burden, overhead,
+  margin, and the walk-away price are not on the printed sheet.
+- **It drafts no legal terms.** Every clause on the page is text you typed.
+  Warranty, lien, and cancellation wording depend on your jurisdiction and
+  your contract; this tool will not invent them for you.
+
+Your business block is saved on your device so you type it once, and
+**Forget my business details** removes it. The customer's name and address
+are never saved. See [`proposal.mjs`](proposal.mjs), its tests, and
+[`platform/proposal/`](../../platform/proposal/README.md).
+
 ## Privacy
 
 Nothing is uploaded. Every figure stays in the browser. The only thing stored
@@ -91,7 +115,8 @@ See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/READ
 
 Events counted: `bid_calculated`, `preset_applied`,
 `proposed_price_compared`, `scope_compared`, `access_compared`,
-`summary_copied`.
+`summary_copied`,
+`proposal_printed`, `company_forgotten`.
 
 ## Limitations
 
@@ -119,3 +144,29 @@ working. Do not use this as a system of record. If a tool needs to survive,
 export your inputs and run it yourself.
 
 MIT licensed — see [`LICENSE`](LICENSE).
+
+## Saving and sharing a bid
+
+The whole form is kept in your own browser as you type, so the bid is still
+there on the next visit — the rates you tuned, not the ballpark ones this ships
+with. **Start a fresh bid** deletes it.
+
+**Copy bid link** puts the same bid in a URL. Opening it reproduces the bid
+exactly, in any browser, with nothing stored server-side — there is no server.
+A link beats a saved bid when both exist, because someone opening a link meant
+to see that bid; the page says which one is on screen.
+
+A bid link carries your own rates — wage, burden, overhead, and target margin.
+Send it to yourself or your crew. The customer should get the price, not the
+link.
+
+Nothing is uploaded either way. The rates ride in the link's `#` fragment,
+which browsers never send to a server or put in a `Referer` header, so opening
+or forwarding a bid link does not leak the numbers off the machines you send it
+to. The link is built in the browser and copied by you; the save is
+`localStorage` on your own device.
+
+`share.mjs` is the pure encode/decode/store module and is identical in every
+bid calculator here. Its field list is passed in from the page rather than kept
+in the module, so a field added to the form is saved and shareable without
+touching it; `page.test.mjs` fails if the two ever drift apart.

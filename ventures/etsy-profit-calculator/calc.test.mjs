@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, priceForMargin, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingRenewalNote, compareEtsyLabels, etsyLabelsNote, etsyLabelsSummary, ETSY_LABELS_DEFAULTS } from './calc.mjs';
+import { calculateOrder, priceForMargin, priceForProfit, compareOffsiteAdRates, maxAffordableOffsiteRate, offsiteAdsNote, compareEtsyPlus, plusBreakEvenListings, plusCreditValueUsed, ETSY_PLUS_DEFAULTS, comparePersonalization, personalizationNote, PERSONALIZATION_DEFAULTS, compareEtsyAds, etsyAdsNote, ETSY_ADS_DEFAULTS, compareProductionPartner, productionPartnerNote, PRODUCTION_PARTNER_DEFAULTS, compareStarSeller, starSellerNote, STAR_SELLER_DEFAULTS, compareShopSale, shopSaleNote, SHOP_SALE_DEFAULTS, compareFreeShipping, freeShippingNote, FREE_SHIPPING_DEFAULTS, calculateListingRenewal, listingRenewalNote, compareEtsyLabels, etsyLabelsNote, etsyLabelsSummary, ETSY_LABELS_DEFAULTS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -24,9 +24,52 @@ test('finds the price that covers fixed and percentage costs', () => {
   assert.equal(result.breakEvenPrice, 20);
 });
 
+test('finds the item price that covers costs after shipping revenue', () => {
+  const input = { shippingCharged: 5, listingFee: 1, paymentFixed: 1, transactionRate: 10, paymentRate: 5, shippingCost: 10, materialCost: 5 };
+  const result = calculateOrder({ ...input, price: 100 });
+  assert.equal(result.breakEvenPrice, 15);
+  // Round-trip: quoting the break-even item price must leave exactly zero.
+  assert.equal(calculateOrder({ ...input, price: result.breakEvenPrice }).profit, 0);
+});
+
+test('credits shipping charged when finding the break-even item price', () => {
+  const result = calculateOrder({
+    price: 0,
+    shippingCharged: 5,
+    listingFee: 1,
+    paymentFixed: 1,
+    transactionRate: 10,
+    paymentRate: 5,
+    shippingCost: 10,
+    materialCost: 5,
+  });
+  assert.equal(result.breakEvenPrice, 15);
+  assert.equal(calculateOrder({
+    price: result.breakEvenPrice,
+    shippingCharged: 5,
+    listingFee: 1,
+    paymentFixed: 1,
+    transactionRate: 10,
+    paymentRate: 5,
+    shippingCost: 10,
+    materialCost: 5,
+  }).profit, 0);
+});
+
 test('rejects negative or non-numeric inputs', () => {
   assert.throws(() => calculateOrder({ price: -1 }));
   assert.throws(() => calculateOrder({ price: 'nope' }));
+});
+
+test('rejects percentage fee rates that make break-even impossible', () => {
+  assert.throws(() => calculateOrder({ price: 10, transactionRate: 60, paymentRate: 40 }), /below 100/);
+  assert.throws(() => calculateOrder({ price: 10, transactionRate: 70, paymentRate: 30 }), /below 100/);
+  assert.throws(() => calculateOrder({ price: 10, transactionRate: 40, paymentRate: 30, offsiteAdRate: 30 }), /below 100/);
+});
+
+test('rejects impossible combined percentage fees for target pricing', () => {
+  assert.throws(() => priceForMargin({ transactionRate: 101 }, 0), /must total less than 100%/);
+  assert.throws(() => priceForProfit({ transactionRate: 101 }, 1), /must total less than 100%/);
 });
 
 test('finds the item price for a target margin', () => {
@@ -37,6 +80,17 @@ test('finds the item price for a target margin', () => {
 
 test('rejects impossible target margins', () => {
   assert.throws(() => priceForMargin({ transactionRate: 60, paymentRate: 40 }, 1), /not possible/);
+});
+
+test('finds the item price for a target dollar profit', () => {
+  const input = { shippingCharged: 5, listingFee: .2, paymentFixed: .25, transactionRate: 6.5, paymentRate: 3, shippingCost: 6, materialCost: 4 };
+  const price = priceForProfit(input, 20);
+  assert.ok(Math.abs(calculateOrder({ ...input, price }).profit - 20) < 0.000001);
+});
+
+test('rejects impossible target profits', () => {
+  assert.throws(() => priceForProfit({ transactionRate: 97 }, 1), /not possible/);
+  assert.throws(() => priceForProfit({}, -1), /non-negative/);
 });
 
 test('reports cash invested and ROI, excluding marketplace fees', () => {

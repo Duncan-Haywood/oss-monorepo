@@ -2,11 +2,60 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+test('calculator includes the report region used by the page script', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /querySelector\('#report'\)/);
+  assert.match(page, /id="report"/);
+  assert.match(page, /aria-label="Copyable quote review report"/);
+});
+
+test('page exposes the line-by-line review export', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /Show line-by-line export/);
+  assert.match(page, /summary\(r\)/);
+  assert.match(page, /id="report"/);
+});
+
+test('calculator copy falls back when the Clipboard API is denied', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\('copy'\)/);
+  assert.match(page, /async function copyText/);
+});
+
 test('page persists quote inputs locally', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /localStorage\.setItem\(saveKey/);
   assert.match(page, /localStorage\.getItem\(saveKey/);
   assert.match(page, /Saved locally in this browser/);
+});
+
+test('negotiation page builds a copyable brief without recommending a provider', async () => {
+  const page = await readFile(new URL('./negotiation.html', import.meta.url), 'utf8');
+  assert.match(page, /negotiationBrief/);
+  assert.match(page, /Copy brief/);
+  assert.match(page, /not recommend a provider/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const compare = await readFile(new URL('./compare.html', import.meta.url), 'utf8');
+  assert.match(index, /negotiation\.html/);
+  assert.match(compare, /negotiation\.html/);
+});
+
+test('drivers page ranks saved quote lines without telling the user to negotiate', async () => {
+  const page = await readFile(new URL('./drivers.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(page, /costDrivers/);
+  assert.match(page, /cost_drivers_viewed/);
+  assert.match(page, /not a script for the provider conversation/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  assert.doesNotMatch(page, /should negotiate|must ask|recommend a provider/);
+  assert.match(index, /drivers\.html/);
+  assert.match(sitemap, /drivers\.html/);
 });
 
 test('comparison page exposes two monthly quote inputs and disclaimer', async () => {
@@ -53,6 +102,21 @@ test('calculator exposes editable return fee assumptions', async () => {
   assert.match(script, /returnFee/);
   assert.match(script, /restockFee/);
   assert.match(script, /Return handling \/ order/);
+});
+
+test('dedicated export page uses the live calculator record and is linked', async () => {
+  const page = await readFile(new URL('./export.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(page, /exportCsv/);
+  assert.match(page, /exportJson/);
+  assert.match(page, /review_record_exported/);
+  assert.match(page, /3pl-quote-normalized\.csv/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  assert.match(index, /export\.html/);
+  assert.match(sitemap, /export\.html/);
 });
 
 test('calculator exposes a local CSV export from its live form', async () => {

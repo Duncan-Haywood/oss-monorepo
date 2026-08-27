@@ -13,11 +13,24 @@ verify them against your current statements.
 
 After using this, you can now see cash at list, cash on the offer, the
 Reverb offer that matches eBay list cash, whether charging shipping,
-folding postage into the list, or offering local pickup leaves more,
-whether Reverb Safe Shipping still beats your own label after expected
-claims, and whether consigning at a shop or taking their cash offer still
-beats listing it yourself, which used to mean opening two seller fee
-pages and a spreadsheet.
+folding postage into the list, absorbing the label, or offering local
+pickup leaves more, whether Reverb Safe Shipping still beats your own
+label after expected claims, whether a bump still pays if it gets you
+from the offer to list, and whether consigning at a shop or taking
+their cash offer still beats listing it yourself, which used to mean
+opening two seller fee pages and a spreadsheet.
+
+## Pay for a bump, or take the offer
+
+A bump is a fixed cash out of this sale. Paying $3 and still taking the
+$720 offer always leaves $3 less. It only pays if it changes the price
+you take — list instead of the offer, or an offer high enough to cover
+the bump after marketplace and payment take their cut.
+
+The SEO page
+[`should-i-bump-this-reverb-listing.html`](should-i-bump-this-reverb-listing.html)
+walks the default worked example ($3 illustrated bump, $210.65 offer vs
+$281.33 list-with-bump, $70.68 save, $723.26 cover).
 
 ## Offer versus list
 
@@ -43,12 +56,16 @@ a different sale than charging postage for the same checkout: folding $75
 into an $875 list raises the marketplace line, even though the buyer still
 pays $875.
 
-The calculator keeps three paths on one screen:
+The calculator keeps four paths on one screen:
 
 - **Buyer pays shipping** — your list plus shipping charged, postage you pay.
 - **Shipping included** — same checkout, postage baked into the item, so
   marketplace (and Gives) rise.
-- **Local pickup** — your list, no shipping charged, no postage you pay.
+- **Local pickup** — your list, no shipping charged; add gas or parking as
+  the meetup cost if pickup is not free.
+- **You absorb the label** — keep the typed list, offer free shipping, and
+  still buy the label. The buyer pays less; you keep less. That is not the
+  same sale as folding postage into the item.
 
 It also names the included list that leaves the same cash as charging
 shipping, so you can see how much the buyer would have to pay all-in to
@@ -56,10 +73,12 @@ offset the extra marketplace line.
 
 The SEO page
 [`should-i-include-shipping-on-reverb.html`](should-i-include-shipping-on-reverb.html)
-walks the default worked example ($800 + $75 charged / $65 you pay: $284.33
-buyer-pays, $280.58 included, $276.50 pickup, $879.07 included list that
-matches buyer-pays). Comparison is derived from the existing sale fields —
-no second form.
+walks the default include-vs-charge example ($800 + $75 charged / $65 you
+pay: $284.33 buyer-pays, $280.58 included, $276.50 pickup, $879.07 included
+list that matches buyer-pays).
+[`should-i-eat-the-shipping-on-reverb.html`](should-i-eat-the-shipping-on-reverb.html)
+walks absorbing the label on the same guitar ($211.50 — $69.08 less than
+including shipping, $72.83 less than charging the buyer).
 
 ## Your own label or Reverb Safe Shipping
 

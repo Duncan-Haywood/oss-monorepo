@@ -5,7 +5,7 @@ you sign. Enter the rate-card lines for receiving, storage, pick and pack,
 packaging, shipping, returns, return handling, restocking, fixed fees, and
 minimum monthly spend. The
 browser calculates a comparable monthly total, cost per order, and an
-approximate break-even volume. Enter a second provider's normalized monthly
+approximate break-even volume that re-prices the quote as order count changes, instead of dividing this month's total by the in-house rate. Enter a second provider's normalized monthly
 total to compare two quotes at the same volume before negotiating. The comparison
 page validates totals before rendering and remembers its draft locally. Optionally
 enter a target monthly total to see which provider fits your budget and how far
@@ -36,6 +36,13 @@ to price assembly, extra component picks, and extra receiving against
 kitting before inbound and against selling the hero SKU. That is a different
 decision from leftover pallets, from return rates, and from restock vs keep.
 The table names the kit-fee and AOV-lift flips.
+Use [Create a 3PL negotiation brief](./negotiation.html) to turn two
+normalized monthly totals into a factual ask — the gap, not a recommended
+provider.
+Use [Rank the largest rate-card lines](./drivers.html) to sort the same
+normalized quote by monthly cost and see what a typed percent reduction
+would change on each line. That is a different question from the two-quote
+brief: it names the line, not the provider.
 Use [Which inbound method is cheaper](./inbound.html) to convert pallet,
 carton, and loose receiving into the same per-unit rate and see which line
 wins at your inbound volume. A monthly minimum can hide a real receiving
@@ -43,6 +50,9 @@ gap; the table names that case. That is a different decision from leftover
 pallets already on the floor, from restock vs keep, and from kitting.
 The [pallet vs carton inbound](./pallet-vs-carton-inbound.html) page walks
 the fee ÷ units arithmetic.
+Use [Download a reviewable 3PL record](./export.html) when you want that
+CSV or JSON from a dedicated page — it loads the quote saved on the
+calculator in this browser.
 After normalizing, use **Download CSV record** to save the exact on-screen
 calculation for a spreadsheet, or **Download JSON record** for a procurement or
 ERP adapter, without retyping figures. The JSON record is versioned and includes

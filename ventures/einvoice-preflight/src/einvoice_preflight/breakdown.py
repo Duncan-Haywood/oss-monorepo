@@ -87,7 +87,7 @@ def _check_rows(rows: list[Any], expected: dict[Decimal, dict[str, Decimal]]) ->
         if percent in seen:
             findings.append(_finding(
                 "INV-038",
-                f"Tax breakdown repeats the same tax percentage on more than one row.",
+                "Tax breakdown repeats the same tax percentage on more than one row.",
                 "Keep one breakdown row per tax percentage.",
                 f"{path}/tax_percent",
             ))

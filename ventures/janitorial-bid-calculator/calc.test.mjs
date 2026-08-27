@@ -1,6 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateBid, compareFrequencyReduction, frequencyReductionNote, compareSupplyResponsibility, supplyResponsibilityNote, compareInitialClean, initialCleanNote, WEEKS_PER_MONTH, PRODUCTION_RATE_PRESETS } from './calc.mjs';
+import {
+  calculateBid,
+  formatBidSummary,
+  compareFrequencyReduction,
+  frequencyReductionNote,
+  compareSupplyResponsibility,
+  supplyResponsibilityNote,
+  compareInitialClean,
+  initialCleanNote,
+  WEEKS_PER_MONTH,
+  PRODUCTION_RATE_PRESETS,
+  PROJECT_RATE_PRESETS,
+  SHIFT_ROLE_PRESETS,
+} from './calc.mjs';
 
 const office = () => ({
   areas: [
@@ -85,6 +98,45 @@ test('no proposed price means no comparison, and empty string counts as none', (
   assert.equal(calculateBid({ ...office(), proposedPrice: 0 }).proposed.price, 0);
 });
 
+test('a minimum monthly price protects small accounts without lowering the target price', () => {
+  const bid = calculateBid(office());
+  const floored = calculateBid({ ...office(), minimumMonthlyPrice: bid.monthlyPrice + 250 });
+  assert.equal(floored.minimumMonthlyPrice, bid.monthlyPrice + 250);
+  assert.equal(floored.minimumPriceApplied, true);
+  assert.equal(floored.monthlyPrice, bid.monthlyPrice + 250);
+  assert.ok(floored.monthlyProfit > bid.monthlyProfit);
+  assert.match(formatBidSummary(floored), /Minimum charge floor applied/);
+
+  const lowerFloor = calculateBid({ ...office(), minimumMonthlyPrice: bid.monthlyPrice - 250 });
+  assert.equal(lowerFloor.minimumPriceApplied, false);
+  assert.equal(lowerFloor.monthlyPrice, bid.monthlyPrice);
+  assert.doesNotMatch(formatBidSummary(lowerFloor), /Minimum charge floor applied/);
+});
+
+test('an empty minimum monthly price leaves the margin calculation unchanged', () => {
+  const bid = calculateBid(office());
+  const empty = calculateBid({ ...office(), minimumMonthlyPrice: '' });
+  assert.equal(empty.minimumMonthlyPrice, null);
+  assert.equal(empty.monthlyPrice, bid.monthlyPrice);
+});
+
+test('turns labor hours into a per-visit crew capacity check', () => {
+  const result = calculateBid({ ...office(), crewSize: 2, shiftHours: 1.5 });
+  assert.equal(result.visitCapacityHours, 3);
+  assert.ok(Math.abs(result.visitUtilization - 80) < 1e-9);
+  assert.equal(result.visitOverCapacity, false);
+
+  const overloaded = calculateBid({ ...office(), crewSize: 1, shiftHours: 2 });
+  assert.ok(overloaded.visitUtilization > 100);
+  assert.equal(overloaded.visitOverCapacity, true);
+});
+
+test('rejects invalid crew capacity inputs', () => {
+  assert.throws(() => calculateBid({ ...office(), crewSize: 0 }), /Crew size must be greater than zero/);
+  assert.throws(() => calculateBid({ ...office(), crewSize: 1.5 }), /Crew size must be a whole number/);
+  assert.throws(() => calculateBid({ ...office(), shiftHours: 0 }), /Available hours per cleaner must be greater than zero/);
+});
+
 test('frequency scales monthly hours but never the one-visit figure', () => {
   const daily = calculateBid(office());
   const weekly = calculateBid({
@@ -107,6 +159,19 @@ test('an area cleaned zero times a week costs nothing and is left out of the vis
   assert.equal(result.totalSquareFeet, 11000);
 });
 
+test('a custom Other-space name is what the labor split reports', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [
+      { name: 'Server room', squareFeet: 200, productionRate: 1500, cleaningsPerWeek: 5 },
+      { name: 'Loading dock', squareFeet: 800, productionRate: 6000, cleaningsPerWeek: 3 },
+    ],
+  });
+  assert.equal(result.areas[0].name, 'Server room');
+  assert.equal(result.areas[1].name, 'Loading dock');
+  assert.ok(result.areas[0].hoursShare > 0);
+});
+
 test('a nameless area still reports under a stable label', () => {
   const result = calculateBid({
     ...office(),
@@ -114,6 +179,14 @@ test('a nameless area still reports under a stable label', () => {
   });
   assert.equal(result.areas[0].name, 'Area 1');
   assert.equal(result.areas[1].name, 'Area 2');
+});
+
+test('custom area names are preserved for proposal-ready scope', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [{ name: 'Second-floor restrooms', squareFeet: 500, productionRate: 1200, cleaningsPerWeek: 5 }],
+  });
+  assert.equal(result.areas[0].name, 'Second-floor restrooms');
 });
 
 test('a building with no cleanable area reports no per-unit ratios instead of dividing by zero', () => {
@@ -143,6 +216,7 @@ test('inputs that would silently produce a nonsense bid are rejected', () => {
   assert.throws(() => calculateBid({ ...office(), hourlyWage: 'abc' }), /Hourly wage must be a number/);
   assert.throws(() => calculateBid({ ...office(), targetMargin: 100 }), /less than 100/);
   assert.throws(() => calculateBid({ ...office(), overheadRate: -1 }), /Overhead must be at least 0/);
+  assert.throws(() => calculateBid({ ...office(), minimumMonthlyPrice: -1 }), /Minimum monthly price must be at least 0/);
 });
 
 test('production-rate presets are usable positive numbers', () => {
@@ -156,6 +230,188 @@ test('production-rate presets are usable positive numbers', () => {
 test('monthly conversion uses averaged weeks, not a flat four', () => {
   assert.ok(Math.abs(WEEKS_PER_MONTH - 52 / 12) < 1e-12);
   assert.ok(WEEKS_PER_MONTH > 4.3);
+});
+
+test('omitted project work leaves the monthly contract unchanged', () => {
+  const without = calculateBid(office());
+  const empty = calculateBid({ ...office(), projects: [] });
+  assert.equal(without.hasProjectWork, false);
+  assert.equal(empty.hasProjectWork, false);
+  assert.equal(without.monthlyPrice, empty.monthlyPrice);
+  assert.equal(without.projectPrice, 0);
+  assert.equal(without.firstMonthInvoice, without.monthlyPrice);
+  assert.equal(without.breakEvenFirstMonth, without.monthlyCost);
+});
+
+test('strip and wax hours are square feet divided by rate times coats', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{
+      name: 'Strip & wax (VCT)',
+      squareFeet: 2000,
+      productionRate: 250,
+      passes: 2,
+      materials: 80,
+    }],
+  });
+  const line = result.projects[0];
+  assert.ok(Math.abs(line.hours - 16) < 1e-9);
+  assert.ok(Math.abs(line.laborCost - 16 * result.loadedWage) < 1e-9);
+  assert.equal(line.materials, 80);
+  assert.ok(result.hasProjectWork);
+  assert.ok(Math.abs(result.projectHours - 16) < 1e-9);
+  // Same margin-on-price rule as the monthly contract, applied only to the
+  // one-time work — not amortized into the eleven months that follow.
+  assert.ok(Math.abs(result.projectProfit / result.projectPrice * 100 - 20) < 1e-9);
+  assert.ok(Math.abs(result.firstMonthInvoice - (result.monthlyPrice + result.projectPrice)) < 1e-9);
+  assert.ok(result.projectPrice > 80);
+});
+
+test('project work does not change the recurring monthly price', () => {
+  const monthlyOnly = calculateBid(office());
+  const withProject = calculateBid({
+    ...office(),
+    projects: [{ name: 'Carpet extraction', squareFeet: 1500, productionRate: 300, passes: 1, materials: 40 }],
+  });
+  assert.ok(Math.abs(withProject.monthlyPrice - monthlyOnly.monthlyPrice) < 1e-9);
+  assert.ok(Math.abs(withProject.annualPrice - monthlyOnly.annualPrice) < 1e-9);
+  assert.ok(withProject.firstMonthInvoice > withProject.monthlyPrice);
+  assert.ok(withProject.breakEvenFirstMonth > withProject.breakEvenMonthlyPrice);
+});
+
+test('a zero-area project with no materials is idle, not an error', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Not yet scoped', squareFeet: 0, productionRate: 250, passes: 2, materials: 0 }],
+  });
+  assert.equal(result.hasProjectWork, false);
+  assert.equal(result.projectHours, 0);
+  assert.equal(result.projectPrice, 0);
+});
+
+test('materials-only project work still prices and is flagged', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Extra chemical charge', squareFeet: 0, productionRate: 250, passes: 1, materials: 120 }],
+  });
+  assert.equal(result.hasProjectWork, true);
+  assert.equal(result.projectHours, 0);
+  assert.ok(result.projectPrice > 120);
+});
+
+test('zero passes means no labor hours on that project', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Hold finish', squareFeet: 2000, productionRate: 250, passes: 0, materials: 10 }],
+  });
+  assert.equal(result.projects[0].hours, 0);
+  assert.equal(result.projects[0].laborCost, 0);
+  assert.equal(result.hasProjectWork, true);
+});
+
+test('project inputs that would produce a nonsense price are rejected', () => {
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: 1000, productionRate: 0, passes: 2 }],
+    }),
+    /Strip: project production rate must be greater than zero/,
+  );
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: -1, productionRate: 250 }],
+    }),
+    /Strip: project square feet must be at least 0/,
+  );
+  assert.throws(
+    () => calculateBid({
+      ...office(),
+      projects: [{ name: 'Strip', squareFeet: 1000, productionRate: 250, passes: -1 }],
+    }),
+    /Strip: passes must be at least 0/,
+  );
+});
+
+test('a nameless project still reports under a stable label', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ squareFeet: 500, productionRate: 250, passes: 1, materials: 0 }],
+  });
+  assert.equal(result.projects[0].name, 'Project 1');
+});
+
+test('project-rate presets are usable positive numbers', () => {
+  assert.ok(PROJECT_RATE_PRESETS.length >= 4);
+  for (const preset of PROJECT_RATE_PRESETS) {
+    assert.ok(preset.label.length > 0);
+    assert.ok(Number.isFinite(preset.rate) && preset.rate > 0);
+    assert.ok(Number.isFinite(preset.passes) && preset.passes >= 1);
+  }
+});
+
+test('bid summary keeps one-time work out of the monthly line', () => {
+  const result = calculateBid({
+    ...office(),
+    projects: [{ name: 'Strip & wax (VCT)', squareFeet: 2000, productionRate: 250, passes: 2, materials: 80 }],
+  });
+  const text = formatBidSummary(result);
+  assert.match(text, /Proposed monthly service:/);
+  assert.match(text, /ONE-TIME PROJECT WORK/);
+  assert.match(text, /Strip & wax \(VCT\)/);
+  assert.match(text, /First-month invoice/);
+  assert.match(text, /SERVICE AREAS/);
+  assert.match(text, /Open office/);
+  assert.doesNotMatch(text, /undefined/);
+});
+
+test('bid summary omits the project block when there is no project work', () => {
+  const text = formatBidSummary(calculateBid(office()));
+  assert.doesNotMatch(text, /ONE-TIME PROJECT WORK/);
+  assert.doesNotMatch(text, /First-month invoice/);
+});
+
+test('periodic work is averaged into monthly cost and annual contract value', () => {
+  const baseline = calculateBid(office());
+  const result = calculateBid({
+    ...office(),
+    periodicServices: [{ name: 'Quarterly floor care', costPerOccurrence: 1200, occurrencesPerYear: 4 }],
+  });
+  assert.equal(result.monthlyPeriodicCost, 400);
+  assert.equal(result.annualPeriodicCost, 4800);
+  assert.ok(Math.abs(result.monthlyCost - (baseline.monthlyCost + 400 * 1.15)) < 1e-9);
+  assert.equal(result.periodicServices[0].name, 'Quarterly floor care');
+  assert.equal(result.hasPeriodicWork, true);
+});
+
+test('multiple periodic services aggregate and validate their inputs', () => {
+  const result = calculateBid({
+    ...office(),
+    periodicServices: [
+      { costPerOccurrence: 600, occurrencesPerYear: 12 },
+      { name: 'Annual extraction', costPerOccurrence: 1800, occurrencesPerYear: 1 },
+    ],
+  });
+  assert.equal(result.periodicServices[0].name, 'Periodic service 1');
+  assert.equal(result.monthlyPeriodicCost, 750);
+  assert.throws(
+    () => calculateBid({ ...office(), periodicServices: [{ costPerOccurrence: -1, occurrencesPerYear: 1 }] }),
+    /cost per occurrence/,
+  );
+  assert.throws(
+    () => calculateBid({ ...office(), periodicServices: [{ costPerOccurrence: 1, occurrencesPerYear: 'nope' }] }),
+    /occurrences per year/,
+  );
+});
+
+test('bid summary lists periodic work separately from one-time projects', () => {
+  const text = formatBidSummary(calculateBid({
+    ...office(),
+    periodicServices: [{ name: 'Quarterly floor care', costPerOccurrence: 1200, occurrencesPerYear: 4 }],
+  }));
+  assert.match(text, /PERIODIC SERVICES \(MONTHLY AVERAGE\)/);
+  assert.match(text, /Quarterly floor care/);
+  assert.doesNotMatch(text, /ONE-TIME PROJECT WORK/);
 });
 
 test('a 5× to 3× cut scales labor and leaves supplies and equipment on the job', () => {
@@ -548,4 +804,158 @@ test('the pasteable initial-clean note names the one-time and the month-1 loss',
   const easyNote = initialCleanNote(easy, { targetMargin: 20 });
   assert.match(easyNote, /leaves \$/);
   assert.doesNotMatch(easyNote, /loses \$/);
+});
+
+const weekdayPorter = () => ({
+  name: 'Day porter / lobby attendant',
+  people: 1,
+  hoursPerShift: 8,
+  shiftsPerWeek: 5,
+});
+
+test('omitting shifts leaves the production-rate bid unchanged', () => {
+  const without = calculateBid(office());
+  const empty = calculateBid({ ...office(), shifts: [] });
+  assert.deepEqual(empty.shifts, []);
+  assert.equal(empty.shiftMonthlyHours, 0);
+  assert.equal(empty.shiftMonthlyLaborCost, 0);
+  assert.equal(empty.monthlyPrice, without.monthlyPrice);
+  assert.equal(empty.monthlyHours, without.monthlyHours);
+  assert.equal(empty.areaMonthlyHours, without.monthlyHours);
+});
+
+test('a weekday day porter is priced as scheduled coverage, not square feet', () => {
+  const production = calculateBid(office());
+  const withPorter = calculateBid({ ...office(), shifts: [weekdayPorter()] });
+  const expectedHours = 1 * 8 * 5 * WEEKS_PER_MONTH;
+  assert.ok(Math.abs(withPorter.shiftMonthlyHours - expectedHours) < 1e-9);
+  assert.ok(Math.abs(withPorter.areaMonthlyHours - production.monthlyHours) < 1e-9);
+  assert.ok(Math.abs(withPorter.monthlyHours - (production.monthlyHours + expectedHours)) < 1e-9);
+  assert.ok(Math.abs(withPorter.shiftMonthlyLaborCost - expectedHours * 17 * 1.28) < 1e-9);
+  assert.equal(withPorter.hoursPerVisitTotal, production.hoursPerVisitTotal);
+  assert.ok(withPorter.monthlyPrice > production.monthlyPrice);
+  const porter = withPorter.shifts[0];
+  assert.ok(porter.hoursShare > 70);
+  assert.ok(porter.hoursShare < 90);
+});
+
+test('day-porter hours are not amortized into a cheaper monthly production rate', () => {
+  const production = calculateBid(office());
+  const withPorter = calculateBid({ ...office(), shifts: [weekdayPorter()] });
+  assert.ok(Math.abs(withPorter.areaMonthlyLaborCost - production.monthlyLaborCost) < 1e-9);
+  assert.ok(withPorter.shiftMonthlyLaborCost > 0);
+});
+
+test('a porter-only contract can be priced without production areas', () => {
+  const result = calculateBid({
+    ...office(),
+    areas: [],
+    shifts: [weekdayPorter()],
+    suppliesPerSqFtMonth: 0.005,
+  });
+  assert.equal(result.areas.length, 0);
+  assert.equal(result.totalSquareFeet, 0);
+  assert.equal(result.hoursPerVisitTotal, 0);
+  assert.equal(result.pricePerSqFtMonth, null);
+  assert.ok(Math.abs(result.monthlyHours - 8 * 5 * WEEKS_PER_MONTH) < 1e-9);
+  assert.ok(result.monthlyPrice > 0);
+  assert.equal(result.shifts[0].name, 'Day porter / lobby attendant');
+});
+
+test('a shift can use its own wage when the porter is paid more than the night crew', () => {
+  const same = calculateBid({ ...office(), shifts: [weekdayPorter()] });
+  const higher = calculateBid({
+    ...office(),
+    shifts: [{ ...weekdayPorter(), hourlyWage: 20 }],
+  });
+  assert.equal(same.shifts[0].hourlyWage, 17);
+  assert.equal(higher.shifts[0].hourlyWage, 20);
+  assert.ok(Math.abs(higher.shifts[0].loadedWage - 20 * 1.28) < 1e-9);
+  assert.ok(higher.shiftMonthlyLaborCost > same.shiftMonthlyLaborCost);
+  assert.equal(higher.areaMonthlyLaborCost, same.areaMonthlyLaborCost);
+});
+
+test('blank or omitted shift wages fall back to the contract cleaner wage', () => {
+  const fallback = calculateBid({
+    ...office(),
+    shifts: [
+      { ...weekdayPorter(), hourlyWage: '' },
+      { ...weekdayPorter(), name: 'Floater', hourlyWage: null },
+    ],
+  });
+  assert.equal(fallback.shifts[0].hourlyWage, 17);
+  assert.equal(fallback.shifts[1].hourlyWage, 17);
+});
+
+test('two people on the same shift double the hours', () => {
+  const one = calculateBid({ ...office(), shifts: [weekdayPorter()] });
+  const two = calculateBid({
+    ...office(),
+    shifts: [{ ...weekdayPorter(), people: 2 }],
+  });
+  assert.ok(Math.abs(two.shiftMonthlyHours - one.shiftMonthlyHours * 2) < 1e-9);
+});
+
+test('a nameless shift still reports under a stable label', () => {
+  const result = calculateBid({
+    ...office(),
+    shifts: [{ people: 1, hoursPerShift: 4, shiftsPerWeek: 5 }, { name: '   ', people: 1, hoursPerShift: 4, shiftsPerWeek: 3 }],
+  });
+  assert.equal(result.shifts[0].name, 'Shift 1');
+  assert.equal(result.shifts[1].name, 'Shift 2');
+});
+
+test('a zero-hour or zero-headcount shift costs nothing', () => {
+  const result = calculateBid({
+    ...office(),
+    shifts: [
+      { name: 'Vacant desk', people: 0, hoursPerShift: 8, shiftsPerWeek: 5 },
+      { name: 'Unscheduled', people: 1, hoursPerShift: 0, shiftsPerWeek: 5 },
+    ],
+  });
+  assert.equal(result.shiftMonthlyHours, 0);
+  assert.equal(result.shiftMonthlyLaborCost, 0);
+  assert.equal(result.monthlyPrice, calculateBid(office()).monthlyPrice);
+});
+
+test('shift inputs that would silently produce a nonsense bid are rejected', () => {
+  assert.throws(
+    () => calculateBid({ ...office(), areas: [], shifts: [] }),
+    /at least one area or day-porter shift/,
+  );
+  assert.throws(
+    () => calculateBid({ ...office(), shifts: [{ name: 'Porter', people: -1, hoursPerShift: 8, shiftsPerWeek: 5 }] }),
+    /Porter: people must be at least 0/,
+  );
+  assert.throws(
+    () => calculateBid({ ...office(), shifts: [{ name: 'Porter', people: 1, hoursPerShift: 'abc', shiftsPerWeek: 5 }] }),
+    /Porter: hours per shift must be a number/,
+  );
+});
+
+test('shift-role presets are named roles, not production rates', () => {
+  assert.ok(SHIFT_ROLE_PRESETS.length >= 4);
+  assert.ok(SHIFT_ROLE_PRESETS.some(role => /day porter/i.test(role.label)));
+  for (const preset of SHIFT_ROLE_PRESETS) {
+    assert.ok(preset.label.length > 0);
+    assert.equal(preset.rate, undefined);
+  }
+});
+
+test('a day porter and strip-and-wax stay on separate invoices', () => {
+  const production = calculateBid(office());
+  const both = calculateBid({
+    ...office(),
+    shifts: [weekdayPorter()],
+    projects: [{ name: 'Strip & wax (VCT)', squareFeet: 2000, productionRate: 250, passes: 2, materials: 80 }],
+  });
+  assert.ok(both.shiftMonthlyHours > 0);
+  assert.ok(both.hasProjectWork);
+  assert.ok(Math.abs(both.areaMonthlyLaborCost - production.monthlyLaborCost) < 1e-9);
+  assert.ok(Math.abs(both.firstMonthInvoice - (both.monthlyPrice + both.projectPrice)) < 1e-9);
+  const summary = formatBidSummary(both);
+  assert.match(summary, /DAY PORTER \/ SCHEDULED SHIFTS/);
+  assert.match(summary, /ONE-TIME PROJECT WORK/);
+  assert.match(summary, /Day porter \/ lobby attendant/);
+  assert.match(summary, /Strip & wax/);
 });

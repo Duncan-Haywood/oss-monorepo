@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Well Pump Bid Calculator | Price the Depth, the Pitless, and the Tank — Not Just the Pump Special</title>
+  <meta name="description" content="Price a well-pump replacement from extra drop-pipe footage past the included run, seized versus free pitless, stuck-pump pull, extra well cable, a new pressure tank, and a constant-pressure drive — not a published $1,495 pump special. See the walk-away number before you match a cheaper quote.">
+  <meta property="og:title" content="Well Pump Bid Calculator">
+  <meta property="og:description" content="A 60-foot 1/2 HP swap with a good pitless is not the same job as a 280-foot 1.5 HP pull with a seized adapter, a stuck pump, and a new tank. Bid the depth and the pitless.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Well Pump Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Submersible versus jet hours, extra drop-pipe footage past the included run, horsepower pump cost, good versus seized pitless, stuck-pump pull, extra well cable, pressure tank, constant-pressure drive, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2c28; background: #e7eee8; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f6a4a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c4d2c6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #12261a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5c52; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa094; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa094; background: #eef5f0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dceee3; }
+    .result { position: sticky; top: 15px; background: #1c3d32; color: #eef7f2; border-color: #1c3d32; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #6ec8a4; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5c52; }
+    footer a { color: #2f6a4a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #9ee4c4; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR WELL-SERVICE AND PLUMBING SHOPS</p>
+    <h1>Bid the depth, the pitless, and the tank.</h1>
+    <p>Price a well-pump replacement the way the trade actually loses money: extra drop-pipe footage past the included run, a seized pitless versus one that comes apart, a stuck-pump pull, extra well cable, a new pressure tank, and a constant-pressure drive. You get the bid, the price per foot of well depth, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The well</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing type, horsepower, work, or pitless never overwrites a rate you already typed.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Pump type
+            <select id="type">
+              <option value="submersible" selected>Submersible (in the well)</option>
+              <option value="jet">Jet / shallow (above ground)</option>
+            </select>
+          </label>
+          <label>Work package
+            <select id="work">
+              <option value="pump">Pump only (keep the tank)</option>
+              <option value="pump-tank" selected>Pump + pressure tank</option>
+              <option value="full">Pump, tank, pitless, and switch</option>
+            </select>
+          </label>
+          <label>Horsepower
+            <select id="hp">
+              <option value="0.5">1/2 HP</option>
+              <option value="0.75" selected>3/4 HP</option>
+              <option value="1">1 HP</option>
+              <option value="1.5">1.5 HP</option>
+            </select>
+          </label>
+          <label>Pitless
+            <select id="pitless">
+              <option value="good" selected>Existing pitless comes apart</option>
+              <option value="seized">Seized pitless — replace it</option>
+              <option value="none">No pitless (jet / buried pit)</option>
+            </select>
+          </label>
+          <label>Well depth (ft) <input id="wellDepthFeet" type="number" min="1" step="1" value="120"></label>
+          <label>Footage included in the special (ft) <input id="includedFootage" type="number" min="0" step="1" value="100"></label>
+          <label>Well-cable footage (ft) <input id="cableFeet" type="number" min="0" step="1" value="130"></label>
+          <label>Cable footage included (ft) <input id="includedCableFeet" type="number" min="0" step="1" value="100"></label>
+          <label class="check"><input id="stuckPump" type="checkbox"> Stuck pump / extra pull</label>
+          <label class="check"><input id="addVfd" type="checkbox"> Constant-pressure / VFD</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="0.75"></label>
+          <label>Hours to pull and set the pump <input id="hoursPumpBase" type="number" min="0" step="0.25" value="2.5"></label>
+          <label>Hours / extra drop-pipe foot <input id="hoursPerExtraFoot" type="number" min="0" step="0.005" value="0.015"></label>
+          <label>Hours to set a tank <input id="hoursTank" type="number" min="0" step="0.25" value="1"></label>
+          <label>Hours to replace a pitless <input id="hoursPitless" type="number" min="0" step="0.25" value="2"></label>
+          <label>Hours for a stuck pull <input id="hoursStuckPull" type="number" min="0" step="0.25" value="1.5"></label>
+          <label>Hours for the switch / control box <input id="hoursSwitch" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Hours / extra cable foot <input id="hoursPerExtraCableFoot" type="number" min="0" step="0.001" value="0.004"></label>
+          <label>Hours for a constant-pressure drive <input id="hoursVfd" type="number" min="0" step="0.25" value="1.25"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Pump cost <input id="pumpCost" type="number" min="0" step="5" value="380"></label>
+          <label>Tank cost <input id="tankCost" type="number" min="0" step="5" value="280"></label>
+          <label>Pitless adapter <input id="pitlessCost" type="number" min="0" step="5" value="185"></label>
+          <label>Cable cost / ft <input id="cablePerFoot" type="number" min="0" step="0.05" value="1.85"></label>
+          <label>Switch / control box <input id="switchCost" type="number" min="0" step="1" value="85"></label>
+          <label>Constant-pressure drive <input id="vfdCost" type="number" min="0" step="10" value="650"></label>
+          <label>Pump hoist / crane <input id="hoistFee" type="number" min="0" step="5" value="75"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="0"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="42"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, truck, disposal <input id="travelAndEquipment" type="number" min="0" step="5" value="85"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="35"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 1495"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $42/h tech loaded at 32% is $55.44. Quoting the raw wage on a published $1,495 well-pump special is how a 280-foot seized-pitless pull that looked fine turns into a half-day loss after the first stuck adapter.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">well-pump price</div>
+      <dl>
+        <dt>Type and horsepower</dt><dd id="scope"></dd>
+        <dt>Package and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Pump + tank + fittings</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Price per foot of well</dt><dd id="perFoot"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a well-drilling specification, or a water-quality report &mdash; replace them with your own takeoff.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing, well-drilling, construction, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your footage, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-replace-a-well-pump.html">How much to charge to replace a well pump</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedHpKit,
+      suggestedTypeKit,
+      suggestedWorkKit,
+      suggestedPitlessKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'wellDepthFeet','includedFootage','cableFeet','includedCableFeet',
+      'hoursTrip','hoursPumpBase','hoursPerExtraFoot','hoursTank','hoursPitless',
+      'hoursStuckPull','hoursSwitch','hoursPerExtraCableFoot','hoursVfd','siteHours',
+      'pumpCost','tankCost','pitlessCost','cablePerFoot','switchCost','vfdCost','hoistFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['stuckPump','addVfd'];
+    const SELECT_IDS = ['type','work','hp','pitless'];
+    const SUGGESTED_HP_IDS = ['pumpCost'];
+    const SUGGESTED_TYPE_IDS = ['hoursPumpBase','hoistFee'];
+    const SUGGESTED_WORK_IDS = ['hoursTank','tankCost','hoursSwitch','switchCost'];
+    const SUGGESTED_PITLESS_IDS = ['hoursPitless','pitlessCost'];
+    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyHpKit(force) {
+      const rates = suggestedHpKit(el('hp').value, el('type').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyTypeKit(force) {
+      const rates = suggestedTypeKit(el('type').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyWorkKit(force) {
+      const rates = suggestedWorkKit(el('work').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyPitlessKit(force) {
+      const rates = suggestedPitlessKit(el('pitless').value);
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+    }
+
+    function applyJob(job) {
+      el('type').value = job.type;
+      el('work').value = job.work;
+      el('hp').value = job.hp;
+      el('pitless').value = job.pitless;
+      applyTypeKit(true);
+      applyWorkKit(true);
+      applyHpKit(true);
+      applyPitlessKit(true);
+      [...SUGGESTED_HP_IDS, ...SUGGESTED_TYPE_IDS, ...SUGGESTED_WORK_IDS, ...SUGGESTED_PITLESS_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('wellDepthFeet').value = job.wellDepthFeet;
+      el('includedFootage').value = job.includedFootage;
+      el('cableFeet').value = job.cableFeet;
+      el('includedCableFeet').value = job.includedCableFeet;
+      el('stuckPump').checked = job.stuckPump;
+      el('addVfd').checked = job.addVfd;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'well-pump price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','perFoot','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'well-pump price';
+      el('scope').textContent = `${result.type} · ${result.hp} HP · ${result.wellDepthFeet} ft`;
+      const extraBits = [
+        result.work === 'pump' ? 'pump only' : result.work.replace('-', ' + '),
+        result.pitless === 'good' ? 'pitless comes apart' : result.pitless.replace('-', ' '),
+        result.extraFeet ? `${result.extraFeet} extra ft` : null,
+        result.stuckPump ? 'stuck pull' : null,
+        result.addVfd ? 'VFD' : null,
+        result.replaceTank ? 'new tank' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard trip';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perFoot').textContent = result.pricePerFoot === null ? 'n/a' : money(result.pricePerFoot);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Pull and set the pump', result.hourShares.pump],
+        ['Extra footage + cable', result.hourShares.run],
+        ['Pitless / stuck pull', result.hourShares.access],
+        ['Tank / switch / VFD', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Pump + tank + fittings', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      const job = JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('type').addEventListener('change', () => {
+      applyTypeKit(false);
+      applyHpKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('work').addEventListener('change', () => {
+      applyWorkKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('hp').addEventListener('change', () => {
+      applyHpKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('pitless').addEventListener('change', () => {
+      applyPitlessKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_HP_IDS, ...SUGGESTED_TYPE_IDS, ...SUGGESTED_WORK_IDS, ...SUGGESTED_PITLESS_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

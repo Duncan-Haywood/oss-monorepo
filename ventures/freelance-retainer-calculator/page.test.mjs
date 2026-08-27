@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { calculateCashFloat, comparePaymentTerms, compareRetainerUsage, compareUnusedHourRollover } from './app.js';
+import { calculateCashFloat, calculateIncomeCoverage, calculatePlan, comparePaymentTerms, compareRetainerScenarios, compareRetainerUsage, compareUnusedHourRollover } from './app.js';
 
 const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const termsPage = readFileSync(new URL('./retainer-payment-terms.html', import.meta.url), 'utf8');
 const rolloverPage = readFileSync(new URL('./unused-hour-rollover.html', import.meta.url), 'utf8');
+const goalPage = readFileSync(new URL('./will-this-retainer-hit-my-income-goal.html', import.meta.url), 'utf8');
+const hoursPage = readFileSync(new URL('./how-many-retainer-hours.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
 assert.match(index, /id="paymentTerms"/);
@@ -53,5 +55,88 @@ assert.equal(comparePaymentTerms(7800)[2].cashToFloat, 7800);
 const rollover = compareUnusedHourRollover(plan);
 assert.equal(rollover.unusedHours, 10);
 assert.equal(rollover.clauses[2].month2Effective, 57.5);
+
+// --- The income-goal block -------------------------------------------------
+assert.match(index, /id="otherRevenue"/);
+assert.match(index, /id="otherHours"/);
+assert.match(index, /id="fillRate"[^>]*min="0"[^>]*max="100"[^>]*step="5"[^>]*value="100"/);
+assert.match(index, /id="share"/);
+assert.match(index, /id="shareResult"/);
+assert.match(index, /Copy shareable link/);
+assert.match(index, /id="coverageCommitted"/);
+assert.match(index, /id="coverageUnsold"/);
+assert.match(index, /id="coverageExpected"/);
+assert.match(index, /id="coverageShortfall"/);
+assert.match(index, /id="coverageRequiredFill"/);
+assert.match(index, /id="coverageVerdict"/);
+assert.match(index, /will-this-retainer-hit-my-income-goal\.html/);
+assert.match(sitemap, /will-this-retainer-hit-my-income-goal\.html/);
+assert.match(index, /id="scenarioRows"/);
+assert.match(index, /id="scenarioInsight"/);
+assert.match(index, /how-many-retainer-hours\.html/);
+assert.match(index, /How many hours should a monthly retainer include/);
+assert.match(sitemap, /how-many-retainer-hours\.html/);
+
+assert.match(hoursPage, /No warranty/);
+assert.match(hoursPage, /GitHub Sponsors/);
+assert.match(hoursPage, /Best-effort hosting, no SLA/);
+assert.match(hoursPage, /not financial, tax, or legal advice/);
+
+const hourRows = compareRetainerScenarios({ income: 6000, costs: 1800, hours: 160, utilization: 65, retainerHours: 20, buffer: 15 });
+const publishedHours = [
+  { hours: 10, price: '$862.50', left: '94.0 hrs', share: '10%' },
+  { hours: 15, price: '$1,293.75', left: '89.0 hrs', share: '14%' },
+  { hours: 20, price: '$1,725', left: '84.0 hrs', share: '19%' },
+  { hours: 25, price: '$2,156.25', left: '79.0 hrs', share: '24%' },
+  { hours: 30, price: '$2,587.50', left: '74.0 hrs', share: '29%' },
+];
+for (const row of publishedHours) {
+  const computed = hourRows.find((item) => item.retainerHours === row.hours);
+  assert.ok(computed && computed.ok, `${row.hours}h package must price`);
+  const price = computed.retainer === 1725
+    ? `$${computed.retainer.toLocaleString('en-US')}`
+    : `$${computed.retainer.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  assert.equal(price, row.price, `${row.hours}h price`);
+  assert.equal(`${computed.remainingCapacity.toFixed(1)} hrs`, row.left, `${row.hours}h leftover`);
+  assert.equal(`${Math.round(computed.shareOfCapacity * 100)}%`, row.share, `${row.hours}h share`);
+  assert.ok(hoursPage.includes(row.price), `hours page missing ${row.price}`);
+  assert.ok(hoursPage.includes(row.left), `hours page missing ${row.left}`);
+}
+
+assert.match(goalPage, /No warranty/);
+assert.match(goalPage, /GitHub Sponsors/);
+assert.match(goalPage, /not financial, tax, or legal advice/);
+
+// A worked example on a public page is a claim about what the tool outputs.
+// Recompute every published figure from `app.js` rather than trusting the
+// prose, so the page cannot drift into quoting numbers the calculator has
+// stopped producing.
+const goalPlan = calculatePlan({ income: 6000, costs: 1800, hours: 160, utilization: 65, retainerHours: 20, buffer: 15 });
+const published = [
+  { fill: 100, hours: '84.0 h', reaches: '$8,025', short: 'None — $225 over' },
+  { fill: 80, hours: '67.2 h', reaches: '$6,765', short: '$1,035', closes: '13.8 h' },
+  { fill: 60, hours: '50.4 h', reaches: '$5,505', short: '$2,295', closes: '30.6 h' },
+  { fill: 40, hours: '33.6 h', reaches: '$4,245', short: '$3,555', closes: '47.4 h' },
+];
+for (const row of published) {
+  const coverage = calculateIncomeCoverage(goalPlan, { fillRatePercent: row.fill });
+  assert.equal(`${coverage.expectedFillHours.toFixed(1)} h`, row.hours, `fill ${row.fill}%: hours billed`);
+  assert.equal(`$${coverage.expectedRevenue.toLocaleString('en-US')}`, row.reaches, `fill ${row.fill}%: month reaches`);
+  if (row.closes) {
+    assert.equal(`${coverage.hoursToClose.toFixed(1)} h`, row.closes, `fill ${row.fill}%: hours to close`);
+    assert.equal(`$${coverage.shortfall.toLocaleString('en-US')}`, row.short, `fill ${row.fill}%: shortfall`);
+  } else {
+    assert.equal(coverage.coversTarget, true, 'fill 100%: must cover');
+    assert.equal(`$${coverage.surplus.toLocaleString('en-US')}`, '$225');
+  }
+  assert.ok(goalPage.includes(row.reaches), `page is missing ${row.reaches}`);
+}
+// The headline break-even the whole page is built around.
+assert.equal(calculateIncomeCoverage(goalPlan, { fillRatePercent: 60 }).requiredFillRate, 96.43);
+assert.match(goalPage, /96\.4% fill rate/);
+assert.equal(calculateIncomeCoverage(goalPlan, { fillRatePercent: 60 }).retainerPriceToCloseGap, 4020);
+assert.match(goalPage, /\$4,020/);
+assert.equal(calculateIncomeCoverage(goalPlan).retainerShareOfTarget, 22.12);
+assert.match(goalPage, /22% of \$7,800/);
 
 console.log('freelance retainer page tests passed');

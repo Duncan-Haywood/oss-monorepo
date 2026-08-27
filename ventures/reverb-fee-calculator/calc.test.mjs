@@ -12,6 +12,8 @@ import {
   compareConsignment,
   consignmentNote,
   ILLUSTRATED_SAFE_SHIPPING_PREMIUM,
+  compareBump,
+  ILLUSTRATED_BUMP_DEFAULT,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -123,6 +125,28 @@ test('buyer-pays and included match when shipping charged is already zero', () =
   assert.equal(comparison.winner, 'pickup');
 });
 
+test('absorbing the label keeps the $800 list and leaves $69.08 versus including shipping', () => {
+  const comparison = compareShippingPaths(REVERB_DEFAULTS);
+  assert.equal(comparison.absorbed.salePrice, 800);
+  assert.equal(comparison.absorbed.revenue, 800);
+  assert.equal(comparison.absorbed.fees.marketplace, 40);
+  assert.equal(comparison.absorbed.fees.payment, 23.5);
+  assert.equal(comparison.absorbed.profit, 211.5);
+  assert.equal(Number(comparison.rows[3].vsBuyerPays.toFixed(3)), -72.825);
+  assert.equal(Number(comparison.absorbVsIncluded.toFixed(3)), -69.075);
+  assert.ok(comparison.absorbed.profit < comparison.included.profit);
+});
+
+test('a meetup cost comes out of pickup cash and does not change the other paths', () => {
+  const baseline = compareShippingPaths(REVERB_DEFAULTS);
+  const withMeetup = compareShippingPaths({ ...REVERB_DEFAULTS, meetupCost: 20 });
+  assert.equal(withMeetup.buyerPays.profit, baseline.buyerPays.profit);
+  assert.equal(withMeetup.included.profit, baseline.included.profit);
+  assert.equal(withMeetup.absorbed.profit, baseline.absorbed.profit);
+  assert.equal(withMeetup.pickup.profit, baseline.pickup.profit - 20);
+  assert.equal(withMeetup.meetupCost, 20);
+});
+
 test('Safe Shipping at the default $80 quote costs $15 more label than the $65 own label', () => {
   const comparison = compareSafeShipping(REVERB_DEFAULTS);
   assert.equal(comparison.own.profit, calculateReverbSale(REVERB_DEFAULTS, 800).profit);
@@ -220,6 +244,45 @@ test('taking $800 cash today ties listing yourself after Reverb costs on the def
 
 test('rejects a shop consignment cut above 100%', () => {
   assert.throws(() => compareConsignment({ ...REVERB_DEFAULTS, consignmentRate: 101 }), /at most 100/);
+});
+
+test('a $0 bump fee is illustrated at $3 so the table is not the same sale twice', () => {
+  const comparison = compareBump(REVERB_DEFAULTS);
+  assert.equal(comparison.bump, ILLUSTRATED_BUMP_DEFAULT);
+  assert.equal(comparison.usedTypedBump, false);
+  assert.equal(comparison.offerNoBump.profit, calculateReverbSale({ ...REVERB_DEFAULTS, bumpFee: 0 }, 720).profit);
+  assert.equal(comparison.offerWithBump.fees.bump, 3);
+  assert.equal(Number(comparison.offerWithBump.profit.toFixed(3)), Number((comparison.offerNoBump.profit - 3).toFixed(3)));
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), Number((comparison.listNoBump.profit - 3).toFixed(3)));
+  assert.equal(comparison.winner, 'listNoBump');
+});
+
+test('a $3 bump only pays if it gets you from the $720 offer to the $800 list', () => {
+  const comparison = compareBump(REVERB_DEFAULTS);
+  assert.equal(Number(comparison.offerNoBump.profit.toFixed(3)), 210.645);
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 281.325);
+  assert.equal(comparison.bumpPaysIfYouReachList, true);
+  assert.equal(Number(comparison.cashBumpSavesVsOfferIfYouReachList.toFixed(2)), 70.68);
+  assert.equal(Number(comparison.rows[1].vsOfferNoBump.toFixed(2)), -3);
+  assert.ok(comparison.listWithBump.profit > comparison.offerNoBump.profit);
+  assert.ok(comparison.offerWithBump.profit < comparison.offerNoBump.profit);
+});
+
+test('the extra offer that covers a bump recovers the bump after percentage fees', () => {
+  const comparison = compareBump(REVERB_DEFAULTS);
+  const atCover = calculateReverbSale({ ...REVERB_DEFAULTS, bumpFee: comparison.bump }, comparison.offerThatCoversBump);
+  assert.ok(Math.abs(atCover.profit - comparison.offerNoBump.profit) < 1e-9);
+  assert.ok(comparison.offerThatCoversBump > 720);
+  assert.equal(Number(comparison.extraSaleToCoverBump.toFixed(4)), Number((3 / 0.921).toFixed(4)));
+});
+
+test('a typed bump replaces the $3 illustration', () => {
+  const comparison = compareBump({ ...REVERB_DEFAULTS, bumpFee: 12 });
+  assert.equal(comparison.bump, 12);
+  assert.equal(comparison.usedTypedBump, true);
+  assert.equal(comparison.offerWithBump.fees.bump, 12);
+  assert.equal(Number(comparison.listWithBump.profit.toFixed(3)), 272.325);
+  assert.equal(comparison.bumpPaysIfYouReachList, true);
 });
 
 test('consignmentNote names the default worked example without telling you to consign', () => {

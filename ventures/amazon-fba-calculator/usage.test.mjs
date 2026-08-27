@@ -43,7 +43,11 @@ test("records named feature events without storing inputs", () => {
   recordUsage(storage, false, "storage_season_compared");
   recordUsage(storage, false, "size_tier_packaging_compared");
   recordUsage(storage, false, "sfp_compared");
+  recordUsage(storage, false, "low_inventory_compared");
+  recordUsage(storage, false, "awd_compared");
+  recordUsage(storage, false, "remote_fulfillment_compared");
   recordUsage(storage, false, "liquidation_compared");
+  recordUsage(storage, false, "break_even_acos_calculated");
   const stored = JSON.parse(storage.getItem("amazon-fba-usage"));
   assert.equal(stored.fulfillment_path_compared, 1);
   assert.equal(stored.coupon_compared, 1);
@@ -60,7 +64,11 @@ test("records named feature events without storing inputs", () => {
   assert.equal(stored.storage_season_compared, 1);
   assert.equal(stored.size_tier_packaging_compared, 1);
   assert.equal(stored.sfp_compared, 1);
+  assert.equal(stored.low_inventory_compared, 1);
+  assert.equal(stored.awd_compared, 1);
+  assert.equal(stored.remote_fulfillment_compared, 1);
   assert.equal(stored.liquidation_compared, 1);
+  assert.equal(stored.break_even_acos_calculated, 1);
   assert.ok(stored.last_day);
 });
 
@@ -94,4 +102,28 @@ test("honors Do Not Track and Global Privacy Control", () => {
 test("is a no-op without storage", () => {
   assert.doesNotThrow(() => recordUsage(undefined, false));
   assert.doesNotThrow(() => recordUsage(null, false));
+});
+
+test("recovers from corrupt local usage data", () => {
+  const storage = {
+    getItem: () => "not-json",
+    setItem: (key, value) => {
+      storage.value = JSON.parse(value);
+    },
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false));
+  assert.equal(storage.value.listing_profit_calculated, 1);
+  assert.ok(storage.value.last_day);
+});
+
+test("does not fail when browser storage is unavailable", () => {
+  const storage = {
+    getItem: () => {
+      throw new Error("blocked");
+    },
+    setItem: () => {
+      throw new Error("blocked");
+    },
+  };
+  assert.doesNotThrow(() => recordUsage(storage, false));
 });

@@ -1,4 +1,4 @@
-export function calculate(input, includeSensitivity = true) {
+export function calculate(input, includeSensitivity = true, includeBreakEven = true) {
   const n = (value, fallback = 0) => {
     if (value === undefined || value === null || (typeof value === "string" && value.trim() === "")) return fallback;
     const number = Number(value);
@@ -25,9 +25,39 @@ export function calculate(input, includeSensitivity = true) {
   const delta = inHouse - quote.total;
   const perOrder = orders ? quote.total / orders : 0;
   const inHouseRate = n(input.inHousePerOrder, 13);
-  const result = { orders, unitsPerOrder: units, quote, inHouse, delta, perOrder, breakEvenOrders: inHouseRate ? quote.total / inHouseRate : 0, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
+  const breakEven = includeBreakEven
+    ? estimateBreakEven(input, inHouseRate)
+    : { orders: inHouseRate ? quote.total / inHouseRate : 0, found: Boolean(inHouseRate) };
+  const result = { orders, unitsPerOrder: units, quote, inHouse, delta, perOrder, breakEvenOrders: breakEven.orders, breakEvenFound: breakEven.found, minimumApplied: quote.total > quote.subtotal, winner: delta >= 0 ? "3PL" : "in-house", components: ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"], warnings };
   if (includeSensitivity) result.sensitivity = volumeSensitivity(input);
   return result;
+}
+
+/**
+ * First whole-order volume where in-house cost covers the 3PL quote,
+ * recalculating receiving, minimums, and line items at that volume.
+ * The simple current-total / in-house rate is only a snapshot of this month.
+ */
+function estimateBreakEven(input, inHouseRate) {
+  if (!inHouseRate) return { orders: 0, found: false };
+  const units = Number.isFinite(Number(input?.unitsPerOrder))
+    ? Math.max(0, Number(input.unitsPerOrder))
+    : 1.5;
+  const deltaAt = (orders) => {
+    const result = calculate({ ...input, orders, inboundUnits: orders * units }, false, false);
+    return result.inHouse - result.quote.total;
+  };
+  if (deltaAt(0) >= 0) return { orders: 0, found: true };
+  let high = 1;
+  while (high < 1_000_000 && deltaAt(high) < 0) high *= 2;
+  if (deltaAt(high) < 0) return { orders: 0, found: false };
+  let low = Math.floor(high / 2);
+  while (low + 1 < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (deltaAt(middle) >= 0) high = middle;
+    else low = middle;
+  }
+  return { orders: high, found: true };
 }
 
 const inputLabels = { orders: "Orders / month", unitsPerOrder: "Units / order", pallets: "Pallets stored", inboundUnits: "Inbound units / month", receivingPerUnit: "Receiving / unit", storagePerPallet: "Storage / pallet", firstPick: "First pick / order", additionalPick: "Additional pick / unit", packaging: "Packaging / order", shipping: "Shipping / order", returnsRate: "Returns rate", returnFee: "Return handling / order", restockFee: "Restocking / returned order", fixedFee: "Fixed monthly fee", minimumMonthly: "Minimum monthly spend", inHousePerOrder: "In-house cost / order" };
@@ -866,20 +896,20 @@ export function kittingSummary(input = {}) {
   ].join("\n");
 }
 
+const componentLabels = { receiving: "Receiving", storage: "Storage", pickPack: "Pick and pack", packaging: "Packaging", shipping: "Shipping", returns: "Returns", fixed: "Fixed fees" };
+
 export function negotiationLines(result) {
   const driver = largestCostDriver(result);
   return [
     `Monthly volume: ${result.orders} orders`,
     `Largest normalized cost driver: ${driver.label} (${money(driver.amount)}, ${driver.share}% of subtotal)`,
-    ...result.components.map((component) => `${component}: ${money(result.quote[component])}`),
+    ...result.components.map((component) => `${componentLabels[component] || component}: ${money(result.quote[component])}`),
     `Subtotal before minimum: ${money(result.quote.subtotal)}`,
     `Minimum monthly spend applied: ${money(Math.max(0, result.quote.total - result.quote.subtotal))}`,
     `Total estimated 3PL cost: ${money(result.quote.total)}`,
     `True cost per order: ${money(result.perOrder)}`,
   ];
 }
-
-const componentLabels = { receiving: "Receiving", storage: "Storage", pickPack: "Pick and pack", packaging: "Packaging", shipping: "Shipping", returns: "Returns", fixed: "Fixed fees" };
 
 export function largestCostDriver(result) {
   const component = result.components.reduce((largest, current) =>
@@ -889,6 +919,21 @@ export function largestCostDriver(result) {
   const amount = result.quote[component] || 0;
   const subtotal = result.quote.subtotal || 0;
   return { component, label: componentLabels[component] || component, amount, share: subtotal ? Math.round((amount / subtotal) * 100) : 0 };
+}
+
+export function costDrivers(result, reductionPercent = 10) {
+  const reduction = Math.min(100, Math.max(0, Number(reductionPercent) || 0)) / 100;
+  return result.components.map((component) => {
+    const current = result.quote[component] || 0;
+    const savings = current * reduction;
+    return {
+      component,
+      label: componentLabels[component] || component,
+      current,
+      savings,
+      revised: current - savings,
+    };
+  }).sort((first, second) => second.current - first.current);
 }
 
 export function summary(result) {

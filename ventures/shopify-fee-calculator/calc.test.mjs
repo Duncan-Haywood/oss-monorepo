@@ -2,7 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   applyPlanPreset,
+  applyPromo,
   calculateOrder,
+  comparePlans,
+  comparePromos,
+  defaultPromoSet,
+  promoComparisonSummary,
   compareOnlineVsPos,
   compareShippingLabels,
   compareReturnResolution,
@@ -89,6 +94,10 @@ import {
   DEFAULT_ADDON_LABEL,
   DEFAULT_MONTHLY_UPSELL_CHECKOUTS,
   PLAN_PRESETS,
+  perOrderProcessingFee,
+  upgradeBreakEvenOrders,
+  expectedProfitAfterRefunds,
+  refundRateSweep,
 } from "./calc.mjs";
 
 const near = (actual, expected, msg) =>
@@ -197,6 +206,22 @@ test("reports an unreachable target margin when fees leave no margin room", () =
   assert.equal(r.selected.targetMarginPrice, Infinity);
 });
 
+test("calculates the item price required for a target net profit", () => {
+  const input = {
+    price: 48, shippingCharged: 6, paymentsRate: 2.9, paymentsFixed: 0.3,
+    costOfGoods: 14, shippingCost: 5, packagingCost: 1, monthlyPlan: 39,
+    monthlyOrders: 100, targetProfit: 20, paymentMethod: "shopify_payments",
+  };
+  const r = calculateOrder(input);
+  const atTarget = calculateOrder({ ...input, price: r.selected.targetProfitPrice });
+  near(atTarget.selected.profit, 20, "profit at target price");
+});
+
+test("reports an unreachable target profit when the fee rate is 100%", () => {
+  const r = calculateOrder({ price: 10, paymentsRate: 100, targetProfit: 20, paymentMethod: "shopify_payments" });
+  assert.equal(r.selected.targetProfitPrice, Infinity);
+});
+
 test("ROI is null when no cash was invested", () => {
   const r = calculateOrder({
     price: 20,
@@ -233,6 +258,112 @@ test("rejects unknown plans and invalid inputs", () => {
     () => calculateOrder({ price: 10, monthlyPlan: 39, monthlyOrders: 0 }),
     /Monthly orders/,
   );
+  assert.throws(() => upgradeBreakEvenOrders("starter", "grow"), /Unknown Shopify plan/);
+  assert.throws(() => comparePlans({ price: 48, monthlyOrders: 0 }), /Monthly orders/);
+});
+
+const PLAN_COMPARE_INPUT = {
+  price: 48,
+  shippingCharged: 6,
+  processorRate: 3.49,
+  processorFixed: 0.49,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+  planId: "basic",
+};
+
+test("per-order processing fee ignores the monthly plan so volume is not circular", () => {
+  const basic = perOrderProcessingFee(PLAN_COMPARE_INPUT, "basic");
+  const grow = perOrderProcessingFee(PLAN_COMPARE_INPUT, "grow");
+  near(basic, 54 * 0.029 + 0.3, "Basic Shopify Payments fee");
+  near(grow, 54 * 0.027 + 0.3, "Grow Shopify Payments fee");
+  assert.ok(basic > grow, "Grow's lower rate should save on the same order");
+});
+
+test("Grow vs Basic break-even is extra plan cost divided by per-order fee savings", () => {
+  const step = upgradeBreakEvenOrders("basic", "grow", PLAN_COMPARE_INPUT);
+  const feeSavings = (54 * 0.029 + 0.3) - (54 * 0.027 + 0.3);
+  near(step.extraMonthly, 105 - 39, "extra monthly");
+  near(step.feeSavings, feeSavings, "per-order savings");
+  near(step.breakEvenOrders, 66 / feeSavings, "break-even orders");
+  assert.equal(step.neverPays, false);
+  assert.equal(step.alreadyCheaper, false);
+  // The SEO page quotes this worked example: $54 order, 2.9%→2.7%, $66 extra.
+  assert.equal(Math.ceil(step.breakEvenOrders - 1e-9), 612);
+});
+
+test("PayPal path reaches Grow sooner because the third-party fee also drops", () => {
+  const shopifyPath = upgradeBreakEvenOrders("basic", "grow", PLAN_COMPARE_INPUT);
+  const paypalPath = upgradeBreakEvenOrders("basic", "grow", {
+    ...PLAN_COMPARE_INPUT,
+    paymentMethod: "third_party",
+  });
+  const shopifySavings = (54 * 0.029 + 0.3) - (54 * 0.027 + 0.3);
+  const paypalSavings =
+    (54 * 0.02 + 54 * 0.0349 + 0.49) - (54 * 0.01 + 54 * 0.0349 + 0.49);
+  near(paypalPath.feeSavings, paypalSavings, "PayPal path savings include the 2%→1% drop");
+  assert.ok(paypalSavings > shopifySavings, "third-party path should save more per order");
+  assert.ok(
+    paypalPath.breakEvenOrders < shopifyPath.breakEvenOrders,
+    "PayPal path should need fewer orders to cover Grow",
+  );
+});
+
+test("downgrading to a cheaper plan is already cheaper on the monthly fee", () => {
+  const step = upgradeBreakEvenOrders("grow", "basic", PLAN_COMPARE_INPUT);
+  assert.equal(step.alreadyCheaper, true);
+  assert.equal(step.breakEvenOrders, 0);
+});
+
+test("an upgrade never pays from rates alone when there is no per-order fee to save", () => {
+  const step = upgradeBreakEvenOrders("basic", "plus", {
+    price: 0,
+    shippingCharged: 0,
+    paymentMethod: "shopify_payments",
+  });
+  assert.equal(step.neverPays, true);
+  assert.equal(step.breakEvenOrders, Infinity);
+  near(step.feeSavings, 0, "same $0.30 fixed fee on a $0 order");
+});
+
+test("comparePlans ranks every plan at the entered volume and marks the current one", () => {
+  const comparison = comparePlans(PLAN_COMPARE_INPUT);
+  assert.equal(comparison.plans.length, 4);
+  assert.equal(comparison.currentPlanId, "basic");
+  const basic = comparison.plans.find((plan) => plan.id === "basic");
+  const grow = comparison.plans.find((plan) => plan.id === "grow");
+  assert.equal(basic.isCurrent, true);
+  near(basic.vsCurrentMonthly, 0, "current vs itself");
+  const expectedGrowGap = grow.monthlyProfit - basic.monthlyProfit;
+  near(grow.vsCurrentMonthly, expectedGrowGap, "Grow vs Basic monthly");
+  const winner = comparison.plans.find((plan) => plan.isBest);
+  assert.equal(winner.id, comparison.bestPlanId);
+  assert.ok(comparison.plans.every((plan) => plan.id === winner.id || plan.monthlyProfit <= winner.monthlyProfit));
+});
+
+test("comparePlans monthly profit matches calculateOrder times volume", () => {
+  const comparison = comparePlans(PLAN_COMPARE_INPUT);
+  const growFilled = applyPlanPreset(PLAN_COMPARE_INPUT, "grow");
+  const growOrder = calculateOrder({
+    ...PLAN_COMPARE_INPUT,
+    ...growFilled,
+    monthlyOrders: 100,
+  });
+  const grow = comparison.plans.find((plan) => plan.id === "grow");
+  near(grow.perOrderProfit, growOrder.selected.profit, "per-order profit");
+  near(grow.monthlyProfit, growOrder.selected.profit * 100, "monthly profit");
+});
+
+test("at a high enough volume the next plan is marked worth it", () => {
+  const low = comparePlans({ ...PLAN_COMPARE_INPUT, monthlyOrders: 10 });
+  const high = comparePlans({ ...PLAN_COMPARE_INPUT, monthlyOrders: 2000 });
+  const lowGrow = low.upgrades.find((step) => step.fromPlanId === "basic" && step.toPlanId === "grow");
+  const highGrow = high.upgrades.find((step) => step.fromPlanId === "basic" && step.toPlanId === "grow");
+  assert.equal(lowGrow.worthItAtVolume, false);
+  assert.equal(highGrow.worthItAtVolume, true);
 });
 
 const POS_BASE = {
@@ -1604,4 +1735,247 @@ test("summary names the upsell leftover and does not tell you to turn an offer o
   assert.match(text, /11\.1%/);
   assert.match(text, /1\.8%/);
   assert.doesNotMatch(text, /should offer|must offer|turn on upsells|install rebuy/i);
+});
+
+const refundBase = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  shopifyTxnRate: 2,
+  processorRate: 3.49,
+  processorFixed: 0.49,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  otherCost: 0,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("a 0% refund rate leaves completed-order profit unchanged", () => {
+  const order = calculateOrder(refundBase);
+  const mix = expectedProfitAfterRefunds({ ...refundBase, refundRatePercent: 0 });
+  near(mix.shopifyPayments.expectedProfit, order.shopifyPayments.profit, "Shopify expected");
+  near(mix.thirdParty.expectedProfit, order.thirdParty.profit, "third-party expected");
+  assert.equal(mix.refundsFlipPath, false);
+  assert.equal(mix.completedWinner, "shopify_payments");
+  assert.equal(mix.expectedWinner, "shopify_payments");
+});
+
+test("a 100% refund with fee refunds still loses outbound shipping and packaging", () => {
+  // Shopify Payments fee refunded in full; goods restocked; return label $4.
+  // Remaining cash out: $5 outbound + $1 pack + $0.39 plan + $4 return = $10.39.
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    returnShippingCost: 4,
+    restockablePercent: 100,
+    shopifyPaymentsFeeRefundPercent: 100,
+  });
+  near(mix.shopifyPayments.remainingFeesOnRefund, 0, "Shopify fees refunded");
+  near(mix.shopifyPayments.refundOutcomeProfit, -10.39, "refunded order cash");
+  near(mix.shopifyPayments.expectedProfit, -10.39, "100% refund expected");
+});
+
+test("PayPal keeping its fee makes a refund cost more than Shopify Payments", () => {
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    returnShippingCost: 4,
+    restockablePercent: 100,
+    shopifyPaymentsFeeRefundPercent: 100,
+    thirdPartyFeeRefundPercent: 0,
+    shopifyThirdPartyFeeRefundPercent: 100,
+  });
+  const processorKept = 54 * 0.0349 + 0.49;
+  near(mix.thirdParty.remainingFeesOnRefund, processorKept, "PayPal keeps processor fee");
+  assert.ok(
+    mix.thirdParty.expectedProfit < mix.shopifyPayments.expectedProfit,
+    "third-party refund outcome should be worse when the processor keeps its fee",
+  );
+  near(
+    mix.expectedExtraVsShopifyPayments,
+    mix.thirdParty.expectedProfit - mix.shopifyPayments.expectedProfit,
+    "expected extra",
+  );
+});
+
+test("expected profit is the mix of completed and refunded outcomes", () => {
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 10,
+    returnShippingCost: 4,
+    restockablePercent: 100,
+  });
+  const expected = 0.9 * mix.shopifyPayments.completedProfit + 0.1 * mix.shopifyPayments.refundOutcomeProfit;
+  near(mix.selected.expectedProfit, expected, "10% mix");
+  near(mix.monthlyExpectedProfit, expected * 100, "monthly mix");
+});
+
+test("unsellable returns keep cost of goods in the refunded loss", () => {
+  const restocked = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    restockablePercent: 100,
+    returnShippingCost: 0,
+  });
+  const discarded = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 100,
+    restockablePercent: 0,
+    returnShippingCost: 0,
+  });
+  near(
+    discarded.shopifyPayments.expectedProfit - restocked.shopifyPayments.expectedProfit,
+    -14,
+    "lost goods",
+  );
+});
+
+test("break-even refund rate is the mix that zeros expected profit", () => {
+  const mix = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: 0,
+    returnShippingCost: 4,
+  });
+  const rate = mix.shopifyPayments.breakEvenRefundRate;
+  assert.ok(rate > 0 && rate < 100, `rate should be inside 0-100, got ${rate}`);
+  const atEdge = expectedProfitAfterRefunds({
+    ...refundBase,
+    refundRatePercent: rate,
+    returnShippingCost: 4,
+  });
+  near(atEdge.shopifyPayments.expectedProfit, 0, "profit at break-even refund rate");
+});
+
+test("refunds can flip which payment path still wins", () => {
+  // Completed order slightly prefers third-party. PayPal keeps its fee on
+  // refunds, so a high refund rate prefers Shopify Payments.
+  const input = {
+    price: 40,
+    shippingCharged: 0,
+    paymentsRate: 5,
+    paymentsFixed: 0.3,
+    shopifyTxnRate: 0,
+    processorRate: 2.9,
+    processorFixed: 0.3,
+    costOfGoods: 8,
+    shippingCost: 4,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+    returnShippingCost: 0,
+    restockablePercent: 100,
+    shopifyPaymentsFeeRefundPercent: 100,
+    thirdPartyFeeRefundPercent: 0,
+    shopifyThirdPartyFeeRefundPercent: 100,
+  };
+  const none = expectedProfitAfterRefunds({ ...input, refundRatePercent: 0 });
+  const many = expectedProfitAfterRefunds({ ...input, refundRatePercent: 50 });
+  assert.equal(none.completedWinner, "third_party");
+  assert.equal(many.expectedWinner, "shopify_payments");
+  assert.equal(many.refundsFlipPath, true);
+});
+
+test("refund rate sweep keeps 0% aligned with completed profit", () => {
+  const order = calculateOrder(refundBase);
+  const sweep = refundRateSweep(refundBase, [0, 10]);
+  assert.equal(sweep.length, 2);
+  near(sweep[0].shopifyPayments, order.shopifyPayments.profit, "sweep 0%");
+  assert.ok(sweep[1].shopifyPayments < sweep[0].shopifyPayments, "higher refund rate lowers expected profit");
+});
+
+test("rejects refund rates outside 0-100", () => {
+  assert.throws(
+    () => expectedProfitAfterRefunds({ ...refundBase, refundRatePercent: 101 }),
+    /Refund rate/,
+  );
+  assert.throws(
+    () => expectedProfitAfterRefunds({ ...refundBase, restockablePercent: -1 }),
+    /Restockable/,
+  );
+});
+
+const BASIC_PROMO_ORDER = {
+  price: 48,
+  shippingCharged: 6,
+  paymentsRate: 2.9,
+  paymentsFixed: 0.3,
+  costOfGoods: 14,
+  shippingCost: 5,
+  packagingCost: 1,
+  monthlyPlan: 39,
+  monthlyOrders: 100,
+  paymentMethod: "shopify_payments",
+};
+
+test("10% off keeps more than free shipping on the same Basic order", () => {
+  const comparison = comparePromos(BASIC_PROMO_ORDER);
+  const byId = Object.fromEntries(comparison.rows.map((row) => [row.id, row]));
+
+  near(byId.list.revenue, 54, "list revenue");
+  near(byId.list.feeTotal, 1.866, "list fees");
+  near(byId.list.profit, 31.744, "list profit");
+  near(byId.list.cashInvested, 20.39, "list cash");
+
+  near(byId.percent_off.price, 43.2, "10% price");
+  near(byId.percent_off.revenue, 49.2, "10% revenue");
+  near(byId.percent_off.feeTotal, 1.7268, "10% fees");
+  near(byId.percent_off.profit, 27.0832, "10% profit");
+  near(byId.percent_off.profitDelta, 27.0832 - 31.744, "10% vs list");
+
+  near(byId.free_shipping.shippingCharged, 0, "free-ship charged");
+  near(byId.free_shipping.revenue, 48, "free-ship revenue");
+  near(byId.free_shipping.feeTotal, 1.692, "free-ship fees");
+  near(byId.free_shipping.profit, 25.918, "free-ship profit");
+  near(byId.free_shipping.cashInvested, 20.39, "label still paid");
+
+  near(byId.amount_off.price, 38, "$10 price");
+  near(byId.amount_off.revenue, 44, "$10 revenue");
+  near(byId.amount_off.feeTotal, 1.576, "$10 fees");
+  near(byId.amount_off.profit, 22.034, "$10 profit");
+
+  assert.equal(comparison.best.id, "list");
+  const promoRank = comparison.ranked.filter((row) => row.kind !== "list").map((row) => row.id);
+  assert.deepEqual(promoRank, ["percent_off", "free_shipping", "amount_off"]);
+  near(byId.percent_off.profit - byId.free_shipping.profit, 1.1652, "10% vs free ship");
+});
+
+test("free shipping can flip a thin order to a loss when 10% off does not", () => {
+  const thin = {
+    price: 24,
+    shippingCharged: 10,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 15,
+    shippingCost: 9,
+    packagingCost: 1,
+    monthlyPlan: 0,
+    paymentMethod: "shopify_payments",
+  };
+  const comparison = comparePromos(thin, defaultPromoSet({ percentOff: 10, amountOff: 5 }));
+  const byId = Object.fromEntries(comparison.rows.map((row) => [row.id, row]));
+
+  near(byId.list.profit, 7.714, "thin list");
+  near(byId.percent_off.profit, 5.3836, "thin 10%");
+  near(byId.amount_off.profit, 2.859, "thin $5");
+  near(byId.free_shipping.profit, -1.996, "thin free ship");
+  assert.equal(byId.percent_off.isLoss, false);
+  assert.equal(byId.free_shipping.isLoss, true);
+  assert.match(promoComparisonSummary(comparison), /Free shipping turns the order into a loss/);
+  assert.match(promoComparisonSummary(comparison), /10% off item keeps the most/);
+});
+
+test("applyPromo floors an amount-off below the item price at zero", () => {
+  const applied = applyPromo({ price: 8, shippingCharged: 4 }, { kind: "amount_off", amount: 20 });
+  assert.equal(applied.price, 0);
+  assert.equal(applied.shippingCharged, 4);
+});
+
+test("rejects unknown promo kinds and percents above 100", () => {
+  assert.throws(() => applyPromo({ price: 10 }, { kind: "bogo" }), /Unknown promo kind/);
+  assert.throws(() => applyPromo({ price: 10 }, { kind: "percent_off", percent: 110 }), /at most 100/);
+  assert.throws(() => comparePromos({ price: 10 }, []), /At least one promo/);
 });

@@ -63,6 +63,18 @@ test('sheet and linear plans are counted apart from each other', () => {
   assert.equal(readUsage(storage, 'sheet-compares'), 1);
 });
 
+test('size-comparison actions are counted apart from plans and copies', () => {
+  const storage = fakeStorage();
+  recordUsage(storage, false, 'sheet-compares');
+  recordUsage(storage, false, 'compares');
+  recordUsage(storage, false, 'sheet-copies');
+  assert.equal(readUsage(storage, 'sheet-compares'), 1);
+  assert.equal(readUsage(storage, 'compares'), 1);
+  assert.equal(readUsage(storage, 'sheet-copies'), 1);
+  assert.ok(EVENTS.includes('sheet-compares'));
+  assert.ok(EVENTS.includes('compares'));
+});
+
 test('no part of the cut list is stored — only counts', () => {
   const storage = fakeStorage();
   recordUsage(storage, false, 'sheet-runs');

@@ -31,7 +31,8 @@ export const SIZE_TIER_LABELS = {
 // Illustrative 2025–26 US inbound placement mid-band defaults.
 // Amazon charges a per-unit placement fee when a shipment is sent to fewer
 // fulfillment centers than its "optimized" split. Sellers replace these with
-// the per-unit fees on their current inbound preview.
+// the fees on their current inbound-placement preview — this is not Amazon's
+// live schedule.
 export const PLACEMENT_PRESETS = {
   small_standard: { label: "Small standard", minimalPerUnit: 0.32, partialPerUnit: 0.21 },
   large_standard: { label: "Large standard", minimalPerUnit: 0.43, partialPerUnit: 0.27 },
@@ -61,6 +62,12 @@ function number(value, name, fallback = 0) {
   if (!Number.isFinite(result) || result < 0) {
     throw new Error(`${name} must be a non-negative number`);
   }
+  return result;
+}
+
+function wholeNumber(value, name, fallback = 0) {
+  const result = number(value, name, fallback);
+  if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
   return result;
 }
 
@@ -371,6 +378,7 @@ export function calculateListing(input) {
   const monthsInStorage = number(input.monthsInStorage, "Months in storage", 1);
   const storageRate = number(input.storageRate, "Storage rate", STORAGE_PRESETS.off_peak.perCuFt);
   const fbmShippingCost = number(input.fbmShippingCost, "FBM shipping cost");
+  const fbmHandlingCost = number(input.fbmHandlingCost, "FBM handling cost");
   const packagingCost = number(input.packagingCost, "Packaging cost");
   const otherCost = number(input.otherCost, "Other cost");
   const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
@@ -406,7 +414,35 @@ export function calculateListing(input) {
 
   function finish(path, cogsInCash) {
     path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
+    path.targetMarginBuyCost = Math.max(
+      0,
+      salePrice - path.feeTotal - (path.cashInvested - cogsInCash) - salePrice * targetMarginRate,
+    );
     return path;
+  }
+
+  // Ads sit in cashInvested, so profit already includes the current PPC spend.
+  // Add the spend back to see how much advertising the unit can still carry
+  // before it loses money, or before it misses the seller's target margin.
+  // ACOS is that spend as a percent of the sale price — the number PPC
+  // campaigns are actually managed against.
+  function attachAdLimits(path) {
+    const profitBeforeAds = path.profit + adsPerUnit;
+    const breakEvenAds = Math.max(0, profitBeforeAds);
+    const targetProfit = salePrice * targetMarginRate;
+    const targetMarginAds = Math.max(0, profitBeforeAds - targetProfit);
+    const acos = (ads) => (salePrice <= 0 ? null : (ads / salePrice) * 100);
+    return {
+      ...path,
+      profitBeforeAds,
+      breakEvenAds,
+      breakEvenAcos: acos(breakEvenAds),
+      currentAcos: acos(adsPerUnit),
+      targetMarginAds,
+      targetMarginAcos: acos(targetMarginAds),
+      adsStillPay: path.profit >= -1e-9,
+      targetMarginReachableWithAds: profitBeforeAds + 1e-9 >= targetProfit,
+    };
   }
 
   const fbaCash = sharedCash + inboundPerUnit + storagePerUnit;
@@ -421,7 +457,7 @@ export function calculateListing(input) {
     costOfGoods,
   );
 
-  const fbmCash = sharedCash + fbmShippingCost;
+  const fbmCash = sharedCash + fbmShippingCost + fbmHandlingCost;
   const fbm = finish(
     pathResult({
       revenue: salePrice,
@@ -450,14 +486,14 @@ export function calculateListing(input) {
     returnHandlingFee,
     unsellableRate,
   };
-  const fbaAfterReturns = withExpectedReturns(fba, {
+  const fbaAfterReturns = attachAdLimits(withExpectedReturns(fba, {
     ...returnAssumptions,
     fulfillmentFee,
-  });
-  const fbmAfterReturns = withExpectedReturns(fbm, {
+  }));
+  const fbmAfterReturns = attachAdLimits(withExpectedReturns(fbm, {
     ...returnAssumptions,
     fulfillmentFee: 0,
-  });
+  }));
 
   const selected = fulfillmentMethod === "fba" ? fbaAfterReturns : fbmAfterReturns;
   const fbaAdvantage = fbaAfterReturns.profit - fbmAfterReturns.profit;
@@ -477,8 +513,24 @@ export function calculateListing(input) {
     selected,
     fba: fbaAfterReturns,
     fbm: fbmAfterReturns,
+    fbmHandlingCost,
     fbaAdvantage,
     cheaperPath: fbaAdvantage > 0 ? "fba" : fbaAdvantage < 0 ? "fbm" : "tie",
+  };
+}
+
+// Turns the selected path's max-buy calculation into a sourcing checkpoint.
+// Arithmetic comparison only — not a recommendation to purchase.
+export function buyCostCheck(result, costOfGoods) {
+  const cost = number(costOfGoods, "Cost of goods");
+  const maxBuy = result.selected.breakEvenBuyCost;
+  const headroom = maxBuy - cost;
+  return {
+    cost,
+    maxBuy,
+    headroom,
+    status: headroom > 0 ? "below_ceiling" : headroom < 0 ? "above_ceiling" : "at_ceiling",
+    targetMarginPrice: result.selected.targetMarginPrice,
   };
 }
 
@@ -1990,6 +2042,383 @@ export function compareAgedInventory(input) {
   };
 }
 
+/**
+ * Months of the remaining stay that fall after the aged-inventory threshold.
+ * Age is counted at the end of each future month: a unit already stored for
+ * `monthsAlreadyStored` months, held one more month, is age
+ * `monthsAlreadyStored + 1`. Surcharge applies when that age is strictly
+ * greater than `agedStartsAfterMonths` (the usual “after 6 months” reading).
+ *
+ * Complementary to compareAgedInventory, which applies a typed per-unit AIS
+ * every month of the horizon. This answers a different question: how many of
+ * the remaining months will actually be billed at the surcharge.
+ */
+export function agedSurchargeMonths({
+  monthsAlreadyStored,
+  additionalMonths,
+  agedStartsAfterMonths,
+}) {
+  const already = number(monthsAlreadyStored, "Months already stored");
+  const extra = number(additionalMonths, "Additional months");
+  const threshold = number(agedStartsAfterMonths, "Aged surcharge starts after months", 6);
+  let surchargeMonths = 0;
+  for (let month = 1; month <= extra; month += 1) {
+    if (already + month > threshold) surchargeMonths += 1;
+  }
+  return surchargeMonths;
+}
+
+function warehouseCostPerUnit({
+  cubicFeet,
+  additionalMonths,
+  monthsAlreadyStored,
+  agedStartsAfterMonths,
+  storageRate,
+  agedSurchargePerCuFt,
+}) {
+  const cuFt = number(cubicFeet, "Cubic feet");
+  const extra = number(additionalMonths, "Additional months");
+  const storage = number(storageRate, "Storage rate");
+  const surcharge = number(agedSurchargePerCuFt, "Aged surcharge per cu ft");
+  const surchargeMonths = agedSurchargeMonths({
+    monthsAlreadyStored,
+    additionalMonths: extra,
+    agedStartsAfterMonths,
+  });
+  return {
+    surchargeMonths,
+    storagePerUnit: cuFt * storage * extra,
+    surchargePerUnit: cuFt * surcharge * surchargeMonths,
+    warehousePerUnit: cuFt * storage * extra + cuFt * surcharge * surchargeMonths,
+  };
+}
+
+/**
+ * Forward-looking hold-vs-remove for units already in FBA.
+ *
+ * Cost of goods, inbound already paid, storage already billed, and the
+ * professional monthly plan are sunk either way and are excluded. The hold
+ * path assumes the remaining units sell at `salePrice` after
+ * `expectedMonthsToSell` more months, paying referral, fulfillment, ads, and
+ * the *future* warehouse bill. The remove path pays the removal/disposal fee
+ * and recovers `salvagePerUnit` (liquidation, FBM elsewhere, or $0).
+ *
+ * Distinct from compareAgedInventory (keep / return / dispose over a sell-
+ * through horizon with a flat per-unit AIS). Salvaged from #1495.
+ */
+export function compareHoldVsRemove(input) {
+  const remainingUnits = wholeNumber(input.remainingUnits, "Remaining units", 1);
+  if (remainingUnits < 1) throw new Error("Remaining units must be at least 1");
+  const expectedMonthsToSell = number(input.expectedMonthsToSell, "Expected months to sell", 2);
+  const monthsAlreadyStored = number(input.monthsAlreadyStored, "Months already stored");
+  const agedStartsAfterMonths = number(input.agedStartsAfterMonths, "Aged surcharge starts after months", 6);
+  const storageRate = number(input.storageRate, "Storage rate");
+  const agedSurchargePerCuFt = number(input.agedSurchargePerCuFt, "Aged surcharge per cu ft");
+  const removalFeePerUnit = number(input.removalFeePerUnit, "Removal fee per unit");
+  const salvagePerUnit = number(input.salvagePerUnit, "Salvage per unit");
+  const cubicFeet = number(input.cubicFeet, "Cubic feet");
+  const salePrice = number(input.salePrice, "Sale price");
+  const referralRate = number(input.referralRate, "Referral rate");
+  const fulfillmentFee = number(input.fulfillmentFee, "Fulfillment fee");
+  const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
+
+  const referral = salePrice * (referralRate / 100);
+  const sellingCosts = referral + fulfillmentFee + adsPerUnit;
+  const removeNetPerUnit = salvagePerUnit - removalFeePerUnit;
+
+  function outcome(additionalMonths) {
+    const warehouse = warehouseCostPerUnit({
+      cubicFeet,
+      additionalMonths,
+      monthsAlreadyStored,
+      agedStartsAfterMonths,
+      storageRate,
+      agedSurchargePerCuFt,
+    });
+    const holdNetPerUnit = salePrice - sellingCosts - warehouse.warehousePerUnit;
+    return {
+      additionalMonths,
+      ...warehouse,
+      holdNetPerUnit,
+      holdTotal: holdNetPerUnit * remainingUnits,
+      removeNetPerUnit,
+      removeTotal: removeNetPerUnit * remainingUnits,
+      holdAdvantage: (holdNetPerUnit - removeNetPerUnit) * remainingUnits,
+    };
+  }
+
+  const expected = outcome(expectedMonthsToSell);
+  const holdAdvantage = expected.holdAdvantage;
+  let monthsUntilRemoveWins = null;
+  for (let month = 0; month <= 36; month += 1) {
+    if (outcome(month).holdAdvantage < 0) {
+      monthsUntilRemoveWins = month;
+      break;
+    }
+  }
+
+  return {
+    remainingUnits,
+    expectedMonthsToSell,
+    monthsAlreadyStored,
+    agedStartsAfterMonths,
+    sellingCosts,
+    ...expected,
+    betterPath: holdAdvantage > 0 ? "hold" : holdAdvantage < 0 ? "remove" : "tie",
+    monthsUntilRemoveWins,
+    scenarios: [1, 2, 3, 6].map(outcome),
+  };
+}
+
+function liquidationSummary({
+  winner,
+  keepCash,
+  liquidateCash,
+  elsewhereCash,
+  disposeCash,
+  extraLiquidateVsDispose,
+  extraElsewhereVsLiquidate,
+  extraKeepVsLiquidate,
+  breakEvenRecoveryVsDispose,
+  breakEvenElsewhereVsLiquidate,
+  breakEvenSellThroughVsLiquidate,
+  agedUnits,
+  horizonMonths,
+}) {
+  const keep = moneyLabel(keepCash);
+  const liquidate = moneyLabel(liquidateCash);
+  const elsewhere = moneyLabel(elsewhereCash);
+  const dispose = moneyLabel(disposeCash);
+  const liqGap = moneyLabel(Math.abs(extraLiquidateVsDispose));
+  const elseGap = moneyLabel(Math.abs(extraElsewhereVsLiquidate));
+  const keepGap = moneyLabel(Math.abs(extraKeepVsLiquidate));
+  const pile = `${agedUnits} unit${agedUnits === 1 ? "" : "s"}`;
+  const months = `${horizonMonths} month${horizonMonths === 1 ? "" : "s"}`;
+  const recoveryFloor = !Number.isFinite(breakEvenRecoveryVsDispose)
+    ? "an unreachable recovery"
+    : breakEvenRecoveryVsDispose <= 1e-9
+      ? "0%"
+      : `${breakEvenRecoveryVsDispose.toFixed(1)}%`;
+  const elsewhereFloor = Number.isFinite(breakEvenElsewhereVsLiquidate)
+    ? moneyLabel(breakEvenElsewhereVsLiquidate)
+    : "an unreachable leftover";
+  const sellThroughFloor = Number.isFinite(breakEvenSellThroughVsLiquidate)
+    ? `${breakEvenSellThroughVsLiquidate.toFixed(1)}%`
+    : "an unreachable sell-through";
+
+  if (winner === "liquidate") {
+    return (
+      `FBA Liquidations keeps ${liqGap} more than disposing the ${pile} ` +
+      `(${liquidate} vs ${dispose}). Selling the returned units elsewhere ` +
+      `is ${elsewhere}. Keeping over ${months} is ${keep}. ` +
+      `${breakEvenRecoveryVsDispose <= 1e-9
+        ? "Even 0% recovery still beats dispose on this processing fee."
+        : `Recovery can fall to about ${recoveryFloor} before dispose matches.`}`
+    );
+  }
+  if (winner === "elsewhere") {
+    return (
+      `Pulling the ${pile} and selling them elsewhere keeps ${elseGap} more ` +
+      `than FBA Liquidations (${elsewhere} vs ${liquidate}). Dispose is ` +
+      `${dispose}. Keeping over ${months} is ${keep}. ` +
+      `Elsewhere leftover can fall to about ${elsewhereFloor} before ` +
+      `liquidations match.`
+    );
+  }
+  if (winner === "dispose") {
+    return (
+      `Disposing the ${pile} loses ${liqGap} less than FBA Liquidations ` +
+      `(${dispose} vs ${liquidate}). Selling elsewhere is ${elsewhere}. ` +
+      `Keeping over ${months} is ${keep}. Recovery needs about ` +
+      `${recoveryFloor} to match dispose.`
+    );
+  }
+  if (winner === "keep") {
+    return (
+      `Keeping the ${pile} still beats FBA Liquidations by ${keepGap} over ` +
+      `${months} (${keep} vs ${liquidate}). Selling elsewhere is ${elsewhere}. ` +
+      `Keeping needs about ${sellThroughFloor} monthly sell-through to ` +
+      `match liquidations.`
+    );
+  }
+  return (
+    `Keeping, liquidating, selling elsewhere, and disposing leave the ` +
+    `same cash on these rates over ${months}.`
+  );
+}
+
+/**
+ * Same leftover FBA pile, four cash paths — complementary to
+ * compareAgedInventory, which treats a return as a fee with no resale
+ * and has no Amazon Liquidations recovery.
+ *
+ *   - Keep — expected sales at the typed monthly sell-through, minus
+ *     storage and aged-inventory surcharge (same path as the aged page).
+ *   - Liquidate — Amazon takes the units and pays recovery% of list
+ *     minus a per-unit processing fee. Units are gone.
+ *   - Elsewhere — pay the return-removal fee, then keep the typed
+ *     leftover from selling the units on eBay / your site / a jobber.
+ *   - Dispose — pay the cheaper disposal fee; the units are gone.
+ *
+ * COGS and inbound are sunk. Professional is paid anyway. Rates are
+ * inputs, not Amazon's live liquidation recoverability table.
+ * Salvaged from #1703 onto current main so the unique recovery
+ * comparison is not lost to a conflicted close.
+ */
+export function compareLiquidation(input = {}) {
+  const aged = compareAgedInventory(input);
+  const recoveryPct = emptyField(input.recoveryPct)
+    ? DEFAULT_LIQUIDATION_RECOVERY_PCT
+    : takePercent(input.recoveryPct, "Recovery percent");
+  const liquidationFee = emptyField(input.liquidationFee)
+    ? DEFAULT_LIQUIDATION_FEE
+    : number(input.liquidationFee, "Liquidation fee");
+  const elsewhereNet = emptyField(input.elsewhereNet)
+    ? DEFAULT_ELSEWHERE_NET
+    : number(input.elsewhereNet, "Elsewhere leftover");
+
+  const listing = calculateListing({
+    ...input,
+    fulfillmentMethod: "fba",
+    monthsInStorage: 1,
+  });
+  const salePrice = listing.salePrice;
+  const agedUnits = aged.agedUnits;
+  const liquidatePerUnit = salePrice * (recoveryPct / 100) - liquidationFee;
+  const elsewherePerUnit = elsewhereNet - aged.removalFee;
+  const liquidateCash = liquidatePerUnit * agedUnits;
+  const elsewhereCash = elsewherePerUnit * agedUnits;
+
+  const keep = {
+    id: "keep",
+    label: "Keep and sell through",
+    cash: aged.keep.cash,
+    leftoverUnits: aged.keep.leftoverUnits,
+    soldUnits: aged.keep.soldUnits,
+    carryingFees: aged.keep.carryingFees,
+    perUnit: aged.keep.cash / agedUnits,
+  };
+  const liquidate = {
+    id: "liquidate",
+    label: "FBA Liquidations",
+    cash: liquidateCash,
+    leftoverUnits: 0,
+    soldUnits: 0,
+    carryingFees: 0,
+    perUnit: liquidatePerUnit,
+  };
+  const elsewhere = {
+    id: "elsewhere",
+    label: "Remove and sell elsewhere",
+    cash: elsewhereCash,
+    leftoverUnits: 0,
+    soldUnits: agedUnits,
+    carryingFees: 0,
+    perUnit: elsewherePerUnit,
+  };
+  const dispose = {
+    id: "dispose",
+    label: "Dispose",
+    cash: aged.dispose.cash,
+    leftoverUnits: 0,
+    soldUnits: 0,
+    carryingFees: 0,
+    perUnit: aged.dispose.cash / agedUnits,
+  };
+
+  const rows = [keep, liquidate, elsewhere, dispose].map((row) => ({
+    ...row,
+    vsLiquidate: row.cash - liquidateCash,
+  }));
+  const maxCash = Math.max(...rows.map((row) => row.cash));
+  const leaders = rows.filter((row) => Math.abs(row.cash - maxCash) < 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenRecoveryVsDispose = Infinity;
+  if (salePrice > 1e-12) {
+    breakEvenRecoveryVsDispose = ((liquidationFee + aged.dispose.cash / agedUnits) / salePrice) * 100;
+    if (!Number.isFinite(breakEvenRecoveryVsDispose) || breakEvenRecoveryVsDispose < -1e-9) {
+      breakEvenRecoveryVsDispose = 0;
+    } else if (breakEvenRecoveryVsDispose > 100 + 1e-9) {
+      breakEvenRecoveryVsDispose = Infinity;
+    } else {
+      breakEvenRecoveryVsDispose = Math.max(0, Math.min(100, breakEvenRecoveryVsDispose));
+    }
+  }
+
+  let breakEvenRecoveryVsKeep = Infinity;
+  if (salePrice > 1e-12) {
+    breakEvenRecoveryVsKeep = ((keep.perUnit + liquidationFee) / salePrice) * 100;
+    if (!Number.isFinite(breakEvenRecoveryVsKeep) || breakEvenRecoveryVsKeep < -1e-9) {
+      breakEvenRecoveryVsKeep = 0;
+    } else if (breakEvenRecoveryVsKeep > 100 + 1e-9) {
+      breakEvenRecoveryVsKeep = Infinity;
+    } else {
+      breakEvenRecoveryVsKeep = Math.max(0, Math.min(100, breakEvenRecoveryVsKeep));
+    }
+  }
+
+  const breakEvenElsewhereVsLiquidate = liquidatePerUnit + aged.removalFee;
+  const keepArgs = {
+    units: agedUnits,
+    horizonMonths: aged.horizonMonths,
+    storagePerUnitMonth: aged.storagePerUnitMonth,
+    aisPerUnit: aged.aisPerUnit,
+    contribution: aged.contribution,
+  };
+  const breakEvenSellThroughVsLiquidate = agedBreakEvenSellThrough(liquidateCash, keepArgs);
+
+  return {
+    rows,
+    keep: rows[0],
+    liquidate: rows[1],
+    elsewhere: rows[2],
+    dispose: rows[3],
+    winner,
+    salePrice,
+    agedUnits,
+    monthlySellThroughPct: aged.monthlySellThroughPct,
+    horizonMonths: aged.horizonMonths,
+    aisPerUnit: aged.aisPerUnit,
+    removalFee: aged.removalFee,
+    disposalFee: aged.disposalFee,
+    recoveryPct,
+    liquidationFee,
+    elsewhereNet,
+    contribution: aged.contribution,
+    storagePerUnitMonth: aged.storagePerUnitMonth,
+    extraLiquidateVsDispose: liquidateCash - aged.dispose.cash,
+    extraElsewhereVsLiquidate: elsewhereCash - liquidateCash,
+    extraKeepVsLiquidate: aged.keep.cash - liquidateCash,
+    breakEvenRecoveryVsDispose,
+    breakEvenRecoveryVsKeep,
+    breakEvenElsewhereVsLiquidate,
+    breakEvenSellThroughVsLiquidate,
+    summary: liquidationSummary({
+      winner,
+      keepCash: aged.keep.cash,
+      liquidateCash,
+      elsewhereCash,
+      disposeCash: aged.dispose.cash,
+      extraLiquidateVsDispose: liquidateCash - aged.dispose.cash,
+      extraElsewhereVsLiquidate: elsewhereCash - liquidateCash,
+      extraKeepVsLiquidate: aged.keep.cash - liquidateCash,
+      breakEvenRecoveryVsDispose,
+      breakEvenElsewhereVsLiquidate,
+      breakEvenSellThroughVsLiquidate,
+      agedUnits,
+      horizonMonths: aged.horizonMonths,
+    }),
+  };
+}
+
+export function liquidationNote(comparison) {
+  if (!comparison?.liquidate || !comparison?.dispose) {
+    throw new Error("Liquidation comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
 // Freight to one FC vs Amazon's inbound placement fee is the weekly inbound
 // decision. The listing calculator's "inbound / unit" field is a blended
 // number; this comparison keeps freight and placement on separate lines so a
@@ -2717,246 +3146,558 @@ export function sfpNote(comparison) {
   return comparison.summary;
 }
 
-function liquidationSummary({
-  winner,
-  keepCash,
-  liquidateCash,
-  elsewhereCash,
-  disposeCash,
-  extraLiquidateVsDispose,
-  extraElsewhereVsLiquidate,
-  breakEvenRecoveryVsDispose,
-  breakEvenElsewhereVsLiquidate,
-  breakEvenSellThroughVsLiquidate,
-  agedUnits,
-  horizonMonths,
-}) {
-  const keep = moneyLabel(keepCash);
-  const liquidate = moneyLabel(liquidateCash);
-  const elsewhere = moneyLabel(elsewhereCash);
-  const dispose = moneyLabel(disposeCash);
-  const liqGap = moneyLabel(Math.abs(extraLiquidateVsDispose));
-  const elseGap = moneyLabel(Math.abs(extraElsewhereVsLiquidate));
-  const pile = `${agedUnits} unit${agedUnits === 1 ? "" : "s"}`;
-  const months = `${horizonMonths} month${horizonMonths === 1 ? "" : "s"}`;
-  const recoveryFloor = !Number.isFinite(breakEvenRecoveryVsDispose)
-    ? "an unreachable recovery"
-    : breakEvenRecoveryVsDispose <= 1e-9
-      ? "0%"
-      : `${breakEvenRecoveryVsDispose.toFixed(1)}%`;
-  const elsewhereFloor = Number.isFinite(breakEvenElsewhereVsLiquidate)
-    ? moneyLabel(breakEvenElsewhereVsLiquidate)
-    : "an unreachable leftover";
-  const sellThroughFloor = Number.isFinite(breakEvenSellThroughVsLiquidate)
-    ? `${breakEvenSellThroughVsLiquidate.toFixed(1)}%`
-    : "an unreachable sell-through";
+// Amazon Warehousing and Distribution is the inbound-bulk decision on a
+// fresh PO: send the whole lot to FBA now, park it in AWD and replenish a
+// working FBA stock, or hold it yourself and drip inbound. Complementary
+// to inbound placement (which FC, not AWD vs FBA), aged inventory (units
+// already sitting), Q4 storage (when you send), supplier MOQ (how
+// many you buy), and restock vs the low-inventory-level fee (how thin
+// FBA already is). Defaults are illustrative 2025–26 US mid-band figures;
+// sellers overwrite them from the current AWD and FBA fee previews.
+export const DEFAULT_AWD_LOT_UNITS = 400;
+export const DEFAULT_AWD_HORIZON_MONTHS = 5;
+export const DEFAULT_AWD_INBOUND = 0.15;
+export const DEFAULT_AWD_STORAGE_PER_CU_FT = 0.48;
+export const DEFAULT_AWD_TO_FBA = 0.68;
+export const DEFAULT_YOU_HOLD_STORAGE_PER_UNIT = 0.25;
 
-  if (winner === "liquidate") {
-    return (
-      `FBA Liquidations keeps ${liqGap} more than disposing the ${pile} ` +
-      `(${liquidate} vs ${dispose}). Selling the returned units elsewhere ` +
-      `is ${elsewhere}. Keeping over ${months} is ${keep}. ` +
-      `${breakEvenRecoveryVsDispose <= 1e-9
-        ? "Even 0% recovery still beats dispose on this processing fee."
-        : `Recovery can fall to about ${recoveryFloor} before dispose matches.`}`
-    );
+function simulateAwdPath({
+  lotUnits,
+  monthlyUnits,
+  horizonMonths,
+  workingStock,
+  fbaStoragePerUnitMonth,
+  contribution,
+  receivePerUnit = 0,
+  transferPerUnit = 0,
+  bulkStoragePerUnitMonth = 0,
+  startInFba = false,
+}) {
+  let bulk = startInFba ? 0 : lotUnits;
+  let fba = startInFba ? lotUnits : 0;
+  let inbound = receivePerUnit * lotUnits;
+  let transfers = 0;
+  let storage = 0;
+  let sold = 0;
+  let fbaUnitMonths = 0;
+  let bulkUnitMonths = 0;
+  let movedFromBulk = 0;
+
+  const prime = startInFba ? 0 : Math.min(workingStock, bulk);
+  if (prime > 0) {
+    bulk -= prime;
+    fba += prime;
+    transfers += prime * transferPerUnit;
+    movedFromBulk += prime;
   }
-  if (winner === "elsewhere") {
-    return (
-      `Pulling the ${pile} and selling them elsewhere keeps ${elseGap} more ` +
-      `than FBA Liquidations (${elsewhere} vs ${liquidate}). Dispose is ` +
-      `${dispose}. Keeping over ${months} is ${keep}. ` +
-      `Elsewhere leftover can fall to about ${elsewhereFloor} before ` +
-      `liquidations match.`
-    );
+
+  for (let month = 0; month < horizonMonths; month += 1) {
+    storage += bulk * bulkStoragePerUnitMonth + fba * fbaStoragePerUnitMonth;
+    bulkUnitMonths += bulk;
+    fbaUnitMonths += fba;
+    const sell = Math.min(monthlyUnits, fba);
+    fba -= sell;
+    sold += sell;
+    if (!startInFba) {
+      const need = Math.min(Math.max(0, workingStock - fba), bulk);
+      if (need > 0) {
+        bulk -= need;
+        fba += need;
+        transfers += need * transferPerUnit;
+        movedFromBulk += need;
+      }
+    }
   }
-  if (winner === "dispose") {
-    return (
-      `Disposing the ${pile} loses ${liqGap} less than FBA Liquidations ` +
-      `(${dispose} vs ${liquidate}). Selling elsewhere is ${elsewhere}. ` +
-      `Keeping over ${months} is ${keep}. Recovery needs about ` +
-      `${recoveryFloor} to match dispose.`
-    );
+
+  return {
+    cash: sold * contribution - inbound - transfers - storage,
+    sold,
+    remainingBulk: bulk,
+    remainingFba: fba,
+    leftover: bulk + fba,
+    inbound,
+    transfers,
+    storage,
+    fbaUnitMonths,
+    bulkUnitMonths,
+    movedFromBulk,
+  };
+}
+
+function awdPathRow(id, label, sim, fbaCash) {
+  return {
+    id,
+    label,
+    cash: sim.cash,
+    sold: sim.sold,
+    leftover: sim.leftover,
+    inbound: sim.inbound,
+    transfers: sim.transfers,
+    storage: sim.storage,
+    vsFba: sim.cash - fbaCash,
+  };
+}
+
+function awdSummary({
+  winner,
+  fba,
+  awd,
+  hold,
+  lotUnits,
+  extraAwdVsFba,
+  extraHoldVsFba,
+  breakEvenAwdToFba,
+  breakEvenAwdStorage,
+}) {
+  const awdGap = moneyLabel(Math.abs(extraAwdVsFba));
+  const holdGap = moneyLabel(Math.abs(extraHoldVsFba));
+  const awdCash = moneyLabel(awd.cash);
+  const fbaCash = moneyLabel(fba.cash);
+  const holdCash = moneyLabel(hold.cash);
+  const transferCeil = Number.isFinite(breakEvenAwdToFba)
+    ? moneyLabel(breakEvenAwdToFba)
+    : "an unreachable fee";
+  const storageCeil = Number.isFinite(breakEvenAwdStorage)
+    ? moneyLabel(breakEvenAwdStorage)
+    : "an unreachable rate";
+  if (winner === "awd") {
+    return `AWD replenish keeps ${awdGap} more on ${lotUnits} units than sending the whole lot to FBA now (${awdCash} vs ${fbaCash}). The AWD-to-FBA transfer can rise to about ${transferCeil} before FBA wins. You-hold and drip ${extraHoldVsFba < -1e-9 ? `loses ${holdGap}` : extraHoldVsFba > 1e-9 ? `keeps ${holdGap} more` : "ties FBA"} (${holdCash}).`;
   }
-  if (winner === "keep") {
-    return (
-      `Keeping the ${pile} still beats FBA Liquidations by ${liqGap} over ` +
-      `${months} (${keep} vs ${liquidate}). Selling elsewhere is ${elsewhere}. ` +
-      `Keeping needs about ${sellThroughFloor} monthly sell-through to ` +
-      `match liquidations.`
-    );
+  if (winner === "fba") {
+    return `Sending the whole lot to FBA now keeps ${awdGap} more on ${lotUnits} units than AWD replenish (${fbaCash} vs ${awdCash}). AWD storage has to fall to about ${storageCeil} / cu ft, or the transfer to ${transferCeil}, to match. You-hold and drip is ${holdCash}.`;
   }
-  return (
-    `Keeping, liquidating, selling elsewhere, and disposing leave the ` +
-    `same cash on these rates over ${months}.`
-  );
+  if (winner === "hold") {
+    return `You-hold and drip keeps ${holdGap} more on ${lotUnits} units than sending the whole lot to FBA now (${holdCash} vs ${fbaCash}). AWD replenish is ${awdCash} (${extraAwdVsFba >= 0 ? "ahead of" : "behind"} FBA by ${awdGap}).`;
+  }
+  return `AWD replenish and sending the whole lot to FBA now leave the same cash on ${lotUnits} units (${fbaCash}). You-hold and drip is ${holdCash}. The AWD-to-FBA transfer ceiling is about ${transferCeil}.`;
 }
 
 /**
- * Same leftover FBA pile, four cash paths — complementary to
- * compareAgedInventory, which treats a return as a fee with no resale
- * and has no Amazon Liquidations recovery.
- *
- *   - Keep — expected sales at the typed monthly sell-through, minus
- *     storage and aged-inventory surcharge (same path as the aged page).
- *   - Liquidate — Amazon takes the units and pays recovery% of list
- *     minus a per-unit processing fee. Units are gone.
- *   - Elsewhere — pay the return-removal fee, then keep the typed
- *     leftover from selling the units on eBay / your site / a jobber.
- *   - Dispose — pay the cheaper disposal fee; the units are gone.
- *
- * COGS and inbound are sunk. Professional is paid anyway. Rates are
- * inputs, not Amazon's live liquidation recoverability table.
+ * Compare sending a fresh PO straight to FBA, parking it in Amazon
+ * Warehousing and Distribution and replenishing a working FBA stock,
+ * or holding it yourself and dripping inbound. Per-sale leftover
+ * (referral, pick, COGS, prep) is the same once a unit is in FBA —
+ * the table is inbound + bulk storage + AWD-to-FBA transfer. Return
+ * mix is held at zero so this stays an inbound-bulk question.
  */
-export function compareLiquidation(input = {}) {
-  const aged = compareAgedInventory(input);
-  const recoveryPct = emptyField(input.recoveryPct)
-    ? DEFAULT_LIQUIDATION_RECOVERY_PCT
-    : takePercent(input.recoveryPct, "Recovery percent");
-  const liquidationFee = emptyField(input.liquidationFee)
-    ? DEFAULT_LIQUIDATION_FEE
-    : number(input.liquidationFee, "Liquidation fee");
-  const elsewhereNet = emptyField(input.elsewhereNet)
-    ? DEFAULT_ELSEWHERE_NET
-    : number(input.elsewhereNet, "Elsewhere leftover");
+export function compareAwd(input = {}) {
+  const lotUnits = emptyField(input.lotUnits)
+    ? DEFAULT_AWD_LOT_UNITS
+    : number(input.lotUnits, "Lot units", 1);
+  if (lotUnits === 0) throw new Error("Lot units must be greater than zero");
+  const horizonMonths = emptyField(input.horizonMonths)
+    ? DEFAULT_AWD_HORIZON_MONTHS
+    : number(input.horizonMonths, "Horizon months", 1);
+  if (horizonMonths === 0) throw new Error("Horizon months must be greater than zero");
+  const awdInboundPerUnit = emptyField(input.awdInboundPerUnit)
+    ? DEFAULT_AWD_INBOUND
+    : number(input.awdInboundPerUnit, "AWD inbound per unit");
+  const awdStoragePerCuFt = emptyField(input.awdStoragePerCuFt)
+    ? DEFAULT_AWD_STORAGE_PER_CU_FT
+    : number(input.awdStoragePerCuFt, "AWD storage per cubic foot");
+  const awdToFbaPerUnit = emptyField(input.awdToFbaPerUnit)
+    ? DEFAULT_AWD_TO_FBA
+    : number(input.awdToFbaPerUnit, "AWD to FBA per unit");
+  const youHoldStoragePerUnit = emptyField(input.youHoldStoragePerUnit)
+    ? DEFAULT_YOU_HOLD_STORAGE_PER_UNIT
+    : number(input.youHoldStoragePerUnit, "You-hold storage per unit");
 
   const listing = calculateListing({
     ...input,
-    fulfillmentMethod: "fba",
-    monthsInStorage: 1,
+    inboundPerUnit: 0,
+    monthsInStorage: 0,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+    monthlySellerFee: 0,
   });
-  const salePrice = listing.salePrice;
-  const agedUnits = aged.agedUnits;
-  const liquidatePerUnit = salePrice * (recoveryPct / 100) - liquidationFee;
-  const elsewherePerUnit = elsewhereNet - aged.removalFee;
-  const liquidateCash = liquidatePerUnit * agedUnits;
-  const elsewhereCash = elsewherePerUnit * agedUnits;
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 1);
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+  const workingStock = emptyField(input.workingStock)
+    ? monthlyUnits
+    : number(input.workingStock, "Working stock", 1);
+  if (workingStock === 0) throw new Error("Working stock must be greater than zero");
 
-  const keep = {
-    id: "keep",
-    label: "Keep and sell through",
-    cash: aged.keep.cash,
-    leftoverUnits: aged.keep.leftoverUnits,
-    soldUnits: aged.keep.soldUnits,
-    carryingFees: aged.keep.carryingFees,
-    perUnit: aged.keep.cash / agedUnits,
-  };
-  const liquidate = {
-    id: "liquidate",
-    label: "FBA Liquidations",
-    cash: liquidateCash,
-    leftoverUnits: 0,
-    soldUnits: 0,
-    carryingFees: 0,
-    perUnit: liquidatePerUnit,
-  };
-  const elsewhere = {
-    id: "elsewhere",
-    label: "Remove and sell elsewhere",
-    cash: elsewhereCash,
-    leftoverUnits: 0,
-    soldUnits: agedUnits,
-    carryingFees: 0,
-    perUnit: elsewherePerUnit,
-  };
-  const dispose = {
-    id: "dispose",
-    label: "Dispose",
-    cash: aged.dispose.cash,
-    leftoverUnits: 0,
-    soldUnits: 0,
-    carryingFees: 0,
-    perUnit: aged.dispose.cash / agedUnits,
-  };
+  const fbaInboundPerUnit = number(input.inboundPerUnit, "Inbound per unit");
+  const fbaStoragePerUnitMonth = listing.cubicFeet * number(
+    input.storageRate,
+    "Storage rate",
+    STORAGE_PRESETS.off_peak.perCuFt,
+  );
+  const awdStoragePerUnitMonth = listing.cubicFeet * awdStoragePerCuFt;
+  const contribution = listing.salePrice
+    - listing.fba.fees.referral
+    - listing.fulfillmentFee
+    - number(input.costOfGoods, "Cost of goods")
+    - number(input.packagingCost, "Packaging cost")
+    - number(input.otherCost, "Other cost")
+    - number(input.adsPerUnit, "Ads per unit");
 
-  const rows = [keep, liquidate, elsewhere, dispose].map((row) => ({
-    ...row,
-    vsLiquidate: row.cash - liquidateCash,
-  }));
+  const shared = { lotUnits, monthlyUnits, horizonMonths, workingStock, fbaStoragePerUnitMonth, contribution };
+
+  const fbaSim = simulateAwdPath({
+    ...shared,
+    receivePerUnit: fbaInboundPerUnit,
+    startInFba: true,
+  });
+  const awdSim = simulateAwdPath({
+    ...shared,
+    receivePerUnit: awdInboundPerUnit,
+    transferPerUnit: awdToFbaPerUnit,
+    bulkStoragePerUnitMonth: awdStoragePerUnitMonth,
+  });
+  const holdSim = simulateAwdPath({
+    ...shared,
+    receivePerUnit: 0,
+    transferPerUnit: fbaInboundPerUnit,
+    bulkStoragePerUnitMonth: youHoldStoragePerUnit,
+  });
+
+  const fba = awdPathRow("fba", "Send all to FBA now", fbaSim, fbaSim.cash);
+  const awd = awdPathRow("awd", "AWD, then replenish FBA", awdSim, fbaSim.cash);
+  const hold = awdPathRow("hold", "You hold, drip to FBA", holdSim, fbaSim.cash);
+  const rows = [fba, awd, hold];
+
   const maxCash = Math.max(...rows.map((row) => row.cash));
-  const leaders = rows.filter((row) => Math.abs(row.cash - maxCash) < 1e-9);
+  const leaders = rows.filter((row) => Math.abs(row.cash - maxCash) <= 1e-9);
   const winner = leaders.length === 1 ? leaders[0].id : "tie";
 
-  let breakEvenRecoveryVsDispose = Infinity;
-  if (salePrice > 1e-12) {
-    breakEvenRecoveryVsDispose = ((liquidationFee + aged.dispose.cash / agedUnits) / salePrice) * 100;
-    if (!Number.isFinite(breakEvenRecoveryVsDispose) || breakEvenRecoveryVsDispose < -1e-9) {
-      breakEvenRecoveryVsDispose = 0;
-    } else if (breakEvenRecoveryVsDispose > 100 + 1e-9) {
-      breakEvenRecoveryVsDispose = Infinity;
-    } else {
-      breakEvenRecoveryVsDispose = Math.max(0, Math.min(100, breakEvenRecoveryVsDispose));
+  const extraAwdVsFba = awd.cash - fba.cash;
+  const extraHoldVsFba = hold.cash - fba.cash;
+
+  let breakEvenAwdToFba = Infinity;
+  if (awdSim.movedFromBulk > 1e-12) {
+    // AWD cash − FBA cash = FBA inbound − AWD inbound − transfer×moved − AWD storage + FBA storage
+    breakEvenAwdToFba =
+      (fbaSim.inbound - awdSim.inbound - awdSim.storage + fbaSim.storage) / awdSim.movedFromBulk;
+    if (!Number.isFinite(breakEvenAwdToFba)) breakEvenAwdToFba = Infinity;
+  }
+
+  let breakEvenAwdStorage = Infinity;
+  if (awdSim.bulkUnitMonths > 1e-12 && listing.cubicFeet > 1e-12) {
+    // AWD storage = bulkUnitMonths * cuFt * rate + fbaUnitMonths * fbaRate
+    // delta = fbaInbound - awdInbound - awdToFba*moved - awdStorage + fbaStorage
+    // awdStorage = bulkUnitMonths * cuFt * rate + awdSim's FBA storage portion
+    const awdFbaStorage = awdSim.fbaUnitMonths * fbaStoragePerUnitMonth;
+    breakEvenAwdStorage =
+      (fbaSim.inbound - awdSim.inbound - awdSim.transfers + fbaSim.storage - awdFbaStorage)
+      / (awdSim.bulkUnitMonths * listing.cubicFeet);
+    if (!Number.isFinite(breakEvenAwdStorage) || breakEvenAwdStorage < -1e-9) {
+      breakEvenAwdStorage = Infinity;
     }
   }
 
-  let breakEvenRecoveryVsKeep = Infinity;
-  if (salePrice > 1e-12) {
-    breakEvenRecoveryVsKeep = ((keep.perUnit + liquidationFee) / salePrice) * 100;
-    if (!Number.isFinite(breakEvenRecoveryVsKeep) || breakEvenRecoveryVsKeep < -1e-9) {
-      breakEvenRecoveryVsKeep = 0;
-    } else if (breakEvenRecoveryVsKeep > 100 + 1e-9) {
-      breakEvenRecoveryVsKeep = Infinity;
-    } else {
-      breakEvenRecoveryVsKeep = Math.max(0, Math.min(100, breakEvenRecoveryVsKeep));
+  let breakEvenYouHoldStorage = Infinity;
+  if (holdSim.bulkUnitMonths > 1e-12) {
+    const holdFbaStorage = holdSim.fbaUnitMonths * fbaStoragePerUnitMonth;
+    breakEvenYouHoldStorage =
+      (fbaSim.inbound - holdSim.inbound - holdSim.transfers + fbaSim.storage - holdFbaStorage)
+      / holdSim.bulkUnitMonths;
+    if (!Number.isFinite(breakEvenYouHoldStorage) || breakEvenYouHoldStorage < -1e-9) {
+      breakEvenYouHoldStorage = Infinity;
     }
   }
-
-  const breakEvenElsewhereVsLiquidate = liquidatePerUnit + aged.removalFee;
-  const keepArgs = {
-    units: agedUnits,
-    horizonMonths: aged.horizonMonths,
-    storagePerUnitMonth: aged.storagePerUnitMonth,
-    aisPerUnit: aged.aisPerUnit,
-    contribution: aged.contribution,
-  };
-  const breakEvenSellThroughVsLiquidate = agedBreakEvenSellThrough(liquidateCash, keepArgs);
 
   return {
     rows,
-    keep: rows[0],
-    liquidate: rows[1],
-    elsewhere: rows[2],
-    dispose: rows[3],
+    fba,
+    awd,
+    hold,
     winner,
-    salePrice,
-    agedUnits,
-    monthlySellThroughPct: aged.monthlySellThroughPct,
-    horizonMonths: aged.horizonMonths,
-    aisPerUnit: aged.aisPerUnit,
-    removalFee: aged.removalFee,
-    disposalFee: aged.disposalFee,
-    recoveryPct,
-    liquidationFee,
-    elsewhereNet,
-    contribution: aged.contribution,
-    storagePerUnitMonth: aged.storagePerUnitMonth,
-    extraLiquidateVsDispose: liquidateCash - aged.dispose.cash,
-    extraElsewhereVsLiquidate: elsewhereCash - liquidateCash,
-    extraKeepVsLiquidate: aged.keep.cash - liquidateCash,
-    breakEvenRecoveryVsDispose,
-    breakEvenRecoveryVsKeep,
-    breakEvenElsewhereVsLiquidate,
-    breakEvenSellThroughVsLiquidate,
-    summary: liquidationSummary({
+    lotUnits,
+    monthlyUnits,
+    horizonMonths,
+    workingStock,
+    contribution,
+    cubicFeet: listing.cubicFeet,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    fbaInboundPerUnit,
+    awdInboundPerUnit,
+    awdStoragePerCuFt,
+    awdToFbaPerUnit,
+    youHoldStoragePerUnit,
+    fbaStoragePerUnitMonth,
+    extraAwdVsFba,
+    extraHoldVsFba,
+    breakEvenAwdToFba,
+    breakEvenAwdStorage,
+    breakEvenYouHoldStorage,
+    summary: awdSummary({
       winner,
-      keepCash: aged.keep.cash,
-      liquidateCash,
-      elsewhereCash,
-      disposeCash: aged.dispose.cash,
-      extraLiquidateVsDispose: liquidateCash - aged.dispose.cash,
-      extraElsewhereVsLiquidate: elsewhereCash - liquidateCash,
-      breakEvenRecoveryVsDispose,
-      breakEvenElsewhereVsLiquidate,
-      breakEvenSellThroughVsLiquidate,
-      agedUnits,
-      horizonMonths: aged.horizonMonths,
+      fba,
+      awd,
+      hold,
+      lotUnits,
+      extraAwdVsFba,
+      extraHoldVsFba,
+      breakEvenAwdToFba,
+      breakEvenAwdStorage,
     }),
   };
 }
 
-export function liquidationNote(comparison) {
-  if (!comparison?.liquidate || !comparison?.dispose) {
-    throw new Error("Liquidation comparison is missing rows");
+export function awdNote(comparison) {
+  if (!comparison?.fba || !comparison?.awd) {
+    throw new Error("AWD comparison is missing rows");
+  }
+  return comparison.summary;
+}
+
+// Remote Fulfillment with North America is the Canada/Mexico expansion
+// decision on a SKU already sitting in US FBA. Complementary to AWD
+// (where a fresh US PO parks), inbound placement (which US FC), MCF
+// (a website order from FBA stock), and SFP (a US Prime badge). This
+// table is incremental CA/MX demand only — skip, fulfill from US FBA
+// with the remote surcharge, or send a dedicated Canada pile.
+// Defaults are illustrative mid-band figures; sellers overwrite them
+// from the current Remote Fulfillment and CA inbound previews.
+export const DEFAULT_NARF_FEE = 1.25;
+export const DEFAULT_CA_INBOUND = 5.2;
+export const DEFAULT_NARF_TAKE_PCT = 50;
+export const DEFAULT_CA_TAKE_PCT = 65;
+export const DEFAULT_CA_SESSIONS = 40;
+
+function narfPath({
+  id,
+  label,
+  takePct,
+  completedProfit,
+  inboundPerUnit,
+  extraFee,
+}) {
+  const expectedProfit = (takePct / 100) * completedProfit;
+  return {
+    id,
+    label,
+    takePct,
+    inboundPerUnit,
+    extraFee,
+    completedProfit,
+    expectedProfit,
+  };
+}
+
+function narfSummary({
+  winner,
+  skip,
+  narf,
+  canada,
+  extraNarfVsSkip,
+  extraCanadaVsNarf,
+  monthlyExtraOnNarf,
+  monthlySessions,
+  breakEvenNarfFee,
+  breakEvenCaInbound,
+  breakEvenNarfTakePct,
+}) {
+  const narfKeep = moneyLabel(narf.expectedProfit);
+  const caKeep = moneyLabel(canada.expectedProfit);
+  const skipKeep = moneyLabel(skip.expectedProfit);
+  const narfGap = moneyLabel(Math.abs(extraNarfVsSkip));
+  const caGap = moneyLabel(Math.abs(extraCanadaVsNarf));
+  const monthGap = moneyLabel(Math.abs(monthlyExtraOnNarf));
+  const feeCeil = Number.isFinite(breakEvenNarfFee)
+    ? moneyLabel(breakEvenNarfFee)
+    : "an unreachable remote fee";
+  const inboundCeil = Number.isFinite(breakEvenCaInbound)
+    ? moneyLabel(breakEvenCaInbound)
+    : "an unreachable Canada inbound";
+  const takeFloor = Number.isFinite(breakEvenNarfTakePct)
+    ? `${breakEvenNarfTakePct.toFixed(1)}%`
+    : "an unreachable take rate";
+  const volume = `${monthlySessions} Canada session${monthlySessions === 1 ? "" : "s"}`;
+
+  if (winner === "narf") {
+    return (
+      `Remote Fulfillment keeps ${narfGap} more per Canada session than skipping ` +
+      `(${narfKeep} vs ${skipKeep}), ${monthGap} on ${volume}. ` +
+      `A dedicated Canada pile is ${caKeep} (${extraCanadaVsNarf < -1e-9 ? `behind` : extraCanadaVsNarf > 1e-9 ? `ahead` : `tied`} by ${caGap}). ` +
+      `The remote fee can rise to about ${feeCeil} before the Canada pile matches.`
+    );
+  }
+  if (winner === "canada") {
+    return (
+      `A dedicated Canada pile keeps ${caGap} more per session than Remote Fulfillment ` +
+      `(${caKeep} vs ${narfKeep}). Skip is ${skipKeep}. ` +
+      `Canada inbound can rise to about ${inboundCeil} before NARF matches, or NARF take has to rise to about ${takeFloor}.`
+    );
+  }
+  if (winner === "skip") {
+    return (
+      `Skipping Canada keeps more than listing there on these rates ` +
+      `(${skipKeep} vs NARF ${narfKeep} / Canada pile ${caKeep}). ` +
+      `NARF matches skip if the remote fee falls to about ${feeCeil}.`
+    );
+  }
+  return (
+    `Remote Fulfillment and a dedicated Canada pile leave the same expected leftover ` +
+    `on these rates (${narfKeep}). Skip is ${skipKeep}. The remote-fee ceiling is about ${feeCeil}.`
+  );
+}
+
+/**
+ * Same SKU already in US FBA, three Canada/Mexico paths.
+ *
+ *   - Skip — do not list in CA/MX. Incremental leftover is $0.
+ *   - Remote Fulfillment — Amazon ships the US FBA unit across the
+ *     border. US inbound is already sunk; the extra line is the
+ *     remote surcharge. Take is usually lower than local Prime
+ *     because delivery is slower.
+ *   - Dedicated Canada pile — send working stock to CA FBA. Replaces
+ *     the US inbound line with CA inbound. Local Prime take is
+ *     usually higher.
+ *
+ * Expected leftover is take% × completed-sale profit on the same
+ * Canada visitor pool. Return mix and the Professional monthly fee
+ * are forced to zero so this table stays incremental CA demand on
+ * inventory already in US FBA — the $39.99 plan is already covered
+ * by US volume. Rates and take are inputs, not Amazon's live
+ * Remote Fulfillment schedule.
+ */
+export function compareRemoteFulfillment(input = {}) {
+  const narfFee = emptyField(input.narfFee)
+    ? DEFAULT_NARF_FEE
+    : number(input.narfFee, "Remote fulfillment fee");
+  const caInboundPerUnit = emptyField(input.caInboundPerUnit)
+    ? DEFAULT_CA_INBOUND
+    : number(input.caInboundPerUnit, "Canada inbound per unit");
+  const narfTakePct = emptyField(input.narfTakePct)
+    ? DEFAULT_NARF_TAKE_PCT
+    : takePercent(input.narfTakePct, "Remote fulfillment take percent");
+  const caTakePct = emptyField(input.caTakePct)
+    ? DEFAULT_CA_TAKE_PCT
+    : takePercent(input.caTakePct, "Canada FBA take percent");
+  const monthlySessions = emptyField(input.caSessions)
+    ? DEFAULT_CA_SESSIONS
+    : number(input.caSessions, "Canada sessions", 1);
+  if (monthlySessions === 0) throw new Error("Canada sessions must be greater than zero");
+
+  const listing = calculateListing({
+    ...input,
+    returnRate: 0,
+    unsellableReturnRate: 0,
+    returnHandlingFee: 0,
+    monthlySellerFee: 0,
+  });
+  const usInbound = number(input.inboundPerUnit, "Inbound per unit");
+  const usProfit = listing.fba.profit;
+  const skipCompleted = 0;
+  const narfCompleted = usProfit - narfFee;
+  const canadaCompleted = usProfit + usInbound - caInboundPerUnit;
+
+  const skip = narfPath({
+    id: "skip",
+    label: "Skip Canada",
+    takePct: 0,
+    completedProfit: skipCompleted,
+    inboundPerUnit: 0,
+    extraFee: 0,
+  });
+  const narf = narfPath({
+    id: "narf",
+    label: "Remote Fulfillment from US FBA",
+    takePct: narfTakePct,
+    completedProfit: narfCompleted,
+    inboundPerUnit: 0,
+    extraFee: narfFee,
+  });
+  const canada = narfPath({
+    id: "canada",
+    label: "Send a Canada FBA pile",
+    takePct: caTakePct,
+    completedProfit: canadaCompleted,
+    inboundPerUnit: caInboundPerUnit,
+    extraFee: 0,
+  });
+
+  const extraNarfVsSkip = narf.expectedProfit - skip.expectedProfit;
+  const extraCanadaVsNarf = canada.expectedProfit - narf.expectedProfit;
+  const extraCanadaVsSkip = canada.expectedProfit - skip.expectedProfit;
+  const monthlyExtraOnNarf = extraNarfVsSkip * monthlySessions;
+  const monthlyExtraOnCanada = extraCanadaVsSkip * monthlySessions;
+
+  const rows = [skip, narf, canada].map((row) => ({
+    ...row,
+    vsSkip: row.expectedProfit - skip.expectedProfit,
+    monthlyProfit: row.expectedProfit * monthlySessions,
+  }));
+
+  const expectedValues = [skip.expectedProfit, narf.expectedProfit, canada.expectedProfit];
+  const bestExpected = Math.max(...expectedValues);
+  const leaders = [
+    { id: "skip", value: skip.expectedProfit },
+    { id: "narf", value: narf.expectedProfit },
+    { id: "canada", value: canada.expectedProfit },
+  ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
+  const winner = leaders.length === 1 ? leaders[0].id : "tie";
+
+  let breakEvenNarfFee = Infinity;
+  if (narfTakePct > 1e-12) {
+    breakEvenNarfFee = usProfit - canada.expectedProfit / (narfTakePct / 100);
+    if (!Number.isFinite(breakEvenNarfFee)) breakEvenNarfFee = Infinity;
+  }
+
+  let breakEvenCaInbound = Infinity;
+  if (caTakePct > 1e-12) {
+    breakEvenCaInbound = usProfit + usInbound - narf.expectedProfit / (caTakePct / 100);
+    if (!Number.isFinite(breakEvenCaInbound)) breakEvenCaInbound = Infinity;
+  }
+
+  let breakEvenNarfTakePct = Infinity;
+  if (Math.abs(narfCompleted) > 1e-12) {
+    breakEvenNarfTakePct = (canada.expectedProfit / narfCompleted) * 100;
+    if (breakEvenNarfTakePct < -1e-9 || breakEvenNarfTakePct > 100 + 1e-9) {
+      breakEvenNarfTakePct = Infinity;
+    } else {
+      breakEvenNarfTakePct = Math.max(0, Math.min(100, breakEvenNarfTakePct));
+    }
+  }
+
+  return {
+    rows,
+    skip: rows[0],
+    narf: rows[1],
+    canada: rows[2],
+    winner,
+    usProfit,
+    usInbound,
+    narfFee,
+    caInboundPerUnit,
+    narfTakePct,
+    caTakePct,
+    monthlySessions,
+    sizeTier: listing.sizeTier,
+    sizeTierLabel: listing.sizeTierLabel,
+    fulfillmentFee: listing.fulfillmentFee,
+    extraNarfVsSkip,
+    extraCanadaVsNarf,
+    extraCanadaVsSkip,
+    monthlyExtraOnNarf,
+    monthlyExtraOnCanada,
+    breakEvenNarfFee,
+    breakEvenCaInbound,
+    breakEvenNarfTakePct,
+    summary: narfSummary({
+      winner,
+      skip,
+      narf,
+      canada,
+      extraNarfVsSkip,
+      extraCanadaVsNarf,
+      monthlyExtraOnNarf,
+      monthlySessions,
+      breakEvenNarfFee,
+      breakEvenCaInbound,
+      breakEvenNarfTakePct,
+    }),
+  };
+}
+
+export function remoteFulfillmentNote(comparison) {
+  if (!comparison?.narf || !comparison?.canada) {
+    throw new Error("Remote fulfillment comparison is missing rows");
   }
   return comparison.summary;
 }
@@ -3028,4 +3769,285 @@ export function placementSummary(comparison) {
     ? ` The Amazon-optimized split can cost up to ${money(extraFreightOptimizedCanCarry)} more in freight before one warehouse plus placement is cheaper.`
     : ` One-warehouse placement is ${money(-extraFreightOptimizedCanCarry)} cheaper than the optimized split's placement line, so extra freight on the split has to be even smaller to win.`;
   return `${winnerLine}${carry}`;
+}
+
+// Amazon can add a per-unit low-inventory-level surcharge when BOTH the
+// 30-day and 90-day historical days of supply sit below 28. That is a
+// quantity question (how thin is this FNSKU?), not aged-inventory (an
+// age surcharge on leftover units) and not restock vs storage seasons
+// (when the cube sits). Salvaged from #1521 onto current main so the
+// unique restock-vs-stay-thin table is not lost behind a conflicted rebase.
+export const LOW_INVENTORY_THRESHOLD_DAYS = 28;
+
+// Illustrative 2025–26 US FBA low-inventory-level bands. Sellers replace
+// the per-unit fee from their current Amazon fee preview. Extra-large is
+// treated as exempt in this model.
+export const LOW_INVENTORY_FEE_PRESETS = {
+  small_standard: [
+    { maxDays: 13, fee: 0.89, label: "0–13 days" },
+    { maxDays: 20, fee: 0.63, label: "14–20 days" },
+    { maxDays: 27, fee: 0.32, label: "21–27 days" },
+  ],
+  large_standard_light: [
+    { maxDays: 13, fee: 0.97, label: "0–13 days" },
+    { maxDays: 20, fee: 0.7, label: "14–20 days" },
+    { maxDays: 27, fee: 0.36, label: "21–27 days" },
+  ],
+  large_standard_heavy: [
+    { maxDays: 13, fee: 1.11, label: "0–13 days" },
+    { maxDays: 20, fee: 0.87, label: "14–20 days" },
+    { maxDays: 27, fee: 0.47, label: "21–27 days" },
+  ],
+  large_bulky: [
+    { maxDays: 13, fee: 2.09, label: "0–13 days" },
+    { maxDays: 20, fee: 1.44, label: "14–20 days" },
+    { maxDays: 27, fee: 1.08, label: "21–27 days" },
+  ],
+};
+
+export function daysOfSupply({ averageDailyInventory, unitsSold, windowDays }) {
+  const inventory = number(averageDailyInventory, "On-hand units");
+  const sold = number(unitsSold, "Units sold");
+  const window = number(windowDays, "Window days");
+  if (window === 0) throw new Error("Window days must be greater than zero");
+  const dailyShipped = sold / window;
+  if (dailyShipped === 0) return Infinity;
+  return inventory / dailyShipped;
+}
+
+export function lowInventoryBandKey(sizeTier, weightLb) {
+  if (!SIZE_TIER_LABELS[sizeTier]) throw new Error(`Unknown size tier: ${sizeTier}`);
+  if (sizeTier === "small_standard") return "small_standard";
+  if (sizeTier === "large_standard") {
+    return number(weightLb, "Weight") <= 3 ? "large_standard_light" : "large_standard_heavy";
+  }
+  if (sizeTier === "large_bulky") return "large_bulky";
+  return "exempt";
+}
+
+export function defaultLowInventoryFee({ sizeTier, weightLb, daysOfSupply: days }) {
+  const supply = number(days, "Days of supply");
+  if (supply >= LOW_INVENTORY_THRESHOLD_DAYS) return 0;
+  const key = lowInventoryBandKey(sizeTier, weightLb);
+  const bands = LOW_INVENTORY_FEE_PRESETS[key];
+  if (!bands) return 0;
+  for (const band of bands) {
+    if (supply <= band.maxDays) return band.fee;
+  }
+  return bands[bands.length - 1].fee;
+}
+
+/**
+ * Same FNSKU, two policies once both historical windows sit under 28 days.
+ *
+ *   - Stay thin — pay the per-unit surcharge on each FBA shipment.
+ *   - Restock to 28 days — send the extra units, pay inbound now and
+ *     storage on the extra cube, and drop the surcharge.
+ *
+ * Days of supply is on-hand divided by daily shipped in that window.
+ * When both windows are thin, the fee band follows the thinner one.
+ * If either window is 28 days or more, this model adds nothing.
+ * Merchant-fulfilled, grocery, and new-FNSKU are exemption switches
+ * the seller turns on — not a claim the account qualifies.
+ *
+ * Listing profit stays completed-sale on the main calculator. This
+ * table is complementary, not a second aged-inventory or Q4-storage
+ * page. Rates are inputs, not Amazon's live LIL schedule.
+ */
+export function compareLowInventory(input = {}) {
+  const hasInventory =
+    !emptyField(input.onHandUnits) &&
+    !emptyField(input.soldLast30Days) &&
+    !emptyField(input.soldLast90Days);
+
+  if (!hasInventory) {
+    return {
+      applies: false,
+      reason: "not_entered",
+      shortTermDays: null,
+      longTermDays: null,
+      bandDays: null,
+      bandLabel: "not entered",
+      suggestedFee: 0,
+      feePerUnit: 0,
+      monthlyFee: 0,
+      extraUnitsTo28: 0,
+      extraStoragePerMonth: 0,
+      extraInbound: 0,
+      restockSavesPerMonth: 0,
+      inboundPaybackMonths: null,
+      cheaperPolicy: "tie",
+      exempt: false,
+      monthlyUnits: 0,
+    };
+  }
+
+  const onHandUnits = number(input.onHandUnits, "On-hand units");
+  const soldLast30Days = number(input.soldLast30Days, "Units sold last 30 days");
+  const soldLast90Days = number(input.soldLast90Days, "Units sold last 90 days");
+  const storageRate = number(input.storageRate, "Storage rate", 0);
+  const inboundPerUnit = number(input.inboundPerUnit, "Inbound per unit", 0);
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", 0);
+  const cuFt = emptyField(input.cubicFeet)
+    ? cubicFeet({
+        length: input.length ?? 8,
+        width: input.width ?? 6,
+        height: input.height ?? 2,
+      })
+    : number(input.cubicFeet, "Cubic feet", 0);
+  const fulfillmentMethod = input.fulfillmentMethod ?? "fba";
+  const newFnskuExempt = Boolean(input.newFnskuExempt);
+  const groceryExempt = Boolean(input.groceryExempt);
+  const sizeTier = input.sizeTier ?? "large_standard";
+  const weightLb = input.weightLb ?? 0;
+
+  const shortTermDays = daysOfSupply({
+    averageDailyInventory: onHandUnits,
+    unitsSold: soldLast30Days,
+    windowDays: 30,
+  });
+  const longTermDays = daysOfSupply({
+    averageDailyInventory: onHandUnits,
+    unitsSold: soldLast90Days,
+    windowDays: 90,
+  });
+
+  const bothFinite = Number.isFinite(shortTermDays) && Number.isFinite(longTermDays);
+  const bothBelow =
+    bothFinite &&
+    shortTermDays < LOW_INVENTORY_THRESHOLD_DAYS &&
+    longTermDays < LOW_INVENTORY_THRESHOLD_DAYS;
+  // When both windows are thin, the fee band follows the thinner one. If
+  // either window is 28 days or more, Amazon's published rule waives the fee.
+  const bandDays = bothBelow ? Math.min(shortTermDays, longTermDays) : Math.max(shortTermDays, longTermDays);
+
+  let reason = "above_threshold";
+  let exempt = false;
+  if (fulfillmentMethod === "fbm") {
+    reason = "fbm";
+    exempt = true;
+  } else if (newFnskuExempt) {
+    reason = "new_fnsku";
+    exempt = true;
+  } else if (groceryExempt) {
+    reason = "grocery";
+    exempt = true;
+  } else if (!bothBelow) {
+    reason = "above_threshold";
+  } else {
+    reason = "below_threshold";
+  }
+
+  const applies = reason === "below_threshold";
+  const suggestedFee = applies
+    ? defaultLowInventoryFee({
+        sizeTier,
+        weightLb,
+        daysOfSupply: bandDays,
+      })
+    : 0;
+
+  const feePerUnit = applies
+    ? emptyField(input.lowInventoryFee)
+      ? suggestedFee
+      : number(input.lowInventoryFee, "Low-inventory fee")
+    : 0;
+
+  const monthlyFee = feePerUnit * monthlyUnits;
+
+  const dailyShipped = Math.max(soldLast30Days / 30, soldLast90Days / 90);
+  const unitsFor28 = dailyShipped * LOW_INVENTORY_THRESHOLD_DAYS;
+  const extraUnitsTo28 = Math.max(0, unitsFor28 - onHandUnits);
+  const extraStoragePerMonth = extraUnitsTo28 * cuFt * storageRate;
+  const extraInbound = extraUnitsTo28 * inboundPerUnit;
+  const restockSavesPerMonth = monthlyFee - extraStoragePerMonth;
+  const inboundPaybackMonths =
+    restockSavesPerMonth > 0 ? extraInbound / restockSavesPerMonth : extraInbound === 0 ? 0 : Infinity;
+
+  let cheaperPolicy = "tie";
+  if (restockSavesPerMonth > 0) cheaperPolicy = "restock";
+  if (restockSavesPerMonth < 0) cheaperPolicy = "stay_thin";
+
+  const bands = LOW_INVENTORY_FEE_PRESETS[lowInventoryBandKey(sizeTier, weightLb)] ?? [];
+  const bandLabel = applies
+    ? bands.find((band) => bandDays <= band.maxDays)?.label ?? "below 28 days"
+    : reason === "above_threshold"
+      ? "28+ days"
+      : reason === "fbm"
+        ? "FBM (not charged)"
+        : reason === "new_fnsku"
+          ? "new FNSKU exempt"
+          : reason === "grocery"
+            ? "grocery exempt"
+            : "not entered";
+
+  return {
+    applies,
+    reason,
+    shortTermDays,
+    longTermDays,
+    bandDays,
+    bandLabel,
+    suggestedFee,
+    feePerUnit,
+    monthlyFee,
+    extraUnitsTo28,
+    extraStoragePerMonth,
+    extraInbound,
+    restockSavesPerMonth,
+    inboundPaybackMonths,
+    cheaperPolicy,
+    exempt,
+    dailyShipped,
+    unitsFor28,
+    monthlyUnits,
+    cubicFeet: cuFt,
+    sizeTier,
+    sizeTierLabel: SIZE_TIER_LABELS[sizeTier] ?? sizeTier,
+  };
+}
+
+export function lowInventoryNote(result) {
+  if (!result || typeof result.reason !== "string") {
+    throw new Error("Low-inventory comparison is missing");
+  }
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  if (!result.applies) {
+    if (result.reason === "fbm") {
+      return "Merchant fulfilled shipments do not pick up the low-inventory-level surcharge on these inputs.";
+    }
+    if (result.reason === "grocery") {
+      return "The grocery exemption switch is on, so this model adds no low-inventory-level surcharge. That is not a claim your account qualifies.";
+    }
+    if (result.reason === "new_fnsku") {
+      return "The new-FNSKU exemption switch is on, so this model adds no low-inventory-level surcharge. That is not a claim your account qualifies.";
+    }
+    if (result.reason === "not_entered") {
+      return "On-hand units and the last 30 / 90 days of sales are needed before days of supply can be compared to 28.";
+    }
+    return "One of the two historical windows is 28 days or more. The model adds no surcharge when either the 30-day or the 90-day days of supply sits at or above 28.";
+  }
+  const stay = `Stay thin: ${money(result.monthlyFee)} / month on ${result.monthlyUnits} shipments (${money(result.feePerUnit)} / unit, ${result.bandLabel}).`;
+  if (result.cheaperPolicy === "restock") {
+    const payback = Number.isFinite(result.inboundPaybackMonths)
+      ? ` Extra inbound pays back in about ${result.inboundPaybackMonths.toFixed(1)} months.`
+      : "";
+    return (
+      `${stay} Restocking ${result.extraUnitsTo28.toFixed(1)} units to 28 days avoids ` +
+      `${money(result.restockSavesPerMonth)} more per month after the extra storage.` +
+      `${payback} Arithmetic on your inputs, not advice to send inventory.`
+    );
+  }
+  if (result.cheaperPolicy === "stay_thin") {
+    return (
+      `${stay} Extra storage on a restock to 28 days (${money(result.extraStoragePerMonth)} / month) ` +
+      `is larger than the surcharge, so staying thin leaves ` +
+      `${money(-result.restockSavesPerMonth)} more per month. ` +
+      `Arithmetic on your inputs, not advice to stay thin.`
+    );
+  }
+  return `${stay} Restocking to 28 days and staying thin leave the same monthly cash on these rates.`;
 }

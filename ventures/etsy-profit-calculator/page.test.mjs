@@ -67,6 +67,8 @@ test('schema.org featureList names the Plus comparison the page actually renders
   assert.match(featureList[1], /free shipping vs charged shipping comparison/i);
   assert.match(featureList[1], /listing auto-renew allocation/i);
   assert.match(markup, /listing-renewal\.html/);
+  assert.match(markup, /what-price-keeps-this-etsy-profit\.html/);
+  assert.match(markup, /id="target-profit"/);
   assert.match(markup, /id="plusTable"/);
   assert.match(markup, /id="listingsPerMonth"/);
   assert.match(markup, /id="monthlyPlusFee"/);
@@ -479,4 +481,10 @@ test('the Etsy-labels SEO page uses the same worked examples the calculator defa
   assert.ok(labelsSeo.includes(money(zeroTime.third.expectedProfit)), `missing zero-time ${money(zeroTime.third.expectedProfit)}`);
   assert.ok(labelsSeo.includes(money(ads.etsy.expectedProfit)), `missing ads Etsy ${money(ads.etsy.expectedProfit)}`);
   assert.ok(labelsSeo.includes(money(ads.third.expectedProfit)), `missing ads third ${money(ads.third.expectedProfit)}`);
+});
+
+test('Copy order summary is wired to the calculated result', () => {
+  assert.match(html, /id="copySummary"/);
+  assert.match(scriptSource, /formatOrderSummary/);
+  assert.match(scriptSource, /summary_copied/);
 });

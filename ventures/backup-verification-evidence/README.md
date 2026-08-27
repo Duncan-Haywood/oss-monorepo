@@ -22,6 +22,14 @@ point it at backups you already have:
 
 ```bash
 PYTHONPATH=src python3 -m backup_evidence.cli verify /backups/*.tar.gz
+
+# Also require each artifact to have been modified within the last 26 hours:
+PYTHONPATH=src python3 -m backup_evidence.cli verify \
+  --max-age-hours 26 /backups/*.tar.gz
+
+# Write a portable JSON handoff for a ticket (paths and findings only):
+PYTHONPATH=src python3 -m backup_evidence.cli verify \
+  --format json --output evidence.json /backups/*.tar.gz
 ```
 
 ```
@@ -36,7 +44,9 @@ CORRUPT  /backups/2026-08-24.tar.gz  [tar.gz]
 on purpose, so an alerting rule can treat "broken" and "couldn't tell"
 differently: `0` every artifact intact, `1` at least one **provably corrupt**,
 `2` none corrupt but at least one could not be checked. `--format json` gives
-the same findings machine-readably.
+the same findings machine-readably. With `--max-age-hours`, a structurally
+intact but old artifact is reported as `stale` and exits `2`; a corrupt artifact
+still exits `1`.
 
 ## Did last night shrink?
 
@@ -110,6 +120,10 @@ PYTHONPATH=src python3 -m backup_evidence.cli record \
 # Check one or more recorded runs:
 PYTHONPATH=src python3 -m backup_evidence.cli check \
   runs/*.json --format markdown
+
+# Require a conclusive end-to-end artifact read before reporting success:
+PYTHONPATH=src python3 -m backup_evidence.cli check \
+  runs/*.json --require-integrity --format markdown
 ```
 
 `--verify-integrity` is opt-in: it reads the whole artifact, which costs I/O
@@ -124,12 +138,22 @@ not match, so it is not softened to `suspicious`. When no integrity check ran,
 `verified` says so in its own reason text — the two grades of `verified` are
 different claims and the report never blurs them.
 
+Command output is not saved in a record by default because backup logs can
+contain paths, hostnames, or application data. Add `--include-log-tail` to
+`record` only when the operator has reviewed that local retention is appropriate;
+the option saves at most the final `--log-lines` lines.
+
 `check` exits `0` when the most recent run is `verified`, and non-zero
 otherwise — wire it into your own monitoring/alerting as the pass/fail signal
 without depending on this tool for the alerting itself. See
 `examples/run-verified.json`, `examples/run-suspicious.json`,
 `examples/run-failed.json`, and `examples/run-corrupt-artifact.json` for the
 run-record format and what triggers each state.
+
+By default, a stat-only run can be `verified` when its command, artifact
+existence, and configured size/age checks agree. Pass `--require-integrity` to
+make `check` exit non-zero unless the latest artifact was actually read to its
+end and reported `intact`; unsupported and capped reads remain inconclusive.
 
 The `--usage-file` flag on any subcommand appends one local, anonymized
 event-count file — see "Privacy" below. `--trend` also counts `trend_viewed`.

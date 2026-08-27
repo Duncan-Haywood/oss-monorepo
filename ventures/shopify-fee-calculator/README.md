@@ -5,7 +5,9 @@ after **Shopify Payments** or a **third-party processor** (PayPal, Stripe, and
 the rest), including the extra Shopify third-party transaction fee that generic
 fee pages skip. From the same inputs it reports net profit, margin, return on
 the cash you put into the order (plus a share of the monthly plan), the
-break-even listing price, and the price that hits a target margin.
+break-even listing price, the price that hits a target margin or a target
+dollar profit, and whether
+Basic, Grow, Advanced, or Plus leaves more at your monthly volume.
 
 Open [`index.html`](index.html) in a browser. The calculation is local and
 works without an account, network request, or API key. It is arithmetic, not
@@ -13,8 +15,10 @@ an estimate of the fees Shopify will charge: enter the rates from your current
 statements, and verify them there.
 
 **After using this, you can now see whether PayPal or Stripe costs more than
-Shopify Payments on a real order, and what to charge to keep a target
-margin** — which used to mean a spreadsheet that forgot the extra Shopify fee.
+Shopify Payments on a real order, what to charge to keep a target margin, and
+how many orders it takes for Grow or Advanced to cover its extra monthly
+fee** — which used to mean a spreadsheet that forgot the extra Shopify fee
+and treated the plan upgrade as a guess.
 
 ## Why it's different
 
@@ -28,10 +32,20 @@ merchants actually make is the payment path:
 
 This tool keeps every assumption editable, fills illustrative US online
 defaults from a plan picker, allocates the monthly Shopify plan across
-expected monthly orders, and shows **both paths on the same order**.
+expected monthly orders, shows **both paths on the same order**, and ranks
+**every plan at that volume** so the upgrade question is extra monthly cost
+divided by per-order fee savings.
+
+The target-profit result is a pricing aid, not a recommendation: it solves the
+entered fee model for the item price that leaves the dollar profit you specify.
+Shipping charged, variable costs, fixed fees, and allocated plan cost all stay
+visible in the arithmetic.
 
 [Why PayPal can cost more on Shopify](why-paypal-costs-more.html) answers that
 search question directly.
+[When does Shopify Grow beat Basic?](basic-vs-grow.html) answers the
+plan-upgrade question: extra monthly plan cost divided by per-order fee
+savings, and how many orders cover Grow or Advanced.
 [Shopify POS vs online fees](shopify-pos-vs-online-fees.html) answers the
 counter-vs-checkout question: whether a cheaper in-person tap still beats
 the same SKU sold online after postage markup, and how many taps recover a
@@ -47,6 +61,13 @@ many extra orders cover the gap.
 [Should I offer store credit instead of a refund?](should-i-offer-store-credit-instead-of-a-refund.html)
 answers the return question: whether issuing credit or exchanging still beats
 sending cash after the return label, restock, and expected redemption.
+[Which Shopify promo still pays](which-shopify-promo-costs-less.html) answers
+the sale question: whether 10% off, a dollar-off coupon, or free shipping
+keeps more after percentage fees, because free shipping still pays the label.
+[What a refund rate still leaves](refunds.html) mixes completed-order profit
+with a full-refund outcome so a merchant can see whether PayPal keeping its
+fee on returns flips the comparison. Refund fields stay on that sibling page
+so share/handoff work on `index.html` does not have to allowlist them.
 [Should I take Shopify Capital?](should-i-take-shopify-capital.html)
 answers the merchant-funding question: whether the Capital fee still beats
 waiting to self-fund leftover profit or a bank line at a typed APR, and
@@ -85,6 +106,10 @@ refund mix.
 answers the add-on question: whether a checkout offer still beats a
 post-purchase one-click after the second swipe and the carts that
 bounce because you asked before they paid.
+
+**After using the plan-upgrade page, you can now see how many orders it
+takes for Grow or Advanced to cover its extra monthly fee** — which used
+to mean guessing from the plan picker rates.
 
 **After using the POS page, you can now see whether a market table or
 retail tap keeps more than checkout on that SKU** — which used to mean
@@ -177,6 +202,13 @@ vendors. The optional local counter records only the event name and day in your
 browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
+The page can copy a private share link containing the current numeric inputs and
+payment path, or copy a text order summary for a partner or spreadsheet. The
+link is encoded in the URL and is never sent to this project; do not put
+sensitive information in calculator fields because URLs may be retained by
+browser history or messaging tools. Sharing and summary-copy events are counted
+locally without recording the calculation values.
+
 ## Support
 
 The tool is free and full-featured. The
@@ -189,11 +221,13 @@ optional and never changes what the tool does.
 Pure ES modules, no build step, no dependencies.
 
 ```
-node --test        # calc, usage, POS / label / installment / return / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
+node --test        # calc, usage, plan-upgrade, POS / label / installment / return / refund-rate / Capital / bank-transfer / chargeback / local-delivery / gift-card / Markets-duties / abandoned-checkout / subscription / pickup / upsell page tests
 ```
 
-`calc.mjs` holds the fee/profit/ROI arithmetic and plan presets; `usage.mjs`
-holds the anonymous local counter; `index.html` is the calculator UI.
+`calc.mjs` holds the fee/profit/ROI arithmetic, plan presets, `comparePlans`,
+and the refund mix; `usage.mjs` holds the anonymous local counter;
+`index.html` is the completed-order calculator; `basic-vs-grow.html` is the
+plan-upgrade break-even; `refunds.html` is the refund-rate mix.
 
 Not yet deployed to a public URL — publishing under the portfolio's name is
 owner-gated per `portfolio/DIRECTION.md` — but the page is ready to host as

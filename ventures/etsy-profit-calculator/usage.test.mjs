@@ -40,6 +40,8 @@ test('supports a named aggregate event without recording inputs', () => {
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).listing_renewal_compared, 1);
   recordUsage(storage, false, 'offsite_ads_compared');
   assert.equal(JSON.parse(values.get('etsy-profit-usage')).offsite_ads_compared, 1);
+  recordUsage(storage, false, 'target_profit_priced');
+  assert.equal(JSON.parse(values.get('etsy-profit-usage')).target_profit_priced, 1);
 });
 
 test('honors Do Not Track without recording', () => {
@@ -49,6 +51,35 @@ test('honors Do Not Track without recording', () => {
   try {
     recordUsage({ setItem: () => { called = true; } });
     assert.equal(called, false);
+  } finally {
+    if (previous === undefined) delete globalThis.navigator;
+    else Object.defineProperty(globalThis, 'navigator', { configurable: true, value: previous });
+  }
+});
+
+// The footer tells visitors they can turn the counter off "with Do Not Track /
+// Global Privacy Control". honorsBrowserSignal() reads both, but only Do Not
+// Track was covered above, so half of that promise was untested.
+test('honors Global Privacy Control without recording', () => {
+  const previous = globalThis.navigator;
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: { globalPrivacyControl: true } });
+  let called = false;
+  try {
+    recordUsage({ setItem: () => { called = true; } });
+    assert.equal(called, false);
+  } finally {
+    if (previous === undefined) delete globalThis.navigator;
+    else Object.defineProperty(globalThis, 'navigator', { configurable: true, value: previous });
+  }
+});
+
+test('records normally once neither signal is set', () => {
+  const previous = globalThis.navigator;
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, value: {} });
+  try {
+    const values = new Map();
+    recordUsage({ getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) });
+    assert.equal(JSON.parse(values.get('etsy-profit-usage')).order_profit_calculated, 1);
   } finally {
     if (previous === undefined) delete globalThis.navigator;
     else Object.defineProperty(globalThis, 'navigator', { configurable: true, value: previous });

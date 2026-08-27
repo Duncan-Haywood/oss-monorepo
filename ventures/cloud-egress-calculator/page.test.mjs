@@ -35,8 +35,10 @@ test("every raw-text element is closed", () => {
 test("the page imports the comparison it claims to run", () => {
   assert.match(scriptSource, /compareScenarios/);
   assert.match(scriptSource, /reviewRecord/);
+  assert.match(scriptSource, /decisionSummary/);
   assert.match(scriptSource, /breakEvenEgressGb/);
   assert.match(scriptSource, /countUsage\("calculation"\)/);
+  assert.match(scriptSource, /countUsage\("summary_copied"\)/);
   assert.match(scriptSource, /countUsage\("review-export"\)/);
 });
 
@@ -47,6 +49,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
     ["Two-provider monthly comparison", /compareScenarios/],
     ["annualized savings", /annualSavings/],
     ["break-even outbound transfer", /breakEvenEgressGb/],
+    ["copyable decision summary", /decisionSummary/],
     ["private JSON review export", /reviewRecord/],
   ];
   for (const [claim, pattern] of claims) {
@@ -57,7 +60,11 @@ test("figures named in schema.org featureList are actually rendered", () => {
 
 test("index links the CDN extra and the sitemap lists both pages", () => {
   assert.match(html, /does-a-cdn-cut-s3-egress\.html/);
+  assert.match(html, /does-a-replica-beat-cross-region-pull\.html/);
+  assert.match(html, /does-infrequent-access-still-beat-standard\.html/);
   assert.match(sitemap, /does-a-cdn-cut-s3-egress\.html/);
+  assert.match(sitemap, /does-a-replica-beat-cross-region-pull\.html/);
+  assert.match(sitemap, /does-infrequent-access-still-beat-standard\.html/);
   assert.match(sitemap, /\.\//);
 });
 

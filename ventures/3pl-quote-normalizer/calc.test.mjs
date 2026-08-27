@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareInboundMethods, compareKitting, compareQuotes, compareReturnDisposition, comparisonSummary, inboundComparisonSummary, inboundReceivingPerUnit, inputWarnings, kittingAovSweep, kittingFeeSweep, kittingFlip, kittingSummary, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
+import { agedStorageFlip, agedStorageSummary, agedStorageSweep, calculate, compareAgedStorage, compareInboundMethods, compareKitting, compareQuotes, compareReturnDisposition, comparisonSummary, costDrivers, inboundComparisonSummary, inboundReceivingPerUnit, inputWarnings, kittingAovSweep, kittingFeeSweep, kittingFlip, kittingSummary, largestCostDriver, negotiationLines, returnDispositionFlip, returnDispositionRestockableSweep, returnDispositionSummary, returnDispositionUnitCostSweep, returnsFlip, returnsMinimumMask, returnsSensitivity, returnsSensitivitySummary, summary, volumeSensitivity } from "./calc.mjs";
 
 test("custom return and restocking fees flow into the normalized quote", () => {
   const result = calculate({ orders: 100, unitsPerOrder: 1, returnsRate: 10, returnFee: 7, restockFee: 3 });
@@ -17,8 +17,36 @@ test("normalizes the full monthly quote and minimum", () => {
 
 test("break-even reflects the in-house comparison", () => {
   const result = calculate({ orders: 100, inHousePerOrder: 20, minimumMonthly: 0 });
-  assert.equal(Math.round(result.breakEvenOrders), Math.round(result.quote.total / 20));
+  const atBreakEven = calculate({ orders: result.breakEvenOrders, inHousePerOrder: 20, minimumMonthly: 0 });
+  const justBelow = calculate({ orders: Math.max(0, result.breakEvenOrders - 1), inHousePerOrder: 20, minimumMonthly: 0 });
+  assert.ok(atBreakEven.delta >= 0);
+  assert.ok(justBelow.delta < 0);
   assert.ok(result.delta > 0);
+});
+
+test("reports no break-even when 3PL variable cost always exceeds in-house", () => {
+  const result = calculate({ orders: 100, shipping: 20, inHousePerOrder: 10 });
+  assert.equal(result.breakEvenOrders, 0);
+  assert.equal(result.breakEvenFound, false);
+});
+
+test("a high monthly minimum is priced into the searched break-even volume", () => {
+  const result = calculate({ orders: 100, inHousePerOrder: 20, minimumMonthly: 2500, inboundUnits: 150 });
+  assert.equal(result.breakEvenFound, true);
+  const atBreakEven = calculate({
+    orders: result.breakEvenOrders,
+    inHousePerOrder: 20,
+    minimumMonthly: 2500,
+    inboundUnits: result.breakEvenOrders * 1.5,
+  }, false);
+  const justBelow = calculate({
+    orders: Math.max(0, result.breakEvenOrders - 1),
+    inHousePerOrder: 20,
+    minimumMonthly: 2500,
+    inboundUnits: Math.max(0, result.breakEvenOrders - 1) * 1.5,
+  }, false);
+  assert.ok(atBreakEven.delta >= 0);
+  if (result.breakEvenOrders > 0) assert.ok(justBelow.delta < 0);
 });
 
 test("zero volume stays finite and does not apply a minimum", () => {
@@ -34,8 +62,14 @@ test("compares two normalized quotes and creates a negotiation report", () => {
   const comparison = compareQuotes(first, second);
   assert.equal(comparison.cheaper, "first");
   assert.equal(comparison.totalDelta, second.quote.total - first.quote.total);
-  assert.match(negotiationLines(first).join("\n"), /shipping: \$800\.00/);
+  assert.match(negotiationLines(first).join("\n"), /Shipping: \$800\.00/);
   assert.match(negotiationLines(first).join("\n"), /Subtotal before minimum/);
+});
+
+test("negotiation report uses buyer-facing line item labels", () => {
+  const lines = negotiationLines(calculate({ orders: 100, shipping: 8 }));
+  assert.match(lines.join("\n"), /Shipping: \$800\.00/);
+  assert.doesNotMatch(lines.join("\n"), /shipping:/);
 });
 
 test("does not pick a winner when normalized quote totals tie", () => {
@@ -121,6 +155,16 @@ test("identifies the largest normalized cost driver for negotiation", () => {
   assert.equal(driver.share, Math.round((result.quote.shipping / result.quote.subtotal) * 100));
   assert.match(summary(result), /Largest cost driver: Shipping/);
   assert.match(negotiationLines(result).join("\n"), /Largest normalized cost driver: Shipping/);
+});
+
+test("ranks cost drivers and estimates savings from a typed reduction", () => {
+  const drivers = costDrivers(calculate({ orders: 100, shipping: 8, fixedFee: 100 }), 10);
+  assert.equal(drivers[0].component, "shipping");
+  assert.equal(drivers[0].savings, 80);
+  assert.equal(drivers[0].revised, 720);
+  assert.equal(drivers.at(-1).component, "storage");
+  const clamped = costDrivers(calculate({ orders: 100 }), -5);
+  assert.equal(clamped[0].savings, 0);
 });
 
 test("sweeps return rates and keeps other rate-card lines fixed", () => {

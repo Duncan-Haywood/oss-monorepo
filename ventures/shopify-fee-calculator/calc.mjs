@@ -55,6 +55,8 @@ function number(value, name, fallback = 0) {
   return result;
 }
 
+export const PLAN_IDS = Object.freeze(Object.keys(PLAN_PRESETS));
+
 export function applyPlanPreset(input, planId) {
   const preset = PLAN_PRESETS[planId];
   if (!preset) throw new Error(`Unknown Shopify plan: ${planId}`);
@@ -69,6 +71,141 @@ export function applyPlanPreset(input, planId) {
   };
 }
 
+/**
+ * Processing fees on one order with a plan's rates, excluding the monthly
+ * subscription. Used so an upgrade's break-even volume is "extra plan cost
+ * divided by per-order fee savings" rather than a circular function of the
+ * volume being asked about.
+ */
+export function perOrderProcessingFee(input, planId) {
+  const filled = applyPlanPreset(input, planId);
+  const result = calculateOrder({
+    ...input,
+    ...filled,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+  });
+  return result.selected.feeTotal;
+}
+
+/**
+ * Monthly orders at which `toPlanId` starts leaving more cash than
+ * `fromPlanId` on the selected payment path. The answer is volume, not
+ * advice: higher plans also change Shopify features the merchant may want
+ * for reasons this arithmetic cannot see.
+ */
+export function upgradeBreakEvenOrders(fromPlanId, toPlanId, input = {}) {
+  if (!PLAN_PRESETS[fromPlanId]) throw new Error(`Unknown Shopify plan: ${fromPlanId}`);
+  if (!PLAN_PRESETS[toPlanId]) throw new Error(`Unknown Shopify plan: ${toPlanId}`);
+  const extraMonthly = PLAN_PRESETS[toPlanId].monthlyPlan - PLAN_PRESETS[fromPlanId].monthlyPlan;
+  const feeFrom = perOrderProcessingFee(input, fromPlanId);
+  const feeTo = perOrderProcessingFee(input, toPlanId);
+  const feeSavings = feeFrom - feeTo;
+  if (extraMonthly <= 0) {
+    return {
+      fromPlanId,
+      toPlanId,
+      extraMonthly,
+      feeSavings,
+      breakEvenOrders: 0,
+      alreadyCheaper: true,
+      neverPays: false,
+    };
+  }
+  if (feeSavings <= 0) {
+    return {
+      fromPlanId,
+      toPlanId,
+      extraMonthly,
+      feeSavings,
+      breakEvenOrders: Infinity,
+      alreadyCheaper: false,
+      neverPays: true,
+    };
+  }
+  const exact = extraMonthly / feeSavings;
+  return {
+    fromPlanId,
+    toPlanId,
+    extraMonthly,
+    feeSavings,
+    breakEvenOrders: exact,
+    alreadyCheaper: false,
+    neverPays: false,
+  };
+}
+
+/**
+ * Rank every illustrative plan at the merchant's order volume and payment
+ * path. Each row uses that plan's preset rates and monthly fee; every other
+ * input (price, costs, processor rates) stays shared so the only variable is
+ * the plan.
+ */
+export function comparePlans(input = {}) {
+  const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
+  if (monthlyOrders === 0) {
+    throw new Error("Monthly orders must be greater than zero to compare plans");
+  }
+  const paymentMethod = input.paymentMethod ?? "shopify_payments";
+  const currentPlanId = input.planId && PLAN_PRESETS[input.planId] ? input.planId : null;
+
+  const plans = PLAN_IDS.map((id) => {
+    const preset = PLAN_PRESETS[id];
+    const filled = applyPlanPreset(input, id);
+    const result = calculateOrder({
+      ...input,
+      ...filled,
+      monthlyOrders,
+      paymentMethod,
+    });
+    return {
+      id,
+      label: preset.label,
+      monthlyPlan: preset.monthlyPlan,
+      paymentsRate: preset.paymentsRate,
+      paymentsFixed: preset.paymentsFixed,
+      shopifyTxnRate: preset.shopifyTxnRate,
+      perOrderFees: result.selected.feeTotal,
+      perOrderProfit: result.selected.profit,
+      monthlyProfit: result.selected.profit * monthlyOrders,
+      monthlyFeeTotal: result.selected.feeTotal * monthlyOrders,
+    };
+  });
+
+  const best = plans.reduce((winner, plan) =>
+    plan.monthlyProfit > winner.monthlyProfit ? plan : winner,
+  );
+  const current = currentPlanId ? plans.find((plan) => plan.id === currentPlanId) : plans[0];
+
+  const upgrades = [];
+  for (let i = 0; i < PLAN_IDS.length; i += 1) {
+    for (let j = i + 1; j < PLAN_IDS.length; j += 1) {
+      const step = upgradeBreakEvenOrders(PLAN_IDS[i], PLAN_IDS[j], input);
+      upgrades.push({
+        ...step,
+        worthItAtVolume:
+          !step.neverPays &&
+          Number.isFinite(step.breakEvenOrders) &&
+          monthlyOrders + 1e-9 >= step.breakEvenOrders,
+      });
+    }
+  }
+
+  return {
+    currentPlanId,
+    paymentMethod,
+    monthlyOrders,
+    plans: plans.map((plan) => ({
+      ...plan,
+      isBest: plan.id === best.id,
+      isCurrent: current ? plan.id === current.id : false,
+      vsCurrentMonthly: current ? plan.monthlyProfit - current.monthlyProfit : 0,
+    })),
+    bestPlanId: best.id,
+    upgrades,
+  };
+}
+
 function pathResult({
   revenue,
   percentRate,
@@ -76,6 +213,7 @@ function pathResult({
   cashInvested,
   shippingCharged,
   targetMarginRate,
+  targetProfit,
   feeParts,
 }) {
   const feeTotal = Object.values(feeParts).reduce((sum, value) => sum + value, 0);
@@ -83,6 +221,7 @@ function pathResult({
   const profit = revenue - costs;
   const fixedCash = processorFixed + cashInvested;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
+  const profitPriceDenominator = 1 - percentRate;
   return {
     fees: feeParts,
     feeTotal,
@@ -97,6 +236,10 @@ function pathResult({
       targetRevenueDenominator <= 0
         ? Infinity
         : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    targetProfitPrice:
+      profitPriceDenominator <= 0
+        ? Infinity
+        : Math.max(0, (targetProfit + fixedCash) / profitPriceDenominator - shippingCharged),
   };
 }
 
@@ -115,6 +258,7 @@ export function calculateOrder(input) {
   const monthlyPlan = number(input.monthlyPlan, "Monthly plan cost");
   const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
   const targetMargin = number(input.targetMargin, "Target margin");
+  const targetProfit = number(input.targetProfit, "Target net profit");
   const paymentMethod = input.paymentMethod ?? "shopify_payments";
 
   if (targetMargin >= 100) throw new Error("Target margin must be less than 100%");
@@ -137,6 +281,7 @@ export function calculateOrder(input) {
     cashInvested,
     shippingCharged,
     targetMarginRate,
+    targetProfit,
     feeParts: {
       shopifyPayments: revenue * (paymentsRate / 100) + paymentsFixed,
       shopifyThirdParty: 0,
@@ -151,6 +296,7 @@ export function calculateOrder(input) {
     cashInvested,
     shippingCharged,
     targetMarginRate,
+    targetProfit,
     feeParts: {
       shopifyPayments: 0,
       shopifyThirdParty: revenue * (shopifyTxnRate / 100),
@@ -169,6 +315,101 @@ export function calculateOrder(input) {
     extraCostVsShopifyPayments: thirdParty.feeTotal - shopifyPayments.feeTotal,
     extraCostVsThirdParty: shopifyPayments.feeTotal - thirdParty.feeTotal,
   };
+}
+
+const PROMO_KINDS = new Set(["list", "percent_off", "amount_off", "free_shipping"]);
+
+/**
+ * Apply one checkout offer to a calculateOrder input.
+ *
+ * percent_off and amount_off cut the item price. free_shipping zeros
+ * shippingCharged and leaves shippingCost alone — the label still has to
+ * be paid. Percentage fees then run on the new revenue.
+ */
+export function applyPromo(input, promo = {}) {
+  const kind = promo.kind ?? "list";
+  if (!PROMO_KINDS.has(kind)) throw new Error(`Unknown promo kind: ${kind}`);
+  if (kind === "list") return { ...input };
+
+  const price = number(input.price, "Item price");
+
+  if (kind === "percent_off") {
+    const percent = number(promo.percent, "Promo percent");
+    if (percent > 100) throw new Error("Promo percent must be at most 100");
+    return { ...input, price: price * (1 - percent / 100) };
+  }
+  if (kind === "amount_off") {
+    const amount = number(promo.amount, "Promo amount");
+    return { ...input, price: Math.max(0, price - amount) };
+  }
+  return { ...input, price, shippingCharged: 0 };
+}
+
+export function defaultPromoSet({ percentOff = 10, amountOff = 10 } = {}) {
+  const percent = number(percentOff, "Promo percent");
+  const amount = number(amountOff, "Promo amount");
+  if (percent > 100) throw new Error("Promo percent must be at most 100");
+  const amountLabel = Number.isInteger(amount) ? `$${amount} off item` : `$${amount.toFixed(2)} off item`;
+  return [
+    { id: "list", kind: "list", label: "List price" },
+    { id: "percent_off", kind: "percent_off", percent, label: `${percent}% off item` },
+    { id: "amount_off", kind: "amount_off", amount, label: amountLabel },
+    { id: "free_shipping", kind: "free_shipping", label: "Free shipping" },
+  ];
+}
+
+function promoRow(input, promo, listProfit) {
+  const applied = applyPromo(input, promo);
+  const order = calculateOrder(applied);
+  return {
+    id: promo.id ?? promo.kind ?? "list",
+    label: promo.label ?? promo.kind ?? "list",
+    kind: promo.kind ?? "list",
+    price: number(applied.price, "Item price"),
+    shippingCharged: number(applied.shippingCharged, "Shipping charged"),
+    revenue: order.revenue,
+    feeTotal: order.selected.feeTotal,
+    cashInvested: order.selected.cashInvested,
+    profit: order.selected.profit,
+    margin: order.selected.margin,
+    profitDelta: order.selected.profit - listProfit,
+    isLoss: order.selected.profit < 0,
+  };
+}
+
+/**
+ * Rank checkout offers on the selected payment path. List price is the
+ * baseline; cash invested does not change when shipping charged goes to $0.
+ */
+export function comparePromos(input, promos = defaultPromoSet()) {
+  if (!Array.isArray(promos) || promos.length === 0) {
+    throw new Error("At least one promo is required");
+  }
+  const listProfit = calculateOrder(input).selected.profit;
+  const rows = promos.map((promo) => promoRow(input, promo, listProfit));
+  const ranked = [...rows].sort((a, b) => b.profit - a.profit || a.label.localeCompare(b.label));
+  return { listProfit, rows, ranked, best: ranked[0] };
+}
+
+export function promoComparisonSummary(comparison) {
+  const money = (value) =>
+    `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const promoRows = comparison.rows.filter((row) => row.kind !== "list");
+  if (promoRows.length === 0) return "Enter a promo to compare it against list price.";
+
+  const bestPromo = [...promoRows].sort((a, b) => b.profit - a.profit)[0];
+  const freeShipping = promoRows.find((row) => row.kind === "free_shipping");
+  const vsList = `${money(Math.abs(bestPromo.profitDelta))} ${bestPromo.profitDelta >= 0 ? "above" : "below"} list`;
+
+  let sentence = `${bestPromo.label} keeps the most of the compared promos (${money(bestPromo.profit)}, ${vsList}).`;
+  if (promoRows.every((row) => row.isLoss)) {
+    sentence = `Every compared promo loses money. ${bestPromo.label} loses the least (${money(bestPromo.profit)}).`;
+  }
+  if (freeShipping && bestPromo.kind !== "free_shipping") {
+    sentence += ` Free shipping keeps ${money(bestPromo.profit - freeShipping.profit)} less than ${bestPromo.label}.`;
+    if (freeShipping.isLoss) sentence += " Free shipping turns the order into a loss.";
+  }
+  return sentence;
 }
 
 function winnerFromDelta(delta) {
@@ -2963,4 +3204,141 @@ export function compareUpsell(input) {
 
 export function upsellNote(comparison) {
   return comparison.summary;
+}
+
+function refundedProfit({
+  remainingFees,
+  costOfGoods,
+  restockableRate,
+  shippingCost,
+  packagingCost,
+  otherCost,
+  allocatedPlanCost,
+  returnShippingCost,
+}) {
+  // Full refund: the customer payment comes back, so revenue on that order is 0.
+  // Remaining processor/Shopify fees, unsalvaged goods, outbound fulfillment,
+  // return postage, and the allocated plan share are still cash out.
+  const lostGoods = costOfGoods * (1 - restockableRate);
+  return 0 - remainingFees - lostGoods - shippingCost - packagingCost - otherCost
+    - allocatedPlanCost - returnShippingCost;
+}
+
+function breakEvenRefundRate(completedProfit, refundOutcomeProfit) {
+  if (completedProfit <= 0) return 0;
+  const gap = completedProfit - refundOutcomeProfit;
+  if (gap <= 0) return null;
+  const rate = (completedProfit / gap) * 100;
+  return rate > 100 ? null : rate;
+}
+
+function pathAfterRefunds(path, remainingFees, refundRate, sunk) {
+  const completedProfit = path.profit;
+  const refundOutcomeProfit = refundedProfit({ remainingFees, ...sunk });
+  const expectedProfit = (1 - refundRate) * completedProfit + refundRate * refundOutcomeProfit;
+  return {
+    completedProfit,
+    refundOutcomeProfit,
+    expectedProfit,
+    remainingFeesOnRefund: remainingFees,
+    breakEvenRefundRate: breakEvenRefundRate(completedProfit, refundOutcomeProfit),
+  };
+}
+
+function refundPathWinner(shopifyProfit, thirdPartyProfit) {
+  if (shopifyProfit > thirdPartyProfit) return "shopify_payments";
+  if (thirdPartyProfit > shopifyProfit) return "third_party";
+  return "tie";
+}
+
+/**
+ * Mix completed-order profit with a full-refund outcome so a merchant can see
+ * whether a refund rate still leaves money — and whether PayPal keeping its
+ * fee on refunds flips the payment-path comparison.
+ *
+ * Distinct from compareReturnResolution (one requested return: cash vs store
+ * credit vs exchange). This is the expected mix across a refund *rate*.
+ *
+ * Defaults match the usual statements: Shopify Payments returns its processing
+ * fee on a full refund; a third-party processor often keeps its fee; Shopify's
+ * own third-party transaction fee is treated as reversing with the order.
+ * Every rate stays an input. This is not a claim about a live refund policy.
+ */
+export function expectedProfitAfterRefunds(input) {
+  const order = calculateOrder(input);
+  const refundRate = ratePercent(input.refundRatePercent, "Refund rate", 0) / 100;
+  const returnShippingCost = number(input.returnShippingCost, "Return shipping", 0);
+  const restockableRate = ratePercent(input.restockablePercent, "Restockable percent", 100) / 100;
+  const shopifyPaymentsFeeRefundRate = ratePercent(
+    input.shopifyPaymentsFeeRefundPercent,
+    "Shopify Payments fee refund percent",
+    100,
+  ) / 100;
+  const thirdPartyFeeRefundRate = ratePercent(
+    input.thirdPartyFeeRefundPercent,
+    "Third-party fee refund percent",
+    0,
+  ) / 100;
+  const shopifyThirdPartyFeeRefundRate = ratePercent(
+    input.shopifyThirdPartyFeeRefundPercent,
+    "Shopify third-party fee refund percent",
+    100,
+  ) / 100;
+
+  const sunk = {
+    costOfGoods: number(input.costOfGoods, "Cost of goods"),
+    restockableRate,
+    shippingCost: number(input.shippingCost, "Shipping cost"),
+    packagingCost: number(input.packagingCost, "Packaging cost"),
+    otherCost: number(input.otherCost, "Other cost"),
+    allocatedPlanCost: order.allocatedPlanCost,
+    returnShippingCost,
+  };
+
+  const shopifyPayments = pathAfterRefunds(
+    order.shopifyPayments,
+    order.shopifyPayments.fees.shopifyPayments * (1 - shopifyPaymentsFeeRefundRate),
+    refundRate,
+    sunk,
+  );
+  const thirdParty = pathAfterRefunds(
+    order.thirdParty,
+    order.thirdParty.fees.shopifyThirdParty * (1 - shopifyThirdPartyFeeRefundRate)
+      + order.thirdParty.fees.processor * (1 - thirdPartyFeeRefundRate),
+    refundRate,
+    sunk,
+  );
+
+  const selected = order.paymentMethod === "shopify_payments" ? shopifyPayments : thirdParty;
+  const completedWinner = refundPathWinner(shopifyPayments.completedProfit, thirdParty.completedProfit);
+  const expectedWinner = refundPathWinner(shopifyPayments.expectedProfit, thirdParty.expectedProfit);
+
+  return {
+    revenue: order.revenue,
+    refundRatePercent: refundRate * 100,
+    monthlyOrders: number(input.monthlyOrders, "Monthly orders", 1),
+    paymentMethod: order.paymentMethod,
+    selected,
+    shopifyPayments,
+    thirdParty,
+    expectedExtraVsShopifyPayments: thirdParty.expectedProfit - shopifyPayments.expectedProfit,
+    completedWinner,
+    expectedWinner,
+    refundsFlipPath: completedWinner !== expectedWinner,
+    monthlyExpectedProfit: selected.expectedProfit * number(input.monthlyOrders, "Monthly orders", 1),
+  };
+}
+
+/** Same mix at a few refund rates so the page can show when profit crosses zero. */
+export function refundRateSweep(input, rates = [0, 5, 10, 15, 20]) {
+  return rates.map((refundRatePercent) => {
+    const mix = expectedProfitAfterRefunds({ ...input, refundRatePercent });
+    return {
+      refundRatePercent,
+      shopifyPayments: mix.shopifyPayments.expectedProfit,
+      thirdParty: mix.thirdParty.expectedProfit,
+      selected: mix.selected.expectedProfit,
+      expectedWinner: mix.expectedWinner,
+    };
+  });
 }

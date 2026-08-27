@@ -22,6 +22,7 @@ export const INPUT_FIELDS = [
   'paymentFixed',
   'givesRate',
   'bumpFee',
+  'meetupCost',
   'ebayFinalValueRate',
   'ebayFixedFee',
   'shopSalePrice',
@@ -49,6 +50,7 @@ export const REVERB_DEFAULTS = {
   paymentFixed: 0.3,
   givesRate: 0,
   bumpFee: 0,
+  meetupCost: 0,
   ebayFinalValueRate: 13.25,
   ebayFixedFee: 0.3,
   shopSalePrice: 800,
@@ -196,20 +198,28 @@ export function offerThatMatchesEbayList(input) {
   };
 }
 
-// Same buyer checkout, three ways to handle shipping. Marketplace and
-// Reverb Gives sit on the item price, so folding postage into the list
-// raises those lines. Local pickup drops both shipping charged and the
-// postage you pay. Derived from the existing sale fields — no new inputs.
+// Same listing, four ways to handle shipping. Marketplace and Reverb
+// Gives sit on the item price, so folding postage into the list raises
+// those lines. Absorbing the label keeps the typed list and leaves the
+// postage on you. Local pickup drops shipping charged and, unless you
+// type a meetup cost, the postage you pay.
 export function compareShippingPaths(input, salePrice = input?.price) {
   const price = number(salePrice, 'Sale price');
   const shippingCharged = number(input.shippingCharged, 'Shipping charged', 0);
+  const meetupCost = number(input.meetupCost, 'Meetup / pickup cost', 0);
   const buyerPays = calculateReverbSale(input, price);
   const included = calculateReverbSale({ ...input, shippingCharged: 0 }, price + shippingCharged);
-  const pickup = calculateReverbSale({ ...input, shippingCharged: 0, shippingCost: 0 }, price);
+  const pickup = calculateReverbSale({
+    ...input,
+    shippingCharged: 0,
+    shippingCost: meetupCost,
+  }, price);
+  const absorbed = calculateReverbSale({ ...input, shippingCharged: 0 }, price);
   const rows = [
     { id: 'buyerPays', label: 'Buyer pays shipping', sale: buyerPays },
     { id: 'included', label: 'Shipping included in the price', sale: included },
     { id: 'pickup', label: 'Local pickup', sale: pickup },
+    { id: 'absorbed', label: 'You absorb the label', sale: absorbed },
   ].map((row) => ({
     ...row,
     checkout: row.sale.revenue,
@@ -221,9 +231,12 @@ export function compareShippingPaths(input, salePrice = input?.price) {
     buyerPays,
     included,
     pickup,
+    absorbed,
+    meetupCost,
     rows,
     extraMarketplaceOnIncluded: included.fees.marketplace - buyerPays.fees.marketplace,
     extraGivesOnIncluded: included.fees.gives - buyerPays.fees.gives,
+    absorbVsIncluded: absorbed.profit - included.profit,
     includedListThatMatchesBuyerPays: includedListThatMatchesBuyerPays(input, buyerPays.profit),
     winner: leaders.length === 1 ? leaders[0].id : 'tie',
   };
@@ -427,4 +440,65 @@ export function consignmentNote(comparison) {
     return `Taking their ${cash} cash offer still leaves ${money(-listBeatCash)} more than listing it yourself on Reverb. ${cutLine} ${cashLine}`;
   }
   return `Two shop-or-list paths leave the same cash on these inputs. ${cutLine} ${cashLine}`;
+}
+
+// Typical Reverb bump when the seller has not typed one. A $0 bump makes the
+// four-row table collapse to "same sale twice"; the illustration is the
+// cash a bump costs, not a claim about Reverb's current bump prices.
+export const ILLUSTRATED_BUMP_DEFAULT = 3;
+
+function keepRateOnItem(input) {
+  const marketplaceRate = number(input.marketplaceRate, 'Reverb marketplace rate', 5);
+  const paymentRate = number(input.paymentRate, 'Payment rate', 2.9);
+  const givesRate = number(input.givesRate, 'Reverb Gives rate', 0);
+  const keepRate = 1 - marketplaceRate / 100 - paymentRate / 100 - givesRate / 100;
+  if (keepRate <= 0) throw new Error('Combined percentage fees must stay below 100%');
+  return keepRate;
+}
+
+function illustratedBumpFee(input) {
+  const typed = number(input.bumpFee, 'Bump fee on this listing', 0);
+  return typed > 0 ? typed : ILLUSTRATED_BUMP_DEFAULT;
+}
+
+// Same offer and same list, with and without a bump. A bump is a fixed cash
+// out of this sale — it never pays on the same price. It only pays if it
+// changes the price you take (list instead of the offer, or a higher offer).
+export function compareBump(input) {
+  const listPrice = number(input.price, 'List price');
+  const offerPrice = number(input.offerPrice, 'Offer price', listPrice);
+  const bump = illustratedBumpFee(input);
+  const noBump = { ...input, bumpFee: 0 };
+  const withBump = { ...input, bumpFee: bump };
+  const offerNoBump = calculateReverbSale(noBump, offerPrice);
+  const offerWithBump = calculateReverbSale(withBump, offerPrice);
+  const listNoBump = calculateReverbSale(noBump, listPrice);
+  const listWithBump = calculateReverbSale(withBump, listPrice);
+  const extraSaleToCoverBump = bump / keepRateOnItem(input);
+  const rows = [
+    { id: 'offerNoBump', label: 'Take the offer, no bump', sale: offerNoBump },
+    { id: 'offerWithBump', label: 'Take the offer, pay the bump', sale: offerWithBump },
+    { id: 'listNoBump', label: 'Sell at list, no bump', sale: listNoBump },
+    { id: 'listWithBump', label: 'Sell at list, pay the bump', sale: listWithBump },
+  ].map((row) => ({
+    ...row,
+    vsOfferNoBump: row.sale.profit - offerNoBump.profit,
+  }));
+  const maxProfit = Math.max(...rows.map((row) => row.sale.profit));
+  const leaders = rows.filter((row) => Math.abs(row.sale.profit - maxProfit) < 1e-9);
+  return {
+    bump,
+    usedTypedBump: number(input.bumpFee, 'Bump fee on this listing', 0) > 0,
+    offerNoBump,
+    offerWithBump,
+    listNoBump,
+    listWithBump,
+    extraSaleToCoverBump,
+    offerThatCoversBump: offerPrice + extraSaleToCoverBump,
+    listThatCoversBump: listPrice + extraSaleToCoverBump,
+    bumpPaysIfYouReachList: listWithBump.profit > offerNoBump.profit,
+    cashBumpSavesVsOfferIfYouReachList: listWithBump.profit - offerNoBump.profit,
+    rows,
+    winner: leaders.length === 1 ? leaders[0].id : 'tie',
+  };
 }

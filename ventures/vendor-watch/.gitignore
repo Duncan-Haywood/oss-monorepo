@@ -1,0 +1,18 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+node_modules/
+dist/
+build/
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+
+# Next.js
+.next/
+next-env.d.ts
+out/
+*.tsbuildinfo

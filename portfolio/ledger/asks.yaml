@@ -170,8 +170,9 @@ decisions:
     `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
     secrets as the way the portfolio goes live.
   unlocks:
+    - "**33 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes."
     - Three ventures whose builds already pass but which deploy nothing.
-    - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist."
+    - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist. It no longer reads this variable: GitHub serves one Pages site per repo, so it moved to `RETAIL_PILOT_INTEL_PAGES` rather than racing the calculators for the origin."
   blocked_by: []
   note: >-
     Narrowed 2026-08-25: the owner chose GitHub Pages for static products
@@ -179,6 +180,17 @@ decisions:
     not the portfolio default. Hetzner account and GHA SSH keys already
     exist, so this ask is no longer "pick a vendor" — it is the Pages
     source toggle that flips gated `deploy-pages` jobs to live.
+
+
+    Sharpened 2026-08-26: the flip used to be worth much less than it looked.
+    GitHub serves one Pages site per repository, and the only workflow that
+    could claim it published `retail-pilot-intel`'s passcode-gated internal
+    docs — so setting the variable would have put a docs app live and left
+    every calculator dark. `platform/pages/` now builds the whole portfolio
+    into that one site (see its README for what is published and how to
+    exclude a venture), and `retail-pilot-intel` moved to its own variable so
+    the two cannot race. Nothing new is being asked for: same toggle, same
+    variable name, ~33 products behind it instead of none.
 
 
     Grouped originally because both Asks 4 and 6 were repository settings

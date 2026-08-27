@@ -70,9 +70,40 @@ function asNumber(value) {
   return Number.isInteger(number) ? number : number;
 }
 
+function nestedText(node, parentName, childName) {
+  const parent = descendants(node, parentName)[0];
+  return parent ? textOf(parent, childName, false) : "";
+}
+
+/** The party's own identifier, in the order a receiver would resolve it.
+ *
+ * EN 16931 makes the seller and buyer identifiers (BT-29/BT-46) optional --
+ * plenty of real Peppol invoices identify a party by its electronic address
+ * and name alone. Treating the identifier as mandatory made those invoices
+ * unreadable rather than reporting a finding, so this returns "" and lets
+ * INV-005 decide what a missing identifier means.
+ *
+ * This mirrors `_party_identifier` in src/einvoice_preflight/ubl.py, which
+ * already resolved it this way. The browser tool kept the stricter rule, so
+ * the CLI read the shipped examples and the page they are published next to
+ * refused them.
+ */
+function partyIdentifier(partyNode) {
+  return nestedText(partyNode, "PartyIdentification", "ID")
+    || textOf(partyNode, "EndpointID", false)
+    || nestedText(partyNode, "PartyLegalEntity", "CompanyID")
+    || nestedText(partyNode, "PartyTaxScheme", "CompanyID");
+}
+
 function party(node) {
   const partyNode = descendants(node, "Party")[0] || node;
-  const mapped = { id: textOf(partyNode, "ID"), name: textOf(partyNode, "Name") };
+  // XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
+  // may omit PartyName entirely, so that is a source for the name, not a
+  // reason to refuse the document. Also matches the Python reader.
+  const name = nestedText(partyNode, "PartyName", "Name")
+    || nestedText(partyNode, "PartyLegalEntity", "RegistrationName")
+    || textOf(partyNode, "Name", false);
+  const mapped = { id: partyIdentifier(partyNode), name };
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
     const vatId = textOf(scheme, "CompanyID", false);
     if (vatId) {
@@ -112,6 +143,21 @@ function paymentReference(means) {
       if (child.name === name) {
         const value = child.text.trim();
         if (value) return value;
+      }
+    }
+  }
+  return "";
+}
+
+function paymentTermsDays(root) {
+  for (const child of root.children) {
+    if (child.name !== "PaymentTerms") continue;
+    for (const period of descendants(child, "SettlementPeriod")) {
+      for (const measure of period.children) {
+        if (measure.name !== "DurationMeasure") continue;
+        const unit = ((measure.attrs && measure.attrs.unitCode) || "").trim().toUpperCase();
+        const value = measure.text.trim();
+        if (value && (unit === "DAY" || unit === "D")) return value;
       }
     }
   }
@@ -258,8 +304,10 @@ export function parseUblInvoice(source) {
       ...optionalMonetaryTotals(total),
     },
   };
-  const payment = payeePayment(root);
-  if (payment) invoice.payment = payment;
+  const payment = payeePayment(root) || {};
+  const termsDays = paymentTermsDays(root);
+  if (termsDays) payment.terms_days = termsDays;
+  if (Object.keys(payment).length) invoice.payment = payment;
   Object.assign(invoice, documentExemption(root));
   const breakdown = taxBreakdown(root);
   if (breakdown.length) invoice.tax_breakdown = breakdown;
