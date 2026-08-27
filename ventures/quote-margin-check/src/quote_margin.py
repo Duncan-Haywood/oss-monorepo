@@ -292,7 +292,7 @@ def main() -> int:
         quote = load_quote(json.loads(args.input.read_text(encoding="utf-8")))
         result = calculate(quote)
         if args.format == "json":
-            print(json.dumps({"inputs": quote.__dict__, "result": result, "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
+            print(json.dumps({"inputs": quote.__dict__, "result": result, "billing_models": compare_billing_models(quote, result), "disclaimer": "Arithmetic only; not tax, financial, or business advice."}, indent=2))
         elif args.format == "csv":
             csv_report(quote, result)
         else:
