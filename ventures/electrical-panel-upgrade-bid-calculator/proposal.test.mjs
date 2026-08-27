@@ -13,6 +13,7 @@ import {
   referenceFor,
   renderProposalHtml,
   saveCompany,
+  scopeLines,
 } from './proposal.mjs';
 
 /** Minimal in-memory stand-in for `localStorage`. */
@@ -214,4 +215,88 @@ test('forgetting the business block removes it', () => {
   forgetCompany(storage, 'k');
   assert.equal(storage.getItem('k'), null);
   assert.equal(loadCompany(storage, 'k').companyName, '');
+});
+
+// ---- scopeLines -----------------------------------------------------------
+//
+// These guard the defect that has cost every adoption batch a line: a field
+// name guessed from the input rather than read off the result, resolving to
+// `undefined` and printing that word on a customer's quote.
+
+test('scope templates fill from the result', () => {
+  assert.deepEqual(
+    scopeLines(['Install {feet} ft of {name}', 'Haul away debris'], { feet: 180, name: '6 ft cedar privacy' }),
+    ['Install 180 ft of 6 ft cedar privacy', 'Haul away debris'],
+  );
+});
+
+test('a line whose field is missing is dropped, never printed as undefined', () => {
+  const result = { totalFeet: 90 };
+  const filled = scopeLines(
+    ['{totalFeet} ft of fence', '{linearFeet} ft of {material}', 'Site left clean'],
+    result,
+  );
+  assert.deepEqual(filled, ['90 ft of fence', 'Site left clean']);
+  assert.ok(!filled.join('\n').includes('undefined'));
+});
+
+test('null, empty string, NaN and Infinity drop their line too', () => {
+  const values = { a: null, b: '', c: Number.NaN, d: Number.POSITIVE_INFINITY, e: 0 };
+  assert.deepEqual(
+    scopeLines(['x {a}', 'x {b}', 'x {c}', 'x {d}', 'x {e}'], values),
+    // Zero is a real figure — "0 gates" is a fact, not a hole.
+    ['x 0'],
+  );
+});
+
+test('dotted paths read into nested result objects', () => {
+  assert.deepEqual(
+    scopeLines(['{job.rooms} rooms', '{job.missing} rooms'], { job: { rooms: 4 } }),
+    ['4 rooms'],
+  );
+});
+
+test('a `when` guard keeps optional work off the sheet when it is not happening', () => {
+  const templates = [
+    { line: 'Remove {tearOutFeet} ft of existing fence', when: 'tearOutFeet' },
+    'Set posts in concrete',
+  ];
+  assert.deepEqual(scopeLines(templates, { tearOutFeet: 0 }), ['Set posts in concrete']);
+  assert.deepEqual(scopeLines(templates, { tearOutFeet: 40 }),
+    ['Remove 40 ft of existing fence', 'Set posts in concrete']);
+});
+
+test('a `when` guard on a missing field is false rather than an error', () => {
+  assert.deepEqual(scopeLines([{ line: 'x', when: 'nope.deeper' }], {}), []);
+});
+
+test('empty and malformed templates yield no lines rather than throwing', () => {
+  assert.deepEqual(scopeLines([], {}), []);
+  assert.deepEqual(scopeLines(undefined, {}), []);
+  assert.deepEqual(scopeLines([null, 42, { noLine: true }, '   '], {}), []);
+});
+
+test('a plural suffix agrees with its count', () => {
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 1 }), ['1 gate']);
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 3 }), ['3 gates']);
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], { gates: 0 }), ['0 gates']);
+  assert.deepEqual(scopeLines(['{n} box{n+es}'], { n: 2 }), ['2 boxes']);
+});
+
+test('a plural suffix on a missing field drops its line like any other', () => {
+  assert.deepEqual(scopeLines(['{gates} gate{gates+s}'], {}), []);
+});
+
+test('a rounded placeholder groups thousands and drops machine decimals', () => {
+  // The defect this exists for: `{billYards}` printed "48.888888888888886 yd²"
+  // on a customer's quote.
+  assert.deepEqual(scopeLines(['{yards~2} yd²'], { yards: 48.888888888888886 }), ['48.89 yd²']);
+  assert.deepEqual(scopeLines(['{sf~0} sq ft'], { sf: 1600 }), ['1,600 sq ft']);
+  assert.deepEqual(scopeLines(['{sf~0} sq ft'], { sf: 1599.6 }), ['1,600 sq ft']);
+  // A round number should not grow a trailing ".00".
+  assert.deepEqual(scopeLines(['{n~2} tons'], { n: 12 }), ['12 tons']);
+});
+
+test('rounding a non-numeric value drops the line rather than printing NaN', () => {
+  assert.deepEqual(scopeLines(['{x~2} ft'], { x: 'wide' }), []);
 });

@@ -84,6 +84,79 @@ export function lines(value) {
 }
 
 /**
+ * Fill scope templates from a calculator's result, dropping any line whose
+ * figures are not there.
+ *
+ * Every adoption batch so far has lost a line to the same defect: each
+ * calculator names its result differently, `result.doorClass` or `run.material`
+ * resolves to `undefined` rather than throwing, and the customer's scope reads
+ * "undefined ft of undefined" while every suite stays green. Guessing is the
+ * problem; this makes guessing wrong *visible* instead of silent.
+ *
+ * A template is `'Install {totalLinearFeet} ft of {fenceName}'`, or an object
+ * `{ line, when }` where `when` names a field that must be truthy for the line
+ * to appear at all.
+ *
+ * `{field+s}` is that field's plural suffix — `'s'` unless the value is exactly
+ * one — so `'{gates} gate{gates+s}'` reads "1 gate" and "3 gates". Without it
+ * the obvious thing to write is `'{gates} gate{gates}'`, which prints
+ * "3 gate3" on a customer's quote.
+ *
+ * `{field~2}` rounds to that many decimals and groups thousands, so a derived
+ * figure reads "48.89 yd²" and "1,600 sq ft" rather than "48.888888888888886"
+ * and "1600". Anything computed — a yardage, a tonnage, a square count — needs
+ * it: a quote carrying fifteen decimal places tells the customer the number was
+ * produced by a machine that was not being watched.
+ *
+ * A placeholder that resolves to `undefined`, `null`, `''`,
+ * `NaN`, or `Infinity` drops its whole line — a scope with one line missing is
+ * a scope the contractor edits, whereas a scope reading `undefined` is one they
+ * hand to a customer without noticing.
+ *
+ * Dropping is not the safety property on its own: an empty scope is also wrong,
+ * and `platform/proposal/verify.mjs` fails a page whose default scope comes out
+ * empty. Between them, a mis-named field cannot reach a customer quietly.
+ *
+ * @param {Array<string|{line: string, when?: string}>} templates
+ * @param {object} values The calculator's result (and anything else to read).
+ * @returns {string[]}
+ */
+export function scopeLines(templates, values) {
+  const read = (path) => String(path).split('.')
+    .reduce((node, key) => (node === null || node === undefined ? undefined : node[key]), values);
+  const missing = (value) => value === undefined || value === null || value === ''
+    || (typeof value === 'number' && !Number.isFinite(value));
+
+  const filled = [];
+  for (const template of templates ?? []) {
+    const line = typeof template === 'string' ? template : template?.line;
+    if (typeof line !== 'string') continue;
+    if (typeof template === 'object' && template.when !== undefined && !read(template.when)) continue;
+
+    let complete = true;
+    const rendered = line.replace(
+      /\{([A-Za-z0-9_.]+?)(?:\+([A-Za-z]+)|~(\d))?\}/g,
+      (_match, path, plural, decimals) => {
+        const value = read(path);
+        if (missing(value)) { complete = false; return ''; }
+        if (plural !== undefined) return Number(value) === 1 ? '' : plural;
+        if (decimals !== undefined) {
+          const number = Number(value);
+          if (!Number.isFinite(number)) { complete = false; return ''; }
+          return number.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: Number(decimals),
+          });
+        }
+        return String(value);
+      },
+    );
+    if (complete && rendered.trim()) filled.push(rendered.trim());
+  }
+  return filled;
+}
+
+/**
  * `YYYY-MM-DD` plus a whole number of days, in UTC.
  *
  * Local-time date arithmetic silently shifts by a day across a DST boundary,
