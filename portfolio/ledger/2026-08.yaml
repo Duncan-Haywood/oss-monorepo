@@ -26143,3 +26143,86 @@ entries:
         that bad scope copy fails silently. Left as a scoped follow-up with the
         reason written down, and `check_money_sign.py` added to
         portfolio-validate so the spelling that did ship cannot come back.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Fifteen tool front pages told crawlers the canonical address was one
+        nothing links to.** Shipped and merged #1940. Each was written as a
+        standalone site and carries `<link rel="canonical" href="./index.html">`
+        — so under one origin it resolves to `/<slug>/index.html`, while the
+        hub, every sitemap, and every internal link address the same page as
+        `/<slug>/`. Two URLs for one page, with the canonical naming the one
+        that has no inbound links, on the page each tool most needs to rank:
+        flat-roof, metal-roof, mini-split, pergola, retaining-wall,
+        screened-porch, solar-pv, spray-foam, sunroom, tree-service,
+        vinyl-liner, wheelchair-ramp, window-cleaning, appliance-repair-quote,
+        backup-verification-evidence.
+      - >-
+        Why nothing had caught it, which is the reusable part. The tag is legal
+        HTML and *self-resolving*, so no validator objects. `injectChrome`
+        inserts a canonical only where a venture has none, and these ventures
+        had one — the build's rule was "do not add a second", and the case it
+        missed is "the one already there is wrong". And `check.mjs` only ever
+        rejected an **absolute** canonical pointing off-site, so a relative one
+        walked past it on 442 pages. The check now resolves both sides and
+        compares: a canonical is right when it resolves to the URL the page is
+        served at, whatever spelling it uses to get there. That framing is what
+        makes a relative href checkable at all.
+      - >-
+        The social half was simply absent, and it is the half the acquisition
+        plan depends on. `og:url` was on 7 of 442 pages, `og:image` on none,
+        `twitter:card` on one. A link pasted into a trade group therefore
+        rendered as a bare line of grey text — and without `og:url` a scraper
+        keys the card to the pasted URL, so the `?bid=...` share links 157
+        pages emit each previewed as a separate page rather than consolidating
+        onto the tool. All 440 indexable pages now carry a full card.
+      - >-
+        `renderSocialCard()` draws the existing mark at 1200x630 through the
+        PNG encoder already in `offline.mjs` — 40 lines of zlib, no
+        dependency. Deliberately typeless: a headline would need a font
+        rasteriser in a build that has none, and the words are what a scraper
+        already reads out of `og:title` and sets in its own type beside the
+        image. A first draft set the mark left-of-centre to leave room for that
+        headline and, with no headline, read as a badly cropped photo — worse
+        than no image at all. Centred, it reads as a logo card. Worth looking
+        at a generated image before shipping it.
+      - >-
+        Method note, because it is cheap and it found all of this: resolve
+        every built page's canonical against its own served URL and compare,
+        then count the head tags across the tree. Both are ~30 lines over
+        `dist/`. Reading `build.mjs` suggested the canonical logic was fine —
+        it *is* fine, for the case it handles. Running the resolution over the
+        output is what surfaced the fifteen it does not.
+      - >-
+        Guard proved to fail before being trusted: reverting one page's
+        canonical to the exact `./index.html` the fifteen shipped, and removing
+        one `og:image`, makes `check.mjs` report both and only both.
+      - >-
+        Also shipped: CI workflows for the five ventures that ship a test suite
+        and had none — booth-rent-vs-commission, grant-reporting-tracker,
+        shop-rate-calculator, vendor-rate-break-even,
+        security-camera-bid-calculator. `portfolio-validate.yml` reads
+        VENTURE.yaml and published HTML; it does **not** run venture unit
+        tests, so nothing gated a change to any of them short of a contributor
+        running the whole fleet's suite locally. Two matter now:
+        shop-rate-calculator's saved rates are injected into 104 pages, and
+        security-camera-bid-calculator is the newest product on main. Each was
+        checked to pass `clauses.mjs` first, so none arrives red by
+        construction.
+      - >-
+        Verification, with every workflow in the repo still dark: platform 546
+        tests, ventures 11,172 tests, `check.mjs` clean on a full rebuild, 0
+        canonical mismatches across 442 pages, sitemap coverage unchanged at
+        440/440, and a Chromium sweep in which **164/164 tools answered with no
+        errors**. The sweep is what made the merge safe — this change edits
+        every page's `<head>`, and a head-injection fault is exactly the class
+        unit tests do not execute.
+      - >-
+        Queue state at the start of the run: **zero open PRs**, so the
+        three-PR merge quota had nothing to draw on. Confirmed the branch
+        backlog is still landed rather than re-auditing it — `rematch-1564`'s
+        `priceToMatchProfit` is on `main` byte-for-byte, matching the 08-27
+        finding.
+    mrr_end: null
