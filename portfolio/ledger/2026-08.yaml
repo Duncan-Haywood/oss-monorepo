@@ -25705,3 +25705,56 @@ entries:
         it closed in favour of #905 and `ventures/vendor-watch` is on `main`
         today. Left alone. Recorded so the next session does not re-derive it.
     mrr_end: null
+  - venture: portfolio-ops
+    agent_spend_usd: null
+    human_hours: 0
+    mrr_end: null
+    outcomes:
+      - >-
+        **The open-PR queue was empty and the 60-branch backlog is almost
+        entirely already on `main`.** Zero open PRs existed at the start of
+        this session. Of the branches carrying commits `main` lacks, every
+        one examined turned out to be superseded — and three would have
+        *reverted* live work if merged. `rematch-1172` predates the guard
+        that stops the mobile-detailing page printing "quote at least
+        -$4,608.00"; `claude/sweet-archimedes-cn4s8c` predates `choiceText`,
+        so it would have restored a `String(raw)` coercion that lets `true`
+        through as the option `"true"`; `rematch-1564` predates #1919. The
+        `git diff origin/main...<branch>` three-dot diff is what makes these
+        look novel: it reports against the merge base, so work `main` gained
+        *afterwards* shows up as an addition on the branch. Comparing file
+        contents directly (`git show origin/main:<f>` vs
+        `git show origin/<b>:<f>`) is the check that actually answers it.
+      - >-
+        The renames CLAUDE.md warns about are the whole pattern, not an edge
+        case: `csv.mjs` → `export.mjs`, `draft.mjs` → `share.mjs`,
+        `test_app.mjs` → `app.test.mjs`, `vendor-change-watch` →
+        `vendor-change-evidence`/`vendor-watch`, `priceToMatchProfit` landed
+        under its own name from a sibling branch. In several cases `main`'s
+        version is strictly better than the branch's. A future session should
+        not re-audit these one at a time — the backlog is drained in
+        substance, and what is left on those branches is history.
+      - >-
+        **Portfolio validate was red on `main` repo-wide for the second time
+        from the same cause.** `score_ventures.py --check` and
+        `router/validate.py` both iterate every venture, so one malformed
+        `VENTURE.yaml` turns the check red for *every* pull request, not just
+        its own — which destroys each PR's ability to report its own state.
+        `shop-rate-calculator` shipped in #1917 with no score row and with
+        `evidence: usage`, a value the router rejects and the only occurrence
+        in 578 hypotheses. #1921 fixed both. `marketplace-fee-compare` did the
+        identical thing days earlier. Registering a venture without a score
+        row is now a twice-proven repo-wide outage and deserves a pre-merge
+        guard.
+      - >-
+        **Rendering a page caught a defect 291 unit tests did not.** The
+        aged-inventory table bolded the seller's typed horizon using
+        `tr.best`, the class that means "winning option" on every other FBA
+        page — and the typed horizon is routinely *not* the best row, because
+        holding costs accrue ($441.40 at the typed 3 months against $446.66
+        at 1). No test looked at which row got the class. Serving the venture
+        with `python3 -m http.server` and dumping the DOM with the
+        environment's headless Chromium (no Playwright, no new dependency)
+        found it in one pass; #1922 fixed it and pinned it. Worth repeating
+        on other pages: the audit found the other ten `winner`/`best`
+        markings in this venture all derive from a real maximum.
