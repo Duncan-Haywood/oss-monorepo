@@ -42,9 +42,15 @@ import {
   BID_FOLLOW_UP_HELPERS,
   SAVED_BIDS_MODULE_FILE,
   injectSavedBids,
+  pageHeadlineAmountSelector,
   renderSavedBidsModule,
   stripForInjection,
 } from './jobs.mjs';
+import {
+  BID_LINK_MODULE_FILE,
+  injectBidLink,
+  renderBidLinkModule,
+} from './link.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1755,6 +1761,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const wrapped = [];
   const rated = [];
   const saved = [];
+  const shared = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -1789,13 +1796,27 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // one adds.
       const next = injectSavedBids(withRates, surface.slug, toRoot);
       if (next !== withRates) saved.push(relative);
-      if (next === html) continue;
-      await fs.writeFile(file, next);
+      // Last of all, and after the saved-bids band it hangs its button on.
+      //
+      // Both the gate and the headline selector are read from `withRates` — the
+      // same markup `injectSavedBids` was handed — while the edit is made to
+      // `next`, which is the only copy that has the band to hang the button on.
+      // The two are passed apart so this decides from the venture's own form
+      // rather than from a document another pass has already written into.
+      const linked = injectBidLink(next, {
+        slug: surface.slug,
+        toRoot,
+        source: withRates,
+        amountSelector: pageHeadlineAmountSelector(withRates, surface.slug),
+      });
+      if (linked !== next) shared.push(relative);
+      if (linked === html) continue;
+      await fs.writeFile(file, linked);
       wrapped.push(relative);
     }
   }
 
-  return { wrapped, rated, saved };
+  return { wrapped, rated, saved, shared };
 }
 
 export function renderRobots(baseUrl) {
@@ -2029,6 +2050,7 @@ export async function collectOfflineBundle(outDir, surfaces) {
   // so a tool cached for offline use without it opens with no band at all.
   const assets = new Set([
     './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
+    BID_LINK_MODULE_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -2183,6 +2205,7 @@ export async function buildSite({
   // The saved-bids script, once for the whole site. Every page that carries the
   // band loads it from here; it used to be written into each of them.
   await fs.writeFile(path.join(outDir, SAVED_BIDS_MODULE_FILE), renderSavedBidsModule());
+  await fs.writeFile(path.join(outDir, BID_LINK_MODULE_FILE), renderBidLinkModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
@@ -2198,14 +2221,14 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const { wrapped, rated, saved } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+  const { wrapped, rated, saved, shared } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
   const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, offline };
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, offline };
 }
 
 // ---------------------------------------------------------------------------
@@ -2359,4 +2382,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added site navigation to ${result.wrapped.length} page(s).`);
   console.log(`Carried saved shop rates into ${result.rated.length} bid calculator page(s).`);
   console.log(`Added saved bids to ${result.saved.length} page(s) with a form.`);
+  console.log(`Added a shareable bid link to ${result.shared.length} page(s).`);
 }

@@ -25510,3 +25510,72 @@ entries:
         The public URL remains owner-gated on `deploy-settings`; no second ask
         was added.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The bid was priced for a customer who never got to open it.** 156 of
+        the 234 pages with a form had no way to hand a priced job to another
+        person; 58 did, through a hand-written per-venture `share.mjs`. #1911
+        adds `platform/pages/link.mjs`, a build-time injected "Copy link to this
+        bid" on the saved-bids control line, and the whole bid rides in the URL
+        fragment. Share coverage goes 58 -> 214 pages, and a calculator landing
+        on `main` is covered on the next push with no per-venture edit.
+      - >-
+        The field set is read off the form when the link is made, exactly as
+        `jobs.mjs` reads it for a saved bid, because the per-venture allowlist
+        is a list that has to be kept in step and was not: the recorded defect
+        is a calculator growing `quantity` and `targetMargin` while its
+        `SHARE_FIELDS` did not, so the link dropped both and the recipient
+        computed a different profit than the sender saw.
+      - >-
+        The link carries the sender's headline figure and the recipient's page
+        checks its own arithmetic against it. That check is the feature. Three
+        stated outcomes: applied and agreeing; applied but disagreeing, both
+        figures named and neither safe to quote; or refused outright when the
+        field sets differ, because writing the overlap leaves a form pricing a
+        real, plausible, smaller job than the one sent. Same atomic-or-refused
+        rule as a saved-bid restore. Compared as normalised display strings —
+        `parseFloat` calls `$1,800` and `$1,800.40` equal on every page with a
+        thousands separator, which is the near miss the check exists for.
+      - >-
+        Not offered on the 58 pages with their own share button (a second hash
+        format is worse than the drift it fixes) nor on the 28 itemised
+        calculators, which build fields in script, so a recipient's blank form
+        has one row where the sender had four and the link could only refuse.
+        Both gates read the venture's own markup, not the document another pass
+        has already written into; a test pins that, so a future injected control
+        cannot silently change who is offered the feature.
+      - >-
+        **The drift bug is not currently live, and that is worth recording as a
+        negative.** Every venture with a `share.mjs` was driven in Chromium —
+        perturb every control, click the venture's own share button, open the
+        link in a clean context, compare the hero. 16 reachable, 0 divergent.
+        The two flagged were the perturbation pushing the *sender* into a
+        validation-error state, not a share defect. A structural audit of
+        `SHARE_FIELDS` against form ids reported 8 suspects and all 8 were false
+        positives: the proposal and client fields are excluded on purpose, and
+        siding carries its add-ons as arrays while re-deriving `materialType`
+        from the numbers it does carry. So this feature's value is coverage and
+        prevention, not repair of a live fault.
+      - >-
+        Verified: 408 tests in `platform/pages` (39 new in `link.test.mjs`),
+        `build.mjs` (162 tools, 439 pages, "Added a shareable bid link to 156
+        page(s)"), `check.mjs`, and the `webcheck`/`proposal`/`privacy` suites
+        (89). Chromium journey: a $28,484.83 basement waterproofing bid copied
+        and reopened in a clean context with 63 fields carried and the figure
+        confirmed identical; a tampered field set refused with the form
+        untouched; a stale figure warned with both numbers named; a junk
+        fragment inert; no page errors. axe-core reports 0 WCAG 2 A/AA
+        violations with the control present and with a shared bid open.
+      - >-
+        CI was red with the runner-outage signature again — 3-second jobs, empty
+        `output.title/summary/text` — and the last eight `portfolio-pages.yml`
+        runs on `main` failed the same way, including merges predating the
+        branch. Verified locally and merged, per the 2026-08-27 rule. #1910
+        landed mid-flight and touches the same band; merged in and the whole
+        verification re-run on the merged result rather than the pre-merge
+        commit. The public URL remains owner-gated on `deploy-settings`; no
+        second ask was added.
+    mrr_end: null
