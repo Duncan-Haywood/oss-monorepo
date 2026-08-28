@@ -26291,3 +26291,73 @@ entries:
         it. `publish_surface.py` still reports nothing live behind
         `GITHUB_PAGES_ENABLED`, every usage reading is still a zero baseline,
         and no second owner ask was added.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1944. 164 tools compute and 443 pages carry no dead links, and
+        nothing here could tell you whether a visitor can read the answer.
+        axe-core over the built artifact at two viewports found 104 WCAG AA
+        contrast failures on 35 of 165 tool pages, plus three shapes worse than
+        a low ratio: links at 1.1:1 inside dark result panels that set no link
+        colour (the browser default blue on near-black), comparison tables
+        spilling their last column outside the panel's dark fill in the panel's
+        own near-white ink onto the light page at 1.05:1, and six unit
+        dropdowns with no accessible name. All zero now, over 441 pages.
+      - >-
+        The finding worth carrying is that every one of these is a colour
+        applied where its author could not see the background it would land on.
+        An accent picked for cream text, reused as a button fill. A muted ink
+        picked for a light page, inherited into a dark panel. Which means the
+        durable fix is never a repaint: links inside a result panel are now
+        colour:inherit, which cannot drift from the fill the panel actually
+        paints, and 115 ventures had that panel while exactly one had a link
+        rule.
+      - >-
+        Opacity is the specific anti-pattern, and it is worse than a wrong
+        colour because it cannot be reviewed. The injected chrome footer sets
+        color:inherit deliberately -- it does not know its host's palette -- and
+        then dimmed it to .78, landing at 3.22:1 and 3.32:1 on two hosts. There
+        is no safe value: a host exactly at the 4.5:1 floor fails at any opacity
+        below 1, so it is a deletion, not a larger number. The hub's group
+        counts were the same defect from the other side, --muted at .65 and .7,
+        and they are content -- they say how big a category is. A named --soft
+        token per theme is a value a check can measure; a tint is not.
+      - >-
+        Two viewports, because two of these existed at exactly one width. The
+        overflowing table is a desktop bug -- the sticky panel is narrow on a
+        wide screen and the venture's own media query already handles the phone
+        -- so the 390px sweep.mjs rightly uses would have found none of it. A
+        total check that sweeps one viewport is not total.
+      - >-
+        Containing those tables introduced a regression the same run caught: a
+        scroll box with nothing focusable in it, reachable by wheel and touch
+        and not by keyboard, WCAG 2.1.1, 17 nodes on 8 pages. Fixed in the
+        injected chrome rather than in 81 files of markup because whether a box
+        scrolls is not a property of the markup -- it depends on the viewport,
+        the font, and how long the numbers rendered. Measuring scrollWidth adds
+        the tab stop only where a box actually scrolls and drops it when the box
+        fits; a static tabindex would have put a dead tab stop on every table
+        that fits and still missed the one that overflows at 900px. Selecting
+        the boxes by class name was the first attempt and missed .table-wrap.
+      - >-
+        platform/pages/contrast.mjs is the fourth browser check beside
+        journey.mjs and sweep.mjs, and it was verified to fail before it was
+        trusted: an injected regression on one served page reports 162
+        violations and exits 1. Four build.test.mjs tests cover what can be
+        asserted without a browser, and they check for the anti-patterns rather
+        than the ratios. That earned its keep inside the hour -- one of them
+        named the page #1942 added to main mid-run, which shipped the same
+        panel with six anchors and no link rule, on the merged tree, without a
+        browser. In a repo where a calculator lands most days, that is the
+        difference between a fix that holds and one that decays from the day it
+        merges.
+      - >-
+        CI method note, unchanged from #1943 and still costing every session the
+        same detour: all 159 checks on #1944 were red, every job carrying
+        runner_id 0 and an empty runner_name, and main was red at its own head
+        on the same signature. Verified locally instead -- 457 pages tests, 144
+        touched ventures, sweep 164/164, contrast 441 pages x 2 viewports clean
+        -- and held the one permitted re-run rather than spending it on a
+        failure already identified from the job object.
