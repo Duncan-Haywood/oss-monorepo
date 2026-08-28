@@ -754,6 +754,31 @@ URL in every sitemap, the 404, a 375px viewport for horizontal overflow, and two
 whole-run assertions: that nothing was fetched off-origin, and that no page,
 console, or resource error was raised anywhere except the deliberate 404 step.
 
+**A lone `requestfailed` on a static asset is not yet a finding.** `sweep.mjs`
+already warns about the false *pass* — a server left running by an earlier build
+keeps the port and the run greens against the old tree. This is the mirror case,
+and it costs a detour in the other direction. `python3 -m http.server` is
+single-threaded, so under concurrent load it can drop a request that the file
+system can serve perfectly well; on 2026-08-28 a run reported `requestfailed:
+/icon-192.png` against a build where that file exists and answers `200` to curl.
+Before debugging a resource error, ask the server for the asset by hand:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' http://localhost:8793/icon-192.png
+```
+
+A `200` there means re-run before believing the failure, ideally against a
+threading server and with nothing else on the box:
+
+```bash
+python3 -c "import http.server as h, socketserver as s, sys
+s.ThreadingTCPServer.allow_reuse_address = True
+s.ThreadingTCPServer(('', 8793), lambda *a: h.SimpleHTTPRequestHandler(*a, directory='dist')).serve_forever()" &
+```
+
+A *reproducible* resource error is still a real defect and this does not excuse
+one — the favicon gap below was exactly that, and it shipped for months.
+
 **Serve it under a `/monorepo-projects/` prefix too.** Some defects exist only at
 a path, and served from `/` they are invisible:
 
