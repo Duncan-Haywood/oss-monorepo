@@ -25914,3 +25914,57 @@ entries:
         adds stays inside `data-pf-jobs-root`. Moving one out would restore the
         false pass with nothing failing.
     mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Hub search was returning zero results for 34 queries that had a
+        matching tool sitting in the catalogue. Shipped #1931 and #1932; both
+        merged.
+      - >-
+        The first 22 were a one-directional matcher. The card index is built
+        from each tool's own copy and matched by token *prefix*, so a query
+        word can only ever reach an indexed word at least as long as itself.
+        The index says "fence", the visitor types "fences", the page says
+        nothing matched. Same for pools, trees, patios, sheds, chimneys,
+        driveways, cleaners, roofers, painters, installers, electrician and
+        landscaping; "windows" found 1 of 7 window tools and "flooring" 1 of
+        15. searchVariants() adds the shorter forms worth trying and the
+        matcher ORs over them, with the word itself always first so the change
+        can only widen.
+      - >-
+        The four-character stem floor is measured, not guessed. At three,
+        "trees" also yields "tre" and drags in trench, tread and treatment —
+        ten hits of which two are about trees.
+      - >-
+        The other 12 were vocabulary, which no stemmer reaches: the trade
+        writes "pressure washing" and the customer types "power washing"; the
+        tool is "snow removal" and the search is "snow plowing". SEARCH_ALIASES
+        is keyed by slug rather than by an indexed word, because a word trigger
+        misfires — keying "air conditioning" off the token "pressure" would
+        hang it on the well-pump calculator.
+      - >-
+        "kitchen remodel" and "bathroom remodel" were dead for a different
+        reason worth remembering: the matcher ANDs across words, so a query
+        naming a room finds nothing when no single tool carries both words,
+        even though three tools each do part of that room.
+      - >-
+        Method that made this findable at all: replay the shipped matcher over
+        the real built index and count zero-result queries that have a tool.
+        A 118-query battery gates both changes — 34 fixed, 7 widened, 0
+        regressed — and it is the reusable part. Guessing at search quality by
+        reading the code found nothing for weeks; running queries against it
+        found 34 in one pass.
+      - >-
+        A first draft of #1931 left two stale `words` references in the
+        injected browser script that would have thrown a ReferenceError on
+        every keystroke. Unit tests do not execute that script — the headless
+        browser pass is what caught it, before commit.
+      - >-
+        Caveat on the alias list: it is curated from plausible vocabulary, not
+        from real query logs, because nothing is live to log. `handyman`,
+        `general contractor`, `smart home`, `security camera`, `asbestos` and
+        `mulch` also return zero and correctly so — no tool covers them. That
+        is a product-gap signal, not a search bug.
+    mrr_end: null
