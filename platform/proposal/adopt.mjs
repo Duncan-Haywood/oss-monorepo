@@ -554,7 +554,22 @@ function resultKeysOf(slug) {
   const file = path.join(VENTURES, slug, 'calc.mjs');
   if (!fs.existsSync(file)) return [];
   const source = fs.readFileSync(file, 'utf8');
-  const entry = /export function (calculate[A-Za-z]*|priceJob|priceBid)\s*\(/.exec(source);
+  // The *entry* function, not merely the first `calculate*` in the file.
+  //
+  // These modules export their stages as well as their entry point, and the
+  // stages are declared first because the entry calls them: `security-camera`
+  // exports `calculateStorage`, `calculatePoe` and `calculateCabling` above
+  // `calculateBid`. Taking the first match read `calculateStorage`'s return —
+  // terabytes and retention days — and then reported that the venture's own
+  // `bidPrice` did not exist, which is a confusing way to say "looked at the
+  // wrong function".
+  //
+  // So prefer the conventional entry names, in the order a page would call
+  // them, and keep the original first-match as the fallback. For every venture
+  // whose entry is also its first `calculate*` — which is all 100 adopters —
+  // this returns exactly what it returned before.
+  const entry = /export function (calculateBid|priceJob|priceBid)\s*\(/.exec(source)
+    ?? /export function (calculate[A-Za-z]*|priceJob|priceBid)\s*\(/.exec(source);
   if (!entry) return [];
   const returned = /\n {2}return \{\n([\s\S]*?)\n {2}\};/.exec(source.slice(entry.index));
   if (!returned) return [];
