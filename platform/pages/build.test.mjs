@@ -1671,7 +1671,7 @@ test('the saved-bid list never cuts silently', async () => {
   assert.match(hub, /<p class="bid-more" id="bidsMore" hidden><\/p>/);
   // Counted before the cut is applied, so the number offered is a number of
   // rows the visitor could actually open.
-  assert.match(script, /if \(card\) rows\.push/);
+  assert.match(script, /if \(card\) \{\s*rows\.push\(/);
 });
 
 test('following a saved bid counts the act, never the customer', async () => {
@@ -1800,7 +1800,9 @@ test('the hub carries the winning price its pricing reading is computed from', a
 test('the hub draws the pooled pricing reading, and counts it once per change', async () => {
   const hub = await read('index.html');
   assert.match(hub, /<p class="bid-pricing" id="bidsPricing" hidden><\/p>/);
-  assert.match(hub, /\.bids \.bid-pricing \{/);
+  // One rule for both standing readings, so the pricing line and the win-rate
+  // line beneath it cannot drift apart visually.
+  assert.match(hub, /\.bids \.bid-pricing,\s*\.bids \.bid-win-rate \{/);
   const script = hub.slice(hub.indexOf('function showSavedBids'));
   // Read off every row, not the eight drawn — otherwise the reading would
   // change when the visitor pressed "Show all".
@@ -1809,6 +1811,27 @@ test('the hub draws the pooled pricing reading, and counts it once per change', 
   // Counted on change, as the chase line is, so a re-render is not a second
   // reading. No name, no slug, no figure.
   assert.match(script, /record\('saved_bid_pricing_shown'\)/);
+});
+
+test('the hub draws the win rate, and counts it once per change', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<p class="bid-win-rate" id="bidsWinRate" hidden><\/p>/);
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  // Off every row, for the reason the two readings above it are: a win rate
+  // that moved when the visitor pressed "Show all" would not be a win rate.
+  assert.match(script, /const rated = winRateSentence\(rows\)/);
+  assert.match(script, /winRate\.hidden = rated === ''/);
+  // The tool's own heading, read off the card the row was matched to. Without
+  // it the sentence would name "deck-bid-calculator" at a contractor.
+  assert.match(script, /label: card\.querySelector\('h3, h4'\)\?\.textContent\.trim\(\) \|\| row\.slug/);
+  // Counted on change, and the event names no tool: which trade someone bids
+  // is not something this site needs to know to tell whether the reading is
+  // worth its bytes.
+  assert.match(script, /record\('saved_bid_win_rate_shown'\)/);
+  assert.ok(!/record\('saved_bid_win_rate_shown:' ?\+/.test(script), 'the event names nothing');
+  // The body the hub runs is the tested one, embedded rather than rewritten.
+  assert.ok(hub.includes('var winRateSentence = function winRateSentence('),
+    'winRateSentence is not embedded in the hub');
 });
 
 test('the hub ships the percentage half of the pricing code and not the money half', async () => {
