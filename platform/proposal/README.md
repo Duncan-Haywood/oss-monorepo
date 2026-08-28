@@ -16,7 +16,7 @@ arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-**101 of the 102 bid calculators**, and the list is no longer worth keeping by
+**All 102 bid calculators**, and the list is no longer worth keeping by
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
 ready, and what is blocked.
 
@@ -41,10 +41,28 @@ three bids compares the line items, so `scopeLines` grew `each` (see
 `proposal.mjs`); without it the best scope these could draft was the generic
 sentence this README says is worth less than no proposal.
 
-**`mobile-detailing` is deliberately not adopted.** It is a quote check rather
-than a build-up: its inputs are hours and costs, with nothing describing the
-work, so its drafted scope could only be "Perform the work described above".
-That is the one case where no proposal beats a generic one.
+**`mobile-detailing` is adopted, and it closes the set at 102.** It was held
+back on the reading that its inputs are hours and costs "with nothing
+describing the work", so its scope could only be "Perform the work described
+above" — the one case where no proposal beats a generic one.
+
+That reading did not survive looking at the trade. For a mobile detail the work
+*is* time and travel: the drafted scope names the hands-on hours, the setup and
+breakdown, and the round-trip miles, which is what the customer is buying and
+what a second detailer's bid will be compared on. It reads
+
+```
+Mobile detailing carried out at your location on the date we agree
+4 hours of hands-on detailing on the vehicle
+Setup and breakdown of our equipment at your location
+Round trip of 30 miles to reach you
+Cleaning chemicals, pads, brushes, and towels supplied by us
+```
+
+which is a scope, not a placeholder. `adopt.mjs --list` had also stopped
+agreeing with this paragraph: it reported the venture `blocked` on two missing
+page conventions (`el()` and `count()`), which is a mechanical blocker and not
+a decision about the trade. Both are now in place.
 
 **`security-camera` is adopted.** It was the last holdout, and the blockers were
 this tool rather than the trade: its page spelled five house conventions
@@ -98,8 +116,10 @@ The clause is one phrase, appended to the existing list:
 
 `discoverability.test.mjs` holds three things down. The important one is the
 second direction: **a calculator must never advertise a proposal it cannot
-print.** `mobile-detailing` is the live case — deliberately not adopted, and a
-visitor arriving from a search for "contractor proposal" must not land on it.
+print.** It has no live case left now that `mobile-detailing` has adopted, and
+that is the point: the guard has to hold for the next calculator that lands
+without one, so a visitor searching for "contractor proposal" never arrives at
+a tool that cannot print it.
 The test also fails on a repeated clause, because appending is how this gets
 maintained and appending twice is how a feature list becomes keyword stuffing
 over three batches.

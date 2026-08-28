@@ -54,9 +54,11 @@ const NO_SHARED_SHOP_RATES = {
     'Its burden, overhead and margin do match, and it now carries those three: see ' +
     'PARTIAL_SHOP_RATE_PAGES.',
   'mobile-detailing-bid-calculator':
-    'it has no wage input at all -- it takes a proposed quote and solves back to ' +
-    'an effective hourly rate -- and its "overhead" is dollars per job, not a percentage rate. ' +
-    'That leaves one shared field, below MIN_CARRIED_FIELDS, so it gets no bar.',
+    'its "overhead" is dollars allocated to the job, not a percentage of direct cost, so the ' +
+    'overhead rate cannot be shared onto it. Its wage and burden do match -- spelled `wage` and ' +
+    '`burdenPercent` -- so SHOP_RATE_ALIASES maps those and it now carries three of the four: ' +
+    'see PARTIAL_SHOP_RATE_PAGES. The earlier reason recorded here ("no wage input at all") ' +
+    'described the page as it was before it costed the whole stop in #1172.',
   'snow-removal-bid-calculator':
     'its per-person wage is `operatorWage` rather than `hourlyWage`. The concept matches ' +
     '("Operator hourly wage", $22), so rather than rename an id that reaches calc.mjs\'s ' +
