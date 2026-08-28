@@ -22,6 +22,10 @@ import {
   MIN_CROSS_TOOL_SAMPLE,
   MIN_MARGIN_SAMPLE,
   MARGIN_SPREAD_POINTS,
+  MIN_KEEP_PER_TOOL,
+  MIN_KEEP_TOOLS,
+  KEEP_SPREAD_POINTS,
+  keepSentence,
   normalizeJobCost,
   marginSentence,
   PRICE_BAND_CLAUSE,
@@ -1839,4 +1843,215 @@ test('a page whose form is the shop\u2019s cost structure gets no saved-bid band
   // The same markup under any other slug still gets the band, so the exclusion
   // is about the page rather than about the fields.
   assert.notEqual(injectSavedBids(html, 'some-bid-calculator'), html);
+});
+
+// --- the hub's cross-tool keep reading --------------------------------------
+
+// A finished job on a named tool: the figure the tool gave, and what the job
+// came to once it was delivered. `label` is what the hub reads off the card,
+// so it is what the sentence must say back.
+const kept = (slug, amount, cost, label) => ({
+  name: slug + ' ' + amount, at: AT, slug, outcome: 'won', amount, cost,
+  ...(label ? { label } : {}),
+});
+
+test('which trade the finished work is actually worth doing', () => {
+  // Fence keeps 1,400 of 5,000 (28%), deck 1,600 of 10,000 (16%), lawn 50 of
+  // 1,100 (5%). marginSentence draws all three of these on three separate
+  // pages and can never put them next to each other; this is the sentence that
+  // tells the crew which of the three to go and sell.
+  const sentence = keepSentence([
+    kept('fence-bid-calculator', '$3,000', '2100', 'Fence bid calculator'),
+    kept('fence-bid-calculator', '$2,000', '1500', 'Fence bid calculator'),
+    kept('deck-bid-calculator', '$4,000', '3400', 'Deck bid calculator'),
+    kept('deck-bid-calculator', '$6,000', '5000', 'Deck bid calculator'),
+    kept('lawn-care-bid-calculator', '$500', '480', 'Lawn care bid calculator'),
+    kept('lawn-care-bid-calculator', '$600', '570', 'Lawn care bid calculator'),
+  ]);
+  assert.match(sentence, /^Of the 6 finished jobs you have costed, across 3 tools, /);
+  assert.match(sentence, /Fence bid calculator kept the most: 28% of what you charged on 2;/);
+  assert.match(sentence, /Lawn care bid calculator kept 5% on 2\./);
+  // 23 points apart, so the finding is the trade rather than the price list.
+  assert.match(sentence, /gap is in which work you take rather than across your prices/);
+});
+
+test('the share inside a trade is pooled, not the mean of its jobs', () => {
+  // A $400 job at 50% and a $9,600 job at 0% pool to 2% and average to 25%.
+  // Two is what went in the bank; twenty-five is the flattery marginSentence
+  // refuses on one tool, and it would be the same lie here.
+  const sentence = keepSentence([
+    kept('fence-bid-calculator', '$400', '200', 'Fence'),
+    kept('fence-bid-calculator', '$9,600', '9600', 'Fence'),
+    kept('deck-bid-calculator', '$1,000', '900', 'Deck'),
+    kept('deck-bid-calculator', '$1,000', '900', 'Deck'),
+  ]);
+  assert.match(sentence, /Deck kept the most: 10% of what you charged on 2; Fence kept 2% on 2\./);
+  assert.doesNotMatch(sentence, /25%/);
+});
+
+test('a trade finishing below its own cost is said plainly', () => {
+  // Every other reading in this panel would call this book a good one: the
+  // deck work is winning. It is winning at a price that takes money out.
+  const sentence = keepSentence([
+    kept('fence-bid-calculator', '$1,000', '700', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', '800', 'Fence'),
+    kept('deck-bid-calculator', '$1,000', '1100', 'Deck'),
+    kept('deck-bid-calculator', '$1,000', '1200', 'Deck'),
+  ]);
+  assert.match(sentence, /Deck kept -15% on 2\./);
+  assert.match(sentence, /below what those jobs cost you to deliver/);
+  assert.match(sentence, /one trade to re-cost before you quote it again/);
+});
+
+test('trades that agree get the reading’s own blind spot instead of a finding', () => {
+  // 19% and 14% — inside KEEP_SPREAD_POINTS, so there is no trade to send
+  // anyone to, and the honest half is what this sentence cannot see.
+  const sentence = keepSentence([
+    kept('fence-bid-calculator', '$1,000', '800', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', '820', 'Fence'),
+    kept('lawn-care-bid-calculator', '$1,000', '850', 'Lawn'),
+    kept('lawn-care-bid-calculator', '$1,000', '870', 'Lawn'),
+  ]);
+  assert.match(sentence, /keeping much the same share/);
+  assert.match(sentence, /a trade you have not costed is missing here, not average\.$/);
+  assert.ok(KEEP_SPREAD_POINTS > 5);
+});
+
+test('the keep reading is refused until there are two trades to compare', () => {
+  assert.equal(MIN_KEEP_TOOLS, 2);
+  assert.equal(MIN_KEEP_PER_TOOL, 2);
+  // One tool, four costed wins. marginSentence says this in money on that
+  // tool's own page, and a percentages-only copy of it here would be worse.
+  assert.equal(keepSentence([
+    kept('fence-bid-calculator', '$1,000', '800', 'Fence'),
+    kept('fence-bid-calculator', '$2,000', '1500', 'Fence'),
+    kept('fence-bid-calculator', '$3,000', '2000', 'Fence'),
+    kept('fence-bid-calculator', '$4,000', '3000', 'Fence'),
+  ]), '');
+  // Two tools, but the second carries one job, so there is no second trade to
+  // name — only a second anecdote.
+  assert.equal(keepSentence([
+    kept('fence-bid-calculator', '$1,000', '800', 'Fence'),
+    kept('fence-bid-calculator', '$2,000', '1500', 'Fence'),
+    kept('deck-bid-calculator', '$1,000', '900', 'Deck'),
+  ]), '');
+  assert.equal(keepSentence([]), '');
+  assert.equal(keepSentence(null), '');
+  assert.equal(keepSentence(undefined), '');
+});
+
+test('a trade priced in two currencies is dropped, never converted', () => {
+  const book = [
+    kept('fence-bid-calculator', '$1,000', '800', 'Fence'),
+    kept('fence-bid-calculator', '£1,000', '800', 'Fence'),
+    kept('deck-bid-calculator', '$1,000', '600', 'Deck'),
+    kept('deck-bid-calculator', '$1,000', '700', 'Deck'),
+    kept('lawn-care-bid-calculator', '$1,000', '900', 'Lawn'),
+    kept('lawn-care-bid-calculator', '$1,000', '950', 'Lawn'),
+  ];
+  const sentence = keepSentence(book);
+  // The fence rows are gone entirely — not summed across two currencies, and
+  // not counted from whichever one happened to be seen first.
+  assert.match(sentence, /^Of the 4 finished jobs you have costed, across 2 tools, /);
+  assert.doesNotMatch(sentence, /Fence/);
+});
+
+test('two trades in two currencies still compare, because a share is unit-free', () => {
+  // The argument pricingSentence makes: "I kept 30% of that job" is a fact
+  // inside one bid's own currency, so no conversion is needed to say that one
+  // trade keeps more than another. Money is never printed, which is what makes
+  // that safe.
+  const sentence = keepSentence([
+    kept('fence-bid-calculator', '$1,000', '700', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', '700', 'Fence'),
+    kept('deck-bid-calculator', '€1,000', '950', 'Deck'),
+    kept('deck-bid-calculator', '€1,000', '950', 'Deck'),
+  ]);
+  assert.match(sentence, /Fence kept the most: 30% of what you charged on 2; Deck kept 5% on 2\./);
+  assert.doesNotMatch(sentence, /[$€£]/);
+});
+
+test('the keep reading is drawn only from won jobs that carry every half', () => {
+  const rows = [
+    kept('fence-bid-calculator', '$1,000', '700', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', '750', 'Fence'),
+    kept('deck-bid-calculator', '$1,000', '900', 'Deck'),
+    kept('deck-bid-calculator', '$1,000', '950', 'Deck'),
+  ];
+  const drawn = keepSentence(rows);
+  assert.notEqual(drawn, '');
+  for (const noise of [
+    // Lost, however much the bid cost to put together.
+    { name: 'lost', at: AT, slug: 'x-calculator', outcome: 'lost', amount: '$9,999', cost: '1' },
+    // Won but never costed — the common case, and it is not a job that cost $0.
+    { name: 'uncosted', at: AT, slug: 'x-calculator', outcome: 'won', amount: '$9,999' },
+    // Costed on a page with no hero figure to take a share of.
+    { name: 'no figure', at: AT, slug: 'x-calculator', outcome: 'won', cost: '500' },
+    // A hero figure that is a saving or a difference rather than a price.
+    { name: 'negative', at: AT, slug: 'x-calculator', outcome: 'won', amount: '-$4.20', cost: '2' },
+    // Still waiting on an answer, so nothing has been delivered.
+    { name: 'waiting', at: AT, slug: 'x-calculator', amount: '$9,999', cost: '1' },
+    // An unreadable cost is not a cost of nothing.
+    { name: 'garbled', at: AT, slug: 'x-calc', outcome: 'won', amount: '$9,999', cost: 'about 5' },
+    // A bid whose tool the hub no longer shows carries no slug to name.
+    { name: 'no slug', at: AT, outcome: 'won', amount: '$9,999', cost: '1' },
+  ]) {
+    assert.equal(keepSentence([...rows, noise]), drawn, noise.name);
+  }
+});
+
+test('the keep reading says the same thing whatever order the book arrives in', () => {
+  const book = [
+    kept('fence-bid-calculator', '$3,000', '2100', 'Fence'),
+    kept('fence-bid-calculator', '$2,000', '1500', 'Fence'),
+    kept('deck-bid-calculator', '$4,000', '3400', 'Deck'),
+    kept('deck-bid-calculator', '$6,000', '5000', 'Deck'),
+  ];
+  assert.equal(keepSentence(book), keepSentence([...book].reverse()));
+  // Two trades that have gone the same way cannot swap places between renders.
+  const tied = [
+    kept('a-calculator', '$1,000', '800', 'A'), kept('a-calculator', '$1,000', '800', 'A'),
+    kept('b-calculator', '$1,000', '800', 'B'), kept('b-calculator', '$1,000', '800', 'B'),
+  ];
+  assert.match(keepSentence(tied), /A kept the most: 20% of what you charged on 2; B kept 20%/);
+  assert.equal(keepSentence(tied), keepSentence([...tied].reverse()));
+});
+
+test('the keep reading never states a share to aim for', () => {
+  // The guard winRateSentence and marginSentence both carry. There is no
+  // correct margin, and printing one would invent the number the contractor
+  // came here to stop guessing at. Every branch, including the two the tests
+  // above reach separately.
+  for (const book of [
+    [kept('a', '$1,000', '700', 'A'), kept('a', '$1,000', '700', 'A'),
+      kept('b', '$1,000', '990', 'B'), kept('b', '$1,000', '990', 'B')],
+    [kept('a', '$1,000', '700', 'A'), kept('a', '$1,000', '700', 'A'),
+      kept('b', '$1,000', '1200', 'B'), kept('b', '$1,000', '1200', 'B')],
+    [kept('a', '$1,000', '800', 'A'), kept('a', '$1,000', '820', 'A'),
+      kept('b', '$1,000', '850', 'B'), kept('b', '$1,000', '870', 'B')],
+  ]) {
+    const sentence = keepSentence(book);
+    assert.notEqual(sentence, '');
+    assert.doesNotMatch(sentence, /should|aim|target|too (high|low)|healthy|ideal|industry/i);
+  }
+});
+
+test('the injected keep helper answers exactly as the module does', () => {
+  // The guarantee every reading here carries: the hub runs the tested body,
+  // not a paraphrase of it.
+  const evaluated = new Function(`${BID_AMOUNT_HELPER}
+${BID_PRICING_HELPERS}
+    return keepSentence;`)();
+
+  for (const book of [
+    [], null,
+    [kept('a', '$1,000', '800', 'A'), kept('a', '$1,000', '800', 'A')],
+    [kept('a', '$1,000', '700', 'A'), kept('a', '$1,000', '700', 'A'),
+      kept('b', '$1,000', '1200', 'B'), kept('b', '$1,000', '1200', 'B')],
+    [kept('a', '$3,000', '2100', 'A'), kept('a', '$2,000', '1500', 'A'),
+      kept('b', '$500', '480', 'B'), kept('b', '$600', '570', 'B'),
+      kept('c', '£400', '300', 'C'), kept('c', '$400', '300', 'C')],
+  ]) {
+    assert.equal(evaluated(book), keepSentence(book), JSON.stringify(book && book.length));
+  }
 });

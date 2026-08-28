@@ -535,6 +535,59 @@ Counted as `saved_bid_win_rate_shown`: on change, local only, no name, no slug,
 no figure, and no tool — which trade someone bids is not something this site
 needs to know to tell whether the reading is worth its bytes.
 
+### Which of these trades is worth doing
+
+The three readings above make a contractor better at getting the yes.
+`marginSentence`, on each tool page, is the one that says whether the yes was
+worth having — but it speaks in money, so it is scoped to one tool, and a crew
+that fences, decks and cleans gutters reads three separate margins on three
+separate pages. `keepSentence` puts them beside each other, on the hub only.
+
+That comparison is the entire reading, so there is no book-wide total in it. A
+pooled "you kept 12%" would need one currency across every tool and, worse, it
+would be the average that buries the finding: a shop keeping 30% on gutters and
+losing money on decks has a decks problem, and the mean of the two describes no
+work they do.
+
+- **Percentages only, and therefore safe across currencies**, on exactly the
+  argument `pricingSentence` makes: "this job kept 22% of what I charged" is a
+  fact inside one bid's own currency. Money is never printed here, which is what
+  makes that honest.
+- **Pooled inside each trade** — total kept over total charged, the form
+  `marginSentence` argues for — so a $400 job at 50% beside a $9,600 job at 0%
+  reads as 2% and not as the 25% the mean would flatter it with. A tool whose
+  costed wins are in two currencies is dropped rather than summed.
+- **Two costed wins per trade** (`MIN_KEEP_PER_TOOL`), against the four
+  `MIN_WIN_RATE_PER_TOOL` asks. A win rate on three bids can only be 0, 33, 67
+  or 100 and would be quoting its own step size; a kept share has no step size,
+  and two pooled jobs is an exact statement about two real invoices. The job
+  count is printed beside every share so the reader sees the sample.
+- **Two trades** (`MIN_KEEP_TOOLS`), which is structural rather than
+  statistical: at one tool this would be `marginSentence` with the money taken
+  out, and the better sentence is already on that tool's own page.
+- **Fifteen points apart** (`KEEP_SPREAD_POINTS`) before the gap is called a
+  finding, against `MARGIN_SPREAD_POINTS`' twenty. Twenty is the spread between
+  two individual jobs, where one machine hire moves an end on its own; these
+  ends are pooled over a trade, so that noise has already been averaged out.
+- **A trade below its own cost is said plainly and first.** It is the one
+  finding here that makes winning more work actively worse, and the reading that
+  turns a rising win rate from good news into a warning.
+- **Where the trades agree, the honest half is this reading's own blind spot:**
+  it can only see the jobs whose costs were typed in, so a trade with none is
+  missing from the comparison rather than sitting in the middle of it.
+- **Never a share to aim for**, in any branch — the guard `winRateSentence` and
+  `marginSentence` both carry, pinned by the same test over every branch.
+
+The hub's `savedBids()` is a hand copy of `normalizeBid`, so this reading needed
+`cost` added to that transcription. That is the third time a field has had to
+be carried across by hand (after `decidedAt` and `lostTo`) and the failure mode
+is always the same: the reading is injected on every visit and returns `''`
+forever, with nothing failing anywhere. A build test pins each of the three, and
+journey step 6bk drives the whole round trip in a browser.
+
+Counted as `saved_bid_keep_shown`, on the same terms as the three lines above:
+on change, local only, no name, no slug, no figure and no trade.
+
 ### Getting the bids off this browser
 
 Everything above stands on one `localStorage` key in one browser, and the hub's

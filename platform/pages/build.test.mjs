@@ -1775,7 +1775,7 @@ test('the hub carries the timestamp the chase window is computed from', async ()
   // shipped, was tested, and returned '' forever.
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
-  assert.match(script, /rows\.push\(\{ slug, name, at, amount, outcome, decidedAt, lostTo \}\)/);
+  assert.match(script, /rows\.push\(\{ slug, name, at, amount, outcome, decidedAt, lostTo, cost \}\)/);
   // Only on a decided bid, which is the only state it means anything in.
   assert.match(script, /outcome && typeof bid\.decidedAt === 'string'/);
 });
@@ -1800,9 +1800,9 @@ test('the hub carries the winning price its pricing reading is computed from', a
 test('the hub draws the pooled pricing reading, and counts it once per change', async () => {
   const hub = await read('index.html');
   assert.match(hub, /<p class="bid-pricing" id="bidsPricing" hidden><\/p>/);
-  // One rule for both standing readings, so the pricing line and the win-rate
-  // line beneath it cannot drift apart visually.
-  assert.match(hub, /\.bids \.bid-pricing,\s*\.bids \.bid-win-rate \{/);
+  // One rule for all three standing readings, so the pricing line and the two
+  // beneath it cannot drift apart visually.
+  assert.match(hub, /\.bids \.bid-pricing,\s*\.bids \.bid-win-rate,\s*\.bids \.bid-keep \{/);
   const script = hub.slice(hub.indexOf('function showSavedBids'));
   // Read off every row, not the eight drawn — otherwise the reading would
   // change when the visitor pressed "Show all".
@@ -1832,6 +1832,43 @@ test('the hub draws the win rate, and counts it once per change', async () => {
   // The body the hub runs is the tested one, embedded rather than rewritten.
   assert.ok(hub.includes('var winRateSentence = function winRateSentence('),
     'winRateSentence is not embedded in the hub');
+});
+
+test('the hub carries the job cost its keep reading is computed from', async () => {
+  // The third instance of the regression the two tests above pin, and the
+  // reason this one is worth its own test: `savedBids()` is a hand copy of
+  // `normalizeBid`, so `cost` — added to jobs.mjs when the won-row cost box
+  // shipped — was never transcribed here. Any hub reading that divides a cost
+  // into a price would have been injected on every visit and returned ''
+  // forever, with nothing failing anywhere.
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
+  // Through the guard the band wrote it with, and only on a won row — the
+  // state a delivered job can exist in.
+  assert.match(script, /const cost = outcome === 'won' \? normalizeJobCost\(bid\.cost\) \|\| undefined : undefined/);
+  // And that guard has to be in scope on the hub, which is the half
+  // BID_PRICING_HELPERS delivers.
+  assert.ok(hub.includes('var normalizeJobCost = function normalizeJobCost('),
+    'normalizeJobCost is not embedded in the hub');
+});
+
+test('the hub draws which trade keeps most, and counts it once per change', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<p class="bid-keep" id="bidsKeep" hidden><\/p>/);
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  // Off every row, for the reason every reading above it is: a share that
+  // moved when the visitor pressed "Show all" would be a different claim about
+  // their business each time they looked.
+  assert.match(script, /const keeping = keepSentence\(rows\)/);
+  assert.match(script, /keep\.hidden = keeping === ''/);
+  // Counted on change, and the event names no trade: which work a contractor
+  // makes money on is not something this site needs to know to tell whether
+  // the reading is worth its bytes.
+  assert.match(script, /record\('saved_bid_keep_shown'\)/);
+  assert.ok(!/record\('saved_bid_keep_shown:' ?\+/.test(script), 'the event names nothing');
+  // The body the hub runs is the tested one, embedded rather than rewritten.
+  assert.ok(hub.includes('var keepSentence = function keepSentence('),
+    'keepSentence is not embedded in the hub');
 });
 
 test('the hub ships the percentage half of the pricing code and not the money half', async () => {

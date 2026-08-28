@@ -26817,3 +26817,75 @@ entries:
         step. Confirmed the new build was the one answering before believing
         any of it (`curl | grep pf-jobs-margin`), which the sweep's own header
         asks for after a stale server cost a false clean report on 2026-08-28.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the reading that tells a contractor which of their trades is
+        worth doing. The margin reading landed earlier the same day answers that
+        for one tool, in money, on that tool's own page — so a crew that fences,
+        decks and cleans gutters reads three separate margins on three separate
+        pages and is never told the thing that decides what they go and sell:
+        these are not the same number. The hub now puts them side by side —
+        "Of the 6 finished jobs you have costed, across 3 tools, Fence Bid
+        Calculator kept the most: 28% of what you charged on 2; Lawn Care Bid
+        Calculator kept 5% on 2." That is the only reading here that can name
+        the low-margin trade, and it is the one that stops an across-the-board
+        price rise landing on the wrong end of the book.
+      - >-
+        Deliberately no book-wide total, which is the design decision worth
+        recording. A pooled "you kept 12%" would need one currency across every
+        tool, and — the stronger reason — it is the average that buries the
+        finding: a shop keeping 30% on gutters and losing money on decks has a
+        decks problem, and the mean of the two describes no work they do. So
+        the sentence pools *inside* each trade, where `marginSentence`'s
+        argument for pooling holds (a $400 job at 50% beside a $9,600 job at 0%
+        reads 2%, not the 25% the mean would flatter it with), and compares
+        across trades only as percentages — a share is a fact inside one bid's
+        own currency, which is what `pricingSentence` established and what makes
+        this safe with no exchange rate anywhere near it. A tool whose costed
+        wins are in two currencies is dropped rather than converted; a test
+        pins that its rows vanish entirely rather than being counted from
+        whichever currency was seen first.
+      - >-
+        The wiring defect this closes is the third instance of one this feature
+        area keeps re-learning. The hub's `savedBids()` is a hand copy of
+        `normalizeBid`, and `cost` was never transcribed into it — so any hub
+        reading dividing a cost into a price would have been injected on every
+        visit and returned '' forever, with nothing failing anywhere, exactly as
+        `decidedAt` did to the chase line and `lostTo` would have done to the
+        pricing line. Pinned now by a build test per field and by a browser step
+        that drives the whole round trip: band writes, hub transcribes, card
+        heading becomes the trade's name.
+      - >-
+        Thresholds argued rather than copied. Two costed wins per trade where
+        the win rate wants four, because a rate on three bids can only be 0, 33,
+        67 or 100 and would be quoting its own step size, while a kept share has
+        no step size — two pooled jobs is an exact statement about two invoices,
+        and the job count prints beside every share so the sample is visible.
+        Fifteen points of gap where `MARGIN_SPREAD_POINTS` wants twenty, because
+        twenty separates two individual jobs, where one machine hire moves an
+        end on its own, and these ends are already pooled over a trade. Two
+        trades minimum, which is structural: at one tool this would be
+        `marginSentence` with the money taken out, and the better sentence is
+        already on that page.
+      - >-
+        Queue state: zero open PRs at session start on `list_pull_requests` and
+        on `search_pull_requests`, the ninth consecutive session, so the
+        three-PR merge quota again had nothing to draw on; one opened and merged
+        here. Did not re-audit the stale branches one at a time — the 2026-08-27
+        and 2026-08-28 entries already record that sweep. Spot-checked the four
+        largest by unique commits: `festive-mccarthy-xrn3ua`,
+        `festive-mccarthy-qb5q6b`, `festive-mccarthy-jwkwz5` and
+        `cursor/vendor-change-watch-fix-20260824` all name ventures that are on
+        `main` already (`vendor-watch`, `sponsor-ready`, `consent-change-record`,
+        and `vendor-watch` again for the last), as recorded.
+      - >-
+        Verified locally, the runner outage still standing: 512 platform/pages
+        tests (499 before), five CI python checks, 174 CI tests, 216 workflows
+        valid, the artifact at 164 products / 445 pages with no dead links,
+        164/164 tools answering in Chromium with no errors, 443 pages x 2
+        viewports with no WCAG A/AA violation, and the full journey at 0 failed
+        checks including the new step 6bk. Confirmed the new build was the one
+        answering before believing any of it (`curl | grep bidsKeep`).
