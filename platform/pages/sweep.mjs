@@ -25,6 +25,14 @@
 //   # or against production once the owner flip lands:
 //   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/sweep.mjs
 //
+// **Check what is answering before you believe the result.** A server left
+// running by an earlier build keeps the port, the second `http.server` exits
+// with "Address already in use", and the run passes against the old tree
+// without a word. It cost a false clean report on 2026-08-28. One curl settles
+// it -- ask for something only the build under test has:
+//
+//   curl -s http://localhost:8793/<slug>/ | grep -c 'the thing you just added'
+//
 // Not part of CI: it needs Playwright, which is not a dependency of this repo.
 // PLAYWRIGHT overrides the module path for a global install.
 

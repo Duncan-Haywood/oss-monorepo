@@ -538,6 +538,99 @@ export function followUpSentence(rows, nowMs) {
 }
 
 /**
+ * How many answered bids it takes before their timings say anything.
+ *
+ * Three, and for the same reason the price band wants two a side: this is a
+ * range read off a contractor's own history, and a range drawn from two points
+ * is just the two points. Three is still small, which is why what gets printed
+ * is the observed spread rather than an average, a median, or a prediction of
+ * when the next one will land.
+ */
+export const MIN_RESPONSE_SAMPLE = 3;
+
+/**
+ * Whole days between pricing a bid and hearing back about it, or `null`.
+ *
+ * `decidedAt` has been written on every decided bid since outcomes shipped, is
+ * merged correctly across devices by `backup.mjs`, is carried through a
+ * re-price — and has never been read by anything a visitor sees. This is what
+ * it was stored for.
+ *
+ * Clamped at zero like `bidWaitingDays`, and for the same reason: a bid restored
+ * from a machine whose clock ran fast must not report that the customer answered
+ * before they were quoted.
+ */
+export function bidResponseDays(bid) {
+  if (!bid || typeof bid !== 'object') return null;
+  if (bid.outcome !== 'won' && bid.outcome !== 'lost') return null;
+  var priced = Date.parse(bid.at);
+  var answered = Date.parse(bid.decidedAt);
+  if (priced !== priced || answered !== answered) return null;
+  var days = Math.floor((answered - priced) / 86400000);
+  return days < 0 ? 0 : days;
+}
+
+/**
+ * Which of the waiting bids have gone quiet.
+ *
+ * The feature's own stated reason for existing is that *"a one-truck
+ * contractor's largest lost revenue is not the bid they priced wrong, it is the
+ * bid nobody ever chased"* — and until now the only thing said about a waiting
+ * bid was its age in days. Nineteen days means nothing on its own. Nineteen days
+ * when every customer who ever answered did so inside nine is the whole signal,
+ * and it is the contractor's own history rather than an industry rule of thumb.
+ *
+ * Two clauses:
+ *
+ *   "The 5 bids you have heard back on came back in 2 to 9 days.
+ *    2 still waiting have been out longer than that."
+ *
+ * The second is the actionable one and is absent when nothing has gone quiet,
+ * which is the common and happy case. The first is deliberately a spread and not
+ * an average: an average invites "so I will hear on Thursday", which this cannot
+ * know, where a spread says only what has already happened.
+ *
+ * Returns `''` below `MIN_RESPONSE_SAMPLE` answered bids that carry both
+ * timestamps — including every bid decided before `decidedAt` was stored, which
+ * simply does not count toward the window rather than corrupting it.
+ */
+export function chaseSentence(bids, nowMs) {
+  if (!bids || !bids.length) return '';
+
+  var answered = 0;
+  var low = 0;
+  var high = 0;
+  for (var i = 0; i < bids.length; i++) {
+    var days = bidResponseDays(bids[i]);
+    if (days === null) continue;
+    if (answered === 0 || days < low) low = days;
+    if (answered === 0 || days > high) high = days;
+    answered++;
+  }
+  if (answered < MIN_RESPONSE_SAMPLE) return '';
+
+  var quiet = 0;
+  for (var w = 0; w < bids.length; w++) {
+    var bid = bids[w];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome === 'won' || bid.outcome === 'lost') continue;
+    var waited = bidWaitingDays(bid.at, nowMs);
+    if (waited !== null && waited > high) quiet++;
+  }
+
+  var spread = low === high
+    ? (low === 0 ? 'came back the same day' : 'came back in ' + low + (low === 1 ? ' day' : ' days'))
+    : 'came back in ' + low + ' to ' + high + ' days';
+
+  var out = 'The ' + answered + ' bids you have heard back on ' + spread + '.';
+  if (quiet > 0) {
+    out += ' ' + quiet + ' still waiting ' + (quiet === 1 ? 'has' : 'have') +
+      ' been out longer than that.';
+  }
+  return out;
+}
+
+/**
  * How many decided bids each side needs before the price band is drawn.
  *
  * Two, not one. One win and one loss is a pair of anecdotes, and a tool that
@@ -730,9 +823,11 @@ export function stripForInjection(source) {
  * it. Assigned to `var` bindings in declaration order; `followUpSentence` calls
  * `bidWaitingDays`, and both are hoisted into the same scope before either runs.
  */
-export const BID_FOLLOW_UP_HELPERS = [bidWaitingDays, bidWaitingPhrase, followUpSentence]
-  .map((fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`)
-  .join('\n');
+export const BID_FOLLOW_UP_HELPERS = [
+  `var MIN_RESPONSE_SAMPLE = ${MIN_RESPONSE_SAMPLE};`,
+  ...[bidWaitingDays, bidWaitingPhrase, followUpSentence, bidResponseDays, chaseSentence]
+    .map((fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`),
+].join('\n');
 
 /**
  * `normalizeBid` and its whole closure, as source, for embedding in an injected
@@ -812,7 +907,7 @@ export const BID_PRICE_BAND_HELPERS = [
  * One phrase, appended to the list already there.
  */
 export const SAVED_BIDS_CLAUSE =
-  'saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer';
+  'saved bids you can name, reopen and reprice, each keeping the figure the tool gave you, and mark won or lost to see which quotes are still waiting on an answer and how long the ones you heard back on took, so a quote that has gone quiet stands out';
 
 /**
  * The second clause, for the pages that can actually draw the price band.
@@ -893,6 +988,12 @@ const JOBS_STYLE = `<style>
    dimmed like the date beside it: both are what the panel is opened to read.
    A decided row steps back, because the list is scanned for the open ones. */
 .pf-jobs-summary{margin:0 0 10px;font-weight:600}
+/* The chase line is the one thing in the panel a contractor should act on
+   today, so it is the one thing given a colour of its own — and that colour is
+   currentColor at full strength against a tinted rule, because 180 venture
+   palettes do not agree on a warning red. */
+.pf-jobs-chase{margin:0 0 10px;padding:8px 10px;border-left:3px solid currentColor;
+  background:#8080801a;border-radius:0 7px 7px 0}
 /* The price band is the panel's one piece of reading rather than tracking, so
    it is set apart from the list without being dimmed out of it. */
 .pf-jobs-band{margin:0 0 10px;padding:8px 10px;border-left:3px solid #80808059;
@@ -954,13 +1055,14 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips.' : ''}</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips.' : ''}</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
       <button type="button" data-pf-jobs="save">Save this bid</button>
     </div>
-    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>${withPriceBand ? `
+    <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>${withPriceBand ? `
     <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>` : ''}
     <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
     <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="${toRoot}#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
@@ -1113,6 +1215,7 @@ ${BID_PRICE_BAND_HELPERS}
   };
 
   var bandShown = '';
+  var chaseShown = '';
 
   var render = function(){
     var list = mine();
@@ -1124,6 +1227,15 @@ ${BID_PRICE_BAND_HELPERS}
     var sentence = followUpSentence(list, Date.now());
     summary.textContent = sentence;
     summary.hidden = sentence === '';
+
+    // How long this contractor's customers actually take, and which quotes have
+    // outlived that. Drawn before the price band because it is the line with
+    // something to do today.
+    var chase = el('pf-jobs-chase');
+    var chasing = chaseSentence(list, Date.now());
+    chase.textContent = chasing;
+    chase.hidden = chasing === '';
+    if (chasing !== '' && chasing !== chaseShown) { chaseShown = chasing; bump('bid_chase_shown'); }
 
     // Absent on a tool with no headline figure: the build emits neither the
     // paragraph nor the functions there, so this element is the guard. Counted
