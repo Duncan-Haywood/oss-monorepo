@@ -1034,6 +1034,19 @@ ${subgroups
                        padding: 1px 8px; color: var(--muted); }
     /* The one row state that is asking for something. */
     .bids .bid-state[data-state="waiting"] { color: var(--accent); border-color: var(--accent); }
+    /* A quiet quote keeps the waiting colour — it is the same state, further
+       along — and the row carries the word "Chase" beside it rather than a
+       second hue. Weight and a word do the work, so the distinction survives a
+       monochrome print and reads for a visitor who cannot separate the two
+       colours. */
+    .bids .bid-state[data-state="quiet"] { color: var(--accent); border-color: var(--accent);
+                                           font-weight: 700; }
+    .bids .bid-chase-tag { font-size: .74rem; font-weight: 700; letter-spacing: .03em;
+                           border: 1px solid var(--accent); border-radius: 999px;
+                           padding: 1px 8px; color: var(--accent); white-space: nowrap; }
+    .bids .bid-chase { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                       border-left: 3px solid var(--accent); background: var(--bg);
+                       border-radius: 0 8px 8px 0; font-size: .85rem; }
     .bids li a:has(.bid-state[data-state="won"]) .bid-name,
     .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
     .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
@@ -1119,6 +1132,15 @@ ${contents}
            still out, and how long the oldest has been. Drawn only when there is
            something to say — see followUpSentence. -->
       <p class="bid-summary" id="bidsSummary" hidden></p>
+      <!-- How long this contractor's customers actually take to answer, and how
+           many quotes have outlived that. Read across every tool, which is the
+           only place it can usually be read at all: the window needs three
+           answered bids, and a contractor working six calculators reaches three
+           in none of them while having twelve in total. Unlike the price band —
+           which the tool pages keep and this page deliberately does not — a
+           reply time is a fact about their customers rather than about a trade,
+           so a gutter bid and a deck bid belong in the same sample. -->
+      <p class="bid-chase" id="bidsChase" hidden></p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
@@ -1406,7 +1428,14 @@ ${BID_AMOUNT_HELPER}
           // stored: any page on this origin can write this key, and this string
           // is put on screen next to a customer's name.
           const amount = normalizeHeadlineAmount(bid.amount) || null;
-          rows.push({ slug, name, at, amount, outcome });
+          // When the customer answered, carried only on a decided bid because
+          // that is the only state it means anything in. This is what
+          // bidResponseDays reads, and dropping it here is what left the hub
+          // injecting chaseSentence on every visit and never able to run it.
+          // Never put on screen — only differenced against the saved date — so
+          // taken as stored, with Date.parse deciding whether it is a date.
+          const decidedAt = outcome && typeof bid.decidedAt === 'string' ? bid.decidedAt : undefined;
+          rows.push({ slug, name, at, amount, outcome, decidedAt });
         }
       }
 
@@ -1419,6 +1448,7 @@ ${BID_AMOUNT_HELPER}
     }
 
     let bidsExpanded = false;
+    let chaseShown = '';
 
     function showSavedBids() {
       const section = document.getElementById('bids');
@@ -1440,17 +1470,50 @@ ${BID_AMOUNT_HELPER}
         if (card) rows.push({ ...row, card });
       }
 
-      const shown = bidsExpanded ? rows.length : Math.min(rows.length, BIDS_SHOWN);
+      const now = Date.now();
 
       // Counted over every row, not the eight drawn: "3 bids are waiting" must
       // mean three on this device, or the number contradicts the "Show all"
       // button directly beneath it.
       const summary = document.getElementById('bidsSummary');
-      const sentence = followUpSentence(rows, Date.now());
+      const sentence = followUpSentence(rows, now);
       summary.textContent = sentence;
       summary.hidden = sentence === '';
 
-      for (const { slug, name, at, amount, outcome, card } of rows.slice(0, shown)) {
+      // Same rule, and the same reason: the window is read off every bid on the
+      // device, not off the eight this page happens to draw.
+      const chase = document.getElementById('bidsChase');
+      const chasing = chaseSentence(rows, now);
+      chase.textContent = chasing;
+      chase.hidden = chasing === '';
+      // Counted when the reading changes rather than on every render, so
+      // pressing "Show all" is not a second reading. record() is already silent
+      // under DNT/GPC and the opt-out, and carries no name and no slug.
+      if (chasing !== '' && chasing !== chaseShown) {
+        chaseShown = chasing;
+        record('saved_bid_chase_shown');
+      }
+
+      const seen = responseWindow(rows);
+
+      // Which rows to draw: the newest BIDS_SHOWN, plus every quote that has
+      // gone quiet wherever it falls in the list.
+      //
+      // A quiet bid is an old bid by definition, so the plain cut hid precisely
+      // the rows the chase line directly above had just asked the contractor to
+      // act on — the page said "2 have been out longer than that" and then
+      // showed eight rows, none of them the two.
+      //
+      // Order is left alone. A surfaced row keeps its place in the newest-first
+      // list rather than being promoted to the top: this section is the index
+      // the copy says it is, used to find the job whose customer just rang, and
+      // resorting it around a second purpose would cost that one.
+      const drawn = bidsExpanded
+        ? rows
+        : rows.filter((row, i) => i < BIDS_SHOWN || isQuietBid(row, seen, now));
+
+      for (const row of drawn) {
+        const { slug, name, at, amount, outcome, card } = row;
         const item = document.createElement('li');
         const link = document.createElement('a');
         // The anchor jobs.mjs answers: the band opens and scrolls into view, so
@@ -1492,12 +1555,30 @@ ${BID_AMOUNT_HELPER}
         // bid saved this morning from one this feature had failed to read.
         const state = document.createElement('span');
         state.className = 'bid-state';
-        state.dataset.state = outcome || 'waiting';
+        // A quote that has outlived every answer this contractor has ever had
+        // is a fourth state, and it is the one worth a word rather than a date:
+        // "Waiting 19 days" reads as tracked, "Chase" reads as owed. The tool
+        // pages mark the same rows off the same window; this page is where the
+        // window usually exists at all, since three answered bids is a
+        // threshold a contractor working six calculators clears in none of them
+        // and easily across all of them.
+        const quiet = isQuietBid(row, seen, now);
+        state.dataset.state = outcome || (quiet ? 'quiet' : 'waiting');
         state.textContent = outcome
           ? outcome === 'won' ? 'Won' : 'Lost'
-          : bidWaitingPhrase(bidWaitingDays(at, Date.now())) || 'Waiting';
+          : bidWaitingPhrase(bidWaitingDays(at, now)) || 'Waiting';
 
-        link.append(label, figure, where, state, when);
+        // Before the date, which bid-when's auto margin pushes to the far right:
+        // the tag qualifies the state beside it rather than ending the row.
+        const tag = [];
+        if (quiet) {
+          const chaseTag = document.createElement('span');
+          chaseTag.className = 'bid-chase-tag';
+          // Says what to do rather than what happened, like the band's own tag.
+          chaseTag.textContent = 'Chase';
+          tag.push(chaseTag);
+        }
+        link.append(label, figure, where, state, ...tag, when);
         // The event carries no name and no slug — how often the index is used,
         // never for what. record() is already silent under DNT/GPC and the
         // opt-out.
@@ -1511,9 +1592,15 @@ ${BID_AMOUNT_HELPER}
       // list that quietly stopped at eight would be stating something the page
       // contradicts — and the contractor looking for the job they saved three
       // weeks ago would conclude the tool had forgotten it.
-      const hidden = rows.length - shown;
+      const hidden = rows.length - drawn.length;
       more.hidden = hidden === 0;
       if (hidden > 0) {
+        // The newest ones, counted separately from the quiet ones pulled up
+        // past them: "showing the 10 most recent" would be false the moment a
+        // row older than the tenth is on screen, and this section's whole
+        // contract is that it never states a number the page contradicts.
+        const recent = Math.min(rows.length, BIDS_SHOWN);
+        const surfaced = drawn.length - recent;
         const button = document.createElement('button');
         button.type = 'button';
         button.textContent = 'Show all ' + rows.length;
@@ -1524,7 +1611,10 @@ ${BID_AMOUNT_HELPER}
         });
         more.append(
           document.createTextNode(
-            'Showing the ' + shown + ' most recent of ' + rows.length + ' saved bids. '),
+            'Showing the ' + recent + ' most recent of ' + rows.length + ' saved bids' +
+            (surfaced > 0
+              ? ', plus ' + surfaced + ' that ' + (surfaced === 1 ? 'has' : 'have') + ' gone quiet. '
+              : '. ')),
           button,
         );
       }
