@@ -187,6 +187,13 @@ export function calculateStorage(input) {
   const actualRetentionDays = exactPerDayTb > 0 ? round2(usableTb / exactPerDayTb) : Infinity;
 
   return {
+    // The job's own inputs travel with the figures derived from them. A result
+    // that says "41.67 days" without saying "30 quoted, 2 x 8 TB fitted" cannot
+    // describe the system to the customer agreeing to it, which is what the
+    // proposal's scope has to do. See platform/proposal/README.md.
+    retentionDaysQuoted: retentionDays,
+    driveSizeTb,
+    driveCount,
     bitrateMbpsPerCamera: bitrate,
     aggregateBitrateMbps: round2(bitrate * cameraCount),
     terabytesRequired,
@@ -327,6 +334,7 @@ export function calculateBid(input) {
     : null;
 
   return {
+    cameraCount,
     storage,
     poe,
     cabling,

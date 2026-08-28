@@ -16,11 +16,11 @@ arithmetic and layout in the browser, like everything else here.
 
 ## Adopted by
 
-**100 of the 101 bid calculators**, and the list is no longer worth keeping by
+**101 of the 102 bid calculators**, and the list is no longer worth keeping by
 hand: `node platform/proposal/adopt.mjs --list` prints what is adopted, what is
 ready, and what is blocked.
 
-27 of those were hand-ported, one batch of six at a time. The remaining 73 are
+27 of those were hand-ported, one batch of six at a time. The remaining 74 are
 generated from `trades.json` by `adopt.mjs`, and their pages carry
 `proposal:begin` / `proposal:end` markers so a re-run replaces the generated
 regions rather than layering a second proposal on top.
@@ -46,22 +46,40 @@ than a build-up: its inputs are hours and costs, with nothing describing the
 work, so its drafted scope could only be "Perform the work described above".
 That is the one case where no proposal beats a generic one.
 
-**`security-camera` is not adopted yet, and the reason is this tool, not the
-trade.** It is a good candidate — the bid already knows the camera count, the
-cable footage, the storage fitted and the retention it buys, which is most of a
-scope a customer could agree to. `adopt.mjs` refuses it because its page spells
-four house conventions differently: the reader is `const readInputs = () => …`
-rather than `function readInputs(`, it prices from a variable
-(`const input = readInputs(); calculateBid(input)`) rather than from
-`calculateBid(readInputs())`, its `el` helper takes a parenthesised parameter,
-it counts usage through `recordUsage` rather than `count()`, and it has no
+**`security-camera` is adopted.** It was the last holdout, and the blockers were
+this tool rather than the trade: its page spelled five house conventions
+differently — the reader was `const readInputs = () => …` rather than
+`function readInputs(`, it priced from a variable rather than from
+`calculateBid(readInputs())`, its `el` helper took a parenthesised parameter, it
+counted usage through `recordUsage` rather than `count()`, and it had no
 `</main>` for the form to go before.
 
-Every one of those detectors is a regex over a spelling, so the fix is either to
-broaden them or to bring the page to the house shape. Both touch tooling that
-100 live proposals depend on, which is why this was left rather than bolted onto
-an unrelated change. Whoever picks it up: `verify.mjs` is the check that matters,
-because bad scope copy fails silently.
+Of the two fixes the note here offered — broaden the detectors, or bring the page
+to the house shape — the page was the safer one, and it is what was done: it
+touches one venture instead of tooling 100 live proposals depend on.
+
+One detector did have to change, and it was wrong rather than merely narrow.
+`resultKeysOf` took the **first** `export function calculate*` in a module, but
+these modules declare their stages before the entry that calls them — this one
+exports `calculateStorage`, `calculatePoe` and `calculateCabling` above
+`calculateBid`. It was reading terabytes and retention days and then reporting
+that `bidPrice` did not exist. It now prefers the conventional entry names and
+keeps first-match as the fallback; the detected keys of all 182 other ventures
+are byte-identical either way, which is how that was checked rather than assumed.
+
+The trade also needed two echoes in `calc.mjs`: `cameraCount` at the top level
+and `retentionDaysQuoted` / `driveSizeTb` / `driveCount` inside `storage`. Scope
+templates read the **result**, not the form, and a result that says "41.67 days"
+without saying "30 quoted, 2 × 8 TB fitted" cannot describe the system to the
+customer agreeing to it. Echoing the job's defining inputs is what every adopted
+calculator already does.
+
+`verify.mjs` is the check that matters, because bad scope copy fails silently.
+It caught nothing here, but driving the page did: the first scope line rendered
+"Supply and install 8 4 MP (2K) cameras", two numbers colliding with no
+separator. It is `{cameraCount} × {resolutionLabel}` now, matching the drives
+line. A verifier that asserts a proposal is *sound* will not tell you it reads
+badly.
 
 ## Say so in the structured data
 

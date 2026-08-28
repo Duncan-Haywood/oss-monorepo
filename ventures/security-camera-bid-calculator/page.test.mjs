@@ -41,7 +41,18 @@ test('the form has no input the calculator does not read', () => {
   // The other direction: a control a visitor can change that reaches nothing.
   const declared = new Set(INPUT_FIELDS);
   const chrome = new Set(['usageOptOut', 'error', 'checks']);
-  const formIds = [...html.matchAll(/<(?:input|select)[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
+  // The customer proposal's own fields — the business's name, the client's
+  // address, the deposit split — are inputs the *calculator* rightly does not
+  // read, and they are generated into this page by
+  // `platform/proposal/adopt.mjs`. Excluded by their generated region rather
+  // than by a hand-written list, so a field added to the shared proposal does
+  // not fail this venture's test for a defect it does not have. Everything
+  // outside the markers is still held to the rule.
+  const outsideProposal = html.replace(
+    /<!-- proposal:begin[\s\S]*?<!-- proposal:end -->/g,
+    '',
+  );
+  const formIds = [...outsideProposal.matchAll(/<(?:input|select)[^>]*\bid="([^"]+)"/g)].map((m) => m[1]);
   for (const id of formIds) {
     assert.ok(declared.has(id) || chrome.has(id), `${id} is on the form but not in INPUT_FIELDS`);
   }

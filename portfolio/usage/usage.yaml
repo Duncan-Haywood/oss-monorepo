@@ -2425,6 +2425,26 @@ products:
           calculator that prices travel labor and why a 16x7 is not two
           8x7s; public URL remains owner-gated and the browser counter is
           local and opt-out. Baseline row.
+  - slug: security-camera-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          bid_calculated: 0
+          proposal_printed: 0
+        note: >-
+          Adopted the customer proposal, the last of the 102 bid calculators to
+          do so. The blockers were this tool rather than the trade -- five house
+          conventions its page spelled differently -- so the page was brought to
+          the house shape and `calc.mjs` now echoes the job's defining inputs
+          (camera count, retention quoted, drives fitted) into the result the
+          scope is drafted from. The drafted scope names the retention quoted
+          and the retention the fitted drives actually hold, which is the
+          handover this venture exists to stop failing. `proposal_printed` is
+          the new signal; both count events, never people, and stay in the
+          visitor's own browser. Public URL remains owner-gated behind
+          `GITHUB_PAGES_ENABLED`, so this is a zero baseline.
   - slug: deck-bid-calculator
     surface: static-page-in-repo
     readings:
