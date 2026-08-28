@@ -41,7 +41,7 @@
  * numbers, divided.
  */
 
-/** Field ids read off the form, in the order the page presents them. */
+/** Required field ids read off the form, in the order the page presents them. */
 export const NUMERIC_IDS = Object.freeze([
   'hourlyWage',
   'fieldCrewCount',
@@ -64,6 +64,22 @@ export const NUMERIC_IDS = Object.freeze([
 ]);
 
 /**
+ * Fields the form owns that may legitimately be left blank.
+ *
+ * Blank is an error for everything in `NUMERIC_IDS` — a missing wage is a broken
+ * calculation, not a zero. `currentRatePerHour` is different: a contractor who
+ * has never set a rate, or who does not want to type it, still gets the whole
+ * answer. Blank means "no comparison", not "you charge nothing".
+ */
+export const OPTIONAL_NUMERIC_IDS = Object.freeze(['currentRatePerHour']);
+
+/** Every id on the form. What the page reads, and what it marks when invalid. */
+export const ALL_INPUT_IDS = Object.freeze([...NUMERIC_IDS, ...OPTIONAL_NUMERIC_IDS]);
+
+/** Upper bound on a typed current rate, matching the form's own `max`. */
+export const CURRENT_RATE_MAX = 100000;
+
+/**
  * The ceilings `platform/pages/rates.mjs` will carry.
  *
  * A computed rate above these is arithmetically real but cannot be handed to the
@@ -80,8 +96,12 @@ export const CARRY_LIMITS = Object.freeze({
 /** A working day, in hours, derived from the week the contractor actually pays. */
 const DAYS_PER_WEEK = 5;
 
+function isBlank(value) {
+  return value === '' || value === null || value === undefined || String(value).trim() === '';
+}
+
 function toNumber(value) {
-  if (value === '' || value === null || value === undefined) return NaN;
+  if (isBlank(value)) return NaN;
   return typeof value === 'number' ? value : Number(String(value).trim());
 }
 
@@ -140,6 +160,14 @@ export function calculateShopRate(input = {}) {
 
   const annualMaterialAndSubCost = read('annualMaterialAndSubCost', { min: 0, max: 1000000000, label: 'Materials and subcontractors a year' });
   const targetMargin = read('targetMargin', { min: 0, max: CARRY_LIMITS.targetMargin, label: 'Target net margin' });
+
+  // Optional, and blank is not an error — but a number typed and then mistyped
+  // must not be silently dropped, or the comparison quietly disappears and the
+  // visitor reads that as "no gap".
+  const hasCurrentRate = !isBlank(input.currentRatePerHour);
+  const currentRatePerHour = hasCurrentRate
+    ? read('currentRatePerHour', { min: 0.01, max: CURRENT_RATE_MAX, label: 'What you charge today' })
+    : null;
 
   if (errors.length > 0) return { ok: false, errors };
 
@@ -209,11 +237,14 @@ export function calculateShopRate(input = {}) {
     targetMargin,
   };
 
-  return {
+  const figures = {
     ok: true,
     errors: [],
+    fieldCrewCount,
+    targetMargin,
     paidHoursPerYear,
     paidTimeOffHours,
+    workedHours,
     billableHoursPerYear,
     utilization,
     wagesPerYear,
@@ -234,6 +265,143 @@ export function calculateShopRate(input = {}) {
     carryWarnings: carryWarnings(carry),
     notes: notes({ utilization, burdenRate, overheadRate, targetMargin }),
   };
+
+  figures.comparison = hasCurrentRate ? compareCurrentRate(figures, currentRatePerHour) : null;
+  return figures;
+}
+
+/**
+ * The rate they charge today, measured against the one their own year requires.
+ *
+ * This is the half of the question the rest of the module does not answer. A
+ * contractor already has a number — the one on last week's quote — and the
+ * useful comparison is not "here is a rate" but "here is what yours is doing".
+ * Three figures do that work, and each is deliberately stated over a base the
+ * contractor can check:
+ *
+ * **The margin their rate actually earns.** Solved backwards from the same
+ * loaded hour the target rate is built on, so it is the honest counterpart of
+ * the target they typed: negative means the hour is sold below what it costs
+ * once overhead is in it, and the shop pays the difference on every hour it
+ * sells.
+ *
+ * **The annual size of the gap, over labour revenue only.** `revenueNeeded`
+ * above covers materials and subs as well, and those are billed on top of the
+ * hours rather than through the rate, so multiplying the whole shortfall by the
+ * whole revenue would overstate it. The base here is exactly what the rate
+ * controls: billable hours × crew, one year.
+ *
+ * **The billable hours their rate would need.** Nothing else on the page tells
+ * a contractor what would have to be *true* for the number they already charge
+ * to work. It inverts cleanly because the billable share moves neither the
+ * annual cost of employing somebody nor the overhead rate (whose denominator is
+ * annual direct cost, not hours) — so the required hours are exact rather than
+ * a search, and when they exceed the hours actually worked, the answer is that
+ * no amount of scheduling saves the rate.
+ */
+export function compareCurrentRate(result, currentRatePerHour) {
+  const rate = Number(currentRatePerHour);
+  if (!Number.isFinite(rate) || rate <= 0) return null;
+
+  const crew = result.fieldCrewCount;
+  const gapPerHour = rate - result.billRatePerHour;
+  const gapAtBreakEven = rate - result.breakEvenRatePerHour;
+  const marginAtCurrentRate = ((rate - result.loadedHourWithOverhead) / rate) * 100;
+  const annualGap = gapPerHour * result.billableHoursPerYear * crew;
+  const annualLabourRevenue = rate * result.billableHoursPerYear * crew;
+
+  const requiredBillableHours =
+    (result.annualCostPerPerson * (1 + result.overheadRate / 100)) /
+    (rate * (1 - result.targetMargin / 100));
+  const requiredUtilization = (requiredBillableHours / result.paidHoursPerYear) * 100;
+  // Hours that are not worked cannot be billed, whatever the schedule looks
+  // like, so the ceiling is worked hours rather than paid ones.
+  const reachable = requiredBillableHours <= result.workedHours;
+
+  return {
+    currentRatePerHour: rate,
+    requiredRatePerHour: result.billRatePerHour,
+    gapPerHour,
+    gapAtBreakEven,
+    coversCost: gapAtBreakEven >= 0,
+    meetsTarget: gapPerHour >= 0,
+    marginAtCurrentRate,
+    annualGap,
+    annualLabourRevenue,
+    requiredBillableHours,
+    requiredUtilization,
+    reachable,
+    messages: comparisonMessages({
+      rate,
+      gapPerHour,
+      gapAtBreakEven,
+      marginAtCurrentRate,
+      annualGap,
+      requiredBillableHours,
+      requiredUtilization,
+      reachable,
+      result,
+    }),
+  };
+}
+
+/**
+ * The comparison in the contractor's terms.
+ *
+ * Statements about the arithmetic, never instructions: this page does not tell
+ * anybody what to charge, and a tool that said "raise your rate" would be doing
+ * exactly that on figures it cannot verify.
+ */
+function comparisonMessages({
+  rate,
+  gapPerHour,
+  gapAtBreakEven,
+  marginAtCurrentRate,
+  annualGap,
+  requiredBillableHours,
+  requiredUtilization,
+  reachable,
+  result,
+}) {
+  const out = [];
+  const perHour = amount => `$${Math.abs(amount).toFixed(2)}`;
+  const perYear = amount => `$${Math.round(Math.abs(amount)).toLocaleString('en-US')}`;
+  // The gap is stated per hour and then per year, and the year needs to say
+  // whose hours it counted: one person's shortfall and a five-person crew's are
+  // the same rate and very different money.
+  const acrossTheCrew =
+    result.fieldCrewCount > 1
+      ? `across the hours ${result.fieldCrewCount} field crew bill`
+      : 'across the hours you bill';
+  const overTheYear = `${perYear(annualGap)} a year, ${acrossTheCrew}`;
+
+  if (gapAtBreakEven < 0) {
+    out.push(
+      `At ${perHour(rate)} an hour you are ${perHour(gapAtBreakEven)} below the break-even hour of $${result.breakEvenRatePerHour.toFixed(2)}. Every billable hour sold at this rate loses money before any profit is counted — about ${overTheYear}.`,
+    );
+  } else if (gapPerHour < 0) {
+    out.push(
+      `${perHour(rate)} an hour covers cost and overhead but earns ${marginAtCurrentRate.toFixed(1)}% net on labour, not the ${result.targetMargin.toFixed(1)}% you asked for. The difference is ${perHour(gapPerHour)} an hour, or about ${overTheYear}.`,
+    );
+  } else {
+    out.push(
+      `${perHour(rate)} an hour is ${perHour(gapPerHour)} above the rate your ${result.targetMargin.toFixed(1)}% target needs, and earns ${marginAtCurrentRate.toFixed(1)}% net on labour — about ${perYear(annualGap)} a year more than the target rate would bring in, ${acrossTheCrew}.`,
+    );
+  }
+
+  if (gapPerHour < 0) {
+    if (reachable) {
+      out.push(
+        `${perHour(rate)} would be the right rate if each person billed ${Math.round(requiredBillableHours).toLocaleString('en-US')} hours a year — ${requiredUtilization.toFixed(0)}% of the hours you pay for, against the ${result.utilization.toFixed(0)}% you entered.`,
+      );
+    } else {
+      out.push(
+        `No billable share makes ${perHour(rate)} work: it would take ${Math.round(requiredBillableHours).toLocaleString('en-US')} billable hours a year from a person who only works ${Math.round(result.workedHours).toLocaleString('en-US')}. The gap is in the rate, not the schedule.`,
+      );
+    }
+  }
+
+  return out;
 }
 
 /** Two decimals, which is the precision the carried rates are stored at. */

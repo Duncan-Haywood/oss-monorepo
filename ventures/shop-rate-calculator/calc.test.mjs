@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateShopRate, carryWarnings, notes, CARRY_LIMITS } from './calc.mjs';
+import { calculateShopRate, carryWarnings, notes, CARRY_LIMITS, CURRENT_RATE_MAX } from './calc.mjs';
 
 /** The values the page ships with, so the tests price the same shop a visitor sees. */
 const BASE = {
@@ -203,4 +203,150 @@ test('nothing is returned for a missing input object', () => {
   const result = calculateShopRate();
   assert.equal(result.ok, false);
   assert.ok(result.errors.length > 0);
+});
+
+// --- What you charge today ---------------------------------------------------
+//
+// The comparison is the half of the question the rest of the module does not
+// answer. A contractor already has a rate; what they cannot work out is what it
+// is earning and what would have to be true for it to be right.
+
+test('a blank current rate is not an error and produces no comparison', () => {
+  // Blank has to mean "did not say", not "charges nothing". A zero would make
+  // the margin negative infinity and the required hours infinite, and the page
+  // would show that to somebody who simply skipped an optional field.
+  for (const blank of ['', null, undefined, '   ']) {
+    const result = calculateShopRate({ ...BASE, currentRatePerHour: blank });
+    assert.equal(result.ok, true);
+    assert.equal(result.comparison, null);
+  }
+  assert.equal(calculateShopRate(BASE).comparison, null);
+});
+
+test('a current rate outside what the field accepts is reported, not dropped', () => {
+  // Silently ignoring a bad value would make the comparison block disappear,
+  // and a missing block reads as "no gap" — the opposite of the truth.
+  for (const bad of [0, -5, CURRENT_RATE_MAX + 1]) {
+    const result = calculateShopRate({ ...BASE, currentRatePerHour: bad });
+    assert.equal(result.ok, false);
+    assert.ok(result.errors.some(e => e.id === 'currentRatePerHour'), `${bad} should be reported`);
+  }
+});
+
+test('a rate below break-even is called what it is, and sized over the year', () => {
+  const target = calculateShopRate(BASE);
+  const rate = target.breakEvenRatePerHour - 10;
+  const { comparison } = calculateShopRate({ ...BASE, currentRatePerHour: rate });
+
+  assert.equal(comparison.coversCost, false);
+  assert.equal(comparison.meetsTarget, false);
+  near(comparison.gapAtBreakEven, -10);
+  assert.ok(comparison.marginAtCurrentRate < 0, 'below break-even the labour margin is negative');
+  // The annual figure is over labour revenue only: `revenueNeeded` also covers
+  // materials and subs, which are billed on top of the hours rather than
+  // through the rate, so sizing the gap against it would overstate it.
+  near(
+    comparison.annualGap,
+    comparison.gapPerHour * target.billableHoursPerYear * BASE.fieldCrewCount,
+    0.01,
+  );
+  assert.match(comparison.messages[0], /below the break-even hour/);
+});
+
+test('a rate that covers cost but misses the target says so, in margin the contractor asked for', () => {
+  const target = calculateShopRate(BASE);
+  const rate = (target.breakEvenRatePerHour + target.billRatePerHour) / 2;
+  const { comparison } = calculateShopRate({ ...BASE, currentRatePerHour: rate });
+
+  assert.equal(comparison.coversCost, true);
+  assert.equal(comparison.meetsTarget, false);
+  assert.ok(comparison.marginAtCurrentRate > 0);
+  assert.ok(comparison.marginAtCurrentRate < BASE.targetMargin);
+  assert.match(comparison.messages[0], /covers cost and overhead/);
+});
+
+test('the target rate compares exactly equal to itself', () => {
+  // The obvious identity, and the one that catches a drift between the rate the
+  // page prints and the rate the comparison measures against.
+  const target = calculateShopRate(BASE);
+  const { comparison } = calculateShopRate({ ...BASE, currentRatePerHour: target.billRatePerHour });
+
+  near(comparison.gapPerHour, 0, 1e-9);
+  near(comparison.marginAtCurrentRate, BASE.targetMargin, 1e-9);
+  near(comparison.annualGap, 0, 1e-6);
+  near(comparison.requiredBillableHours, target.billableHoursPerYear, 1e-6);
+  assert.equal(comparison.meetsTarget, true);
+});
+
+test('the billable hours a rate would need are exact, not an estimate', () => {
+  // The inversion is only sound because the billable share moves neither the
+  // annual cost of employing somebody nor the overhead rate (whose denominator
+  // is annual direct cost, not hours). Feeding the answer back through the
+  // whole calculation is what proves that assumption still holds.
+  const target = calculateShopRate(BASE);
+  const rate = target.billRatePerHour * 0.9;
+  const { comparison } = calculateShopRate({ ...BASE, currentRatePerHour: rate });
+
+  assert.equal(comparison.reachable, true);
+  const nonBillablePercent = 100 - (comparison.requiredBillableHours / target.workedHours) * 100;
+  const replayed = calculateShopRate({ ...BASE, nonBillablePercent });
+  near(replayed.billRatePerHour, rate, 1e-6);
+
+  near(comparison.requiredUtilization, (comparison.requiredBillableHours / target.paidHoursPerYear) * 100, 1e-9);
+  assert.match(comparison.messages[1], /would be the right rate if each person billed/);
+});
+
+test('a rate no schedule can rescue says the gap is in the rate', () => {
+  // Required hours above the hours actually worked is not a low-utilisation
+  // problem, and offering a utilisation target that exceeds the working year
+  // would be advice nobody can act on.
+  const target = calculateShopRate(BASE);
+  const { comparison } = calculateShopRate({ ...BASE, currentRatePerHour: target.billRatePerHour / 3 });
+
+  assert.equal(comparison.reachable, false);
+  assert.ok(comparison.requiredBillableHours > target.workedHours);
+  assert.match(comparison.messages[1], /No billable share makes/);
+});
+
+test('a rate above the target is stated as a surplus rather than a shortfall', () => {
+  const target = calculateShopRate(BASE);
+  const { comparison } = calculateShopRate({ ...BASE, currentRatePerHour: target.billRatePerHour * 1.2 });
+
+  assert.equal(comparison.meetsTarget, true);
+  assert.ok(comparison.gapPerHour > 0);
+  assert.ok(comparison.annualGap > 0);
+  assert.ok(comparison.marginAtCurrentRate > BASE.targetMargin);
+  assert.match(comparison.messages[0], /above the rate your/);
+  // Nothing about hours to chase when the rate already clears the target.
+  assert.equal(comparison.messages.length, 1);
+});
+
+test('the year the gap is measured over counts the whole crew, and says so', () => {
+  const one = calculateShopRate({ ...BASE, fieldCrewCount: 1, currentRatePerHour: 60 });
+  const five = calculateShopRate({ ...BASE, fieldCrewCount: 5, currentRatePerHour: 60 });
+
+  // Crew size is not a scale factor on the gap. A fifth person spreads the same
+  // overhead over more direct cost, so the required rate itself falls and the
+  // per-hour shortfall shrinks — while the annual figure still grows, because it
+  // is that smaller shortfall taken across five people's billable hours.
+  assert.ok(Math.abs(five.comparison.gapPerHour) < Math.abs(one.comparison.gapPerHour));
+  assert.ok(Math.abs(five.comparison.annualGap) > Math.abs(one.comparison.annualGap));
+  for (const [n, r] of [[1, one], [5, five]]) {
+    near(r.comparison.annualGap, r.comparison.gapPerHour * r.billableHoursPerYear * n, 1e-6);
+  }
+  assert.match(five.comparison.messages[0], /5 field crew bill/);
+  assert.match(one.comparison.messages[0], /the hours you bill/);
+});
+
+test('the comparison never changes the rates the bid calculators are handed', () => {
+  // It is a reading of the answer, not an input to it. If typing a current rate
+  // moved the carried burden or overhead, every bid on the site would depend on
+  // a field the contractor thought was informational.
+  const without = calculateShopRate(BASE);
+  const with_ = calculateShopRate({ ...BASE, currentRatePerHour: 42 });
+
+  assert.deepEqual(with_.carry, without.carry);
+  near(with_.billRatePerHour, without.billRatePerHour, 1e-12);
+  assert.deepEqual(with_.notes, without.notes);
+  assert.deepEqual(with_.carryWarnings, without.carryWarnings);
 });
