@@ -14,7 +14,14 @@ hypotheses:
   - claim: Carrying the four computed rates straight into the site's other calculators is what converts this from an interesting number into a change in how the next bid is priced, and is measurable as the ratio of rates_carried to rate_calculated.
     status: untested
     checked: null
-    evidence: usage
+    # `usage` is not a value the router accepts, and the ratio this claim names
+    # is not one a session can read: both counters come from strangers using a
+    # published page, and `links.production` is still null. That is exactly the
+    # condition `customer-contact` encodes -- settled by someone outside this
+    # repository, and blocked until the owner publishes -- so the router ranks
+    # it undispatchable rather than parking it at the top of a queue no session
+    # can clear.
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null
