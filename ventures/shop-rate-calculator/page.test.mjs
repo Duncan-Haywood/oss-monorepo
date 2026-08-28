@@ -124,3 +124,46 @@ test('the worked example the page ships with actually computes', async () => {
   assert.ok(result.billRatePerHour > 0);
   assert.deepEqual(result.carryWarnings, []);
 });
+
+test('the page opens on the worked example rather than an em-dash', async () => {
+  // The copy promises "the form opens on a worked example", and the eighteen
+  // defaults are that example -- but the answer used to stay behind the button,
+  // so a first visit showed `&mdash;` and the example's whole point was
+  // invisible. Every sibling bid calculator opens on its own worked result.
+  assert.ok(ids.has('exampleNote'), 'the example result needs a note marking it as an example');
+  assert.match(script, /const example = calculateShopRate\(readInput\(\)\)/);
+  assert.match(script, /render\(example\)/);
+  assert.match(markup, /not yours yet/, 'the note must not let the example read as the visitor’s own rate');
+
+  // The figures that render on load are the ones the venture is *for*: a $28
+  // wage is $53.76 an hour sold, a 92% burden rather than the remembered 20%.
+  const { calculateShopRate } = await import('./calc.mjs');
+  const defaults = Object.fromEntries(
+    [...markup.matchAll(/<input id="([^"]+)"[^>]*value="([^"]*)"/g)].map(m => [m[1], m[2]]),
+  );
+  const example = calculateShopRate(defaults);
+  assert.equal(example.ok, true);
+  assert.ok(example.burdenRate > 50, 'the shipped example should show a burden far above the remembered 20%');
+});
+
+test('opening the page counts nothing and arms nothing', () => {
+  // `rate_calculated` is the denominator of this venture's carry-through ratio
+  // (`rates_carried` / `rate_calculated`), so counting a page load would inflate
+  // it with visitors who never calculated and quietly corrupt the one measure
+  // the venture is judged on.
+  const initial = /\(\(\) => \{[\s\S]*?\}\)\(\);/.exec(script);
+  assert.ok(initial, 'expected the load-time render to be a self-calling block');
+  assert.doesNotMatch(initial[0], /count\(/, 'a page load is not a calculation');
+
+  // And it must not arm the carry button: carrying the example would open all
+  // of the trade bid calculators on someone else's shop, which is the exact
+  // error this venture exists to stop.
+  assert.match(initial[0], /current = null/);
+  assert.match(initial[0], /showingExample = true/);
+  // Pressing carry while the example is on screen has to explain itself rather
+  // than claiming the numbers "have changed", which they have not.
+  assert.match(markup, /still the example’s figures/);
+  // And a real calculation clears the example state, so the note and the
+  // guard message stop applying once the figures are the visitor's own.
+  assert.match(script, /render\(result\);\s*\n\s*showingExample = false;/);
+});
