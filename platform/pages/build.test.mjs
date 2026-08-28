@@ -36,6 +36,8 @@ import {
   renderVentureSitemap,
   searchTokens,
   searchVariants,
+  aliasesFor,
+  SEARCH_ALIASES,
   subcategoryFor,
   groupByCategory,
   groupBySubcategory,
@@ -820,6 +822,40 @@ test('searchVariants reaches the singular a plural query would step over', () =>
   assert.deepEqual(searchVariants('gas'), ['gas']);
   assert.deepEqual(searchVariants('trees'), ['trees', 'tree']);
   assert.deepEqual(searchVariants('deck'), ['deck']);
+});
+
+test('aliases give a tool the words its own copy never uses', () => {
+  // Each of these was a query that found nothing while the tool existed.
+  assert.match(aliasesFor('pressure-washing-bid-calculator'), /power washing/);
+  assert.match(aliasesFor('window-cleaning-bid-calculator'), /washing/);
+  assert.match(aliasesFor('snow-removal-bid-calculator'), /plowing/);
+  assert.match(aliasesFor('junk-removal-bid-calculator'), /hauling/);
+  assert.match(aliasesFor('pest-control-bid-calculator'), /termite/);
+  assert.match(aliasesFor('mini-split-bid-calculator'), /air conditioning/);
+
+  // A room-level search reaches every tool that does part of that room, since
+  // no single tool carries both words and the matcher ANDs across them.
+  for (const slug of ['countertop-bid-calculator', 'cabinet-refinishing-bid-calculator']) {
+    assert.match(aliasesFor(slug), /kitchen remodel/);
+  }
+
+  // Keyed by slug so an alias cannot wander onto an unrelated tool: the
+  // well-pump calculator talks about pressure and must not become a
+  // power-washing result.
+  assert.equal(aliasesFor('well-pump-bid-calculator'), '');
+  assert.equal(aliasesFor('ebay-fee-calculator'), '');
+});
+
+test('every alias names a venture that exists', async () => {
+  // A typo'd or renamed slug makes an alias silently dead -- the query keeps
+  // returning nothing and nothing turns red.
+  const slugs = (await site()).surfaces.map((s) => s.slug);
+  for (const { slug } of SEARCH_ALIASES) {
+    assert.ok(
+      slugs.some((published) => published.includes(slug)),
+      `alias "${slug}" matches no published venture`,
+    );
+  }
 });
 
 test('the hub ships one stemmer, not a second copy that can drift', async () => {
