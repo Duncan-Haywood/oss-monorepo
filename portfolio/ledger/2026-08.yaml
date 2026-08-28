@@ -26635,3 +26635,58 @@ entries:
       - >-
         Remaining depth candidates by the same page-count method: Walmart at
         8 and Etsy at 12 against eBay's 25.
+  - venture: mobile-detailing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Adopted the shared customer proposal here, the last of the 102 bid
+        calculators without one, so every bid calculator on the site can now
+        print the sheet a contractor hands the customer. `adopt.mjs --list`
+        reported it `blocked: no el() helper; no count() helper` -- two page
+        conventions, not a judgement about the trade. Both added; the page
+        also gained a featureList, which it had lacked entirely, so the
+        feature is visible to search and AI discovery.
+      - >-
+        The module README recorded the venture as *deliberately* unadopted:
+        its inputs were "hours and costs, with nothing describing the work",
+        so its scope could only be "Perform the work described above". That
+        did not survive looking at the trade -- for a mobile detail the work
+        is time and travel, and the drafted scope names hands-on hours,
+        setup and breakdown, and the round trip. Two internal records were
+        stale in the same direction and are corrected, not worked around.
+      - >-
+        Second stale record, and the more expensive one: `rates.mjs` named
+        this page as the only venture below MIN_CARRIED_FIELDS, and the
+        reason recorded in rates.test.mjs said it had "no wage input at
+        all" -- true before #1172 added wage and burden, false for four
+        days since. The exclusion survived only because the page spells them
+        `wage` and `burdenPercent`. Aliased now, so saved shop rates carry
+        (105 pages, up from 104); overhead stays out, being dollars per job
+        rather than a rate. The exclusion test only asserted "does not carry
+        all four", which is why the stale reason went unnoticed -- an
+        assertion that stays true for the wrong reason.
+      - >-
+        Product defect found while wiring it up: the wage field was labelled
+        "Loaded wage" while calc.mjs multiplies it by (1 + burden%). A
+        detailer entering an already-loaded rate had burden applied twice --
+        a 25% overstatement of labour cost at the default, in the direction
+        that loses jobs. The README had it right all along; only the label
+        was wrong. Relabelled, the derived loaded rate is now shown next to
+        the hours it multiplies, and a test pins both halves.
+      - >-
+        Queue state: zero open PRs at session start, the sixth consecutive
+        session, so the three-PR quota again had nothing to draw on; one
+        opened and merged here. Sampled the stale branches ahead of main
+        (rematch-1172, -1364, -1564, shopify-local-delivery, ebay-top-rated-
+        plus) -- all squash-merge residue, same files and same exported
+        function names already on main. No unique unmerged work found.
+      - >-
+        CI red on eight checks with runner_id=0, empty runner_name and 3-4
+        second durations; main fails identically on every commit back
+        through dd2950ca. The outage, not the diff. Verified locally:
+        11307 venture tests, 562 platform tests, 164 products / 445 pages
+        with no dead links, and a Chromium journey confirming the printed
+        sheet carries the on-screen price and none of the wage, burden,
+        supplies, overhead or margin -- checked with distinctive values
+        rather than eyeballed.
