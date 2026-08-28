@@ -14,6 +14,10 @@ import {
   compareReturns,
   compareWalmartAds,
   compareMatchTake,
+  compareWfsBox,
+  sizeTierGaps,
+  wfsBoxNote,
+  WFS_BOX_DEFAULTS,
   cubicFeet,
   DEFAULT_REFERRAL_MINIMUM,
   defaultFulfillmentFee,
@@ -480,4 +484,96 @@ test("exports the match-take defaults the page starts from", () => {
   assert.equal(MATCH_TAKE_DEFAULTS.promoTakePct, 80);
   assert.equal(MATCH_TAKE_DEFAULTS.promoDays, 10);
   assert.equal(MATCH_TAKE_DEFAULTS.monthDays, 30);
+});
+
+// --- WFS box / size-tier repack -------------------------------------------
+// The lever that does not touch the price: the fulfillment fee is a step
+// function of the shipped carton, so these assert the steps, the three ways a
+// repack fails to pay, and the per-measurement gap that tells a seller what to
+// shave.
+
+test("sizeTierGaps names each measurement that misses Standard", () => {
+  const over = sizeTierGaps({ length: 19, width: 13, height: 7, weightLb: 3 });
+  assert.equal(over.clears, false);
+  assert.deepEqual(over.blocking.map((row) => row.id), ["longest"]);
+  near(over.blocking[0].over, 1, "longest side overage");
+
+  const many = sizeTierGaps({ length: 24, width: 16, height: 9, weightLb: 25 });
+  assert.deepEqual(many.blocking.map((row) => row.id), ["longest", "median", "shortest", "weight"]);
+
+  const inside = sizeTierGaps({ length: 10, width: 8, height: 4, weightLb: 1 });
+  assert.equal(inside.clears, true);
+  assert.equal(inside.blocking.length, 0);
+  assert.ok(inside.rows.every((row) => row.over === 0), "a Standard box is over on nothing");
+});
+
+test("sizeTierGaps sorts the sides rather than trusting the field names", () => {
+  // A seller who types height into the length box must get the same answer.
+  const a = sizeTierGaps({ length: 7, width: 19, height: 13, weightLb: 3 });
+  const b = sizeTierGaps({ length: 19, width: 13, height: 7, weightLb: 3 });
+  assert.deepEqual(a.blocking.map((r) => r.id), b.blocking.map((r) => r.id));
+  near(a.blocking[0].over, b.blocking[0].over, "same box, same overage");
+});
+
+test("compareWfsBox prices a tier drop and nets off the repack", () => {
+  const r = compareWfsBox({});
+  assert.equal(r.current.tier, "oversize");
+  assert.equal(r.repacked.tier, "standard");
+  assert.equal(r.tierChanged, true);
+  near(r.current.fulfillmentFee, defaultFulfillmentFee("oversize", 3), "fee today");
+  near(r.repacked.fulfillmentFee, defaultFulfillmentFee("standard", 2.9), "fee repacked");
+  near(r.feeSaving, r.current.fulfillmentFee - r.repacked.fulfillmentFee, "fee saving");
+  near(r.netPerUnit, r.feeSaving - WFS_BOX_DEFAULTS.repackCostPerUnit, "net per unit");
+  near(r.monthlySaving, r.netPerUnit * WFS_BOX_DEFAULTS.monthlyUnits, "monthly saving");
+  assert.equal(r.winner, "repacked");
+});
+
+test("compareWfsBox calls a repack that changes no fee a straight loss", () => {
+  // Half an inch off a 19-inch side is still Oversize. The tool that says
+  // "saves $0.00" and stops has hidden the labour the seller just paid for.
+  const r = compareWfsBox({ newLength: 18.9, newWidth: 13, newHeight: 7, newWeightLb: 3 });
+  assert.equal(r.tierChanged, false);
+  near(r.feeSaving, 0, "no fee moved");
+  assert.equal(r.winner, "current");
+  assert.ok(r.monthlySaving < 0, "the repack cost is still spent");
+  assert.match(r.summary, /saves nothing/);
+  assert.match(r.summary, /longest side is 0\.90 in over/);
+});
+
+test("compareWfsBox reports a repack that raises the fee as worse, not as zero", () => {
+  // Same carton, heavier: a "repack" that consolidated two units into one box
+  // and stayed Oversize, which is the shape that actually shows up.
+  const r = compareWfsBox({ newLength: 19, newWidth: 13, newHeight: 7, newWeightLb: 6 });
+  assert.equal(r.tierChanged, false, "still Oversize");
+  assert.ok(r.feeSaving < 0, "heavier box costs more");
+  assert.equal(r.winner, "current");
+  assert.match(r.summary, /more per unit to fulfil, not less/);
+  // A negative break-even is reported, not clamped: no repack cost rescues it.
+  assert.ok(r.breakEvenRepackCost < 0, "break-even stays negative");
+});
+
+test("compareWfsBox lets the repack cost outweigh a real tier drop", () => {
+  const r = compareWfsBox({ repackCostPerUnit: 5 });
+  assert.equal(r.tierChanged, true, "the tier really does drop");
+  assert.ok(r.feeSaving > 0, "and the fee really does fall");
+  assert.equal(r.winner, "current", "but the labour costs more than it saves");
+  near(r.breakEvenRepackCost, r.feeSaving, "break-even is the fee saving");
+});
+
+test("compareWfsBox ties when the repack costs exactly the fee it saves", () => {
+  const first = compareWfsBox({});
+  const r = compareWfsBox({ repackCostPerUnit: first.feeSaving });
+  assert.equal(r.winner, "tie");
+  near(r.netPerUnit, 0, "level");
+});
+
+test("compareWfsBox rejects a zero monthly volume rather than dividing by it", () => {
+  assert.throws(() => compareWfsBox({ monthlyUnits: 0 }), /Monthly units/);
+});
+
+test("wfsBoxNote returns the summary and refuses a comparison without rows", () => {
+  const r = compareWfsBox({});
+  assert.equal(wfsBoxNote(r), r.summary);
+  assert.throws(() => wfsBoxNote({}), /missing rows/);
+  assert.throws(() => wfsBoxNote(null), /missing rows/);
 });

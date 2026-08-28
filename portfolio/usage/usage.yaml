@@ -1880,6 +1880,20 @@ products:
           ticket still beats holding the list. Public URL remains
           owner-gated; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          wfs_box_compared: 0
+        note: >-
+          Added the size-tier repack decision — the only lever on this tool
+          that leaves the listing price alone. WFS fulfillment is a step
+          function of the shipped carton, so the page compares the box as
+          shipped against a proposed repack, names which of the four
+          Standard ceilings each box misses and by how much, and nets the
+          repack labour off the fee step. `wfs_box_compared` is the new
+          signal; it counts a comparison, never a person, and stays in the
+          visitor's own browser. Public URL remains owner-gated behind
+          `GITHUB_PAGES_ENABLED`, so this is another zero baseline.
   - slug: faire-wholesale-calculator
     surface: static-page-in-repo
     readings:
