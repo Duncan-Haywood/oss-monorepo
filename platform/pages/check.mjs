@@ -376,8 +376,49 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     for (const relative of servedPages) {
       const html = await fs.readFile(path.join(site, relative), 'utf8');
       const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
-      if (canonical && /^https?:/i.test(canonical[1]) && !canonical[1].startsWith(prefix)) {
+      if (!canonical) continue;
+      if (/^https?:/i.test(canonical[1]) && !canonical[1].startsWith(prefix)) {
         problems.push(`${relative}: canonical points outside this site -> ${canonical[1]}`);
+        continue;
+      }
+
+      // The check above only ever saw an *absolute* canonical, and the defect
+      // this catches was relative. Fifteen tools shipped `href="./index.html"`
+      // — legal HTML, self-resolving, and therefore invisible to a validator —
+      // while the hub, the sitemaps, and every internal link addressed the same
+      // page as `/<slug>/`. That names a second URL for one page and points the
+      // canonical at the one nothing links to, so the address the site actually
+      // advertises is the one consolidated away.
+      //
+      // Resolving both sides and comparing is what makes the relative form
+      // checkable at all: a canonical is right when it resolves to the URL the
+      // page is served at, whatever spelling it uses to get there.
+      const pageUrl = new URL(relative.replace(/(^|\/)index\.html$/, '$1'), siteBase).href;
+      let resolved;
+      try {
+        resolved = new URL(canonical[1], pageUrl).href;
+      } catch {
+        problems.push(`${relative}: canonical href is not a valid URL -> ${canonical[1]}`);
+        continue;
+      }
+      if (resolved !== pageUrl) {
+        problems.push(
+          `${relative}: canonical resolves to ${resolved}, but the page is served at ${pageUrl}`,
+        );
+        continue;
+      }
+
+      // A link pasted into a trade group renders from these. `og:url` keys the
+      // card to the tool rather than to whatever query string was shared, and
+      // `og:image` is the difference between a card with a picture and a bare
+      // line of grey text.
+      for (const [attr, value] of [
+        ['property', 'og:url'],
+        ['property', 'og:image'],
+        ['name', 'twitter:card'],
+      ]) {
+        const has = new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value}["']`, 'i').test(html);
+        if (!has) problems.push(`${relative}: no ${value}, so a shared link previews without it`);
       }
     }
   }

@@ -42,9 +42,13 @@ import {
   groupByCategory,
   groupBySubcategory,
   truncate,
+  injectDiscoveryTags,
+  SOCIAL_CARD_FILE,
+  SITE_NAME,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
 } from './build.mjs';
+import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
 
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
@@ -1294,6 +1298,138 @@ test('wrapping a page twice does not stack two navigation bars', () => {
 test('a fragment with no body is left alone rather than corrupted', () => {
   const fragment = '<div>partial</div>';
   assert.equal(injectChrome(fragment, { slug: 'x', toRoot: '../', total: 2, related: [] }), fragment);
+});
+
+// ---------------------------------------------------------------------------
+// Discovery tags
+// ---------------------------------------------------------------------------
+
+const CANONICAL = `${BASE}flat-roof-bid-calculator/`;
+
+test('a venture canonical pointing at index.html is repaired to the served URL', () => {
+  // The exact markup fifteen tools shipped: legal, self-resolving, and naming a
+  // second URL for the page the whole site links to as `/<slug>/`.
+  const page =
+    '<html><head><link rel="canonical" href="./index.html"></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE });
+
+  const found = [...out.matchAll(/<link[^>]+rel="canonical"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(found, [CANONICAL], 'exactly one canonical, and it is the served URL');
+});
+
+test('an already-correct canonical is left as it stands', () => {
+  const page = `<html><head><link rel="canonical" href="${CANONICAL}"></head><body>x</body></html>`;
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE });
+  assert.equal(out.match(/rel="canonical"/g).length, 1);
+  assert.ok(out.includes(`<link rel="canonical" href="${CANONICAL}">`));
+});
+
+test('share-card tags are added, and og:url matches the canonical', () => {
+  const page = '<html><head><title>Flat Roof</title></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, {
+    canonical: CANONICAL,
+    baseUrl: BASE,
+    title: 'Flat Roof Bid Calculator',
+    description: 'Bid the membrane, not the coupon.',
+  });
+
+  assert.ok(out.includes(`<meta property="og:url" content="${CANONICAL}">`));
+  assert.ok(out.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
+  assert.ok(out.includes('<meta name="twitter:card" content="summary_large_image">'));
+  assert.ok(out.includes(`<meta property="og:site_name" content="${SITE_NAME}">`));
+  assert.ok(out.includes('<meta property="og:title" content="Flat Roof Bid Calculator">'));
+  assert.ok(out.includes('<meta property="og:description" content="Bid the membrane, not the coupon.">'));
+});
+
+test("a venture's own card copy wins over anything derived here", () => {
+  const page =
+    '<html><head><meta property="og:title" content="Its own words">' +
+    '<meta property="og:description" content="Its own pitch"></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, {
+    canonical: CANONICAL,
+    baseUrl: BASE,
+    title: 'Derived title',
+    description: 'Derived pitch',
+  });
+
+  assert.equal(out.match(/og:title/g).length, 1);
+  assert.ok(out.includes('content="Its own words"'));
+  assert.ok(!out.includes('Derived title'));
+  assert.ok(!out.includes('Derived pitch'));
+});
+
+test('the pass is safe to run twice', () => {
+  const page = '<html><head><title>T</title></head><body>x</body></html>';
+  const once = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  const twice = injectDiscoveryTags(once, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  assert.equal(twice, once);
+});
+
+test('a fragment with no head is left alone rather than corrupted', () => {
+  const fragment = '<div>partial</div>';
+  assert.equal(injectDiscoveryTags(fragment, { canonical: CANONICAL, baseUrl: BASE }), fragment);
+});
+
+test('the share card is a PNG at the size a wide card is cropped to', () => {
+  const png = renderSocialCard();
+  assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  // IHDR width and height, big-endian, at the fixed offset after the signature.
+  assert.equal(png.readUInt32BE(16), SOCIAL_CARD_WIDTH);
+  assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
+  // Under 600x315 Facebook drops the image entirely.
+  assert.ok(SOCIAL_CARD_WIDTH >= 600 && SOCIAL_CARD_HEIGHT >= 315);
+});
+
+test('every published page names a canonical that resolves to its own URL', async () => {
+  const { outDir } = await site();
+  const pages = (await listFiles(outDir))
+    .filter((file) => file.endsWith('.html'))
+    .map((file) => path.relative(outDir, file).split(path.sep).join('/'));
+
+  const wrong = [];
+  for (const relative of pages) {
+    const html = await fs.readFile(path.join(outDir, relative), 'utf8');
+    const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
+    // 404 and offline are noindex; they are meant to carry none.
+    if (!canonical) {
+      assert.match(html, /<meta name="robots" content="noindex">/, `${relative}: no canonical and not noindex`);
+      continue;
+    }
+    const pageUrl = new URL(relative.replace(/(^|\/)index\.html$/, '$1'), BASE).href;
+    if (new URL(canonical[1], pageUrl).href !== pageUrl) wrong.push(`${relative} -> ${canonical[1]}`);
+  }
+  assert.deepEqual(wrong, [], 'pages whose canonical names a URL they are not served at');
+});
+
+test('every indexable page carries the tags a shared link previews from', async () => {
+  const { outDir } = await site();
+  const pages = (await listFiles(outDir))
+    .filter((file) => file.endsWith('.html'))
+    .map((file) => path.relative(outDir, file).split(path.sep).join('/'));
+
+  const bare = [];
+  for (const relative of pages) {
+    const html = await fs.readFile(path.join(outDir, relative), 'utf8');
+    if (/<meta name="robots" content="noindex">/.test(html)) continue;
+    for (const tag of ['og:url', 'og:image', 'og:title', 'og:description', 'twitter:card']) {
+      if (!html.includes(`"${tag}"`)) bare.push(`${relative}: ${tag}`);
+    }
+  }
+  assert.deepEqual(bare, [], 'pages that would preview without a card');
+});
+
+test('the share card the pages name is actually published', async () => {
+  const { outDir } = await site();
+  const card = await fs.readFile(path.join(outDir, SOCIAL_CARD_FILE));
+  assert.ok(card.length > 0);
+  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  assert.ok(hub.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
+});
+
+test('the 404 body is noindex, so mistyped paths do not index as duplicates', async () => {
+  const { outDir } = await site();
+  const html = await fs.readFile(path.join(outDir, '404.html'), 'utf8');
+  assert.match(html, /<meta name="robots" content="noindex">/);
 });
 
 test('related tools exclude the page they sit on and prefer its category', () => {
