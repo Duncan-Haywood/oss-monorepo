@@ -57,6 +57,43 @@ sensitive number is the **billable share**: ten points of utilization moves the
 required rate further than the entire target margin does. That is the argument
 for measuring it, and it is why the notes call it out below 60%.
 
+## Against what you charge today
+
+The arithmetic above runs forwards — your year, then the rate it needs. Most
+contractors arrive with the answer already filled in, because there is a number
+on last week's quote, and the useful question runs the other way. An optional
+`currentRatePerHour` field turns the result into a comparison, and the three
+figures it adds are each stated over a base the contractor can check:
+
+- **The net margin their rate actually earns**, solved backwards from the same
+  loaded hour the target rate is built on. Negative means the hour is sold below
+  what it costs once overhead is in it.
+- **The annual size of the gap**, over *labour revenue only*. `revenueNeeded`
+  covers materials and subs as well, and those are billed on top of the hours
+  rather than through the rate, so sizing the shortfall against total revenue
+  would overstate it. The base here is what the rate actually controls: billable
+  hours × crew, one year.
+- **The billable hours their rate would need.** Nothing else on the page says
+  what would have to be *true* for the number they already charge to work. It
+  inverts exactly rather than by search, because the billable share moves
+  neither the annual cost of employing somebody nor the overhead rate (whose
+  denominator is annual direct cost, not hours). When the required hours exceed
+  the hours actually worked, the answer is that no schedule saves the rate.
+
+On the shipped example, $70 against the $74.07 the year needs earns 6.9% rather
+than 12%, is $4.07 short an hour and about $19,137 over a year across three
+crew, and would be right only at 1,659 billable hours a person — 80% of paid
+hours against the 75% entered.
+
+Three properties are deliberate and pinned by tests. Blank is a legitimate
+state, not a zero: a contractor who does not type a rate still gets the whole
+answer, and the block is hidden rather than blanked, because an empty
+comparison reads as "no gap". The field changes **none** of the arithmetic —
+`carry`, `notes` and `billRatePerHour` are identical with and without it — so a
+figure the visitor thinks is informational can never reach the 103 bid
+calculators. And the messages are statements about the arithmetic, never
+instructions: this tool does not tell anybody what to charge.
+
 ## The contract with `platform/pages/rates.mjs`
 
 `shop-rates.mjs` writes `portfolio-shop-rates`, the one `localStorage` key on

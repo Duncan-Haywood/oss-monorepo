@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { NUMERIC_IDS } from './calc.mjs';
+import { NUMERIC_IDS, OPTIONAL_NUMERIC_IDS, ALL_INPUT_IDS } from './calc.mjs';
 
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
@@ -24,23 +24,65 @@ test('calculator page is findable and usable without a build step', () => {
 });
 
 test('every input the arithmetic reads exists on the form', () => {
-  // `readInput` maps over NUMERIC_IDS and calls `el(id).value`, so a field named
-  // in calc.mjs but absent from the page would throw on the first submit — the
-  // button would simply stop working, with the page looking healthy.
-  for (const id of NUMERIC_IDS) {
+  // `readInput` maps over ALL_INPUT_IDS and calls `el(id).value`, so a field
+  // named in calc.mjs but absent from the page would throw on the first submit
+  // — the button would simply stop working, with the page looking healthy.
+  for (const id of ALL_INPUT_IDS) {
     assert.ok(ids.has(id), `missing #${id}`);
   }
 });
 
 test('every form input is one the arithmetic knows about', () => {
-  // The reverse direction. A field added to the page but not to NUMERIC_IDS is
-  // silently ignored: the visitor edits it, the rate does not move, and nothing
-  // says why.
-  const known = new Set([...NUMERIC_IDS, 'usageOptOut']);
+  // The reverse direction. A field added to the page but not to ALL_INPUT_IDS
+  // is silently ignored: the visitor edits it, the rate does not move, and
+  // nothing says why.
+  const known = new Set([...ALL_INPUT_IDS, 'usageOptOut']);
   const formInputs = [...markup.matchAll(/<input id="([^"]+)"/g)].map(m => m[1]);
   for (const id of formInputs) {
     assert.ok(known.has(id), `#${id} is on the page but not read by calc.mjs`);
   }
+});
+
+test('the page reads and marks the optional fields too, not just the required ones', () => {
+  // Both of these iterated NUMERIC_IDS before the current-rate field existed.
+  // Leaving either behind is silent: `readInput` would never pass the typed
+  // rate to the arithmetic, or a rejected rate would return an error naming a
+  // field the page never highlights.
+  assert.match(script, /ALL_INPUT_IDS\.map\(id => \[id, el\(id\)\.value\]\)/);
+  assert.match(script, /for \(const id of ALL_INPUT_IDS\)/);
+  assert.doesNotMatch(script, /NUMERIC_IDS/, 'the page should read the whole form, not only the required half');
+  for (const id of OPTIONAL_NUMERIC_IDS) {
+    assert.ok(!NUMERIC_IDS.includes(id), `${id} must stay optional — blank is a legitimate state`);
+  }
+});
+
+test('the comparison block is hidden until a rate is typed, and every slot it fills exists', () => {
+  for (const id of ['comparison', 'compareHeadline', 'cmpRate', 'cmpNeeded', 'cmpMargin', 'cmpRequiredHours', 'cmpNotes']) {
+    assert.ok(ids.has(id), `missing #${id}`);
+  }
+  // An empty comparison panel reads as "no gap", which is the opposite of what
+  // a blank field means, so the whole block is hidden rather than blanked.
+  assert.match(script, /el\('comparison'\)\.hidden = !comparison;/);
+  assert.match(markup, /<div id="comparison"[^>]*hidden>/);
+  // And it has to be rendered from the result, not left behind when the rest
+  // of the output updates.
+  assert.match(script, /renderComparison\(result\.comparison\)/);
+});
+
+test('the optional rate field ships a default the browser will accept', () => {
+  // `min` is also the step base for `input type=number`: with min="0.01" every
+  // valid value differs from 0.01 by a whole number of steps, and a default
+  // that does not would block form submission before the page's own handler
+  // ever runs. `platform/ci/check_form_defaults.py` checks this repo-wide;
+  // this pins the field the comparison depends on.
+  const tag = /<input id="currentRatePerHour"[^>]*>/.exec(markup);
+  assert.ok(tag, 'the current-rate input should be on the form');
+  const attr = name => new RegExp(`${name}="([^"]*)"`).exec(tag[0])?.[1];
+  const min = Number(attr('min'));
+  const step = Number(attr('step'));
+  const value = Number(attr('value'));
+  assert.ok(Number.isFinite(value) && value >= min && value <= Number(attr('max')));
+  assert.ok(Number.isInteger(Math.round((value - min) / step * 1e6) / 1e6));
 });
 
 test('every output slot the script writes exists in the markup', () => {
@@ -100,6 +142,32 @@ test('SEO page answers the search question and does not claim a price table', ()
   // The two mix-ups the page exists to correct.
   assert.match(html, /margin|markup/i);
   assert.match(html, /direct cost/);
+});
+
+test('the worked comparison in the SEO copy is the number the calculator produces', async () => {
+  // Prose and arithmetic drift apart silently, and this page's whole claim is
+  // that the figures are worked rather than asserted. Every value quoted in the
+  // comparison table is recomputed from the form's own defaults, so changing a
+  // default or the method fails here instead of shipping copy that contradicts
+  // the tool one link away.
+  const { calculateShopRate } = await import('./calc.mjs');
+  const html = page('what-should-i-charge-per-hour.html');
+  const defaults = Object.fromEntries(
+    [...markup.matchAll(/<input id="([^"]+)"[^>]*value="([^"]*)"/g)].map(m => [m[1], m[2]]),
+  );
+  const result = calculateShopRate(defaults);
+  const { comparison } = result;
+  assert.ok(comparison, 'the shipped example should include a current rate to compare');
+
+  const money = n => `$${Math.round(n).toLocaleString('en-US')}`;
+  assert.match(html, new RegExp(`\\$${comparison.currentRatePerHour.toFixed(2)} / h`));
+  assert.match(html, new RegExp(`\\$${Math.abs(comparison.gapPerHour).toFixed(2)}`));
+  assert.match(html, new RegExp(money(Math.abs(comparison.annualGap)).replace('$', '\\$')));
+  assert.match(html, new RegExp(`${comparison.marginAtCurrentRate.toFixed(1)}%`));
+  assert.match(html, new RegExp(`${Math.round(comparison.requiredBillableHours).toLocaleString('en-US')} h`));
+  assert.match(html, new RegExp(`${comparison.requiredUtilization.toFixed(0)}%`));
+  // And the point the row exists to make, which is not "your rate is too low".
+  assert.match(html, /too low <em>given a billable share<\/em>/);
 });
 
 test('robots and sitemap let crawlers find both pages', () => {

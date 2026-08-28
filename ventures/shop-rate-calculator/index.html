@@ -8,7 +8,7 @@
   <meta property="og:title" content="Shop Rate Calculator">
   <meta property="og:description" content="Most contractors guess 20% burden and 10% overhead. Enter your own payroll, vehicles, office and billable hours and see the two numbers your bids should actually carry.">
   <link rel="canonical" href="./">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shop Rate Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"True labor burden per billable hour, billable-hour utilization from paid time off and non-billable work, overhead rate as a percentage of direct cost, break-even crew hour, target-margin bill rate, annual revenue and profit at that margin, and one-click carry of crew wage, burden, overhead and target margin into every trade bid calculator on this site"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shop Rate Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"True labor burden per billable hour, billable-hour utilization from paid time off and non-billable work, overhead rate as a percentage of direct cost, break-even crew hour, target-margin bill rate, annual revenue and profit at that margin, a comparison of the rate you charge today against the rate your own year requires (the net margin it actually earns, the annual size of the gap, and the billable hours it would take to make it work), and one-click carry of crew wage, burden, overhead and target margin into every trade bid calculator on this site"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -35,6 +35,13 @@
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0 0; font-size: .9rem; }
     dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
     dt.group { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid #ffffff26; font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; opacity: .72; }
+    .compare { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
+    .compare h3 { margin: 0 0 8px; font-size: .95rem; }
+    .compare dl { margin-top: 12px; }
+    .compare .note-list { margin-top: 12px; }
+    .compare-hero { margin: 0; font-size: 1.05rem; font-weight: 700; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+    .compare-hero.short { color: #ffb0a2; }
+    .compare-hero.ahead { color: #bfe3d4; }
     .carry { margin-top: 18px; padding: 14px; border-radius: 10px; background: #ffffff17; }
     .carry h3 { margin: 0 0 6px; font-size: .95rem; }
     .carry p { font-size: .83rem; margin: 0 0 10px; opacity: .88; }
@@ -112,8 +119,9 @@
         <h2>What you want to make</h2>
         <div class="fields">
           <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.1" value="12"></label>
+          <label>What you charge today ($/h, optional) <input id="currentRatePerHour" type="number" min="0.01" max="100000" step="0.01" value="70"></label>
         </div>
-        <p class="hint" style="margin:14px 0 0">Net margin is a share of the price, not a mark-up on cost. Ten per cent margin on a $10,000 job is $1,000 of profit; a 10% mark-up on $10,000 of cost is $909.</p>
+        <p class="hint" style="margin:14px 0 0">Net margin is a share of the price, not a mark-up on cost. Ten per cent margin on a $10,000 job is $1,000 of profit; a 10% mark-up on $10,000 of cost is $909. The rate you charge today is optional and changes none of the arithmetic &mdash; leave it blank and the answer is the same; fill it in and the result also says what that rate is earning, and what would have to be true for it to work.</p>
         <div class="actions">
           <button type="submit" class="primary" id="calculate">Work out my shop rate</button>
         </div>
@@ -147,6 +155,18 @@
           <dt>Profit left over</dt><dd id="profitAtTarget"></dd>
         </dl>
 
+        <div id="comparison" class="compare" hidden>
+          <h3>Against what you charge today</h3>
+          <p class="compare-hero" id="compareHeadline"></p>
+          <dl>
+            <dt>Your rate</dt><dd id="cmpRate"></dd>
+            <dt>The rate this year needs</dt><dd id="cmpNeeded"></dd>
+            <dt>Net margin your rate earns</dt><dd id="cmpMargin"></dd>
+            <dt>Billable hours it would need</dt><dd id="cmpRequiredHours"></dd>
+          </dl>
+          <ul class="note-list" id="cmpNotes"></ul>
+        </div>
+
         <div id="warnings"></div>
         <ul class="note-list" id="notes"></ul>
 
@@ -177,7 +197,7 @@
   </footer>
 
   <script type="module">
-    import { calculateShopRate, NUMERIC_IDS } from './calc.mjs';
+    import { calculateShopRate, ALL_INPUT_IDS } from './calc.mjs';
     import { saveCarriedRates, readCarriedRates, SHOP_RATES_KEY } from './shop-rates.mjs';
     import { recordUsage } from './usage.mjs';
 
@@ -192,7 +212,7 @@
     }
 
     function readInput() {
-      return Object.fromEntries(NUMERIC_IDS.map(id => [id, el(id).value]));
+      return Object.fromEntries(ALL_INPUT_IDS.map(id => [id, el(id).value]));
     }
 
     // The last good result, so the carry button never writes rates that are not
@@ -206,7 +226,7 @@
 
     function markFields(errors) {
       const bad = new Set(errors.map(e => e.id));
-      for (const id of NUMERIC_IDS) {
+      for (const id of ALL_INPUT_IDS) {
         const node = el(id);
         if (bad.has(id)) node.setAttribute('aria-invalid', 'true');
         else node.removeAttribute('aria-invalid');
@@ -247,6 +267,34 @@
       }));
     }
 
+    // The rate they already charge, beside the one their year requires. Hidden
+    // entirely when the field is blank: an empty comparison block reads as "no
+    // gap", which is the opposite of "you did not tell us".
+    function renderComparison(comparison) {
+      el('comparison').hidden = !comparison;
+      if (!comparison) return;
+
+      const short = comparison.gapPerHour < 0;
+      const headline = el('compareHeadline');
+      headline.className = `compare-hero ${short ? 'short' : 'ahead'}`;
+      headline.textContent = short
+        ? `${money2(-comparison.gapPerHour)} an hour short — about ${money(-comparison.annualGap)} a year`
+        : `${money2(comparison.gapPerHour)} an hour clear of the target rate`;
+
+      el('cmpRate').textContent = money2(comparison.currentRatePerHour);
+      el('cmpNeeded').textContent = money2(comparison.requiredRatePerHour);
+      el('cmpMargin').textContent = pct(comparison.marginAtCurrentRate);
+      el('cmpRequiredHours').textContent = comparison.reachable
+        ? `${hours(comparison.requiredBillableHours)} (${comparison.requiredUtilization.toFixed(0)}%)`
+        : `${hours(comparison.requiredBillableHours)} — more than you work`;
+
+      el('cmpNotes').replaceChildren(...comparison.messages.map(text => {
+        const li = document.createElement('li');
+        li.textContent = text;
+        return li;
+      }));
+    }
+
     function render(result) {
       current = result;
       markFields([]);
@@ -270,6 +318,8 @@
       el('annualOverhead').textContent = money(result.annualOverhead);
       el('revenueNeeded').textContent = money(result.revenueNeeded);
       el('profitAtTarget').textContent = money(result.profitAtTarget);
+
+      renderComparison(result.comparison);
 
       el('warnings').replaceChildren(...result.carryWarnings.map(text => {
         const div = document.createElement('div');
@@ -306,6 +356,10 @@
       showingExample = false;
       el('exampleNote').hidden = true;
       count('rate_calculated');
+      // Counted separately from the calculation so the share of visitors who
+      // actually type what they charge is readable — that ratio is what says
+      // whether the comparison earned its place on the form.
+      if (result.comparison) count('rate_compared');
     });
 
     // Any edit invalidates what is on screen, so the carry button cannot write a
