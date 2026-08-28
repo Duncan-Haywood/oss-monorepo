@@ -20,6 +20,10 @@ import {
   winRateSentence,
   MIN_WIN_RATE_SAMPLE,
   MIN_CROSS_TOOL_SAMPLE,
+  MIN_MARGIN_SAMPLE,
+  MARGIN_SPREAD_POINTS,
+  normalizeJobCost,
+  marginSentence,
   PRICE_BAND_CLAUSE,
   bidAmountValue,
   formatBidAmount,
@@ -1435,6 +1439,192 @@ test('the feature list claims the comparison only on the pages that can draw it'
   const without = injectSavedBids(page(inputs(4), list), 'cleaning-dilution-calculator');
   assert.match(without, /saved bids you can name/);
   assert.doesNotMatch(without, /have averaged against the ones you lost/);
+});
+
+// ---------------------------------------------------------------------------
+// What the won jobs actually kept
+// ---------------------------------------------------------------------------
+
+/** A won job with the delivered cost the contractor entered against it. */
+const finished = (amount, cost) => ({ name: amount, at: AT, outcome: 'won', amount, cost });
+
+test('a delivered cost is read on the same rules as a winning price', () => {
+  // The alias is the point: one validation, so a figure that is acceptable in
+  // one box cannot be refused in the other.
+  for (const value of ['1900', '$1,900', ' 1 900.50 ', 1900, '01900', '1900.00',
+    '', 'about 1900', '-1900', '0', '1.9e3', null, undefined, {}, NaN,
+    String(MAX_LOST_TO + 1)]) {
+    assert.equal(normalizeJobCost(value), normalizeLostTo(value), JSON.stringify(String(value)));
+  }
+  assert.equal(normalizeJobCost('$1,900'), '1900');
+});
+
+test('a delivered cost is kept only on a bid that was actually won', () => {
+  // The mirror of the `lostTo` guard, and the reason is sharper here: a cost
+  // left on a bid the contractor has just said they lost would be divided by
+  // that bid's own price and reported as a margin on a job never done.
+  const fields = { a: '1' };
+  assert.equal(normalizeBid({ name: 'n', at: AT, fields, outcome: 'won', cost: '1900' }).cost,
+    '1900');
+  assert.equal(normalizeBid({ name: 'n', at: AT, fields, outcome: 'lost', cost: '1900' }).cost,
+    undefined);
+  assert.equal(normalizeBid({ name: 'n', at: AT, fields, cost: '1900' }).cost, undefined);
+  assert.ok(!('cost' in normalizeBid({ name: 'n', at: AT, fields, outcome: 'won', cost: 'x' })));
+  // The two figures do not collide: a record carrying both keeps only the one
+  // its outcome allows.
+  const won = normalizeBid({ name: 'n', at: AT, fields, outcome: 'won', cost: '900', lostTo: '80' });
+  assert.equal(won.cost, '900');
+  assert.equal(won.lostTo, undefined);
+});
+
+test('what the finished jobs kept, pooled rather than averaged', () => {
+  // $1,000 + $2,000 + $3,000 charged against $800 + $1,600 + $2,700 spent:
+  // $6,000 in, $5,100 out, $900 kept — 15% of what was charged.
+  const sentence = marginSentence([
+    finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700'),
+  ]);
+  assert.match(sentence, /^The 3 you finished here were priced at \$6,000 and cost you \$5,100 — you kept \$900, 15% of what you charged\./);
+});
+
+test('the pooled share is not the mean of the per-job shares', () => {
+  // The case the choice was made for: a small job at 40% and two big ones at
+  // 4%. The mean of the three shares is 16%; what actually went in the bank is
+  // $160 + $480 + $480 on $12,400 — 9%. A reading that said 16% would flatter
+  // a book whose profitable jobs are its smallest, which is the common shape.
+  const sentence = marginSentence([
+    finished('$400', '240'), finished('$6,000', '5520'), finished('$6,000', '5520'),
+  ]);
+  assert.match(sentence, /you kept \$1,120, 9% of what you charged/);
+  assert.doesNotMatch(sentence, /16%/);
+});
+
+test('a job worked at a loss is named rather than averaged away', () => {
+  // -$300 on one job inside two healthy ones still pools positive, which is
+  // exactly how a pooled figure buries the finding that matters most.
+  const sentence = marginSentence([
+    finished('$5,000', '4000'), finished('$5,000', '4000'), finished('$1,000', '1300'),
+  ]);
+  assert.match(sentence, /you kept \$1,700, 15% of what you charged\./);
+  assert.match(sentence, /One of them cost more than it was priced at, by \$300\. That job is inside the figure above rather than beside it\.$/);
+});
+
+test('more than one loss is counted, and the worst of them is the one quoted', () => {
+  // $8,000 charged against $8,200 spent, so the whole book is under water and
+  // the pooled figure says so rather than clamping at zero.
+  const sentence = marginSentence([
+    finished('$5,000', '4000'), finished('$1,000', '1300'), finished('$2,000', '2900'),
+  ]);
+  assert.match(sentence, /you kept -\$200, -2% of what you charged\./);
+  assert.match(sentence, /2 of them cost more than they were priced at, the worst by \$900\./);
+});
+
+test('the loss quoted is the deepest in money, not the deepest in percent', () => {
+  // The two disagree here and the distinction is the point: the $100 job is
+  // 100% under and the $10,000 job is 5% under, and it is the $500 hole a
+  // contractor needs pointed at. Quoting the worst *share* would have said
+  // "$100" while the larger loss went unmentioned.
+  const sentence = marginSentence([
+    finished('$100', '200'), finished('$10,000', '10500'), finished('$4,000', '3000'),
+  ]);
+  assert.match(sentence, /2 of them cost more than they were priced at, the worst by \$500\./);
+});
+
+test('a wide spread is named, because the average is then nobody’s job', () => {
+  // 40%, 20% and 5%: no loss, but a 35-point spread, so quoting the pooled
+  // figure alone would send someone to re-price a book whose top end is fine.
+  const sentence = marginSentence([
+    finished('$1,000', '600'), finished('$1,000', '800'), finished('$1,000', '950'),
+  ]);
+  assert.match(sentence, /They run from 5% to 40%, so the figure above is not what any one of these jobs did — the low end is the one to go back over\.$/);
+});
+
+test('a tight book gets the limit of the reading instead of a finding', () => {
+  // 20%, 18% and 16% — inside MARGIN_SPREAD_POINTS and nothing under water, so
+  // there is no finding to report and the honest half is the caveat.
+  const sentence = marginSentence([
+    finished('$1,000', '800'), finished('$1,000', '820'), finished('$1,000', '840'),
+  ]);
+  assert.match(sentence, /only as complete as your own job costing — your own hours are the ones most often left out\.$/);
+  assert.ok(MARGIN_SPREAD_POINTS > 4);
+});
+
+test('the margin reading never prints a figure to aim for', () => {
+  // The same guard `winRateSentence` carries. There is no correct margin, and
+  // a tool that printed one would be inventing the number its user came here to
+  // stop guessing at. Every branch, including the two the others do not reach.
+  const books = [
+    [finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700')],
+    [finished('$5,000', '4000'), finished('$5,000', '4000'), finished('$1,000', '1300')],
+    [finished('$1,000', '600'), finished('$1,000', '800'), finished('$1,000', '950')],
+    [finished('$1,000', '800'), finished('$1,000', '820'), finished('$1,000', '840')],
+  ];
+  for (const book of books) {
+    const sentence = marginSentence(book);
+    assert.notEqual(sentence, '');
+    assert.doesNotMatch(sentence, /should|aim|target|too high|too low|healthy|ideal|industry/i);
+  }
+});
+
+test('the margin is drawn only from won jobs that carry both halves', () => {
+  const rows = [finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700')];
+  const pooled = marginSentence(rows);
+  // None of these adds anything, and each is a record the built site produces.
+  for (const noise of [
+    // Lost, however much it cost to bid.
+    { name: 'lost it', at: AT, outcome: 'lost', amount: '$9,999', cost: '1' },
+    // Won but never costed — the common case, and it must not count as $0.
+    { name: 'uncosted', at: AT, outcome: 'won', amount: '$9,999' },
+    // Costed but priced on a page with no hero figure.
+    { name: 'no figure', at: AT, outcome: 'won', cost: '500' },
+    // A hero figure that is a saving or a difference rather than a price.
+    { name: 'negative hero', at: AT, outcome: 'won', amount: '-$4.20', cost: '2' },
+    // Still waiting on an answer.
+    { name: 'waiting', at: AT, amount: '$9,999', cost: '1' },
+    // An unreadable cost is not a cost of nothing.
+    { name: 'garbled', at: AT, outcome: 'won', amount: '$9,999', cost: 'about 500' },
+  ]) {
+    assert.equal(marginSentence([...rows, noise]), pooled, noise.name);
+  }
+});
+
+test('the margin is refused below its sample floor and on mixed currencies', () => {
+  assert.equal(MIN_MARGIN_SAMPLE, 3);
+  assert.equal(marginSentence([finished('$1,000', '800'), finished('$2,000', '1600')]), '');
+  assert.equal(marginSentence([]), '');
+  assert.equal(marginSentence(null), '');
+  // Refused outright rather than converted: this feature has no exchange rates.
+  assert.equal(marginSentence([
+    finished('$1,000', '800'), finished('$2,000', '1600'), finished('£3,000', '2700'),
+  ]), '');
+});
+
+test('the cost box and the margin ride on the same gate as the price band', () => {
+  const withHero = injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator');
+  assert.match(withHero, /id="pf-jobs-margin"/);
+  assert.match(withHero, /worth winning/);
+
+  // A tool that stores no amounts can never divide a cost by one, so it gets
+  // neither the paragraph nor a box to type into.
+  const without = injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator');
+  assert.doesNotMatch(without, /id="pf-jobs-margin"/);
+  assert.doesNotMatch(without, /worth winning/);
+
+  // The script's own guard is the element, the same as the band's, and the
+  // row's box is gated on the gap element for the same reason.
+  const script = module_();
+  assert.match(script, /var marginEl = el\('pf-jobs-margin'\);/);
+  assert.match(script, /if \(outcome === 'won' && gapEl\)/);
+});
+
+test('the cost box is wired for change and for Enter, like the price box', () => {
+  const script = module_();
+  // Enter must be intercepted: these boxes sit inside the page's own form, and
+  // a submit would reload the page and lose the bid being costed.
+  assert.match(script, /if \(onCost\) setCost\(index, field\.value\); else setLostTo/);
+  assert.match(script, /else if \(cost\) setCost\(index, field\.value\);/);
+  // Clearing the decision clears the figure that belonged to it, both ways.
+  assert.match(script, /if \(value !== 'won'\) delete bid\.cost;/);
+  assert.match(script, /if \(value !== 'lost'\) delete bid\.lostTo;/);
 });
 
 // ---------------------------------------------------------------------------

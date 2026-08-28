@@ -435,6 +435,57 @@ test('what a lost job went for travels with the decision, not with the pricing',
   assert.equal(corrected.bids.g[0].lostTo, '2100');
 });
 
+test('what a won job cost travels with the decision too', () => {
+  // The same three cases as above, pointed at the other outcome. The first is
+  // the one with teeth: marginSentence divides a cost by the bid's own price,
+  // so a delivered cost left on a record this merge has just called a loss
+  // would report a margin on a job that was never done.
+  const won = (at, decidedAt, cost) => ({
+    ...decided(OAK, at, 'won', decidedAt),
+    ...(cost ? { cost } : {}),
+  });
+
+  const flipped = mergeBids(
+    { g: [won(AT, '2026-08-24T09:00:00.000Z', '3400')] },
+    { g: [decided(OAK, AT, 'lost', '2026-08-26T09:00:00.000Z')] },
+  );
+  assert.equal(flipped.bids.g[0].outcome, 'lost');
+  assert.equal('cost' in flipped.bids.g[0], false);
+
+  // Never subtractive: the device that costed the job keeps the figure even
+  // when the other one marked the same win a minute later without it.
+  for (const [a, b] of [
+    [won(AT, '2026-08-24T09:00:00.000Z', '3400'), won(AT, '2026-08-26T09:00:00.000Z')],
+    [won(AT, '2026-08-24T09:00:00.000Z'), won(AT, '2026-08-26T09:00:00.000Z', '3400')],
+  ]) {
+    assert.equal(mergeBids({ g: [a] }, { g: [b] }).bids.g[0].cost, '3400');
+  }
+
+  // A second figure for the same win is the last supplier invoice landing, and
+  // the later decision carries it.
+  const corrected = mergeBids(
+    { g: [won(AT, '2026-08-24T09:00:00.000Z', '3400')] },
+    { g: [won(AT, '2026-08-26T09:00:00.000Z', '3610')] },
+  );
+  assert.equal(corrected.bids.g[0].cost, '3610');
+});
+
+test('the delivered cost survives the round trip the hub actually performs', () => {
+  // Same proof as the winning price below, through the hub's transcribed
+  // copies rather than this module's: a field added to normalizeBid but left
+  // out of BID_RECORD_HELPERS would be dropped here and nowhere else.
+  const { normalizeBid: hub, mergeBids: hubMerge } = hubHelpers();
+  const onDevice = {
+    g: [{ ...decided(OAK, AT, 'won', '2026-08-24T09:00:00.000Z'), cost: '3400' }],
+  };
+  assert.equal(hub(onDevice.g[0]).cost, '3400');
+
+  const file = parseBackup(JSON.stringify(buildBackup({ bids: onDevice })));
+  assert.equal(file.ok, true);
+  assert.equal(file.bids.g[0].cost, '3400');
+  assert.equal(hubMerge({}, file.bids).bids.g[0].cost, '3400');
+});
+
 test('the winning price survives the round trip the hub actually performs', () => {
   // Driven through the hub's own transcribed code, because that is where the
   // outcome itself was silently dropped before #1905's rule was applied here.

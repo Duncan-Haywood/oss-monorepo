@@ -286,13 +286,21 @@ export function resolveBidPair(mine, theirs) {
  * timestamp when it has one, otherwise whatever `base` carried.
  */
 function withDecision(base, decided) {
-  const { lostTo, ...rest } = base;
+  const { lostTo, cost, ...rest } = base;
   const kept = decided.outcome === 'lost' ? decided.lostTo || lostTo : '';
+  // `cost` — what a won job came to once it was delivered — is the same shape
+  // of fact pointed at the other outcome, and it follows the same two rules for
+  // the same two reasons. Dropping it when the merge decides the job was lost
+  // matters more than the symmetry suggests: `marginSentence` divides by the
+  // bid's own price, so a delivered cost left on a record this merge has just
+  // called a loss would report a margin on a job that was never done.
+  const spent = decided.outcome === 'won' ? decided.cost || cost : '';
   return {
     ...rest,
     outcome: decided.outcome,
     ...(decided.decidedAt ? { decidedAt: decided.decidedAt } : {}),
     ...(kept ? { lostTo: kept } : {}),
+    ...(spent ? { cost: spent } : {}),
   };
 }
 
