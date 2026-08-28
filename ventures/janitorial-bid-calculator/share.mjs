@@ -66,6 +66,26 @@ function specChoices(spec) {
   return spec?.choices && typeof spec.choices === 'object' ? spec.choices : {};
 }
 
+// A select's value is a string in the DOM, so this used to test `typeof value
+// === 'string'` and be done. A page is free to coerce it before handing the
+// values here, and one does: `sewer-line-replace-bid-calculator` runs
+// `values.diameterIn = Number(values.diameterIn)` in `readInput()` so its own
+// arithmetic gets a number. The strict check then dropped `diameterIn` from
+// the link *and* from the save, with nothing said — a bid priced for a 6-inch
+// lateral reopened as a 4-inch one, for the recipient and for the setter's own
+// next visit, and the price moved with it.
+//
+// So the comparison is made on the string form. The allowed list is still what
+// decides: a number that is not an option the select offers is rejected exactly
+// as a string that is not. Only a string or a finite number gets that far —
+// `true` must not slip in as the option `"true"`, and an object must not
+// arrive as `"[object Object]"`.
+function choiceText(value) {
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  return null;
+}
+
 // values object -> query string (no leading '?'). Field order follows the
 // spec, so the same bid always encodes to the same string and a copied link
 // stays stable across visits.
@@ -73,8 +93,8 @@ export function encodeBid(spec, values) {
   const params = new URLSearchParams();
   const choices = specChoices(spec);
   for (const [id, allowed] of Object.entries(choices)) {
-    const value = values?.[id];
-    if (typeof value === 'string' && allowed.includes(value)) params.set(id, value);
+    const value = choiceText(values?.[id]);
+    if (value !== null && allowed.includes(value)) params.set(id, value);
   }
   for (const id of specNumbers(spec)) {
     const value = usableNumber(values?.[id]);
@@ -138,7 +158,11 @@ function decodeText(raw) {
 
 function encodeCell(field, value) {
   if (field.kind === 'choice') {
-    return typeof value === 'string' && field.options.includes(value) ? value : '';
+    // Same coercion tolerance as `encodeBid` above, for the same reason: a row
+    // cell is read out of a form the visitor grew, and a page that normalises
+    // it on the way in should not lose it on the way out.
+    const text = choiceText(value);
+    return text !== null && field.options.includes(text) ? text : '';
   }
   if (field.kind === 'text') return encodeText(value);
   const number = usableNumber(value);

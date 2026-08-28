@@ -266,3 +266,71 @@ test('a second row group rides alongside the first so a day porter is not droppe
   };
   assert.deepEqual(decodeBid(spec, encodeBid(spec, values)), values);
 });
+
+// A select whose options are numbers is the case that broke. The DOM hands
+// back a string, but a page is free to coerce before calling in here, and
+// `sewer-line-replace-bid-calculator` does exactly that in `readInput()` so its
+// own arithmetic gets a number. Encoding used to require `typeof === 'string'`,
+// so the field vanished from the link and from the save without a word: a bid
+// priced for a 6-inch lateral reopened as the default 4-inch one, at a
+// different price, for the recipient and for the setter's own next visit.
+const NUMERIC_CHOICE_SPEC = {
+  key: 'saved-bid',
+  numbers: ['runFeet'],
+  flags: [],
+  choices: { diameterIn: ['4', '6'], grade: ['plain', 'fancy'] },
+};
+
+test('a select the page coerced to a number still reaches the link', () => {
+  const encoded = encodeBid(NUMERIC_CHOICE_SPEC, { diameterIn: 6, runFeet: '80' });
+  assert.equal(new URLSearchParams(encoded).get('diameterIn'), '6');
+  assert.deepEqual(
+    decodeBid(NUMERIC_CHOICE_SPEC, encoded),
+    { diameterIn: '6', runFeet: '80' },
+  );
+});
+
+test('a coerced select survives a save and reload', () => {
+  const storage = fakeStorage();
+  saveBid(storage, NUMERIC_CHOICE_SPEC, { diameterIn: 6, runFeet: '80' });
+  assert.deepEqual(loadBid(storage, NUMERIC_CHOICE_SPEC), { diameterIn: '6', runFeet: '80' });
+});
+
+test('coercion tolerance does not widen what a select will accept', () => {
+  // The allowed list still decides. A number the select does not offer is
+  // rejected exactly as an unoffered string is, and a value that is neither a
+  // string nor a finite number never gets as far as being compared — `true`
+  // must not arrive as the option `"true"`, nor an object as `"[object
+  // Object]"`.
+  for (const rejected of [8, -6, NaN, Infinity, true, false, null, undefined, {}, ['6'], () => '6']) {
+    const encoded = encodeBid(NUMERIC_CHOICE_SPEC, { diameterIn: rejected, runFeet: '80' });
+    assert.equal(
+      new URLSearchParams(encoded).has('diameterIn'),
+      false,
+      `${String(rejected)} should not have been accepted as a diameter`,
+    );
+  }
+});
+
+test('a coerced row cell reaches the link too', () => {
+  const NUMERIC_ROW_SPEC = {
+    ...ROW_SPEC,
+    rows: {
+      param: 'areas',
+      fields: [
+        { key: 'coats', kind: 'choice', options: ['1', '2'] },
+        { key: 'squareFeet', kind: 'number' },
+      ],
+    },
+  };
+  const encoded = encodeBid(NUMERIC_ROW_SPEC, { areas: [{ coats: 2, squareFeet: '400' }] });
+  assert.deepEqual(
+    decodeBid(NUMERIC_ROW_SPEC, encoded).areas,
+    [{ coats: '2', squareFeet: '400' }],
+  );
+  // and an unoffered number is still refused
+  assert.deepEqual(
+    decodeBid(NUMERIC_ROW_SPEC, encodeBid(NUMERIC_ROW_SPEC, { areas: [{ coats: 9, squareFeet: '400' }] })).areas,
+    [{ squareFeet: '400' }],
+  );
+});
