@@ -13,6 +13,14 @@
 //   # or against production:
 //   BASE_URL=https://duncan-haywood.github.io/monorepo-projects node platform/pages/journey.mjs
 //
+// **Check what is answering before you believe the result.** A server left
+// running by an earlier build keeps the port, the second `http.server` exits
+// with "Address already in use", and the run passes against the old tree
+// without a word. It cost a false clean report on 2026-08-28. One curl settles
+// it -- ask for something only the build under test has:
+//
+//   curl -s http://localhost:8793/<slug>/ | grep -c 'the thing you just added'
+//
 // Serve it under a `/monorepo-projects/` prefix when you want the local run to
 // mirror the deployment, because some defects only exist at a path:
 //
@@ -539,6 +547,84 @@ await step('four decided bids say where this tool’s price tips', async () => {
   check('the reading is counted', counts.bid_price_band_shown >= 1, JSON.stringify(counts));
   check('and the counter still holds no customer name and no figure',
     !/Job |\$/.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
+// 6bd. The chase line (`chaseSentence`) — which quotes have gone quiet.
+//
+//      Unit tests build the timestamps by hand. What only a browser shows is
+//      that the timestamps a real save and a real "Won" actually write are the
+//      ones this reads: `at` from the save path, `decidedAt` from the select.
+//      They are written by two different code paths and had never been read
+//      together by anything a visitor sees.
+await step('the tool says which quotes have outlived every answer it has seen', async () => {
+  const SLUG = 'water-heater-bid-calculator';
+  await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    // Three answered bids and two still out. The store is seeded directly
+    // because a browser cannot be made to wait nine days, but the *shape* is
+    // the one the save path writes — asserted below by driving a real save and
+    // a real "Won" through the UI and checking the panel counts them.
+    await page.evaluate(({ slug, now }) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: { [slug]: [
+        { name: 'A', at: at(40), outcome: 'won', decidedAt: at(38), fields: { a: '1' } },
+        { name: 'B', at: at(30), outcome: 'lost', decidedAt: at(21), fields: { a: '1' } },
+        { name: 'C', at: at(25), outcome: 'won', decidedAt: at(20), fields: { a: '1' } },
+        { name: 'D', at: at(19), fields: { a: '1' } },
+        { name: 'E', at: at(3), fields: { a: '1' } },
+      ] } }));
+    }, { slug: SLUG, now: Date.now() });
+    await page.reload({ waitUntil: 'networkidle' });
+    await jobsReady();
+    await page.click('#pf-jobs-toggle');
+
+    const line = (await page.textContent('#pf-jobs-chase')).replace(/\s+/g, ' ').trim();
+    check('the panel reports the spread of answers it has actually seen',
+      /^The 3 bids you have heard back on came back in 2 to 9 days\./.test(line), line);
+    // D is 19 days out and nothing has ever taken longer than 9. E, at 3 days,
+    // is not late and must not be counted — a line that flagged every waiting
+    // bid would be the age column again with more words.
+    check('and counts only the quotes that have outlived all of them',
+      /1 still waiting has been out longer than that\.$/.test(line), line);
+
+    // Now the part the seed cannot prove: that a bid saved and decided through
+    // the UI lands in the same window. Saving E again reprices it to today and
+    // marking it won writes decidedAt now, so it answers in 0 days and drags
+    // the low end of the range down.
+    const ids = (await page.evaluate(() => {
+      const out = [];
+      document.querySelectorAll('input[type="number"][id]').forEach((n) => {
+        if (!n.id.startsWith('pf-') && n.id !== 'usageOptOut') out.push(n.id);
+      });
+      return out;
+    })).slice(0, 4);
+    for (const [i, id] of ids.entries()) {
+      await page.fill(`#${id}`, String(9 + i * 4));
+      await page.dispatchEvent(`#${id}`, 'input');
+    }
+    await page.fill('#pf-jobs-name', 'F');
+    await page.click('[data-pf-jobs="save"]');
+    await page.selectOption('select[data-pf-jobs-index="0"]', 'won');
+    await page.waitForTimeout(50);
+
+    const after = (await page.textContent('#pf-jobs-chase')).replace(/\s+/g, ' ').trim();
+    check('a bid saved and decided through the UI joins the same window',
+      /^The 4 bids you have heard back on came back in 0 to 9 days\./.test(after), after);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the chase reading is counted', counts.bid_chase_shown >= 1, JSON.stringify(counts));
   } finally {
     await page.evaluate((raw) => {
       if (raw === null) localStorage.removeItem('portfolio-saved-bids');
