@@ -26434,3 +26434,65 @@ entries:
         the branch backlog was swept and found superseded, five branches spot-
         checked in detail and every one of them already on `main` under a
         sibling implementation.
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1948. WFS bills fulfillment as a step function of the shipped
+        carton, so a box half an inch over on one measurement pays a whole tier
+        more on every unit, forever. `classifySizeTier` and
+        `defaultFulfillmentFee` already encoded those steps and were being used
+        only to price the carton the seller already had. The new page compares
+        the box as shipped against a repack and, more to the point, names which
+        of the four Standard ceilings it misses and by how much -- "the longest
+        side, by 1.00 in", not "not Standard". That is the sentence a Seller
+        Center fee preview structurally cannot give: it shows one number and
+        never the constraint behind it. On the defaults that inch is $3.85 a
+        unit, $420.00 a month at 120 units.
+      - >-
+        **The generalisation #1947 proposed does not hold, and closing the lead
+        is the finding.** It suggested grepping exported functions against the
+        identifiers the HTML imports as a cheap way to find the next
+        `compareFeeSchedules` -- shipped, tested logic no page can reach. Run
+        fleet-wide it returns 57 unreachable exports across 43 ventures, and on
+        inspection nearly all are trivial aliases (`bestOfferSummary` is
+        `return bestOfferNote(comparison)`) or superseded duplicates
+        (`negotiationLines` in `3pl-quote-normalizer/calc.mjs` against the wired
+        `negotiationBrief` in `compare.mjs`). It is a dead-code detector, not a
+        hidden-value detector. The tiktok-shop case was real but not
+        representative. Do not re-run this sweep expecting product work; the
+        depth-per-tool count in the same entry is the selection signal that
+        actually paid.
+      - >-
+        The page-depth comparison against the closest analogue is what found
+        this. Amazon FBA (15 decision pages) ships
+        `does-smaller-box-cut-amazon-fba-fees.html`; Walmart (5) had no
+        equivalent despite owning the same arithmetic. Diffing a thin tool's
+        page list against a deep sibling in the same shape -- marketplace plus
+        first-party fulfillment -- names the missing decision directly, which
+        beats guessing at what a seller wants. Reverb at 6 is the remaining
+        tool #1947 named.
+      - >-
+        **A defect the unit suite could not see, again found by driving the
+        page.** The per-measurement gap list was reporting the *repacked* box.
+        On the shipped defaults the repack already clears, so it rendered
+        "nothing" -- and the one inch actually costing $3.85 a unit was never
+        named on the view every visitor lands on first. The page advertised a
+        sentence it did not show. Both halves were individually correct and the
+        composition was not; that is the class of bug a Chromium pass catches
+        and 111 green unit tests do not. Now driven by the carton the seller
+        ships, with a regression test on the wiring.
+      - >-
+        Queue state: zero open PRs at session start on both
+        `list_pull_requests` and `search_pull_requests`, the fourth consecutive
+        session, so the three-PR merge quota again had nothing to draw on; one
+        opened and merged here. 275 remote branches, none with an open PR. All
+        183 venture suites and 469 platform tests were green on `main` at
+        session start -- nothing was broken to restore.
+      - >-
+        Deploy remains the binding constraint and this session did not move it.
+        `publish_surface.py` still reports nothing live behind
+        `GITHUB_PAGES_ENABLED`, every usage reading including this one is still
+        a zero baseline, and no second owner ask was added.
+    mrr_end: null
