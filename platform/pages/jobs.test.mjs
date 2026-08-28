@@ -11,6 +11,10 @@ import {
   BID_AMOUNT_HELPER,
   BID_PRICE_BAND_HELPERS,
   MIN_PRICE_BAND_SIDE,
+  MIN_UNDERCUT_SAMPLE,
+  MAX_LOST_TO,
+  normalizeLostTo,
+  undercutSentence,
   PRICE_BAND_CLAUSE,
   bidAmountValue,
   formatBidAmount,
@@ -961,6 +965,133 @@ ${BID_PRICE_BAND_HELPERS}
     decided('lost', '$2,050'), decided('lost', '$3,200'),
   ];
   assert.equal(evaluated.priceBandSentence(rows), priceBandSentence(rows));
+});
+
+// ---------------------------------------------------------------------------
+// How far the winning bid actually was
+// ---------------------------------------------------------------------------
+
+/** A lost bid whose winning price the contractor heard. */
+const lostTo = (amount, went) => ({ name: amount, at: AT, outcome: 'lost', amount, lostTo: went });
+
+test('a price is read the way a person copies one off a text message', () => {
+  // All four of these are what somebody types when they are transcribing a
+  // figure, and refusing any of them would read as the box being broken.
+  assert.equal(normalizeLostTo('1900'), '1900');
+  assert.equal(normalizeLostTo('$1,900'), '1900');
+  assert.equal(normalizeLostTo(' 1 900.50 '), '1900.5');
+  assert.equal(normalizeLostTo(1900), '1900');
+
+  // Canonical, so two devices that typed the same figure differently store one
+  // value and a backup merge does not see a change that never happened.
+  assert.equal(normalizeLostTo('01900'), '1900');
+  assert.equal(normalizeLostTo('1900.00'), '1900');
+});
+
+test('anything that is not a plain positive amount is refused, not coerced', () => {
+  for (const value of ['', '   ', 'about 1900', '1900-2100', '-1900', '0', '1900.005',
+    '1.9e3', null, undefined, {}, NaN, Infinity, String(MAX_LOST_TO + 1)]) {
+    assert.equal(normalizeLostTo(value), '', JSON.stringify(String(value)));
+  }
+  assert.equal(normalizeLostTo(String(MAX_LOST_TO)), String(MAX_LOST_TO));
+});
+
+test('the winning price is kept only on a bid that was actually lost', () => {
+  // The record shape is the guard, not the UI: a figure carried onto a won or
+  // waiting bid would be averaged against a job nobody lost.
+  const fields = { a: '1' };
+  assert.equal(normalizeBid({ name: 'n', at: AT, fields, outcome: 'lost', lostTo: '1900' }).lostTo,
+    '1900');
+  assert.equal(normalizeBid({ name: 'n', at: AT, fields, outcome: 'won', lostTo: '1900' }).lostTo,
+    undefined);
+  assert.equal(normalizeBid({ name: 'n', at: AT, fields, lostTo: '1900' }).lostTo, undefined);
+  // And an unreadable one is absent rather than stored empty, the same rule
+  // `amount` and `outcome` already follow.
+  assert.ok(!('lostTo' in normalizeBid({ name: 'n', at: AT, fields, outcome: 'lost', lostTo: 'x' })));
+});
+
+test('how far over the winning price you were, in money and in percent', () => {
+  // $2,400 against $2,000 and $3,600 against $3,000: $1,000 over across two
+  // jobs, so $500 each on average. The percentage is of what the jobs went
+  // for — $1,000 on $5,000 — because "20% over" is read as over *their* price.
+  const sentence = undercutSentence([lostTo('$2,400', '2000'), lostTo('$3,600', '3000')]);
+  assert.match(sentence, /^On the 2 you lost where you know the winning price, yours averaged \$500 more — 20% over\./);
+  // The near miss, because a shop $400 off is deciding something different
+  // from a shop $600 off.
+  assert.match(sentence, /The closest was \$400 over\.$/);
+});
+
+test('losing to a dearer bid is said as loudly as losing to a cheaper one', () => {
+  // The finding that stops a contractor cutting a price that was never the
+  // problem — and the one a cheaper quote cannot fix.
+  assert.match(
+    undercutSentence([lostTo('$2,000', '2400'), lostTo('$1,800', '2000')]),
+    /yours averaged \$300 under\. None of them went to a cheaper bid, so price is not what decided these\.$/,
+  );
+  // Mixed: over on average, but one of them was not, and that is worth saying.
+  assert.match(
+    undercutSentence([lostTo('$3,000', '2000'), lostTo('$1,900', '2000')]),
+    /1 of them went to a bid no cheaper than yours, so price alone has not been deciding these\.$/,
+  );
+});
+
+test('two lost jobs with a known price, because one is an anecdote', () => {
+  assert.equal(MIN_UNDERCUT_SAMPLE, 2);
+  assert.equal(undercutSentence([lostTo('$2,400', '2000')]), '');
+  assert.match(undercutSentence([lostTo('$2,400', '2000'), lostTo('$3,200', '2800')]),
+    /you know the winning price/);
+});
+
+test('only a lost bid with both figures counts toward the gap', () => {
+  const rows = [lostTo('$2,400', '2000'), lostTo('$3,200', '2800')];
+  const noise = [
+    { name: 'won it', at: AT, outcome: 'won', amount: '$9,999', lostTo: '1' },
+    { name: 'still out', at: AT, amount: '$9,999' },
+    { name: 'no figure of mine', at: AT, outcome: 'lost', lostTo: '2000' },
+    { name: 'no winning price', at: AT, outcome: 'lost', amount: '$5,000' },
+    // A loss-per-unit reading is not a quote; a percentage over it is
+    // arithmetic about nothing.
+    { name: 'negative hero', at: AT, outcome: 'lost', amount: '-$4.20', lostTo: '2' },
+    null, 'not a bid',
+  ];
+  assert.equal(undercutSentence(rows.concat(noise)), undercutSentence(rows));
+});
+
+test('mixed currencies are refused here too, for the same reason', () => {
+  assert.equal(undercutSentence([lostTo('$2,400', '2000'), lostTo('£3,200', '2800')]), '');
+});
+
+test('nothing to compare draws nothing', () => {
+  assert.equal(undercutSentence([]), '');
+  assert.equal(undercutSentence(null), '');
+  assert.equal(undercutSentence([lostTo('$2,400', 'x'), lostTo('$3,200', '')]), '');
+});
+
+test('the injected gap helpers answer exactly as the module does', () => {
+  // The guarantee #1905 exists to enforce, extended to the two functions the
+  // browser now needs: the page must run the tested body, not a paraphrase.
+  const evaluated = new Function(`${BID_AMOUNT_HELPER}
+${BID_PRICE_BAND_HELPERS}
+    return { normalizeLostTo: normalizeLostTo, undercutSentence: undercutSentence };`)();
+
+  for (const value of ['1900', '$1,900', ' 1 900.50 ', '01900', 'about 1900', '', '-1']) {
+    assert.equal(evaluated.normalizeLostTo(value), normalizeLostTo(value), JSON.stringify(value));
+  }
+  const rows = [lostTo('$2,400', '2000'), lostTo('$3,200', '2800'), lostTo('$1,900', '2000')];
+  assert.equal(evaluated.undercutSentence(rows), undercutSentence(rows));
+});
+
+test('the box is on lost rows only, and only where there is a figure to compare', () => {
+  // Same gate as the band above: on a page that captures no hero number the
+  // gap can never be drawn, so the box would be somewhere to type a number
+  // nothing reads.
+  const script = module_();
+  assert.match(script, /var gapEl = el\('pf-jobs-gap'\);/);
+  assert.match(script, /if \(outcome === 'lost' && gapEl\) \{/);
+  assert.match(injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator'),
+    /id="pf-jobs-gap"/);
+  assert.doesNotMatch(injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator'),
+    /id="pf-jobs-gap"/);
 });
 
 test('the band is drawn only where the tool has a figure to compare', () => {

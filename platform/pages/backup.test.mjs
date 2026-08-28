@@ -399,6 +399,57 @@ test('the later pricing still takes the numbers, and keeps the decision', () => 
   assert.equal(merged.bids.g[0].outcome, 'won');
 });
 
+test('what a lost job went for travels with the decision, not with the pricing', () => {
+  // The same class of defect the resolution above exists for, one field along:
+  // `lostTo` belongs to the loss. Three cases, and they are not symmetric.
+  const lost = (at, decidedAt, went) => ({
+    ...decided(OAK, at, 'lost', decidedAt),
+    ...(went ? { lostTo: went } : {}),
+  });
+
+  // 1. A later decision that the job was *won* must not leave the earlier
+  //    loss's winning price attached to it — undercutSentence would average a
+  //    price against a bid nobody lost.
+  const flipped = mergeBids(
+    { g: [lost(AT, '2026-08-24T09:00:00.000Z', '1900')] },
+    { g: [decided(OAK, AT, 'won', '2026-08-26T09:00:00.000Z')] },
+  );
+  assert.equal(flipped.bids.g[0].outcome, 'won');
+  assert.equal('lostTo' in flipped.bids.g[0], false);
+
+  // 2. Both sides call it lost and only one knows the figure. The merge is
+  //    never subtractive, so the figure survives from either side.
+  for (const [a, b] of [
+    [lost(AT, '2026-08-24T09:00:00.000Z', '1900'), lost(AT, '2026-08-26T09:00:00.000Z')],
+    [lost(AT, '2026-08-24T09:00:00.000Z'), lost(AT, '2026-08-26T09:00:00.000Z', '1900')],
+  ]) {
+    assert.equal(mergeBids({ g: [a] }, { g: [b] }).bids.g[0].lostTo, '1900');
+  }
+
+  // 3. Two figures for the same loss is a correction, and the later decision
+  //    carries it.
+  const corrected = mergeBids(
+    { g: [lost(AT, '2026-08-24T09:00:00.000Z', '1900')] },
+    { g: [lost(AT, '2026-08-26T09:00:00.000Z', '2100')] },
+  );
+  assert.equal(corrected.bids.g[0].lostTo, '2100');
+});
+
+test('the winning price survives the round trip the hub actually performs', () => {
+  // Driven through the hub's own transcribed code, because that is where the
+  // outcome itself was silently dropped before #1905's rule was applied here.
+  const { normalizeBid: hub, mergeBids: hubMerge } = hubHelpers();
+  const onDevice = {
+    g: [{ ...decided(OAK, AT, 'lost', '2026-08-24T09:00:00.000Z'), lostTo: '1900' }],
+  };
+  assert.equal(hub(onDevice.g[0]).lostTo, '1900');
+
+  const file = parseBackup(JSON.stringify(buildBackup({ bids: onDevice })));
+  assert.equal(file.ok, true);
+  assert.equal(file.bids.g[0].lostTo, '1900');
+  assert.equal(hubMerge({}, file.bids).bids.g[0].lostTo, '1900');
+});
+
 test('an outcome survives being written to a backup file and read back', () => {
   const file = buildBackup({ bids: { g: [decided(OAK, AT, 'lost', '2026-08-24T09:00:00.000Z')] } });
   const parsed = parseBackup(JSON.stringify(file));
