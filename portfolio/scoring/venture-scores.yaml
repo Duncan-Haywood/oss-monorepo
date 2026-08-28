@@ -6033,3 +6033,44 @@ ventures:
       is labelled a required rate to check their own pricing against --
       never a recommended price, a prevailing wage, or a tax or
       employment-law determination. Nothing entered leaves the browser.
+  - slug: security-camera-bid-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 6
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      No AI in the product, deliberately. The value is a domain model --
+      recording bitrate against purchasable drive sizes, PoE draw against a
+      switch budget, run length against the 328 ft Ethernet limit -- and all
+      three are arithmetic an installer has to be able to re-derive in front of
+      a customer. Inference would make the retention figure less checkable
+      without making it more correct.
+    basis: >-
+      Graduated 2026-08-28 into the gap the hub's own search measurement named:
+      "security camera" was one of six queries returning zero results with no
+      tool behind them. Scored one above the single-trade bid calculators on
+      defensibility (6) because two of its three outputs are engineering checks
+      rather than a price stack -- days the fitted drives actually hold, and
+      PoE load against the switch budget -- and those are what a generic
+      job-costing spreadsheet cannot restate. Distribution 7 matches the other
+      bid calculators: "how much to charge to install security cameras" and
+      "how many TB for 30 days of recording" are lower-volume than
+      marketplace-fee queries but the searcher has an install on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: outputs are arithmetic on the installer's own inputs, never a
+      recommended price, a manufacturer specification, an ONVIF profile, or a
+      code ruling. Bitrates are labelled planning figures rather than a
+      guarantee any camera hits them. The page states plainly that where
+      cameras may point, whether audio may be recorded, and how long footage
+      may be kept are legal questions it does not answer. Nothing entered
+      leaves the browser.

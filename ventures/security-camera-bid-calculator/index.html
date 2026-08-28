@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security Camera Installation Bid Calculator | How Much to Charge to Install CCTV, and How Many Days of Storage It Really Holds</title>
+  <meta name="description" content="Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.">
+  <meta property="og:title" content="Security Camera Installation Bid Calculator">
+  <meta property="og:description" content="Quote 30 days of recording and know the drives hold it. Storage, PoE budget, and run length checked before the bid goes out.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Camera Installation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Recording storage sizing by resolution and codec, actual retention days from the drives purchased, recommended drive size, PoE load against switch budget, Ethernet run-length check, labour hours per drop by construction type, cable footage with waste allowance, cost floor and walk-away price, margin on revenue, proposed-price margin check"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to install security cameras?","acceptedAnswer":{"@type":"Answer","text":"There is no flat per-camera price. Eight cameras through an accessible attic is a different job from eight through masonry with a lift. This calculator prices the drops, the cable, the head end, and the labour from your own wage, burden, overhead, and margin, and gives a walk-away price to hold when a customer asks you to match a lower bid."}},{"@type":"Question","name":"How many terabytes do I need for 30 days of recording?","acceptedAnswer":{"@type":"Answer","text":"It depends on resolution, codec, camera count, and hours recorded per day. Eight 4 MP cameras on H.265 recording continuously use about 0.35 TB per day, so 30 days needs roughly 10.4 TB before usable-space headroom. This calculator computes it and, separately, the retention the drives you actually buy will deliver — those are different numbers, and the gap is where a handover fails."}},{"@type":"Question","name":"Is this a manufacturer specification or a code ruling?","acceptedAnswer":{"@type":"Answer","text":"No. Outputs are arithmetic on the numbers you enter. Bitrates are typical planning figures at 15 fps, not a guarantee any camera hits them — a scene full of moving foliage will exceed them. Nothing here is an ONVIF profile, a manufacturer specification, or a building, fire, or privacy-law ruling."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5f7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #14303b; color: #f2f7f8; border-color: #14303b; }
+    .result h2 { color: #f2f7f8; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .hero-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; color: #9fc4cf; margin: 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 7px 12px; margin: 16px 0 0; font-size: .87rem; }
+    dt { color: #b6d2da; } dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; }
+    .checks { margin: 16px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .checks li { padding: 9px 11px; border-radius: 8px; margin-bottom: 7px; line-height: 1.4; }
+    .checks .ok { background: #1c4a3d; color: #cdebd8; }
+    .checks .warn { background: #5c2f24; color: #ffd9cf; }
+    .checks strong { display: block; margin-bottom: 2px; }
+    .err { background: #fdeceb; border: 1px solid #e5a49b; color: #8c2c1c; border-radius: 8px; padding: 11px; font-size: .86rem; margin: 14px 0 0; }
+    footer { margin-top: 30px; font-size: .78rem; color: #4a5666; line-height: 1.55; }
+    footer p { margin: 0 0 9px; }
+    .opt { display: flex; gap: 7px; align-items: center; font-weight: 500; font-size: .8rem; margin-bottom: 6px; }
+    .opt input { width: auto; }
+    .support { border-top: 1px solid #d3dce6; padding-top: 10px; }
+    .faq h3 { font-size: .95rem; margin: 16px 0 4px; }
+    .faq p { font-size: .87rem; margin: 0; color: #3d4857; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">For low-voltage and security installers</p>
+    <h1>Security camera bid calculator</h1>
+    <p>Price the drops, the cable, and the head end from your own wage and margin — and check the three things a camera bid gets wrong before it goes out: whether the drives hold the recording days you are quoting, whether the switch can power the cameras, and whether any run is past the Ethernet limit.</p>
+    <p class="hint" style="margin-top:12px">Everything stays in this browser. Nothing is uploaded, and no camera layout or price leaves your device.</p>
+  </header>
+
+  <div class="layout">
+    <div>
+      <section>
+        <h2>The system</h2>
+        <p class="hint">What is being recorded, and for how long the customer was told it would be kept.</p>
+        <div class="fields">
+          <label>Cameras <input id="cameraCount" type="number" min="1" step="1" value="8"></label>
+          <label>Resolution <select id="resolution"></select></label>
+          <label>Codec <select id="codec"></select></label>
+          <label>Recording <select id="recordingMode">
+            <option value="continuous">Continuous</option>
+            <option value="motion">Motion only</option>
+          </select></label>
+          <label>Motion share of day (%) <input id="motionPercent" type="number" min="0" max="100" step="1" value="25"></label>
+          <label>Hours recorded per day <input id="recordHoursPerDay" type="number" min="0" max="24" step="0.5" value="24"></label>
+          <label>Retention quoted (days) <input id="retentionDays" type="number" min="1" step="1" value="30"></label>
+          <label>Drive size (TB) <select id="driveSizeTb"></select></label>
+          <label>Drives fitted <input id="driveCount" type="number" min="0" step="1" value="2"></label>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Motion-only share is a planning estimate. A camera facing a busy street or moving foliage will record far more of the day than one in a stockroom.</p>
+      </section>
+
+      <section>
+        <h2>Power and cable</h2>
+        <p class="hint">The two site facts that turn into a change order when they are found on install day.</p>
+        <div class="fields">
+          <label>Watts per camera <input id="cameraWatts" type="number" min="0" step="0.5" value="9"></label>
+          <label>Switch PoE budget (W) <input id="switchPoeBudgetWatts" type="number" min="0" step="1" value="120"></label>
+          <label>Average cable per drop (ft) <input id="avgCableFeet" type="number" min="0" step="1" value="120"></label>
+          <label>Longest single run (ft) <input id="longestRunFeet" type="number" min="0" step="1" value="200"></label>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Typical draw: fixed dome or turret 6&nbsp;W, bullet with IR 9&nbsp;W, bullet with heater 13&nbsp;W, PTZ 25&nbsp;W. Heaters raise the winter load on a budget that looked fine in July.</p>
+      </section>
+
+      <section>
+        <h2>Labour</h2>
+        <p class="hint">Hours per drop follows the construction type until you type your own number, which then wins.</p>
+        <div class="fields">
+          <label>Construction <select id="construction"></select></label>
+          <label>Hours per drop (override) <input id="hoursPerDrop" type="number" min="0" step="0.1" value="" placeholder="from construction"></label>
+          <label>Commissioning hours <input id="commissioningHours" type="number" min="0" step="0.5" value="4"></label>
+          <label>Other hours <input id="otherHours" type="number" min="0" step="0.5" value="0"></label>
+          <label>Lift required <select id="liftRequired">
+            <option value="no">No</option>
+            <option value="yes">Yes (adds 4 h)</option>
+          </select></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.5" value="38"></label>
+          <label>Labour burden (%) <input id="burdenRate" type="number" min="0" step="1" value="32"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Materials and margin</h2>
+        <div class="fields">
+          <label>Per camera <input id="cameraHardware" type="number" min="0" step="1" value="190"></label>
+          <label>NVR / recorder <input id="nvrHardware" type="number" min="0" step="1" value="700"></label>
+          <label>PoE switch <input id="switchHardware" type="number" min="0" step="1" value="350"></label>
+          <label>Drive price per TB <input id="drivePricePerTb" type="number" min="0" step="0.5" value="22"></label>
+          <label>Cable per foot <input id="cablePricePerFoot" type="number" min="0" step="0.01" value="0.22"></label>
+          <label>Other materials <input id="otherMaterials" type="number" min="0" step="1" value="150"></label>
+          <label>Overhead (%) <input id="overheadRate" type="number" min="0" step="1" value="12"></label>
+          <label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="35"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="1" value="0"></label>
+          <label>Price you are considering <input id="proposedPrice" type="number" min="0" step="1" value="" placeholder="optional"></label>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Margin is on revenue, not markup on cost. Quoting cost &times;&nbsp;1.35 and calling it a 35% margin is a 26% margin.</p>
+      </section>
+    </div>
+
+    <div>
+      <section class="result">
+        <h2>The bid</h2>
+        <p class="hero-label">Bid at target margin</p>
+        <p class="hero-number" id="bidPrice">&mdash;</p>
+        <p class="hero-label">Walk-away price &mdash; below this the job costs you money</p>
+        <p class="hero-number" id="costFloor" style="font-size:1.6rem">&mdash;</p>
+        <div id="error" class="err" hidden></div>
+        <ul class="checks" id="checks"></ul>
+        <dl>
+          <dt>Price per camera</dt><dd id="pricePerCamera"></dd>
+          <dt>Labour hours</dt><dd id="labourHours"></dd>
+          <dt>Loaded hourly rate</dt><dd id="loadedHourlyRate"></dd>
+          <dt>Labour cost</dt><dd id="labourCost"></dd>
+          <dt>Materials</dt><dd id="materialCost"></dd>
+          <dt>Cable needed</dt><dd id="totalCableFeet"></dd>
+          <dt>Overhead</dt><dd id="overheadCost"></dd>
+          <dt>Recording per day</dt><dd id="terabytesPerDay"></dd>
+          <dt>Storage for quoted days</dt><dd id="terabytesRequired"></dd>
+          <dt>Days these drives hold</dt><dd id="actualRetentionDays"></dd>
+          <dt>PoE load</dt><dd id="poeLoad"></dd>
+          <dt>Margin on your price</dt><dd id="proposedMarginPercent"></dd>
+        </dl>
+      </section>
+    </div>
+  </div>
+
+  <section class="faq">
+    <h2>What this does, and what it does not</h2>
+    <h3>Why "days the drives hold" is a separate number from "storage needed"</h3>
+    <p>The arithmetic asks for a figure like 10.4&nbsp;TB. You can buy 8&nbsp;TB or 12&nbsp;TB, not 10.4, and once the filesystem and the recorder's overwrite headroom take their slice you keep about 90% of the label. Quoting 30 days and handing over a system that holds 11 is the most common failed handover in this trade, so both numbers are shown and the shortfall is named.</p>
+    <h3>Why the PoE check matters more than it looks</h3>
+    <p>A switch over its budget does not fail cleanly. It drops cameras intermittently, often months later when heaters come on, and every one of those is a callback the bid never priced. The tool flags anything over 80% of the budget, because a system at its ceiling has nothing left for the camera added next spring.</p>
+    <h3>Bitrates are planning figures</h3>
+    <p>Figures assume roughly 15&nbsp;fps and typical scenes. H.265 is credited at half of H.264, and smart-codec modes conservatively rather than at the marketing number, because their saving only materialises on static scenes. A camera watching traffic or moving foliage will exceed these. Nothing here is a manufacturer specification or an ONVIF profile.</p>
+    <h3>This is not legal advice about recording</h3>
+    <p>Where cameras may point, whether audio may be recorded, signage, and how long footage may be kept are governed by law that varies by country, state, and sometimes by the room. This tool prices an install; it does not tell you whether the install is lawful.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not electrical, engineering, code, security, privacy, legal, tax, or contracting advice, and it does not replace a licensed installer, a manufacturer's specification, or the authority having jurisdiction. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any permit, licensing, inspection, or privacy obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Nothing leaves your browser. Anonymous local usage counts stay on this device and never include the site, the camera count, wages, or prices. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <label class="opt"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      INPUT_FIELDS,
+      RESOLUTIONS,
+      CODECS,
+      CONSTRUCTION_TYPES,
+      DRIVE_SIZES_TB,
+      calculateBid,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const el = (id) => document.getElementById(id);
+    const money = (n) => n.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    const money2 = (n) => n.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+
+    // Populated from the calc module rather than written twice in markup: a
+    // preset list that disagreed with the arithmetic would be a bug no test
+    // of either file alone could catch.
+    for (const r of RESOLUTIONS) el('resolution').add(new Option(r.label, r.resolution));
+    for (const c of CODECS) el('codec').add(new Option(c.label, c.codec));
+    for (const c of CONSTRUCTION_TYPES) el('construction').add(new Option(c.label, c.construction));
+    for (const size of DRIVE_SIZES_TB) el('driveSizeTb').add(new Option(size + ' TB', size));
+    el('resolution').value = '4mp';
+    el('codec').value = 'h265';
+    el('construction').value = 'attic';
+    el('driveSizeTb').value = '8';
+
+    const readInputs = () => Object.fromEntries(INPUT_FIELDS.map((f) => [f, el(f)?.value ?? '']));
+
+    const STORAGE_KEY = 'security-camera-bid-draft';
+    function saveDraft() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(readInputs())); } catch { /* ignore */ }
+    }
+    function loadDraft() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        if (!saved) return;
+        for (const [k, v] of Object.entries(saved)) if (el(k) != null) el(k).value = v;
+      } catch { /* ignore */ }
+    }
+
+    function render() {
+      const input = readInputs();
+      let result;
+      try {
+        result = calculateBid(input);
+        el('error').hidden = true;
+      } catch (e) {
+        // A half-typed field is the normal case, not an exception worth a
+        // blank page: say what is wrong and leave the last good figures up.
+        el('error').hidden = false;
+        el('error').textContent = e.message;
+        return;
+      }
+
+      el('bidPrice').textContent = money(result.bidPrice);
+      el('costFloor').textContent = money(result.costFloor);
+      el('pricePerCamera').textContent = money(result.pricePerCamera);
+      el('labourHours').textContent = result.labourHours + ' h';
+      el('loadedHourlyRate').textContent = money2(result.loadedHourlyRate) + '/h';
+      el('labourCost').textContent = money(result.labourCost);
+      el('materialCost').textContent = money(result.materialCost);
+      el('totalCableFeet').textContent = result.cabling.totalCableFeet.toLocaleString() + ' ft';
+      el('overheadCost').textContent = money(result.overheadCost);
+      el('terabytesPerDay').textContent = result.storage.terabytesPerDay + ' TB';
+      el('terabytesRequired').textContent = result.storage.terabytesRequired + ' TB';
+      el('actualRetentionDays').textContent = Number.isFinite(result.storage.actualRetentionDays)
+        ? result.storage.actualRetentionDays + ' days' : '—';
+      el('poeLoad').textContent = result.poe.loadWatts + ' / ' + result.poe.budgetWatts + ' W';
+
+      const margin = el('proposedMarginPercent');
+      if (result.proposedMarginPercent == null) {
+        margin.textContent = '—';
+        margin.className = '';
+      } else {
+        margin.textContent = result.proposedMarginPercent.toFixed(1) + '%';
+        margin.className = result.proposedBeatsFloor ? 'positive' : 'negative';
+      }
+
+      // The checks are the reason to use this over a spreadsheet, so they sit
+      // above the cost breakdown rather than at the bottom of it.
+      const checks = el('checks');
+      checks.textContent = '';
+      if (result.warnings.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'ok';
+        li.innerHTML = '<strong>Storage, power, and cable all check out.</strong>'
+          + 'The drives hold the days you are quoting, the switch has headroom, and no run is past the limit.';
+        checks.append(li);
+      } else {
+        for (const w of result.warnings) {
+          const li = document.createElement('li');
+          li.className = 'warn';
+          // textContent, not innerHTML: warning strings interpolate numbers
+          // from the form, and a form value must never become markup.
+          li.textContent = w;
+          checks.append(li);
+        }
+      }
+    }
+
+    let recordTimer;
+    function update() {
+      render();
+      saveDraft();
+      // Debounced so holding an arrow key on a number field records one use,
+      // not forty.
+      clearTimeout(recordTimer);
+      recordTimer = setTimeout(() => {
+        recordUsage(localStorage, el('usageOptOut').checked, 'bid_calculated');
+      }, 800);
+    }
+
+    for (const field of INPUT_FIELDS) el(field)?.addEventListener('input', update);
+    for (const field of INPUT_FIELDS) el(field)?.addEventListener('change', update);
+    el('usageOptOut').addEventListener('change', saveDraft);
+
+    loadDraft();
+    render();
+  </script>
+</body>
+</html>
