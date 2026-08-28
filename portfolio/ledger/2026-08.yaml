@@ -26361,3 +26361,76 @@ entries:
         touched ventures, sweep 164/164, contrast 441 pages x 2 viewports clean
         -- and held the one permitted re-run rather than spending it on a
         failure already identified from the job object.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1946. Every price reading in this repository was scoped to one
+        tool, and the reasoning for that is sound -- `priceBandSentence` and
+        `undercutSentence` refuse mixed currencies because there are no rates
+        here. What the scoping cost was invisible: a crew that fences, decks,
+        and builds pergolas works three calculators, and four decided bids on
+        each is a real season that draws nothing on any of the three, because
+        each side of each tool sits below its own threshold. The contractor has
+        the evidence on their own disk and the site showed them none of it.
+      - >-
+        The finding worth carrying is the test for when pooling is legitimate,
+        because this repo already had the answer and had only applied it once.
+        `responseWindow` pools reply times across every tool on the grounds that
+        days are days everywhere; the money readings refuse to pool on the
+        grounds that a dollar and a euro are not. The dividing line is not
+        timing versus price -- it is **unit-free versus not**. A percentage over
+        the winning price is computed inside one bid's own currency, so a book
+        of dollar and euro bids pools with no conversion at all. That is why the
+        hub line says percentages and never money, and why it can say anything
+        at three bids when no tool could say anything at all.
+      - >-
+        The arithmetic that makes it true is the mean of the per-bid
+        percentages, never the ratio of summed money. The second form looks
+        equivalent and is the one that would quietly be adding currencies
+        together; on figures where they diverge it reports 5% where the honest
+        answer is 33%. A test pins the two apart on exactly those figures,
+        because the failure is silent and reads plausible.
+      - >-
+        The hub's `savedBids()` had to start carrying `lostTo`, and that
+        carrying step is where the chase line was already broken for a release:
+        rows were built without `decidedAt`, so `chaseSentence` was injected on
+        every visit and returned '' forever. Nothing failed, and the unit tests
+        passed throughout, because a unit test hands the function the field the
+        page is not carrying. So the chain now has both a unit test and a
+        journey step, and the journey step is the one that could have caught it.
+      - >-
+        Method note on the browser checks, and a correction to how their output
+        should be read. A `journey.mjs` run reported one resource error --
+        `requestfailed` on `/icon-192.png` -- against a build where that file
+        exists and serves 200 to curl. Re-running against a threading server
+        with no concurrent load was clean, twice. Two variables changed at once
+        so the cause is not established, but the operational rule is: a lone
+        `requestfailed` on a static asset that resolves by hand is not yet a
+        finding. `python3 -m http.server`, which the README documents, is
+        single-threaded. The README already warns that a stale server gives a
+        false pass; this is the mirror case and it costs a debugging detour in
+        the other direction.
+      - >-
+        Verified locally: 469 platform/pages tests (12 new), 11,192 venture
+        tests, build and check clean at 164 products and 443 pages, journey 0
+        failures including the new step, sweep 164/164, contrast 441 pages x 2
+        viewports with no WCAG A/AA violations, plus a targeted axe pass over
+        the new line actually rendered -- the site-wide run only ever sees it
+        hidden, because it has no saved bids.
+      - >-
+        CI method note, unchanged from #1943, #1944 and #1945. The three checks
+        on #1946 failed in 3 seconds with empty `output.title/summary/text`, and
+        `main` is red at its own head on the same signature. Identified from the
+        job object and the base branch rather than debugged, and no re-run was
+        spent.
+      - >-
+        Deploy remains the binding constraint and this session did not move it.
+        `publish_surface.py` still reports nothing live behind
+        `GITHUB_PAGES_ENABLED`, every usage reading is still a zero baseline,
+        and no second owner ask was added. The open-PR queue was empty at the
+        start of this run -- zero open PRs, so the merge quota was moot -- and
+        the branch backlog was swept and found superseded, five branches spot-
+        checked in detail and every one of them already on `main` under a
+        sibling implementation.
