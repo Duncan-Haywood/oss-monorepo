@@ -26580,3 +26580,58 @@ entries:
         settles it in one call and is cheaper than reading any single job's
         signature.
     mrr_end: null
+  - venture: reverb-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1953. Reverb was the last thin marketplace tool #1947 named
+        (6 decision pages against eBay's 25), and the decision it was missing
+        was the one every deep sibling ships: what to do when a buyer opens a
+        case. eBay, Amazon, Walmart, Shopify, Faire, TikTok and the 3PL
+        normalizer all have a return page; Reverb had none.
+      - >-
+        **Porting the sibling's model would have shipped a wrong answer, and
+        that is the finding.** eBay's `returnProfit` is `-sunkOnReturn -
+        unrefundedFees`: the item comes back and goes on the shelf at full
+        value. True of commodity units, false of used gear. Three things
+        differ and each had to be priced -- freight runs three legs rather
+        than one (out, back, out again on the relist), the piece is one of
+        one so the cash recovered is whatever the relist fetches, and Reverb
+        credits the selling fee while the processor keeps its cut. On the
+        defaults those are $205.00, $73.68 and $25.61 of a $249.29 return.
+        The lesson generalises past this tool: a page-depth diff names the
+        *decision* a thin tool is missing, but the sibling's arithmetic is a
+        starting point to check, not a thing to copy. Where the two products
+        differ physically, the model differs.
+      - >-
+        The output that makes it worth a visit is not a verdict on the
+        return. It is the largest partial refund that still beats taking it
+        back -- $261.20, 32.6% of an $800 sale. A seller can knock $261 off
+        the guitar, let the buyer keep it, and end up ahead of shipping it
+        back. No fee schedule can produce that number, and it is the one the
+        seller actually needs when deciding what to offer.
+      - >-
+        **Pinning the static page to the calculator caught a live error
+        again.** `return-page.test.mjs` asserts every figure on the worked
+        example against `compareReturnResolution`, plus that the three named
+        parts sum to the headline. It failed on first run: the page said the
+        relist nets $210.64 where the formatter gives $210.65. A second bug
+        the unit suite could not see -- the note said "three legs of freight"
+        on the unsellable-relist branch, where there are only two -- was
+        found by driving the page in Chromium. Same class as #1948's: both
+        halves individually correct, the composition not.
+      - >-
+        Queue state: zero open PRs at session start on `list_pull_requests`
+        for both `open` and `all`, the fifth consecutive session, so the
+        three-PR merge quota again had nothing to draw on; one opened and
+        merged here. CI came back red on six checks with `runner_id=0` and
+        3-4 second durations, and `main` at ad0f9a93 was red on the same
+        checks with the same signature -- the outage, not the diff. Verified
+        locally instead: 61 venture tests, 469 platform/pages tests, the
+        artifact check at 445 pages, clauses.mjs, five CI python checks, and
+        a full Chromium journey. A browser sweep before starting had all 164
+        published tools answering with no errors.
+      - >-
+        Remaining depth candidates by the same page-count method: Walmart at
+        8 and Etsy at 12 against eBay's 25.
