@@ -35,6 +35,7 @@ import {
   renderSitemapIndex,
   renderVentureSitemap,
   searchTokens,
+  searchVariants,
   subcategoryFor,
   groupByCategory,
   groupBySubcategory,
@@ -790,6 +791,46 @@ test('searchTokens normalises, dedupes, and drops noise words', () => {
   // and the client-side query normaliser must drop them the same way.
   assert.equal(searchTokens(['walk-in tub, 2 units']), 'tub units walk');
   assert.equal(searchTokens([null, undefined, '']), '');
+});
+
+test('searchVariants reaches the singular a plural query would step over', () => {
+  // The matcher is a token-prefix test, so "fences" could never reach the
+  // indexed "fence" and the query returned nothing at all. These are the
+  // literal queries that were dead against the built catalogue.
+  assert.ok(searchVariants('fences').includes('fence'));
+  assert.ok(searchVariants('pools').includes('pool'));
+  assert.ok(searchVariants('chimneys').includes('chimney'));
+  assert.ok(searchVariants('driveways').includes('driveway'));
+
+  // Derivational, not just plural: the trade name a searcher types is rarely
+  // the noun the tool titled itself with.
+  assert.ok(searchVariants('remodeling').includes('remodel'));
+  assert.ok(searchVariants('landscaping').includes('landscap'));
+  assert.ok(searchVariants('electrician').includes('electric'));
+  assert.ok(searchVariants('cleaners').includes('clean'));
+
+  // The word itself always survives, which is what makes the OR in the
+  // matcher a widening: no query can lose a result it used to find.
+  for (const word of ['fences', 'gas', 'vat', 'ebay']) {
+    assert.equal(searchVariants(word)[0], word);
+  }
+
+  // Below the four-character floor nothing is stripped, so a short word is
+  // never blurred into a prefix that matches half the catalogue.
+  assert.deepEqual(searchVariants('gas'), ['gas']);
+  assert.deepEqual(searchVariants('trees'), ['trees', 'tree']);
+  assert.deepEqual(searchVariants('deck'), ['deck']);
+});
+
+test('the hub ships one stemmer, not a second copy that can drift', async () => {
+  const html = await read('index.html');
+  // The browser gets searchVariants by source injection. If that ever becomes
+  // a hand-written duplicate, this catches it: the shipped text must be the
+  // function the tests above actually exercised.
+  assert.ok(
+    html.includes(searchVariants.toString()),
+    'hub page does not carry the exact searchVariants source that build.mjs exports',
+  );
 });
 
 test('the search index carries description text the card is too small to show', async () => {

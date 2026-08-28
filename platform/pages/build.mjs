@@ -457,6 +457,43 @@ export function searchTokens(parts) {
 }
 
 /**
+ * The forms of one query word that should still reach a tool.
+ *
+ * The index stores the words a tool's own copy uses -- "fence", "pool",
+ * "tree" -- and the matcher is a token-*prefix* test, so a query word can
+ * only ever reach an indexed word at least as long as itself. Half the
+ * catalogue was unreachable through that asymmetry: "fences", "pools",
+ * "trees", "patios", "sheds", "chimneys", "driveways" and "cleaners" each
+ * returned nothing while the matching calculator sat one plural away, and
+ * "electrician", "plumber" and "remodeling" missed the tools that spell
+ * themselves "electrical", "plumbing" and "remodel".
+ *
+ * Returns the word plus the shorter forms worth trying. Matching is an OR
+ * over the set and the word itself is always the first member, so this can
+ * only widen a result set, never shrink one.
+ *
+ * Deliberately not a real stemmer: Porter would pull in a dependency and a
+ * pile of rules earning nothing here, because the queries that matter are
+ * trade nouns rather than English prose.
+ */
+export function searchVariants(word) {
+  // Each suffix comes off the original word, never off an already-stripped
+  // form -- chaining would take "processing" to "proces" and then "proc".
+  const SUFFIXES = ['s', 'es', 'ing', 'ings', 'er', 'ers', 'ian', 'ians'];
+  const forms = [word];
+  for (const suffix of SUFFIXES) {
+    if (!word.endsWith(suffix)) continue;
+    const stem = word.slice(0, -suffix.length);
+    // Four characters is the floor, measured rather than guessed. At three,
+    // "trees" also yields "tre" and drags in trench, tread and treatment --
+    // ten hits where two are about trees. Four keeps every plural that has a
+    // tool behind it and drops the stems that have stopped being words.
+    if (stem.length >= 4) forms.push(stem);
+  }
+  return [...new Set(forms)];
+}
+
+/**
  * The `<title>`/`<h1>` of every other page in a venture.
  *
  * These are the venture's SEO articles, and they are phrased as the question a
@@ -1083,12 +1120,23 @@ ${DISCLAIMER_HTML}
     const groups = [...document.querySelectorAll('.subgroup, .group')];
     const total = cards.length;
 
+    // Injected from build.mjs rather than written twice: a stemmer that
+    // disagreed with its tests would be a search bug nothing could catch.
+    ${searchVariants.toString()}
+
     // Every query word must hit, so "ebay return" narrows to the eBay tool
     // instead of finding nothing because those two words are never adjacent.
     // A word matches at a token boundary, which is what makes a half-typed
     // "backspl" still find the backsplash calculator.
-    const matches = (index, words, boundary) =>
-      words.every((word) => (boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
+    //
+    // "forms" is one entry per query word, each the output of searchVariants,
+    // so a word hits when any of its forms does. Built once per keystroke in
+    // normalise() instead of per card -- 163 cards would recompute it 163
+    // times for an answer that cannot differ between them.
+    const matches = (index, forms, boundary) =>
+      forms.every((variants) =>
+        variants.some((word) =>
+          boundary ? (' ' + index).includes(' ' + word) : index.includes(word)));
 
     // The query is normalised exactly as the index was. It has to be: a word
     // the index never stores can never match, so keeping it would force every
@@ -1099,19 +1147,20 @@ ${DISCLAIMER_HTML}
       text
         .toLowerCase()
         .split(/[^a-z0-9]+/)
-        .filter((word) => word.length >= 2 && !STOPWORDS.has(word));
+        .filter((word) => word.length >= 2 && !STOPWORDS.has(word))
+        .map(searchVariants);
 
     function filter() {
-      const words = normalise(q.value.trim());
+      const forms = normalise(q.value.trim());
       // Token-prefix first; fall back to a loose substring pass so a query that
       // would have matched before this became token-aware still matches.
       let boundary = true;
-      if (words.length && !cards.some((c) => matches(c.dataset.search, words, true))) {
+      if (forms.length && !cards.some((c) => matches(c.dataset.search, forms, true))) {
         boundary = false;
       }
       let shown = 0;
       for (const card of cards) {
-        const hit = !words.length || matches(card.dataset.search, words, boundary);
+        const hit = !forms.length || matches(card.dataset.search, forms, boundary);
         card.hidden = !hit;
         if (hit) shown += 1;
       }
@@ -1119,11 +1168,11 @@ ${DISCLAIMER_HTML}
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
       }
       empty.style.display = shown === 0 ? 'block' : 'none';
-      count.textContent = words.length ? shown + ' of ' + total + ' tools' : total + ' tools';
+      count.textContent = forms.length ? shown + ' of ' + total + ' tools' : total + ' tools';
       // The contents index answers "where is my section"; a query has already
       // answered it. Leaving it up would also lie, since its counts are of the
       // whole catalogue and the page below is filtered.
-      if (contents) contents.hidden = words.length > 0;
+      if (contents) contents.hidden = forms.length > 0;
     }
     q.addEventListener('input', filter);
     filter();
