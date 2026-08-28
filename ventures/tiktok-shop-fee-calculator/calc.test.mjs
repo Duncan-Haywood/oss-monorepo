@@ -9,6 +9,8 @@ import {
   compareFreeShipping,
   compareOrganicVsAffiliate,
   extraOrdersToMatch,
+  feeChangeImpact,
+  feeChangeNote,
   freeShippingNote,
   DAYS_PER_MONTH,
   FEE_SCHEDULE_PRESETS,
@@ -300,4 +302,120 @@ test("a losing free-shipping path cannot catch up at a non-positive leftover", (
   assert.ok(comparison.raised.result.expectedProfit < 0);
   assert.equal(comparison.extraOrdersForRaised, null);
   assert.match(freeShippingNote(comparison), /cannot catch up/);
+});
+
+// --- the 1 Oct 2026 fee change -------------------------------------------
+
+const feeChangeSample = () => ({
+  itemPrice: 19.99,
+  shippingCharged: 4.99,
+  affiliateRate: 15,
+  affiliateOnItemOnly: true,
+  returnRate: 12,
+  cogs: 5.5,
+  fulfillmentCost: 4.28,
+  otherPerOrder: 0.4,
+  adSpend: 1.5,
+  unsellableRate: 80,
+  unitsPerDay: 8,
+});
+
+test("the announced schedule costs more per order and per month", () => {
+  const impact = feeChangeImpact(feeChangeSample());
+  assert.ok(impact.extraCostPerOrder > 0, "8% should cost more than 6%");
+  assert.ok(impact.marginAfter < impact.marginBefore);
+  near(
+    impact.extraCostPerMonth,
+    impact.extraCostPerOrder * impact.before.monthlyOrders,
+    "monthly cost is the per-order cost at the stated volume",
+  );
+});
+
+test("it agrees with compareFeeSchedules on the headline cost", () => {
+  const input = feeChangeSample();
+  near(
+    feeChangeImpact(input).extraCostPerOrder,
+    compareFeeSchedules(input).extraCost,
+    "same arithmetic as the pairwise comparison",
+  );
+});
+
+test("facilitation lands only on affiliate orders, so the two splits differ", () => {
+  const impact = feeChangeImpact(feeChangeSample());
+  assert.ok(
+    impact.affiliate.extraCostPerOrder > impact.organic.extraCostPerOrder,
+    "the 1.5% facilitation should make affiliate orders the worse hit",
+  );
+  assert.equal(impact.organic.after.facilitationFee, 0);
+  assert.ok(impact.affiliate.after.facilitationFee > 0);
+});
+
+test("the price it names really does restore the old margin", () => {
+  const input = feeChangeSample();
+  const impact = feeChangeImpact(input);
+  assert.ok(impact.priceToHoldMargin > impact.itemPrice, "holding margin needs a rise");
+  near(impact.priceRise, impact.priceToHoldMargin - impact.itemPrice, "rise is the gap");
+  const held = calculateOrder(
+    applyFeePreset({ ...input, itemPrice: impact.priceToHoldMargin }, "oct_2026"),
+  );
+  assert.ok(
+    Math.abs(held.expectedMargin - impact.heldMargin) < 1e-6,
+    `relisting at the named price should land back on ${impact.heldMargin}, got ${held.expectedMargin}`,
+  );
+});
+
+test("the buy-cost ceiling drops under the new schedule", () => {
+  const impact = feeChangeImpact(feeChangeSample());
+  assert.ok(impact.maxBuyCostAfter < impact.maxBuyCostBefore);
+  near(impact.maxBuyCostBefore, maxBuyCost(applyFeePreset(feeChangeSample(), "us_standard")), "same ceiling helper");
+});
+
+test("a SKU already under water is told to clear, not to hold a margin", () => {
+  const impact = feeChangeImpact({ ...feeChangeSample(), cogs: 18 });
+  assert.ok(impact.marginBefore < 0, "this SKU loses money today");
+  assert.equal(impact.heldMargin, null, "there is no margin worth restoring");
+  assert.equal(impact.priceToHoldMargin, null);
+  assert.equal(impact.stillClears, false);
+  assert.equal(impact.clearedBefore, false);
+  // The change must not be blamed for a loss the old schedule was already making.
+  const note = feeChangeNote(impact);
+  assert.match(note, /already loses money at today's rates/);
+  assert.doesNotMatch(note, /stops clearing|tip this SKU/);
+});
+
+test("a SKU the change actually tips into a loss says so", () => {
+  // Chosen to clear under 6% and not under 8% + 1.5%.
+  const input = { ...feeChangeSample(), cogs: 11.4 };
+  const impact = feeChangeImpact(input);
+  assert.equal(impact.clearedBefore, true, "it cleared before the change");
+  assert.equal(impact.stillClears, false, "and does not after");
+  assert.match(feeChangeNote(impact), /tip this SKU from clearing to a loss/);
+});
+
+test("a seller the change does not touch is told so plainly", () => {
+  // Same schedule on both sides: nothing moves, and the note must not invent
+  // a price rise to sell.
+  const impact = feeChangeImpact(feeChangeSample(), "us_standard", "us_standard");
+  near(impact.extraCostPerOrder, 0, "no change means no cost");
+  assert.match(feeChangeNote(impact), /costs nothing extra/);
+  assert.match(feeChangeNote(impact), /nothing here to price against/);
+});
+
+test("the note names the cost, the month, and the price to relist at", () => {
+  const note = feeChangeNote(feeChangeImpact(feeChangeSample()));
+  assert.match(note, /more per order/);
+  assert.match(note, /a month/);
+  assert.match(note, /holds your/);
+});
+
+test("an unknown schedule id is rejected on both sides", () => {
+  assert.throws(() => feeChangeImpact(feeChangeSample(), "nope"), /Unknown fee schedule/);
+  assert.throws(() => feeChangeImpact(feeChangeSample(), "us_standard", "nope"), /Unknown fee schedule/);
+});
+
+test("every preset carries a short label for the comparison table", () => {
+  for (const [id, preset] of Object.entries(FEE_SCHEDULE_PRESETS)) {
+    assert.equal(typeof preset.short, "string", `${id} has no short label`);
+    assert.ok(preset.short.length > 0 && preset.short.length <= 32, `${id}: ${preset.short}`);
+  }
 });
