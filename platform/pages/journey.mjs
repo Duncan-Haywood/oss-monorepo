@@ -1017,6 +1017,93 @@ await step('the hub says how often the quotes land, with no figure anywhere', as
   }
 });
 
+// 6bk. Which of these trades the finished work is worth doing (`keepSentence`).
+//
+//      The one reading on the hub about money already earned, and the one with
+//      the longest chain of wiring behind it. `savedBids()` on the hub is a
+//      hand copy of `normalizeBid`, and `cost` was not in it until this step
+//      existed: every field that reading needs has to survive being written by
+//      a tool page's band, parsed by the hub's own transcription, and matched
+//      to a card whose heading becomes the trade's name. A unit test is handed
+//      rows with `cost` and `label` already on them and so cannot fail the way
+//      this can — the reading would simply be injected on every visit and
+//      return '' forever, exactly as the chase line did before 6bw.
+//
+//      The fixture is three trades priced so the ends are far apart and the
+//      middle one is neither, plus three rows that must not count: a lost bid
+//      carrying a cost, a won bid nobody costed, and a fourth trade with a
+//      single costed win — below the naming floor, so it may not appear.
+await step('the hub says which of these trades the finished work is worth doing', async () => {
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    await page.evaluate((now) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      let n = 0;
+      const won = (amount, cost, day) => ({
+        name: 'Job ' + (++n), at: at(day), fields: { a: '1' },
+        outcome: 'won', decidedAt: at(day - 2), amount, cost,
+      });
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
+        // 1,400 kept of 5,000 charged — 28%.
+        'fence-bid-calculator': [won('$3,000', '2100', 40), won('$2,000', '1500', 38)],
+        // 1,600 of 10,000 — 16%, and neither end of the spread.
+        'deck-bid-calculator': [won('$4,000', '3400', 36), won('$6,000', '5000', 34)],
+        // 50 of 1,100 — 5%. Busy, winning, and barely worth the drive.
+        'lawn-care-bid-calculator': [won('$500', '480', 30), won('$600', '570', 28)],
+        'pergola-bid-calculator': [
+          won('$2,000', '1000', 26),
+          { name: 'Lost one', at: at(24), fields: { a: '1' }, outcome: 'lost',
+            decidedAt: at(22), amount: '$9,999', cost: '1' },
+          { name: 'Never costed', at: at(20), fields: { a: '1' }, outcome: 'won',
+            decidedAt: at(18), amount: '$9,999' },
+        ],
+      } }));
+    }, Date.now());
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const line = (await page.textContent('#bidsKeep')).replace(/\s+/g, ' ').trim();
+    check('the hub draws the reading at all, which is the whole cost round trip',
+      await page.isVisible('#bidsKeep'), line);
+    // Six, not nine: the lost bid, the uncosted win and the lone costed win on
+    // a fourth trade are all outside the comparison.
+    check('it counts only the finished jobs that were actually costed',
+      /^Of the 6 finished jobs you have costed, across 3 tools, /.test(line), line);
+    // The ends, by their card headings rather than their slugs — the half only
+    // a browser can prove, because nothing in storage carries a label.
+    check('and names the two ends as the hub names them',
+      /Fence Bid Calculator kept the most: 28% of what you charged on 2;/.test(line) &&
+      /Lawn Care Bid Calculator kept 5% on 2\./.test(line), line);
+    check('the trade below the naming floor is left out entirely',
+      !/Pergola/i.test(line), line);
+    check('no slug leaked into the sentence in place of a name',
+      !/-bid-calculator/.test(line), line);
+    // 23 points apart, so the finding is which work they take.
+    check('a wide gap is aimed at the trade rather than at the price list',
+      /gap is in which work you take rather than across your prices/.test(line), line);
+    // Percentages only. A currency symbol here would mean money was pooled
+    // across trades, which is the one thing this reading must never do.
+    check('no money figure is on the keep line', !/[$£€]/.test(line), line);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the keep reading is counted',
+      counts.saved_bid_keep_shown >= 1, JSON.stringify(counts));
+    check('and the counter names no trade and holds no figure',
+      !/fence|deck|lawn|Job /i.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
 // 6bb. Backup and restore (`backup.mjs`) — the bids surviving the browser.
 //
 //      Everything above stands on one `localStorage` key in one browser, and

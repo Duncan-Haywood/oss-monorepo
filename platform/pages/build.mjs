@@ -1065,14 +1065,15 @@ ${subgroups
     .bids .bid-chase { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
                        border-left: 3px solid var(--accent); background: var(--bg);
                        border-radius: 0 8px 8px 0; font-size: .85rem; }
-    /* Both standing readings share one rule, in the muted border rather than the
-       accent one: the chase line is asking the contractor to do something today,
-       and these are standing readings about their pricing. Two accent bars
-       stacked would make neither of them the thing to act on. */
+    /* All three standing readings share one rule, in the muted border rather
+       than the accent one: the chase line is asking the contractor to do
+       something today, and these are standing readings about their pricing.
+       Stacked accent bars would make none of them the thing to act on. */
     .bids .bid-pricing,
-    .bids .bid-win-rate { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
-                          border-left: 3px solid var(--line); background: var(--bg);
-                          border-radius: 0 8px 8px 0; font-size: .85rem; }
+    .bids .bid-win-rate,
+    .bids .bid-keep { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                      border-left: 3px solid var(--line); background: var(--bg);
+                      border-radius: 0 8px 8px 0; font-size: .85rem; }
     .bids li a:has(.bid-state[data-state="won"]) .bid-name,
     .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
     .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
@@ -1182,6 +1183,15 @@ ${contents}
            contractor working six calculators can see that five of them are fine
            and the sixth is not. See winRateSentence. -->
       <p class="bid-win-rate" id="bidsWinRate" hidden></p>
+      <!-- Which of their trades the finished work is actually worth doing, and
+           the only reading here about money already earned rather than money
+           still being chased. The tool pages each say what one trade kept; this
+           is the only place the three a crew works can be put beside each
+           other, which is the comparison that decides what they go and sell.
+           Percentages only, for the reason the pricing line above is: a share
+           of a bid's own price is unit-free, so trades and currencies compare
+           without a conversion. See keepSentence. -->
+      <p class="bid-keep" id="bidsKeep" hidden></p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
@@ -1486,7 +1496,16 @@ ${BID_PRICING_HELPERS}
           // Carried only on a lost bid, which is the only state it means
           // anything in, and the only state pricingSentence reads.
           const lostTo = outcome === 'lost' ? normalizeLostTo(bid.lostTo) || undefined : undefined;
-          rows.push({ slug, name, at, amount, outcome, decidedAt, lostTo });
+          // What the job came to once it was delivered, on a won row only —
+          // the mirror of lostTo above, read through the same guard that wrote
+          // it rather than trusted as stored. Never put on screen here: it is
+          // only ever divided into the bid's own figure to make a share. This
+          // is the field whose absence is the standing defect of this
+          // transcription — normalizeBid is copied by hand into the hub and
+          // the backup panel, so a key added in jobs.mjs and not here is
+          // silently dropped on the way to every hub reading that needs it.
+          const cost = outcome === 'won' ? normalizeJobCost(bid.cost) || undefined : undefined;
+          rows.push({ slug, name, at, amount, outcome, decidedAt, lostTo, cost });
         }
       }
 
@@ -1502,6 +1521,7 @@ ${BID_PRICING_HELPERS}
     let chaseShown = '';
     let pricingShown = '';
     let winRateShown = '';
+    let keepShown = '';
 
     function showSavedBids() {
       const section = document.getElementById('bids');
@@ -1590,6 +1610,24 @@ ${BID_PRICING_HELPERS}
       if (rated !== '' && rated !== winRateShown) {
         winRateShown = rated;
         record('saved_bid_win_rate_shown');
+      }
+
+      // Which trades the finished work is worth doing, over the same whole
+      // book and for the same reason as every line above: a share that moved
+      // when the visitor pressed "Show all" would be a different claim about
+      // their business each time they looked at it.
+      const keep = document.getElementById('bidsKeep');
+      const keeping = keepSentence(rows);
+      keep.textContent = keeping;
+      keep.hidden = keeping === '';
+      // Counted on change rather than on every render, as the three lines
+      // above are. record() is already silent under DNT/GPC and the opt-out,
+      // and this carries no name, no slug, no trade and no figure — only that
+      // the reading was drawn at all, which is the signal that says whether
+      // contractors are costing their finished jobs.
+      if (keeping !== '' && keeping !== keepShown) {
+        keepShown = keeping;
+        record('saved_bid_keep_shown');
       }
 
       const seen = responseWindow(rows);

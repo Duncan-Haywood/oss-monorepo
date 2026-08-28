@@ -1467,6 +1467,175 @@ export function winRateSentence(bids) {
 }
 
 /**
+ * How many costed wins one tool needs before that trade may be named.
+ *
+ * Two. `MIN_WIN_RATE_PER_TOOL` is four because a win rate on three bids can
+ * only be 0, 33, 67 or 100 and the reading would be quoting the step size; a
+ * kept share has no step size at all — two finished jobs pooled is an exact
+ * statement about the money on two real invoices. What two cannot promise is
+ * that the trade always goes this way, which is why the sentence prints the
+ * job count beside every share it quotes and why the gap below has to be wide
+ * before any of it is drawn.
+ */
+export const MIN_KEEP_PER_TOOL = 2;
+
+/**
+ * How many tools must clear that bar before there is a comparison to draw.
+ *
+ * Two, and this one is structural rather than statistical. At one tool this
+ * reading would be `marginSentence` with the money taken out — a worse version
+ * of a sentence already on that tool's own page — so below two it draws
+ * nothing and lets the better one speak.
+ */
+export const MIN_KEEP_TOOLS = 2;
+
+/**
+ * How far apart two trades' kept shares must be before the split is drawn.
+ *
+ * Fifteen points, where `MARGIN_SPREAD_POINTS` wants twenty. That is not
+ * inconsistency: twenty is the spread between two individual *jobs* on one
+ * tool, where a single unusual week — a machine hire, a subcontractor who came
+ * in high — moves one end of it on its own. These ends are pooled over a
+ * trade, so the noise that moves a single job has already been averaged out of
+ * them, and fifteen points between two trades is a difference in what the work
+ * is worth rather than in how one job went.
+ */
+export const KEEP_SPREAD_POINTS = 15;
+
+/**
+ * Which of this contractor's trades are actually worth doing.
+ *
+ * The hub's counterpart to `marginSentence`, and the last of the four
+ * questions this panel can answer. `winRateSentence` says how often the yes
+ * comes, `pricingSentence` says how far over the losing quotes were, and
+ * `marginSentence` says what the finished work kept — but only on one tool at
+ * a time, because it speaks in money and money is a currency and a trade at
+ * once. A crew that fences, decks and cleans gutters reads three separate
+ * margins on three separate pages and is never told the one thing that decides
+ * what they should go and sell: **these are not the same number.**
+ *
+ * That comparison is the whole reading, so it is the whole sentence. There is
+ * no pooled total here, deliberately. A book-wide "you kept 12%" would need
+ * one currency across every tool, and — worse — it would be the average that
+ * hides the finding: a shop keeping 30% on gutters and losing money on decks
+ * has a decks problem, and the mean of the two is a number describing no work
+ * they do. `marginSentence` pools within a trade for the honest reason that a
+ * trade is one kind of job; pooling *across* trades throws away the only thing
+ * this sentence knows.
+ *
+ * Percentages only, and therefore safe across currencies, on the same argument
+ * `pricingSentence` makes: "this job kept 22% of what I charged" is a fact
+ * inside one bid's own currency, so a book of dollar jobs and euro jobs
+ * compares without a conversion this site does not have and must never
+ * acquire. Within a tool the share is pooled in money — total kept over total
+ * charged, the honest form `marginSentence` argues for — so a tool whose
+ * costed wins are in two currencies is dropped rather than summed.
+ *
+ * Two sentences, the second the honest half as everywhere else here:
+ *
+ *   - **The two ends, with their counts.** Highest-keeping trade and
+ *     lowest-keeping trade, named, because the whole point is that they differ
+ *     and a contractor cannot act on a spread whose ends are anonymous.
+ *   - **What that gap means, or what it does not.** A trade finishing below
+ *     its own cost is said plainly and first, since it is the one finding here
+ *     that makes winning more work actively worse. A wide gap is aimed at the
+ *     trade rather than at the price list. And where the trades agree, the
+ *     honest half is this reading's own blind spot: it can only see the jobs
+ *     whose costs were typed in, so a trade with none is missing from the
+ *     comparison rather than sitting in the middle of it.
+ *
+ * Never a share to aim for, in any branch. There is no correct margin — it
+ * moves with the trade, the overhead and what a shop counts as a cost — and
+ * this sentence exists to say which of *their* trades keeps more of *their*
+ * money, not to grade either against a number invented here.
+ *
+ * Returns `''` — draw nothing — until `MIN_KEEP_TOOLS` tools each carry
+ * `MIN_KEEP_PER_TOOL` won bids with a cost, a readable figure above zero, and
+ * one currency between them.
+ */
+export function keepSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var slugs = [];
+  var byTool = {};
+
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'won') continue;
+    var cost = normalizeJobCost(bid.cost);
+    if (!cost) continue;
+    var parsed = bidAmountValue(bid.amount);
+    if (!parsed) continue;
+    // The same guard `marginSentence` uses: some tools here answer in a saving
+    // or a difference rather than a quote, and a share of one of those is a
+    // percentage of nothing.
+    if (!(parsed.value > 0)) continue;
+    var slug = typeof bid.slug === 'string' ? bid.slug : '';
+    if (!slug) continue;
+
+    if (!byTool[slug]) {
+      slugs.push(slug);
+      byTool[slug] = { slug: slug, label: slug, currency: parsed.currency, jobs: 0,
+        charged: 0, spent: 0, mixed: false };
+      var label = typeof bid.label === 'string' ? bid.label.trim() : '';
+      if (label) byTool[slug].label = label;
+    }
+    var tool = byTool[slug];
+    // Two currencies inside one trade cannot be added, and converting them is
+    // the thing this feature must never start doing. The tool is marked and
+    // dropped below rather than partly counted, because a share computed from
+    // whichever currency happened to come first is a wrong number wearing a
+    // right one's clothes.
+    if (parsed.currency !== tool.currency) tool.mixed = true;
+    tool.jobs++;
+    tool.charged += parsed.value;
+    tool.spent += Number(cost);
+  }
+
+  // Sorted by share, then by slug, so two trades that have gone the same way
+  // cannot swap places between two renders of the same book.
+  var ranked = [];
+  for (var s = 0; s < slugs.length; s++) {
+    var candidate = byTool[slugs[s]];
+    if (candidate.mixed) continue;
+    if (candidate.jobs < MIN_KEEP_PER_TOOL) continue;
+    if (!(candidate.charged > 0)) continue;
+    candidate.share = ((candidate.charged - candidate.spent) / candidate.charged) * 100;
+    ranked.push(candidate);
+  }
+  if (ranked.length < MIN_KEEP_TOOLS) return '';
+  ranked.sort(function (a, b) {
+    return b.share - a.share || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+  });
+
+  var best = ranked[0];
+  var worst = ranked[ranked.length - 1];
+  var counted = 0;
+  for (var r = 0; r < ranked.length; r++) counted += ranked[r].jobs;
+
+  var centre = 'Of the ' + counted + ' finished jobs you have costed, across ' + ranked.length +
+    ' tools, ' + best.label + ' kept the most: ' + Math.round(best.share) + '% of what you ' +
+    'charged on ' + best.jobs + '; ' + worst.label + ' kept ' + Math.round(worst.share) +
+    '% on ' + worst.jobs + '.';
+
+  var edge;
+  if (worst.share < 0) {
+    edge = 'That is below what those jobs cost you to deliver, so winning more of that work ' +
+      'is what makes the year worse — it is the one trade to re-cost before you quote it again.';
+  } else if (best.share - worst.share >= KEEP_SPREAD_POINTS) {
+    edge = 'That gap is in which work you take rather than across your prices, so a rise on ' +
+      'every quote you write would land on the wrong end of it.';
+  } else {
+    edge = 'Your trades are keeping much the same share, so this moves with your costs and ' +
+      'your prices rather than with which work you chase. It can only see the jobs you costed ' +
+      '— a trade you have not costed is missing here, not average.';
+  }
+
+  return centre + ' ' + edge;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -1604,6 +1773,13 @@ export const BID_PRICE_BAND_HELPERS = [
  * hub and nowhere else — but it needs none of the readers above it: it counts
  * outcomes and never looks at a figure, so it would work on its own if the
  * order ever changed.
+ *
+ * `keepSentence` rides here for the first of those reasons and not the second:
+ * it does need `bidAmountValue` above it, and `normalizeJobCost` — the alias
+ * over `normalizeLostTo` that the tool pages already ship — so that the cost it
+ * divides by is read through the same guard that stored it. It stays
+ * percentages-only like its neighbours, which is what keeps `formatBidAmount`
+ * and the rest of the money half off the one page every visitor loads.
  */
 export const BID_PRICING_HELPERS = [
   `var MIN_CROSS_TOOL_SAMPLE = ${MIN_CROSS_TOOL_SAMPLE};`,
@@ -1611,7 +1787,11 @@ export const BID_PRICING_HELPERS = [
   `var MIN_WIN_RATE_SAMPLE = ${MIN_WIN_RATE_SAMPLE};`,
   `var MIN_WIN_RATE_PER_TOOL = ${MIN_WIN_RATE_PER_TOOL};`,
   `var WIN_RATE_SPLIT_POINTS = ${WIN_RATE_SPLIT_POINTS};`,
-  ...[normalizeLostTo, bidAmountValue, pricingSentence, winRateSentence].map(
+  `var MIN_KEEP_PER_TOOL = ${MIN_KEEP_PER_TOOL};`,
+  `var MIN_KEEP_TOOLS = ${MIN_KEEP_TOOLS};`,
+  `var KEEP_SPREAD_POINTS = ${KEEP_SPREAD_POINTS};`,
+  ...[normalizeLostTo, normalizeJobCost, bidAmountValue, pricingSentence, winRateSentence,
+    keepSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');

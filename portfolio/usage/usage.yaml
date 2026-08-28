@@ -1896,6 +1896,47 @@ products:
           their own browser and never leaves it. Same local, aggregate, opt-out
           and DNT/GPC-respecting path as every other hub event. Still a baseline
           row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          saved_bid_keep_shown: 0
+          tools_compared_on_the_hub: 164
+        note: >-
+          Which of a contractor's trades the finished work is actually worth
+          doing. The margin reading added earlier the same day answers that for
+          one tool, in money, on that tool's own page — and a crew that fences,
+          decks and cleans gutters therefore reads three separate margins on
+          three separate pages and is never told the one thing that decides what
+          they go and sell: these are not the same number. The hub now puts them
+          beside each other. Once two trades each carry two costed wins it reads
+          "Of the 6 finished jobs you have costed, across 3 tools, Fence Bid
+          Calculator kept the most: 28% of what you charged on 2; Lawn Care Bid
+          Calculator kept 5% on 2. That gap is in which work you take rather
+          than across your prices." Deliberately no book-wide total: a pooled
+          figure would need one currency across every tool and, worse, it is the
+          average that buries the finding — a shop keeping 30% on gutters and
+          losing money on decks has a decks problem, and the mean of the two
+          describes no work they do. Percentages only, which is what makes it
+          safe across currencies (a share is a fact inside one bid's own
+          currency), pooled inside each trade so a small profitable job cannot
+          flatter a large thin one, and a trade priced in two currencies is
+          dropped rather than converted. A trade finishing below its own cost is
+          said plainly and first, because it is the one finding here that makes
+          winning more work actively worse. Never a share to aim for, pinned by
+          the same test over every branch. One wiring defect it exists to close:
+          the hub's `savedBids()` is a hand copy of `normalizeBid` and did not
+          carry `cost`, so any hub reading dividing a cost into a price would
+          have been injected on every visit and returned nothing forever — the
+          third time that field-by-field transcription has silently dropped a
+          reading, now pinned by a build test and by a browser step. The reading
+          to take once live is `saved_bid_keep_shown` against `bid_margin_shown`
+          — how many contractors cost enough jobs on more than one tool to get
+          the comparison, which is what says whether this portfolio's users work
+          one trade or several. Counts are per event and carry no name, no slug,
+          no trade and no figure; the costs stay in the visitor's own browser.
+          Same local, aggregate, opt-out and DNT/GPC-respecting path as every
+          other hub event. Still a baseline row: the public URL remains
+          owner-gated on `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
