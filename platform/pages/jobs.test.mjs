@@ -20,6 +20,9 @@ import {
   addSavedBidsClause,
   bidWaitingDays,
   bidWaitingPhrase,
+  bidResponseDays,
+  chaseSentence,
+  MIN_RESPONSE_SAMPLE,
   followUpSentence,
   MAX_SAVED_BIDS,
   MIN_SAVEABLE_FIELDS,
@@ -984,4 +987,108 @@ test('the feature list claims the comparison only on the pages that can draw it'
   const without = injectSavedBids(page(inputs(4), list), 'cleaning-dilution-calculator');
   assert.match(without, /saved bids you can name/);
   assert.doesNotMatch(without, /have averaged against the ones you lost/);
+});
+
+// ---------------------------------------------------------------------------
+// Which of the waiting bids have gone quiet
+// ---------------------------------------------------------------------------
+
+const day = (n) => new Date(ms(AT) + n * 86400000).toISOString();
+const answered = (days, outcome = 'won') =>
+  ({ name: 'j' + days, at: AT, outcome, decidedAt: day(days) });
+const waiting = (agoDays) =>
+  ({ name: 'w' + agoDays, at: new Date(NOW - agoDays * 86400000).toISOString() });
+
+test('a bid that has been answered knows how long that took', () => {
+  assert.equal(bidResponseDays(answered(6)), 6);
+  assert.equal(bidResponseDays(answered(0, 'lost')), 0);
+  // Still waiting: there is no answer to have taken any time.
+  assert.equal(bidResponseDays(waiting(19)), null);
+  // Decided before decidedAt was stored. It does not count rather than
+  // counting as zero, which would drag the low end of the range to nothing.
+  assert.equal(bidResponseDays({ name: 'old', at: AT, outcome: 'won' }), null);
+  assert.equal(bidResponseDays(null), null);
+});
+
+test('a clock that ran backwards cannot report an answer before the quote', () => {
+  assert.equal(bidResponseDays({ name: 'x', at: AT, outcome: 'won', decidedAt: day(-3) }), 0);
+});
+
+test('the panel reports the spread of what actually happened, not a prediction', () => {
+  // A spread, never an average: an average invites "so I will hear on
+  // Thursday", which nothing here can know.
+  const sentence = chaseSentence([answered(2), answered(9), answered(5)], NOW);
+  assert.match(sentence, /^The 3 bids you have heard back on came back in 2 to 9 days\.$/);
+});
+
+test('and names how many quotes have outlived every answer it has seen', () => {
+  // 19 days means nothing on its own. 19 days when every customer who ever
+  // answered did so inside 9 is the whole signal.
+  const sentence = chaseSentence(
+    [answered(2), answered(9), answered(5), waiting(19), waiting(30), waiting(3)], NOW);
+  assert.match(sentence, /came back in 2 to 9 days\. 2 still waiting have been out longer than that\.$/);
+});
+
+test('one overdue bid is not two', () => {
+  assert.match(
+    chaseSentence([answered(1), answered(2), answered(3), waiting(9)], NOW),
+    /1 still waiting has been out longer than that\.$/);
+});
+
+test('nothing overdue is the happy case and says nothing extra', () => {
+  const sentence = chaseSentence([answered(4), answered(6), answered(8), waiting(2)], NOW);
+  assert.match(sentence, /came back in 4 to 8 days\.$/);
+});
+
+test('an identical run of answers is not written as a range of one number', () => {
+  assert.match(chaseSentence([answered(4), answered(4), answered(4)], NOW),
+    /came back in 4 days\.$/);
+  assert.match(chaseSentence([answered(1), answered(1), answered(1)], NOW),
+    /came back in 1 day\.$/);
+  assert.match(chaseSentence([answered(0), answered(0), answered(0)], NOW),
+    /came back the same day\.$/);
+});
+
+test('three answers, because a range drawn from two points is just the two points', () => {
+  assert.equal(MIN_RESPONSE_SAMPLE, 3);
+  const two = [answered(2), answered(9), waiting(30)];
+  assert.equal(chaseSentence(two, NOW), '');
+  assert.match(chaseSentence(two.concat(answered(5)), NOW), /you have heard back on/);
+});
+
+test('bids decided before decidedAt existed do not corrupt the window', () => {
+  // They are simply not part of it. Counting them as same-day answers would
+  // report "came back in 0 to 9 days" and make nothing ever look overdue.
+  const legacy = { name: 'old', at: AT, outcome: 'won' };
+  assert.equal(
+    chaseSentence([answered(4), answered(6), answered(8), legacy, waiting(20)], NOW),
+    chaseSentence([answered(4), answered(6), answered(8), waiting(20)], NOW));
+});
+
+test('nothing to say draws nothing', () => {
+  assert.equal(chaseSentence([], NOW), '');
+  assert.equal(chaseSentence(null, NOW), '');
+  assert.equal(chaseSentence([waiting(9), null, 'not a bid'], NOW), '');
+});
+
+test('the chase line ships on every page that keeps bids, figure or no figure', () => {
+  // Unlike the price band, this needs no headline figure — only timestamps,
+  // which every bid has. It is one shared file now, so it costs one copy.
+  for (const slug of ['fence-bid-calculator', 'cleaning-dilution-calculator']) {
+    assert.match(injectSavedBids(page(inputs(4)), slug), /id="pf-jobs-chase"/);
+  }
+  assert.match(module_(), /var chaseSentence =/);
+  assert.match(module_(), /var bidResponseDays =/);
+});
+
+test('the injected chase helpers answer exactly as the module does', () => {
+  const evaluated = new Function(`${BID_FOLLOW_UP_HELPERS}
+    return { chaseSentence: chaseSentence, bidResponseDays: bidResponseDays };`)();
+  const rows = [answered(2), answered(9), answered(5), waiting(19), waiting(3)];
+  assert.equal(evaluated.chaseSentence(rows, NOW), chaseSentence(rows, NOW));
+  assert.equal(evaluated.bidResponseDays(answered(6)), bidResponseDays(answered(6)));
+});
+
+test('the feature list says the tool knows how long an answer takes', () => {
+  assert.match(SAVED_BIDS_CLAUSE, /how long the ones you heard back on took/);
 });
