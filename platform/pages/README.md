@@ -441,6 +441,56 @@ opt-out, recorded when the reading *changes* rather than on every render — so
 pressing "Show all" is not a second reading. It says how often the line is
 shown and never for which customer.
 
+### How the pricing is landing, across every tool
+
+The chase line answers *when* customers reply. `pricingSentence` answers
+whether the prices are the problem, and it is on the hub for exactly the reason
+the chase line is: the sample is only there once the tools are pooled.
+
+Every money reading in this repository is scoped to one tool, correctly —
+`priceBandSentence` and `undercutSentence` both refuse mixed currencies
+outright, because there are no rates here and there must never be any. But a
+great many of these contractors are not scoped to one tool. A crew that fences,
+decks, and builds pergolas works three calculators; four decided bids on each
+is a real season's evidence, and every per-tool reading draws nothing on all
+three, because each side of each tool sits below its threshold. The contractor
+has the evidence and the site shows them none of it.
+
+What makes pooling legitimate is that the quantity is **unit-free**, the same
+argument `responseWindow` already makes for days. So this line says percentages
+and never money:
+
+- **The mean of the per-bid percentages, never a ratio of summed money.** Each
+  bid's "% over the winning price" is computed inside that bid's own currency,
+  so a book of dollar and euro bids pools without a conversion. Summing the
+  money first is the form that would quietly be adding currencies together, and
+  a test pins the two apart on figures where they differ (33% against 5%).
+- **Against what the job went for, not against the quote**, because "I was 14%
+  over" is read as over *their* price.
+- **Three lost bids with a known winning price**, one more than the single-tool
+  `MIN_UNDERCUT_SAMPLE`. Those two are the same trade at the same tool; these
+  three may be a fence and a bathroom, and further apart is worth one more point.
+- **The tool count is named, and dropped at one tool.** "Across 7 bids on 3
+  tools" is what tells a contractor this is their whole book rather than a
+  verdict on one trade. At a single tool it says nothing about breadth, because
+  that is the same book `undercutSentence` already reports in money on that
+  tool's own page.
+- **A gap that rounds to nothing is not reported as parity.** 0.4% over is a
+  real gap; "0% over" would read as measured parity, so it is said as the bound
+  it is: "came within 1% of what they went for".
+- **Losing to a dearer bid is said as loudly as losing to a cheaper one.** It is
+  the finding that stops a contractor cutting a price that was never the
+  problem, and the one a cheaper quote cannot fix.
+
+The hub ships the percentage half of that code and not the money half
+(`BID_PRICING_HELPERS`, not `BID_PRICE_BAND_HELPERS`): `priceBandSentence`,
+`undercutSentence`, `bidPriceSide` and `formatBidAmount` are never called here,
+and shipping them to the one page every visitor loads would cost a kilobyte of
+the offline bundle for nothing. A test pins that they stay off it.
+
+Counted as `saved_bid_pricing_shown`, on the same terms as the chase line: on
+change, local only, no name, no slug, and no figure.
+
 ### Getting the bids off this browser
 
 Everything above stands on one `localStorage` key in one browser, and the hub's

@@ -15,6 +15,8 @@ import {
   MAX_LOST_TO,
   normalizeLostTo,
   undercutSentence,
+  pricingSentence,
+  MIN_CROSS_TOOL_SAMPLE,
   PRICE_BAND_CLAUSE,
   bidAmountValue,
   formatBidAmount,
@@ -1085,6 +1087,135 @@ test('nothing to compare draws nothing', () => {
   assert.equal(undercutSentence([]), '');
   assert.equal(undercutSentence(null), '');
   assert.equal(undercutSentence([lostTo('$2,400', 'x'), lostTo('$3,200', '')]), '');
+});
+
+// --- the hub's cross-tool pricing reading -----------------------------------
+
+// `lostTo` with the slug the bid was priced on, which is what the hub carries
+// and what lets this reading count the tools it spans.
+const onTool = (slug, amount, went) => ({ ...lostTo(amount, went), slug });
+
+test('how the pricing is landing, pooled across every tool', () => {
+  // 20% over, 20% over, 20% over — on three different calculators, none of
+  // which has enough decided bids to draw anything on its own. This is the
+  // whole reason the reading exists.
+  const sentence = pricingSentence([
+    onTool('fence-bid-calculator', '$2,400', '2000'),
+    onTool('deck-bid-calculator', '$3,600', '3000'),
+    onTool('pergola-bid-calculator', '$1,200', '1000'),
+  ]);
+  assert.match(
+    sentence,
+    /^Across the 3 bids you lost on 3 tools where you know the winning price, yours averaged 20% over\./,
+  );
+  assert.match(sentence, /The closest was 20% over\.$/);
+});
+
+test('the mean of the percentages, never a ratio of summed money', () => {
+  // The distinction that makes pooling legitimate, and these figures are
+  // chosen so the two forms cannot be confused. Per-bid percentages are +100%,
+  // 0% and 0%, so the mean is 33%. Summing the money first would give
+  // (200 + 1000 + 1000 - 100 - 1000 - 1000) / 2100 = 5% — a different answer,
+  // and the one that would be quietly adding currencies together on a book
+  // that mixed them.
+  assert.match(
+    pricingSentence([
+      onTool('a', '$200', '100'),
+      onTool('b', '$1,000', '1000'),
+      onTool('c', '$1,000', '1000'),
+    ]),
+    /yours averaged 33% over\./,
+  );
+});
+
+test('percentages pool across currencies, because a percentage has no currency', () => {
+  // The money readings refuse this outright and are right to: there is no rate
+  // here and there must never be one. A percentage over the winning price is
+  // computed inside one bid's own currency, so it carries none of that problem.
+  assert.match(
+    pricingSentence([
+      onTool('a', '$2,400', '2000'),
+      onTool('b', '£3,600', '3000'),
+      onTool('c', '€1,200', '1000'),
+    ]),
+    /yours averaged 20% over\./,
+  );
+});
+
+test('losing to a dearer bid is said as loudly here too', () => {
+  assert.match(
+    pricingSentence([
+      onTool('a', '$1,800', '2000'),
+      onTool('b', '$900', '1000'),
+      onTool('c', '$2,700', '3000'),
+    ]),
+    /yours averaged 10% under\. None of them went to a cheaper bid, so price is not what decided these\.$/,
+  );
+  assert.match(
+    pricingSentence([
+      onTool('a', '$3,000', '2000'),
+      onTool('b', '$3,000', '2000'),
+      onTool('c', '$1,900', '2000'),
+    ]),
+    /1 of them went to a bid no cheaper than yours, so price alone has not been deciding these\.$/,
+  );
+});
+
+test('a gap that rounds to nothing is not reported as parity', () => {
+  // 0.4% over is a real gap. "0% over" would read as measured parity, so it is
+  // said as the bound it actually is.
+  const sentence = pricingSentence([
+    onTool('a', '$1,004', '1000'),
+    onTool('b', '$1,004', '1000'),
+    onTool('c', '$1,004', '1000'),
+  ]);
+  assert.match(sentence, /yours came within 1% of what they went for\./);
+  assert.match(sentence, /The closest was within 1% of it\.$/);
+});
+
+test('one tool is not claimed as breadth it does not have', () => {
+  // At a single tool this is the same book undercutSentence already reports in
+  // money on that tool's own page, so the sentence does not say "on 1 tool".
+  const sentence = pricingSentence([
+    onTool('fence-bid-calculator', '$2,400', '2000'),
+    onTool('fence-bid-calculator', '$3,600', '3000'),
+    onTool('fence-bid-calculator', '$1,200', '1000'),
+  ]);
+  assert.match(sentence, /^Across the 3 bids you lost where you know the winning price,/);
+  assert.doesNotMatch(sentence, /on 1 tools?/);
+});
+
+test('three lost jobs with a known price, one more than the single-tool reading', () => {
+  assert.equal(MIN_CROSS_TOOL_SAMPLE, 3);
+  assert.equal(MIN_CROSS_TOOL_SAMPLE, MIN_UNDERCUT_SAMPLE + 1);
+  assert.equal(pricingSentence([onTool('a', '$2,400', '2000'), onTool('b', '$3,600', '3000')]), '');
+});
+
+test('only a lost bid with both figures counts toward the pooled reading', () => {
+  const rows = [onTool('a', '$2,400', '2000'), onTool('b', '$3,200', '2800'),
+    onTool('c', '$1,200', '1000')];
+  const noise = [
+    { name: 'won it', at: AT, slug: 'd', outcome: 'won', amount: '$9,999', lostTo: '1' },
+    { name: 'still out', at: AT, slug: 'e', amount: '$9,999' },
+    { name: 'no figure of mine', at: AT, slug: 'f', outcome: 'lost', lostTo: '2000' },
+    { name: 'no winning price', at: AT, slug: 'g', outcome: 'lost', amount: '$5,000' },
+    { name: 'negative hero', at: AT, slug: 'h', outcome: 'lost', amount: '-$4.20', lostTo: '2' },
+    null, 'not a bid',
+  ];
+  // The noise carries five slugs of its own; none of them may reach the count.
+  const sentence = pricingSentence(rows.concat(noise));
+  assert.equal(sentence, pricingSentence(rows));
+  assert.match(sentence, /on 3 tools/);
+});
+
+test('the pooled reading draws nothing when there is nothing to say', () => {
+  assert.equal(pricingSentence([]), '');
+  assert.equal(pricingSentence(null), '');
+  assert.equal(
+    pricingSentence([onTool('a', '$2,400', 'x'), onTool('b', '$3,200', ''),
+      onTool('c', '$1,200', '0')]),
+    '',
+  );
 });
 
 test('the injected gap helpers answer exactly as the module does', () => {
