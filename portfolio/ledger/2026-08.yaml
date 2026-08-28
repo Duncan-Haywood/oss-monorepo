@@ -25758,3 +25758,72 @@ entries:
         found it in one pass; #1922 fixed it and pinned it. Worth repeating
         on other pages: the audit found the other ten `winner`/`best`
         markings in this venture all derive from a real maximum.
+  - venture: bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    mrr_end: null
+    outcomes:
+      - >-
+        **The shop-rate page computed the rate you need and never asked what
+        you already charge.** #1926 adds an optional "What you charge today"
+        field that turns the result into a comparison: the net margin the rate
+        actually earns, the annual size of the gap, and the billable hours it
+        would take to justify it. The last of those is the one that is hard to
+        get any other way — a rate is not simply too low, it is too low
+        *given a billable share*, and the venture's own SEO page had been
+        arguing that ("Which number is doing the damage") without being able
+        to answer it from the visitor's figures. On the shipped example $70
+        against the $74.07 the year needs earns 6.9% rather than 12%, is
+        $19,137 a year across three crew, and would be right only at 1,659
+        billable hours a person: 80% of paid hours against the 75% entered.
+      - >-
+        The inversion is exact rather than a search, and the reason is worth
+        keeping: the billable share moves neither `annualCostPerPerson` nor
+        `overheadRate`, whose denominator is annual **direct cost**, not
+        hours. So required hours solve in closed form. The test replays the
+        answer through the entire calculation and requires the original rate
+        back to 1e-6, which means a future change that makes overhead depend
+        on hours fails the test instead of quietly shipping an approximation.
+      - >-
+        **Crew size is not a scale factor on the gap, and a test asserting it
+        was is what proved it.** The first version claimed the per-hour
+        shortfall is crew-independent; it is not, because a fifth person
+        spreads the same overhead over more direct cost, so the required rate
+        itself falls while the annual figure still grows. The arithmetic was
+        right and the assertion was wrong — worth recording because the same
+        instinct ("more crew just multiplies it") is what the annual figure
+        invites, and the test now pins the real relationship in both
+        directions.
+      - >-
+        The annual gap is deliberately sized over **labour revenue only**.
+        `revenueNeeded` covers materials and subs as well, and those are
+        billed on top of the hours rather than through the rate, so the
+        obvious base overstates the shortfall. Any future "what is this
+        costing me" figure on a bid page has the same trap.
+      - >-
+        Verified locally: 70 tests in the venture (was 62), 10,725 across
+        `ventures/`, 413 in `platform/pages`, `check_form_defaults`,
+        `check_conflict_markers`, `check_duplicate_symbols`,
+        `validate_workflows`, `publish_surface --check`, `score_ventures
+        --check`, `router/validate`, a clean build to 163 tools / 441 pages
+        with no dead links, and a Chromium pass over all four branches plus
+        mobile at 390px with zero console errors. The privacy invariants held:
+        the new field did not flip the shape-based injection predicates, so
+        the page still gains no saved-bids band, no share link and no
+        shop-rates bar.
+      - >-
+        **`sweep.mjs` runs in this environment without adding a repo
+        dependency**, which the file's own header says is why it is not in CI.
+        `npm install playwright-core` out-of-tree plus the preinstalled
+        browser is enough:
+        `PLAYWRIGHT=<scratch>/node_modules/playwright-core/index.js
+        CHROME_PATH=/opt/pw-browsers/chromium-1194/chrome-linux/chrome`.
+        Run before touching anything and again after: **163/163 tools
+        answered with no errors** both times. Cheap enough that a session
+        should stop guessing whether the site is healthy and just run it.
+      - >-
+        Open-PR queue was **empty** again at the start of this session, the
+        second consecutive time. All seven checks on #1926 carried the
+        runner-outage signature — 2–3 second jobs, empty
+        `output.title/summary/text`, 404 on log download — confirmed on the
+        `validate` job before merging rather than debugging green code.
