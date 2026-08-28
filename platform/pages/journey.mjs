@@ -796,6 +796,84 @@ await step('the hub pools how the pricing is landing, in percentages', async () 
   }
 });
 
+// 6bw. The win rate on the hub — the reading that needs no figure at all.
+//
+//      The step above needs a winning price on each lost bid, which is evidence
+//      most books do not carry. This one needs nothing but the outcome, so it
+//      is the reading a real contractor is most likely to actually see, and the
+//      fixture is built to prove that: not one bid in it has an amount, a
+//      winning price, or a currency. `pricingSentence` and both money readings
+//      draw nothing on this book; the win rate draws.
+//
+//      Only a browser pass can show the second half. `winRateSentence` names a
+//      tool by its `label`, and nothing in storage carries one — the hub reads
+//      it off the card the row was matched to, at render time. A unit test
+//      hands the function a label and so cannot fail the way this can: if the
+//      hub ever stops attaching it, the sentence silently reverts to naming
+//      "deck-bid-calculator" at a contractor, which is exactly the kind of
+//      quiet regression the chase line shipped once already.
+await step('the hub says how often the quotes land, with no figure anywhere', async () => {
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    // Four won and one lost on one tool, one won and five lost on another: a
+    // 63-point gap, so the trades are named. Plus a waiting bid that must not
+    // count as decided, and a third tool below the naming floor that must be
+    // counted in the rate and never named.
+    await page.evaluate((now) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      const run = (outcome, n, from) => Array.from({ length: n }, (_, i) => ({
+        name: outcome + ' ' + i, at: at(from - i), fields: { a: '1' },
+        outcome, decidedAt: at(from - i - 2),
+      }));
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
+        'fence-bid-calculator': [...run('won', 4, 40), ...run('lost', 1, 30)],
+        'deck-bid-calculator': [...run('won', 1, 28), ...run('lost', 5, 25)],
+        'pergola-bid-calculator': [...run('won', 1, 18),
+          { name: 'Still out', at: at(2), fields: { a: '1' } }],
+      } }));
+    }, Date.now());
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const line = (await page.textContent('#bidsWinRate')).replace(/\s+/g, ' ').trim();
+    // 6 won of 12 decided. The waiting bid is the thirteenth and must not be in
+    // the denominator — the bug that would read as "you win 46%" forever.
+    check('the hub counts every decided bid and no waiting one',
+      /^You have won 6 of 12 decided bids — 50%, across 3 tools\./.test(line), line);
+    // The half no single tool can produce, and the proof the label survived the
+    // trip from the card to the sentence: these are headings, not slugs.
+    check('and names the trades the rate is coming from, as the hub names them',
+      /Fence Bid Calculator is winning 4 of 5; Deck Bid Calculator, 1 of 6\./.test(line), line);
+    check('the tool below the naming floor is counted but not named',
+      !/Pergola/.test(line) && !/pergola-bid-calculator/.test(line), line);
+    check('no slug leaked into the sentence in place of a name',
+      !/-bid-calculator/.test(line), line);
+    // A count has no unit; a figure here would mean money got pooled.
+    check('no money figure is on the win-rate line', !/[$£€]/.test(line), line);
+    // The pricing line must stay silent: not one bid here carries a figure.
+    const priced = (await page.textContent('#bidsPricing')).trim();
+    check('and the money reading correctly draws nothing on this book',
+      priced === '', priced);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the win-rate reading is counted',
+      counts.saved_bid_win_rate_shown >= 1, JSON.stringify(counts));
+    check('and the counter names no tool and no trade',
+      !/fence|deck|pergola/i.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
 // 6bb. Backup and restore (`backup.mjs`) — the bids surviving the browser.
 //
 //      Everything above stands on one `localStorage` key in one browser, and

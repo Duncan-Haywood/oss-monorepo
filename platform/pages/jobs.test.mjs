@@ -16,6 +16,9 @@ import {
   normalizeLostTo,
   undercutSentence,
   pricingSentence,
+  BID_PRICING_HELPERS,
+  winRateSentence,
+  MIN_WIN_RATE_SAMPLE,
   MIN_CROSS_TOOL_SAMPLE,
   PRICE_BAND_CLAUSE,
   bidAmountValue,
@@ -1216,6 +1219,168 @@ test('the pooled reading draws nothing when there is nothing to say', () => {
       onTool('c', '$1,200', '0')]),
     '',
   );
+});
+
+// --- the hub's cross-tool win rate -----------------------------------------
+
+// A decided bid and nothing else: no figure, no currency, no winning price.
+// That absence is the point of these tests — this is the one reading in the
+// portfolio that draws off a book carrying none of it.
+const settled = (slug, outcome, label) => ({
+  name: slug + ' ' + outcome, at: AT, slug, outcome, ...(label ? { label } : {}),
+});
+const runOf = (slug, won, lost, label) => [
+  ...Array.from({ length: won }, () => settled(slug, 'won', label)),
+  ...Array.from({ length: lost }, () => settled(slug, 'lost', label)),
+];
+
+test('how often the quotes land, counted across every tool', () => {
+  // Five decided bids on three calculators, not one of which carries a figure.
+  // priceBandSentence, undercutSentence and pricingSentence all draw nothing
+  // on this book; this is the whole reason the reading exists.
+  const sentence = winRateSentence([
+    ...runOf('fence-bid-calculator', 1, 1),
+    ...runOf('deck-bid-calculator', 1, 1),
+    ...runOf('pergola-bid-calculator', 0, 1),
+  ]);
+  assert.match(sentence, /^You have won 2 of 5 decided bids — 40%, across 3 tools\./);
+});
+
+test('one tool is not claimed as breadth it does not have', () => {
+  // The same restraint pricingSentence applies: at a single tool this is a
+  // reading about one trade, and "across 1 tools" would be both wrong and a
+  // claim of a span the book does not have.
+  const sentence = winRateSentence(runOf('fence-bid-calculator', 2, 3));
+  assert.match(sentence, /^You have won 2 of 5 decided bids — 40%\./);
+  assert.doesNotMatch(sentence, /across 1 tools?/);
+});
+
+test('the rate needs no figure, no winning price and no single currency', () => {
+  // Each of these bids would be refused by every money reading here: two carry
+  // no amount at all, and the two that do are in different currencies, which
+  // priceBandSentence and undercutSentence both reject outright.
+  const sentence = winRateSentence([
+    { name: 'a', at: AT, slug: 'a', outcome: 'won', amount: '$2,400' },
+    { name: 'b', at: AT, slug: 'b', outcome: 'lost', amount: '€3,600' },
+    settled('c', 'won'), settled('d', 'lost'), settled('e', 'lost'),
+  ]);
+  assert.match(sentence, /^You have won 2 of 5 decided bids — 40%, across 5 tools\./);
+});
+
+test('the trade the rate is actually coming from is named', () => {
+  // The finding no single tool can produce, and the one that changes what
+  // someone does on Monday. 4 of 5 against 1 of 6 is a 63-point gap.
+  const sentence = winRateSentence([
+    ...runOf('fence-bid-calculator', 4, 1, 'Fence Bid Calculator'),
+    ...runOf('deck-bid-calculator', 1, 5, 'Deck Bid Calculator'),
+  ]);
+  assert.match(sentence, /^You have won 5 of 11 decided bids — 45%, across 2 tools\./);
+  assert.match(
+    sentence,
+    /Fence Bid Calculator is winning 4 of 5; Deck Bid Calculator, 1 of 6\. That gap sits in one trade rather than across your prices\.$/,
+  );
+});
+
+test('a gap of one bid is not a trade, so it is not named as one', () => {
+  // 3 of 4 against 2 of 4 is 25 points — one job of difference, which is what a
+  // single unusual customer looks like. The restraint sentence is what a
+  // contractor gets instead, and it is the one that stops the across-the-board
+  // price cut.
+  const sentence = winRateSentence([
+    ...runOf('a', 3, 1, 'A'), ...runOf('b', 2, 2, 'B'),
+  ]);
+  assert.doesNotMatch(sentence, /is winning/);
+  assert.match(sentence, /A win rate moves with which jobs you choose to quote as much as with what you charge, so this is where to start looking rather than a verdict on your prices\.$/);
+});
+
+test('a tool below the floor is counted in the rate but never named', () => {
+  // 3 of 3 is a 100% tool, and it would top the ranking if it were eligible.
+  // It is not: on three bids the achievable rates are thirds, so putting that
+  // trade forward would rest the finding on one job.
+  const sentence = winRateSentence([
+    ...runOf('thin', 3, 0, 'Thin Tool'),
+    ...runOf('a', 3, 1, 'A'), ...runOf('b', 0, 4, 'B'),
+  ]);
+  assert.match(sentence, /^You have won 6 of 11 decided bids — 55%, across 3 tools\./);
+  assert.doesNotMatch(sentence, /Thin Tool/);
+  assert.match(sentence, /A is winning 3 of 4; B, 0 of 4\./);
+});
+
+test('the tool is named as the contractor knows it, falling back to the slug', () => {
+  // The label comes off the hub card the row was matched to. A row that reached
+  // the reading without one still has to produce a sentence, and the slug is
+  // the only name left.
+  assert.match(
+    winRateSentence([...runOf('fence-bid-calculator', 4, 0), ...runOf('deck-bid-calculator', 0, 4)]),
+    /fence-bid-calculator is winning 4 of 4; deck-bid-calculator, 0 of 4\./,
+  );
+});
+
+test('two tools that have gone the same way cannot swap places between renders', () => {
+  const book = [...runOf('b-tool', 4, 0, 'B'), ...runOf('a-tool', 4, 0, 'A'),
+    ...runOf('z-tool', 0, 4, 'Z')];
+  const once = winRateSentence(book);
+  assert.equal(once, winRateSentence([...book].reverse()));
+  // Ties broken by slug, so the 100% pair reports the alphabetically first.
+  assert.match(once, /^You have won 8 of 12 decided bids — 67%, across 3 tools\./);
+  assert.match(once, /A is winning 4 of 4; Z, 0 of 4\./);
+});
+
+test('only a decided bid counts toward the rate', () => {
+  const book = runOf('a', 2, 3);
+  const noise = [
+    { name: 'still out', at: AT, slug: 'waiting-tool', amount: '$9,999' },
+    { name: 'unknown state', at: AT, slug: 'odd-tool', outcome: 'maybe' },
+    null, 'not a bid', 7,
+  ];
+  // The noise carries two slugs of its own; neither may reach the tool count.
+  assert.equal(winRateSentence(book.concat(noise)), winRateSentence(book));
+  assert.doesNotMatch(winRateSentence(book.concat(noise)), /across/);
+});
+
+test('five decided bids before a rate is stated at all', () => {
+  assert.equal(MIN_WIN_RATE_SAMPLE, 5);
+  assert.equal(winRateSentence(runOf('a', 2, 2)), '');
+  assert.match(winRateSentence(runOf('a', 2, 3)), /^You have won 2 of 5/);
+});
+
+test('the win rate draws nothing when there is nothing to say', () => {
+  assert.equal(winRateSentence([]), '');
+  assert.equal(winRateSentence(null), '');
+  assert.equal(winRateSentence(undefined), '');
+  // Five bids, none of them decided.
+  assert.equal(
+    winRateSentence(Array.from({ length: 5 }, () => ({ name: 'x', at: AT, slug: 'a' }))),
+    '',
+  );
+});
+
+test('the win rate never states a rate to aim for', () => {
+  // There is no correct win rate, and a tool that printed one would be
+  // inventing the number its user came here to avoid guessing.
+  for (const book of [
+    runOf('a', 5, 0), runOf('a', 0, 5), runOf('a', 2, 3),
+    [...runOf('a', 4, 0, 'A'), ...runOf('b', 0, 4, 'B')],
+  ]) {
+    const sentence = winRateSentence(book);
+    assert.doesNotMatch(sentence, /should|aim|target|too (high|low)|healthy|ideal/i);
+  }
+});
+
+test('the injected win-rate helper answers exactly as the module does', () => {
+  // The same guarantee the gap helpers carry: the hub must run the tested body,
+  // not a paraphrase of it.
+  const evaluated = new Function(`${BID_AMOUNT_HELPER}
+${BID_PRICING_HELPERS}
+    return winRateSentence;`)();
+
+  for (const book of [
+    [], runOf('a', 2, 2), runOf('a', 2, 3),
+    [...runOf('a', 4, 1, 'A'), ...runOf('b', 1, 5, 'B')],
+    [...runOf('a', 3, 1, 'A'), ...runOf('b', 2, 2, 'B')],
+  ]) {
+    assert.equal(evaluated(book), winRateSentence(book), JSON.stringify(book.length));
+  }
 });
 
 test('the injected gap helpers answer exactly as the module does', () => {

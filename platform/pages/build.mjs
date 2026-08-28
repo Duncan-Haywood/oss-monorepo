@@ -1065,13 +1065,14 @@ ${subgroups
     .bids .bid-chase { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
                        border-left: 3px solid var(--accent); background: var(--bg);
                        border-radius: 0 8px 8px 0; font-size: .85rem; }
-    /* The same rule as the chase line above it, in the muted border rather than
-       the accent one: the chase line is asking the contractor to do something
-       today, and this is a standing reading about their pricing. Two accent
-       bars stacked would make neither of them the thing to act on. */
-    .bids .bid-pricing { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
-                         border-left: 3px solid var(--line); background: var(--bg);
-                         border-radius: 0 8px 8px 0; font-size: .85rem; }
+    /* Both standing readings share one rule, in the muted border rather than the
+       accent one: the chase line is asking the contractor to do something today,
+       and these are standing readings about their pricing. Two accent bars
+       stacked would make neither of them the thing to act on. */
+    .bids .bid-pricing,
+    .bids .bid-win-rate { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                          border-left: 3px solid var(--line); background: var(--bg);
+                          border-radius: 0 8px 8px 0; font-size: .85rem; }
     .bids li a:has(.bid-state[data-state="won"]) .bid-name,
     .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
     .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
@@ -1151,7 +1152,9 @@ ${contents}
         restore. These are kept in this browser only — never uploaded, and
         clearing your browser data clears them, so download a backup below if
         they matter. Mark one won or lost in the tool that priced it and it
-        stops counting as waiting here.
+        stops counting as waiting here — and once a few have been decided, this
+        page says how often your quotes are landing, and whether that is the
+        same across the tools you use or one trade pulling it down.
       </p>
       <!-- The reason to open the hub rather than the tool: how many quotes are
            still out, and how long the oldest has been. Drawn only when there is
@@ -1172,6 +1175,13 @@ ${contents}
            pools across trades and currencies alike without a conversion this
            site does not have. See pricingSentence. -->
       <p class="bid-pricing" id="bidsPricing" hidden></p>
+      <!-- How often the quotes land at all, counted the same way. This is the
+           one reading here that needs no figure and no currency — only that a
+           bid was marked won or lost — so it draws for a book where every money
+           reading in the portfolio draws nothing, and it is the only place a
+           contractor working six calculators can see that five of them are fine
+           and the sixth is not. See winRateSentence. -->
+      <p class="bid-win-rate" id="bidsWinRate" hidden></p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
@@ -1491,6 +1501,7 @@ ${BID_PRICING_HELPERS}
     let bidsExpanded = false;
     let chaseShown = '';
     let pricingShown = '';
+    let winRateShown = '';
 
     function showSavedBids() {
       const section = document.getElementById('bids');
@@ -1509,7 +1520,18 @@ ${BID_PRICING_HELPERS}
       const rows = [];
       for (const row of savedBids()) {
         const card = document.querySelector('[data-tool="' + row.slug + '"]');
-        if (card) rows.push({ ...row, card });
+        // The tool's own heading, taken off the card the row was matched to
+        // rather than off the bid: the slug is what storage carries, and
+        // "deck-bid-calculator" is not what a contractor calls the thing. Read
+        // here, once per row, so winRateSentence stays a pure function of its
+        // rows and can be tested without a document.
+        if (card) {
+          rows.push({
+            ...row,
+            card,
+            label: card.querySelector('h3, h4')?.textContent.trim() || row.slug,
+          });
+        }
       }
 
       const now = Date.now();
@@ -1551,6 +1573,23 @@ ${BID_PRICING_HELPERS}
       if (priced !== '' && priced !== pricingShown) {
         pricingShown = priced;
         record('saved_bid_pricing_shown');
+      }
+
+      // How often the quotes land, over the same whole book and for the same
+      // reason: computing it from the eight rows drawn would make the rate
+      // change when the visitor pressed "Show all", which is the one thing a
+      // rate must not do.
+      const winRate = document.getElementById('bidsWinRate');
+      const rated = winRateSentence(rows);
+      winRate.textContent = rated;
+      winRate.hidden = rated === '';
+      // Counted on change rather than on every render, as the two lines above
+      // are. record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, no tool and no figure — only that a reading
+      // was drawn, which is what says whether the feature is worth its bytes.
+      if (rated !== '' && rated !== winRateShown) {
+        winRateShown = rated;
+        record('saved_bid_win_rate_shown');
       }
 
       const seen = responseWindow(rows);

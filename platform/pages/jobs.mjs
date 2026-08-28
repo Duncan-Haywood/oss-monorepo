@@ -1142,6 +1142,147 @@ export function pricingSentence(bids) {
 }
 
 /**
+ * How many decided bids before the hub will state a win rate.
+ *
+ * Five. Below that the rate is made of steps too large to mean anything — on
+ * four bids it can only be 0, 25, 50, 75 or 100 — and a contractor reading
+ * "you win 50% of your work" off two answers would be reading noise as a
+ * finding. Five is still a small book, which is why this reports the count
+ * beside the percentage and never suggests a rate to aim for.
+ */
+export const MIN_WIN_RATE_SAMPLE = 5;
+
+/**
+ * How many decided bids on one tool before that tool may be named.
+ *
+ * Four, where the pooled rate above wants five in total, and the extra
+ * strictness is deliberate: the sentence below does not merely count a named
+ * tool, it puts that trade forward as the place the contractor's pricing is or
+ * is not working. On three bids the possible rates are 0, 33, 67 and 100, so
+ * "your deck pricing is losing" could rest on a single job that went to the
+ * customer's brother-in-law. Four makes the smallest reportable gap two bids
+ * wide.
+ */
+export const MIN_WIN_RATE_PER_TOOL = 4;
+
+/**
+ * How far apart two tools' win rates must be before the split is drawn.
+ *
+ * Forty percentage points. At the four-bid floor the achievable rates are
+ * quarters, so this admits 3-of-4 against 1-of-4 and refuses 3-of-4 against
+ * 2-of-4 — one bid of difference, which is what a single unusual job looks
+ * like. The threshold is on the gap rather than on either rate on its own,
+ * because the finding is comparative: a shop winning 40% everywhere has a
+ * pricing question, and a shop winning 80% on fences and 20% on decks has a
+ * deck question, and those are not the same thing to go and fix.
+ */
+export const WIN_RATE_SPLIT_POINTS = 40;
+
+/**
+ * How this contractor's quotes are actually landing, counted across every tool.
+ *
+ * The reading the whole saved-bid feature has been able to compute since it
+ * learned the word "lost" and has never once said out loud. `priceBandSentence`
+ * compares won money against lost money on one tool; `pricingSentence` reports
+ * how far over the winning price the lost jobs were. Neither answers the
+ * question a contractor actually asks first — **how often do I win?** — and
+ * neither can, because both are scoped to evidence most books do not carry:
+ * `priceBandSentence` needs two won *and* two lost on the same calculator, and
+ * `pricingSentence` needs the contractor to have heard what the job went for,
+ * which on most lost bids nobody ever tells them.
+ *
+ * A win rate needs none of that. Every decided bid counts, whatever tool it was
+ * priced on and whatever currency it was priced in, because a count is
+ * unit-free in the way `pricingSentence` argues a percentage is — and more
+ * plainly so, since nothing is being averaged at all. That is why this reading
+ * will draw for a book where every money reading in the portfolio draws
+ * nothing.
+ *
+ * Two sentences, and as everywhere else here the second is the honest half:
+ *
+ *   - **The rate.** Counts first and the percentage after, because "5 of 13" is
+ *     the part that carries its own sample size; naming the tool span when
+ *     there is more than one, for the reason `pricingSentence` names it — it is
+ *     what tells the contractor this is their whole book rather than a verdict
+ *     on one trade.
+ *   - **Where the rate comes from.** When two tools each carry enough decided
+ *     bids and their rates are far enough apart, they are named. This is the
+ *     part no single tool can ever produce, and it is the one that changes what
+ *     someone does on Monday: a contractor told "you win 38%" cuts prices
+ *     across the board, and a contractor told "you win 4 of 5 on fences and 1
+ *     of 6 on decks" goes and re-costs decks. Where the split cannot be drawn,
+ *     the sentence says what a bare rate does not settle, which is the finding
+ *     that stops the across-the-board cut.
+ *
+ * Never a target rate, in either branch. There is no correct win rate — it
+ * moves with which jobs a shop chooses to quote at least as much as with what
+ * it charges — and a tool that printed one would be inventing the number its
+ * user came here to avoid guessing.
+ *
+ * Returns `''` — draw nothing — below `MIN_WIN_RATE_SAMPLE` decided bids.
+ */
+export function winRateSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var won = 0;
+  var decided = 0;
+  var slugs = [];
+  var byTool = {};
+
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'won' && bid.outcome !== 'lost') continue;
+    decided++;
+    if (bid.outcome === 'won') won++;
+    var slug = typeof bid.slug === 'string' ? bid.slug : '';
+    if (!slug) continue;
+    if (slugs.indexOf(slug) === -1) slugs.push(slug);
+    if (!byTool[slug]) {
+      byTool[slug] = { slug: slug, won: 0, decided: 0, label: slug };
+      var label = typeof bid.label === 'string' ? bid.label.trim() : '';
+      if (label) byTool[slug].label = label;
+    }
+    byTool[slug].decided++;
+    if (bid.outcome === 'won') byTool[slug].won++;
+  }
+
+  if (decided < MIN_WIN_RATE_SAMPLE) return '';
+
+  var rate = Math.round((won / decided) * 100);
+  var centre = 'You have won ' + won + ' of ' + decided + ' decided bids — ' + rate + '%' +
+    (slugs.length > 1 ? ', across ' + slugs.length + ' tools' : '') + '.';
+
+  // Sorted by rate, then by slug, so two tools that have gone the same way
+  // cannot swap places between two renders of the same book.
+  var ranked = [];
+  for (var s = 0; s < slugs.length; s++) {
+    var tool = byTool[slugs[s]];
+    if (tool.decided < MIN_WIN_RATE_PER_TOOL) continue;
+    tool.rate = (tool.won / tool.decided) * 100;
+    ranked.push(tool);
+  }
+  ranked.sort(function (a, b) {
+    return b.rate - a.rate || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+  });
+
+  var edge = 'A win rate moves with which jobs you choose to quote as much as with what you ' +
+    'charge, so this is where to start looking rather than a verdict on your prices.';
+
+  if (ranked.length > 1) {
+    var best = ranked[0];
+    var worst = ranked[ranked.length - 1];
+    if (best.rate - worst.rate >= WIN_RATE_SPLIT_POINTS) {
+      edge = best.label + ' is winning ' + best.won + ' of ' + best.decided + '; ' +
+        worst.label + ', ' + worst.won + ' of ' + worst.decided +
+        '. That gap sits in one trade rather than across your prices.';
+    }
+  }
+
+  return centre + ' ' + edge;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -1263,11 +1404,20 @@ export const BID_PRICE_BAND_HELPERS = [
  * the hub calls, and all of which are money. This reading is percentages only,
  * so shipping the money half to the hub would be a kilobyte on the one page
  * every visitor loads in exchange for nothing.
+ *
+ * `winRateSentence` rides here rather than in a list of its own because it is
+ * the same kind of thing — a unit-free reading of the whole book, drawn on the
+ * hub and nowhere else — but it needs none of the readers above it: it counts
+ * outcomes and never looks at a figure, so it would work on its own if the
+ * order ever changed.
  */
 export const BID_PRICING_HELPERS = [
   `var MIN_CROSS_TOOL_SAMPLE = ${MIN_CROSS_TOOL_SAMPLE};`,
   `var MAX_LOST_TO = ${MAX_LOST_TO};`,
-  ...[normalizeLostTo, bidAmountValue, pricingSentence].map(
+  `var MIN_WIN_RATE_SAMPLE = ${MIN_WIN_RATE_SAMPLE};`,
+  `var MIN_WIN_RATE_PER_TOOL = ${MIN_WIN_RATE_PER_TOOL};`,
+  `var WIN_RATE_SPLIT_POINTS = ${WIN_RATE_SPLIT_POINTS};`,
+  ...[normalizeLostTo, bidAmountValue, pricingSentence, winRateSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');

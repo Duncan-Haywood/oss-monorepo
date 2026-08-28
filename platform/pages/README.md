@@ -491,6 +491,50 @@ the offline bundle for nothing. A test pins that they stay off it.
 Counted as `saved_bid_pricing_shown`, on the same terms as the chase line: on
 change, local only, no name, no slug, and no figure.
 
+### How often the quotes land
+
+The question a contractor asks before any of the ones above — *how often do I
+win?* — and the one the saved-bid feature has been able to answer since it
+learned the word "lost" without ever saying it out loud. `winRateSentence` says
+it, on the hub only.
+
+Every money reading in this portfolio needs evidence most books do not carry.
+`priceBandSentence` needs two won *and* two lost on the same calculator.
+`undercutSentence` and `pricingSentence` both need the contractor to have heard
+what the job actually went for, which on most lost bids nobody ever tells them.
+A win rate needs none of it: a bid marked won or lost is the whole input, so
+this draws for a book where every other reading here draws nothing.
+
+- **Counts first, percentage after.** "5 of 13 — 38%" carries its own sample
+  size in a way "38%" does not.
+- **Pools across tools and currencies without an argument**, more plainly than
+  the percentages above: nothing is averaged at all, and a count has no unit to
+  convert.
+- **Five decided bids** (`MIN_WIN_RATE_SAMPLE`). On four the rate can only be 0,
+  25, 50, 75 or 100, and a contractor reading "you win half your work" off two
+  answers would be reading noise as a finding.
+- **The tool count is named, and dropped at one tool**, exactly as
+  `pricingSentence` drops it and for the same reason.
+- **The trade the rate comes from is named** when two tools each carry four
+  decided bids (`MIN_WIN_RATE_PER_TOOL`) and their rates are 40 points apart
+  (`WIN_RATE_SPLIT_POINTS`). This is the half no single tool can produce, and
+  it is the one that changes what someone does: told "you win 38%" a contractor
+  cuts prices across the board; told "4 of 5 on fences, 1 of 6 on decks" they go
+  and re-cost decks. Four rather than three because the sentence puts that trade
+  forward as the thing to fix, and on three bids that could rest on one job;
+  40 points rather than 25 because at the four-bid floor 25 is a single bid of
+  difference.
+- **Never a target rate**, in either branch. There is no correct win rate — it
+  moves with which jobs a shop chooses to quote at least as much as with what it
+  charges — and where the split cannot be drawn the sentence says exactly that,
+  which is the finding that stops the across-the-board cut. A test asserts the
+  words "should", "aim", "target", "too high/low", "healthy" and "ideal" appear
+  in no branch of it.
+
+Counted as `saved_bid_win_rate_shown`: on change, local only, no name, no slug,
+no figure, and no tool — which trade someone bids is not something this site
+needs to know to tell whether the reading is worth its bytes.
+
 ### Getting the bids off this browser
 
 Everything above stands on one `localStorage` key in one browser, and the hub's

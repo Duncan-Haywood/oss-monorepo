@@ -26690,3 +26690,53 @@ entries:
         sheet carries the on-screen price and none of the wage, burden,
         supplies, overhead or margin -- checked with distinctive values
         rather than eyeballed.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the hub's win-rate reading (`winRateSentence`): "You have won 6
+        of 12 decided bids -- 50%, across 3 tools. Fence Bid Calculator is
+        winning 4 of 5; Deck Bid Calculator, 1 of 6." Every other price reading
+        in the portfolio needs evidence most books do not carry --
+        `priceBandSentence` wants two won *and* two lost on the same
+        calculator, `undercutSentence` and `pricingSentence` want the
+        contractor to have heard what the job went for, which on most lost bids
+        nobody ever tells them. A win rate needs only the outcome, so it draws
+        on a book where all three draw nothing, and it is the first reading
+        here that pools across tools and currencies with nothing averaged at
+        all.
+      - >-
+        The half no single tool can produce is naming the trade: told "you win
+        38%" a contractor cuts prices across the board; told "4 of 5 on fences,
+        1 of 6 on decks" they go and re-cost decks. Gated at four decided bids
+        per tool and a 40-point gap, because at the four-bid floor 25 points is
+        one job of difference. Where it cannot be drawn the sentence says what
+        a bare rate does not settle, which is the finding that stops the
+        across-the-board cut. Never a target rate -- a test asserts "should",
+        "aim", "target", "too high/low", "healthy" and "ideal" appear in no
+        branch.
+      - >-
+        A unit test could not have caught the second half. `winRateSentence`
+        names a tool by `label`, and nothing in storage carries one -- the hub
+        reads it off the card the row was matched to, at render time. A unit
+        test hands the function a label and so passes either way; if the hub
+        stopped attaching it the sentence would quietly start naming
+        "deck-bid-calculator" at a contractor. Pinned in `journey.mjs` against a
+        fixture where no bid has an amount, a currency, or a winning price.
+      - >-
+        Zero open PRs at session start, the seventh consecutive session. The
+        76 branches that survive the identical-merge proof were not re-audited
+        one at a time: the 2026-08-27 entry already recorded that sweep and its
+        conclusion (squash residue and renames), and CLAUDE.md asks the next
+        session not to redo it. Spot-checked the one branch carrying a whole
+        venture absent from `main`, `cursor/vendor-change-watch-fix-20260824`
+        -- still superseded by `ventures/vendor-watch`, as recorded.
+      - >-
+        Whole-site browser pass, all green and worth recording as a baseline
+        rather than a finding: 164/164 tools compute, 443 pages x 2 viewports
+        with no WCAG A/AA violation, the full journey with 0 failed checks, 576
+        platform tests, 174 CI tests, 216 workflows valid. Also probed all 164
+        for `NaN`/`Infinity`/`undefined`/`[object Object]` reaching rendered
+        text after a normal interaction -- zero. The render-level defect class
+        the 2026-08-27 entry flagged is, for now, closed.
