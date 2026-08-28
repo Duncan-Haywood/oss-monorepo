@@ -25,6 +25,8 @@ import {
   MIN_SAVEABLE_FIELDS,
   SAVED_BIDS_KEY,
   injectSavedBids,
+  renderSavedBidsModule,
+  SAVED_BIDS_MODULE_FILE,
   normalizeBid,
   normalizeBidName,
   normalizeOutcome,
@@ -41,6 +43,11 @@ import {
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const VENTURES = path.join(HERE, '..', '..', 'ventures');
+
+// The saved-bids script is one file for the whole site now, so an assertion
+// about what the browser runs reads it here rather than out of a page. The page
+// carries only the tag that names it, which is what the tag assertions check.
+const module_ = () => renderSavedBidsModule();
 
 const page = (body, head = '') =>
   `<!doctype html><html><head><title>t</title>${head}</head><body>${body}</body></html>`;
@@ -128,8 +135,9 @@ test('the bar and its script land on a page with a form', () => {
   const out = injectSavedBids(page(inputs(6)), 'roofing-bid-calculator');
   assert.match(out, /data-pf-jobs-root/);
   assert.match(out, /class="pf-jobs"/);
-  assert.match(out, /"roofing-bid-calculator"/);
-  assert.match(out, new RegExp(SAVED_BIDS_KEY));
+  // The page carries the tag; the code it names is one file for the whole site.
+  assert.match(out, /<script type="module" src="\.\/pf-jobs\.js" data-pf-jobs-slug="roofing-bid-calculator"/);
+  assert.match(module_(), new RegExp(SAVED_BIDS_KEY));
 });
 
 test('the band points at the backup panel, at the depth the page is served from', () => {
@@ -193,7 +201,7 @@ test('the band is hidden in print', () => {
 test('the band starts hidden and is revealed by script', () => {
   const out = injectSavedBids(page(inputs(6)), 'x');
   assert.match(out, /<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>/);
-  assert.match(out, /root\.hidden = false/);
+  assert.match(module_(), /root\.hidden = false/);
 });
 
 /**
@@ -205,9 +213,13 @@ test('the explanation is in the markup, not built by script', () => {
   assert.match(out, /still here when the customer calls back/);
 });
 
-test('the slug is JSON-encoded into the script, not interpolated raw', () => {
-  const out = injectSavedBids(page(inputs(6)), 'a"b');
-  assert.match(out, /var SLUG = "a\\"b"/);
+test('a hostile slug cannot break out of the attribute that carries it', () => {
+  // It used to be JSON-encoded into a string literal; it is an attribute value
+  // now, so the character that would escape it is a different one. Same guard,
+  // moved to where the danger moved.
+  const out = injectSavedBids(page(inputs(6)), 'a"b><img src=x>');
+  assert.match(out, /data-pf-jobs-slug="a&quot;b&gt;&lt;img src=x&gt;"/);
+  assert.doesNotMatch(out, /<img src=x>/);
 });
 
 // ---------------------------------------------------------------------------
@@ -467,7 +479,7 @@ test('the band carries the id the hub links to, and opens on that anchor', () =>
   assert.match(html, /<section class="pf-jobs" id="pf-jobs"/);
   // The hub sends visitors to /<slug>/#pf-jobs; landing there must open the
   // panel rather than leaving a collapsed strip under the anchor.
-  assert.match(html, /location\.hash === '#pf-jobs'/);
+  assert.match(module_(), /location\.hash === '#pf-jobs'/);
 });
 
 // ---------------------------------------------------------------------------
@@ -681,20 +693,19 @@ test('the injected helpers answer exactly as the module does', () => {
 test('the band ships the outcome control and the summary line', () => {
   const html = injectSavedBids(page(inputs(4)), 'fence-bid-calculator');
   assert.match(html, /id="pf-jobs-summary"/);
-  assert.match(html, /data-pf-jobs-state/);
+  assert.match(module_(), /data-pf-jobs-state/);
   // The select fires change, not click, and the panel's click delegate would
   // never see it.
-  assert.match(html, /addEventListener\('change'/);
+  assert.match(module_(), /addEventListener\('change'/);
   // The three states, in the order a bid moves through them.
-  assert.match(html, /\[\['', 'Waiting'\], \['won', 'Won'\], \['lost', 'Lost'\]\]/);
+  assert.match(module_(), /\[\['', 'Waiting'\], \['won', 'Won'\], \['lost', 'Lost'\]\]/);
 });
 
 test('re-pricing a job does not move it back into the chase list', () => {
-  const html = injectSavedBids(page(inputs(4)), 'fence-bid-calculator');
   // Saving over a bid of the same name splices the old row out; its outcome has
   // to be carried onto the replacement, or marking a job won and then re-saving
   // it silently un-wins it.
-  assert.match(html, /entry\.outcome = carried\.outcome/);
+  assert.match(module_(), /entry\.outcome = carried\.outcome/);
 });
 
 test('the feature list says the tool tracks outcomes', () => {
@@ -788,17 +799,30 @@ test('the hub index carries the figure, not the numbers behind it', () => {
 
 test('the band captures the headline figure and draws it', () => {
   const html = injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator');
-  assert.match(html, /var AMOUNT_SELECTOR = "#price"/);
-  assert.match(html, /entry\.amount = shown/);
-  assert.match(html, /pf-jobs-amount/);
+  assert.match(html, /data-pf-jobs-amount="#price"/);
+  assert.match(module_(), /entry\.amount = shown/);
+  assert.match(module_(), /pf-jobs-amount/);
 });
 
 test('a tool with no headline figure ships no selector rather than a guess', () => {
   const html = injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator');
-  assert.match(html, /var AMOUNT_SELECTOR = ""/);
+  assert.match(html, /data-pf-jobs-amount=""/);
   // And the guard is still shipped, so a bid restored from a device that did
   // capture one still draws it.
-  assert.match(html, /var normalizeHeadlineAmount =/);
+  assert.match(module_(), /var normalizeHeadlineAmount =/);
+});
+
+test('a selector that is not the shape this build writes is refused at runtime', () => {
+  // It used to be a build-time literal; it now travels through the DOM and is
+  // handed to querySelector, so the shared script re-checks it rather than
+  // trusting what it reads off a page.
+  const guard = new Function('claimed',
+    `${module_().match(/var AMOUNT_SELECTOR = [^;]+;/)[0]} return AMOUNT_SELECTOR;`);
+  assert.equal(guard('#price'), '#price');
+  assert.equal(guard('#hero-number'), '#hero-number');
+  assert.equal(guard('script'), '');
+  assert.equal(guard('*'), '');
+  assert.equal(guard(''), '');
 });
 
 test('the injected amount guard answers exactly as the module does', () => {
@@ -935,18 +959,18 @@ ${BID_PRICE_BAND_HELPERS}
   assert.equal(evaluated.priceBandSentence(rows), priceBandSentence(rows));
 });
 
-test('the band ships only where the tool has a figure to compare', () => {
+test('the band is drawn only where the tool has a figure to compare', () => {
   const withHero = injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator');
   assert.match(withHero, /id="pf-jobs-band"/);
-  assert.match(withHero, /var priceBandSentence =/);
   assert.match(withHero, /where your price tips/);
 
-  // A tool that saves no amounts could never produce a sentence, so it pays for
-  // neither the paragraph nor the ~1 KB of functions on every one of its pages.
+  // A tool that saves no amounts could never produce a sentence, so it gets
+  // neither the paragraph nor the prose that promises one. The code is shared
+  // now, so the element is what gates it — which is what the script checks.
   const without = injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator');
   assert.doesNotMatch(without, /id="pf-jobs-band"/);
-  assert.doesNotMatch(without, /var priceBandSentence =/);
   assert.doesNotMatch(without, /where your price tips/);
+  assert.match(module_(), /var band = el\('pf-jobs-band'\);/);
 });
 
 test('the feature list claims the comparison only on the pages that can draw it', () => {

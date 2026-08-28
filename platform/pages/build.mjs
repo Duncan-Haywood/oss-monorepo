@@ -40,7 +40,9 @@ import { injectShopRates } from './rates.mjs';
 import {
   BID_AMOUNT_HELPER,
   BID_FOLLOW_UP_HELPERS,
+  SAVED_BIDS_MODULE_FILE,
   injectSavedBids,
+  renderSavedBidsModule,
   stripForInjection,
 } from './jobs.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
@@ -2023,7 +2025,11 @@ export function renderNotFound(baseUrl) {
 const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 
 export async function collectOfflineBundle(outDir, surfaces) {
-  const assets = new Set(['./', 'index.html', 'offline.html', 'manifest.webmanifest']);
+  // The shared saved-bids script is loaded by every tool page in this bundle,
+  // so a tool cached for offline use without it opens with no band at all.
+  const assets = new Set([
+    './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
+  ]);
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -2174,6 +2180,9 @@ export async function buildSite({
   }
 
   await fs.writeFile(path.join(outDir, 'index.html'), renderHub(surfaces, base));
+  // The saved-bids script, once for the whole site. Every page that carries the
+  // band loads it from here; it used to be written into each of them.
+  await fs.writeFile(path.join(outDir, SAVED_BIDS_MODULE_FILE), renderSavedBidsModule());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 

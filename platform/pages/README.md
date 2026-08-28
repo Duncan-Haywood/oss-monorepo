@@ -257,6 +257,26 @@ already encode a bid into a URL fragment, but only for a contractor who thought
 to copy that link somewhere first, and nothing on the page ever said they
 should.
 
+**The script is one file, `pf-jobs.js`, written once at the site root.** It was
+inlined into every page carrying the band until it was not affordable: ~15 KB
+written out 234 times is 3.26 MiB of the built site, and 2.06 MiB of the 16 MiB
+offline bundle, all of it the same bytes — paid for on every page load and again
+by every tool a contractor saves for a jobsite. Extracting it took the bundle
+from 15.42 MiB to 13.39 MiB. The two things the shared script cannot know until
+it is on a page — the venture's slug, and which element holds that tool's
+headline figure — ride on the `<script>` tag as `data-pf-jobs-slug` and
+`data-pf-jobs-amount` and are read back from it; the selector is re-checked
+against the shape this build writes, because it now travels through the DOM
+rather than being a build-time literal.
+
+It stays `type="module"` for the reason it was one when it was inline: module
+scripts are deferred and run in document order, so this one — last in the
+document — sees a form the venture's own deferred module has finished building.
+A classic external script would run the moment it arrived.
+
+`rates.mjs` and the chrome still inline theirs (701 KiB and 310 KiB across the
+site). The same extraction applies to both and has not been done.
+
 Every field on the page is saved together under a name the visitor types, and
 restoring puts the whole job back. Because a bid never crosses tools, no field
 needs its meaning reviewed the way a shared rate does — which is why this
