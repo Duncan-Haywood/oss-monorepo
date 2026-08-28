@@ -2340,6 +2340,35 @@
     },
     "disclaimerTail": "Textured ceilings applied before the 1980s may contain asbestos; scraping does not begin until a sample has been tested, and abatement is a separately licensed activity that is not included."
   },
+  "portable-restroom-event-quote": {
+    "jobTitle": "Portable restrooms — {totalUnits~0} unit{totalUnits+s} for {daysOnSite~0} day{daysOnSite+s}",
+    "jobTitleFallback": "Portable restroom hire for your event",
+    "depositPercent": 25,
+    "scope": [
+      "Delivery, placement, and pickup of the units listed below",
+      {
+        "each": "units",
+        "when": "quantity",
+        "line": "{quantity~0} × {name}"
+      },
+      {
+        "line": "On site for {daysOnSite~0} day{daysOnSite+s}",
+        "when": "daysOnSite"
+      },
+      {
+        "line": "{serviceVisits~0} scheduled service visit{serviceVisits+s} during the hire",
+        "when": "serviceVisits"
+      },
+      "Consumables stocked at delivery — paper, hand soap, and sanitiser"
+    ],
+    "placeholders": {
+      "companyName": "Fieldside Event Sanitation LLC",
+      "scope": "Standard units and one accessible unit for a one-day outdoor event\nPlacement on level ground within hose and truck reach",
+      "exclusions": "Overnight security, fencing, and lighting of the unit area\nExtra service visits beyond those listed, and pump-outs caused by use above the quoted attendance\nDamage, loss, or relocation of units after placement",
+      "notes": "We need level ground and clear truck access within 25 feet of each placement on both the delivery and the pickup date. Please confirm the site contact and the gate or access code before the delivery window."
+    },
+    "disclaimerTail": "Unit counts are guidance based on the attendance and hours you gave us, not a health, safety, or permit determination; event sanitation requirements are set by your local authority and the venue."
+  },
   "pressure-washing-bid-calculator": {
     "jobTitle": "Pressure washing — {totalSquareFeet~0} sq ft",
     "priceField": "bidPrice",

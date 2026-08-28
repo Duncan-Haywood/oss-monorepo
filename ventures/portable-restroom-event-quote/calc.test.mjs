@@ -205,3 +205,21 @@ test('unit presets and duration table are usable positive numbers', () => {
     assert.ok(row.peoplePerUnit > 0);
   }
 });
+
+test('the hire terms the customer agrees to are returned, not just consumed', () => {
+  // `daysOnSite` and `serviceVisits` were validated and then used only to
+  // derive costs. The customer proposal drafts its scope from the result
+  // alone, and these two are the terms the customer is actually agreeing to —
+  // how long the units stay and how often they are serviced. Without them the
+  // drafted scope silently drops both lines (`scopeLines` omits a line whose
+  // placeholder is missing), so the sheet would describe a hire with no
+  // duration and no service schedule.
+  const result = calculateQuote({
+    units: [{ name: 'Standard', quantity: 4, rentPerDay: 12, serviceEach: 9 }],
+    daysOnSite: 3,
+    serviceVisits: 2,
+  });
+  assert.equal(result.daysOnSite, 3);
+  assert.equal(result.serviceVisits, 2);
+  assert.equal(result.unitDays, result.totalUnits * result.daysOnSite);
+});
