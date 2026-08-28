@@ -124,6 +124,13 @@ export const SEARCH_ALIASES = [
   { slug: 'walk-in-tub', add: 'bathroom remodel renovation' },
   { slug: 'toilet-replacement', add: 'bathroom remodel renovation' },
   { slug: 'basement-finishing', add: 'basement remodel renovation' },
+  // The trade writes "security camera"; the customer, the search engine, and
+  // half the installers write "CCTV". `nvr`/`dvr` are the head end this tool
+  // actually prices, and "low voltage" is the trade that bids the work.
+  // Deliberately NOT here: alarm, access control, structured cabling. An alias
+  // only widens, so a word this tool does not price would put it in front of
+  // someone pricing a different job — reach bought with a wrong answer.
+  { slug: 'security-camera', add: 'cctv surveillance nvr dvr ip camera poe low voltage lowvoltage' },
 ];
 
 /** The alias words for one venture, or '' when it has none. */
@@ -278,7 +285,10 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-mep',
       title: 'HVAC, plumbing & electrical',
-      test: (slug) => /^(furnace|boiler|mini-split|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-)/.test(slug),
+      // `security-camera` sits here as low-voltage electrical work: the people
+      // who bid it are the electrical and structured-cabling trades, and it is
+      // closer to a panel or EV-charger job than to anything in the other groups.
+      test: (slug) => /^(furnace|boiler|mini-split|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera)/.test(slug),
     },
     {
       id: 'trades-interior',
