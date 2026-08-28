@@ -27,6 +27,8 @@ import {
   bidWaitingPhrase,
   bidResponseDays,
   chaseSentence,
+  responseWindow,
+  isQuietBid,
   MIN_RESPONSE_SAMPLE,
   followUpSentence,
   MAX_SAVED_BIDS,
@@ -1221,6 +1223,67 @@ test('nothing to say draws nothing', () => {
   assert.equal(chaseSentence([waiting(9), null, 'not a bid'], NOW), '');
 });
 
+// ---------------------------------------------------------------------------
+// The window as a value, so the rows can say which quotes the sentence means
+// ---------------------------------------------------------------------------
+
+test('the response window is the spread the sentence is written from', () => {
+  assert.deepEqual(responseWindow([answered(2), answered(9), answered(5)]),
+    { answered: 3, low: 2, high: 9 });
+});
+
+test('the window is null below the sample, so nothing is marked on a guess', () => {
+  // The same threshold the sentence applies, and for the same reason: a range
+  // drawn from two points is just the two points. A caller below it must mark
+  // nothing rather than fall back to a rule of thumb this feature does not
+  // carry.
+  assert.equal(responseWindow([answered(2), answered(9)]), null);
+  assert.equal(responseWindow([]), null);
+  assert.equal(responseWindow(null), null);
+  // Bids decided before decidedAt was stored do not count toward it, exactly
+  // as they do not count toward the sentence.
+  assert.equal(responseWindow([answered(4), answered(6), { name: 'old', at: AT, outcome: 'won' }]),
+    null);
+});
+
+test('a quote is quiet once it has outlived every answer, and not before', () => {
+  const seen = responseWindow([answered(2), answered(9), answered(5)]);
+  assert.equal(isQuietBid(waiting(19), seen, NOW), true);
+  assert.equal(isQuietBid(waiting(3), seen, NOW), false);
+  // Strictly longer, never equal: a bid out exactly as long as the slowest
+  // reply this contractor ever got has not yet outlived it, and the sentence
+  // counts it the same way.
+  assert.equal(isQuietBid(waiting(9), seen, NOW), false);
+  assert.equal(isQuietBid(waiting(10), seen, NOW), true);
+});
+
+test('a decided bid is never quiet, whatever its age', () => {
+  const seen = responseWindow([answered(2), answered(9), answered(5)]);
+  assert.equal(isQuietBid(answered(2), seen, NOW), false);
+  assert.equal(isQuietBid({ name: 'l', at: day(-99), outcome: 'lost' }, seen, NOW), false);
+});
+
+test('no window marks nothing, and junk in the store marks nothing', () => {
+  assert.equal(isQuietBid(waiting(400), null, NOW), false);
+  const seen = responseWindow([answered(2), answered(9), answered(5)]);
+  assert.equal(isQuietBid(null, seen, NOW), false);
+  assert.equal(isQuietBid('not a bid', seen, NOW), false);
+  // No readable date is not an overdue quote — the row simply cannot be judged.
+  assert.equal(isQuietBid({ name: 'x', at: 'whenever' }, seen, NOW), false);
+});
+
+test('the sentence counts exactly the bids isQuietBid marks', () => {
+  // The count in the paragraph and the marks on the rows are one value read
+  // twice. If these could disagree the page would say "2 have gone quiet" over
+  // a list with three tags on it.
+  const bids = [answered(2), answered(9), answered(5),
+    waiting(19), waiting(30), waiting(3), waiting(9)];
+  const seen = responseWindow(bids);
+  const marked = bids.filter((bid) => isQuietBid(bid, seen, NOW)).length;
+  assert.equal(marked, 2);
+  assert.match(chaseSentence(bids, NOW), new RegExp(marked + ' still waiting have been out longer'));
+});
+
 test('the chase line ships on every page that keeps bids, figure or no figure', () => {
   // Unlike the price band, this needs no headline figure — only timestamps,
   // which every bid has. It is one shared file now, so it costs one copy.
@@ -1233,10 +1296,42 @@ test('the chase line ships on every page that keeps bids, figure or no figure', 
 
 test('the injected chase helpers answer exactly as the module does', () => {
   const evaluated = new Function(`${BID_FOLLOW_UP_HELPERS}
-    return { chaseSentence: chaseSentence, bidResponseDays: bidResponseDays };`)();
+    return { chaseSentence: chaseSentence, bidResponseDays: bidResponseDays,
+             responseWindow: responseWindow, isQuietBid: isQuietBid };`)();
   const rows = [answered(2), answered(9), answered(5), waiting(19), waiting(3)];
   assert.equal(evaluated.chaseSentence(rows, NOW), chaseSentence(rows, NOW));
   assert.equal(evaluated.bidResponseDays(answered(6)), bidResponseDays(answered(6)));
+  // The two the renderers call directly. Embedded by toString like the rest,
+  // so the browser marks the rows the tested function marks.
+  assert.deepEqual(evaluated.responseWindow(rows), responseWindow(rows));
+  const seen = responseWindow(rows);
+  for (const bid of rows) {
+    assert.equal(evaluated.isQuietBid(bid, seen, NOW), isQuietBid(bid, seen, NOW));
+  }
+});
+
+test('the band marks the rows its chase line is counting', () => {
+  // The sentence could always say "2 still waiting have been out longer than
+  // that" and never which two, leaving a contractor to check every row's age
+  // against a number in the paragraph above it.
+  const script = module_();
+  assert.match(script, /var seen = responseWindow\(list\);/);
+  assert.match(script, /if \(isQuietBid\(bid, seen, Date\.now\(\)\)\)/);
+  assert.match(script, /li\.setAttribute\('data-pf-jobs-quiet', ''\)/);
+  assert.match(script, /chaseTag\.textContent = 'Chase'/);
+  // Only on a waiting row: the marking sits inside the branch that draws the
+  // age, which a decided row never enters.
+  const waitingBranch = script.slice(script.indexOf('var phrase = bidWaitingPhrase'));
+  assert.ok(waitingBranch.indexOf('isQuietBid') < waitingBranch.indexOf('pf-jobs-state'),
+    'the mark belongs to the waiting branch, not to every row');
+});
+
+test('the quiet mark is a word, not only a colour', () => {
+  // 180 venture palettes do not agree on a warning hue, and a visitor may not
+  // separate two of them at all. Weight and a border carry it, so it also
+  // survives a monochrome print.
+  const injected = injectSavedBids(page(inputs(4)), 'fence-bid-calculator');
+  assert.match(injected, /\.pf-jobs-quiet\{[^}]*border:1px solid currentColor/);
 });
 
 test('the feature list says the tool knows how long an answer takes', () => {

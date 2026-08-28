@@ -1519,8 +1519,19 @@ test('the saved-bid list never cuts silently', async () => {
   // stopped at eight would state something the page contradicts, and a
   // contractor looking for a job from three weeks ago would read it as the
   // tool having forgotten it.
-  assert.match(script, /Showing the ' \+ shown \+ ' most recent of ' \+ rows\.length/);
+  assert.match(script, /Showing the ' \+ recent \+ ' most recent of ' \+ rows\.length/);
   assert.match(script, /'Show all ' \+ rows\.length/);
+  // "the N most recent" counts only the newest tier, never the quiet rows
+  // surfaced past it — a row older than the tenth being on screen would make
+  // "showing the 10 most recent" false, which is the one thing this section
+  // must never be. The quiet ones are named in their own clause instead.
+  assert.match(script, /const recent = Math\.min\(rows\.length, BIDS_SHOWN\)/);
+  assert.match(script, /const surfaced = drawn\.length - recent/);
+  assert.match(script, /' that ' \+ \(surfaced === 1 \? 'has' : 'have'\) \+ ' gone quiet\. '/);
+  // The cut is what hid them: a quiet bid is an old bid by definition, so it
+  // always fell below a plain newest-first slice.
+  assert.match(script, /rows\.filter\(\(row, i\) => i < BIDS_SHOWN \|\| isQuietBid\(row, seen, now\)\)/);
+  assert.match(script, /const hidden = rows\.length - drawn\.length/);
   assert.match(hub, /<p class="bid-more" id="bidsMore" hidden><\/p>/);
   // Counted before the cut is applied, so the number offered is a number of
   // rows the visitor could actually open.
@@ -1582,9 +1593,55 @@ test('the hub says how many quotes are still out, and how old the oldest is', as
   assert.match(hub, /<p class="bid-summary" id="bidsSummary" hidden><\/p>/,
     'the line ships empty and hidden — a visitor with no saved bids sees nothing');
   const script = hub.slice(hub.indexOf('function showSavedBids'));
-  assert.match(script, /followUpSentence\(rows, Date\.now\(\)\)/,
+  assert.match(script, /followUpSentence\(rows, now\)/,
     'counted over every row, not the eight drawn, or the number contradicts the "Show all" button');
   assert.match(script, /summary\.hidden = sentence === ''/);
+});
+
+test('the hub reads the chase window across every tool at once', async () => {
+  // The window needs three answered bids. A contractor working six calculators
+  // reaches three in none of them and clears it easily across all of them, so
+  // the hub is where this reading usually exists at all — and it is sound to
+  // pool because a reply time is a fact about their customers, not about a
+  // trade. The price band is the opposite case and stays per-tool: a gutter bid
+  // and a deck bid do not belong in one dollar comparison.
+  const hub = await read('index.html');
+  assert.match(hub, /<p class="bid-chase" id="bidsChase" hidden><\/p>/,
+    'the line ships empty and hidden — below the sample threshold there is nothing to say');
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  assert.match(script, /chaseSentence\(rows, now\)/, 'read over every row, like the summary above it');
+  assert.match(script, /chase\.hidden = chasing === ''/);
+  assert.ok(!/priceBandSentence/.test(hub),
+    'the price band compares dollars and must not be pooled across trades');
+});
+
+test('the hub marks which quotes have gone quiet, not just how many', async () => {
+  // chaseSentence has always been able to say "2 still waiting have been out
+  // longer than that" and never which two, leaving the contractor to check
+  // every row's age against a number in the paragraph above it.
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  assert.match(script, /const quiet = isQuietBid\(row, seen, now\)/);
+  assert.match(script, /state\.dataset\.state = outcome \|\| \(quiet \? 'quiet' : 'waiting'\)/);
+  assert.match(script, /chaseTag\.textContent = 'Chase'/);
+  // The tag sits before the date, which bid-when's auto margin pushes right, so
+  // it reads as qualifying the state beside it rather than ending the row.
+  assert.match(script, /link\.append\(label, figure, where, state, \.\.\.tag, when\)/);
+  // Not a colour alone: the palette flips between light and dark and a visitor
+  // may not separate the two hues at all, so the row carries the word.
+  assert.match(hub, /\.bids \.bid-chase-tag \{/);
+});
+
+test('the hub carries the timestamp the chase window is computed from', async () => {
+  // The regression this feature was: the hub injected chaseSentence on every
+  // visit and could never run it, because savedBids() built rows without
+  // decidedAt — the one field bidResponseDays reads. Nothing failed; the code
+  // shipped, was tested, and returned '' forever.
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
+  assert.match(script, /rows\.push\(\{ slug, name, at, amount, outcome, decidedAt \}\)/);
+  // Only on a decided bid, which is the only state it means anything in.
+  assert.match(script, /outcome && typeof bid\.decidedAt === 'string'/);
 });
 
 test('the hub and the calculator band share one definition of a waiting bid', async () => {
@@ -1613,9 +1670,9 @@ test('an outcome the hub does not recognise leaves the bid in the chase list', a
 test('every saved-bid row says which of the three states it is in', async () => {
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function showSavedBids'));
-  assert.match(script, /state\.dataset\.state = outcome \|\| 'waiting'/,
+  assert.match(script, /state\.dataset\.state = outcome \|\| \(quiet \? 'quiet' : 'waiting'\)/,
     'a row with no badge would look untracked rather than open');
-  assert.match(script, /bidWaitingPhrase\(bidWaitingDays\(at, Date\.now\(\)\)\) \|\| 'Waiting'/);
+  assert.match(script, /bidWaitingPhrase\(bidWaitingDays\(at, now\)\) \|\| 'Waiting'/);
 });
 
 test('opting out is wired to remove the personalised row, not just stop counting', async () => {

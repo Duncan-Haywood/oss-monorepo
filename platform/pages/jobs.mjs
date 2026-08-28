@@ -649,6 +649,60 @@ export function bidResponseDays(bid) {
 }
 
 /**
+ * How long this contractor's customers have actually taken to answer.
+ *
+ * `{ answered, low, high }` in whole days, or `null` below
+ * `MIN_RESPONSE_SAMPLE` answered bids carrying both timestamps.
+ *
+ * Split out of `chaseSentence` because the sentence was only ever half the
+ * feature. "2 still waiting have been out longer than that" is the line worth
+ * acting on, and a contractor reading it then had to work out *which two* by
+ * comparing every row's age against a number in a paragraph above. The window
+ * is what decides that, so it has to be a value the renderers can hold rather
+ * than an intermediate inside the sentence.
+ *
+ * The window is a fact about this contractor's customers and their own
+ * follow-up, not about a trade or a price level, which is why — unlike the
+ * price band — it is meaningful read across every tool at once. See the hub's
+ * chase line.
+ */
+export function responseWindow(bids) {
+  if (!bids || !bids.length) return null;
+
+  var answered = 0;
+  var low = 0;
+  var high = 0;
+  for (var i = 0; i < bids.length; i++) {
+    var days = bidResponseDays(bids[i]);
+    if (days === null) continue;
+    if (answered === 0 || days < low) low = days;
+    if (answered === 0 || days > high) high = days;
+    answered++;
+  }
+  if (answered < MIN_RESPONSE_SAMPLE) return null;
+  return { answered: answered, low: low, high: high };
+}
+
+/**
+ * Has this particular quote outlived every answer this contractor has had?
+ *
+ * Strictly longer than the window's slowest answer, never equal to it: a bid
+ * out exactly as long as the slowest reply the contractor ever got has not yet
+ * outlived it, and the sentence counts it the same way.
+ *
+ * `false` for every bid when the window is `null`, so a caller below the sample
+ * threshold marks nothing rather than falling back to a rule of thumb this
+ * feature deliberately does not carry.
+ */
+export function isQuietBid(bid, seen, nowMs) {
+  if (!seen) return false;
+  if (!bid || typeof bid !== 'object') return false;
+  if (bid.outcome === 'won' || bid.outcome === 'lost') return false;
+  var waited = bidWaitingDays(bid.at, nowMs);
+  return waited !== null && waited > seen.high;
+}
+
+/**
  * Which of the waiting bids have gone quiet.
  *
  * The feature's own stated reason for existing is that *"a one-truck
@@ -673,27 +727,16 @@ export function bidResponseDays(bid) {
  * simply does not count toward the window rather than corrupting it.
  */
 export function chaseSentence(bids, nowMs) {
-  if (!bids || !bids.length) return '';
+  var seen = responseWindow(bids);
+  if (!seen) return '';
 
-  var answered = 0;
-  var low = 0;
-  var high = 0;
-  for (var i = 0; i < bids.length; i++) {
-    var days = bidResponseDays(bids[i]);
-    if (days === null) continue;
-    if (answered === 0 || days < low) low = days;
-    if (answered === 0 || days > high) high = days;
-    answered++;
-  }
-  if (answered < MIN_RESPONSE_SAMPLE) return '';
+  var answered = seen.answered;
+  var low = seen.low;
+  var high = seen.high;
 
   var quiet = 0;
   for (var w = 0; w < bids.length; w++) {
-    var bid = bids[w];
-    if (!bid || typeof bid !== 'object') continue;
-    if (bid.outcome === 'won' || bid.outcome === 'lost') continue;
-    var waited = bidWaitingDays(bid.at, nowMs);
-    if (waited !== null && waited > high) quiet++;
+    if (isQuietBid(bids[w], seen, nowMs)) quiet++;
   }
 
   var spread = low === high
@@ -1007,7 +1050,8 @@ export function stripForInjection(source) {
  */
 export const BID_FOLLOW_UP_HELPERS = [
   `var MIN_RESPONSE_SAMPLE = ${MIN_RESPONSE_SAMPLE};`,
-  ...[bidWaitingDays, bidWaitingPhrase, followUpSentence, bidResponseDays, chaseSentence]
+  ...[bidWaitingDays, bidWaitingPhrase, followUpSentence, bidResponseDays, responseWindow,
+    isQuietBid, chaseSentence]
     .map((fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`),
 ].join('\n');
 
@@ -1196,6 +1240,14 @@ const JOBS_STYLE = `<style>
    first rather than answering a different question. */
 .pf-jobs-gap{margin-top:-4px}
 .pf-jobs-age{font-variant-numeric:tabular-nums}
+/* The row-level half of the chase line, and it takes that line's currentColor
+   treatment for the same reason: 180 venture palettes do not agree on a warning
+   colour, and one asserted here would be invisible on some of them. Weight and
+   a border carry it instead of a hue, so it also survives a monochrome print
+   and reads for a visitor who cannot distinguish the colour anyway. */
+.pf-jobs-quiet{font-size:.78rem;font-weight:700;letter-spacing:.03em;
+  border:1px solid currentColor;border-radius:6px;padding:1px 6px;white-space:nowrap}
+.pf-jobs-list li[data-pf-jobs-quiet] .pf-jobs-age{font-weight:700}
 .pf-jobs-state{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
   border:1px solid #80808059;border-radius:7px;padding:3px 6px}
 /* Sized to the figure it holds, not to the row: a four-or-five digit price on
@@ -1442,6 +1494,13 @@ ${BID_PRICE_BAND_HELPERS}
     chase.hidden = chasing === '';
     if (chasing !== '' && chasing !== chaseShown) { chaseShown = chasing; bump('bid_chase_shown'); }
 
+    // The window the sentence above is drawn from, kept so the rows can say
+    // which of them it means. Until now the line said "2 still waiting have
+    // been out longer than that" and the list below it looked identical row to
+    // row, leaving the contractor to hold "9 days" in their head and check
+    // twenty ages against it. The count and the rows now come off one value.
+    var seen = responseWindow(list);
+
     // Absent on a tool with no headline figure: the build emits neither the
     // paragraph nor the functions there, so this element is the guard. Counted
     // when the reading changes rather than on every render, so a contractor
@@ -1493,6 +1552,20 @@ ${BID_PRICE_BAND_HELPERS}
           age.className = 'pf-jobs-age';
           age.textContent = phrase;
           li.appendChild(age);
+        }
+        // Which quote the chase line means. Marked on the row rather than only
+        // counted in the paragraph, and only where the window exists: below the
+        // sample threshold isQuietBid is false for everything, so a contractor
+        // with two answered bids sees no marks rather than marks drawn off a
+        // rule of thumb this feature does not have.
+        if (isQuietBid(bid, seen, Date.now())) {
+          li.setAttribute('data-pf-jobs-quiet', '');
+          var chaseTag = document.createElement('span');
+          chaseTag.className = 'pf-jobs-quiet';
+          // Says what to do, not what happened: "Gone quiet" describes the bid,
+          // "Chase" is the thing the contractor came to the panel to find out.
+          chaseTag.textContent = 'Chase';
+          li.appendChild(chaseTag);
         }
       }
 

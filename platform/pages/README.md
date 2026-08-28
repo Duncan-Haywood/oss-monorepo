@@ -373,6 +373,69 @@ Four rules the tests pin, each of which was a way to get this wrong:
   data loss. Only the two events are gated. The section is `display:none` in
   print, for the reason the band is.
 
+### Which quotes have gone quiet, across every tool
+
+The chase line — *"The 5 bids you have heard back on came back in 2 to 9 days.
+2 still waiting have been out longer than that."* — shipped on the tool pages
+and is the one reading in the portfolio a contractor should act on **today**.
+The hub now carries it too, and that is not a duplicate: it is the only place
+it usually exists at all.
+
+`responseWindow` needs three answered bids. Bids are kept **per tool**, so a
+one-truck contractor working six calculators has three answers in *total* and
+one in each — the line is blank on all six pages while the signal sits there in
+the store. Pooling is sound here for a reason that is specific to this reading:
+a reply time is a fact about the contractor's own customers and their own
+follow-up, not about a trade or a price level. The price band is the opposite
+case and deliberately stays per-tool — `priceBandSentence` compares dollars,
+and a gutter bid against a deck bid is not a comparison. `build.test.mjs`
+asserts the hub does **not** carry it.
+
+The hub had in fact been shipping `chaseSentence` in `BID_FOLLOW_UP_HELPERS` on
+every visit since the feature landed, and could never run it: `savedBids()`
+built its rows without `decidedAt`, the one field `bidResponseDays` reads, so
+the function returned `''` forever. Nothing failed, nothing was untested, and
+the code was simply unreachable — the same shape of defect as the hand-copied
+`normalizedBid` above, arriving through the row shape instead of through a
+paraphrase.
+
+**Counting is only half of it.** The sentence could always say *how many* quotes
+had gone quiet and never *which*, leaving the contractor to hold "9 days" in
+their head and check every row's age against it. So the window is now a value
+(`responseWindow`) that both the sentence and the rows read, and a row that
+`isQuietBid` marks carries the word **Chase**:
+
+- **Strictly longer than the slowest answer, never equal to it.** A bid out
+  exactly as long as the slowest reply this contractor ever got has not yet
+  outlived it, and the sentence counts it the same way. The two cannot disagree
+  — a test pins that the number in the paragraph equals the number of marks.
+- **No window marks nothing.** Below three answers `isQuietBid` is `false` for
+  everything, rather than falling back to an industry rule of thumb this
+  feature deliberately does not carry.
+- **A word, not only a colour.** 180 venture palettes do not agree on a warning
+  hue, the hub's flips between light and dark, and a visitor may not separate
+  two of them at all. Weight, a border and the word carry it, so it survives a
+  monochrome print too.
+- **Quiet rows are never hidden by the cut.** This is the defect the marking
+  exposed. A quiet bid is an old bid *by definition*, so a plain newest-first
+  slice of eight hid precisely the rows the line directly above had just asked
+  the contractor to act on: the page said "2 have been out longer than that" and
+  then showed eight rows, none of them the two. The drawn set is now the newest
+  eight **plus** every quiet row wherever it falls.
+- **Order is not resorted around them.** A surfaced row keeps its newest-first
+  place rather than being promoted. This section is the index its copy says it
+  is — used to find the job whose customer just rang — and reordering it around
+  a second purpose would cost the first. The count line says both tiers instead:
+  "Showing the 8 most recent of 13 saved bids, plus 2 that have gone quiet",
+  because "the 10 most recent" would be false the moment a row older than the
+  tenth is on screen.
+
+Counting follows the site convention: `saved_bid_chase_shown` in
+`portfolio-hub-usage`, local only, silent under DNT/GPC and the site-wide
+opt-out, recorded when the reading *changes* rather than on every render — so
+pressing "Show all" is not a second reading. It says how often the line is
+shown and never for which customer.
+
 ### Getting the bids off this browser
 
 Everything above stands on one `localStorage` key in one browser, and the hub's

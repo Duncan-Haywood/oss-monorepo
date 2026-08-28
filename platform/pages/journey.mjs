@@ -598,6 +598,17 @@ await step('the tool says which quotes have outlived every answer it has seen', 
     check('and counts only the quotes that have outlived all of them',
       /1 still waiting has been out longer than that\.$/.test(line), line);
 
+    // The other half: which one. The sentence counts, the row is marked, and
+    // the two come off one `responseWindow` — so a panel that said "1 still
+    // waiting" over a list with two tags on it would be caught here.
+    const marked = await page.locator('.pf-jobs-list li[data-pf-jobs-quiet]').count();
+    check('the row the sentence means is the one marked', marked === 1, `${marked} marked`);
+    const markedName = await page.textContent('.pf-jobs-list li[data-pf-jobs-quiet] .pf-jobs-name');
+    check('and it is D at 19 days, not E at 3', markedName.trim() === 'D', markedName);
+    const tagText =
+      (await page.textContent('.pf-jobs-list li[data-pf-jobs-quiet] .pf-jobs-quiet') || '').trim();
+    check('the mark is a word and not only a colour', tagText === 'Chase', tagText || '(no tag)');
+
     // Now the part the seed cannot prove: that a bid saved and decided through
     // the UI lands in the same window. Saving E again reprices it to today and
     // marking it won writes decidedAt now, so it answers in 0 days and drags
@@ -625,6 +636,84 @@ await step('the tool says which quotes have outlived every answer it has seen', 
     const counts = await page.evaluate(
       () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
     check('the chase reading is counted', counts.bid_chase_shown >= 1, JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
+// 6be. The chase line on the hub — the window read across every tool at once.
+//
+//      The step above proves the reading works on one tool. This proves the
+//      case that tool can never reach: the window needs three answered bids,
+//      and a contractor working six calculators has three answers in *total*
+//      and one in each. Per-tool, the line is blank on all six. Pooled, it is
+//      the whole signal — and it is sound to pool because a reply time is a
+//      fact about their customers rather than about a trade. (The price band is
+//      the opposite case and stays per-tool: a gutter bid and a deck bid do not
+//      belong in one dollar comparison.)
+//
+//      It also covers the cut. A quiet bid is an old bid by definition, so a
+//      plain newest-first slice of eight hid exactly the rows the line above it
+//      had just asked the contractor to act on.
+await step('the hub pools answers no single tool has enough of', async () => {
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    // One answer each on three tools, and two quotes long out. Eight fresher
+    // waiting bids sit on a fourth so both quiet ones fall past the cut.
+    await page.evaluate((now) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      const fresh = [];
+      for (let i = 0; i < 8; i++) fresh.push({ name: 'Fresh ' + i, at: at(i), fields: { a: '1' } });
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
+        'fence-bid-calculator': [
+          { name: 'A', at: at(40), outcome: 'won', decidedAt: at(38), fields: { a: '1' } },
+          { name: 'Quiet 30', at: at(30), fields: { a: '1' } }],
+        'deck-bid-calculator': [
+          { name: 'B', at: at(50), outcome: 'lost', decidedAt: at(41), fields: { a: '1' } },
+          { name: 'Quiet 19', at: at(19), fields: { a: '1' } }],
+        'drywall-bid-calculator': [
+          { name: 'C', at: at(20), outcome: 'won', decidedAt: at(18), fields: { a: '1' } }],
+        'flooring-bid-calculator': fresh,
+      } }));
+    }, Date.now());
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const line = (await page.textContent('#bidsChase')).replace(/\s+/g, ' ').trim();
+    check('the hub draws a window from one answer on each of three tools',
+      /^The 3 bids you have heard back on came back in 2 to 9 days\./.test(line), line);
+    check('and counts both quotes that have outlived it',
+      /2 still waiting have been out longer than that\.$/.test(line), line);
+
+    const tags = await page.locator('#bidsList .bid-chase-tag').count();
+    check('both rows are marked, not just counted', tags === 2, `${tags} tags`);
+
+    // The cut: eight newest plus the two quiet ones, and a count line that says
+    // so rather than claiming ten "most recent".
+    const drawn = await page.locator('#bidsList li').count();
+    check('a quiet quote is surfaced past the eight-row cut', drawn === 10, `${drawn} rows`);
+    const more = (await page.textContent('#bidsMore')).replace(/\s+/g, ' ').trim();
+    check('and the count line names both tiers',
+      /Showing the 8 most recent of 13 saved bids, plus 2 that have gone quiet\./.test(more), more);
+
+    // Order is the index's, not the chase list's: the section is used to find
+    // the job whose customer just rang, and resorting it would cost that.
+    const first = await page.textContent('#bidsList .bid-name');
+    check('the newest bid is still first', first.trim() === 'Fresh 0', first);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the hub chase reading is counted', counts.saved_bid_chase_shown >= 1, JSON.stringify(counts));
+    check('and the counter holds no customer name',
+      !/Quiet |Fresh /.test(JSON.stringify(counts)), JSON.stringify(counts));
   } finally {
     await page.evaluate((raw) => {
       if (raw === null) localStorage.removeItem('portfolio-saved-bids');
