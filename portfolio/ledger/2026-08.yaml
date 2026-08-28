@@ -26032,3 +26032,64 @@ entries:
         `GITHUB_PAGES_ENABLED`. Every usage reading is still a zero baseline; no
         second owner ask was added.
     mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1936. The chase line — "the 5 bids you have heard back on came
+        back in 2 to 9 days, 2 still waiting have been out longer than that" —
+        could say how many quotes had gone quiet and never which, so the
+        contractor held "9 days" in their head and checked every row's age
+        against it. `responseWindow` and `isQuietBid` are split out of
+        `chaseSentence`, the count and the marks now come off one value, and a
+        quiet row carries the word "Chase" on the tool band and the hub. A test
+        pins that the number in the paragraph equals the number of marks, so the
+        two can never disagree.
+      - >-
+        The finding worth carrying: the hub had been shipping `chaseSentence` in
+        `BID_FOLLOW_UP_HELPERS` to every visit since the feature landed and could
+        never run it. `savedBids()` built its rows without `decidedAt`, the one
+        field `bidResponseDays` reads, so it returned '' forever. Nothing failed,
+        nothing was untested, and the code was simply unreachable. This is the
+        same defect class as the hand-copied `normalizedBid` the module docs
+        already warn about, but it arrives through the *row shape* rather than
+        through a paraphrase — so embedding a function by `toString` does not
+        prevent it. Injecting a helper proves the browser has the tested body; it
+        proves nothing about whether the caller passes it the fields it reads.
+      - >-
+        That mattered more than a missing line, because the hub is where the
+        reading usually exists at all. Bids are kept per tool and the window
+        needs three answered bids, so a one-truck contractor working six
+        calculators has three answers in total and one in each: blank on all six
+        pages while the signal sits in the store. Pooling is sound for this
+        reading and not in general — a reply time is a fact about their
+        customers, not about a trade. The price band stays per-tool for the
+        mirror-image reason, and `build.test.mjs` now asserts the hub does not
+        carry it.
+      - >-
+        Marking the rows exposed a third defect neither the sentence nor the
+        tests could see: a quiet bid is an old bid by definition, so the
+        newest-first cut of eight hid precisely the rows the line above had just
+        asked the contractor to act on. The drawn set is now the newest eight
+        plus every quiet row wherever it falls, with the order left alone — the
+        section is the index its copy says it is — and the count line names both
+        tiers rather than claiming ten "most recent". A reading that names a
+        subset of a truncated list has to be checked against the truncation; this
+        one had not been.
+      - >-
+        CI method note, since the outage is still live and now costs every
+        session the same five minutes: `Portfolio validate` is red on `main`
+        itself on all eight most recent pushes, 4 seconds each. The cheapest
+        discriminator is the job object rather than the timing — an outage job
+        carries `"runner_id": 0`, an empty `runner_name`, and zero steps, which
+        is unambiguous where "4 seconds" still invites an argument. Verified
+        locally instead: 442 unit tests, every portfolio validator, and
+        `journey.mjs` against a built artifact at 0 failed checks.
+      - >-
+        Queue state: zero open PRs at session start, confirming the prior
+        session's reading, and one opened and merged here. Deploy remains the
+        binding constraint and no agent moved it — `publish_surface` still
+        reports nothing live behind `GITHUB_PAGES_ENABLED`, every usage reading
+        is still a zero baseline, and no second owner ask was added.
+    mrr_end: null
