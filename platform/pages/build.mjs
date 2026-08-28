@@ -84,6 +84,55 @@ const EXCLUDED_SLUGS = new Set([
   'ubuntu-agent-server',
 ]);
 
+/**
+ * Words a tool should answer to that its own copy never uses.
+ *
+ * Stemming closes the gap between "fence" and "fences". It cannot close the
+ * gap between two different words for the same job, and that gap is where the
+ * searcher usually stands: the trade writes "pressure washing" and the
+ * customer types "power washing"; the tool is a "snow removal" calculator and
+ * the search is "snow plowing". Each entry below was a query that returned
+ * zero results against the built catalogue while the listed tool sat there.
+ *
+ * Keyed by slug substring rather than by an indexed word, because a word
+ * trigger misfires: keying "air conditioning" off the token "pressure" would
+ * hang it on the well-pump calculator. A slug is explicit about which tools
+ * an alias reaches, which also makes a wrong entry easy to spot in review.
+ * The cost is that a new venture gets no aliases until someone adds a line.
+ *
+ * These widen a card's index only. Nothing is removed, so no alias can take
+ * away a result a query already found.
+ */
+export const SEARCH_ALIASES = [
+  { slug: 'pressure-washing', add: 'power washing powerwashing soft wash softwash' },
+  { slug: 'window-cleaning', add: 'window washing washer squeegee' },
+  { slug: 'junk-removal', add: 'hauling haul away cleanout clean out debris' },
+  { slug: 'snow-removal', add: 'plowing plow shoveling shovel deicing' },
+  // "removal" earns its place: the matcher ANDs across words, so "wildlife
+  // removal" found nothing while "wildlife" alone found this tool.
+  { slug: 'pest-control', add: 'termite termites bedbug bed bugs roaches ants exterminator wildlife removal trapping' },
+  { slug: 'gutter-cleaning', add: 'downspout leaves' },
+  // Both tools price cooling work; neither says "air conditioning" outright.
+  { slug: 'mini-split', add: 'air conditioning conditioner cooling ductless' },
+  { slug: 'hvac-maintenance', add: 'air conditioning conditioner cooling heating furnace' },
+  // A whole-room search is how people shop for these, and no single tool
+  // carries both words, so the matcher's AND across words found nothing.
+  { slug: 'kitchen-tile-backsplash', add: 'kitchen remodel renovation' },
+  { slug: 'countertop', add: 'kitchen remodel renovation' },
+  { slug: 'cabinet-refinishing', add: 'kitchen remodel renovation' },
+  { slug: 'walk-in-shower', add: 'bathroom remodel renovation' },
+  { slug: 'walk-in-tub', add: 'bathroom remodel renovation' },
+  { slug: 'toilet-replacement', add: 'bathroom remodel renovation' },
+  { slug: 'basement-finishing', add: 'basement remodel renovation' },
+];
+
+/** The alias words for one venture, or '' when it has none. */
+export function aliasesFor(slug) {
+  return SEARCH_ALIASES.filter((alias) => slug.includes(alias.slug))
+    .map((alias) => alias.add)
+    .join(' ');
+}
+
 // Never shipped to a visitor: test payload they would download for no benefit,
 // repo bookkeeping, or a per-venture robots.txt that crawlers never read
 // (only the one at the origin root counts).
@@ -780,7 +829,12 @@ export function renderHub(surfaces, baseUrl) {
   // anyone not using the search box, so it has to describe the real nesting.
   const renderCard = (surface, headingLevel) => `          <li class="card" data-search="${escapeHtml(
     surface.searchIndex ??
-      searchTokens([surface.title, surface.fullDescription ?? surface.description, surface.slug]),
+      searchTokens([
+        surface.title,
+        surface.fullDescription ?? surface.description,
+        surface.slug,
+        aliasesFor(surface.slug),
+      ]),
   )}">
             <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
               <h${headingLevel}>${escapeHtml(surface.title)}</h${headingLevel}>
@@ -2246,6 +2300,7 @@ export async function buildSite({
         title,
         fullDescription,
         surface.slug,
+        aliasesFor(surface.slug),
         ...(await collectPageTitles(surface.sourceDir, surface.entryFile)),
       ]),
       pageCount: await countPages(surface.sourceDir),
