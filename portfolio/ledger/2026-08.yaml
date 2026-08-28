@@ -25827,3 +25827,53 @@ entries:
         runner-outage signature — 2–3 second jobs, empty
         `output.title/summary/text`, 404 on log download — confirmed on the
         `validate` job before merging rather than debugging green code.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1928. The saved-bid price band could tell a contractor "every
+        bid you won was $2,400 or under, and every one you lost $2,600 or over"
+        — the ceiling of what the tool can work out alone, because it knows the
+        quotes that were refused and nothing about the quote that was accepted.
+        So the reading raised the question and stopped: losing above a figure,
+        with no way to tell whether the winner was $200 under or $1,200 under,
+        which call for opposite responses. A lost row now takes one optional
+        "Went for" box, and two lost jobs with a figure produce "On the 2 you
+        lost where you know the winning price, yours averaged $500 more — 20%
+        over. The closest was $400 over." When the gap is not positive it says
+        so at least as loudly — none of them went to a cheaper bid, so price is
+        not what decided these, the finding that stops someone cutting a price
+        that was never the problem. On the 160 pages that capture a headline
+        figure, the same gate the band uses.
+      - >-
+        Two rules worth not re-deriving, both silent failures. `lostTo` belongs
+        to the decision and not to the pricing: flipping a bid to won or back to
+        waiting has to drop it, or `undercutSentence` averages a winning price
+        against a job nobody lost. And `resolveBidPair` has to carry it with the
+        outcome it resolves — the same field class that already cost this
+        feature its won/lost decisions once, when a backup merge resolved fields
+        on `at` alone. Adding it also meant emitting `withDecision` into
+        `BACKUP_MERGE_HELPERS`; without that the hub's transcribed merge threw
+        `withDecision is not defined` on the first decided bid, which is #1905's
+        rule (inject the tested body, never a paraphrase) reappearing as a
+        dependency rather than as a stale copy.
+      - >-
+        A defect only the browser pass could find, and it was not in the new
+        code: `render()` rebuilds the whole list, so committing with Enter
+        destroyed the input under the caret and dropped focus to the body. The
+        fix has to be conditional — refocusing after a `change` fired by
+        blurring would drag the caret back out of whatever the visitor had just
+        tabbed to, which is worse than the bug. Anything in that panel that
+        gains a text field inherits this.
+      - >-
+        The premise was checked before building rather than assumed: a full
+        `sweep.mjs` run reported 163/163 tools answering with no errors, so the
+        gap was depth and not repair. Open PRs at the start of the run: zero, so
+        the queue could not be drained. Verified locally — 426 tests in
+        platform/pages, build + check (163 products, 441 pages, no dead links),
+        the 163/163 sweep, `journey.mjs` with 0 failed checks, `clauses.mjs`,
+        `validate_usage.py` — and the new journey driven end to end in Chromium
+        at 390px. GitHub checks carried the runner-outage signature: 2-second
+        jobs, empty `output.title/summary/text`, 404 on log download.
+    mrr_end: null
