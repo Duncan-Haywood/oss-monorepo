@@ -1487,9 +1487,8 @@ test('the injected scripts ship without their prose', async () => {
   // ~19 KB of unminified source sat on each of 234 pages and again in the
   // opt-in offline bundle, which has a fixed 16 MB budget. Stripping the
   // comment lines and the indentation is worth ~976 KB across the bundle.
-  const html = await read('fence-bid-calculator', 'index.html');
-  const band = html.slice(html.indexOf('var SLUG'), html.indexOf('</script>', html.indexOf('var SLUG')));
-  assert.ok(band.length > 0, 'the saved-bids script is not on the page');
+  const band = await read('pf-jobs.js');
+  assert.ok(band.includes('var SLUG'), 'the shared saved-bids script was not written');
   const commentLines = band.split('\n').filter((line) => line.trim().startsWith('//'));
   assert.deepEqual(commentLines, [], 'a whole-line comment survived into the shipped script');
   const indented = band.split('\n').filter((line) => /^\s+\S/.test(line));
@@ -1512,10 +1511,12 @@ test('the hub and the calculator band share one definition of a waiting bid', as
   // two hand-written copies would drift, and the drift would be invisible —
   // the hub saying a bid is nine days old and the tool saying ten.
   const hub = await read('index.html');
-  const tool = await read('fence-bid-calculator', 'index.html');
+  // The band's half now lives in the one shared file every tool page loads,
+  // rather than inline in each of them.
+  const band = await read('pf-jobs.js');
   for (const name of ['bidWaitingDays', 'bidWaitingPhrase', 'followUpSentence']) {
     assert.ok(hub.includes(`var ${name} = function ${name}(`), `${name} is not embedded in the hub`);
-    assert.ok(tool.includes(`var ${name} = function ${name}(`), `${name} is not embedded in the band`);
+    assert.ok(band.includes(`var ${name} = function ${name}(`), `${name} is not in the shared script`);
   }
 });
 
@@ -2015,4 +2016,40 @@ test('catalog.json does not pre-answer the open funding decision', async () => {
 test('the hub links to the machine-readable catalog', async () => {
   const hub = await read('index.html');
   assert.ok(hub.includes('catalog.json'), 'catalog.json should be discoverable from the hub');
+});
+
+test('the saved-bids script is one file the whole site loads, not 234 copies', async () => {
+  // It was inlined into every page that carries the band, and the arithmetic on
+  // that had become indefensible: ~14 KB written out 234 times was 3.26 MiB of
+  // the built site and 2.06 MiB of the 16 MiB offline bundle — the same bytes,
+  // paid for on every page load and again by every tool saved for offline use.
+  const { outDir, offline } = await site();
+  const shared = await read('pf-jobs.js');
+  assert.ok(shared.includes('var SLUG'), 'the shared script is not at the site root');
+
+  assert.ok(offline.bundle.includes('pf-jobs.js'),
+    'a tool cached offline without it opens with no saved-bids band at all');
+
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
+  let tagged = 0;
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    if (!html.includes('data-pf-jobs-root')) continue;
+    tagged += 1;
+
+    // The one thing a shared script can get wrong that an inlined one could
+    // not: these pages are served at two depths, and a src that is right at
+    // `/<slug>/` is a 404 at `/<slug>/some-question.html`.
+    const src = html.match(/<script type="module" src="([^"]*pf-jobs\.js)"/)?.[1];
+    assert.ok(src, `${path.relative(outDir, file)} carries the band but does not load its script`);
+    const resolved = path.resolve(path.dirname(file), src);
+    assert.equal(resolved, path.join(outDir, 'pf-jobs.js'),
+      `${path.relative(outDir, file)} points its script at ${src}`);
+
+    // And the copy it replaced is gone. A page carrying both would run the
+    // whole feature twice, with two sets of listeners on one panel.
+    assert.ok(!html.includes('var SLUG = '),
+      `${path.relative(outDir, file)} still inlines the saved-bids script`);
+  }
+  assert.ok(tagged > 200, `only ${tagged} pages carry the band`);
 });

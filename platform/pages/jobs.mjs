@@ -54,6 +54,13 @@ export const SAVED_BIDS_KEY = 'portfolio-saved-bids';
 
 const JOBS_MARKER = 'pf-jobs';
 
+// The two things the shared script cannot know until it is on a page: which
+// venture it is running inside, and which element holds that tool's headline
+// figure. Carried on the tag rather than baked into the source, which is what
+// lets one file serve all 234 pages.
+const JOBS_SLUG_ATTR = 'data-pf-jobs-slug';
+const JOBS_AMOUNT_ATTR = 'data-pf-jobs-amount';
+
 /**
  * Per tool, not per site. Twenty-five bids is more than a one-truck contractor
  * quotes in a month, and the cap exists so a browser that never clears its
@@ -1001,19 +1008,25 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
  * there would quietly move a won job back into the chase list, which is the
  * failure this feature exists to prevent rather than cause.
  */
-const JOBS_SCRIPT = (slug, amountSelector = '') => `<script type="module">
+const JOBS_SCRIPT = () => `
 (function(){
-  var SLUG = ${JSON.stringify(slug)};
+  var tag = document.querySelector('script[${JOBS_SLUG_ATTR}]');
+  var SLUG = tag ? tag.getAttribute('${JOBS_SLUG_ATTR}') || '' : '';
+  // Re-checked here rather than trusted as an attribute. It was a build-time
+  // literal until this script became one shared file; now it travels through
+  // the DOM, and it is handed to querySelector. The build only ever writes the
+  // hash-id form (see pageHeadlineAmountSelector), so anything else is not ours.
+  var claimed = tag ? tag.getAttribute('${JOBS_AMOUNT_ATTR}') || '' : '';
+  var AMOUNT_SELECTOR = /^#[A-Za-z][\\w-]*$/.test(claimed) ? claimed : '';
   var KEY = ${JSON.stringify(SAVED_BIDS_KEY)};
   var MAX = ${MAX_SAVED_BIDS};
   var MIN_FIELDS = ${MIN_SAVEABLE_FIELDS};
   var EXCLUDED = ${JSON.stringify([...EXCLUDED_FIELD_IDS])};
   var UNSAVEABLE = ${JSON.stringify([...UNSAVEABLE_TYPES])};
-  var AMOUNT_SELECTOR = ${JSON.stringify(amountSelector)};
 
 ${BID_FOLLOW_UP_HELPERS}
 ${BID_AMOUNT_HELPER}
-${amountSelector ? BID_PRICE_BAND_HELPERS : ''}
+${BID_PRICE_BAND_HELPERS}
 
   var root = document.querySelector('[data-pf-jobs-root]');
   if (!root) return;
@@ -1394,7 +1407,33 @@ ${amountSelector ? BID_PRICE_BAND_HELPERS : ''}
   if (document.readyState === 'complete') start();
   else window.addEventListener('load', start, { once: true });
 })();
-</script>`;
+`;
+
+/**
+ * The saved-bids script as one file, for the whole site.
+ *
+ * It was inlined into every page until now, and the arithmetic on that had
+ * quietly become indefensible: **3.26 MiB of the built site, and 2.06 MiB of
+ * the 16 MiB offline bundle, were the same ~14 KB of JavaScript written out 234
+ * times.** A contractor on a jobsite paid for it on every page load and again
+ * on every tool they saved for offline use.
+ *
+ * The two per-page values it used to be built around — the venture's slug and
+ * which element holds its headline figure — now ride on the `<script>` tag as
+ * attributes and are read back from it. Everything else was already a constant
+ * shared by all 234 pages.
+ *
+ * Still stripped of its prose. It is one copy now, so the saving is trivial,
+ * but the guarantee is not: `stripForInjection` is what proves no line of the
+ * shipped source opens a template literal it does not close, and the test that
+ * asserts it reads this file.
+ */
+export const SAVED_BIDS_MODULE_FILE = 'pf-jobs.js';
+
+/** The contents of that file. Written once by the build, at the site root. */
+export function renderSavedBidsModule() {
+  return `${stripForInjection(JOBS_SCRIPT())}\n`;
+}
 
 /**
  * Add the saved-bids bar to one already-published page.
@@ -1442,8 +1481,21 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
     ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${markup}`)
     : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
-  return anchored.replace(
-    /<\/body>/i,
-    `${stripForInjection(JOBS_SCRIPT(slug, amountSelector))}\n</body>`,
-  );
+  // A tag, not a body. The script is one file at the site root now — see
+  // `renderSavedBidsModule` — and this is the only thing that varies per page.
+  //
+  // `type="module"` is kept from when this was inline, and for the same reason:
+  // module scripts are deferred and run in document order, so this one, last in
+  // the document, sees a form the venture's own deferred module has finished
+  // building. A classic external script would run the moment it arrived, which
+  // could be before that.
+  // Escaped, not interpolated. The slug used to be JSON-encoded into a string
+  // literal; it is now an attribute value, so the character that would break
+  // out of it is a different one and the guard has to move with it.
+  const attr = (value) => String(value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const tag = `<script type="module" src="${attr(toRoot + SAVED_BIDS_MODULE_FILE)}"` +
+    ` ${JOBS_SLUG_ATTR}="${attr(slug)}" ${JOBS_AMOUNT_ATTR}="${attr(amountSelector)}"></script>`;
+
+  return anchored.replace(/<\/body>/i, `${tag}\n</body>`);
 }
