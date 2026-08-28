@@ -18,6 +18,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   new_seller: {
     id: "new_seller",
     label: "US new seller (first ~30 days after first sale)",
+    short: "New-seller 3%",
     note: "Promotional referral rate some new US shops see. It expires. Do not price a catalogue against it.",
     referralRate: 3,
     facilitationRate: 0,
@@ -27,6 +28,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   us_standard: {
     id: "us_standard",
     label: "US standard (most categories, mid-2026)",
+    short: "Today (6%)",
     note: "Unified US referral that already covers payment processing for domestic orders. Category exceptions exist.",
     referralRate: 6,
     facilitationRate: 0,
@@ -36,6 +38,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   us_jewelry: {
     id: "us_jewelry",
     label: "US jewelry (select items)",
+    short: "US jewelry 5%",
     note: "Some jewelry SKUs have been listed at a lower referral than the standard US rate. Confirm on the SKU.",
     referralRate: 5,
     facilitationRate: 0,
@@ -45,6 +48,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   oct_2026: {
     id: "oct_2026",
     label: "US from 1 Oct 2026 (announced: 8% + 1.5% facilitation on affiliate)",
+    short: "From 1 Oct 2026 (8% + 1.5%)",
     note: "Announced schedule, not a guarantee it ships unchanged. Facilitation applies to affiliate-sourced orders in this model.",
     referralRate: 8,
     facilitationRate: 1.5,
@@ -422,6 +426,124 @@ export function freeShippingNote(comparison) {
     return `Free shipping at ${money(comparison.freeShipPrice)} loses ${money(-delta)} per order and cannot catch up at a non-positive leftover.`;
   }
   return `Free shipping at ${money(comparison.freeShipPrice)} keeps ${money(-delta)} less per order. About ${extra.toFixed(1)} extra orders per month would match charging shipping.`;
+}
+
+/**
+ * The margin a seller is trying to hold, as a target `calculateOrder` will
+ * accept. Returns null when there is nothing to hold: a SKU already losing
+ * money has no margin worth restoring (the break-even price is the honest
+ * answer there instead), and a 100% margin is not a target the validator
+ * takes — nor one any real order produces, since it would mean zero cost.
+ */
+function holdableMargin(margin) {
+  if (margin === null || margin <= 0 || margin >= 100) return null;
+  return margin;
+}
+
+/**
+ * What a fee-schedule change does to one SKU, and what it would take to hold
+ * the line.
+ *
+ * `compareFeeSchedules` answers "how much worse". That is only half of a
+ * decision: a seller reading it still has to work out what to *do*. The two
+ * levers are the list price and the unit cost, so this adds both — the price
+ * under the new schedule that restores today's margin, and the most the unit
+ * can cost before the SKU stops clearing at all.
+ *
+ * The organic and affiliate splits are separate because a facilitation rate
+ * only lands on affiliate-sourced orders. A schedule that adds one does not
+ * cost every order the same amount, and a seller whose volume is mostly
+ * organic can be reading a number that is not theirs.
+ */
+export function feeChangeImpact(input, fromId = "us_standard", toId = "oct_2026") {
+  if (!FEE_SCHEDULE_PRESETS[fromId]) throw new Error(`Unknown fee schedule: ${fromId}`);
+  if (!FEE_SCHEDULE_PRESETS[toId]) throw new Error(`Unknown fee schedule: ${toId}`);
+
+  const itemPrice = number(input.itemPrice, "Item price");
+  const beforeInput = applyFeePreset(input, fromId);
+  const afterInput = applyFeePreset(input, toId);
+
+  const before = calculateOrder(beforeInput);
+  const after = calculateOrder(afterInput);
+
+  const organic = (base) => calculateOrder({ ...base, affiliateRate: 0, forceAffiliate: false });
+  const affiliate = (base) => calculateOrder({ ...base, forceAffiliate: true });
+
+  const organicBefore = organic(beforeInput);
+  const organicAfter = organic(afterInput);
+  const affiliateBefore = affiliate(beforeInput);
+  const affiliateAfter = affiliate(afterInput);
+
+  const hold = holdableMargin(before.expectedMargin);
+  const priceToHoldMargin =
+    hold === null ? null : priceForTargetMargin({ ...afterInput, targetMargin: hold });
+
+  return {
+    from: FEE_SCHEDULE_PRESETS[fromId],
+    to: FEE_SCHEDULE_PRESETS[toId],
+    itemPrice,
+    before,
+    after,
+    // Positive means the change costs the seller, matching `compareFeeSchedules`.
+    extraCostPerOrder: before.expectedProfit - after.expectedProfit,
+    extraCostPerMonth: before.monthlyProfit - after.monthlyProfit,
+    organic: {
+      before: organicBefore,
+      after: organicAfter,
+      extraCostPerOrder: organicBefore.expectedProfit - organicAfter.expectedProfit,
+    },
+    affiliate: {
+      before: affiliateBefore,
+      after: affiliateAfter,
+      extraCostPerOrder: affiliateBefore.expectedProfit - affiliateAfter.expectedProfit,
+    },
+    marginBefore: before.expectedMargin,
+    marginAfter: after.expectedMargin,
+    heldMargin: hold,
+    priceToHoldMargin,
+    priceRise: priceToHoldMargin === null ? null : priceToHoldMargin - itemPrice,
+    breakEvenPriceAfter: breakEvenPrice(afterInput),
+    maxBuyCostBefore: maxBuyCost(beforeInput),
+    maxBuyCostAfter: maxBuyCost(afterInput),
+    stillClears: after.expectedProfit >= 0,
+    // Whether the SKU was already under water before the change. Without this
+    // the note blames the new schedule for a loss the old one was already
+    // making, which is the one thing a seller must not be told wrongly here.
+    clearedBefore: before.expectedProfit >= 0,
+  };
+}
+
+/** One sentence for the top of the fee-change page. */
+export function feeChangeNote(impact) {
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const cost = impact.extraCostPerOrder;
+
+  if (cost <= 1e-9) {
+    // A seller whose SKU is unaffected — or better off — should be told that
+    // plainly rather than being sold a price rise they do not need.
+    return `On these numbers the ${impact.to.label} schedule costs nothing extra on this SKU — there is nothing here to price against.`;
+  }
+
+  const head = `${impact.to.label} costs ${money(cost)} more per order on this SKU`;
+  const monthly =
+    impact.extraCostPerMonth > 1e-9
+      ? `, about ${money(impact.extraCostPerMonth)} a month at your current volume`
+      : "";
+
+  if (!impact.stillClears && !impact.clearedBefore) {
+    // Already losing money. Say so, rather than pinning it on the change.
+    return `${head}${monthly} — but this SKU already loses money at today's rates. It needs ${money(impact.breakEvenPriceAfter)} to clear under the new ones.`;
+  }
+  if (!impact.stillClears) {
+    return `${head}${monthly} — enough to tip this SKU from clearing to a loss. Break-even moves to ${money(impact.breakEvenPriceAfter)}.`;
+  }
+  if (impact.priceToHoldMargin === null) {
+    return `${head}${monthly}. There is no positive margin to hold here — it needs ${money(impact.breakEvenPriceAfter)} just to clear.`;
+  }
+  return `${head}${monthly}. Listing at ${money(impact.priceToHoldMargin)} instead of ${money(impact.itemPrice)} holds your ${impact.heldMargin.toFixed(1)}% margin.`;
 }
 
 export function maxBuyCost(input) {
