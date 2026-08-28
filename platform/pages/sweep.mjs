@@ -112,6 +112,24 @@ function sampleFor(name, type) {
   return 'Example';
 }
 
+/**
+ * The same selector, restricted to the venture's own markup.
+ *
+ * The bands this build injects carry controls of exactly the kinds these
+ * selectors look for -- four number inputs in the shop-rates bar, a text box
+ * and several buttons in the saved-bids panel -- and none of them are the tool.
+ * Both bands open closed, so today they are merely invisible to a fill; naming
+ * them keeps that a property of the sweep rather than an accident of which
+ * panel happened to be shut.
+ */
+function ownOnly(selector) {
+  return selector
+    .split(', ')
+    .map((part) => `${part}:not([data-pf-jobs-root] ${part})`
+      + `:not([data-pf-rates-root] ${part}):not(.pf-chrome ${part})`)
+    .join(', ');
+}
+
 /** Fill empty text-ish fields the primary action would otherwise refuse to run
  * without; returns how many were filled.
  *
@@ -127,9 +145,10 @@ function sampleFor(name, type) {
  */
 async function fillBlanks(limit = 6) {
   let filled = 0;
-  const selector =
+  const selector = ownOnly(
     'input[type=text], input[type=date], input[type=email], input[type=url], '
-    + 'input[type=tel], input[type=time], input:not([type]), textarea';
+    + 'input[type=tel], input[type=time], input:not([type]), textarea',
+  );
   for (const el of (await page.$$(selector)).slice(0, limit)) {
     try {
       if ((await el.inputValue()).trim()) continue;
@@ -151,7 +170,7 @@ async function fillBlanks(limit = 6) {
 /** Change up to `limit` inputs; returns how many actually took a new value. */
 async function perturb(limit = 4) {
   let touched = 0;
-  for (const el of (await page.$$('input[type=number], select')).slice(0, limit)) {
+  for (const el of (await page.$$(ownOnly('input[type=number], select'))).slice(0, limit)) {
     try {
       if ((await el.evaluate((node) => node.tagName)) === 'SELECT') {
         const options = await el.$$eval('option', (os) => os.map((o) => o.value));
@@ -176,8 +195,35 @@ async function perturb(limit = 4) {
   return touched;
 }
 
+/**
+ * Every button on the page except the ones this build injected.
+ *
+ * The whole sweep rests on "press the tool's action and see whether the page
+ * answers", and it was pressing the wrong button. `injectSavedBids` puts its
+ * band immediately after the navigation, above the form — so on a tool that
+ * does not recalculate live, the first `<button>` in the document is "Saved
+ * bids", not "Calculate true-up". Clicking it opens the panel, `innerText`
+ * changes, and the tool is recorded `ok — via "Saved bids"` with its own
+ * calculator never run.
+ *
+ * That was nine of 163 on 2026-08-28: chargeback-evidence-packet,
+ * consent-change-record, grant-deadline-tracker, cam-reconciliation-check,
+ * music-lesson-break-even, saas-seat-true-up, commercial-photo-license-calculator,
+ * hvac-maintenance-contract-calculator and tender-radar, each reported working
+ * on the strength of a platform feature that works on all 234 pages. It is the
+ * exact failure this file exists to catch — a page that renders perfectly and
+ * does nothing — passing *because* of the sweep rather than in spite of it.
+ *
+ * Excluded by container and not by label, because the labels are no help:
+ * `NOT_AN_ACTION` already skips "Copy link to this bid", but "Save this bid" is
+ * an ordinary-looking verb on an ordinary-looking button and would simply
+ * become the next wrong thing pressed.
+ */
+const OWN_BUTTONS = 'button:not([data-pf-jobs-root] button)'
+  + ':not([data-pf-rates-root] button):not(.pf-chrome button)';
+
 async function pressMatching(pattern) {
-  for (const button of await page.$$('button')) {
+  for (const button of await page.$$(OWN_BUTTONS)) {
     const label = (await button.textContent())?.trim() ?? '';
     if (!pattern.test(label)) continue;
     try {
@@ -191,7 +237,7 @@ async function pressMatching(pattern) {
 }
 
 async function pressPrimaryAction() {
-  for (const button of await page.$$('button')) {
+  for (const button of await page.$$(OWN_BUTTONS)) {
     const label = (await button.textContent())?.trim() ?? '';
     if (!label || NOT_AN_ACTION.test(label)) continue;
     try {

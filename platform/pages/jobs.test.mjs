@@ -180,6 +180,24 @@ test('the bar anchors under the nav when there is no rates bar', () => {
   assert.ok(out.indexOf('pf-chrome-top') < out.indexOf('data-pf-jobs-root'));
 });
 
+test('every button this injects stays inside the root, so a sweep can tell them apart', () => {
+  // The band sits above the form by design, which means on a tool that does not
+  // recalculate live, the first <button> in the document is this one and not
+  // "Calculate true-up". `sweep.mjs` presses the first button it finds to decide
+  // whether a tool still computes, and on 2026-08-28 that made nine tools pass
+  // on the strength of this panel opening — the exact silent failure the sweep
+  // exists to catch, passing because of the sweep. It now excludes
+  // `[data-pf-jobs-root] button`, which is only true while every control this
+  // injects is inside that element. A button moved outside it would restore the
+  // false pass with nothing failing.
+  const out = injectSavedBids(page(inputs(6) + hero('price')), 'fence-bid-calculator');
+  const band = out.slice(out.indexOf('data-pf-jobs-root'), out.indexOf('</section>'));
+  const all = out.match(/<button\b/g) ?? [];
+  const inBand = band.match(/<button\b/g) ?? [];
+  assert.ok(inBand.length >= 2, 'the band should carry at least its toggle and its save button');
+  assert.equal(all.length, inBand.length, 'a button was injected outside data-pf-jobs-root');
+});
+
 test('a page with no head still gets the stylesheet ahead of the bar', () => {
   const out = injectSavedBids(`<body>${inputs(6)}</body>`, 'x');
   assert.ok(out.indexOf('.pf-jobs{') < out.indexOf('data-pf-jobs-root'));
