@@ -998,7 +998,11 @@
     // Single-sourced from calc.mjs so the page and the share link can never
     // disagree about which inputs exist.
     import { INPUT_FIELDS as ids, TOGGLE_FIELDS as toggleIds } from "./calc.mjs";
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const signedMoney = (value) => `${value < 0 ? "−" : "+"}${money(Math.abs(value))}`;
     const formatAcos = (value) => (value === null || value === undefined ? "n/a" : `${value.toFixed(1)}%`);
     let syncingFee = false;

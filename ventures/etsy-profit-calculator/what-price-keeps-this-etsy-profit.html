@@ -91,7 +91,11 @@
     const GOALS = [10, 20, 30];
     const INPUTS_KEY = 'etsy-target-profit-inputs';
     const field = id => document.getElementById(id);
-    const money = value => `$${Number(value).toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${Number(value).toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const signed = value => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
     const currentInputs = () => Object.fromEntries(FIELD_IDS.map(id => [id, field(id).value]));
     const safe = fn => { try { return fn(); } catch { return undefined; } };

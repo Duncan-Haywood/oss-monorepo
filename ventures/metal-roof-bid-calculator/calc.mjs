@@ -493,7 +493,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Metal roof') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const panel = PANEL_PRESETS.find((item) => item.id === result.panel)?.label ?? result.panel;
   const pitch = PITCH_PRESETS.find((item) => item.id === result.pitch)?.label ?? result.pitch;
   const tearoff = TEAROFF_PRESETS.find((item) => item.id === result.tearoff)?.label ?? result.tearoff;

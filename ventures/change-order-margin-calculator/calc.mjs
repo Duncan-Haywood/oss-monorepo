@@ -27,7 +27,11 @@ export function calculateChangeOrder(input) {
 }
 
 export function summaryText(input, result) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const label = input.title?.trim() || 'Scope change';
   return `${label}\nAdded work: ${result.hours.toFixed(2)} labor hours\n` +
     `Target change-order price: ${money(result.targetPrice)}\n` +

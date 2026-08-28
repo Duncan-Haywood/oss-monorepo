@@ -300,7 +300,11 @@ export function compareChannels(item, overrides = {}) {
  */
 export function compareSummary(rows) {
   if (!Array.isArray(rows) || rows.length === 0) return "";
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const best = rows[0];
   const runnerUp = rows[1];
   if (best.profit <= 0) {
@@ -329,7 +333,11 @@ export function compareSummary(rows) {
  * can be tested without a browser, same as the sibling calculators do it.
  */
 export function comparisonText(item, rows, generatedDate = new Date().toISOString().slice(0, 10)) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const lines = [
     "MARKETPLACE NET-PROFIT COMPARISON",
     `Generated: ${generatedDate}`,

@@ -383,7 +383,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Patio door replacement') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const config = CONFIG_PRESETS.find((item) => item.id === result.config)?.label ?? result.config;
   const frame = FRAME_PRESETS.find((item) => item.id === result.frame)?.label ?? result.frame;
   const glazing = GLAZING_PRESETS.find((item) => item.id === result.glazing)?.label ?? result.glazing;

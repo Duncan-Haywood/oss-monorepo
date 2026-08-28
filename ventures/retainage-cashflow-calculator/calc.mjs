@@ -295,7 +295,11 @@ export function partialReleaseNote(comparison) {
   if (!comparison?.waive || !comparison?.accelerate || !comparison?.wait) {
     throw new Error('Partial-release comparison is missing rows');
   }
-  const money = value => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const { partialOffer, fullRelease, remainder, waitDays, waive, accelerate, wait } = comparison;
   const waitPhrase = waitDays === 0
     ? `Full retainage available today is ${money(fullRelease)}.`

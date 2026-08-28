@@ -317,7 +317,11 @@
       'targetMargin','proposedPrice',
     ];
     const PRODUCT_RATE_IDS = ['rPerInch', 'cuFtPerBag', 'pricePerBag', 'blowHoursPer1000'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const STARTING_AREAS = [

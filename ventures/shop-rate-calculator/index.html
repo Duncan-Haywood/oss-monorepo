@@ -202,8 +202,16 @@
     import { recordUsage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
-    const money = value => `$${Math.round(value).toLocaleString('en-US')}`;
-    const money2 = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${Math.round(value).toLocaleString('en-US')}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const money2 = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const pct = value => `${value.toFixed(1)}%`;
     const hours = value => `${Math.round(value).toLocaleString('en-US')} h`;
 

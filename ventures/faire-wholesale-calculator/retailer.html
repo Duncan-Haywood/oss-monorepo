@@ -118,7 +118,11 @@
 
     const INPUTS_KEY = "faire-wholesale-retailer-inputs";
     const field = (id) => document.getElementById(id);
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const currentInputs = () => Object.fromEntries(RETAILER_FIELD_IDS.map((id) => [id, field(id).value]));
     const safe = (fn) => { try { return fn(); } catch { return undefined; } };
     let statusTimer;

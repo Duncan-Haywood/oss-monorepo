@@ -200,7 +200,11 @@
       ["occupancyKeep", "Occupancy kept %"],
     ];
 
-    const money = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const pct = (value) => `${value.toLocaleString("en-US", { maximumFractionDigits: 1 })}%`;
     const el = (id) => document.getElementById(id);
 

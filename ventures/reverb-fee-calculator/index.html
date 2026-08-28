@@ -184,7 +184,11 @@
     import { encodeInputs, decodeInputs } from './share.mjs';
 
     const field = id => document.getElementById(id);
-    const money = value => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const signed = value => `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;
     const currentInputs = () => Object.fromEntries(INPUT_FIELDS.map(id => [id, field(id).value]));
     const safe = fn => { try { return fn(); } catch { return undefined; } };

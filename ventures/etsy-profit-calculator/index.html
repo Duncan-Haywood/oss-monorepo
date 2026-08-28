@@ -197,7 +197,11 @@
     const ids = FIELD_IDS;
     const INPUTS_KEY = 'etsy-profit-inputs';
     const field = id => document.getElementById(id);
-    const money = value => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const currentInputs = () => Object.fromEntries(ids.map(id => [id, field(id).value]));
     // localStorage can throw (private mode, blocked cookies); a calculator must
     // still work without it, so every access is guarded.

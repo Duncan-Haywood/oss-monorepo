@@ -46,6 +46,23 @@ than a build-up: its inputs are hours and costs, with nothing describing the
 work, so its drafted scope could only be "Perform the work described above".
 That is the one case where no proposal beats a generic one.
 
+**`security-camera` is not adopted yet, and the reason is this tool, not the
+trade.** It is a good candidate — the bid already knows the camera count, the
+cable footage, the storage fitted and the retention it buys, which is most of a
+scope a customer could agree to. `adopt.mjs` refuses it because its page spells
+four house conventions differently: the reader is `const readInputs = () => …`
+rather than `function readInputs(`, it prices from a variable
+(`const input = readInputs(); calculateBid(input)`) rather than from
+`calculateBid(readInputs())`, its `el` helper takes a parenthesised parameter,
+it counts usage through `recordUsage` rather than `count()`, and it has no
+`</main>` for the form to go before.
+
+Every one of those detectors is a regex over a spelling, so the fix is either to
+broaden them or to bring the page to the house shape. Both touch tooling that
+100 live proposals depend on, which is why this was left rather than bolted onto
+an unrelated change. Whoever picks it up: `verify.mjs` is the check that matters,
+because bad scope copy fails silently.
+
 ## Say so in the structured data
 
 A calculator that prints a proposal has to **name it in its JSON-LD

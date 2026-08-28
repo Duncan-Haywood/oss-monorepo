@@ -400,7 +400,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Pool plaster / resurfacing') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const finish = FINISH_PRESETS.find((item) => item.id === result.finish)?.label ?? result.finish;
   const chipout = CHIPOUT_PRESETS.find((item) => item.id === result.chipout)?.label ?? result.chipout;
   const shape = SHAPE_PRESETS.find((item) => item.id === result.shape)?.label ?? result.shape;

@@ -10,6 +10,7 @@ import {
   formatDate,
   lines,
   loadCompany,
+  money,
   referenceFor,
   renderProposalHtml,
   saveCompany,
@@ -372,4 +373,39 @@ test('a rounded placeholder groups thousands and drops machine decimals', () => 
 
 test('rounding a non-numeric value drops the line rather than printing NaN', () => {
   assert.deepEqual(scopeLines(['{x~2} ft'], { x: 'wide' }), []);
+});
+
+// money() — the sign belongs outside the currency symbol, and zero has no sign.
+//
+// Both of these shipped wrong in every vendored copy for as long as the copies
+// have existed, and they are visible on any tool that prints a difference: a
+// "vs keep-it" column, a plan comparison, the "in-house minus 3PL" line of an
+// exported quote.
+
+test('a negative amount puts the minus outside the currency symbol', () => {
+  assert.equal(money(-9.24), '-$9.24');
+  assert.equal(money(-21500), '-$21,500.00');
+});
+
+test('a positive amount is unchanged, separators and all', () => {
+  assert.equal(money(9.24), '$9.24');
+  assert.equal(money(1234.5), '$1,234.50');
+  assert.equal(money(0), '$0.00');
+});
+
+test('an amount that is zero at cent precision has no sign', () => {
+  // -0 is what subtracting two equal figures gives, and a residual below half a
+  // cent rounds to the same place. Printing "-$0.00" tells someone a line is
+  // down money when it is exactly break-even.
+  assert.equal(money(-0), '$0.00');
+  assert.equal(money(-0.004), '$0.00');
+  assert.equal(money(0.004), '$0.00');
+});
+
+test('rounding is symmetric about zero', () => {
+  // Half a cent rounds away from zero on both sides; a magnitude-then-sign
+  // implementation gets this right only if it rounds the magnitude.
+  assert.equal(money(0.005), '$0.01');
+  assert.equal(money(-0.005), '-$0.01');
+  assert.equal(money(-1.235), '-$1.24');
 });
