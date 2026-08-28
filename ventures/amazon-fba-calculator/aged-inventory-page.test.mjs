@@ -146,3 +146,39 @@ test("hold-vs-remove defaults on the page still prefer holding a $29.99 leftover
   assert.equal(decision.betterPath, "hold");
   assert.match(markup, /id="hold-vs-remove"/);
 });
+
+test("the expected-horizon row is marked as the seller's own, not as the best one", () => {
+  // `tr.best` is this page's "winning option" bold, and the sibling pages use
+  // `tr.winner-row` the same way. The hold-vs-remove scenarios table marks the
+  // horizon the seller *said they expect*, which is usually not the highest-cash
+  // row -- holding costs accrue, so a shorter horizon nets more. On the shipped
+  // defaults, 1 month nets $446.66 against $441.40 at the typed 3 months, so
+  // bolding the 3-month row claimed a recommendation the arithmetic contradicts.
+  assert.match(html, /tr\.yours td \{/, "the expected-horizon row needs its own style");
+  assert.doesNotMatch(
+    html,
+    /expectedMonthsToSell \? "best"/,
+    "expected horizon must not reuse the winning-option class",
+  );
+  assert.match(html, /expectedMonthsToSell \? "yours"/);
+  assert.match(html, /\(you expect\)/, "the marked row should say why it is marked");
+
+  // The claim the comment rests on: a shorter horizon really does net more, so
+  // "your horizon" and "best horizon" are genuinely different rows here.
+  const at = (months) => compareHoldVsRemove({
+    remainingUnits: 20,
+    expectedMonthsToSell: months,
+    monthsAlreadyStored: 5,
+    agedStartsAfterMonths: 6,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 1.5,
+    removalFeePerUnit: 1.04,
+    salvagePerUnit: 0,
+    cubicFeet: (8 * 6 * 2) / 1728,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: 4.15,
+    adsPerUnit: 0,
+  }).holdAdvantage;
+  assert.ok(at(1) > at(3), "a shorter horizon nets more, so the typed row is not the best row");
+});
