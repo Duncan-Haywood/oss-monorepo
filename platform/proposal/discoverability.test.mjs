@@ -12,9 +12,11 @@
 //   - a calculator that does NOT ship it must never claim it.
 //
 // The second is the one that would be a lie to a customer arriving from search.
-// `mobile-detailing` is the live case: it is deliberately not adopted (its
-// inputs describe no work, so its drafted scope could only be "Perform the work
-// described above"), and it must not advertise a proposal it cannot print.
+// `mobile-detailing` used to be the live case for it — held back on the reading
+// that its inputs describe no work — and it has since adopted, because for that
+// trade the hours and the round trip *are* the work (see the module README). So
+// no calculator is currently in that state, and the guard stands for the next
+// one that lands without a proposal rather than for a venture named here.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';

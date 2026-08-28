@@ -84,6 +84,12 @@ const SHOP_RATES_MARKER = 'pf-rates';
  */
 export const SHOP_RATE_ALIASES = {
   'snow-removal-bid-calculator': { hourlyWage: 'operatorWage' },
+  // Same shape as the snow-removal case. `mobile-detailing-bid-calculator`
+  // asks "Hourly wage before burden" and "Payroll burden (%)", which are
+  // `hourlyWage` and `burdenRate` under different ids. It grew both when it
+  // started costing the whole stop (#1172); the exclusion recorded against it
+  // predates that and still said it had "no wage input at all".
+  'mobile-detailing-bid-calculator': { hourlyWage: 'wage', burdenRate: 'burdenPercent' },
 };
 
 /**
@@ -101,6 +107,8 @@ export const PARTIAL_SHOP_RATE_PAGES = {
     'This tool asks for a loaded labour rate — wage and burden together — so your saved wage and burden are left alone here.',
   'portable-restroom-event-quote':
     'This tool prices units and hauls rather than crew hours, so your saved wage and burden are left alone here.',
+  'mobile-detailing-bid-calculator':
+    'This tool allocates overhead as dollars for the job rather than a percentage of direct cost, so your saved overhead rate is left alone here.',
 };
 
 /**
@@ -109,8 +117,12 @@ export const PARTIAL_SHOP_RATE_PAGES = {
  * One shared field is not "your shop rates" — it is a single number, and a
  * panel promising that every calculator opens with your numbers would be
  * overstating what this page can actually do with them.
- * `mobile-detailing-bid-calculator` is the page this excludes: it carries
- * `targetMargin` and nothing else.
+ *
+ * No venture is currently below this floor. `mobile-detailing-bid-calculator`
+ * used to be the example — one field, `targetMargin` — and it stopped being
+ * one when it grew a wage and a burden input; the floor kept excluding it only
+ * because it spells them `wage` and `burdenPercent`. It is now aliased and
+ * partial. The floor still guards the unread page, which is what it is for.
  */
 export const MIN_CARRIED_FIELDS = 2;
 

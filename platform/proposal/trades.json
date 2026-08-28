@@ -1796,6 +1796,35 @@
     "disclaimerTail": "It is a maintenance schedule, not a turf health, agronomic, or irrigation assessment, and it does not guarantee the condition or appearance of the lawn.",
     "screenPriceSelector": "#monthly"
   },
+  "mobile-detailing-bid-calculator": {
+    "jobTitle": "Mobile detailing — {laborHours~1} hour{laborHours+s} on site",
+    "jobTitleFallback": "Mobile detailing",
+    "priceField": "proposedPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Mobile detailing carried out at your location on the date we agree",
+      {
+        "line": "{laborHours~1} hour{laborHours+s} of hands-on detailing on the vehicle",
+        "when": "laborHours"
+      },
+      {
+        "line": "Setup and breakdown of our equipment at your location",
+        "when": "setupHours"
+      },
+      {
+        "line": "Round trip of {travelMiles~0} miles to reach you",
+        "when": "travelMiles"
+      },
+      "Cleaning chemicals, pads, brushes, and towels supplied by us"
+    ],
+    "placeholders": {
+      "companyName": "Curbside Shine Mobile Detailing LLC",
+      "scope": "Full interior and exterior detail on one mid-size vehicle\nHand wash, chemical decontamination, and a single-stage machine polish",
+      "exclusions": "Multi-stage paint correction, ceramic coating, and engine bay detailing\nBiohazard, mold, and pet-damage remediation\nRemoval of etching, deep scratches, and permanent staining",
+      "notes": "Please leave a parking space with room to open every door and work around the vehicle. We need access to an outside tap and a standard outlet unless we have agreed to bring our own water and power."
+    },
+    "disclaimerTail": "Detailing improves appearance but cannot reverse every defect; it is not a paint-condition, rust, or mechanical inspection, and some etching, staining, and swirl marks are permanent."
+  },
   "mold-remediation-bid-calculator": {
     "jobTitle": "Mould remediation — {affectedSqFt~0} sq ft",
     "fields": {
@@ -2436,6 +2465,68 @@
       "notes": "Panels built removable for seasonal cleaning."
     },
     "disclaimerTail": "It is not an engineered design; roof loading and attachment requirements are set by the authority having jurisdiction."
+  },
+  "security-camera-bid-calculator": {
+    "jobTitle": "Security camera installation — {cameraCount} camera{cameraCount+s}",
+    "jobTitleFallback": "Security camera installation",
+    "priceField": "bidPrice",
+    "fields": {
+      "resolutionLabel": {
+        "select": "resolution"
+      },
+      "codecLabel": {
+        "select": "codec"
+      },
+      "routingLabel": {
+        "select": "construction",
+        "map": {
+          "open": "Cable run through open ceiling before it is closed in",
+          "attic": "Cable fished from the attic into finished walls",
+          "no-attic": "Cable fished through finished walls with no attic access, wall openings patched",
+          "masonry": "Cable run on masonry, surface raceway or cored penetrations as needed",
+          "soffit": "Cable run to exterior soffit at second-storey height"
+        }
+      },
+      "recordingLabel": {
+        "select": "recordingMode",
+        "map": {
+          "continuous": "continuously",
+          "motion": "on motion"
+        }
+      },
+      "liftLabel": {
+        "select": "liftRequired",
+        "map": {
+          "no": "",
+          "yes": "Boom or scissor lift on site for the high mounts"
+        }
+      }
+    },
+    "scope": [
+      "Supply and install {cameraCount} × {resolutionLabel} camera{cameraCount+s}",
+      {
+        "line": "{routingLabel}",
+        "when": "routingLabel"
+      },
+      "Pull and terminate approximately {cabling.totalCableFeet~0} ft of Cat6, the longest single run {cabling.longestRunFeet~0} ft",
+      {
+        "line": "{liftLabel}",
+        "when": "liftLabel"
+      },
+      "Supply and configure the recorder with {storage.driveCount} × {storage.driveSizeTb} TB drive{storage.driveCount+s}, {storage.purchasedTb~0} TB fitted",
+      "Record {recordingLabel} in {codecLabel} at approximately {storage.bitrateMbpsPerCamera} Mbps per camera",
+      "Retention quoted {storage.retentionDaysQuoted~0} days; at this configuration the drives fitted hold approximately {storage.actualRetentionDays~0} days",
+      "PoE load approximately {poe.loadWatts~0} W against the {poe.budgetWatts~0} W switch budget",
+      "Commission every camera, confirm recording and retention, and hand over with a walkthrough"
+    ],
+    "placeholders": {
+      "companyName": "Northgate Low Voltage LLC",
+      "companyLicense": "TX-LV-ACR-118204",
+      "scope": "Install 8 x 4 MP cameras with an 8-channel recorder\n30 days retention on 2 x 8 TB drives",
+      "exclusions": "Electrical work beyond the existing recorder outlet\nNetwork changes outside the camera VLAN\nPainting or finish carpentry after wall patching",
+      "notes": "Cameras aimed and focused with the customer present. Recorder credentials handed over in writing and the default password changed."
+    },
+    "disclaimerTail": "It is not an electrical or structural design, a determination that the existing supply, network or mounting surfaces are adequate, or advice on where cameras may lawfully point, whether audio may be recorded, or how long footage may be kept."
   },
   "septic-pumping-bid-calculator": {
     "jobTitle": "Septic tank pumping — {totalGallons~2} gal",
@@ -3359,67 +3450,5 @@
       "notes": "Please keep the display area clear on service day. We work around opening hours where we can."
     },
     "disclaimerTail": "Cleaning removes surface soiling; it is not glass restoration, and mineral etching, scratches, or failed seals cannot be cleaned out."
-  },
-  "security-camera-bid-calculator": {
-    "jobTitle": "Security camera installation — {cameraCount} camera{cameraCount+s}",
-    "jobTitleFallback": "Security camera installation",
-    "priceField": "bidPrice",
-    "fields": {
-      "resolutionLabel": {
-        "select": "resolution"
-      },
-      "codecLabel": {
-        "select": "codec"
-      },
-      "routingLabel": {
-        "select": "construction",
-        "map": {
-          "open": "Cable run through open ceiling before it is closed in",
-          "attic": "Cable fished from the attic into finished walls",
-          "no-attic": "Cable fished through finished walls with no attic access, wall openings patched",
-          "masonry": "Cable run on masonry, surface raceway or cored penetrations as needed",
-          "soffit": "Cable run to exterior soffit at second-storey height"
-        }
-      },
-      "recordingLabel": {
-        "select": "recordingMode",
-        "map": {
-          "continuous": "continuously",
-          "motion": "on motion"
-        }
-      },
-      "liftLabel": {
-        "select": "liftRequired",
-        "map": {
-          "no": "",
-          "yes": "Boom or scissor lift on site for the high mounts"
-        }
-      }
-    },
-    "scope": [
-      "Supply and install {cameraCount} × {resolutionLabel} camera{cameraCount+s}",
-      {
-        "line": "{routingLabel}",
-        "when": "routingLabel"
-      },
-      "Pull and terminate approximately {cabling.totalCableFeet~0} ft of Cat6, the longest single run {cabling.longestRunFeet~0} ft",
-      {
-        "line": "{liftLabel}",
-        "when": "liftLabel"
-      },
-      "Supply and configure the recorder with {storage.driveCount} × {storage.driveSizeTb} TB drive{storage.driveCount+s}, {storage.purchasedTb~0} TB fitted",
-      "Record {recordingLabel} in {codecLabel} at approximately {storage.bitrateMbpsPerCamera} Mbps per camera",
-      "Retention quoted {storage.retentionDaysQuoted~0} days; at this configuration the drives fitted hold approximately {storage.actualRetentionDays~0} days",
-      "PoE load approximately {poe.loadWatts~0} W against the {poe.budgetWatts~0} W switch budget",
-      "Commission every camera, confirm recording and retention, and hand over with a walkthrough"
-    ],
-    "placeholders": {
-      "companyName": "Northgate Low Voltage LLC",
-      "companyLicense": "TX-LV-ACR-118204",
-      "scope": "Install 8 x 4 MP cameras with an 8-channel recorder\n30 days retention on 2 x 8 TB drives",
-      "exclusions": "Electrical work beyond the existing recorder outlet\nNetwork changes outside the camera VLAN\nPainting or finish carpentry after wall patching",
-      "notes": "Cameras aimed and focused with the customer present. Recorder credentials handed over in writing and the default password changed."
-    },
-    "disclaimerTail": "It is not an electrical or structural design, a determination that the existing supply, network or mounting surfaces are adequate, or advice on where cameras may lawfully point, whether audio may be recorded, or how long footage may be kept."
   }
 }

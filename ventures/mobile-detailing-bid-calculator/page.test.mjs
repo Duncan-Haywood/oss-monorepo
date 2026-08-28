@@ -60,7 +60,7 @@ test('the module script survives parsing and would actually execute', () => {
 test('every element the script reaches for exists in the markup', () => {
   const wanted = new Set([
     ...[...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
-    ...[...scriptSource.matchAll(/\bfield\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+    ...[...scriptSource.matchAll(/\bel\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
   ]);
   assert.ok(wanted.size > 0, 'no element lookups found; the script probably did not parse');
   const missing = [...wanted].filter((id) => !declaredIds.has(id));
@@ -148,4 +148,27 @@ test('the form names the fee-plus-margin claim as the user types', () => {
 test('the disclaimer PRODUCT_PLAYBOOK 5b requires is on the page', () => {
   assert.match(markup, /No warranty/i);
   assert.match(markup, /not .*(business|tax|financial|professional) .*advice/i);
+});
+
+// The wage input is the *base* hourly wage: `calc.mjs` multiplies it by
+// (1 + burden%) to reach `loadedLaborRate`. The label used to read "Loaded
+// wage", which invites a detailer to type a rate that already includes burden
+// and then has burden applied to it a second time — a 25% overstatement of
+// labour cost on every quote, in the direction that loses jobs. Pin the two
+// halves that have to stay consistent: what the field asks for, and the fact
+// that the page shows the loaded rate it derives.
+test('the wage field asks for the pre-burden rate the calculator expects', () => {
+  const label = /<label>([^<]*)<input id="wage"/.exec(html);
+  assert.ok(label, 'the wage input no longer has a plain preceding label');
+  assert.doesNotMatch(
+    label[1],
+    /loaded/i,
+    `the wage label calls itself "loaded" while calc.mjs still loads it: ${label[1]}`,
+  );
+  assert.match(label[1], /before burden/i);
+
+  // And the derived rate is on screen, so applying burden twice is visible.
+  assert.match(html, /id="loadedLaborRate"/);
+  const result = calculateBid({ wage: 28, burdenPercent: 25 });
+  assert.equal(result.loadedLaborRate, 35);
 });
