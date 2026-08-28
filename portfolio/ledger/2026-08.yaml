@@ -25968,3 +25968,67 @@ entries:
         `mulch` also return zero and correctly so — no tool covers them. That
         is a product-gap signal, not a search bug.
     mrr_end: null
+  - venture: security-camera-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #1934, the first of the six product gaps #1933 named.
+        "security camera" was a query returning zero results with no tool behind
+        it; there is now a tool. 164 products on the hub.
+      - >-
+        What makes it more than a 164th price stack is that two of its three
+        headline outputs are engineering checks rather than money. Recording
+        retention is a function of bitrate, camera count, hours per day and the
+        drive you can actually buy — so "storage the quoted retention needs" and
+        "days the fitted drives really hold" are different numbers, and the tool
+        reports both. Quoting 30 days on drives that hold 11 is this trade's
+        characteristic failed handover. PoE load is flagged at 80% of the switch
+        budget rather than 100%, because a switch at its ceiling has nothing left
+        for the camera added next spring and drops cameras when heaters come on.
+      - >-
+        A rounding bug caught by its own test, worth stating as a rule: money
+        rounds to cents, storage does not. Per-day storage through the same
+        two-decimal helper turns 0.0864 TB/day into 0.09 — a 4% error landing
+        straight on the retention a customer is quoted, a 30-day promise
+        silently becoming 28.8. Divide at full precision, round once, and pin it
+        with a regression test.
+      - >-
+        Correction to the replay method #1933 recorded as "the reusable part",
+        because reusing it wrongly is easy and cost most of a session here.
+        Parsing the built hub with a regex that lazily pairs `data-search` to the
+        next `data-tool` mis-pairs across cards: `renderCard` takes a heading
+        level, so cards carry h2, h3 or h4, and a pattern anchored on one of them
+        silently pairs a card's index with a *different* card's slug. That
+        reported 14 dead searches and one tool shadowing another, all phantom.
+        Split on `<li class="card"` and parse within the block. With correct
+        parsing all three self-findability invariants pass at 164 of 164 — a tool
+        is found by its own slug words, by its displayed title, and by each of
+        the 268 questions its own published pages ask. The search is healthy; the
+        probe was not.
+      - >-
+        The headless pass earned its keep again, and on discoverability rather
+        than a script error this time: `cctv` found nothing, because the builder
+        truncates a title at the pipe and the one word half this market searches
+        for never reached the index. Fixed with a SEARCH_ALIASES row that
+        deliberately omits alarm, access control and structured cabling — an
+        alias only ever widens, so a word the tool does not price would put it in
+        front of someone pricing a different job.
+      - >-
+        Queue state, so the next session does not re-derive it: zero open PRs at
+        session start. Of 273 remote branches, 168 carry commits unreachable from
+        main, and an identical-merge replay (main winning every conflict) proves
+        90 fully superseded. The remainder are stale duplicates of work main now
+        carries under evolved names — `cursor/vendor-change-watch-fix-20260824`
+        would add a third spelling of `vendor-watch` plus `vendor-change-evidence`.
+        Note that neither `git diff main..branch` nor `main...branch` answers this
+        question on a repo where main moves this fast: the two-dot diff reports
+        main's own additions as deletions, and the three-dot diff showed four
+        `rematch-*` branches as adding features main already had.
+      - >-
+        Deploy remains the binding constraint and no agent moved it. The Pages
+        builder discovered the new venture from its index.html with no manifest
+        edit, and publish_surface still reports nothing live behind
+        `GITHUB_PAGES_ENABLED`. Every usage reading is still a zero baseline; no
+        second owner ask was added.
+    mrr_end: null
