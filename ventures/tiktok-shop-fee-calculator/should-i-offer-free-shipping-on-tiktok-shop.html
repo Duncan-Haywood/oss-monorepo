@@ -71,6 +71,10 @@
     .checks input { width: auto; }
     .hint { font-weight: 500; font-size: .78rem; color: #5c4e68; }
     .result { position: sticky; top: 15px; background: #2a1038; color: #f7f1fb; border-color: #2a1038; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 1.15rem; font-weight: 650; line-height: 1.35; margin: 8px 0 16px; }
     table { width: 100%; border-collapse: collapse; font-size: .9rem; }
     th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }

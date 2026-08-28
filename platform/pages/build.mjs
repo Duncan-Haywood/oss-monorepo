@@ -947,11 +947,21 @@ ${subgroups
       color-scheme: light dark;
       --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
       --line: #d3dce6; --accent: #12594a; --accent-ink: #f2f8f5;
+      /* One step quieter than --muted, and the quietest ink on this page.
+         It exists because the de-emphasis it provides used to be spelled as an
+         opacity, which is not a colour and therefore cannot be checked:
+         --muted at .65 renders #89919c on the white panel, 3.18:1, under the
+         4.5:1 WCAG AA needs for body-size text. The group counts are the only
+         thing that told a visitor how big a category is, so the number that
+         failed was content, not decoration. Naming the tint makes it a value
+         contrast.mjs can measure. */
+      --soft: #656e78;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     @media (prefers-color-scheme: dark) {
       :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
-              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319; }
+              --line: #2a343f; --accent: #7fd8c0; --accent-ink: #0d1319;
+              --soft: #8d9aab; }
     }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -983,7 +993,7 @@ ${subgroups
     .contents .contents-top { font-weight: 700; font-size: .93rem; }
     .contents li a { color: var(--muted); padding-left: 10px;
                      border-left: 1px solid var(--line); }
-    .contents span { font-weight: 600; opacity: .65; }
+    .contents span { font-weight: 600; color: var(--soft); }
     /* Anchor targets clear the section heading of the viewport edge, so a jump
        lands on the heading rather than on its first row of cards. */
     .group, .subgroup { scroll-margin-top: 14px; }
@@ -999,7 +1009,7 @@ ${subgroups
     .subgroup h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
                    color: var(--muted); font-weight: 700; margin: 0 0 12px;
                    padding-bottom: 7px; border-bottom: 1px solid var(--line); }
-    .subgroup-count { font-weight: 600; opacity: .7; letter-spacing: 0; }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
     .card h3, .card h4 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
     .card a { color: inherit; text-decoration: none; }
     .card a:hover h3, .card a:focus-visible h3,
@@ -1729,7 +1739,19 @@ const CHROME_STYLE = `<style id="pf-chrome-style">
 .pf-chrome-foot{border-top:1px solid var(--pf-line);background:var(--pf-fill);margin-top:40px;padding:22px 16px 26px}
 .pf-chrome-foot .pf-inner{max-width:1080px;margin:0 auto}
 .pf-chrome-foot h2{font-size:1rem;margin:0 0 4px;color:inherit}
-.pf-chrome-foot p{margin:0 0 12px;opacity:.78}
+/* No opacity here, and it is the same reasoning as the color:inherit above run
+ * the other way. The chrome does not know its host's palette, so it cannot know
+ * what an opacity of .78 will produce: the declaration multiplies down a colour
+ * chosen by a venture, and a host whose body text already sits near the 4.5:1
+ * AA floor lands under it. There is no safe value — a host exactly at 4.5:1
+ * fails at any opacity below 1 — which is why this is a deletion rather than a
+ * larger number. Measured on the built site, freight-accessorial-auditor
+ * rendered this footer at 3.22:1 and cloud-egress-calculator at 3.32:1.
+ * What the tint was dimming is also the wrong thing to dim: the no-warranty and
+ * no-SLA clauses PRODUCT_PLAYBOOK.md 5b requires, the link to the rest of the
+ * portfolio, and the sponsors line. The footer is quieter than the venture's
+ * own content already, by its border, fill and position. */
+.pf-chrome-foot p{margin:0 0 12px}
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
 .pf-chrome-foot li{margin:0}
@@ -1774,6 +1796,77 @@ const CHROME_SCRIPT = (slug) => `<script>
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
     });
   }catch(e){}
+})();
+</script>`;
+
+/**
+ * Gives a horizontally scrolling box the keyboard access it silently lost.
+ *
+ * A `overflow-x:auto` box scrolls with a mouse wheel, a trackpad and a
+ * touchscreen, and not with a keyboard: arrow keys scroll the focused element,
+ * and a box holding only text holds nothing focusable, so there is nothing to
+ * focus. The content past the right edge is then reachable by every visitor
+ * except the one navigating by keyboard. Axe calls this
+ * `scrollable-region-focusable`, and it is WCAG 2.1.1 (Keyboard).
+ *
+ * The wide comparison tables in the calculators' result panels are exactly this
+ * shape: several columns of figures inside a narrow sticky card.
+ *
+ * Done here rather than as a `tabindex="0"` in each venture's markup because
+ * whether a box scrolls is not a property of the markup — it depends on the
+ * viewport, the font, and how long the numbers rendered. A static attribute
+ * would put a tab stop on every table on every page, most of which fit and
+ * would strand a keyboard user on a box that does not move; and it would still
+ * miss the table that overflows only at 900px. Measuring `scrollWidth` gets
+ * both cases right, and re-measures on resize.
+ *
+ * `role` is deliberately not set: `region` on a `<table>` replaces its table
+ * semantics, so a screen reader would stop announcing rows and columns. The
+ * accessible name comes from the caption or heading the venture already wrote.
+ */
+const SCROLL_A11Y_SCRIPT = `<script>
+(function(){
+  // Which elements can scroll sideways is decided by CSS, so the candidate set
+  // only changes when the cascade does — on load and on resize, where a media
+  // query may swap overflow. Whether a candidate *is* scrolling changes far
+  // more often, every recalculation, so the two are measured separately: the
+  // expensive getComputedStyle sweep is rare, the cheap width comparison is not.
+  // Selecting by class name was the first attempt and missed .table-wrap; the
+  // wrappers are named differently in every venture, so the property is asked
+  // for directly.
+  var candidates=[];
+  var collect=function(){
+    candidates=[];
+    var all=document.body?document.body.getElementsByTagName('*'):[];
+    for(var i=0;i<all.length;i++){
+      var o=getComputedStyle(all[i]).overflowX;
+      if(o==='auto'||o==='scroll')candidates.push(all[i]);
+    }
+  };
+  var measure=function(){
+    for(var i=0;i<candidates.length;i++){
+      var el=candidates[i];
+      if(el.scrollWidth>el.clientWidth+1){
+        if(!el.hasAttribute('tabindex')){
+          el.setAttribute('tabindex','0');
+          el.setAttribute('data-pf-scrollable','');
+        }
+      }else if(el.hasAttribute('data-pf-scrollable')){
+        // It fits now — drop the tab stop rather than stranding a keyboard user
+        // on a box that no longer moves.
+        el.removeAttribute('tabindex');
+        el.removeAttribute('data-pf-scrollable');
+      }
+    }
+  };
+  var full=function(){try{collect();measure();}catch(e){}};
+  var quick=function(){try{measure();}catch(e){}};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',full);
+  else full();
+  addEventListener('resize',full);
+  addEventListener('input',quick);
+  addEventListener('change',quick);
+  addEventListener('click',quick);
 })();
 </script>`;
 
@@ -2031,7 +2124,8 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     </p>
   </div>
 </aside>
-${stripForInjection(CHROME_SCRIPT(slug))}`;
+${stripForInjection(CHROME_SCRIPT(slug))}
+${stripForInjection(SCROLL_A11Y_SCRIPT)}`;
 
   const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.

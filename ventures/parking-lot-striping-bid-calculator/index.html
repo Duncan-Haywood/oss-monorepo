@@ -14,7 +14,7 @@
     header { max-width: 760px; margin-bottom: 26px; }
     h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
-    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a6d12; margin: 0 0 6px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #7e6410; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
     section { background: #fff; border: 1px solid #d4cbb3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a24140d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
@@ -27,6 +27,10 @@
     button { font: inherit; border-radius: 7px; border: 1px solid #b3aa90; background: #f6f1e4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #ece4d0; }
     .result { position: sticky; top: 15px; background: #1c1f24; color: #f6f1e4; border-color: #1c1f24; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #d6c05a; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -45,7 +49,7 @@
     th { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; color: #d6c05a; }
     .compare-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     footer { margin-top: 25px; font-size: .82rem; color: #4e5560; }
-    footer a { color: #8a6d12; }
+    footer a { color: #7e6410; }
     .support { margin-top: 14px; }
     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
     .summary-status { font-size: .8rem; color: #e8c547; }
@@ -60,7 +64,7 @@
        Deliberately document-coloured rather than site-coloured — the customer
        receives a quote, not a printout of a website. */
     .pr-shell {
-      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1c1f24; --pr-accent: #8a6d12;
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1c1f24; --pr-accent: #7e6410;
       background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
     }
     .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }

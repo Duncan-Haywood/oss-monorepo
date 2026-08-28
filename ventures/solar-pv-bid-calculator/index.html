@@ -15,7 +15,7 @@
     header { max-width: 740px; margin-bottom: 26px; }
     h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
-    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #b45309; margin: 0 0 6px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #ac4f09; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .78fr); gap: 18px; align-items: start; }
     section { background: #fff; border: 1px solid #ddd4c4; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #2a20100d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
@@ -26,6 +26,8 @@
     button { font: inherit; border-radius: 7px; border: 1px solid #b8ad9a; background: #f6f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #ece4d4; }
     .result { position: sticky; top: 15px; background: #1d3a2f; color: #f4f8f4; border-color: #1d3a2f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -39,7 +41,7 @@
     .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
     .verdict.bad { background: #7d2317; }
     footer { margin-top: 25px; font-size: .82rem; color: #5a5246; }
-    footer a { color: #b45309; }
+    footer a { color: #ac4f09; }
     .support { margin-top: 14px; }
     .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
     .summary-status { font-size: .8rem; color: #d7ecc8; }
@@ -55,7 +57,7 @@
        receives a quote, not a printout of a website. Only `--pr-accent` is
        expected to change between ventures. */
     .pr-shell {
-      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #7a3908; --pr-accent: #b45309;
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #7a3908; --pr-accent: #ac4f09;
       background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #7a39080d;
     }
     .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }

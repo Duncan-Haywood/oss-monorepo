@@ -86,6 +86,8 @@
     button:disabled { opacity: .55; cursor: not-allowed; }
     .file-btn input { display: none; }
     .result { position: sticky; top: 14px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero { font-size: 2.2rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0 4px; }
     .hero.changed { color: #ffd39a; }
     .hero.unchanged { color: #b6efc0; }

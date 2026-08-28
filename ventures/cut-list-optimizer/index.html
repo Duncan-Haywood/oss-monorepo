@@ -24,7 +24,7 @@
     :root { font-family: ui-sans-serif, system-ui, sans-serif; color: #20241d; background: #f1eee6; }
     body { max-width: 1120px; margin: auto; padding: 34px 18px; }
     header { max-width: 780px; }
-    .eyebrow { color: #b44f2a; font-weight: 800; letter-spacing: .12em; font-size: .75rem; margin: 0; }
+    .eyebrow { color: #af4d29; font-weight: 800; letter-spacing: .12em; font-size: .75rem; margin: 0; }
     h1 { font: 800 clamp(2.2rem, 6.4vw, 4.4rem)/.96 Georgia, serif; letter-spacing: -.05em; margin: 8px 0 16px; }
     p { line-height: 1.55; }
     .tabs { display: flex; gap: 8px; margin-top: 26px; flex-wrap: wrap; }
@@ -34,7 +34,7 @@
     }
     .tabs button[aria-selected="true"] { background: #24392b; border-color: #24392b; color: #f8f5eb; }
     .tabs button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .actions button:focus-visible {
-      outline: 3px solid #b44f2a; outline-offset: 2px;
+      outline: 3px solid #af4d29; outline-offset: 2px;
     }
     .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; align-items: start; }
     section { background: #fffdf8; border: 1px solid #d6d0c3; border-radius: 16px; padding: 22px; box-shadow: 0 10px 30px #3328170d; }
@@ -399,7 +399,7 @@ Top: 31.5 x 11.25 x 2</textarea>
           </g>`;
       }).join('');
       const trimLine = trim > 0
-        ? `<rect x="${trim}" y="${trim}" width="${w - 2 * trim}" height="${h - 2 * trim}" fill="none" stroke="#b44f2a" stroke-width="${stroke}" stroke-dasharray="${Math.max(w, h) / 90}"/>`
+        ? `<rect x="${trim}" y="${trim}" width="${w - 2 * trim}" height="${h - 2 * trim}" fill="none" stroke="#af4d29" stroke-width="${stroke}" stroke-dasharray="${Math.max(w, h) / 90}"/>`
         : '';
       return `<svg viewBox="0 0 ${w} ${h}" role="img" preserveAspectRatio="xMidYMid meet">
           <title>Sheet ${index + 1} layout: ${sheet.placements.length} pieces on a ${w} by ${h} ${escapeHtml(unit)} sheet</title>
