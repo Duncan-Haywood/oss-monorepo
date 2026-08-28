@@ -141,6 +141,48 @@ channel), the Etsy profit calculator (listing credits and Plus), Amazon FBA
 (fulfillment and storage), and the where-to-sell ranker (a custom "other
 channel" row, not Reverb's offer-versus-list or shipping-packaging shape).
 
+## Take the return, or refund part of it
+
+A buyer opens a case. The instinct is to treat this as "return or no
+return", and on a marketplace of identical commodity units that is roughly
+the shape of it: the item goes back on the shelf and you are out the
+freight. Used gear is not that, for three reasons the calculator prices
+separately:
+
+- **Freight runs three legs, not one.** Out, back, and out again on the
+  relist. On a combo amp or a hardshell case each leg is real money — $205
+  of the $249.29 the default return costs.
+- **The piece is one of one.** There is no second unit on the shelf, so the
+  cash you recover is whatever the *relist* fetches, and something that has
+  shipped twice with a claim opened rarely fetches the first price. That
+  haircut is an input (`relistPrice`), set to $0 for a piece that comes
+  back unsellable.
+- **The fee credit is partial.** Reverb credits the selling fee on a
+  refund; the card processor generally keeps its cut. The residue is
+  charged whether the buyer keeps the item or ships it back.
+  `feeRefundOnReturnPct` defaults to 61 — the selling fee's share of total
+  fees on the worked example, not a claim about anyone's current schedule.
+
+So the number the calculator leads with is not a verdict on the return. It
+is **the largest partial refund that still beats taking it back**: on the
+defaults, $261.20, or 32.6% of an $800 sale. Four paths sit on one screen —
+sale stands, partial refund, take the return, full refund and they keep it.
+
+The SEO page
+[`should-i-take-the-return-or-refund-on-reverb.html`](should-i-take-the-return-or-refund-on-reverb.html)
+walks the default worked example ($800 sale / $75 return label / 61% fee
+credit / $720 relist: $284.33 if the sale stands, $35.03 on the return,
+$141.16 on a $150 concession, −$550.80 on a full refund with the item gone;
+$261.20 break-even concession; $909.94 return cost if the piece comes back
+unsellable).
+
+**What this does not say.** An expensive return is not a refusable one.
+Nothing here changes what Reverb's policies or your local consumer law
+require of you, and the page says so — the arithmetic is for the case where
+you have a choice about what to offer, not an argument for denying a case.
+Complementary to Safe Shipping (which prices preventing some of these
+claims, not resolving one) and to offer-versus-list.
+
 ## Save and share your numbers
 
 Your payout rates and gear costs are the part you would otherwise re-enter
