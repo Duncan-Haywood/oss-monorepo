@@ -62,20 +62,21 @@ function chunk(type, data) {
   return Buffer.concat([length, body, crc]);
 }
 
-function encodePng(size, rgba) {
+function encodePngRect(width, height, rgba) {
   const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(size, 0);
-  ihdr.writeUInt32BE(size, 4);
+  ihdr.writeUInt32BE(width, 0);
+  ihdr.writeUInt32BE(height, 4);
   ihdr[8] = 8; // bit depth
   ihdr[9] = 6; // colour type: RGBA
   // 10..12 stay zero: deflate, adaptive filtering, no interlace.
 
   // One filter byte (0 = none) per scanline, ahead of that row's pixels.
-  const raw = Buffer.alloc((size * 4 + 1) * size);
-  for (let y = 0; y < size; y += 1) {
-    const rowStart = y * (size * 4 + 1);
+  const stride = width * 4;
+  const raw = Buffer.alloc((stride + 1) * height);
+  for (let y = 0; y < height; y += 1) {
+    const rowStart = y * (stride + 1);
     raw[rowStart] = 0;
-    rgba.copy(raw, rowStart + 1, y * size * 4, (y + 1) * size * 4);
+    rgba.copy(raw, rowStart + 1, y * stride, (y + 1) * stride);
   }
 
   return Buffer.concat([
@@ -85,6 +86,8 @@ function encodePng(size, rgba) {
     chunk('IEND', Buffer.alloc(0)),
   ]);
 }
+
+const encodePng = (size, rgba) => encodePngRect(size, size, rgba);
 
 const hexToRgb = (hex) => [
   parseInt(hex.slice(1, 3), 16),
@@ -166,6 +169,90 @@ export const ICONS = [
   { file: 'icon-512.png', size: 512, purpose: 'any' },
   { file: 'icon-maskable-512.png', size: 512, purpose: 'maskable', maskable: true },
 ];
+
+// 1200x630 is the size every scraper crops to for a wide card, and the ratio
+// `summary_large_image` expects. Anything smaller than 600x315 is dropped by
+// Facebook and rendered as a small square by X.
+export const SOCIAL_CARD_WIDTH = 1200;
+export const SOCIAL_CARD_HEIGHT = 630;
+
+/**
+ * The wide card a link to this site previews as.
+ *
+ * Deliberately typeless. The PNG encoder above is 40 lines of `zlib` and has no
+ * font rasteriser, and pulling one in to draw a headline would add a dependency
+ * to a repo whose whole build is dependency-free — for a string the scraper
+ * already reads out of `og:title` and renders in its own type beside the image.
+ * So this draws the mark and the brand field only, which is the half an image
+ * is actually needed for, and lets the words stay words.
+ *
+ * The mark is `renderIcon`'s calculator, centred. An earlier draft set it
+ * left-of-centre to leave room for a headline, and with no headline to fill
+ * that room the card read as a picture someone had cropped badly — which is a
+ * worse first impression than no image. Centred, it reads as a logo card,
+ * which is what it is.
+ */
+export function renderSocialCard() {
+  const width = SOCIAL_CARD_WIDTH;
+  const height = SOCIAL_CARD_HEIGHT;
+  const rgba = Buffer.alloc(width * height * 4);
+  const [ar, ag, ab] = hexToRgb(THEME_COLOR);
+
+  const put = (x, y, r, g, b) => {
+    const i = (y * width + x) * 4;
+    rgba[i] = r;
+    rgba[i + 1] = g;
+    rgba[i + 2] = b;
+    rgba[i + 3] = 255;
+  };
+
+  const inRoundedRect = (x, y, left, top, w, h, radius) => {
+    if (x < left || y < top || x >= left + w || y >= top + h) return false;
+    const dx = Math.min(x - left, left + w - 1 - x);
+    const dy = Math.min(y - top, top + h - 1 - y);
+    if (dx >= radius || dy >= radius) return true;
+    const cx = radius - dx;
+    const cy = radius - dy;
+    return cx * cx + cy * cy <= radius * radius;
+  };
+
+  // The mark's plate, on the same geometry `renderIcon` uses, sized to the
+  // card's short side and inset so it never touches a scraper's rounded crop.
+  const plate = Math.round(height * 0.62);
+  const plateLeft = Math.round((width - plate) / 2);
+  const plateTop = Math.round((height - plate) / 2);
+  const plateRadius = plate * 0.22;
+
+  const mx = plateLeft + plate * 0.24;
+  const my = plateTop + plate * 0.2;
+  const mw = plate * 0.52;
+  const displayH = plate * 0.16;
+  const keySize = plate * 0.12;
+  const gap = (mw - keySize * 3) / 2;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      put(x, y, ar, ag, ab);
+      if (!inRoundedRect(x, y, plateLeft, plateTop, plate, plate, plateRadius)) continue;
+      // The plate is a shade lighter than the field so the mark reads as an
+      // object on a background rather than as a hole punched in it.
+      put(x, y, Math.min(255, ar + 18), Math.min(255, ag + 24), Math.min(255, ab + 20));
+      if (inRoundedRect(x, y, mx, my, mw, displayH, plate * 0.03)) {
+        put(x, y, 255, 255, 255);
+        continue;
+      }
+      for (let row = 0; row < 2; row += 1) {
+        for (let col = 0; col < 3; col += 1) {
+          const kx = mx + col * (keySize + gap);
+          const ky = my + displayH + plate * 0.1 + row * (keySize + plate * 0.06);
+          if (inRoundedRect(x, y, kx, ky, keySize, keySize, plate * 0.025)) put(x, y, 255, 255, 255);
+        }
+      }
+    }
+  }
+
+  return encodePngRect(width, height, rgba);
+}
 
 // ---------------------------------------------------------------------------
 // Manifest

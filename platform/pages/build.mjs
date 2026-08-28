@@ -35,6 +35,7 @@ import {
   renderManifest,
   renderOfflinePage,
   renderServiceWorker,
+  renderSocialCard,
 } from './offline.mjs';
 import { injectShopRates } from './rates.mjs';
 import {
@@ -934,6 +935,12 @@ ${subgroups
   <meta property="og:title" content="Free small-business calculators">
   <meta property="og:description" content="Price a listing, bid a job, audit a freight bill, or produce a compliance record — free, and entirely in your browser.">
   <meta property="og:url" content="${escapeHtml(baseUrl)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>
     :root {
@@ -1875,6 +1882,83 @@ export function relatedTools(surfaces, slug, limit = 4) {
  * unchanged when there is no `<body>` to attach to, or when the page has been
  * wrapped already — the pass has to be safe to run twice.
  */
+// The one file every share card points at. A single site-wide image rather
+// than one per tool: 164 rasterised cards would be 164 files to keep in step
+// with 164 titles, and a scraper that finds no image at all falls back to
+// whatever it scrapes off the page — usually nothing, since these pages carry
+// no content images either.
+export const SOCIAL_CARD_FILE = 'social-card.png';
+export const SITE_NAME = 'Free small-business calculators';
+
+/**
+ * Make one published page's discovery tags true.
+ *
+ * `injectChrome` inserts a canonical where a venture has none. This is the
+ * other half, and it is the half that was missing: a venture that *does* carry
+ * its own canonical keeps it, however wrong it has become. Fifteen tools were
+ * written as standalone sites and say `href="./index.html"`, which resolves to
+ * `/<slug>/index.html` — while the hub, every sitemap, and every internal link
+ * use `/<slug>/`. Those are two URLs for one page, and the canonical named the
+ * one nothing links to, so the address the whole site advertises was the one
+ * being consolidated away. A relative canonical is legal HTML and self-
+ * resolving, which is why neither `check.mjs` nor a validator ever flagged it.
+ *
+ * Then the social half. Organic sharing into trade groups and forums is a
+ * named acquisition channel here, and a link pasted into one renders from
+ * `og:` tags:
+ *
+ *   * `og:url` — 7 of 442 pages had one. Without it a scraper keys the card to
+ *     the pasted URL, so `?bid=...` share links (157 pages emit them) each
+ *     preview as a separate page instead of consolidating onto the tool.
+ *   * `og:image` — no page had one, so every share rendered as a bare text
+ *     card. This is the single largest determinant of whether anyone clicks.
+ *   * `og:title` / `og:description` — 21 pages carried neither, and fall back
+ *     here to the `<title>` and meta description they do have.
+ *
+ * Everything is added only where the page does not already say it: a venture's
+ * own card copy is written for its audience and beats anything derived here.
+ */
+export function injectDiscoveryTags(html, { canonical, baseUrl, title, description } = {}) {
+  if (!canonical) return html;
+  if (!/<\/head>/i.test(html)) return html;
+
+  let next = html;
+
+  // Repair rather than insert: `injectChrome` has already guaranteed exactly
+  // one canonical, and a page may reach here with a stale relative one.
+  next = next.replace(
+    /<link\b[^>]*\brel=["']canonical["'][^>]*>/i,
+    () => `<link rel="canonical" href="${escapeHtml(canonical)}">`,
+  );
+
+  const has = (attr, value) =>
+    new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/:/g, ':')}["']`, 'i').test(next);
+  const tags = [];
+  const add = (attr, value, content) => {
+    if (!content || has(attr, value)) return;
+    tags.push(`<meta ${attr}="${value}" content="${escapeHtml(content)}">`);
+  };
+
+  add('property', 'og:url', canonical);
+  add('property', 'og:type', 'website');
+  add('property', 'og:site_name', SITE_NAME);
+  add('property', 'og:title', title);
+  add('property', 'og:description', description);
+  if (baseUrl) {
+    const image = `${baseUrl}${SOCIAL_CARD_FILE}`;
+    add('property', 'og:image', image);
+    add('property', 'og:image:width', '1200');
+    add('property', 'og:image:height', '630');
+    add('property', 'og:image:alt', `${SITE_NAME} — free, private, in your browser`);
+    // Without a card type X renders a link as plain text. `summary_large_image`
+    // is the wide form, which is what a 1200×630 card is drawn for.
+    add('name', 'twitter:card', 'summary_large_image');
+  }
+
+  if (!tags.length) return next;
+  return next.replace(/<\/head>/i, `${tags.map((tag) => `\n${tag}`).join('')}\n</head>`);
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
@@ -1969,6 +2053,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const rated = [];
   const saved = [];
   const shared = [];
+  const described = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -1980,6 +2065,9 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       const url = relative.split(path.sep).join('/');
       const html = await fs.readFile(file, 'utf8');
       const toRoot = upToRoot(relative);
+      // `/tool/index.html` and `/tool/` are the same page; the directory form
+      // is the one to declare.
+      const canonical = `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`;
       // The attribute pass runs on the venture's own markup, before the chrome
       // adds any input of its own, and is a no-op on a page with no numbers.
       const chromed = injectFavicon(annotateNumberInputs(injectChrome(html, {
@@ -1988,16 +2076,25 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         total: surfaces.length,
         related,
         title: surface.title,
-        // `/tool/index.html` and `/tool/` are the same page; the directory form
-        // is the one to declare.
-        canonical: `${baseUrl}${url.replace(/(^|\/)index\.html$/, '$1')}`,
+        canonical,
         isEntry: url === `${surface.slug}/index.html`,
       })), toRoot);
+      // After the chrome, which guarantees the canonical this repairs, and read
+      // from the venture's *own* markup: a deep SEO page inside a tool has its
+      // own title and description, and `surface` carries the tool's.
+      const pageMeta = readMeta(html, surface.slug);
+      const withCard = injectDiscoveryTags(chromed, {
+        canonical,
+        baseUrl,
+        title: pageMeta.title,
+        description: pageMeta.description,
+      });
+      if (withCard !== chromed) described.push(relative);
       // Last: the bar anchors under the site nav, so the chrome has to be there
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
-      const withRates = injectShopRates(chromed, surface.slug);
-      if (withRates !== chromed) rated.push(relative);
+      const withRates = injectShopRates(withCard, surface.slug);
+      if (withRates !== withCard) rated.push(relative);
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
       // one adds.
@@ -2023,7 +2120,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
     }
   }
 
-  return { wrapped, rated, saved, shared };
+  return { wrapped, rated, saved, shared, described };
 }
 
 export function renderRobots(baseUrl) {
@@ -2223,6 +2320,11 @@ export function renderNotFound(baseUrl) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="./favicon.ico" sizes="16x16">
+  <!-- GitHub Pages serves this body under every mistyped path, each of which is
+       a distinct URL a crawler may have followed from a stale link. Without
+       this they index as hundreds of duplicate "That page isn't here" pages
+       under the site's own name. offline.html already carries the same tag. -->
+  <meta name="robots" content="noindex">
   <title>Not found</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 40rem; margin: 12vh auto;
@@ -2424,19 +2526,21 @@ export async function buildSite({
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
+  // One card for the whole site, named by every page's og:image.
+  await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const { wrapped, rated, saved, shared } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+  const { wrapped, rated, saved, shared, described } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
   const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, offline };
+  return { outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described, offline };
 }
 
 // ---------------------------------------------------------------------------
@@ -2591,4 +2695,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Carried saved shop rates into ${result.rated.length} bid calculator page(s).`);
   console.log(`Added saved bids to ${result.saved.length} page(s) with a form.`);
   console.log(`Added a shareable bid link to ${result.shared.length} page(s).`);
+  console.log(`Corrected canonical and share-card tags on ${result.described.length} page(s).`);
 }
