@@ -342,6 +342,36 @@ export function normalizeLostTo(value) {
 }
 
 /**
+ * What a won job actually cost this contractor to deliver.
+ *
+ * Every reading in this panel is about *winning*. `followUpSentence` and
+ * `chaseSentence` say which quotes are still out, `priceBandSentence` says
+ * where the price tips, `undercutSentence` says how far under the winner was,
+ * and `winRateSentence` says how often the yes comes. A contractor who acts on
+ * all five gets better at winning work, and not one of them can tell them
+ * whether the work they win is worth having. That is the other half of pricing
+ * and it is the half that decides whether a higher win rate is good news: a
+ * shop winning 80% at a price that loses money on every job is in deeper
+ * trouble than one winning 30%.
+ *
+ * The missing ingredient was never a calculation, it was a fact only the
+ * contractor has — what the job came to once it was done. Materials, labour and
+ * subs, as they know it from their own job costing. One optional box on a won
+ * row is where it goes, the mirror of "Went for" on a lost one.
+ *
+ * Deliberately an alias rather than a copy of `normalizeLostTo`. The two are
+ * the same input — a plain positive amount a person has typed off an invoice or
+ * a text message — with the same guard against a mistyped extra zero, and the
+ * page ships both to the browser: a second body would be bytes in the offline
+ * bundle for a rule that has to stay identical anyway. What differs is which
+ * outcome may carry the figure, and that is `normalizeBid`'s business, not this
+ * function's.
+ */
+export function normalizeJobCost(value) {
+  return normalizeLostTo(value);
+}
+
+/**
  * Keep only what a bid can hold.
  *
  * Storage is the visitor's own disk and can contain anything — a half-written
@@ -400,6 +430,16 @@ export function normalizeBid(entry) {
     if (outcome === 'lost') {
       const lostTo = normalizeLostTo(entry.lostTo);
       if (lostTo) bid.lostTo = lostTo;
+    }
+    // The same rule as `lostTo` above, pointed the other way: what a job cost
+    // to deliver is a fact about a job that was done, so it is kept only on a
+    // win. A bid flipped back to waiting, or corrected to lost, has no
+    // delivered job behind it, and carrying the figure through would leave a
+    // cost that `marginSentence` would count the moment the outcome was set
+    // back to won for a different job at the same address.
+    if (outcome === 'won') {
+      const cost = normalizeJobCost(entry.cost);
+      if (cost) bid.cost = cost;
     }
   }
   return bid;
@@ -1018,6 +1058,150 @@ export function undercutSentence(bids) {
 }
 
 /**
+ * How many finished jobs with a cost entered before the margin is drawn.
+ *
+ * Three. Two would make the pooled figure a coin toss between one good job and
+ * one bad one, and the edge sentence below is a claim about a *spread* — with
+ * two jobs there is no distribution to describe, only the pair. Three is still
+ * a small book, which is why the reading reports what those jobs did and never
+ * what they ought to have done.
+ *
+ * Higher than `MIN_PRICE_BAND_SIDE` for a reason the price band does not have:
+ * every ingredient there was already on disk, and a cost has to be typed in
+ * after the job is off the truck. Someone who has entered three has told this
+ * panel something deliberate, and the floor should not be so high that the
+ * effort goes unanswered for a season.
+ */
+export const MIN_MARGIN_SAMPLE = 3;
+
+/**
+ * How far apart the best and worst job must be before the spread is named.
+ *
+ * Twenty points of margin. Below that the jobs are telling one story and the
+ * pooled figure is a fair summary of it; above it the average is a number no
+ * single job did, and quoting it alone would hide the case this reading exists
+ * to surface — one trade, or one customer, quietly carrying the rest.
+ */
+export const MARGIN_SPREAD_POINTS = 20;
+
+/**
+ * What the jobs this contractor won actually kept, once they were done.
+ *
+ * The counterweight to every other reading in this panel. `priceBandSentence`
+ * finds where a price tips from won to lost and `winRateSentence` counts how
+ * often it lands; act on both and you learn to win more work, with no way to
+ * tell whether the work is worth winning. A contractor can be losing money on
+ * every job they take and every reading here will look like it is going well —
+ * the win rate climbs precisely *because* the price is too low.
+ *
+ * Scoped to one tool, like `priceBandSentence` and for the same reason: a
+ * margin off the roofing calculator and a margin off an eBay fee page are not
+ * the same quantity, and mixed currencies inside one tool are refused rather
+ * than converted. This feature has no exchange rates and should never get any.
+ *
+ * The percentage is **pooled** — total kept over total charged — not the mean
+ * of the per-job percentages. Those differ, and pooling is the honest one: a
+ * $400 job at 40% and a $12,000 job at 4% average to 22% by the mean and to
+ * 5% pooled, and 5% is what actually went in the bank. The mean would flatter
+ * a book whose small jobs are the profitable ones, which is the common shape
+ * in the trades and exactly the shape a contractor needs not to be flattered
+ * about.
+ *
+ * Two sentences, the second chosen by what the numbers actually contain:
+ *
+ *   - **A job below its own cost.** Said first and said plainly, because it is
+ *     the finding with the shortest path to money and the one a pooled average
+ *     is most able to bury. A single job at -15% inside five at +18% barely
+ *     moves the total.
+ *   - **A wide spread.** The average is not what any of these jobs did, so
+ *     naming it alone would send someone to re-price the whole book when one
+ *     end of it is fine.
+ *   - **Neither.** The limit of the reading itself: it knows only the costs
+ *     that were typed in, and a contractor who left their own hours out of
+ *     them is reading a number that is too kind.
+ *
+ * Never a figure to aim for. There is no correct margin — it moves with trade,
+ * overhead and what a shop counts as a cost — and printing one would be
+ * inventing the number a contractor came here to stop guessing at.
+ *
+ * Returns `''` — draw nothing — below `MIN_MARGIN_SAMPLE` finished jobs, on
+ * mixed currencies, and when no won bid carries both a readable figure and a
+ * cost.
+ */
+export function marginSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var jobs = [];
+  var currency = '';
+  var charged = 0;
+  var spent = 0;
+
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'won') continue;
+    var cost = normalizeJobCost(bid.cost);
+    if (!cost) continue;
+    var parsed = bidAmountValue(bid.amount);
+    if (!parsed) continue;
+    // A hero figure of zero or below is not a price this can take a share of.
+    // Some tools here answer in a saving or a difference rather than a quote,
+    // and dividing by one of those would print a percentage of nothing.
+    if (!(parsed.value > 0)) continue;
+    if (currency === '') currency = parsed.currency;
+    else if (parsed.currency !== currency) return '';
+    var paid = Number(cost);
+    charged += parsed.value;
+    spent += paid;
+    jobs.push({ kept: parsed.value - paid, share: ((parsed.value - paid) / parsed.value) * 100 });
+  }
+
+  if (jobs.length < MIN_MARGIN_SAMPLE) return '';
+
+  var kept = charged - spent;
+  var pooled = Math.round((kept / charged) * 100);
+  var centre = 'The ' + jobs.length + ' you finished here were priced at ' +
+    formatBidAmount(currency, charged) + ' and cost you ' + formatBidAmount(currency, spent) +
+    ' — you kept ' + formatBidAmount(currency, kept) + ', ' + pooled + '% of what you charged.';
+
+  // Two different "worst"s, and conflating them was a real defect while this
+  // was being written. The spread below is about shares, so its ends are the
+  // lowest and highest percentages. The loss quoted above is money, so it is
+  // the deepest hole in currency — on a book holding a $100 job that cost $200
+  // and a $10,000 job that cost $10,500, the worst share is the small job and
+  // the worst loss is the large one, and "the worst by $100" would be pointing
+  // at the wrong job while a $500 hole went unmentioned.
+  var worst = jobs[0];
+  var best = jobs[0];
+  var deepest = jobs[0];
+  var under = 0;
+  for (var j = 0; j < jobs.length; j++) {
+    if (jobs[j].share < worst.share) worst = jobs[j];
+    if (jobs[j].share > best.share) best = jobs[j];
+    if (jobs[j].kept < deepest.kept) deepest = jobs[j];
+    if (jobs[j].kept < 0) under++;
+  }
+
+  var edge;
+  if (under > 0) {
+    edge = (under === 1 ? 'One of them cost more than it was priced at, by ' +
+        formatBidAmount(currency, -deepest.kept) + '.'
+      : under + ' of them cost more than they were priced at, the worst by ' +
+        formatBidAmount(currency, -deepest.kept) + '.') +
+      ' That job is inside the figure above rather than beside it.';
+  } else if (best.share - worst.share >= MARGIN_SPREAD_POINTS) {
+    edge = 'They run from ' + Math.round(worst.share) + '% to ' + Math.round(best.share) +
+      '%, so the figure above is not what any one of these jobs did — the low end is the one ' +
+      'to go back over.';
+  } else {
+    edge = 'This counts whatever you entered as the cost, so it is only as complete as your own ' +
+      'job costing — your own hours are the ones most often left out.';
+  }
+
+  return centre + ' ' + edge;
+}
+
+/**
  * How many lost bids with a known winning price before the hub draws a reading.
  *
  * Three, where the single-tool `undercutSentence` wants two, and the extra one
@@ -1348,8 +1532,13 @@ export const BID_RECORD_HELPERS = [
   `var EXCLUDED_ID_PREFIX = ${JSON.stringify(EXCLUDED_ID_PREFIX)};`,
   `var BID_OUTCOMES = ${JSON.stringify(BID_OUTCOMES)};`,
   `var MAX_LOST_TO = ${MAX_LOST_TO};`,
-  ...[normalizeBidName, normalizeOutcome, normalizeLostTo, normalizeHeadlineAmount, isExcludedId,
-    normalizeBid].map(
+  // `normalizeJobCost` rides here because `normalizeBid` now calls it. What
+  // matters is that it is in the list at all — these are function expressions
+  // whose names resolve when they are called rather than when they are
+  // assigned, so the order below is for reading, not for the interpreter. The
+  // test that runs this bundle is what proves nothing is missing from it.
+  ...[normalizeBidName, normalizeOutcome, normalizeLostTo, normalizeJobCost,
+    normalizeHeadlineAmount, isExcludedId, normalizeBid].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
@@ -1383,12 +1572,17 @@ export const BID_PRICE_BAND_HELPERS = [
   `var MIN_PRICE_BAND_SIDE = ${MIN_PRICE_BAND_SIDE};`,
   `var MIN_UNDERCUT_SAMPLE = ${MIN_UNDERCUT_SAMPLE};`,
   `var MAX_LOST_TO = ${MAX_LOST_TO};`,
+  `var MIN_MARGIN_SAMPLE = ${MIN_MARGIN_SAMPLE};`,
+  `var MARGIN_SPREAD_POINTS = ${MARGIN_SPREAD_POINTS};`,
   // `normalizeLostTo` is emitted here as well as in `BID_RECORD_HELPERS`, and
   // that is not a duplicate: no script includes both lists, the record helpers
   // exist for the backup panel, and the page script builds its records by hand
   // and needs this one function to read what the visitor typed into the box.
-  ...[normalizeLostTo, bidAmountValue, bidPriceSide, formatBidAmount, priceBandSentence,
-    undercutSentence].map(
+  //
+  // `normalizeJobCost` is the alias over it that the won-row cost box and
+  // `marginSentence` both read through, so it has to be in the same list.
+  ...[normalizeLostTo, normalizeJobCost, bidAmountValue, bidPriceSide, formatBidAmount,
+    priceBandSentence, undercutSentence, marginSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
@@ -1450,7 +1644,9 @@ export const SAVED_BIDS_CLAUSE =
  */
 export const PRICE_BAND_CLAUSE =
   'and, once a few are decided, what your won bids on this tool have averaged against the ones you ' +
-  'lost, including how far over the winning price you were on the lost jobs whose final price you know';
+  'lost, including how far over the winning price you were on the lost jobs whose final price you know, ' +
+  'and — for the won jobs you enter a delivered cost against — what those jobs actually kept once ' +
+  'they were done, so a job worked at a loss is visible rather than averaged away';
 
 /**
  * Both spellings, because the repo uses both — a strict match on
@@ -1547,7 +1743,11 @@ const JOBS_STYLE = `<style>
 /* Sized to the figure it holds, not to the row: a four-or-five digit price on
    a 390px phone screen next to Restore and Delete, which is where these are
    filled in. It shrinks but does not grow, so it yields before the name does. */
-.pf-jobs-lostto{font:inherit;font-size:.85rem;color:inherit;background:transparent;
+/* One rule for both row boxes. They are the same control in the same slot —
+ * an optional figure the contractor types onto a decided row — and the only
+ * difference is which outcome shows it, so a second declaration would be a
+ * second thing to keep in step with the contrast pass that cleared this one. */
+.pf-jobs-lostto,.pf-jobs-cost{font:inherit;font-size:.85rem;color:inherit;background:transparent;
   border:1px solid #80808059;border-radius:7px;padding:3px 6px;flex:0 1 7.5em;min-width:0;
   font-variant-numeric:tabular-nums}
 .pf-jobs-list li[data-pf-jobs-decided] .pf-jobs-name{font-weight:500;opacity:.75}
@@ -1604,7 +1804,7 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions.' : ''}</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning.' : ''}</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
@@ -1613,7 +1813,8 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
     <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>${withPriceBand ? `
     <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
-    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>` : ''}
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>` : ''}
     <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
     <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="${toRoot}#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
   </div>
@@ -1766,6 +1967,7 @@ ${BID_PRICE_BAND_HELPERS}
 
   var bandShown = '';
   var gapShown = '';
+  var marginShown = '';
   var chaseShown = '';
 
   var render = function(){
@@ -1813,6 +2015,17 @@ ${BID_PRICE_BAND_HELPERS}
       gapEl.textContent = gap;
       gapEl.hidden = gap === '';
       if (gap !== '' && gap !== gapShown) { gapShown = gap; bump('bid_undercut_shown'); }
+    }
+
+    // Drawn last of the three, and after the rows have been counted rather than
+    // before: the two above are about quotes, this one is about jobs that are
+    // finished, so it reads as the end of the story the panel tells.
+    var marginEl = el('pf-jobs-margin');
+    if (marginEl) {
+      var margin = marginSentence(list);
+      marginEl.textContent = margin;
+      marginEl.hidden = margin === '';
+      if (margin !== '' && margin !== marginShown) { marginShown = margin; bump('bid_margin_shown'); }
     }
 
     for (var i = 0; i < list.length; i++) {
@@ -1897,6 +2110,25 @@ ${BID_PRICE_BAND_HELPERS}
         went.setAttribute('aria-label', 'What the job named ' + bid.name + ' went for, if you know');
         went.value = normalizeLostTo(bid.lostTo);
         li.appendChild(went);
+      }
+
+      // The won-row mirror. Gated on the same element for the same reason: with
+      // no hero figure there is no price to take the cost away from, so the box
+      // would collect a number nothing can read back.
+      if (outcome === 'won' && gapEl) {
+        var spent = document.createElement('input');
+        spent.type = 'text';
+        spent.className = 'pf-jobs-cost';
+        spent.setAttribute('data-pf-jobs-cost', '');
+        spent.setAttribute('data-pf-jobs-index', String(i));
+        spent.setAttribute('inputmode', 'decimal');
+        spent.setAttribute('autocomplete', 'off');
+        spent.maxLength = 14;
+        spent.placeholder = 'Cost you';
+        spent.setAttribute('aria-label', 'What the job named ' + bid.name +
+          ' cost you to deliver, if you know');
+        spent.value = normalizeJobCost(bid.cost);
+        li.appendChild(spent);
       }
 
       var restore = document.createElement('button');
@@ -2039,6 +2271,11 @@ ${BID_PRICE_BAND_HELPERS}
     // figure would survive in memory until the next reload and be counted by
     // undercutSentence on a bid the contractor had just said they won.
     if (value !== 'lost') delete bid.lostTo;
+    // And the mirror: a bid that is no longer won has no delivered job behind
+    // it, so its cost goes with the decision. Without this the figure would
+    // survive in memory until the next reload and marginSentence would keep
+    // counting a job the contractor had just said they did not do.
+    if (value !== 'won') delete bid.cost;
 
     if (!writeMine(list)) { say('This browser would not update its storage.'); return; }
     render();
@@ -2057,17 +2294,21 @@ ${BID_PRICE_BAND_HELPERS}
   // the body mid-task, which on a screen reader or a keyboard is losing your
   // place in a list of customer names. So the row's box is refocused, and the
   // caret put back where the browser had it.
-  var lostToBox = function(index){
-    return document.querySelector('[data-pf-jobs-lostto][data-pf-jobs-index="' + index + '"]');
+  // Parameterised by the row attribute, so the won row's cost box gets the same
+  // caret handling as the lost row's price box from one copy of it. Both ship
+  // in the offline bundle; a second set of near-identical helpers would be
+  // bytes on every jobsite page load for behaviour that has to stay identical.
+  var rowBox = function(attr, index){
+    return document.querySelector('[' + attr + '][data-pf-jobs-index="' + index + '"]');
   };
 
   // Only when the box still had focus, which is what tells the two callers
   // apart. 'change' fires on blur as well as on Enter, and refocusing after a
   // blur would drag the caret back out of whatever the visitor had just tabbed
   // to — a worse bug than the one this fixes.
-  var reFocusLostTo = function(state){
+  var reFocusRow = function(attr, state){
     if (!state || !state.had) return;
-    var box = lostToBox(state.index);
+    var box = rowBox(attr, state.index);
     if (!box) return;
     try {
       box.focus();
@@ -2076,16 +2317,19 @@ ${BID_PRICE_BAND_HELPERS}
     } catch (e) {}
   };
 
-  var focusState = function(index){
-    var box = lostToBox(index);
+  var focusState = function(attr, index){
+    var box = rowBox(attr, index);
     var had = !!box && document.activeElement === box;
     var caret = null;
     if (had) { try { caret = box.selectionStart; } catch (e) {} }
     return { index: index, had: had, caret: caret };
   };
 
+  var LOST_ATTR = 'data-pf-jobs-lostto';
+  var COST_ATTR = 'data-pf-jobs-cost';
+
   var setLostTo = function(index, value){
-    var focus = focusState(index);
+    var focus = focusState(LOST_ATTR, index);
     var list = mine();
     var bid = list[index];
     if (!bid || bid.outcome !== 'lost') { render(); return; }
@@ -2100,9 +2344,9 @@ ${BID_PRICE_BAND_HELPERS}
       render();
       // The rejected text is put back so it can be corrected rather than
       // retyped: a figure that failed on one stray character is nearly right.
-      var box = lostToBox(index);
+      var box = rowBox(LOST_ATTR, index);
       if (box) box.value = typed;
-      reFocusLostTo(focus);
+      reFocusRow(LOST_ATTR, focus);
       say('Could not read “' + typed + '” as a price, so the figure for “' + bid.name +
         '” is unchanged. Enter what the job went for as a plain amount, like 1900 or 1900.50.');
       return;
@@ -2110,15 +2354,51 @@ ${BID_PRICE_BAND_HELPERS}
 
     var before = bid.lostTo || '';
     if (went) bid.lostTo = went; else delete bid.lostTo;
-    if (before === (went || '')) { render(); reFocusLostTo(focus); return; }
+    if (before === (went || '')) { render(); reFocusRow(LOST_ATTR, focus); return; }
 
     if (!writeMine(list)) { say('This browser would not update its storage.'); return; }
     render();
-    reFocusLostTo(focus);
+    reFocusRow(LOST_ATTR, focus);
     bump(went ? 'bid_lost_to_set' : 'bid_lost_to_cleared');
     say(went
       ? 'Noted: “' + bid.name + '” went for ' + went + '.'
       : 'Cleared what “' + bid.name + '” went for.');
+  };
+
+  // The won-row twin of setLostTo. Same three rules, and they matter for the
+  // same reasons: an unreadable figure never silently deletes the good one
+  // already stored, clearing the box is a real edit because a cost gets
+  // corrected when the last supplier invoice lands, and a value that did not
+  // change is not written to disk or counted as an event.
+  var setCost = function(index, value){
+    var focus = focusState(COST_ATTR, index);
+    var list = mine();
+    var bid = list[index];
+    if (!bid || bid.outcome !== 'won') { render(); return; }
+
+    var paid = normalizeJobCost(value);
+    var typed = String(value == null ? '' : value).trim();
+    if (!paid && typed !== '') {
+      render();
+      var costBox = rowBox(COST_ATTR, index);
+      if (costBox) costBox.value = typed;
+      reFocusRow(COST_ATTR, focus);
+      say('Could not read “' + typed + '” as an amount, so the cost for “' + bid.name +
+        '” is unchanged. Enter what the job cost you as a plain amount, like 1900 or 1900.50.');
+      return;
+    }
+
+    var had = bid.cost || '';
+    if (paid) bid.cost = paid; else delete bid.cost;
+    if (had === (paid || '')) { render(); reFocusRow(COST_ATTR, focus); return; }
+
+    if (!writeMine(list)) { say('This browser would not update its storage.'); return; }
+    render();
+    reFocusRow(COST_ATTR, focus);
+    bump(paid ? 'bid_cost_set' : 'bid_cost_cleared');
+    say(paid
+      ? 'Noted: “' + bid.name + '” cost ' + paid + ' to deliver.'
+      : 'Cleared what “' + bid.name + '” cost.');
   };
 
   var remove = function(index){
@@ -2191,10 +2471,13 @@ ${BID_PRICE_BAND_HELPERS}
       // 'change' on a text input fires on blur and on Enter, not per keystroke,
       // which is what this wants: a half-typed 19 of 1900 must not be stored
       // and read back as a $1,881 gap while the contractor is still typing.
-      if (!state && !field.hasAttribute('data-pf-jobs-lostto')) return;
+      var cost = field.hasAttribute(COST_ATTR);
+      if (!state && !cost && !field.hasAttribute(LOST_ATTR)) return;
       var index = Number(field.getAttribute('data-pf-jobs-index'));
       if (!isFinite(index)) return;
-      if (state) setOutcome(index, field.value); else setLostTo(index, field.value);
+      if (state) setOutcome(index, field.value);
+      else if (cost) setCost(index, field.value);
+      else setLostTo(index, field.value);
     });
 
     el('pf-jobs-panel').addEventListener('keydown', function(event){
@@ -2202,10 +2485,13 @@ ${BID_PRICE_BAND_HELPERS}
       // submit it and reload the page.
       if (event.key !== 'Enter') return;
       var field = event.target;
-      if (!field || !field.hasAttribute || !field.hasAttribute('data-pf-jobs-lostto')) return;
+      if (!field || !field.hasAttribute) return;
+      var onCost = field.hasAttribute(COST_ATTR);
+      if (!onCost && !field.hasAttribute(LOST_ATTR)) return;
       event.preventDefault();
       var index = Number(field.getAttribute('data-pf-jobs-index'));
-      if (isFinite(index)) setLostTo(index, field.value);
+      if (!isFinite(index)) return;
+      if (onCost) setCost(index, field.value); else setLostTo(index, field.value);
     });
   };
 

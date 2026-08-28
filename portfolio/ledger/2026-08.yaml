@@ -26740,3 +26740,80 @@ entries:
         for `NaN`/`Infinity`/`undefined`/`[object Object]` reaching rendered
         text after a normal interaction -- zero. The render-level defect class
         the 2026-08-27 entry flagged is, for now, closed.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the first reading in this portfolio that is not about winning
+        work. A won row now takes what the job came to once it was delivered --
+        the mirror of "Went for" on a lost row -- and once three on one tool are
+        costed the panel reads "The 3 you finished here were priced at $2,200
+        and cost you $1,900 -- you kept $300, 14% of what you charged. They run
+        from 4% to 40%, so the figure above is not what any one of these jobs
+        did." Every other reading here (`followUpSentence`, `chaseSentence`,
+        `priceBandSentence`, `undercutSentence`, `winRateSentence`) makes a
+        contractor better at getting the yes, and not one of them can say
+        whether the yes was worth having. A shop winning 80% at a price that
+        loses money on every job is in deeper trouble than one winning 30%, and
+        until now every signal on this site would have read as going well --
+        the win rate climbs precisely *because* the price is too low.
+      - >-
+        The share is pooled -- total kept over total charged -- not the mean of
+        the per-job shares, and the two genuinely disagree: the browser pass
+        recorded 14% pooled against 16% mean on the same three jobs. The mean
+        flatters a book whose small jobs are its profitable ones, which is the
+        common shape in the trades and exactly the shape not to be flattered
+        about. Pinned in `journey.mjs` by computing both from the figures the
+        page itself printed and asserting the sentence carries the pooled one
+        *and* that the two differ, so the check cannot pass by coincidence.
+      - >-
+        Defect found and fixed while the tests were being written, and it would
+        have shipped as a confident wrong answer: the loss quoted in "the worst
+        by $X" was selected by worst *share* rather than deepest money. On a
+        book holding a $100 job that cost $200 and a $10,000 job that cost
+        $10,500 that says "the worst by $100" while the $500 hole goes
+        unmentioned. Two separate reductions now -- `worst`/`best` by share for
+        the spread branch, `deepest` by currency for the loss branch -- with a
+        test built on exactly that pair.
+      - >-
+        Three storage rules, each of which fails silently. The cost belongs to
+        the win, so flipping a bid to lost or back to waiting drops it rather
+        than leaving a delivered cost on a job never done -- `marginSentence`
+        divides by the bid's own price and would report a margin on it. The
+        backup merge carries it with the decision it resolves (`withDecision`),
+        which is the defect class that already cost this feature's neighbour its
+        outcomes once. And `normalizeJobCost` had to join `BID_RECORD_HELPERS`,
+        because `normalizeBid` is transcribed into the hub and the backup panel
+        -- a field added in one place and not the other is dropped on the round
+        trip and nowhere else; a test drives the hub's own transcribed copies.
+      - >-
+        Never a margin to aim for, the same line `winRateSentence` holds. There
+        is no correct margin -- it moves with trade, with overhead, and with
+        what a shop counts as a cost -- so a test asserts "should", "aim",
+        "target", "too high/low", "healthy", "ideal" and "industry" appear in no
+        branch, checked against all four branches including the two the other
+        tests do not reach. Where there is no loss and no wide spread the
+        sentence spends itself on the limit of the reading instead: it counts
+        whatever was entered as the cost, and the contractor's own hours are the
+        ones most often left out.
+      - >-
+        Queue state: zero open PRs at session start on `list_pull_requests` and
+        on `search_pull_requests`, the eighth consecutive session, so the
+        three-PR merge quota again had nothing to draw on; one opened and merged
+        here. Did not re-audit the stale branches one at a time -- the
+        2026-08-27 and 2026-08-28 entries already record that sweep. Spot-checked
+        the largest by unique commits: `funny-archimedes-895zx9` (closed PR #971,
+        "Markdown export, shareable quote links") is superseded under renames --
+        `main` carries `encodeQuote`/`decodeQuote` with the hash round trip in
+        `calc.mjs` and `markdownReview` in `markdown.mjs`. `sweet-archimedes-6nrsur`
+        diffs to zero files against `main`.
+      - >-
+        Verified locally, the runner outage still standing: 499 platform/pages
+        tests, five CI python checks, 216 workflows valid, the artifact at 164
+        products / 445 pages with no dead links, 164/164 tools answering in
+        Chromium with no errors, 443 pages x 2 viewports with no WCAG A/AA
+        violation, and the full journey at 0 failed checks including the new
+        step. Confirmed the new build was the one answering before believing
+        any of it (`curl | grep pf-jobs-margin`), which the sweep's own header
+        asks for after a stale server cost a false clean report on 2026-08-28.

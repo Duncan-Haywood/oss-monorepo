@@ -555,6 +555,149 @@ await step('four decided bids say where this tool’s price tips', async () => {
   }
 });
 
+// 6bcc. The margin reading (`marginSentence`) — what the won jobs kept.
+//
+//       Unit tests hand the function rows with an `amount` and a `cost`
+//       already on them. Three things only a browser can settle, and all three
+//       are wiring rather than arithmetic:
+//
+//       - the cost box exists on a won row and *not* on a lost or waiting one,
+//         which is a render-time branch no string assertion reaches;
+//       - what a person types into it survives the 'change' listener, the
+//         normaliser, storage and the re-render, in a panel that rebuilds its
+//         whole list on every keystroke-committing event; and
+//       - the figure it is divided by is the one this page actually printed,
+//         because `amount` is scraped off the hero at save time — the same
+//         defect class 6bc exists for, one field along.
+//
+//       Priced deliberately so the pooled figure and the mean disagree: a
+//       small job at 40% and two large ones near 4%. If this ever starts
+//       reading ~16% the reading has quietly switched to the mean.
+await step('costing the won jobs says whether the wins were worth having', async () => {
+  const SLUG = 'water-heater-bid-calculator';
+  await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    await page.reload({ waitUntil: 'networkidle' });
+    await jobsReady();
+    await page.click('#pf-jobs-toggle');
+
+    const ids = (await page.evaluate(() => {
+      const out = [];
+      document.querySelectorAll('input[type="number"][id]').forEach((n) => {
+        if (!n.id.startsWith('pf-') && n.id !== 'usageOptOut') out.push(n.id);
+      });
+      return out;
+    })).slice(0, 4);
+
+    const hero = () => page.evaluate(() => {
+      const node = document.querySelector('.hero-number');
+      return node ? node.textContent.replace(/\s+/g, ' ').trim() : '';
+    });
+    const money = (text) => Number((/[\d,]+(?:\.\d+)?/.exec(text) || ['0'])[0].replace(/,/g, ''));
+
+    // Three jobs at three sizes, cheapest first, so the small one can be the
+    // profitable one below.
+    const priced = [];
+    for (const [n, size] of [6, 18, 30].entries()) {
+      for (const [i, id] of ids.entries()) {
+        await page.fill(`#${id}`, String(size + i * 2));
+        await page.dispatchEvent(`#${id}`, 'input');
+      }
+      priced.push(money(await hero()));
+      await page.fill('#pf-jobs-name', `Costed ${n + 1}`);
+      await page.click('[data-pf-jobs="save"]');
+    }
+    check('three jobs price to three different figures',
+      new Set(priced).size === 3, priced.join(' '));
+
+    // Newest first: row 0 is Costed 3 (dearest), row 2 is Costed 1.
+    const mark = async (index, value) => {
+      await page.selectOption(`select[data-pf-jobs-index="${index}"]`, value);
+      await page.waitForTimeout(50);
+    };
+    check('a waiting row offers nowhere to enter a cost',
+      (await page.locator('[data-pf-jobs-cost]').count()) === 0);
+    await mark(0, 'lost');
+    check('and a lost row offers the winning price instead, not a cost',
+      (await page.locator('[data-pf-jobs-cost]').count()) === 0 &&
+      (await page.locator('[data-pf-jobs-lostto]').count()) === 1);
+
+    await mark(0, 'won');
+    await mark(1, 'won');
+    await mark(2, 'won');
+    check('every won row gets a cost box',
+      (await page.locator('[data-pf-jobs-cost]').count()) === 3);
+    check('three uncosted wins say nothing about margin',
+      !(await page.isVisible('#pf-jobs-margin')));
+
+    // 40% on the small job, ~4% on the two large ones. Typed and committed
+    // through 'change', which is the path a person's keyboard takes.
+    const costs = [
+      Math.round(priced[2] * 0.96), // row 0, dearest
+      Math.round(priced[1] * 0.96), // row 1
+      Math.round(priced[0] * 0.60), // row 2, cheapest and the profitable one
+    ];
+    for (const [index, cost] of costs.entries()) {
+      await page.fill(`[data-pf-jobs-cost][data-pf-jobs-index="${index}"]`, String(cost));
+      await page.dispatchEvent(`[data-pf-jobs-cost][data-pf-jobs-index="${index}"]`, 'change');
+      await page.waitForTimeout(50);
+    }
+
+    const margin = (await page.textContent('#pf-jobs-margin')).replace(/\s+/g, ' ').trim();
+    check('the reading appears once all three are costed',
+      await page.isVisible('#pf-jobs-margin'), margin);
+    check('it counts the finished jobs and quotes what they charged',
+      /^The 3 you finished here were priced at .* and cost you .* — you kept .*, \d+% of what you charged\./
+        .test(margin), margin);
+
+    // The figure the tool itself printed, summed — not a re-rendering, and not
+    // a number this feature invented.
+    const charged = priced[0] + priced[1] + priced[2];
+    const kept = charged - costs.reduce((a, b) => a + b, 0);
+    const pooled = Math.round((kept / charged) * 100);
+    const mean = Math.round(
+      ((priced[2] - costs[0]) / priced[2] + (priced[1] - costs[1]) / priced[1] +
+        (priced[0] - costs[2]) / priced[0]) * 100 / 3);
+    check('the share is pooled, not the mean of the three jobs',
+      margin.includes(`${pooled}% of what you charged`) && pooled !== mean,
+      `${margin} :: pooled ${pooled} mean ${mean}`);
+    check('and the spread is named, because no one job did the average',
+      /They run from \d+% to \d+%,/.test(margin), margin);
+
+    // The figure has to survive a reload — it is on disk, not in the render.
+    await page.reload({ waitUntil: 'networkidle' });
+    await jobsReady();
+    await page.click('#pf-jobs-toggle');
+    check('the costs are still there after a reload',
+      (await page.textContent('#pf-jobs-margin')).replace(/\s+/g, ' ').trim() === margin);
+
+    // A cost belongs to a job that was done. Taking the win back takes it.
+    await mark(2, '');
+    check('un-winning a job drops its cost and withdraws the reading',
+      !(await page.isVisible('#pf-jobs-margin')));
+    await mark(2, 'won');
+    check('and the figure does not come back with the outcome',
+      await page.inputValue('[data-pf-jobs-cost][data-pf-jobs-index="2"]') === '');
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the cost entries and the reading are counted',
+      counts.bid_cost_set >= 3 && counts.bid_margin_shown >= 1, JSON.stringify(counts));
+    check('and the counter holds no customer name, figure or cost',
+      !/Costed |\$/.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
 // 6bd. The chase line (`chaseSentence`) — which quotes have gone quiet.
 //
 //      Unit tests build the timestamps by hand. What only a browser shows is

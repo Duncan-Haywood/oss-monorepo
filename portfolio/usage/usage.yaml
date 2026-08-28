@@ -1849,6 +1849,53 @@ products:
           browser and never leaves it. Same local, aggregate, opt-out and
           DNT/GPC-respecting path as every other hub event. Still a baseline
           row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          bid_cost_set: 0
+          bid_cost_cleared: 0
+          bid_margin_shown: 0
+          pages_carrying_the_margin: 160
+        note: >-
+          What the won jobs actually kept. Every reading this panel had was
+          about winning — which quotes are still out, which have gone quiet,
+          where the price tips, how far under the winner was, how often the yes
+          comes — and none of them could tell a contractor whether the work they
+          win is worth having. That is the other half of pricing and it is the
+          half that decides whether a higher win rate is good news: a shop
+          winning 80% at a price that loses money on every job is in deeper
+          trouble than one winning 30%, and until now every signal here would
+          have read as going well. A won row now carries one optional box for
+          what the job came to once it was delivered, the mirror of "Went for"
+          on a lost one, and once three are costed the panel reads "The 3 you
+          finished here were priced at $2,200 and cost you $1,900 — you kept
+          $300, 14% of what you charged. They run from 4% to 40%, so the figure
+          above is not what any one of these jobs did — the low end is the one to
+          go back over." Three design rules, each of which would fail quietly.
+          The share is **pooled** — total kept over total charged — not the mean
+          of the per-job shares: on that same book the mean is 16% and 14% is
+          what went in the bank, and the mean flatters a shop whose small jobs
+          are its profitable ones, which is the common shape in the trades and
+          exactly the shape not to be flattered about. A job below its own cost
+          is named rather than averaged away, because one job at -15% inside
+          five at +18% barely moves a pooled total and is the finding with the
+          shortest path to money. And the loss quoted is the deepest in
+          *currency*, not in percent — on a book holding a $100 job that cost
+          $200 and a $10,000 job that cost $10,500, quoting the worst share
+          would point at the small job while the $500 hole went unmentioned.
+          Never a margin to aim for: there is no correct one, it moves with
+          trade and overhead and with what a shop counts as a cost, and a test
+          asserts "should", "aim", "target", "too high/low", "healthy", "ideal"
+          and "industry" appear in no branch. The reading to take once live is
+          `bid_cost_set` against `bid_marked_won` — how many wins a contractor
+          comes back to cost, which is the whole funnel this depends on, and the
+          one number that says whether an after-the-job input is something
+          people will actually do. Read `bid_margin_shown` beside it for how
+          often three on one tool accumulate. Counts are per event and carry no
+          name, no slug and no amount; the cost a contractor types is stored in
+          their own browser and never leaves it. Same local, aggregate, opt-out
+          and DNT/GPC-respecting path as every other hub event. Still a baseline
+          row: the public URL remains owner-gated on `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
