@@ -1811,6 +1811,44 @@ products:
           local, aggregate, opt-out and DNT/GPC-respecting path as every other
           hub event. Still a baseline row: the public URL remains owner-gated on
           `deploy-settings`.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          bid_lost_to_set: 0
+          bid_lost_to_cleared: 0
+          bid_undercut_shown: 0
+          pages_carrying_the_gap: 160
+        note: >-
+          What the lost job actually went for. The price band above can say
+          "every bid you won was $2,400 or under, and every one you lost $2,600
+          or over", which is the ceiling of what the tool could work out alone:
+          it knows the quotes that were refused and nothing about the quote that
+          was accepted. So a contractor learns they are losing above a figure
+          and still has to guess whether the winner was $200 under them or
+          $1,200 — two situations calling for opposite responses, and guessing
+          wrong is expensive in both directions. The number is usually just told
+          to them, and until now there was nowhere to put it. A lost row now
+          carries one optional box, and once two lost jobs have a figure the
+          panel reads "On the 2 you lost where you know the winning price, yours
+          averaged $500 more — 20% over. The closest was $400 over." When the
+          gap is negative or zero it says so at least as loudly: none of them
+          went to a cheaper bid, so price is not what decided these — the
+          finding that stops a contractor cutting a price that was never the
+          problem, and the one a cheaper quote cannot fix. Two a side before
+          anything is drawn, and it reports the figures it was given rather than
+          a target price. Two correctness rules, both of which would fail
+          silently: the figure belongs to the loss and not to the pricing, so
+          flipping a bid to won or back to waiting drops it rather than leaving
+          a winning price attached to a job nobody lost; and a backup merge
+          carries it with the decision it resolves, which is the defect class
+          that already cost this feature its outcomes once. The reading to take
+          once live is `bid_undercut_shown` against `bid_marked_lost` — how
+          often a recorded loss turns into an actual answer about price rather
+          than a row in a list. Counts are per event and carry no name, no slug
+          and no amount; the figure a contractor types is stored in their own
+          browser and never leaves it. Same local, aggregate, opt-out and
+          DNT/GPC-respecting path as every other hub event. Still a baseline
+          row: the public URL remains owner-gated on `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:

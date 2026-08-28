@@ -258,12 +258,42 @@ export function resolveBidPair(mine, theirs) {
     // records when it was decided beats one that only records that it was.
     const keep = (other.decidedAt ?? '') > (base.decidedAt ?? '') ? other : base;
     if (keep === base) return base;
-    return { ...base, outcome: keep.outcome, ...(keep.decidedAt ? { decidedAt: keep.decidedAt } : {}) };
+    return withDecision(base, keep);
   }
 
   const decided = base.outcome ? base : other.outcome ? other : null;
   if (!decided || decided === base) return base;
-  return { ...base, outcome: decided.outcome, ...(decided.decidedAt ? { decidedAt: decided.decidedAt } : {}) };
+  return withDecision(base, decided);
+}
+
+/**
+ * `base`'s pricing with `decided`'s decision written over it.
+ *
+ * `lostTo` — what a lost job went for — belongs to the outcome, not to the
+ * pricing, which is the same distinction this function's caller was written to
+ * draw and the same way it goes wrong. Two rules, and they are not symmetric:
+ *
+ *   - **The decision is no longer a loss.** Drop the figure. Keeping it would
+ *     leave the winning price from one device's loss attached to a record this
+ *     merge has just decided was won on the other, and `undercutSentence` would
+ *     average that price against a bid that was never lost.
+ *   - **Both sides call it lost.** Prefer the incoming figure and fall back to
+ *     the one already here. `mergeBids` is never subtractive, and a device that
+ *     recorded what the job went for should not lose that because the *other*
+ *     device marked the same loss a minute later without it.
+ *
+ * `decidedAt` is untouched by this and keeps the behaviour it had: `decided`'s
+ * timestamp when it has one, otherwise whatever `base` carried.
+ */
+function withDecision(base, decided) {
+  const { lostTo, ...rest } = base;
+  const kept = decided.outcome === 'lost' ? decided.lostTo || lostTo : '';
+  return {
+    ...rest,
+    outcome: decided.outcome,
+    ...(decided.decidedAt ? { decidedAt: decided.decidedAt } : {}),
+    ...(kept ? { lostTo: kept } : {}),
+  };
 }
 
 /**
@@ -353,7 +383,11 @@ export function mergeBids(current, incoming) {
  */
 export const BACKUP_MERGE_HELPERS = [
   BID_RECORD_HELPERS,
-  ...[bidKey, resolveBidPair, mergeBids].map(
+  // `withDecision` before `resolveBidPair`, which calls it. Declaration order
+  // is what this list guarantees; `var` hoisting would not carry the
+  // assignment. Leaving it out is how the hub's merge threw
+  // `withDecision is not defined` the moment a backup touched a decided bid.
+  ...[bidKey, withDecision, resolveBidPair, mergeBids].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');

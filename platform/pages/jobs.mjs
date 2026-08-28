@@ -295,6 +295,53 @@ export function normalizeOutcome(value) {
 }
 
 /**
+ * The largest figure this will accept as the price a lost job went for.
+ *
+ * A guard against a mistyped field, not a judgement about job size: a billion
+ * of any currency is past every trade this site serves, and a stray keypress
+ * that turns 2400 into 24000000 would otherwise drag an average into nonsense
+ * and leave the contractor reading a number they cannot account for.
+ */
+export const MAX_LOST_TO = 1e9;
+
+/**
+ * The price a lost job actually went for, as the contractor heard it.
+ *
+ * `priceBandSentence` can already say "every one you lost was over $2,600",
+ * which is the ceiling of what this tool could work out alone — it knows the
+ * quotes that were refused and nothing about the quote that was accepted. So
+ * the contractor learns they are losing above a figure, and still has to guess
+ * whether the winner was $200 under them or $1,200 under. Those two call for
+ * opposite responses, and guessing wrong is expensive in both directions.
+ *
+ * The number is often just *told* to them — "we went with someone at nineteen"
+ * is a normal sentence on a residential job — and until now there was nowhere
+ * to put it. One optional box on a lost row is where it goes.
+ *
+ * Kept as a bare decimal string, not a display string like `amount`. The
+ * currency is the one already on that bid's own figure, because the two are
+ * only ever compared with each other; storing a second symbol would invite a
+ * mismatch this feature has no rate to resolve.
+ *
+ * Refused rather than coerced: anything that is not a plain positive amount
+ * ends as `''` and is not stored. Spaces, thousands separators and a leading
+ * currency symbol are stripped first, because all three are what a person
+ * types when they are copying a figure off a text message.
+ */
+export function normalizeLostTo(value) {
+  var text = typeof value === 'number' && Number.isFinite(value) ? String(value) : value;
+  if (typeof text !== 'string') return '';
+  text = text.replace(/[\s ,]/g, '').replace(/^[$£€]/, '');
+  if (!/^\d+(\.\d{1,2})?$/.test(text)) return '';
+  var amount = Number(text);
+  if (!(amount > 0) || amount > MAX_LOST_TO) return '';
+  // `String(Number(...))` is the canonical form: it drops a leading zero and a
+  // trailing `.00`, so "01900" and "1900.00" are one stored value rather than
+  // three that compare unequal when a backup merges two devices.
+  return String(amount);
+}
+
+/**
  * Keep only what a bid can hold.
  *
  * Storage is the visitor's own disk and can contain anything — a half-written
@@ -345,6 +392,15 @@ export function normalizeBid(entry) {
     // bid won does not re-price it, so `at` stays put — which is exactly why
     // `mergeBids` needs a second instant to tell two devices apart.
     if (typeof entry.decidedAt === 'string' && entry.decidedAt) bid.decidedAt = entry.decidedAt;
+    // Only on a lost bid, and dropped without comment on any other. A won job
+    // has no winning price but its own, and a bid flipped back to waiting has
+    // not been decided at all — carrying the figure through either state would
+    // leave a stale number that reappears if the outcome is set to lost again
+    // for a different reason.
+    if (outcome === 'lost') {
+      const lostTo = normalizeLostTo(entry.lostTo);
+      if (lostTo) bid.lostTo = lostTo;
+    }
   }
   return bid;
 }
@@ -815,6 +871,110 @@ export function priceBandSentence(bids) {
 }
 
 /**
+ * How many lost bids with a known winning price before the gap is drawn.
+ *
+ * Two, for the reason `MIN_PRICE_BAND_SIDE` is two: one job that went for
+ * $400 under is a story about that job — the customer's brother-in-law, a
+ * competitor buying the work — and a tool that reported it as a finding would
+ * be telling a contractor to cut $400 off every quote on the strength of one
+ * anecdote. Two is still a small sample, which is why this reports the figures
+ * it was given and never a target price.
+ */
+export const MIN_UNDERCUT_SAMPLE = 2;
+
+/**
+ * How far the winning bid actually was from yours.
+ *
+ * The question `priceBandSentence` raises and cannot answer. It can say every
+ * bid you lost was over $2,600; it cannot say whether the jobs went for $2,500
+ * or $1,400, and that difference is the whole decision — the first is a shop
+ * that is close and can win on terms, the second is a shop bidding a different
+ * market. The contractor usually knows the number, because losing a
+ * residential job comes with someone telling you what it went for. Nothing in
+ * the tool has ever asked for it.
+ *
+ * Scoped and refused exactly as the price band is: one tool's bids, one
+ * currency, no conversion. Only lost bids count — a won bid's "winning price"
+ * is its own figure, which would compare a number against itself.
+ *
+ * Two sentences, and the second is the honest half:
+ *
+ *   - **You were over.** The average money gap, and the percentage it is of
+ *     what the jobs actually went for, which is how a person says "I was 14%
+ *     over". Then the closest near-miss, because a shop $120 off is deciding
+ *     something different from a shop $900 off.
+ *   - **You were at or under on some of them and still lost.** Said as loudly
+ *     as the gap, because it is the finding that stops a contractor cutting a
+ *     price that was never the problem. It is also the case that a cheaper
+ *     quote cannot fix.
+ *
+ * Returns `''` — draw nothing — below `MIN_UNDERCUT_SAMPLE`, on mixed
+ * currencies, and when no lost bid carries both a readable figure of its own
+ * and a recorded winning price.
+ */
+export function undercutSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var gaps = [];
+  var mineTotal = 0;
+  var theirsTotal = 0;
+  var currency = '';
+
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'lost') continue;
+    var went = normalizeLostTo(bid.lostTo);
+    if (!went) continue;
+    var parsed = bidAmountValue(bid.amount);
+    // A negative or zero hero figure is a loss-per-unit reading, not a quote;
+    // "you were 140% over" on one of those would be arithmetic about nothing.
+    if (!parsed || parsed.value <= 0) continue;
+    if (currency === '') currency = parsed.currency;
+    else if (parsed.currency !== currency) return '';
+    gaps.push(parsed.value - Number(went));
+    mineTotal += parsed.value;
+    theirsTotal += Number(went);
+  }
+
+  if (gaps.length < MIN_UNDERCUT_SAMPLE) return '';
+
+  var closest = gaps[0];
+  var notOver = 0;
+  for (var g = 0; g < gaps.length; g++) {
+    if (gaps[g] < closest) closest = gaps[g];
+    if (gaps[g] <= 0) notOver++;
+  }
+
+  var known = 'On the ' + gaps.length + ' you lost where you know the winning price, ';
+  var average = (mineTotal - theirsTotal) / gaps.length;
+  var centre;
+  if (average > 0) {
+    // Against what the jobs went for, not against your own quote: "14% over"
+    // is read as over *their* price, and dividing by yours would report a
+    // smaller number for the same gap.
+    var percent = Math.round(((mineTotal - theirsTotal) / theirsTotal) * 100);
+    centre = known + 'yours averaged ' + formatBidAmount(currency, average) + ' more' +
+      (percent > 0 ? ' — ' + percent + '% over' : '') + '.';
+  } else {
+    centre = known + 'yours averaged ' +
+      (average === 0 ? 'the same' : formatBidAmount(currency, -average) + ' under') + '.';
+  }
+
+  var edge;
+  if (notOver === gaps.length) {
+    edge = 'None of them went to a cheaper bid, so price is not what decided these.';
+  } else if (notOver > 0) {
+    edge = notOver + ' of them went to a bid no cheaper than yours, so price alone has not been ' +
+      'deciding these.';
+  } else {
+    edge = 'The closest was ' + formatBidAmount(currency, closest) + ' over.';
+  }
+
+  return centre + ' ' + edge;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -878,7 +1038,9 @@ export const BID_RECORD_HELPERS = [
   `var EXCLUDED_FIELD_IDS = new Set(${JSON.stringify([...EXCLUDED_FIELD_IDS])});`,
   `var EXCLUDED_ID_PREFIX = ${JSON.stringify(EXCLUDED_ID_PREFIX)};`,
   `var BID_OUTCOMES = ${JSON.stringify(BID_OUTCOMES)};`,
-  ...[normalizeBidName, normalizeOutcome, normalizeHeadlineAmount, isExcludedId, normalizeBid].map(
+  `var MAX_LOST_TO = ${MAX_LOST_TO};`,
+  ...[normalizeBidName, normalizeOutcome, normalizeLostTo, normalizeHeadlineAmount, isExcludedId,
+    normalizeBid].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
@@ -910,7 +1072,14 @@ export const BID_AMOUNT_HELPER =
  */
 export const BID_PRICE_BAND_HELPERS = [
   `var MIN_PRICE_BAND_SIDE = ${MIN_PRICE_BAND_SIDE};`,
-  ...[bidAmountValue, bidPriceSide, formatBidAmount, priceBandSentence].map(
+  `var MIN_UNDERCUT_SAMPLE = ${MIN_UNDERCUT_SAMPLE};`,
+  `var MAX_LOST_TO = ${MAX_LOST_TO};`,
+  // `normalizeLostTo` is emitted here as well as in `BID_RECORD_HELPERS`, and
+  // that is not a duplicate: no script includes both lists, the record helpers
+  // exist for the backup panel, and the page script builds its records by hand
+  // and needs this one function to read what the visitor typed into the box.
+  ...[normalizeLostTo, bidAmountValue, bidPriceSide, formatBidAmount, priceBandSentence,
+    undercutSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
@@ -942,7 +1111,8 @@ export const SAVED_BIDS_CLAUSE =
  * those get the sentence.
  */
 export const PRICE_BAND_CLAUSE =
-  'and, once a few are decided, what your won bids on this tool have averaged against the ones you lost';
+  'and, once a few are decided, what your won bids on this tool have averaged against the ones you ' +
+  'lost, including how far over the winning price you were on the lost jobs whose final price you know';
 
 /**
  * Both spellings, because the repo uses both — a strict match on
@@ -1020,9 +1190,20 @@ const JOBS_STYLE = `<style>
    it is set apart from the list without being dimmed out of it. */
 .pf-jobs-band{margin:0 0 10px;padding:8px 10px;border-left:3px solid #80808059;
   background:#8080800f;border-radius:0 7px 7px 0;font-variant-numeric:tabular-nums}
+/* The gap reads as a second paragraph of the same band rather than a new kind
+   of thing, so it takes .pf-jobs-band's box and only closes the space between
+   them: the two paragraphs are one reading, and the second continues the
+   first rather than answering a different question. */
+.pf-jobs-gap{margin-top:-4px}
 .pf-jobs-age{font-variant-numeric:tabular-nums}
 .pf-jobs-state{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
   border:1px solid #80808059;border-radius:7px;padding:3px 6px}
+/* Sized to the figure it holds, not to the row: a four-or-five digit price on
+   a 390px phone screen next to Restore and Delete, which is where these are
+   filled in. It shrinks but does not grow, so it yields before the name does. */
+.pf-jobs-lostto{font:inherit;font-size:.85rem;color:inherit;background:transparent;
+  border:1px solid #80808059;border-radius:7px;padding:3px 6px;flex:0 1 7.5em;min-width:0;
+  font-variant-numeric:tabular-nums}
 .pf-jobs-list li[data-pf-jobs-decided] .pf-jobs-name{font-weight:500;opacity:.75}
 .pf-jobs-note{margin:10px 0 0;opacity:.72}
 /* The band inherits each venture's own colours, and 180 pages do not agree on
@@ -1077,7 +1258,7 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips.' : ''}</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions.' : ''}</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
@@ -1085,7 +1266,8 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     </div>
     <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
     <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>${withPriceBand ? `
-    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>` : ''}
+    <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>` : ''}
     <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
     <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="${toRoot}#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
   </div>
@@ -1237,6 +1419,7 @@ ${BID_PRICE_BAND_HELPERS}
   };
 
   var bandShown = '';
+  var gapShown = '';
   var chaseShown = '';
 
   var render = function(){
@@ -1269,6 +1452,14 @@ ${BID_PRICE_BAND_HELPERS}
       band.textContent = reading;
       band.hidden = reading === '';
       if (reading !== '' && reading !== bandShown) { bandShown = reading; bump('bid_price_band_shown'); }
+    }
+
+    var gapEl = el('pf-jobs-gap');
+    if (gapEl) {
+      var gap = undercutSentence(list);
+      gapEl.textContent = gap;
+      gapEl.hidden = gap === '';
+      if (gap !== '' && gap !== gapShown) { gapShown = gap; bump('bid_undercut_shown'); }
     }
 
     for (var i = 0; i < list.length; i++) {
@@ -1319,6 +1510,27 @@ ${BID_PRICE_BAND_HELPERS}
         state.appendChild(option);
       }
       li.appendChild(state);
+
+      // Only on a lost row, and only where the tool captures a figure to
+      // compare it against: on a page with no hero number the gap sentence can
+      // never be drawn, so the box would be somewhere to type a number nothing
+      // reads. The pf-jobs-gap element is that page's build-time gate.
+      if (outcome === 'lost' && gapEl) {
+        var went = document.createElement('input');
+        went.type = 'text';
+        went.className = 'pf-jobs-lostto';
+        went.setAttribute('data-pf-jobs-lostto', '');
+        went.setAttribute('data-pf-jobs-index', String(i));
+        // inputmode decimal and not numeric: a price has a decimal point, and
+        // iOS shows a keypad without one for numeric.
+        went.setAttribute('inputmode', 'decimal');
+        went.setAttribute('autocomplete', 'off');
+        went.maxLength = 14;
+        went.placeholder = 'Went for';
+        went.setAttribute('aria-label', 'What the job named ' + bid.name + ' went for, if you know');
+        went.value = normalizeLostTo(bid.lostTo);
+        li.appendChild(went);
+      }
 
       var restore = document.createElement('button');
       restore.type = 'button';
@@ -1455,6 +1667,11 @@ ${BID_PRICE_BAND_HELPERS}
       delete bid.outcome;
       delete bid.decidedAt;
     }
+    // A won or waiting bid has no winning price but its own. Kept in step with
+    // normalizeBid, which refuses to store one on either — without this the
+    // figure would survive in memory until the next reload and be counted by
+    // undercutSentence on a bid the contractor had just said they won.
+    if (value !== 'lost') delete bid.lostTo;
 
     if (!writeMine(list)) { say('This browser would not update its storage.'); return; }
     render();
@@ -1464,6 +1681,77 @@ ${BID_PRICE_BAND_HELPERS}
         : value === 'lost' ? 'Marked “' + bid.name + '” lost.'
         : '“' + bid.name + '” is waiting on an answer again.'
     );
+  };
+
+  // render() rebuilds the whole list, so the box being edited is a different
+  // element afterwards and the caret is gone from the page. On the outcome
+  // select that is harmless — choosing an option ends the interaction. On a
+  // text field it is not: pressing Enter to commit a figure would drop focus to
+  // the body mid-task, which on a screen reader or a keyboard is losing your
+  // place in a list of customer names. So the row's box is refocused, and the
+  // caret put back where the browser had it.
+  var lostToBox = function(index){
+    return document.querySelector('[data-pf-jobs-lostto][data-pf-jobs-index="' + index + '"]');
+  };
+
+  // Only when the box still had focus, which is what tells the two callers
+  // apart. 'change' fires on blur as well as on Enter, and refocusing after a
+  // blur would drag the caret back out of whatever the visitor had just tabbed
+  // to — a worse bug than the one this fixes.
+  var reFocusLostTo = function(state){
+    if (!state || !state.had) return;
+    var box = lostToBox(state.index);
+    if (!box) return;
+    try {
+      box.focus();
+      var at = Math.min(state.caret == null ? box.value.length : state.caret, box.value.length);
+      box.setSelectionRange(at, at);
+    } catch (e) {}
+  };
+
+  var focusState = function(index){
+    var box = lostToBox(index);
+    var had = !!box && document.activeElement === box;
+    var caret = null;
+    if (had) { try { caret = box.selectionStart; } catch (e) {} }
+    return { index: index, had: had, caret: caret };
+  };
+
+  var setLostTo = function(index, value){
+    var focus = focusState(index);
+    var list = mine();
+    var bid = list[index];
+    if (!bid || bid.outcome !== 'lost') { render(); return; }
+
+    var went = normalizeLostTo(value);
+    var typed = String(value == null ? '' : value).trim();
+    // Clearing the box is a real edit — a figure heard second-hand and later
+    // corrected has to be removable — but an unreadable one is not, and
+    // silently deleting the last good number because a stray character got in
+    // would lose data the contractor cannot get back.
+    if (!went && typed !== '') {
+      render();
+      // The rejected text is put back so it can be corrected rather than
+      // retyped: a figure that failed on one stray character is nearly right.
+      var box = lostToBox(index);
+      if (box) box.value = typed;
+      reFocusLostTo(focus);
+      say('Could not read “' + typed + '” as a price, so the figure for “' + bid.name +
+        '” is unchanged. Enter what the job went for as a plain amount, like 1900 or 1900.50.');
+      return;
+    }
+
+    var before = bid.lostTo || '';
+    if (went) bid.lostTo = went; else delete bid.lostTo;
+    if (before === (went || '')) { render(); reFocusLostTo(focus); return; }
+
+    if (!writeMine(list)) { say('This browser would not update its storage.'); return; }
+    render();
+    reFocusLostTo(focus);
+    bump(went ? 'bid_lost_to_set' : 'bid_lost_to_cleared');
+    say(went
+      ? 'Noted: “' + bid.name + '” went for ' + went + '.'
+      : 'Cleared what “' + bid.name + '” went for.');
   };
 
   var remove = function(index){
@@ -1530,11 +1818,27 @@ ${BID_PRICE_BAND_HELPERS}
 
     // A select fires 'change', not 'click' — its own listener, not a branch above.
     el('pf-jobs-panel').addEventListener('change', function(event){
-      var select = event.target;
-      if (!select || !select.hasAttribute || !select.hasAttribute('data-pf-jobs-state')) return;
-      var index = Number(select.getAttribute('data-pf-jobs-index'));
+      var field = event.target;
+      if (!field || !field.hasAttribute) return;
+      var state = field.hasAttribute('data-pf-jobs-state');
+      // 'change' on a text input fires on blur and on Enter, not per keystroke,
+      // which is what this wants: a half-typed 19 of 1900 must not be stored
+      // and read back as a $1,881 gap while the contractor is still typing.
+      if (!state && !field.hasAttribute('data-pf-jobs-lostto')) return;
+      var index = Number(field.getAttribute('data-pf-jobs-index'));
       if (!isFinite(index)) return;
-      setOutcome(index, select.value);
+      if (state) setOutcome(index, field.value); else setLostTo(index, field.value);
+    });
+
+    el('pf-jobs-panel').addEventListener('keydown', function(event){
+      // Same reason as the name box above: Enter inside a page-level form would
+      // submit it and reload the page.
+      if (event.key !== 'Enter') return;
+      var field = event.target;
+      if (!field || !field.hasAttribute || !field.hasAttribute('data-pf-jobs-lostto')) return;
+      event.preventDefault();
+      var index = Number(field.getAttribute('data-pf-jobs-index'));
+      if (isFinite(index)) setLostTo(index, field.value);
     });
   };
 
