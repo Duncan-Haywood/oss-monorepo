@@ -115,6 +115,24 @@ export const PARTIAL_SHOP_RATE_PAGES = {
 export const MIN_CARRIED_FIELDS = 2;
 
 /**
+ * Pages that *produce* the shop rates rather than consume them.
+ *
+ * `shop-rate-calculator` is the upstream tool for this whole feature: it derives
+ * the payroll burden and the overhead rate from a contractor's payroll,
+ * vehicles, overhead and billable hours, and writes all four into
+ * `SHOP_RATES_KEY` itself. Two of the four (`hourlyWage`, `targetMargin`) are
+ * inputs on its form, so without this it would clear `MIN_CARRIED_FIELDS` and
+ * receive the bar — offering "Save the rates on this bid" beside its own,
+ * fuller control, and saving two of the four where the page had just computed
+ * all four. Two save buttons with different scopes on the one page that exists
+ * to settle these numbers is the wrong answer to which of them is authoritative.
+ *
+ * Burden and overhead are outputs there, not inputs, so this is not a
+ * `PARTIAL_SHOP_RATE_PAGES` case: nothing is missing that a note could explain.
+ */
+export const RATE_SOURCE_SLUGS = new Set(['shop-rate-calculator']);
+
+/**
  * The fields this page can actually carry, in spec order.
  *
  * Each entry is the canonical field plus the `inputId` to write on this page —
@@ -219,6 +237,7 @@ export function pageCarriesShopRates(html) {
  * nothing.
  */
 export function pageTakesShopRates(html, slug = '') {
+  if (RATE_SOURCE_SLUGS.has(slug)) return false;
   const carried = pageShopRateFields(html, slug).length;
   if (carried === SHOP_RATE_FIELDS.length) return true;
   // A partial page needs an entry in `PARTIAL_SHOP_RATE_PAGES` — which is to
