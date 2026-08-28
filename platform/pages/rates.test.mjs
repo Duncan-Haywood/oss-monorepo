@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   MIN_CARRIED_FIELDS,
+  RATE_SOURCE_SLUGS,
   PARTIAL_SHOP_RATE_PAGES,
   SHOP_RATE_ALIASES,
   SHOP_RATE_FIELDS,
@@ -372,4 +373,33 @@ test('the injected script rejects a blank field before Number()', () => {
   const out = injectShopRates(page(form));
   assert.match(out, /raw === '' \|\| raw === null \|\| raw === undefined/);
   assert.match(out, /kept === FIELDS\.length \? out : null/);
+});
+
+test('the page that produces the rates does not also receive the bar', () => {
+  // `shop-rate-calculator` carries hourlyWage and targetMargin as inputs and
+  // computes the other two, so it clears MIN_CARRIED_FIELDS on the letter of the
+  // rule. It must still be skipped: it writes all four itself, and a bar
+  // offering "Save the rates on this bid" for two of them beside that control
+  // would leave the one page that settles these numbers with two save buttons of
+  // different scope.
+  const producer = page('<input id="hourlyWage"><input id="targetMargin">');
+  assert.ok(RATE_SOURCE_SLUGS.has('shop-rate-calculator'));
+  assert.equal(pageTakesShopRates(producer, 'shop-rate-calculator'), false);
+  assert.equal(injectShopRates(producer, 'shop-rate-calculator'), producer);
+});
+
+test('a rate source is skipped even when it carries all four ids', () => {
+  // Defensive: the exclusion must not depend on how many fields the page
+  // happens to have, or a later edit there would silently re-inject the bar.
+  assert.equal(pageTakesShopRates(page(form), 'shop-rate-calculator'), false);
+  assert.equal(injectShopRates(page(form), 'shop-rate-calculator'), page(form));
+});
+
+test('every rate source names a venture that exists', async () => {
+  // A stale slug here silently stops excluding anything, which is exactly the
+  // failure it was added to prevent.
+  for (const slug of RATE_SOURCE_SLUGS) {
+    const entry = path.join(VENTURES, slug, 'index.html');
+    await assert.doesNotReject(fs.access(entry), `${slug} has no index.html`);
+  }
 });

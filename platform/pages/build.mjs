@@ -141,7 +141,11 @@ const CATEGORY_RULES = [
     // what wins them the job, and it was invisible on the one page most
     // visitors land on.
     blurb: 'Bid a job the way the trade does — materials, crew hours, burden, overhead, and what the extras really cost — then print the customer a proposal with the scope, the deposit split, and a line to sign.',
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence)/.test(slug),
+    // `shop-rate` is the upstream tool for this whole section: it computes the
+    // payroll burden and overhead rate that every bid calculator below asks for.
+    // Landing in the catch-all would have hidden it from exactly the readers who
+    // meet those two fields.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate)/.test(slug),
   },
   {
     id: 'logistics',
@@ -205,7 +209,7 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-paid',
       title: 'Getting paid & job margin',
-      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence)/.test(slug),
+      test: (slug) => /^(quote-margin|retainage|freelance-retainer|no-show-fee|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate)/.test(slug),
     },
     {
       id: 'trades-cleaning',

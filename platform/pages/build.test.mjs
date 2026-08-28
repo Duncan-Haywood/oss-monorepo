@@ -943,6 +943,11 @@ test('tools that belong to a named category are not left in the catch-all', () =
   assert.equal(categoryFor('ltl-freight-class-estimator').id, 'logistics');
   assert.equal(categoryFor('owner-operator-cpm-calculator').id, 'logistics');
   assert.equal(categoryFor('cash-runway-planner').id, 'backoffice');
+  // The tool that computes the burden and overhead rates every bid calculator
+  // asks for belongs beside them, not in "More free tools" where the readers who
+  // meet those two fields would never see it.
+  assert.equal(categoryFor('shop-rate-calculator').id, 'trades');
+  assert.equal(subcategoryFor('shop-rate-calculator').id, 'trades-paid');
 });
 
 test('sub-groups only apply where a category is large enough to need them', () => {

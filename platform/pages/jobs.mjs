@@ -93,6 +93,28 @@ export const EXCLUDED_FIELD_IDS = new Set(['usageOptOut']);
 const EXCLUDED_ID_PREFIX = 'pf-';
 
 /**
+ * Pages whose form is the *business*, not a job.
+ *
+ * Both features this module gates assume the form on screen is one customer's
+ * priced work: the band saves it under a job name and lists it on the hub beside
+ * "14 Oak St — Mrs Reid", and `link.mjs` hangs "Copy link to this bid" on that
+ * band so the whole form can be handed to somebody else.
+ *
+ * `shop-rate-calculator` breaks that assumption completely. Its form is a crew
+ * wage, a workers' compensation rate, benefits, the owner's salary and the
+ * office overhead — the shop's cost structure, which is the one thing on this
+ * site that must never acquire a button inviting the contractor to send it to
+ * the customer. Nothing there is a bid, so there is nothing to name, nothing the
+ * hub's saved-bid index should list, and no link that should exist. The tool
+ * carries its four *outputs* into the other calculators through
+ * `portfolio-shop-rates` instead, which is a device-local key rather than a URL.
+ *
+ * Excluding it here is enough for both: `injectBidLink` anchors on the band this
+ * one draws, so no band means no link.
+ */
+export const COST_STRUCTURE_SLUGS = new Set(['shop-rate-calculator']);
+
+/**
  * Input types with no value a bid could restore. `hidden` is deliberately not
  * here: a few ventures keep a computed unit or a preset key in one, and that is
  * part of what the form was.
@@ -1564,6 +1586,10 @@ export function renderSavedBidsModule() {
 export function injectSavedBids(html, slug = '', toRoot = './') {
   if (typeof html !== 'string') return html;
   if (html.includes(JOBS_MARKER)) return html;
+
+  // Before the shape test, not after: this page has a large, saveable form and
+  // would pass it. What disqualifies it is what the form *is*. See above.
+  if (COST_STRUCTURE_SLUGS.has(slug)) return html;
 
   if (!pageTakesSavedBids(html)) return html;
 

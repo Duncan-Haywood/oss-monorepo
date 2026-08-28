@@ -371,3 +371,20 @@ test('the shipped module runs against the round trip it will meet in a browser',
     encodeBidLink({ fields: { lengthFt: '14' } }));
   assert.equal(shipped.bidAmountAgrees('$1,800', '$1,800.40'), false);
 });
+
+test('no bid link on the page whose form is the shop\u2019s cost structure', () => {
+  // The link is the sharper half of the same problem: a button reading "Copy
+  // link to this bid" on a form holding payroll, workers' comp and the owner's
+  // salary invites a contractor to send their cost structure to the customer.
+  // It falls away because it anchors on a saved-bids band that is no longer
+  // drawn there; this asserts that dependency rather than trusting it.
+  const form = ['hourlyWage', 'workersCompPercent', 'ownerAdminSalary', 'targetMargin']
+    .map((id) => `<input id="${id}" type="number" value="1">`)
+    .join('');
+  const html = `<html><head></head><body><main>${form}</main></body></html>`;
+  const banded = injectSavedBids(html, 'shop-rate-calculator');
+  assert.equal(banded, html, 'precondition: no band');
+  const linked = injectBidLink(banded, { slug: 'shop-rate-calculator', source: html });
+  assert.equal(linked, html);
+  assert.doesNotMatch(linked, /Copy link to this bid/);
+});

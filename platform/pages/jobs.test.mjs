@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  COST_STRUCTURE_SLUGS,
   BID_FOLLOW_UP_HELPERS,
   BID_OUTCOMES,
   BID_AMOUNT_HELPER,
@@ -1091,4 +1092,21 @@ test('the injected chase helpers answer exactly as the module does', () => {
 
 test('the feature list says the tool knows how long an answer takes', () => {
   assert.match(SAVED_BIDS_CLAUSE, /how long the ones you heard back on took/);
+});
+
+test('a page whose form is the shop\u2019s cost structure gets no saved-bid band', () => {
+  // shop-rate-calculator carries a wage, a workers' comp rate, benefits and the
+  // owner's salary. It passes the shape test easily; what disqualifies it is
+  // that none of that is a bid. Saving it would list the business's costs on the
+  // hub beside customer job names.
+  const form = ['hourlyWage', 'workersCompPercent', 'ownerAdminSalary', 'targetMargin']
+    .map((id) => `<input id="${id}" type="number" value="1">`)
+    .join('');
+  const html = `<html><head></head><body><main>${form}</main></body></html>`;
+  assert.ok(pageTakesSavedBids(html), 'the form is saveable by shape, which is the point');
+  assert.ok(COST_STRUCTURE_SLUGS.has('shop-rate-calculator'));
+  assert.equal(injectSavedBids(html, 'shop-rate-calculator'), html);
+  // The same markup under any other slug still gets the band, so the exclusion
+  // is about the page rather than about the fields.
+  assert.notEqual(injectSavedBids(html, 'some-bid-calculator'), html);
 });
