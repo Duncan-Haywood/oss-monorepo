@@ -25877,3 +25877,40 @@ entries:
         at 390px. GitHub checks carried the runner-outage signature: 2-second
         jobs, empty `output.title/summary/text`, 404 on log download.
     mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The whole-site sweep was passing tools on the strength of a platform
+        feature rather than the tool. `pressPrimaryAction` clicks the first
+        `<button>` in the document, and `injectSavedBids` puts its band above
+        the form — so on a tool that does not recalculate live, the first button
+        is "Saved bids", not "Calculate true-up". Clicking it opens the panel,
+        `innerText` changes, and the tool is recorded ok with its own calculator
+        never run. Nine of 163 were passing that way:
+        chargeback-evidence-packet, consent-change-record,
+        grant-deadline-tracker, cam-reconciliation-check,
+        music-lesson-break-even, saas-seat-true-up,
+        commercial-photo-license-calculator,
+        hvac-maintenance-contract-calculator and tender-radar. This is the exact
+        silent failure the sweep exists to catch — a page that renders perfectly
+        and does nothing — passing *because* of the sweep.
+      - >-
+        Excluded by container (`[data-pf-jobs-root]`, `[data-pf-rates-root]`,
+        `.pf-chrome`) rather than by label, because the labels are no help:
+        `NOT_AN_ACTION` already skips "Copy link to this bid", but "Save this
+        bid" is an ordinary verb on an ordinary button and would just become the
+        next wrong thing pressed. The same exclusion now applies to `perturb`
+        and `fillBlanks`, whose selectors would otherwise match the shop-rates
+        bar's four number inputs and the bid-name box — invisible today only
+        because both panels open closed.
+      - >-
+        Re-run with the fix, all nine answer through their own buttons
+        ("Calculate true-up", "Create shortlist", "Check reconciliation math"),
+        so nothing was actually dead — the finding is that for those nine the
+        sweep had no opinion and reported one anyway. A test in jobs.test.mjs
+        now pins the contract the exclusion rests on: every button the injection
+        adds stays inside `data-pf-jobs-root`. Moving one out would restore the
+        false pass with nothing failing.
+    mrr_end: null
