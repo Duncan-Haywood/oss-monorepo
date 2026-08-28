@@ -26,6 +26,8 @@
     button { font: inherit; border-radius: 7px; border: 1px solid #b09a78; background: #f4eee4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #e8dcc8; }
     .result { position: sticky; top: 15px; background: #3a2c1c; color: #f7f1e6; border-color: #3a2c1c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }

@@ -2328,3 +2328,95 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
   }
   assert.ok(tagged > 200, `only ${tagged} pages carry the band`);
 });
+
+// ---------------------------------------------------------------------------
+// Legibility
+//
+// `contrast.mjs` is the real check here and it needs a browser, so it cannot
+// run in CI. These are the parts of the same guarantee that can be asserted on
+// the built text: the anti-patterns that produced the failures, rather than the
+// ratios themselves. An opacity on inherited text is the one that matters most
+// — it is invisible to review, it multiplies a colour the chrome never chose,
+// and there is no value of it that is safe on a host already at the AA floor.
+// ---------------------------------------------------------------------------
+
+test('the injected chrome never dims text it did not choose the colour of', async () => {
+  const { outDir } = await site();
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
+  const offenders = [];
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    // Only the chrome's own stylesheet: a venture is free to use opacity on
+    // markup whose colour it also owns and can check.
+    const style = html.match(/<style id="pf-chrome-style">([\s\S]*?)<\/style>/)?.[1];
+    if (!style) continue;
+    if (/opacity\s*:/.test(style)) offenders.push(path.relative(outDir, file));
+  }
+  assert.deepEqual(offenders.slice(0, 5), [],
+    'the chrome sets an opacity on text whose colour comes from the host page, ' +
+    'so its contrast depends on a palette it cannot see');
+});
+
+test('the hub names its quietest ink rather than tinting it', async () => {
+  const hub = await read('index.html');
+  const style = hub.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? '';
+
+  // The counts next to each group and sub-group say how many tools are in it.
+  // They are content, and they used to be --muted at .65 and .7 opacity, which
+  // renders 3.18:1 and 3.32:1 -- both under AA.
+  assert.match(style, /--soft:\s*#[0-9a-f]{6}/i, 'no named colour for the quietest text');
+  assert.match(style, /--soft:\s*#[0-9a-f]{6}[^}]*}[\s\S]*prefers-color-scheme:\s*dark[\s\S]*--soft:\s*#[0-9a-f]{6}/i,
+    '--soft is defined for only one theme');
+
+  for (const [selector, pattern] of [
+    ['.contents span', /\.contents span\s*\{([^}]*)\}/],
+    ['.subgroup-count', /\.subgroup-count\s*\{([^}]*)\}/],
+  ]) {
+    const rule = style.match(pattern);
+    assert.ok(rule, `no rule for ${selector}`);
+    assert.ok(!/opacity\s*:/.test(rule[1]),
+      `${selector} de-emphasises with an opacity, which cannot be measured for contrast`);
+    assert.match(rule[1], /color:\s*var\(--soft\)/, `${selector} does not use the named tint`);
+  }
+});
+
+test('a sideways-scrolling box is given keyboard access, and only when it scrolls', async () => {
+  const { outDir } = await site();
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
+  let carrying = 0;
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    if (!html.includes('data-pf-scrollable')) continue;
+    carrying += 1;
+
+    // Measured, not asserted statically: whether a box overflows depends on the
+    // viewport and on how long the numbers rendered, so a `tabindex="0"` in the
+    // markup would put a dead tab stop on every table that fits.
+    assert.match(html, /scrollWidth\s*>\s*\w+\.clientWidth/,
+      `${path.relative(outDir, file)} marks scroll boxes without measuring them`);
+    assert.match(html, /removeAttribute\('tabindex'\)/,
+      `${path.relative(outDir, file)} never releases the tab stop when the box fits again`);
+
+    // `role="region"` on a <table> replaces its table semantics, so a screen
+    // reader stops announcing rows and columns. The tab stop is the whole fix.
+    assert.ok(!/setAttribute\('role'/.test(html),
+      `${path.relative(outDir, file)} overrides the role of the box it makes focusable`);
+  }
+  assert.ok(carrying > 200, `only ${carrying} pages carry the keyboard-scroll pass`);
+});
+
+test('no published page hides a link inside a panel that sets no link colour', async () => {
+  const { outDir } = await site();
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
+  const offenders = [];
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    // The shape that produced 1.1:1 links: a result panel painting its own dark
+    // fill, with no colour for the anchors inside it, so they fall back to the
+    // browser default blue on a near-black background.
+    if (!/\.result\s*\{[^}]*background:\s*#[0-9a-f]{6}/i.test(html)) continue;
+    if (!/\.result\s+a\s*\{/.test(html)) offenders.push(path.relative(outDir, file));
+  }
+  assert.deepEqual(offenders.slice(0, 5), [],
+    'a result panel paints its own background but leaves links to the browser default');
+});

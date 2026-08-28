@@ -36,6 +36,8 @@
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb6a6; } .positive { color: #c5edb5; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 18px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }

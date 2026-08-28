@@ -59,7 +59,7 @@
     header { max-width: 740px; margin-bottom: 26px; }
     h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
-    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #386fd6; margin: 0 0 6px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
     section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
     h2 { margin-top: 0; font-size: 1.15rem; }
@@ -67,6 +67,10 @@
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -78,7 +82,7 @@
     th:first-child, td:first-child { text-align: left; }
     tr.best { font-weight: 700; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
-    footer a { color: #386fd6; }
+    footer a { color: #3569cb; }
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }

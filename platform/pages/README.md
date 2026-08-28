@@ -10,6 +10,11 @@ node platform/pages/check.mjs dist                # check the artifact
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
+Then, in a browser, the three checks CI cannot run — `journey.mjs` (the customer
+journey), `sweep.mjs` (does every tool still compute), and `contrast.mjs` (can
+every page be read and reached). See [Driving the customer
+journey](#driving-the-customer-journey).
+
 Then serve it and click around:
 
 ```
@@ -774,6 +779,55 @@ markup swallowed its own app script rendered perfectly and did nothing. Under
 one origin it matters more, because a visitor arriving from a search result
 meets one tool — and if that tool is dead, they have met the whole portfolio.
 Exit status is non-zero if any tool fails, so it can gate a release.
+
+### Checking every page can be read
+
+`sweep.mjs` asks whether each tool still computes. `contrast.mjs` asks the
+question all three of the checks above can pass while failing: **can a visitor
+read the answer, and reach the controls?**
+
+```bash
+npm i --no-save playwright axe-core
+node platform/pages/contrast.mjs   # same BASE_URL / PLAYWRIGHT / CHROME_PATH env vars
+                                   # plus AXE and DIST
+```
+
+It loads **every** built page — 440 of them, the SEO articles included, not just
+the 164 tool front pages — at a desktop and a phone viewport, and runs axe-core's
+WCAG 2.1 A and AA rules. Exit status is non-zero on any violation.
+
+A tool that calculates correctly and paints the answer in near-white on
+near-white is working software and a broken product, and until this existed
+nothing here could tell the difference. What the first run found, on
+2026-08-28:
+
+- **104 contrast failures across 35 of 165 tool pages.** Mostly accent colours
+  used both as text on a cream background and as a button fill under white
+  text, sitting between 2.9:1 and 4.4:1.
+- **Links invisible inside dark result panels, at 1.1:1.** Four calculators
+  painted their own dark fill and set no link colour, so anchors fell back to
+  the browser default blue on near-black. Those anchors are the cross-links to
+  the worked-example pages — the SEO surface the site is written to be found by.
+  115 ventures had the same panel and one had a link rule; all have one now.
+- **Comparison tables overflowing their sticky panel.** The columns that spilled
+  were painted outside the panel's dark fill, in the panel's near-white ink, on
+  the light page background: 1.05:1, on five search-landing pages. The spilled
+  column carried the answer the page exists to give.
+- **Six unit dropdowns with no accessible name.**
+
+Two viewports because two of those existed at exactly one width. The overflowing
+table is a *desktop* bug — the sticky panel is narrow on a wide screen and the
+venture's own media query already handles the phone — so the 390px sweep
+`sweep.mjs` rightly uses would have found none of it.
+
+Not in CI: axe-core and Playwright are not dependencies of this repo, the same
+reason `journey.mjs` and `sweep.mjs` are not. The parts that can be asserted
+without a browser are in `build.test.mjs` instead, and they check for the
+*anti-patterns* rather than the ratios — an `opacity` on inherited text, a
+result panel with no link rule, a `tabindex` added without measuring. Opacity is
+the one worth naming: it is invisible to review, it multiplies a colour the
+chrome never chose, and there is no value of it that is safe on a host already
+at the AA floor.
 
 ## Deploying
 

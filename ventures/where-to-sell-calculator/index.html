@@ -131,6 +131,13 @@
     th, td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #ded9f0; vertical-align: top; }
     th:first-child, td:first-child { text-align: left; }
     thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #574d80; }
+    /* #574d80 is the muted ink for this page's cream background, and the only
+       table on it is the results table inside the dark verdict panel — where
+       the same value renders at 2.06:1 and the column headings naming Price,
+       Fees and You keep become unreadable. Overriding inside the panel keeps
+       the light-background uses (.status, details p.note, .rates .cell-label)
+       on the shade they were chosen for. */
+    .verdict thead th { color: #a49cc4; }
     /* The results table sits inside the dark verdict panel, so the winning row
        is marked with a lighter shade of that panel rather than a light tint,
        which would leave light text on a light background. */

@@ -167,12 +167,25 @@
     .paths label { display: flex; gap: .45rem; align-items: center; font-weight: 600; }
     .paths input { width: auto; }
     .result { position: sticky; top: 15px; background: #1b2a44; color: #f4f7fb; border-color: #1b2a44; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
     dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
     hr { border: 0; border-top: 1px solid #ffffff2b; }
-    .note { font-size: .82rem; opacity: .82; }
+    /* .note appears in both contexts — the white input sections and the dark
+       result panel — so it is coloured per context rather than tinted. The
+       opacity that used to stand in for "quieter" is what pulled these under
+       AA: it dims whatever colour it lands on, including the cross-links to
+       the worked-example pages, and it cannot be measured because it is not a
+       colour. The links carry no colour of their own now, so each one takes
+       the contrast of the paragraph it sits in. */
+    .note { font-size: .82rem; color: #5a6b82; }
+    .result .note { color: #9fb0c6; }
+    .note a { color: inherit; text-decoration: underline; }
     table { width: 100%; border-collapse: collapse; font-size: .92rem; }
     th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
     th:first-child, td:first-child { text-align: left; }
@@ -183,6 +196,11 @@
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     .hint { font-weight: 500; font-size: .78rem; color: #5a6b82; }
+    /* The placement-fee hints render inside the dark result panel, where this
+       light-page slate reads 2.64:1. They carry the default dollar amounts a
+       seller checks their own number against, so they are figures, not
+       ornament. */
+    .result .hint { color: #9fb0c6; }
     .scenarios { margin-top: 18px; }
     .scenario-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: end; }
     .scenario-tools label { flex: 1 1 180px; }
@@ -237,7 +255,7 @@
         <label>Width (in) <input id="width" type="number" min="0" step="0.01" value="6"></label>
         <label>Height (in) <input id="height" type="number" min="0" step="0.01" value="2"></label>
         <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75"></label>
-        <p class="note span2">A fee jump after a carton change is a size-tier gate, not this listing’s referral. <a href="does-smaller-box-cut-amazon-fba-fees.html" style="color:#9ec5ff">Does a smaller box cut Amazon FBA fees?</a></p>
+        <p class="note span2">A fee jump after a carton change is a size-tier gate, not this listing’s referral. <a href="does-smaller-box-cut-amazon-fba-fees.html">Does a smaller box cut Amazon FBA fees?</a></p>
         <label class="span2">Storage season
           <select id="storageSeason">
             <option value="off_peak" selected>Jan–Sep off-peak ($0.87 / cu ft)</option>
@@ -247,7 +265,7 @@
         <label>Months in storage <input id="monthsInStorage" type="number" min="0" step="0.1" value="1"></label>
         <label>Of those, months in Oct–Dec peak <input id="peakMonths" type="number" min="0" step="0.1" value="0"></label>
         <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87"></label>
-        <p class="note span2">A stay that crosses October–December is a timing question, not this blended rate. <a href="peak-vs-off-peak-storage.html" style="color:#9ec5ff">Should you send inventory before Q4 peak storage?</a></p>
+        <p class="note span2">A stay that crosses October–December is a timing question, not this blended rate. <a href="peak-vs-off-peak-storage.html">Should you send inventory before Q4 peak storage?</a></p>
         <label>FBA fulfillment fee <span class="hint" id="sizeHint"></span>
           <input id="fulfillmentFee" type="number" min="0" step="0.01" value="">
         </label>
@@ -257,7 +275,7 @@
         <label>FBM handling labor / unit <span class="hint">optional</span>
           <input id="fbmHandlingCost" type="number" min="0" step="0.01" value="0">
         </label>
-        <p class="note span2">A 2-day Prime badge on your own label is Seller Fulfilled Prime, not this Ground line. <a href="should-i-use-seller-fulfilled-prime.html" style="color:#9ec5ff">Should I use Seller Fulfilled Prime?</a></p>
+        <p class="note span2">A 2-day Prime badge on your own label is Seller Fulfilled Prime, not this Ground line. <a href="should-i-use-seller-fulfilled-prime.html">Should I use Seller Fulfilled Prime?</a></p>
         <label>Prep / packaging <input id="packagingCost" type="number" min="0" step="0.01" value="0.60"></label>
         <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
         <label>Other per-unit cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
@@ -380,7 +398,7 @@
         </thead>
         <tbody id="returnsCompare"></tbody>
       </table>
-      <p class="note">A completed sale can look fine and still lose money once returns start. The outbound pick fee, inbound, and storage stay spent; cost of goods comes back only when the unit is still sellable. <a href="do-amazon-returns-wipe-the-profit.html" style="color:#9ec5ff">Do Amazon returns wipe FBA profit?</a></p>
+      <p class="note">A completed sale can look fine and still lose money once returns start. The outbound pick fee, inbound, and storage stay spent; cost of goods comes back only when the unit is still sellable. <a href="do-amazon-returns-wipe-the-profit.html">Do Amazon returns wipe FBA profit?</a></p>
       <hr>
       <h2>Individual vs Professional</h2>
       <p id="planVerdict" class="note"></p>
@@ -407,7 +425,7 @@
         </thead>
         <tbody id="planVolumeCompare"></tbody>
       </table>
-      <p class="note">The break-even is monthly plan ÷ per-item fee. At the defaults that is about 40.4 units a month. The table applies each plan to the selected FBA or FBM path so you see leftover profit and max buy, not only the subscription line. The ladder shows that flip at 10, 20, 40, 80, and 200 units as sales grow. <a href="individual-vs-professional.html" style="color:#9ec5ff">Individual vs Professional: when does the monthly plan pay?</a></p>
+      <p class="note">The break-even is monthly plan ÷ per-item fee. At the defaults that is about 40.4 units a month. The table applies each plan to the selected FBA or FBM path so you see leftover profit and max buy, not only the subscription line. The ladder shows that flip at 10, 20, 40, 80, and 200 units as sales grow. <a href="individual-vs-professional.html">Individual vs Professional: when does the monthly plan pay?</a></p>
       <hr>
       <h2>Low-Price FBA vs raising the price</h2>
       <p id="lowPriceSummary" class="note"></p>
@@ -419,7 +437,7 @@
         <thead><tr><th>Path</th><th>Price</th><th>Pick fee</th><th>Profit</th></tr></thead>
         <tbody id="lowPriceCompare"></tbody>
       </table>
-      <p class="note">A one-cent raise above the threshold usually loses — the regular pick fee jumps by more than that extra revenue after referral. <a href="should-i-price-over-amazons-low-price-fba.html" style="color:#9ec5ff">Should I stay under Low-Price FBA?</a></p>
+      <p class="note">A one-cent raise above the threshold usually loses — the regular pick fee jumps by more than that extra revenue after referral. <a href="should-i-price-over-amazons-low-price-fba.html">Should I stay under Low-Price FBA?</a></p>
       <hr>
       <h2>Same listing, coupon vs list</h2>
       <table>
@@ -450,7 +468,7 @@
         <tbody id="snsCompare"></tbody>
       </table>
       <p id="snsSummary" class="note"></p>
-      <p class="note">S&amp;S is a standing percent off for enrolled deliveries. Referral falls with the buyer price; fulfillment does not, and there is typically no coupon fee. The mixed month uses the enroll share you typed. <a href="does-subscribe-and-save-still-pay.html" style="color:#9ec5ff">Does Subscribe &amp; Save still pay?</a></p>
+      <p class="note">S&amp;S is a standing percent off for enrolled deliveries. Referral falls with the buyer price; fulfillment does not, and there is typically no coupon fee. The mixed month uses the enroll share you typed. <a href="does-subscribe-and-save-still-pay.html">Does Subscribe &amp; Save still pay?</a></p>
       <hr>
       <h2>Website order: MCF vs Amazon vs you ship</h2>
       <p id="mcfSummary" class="note"></p>
@@ -470,7 +488,7 @@
         </thead>
         <tbody id="mcfCompare"></tbody>
       </table>
-      <p class="note">MCF ships a website, eBay, or Walmart order from FBA inventory: no Amazon referral, a higher pick fee, plus your card processor. You-ship assumes the unit is already outside Amazon unless you add a removal fee. <a href="should-i-use-amazon-mcf-for-website-orders.html" style="color:#9ec5ff">Should I use Amazon MCF for website orders?</a></p>
+      <p class="note">MCF ships a website, eBay, or Walmart order from FBA inventory: no Amazon referral, a higher pick fee, plus your card processor. You-ship assumes the unit is already outside Amazon unless you add a removal fee. <a href="should-i-use-amazon-mcf-for-website-orders.html">Should I use Amazon MCF for website orders?</a></p>
       <hr>
       <h2>Usual PO vs supplier MOQ</h2>
       <p id="bulkSummary" class="note"></p>
@@ -491,7 +509,7 @@
         </thead>
         <tbody id="bulkCompare"></tbody>
       </table>
-      <p class="note">The cheaper MOQ unit still sits until it sells. Leave months blank to scale the listing stay by pile size. Extra cash is the whole MOQ pile minus the usual PO. <a href="does-this-amazon-moq-still-pay.html" style="color:#9ec5ff">Does this Amazon supplier MOQ still pay?</a></p>
+      <p class="note">The cheaper MOQ unit still sits until it sells. Leave months blank to scale the listing stay by pile size. Extra cash is the whole MOQ pile minus the usual PO. <a href="does-this-amazon-moq-still-pay.html">Does this Amazon supplier MOQ still pay?</a></p>
       <hr>
       <h2>You-prep vs Amazon inbound prep</h2>
       <p id="prepSummary" class="note"></p>
@@ -511,7 +529,7 @@
         </thead>
         <tbody id="prepCompare"></tbody>
       </table>
-      <p class="note">Amazon FBA Prep Service is charged on inbound shipments. You-prep is the Prep / packaging line already on the listing (supplies + your time). Referral, pick fee, inbound freight, and storage stay put. Enter the lines from your inbound preview. <a href="should-i-pay-amazon-to-prep-inbound.html" style="color:#9ec5ff">Should I pay Amazon to prep inbound?</a></p>
+      <p class="note">Amazon FBA Prep Service is charged on inbound shipments. You-prep is the Prep / packaging line already on the listing (supplies + your time). Referral, pick fee, inbound freight, and storage stay put. Enter the lines from your inbound preview. <a href="should-i-pay-amazon-to-prep-inbound.html">Should I pay Amazon to prep inbound?</a></p>
       <hr>
       <h2 id="inbound-placement">Inbound placement vs split freight</h2>
       <p id="placementSummary" class="note"></p>
@@ -548,7 +566,7 @@
         </thead>
         <tbody id="placementCompare"></tbody>
       </table>
-      <p class="note">The listing inbound / unit field above is a blended number. This table keeps freight and Amazon’s inbound placement fee on separate lines so you can see whether following the split actually costs less. Illustrative US placement defaults come from the size tier — not Amazon’s live schedule. <a href="inbound-placement-fee.html" style="color:#9ec5ff">Is Amazon inbound placement cheaper than splitting the shipment?</a></p>
+      <p class="note">The listing inbound / unit field above is a blended number. This table keeps freight and Amazon’s inbound placement fee on separate lines so you can see whether following the split actually costs less. Illustrative US placement defaults come from the size tier — not Amazon’s live schedule. <a href="inbound-placement-fee.html">Is Amazon inbound placement cheaper than splitting the shipment?</a></p>
       <p class="note">Transparent arithmetic from your inputs — not Amazon’s current fee schedule. FBM handling labor is an optional per-unit opportunity cost. Referral, fulfillment, storage, inbound, coupon fees, Subscribe &amp; Save discounts, MCF, Low-Price bands, prep-service fees, inbound-placement fees, and Individual vs Professional selling fees vary by category, size, season, and account. Verify against your Amazon fee preview before buying inventory, launching a coupon, enrolling in Subscribe &amp; Save, turning on MCF, taking a supplier MOQ, paying Amazon to prep inbound, paying inbound placement, or switching seller plans.</p>
     </section>
   </main>

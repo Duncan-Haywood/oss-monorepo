@@ -32,6 +32,8 @@
     .remove[disabled] { opacity: .4; cursor: not-allowed; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
     .result { position: sticky; top: 15px; background: #2a2118; color: #f7f1e6; border-color: #2a2118; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #c8e6a0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
