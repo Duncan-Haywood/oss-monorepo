@@ -26226,3 +26226,68 @@ entries:
         `priceToMatchProfit` is on `main` byte-for-byte, matching the 08-27
         finding.
     mrr_end: null
+  - venture: tiktok-shop-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    mrr_end: null
+    outcomes:
+      - >-
+        **`compareFeeSchedules`, `priceForTargetMargin` and `maxBuyCost` were
+        shipped, tested engine logic that no page on the site could reach.**
+        Fixed in #1942 with a fee-change decision page, five weeks before the
+        announced 1 Oct 2026 US schedule starts. Worth generalising: a venture
+        can look finished at the `calc.mjs` layer and still be missing the
+        surface that makes the arithmetic usable. Grepping exported functions
+        against the identifiers the HTML actually imports is a cheap way to
+        find the next one.
+      - >-
+        **Depth across the marketplace-seller tools is very uneven, and the
+        gap was the selection signal.** Decision pages per tool: eBay 20,
+        Shopify 20, Amazon FBA 15, Etsy 9, Reverb 6, Walmart 5, TikTok Shop
+        **2**. The thinnest tool in the portfolio's highest-search category,
+        holding a time-boxed question its own engine already answered. Walmart
+        at 5 and Reverb at 6 are the same shape and are the next two.
+      - >-
+        **The announced 1.5% creator facilitation lands on affiliate-sourced
+        orders only, so one blended number misprices two different shops.** On
+        the worked example that is $0.45/order organic against $0.78/order
+        affiliate. `feeChangeImpact()` returns both splits rather than an
+        average. This is the same lesson as the affiliate-clawback trap the
+        venture was founded on: the headline referral percentage is never the
+        number that decides the SKU.
+      - >-
+        **Three honesty cases a money tool gets wrong by default, each now
+        tested.** A SKU already under water was being told the change "stops
+        it clearing" — `clearedBefore` separates a loss the new schedule
+        causes from one the old one was already making. A schedule that costs
+        nothing was still offering "relist at $19.99 (up $0.00)". And the
+        page tests assert the shipped FAQ figures against the real engine, so
+        published numbers cannot drift from the arithmetic. All three were
+        found by driving the page in Chromium, not by the unit suite.
+      - >-
+        **Queue state: zero open PRs at session start** (both
+        `list_pull_requests` and `search_pull_requests`), so the three-PR
+        merge quota had nothing to draw on for the third session running; one
+        opened and merged here. Re-ran the identical-merge proof over all ~250
+        remote branches after `--unshallow`: still landed. The largest
+        apparent survivor, `cursor/vendor-change-watch-fix-20260824`, adds a
+        `vendor-change-watch` CLI duplicating **two** products already on
+        `main` (`vendor-watch`, `vendor-change-evidence`) — the rename
+        supersession case, left closed rather than reopened as a third
+        implementation.
+      - >-
+        **CI red is still the runner outage, now confirmed against `main`'s
+        own head rather than by signature alone.** Every `portfolio-validate`
+        run on `main` fails in 4-6 seconds, `f3156fb3` included; the PR's six
+        checks matched on all three markers (3-4s runtime, empty
+        `output.title/summary/text`, 404 on log download). Checking the base
+        branch's recent runs is one call and settles it faster than reading
+        the signature off a single job. Verified locally instead: 65 venture
+        tests, 453 platform tests, four repo validators, a 443-page build with
+        every local reference resolving, and a Chromium journey at desktop and
+        360px.
+      - >-
+        Deploy remains the binding constraint and this session did not move
+        it. `publish_surface.py` still reports nothing live behind
+        `GITHUB_PAGES_ENABLED`, every usage reading is still a zero baseline,
+        and no second owner ask was added.
