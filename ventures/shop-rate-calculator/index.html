@@ -165,6 +165,7 @@
         <ul class="errors" id="errorList"></ul>
       </div>
       <p class="empty" id="empty">The form opens on a worked example for a three-person crew. Change what is different about your shop and press the button.</p>
+      <p class="empty" id="exampleNote" hidden>These are the worked example&rsquo;s figures, not yours yet. Change what is different about your shop and press the button.</p>
     </section>
   </main>
 
@@ -198,6 +199,10 @@
     // the ones on screen. Cleared whenever the form changes, because a figure
     // half-edited is not a rate anybody checked.
     let current = null;
+    // True while the screen shows the shipped example's answer rather than one
+    // the visitor asked for. It gates the carry button's wording, not the
+    // maths: `current` still governs what may actually be written.
+    let showingExample = false;
 
     function markFields(errors) {
       const bad = new Set(errors.map(e => e.id));
@@ -298,6 +303,8 @@
         return;
       }
       render(result);
+      showingExample = false;
+      el('exampleNote').hidden = true;
       count('rate_calculated');
     });
 
@@ -311,7 +318,9 @@
 
     el('carryRates').addEventListener('click', () => {
       if (!current) {
-        el('carryStatus').textContent = 'Press “Work out my shop rate” first — the numbers on the form have changed.';
+        el('carryStatus').textContent = showingExample
+          ? 'Press “Work out my shop rate” first — these are still the example’s figures, and carrying them would price every bid from someone else’s shop.'
+          : 'Press “Work out my shop rate” first — the numbers on the form have changed.';
         return;
       }
       const ok = saveCarriedRates(current.carry, localStorage);
@@ -321,6 +330,28 @@
       if (ok) count('rates_carried');
       refreshSavedState();
     });
+
+    // The page's own copy promises "the form opens on a worked example", and the
+    // eighteen defaults are that example -- but the answer stayed hidden behind
+    // the button, so a first visit showed an em-dash and the example's whole
+    // point (a $28 wage is $53.76 an hour sold, not the remembered 20% burden)
+    // was invisible. Every sibling bid calculator opens on its own worked
+    // result; this one now does too.
+    //
+    // Two things are deliberately *not* done here. No `rate_calculated` count:
+    // that event is the denominator of this venture's carry-through ratio, and
+    // a page load is not a calculation. And `current` is cleared afterwards, so
+    // the carry button still needs an explicit press -- carrying the example's
+    // figures would open all 103 bid calculators on someone else's shop, which
+    // is the exact error this venture exists to stop.
+    (() => {
+      const example = calculateShopRate(readInput());
+      if (!example.ok) return;
+      render(example);
+      current = null;
+      showingExample = true;
+      el('exampleNote').hidden = false;
+    })();
 
     el('forgetRates').addEventListener('click', () => {
       try {
