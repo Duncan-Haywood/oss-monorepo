@@ -26496,3 +26496,54 @@ entries:
         `GITHUB_PAGES_ENABLED`, every usage reading including this one is still
         a zero baseline, and no second owner ask was added.
     mrr_end: null
+  - venture: security-camera-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #1950. The last of the 102 bid calculators to hand the customer
+        a proposal. `platform/proposal/README.md` had left it open with the
+        reason spelled out and both candidate fixes named, which made it the
+        best-grounded task available -- better than inventing a new decision
+        page. The drafted scope puts the retention quoted and the retention the
+        fitted drives actually hold on the same customer sheet; quoting 30 days
+        and handing over a system that holds 11 is the failed handover this
+        venture exists to catch, and until now that check lived only on the
+        estimator's screen.
+      - >-
+        **A verifier that asserts a proposal is *sound* will not tell you it
+        reads *badly*.** `verify.mjs` passed first time. Driving the page found
+        the defect: the first scope line rendered "Supply and install 8 4 MP
+        (2K) cameras" -- two numbers colliding with no separator, on the first
+        line of a customer's quote. Every placeholder was populated and every
+        figure correct, so nothing a check on completeness could see was wrong.
+        This is the second run in a row where the Chromium pass found what the
+        suites could not, and both were composition rather than arithmetic.
+      - >-
+        **`resultKeysOf` was reading the wrong function, and had been for every
+        multi-stage module.** It took the first `export function calculate*`,
+        but these modules declare their stages before the entry that calls them:
+        `security-camera` exports `calculateStorage`, `calculatePoe` and
+        `calculateCabling` above `calculateBid`. It read terabytes and then
+        reported that the venture's own `bidPrice` did not exist -- a confusing
+        way to say "looked at the wrong function". Now prefers the conventional
+        entry names with first-match as the fallback. The method is the
+        transferable part: capture every venture's detected keys before and
+        after, diff, and show that exactly one changed. Changing shared tooling
+        100 live surfaces depend on is affordable when the blast radius is
+        measured rather than argued.
+      - >-
+        The README's own reasoning held up on inspection and was left alone.
+        `mobile-detailing` stays deliberately unadopted because its inputs are
+        hours and costs with nothing describing the work, so its scope could
+        only be "Perform the work described above" -- and no proposal beats a
+        generic one. Worth noting that a prior session's recorded *refusal* was
+        as useful here as its recorded findings: it stopped a completeness
+        sweep from shipping a bad document for the sake of 102/102.
+      - >-
+        Queue state: zero open PRs at session start, fifth consecutive session.
+        Three merged this run (#1948, #1949, #1950). Deploy remains the binding
+        constraint and did not move: `publish_surface.py` still reports nothing
+        live behind `GITHUB_PAGES_ENABLED`, every usage reading is a zero
+        baseline, and no second owner ask was added.
+    mrr_end: null
