@@ -25579,3 +25579,58 @@ entries:
         commit. The public URL remains owner-gated on `deploy-settings`; no
         second ask was added.
     mrr_end: null
+  - venture: bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a live data-loss bug in the saved-and-shared bid across all 36
+        ventures carrying `share.mjs` (#1915). `encodeBid` required `typeof
+        value === 'string'` before it would carry a select, and
+        `sewer-line-replace-bid-calculator` coerces its diameter in
+        `readInput()` (`values.diameterIn = Number(...)`) so its own arithmetic
+        gets a number. The field was dropped from the copied link *and* from
+        the localStorage save, since `saveBid` round-trips through the same
+        encoder: a bid priced for a 6-inch lateral reopened as the default
+        4-inch one, at a different price, for the recipient and for the
+        setter's own next visit, with nothing on screen to say so. Encoding now
+        compares on the string form; the allowed list still decides, and only a
+        string or a finite number reaches the comparison.
+      - >-
+        Verified: 3636 tests green across the 36 touched ventures, and the four
+        new regression cases were run against the *previous* encoder first — 3
+        of 4 fail there — so they demonstrably catch the bug rather than merely
+        accompanying it. `check_duplicate_symbols`, `check_conflict_markers`,
+        `check_form_defaults` and `platform/pages/build.test.mjs` all pass. CI
+        was red with the runner-outage signature (2-4s jobs, empty
+        `output.title/summary/text`, logs 404) and `main` is red the same way on
+        every recent merge; verified locally and merged per the 2026-08-27 rule.
+      - >-
+        **The open-PR queue was empty at the start of this run (0 open PRs), so
+        the branch backlog was scanned instead.** Of ~132 branches whose commit
+        subjects are not on `main`, the four most promising recent ones were
+        read against `main`: `claude/sweet-archimedes-unycrp` (SLA clause in the
+        Pages footer), `claude/sweet-archimedes-uxfxf7` (exclude `package.json`
+        from the published site) and `cursor/ebay-top-rated-plus-a8c1` (Top
+        Rated Plus) are **genuinely superseded** — `main` already carries
+        `NO_SLA_CLAUSE`, already lists `package.json` in `EXCLUDED_FILES`, and
+        already ships the TRS feature and its article. Only
+        `claude/sweet-archimedes-cn4s8c` held unique work, which is the bug
+        above; #1915 takes it fresh off `main` and widens it from that branch's
+        3 ventures to all 36. Recorded so the next session does not re-derive
+        this.
+      - >-
+        A follow-up audit found no *other* instance of the class: only one page
+        in the portfolio coerces a value after assembling it, and every number
+        and checkbox input across the 157 pages with a `BID_SPEC` is referenced
+        by its page's field lists. The Pages build's own injected share
+        (`platform/pages/link.mjs`) reads the DOM directly, so it never had this
+        defect.
+      - >-
+        Learned: `portfolio/ledger/supersede_check.py` does not scale to backlog
+        triage. It is ~11s on a small branch but **over 5 minutes** on a
+        175-file one — `nearest_in_base`'s `difflib.get_close_matches` dominates
+        — so a 132-branch sweep is not runnable in a session. CLAUDE.md leans on
+        it as *the* gate before any supersession call. Not fixed here; flagged
+        as the next infrastructure step.
+    mrr_end: null
