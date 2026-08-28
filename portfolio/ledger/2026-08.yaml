@@ -26547,3 +26547,36 @@ entries:
         live behind `GITHUB_PAGES_ENABLED`, every usage reading is a zero
         baseline, and no second owner ask was added.
     mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **`get_status` reports `total_count: 0` on a PR with eight red check
+        runs, and that reads exactly like absent CI.** The commit-status API --
+        and the GitHub MCP `get_status` method over it -- returns only *legacy
+        commit statuses*. This repo's checks are check runs, so the call is
+        blind to them. On #1948, #1950 and #1951 it returned zero and this
+        session reported "no checks ran, the documented absent-CI case" while
+        six to eight checks were failing on each. The merges were still correct
+        and `main` is not broken -- every check was the runner outage, and each
+        PR was verified locally first -- but the reasoning given for them was
+        wrong, and CLAUDE.md draws a real distinction between absent CI and red
+        CI that a blind call collapses. Use `/commits/<sha>/check-runs`.
+      - >-
+        **`runner_id: 0` is a sharper outage marker than the three CLAUDE.md
+        documents.** Duration, empty `output.*` and a 404 on logs are all
+        proxies for the same fact, and duration can mislead because a real job
+        can fail fast. An outage job carries `"runner_id": 0` and
+        `"runner_name": ""` -- no runner was ever assigned, so no step ever ran,
+        and nothing else produces that. Confirmed on `validate` (3s) for #1948
+        and `module-test` (4s) for #1950. Both markers are now in CLAUDE.md
+        beside the existing test.
+      - >-
+        The outage is unchanged and repo-wide, not this session's. Every
+        `Portfolio validate` run on `main` fails in 4-6 seconds, including
+        `54f11a66`, `0bd224fd` and `94676ffe` -- commits from other sessions
+        that predate this one. Listing the workflow's runs filtered to `main`
+        settles it in one call and is cheaper than reading any single job's
+        signature.
+    mrr_end: null

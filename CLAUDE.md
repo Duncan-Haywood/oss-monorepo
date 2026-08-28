@@ -220,6 +220,29 @@ An outage job runs **3-6 seconds**, has empty `output.title/summary/text`, and
 runs 36 steps; it cannot finish in five seconds. If you see that signature,
 the failure is not yours: verify locally and say so, do not "fix" green code.
 
+**The one field that settles it outright is `runner_id`.** An outage job carries
+`"runner_id": 0` and `"runner_name": ""` — no runner was ever assigned, so no
+step ever ran. Duration is a proxy for that and can mislead (a real job *can*
+fail fast); an unassigned runner cannot be anything else. Print it alongside
+the timestamps:
+
+```
+python3 -c "import json,subprocess;                                        \
+  j=json.loads(subprocess.run(['gh','api','repos/{owner}/{repo}/actions/jobs/<job_id>'], \
+  capture_output=True,text=True).stdout);                                  \
+  print(j['started_at'], j['completed_at'], 'runner_id=%s' % j['runner_id'])"
+```
+
+**And check for `check_runs`, not just statuses.** The commit-status API
+(`/commits/<sha>/status`, and the `get_status` method of the GitHub MCP tools)
+returns only *legacy commit statuses*. This repo's checks are **check runs**, so
+that call reports `total_count: 0` on a PR whose checks are running or already
+red. On 2026-08-28 that read as "no checks ran — absent CI" on four PRs that
+each had six to eight red check runs. Absent CI and red CI call for different
+handling under the rules above, so confirming which one you are looking at
+needs the check-runs endpoint (`/commits/<sha>/check-runs`) or the PR's own
+checks tab — never the bare status call.
+
 ## Ledger (minimal)
 
 Record outcomes per `portfolio/ledger/README.md` when you **shipped or learned
