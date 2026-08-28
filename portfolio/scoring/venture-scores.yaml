@@ -5992,3 +5992,44 @@ ventures:
     gates:
       liability_containment: pass
       ethical_robustness: pass
+  - slug: shop-rate-calculator
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 7
+      gross_margin: 10
+      defensibility: 6
+      distribution: 7
+    composite: 6.833
+    rater_b: null
+    floor: 1
+    floor_dimension: ai_leverage
+    floor_note: >-
+      The product is deliberately AI-free. Labor burden, overhead recovery
+      and the required hourly rate are arithmetic on the contractor's own
+      payroll, vehicle and office figures, and a contractor is going to
+      stake a bid on the result -- so every step has to be one they can
+      re-derive on paper. Inference would make the number less checkable
+      without making it more correct.
+    basis: >-
+      Registered 2026-08-27 and shipped without a score row, which failed
+      `score_ventures.py --check` -- and therefore Portfolio validate --
+      repository-wide, the same way the marketplace-fee-compare row did.
+      Scored one above the trade bid calculators on defensibility (6):
+      those each model one trade, whereas this is the upstream input the
+      whole bid-calculator family reads, carrying burden, overhead, wage
+      and margin through a shared `portfolio-shop-rates` key with ceilings
+      that refuse an implausible carry. That cross-tool handoff is
+      something a single-page competitor cannot copy without the rest of
+      the site. Distribution 7 matches the bid calculators: "shop rate
+      calculator", "labor burden calculator" and "what should I charge per
+      hour" are lower-volume than marketplace-fee queries but far less
+      saturated, and the searcher has a bid on the line.
+    gates:
+      liability_containment: pass
+      ethical_robustness: pass
+    gate_note: >-
+      Pass: the output is arithmetic on figures the contractor enters, and
+      is labelled a required rate to check their own pricing against --
+      never a recommended price, a prevailing wage, or a tax or
+      employment-law determination. Nothing entered leaves the browser.
