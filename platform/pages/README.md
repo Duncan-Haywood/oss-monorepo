@@ -449,6 +449,73 @@ no count of what was in the file. `bids_backup_restored` is the reading that
 matters — a restore is a visitor who had already lost the bids once, or who
 uses two devices, and either is a stronger return-visit signal than a page view.
 
+## Sending a bid to somebody else
+
+`link.mjs` adds **Copy link to this bid** beside Saved bids, on 156 pages that
+had no way to hand a priced job to another person. The whole bid rides in the
+URL fragment; nothing is uploaded, and the recipient opens the live tool rather
+than a flat figure, so "what if we skip the tear-off" is a thing they can try
+instead of another phone call.
+
+Fifty-eight pages already did this with a hand-written per-venture `share.mjs`,
+which is where the shape comes from and also why this exists. That allowlist
+names its fields, so it drifts: a calculator grew `quantity` and `targetMargin`,
+the list did not, and a shared link silently dropped both — the recipient
+computed a different profit than the sender saw and nothing said so. Here the
+field set is read off the form at the moment the link is made, exactly as
+`jobs.mjs` reads it for a saved bid, so there is no list to keep in step and a
+field added tomorrow rides along with no edit.
+
+**The link carries the sender's headline figure, and the recipient's page
+checks its own arithmetic against it.** That check is the point. Every failure
+mode ends the same way — two people reading one price and seeing different
+money — and silence is what made the `quantity` bug expensive. Three outcomes,
+and the page says which:
+
+- **Match.** Fields applied, figure agrees, named in the note. Reprice freely.
+- **Applied, figure differs.** Everything was written but this page computes
+  something else, so the note names both figures and says not to quote either
+  until you know why. The tool may have changed since the link was made.
+- **Refused.** The link's field set is not this form's field set, so nothing is
+  written and the note says how many fields each way. Writing the overlap would
+  leave a form pricing a real, plausible, *smaller* job than the sender sent —
+  the same atomic-or-refused rule a saved-bid restore follows, for the reason it
+  follows it.
+
+Compared as normalized display strings, not parsed numbers: `parseFloat` would
+call `$1,800` and `$1,800.40` equal on every page that renders a thousands
+separator, which is exactly the near miss the check is for.
+
+Two build-time exclusions, so the control is never drawn where it would work
+badly. **Pages with their own share button** keep it — a second button writing a
+second hash format is worse than the drift it fixes. **Pages that build their
+fields in script** (the itemised calculators: flooring by room, tree service by
+tree) get neither button nor claim, because a recipient's blank form has one row
+where the sender had four, the sets can never match, and a link that always
+refuses is worse than no link. Both are read from the venture's own markup and
+not from the document the build has already written into, so a future band that
+injects a control cannot change who is offered the feature.
+
+The fragment is the one part of these pages a stranger writes, so it is treated
+as hostile: unknown format version, wrong shape, an id the form would not have
+offered (`pf-` prefixed controls, and `usageOptOut`, which is a standing
+preference about this site rather than a number in a bid), a value of the wrong
+type, an oversized value, or too many fields all drop out before anything
+reaches a control. A payload left with nothing is `null`, not an empty apply.
+
+The link is built **on click, never on load** — a hash written eagerly would put
+a customer's numbers in the address bar of a contractor who never asked to share
+anything, where the browser keeps it in history. The note is not printed: it
+says a price came from somebody else, which on a proposal sheet handed to a
+homeowner would read as a disclaimer about the number they are being quoted.
+
+Counting is the site convention: `bid_link_copied`, `bid_link_opened`,
+`bid_link_refused` and `bid_link_amount_differs` in `portfolio-hub-usage`, local
+only, silent under DNT/GPC and the site-wide opt-out. No slug, no field names,
+no figures. `bid_link_opened` is the first signal in this portfolio that a tool
+reached a *second* person, and `bid_link_amount_differs` is the one to watch: it
+is a defect report the visitor did not have to write.
+
 ## Offline and installable
 
 The people these tools are for are often somewhere with no signal at the moment
