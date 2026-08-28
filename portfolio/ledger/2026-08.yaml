@@ -25634,3 +25634,74 @@ entries:
         it as *the* gate before any supersession call. Not fixed here; flagged
         as the next infrastructure step.
     mrr_end: null
+  - venture: bid-calculators
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **100 calculators asked for two numbers nothing in the repo could work
+        out.** Every trade bid calculator asks for a payroll burden % and an
+        overhead rate on direct cost, and `platform/pages/rates.mjs` has carried
+        both across 103 pages since the shop-rates bar shipped. No tool computed
+        either, so both came from the contractor's memory — and the answers
+        people reach for, ~20% burden and ~10% overhead, are wrong for a small
+        shop by enough to invert a bid's profitability. The error then
+        propagated: one wrong pair, saved once, priced every job on every tool.
+        #1917 adds `ventures/shop-rate-calculator`, the first page here that
+        *produces* the shop rates rather than consuming them, and writes all
+        four into `portfolio-shop-rates` itself.
+      - >-
+        The arithmetic's one real insight is that burden belongs on a
+        **billable** hour. A person is paid for 2,080 hours and bills far fewer
+        once holidays, drive time, estimating and callbacks come out, and the
+        bid calculators multiply a loaded wage by hours estimated *for a job*.
+        On the shipped example a $28 wage is $53.76 an hour sold — a 92%
+        burden, not the textbook 20%. Overhead is likewise on direct cost
+        rather than revenue (21.3% vs 15.4% for the same shop), because that is
+        what the receiving field means. Sensitivity is worth recording: ten
+        points of billable share moves the required rate further ($65.18 →
+        $75.57) than the entire 12% target margin does ($65.18 → $74.07).
+      - >-
+        **The build injected a privacy defect that no test would have caught.**
+        On the first pass `jobs.mjs` and `link.mjs` gave the new page a
+        saved-bid band and a "Copy link to this bid" button — on a form holding
+        wages, workers' comp rates, benefits and the owner's salary. Both
+        predicates are shape-based (`pageTakesSavedBids` counts saveable
+        fields), and this form passes easily; what disqualifies it is what the
+        form *is*. Found by building the artifact and reading the output, not by
+        reasoning about the code. New `COST_STRUCTURE_SLUGS` in `jobs.mjs`
+        excludes it, which removes the link too since the link anchors on that
+        band; `RATE_SOURCE_SLUGS` in `rates.mjs` likewise keeps the shop-rates
+        bar off the page that produces the rates. **The generalisable lesson:
+        every build-time injection here assumes the page's form is one
+        customer's priced job, and that assumption is now load-bearing across
+        four passes. A page that breaks it gets the features anyway.**
+      - >-
+        The producing and consuming halves of the storage contract cannot import
+        each other — `rates.mjs` runs at build time in Node, the venture module
+        is fetched by the browser — so the contract is duplicated. Rather than
+        accept a silent copy (the `normalizedBid` failure recorded on 2026-08-27
+        was exactly this), `shop-rates.test.mjs` reads `platform/pages/rates.mjs`
+        **as text** and fails if the key, the four field ids, or their ceilings
+        drift. Without it a rename there would surface only in production, as
+        rates that save successfully and never appear on any calculator.
+      - >-
+        Verified locally: 54 venture tests, 413 in `platform/pages` (was 408),
+        `check_form_defaults`, `check_conflict_markers`,
+        `check_duplicate_symbols`, `validate_workflows`, `publish_surface
+        --check`, and a clean build to 163 products / 441 pages with no dead
+        links. A 28-check Chromium journey against the built artifact confirmed
+        the end-to-end payoff — rates computed on the new page arrive in both
+        `siding-bid-calculator` and `deck-bid-calculator` — plus the refusal to
+        save a stale rate, the three absent features, mobile at 390px, and zero
+        console errors. All seven CI checks on #1917 carried the runner-outage
+        signature (2–5s jobs, empty `output.title/summary/text`, 404 on log
+        download), confirmed against #1842 before merging.
+      - >-
+        Open-PR queue was **empty** at the start of this session — the first
+        time recorded. The branch sweep found one branch carrying a whole
+        venture absent from `main`, `cursor/vendor-change-watch-fix-20260824`
+        (~3,000 lines, tested): genuinely superseded, since the ledger records
+        it closed in favour of #905 and `ventures/vendor-watch` is on `main`
+        today. Left alone. Recorded so the next session does not re-derive it.
+    mrr_end: null
