@@ -25431,6 +25431,90 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        **The tool knew which bids were won and never said what that was
+        worth.** Six increments had made a bid a document, indexed it across 162
+        tools, got it off one browser, asked whether it was won and stored the
+        figure — every ingredient of "am I pricing this right?" was on disk and
+        nothing assembled it. The saved-bids panel now reads, at two decided
+        bids a side: "The 2 you won here averaged $667, the 2 you lost, $821.
+        Every bid you won was $702 or under, and every one you lost $779 or
+        over." When the sides overlap it says so instead, which is the more
+        valuable half — dropping the price will not win those jobs. #1908.
+      - >-
+        The arithmetic is scoped to one tool by construction, because
+        `normalizeHeadlineAmount` is right that a sum across tools adds a roof
+        to a lawn contract. `bidAmountValue` refuses a range (two currency
+        symbols), a symbol that does not precede its digits, a comma that is not
+        a thousands separator, and mixed currencies inside one tool. Only
+        averages are formatted; both edge figures are the exact substring the
+        page printed, so no number read back to a customer went through a
+        rounding rule invented here.
+      - >-
+        **Then the cost of shipping it turned out to be the real finding: 391
+        KiB for 2.4 KB of code.** The saved-bids script was inlined into all 234
+        pages carrying it — 3.26 MiB of the built site and 2.06 MiB of the 16
+        MiB offline bundle, the same ~15 KB written out 234 times, paid for on
+        every page load and again by every tool cached for a jobsite. Headroom
+        was down to 598 KiB and the next feature would not have fit. #1909
+        extracts it to one `pf-jobs.js` at the site root: bundle 15.42 → 13.39
+        MiB, headroom 598 → 2678 KiB. The slug and the amount selector ride on
+        the tag; both of their guards moved with them (HTML-escaped, and the
+        selector re-checked against the shape the build writes, because it now
+        travels through the DOM).
+      - >-
+        **The lesson worth more than either feature: a verification harness that
+        can silently test the previous build.** An `http.server` left running by
+        an earlier build held port 8793; the next one exited with "Address
+        already in use" and said nothing, so two runs reported on #1909 — the
+        origin-root journey and the 162-tool sweep — passed against the
+        pre-extraction tree. The conclusion survived only by luck: the two runs
+        that *were* on their own ports happened to be the prefix journey and the
+        deep-page pass, which are exactly the ones that test a shared asset. A
+        correction is posted on #1909 and both runbooks now say to curl for
+        something only the build under test has before believing a green run.
+        A false clean report is worse than no report.
+      - >-
+        **And the thing that was stored for a reason and never read.**
+        `decidedAt` has been written on every decided bid since #1903, merged
+        across devices, carried through a re-price — and nothing a visitor sees
+        had ever looked at it. Nineteen days on a waiting bid means nothing on
+        its own; nineteen days when every customer who ever answered did so
+        inside nine is the whole signal. The panel now says "The 5 bids you have
+        heard back on came back in 2 to 9 days. 2 still waiting have been out
+        longer than that." A spread, never an average — an average invites "so I
+        will hear on Thursday", which nothing here can know. #1910.
+      - >-
+        It ships on all 234 bid-keeping pages rather than the 160 with a
+        headline figure, because it needs only timestamps. **It cost 99 KiB
+        where the price band cost 391 KiB** — the extraction paying for itself
+        one PR later, which is the number that argues for doing the same to
+        `rates.mjs` and the chrome (1.01 MiB still inlined between them).
+      - >-
+        Verified across all three: 369 tests in `platform/pages` (26 new), the
+        build (162 tools, 439 pages), `check.mjs`, `clauses.mjs` (436),
+        `router/validate.py` (179), `validate_usage.py`,
+        `check_form_defaults.py`, `check_duplicate_symbols.py`,
+        `check_conflict_markers.py`, `validate_workflows.py` (211). Chromium:
+        journey from the origin root and under a `/monorepo-projects/` prefix,
+        both 0 failed checks and 0 page errors; 16/16 deep band pages; **162/162
+        tools answered with no errors**. Two journey checks that had been red on
+        `main` since #1906 were also fixed — the scrape read the saved-bid rows'
+        own figures as the tool's output, so a restore looked like a reprice.
+      - >-
+        Readings once live: `bid_price_band_shown` and `bid_chase_shown`, both
+        counted when the reading changes rather than on every render, both
+        carrying no name and no figure. The open PR queue was empty at the start
+        of this run, so the three-PR quota had nothing to draw on; three were
+        opened, verified and merged instead. CI was red on all three with the
+        runner-outage signature (3-second jobs, empty output, 404 on logs).
+        The public URL remains owner-gated on `deploy-settings`; no second ask
+        was added.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         **The bid was priced for a customer who never got to open it.** 156 of
         the 234 pages with a form had no way to hand a priced job to another
         person; 58 did, through a hand-written per-venture `share.mjs`. #1911
