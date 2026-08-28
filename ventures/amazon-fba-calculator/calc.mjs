@@ -965,7 +965,11 @@ export function compareCoupons(input) {
 }
 
 export function couponSummary(comparison) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const typed = comparison.typed;
   if (typed.discount === 0 && typed.couponFee === 0) {
     return "No coupon is entered, so every row but the list-price line is a what-if against this listing.";
@@ -1104,7 +1108,11 @@ export function compareSubscribeSave(input) {
 }
 
 export function subscribeSaveSummary(comparison) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const typed = comparison.typed;
   if (typed.snsPercent === 0) {
     return "No Subscribe & Save discount is entered, so every row but the list-price line is a what-if against this listing.";

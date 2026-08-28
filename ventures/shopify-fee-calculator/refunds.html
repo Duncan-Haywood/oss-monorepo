@@ -201,7 +201,11 @@
       "processorRate", "processorFixed", "costOfGoods", "shippingCost", "packagingCost",
       "otherCost", "monthlyPlan", "monthlyOrders",
     ];
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const pathName = { shopify_payments: "Shopify Payments", third_party: "PayPal / Stripe", tie: "neither — same expected profit" };
 
     function paymentMethod() {

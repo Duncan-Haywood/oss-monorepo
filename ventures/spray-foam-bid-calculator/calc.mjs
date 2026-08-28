@@ -495,7 +495,11 @@ export function compareCellBids(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Spray foam insulation') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const area = AREA_PRESETS.find((item) => item.id === result.area)?.label ?? result.area;
   const cell = CELL_PRESETS.find((item) => item.id === result.cell)?.label ?? result.cell;
   const barrier = BARRIER_PRESETS.find((item) => item.id === result.barrier)?.label ?? result.barrier;

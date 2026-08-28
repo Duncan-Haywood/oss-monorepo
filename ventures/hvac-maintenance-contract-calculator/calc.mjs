@@ -47,7 +47,11 @@ export function calculatePlan(input) {
 }
 
 export function formatPlanSummary(result) {
-  const money = value => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const proposed = result.proposed ? `\nPrice considered: ${money(result.proposed.monthlyPrice)}/month (${result.proposed.belowBreakEven ? 'below break-even' : `${result.proposed.margin.toFixed(1)}% margin`})` : '';
   return `HVAC maintenance agreement\nPrice at target margin: ${money(result.monthlyPrice)}/month (${money(result.annualPrice)}/year)\nBreak-even floor: ${money(result.breakEvenMonthlyPrice)}/month\nTechnician hours reserved: ${result.totalTechnicianHours.toFixed(1)}/year\nEffective revenue per technician hour: ${money(result.effectiveHourlyRevenue)}${proposed}`;
 }

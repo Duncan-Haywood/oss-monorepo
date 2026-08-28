@@ -117,7 +117,11 @@ export function compareSecondSite(input) {
  * the number is not the same as the first building" reply. Arithmetic only.
  */
 export function secondSiteNote(comparison, { targetMargin } = {}) {
-  const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const marginLabel = Number.isFinite(targetMargin) ? targetMargin : 20;
   const driveLine = comparison.monthlyDriveHours === 0
     ? 'No drive time is included in this figure.'

@@ -68,8 +68,23 @@ function number(value, name, { min = 0, max = Infinity } = {}) {
   return result;
 }
 
-function money(value) {
-  return `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export function money(value) {
+  // Sign goes outside the currency symbol: "-$9.24", not "$-9.24". The old
+  // spelling put it inside, which is what interpolating a negative straight
+  // after a "$" gets you, and it reads as a typo on a document a contractor
+  // hands a customer.
+  //
+  // Round to cents *before* choosing the sign. A delta of two equal figures
+  // lands on -0, and a residual like -0.004 rounds to zero at cent precision;
+  // both used to print "$-0.00" — a line that is exactly break-even claiming
+  // to be down money.
+  const cents = Math.round(Math.abs(value) * 100);
+  const sign = cents === 0 ? '' : value < 0 ? '-' : '';
+  const amount = (cents / 100).toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `${sign}$${amount}`;
 }
 
 /**

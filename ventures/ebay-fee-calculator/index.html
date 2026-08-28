@@ -780,7 +780,11 @@
     import { recordUsage } from './usage.mjs';
     import { repricingCsv } from './csv.mjs';
     import { decodeInputs, encodeInputs } from './share.mjs';
-    const money = value => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const signedMoney = value => `${value > 0 ? '+' : value < 0 ? '−' : ''}$${Math.abs(value).toFixed(2)}`;
     // Counted at most once per visit, and only after the seller has actually
     // changed an input. Counting the table's first render instead would just

@@ -191,7 +191,11 @@
       "extraOrdersFromInstallments", "costOfGoods", "shippingCost",
       "packagingCost", "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
     ];
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
 
     function readInput() {
       return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));

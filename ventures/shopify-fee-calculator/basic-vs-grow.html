@@ -146,7 +146,11 @@
   <script type="module">
     import { comparePlans, upgradeBreakEvenOrders } from "./calc.mjs";
 
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const signedMoney = (value) => {
       if (Math.abs(value) < 0.005) return "same";
       return value > 0 ? `+${money(value)}` : money(value);

@@ -220,6 +220,18 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_form_defaults
 
+      # Every venture vendors its own money() -- 322 copies of one function --
+      # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
+      # -0 as "$-0.00". 11,172 unit tests went green over both, because not one
+      # asserted on a negative rendering. A new calculator is usually a copy of
+      # the nearest existing one, so the broken spelling is the one that spreads.
+      - name: Check no calculator puts the minus sign inside the currency symbol
+        run: python3 platform/ci/check_money_sign.py
+
+      - name: Money-sign checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_money_sign
+
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
 

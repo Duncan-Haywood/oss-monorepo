@@ -1,5 +1,9 @@
 export function formatOrderSummary(input, result, targetMargin, targetPrice) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const fees = result.fees;
   const roi = result.roi === null ? "n/a" : `${result.roi.toFixed(1)}%`;
   return [

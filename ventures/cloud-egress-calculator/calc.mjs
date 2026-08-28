@@ -188,7 +188,9 @@ export function compareCdn(input = {}) {
 }
 
 function money(value) {
-  return `$${value.toFixed(2)}`;
+  const format = (value) => `$${value.toFixed(2)}`;
+  const text = format(Math.abs(value));
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 export function cdnNote(result) {

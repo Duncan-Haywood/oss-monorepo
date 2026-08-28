@@ -298,7 +298,11 @@
     const SUGGESTED_PUMP_IDS = ['pumpCost','hoursSwap'];
     const SUGGESTED_PIT_IDS = ['hoursNewPit','hoursSlabCut','basinCost','slabCutCost'];
     const SUGGESTED_BACKUP_IDS = ['hoursBattery','hoursWaterBackup','batteryCost','waterBackupCost'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const presets = el('jobPresets');

@@ -184,7 +184,11 @@
     // Schedule inputs are collected separately so a change here never re-counts
     // the single-invoice calculation as a use of the early-pay comparison.
     const scheduleIds = ['projectValue','projectDays','avgDaysLate','depositCollectionDays','depositPct','exposureCeiling'];    const $ = id => document.getElementById(id);
-    const money = n => `$${n.toFixed(2)}`;
+    const money = (n) => {
+      const format = (n) => `$${n.toFixed(2)}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     let usageTimer;
     const safe = fn => { try { return fn(); } catch { return undefined; } };
     function update(count = true) {

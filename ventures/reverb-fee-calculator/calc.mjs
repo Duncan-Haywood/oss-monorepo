@@ -418,7 +418,11 @@ export function compareConsignment(input, salePrice = input?.price) {
 }
 
 export function consignmentNote(comparison) {
-  const money = (value) => `$${Number(value).toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${Number(value).toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const pct = (value) => `${Number(value).toFixed(2)}%`;
   const rate = comparison.consignmentRate;
   const shop = money(comparison.shopSalePrice);

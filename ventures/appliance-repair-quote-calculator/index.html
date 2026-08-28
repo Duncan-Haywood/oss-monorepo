@@ -56,7 +56,11 @@
     const replaceIds = ['replacementPrice','remainingRepairYears','remainingReplaceYears','diagnosticCollected','yourReplaceProfit'];
     const ids = [...quoteIds, ...replaceIds];
     const $ = (id) => document.getElementById(id);
-    const money = (n) => `$${n.toFixed(2)}`;
+    const money = (n) => {
+      const format = (n) => `$${n.toFixed(2)}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const currentQuote = () => Object.fromEntries(quoteIds.map((id) => [id, $(id).value]));
     const currentReplace = () => Object.fromEntries(replaceIds.map((id) => [id, $(id).value]));
     let timer;

@@ -611,7 +611,11 @@ export function listingFormatNote(comparison) {
   if (!comparison?.bin || !comparison?.auction) {
     throw new Error('Listing-format comparison is missing rows');
   }
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const { bin, auction } = comparison;
   const gap = Math.abs(auction.expectedProfit - bin.expectedProfit);
   const ahead = auction.expectedProfit >= bin.expectedProfit ? 'more' : 'less';
