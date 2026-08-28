@@ -1775,9 +1775,51 @@ test('the hub carries the timestamp the chase window is computed from', async ()
   // shipped, was tested, and returned '' forever.
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
-  assert.match(script, /rows\.push\(\{ slug, name, at, amount, outcome, decidedAt \}\)/);
+  assert.match(script, /rows\.push\(\{ slug, name, at, amount, outcome, decidedAt, lostTo \}\)/);
   // Only on a decided bid, which is the only state it means anything in.
   assert.match(script, /outcome && typeof bid\.decidedAt === 'string'/);
+});
+
+test('the hub carries the winning price its pricing reading is computed from', async () => {
+  // Exactly the regression above, one field along: pricingSentence reads
+  // lostTo, so a savedBids() that dropped it would inject the reading on every
+  // visit and return '' forever. Same failure, same silence, same test.
+  const hub = await read('index.html');
+  const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
+  // Through the guard the band wrote it with, never trusted as stored: any page
+  // on this origin can write this key.
+  assert.match(script, /const lostTo = outcome === 'lost' \? normalizeLostTo\(bid\.lostTo\) \|\| undefined : undefined/);
+  // And the guard has to actually be in scope on the hub, which is the half
+  // that BID_PRICING_HELPERS exists to deliver.
+  assert.ok(hub.includes('var normalizeLostTo = function normalizeLostTo('),
+    'normalizeLostTo is not embedded in the hub');
+  assert.ok(hub.includes('var pricingSentence = function pricingSentence('),
+    'pricingSentence is not embedded in the hub');
+});
+
+test('the hub draws the pooled pricing reading, and counts it once per change', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<p class="bid-pricing" id="bidsPricing" hidden><\/p>/);
+  assert.match(hub, /\.bids \.bid-pricing \{/);
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  // Read off every row, not the eight drawn — otherwise the reading would
+  // change when the visitor pressed "Show all".
+  assert.match(script, /const priced = pricingSentence\(rows\)/);
+  assert.match(script, /pricing\.hidden = priced === ''/);
+  // Counted on change, as the chase line is, so a re-render is not a second
+  // reading. No name, no slug, no figure.
+  assert.match(script, /record\('saved_bid_pricing_shown'\)/);
+});
+
+test('the hub ships the percentage half of the pricing code and not the money half', async () => {
+  // BID_PRICING_HELPERS is deliberately not BID_PRICE_BAND_HELPERS. The money
+  // readings stay on the tool pages, and shipping them to the one page every
+  // visitor loads would be a kilobyte in the offline bundle for nothing.
+  const hub = await read('index.html');
+  for (const name of ['priceBandSentence', 'undercutSentence', 'bidPriceSide', 'formatBidAmount']) {
+    assert.ok(!hub.includes(`var ${name} = function ${name}(`),
+      `${name} is money-only and should not be on the hub`);
+  }
 });
 
 test('the hub and the calculator band share one definition of a waiting bid', async () => {

@@ -722,6 +722,80 @@ await step('the hub pools answers no single tool has enough of', async () => {
   }
 });
 
+// 6bf. The pricing line on the hub — the same pooling argument, for price.
+//
+//      The step above pools *timing* across tools. This pools how the pricing
+//      is landing, and it is the same case: three lost bids spread over three
+//      calculators draw nothing on any of them, because each tool is below its
+//      own threshold. Pooled they are a season's evidence.
+//
+//      What only a browser pass can show is that the whole chain survives the
+//      trip through storage: the band writes `lostTo` on a lost bid, the hub's
+//      savedBids() carries it through `normalizeLostTo`, and `pricingSentence`
+//      reads it. That chain is exactly where the chase line was broken for a
+//      release — the hub built rows without `decidedAt`, so the reading was
+//      injected on every visit and returned '' forever. Nothing failed, and the
+//      unit tests passed throughout, because the unit tests hand the function
+//      the field the page was not carrying.
+//
+//      Mixed currencies are in the fixture on purpose. Every money reading here
+//      refuses them and is right to; a percentage over the winning price is
+//      computed inside one bid's own currency, so it pools with no conversion.
+await step('the hub pools how the pricing is landing, in percentages', async () => {
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    // One lost bid with a known winning price on each of three tools, each 20%
+    // over, in three different currencies. Plus a won bid and a waiting bid
+    // that must contribute nothing.
+    await page.evaluate((now) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      const lost = (name, amount, lostTo, d) => ({
+        name, at: at(d), fields: { a: '1' }, amount,
+        outcome: 'lost', decidedAt: at(d - 4), lostTo,
+      });
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
+        'fence-bid-calculator': [
+          lost('Oak St', '$2,400', '2000', 30),
+          { name: 'Won it', at: at(28), fields: { a: '1' }, amount: '$9,999',
+            outcome: 'won', decidedAt: at(26), lostTo: '1' }],
+        'deck-bid-calculator': [
+          lost('Mrs Reid', '£3,600', '3000', 25),
+          { name: 'Still out', at: at(3), fields: { a: '1' }, amount: '$9,999' }],
+        'pergola-bid-calculator': [lost('Cedar', '€1,200', '1000', 20)],
+      } }));
+    }, Date.now());
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const line = (await page.textContent('#bidsPricing')).replace(/\s+/g, ' ').trim();
+    check('the hub pools three lost bids no single tool could report',
+      /^Across the 3 bids you lost on 3 tools where you know the winning price,/.test(line), line);
+    check('and reports the mean percentage, across three currencies',
+      /yours averaged 20% over\./.test(line), line);
+    check('with the closest near-miss', /The closest was 20% over\.$/.test(line), line);
+    // The reason it may be pooled at all: no figure in it is money.
+    check('no money figure is on the pooled line', !/[$£€]/.test(line), line);
+    check('and no customer name is either', !/Oak St|Reid|Cedar/.test(line), line);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the hub pricing reading is counted',
+      counts.saved_bid_pricing_shown >= 1, JSON.stringify(counts));
+    check('and that counter holds no customer name either',
+      !/Oak St|Reid|Cedar/.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
 // 6bb. Backup and restore (`backup.mjs`) — the bids surviving the browser.
 //
 //      Everything above stands on one `localStorage` key in one browser, and

@@ -1018,6 +1018,130 @@ export function undercutSentence(bids) {
 }
 
 /**
+ * How many lost bids with a known winning price before the hub draws a reading.
+ *
+ * Three, where the single-tool `undercutSentence` wants two, and the extra one
+ * is the price of pooling. `MIN_UNDERCUT_SAMPLE` is two because those two bids
+ * are the same trade at the same tool, so a contractor reading "you averaged
+ * 14% over" knows exactly which two jobs it is about. This reading mixes
+ * trades, and the same two bids there could be one fence and one bathroom —
+ * further apart, and worth one more point before it is put on screen. Still
+ * small, which is why this reports the spread it was given and never a target.
+ */
+export const MIN_CROSS_TOOL_SAMPLE = 3;
+
+/**
+ * How this contractor's pricing is landing, read across every tool at once.
+ *
+ * The hub's pricing counterpart to `chaseSentence`, and it exists because every
+ * price reading in this portfolio is scoped to a single tool while a great many
+ * of these contractors are not. A crew that fences, decks, and builds pergolas
+ * works three calculators. Four decided bids on each is twelve — a real season
+ * — and `priceBandSentence` draws nothing on any of the three, because each
+ * side of each tool sits below `MIN_PRICE_BAND_SIDE`. The contractor has the
+ * evidence and the site shows them none of it.
+ *
+ * What makes pooling legitimate here is the same thing that makes it legitimate
+ * for `responseWindow`: the quantity is unit-free. Days are days on every tool,
+ * and a percentage over the winning price is a percentage on every tool. That
+ * is why this says **only** percentages and never money. `priceBandSentence`
+ * refuses mixed currencies outright and `undercutSentence` refuses them too,
+ * both correctly — a dollar quote and a euro quote cannot be averaged and this
+ * feature has no rates and must never acquire any. But "I was 14% over" is a
+ * fact inside one bid's own currency, so a book of dollar bids and euro bids
+ * pools without any conversion at all. Hence the mean of the per-bid
+ * percentages, never `(sum of mine - sum of theirs) / sum of theirs`: that
+ * second form is the one that would be quietly summing currencies together.
+ *
+ * Naming the tool count is not decoration. "Across 7 bids on 3 tools" is what
+ * tells a contractor this is their whole book rather than a verdict on one
+ * trade, and it is the difference between reading the number as "my prices are
+ * high" and "my fence prices are high".
+ *
+ * Two sentences, the second the honest half, exactly as `undercutSentence`:
+ *
+ *   - **You were over.** The average, and then the closest near-miss, because a
+ *     shop 2% off is deciding something different from a shop 30% off.
+ *   - **Some went to a bid no cheaper than yours.** Said as loudly as the gap,
+ *     because it is the finding that stops a contractor cutting a price that
+ *     was never the problem.
+ *
+ * Returns `''` — draw nothing — below `MIN_CROSS_TOOL_SAMPLE`, and when no lost
+ * bid carries both a readable figure of its own and a recorded winning price.
+ */
+export function pricingSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var percents = [];
+  var slugs = [];
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'lost') continue;
+    var went = normalizeLostTo(bid.lostTo);
+    if (!went) continue;
+    var parsed = bidAmountValue(bid.amount);
+    // Same guard as undercutSentence: a negative or zero hero figure is a
+    // loss-per-unit reading rather than a quote, and a percentage against it
+    // would be arithmetic about nothing.
+    if (!parsed || parsed.value <= 0) continue;
+    // Against what the job went for, not against the quote, so this reads the
+    // way a person says it: "I was 14% over" means over *their* price.
+    percents.push(((parsed.value - Number(went)) / Number(went)) * 100);
+    if (typeof bid.slug === 'string' && bid.slug && slugs.indexOf(bid.slug) === -1) {
+      slugs.push(bid.slug);
+    }
+  }
+
+  if (percents.length < MIN_CROSS_TOOL_SAMPLE) return '';
+
+  var total = 0;
+  var closest = percents[0];
+  var notOver = 0;
+  for (var p = 0; p < percents.length; p++) {
+    total += percents[p];
+    if (percents[p] < closest) closest = percents[p];
+    if (percents[p] <= 0) notOver++;
+  }
+  var average = total / percents.length;
+
+  // The tool count is dropped rather than written as "on 1 tool": at one tool
+  // this is the same book `undercutSentence` already reports in money on that
+  // tool's own page, and claiming breadth it does not have would be the one
+  // dishonest word in the sentence.
+  var across = 'Across the ' + percents.length + ' bids you lost' +
+    (slugs.length > 1 ? ' on ' + slugs.length + ' tools' : '') +
+    ' where you know the winning price, ';
+
+  var centre;
+  var rounded = Math.round(average);
+  if (rounded === 0) {
+    // A real gap that rounds to nothing. "0% over" reads as measured parity and
+    // this is not that, so it is said as the bound it actually is.
+    centre = across + 'yours came within 1% of what they went for.';
+  } else if (rounded > 0) {
+    centre = across + 'yours averaged ' + rounded + '% over.';
+  } else {
+    centre = across + 'yours averaged ' + -rounded + '% under.';
+  }
+
+  var edge;
+  if (notOver === percents.length) {
+    edge = 'None of them went to a cheaper bid, so price is not what decided these.';
+  } else if (notOver > 0) {
+    edge = notOver + ' of them went to a bid no cheaper than yours, so price alone has not ' +
+      'been deciding these.';
+  } else {
+    var near = Math.round(closest);
+    edge = near === 0
+      ? 'The closest was within 1% of it.'
+      : 'The closest was ' + near + '% over.';
+  }
+
+  return centre + ' ' + edge;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -1124,6 +1248,26 @@ export const BID_PRICE_BAND_HELPERS = [
   // and needs this one function to read what the visitor typed into the box.
   ...[normalizeLostTo, bidAmountValue, bidPriceSide, formatBidAmount, priceBandSentence,
     undercutSentence].map(
+    (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
+  ),
+].join('\n');
+
+/**
+ * `pricingSentence` and the two readers it needs, as source, for the hub.
+ *
+ * Emitted after `BID_AMOUNT_HELPER` and not usable without it: `bidAmountValue`
+ * calls `normalizeHeadlineAmount`, which the hub already has for its bid list.
+ *
+ * Deliberately not `BID_PRICE_BAND_HELPERS`: that list carries `bidPriceSide`,
+ * `formatBidAmount`, `priceBandSentence` and `undercutSentence`, none of which
+ * the hub calls, and all of which are money. This reading is percentages only,
+ * so shipping the money half to the hub would be a kilobyte on the one page
+ * every visitor loads in exchange for nothing.
+ */
+export const BID_PRICING_HELPERS = [
+  `var MIN_CROSS_TOOL_SAMPLE = ${MIN_CROSS_TOOL_SAMPLE};`,
+  `var MAX_LOST_TO = ${MAX_LOST_TO};`,
+  ...[normalizeLostTo, bidAmountValue, pricingSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');

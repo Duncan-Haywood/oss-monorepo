@@ -41,6 +41,7 @@ import { injectShopRates } from './rates.mjs';
 import {
   BID_AMOUNT_HELPER,
   BID_FOLLOW_UP_HELPERS,
+  BID_PRICING_HELPERS,
   SAVED_BIDS_MODULE_FILE,
   injectSavedBids,
   pageHeadlineAmountSelector,
@@ -1064,6 +1065,13 @@ ${subgroups
     .bids .bid-chase { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
                        border-left: 3px solid var(--accent); background: var(--bg);
                        border-radius: 0 8px 8px 0; font-size: .85rem; }
+    /* The same rule as the chase line above it, in the muted border rather than
+       the accent one: the chase line is asking the contractor to do something
+       today, and this is a standing reading about their pricing. Two accent
+       bars stacked would make neither of them the thing to act on. */
+    .bids .bid-pricing { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                         border-left: 3px solid var(--line); background: var(--bg);
+                         border-radius: 0 8px 8px 0; font-size: .85rem; }
     .bids li a:has(.bid-state[data-state="won"]) .bid-name,
     .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
     .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
@@ -1153,11 +1161,17 @@ ${contents}
            many quotes have outlived that. Read across every tool, which is the
            only place it can usually be read at all: the window needs three
            answered bids, and a contractor working six calculators reaches three
-           in none of them while having twelve in total. Unlike the price band —
-           which the tool pages keep and this page deliberately does not — a
-           reply time is a fact about their customers rather than about a trade,
-           so a gutter bid and a deck bid belong in the same sample. -->
+           in none of them while having twelve in total. A reply time is a fact
+           about their customers rather than about a trade, so a gutter bid and
+           a deck bid belong in the same sample. -->
       <p class="bid-chase" id="bidsChase" hidden></p>
+      <!-- How their pricing is landing, pooled the same way and for the same
+           reason. The money readings stay on the tool pages, where one tool
+           means one trade and one currency; what comes here is percentages
+           only, because a percentage over the winning price is unit-free and so
+           pools across trades and currencies alike without a conversion this
+           site does not have. See pricingSentence. -->
+      <p class="bid-pricing" id="bidsPricing" hidden></p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
@@ -1411,6 +1425,9 @@ ${DISCLAIMER_HTML}
     // showSavedBids() has already run once on load.
 ${BID_FOLLOW_UP_HELPERS}
 ${BID_AMOUNT_HELPER}
+    // The cross-tool pricing reading. After BID_AMOUNT_HELPER because
+    // bidAmountValue calls normalizeHeadlineAmount.
+${BID_PRICING_HELPERS}
 
     // How many rows are shown before the list is cut. A contractor keeps up to
     // 25 bids per tool, so a busy one crosses this easily — hence the count
@@ -1452,7 +1469,14 @@ ${BID_AMOUNT_HELPER}
           // Never put on screen — only differenced against the saved date — so
           // taken as stored, with Date.parse deciding whether it is a date.
           const decidedAt = outcome && typeof bid.decidedAt === 'string' ? bid.decidedAt : undefined;
-          rows.push({ slug, name, at, amount, outcome, decidedAt });
+          // The price a lost job went for, read through the same guard the band
+          // wrote it with rather than trusted as stored — any page on this
+          // origin can write this key. Never put on screen here: it is only
+          // ever differenced against the bid's own figure to make a percentage.
+          // Carried only on a lost bid, which is the only state it means
+          // anything in, and the only state pricingSentence reads.
+          const lostTo = outcome === 'lost' ? normalizeLostTo(bid.lostTo) || undefined : undefined;
+          rows.push({ slug, name, at, amount, outcome, decidedAt, lostTo });
         }
       }
 
@@ -1466,6 +1490,7 @@ ${BID_AMOUNT_HELPER}
 
     let bidsExpanded = false;
     let chaseShown = '';
+    let pricingShown = '';
 
     function showSavedBids() {
       const section = document.getElementById('bids');
@@ -1509,6 +1534,23 @@ ${BID_AMOUNT_HELPER}
       if (chasing !== '' && chasing !== chaseShown) {
         chaseShown = chasing;
         record('saved_bid_chase_shown');
+      }
+
+      // How the pricing is landing, pooled across every tool. Read off every
+      // row for the same reason the two lines above are: this is a statement
+      // about the contractor's whole book, and computing it from the eight rows
+      // the page happens to draw would make it change when they press "Show
+      // all".
+      const pricing = document.getElementById('bidsPricing');
+      const priced = pricingSentence(rows);
+      pricing.textContent = priced;
+      pricing.hidden = priced === '';
+      // Counted on change rather than on every render, as the chase line is.
+      // record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, and no figure.
+      if (priced !== '' && priced !== pricingShown) {
+        pricingShown = priced;
+        record('saved_bid_pricing_shown');
       }
 
       const seen = responseWindow(rows);
