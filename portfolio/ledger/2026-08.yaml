@@ -26093,3 +26093,53 @@ entries:
         reports nothing live behind `GITHUB_PAGES_ENABLED`, every usage reading
         is still a zero baseline, and no second owner ask was added.
     mrr_end: null
+  - venture: portfolio-ops
+    agent_spend_usd: null
+    human_hours: 0
+    mrr_end: null
+    outcomes:
+      - >-
+        **322 copies of `money()` spelled a negative "$-9.24", and 11,172 unit
+        tests went green over it.** Shipped in #1938. The sign belongs outside
+        the symbol, and a value that rounds to zero — a delta between two equal
+        figures lands on `-0` — printed "$-0.00", a break-even line claiming to
+        be down money. Both were visible on the column a seller actually reads:
+        "-$338.40" against a Shopify plan, "-$14.00" to dispose a Walmart
+        return, "-$5.30" on a Low-Price FBA path. Not one test asserted on a
+        negative rendering, which is why the arithmetic being right kept the
+        suite quiet. A handful of ventures had already fixed it locally, so the
+        portfolio was rendering both spellings.
+      - >-
+        **The method that found it: render all 164 published tools in headless
+        Chromium, fill every number input, and read the text.** This is the
+        second defect this technique has caught that the unit suites could not
+        (the first was the aged-inventory table bolding the wrong row, #1922).
+        Both are the same class — the arithmetic is correct and the *rendering*
+        lies — and no amount of `calc.mjs` testing reaches it. Chromium is
+        preinstalled at `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`;
+        `playwright-core` installs in seconds. Worth doing on any session that
+        touches a rendering path.
+      - >-
+        **A codemod trap worth not rediscovering: `String.replaceAll(from, to)`
+        treats `$$` in the *replacement* as an escape for a literal `$`.** The
+        first pass therefore deleted the currency symbol from all 246 sites it
+        rewrote — "Price at target margin: 80.21/month" — because every
+        replacement here contains `$${`. Fifty tests caught it. The fix is a
+        function replacer, `replaceAll(from, () => to)`, which disables the
+        substitution entirely. Also: the copies had drifted into eleven
+        spellings, so matching exact strings missed 90 of them; matching the
+        shape and reusing each original expression verbatim is what covered
+        the tree.
+      - >-
+        **`platform/proposal` was red on `main` and had been since #1934.**
+        `security-camera-bid-calculator` shipped without proposal adoption and
+        without the README note `discoverability.test.mjs` requires. The honest
+        reason is the tooling: `adopt.mjs` refuses that page over four spelling
+        differences (`const readInputs = () =>` not `function readInputs(`,
+        pricing from a variable, a parenthesised `el` parameter, `recordUsage`
+        not `count()`, no `</main>`), every one a regex over a spelling. The
+        adoption was started and backed out — broadening those detectors touches
+        tooling 100 live proposals depend on, and that module's README warns
+        that bad scope copy fails silently. Left as a scoped follow-up with the
+        reason written down, and `check_money_sign.py` added to
+        portfolio-validate so the spelling that did ship cannot come back.
