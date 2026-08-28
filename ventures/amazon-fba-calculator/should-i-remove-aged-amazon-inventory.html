@@ -78,6 +78,13 @@
     th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
     th:first-child, td:first-child { text-align: left; }
     tr.best { font-weight: 700; }
+    /* Bold on this page means "this is the winning option" (`tr.best`, and
+       `tr.winner-row` on the sibling pages). The hold-vs-remove table marks
+       something else -- the horizon the seller said they expect to sell in --
+       and that row is frequently *not* the highest-cash one: holding costs
+       accrue, so a shorter horizon usually nets more. Marking it bold read as
+       a recommendation the row does not make, so it gets its own tint. */
+    tr.yours td { background: #ffffff14; }
     footer { margin-top: 25px; font-size: .82rem; color: #445064; }
     footer a { color: #1f4f8a; }
     .faq { margin-top: 18px; }
@@ -358,7 +365,7 @@
           hold.monthsUntilRemoveWins == null ? "does not flip in 36 months" : String(hold.monthsUntilRemoveWins);
         document.getElementById("surchargeMonths").textContent = String(hold.surchargeMonths);
         document.getElementById("holdScenarios").innerHTML = hold.scenarios.map((row) =>
-          `<tr class="${row.additionalMonths === hold.expectedMonthsToSell ? "best" : ""}"><td>${row.additionalMonths} mo</td><td>${money(row.holdTotal)}</td><td>${money(row.removeTotal)}</td><td>${money(row.holdAdvantage)}</td></tr>`
+          `<tr class="${row.additionalMonths === hold.expectedMonthsToSell ? "yours" : ""}"><td>${row.additionalMonths} mo${row.additionalMonths === hold.expectedMonthsToSell ? " (you expect)" : ""}</td><td>${money(row.holdTotal)}</td><td>${money(row.removeTotal)}</td><td>${money(row.holdAdvantage)}</td></tr>`
         ).join("");
       } catch (error) {
         document.getElementById("holdProfit").textContent = error.message;
