@@ -569,3 +569,50 @@ decisions:
     with meaningful, non-superseded work were found in a 2026-08-29 queue-
     drain pass (see the 2026-08.yaml ledger entry for that session), so
     there was no existing PR to review, fix, or merge toward this.
+
+- id: hetzner-pages-publish
+  asks: []
+  prs: [1999, 2000, 2001]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    Four steps, in order, per `gitops/README.md` and #1999's PR body: (1)
+    add one DNS A record, `tools.marisstella.dev` -> `89.167.29.39`; (2)
+    mint a fine-grained GitHub token scoped to this repo with
+    Contents:Read-only and seal it into the clone-credential Secret
+    `gitops/prod/portfolio-site.yaml` reads; (3) replace the placeholder
+    ACME contact `replace-me@duncanhaywood.dev` in
+    `platform/cert-manager/issuer.yaml` with a real address (Let's Encrypt
+    will not register the placeholder); (4) once DNS resolves and a
+    staging certificate has issued, flip the Ingress annotation in
+    `gitops/prod/portfolio-site.yaml` from `letsencrypt-staging` to
+    `letsencrypt-prod`.
+  unlocks:
+    - >-
+      164 already-built, already-tested free tools (446 pages) reachable
+      by a stranger for the first time. `gitops/prod/portfolio-site.yaml`
+      (merged in #1999) builds and serves the whole portfolio site from
+      inside the existing k3s cluster, using ingress-nginx and
+      cert-manager already running there -- so it depends on neither
+      GitHub Pages (blocked separately by `deploy-settings`, and moot
+      anyway since this repo is private) nor GitHub Actions (blocked by
+      `actions-runners-unavailable`).
+    - >-
+      Until step (2) is done the pod's init container has no credential
+      to clone with and crash-loops -- the intended fail-closed state, not
+      a bug to route around.
+  blocked_by: []
+  note: >-
+    New row: #1999-#2001 (merged 2026-08-29) shipped the manifest, fixed a
+    prod-ACME-issuer ordering bug and an nginx `.mjs` MIME-type bug that
+    would each have broken the site on deploy, and verified the build
+    artifact locally (164 products, 446 pages, no dead links, no stray
+    `duncan-haywood.github.io` references) -- but nothing was applied to
+    the cluster and no public URL was reached, since no session has
+    cluster access or an SSH key. Distinct from `deploy-settings` (GitHub
+    Pages, blocked twice over: not enabled, and would not work from a
+    private repo on the free tier) and from `actions-runners-unavailable`
+    (this path does not build via Actions at all). Do not fold this into
+    either of those rows -- the blocker here is DNS and a scoped
+    credential, not a repo setting or a billing limit.
