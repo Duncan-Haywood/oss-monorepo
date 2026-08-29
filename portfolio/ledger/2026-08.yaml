@@ -27385,3 +27385,64 @@ entries:
         the full 164-card catalogue order is restored on clear. The 48
         single-word queries from #1974 return byte-identical results — the
         fallback is a no-op for a one-word query by construction.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The hub's stopword list described a catalogue that no longer exists.**
+        `SEARCH_STOPWORDS` is generic English — the, and, with. What it never
+        had is this catalogue's *own* repeated phrasing, and the matcher ANDs
+        across query words, so a word in half the indexes costs nothing while
+        that same word excludes the one tool whose copy happens not to use it.
+        `catalogueStopwords` now computes the domain half from the built
+        catalogue on every build: a word in ≥35% of tool indexes cannot narrow a
+        search. At 164 tools that is `see` (70%), `away` (59%), `charge` (54%),
+        `much` (52%), `special` (43%) and `not` (37%) — house phrasing, not
+        anything a visitor is looking for. The next word down is `number` at
+        32%, so the cut is not load-bearing.
+      - >-
+        Derived rather than listed, because a hand-written list would be
+        describing last month's catalogue within a week — the same staleness the
+        venture discovery in `build.mjs` exists to avoid. **And a word in any
+        tool's name is never a stopword, however common.** That rule is what
+        makes a frequency cut safe: `quote` is in three names (Notary Trip
+        Quote, Translator Project Quote, 3PL Quote Normalizer) and `rate` in
+        one, so neither can be dropped and searching a tool by its own name
+        keeps working. Without it, a frequency cut quietly deletes tools from
+        the search — the worst possible outcome for the box that finds them.
+        Verified in the browser: all five of those queries still return their
+        tool first.
+      - >-
+        With `much` and `charge` gone, "charge for a mobile detail" narrows from
+        eight approximate suggestions to **one exact answer**, and "how much for
+        gutter guards" to two led by the gutter-guard calculator.
+      - >-
+        The reversal worth recording: #1975 rejected a closest-match trigger
+        that fired when nothing matching carried a query word in its *name*, and
+        rejected it for the right reason — it demoted "air conditioning" and
+        "asphalt shingles", both answered exactly, both by **alias**. The fix
+        was not to drop the rule but to see what it was actually asking. An
+        alias exists precisely because the word is not in the name; both are
+        words a person deliberately gave the tool. A new `data-strong` (name
+        plus aliases) carries that, kept apart from `data-name` so an alias
+        never earns the name weight in the ranking itself — reach and relevance
+        are different claims. "how much to charge to install a water heater"
+        now leads with the Water Heater calculator instead of the boiler, and
+        the two aliased queries are untouched.
+      - >-
+        A build failure hidden by `| tail -1`. `build.mjs` renders the hub inside
+        a template literal, so one backtick in a comment inside the injected
+        `<script>` is a SyntaxError — and two probe runs were read as evidence
+        while the artifact under test was the previous build. Both the pattern
+        and the tell are worth carrying: a probe that reports *no change*
+        deserves the same suspicion as the stale-server false pass `sweep.mjs`
+        already warns about. Checking one attribute the new build alone emits
+        settled it in a single call.
+      - >-
+        Verified locally, the runner outage still standing: 559 platform/pages
+        tests (557 before), build plus `check.mjs` at 164 products / 445 pages
+        with no dead links, `sweep.mjs` 164/164, `journey.mjs` 0 failed checks
+        and 0 page/console errors, `contrast.mjs` clean across 443 pages × 2
+        viewports, and a 69-assertion Chromium pass at 390px. The 48 single-word
+        queries from #1974 return byte-identical results.

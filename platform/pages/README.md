@@ -323,21 +323,61 @@ every word. Closest N:"** — presenting near-misses as matches would be its own
 wrong answer. A query no tool answers (`locksmith rekey`) keeps the honest
 empty state.
 
-Two constraints on that fallback, both of them measured rather than assumed:
+It also runs on the mirror-image failure: **a sentence that matches exactly one
+tool by accident**. `how much to charge to install a water heater` returned the
+*boiler* calculator alone — it happens to use every content word somewhere in
+its copy, and the water-heater calculator does not say "install". One confident
+wrong answer is worse than none, so the shortlist fires when nothing that
+matched carries a query word in `data-strong`: the tool's name plus its
+aliases, the words a person deliberately gave it. A tool nobody named and
+nobody aliased is a coincidence, not an answer, and the label says so — "No
+tool is named for that. Closest N:".
 
-- **Only when the strict pass found nothing.** An earlier version also fired
-  when nothing that matched had a query word in its *name*, to catch the
-  sentence that matches one tool by coincidence (`how much to charge to install
-  a water heater` returns the boiler calculator, which happens to use all five
-  words). It cost more than it bought: an alias hit is a curated signal and has
-  no name word by definition, so `air conditioning` and `asphalt shingles` —
-  both answered exactly, both by alias — were demoted behind loose matches. A
-  rule that fixes one query and breaks three is not a rule.
-- **Scored at a token boundary**, even though both strict passes have just
-  failed. The loose substring pass exists so a half-typed word still matches;
-  reused for ranking it scores `air` inside *stair*, *chair* and *repair*, and
-  the shortlist fills with the wrong trade — measured, it put the stair-lift
-  and wheelchair-ramp calculators above the two cooling tools.
+Three constraints on that fallback, all measured rather than assumed:
+
+- **Aliases have to count as named.** An earlier version tested the name alone.
+  An alias exists precisely *because* the word is not in the name, so that
+  version demoted `air conditioning` (8 results led by Stair Lift) and `asphalt
+  shingles` (Roofing pushed to third) — both of which were being answered
+  exactly, both by alias. Hence `data-strong`, kept apart from `data-name` so
+  an alias never earns the name weight in the ranking itself: reach and
+  relevance are different claims.
+- **Only when it offers something the strict pass did not.** For a one-word
+  query the two sets are the same by construction, and labelling an exact
+  answer as approximate would be the page lying about its own result.
+- **Scored at a token boundary**, even where the loose pass is in force. That
+  pass exists so a half-typed word still matches; reused for ranking it scores
+  `air` inside *stair*, *chair* and *repair*, and the shortlist fills with the
+  wrong trade — measured, it put the stair-lift and wheelchair-ramp calculators
+  above the two cooling tools.
+
+### Catalogue stopwords, derived rather than listed
+
+`SEARCH_STOPWORDS` is generic English. `catalogueStopwords` is the domain half,
+and it is **computed from the built catalogue** on every build: a word in at
+least `CATALOGUE_STOPWORD_SHARE` (35%) of tool indexes cannot narrow a search.
+At 164 tools that is `see` (70%), `away` (59%), `charge` (54%), `much` (52%),
+`special` (43%) and `not` (37%) — house phrasing ("see what a 5× special
+costs", "what to charge") rather than anything a visitor is looking for. The
+next word down is `number` at 32%, so the exact cut is not load-bearing.
+
+Derived, because the copy changes every time a tool ships and a hand-written
+list would be describing last month's catalogue. It matters because the matcher
+ANDs: a word in half the indexes costs nothing, but that same word can exclude
+the one tool whose copy happens not to use it. Dropping `much` and `charge`
+turns `how much to charge to install a water heater` into `install water
+heater`, which the closest-match pass then answers with the Water Heater
+Replacement Bid Calculator instead of the boiler.
+
+**A word that appears in any tool's name is never a stopword, however common.**
+That rule is what makes the cut safe: `quote` is in three names (Notary Trip
+Quote, Translator Project Quote, 3PL Quote Normalizer) and `rate` in one, so
+neither can be dropped and searching a tool by its own name keeps working.
+Without it a frequency cut would quietly delete tools from the search — the
+worst possible outcome for the box that exists to find them. `build.test.mjs`
+pins both halves: every derived stopword is gone from every card's index *and*
+present in the page's query filter, and no card's name word is ever in that
+filter.
 
 An alias key is matched against the slug's `-`-separated words as a contiguous
 run, not as a raw substring. That is a fix, not a refinement: a substring test
