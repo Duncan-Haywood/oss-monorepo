@@ -501,7 +501,7 @@
       el('inches').textContent = `${result.weightedInches.toFixed(1)} in`;
       el('rAdded').textContent = `R-${result.weightedRAdded.toFixed(0)}`;
       el('blowHours').textContent = `${result.blowHours.toFixed(2)} h`;
-      el('airSealHours').textContent = `${result.airSealHours.toFixed(2)} h${result.airSealShareOfLabor === null ? '' : ` (${result.airSealShareOfLabor.toFixed(0)}% of blow+seal+baffle+removal)`}`;
+      el('airSealHours').textContent = `${result.airSealHours.toFixed(2)} h${result.airSealShareOfLabor === null ? '' : ` (${result.airSealShareOfLabor.toFixed(0)}% of blow + seal + baffle + removal)`}`;
       el('extraHours').textContent = `${(result.baffleHours + result.removalHours).toFixed(2)} h`;
       el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h${result.minimumApplied ? ' (minimum)' : ''}`;
       el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;

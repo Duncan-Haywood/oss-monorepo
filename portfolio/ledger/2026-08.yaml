@@ -28171,3 +28171,41 @@ entries:
         a 640px query. +15 KB on an 18 MB site. Not deployed: publishing is
         still the owner's `deploy-settings` flip.
     mrr_end: null
+  - venture: platform/pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The last four pages that scrolled sideways, closed in the four
+        ventures that owned them.** After the build-time reflow pass, `320px`
+        — the width WCAG 1.4.10 names — still found four of 445, and each was a
+        shape no shared stylesheet should reach.
+        `attic-insulation-bid-calculator` (+35px) printed
+        `2.16 h (36% of blow+seal+baffle+removal)`, and that one token has no
+        space or hyphen to wrap at, so it set the width of the whole value
+        column; the sentence now reads `blow + seal + baffle + removal`, which
+        is better copy anyway. `saas-seat-true-up` (+34px) and
+        `music-lesson-break-even` (+17px) each lay their result metrics in two
+        fixed columns, which leaves ~140px a column at 320px and "seat
+        utilization" under a $432.00 needs more; both stack below 380px.
+        `seller-net-sheet` (+9px) set its headline at 2.8rem, and $119,057.50 is
+        290px of digits with no break opportunity — `clamp(1.9rem, 11vw,
+        2.8rem)` now, as large as the card can hold and never larger.
+      - >-
+        **445 of 445 at both 320px and 360px.** A long unbreakable token and a
+        fixed-column grid are real layout decisions a venture is entitled to
+        make; overriding either from the shared stylesheet would have been the
+        blunt `:where(*){min-width:0}` rule again, in a new place — the one that
+        was measured a day earlier and clipped 372 result labels. So the shared
+        pass stops where it stops and the README names what each venture had to
+        do instead.
+      - >-
+        Verified: 642 `platform/pages` tests, the four ventures' own suites
+        (100 / 9 / 7 / 18, all green), `build.mjs` over 164 tools, `check.mjs`
+        publishable with no dead links, `sideways.mjs` **0/445 at 320px and
+        360px**, `sweep.mjs` 164/164, `contrast.mjs` 444 pages x 2 viewports
+        with no WCAG A/AA violations, and `roundtrip.mjs` 4/4 over the touched
+        ventures. Clipped-text counts are back to the pre-reflow baseline
+        exactly. Not deployed: publishing is still the owner's
+        `deploy-settings` flip.
+    mrr_end: null

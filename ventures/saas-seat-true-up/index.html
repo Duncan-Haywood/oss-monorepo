@@ -19,6 +19,11 @@
     .results { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; } .metric { background:#f1e9dd; border-radius:12px; padding:16px; } .metric strong { display:block; font-size:1.6rem; } .metric span { color:var(--muted); font-size:.9rem; }
     .callout { margin-top:18px; border-left:4px solid var(--accent); padding:12px 15px; background:#fff5ed; } footer { color:var(--muted); font-size:.85rem; margin-top:32px; } a { color:inherit; }
     @media (max-width:700px) { main { padding-top:30px; } .grid { grid-template-columns:1fr; } }
+    /* Two 1fr columns leave ~140px each on a 320px phone, and "seat
+       utilization" under a $432.00 needs more than that — the pair pushed the
+       whole page 34px wider than the window, so every figure on it rendered
+       zoomed out. Stacked below that width instead. */
+    @media (max-width:380px) { .results { grid-template-columns:1fr; } }
   </style>
 </head>
 <body><main>

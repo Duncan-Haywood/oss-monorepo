@@ -1624,13 +1624,13 @@ Measured on a build of `main` before `reflow.mjs`, and after:
 
 | viewport | before | after |
 |---|---|---|
-| 320px (WCAG 1.4.10) | 60 of 445 | 4 |
+| 320px (WCAG 1.4.10) | 60 of 445 | **0** |
 | 360px (a common Android) | 39 | **0** |
 | 390px (what `sweep.mjs` drives) | 7 | **0** |
 
-The default is 360 because that is the phone this audience carries; 320 is the
-width the standard names and is worth running — the four it still finds are
-named in [Reflow](#reflow-and-the-two-things-that-widen-a-page) below.
+The default is 360 because that is the phone this audience carries. `WIDTH=320`
+is the width the standard names and is also clean; run it before believing a
+narrow-viewport change.
 
 Not in CI, for the same reason as the five above.
 
@@ -1665,12 +1665,27 @@ term column of every `<dl>` laid out as a grid: **372 result labels across 70
 pages** painted over their own values, which is worse than the bug it fixed. A
 definition list holds neither a control nor a table and no longer matches.
 
-Still outstanding at 320px, all four the same shape — a two-column result panel
-whose own content sets a minimum wider than the window:
-`saas-seat-true-up` (+34px, `div.metric`), `attic-insulation-bid-calculator`
-(+35px, `dd#squares`), `music-lesson-break-even` (+17px), and
-`seller-net-sheet` (+9px, an `$119,057.50` at 44.8px that cannot wrap). Each
-needs its own venture's narrow-viewport rule rather than another site-wide one.
+### The four that needed their own rule
+
+Four pages survived both build-time rules at 320px, and each needed a fix in its
+own venture rather than another site-wide one. They are worth reading as the
+shapes a site-wide rule cannot reach:
+
+- **`attic-insulation-bid-calculator`**, +35px. One `<dd>` read `2.16 h (36% of
+  blow+seal+baffle+removal)`, and `blow+seal+baffle+removal` has no space or
+  hyphen to wrap at, so that one token set the width of the whole value column.
+  Fixed in the sentence — `blow + seal + baffle + removal` — which reads better
+  on the sheet anyway.
+- **`saas-seat-true-up`** (+34px) and **`music-lesson-break-even`** (+17px). A
+  two-column `.results` grid leaves ~140px a column at 320px, and "seat
+  utilization" under a `$432.00` needs more. Stacked below 380px.
+- **`seller-net-sheet`**, +9px. `$119,057.50` at `2.8rem` is 290px of digits
+  with no break opportunity in them. The headline is `clamp(1.9rem, 11vw,
+  2.8rem)` now: as large as the card can hold, never larger.
+
+A long unbreakable token and a fixed-column grid are both real layout decisions
+a venture is entitled to make. Overriding either from the shared stylesheet
+would be the blunt rule again, in a new place.
 
 ## Deploying
 
