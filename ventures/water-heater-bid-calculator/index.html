@@ -327,6 +327,12 @@
       overlongTermsNote } from './proposal-terms.mjs';
 
     const DRAFT_KEY = 'water-heater-bid-draft';
+    // Declared here (not beside COMPANY_KEY below) so the local draft save/load
+    // wired a few lines down can read them without a temporal-dead-zone error —
+    // `writeInputs(loadDraft())` runs before the script reaches the
+    // "Customer-facing proposal" section.
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
     const CHECKBOX_FIELDS = new Set([
       'expansionTank', 'dripPan', 'condensate', 'recirc', 'haulAway', 'seismic', 'mixingValve', 'isolationValves',
     ]);
@@ -377,7 +383,18 @@
         try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
         return;
       }
-      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs())); } catch { /* ignore */ }
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          ...readInputs(),
+          // The deposit split, valid-until days, customer name/address, and the
+          // proposal's payment-terms/notes/exclusions text live on this same
+          // form but outside INPUT_FIELDS. Leaving them out is the local-draft
+          // version of the bug proposal-terms.mjs documents for shared links:
+          // the price restores exactly and the deposit quietly reverts to the
+          // page default, with nothing on screen saying so.
+          proposal: Object.fromEntries([...CLIENT_IDS, ...TERM_IDS].map((id) => [id, el(id).value])),
+        }));
+      } catch { /* ignore */ }
     }
 
     function loadDraft() {
@@ -540,6 +557,12 @@
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
     });
+    // Client/deposit/proposal fields aren't calculator inputs, so update()
+    // never runs for them — without their own listener, editing only these
+    // and never touching a calculator field would save nothing.
+    [...CLIENT_IDS, ...TERM_IDS].forEach((id) => {
+      el(id)?.addEventListener('input', saveDraft);
+    });
     el('usageOptOut').addEventListener('change', update);
     el('draftOptOut').addEventListener('change', saveDraft);
     el('copySummary').addEventListener('click', () => {
@@ -553,13 +576,19 @@
       window.print();
     });
 
-    writeInputs(loadDraft());
+    const restoredDraft = loadDraft();
+    writeInputs(restoredDraft);
+    // A share-link load already applied its five terms via applyTerms() inside
+    // loadDraft() and carries no `.proposal` (customer name/address never ride
+    // a share link, by design — see proposal-terms.mjs). A local-draft load
+    // does carry `.proposal`; apply it here, now that CLIENT_IDS/TERM_IDS exist.
+    Object.entries(restoredDraft.proposal || {}).forEach(([id, value]) => {
+      if ([...CLIENT_IDS, ...TERM_IDS].includes(id) && el(id)) el(id).value = value;
+    });
 
     // ---- Customer-facing proposal -------------------------------------------
 
     const COMPANY_KEY = 'water-heater-bid-company';
-    const CLIENT_IDS = ['clientName', 'clientAddress'];
-    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
 
     // Printed at the foot of the customer's copy. Typographic apostrophes only:
     // a straight one closes this string and the whole module stops parsing.

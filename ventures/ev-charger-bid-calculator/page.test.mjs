@@ -119,3 +119,21 @@ test('the proposal flag is set for the customer sheet and cleared afterwards', (
     'nothing tells the stylesheet the customer sheet is the one printing');
   assert.match(proposalScript, /afterprint[\s\S]*?classList\.remove\('printing-proposal'\)/);
 });
+
+test('the local draft carries the deposit, valid-until, and customer/proposal-terms fields, not just the pricing inputs', () => {
+  // The price restoring perfectly while the deposit split silently reverts to
+  // the page default is the exact defect proposal-terms.mjs documents for
+  // shared bid links -- here it is the local draft instead of a link.
+  // persistDraft() must read CLIENT_IDS/TERM_IDS (deposit %, valid days,
+  // customer name/address, payment terms, notes, exclusions) and
+  // restoreDraft() must write them back, or a contractor's saved job reopens
+  // with the right price and the wrong money-on-acceptance.
+  const persistDraftFn = proposalMarkup.match(/function persistDraft\(\)\s*\{[\s\S]*?\n    \}/);
+  assert.ok(persistDraftFn, 'persistDraft() not found');
+  assert.match(persistDraftFn[0], /CLIENT_IDS/, 'persistDraft() does not save the customer name/address fields');
+  assert.match(persistDraftFn[0], /TERM_IDS/, 'persistDraft() does not save the deposit/valid-days/terms fields');
+
+  const restoreDraftFn = proposalMarkup.match(/function restoreDraft\(\)\s*\{[\s\S]*?\n    \}/);
+  assert.ok(restoreDraftFn, 'restoreDraft() not found');
+  assert.match(restoreDraftFn[0], /saved\.proposal/, 'restoreDraft() does not restore the saved proposal-terms fields');
+});
