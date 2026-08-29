@@ -1636,6 +1636,179 @@ export function keepSentence(bids) {
 }
 
 /**
+ * How many decided bids one tool needs on each side of the split.
+ *
+ * Four, the same floor `MIN_WIN_RATE_PER_TOOL` sets and for the same reason: at
+ * four the achievable rates are quarters, so the smallest gap this can report
+ * is two bids wide rather than one. It is a floor per half rather than per
+ * tool, so a trade needs eight decided bids before it can be read at all —
+ * which is the price of asking a question about change rather than about state.
+ */
+export const MIN_TREND_PER_HALF = 4;
+
+/**
+ * How far the landing rate must move between the halves before it is a finding.
+ *
+ * Forty points, matching `WIN_RATE_SPLIT_POINTS`, because at the four-bid floor
+ * both readings face the same step size: quarters, where forty admits a gap of
+ * two bids and refuses a gap of one. One bid of difference is what a single
+ * unusual job looks like — the customer's brother-in-law underbidding once —
+ * and a reading that called that a change in how the work is landing would send
+ * a contractor to re-cost a trade that never moved.
+ */
+export const TREND_SPLIT_POINTS = 40;
+
+/**
+ * Whether what this contractor changed is working.
+ *
+ * Every other reading on the hub is a snapshot: a rate, a share, a band, pooled
+ * over the whole book. That is the right shape for "how am I doing" and the
+ * wrong shape for the question that follows it. A book is accumulated over
+ * months. A shop that raised its rates in June, or re-costed decks *because*
+ * `winRateSentence` told them to in May, reads a pooled rate that averages
+ * before and after — so the change they made is not merely invisible, it is
+ * diluted by exactly the half of the book it was meant to fix. The louder the
+ * change, the more the snapshot hides it.
+ *
+ * This is the reading that closes that loop, and it is the only one here that
+ * asks when a bid was priced rather than only what became of it.
+ *
+ *   "Deck Bid Calculator has been landing less often than it was: 1 of 5 on the
+ *    5 most recent, against 4 of 5 before them."
+ *
+ * The choices that make it honest:
+ *
+ *   - **Inside one tool, never pooled.** A movement summed across trades mixes
+ *     a fence change with a deck change and describes neither. The whole point
+ *     is to name the trade that moved, so the trade is the unit.
+ *   - **Ordered by `at` — when the bid was priced — not by `decidedAt`.** The
+ *     thing under examination is the price, and the price was set when the bid
+ *     was made; an old quote answered late would otherwise land in the recent
+ *     half and be counted against a number this shop no longer charges. `at` is
+ *     also the field `normalizeBid` requires, where `decidedAt` is absent on
+ *     every bid decided before that field existed, so ordering by it would drop
+ *     rows silently.
+ *   - **Halves by count, not by calendar.** "The last 90 days" gives an empty
+ *     half to a shop that quotes four jobs a month, and two halves of wildly
+ *     different size to everyone else — and a difference between 1 of 3 and 5
+ *     of 9 is partly just the denominators. Equal halves make the two counts
+ *     readable straight across, which is the sentence's whole grammar. On an
+ *     odd count the middle bid belongs to neither side rather than being lent
+ *     to one of them.
+ *   - **The turn is dated in days back**, off the oldest bid in the recent
+ *     half. That is a fact about the sample rather than a claim about when
+ *     anything changed, and it is what gives the contractor a period to think
+ *     about instead of an instruction.
+ *   - **Never a target, and never a cause.** The second sentence says plainly
+ *     that a slow season or a run of unusual jobs moves this as much as a price
+ *     does. A tool that printed the cause would be inventing the finding rather
+ *     than reporting it.
+ *
+ * Returns `''` when no tool has eight decided bids or none has moved far
+ * enough — the ordinary case for a book where nothing changed, and the right
+ * answer for it.
+ */
+export function trendSentence(rows, nowMs) {
+  if (!rows || !rows.length) return '';
+
+  var byTool = {};
+  var slugs = [];
+
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    if (!row || typeof row !== 'object') continue;
+    if (row.outcome !== 'won' && row.outcome !== 'lost') continue;
+    var slug = typeof row.slug === 'string' ? row.slug : '';
+    if (!slug) continue;
+    var at = typeof row.at === 'string' ? row.at : '';
+    if (!at) continue;
+    // A bid whose date will not parse cannot be placed on either side of the
+    // split, and placing it anyway would put it wherever the store happened to
+    // hold it. Dropped from this reading only; every other line still counts it.
+    var t = Date.parse(at);
+    if (t !== t) continue;
+    if (!byTool[slug]) {
+      byTool[slug] = { slug: slug, label: slug, bids: [] };
+      var label = typeof row.label === 'string' ? row.label.trim() : '';
+      if (label) byTool[slug].label = label;
+      slugs.push(slug);
+    }
+    byTool[slug].bids.push({
+      at: at,
+      t: t,
+      won: row.outcome === 'won',
+      name: typeof row.name === 'string' ? row.name : '',
+    });
+  }
+
+  var best = null;
+
+  for (var s = 0; s < slugs.length; s++) {
+    var tool = byTool[slugs[s]];
+    var half = Math.floor(tool.bids.length / 2);
+    if (half < MIN_TREND_PER_HALF) continue;
+
+    // Oldest first, with the bid's own name breaking ties so two bids saved in
+    // the same second cannot swap sides of the split between two renders of
+    // the same book.
+    tool.bids.sort(function (a, b) {
+      return a.t - b.t || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    });
+
+    var earlier = tool.bids.slice(0, half);
+    var later = tool.bids.slice(tool.bids.length - half);
+
+    var earlierWon = 0;
+    var laterWon = 0;
+    for (var e = 0; e < half; e++) {
+      if (earlier[e].won) earlierWon++;
+      if (later[e].won) laterWon++;
+    }
+
+    // Exact, because the denominators are equal by construction: the point
+    // difference is the bid difference over the half size.
+    var move = ((laterWon - earlierWon) / half) * 100;
+    if (Math.abs(move) < TREND_SPLIT_POINTS) continue;
+
+    var candidate = {
+      label: tool.label,
+      slug: tool.slug,
+      half: half,
+      earlierWon: earlierWon,
+      laterWon: laterWon,
+      move: move,
+      turnedAt: later[0].at,
+    };
+    // The furthest movement, with the slug breaking ties: only one trade is
+    // named, for the reason every reading here names one — a table of small
+    // movements is a thing to read, and this is a thing to go and act on.
+    if (!best ||
+      Math.abs(candidate.move) > Math.abs(best.move) ||
+      (Math.abs(candidate.move) === Math.abs(best.move) && candidate.slug < best.slug)) {
+      best = candidate;
+    }
+  }
+
+  if (!best) return '';
+
+  var centre = best.label + ' has been landing ' +
+    (best.move < 0 ? 'less' : 'more') + ' often than it was: ' +
+    best.laterWon + ' of ' + best.half + ' on the ' + best.half + ' most recent, against ' +
+    best.earlierWon + ' of ' + best.half + ' before them.';
+
+  var since = bidWaitingDays(best.turnedAt, nowMs);
+  var when = since === null || !(since > 0)
+    ? ''
+    : ' The recent half starts ' + since + (since === 1 ? ' day' : ' days') + ' back.';
+
+  var edge = ' Both halves hold the same number of bids, so the counts read straight across — ' +
+    'but they are two halves of one trade’s own book, and a slow season or a run of ' +
+    'unusual jobs moves this as much as a price does. It says where to look, not what changed.';
+
+  return centre + when + edge;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -1790,8 +1963,13 @@ export const BID_PRICING_HELPERS = [
   `var MIN_KEEP_PER_TOOL = ${MIN_KEEP_PER_TOOL};`,
   `var MIN_KEEP_TOOLS = ${MIN_KEEP_TOOLS};`,
   `var KEEP_SPREAD_POINTS = ${KEEP_SPREAD_POINTS};`,
+  `var MIN_TREND_PER_HALF = ${MIN_TREND_PER_HALF};`,
+  `var TREND_SPLIT_POINTS = ${TREND_SPLIT_POINTS};`,
+  // `trendSentence` calls `bidWaitingDays`, which is not in this bundle: it
+  // arrives with `BID_FOLLOW_UP_HELPERS`, which the hub emits above this one.
+  // Nothing here may be injected on its own.
   ...[normalizeLostTo, normalizeJobCost, bidAmountValue, pricingSentence, winRateSentence,
-    keepSentence].map(
+    keepSentence, trendSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');

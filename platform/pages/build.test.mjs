@@ -1800,9 +1800,10 @@ test('the hub carries the winning price its pricing reading is computed from', a
 test('the hub draws the pooled pricing reading, and counts it once per change', async () => {
   const hub = await read('index.html');
   assert.match(hub, /<p class="bid-pricing" id="bidsPricing" hidden><\/p>/);
-  // One rule for all three standing readings, so the pricing line and the two
+  // One rule for all four standing readings, so the pricing line and the three
   // beneath it cannot drift apart visually.
-  assert.match(hub, /\.bids \.bid-pricing,\s*\.bids \.bid-win-rate,\s*\.bids \.bid-keep \{/);
+  assert.match(hub,
+    /\.bids \.bid-pricing,\s*\.bids \.bid-win-rate,\s*\.bids \.bid-trend,\s*\.bids \.bid-keep \{/);
   const script = hub.slice(hub.indexOf('function showSavedBids'));
   // Read off every row, not the eight drawn — otherwise the reading would
   // change when the visitor pressed "Show all".
@@ -1869,6 +1870,31 @@ test('the hub draws which trade keeps most, and counts it once per change', asyn
   // The body the hub runs is the tested one, embedded rather than rewritten.
   assert.ok(hub.includes('var keepSentence = function keepSentence('),
     'keepSentence is not embedded in the hub');
+});
+
+test('the hub draws whether a trade has been landing differently, on every row', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<p class="bid-trend" id="bidsTrend" hidden><\/p>/);
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  // Off every row, and here that rule is load-bearing rather than merely
+  // consistent: this reading splits a tool's bids into an older and a newer
+  // half, and the eight rows the page draws are the newest — so computing it
+  // from them would compare the recent half against itself and report that
+  // nothing has changed, on every book, forever.
+  assert.match(script, /const trending = trendSentence\(rows, now\)/);
+  assert.match(script, /trend\.hidden = trending === ''/);
+  // Counted on change, and the event names no trade and no direction.
+  assert.match(script, /record\('saved_bid_trend_shown'\)/);
+  assert.ok(!/record\('saved_bid_trend_shown:' ?\+/.test(script), 'the event names nothing');
+  // The body the hub runs is the tested one, embedded rather than rewritten —
+  // and it needs bidWaitingDays, which arrives with the follow-up helpers the
+  // hub emits above these. A reading whose date clause silently threw would
+  // take the whole saved-bid section down with it.
+  assert.ok(hub.includes('var trendSentence = function trendSentence('),
+    'trendSentence is not embedded in the hub');
+  assert.ok(hub.indexOf('var bidWaitingDays = function bidWaitingDays(') <
+    hub.indexOf('var trendSentence = function trendSentence('),
+    'trendSentence is emitted before the helper it calls');
 });
 
 test('the hub ships the percentage half of the pricing code and not the money half', async () => {

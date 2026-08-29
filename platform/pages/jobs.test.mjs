@@ -26,6 +26,9 @@ import {
   MIN_KEEP_TOOLS,
   KEEP_SPREAD_POINTS,
   keepSentence,
+  MIN_TREND_PER_HALF,
+  TREND_SPLIT_POINTS,
+  trendSentence,
   normalizeJobCost,
   marginSentence,
   PRICE_BAND_CLAUSE,
@@ -2053,5 +2056,185 @@ ${BID_PRICING_HELPERS}
       kept('c', '£400', '300', 'C'), kept('c', '$400', '300', 'C')],
   ]) {
     assert.equal(evaluated(book), keepSentence(book), JSON.stringify(book && book.length));
+  }
+});
+
+// --- the hub's trend reading ------------------------------------------------
+
+// A decided bid on a named tool, dated. Only three fields matter here — when it
+// was priced, which tool priced it, and what became of it — which is exactly
+// the argument for the reading: it needs no figure and no currency, so it draws
+// for a book where every money reading in the portfolio draws nothing.
+const TREND_NOW = Date.parse('2026-08-29T09:00:00.000Z');
+const trendDay = (n) => new Date(TREND_NOW - n * 86400000).toISOString();
+const landed = (slug, dayssince, outcome, label) => ({
+  name: slug + ' ' + dayssince, at: trendDay(dayssince), slug, outcome,
+  ...(label ? { label } : {}),
+});
+
+// Eight fence bids: the four oldest won, the four newest lost. The pooled win
+// rate over the same book is 50%, which is the whole point — winRateSentence
+// reads "4 of 8" and cannot see that the shop stopped winning.
+const turned = [
+  landed('fence-bid-calculator', 200, 'won', 'Fence bid calculator'),
+  landed('fence-bid-calculator', 180, 'won', 'Fence bid calculator'),
+  landed('fence-bid-calculator', 160, 'won', 'Fence bid calculator'),
+  landed('fence-bid-calculator', 140, 'won', 'Fence bid calculator'),
+  landed('fence-bid-calculator', 60, 'lost', 'Fence bid calculator'),
+  landed('fence-bid-calculator', 40, 'lost', 'Fence bid calculator'),
+  landed('fence-bid-calculator', 20, 'lost', 'Fence bid calculator'),
+  landed('fence-bid-calculator', 10, 'lost', 'Fence bid calculator'),
+];
+
+test('a trade that has stopped landing is named, where the pooled rate cannot', () => {
+  const sentence = trendSentence(turned, TREND_NOW);
+  assert.match(sentence, /^Fence bid calculator has been landing less often than it was: /);
+  assert.match(sentence, /0 of 4 on the 4 most recent, against 4 of 4 before them\./);
+  // The turn is dated off the oldest bid in the recent half, which is a fact
+  // about the sample rather than a claim about when anything changed.
+  assert.match(sentence, /The recent half starts 60 days back\./);
+  // What winRateSentence says about the identical book, for contrast: a rate
+  // that averages the shop's before and after into a number describing neither.
+  assert.match(winRateSentence(turned), /You have won 4 of 8 decided bids — 50%\./);
+});
+
+test('the other direction reads the same way round', () => {
+  const recovered = turned.map((bid) => ({
+    ...bid, outcome: bid.outcome === 'won' ? 'lost' : 'won',
+  }));
+  assert.match(trendSentence(recovered, TREND_NOW),
+    /^Fence bid calculator has been landing more often than it was: 4 of 4 on the 4 most recent/);
+});
+
+test('the halves are equal, so the counts read straight across', () => {
+  // Nine decided bids: the middle one belongs to neither half rather than being
+  // lent to one of them, which would make a four-bid half a five-bid half and
+  // the two counts no longer comparable.
+  const odd = [
+    ...turned.slice(0, 4),
+    landed('fence-bid-calculator', 100, 'won', 'Fence bid calculator'),
+    ...turned.slice(4),
+  ];
+  const sentence = trendSentence(odd, TREND_NOW);
+  assert.match(sentence, /0 of 4 on the 4 most recent, against 4 of 4 before them\./);
+  assert.match(sentence, /Both halves hold the same number of bids/);
+});
+
+test('bids are split by when they were priced, not by when they were answered', () => {
+  // One of the four old winners was only answered last week. Ordering by
+  // decidedAt would drag it into the recent half and credit this shop's current
+  // prices with a job quoted at last year's.
+  const lateAnswer = turned.map((bid, i) => (
+    i === 0 ? { ...bid, decidedAt: trendDay(3) } : { ...bid, decidedAt: bid.at }
+  ));
+  assert.equal(trendSentence(lateAnswer, TREND_NOW), trendSentence(turned, TREND_NOW));
+});
+
+test('the trend reading needs eight decided bids on one trade', () => {
+  assert.equal(MIN_TREND_PER_HALF, 4);
+  // Seven of the eight: three a side once the middle is dropped, one short.
+  assert.equal(trendSentence(turned.slice(1), TREND_NOW), '');
+  assert.equal(trendSentence(turned, TREND_NOW) === '', false);
+  // Eight decided bids split over two trades is not eight on either of them. A
+  // movement pooled across trades would mix a fence change with a deck change
+  // and describe neither.
+  const split = turned.map((bid, i) => (
+    i % 2 ? { ...bid, slug: 'deck-bid-calculator', label: 'Deck bid calculator' } : bid
+  ));
+  assert.equal(trendSentence(split, TREND_NOW), '');
+});
+
+test('one bid of difference is not a change in how the work is landing', () => {
+  assert.equal(TREND_SPLIT_POINTS, 40);
+  // 3 of 4 against 2 of 4 — 25 points, one job, the customer's brother-in-law.
+  const flat = turned.map((bid, i) => (
+    { ...bid, outcome: i === 3 ? 'lost' : i === 4 || i === 5 ? 'won' : bid.outcome }
+  ));
+  assert.equal(trendSentence(flat, TREND_NOW), '');
+  // 3 of 4 against 1 of 4 — 50 points, two jobs, and reportable.
+  const moved = flat.map((bid, i) => (i === 5 ? { ...bid, outcome: 'lost' } : bid));
+  assert.match(trendSentence(moved, TREND_NOW), /1 of 4 on the 4 most recent, against 3 of 4/);
+});
+
+test('only the furthest movement is named, and stably', () => {
+  const decks = [
+    landed('deck-bid-calculator', 200, 'won', 'Deck bid calculator'),
+    landed('deck-bid-calculator', 180, 'won', 'Deck bid calculator'),
+    landed('deck-bid-calculator', 160, 'won', 'Deck bid calculator'),
+    landed('deck-bid-calculator', 140, 'lost', 'Deck bid calculator'),
+    landed('deck-bid-calculator', 60, 'lost', 'Deck bid calculator'),
+    landed('deck-bid-calculator', 40, 'lost', 'Deck bid calculator'),
+    landed('deck-bid-calculator', 20, 'lost', 'Deck bid calculator'),
+    landed('deck-bid-calculator', 10, 'won', 'Deck bid calculator'),
+  ];
+  // Decks moved 3-of-4 to 1-of-4; fences moved 4-of-4 to 0-of-4. Fences moved
+  // further, so fences is the trade to go and look at.
+  const book = [...decks, ...turned];
+  assert.match(trendSentence(book, TREND_NOW), /^Fence bid calculator/);
+  assert.equal(trendSentence(book, TREND_NOW), trendSentence([...book].reverse(), TREND_NOW));
+  // Two trades that moved by exactly the same amount cannot swap places between
+  // two renders of the same book.
+  const tied = turned.map((bid) => (
+    { ...bid, slug: 'zzz-calculator', label: 'Zzz', name: 'z' + bid.name }
+  ));
+  const both = [...turned, ...tied];
+  assert.match(trendSentence(both, TREND_NOW), /^Fence bid calculator/);
+  assert.equal(trendSentence(both, TREND_NOW), trendSentence([...both].reverse(), TREND_NOW));
+});
+
+test('the trend reading counts only decided bids it can place in time', () => {
+  const drawn = trendSentence(turned, TREND_NOW);
+  assert.notEqual(drawn, '');
+  for (const noise of [
+    // Still waiting on an answer: it has no side of the split to be on.
+    { name: 'waiting', at: trendDay(1), slug: 'fence-bid-calculator' },
+    // A date the browser cannot parse cannot be placed either, and placing it
+    // anyway would put it wherever the store happened to hold it.
+    { name: 'garbled', at: 'last Tuesday', slug: 'fence-bid-calculator', outcome: 'lost' },
+    // A bid whose tool the hub no longer shows carries no trade to name.
+    { name: 'no slug', at: trendDay(1), outcome: 'lost' },
+  ]) {
+    assert.equal(trendSentence([...turned, noise], TREND_NOW), drawn, noise.name);
+  }
+});
+
+test('the trend reading never states a rate to aim for, or a cause', () => {
+  // The guard winRateSentence and keepSentence both carry. There is no correct
+  // win rate and this reading cannot see why one moved, so both branches say so
+  // rather than inventing the number or the reason its reader came here for.
+  for (const book of [turned, turned.map((bid) => (
+    { ...bid, outcome: bid.outcome === 'won' ? 'lost' : 'won' }
+  ))]) {
+    const sentence = trendSentence(book, TREND_NOW);
+    assert.notEqual(sentence, '');
+    assert.doesNotMatch(sentence, /should|aim|target|too (high|low)|healthy|ideal|industry/i);
+    assert.match(sentence, /a slow season or a run of unusual jobs moves this as much as a price/);
+  }
+});
+
+test('a book with nothing to say draws nothing', () => {
+  assert.equal(trendSentence([], TREND_NOW), '');
+  assert.equal(trendSentence(null, TREND_NOW), '');
+  assert.equal(trendSentence(undefined, TREND_NOW), '');
+  // Eight decided bids that all went the same way have not moved at all.
+  assert.equal(trendSentence(turned.map((bid) => ({ ...bid, outcome: 'won' })), TREND_NOW), '');
+});
+
+test('the injected trend helper answers exactly as the module does', () => {
+  // The guarantee every reading here carries — and this one needs two bundles,
+  // because trendSentence calls bidWaitingDays, which ships with the follow-up
+  // helpers the hub emits above these.
+  const evaluated = new Function(`${BID_FOLLOW_UP_HELPERS}
+${BID_AMOUNT_HELPER}
+${BID_PRICING_HELPERS}
+    return trendSentence;`)();
+
+  for (const book of [
+    [], null, turned.slice(1), turned,
+    turned.map((bid) => ({ ...bid, outcome: bid.outcome === 'won' ? 'lost' : 'won' })),
+    [...turned, { name: 'waiting', at: trendDay(1), slug: 'fence-bid-calculator' }],
+  ]) {
+    assert.equal(evaluated(book, TREND_NOW), trendSentence(book, TREND_NOW),
+      JSON.stringify(book && book.length));
   }
 });
