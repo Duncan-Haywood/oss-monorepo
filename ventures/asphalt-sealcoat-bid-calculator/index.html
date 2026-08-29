@@ -281,6 +281,8 @@
     } from './proposal.mjs';
 // proposal:end
     import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const COST_IDS = [
       'condition','method','oilSpots','crackFeet','stalls','sand',
@@ -528,11 +530,15 @@
     }
 
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
       const url = `${location.href.split('#')[0]}#${hash}`;
       await writeClipboard(url);
       count('share_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -562,7 +568,9 @@
       }
     });
 
-    const shared = decodeShare(location.hash);
+    const incoming = splitTerms(location.hash);
+    const shared = decodeShare(incoming.payload);
+    applyTerms(decodeTerms(incoming.terms), el);
     if (shared) applyShare(shared);
     else STARTING_SURFACES.forEach(addSurfaceRow);
     update();

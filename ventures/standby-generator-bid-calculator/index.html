@@ -321,6 +321,8 @@
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const DRAFT_KEY = 'standby-generator-bid-draft';
     const el = (id) => document.getElementById(id);
@@ -371,7 +373,9 @@
     }
 
     function loadDraft() {
-      const shared = decodeInputs(location.hash || location.search);
+      const incoming = splitTerms(location.hash || location.search);
+    const shared = decodeInputs(incoming.payload);
+    applyTerms(decodeTerms(incoming.terms), el);
       if (Object.keys(shared).length) return shared;
       try {
         const raw = localStorage.getItem(DRAFT_KEY);
@@ -508,12 +512,16 @@
     }
 
     async function copyShare() {
-      const hash = encodeInputs(readInputs());
+      const terms = readTerms(el);
+      const hash = withTerms(encodeInputs(readInputs()), terms);
       const url = `${location.origin}${location.pathname}#${hash}`;
       await copyText(url);
       history.replaceState(null, '', `#${hash}`);
       count('share_link_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 

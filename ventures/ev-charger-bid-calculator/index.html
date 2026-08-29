@@ -346,6 +346,8 @@
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const FIELD_IDS = [
       'chargerAmps','runFeet','trenchFeet','location','installType','panelWork',
@@ -381,7 +383,11 @@
     }
 
     function restoreDraft() {
-      const fromUrl = decodeInputs(window.location.hash || window.location.search);
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Written before the early return below: a link that carries only the
+      // terms is still a link worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
       if (Object.keys(fromUrl).length > 0) {
         writeInputs({ ...defaultInputs(), ...fromUrl });
         return;
@@ -545,12 +551,16 @@
     }
 
     async function copyLink() {
-      const encoded = encodeInputs(readInputs());
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInputs()), terms);
       const url = `${location.origin}${location.pathname}#${encoded}`;
       history.replaceState(null, '', `#${encoded}`);
       await writeClipboard(url);
       count('share_link_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 

@@ -1348,14 +1348,32 @@ What the first run found, on 2026-08-29:
   dropped whole rather than truncated, and the *sender* is told which one stayed
   behind — the lesson from the camera calculator above, applied on the way out.
 
-  **Still open for the other 12**, which predate the shared spec and keep a
-  hand-written `SHARE_FIELDS` allowlist each (`siding`, `painting`, `deck`,
-  `drywall`, `water-heater`, `window-replacement`, `ev-charger`,
-  `standby-generator`, `chimney-sweep`, `attic-insulation`, `asphalt-sealcoat`,
-  `irrigation-winterization`). Same defect, different mechanism: each needs its
-  own allowlist extended, or the venture moved onto the shared spec.
-  `platform/proposal/terms.test.mjs` deliberately does not count them as
-  passing.
+  **And fixed for the other 12** the same day. Those predate the shared spec and
+  keep a hand-written allowlist each, in three different encodings between them
+  — a JSON payload, a query string derived from `calc.mjs`, and a cost-id list.
+  Rewriting all three onto the shared spec would mean touching the input
+  handling of twelve working calculators to carry a field none of them compute
+  with, so `platform/proposal/terms.mjs` (vendored as `proposal-terms.mjs`)
+  carries the terms *beside* whatever the venture already writes, in one
+  parameter its own decoder never sees:
+
+  ```
+  #<the venture's own payload>&pfterms=<the five terms, url-encoded>
+  ```
+
+  The value is URI-encoded whole, so an `&` or `=` inside a payment-terms clause
+  is not a boundary, and `splitTerms` hands the venture its JSON payload back
+  byte-for-byte — leaving the segment on the end would fail `JSON.parse` and
+  refuse the whole bid rather than merely dropping a field.
+  `painting-bid-calculator` is the one exception to where they ride: its own
+  payload is a *query* string, and a fragment is not sent in the request line a
+  server logs nor in a later click's `Referer`, so its terms take the fragment
+  and its numbers stay where they were.
+
+  Three guards, each checked to fail on real drift before being kept:
+  `platform/proposal/term-ids.test.mjs` (adopt.mjs, the 36 share modules and the
+  12 vendored ones all name the same five ids, and every adopting page wires
+  them), and `sync.test.mjs` (no vendored copy drifts from the canonical one).
 
 A preset select that comes back as `other`, or a scope draft that regenerates, is
 not a finding: the recipient now has custom rates, and `other` is the honest

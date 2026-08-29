@@ -425,6 +425,46 @@ from landing in one calculator and not the other eighty-seven.
 node platform/proposal/adopt.mjs --sync
 ```
 
+`terms.mjs` is vendored the same way, into the 12 calculators that carry the
+proposal terms in a bid link without using the shared bid spec — but under the
+name `proposal-terms.mjs`, because `einvoice-preflight` already ships a
+`terms.mjs` of its own about invoice payment terms, and two unrelated files with
+one name is how a sync test starts comparing the wrong pair. `sync.test.mjs`
+knows the mapping.
+
+## The terms in a bid link
+
+The panel asks for five things no calculator computes with: the deposit, how
+long the price is held, the not-included list, the payment terms, and the notes.
+Every share encoder on this site was therefore built without them, and until
+2026-08-29 all 48 adopting tools dropped all five.
+
+That is not cosmetic. Driven in Chromium against the pre-fix build of
+`artificial-turf-bid-calculator`: a bid priced at a 50% deposit held for 15 days
+reopened from its own link at the venture's defaults, and the proposal the
+recipient printed asked the customer for **$1,640.44** on acceptance where the
+sender's sheet said **$2,734.07**. The headline figure matched to the cent, so
+nothing on either page suggested a disagreement.
+
+Two mechanisms carry them now, because the tools have two share mechanisms:
+
+- **36 on the shared bid spec** — `share.mjs` gained a `text` kind, and
+  `withProposalTerms` folds the five ids in. They ride in the link *and* in the
+  setter's own saved bid, so the terms are typed once.
+- **12 that predate it** — `proposal-terms.mjs` appends them beside whatever the
+  venture's own encoder wrote, under `pfterms`. See `platform/pages/README.md`
+  for the format and the one venture whose terms take the fragment while its
+  numbers stay in the query string.
+
+Either way a block past `MAX_TERM_TEXT` (512, matching
+`platform/pages/link.mjs`) is dropped whole rather than truncated, and the
+*sender* is told which one stayed behind. Half a payment-terms clause presented
+to the recipient as the sender's terms is worse than an empty field.
+
+`term-ids.test.mjs` is what keeps `TERM_IDS` here, the 36 share modules and the
+12 vendored ones one list: add a term to the panel without adding it to the
+others and it fails.
+
 ## Adding it by hand
 
 **Use `adopt.mjs` instead** — see "Adopting a calculator" above. This section
