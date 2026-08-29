@@ -51,25 +51,74 @@ data:
       root /site;
       index index.html;
 
+      gzip on;
+      gzip_types text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml;
+      gzip_min_length 1024;
+
+      error_page 404 /404.html;
+
+      # .mjs is NOT in nginx's mime.types. Without this it is served as
+      # application/octet-stream, and a browser refuses to execute an ES
+      # module with a non-JavaScript MIME type — `nosniff` below makes that
+      # refusal absolute rather than merely likely. The site ships 551 .mjs
+      # files loaded with <script type="module"> on 261 pages, including the
+      # calc.mjs / share.mjs / usage.mjs behind every calculator, so getting
+      # this wrong serves 200s for pages that render and then do nothing.
+      # GitHub Pages types .mjs correctly, which is why it never showed there.
+      #
+      # `types { }` empty plus default_type is the idiom that works here: a
+      # populated types block in this context would REPLACE the inherited map
+      # rather than extend it, taking every other content type with it.
+      location ~ \.mjs$ {
+        types { }
+        default_type text/javascript;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      # Same class of gap: the PWA manifest that every page links with
+      # rel="manifest".
+      location ~ \.webmanifest$ {
+        types { }
+        default_type application/manifest+json;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      # The service worker controls every page under its scope, so a stale
+      # copy outlives a deploy. Browsers revalidate it anyway; this makes it
+      # explicit rather than relying on that.
+      location = /sw.js {
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "no-cache" always;
+      }
+
       # The site is wholly static and carries no user data: no cookies, no
       # login, no analytics beacon that needs a permissive frame policy.
       # These headers cost nothing and close the obvious classes.
+      #
+      # add_header does not merge across levels — a location that sets any
+      # add_header drops every one inherited from the server block — which is
+      # why each location above repeats them rather than relying on these.
       add_header X-Content-Type-Options nosniff always;
       add_header X-Frame-Options DENY always;
       add_header Referrer-Policy strict-origin-when-cross-origin always;
-
-      gzip on;
-      gzip_types text/css application/javascript application/json image/svg+xml;
-      gzip_min_length 1024;
 
       # Hashed asset names are not used here, so do not tell a browser to
       # hold a calculator for a year — a fix would never reach anyone.
       location / {
         try_files $uri $uri/ $uri.html =404;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
-
-      error_page 404 /404.html;
 
       # Kubelet probes. Kept out of the access log so a readiness check every
       # few seconds does not bury real traffic in the logs.
