@@ -10,12 +10,12 @@ node platform/pages/check.mjs dist                # check the artifact
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
-Then, in a browser, the five checks CI cannot run — `journey.mjs` (the customer
+Then, in a browser, the six checks CI cannot run — `journey.mjs` (the customer
 journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
 every page be read and reached), `roundtrip.mjs` (does a shared bid arrive as
-the bid that was sent), and `presets.mjs` (does picking "no preset" leave the
-takeoff alone). See [Driving the customer
-journey](#driving-the-customer-journey).
+the bid that was sent), `presets.mjs` (does picking "no preset" leave the
+takeoff alone), and `sideways.mjs` (does any page scroll sideways on a phone).
+See [Driving the customer journey](#driving-the-customer-journey).
 
 Then serve it and click around:
 
@@ -1602,6 +1602,75 @@ and one that does not print it is left alone rather than reported for a promise
 it never made.
 
 Not in CI, for the same reason as the four above.
+
+### Checking no page scrolls sideways on a phone
+
+`sideways.mjs` asks the question the other five pass straight through: **is the
+page wider than the window it is being read in?**
+
+```bash
+node platform/pages/sideways.mjs             # same BASE_URL / PLAYWRIGHT / DIST env vars
+WIDTH=320 node platform/pages/sideways.mjs   # the width WCAG 1.4.10 names
+```
+
+A page wider than the viewport is not a broken tool — every one of the 39 this
+found on 2026-08-29 computed correctly, and `sweep.mjs` said so. It is a browser
+zooming out until the page fits, so every figure on it renders at roughly half
+size and the right-hand columns sit off-screen behind a scrollbar most phone
+visitors never think to use. Axe has no rule for it, so `contrast.mjs` passed
+them too.
+
+Measured on a build of `main` before `reflow.mjs`, and after:
+
+| viewport | before | after |
+|---|---|---|
+| 320px (WCAG 1.4.10) | 60 of 445 | 4 |
+| 360px (a common Android) | 39 | **0** |
+| 390px (what `sweep.mjs` drives) | 7 | **0** |
+
+The default is 360 because that is the phone this audience carries; 320 is the
+width the standard names and is worth running — the four it still finds are
+named in [Reflow](#reflow-and-the-two-things-that-widen-a-page) below.
+
+Not in CI, for the same reason as the five above.
+
+## Reflow, and the two things that widen a page
+
+`reflow.mjs` is the build half of what `sideways.mjs` measures. Its header
+carries the full reasoning; the short version is that all 39 pages had one of
+two causes.
+
+**A wide `<table>` in normal flow**, 33 of them. A table cannot shrink below the
+min-content width of its columns, so a five-column comparison of dollar figures
+pushed the whole document out to ~600px and dragged every paragraph with it.
+Each table in the markup is now wrapped, at build time, in a
+`div.pf-table-scroll` that scrolls instead — and `SCROLL_A11Y_SCRIPT`, which
+already existed for the ventures that hand-wrote their own `.table-wrap`, gives
+that box a keyboard tab stop when it is really scrolling and takes it away when
+it is not. The same script also creates the box for a table a calculator writes
+into its result panel from a string, which no build pass can see;
+`cut-list-optimizer`'s 4x8-vs-5x5 comparison is that case.
+
+**A grid or flex track that will not shrink**, the other 6. A grid item's
+automatic minimum is its min-content width, so one `<input>` at its
+20-character default — or one table the wrap above just made scrollable — held a
+whole column open. Relaxed with `min-width:0`, under a 640px media query, on
+form controls, on the boxes that contain one or contain a scrolling table, and
+on the page's own semantic layout containers.
+
+**Every one of those selectors is wrapped in `:where()`**, so a rule a venture
+wrote always wins. That is not decoration. The first version of this rule was
+`:where(*){min-width:0}`, and measured against the same build it collapsed the
+term column of every `<dl>` laid out as a grid: **372 result labels across 70
+pages** painted over their own values, which is worse than the bug it fixed. A
+definition list holds neither a control nor a table and no longer matches.
+
+Still outstanding at 320px, all four the same shape — a two-column result panel
+whose own content sets a minimum wider than the window:
+`saas-seat-true-up` (+34px, `div.metric`), `attic-insulation-bid-calculator`
+(+35px, `dd#squares`), `music-lesson-break-even` (+17px), and
+`seller-net-sheet` (+9px, an `$119,057.50` at 44.8px that cannot wrap). Each
+needs its own venture's narrow-viewport rule rather than another site-wide one.
 
 ## Deploying
 

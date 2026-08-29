@@ -28101,3 +28101,73 @@ entries:
         usage opt-out. Not deployed: publishing is still the owner's
         `deploy-settings` flip.
     mrr_end: null
+  - venture: platform/pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **39 of 445 published pages scrolled sideways on a phone, and nothing
+        here could tell.** Measured in Chromium at 360px on 2026-08-29 against
+        a build of `main`: `retainage-cashflow-calculator` laid out 647px wide
+        inside a 360px window, `reverb-fee-calculator`'s return-or-refund
+        article 568px, `music-lesson-break-even` 431px. A browser answers a page
+        that wide by zooming out until it fits, so every figure on it renders at
+        roughly half size and the right-hand columns sit off-screen. At the
+        320px width WCAG 1.4.10 names it was 60 of 445. Every one of those tools
+        computed correctly — `sweep.mjs` says so, `contrast.mjs` runs axe and
+        axe has no rule for this, and `check.mjs` reads files. Working software,
+        broken product, and this is the audience `sweep.mjs` already drives a
+        phone viewport for.
+      - >-
+        **Two causes between them account for all 39.** A wide `<table>` in
+        normal flow, 33 of them: a table cannot shrink below its columns'
+        min-content, so a five-column comparison of dollar figures drags the
+        whole document out. And a grid or flex track that will not shrink, the
+        other 6: a grid item's automatic minimum is its min-content width, so
+        one `<input>` at its 20-character default holds a column open.
+        `reflow.mjs` wraps every table in the markup in a scrolling box at build
+        time, and relaxes `min-width` on form controls, on the boxes that hold
+        one, and on the page's own semantic layout containers, under a 640px
+        media query.
+      - >-
+        **Nothing new was needed for the keyboard half.** `SCROLL_A11Y_SCRIPT`
+        already found any horizontally scrolling box by its computed `overflow-x`
+        and gave it a tab stop only while it was really scrolling — written for
+        the ventures that hand-wrote their own `.table-wrap`. The new wrapper
+        inherits it, and its documented decision not to set `role` (which would
+        strip the table semantics). The same script now also *creates* the box
+        for a table a calculator writes into its result panel from a string,
+        which no build pass can see: `cut-list-optimizer`'s 4x8-vs-5x5 page
+        renders no table until the visitor presses Compare.
+      - >-
+        **The first version of the fix was worse than the bug, and measuring is
+        the only reason that is known.** `:where(*){min-width:0}` took 360px to
+        zero — and collapsed the term column of every `<dl>` laid out as a grid:
+        372 result labels across 70 pages painted over their own values. The
+        shipped rule frees only boxes that contain a control or a scrollable
+        table, plus semantic layout containers, so a definition list no longer
+        matches; clipped-text counts are identical to `main` after the change.
+        Every selector is wrapped in `:where()`, so a rule a venture wrote wins.
+      - >-
+        **`sideways.mjs`** is the sixth browser probe and the reason these are
+        measurements: it loads every published page at a phone width and names
+        the widest box that sticks out. Before / after — 320px: 60 → 4; 360px:
+        39 → **0**; 390px: 7 → **0**. The four left at 320px are all one shape,
+        a two-column result panel whose own content sets the minimum
+        (`saas-seat-true-up`, `attic-insulation-bid-calculator`,
+        `music-lesson-break-even`, `seller-net-sheet`), and each needs its own
+        venture's narrow rule rather than another site-wide one. Named in the
+        README rather than left for someone to rediscover.
+      - >-
+        Verified locally, the runner outage still standing: 642 `platform/pages`
+        tests (14 new), `build.mjs` over 164 tools, `check.mjs dist` publishable
+        with no dead links, `sideways.mjs` 0/445 at 360px, `sweep.mjs` 164/164,
+        `contrast.mjs` 444 pages x 2 viewports with no WCAG A/AA violations,
+        `roundtrip.mjs` 128/128, `presets.mjs` 65/65, `highlight.mjs` 103/103,
+        the pages link check over 446 pages, router validate (181 VENTURE.yaml),
+        usage validate, and a hand pass on `retainage-cashflow-calculator`
+        confirming the box scrolls, takes a tab stop, drops it when the table
+        fits, and prints whole. Desktop is untouched: the relaxations are inside
+        a 640px query. +15 KB on an 18 MB site. Not deployed: publishing is
+        still the owner's `deploy-settings` flip.
+    mrr_end: null

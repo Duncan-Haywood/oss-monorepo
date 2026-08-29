@@ -69,6 +69,7 @@ import {
   renderInvalidStyle,
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
+import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO_ROOT = path.resolve(HERE, '..', '..');
@@ -2311,9 +2312,16 @@ const CHROME_CSS = `
  */
 export const CHROME_STYLE_FILE = 'pf-chrome.css';
 
-/** The contents of that file. Written once by the build, at the site root. */
+/**
+ * The contents of that file. Written once by the build, at the site root.
+ *
+ * The reflow rules ride along rather than taking a stylesheet of their own:
+ * this file is already linked by every page they apply to and already in the
+ * offline bundle, so folding them in costs no second request on a phone with
+ * one bar — the visitor those rules exist for. See `reflow.mjs`.
+ */
 export function renderChromeStyle() {
-  return CHROME_CSS.trimStart();
+  return `${CHROME_CSS.trimStart()}${REFLOW_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -2374,6 +2382,12 @@ const CHROME_SCRIPT = () => `
  * `role` is deliberately not set: `region` on a `<table>` replaces its table
  * semantics, so a screen reader would stop announcing rows and columns. The
  * accessible name comes from the caption or heading the venture already wrote.
+ *
+ * It also *creates* the box, for a table that has none. `reflow.mjs` wraps
+ * every table in the markup at build time; the ones this half has to catch are
+ * the tables a calculator writes into its result panel from a string, which no
+ * build pass can see. Both halves are here because they are one behaviour —
+ * make the table scroll rather than the page, then make what scrolls reachable.
  */
 const SCROLL_A11Y_SCRIPT = `
 (function(){
@@ -2386,13 +2400,19 @@ const SCROLL_A11Y_SCRIPT = `
   // wrappers are named differently in every venture, so the property is asked
   // for directly.
   var candidates=[];
+  var tables=0;
   var collect=function(){
+    // Before the sweep, not after: a table a calculator just wrote into its
+    // result panel has no scrolling box around it yet, so collecting first
+    // would find nothing to give a tab stop to. See reflow.mjs.
+    ${WRAP_TABLES_JS}
     candidates=[];
     var all=document.body?document.body.getElementsByTagName('*'):[];
     for(var i=0;i<all.length;i++){
       var o=getComputedStyle(all[i]).overflowX;
       if(o==='auto'||o==='scroll')candidates.push(all[i]);
     }
+    tables=document.getElementsByTagName('table').length;
   };
   var measure=function(){
     for(var i=0;i<candidates.length;i++){
@@ -2411,7 +2431,16 @@ const SCROLL_A11Y_SCRIPT = `
     }
   };
   var full=function(){try{collect();measure();}catch(e){}};
-  var quick=function(){try{measure();}catch(e){}};
+  // A recalculation that replaced the result panel can have added or removed a
+  // table, and a table that arrived after the last sweep is not a candidate yet
+  // — so the cheap path re-sweeps exactly when the table count moved, and stays
+  // cheap on every other keystroke.
+  var quick=function(){
+    try{
+      if(document.getElementsByTagName('table').length!==tables){collect();}
+      measure();
+    }catch(e){}
+  };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',full);
   else full();
   addEventListener('resize',full);
@@ -2766,6 +2795,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const shared = [];
   const described = [];
   const highlighted = [];
+  const narrowed = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -2834,13 +2864,18 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // writes, so a page that never prints that message must not receive it.
       const marked = injectInvalidField(linked, toRoot);
       if (marked !== linked) highlighted.push(relative);
-      if (marked === html) continue;
-      await fs.writeFile(file, marked);
+      // After every pass that adds markup of its own — the saved-bids band and
+      // the share row both carry tables of their own on some pages, and they
+      // are as capable of pushing the document sideways as a venture's.
+      const reflowed = injectReflow(marked);
+      if (reflowed !== marked) narrowed.push(relative);
+      if (reflowed === html) continue;
+      await fs.writeFile(file, reflowed);
       wrapped.push(relative);
     }
   }
 
-  return { wrapped, rated, saved, shared, described, highlighted };
+  return { wrapped, rated, saved, shared, described, highlighted, narrowed };
 }
 
 export function renderRobots(baseUrl) {
@@ -3270,7 +3305,9 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const { wrapped, rated, saved, shared, described, highlighted } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+  const {
+    wrapped, rated, saved, shared, described, highlighted, narrowed,
+  } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
@@ -3279,7 +3316,7 @@ export async function buildSite({
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, offline,
+    highlighted, narrowed, offline,
   };
 }
 
@@ -3437,4 +3474,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added a shareable bid link to ${result.shared.length} page(s).`);
   console.log(`Corrected canonical and share-card tags on ${result.described.length} page(s).`);
   console.log(`Highlighted the rejected input on ${result.highlighted.length} page(s).`);
+  console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
 }
