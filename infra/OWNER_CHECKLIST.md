@@ -77,12 +77,24 @@ right split.
 - Mint a **project API key**. Put `OPENAI_API_KEY` in the sealed secret.
 - Do **not** put an Admin API key in the cluster. The Admin API can raise
   the spend limit — that is the workaround. A normal project key cannot.
-- Do **not** `codex login` with your main ChatGPT/Plus/Pro account. That
-  burns the personal 5-hour / weekly quota and has no euro hard stop.
 
-Governor stays `suspend: true` / `enabled: false` until that key is
-sealed. The worker already accepts `OPENAI_API_KEY` and treats those 429
-codes as exit 42.
+**Or the plan quota, if you would rather not spend money.** Since
+2026-08-29 the worker also accepts `CODEX_AUTH_JSON` — the contents of
+`~/.codex/auth.json` after a `codex login` — and a tick on that credential
+costs nothing extra. It is a genuine alternative, not a shortcut, and the
+old warning here is the reason it is not simply the better one:
+
+- A plan has **no euro hard stop**. The ceiling is the plan's 5-hour and
+  weekly windows, which is a different kind of limit from a spend cap.
+- Those windows are shared with whoever is signed into that account. Do
+  **not** use your main ChatGPT/Plus/Pro login unless you are content for
+  the fleet to compete with your own interactive use; a separate plan seat
+  avoids the trade entirely.
+
+Seal one or the other (or both — the non-billing one wins, and the worker
+logs which it used). Either way the governor stays `suspend: true` /
+`enabled: false` until you flip it, and the worker treats the 429 spend
+codes as exit 42 and a rejected credential as exit 43.
 
 ## You do once (laptop)
 

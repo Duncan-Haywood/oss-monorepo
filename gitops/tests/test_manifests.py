@@ -90,6 +90,70 @@ def test_worker_accepts_isolated_openai_key_and_hard_limit_429() -> None:
     assert "CODEX_ACCESS_TOKEN" not in template
 
 
+def test_worker_writes_the_subscription_credential_the_cli_actually_reads() -> None:
+    # The CLI has no env var for a plan login: it reads $CODEX_HOME/auth.json,
+    # and only consults the file when the credential store is set to "file".
+    # Checking that a variable was set (what this used to do) proved nothing.
+    text = (AGENTS / "workers" / "worker.sh").read_text()
+    assert 'export CODEX_HOME=' in text
+    assert 'cli_auth_credentials_store = "file"' in text
+    assert '"$CODEX_AUTH_JSON" > "$AUTH_FILE"' in text
+
+
+def test_both_credentials_stay_usable_and_the_free_one_wins_a_tie() -> None:
+    # The API-key path is what infra/OWNER_CHECKLIST.md tells the owner to set
+    # up. Adding the subscription route must not break it: a Secret carrying
+    # only OPENAI_API_KEY still has to start.
+    text = (AGENTS / "workers" / "worker.sh").read_text()
+    subscription = text.index("CODEX_AUTH_JSON")
+    api_key = text.index('if [[ -n "${OPENAI_API_KEY:-}" ]]')
+    assert subscription < api_key, "the non-billing credential should be tried first"
+    assert "bills per token" in text
+    template = (AGENTS / "secrets" / "codex-token.template.yaml").read_text()
+    assert "OPENAI_API_KEY: CHANGE_ME" in template
+    assert "CODEX_AUTH_JSON" in template
+
+
+def test_a_rejected_credential_is_not_reported_as_a_quota_limit() -> None:
+    # Exit 42 makes the governor sleep off a 429. An expired login is not that,
+    # and an hour of backoff would not fix it.
+    text = (AGENTS / "workers" / "worker.sh").read_text()
+    assert "CODEX_AUTH_EXIT:-43" in text
+    assert "hit_auth_failure" in text
+
+
+def test_worker_uses_the_approval_flag_the_current_cli_accepts() -> None:
+    # `codex exec --ask-for-approval` was dropped upstream; the Job installs the
+    # CLI unpinned, so passing it aborts the run before a token is spent.
+    text = (AGENTS / "workers" / "worker.sh").read_text()
+    code = [ln for ln in text.splitlines() if not ln.lstrip().startswith("#")]
+    assert not [ln for ln in code if "--ask-for-approval" in ln]
+    assert "approval_policy=\"never\"" in text
+
+
+def test_codex_credential_survives_between_jobs() -> None:
+    pvc = yaml.safe_load((AGENTS / "codex-home.yaml").read_text())
+    assert pvc["kind"] == "PersistentVolumeClaim"
+    assert pvc["metadata"]["name"] == "codex-home"
+    kustomization = yaml.safe_load((AGENTS / "kustomization.yaml").read_text())
+    assert "codex-home.yaml" in kustomization["resources"]
+    worker_files = [
+        entry
+        for entry in kustomization["configMapGenerator"]
+        if entry["name"] == "codex-worker-script"
+    ][0]["files"]
+    assert "mandate.md=workers/mandate.md" in worker_files
+
+
+def test_every_queue_item_prompt_inherits_the_mandate() -> None:
+    worker = (AGENTS / "workers" / "worker.sh").read_text()
+    assert "/opt/worker/mandate.md" in worker
+    mandate = (AGENTS / "workers" / "mandate.md").read_text()
+    # The floor the item prompts are not allowed to talk a run out of.
+    assert "Never push to the base branch" in mandate
+    assert "runner_id: 0" in mandate
+
+
 def test_job_template_from_governor_hides_sa_token() -> None:
     # The live Job is built in Python; the CronJob (governor) DOES mount a token.
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
