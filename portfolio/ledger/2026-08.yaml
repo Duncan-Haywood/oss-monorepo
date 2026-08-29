@@ -28625,3 +28625,46 @@ entries:
       - >-
         Verification: `python3 -m pytest gitops/tests -q` -> 48 passed.
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the branch-to-PR presumption against the top 12 (by commits
+        ahead of `main`) of ~171 remote branches carrying unmerged
+        commits, via 4 parallel worktree-isolated agents:
+        `3pl-quote-normalizer-compare-{20260824,20260825}`,
+        `3pl-quote-normalizer-ship-20260824`, `vendor-change-watch-fix-20260824`,
+        `chargeback-evidence-packet-{main,launch-20260824}`,
+        `print-preflight-value-20260824`, `faire-wholesale-calculator-e3de`,
+        `amazon-fba-sourcing-check-20260824`,
+        `invoice-payment-terms-{ci-fix,clean}-20260825`,
+        `appointment-deposit-calculator-20260824`. Every one is superseded
+        by work already merged to `main` -- confirmed via
+        `supersede_check.py`'s identical-merge proof, manual diff, or both,
+        not by trusting a branch name or an old PR's closure. Two
+        (`vendor-change-watch-fix`, `print-preflight-value`) matched the
+        repo's documented RENAME-SUSPECTED shape (same feature, different
+        identifiers, `main`'s version equal or stronger) and were checked
+        line-by-line rather than taken on the tool's fuzzy match alone. No
+        PRs opened or closed; nothing needed either action. Zero open PRs
+        existed at the start of this run, so the 3-PR merge quota was
+        satisfied trivially (fewer than 3 -> process all -> none were
+        repairable, all were already shipped).
+      - >-
+        Portfolio-wide SEO/AI-discovery scan against `PRODUCT_PLAYBOOK.md`
+        §5e across all 159 `ventures/*/index.html`: meta description and
+        JSON-LD present everywhere already; `cash-runway-planner` was the
+        only one missing `og:title`/`og:description`. Fixed and merged
+        (#2013). Verified: venture's own 3 test files (36 passed),
+        `platform/pages/build.mjs` + `check.mjs` (164 products, 446 pages,
+        no dead links).
+      - >-
+        Re-confirmed `codex-governor-enable` (#1996) and
+        `portfolio-site-hetzner-deploy` (#1999) are both fully built and
+        current in `portfolio/ledger/asks.yaml` as of today -- did not
+        duplicate either ask. Both remain owner-only (OpenAI org + spend
+        limit + sealed API key for the former; one DNS A record + scoped
+        read-only PAT + real ACME contact email for the latter).
+    mrr_end: null
