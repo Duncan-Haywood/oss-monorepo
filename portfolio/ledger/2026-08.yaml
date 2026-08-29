@@ -27186,3 +27186,51 @@ entries:
         rather than duplicated, so one browser fixture now walks all three
         states: the ask appearing, going away when answered, and the blind-spot
         branch drawn beside a live margin.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Finished the extraction `pf-jobs.js` started, and the half nobody had
+        counted turned out to be the larger one. The README's own note named the
+        remaining work as `rates.mjs` and the chrome, "701 KiB and 310 KiB across
+        the site" — both scripts. Measured on the built artifact the *stylesheets*
+        were 2.63 MiB of it: `pf-chrome.css` 2.75 KB x 442 pages, `pf-jobs.css`
+        5.44 KB x 237, `pf-rates.css` 1.78 KB x 105. With the two scripts that is
+        4.1 MiB of a 25 MiB site, all of it the same bytes. A note that counts
+        only what it happens to be looking at undercounts by more than it reports.
+      - >-
+        Site 25 MiB to 21 MiB, opt-in offline bundle 14.85 MiB to 12.58 MiB
+        against its 16 MiB budget. The reading that matters is not the total but
+        the *second* page: a contractor crossing from a deck bid to a fence bid
+        used to re-download ~18 KB of identical chrome, band styling and script on
+        arrival and now downloads none of it — which is exactly the journey the
+        shop-rates bar was built to serve.
+      - >-
+        Three tests would have gone silently green, and that is the finding worth
+        keeping. Each fished a rule or a line of script out of a built page and
+        continued past a page that carried none; the moment the block moved to a
+        file they skipped all 442 pages and asserted nothing. One of them was the
+        guard that the chrome never sets an opacity on text whose colour it did
+        not choose — a WCAG regression check that would have passed on a site with
+        the defect back in it. The gate-that-never-opens shape this repo keeps
+        re-learning, arriving this time through a refactor rather than through a
+        rename.
+      - >-
+        A value that was a build-time literal and is now read from the DOM has to
+        be re-checked, the rule `pf-jobs.js` already carries for its amount
+        selector. `pf-rates.js` takes its field pairs off the tag as
+        `data-pf-rates-fields` and resolves each id against its own constant
+        table, so a pair naming a field the build does not know is dropped rather
+        than trusted; an empty list removes the bar instead of drawing one that
+        saves nothing. Labels, units and ceilings stayed in the script — none of
+        them was ever per-page.
+      - >-
+        Verified locally, the runner outage still standing (`runner_id=0`, empty
+        `runner_name`, 2-second jobs on the PR and on every Portfolio Pages run on
+        `main`): 553 platform/pages tests (548 before), 22 webcheck tests, 34
+        site-builder tests, build plus `check.mjs` at 164 products / 445 pages
+        with no dead links, 164/164 tools answering in Chromium with no errors,
+        and `journey.mjs` at 0 failed checks and 0 page/console errors — including
+        the shop-rates save/apply/clear round trip and the saved-bids band, the
+        two features whose scripts moved.
