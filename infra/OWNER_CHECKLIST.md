@@ -134,12 +134,13 @@ about it depends on GitHub Actions (no runner since 2026-08-26) or on
 GitHub Pages (not enabled, and a private repo's Pages site is not public
 on the free tier anyway).
 
-1. **DNS.** One A record at the registrar: `tools.marisstella.dev` →
-   `89.167.29.39`. A subdomain — `marisstella.dev` keeps whatever serves
-   it today. Verify: `dig +short tools.marisstella.dev` returns that
-   address.
+**DNS — already done, no action needed.** `tools.marisstella.dev`
+already resolves to `89.167.29.39` (verified 2026-08-29:
+`getent hosts tools.marisstella.dev`) — `marisstella.dev`'s existing
+wildcard `A/*` record already covers the subdomain, so the A record this
+checklist used to list as step 1 does not need adding.
 
-2. **The clone token.** The repo is private, so the pod's `fetch` init
+1. **The clone token.** The repo is private, so the pod's `fetch` init
    container cannot clone anonymously. Mint a **fine-grained** PAT — this
    repository only, **Contents: Read-only**, nothing else — then seal it
    exactly as `gitops/prod/secrets/portfolio-repo-token.template.yaml`
@@ -150,23 +151,23 @@ on the free tier anyway).
    `kubectl -n prod logs deploy/portfolio-site -c build` ends in
    `built … files`.
 
-3. **A real ACME contact.** Replace `replace-me@duncanhaywood.dev` in
+2. **A real ACME contact.** Replace `replace-me@duncanhaywood.dev` in
    `gitops/platform/cert-manager/issuer.yaml` with a mailbox that
    exists — Let's Encrypt refuses to register the placeholder, so no
    certificate can issue until this changes. (Same address as item 6
    above; do it once.) Verify:
    `kubectl -n prod get certificate` reports `READY=True`.
 
-Steps 1–3 are all that stand between the portfolio and a live site. Once
+Steps 1–2 are all that stand between the portfolio and a live site. Once
 they land the site is reachable, on a Let's Encrypt **staging**
 certificate — browsers will warn, because staging is not a trusted root.
 
-4. **The issuer flip, last.** Only after step 1 resolves and a staging
-   certificate has issued, change the Ingress annotation
+3. **The issuer flip, last.** Only after a staging certificate has
+   issued, change the Ingress annotation
    `cert-manager.io/cluster-issuer` in `gitops/prod/portfolio-site.yaml`
    from `letsencrypt-staging` to `letsencrypt-prod`, and update
    `gitops/tests/test_manifests.py::test_portfolio_site_starts_on_the_staging_certificate_issuer`
-   which pins it. Unlike 1–3 this one is not owner-only — it is an
+   which pins it. Unlike 1–2 this one is not owner-only — it is an
    ordinary code change an agent can open as a PR once you confirm the
    staging certificate issued, and asking for it that way is less work
    than editing two files by hand.
