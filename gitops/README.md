@@ -61,7 +61,7 @@ names, so the apex keeps whatever serves it today.
 
 ### What is still needed to make it live
 
-Three things, all owner actions. Until then Argo syncs the manifests and
+Four things, all owner actions. Until then Argo syncs the manifests and
 the pods crash-loop on the missing secret, which is the intended
 fail-closed state.
 
@@ -77,10 +77,14 @@ fail-closed state.
    Left as a placeholder here on purpose: which address to hand an
    external certificate authority is the owner's to choose, not an
    agent's to guess.
-
-Point the Ingress at `letsencrypt-staging` for the first attempt. The
-prod issuer allows five duplicate certificates per week and a wrong DNS
-record burns them.
+4. **Flip the issuer, last.** The Ingress ships pointed at
+   `letsencrypt-staging` deliberately: Argo syncs this namespace, so the
+   Ingress exists before the A record does, and challenges that cannot
+   resolve would count against Let's Encrypt limits for a name nobody can
+   reach. Once DNS resolves and a staging certificate has issued, change
+   the `cert-manager.io/cluster-issuer` annotation to `letsencrypt-prod`
+   (and update the test that pins it). Browsers will warn until you do —
+   staging is not a trusted root.
 
 ### Keeping it current
 

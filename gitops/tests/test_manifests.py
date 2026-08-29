@@ -135,6 +135,18 @@ def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
     assert ingress["spec"]["tls"][0]["hosts"] == hosts
 
 
+def test_portfolio_site_starts_on_the_staging_certificate_issuer() -> None:
+    # Argo auto-syncs prod, so this Ingress exists before DNS for its host
+    # does. Against the prod issuer, challenges that cannot resolve burn
+    # Let's Encrypt limits for a name nobody can reach. Flipping to
+    # letsencrypt-prod is the last step of publishing, not part of landing
+    # the manifest — so this asserts the safe default rather than the
+    # eventual one.
+    ingress = _portfolio_site()["Ingress"]
+    issuer = ingress["metadata"]["annotations"]["cert-manager.io/cluster-issuer"]
+    assert issuer == "letsencrypt-staging"
+
+
 def test_portfolio_site_canonical_base_matches_the_ingress_host() -> None:
     # build.mjs stamps PAGES_BASE_URL into every canonical link, og:url and
     # sitemap entry. If it drifts from the host actually served, every page

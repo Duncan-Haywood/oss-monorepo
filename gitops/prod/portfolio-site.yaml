@@ -292,9 +292,19 @@ kind: Ingress
 metadata:
   name: portfolio-site
   annotations:
-    # Swap to letsencrypt-staging while testing DNS: prod has a rate limit
-    # of 5 duplicate certificates per week and a failed record burns them.
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    # Staging on purpose, and it must stay staging until DNS resolves.
+    #
+    # Argo auto-syncs this namespace, so this Ingress exists the moment the
+    # manifest lands — before the A record for the host below. cert-manager
+    # will then start HTTP-01 challenges that cannot succeed, and against
+    # the prod issuer those failures count towards Let's Encrypt's
+    # per-account limits for a name nobody can reach yet.
+    #
+    # Staging issues an untrusted certificate, which is exactly right for a
+    # host that is not serving anyone. Flip to `letsencrypt-prod` as the
+    # last step, once `tools.marisstella.dev` resolves to this box and a
+    # staging certificate has actually issued — see gitops/README.md.
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   ingressClassName: nginx
   tls:
