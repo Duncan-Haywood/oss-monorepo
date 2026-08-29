@@ -27740,3 +27740,73 @@ entries:
         pages with no dead links, and `sweep.mjs` 164/164. Both repaired tools
         round-trip clean in Chromium against the built artifact — 45 fields and
         an unchanged $2,768 on the camera bid, 87 fields on the FBA calculator.
+  - venture: platform/proposal
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The deposit the bid link left behind, on all 48 tools that print a
+        customer proposal.** Last session's `roundtrip.mjs` named it and left it:
+        the panel asks for a deposit percentage, how long the price is held, a
+        not-included list, payment terms and notes, and no share encoder on this
+        site carried any of them. Measured in Chromium before and after, on
+        `artificial-turf-bid-calculator`: a bid priced at a 50% deposit held for
+        15 days reopened from its own link at the venture's defaults, and the
+        proposal the recipient printed asked the customer for **$1,640.44** on
+        acceptance where the sender's sheet said **$2,734.07** — held 30 days
+        instead of 15, payment terms gone. The headline figure matched to the
+        cent, so nothing on either page suggested a disagreement. Both sheets now
+        match.
+      - >-
+        **Two mechanisms, because the tools have two.** 36 calculators share a
+        bid spec: that spec gained a `text` kind beside `numbers`, `flags` and
+        `choices`, `withProposalTerms` folds the five ids in, and
+        `readProposalTerms` collects them off the panel — so the terms ride in
+        the link *and* in the setter's own saved bid, typed once rather than
+        every visit. The other 12 predate it and keep a hand-written allowlist
+        each, in three encodings between them (a JSON payload, a query string
+        derived from `calc.mjs`, a cost-id list). Rewriting all three onto the
+        shared spec would mean touching the input handling of twelve working
+        calculators to carry a field none of them compute with, so
+        `platform/proposal/terms.mjs` appends the terms *beside* what the venture
+        already wrote, under one `pfterms` parameter its own decoder never sees.
+        The value is URI-encoded whole, so an `&` or `=` inside a payment-terms
+        clause is not a boundary, and `splitTerms` hands the venture its JSON
+        payload back byte-for-byte — leaving the segment on the end would fail
+        `JSON.parse` and refuse the whole bid rather than drop a field.
+      - >-
+        **`painting-bid-calculator` is the one tool whose terms take a different
+        road.** Its own payload is a *query* string, and a fragment is not sent
+        in the request line a server logs nor in a later click's `Referer`. A
+        payment-terms clause is the painter's own wording, so appending it to the
+        query would have put it in both. Its numbers stay where they were; its
+        terms ride in the fragment.
+      - >-
+        **A block too long to travel is dropped whole, and the sender is told
+        which one.** `MAX_TERM_TEXT` is 512, matching `MAX_LINK_VALUE` in
+        `platform/pages/link.mjs` so all three share mechanisms here agree about
+        what fits in a fragment. Truncating was rejected: half a payment-terms
+        clause presented to the recipient as the sender's terms is worse than an
+        empty field. The status line names the box on screen ("your payment terms
+        is too long…"), not the id in the markup, and is not cleared out from
+        under the person it warns. Control characters are stripped in both
+        directions — a fragment is the one part of these pages a stranger can
+        write, and it feeds a document a contractor prints for a customer.
+      - >-
+        **Three guards, each checked to fail before being kept.**
+        `term-ids.test.mjs` asserts `adopt.mjs`, the 36 share modules and the 12
+        vendored ones name the same five ids, and that every adopting page wires
+        them into its link, save and restore; `sync.test.mjs` now covers the new
+        vendored pair. A test that never fails is worth nothing here, so each was
+        driven against real drift first — a term removed from one module, a page
+        un-wired — and each named the venture and the missing half. The vendored
+        copy is `proposal-terms.mjs` rather than `terms.mjs`: `einvoice-preflight`
+        already ships a `terms.mjs` about invoice payment terms, and the sync test
+        caught the collision by comparing the wrong pair.
+      - >-
+        Verified locally, the runner outage still standing: 12,483 node tests
+        (11,952 on `main`), the seven portfolio-validate page checks, build plus
+        `check.mjs` at 164 products / 446 pages with no dead links, `sweep.mjs`
+        164/164, and a Chromium round-trip of all 48 repaired tools — five terms
+        and the bid figure arriving intact on every one, against the same probe
+        reporting all five dropped on every tool built from `main`.

@@ -254,6 +254,8 @@
     } from './proposal.mjs';
 // proposal:end
     import { COST_IDS, encodeState, decodeState } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const money = (value) => {
       const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -465,6 +467,11 @@
         saved = { costs: {}, surfaces: [] };
       }
       const fromLink = decodeState(location.search || location.hash || '');
+      // The terms ride in the fragment even though this tool's own payload is a
+      // query string. A fragment is not sent in the request line a server logs,
+      // nor in the Referer header a later click carries, and a payment-terms
+      // clause is the painter's own wording — it does not belong in either.
+      applyTerms(decodeTerms(splitTerms(location.hash).terms), el);
       const costs = { ...DEFAULT_COSTS, ...saved.costs, ...fromLink.costs };
       const surfaces = fromLink.surfaces.length ? fromLink.surfaces
         : saved.surfaces.length ? saved.surfaces
@@ -487,13 +494,18 @@
 
     el('shareLink').addEventListener('click', async () => {
       const query = encodeState({ surfaces: readSurfaces(), costs: readCosts() });
-      const url = `${location.origin}${location.pathname}?${query}`;
+      const terms = readTerms(el);
+      const fragment = withTerms('', terms);
+      const url = `${location.origin}${location.pathname}?${query}${fragment ? `#${fragment}` : ''}`;
+      const leftBehind = overlongTermsNote(terms);
       try {
         await navigator.clipboard.writeText(url);
-        el('shareStatus').textContent = 'Link copied. It contains only the numbers in this form.';
+        el('shareStatus').textContent = leftBehind
+          ? `Link copied — ${leftBehind}`
+          : 'Link copied. It contains only the numbers in this form, your deposit and your terms.';
         count('share_copied');
       } catch {
-        history.replaceState(null, '', `?${query}`);
+        history.replaceState(null, '', `?${query}${fragment ? `#${fragment}` : ''}`);
         el('shareStatus').textContent = 'Could not copy automatically — the address bar now holds the shareable link.';
       }
     });

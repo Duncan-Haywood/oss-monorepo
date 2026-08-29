@@ -311,6 +311,8 @@
       COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
     } from './proposal.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const COST_IDS = [
       'rPerInch','cuFtPerBag','pricePerBag','blowHoursPer1000','baffleCount','bafflePrice',
@@ -573,12 +575,16 @@
     }
 
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
       const url = `${location.origin}${location.pathname}#${hash}`;
       await writeClipboard(url);
       history.replaceState(null, '', `#${hash}`);
       count('share_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -622,7 +628,9 @@
       }
     });
 
-    const shared = decodeShare(location.hash);
+    const incoming = splitTerms(location.hash);
+    const shared = decodeShare(incoming.payload);
+    applyTerms(decodeTerms(incoming.terms), el);
     if (shared) applyShare(shared);
     if (!areasHost.querySelector('.area-row')) STARTING_AREAS.forEach(addAreaRow);
     if (!shared) applyProductPreset(false);

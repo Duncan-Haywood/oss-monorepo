@@ -277,6 +277,8 @@
       renderProposalHtml,
     } from './proposal.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const COST_IDS = [
       'railingLf','railingStyle','demoSf','hourlyWage','burdenRate','milesOneWay','speedMph',
@@ -564,12 +566,16 @@
     }
 
     async function copyShare() {
-      const hash = encodeShare(readInput());
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readInput()), terms);
       const url = `${location.origin}${location.pathname}#${hash}`;
       await writeClipboard(url);
       history.replaceState(null, '', `#${hash}`);
       count('share_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
@@ -734,7 +740,9 @@
     document.addEventListener('input', refreshProposal);
     document.addEventListener('change', refreshProposal);
 
-    applyShare(decodeShare(location.hash));
+    const incoming = splitTerms(location.hash);
+    applyShare(decodeShare(incoming.payload));
+    applyTerms(decodeTerms(incoming.terms), el);
     if (sectionsHost.children.length === 0) STARTING_SECTIONS.forEach(addSectionRow);
     if (stairsHost.children.length === 0) STARTING_STAIRS.forEach(addStairRow);
     update();
