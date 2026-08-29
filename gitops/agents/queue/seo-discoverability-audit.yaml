@@ -1,0 +1,34 @@
+# Real, enabled queue item. Does not run until the governor's own kill
+# switch (gitops/agents/governor/policy.json "enabled") is also true and
+# the CronJob is unsuspended -- both still owner-only. See
+# infra/OWNER_CHECKLIST.md.
+id: seo-discoverability-audit
+repo: Duncan-Haywood/monorepo-projects
+ref: main
+workdir: ""
+modelClass: chore
+priority: 3
+enabled: true
+prompt: |
+  Read this repo's CLAUDE.md, AGENTS.md, and PRODUCT_PLAYBOOK.md
+  section 5e (the SEO/AI-discovery checklist) first.
+
+  Pick ONE shipped venture under `ventures/` whose `index.html` (or
+  `site/index.html`) is missing one or more of: a `<title>` and meta
+  description carrying the niche's actual search phrase, `schema.org`
+  JSON-LD (`SoftwareApplication` / `HowTo` / `FAQPage` as fits the
+  product), Open Graph tags, or a one-line repo-topic-style description
+  a search result would show. Do not touch a venture whose slug matches
+  one already being worked by another agent this run -- check for an
+  open PR on that venture first and skip it if one exists.
+
+  Fix the gaps for that one venture: real search phrases a niche user
+  would type, accurate JSON-LD, working Open Graph tags. Do not fabricate
+  traction, testimonials, or benchmarks. Verify the change with
+  `node platform/pages/build.mjs --out=dist && node platform/pages/check.mjs dist`
+  (dead links, stale origins) before opening the PR. Open the PR, note
+  what you verified, and merge it yourself once sound, per this repo's
+  no-review-gate rule for product PRs.
+
+  Make the smallest correct change for that one venture. Do not start
+  unrelated new work in this run.
