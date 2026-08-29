@@ -27086,3 +27086,57 @@ entries:
         checks, and a 19-check browser journey over this tool's own customer
         path. `check_money_sign.py` caught this branch's own `money()` helper
         signing a negative as `$-3000.00` before it shipped.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the reading that crosses the hub's two verdicts instead of
+        stacking them. `winRateSentence` names the trade that lands most often
+        and `keepSentence` names the trade that keeps most of what it charges;
+        read one under the other they are two compliments and one complaint,
+        and the action each suggests alone is the wrong one in both cases.
+        `mixSentence` reads them together: "The work you win is not the work
+        that pays: Fence Bid Calculator lands 4 of 5 quotes and keeps 5% of
+        what it charged on the 2 you costed; Deck Bid Calculator lands 2 of 8
+        and keeps 28% on 2" — and points the price rise at the trade that is
+        *winning*. That is the shape underpricing takes from the inside, and it
+        is invisible from any single tool page by construction: a tool knows
+        its own rate and its own kept share, and the finding is that those two
+        disagree between trades. The mirror branch is a finding rather than a
+        consolation, and where the rankings neither clearly oppose nor clearly
+        agree it draws nothing, because a hedge on the busiest page in the site
+        changes nothing anyone does. Bars borrowed rather than invented, all
+        four required at once, so it is strictly rarer than either neighbour —
+        the right price for the one line in the panel that tells someone to
+        raise a price.
+      - >-
+        The open-PR queue was empty and the 160-branch backlog behind it is
+        superseded by rename, end to end. Classified every remote branch not
+        merged into `main` with the identical-merge proof
+        (`git merge-tree --write-tree -X ours origin/main <branch>` against
+        `main`'s tree): 85 of 160 contribute no content at all, and of the 75
+        that do, every genuinely-absent `ventures/**` file is `main`'s own
+        feature under a different path or name —
+        `shopify-permission-drift/app.js` against `main`'s `site/`,
+        `vendor-change-watch/` against `vendor-watch/`, `site/csv.mjs` against
+        `site/export.mjs`, and eleven "new venture" branches whose ventures are
+        all already on `main`. Worth recording so the next session does not
+        re-derive it: the rename shape `CLAUDE.md` warns about is not an edge
+        case in this repo's branch backlog, it is the whole backlog. Nothing
+        closed or deleted — these are branches, not PRs.
+      - >-
+        `portfolio/ledger/decision_queue.py` reports "collapsed from 8 asks and
+        7 open pull requests" while the API reports zero open. The ask half is
+        still live; the pull-request half is a stale snapshot, and a session
+        reading it as a queue to drain will find nothing there. Left uncorrected
+        rather than edited — it is reporting staleness, not a blocker.
+      - >-
+        Verified locally, the runner outage still standing (`runner_id=0`,
+        `runner_name=""`, 2-second jobs on this PR and on the last eight
+        `Portfolio validate` runs on `main`): 540 platform/pages tests (12
+        new), the artifact at 164 products / 445 pages with no dead links,
+        `clauses.mjs` over 442 pages, `validate_usage.py`, its 14 unit tests,
+        two repo CI checks, and the full `journey.mjs` browser run at 0 failed
+        checks — including a new step 6bx that proves this reading's label
+        round trip and its counter in a real Chromium against the built site.
