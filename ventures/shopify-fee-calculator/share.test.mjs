@@ -5,12 +5,30 @@ import { FIELD_IDS, decodeInputs, decodeShareState, encodeInputs, encodeShareSta
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
+// A whole scenario, which is what the strict token carries: every one of the
+// page's five panels, not the order form alone.
 const input = {
+  price: "48", shippingCharged: "6", paymentsRate: "2.9", paymentsFixed: "0.3", shopifyTxnRate: "2",
+  processorRate: "3.49", processorFixed: "0.49", costOfGoods: "14", shippingCost: "5", packagingCost: "1",
+  otherCost: "0", monthlyPlan: "39", monthlyOrders: "100", targetMargin: "40", targetProfit: "12",
+  percentOff: "10", amountOff: "10",
+  installmentRate: "5.9", installmentFixed: "0.3", installmentSharePct: "25", extraOrdersFromInstallments: "4",
+  shopifyLabelCost: "7.2", ownLabelCost: "8.4",
+  posPaymentsRate: "2.6", posPaymentsFixed: "0.1", posHardwareCost: "349",
+  paymentMethod: "third_party", planId: "advanced",
+};
+
+// The v1 payload shape: the sixteen CORE_FIELDS and nothing else. A link sent
+// before the other panels were carried still has to open.
+const legacy = {
   price: "48", shippingCharged: "6", paymentsRate: "2.9", paymentsFixed: "0.3", shopifyTxnRate: "2",
   processorRate: "3.49", processorFixed: "0.49", costOfGoods: "14", shippingCost: "5", packagingCost: "1",
   otherCost: "0", monthlyPlan: "39", monthlyOrders: "100", targetMargin: "40",
   percentOff: "10", amountOff: "10", paymentMethod: "third_party",
 };
+
+const toToken = (state) => Buffer.from(JSON.stringify(state)).toString("base64url");
+const fromToken = (token) => JSON.parse(Buffer.from(token.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString());
 
 test("share state round-trips as validated numeric inputs", () => {
   const restored = decodeShareState(encodeShareState(input));
@@ -87,23 +105,56 @@ test("a full share token is not readable as a partial link, and vice versa", () 
   assert.throws(() => decodeShareState("price=40&costOfGoods=12"));
 });
 
-test("adding a partial decoder did not widen the strict one", () => {
-  // The strict decoder compares key sets exactly, so adding any name to its
-  // list would reject every link already sent. FIELD_IDS is a superset — it
-  // covers the installment, label and POS inputs the token never carried — and
-  // has to stay separate from it. Re-encoding a token with one extra key is the
-  // check: the decoder must refuse it.
-  const partialOnly = FIELD_IDS.filter((field) => !(field in input));
-  assert.ok(partialOnly.length > 0, "FIELD_IDS should cover inputs the strict token does not");
+// ---------------------------------------------------------------------------
+// The whole scenario, and only the whole scenario
+// ---------------------------------------------------------------------------
+//
+// The regression these pin: the token carried a hand-kept sixteen-name list
+// while the form had twenty-six inputs across five panels, and `applyShare`
+// wrote back two of them. The recipient's Installments, label and POS panels
+// showed this page's example figures under a headline profit that matched the
+// sender's exactly — three verdicts about real money, silently different, with
+// nothing to notice.
 
-  const token = encodeShareState(input);
-  const widened = JSON.parse(Buffer.from(token.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString());
-  widened[partialOnly[0]] = 1;
-  const retoken = Buffer.from(JSON.stringify(widened)).toString("base64url");
-  assert.throws(() => decodeShareState(retoken), /Invalid|Unsupported/);
+test("carries every panel, so a recipient reads the sender's own figures", () => {
+  const restored = decodeShareState(encodeShareState(input));
+  for (const field of FIELD_IDS) {
+    assert.equal(restored[field], Number(input[field]), `${field} did not survive the link`);
+  }
+});
 
-  // And the token this page actually writes still decodes, unchanged.
-  assert.equal(decodeShareState(token).price, 48);
+test("carries the plan, which decides the row comparePlans marks as current", () => {
+  assert.equal(decodeShareState(encodeShareState(input)).planId, "advanced");
+  assert.throws(() => decodeShareState(toToken({ ...fromToken(encodeShareState(input)), planId: "enterprise" })), /Invalid shared/);
+});
+
+test("a link sent before the extra panels were carried still opens", () => {
+  // Backward compatibility is what lets the carried list grow at all: the v1
+  // sixteen are required, everything past them optional. The fields the old
+  // link says nothing about keep this page's own starting figures rather than
+  // being zeroed into something that reads like an answer.
+  const restored = decodeShareState(toToken({ v: 1, ...Object.fromEntries(Object.entries(legacy).map(([k, v]) => [k, k === "paymentMethod" ? v : Number(v)])) }));
+  assert.equal(restored.price, 48);
+  assert.equal(restored.targetMargin, 40);
+  assert.equal("posHardwareCost" in restored, false);
+  assert.equal("planId" in restored, false);
+});
+
+test("a name this build does not know is refused rather than ignored", () => {
+  assert.throws(() => decodeShareState(toToken({ ...fromToken(encodeShareState(input)), surcharge: 3 })), /Invalid shared/);
+});
+
+test("a core field cannot go missing from a token", () => {
+  const state = fromToken(encodeShareState(input));
+  delete state.price;
+  assert.throws(() => decodeShareState(toToken(state)), /Invalid shared/);
+});
+
+test("the page writes back every field the token carries", () => {
+  // The other half of the same defect lived in index.html, and a decoder test
+  // cannot see it: the token was only ever as good as what applyShare put back.
+  assert.match(html, /function applyShare\(state\) \{\s*FIELD_IDS\.forEach/);
+  assert.match(html, /document\.getElementById\("plan"\)\.value = state\.planId/);
 });
 
 test("FIELD_IDS matches the number inputs the page actually has", () => {

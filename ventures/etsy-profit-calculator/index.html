@@ -623,13 +623,14 @@
       if (location.hash || location.search) history.replaceState(null, '', `${location.pathname}#${encodeInputs(inputs)}`);
     }
 
+    // The two repricing goals are shared and persisted like every other field
+    // (see FIELD_IDS in share.mjs), so they get the same input handler. What
+    // they do not get is the generic change event below: each already records a
+    // more specific one, and firing both would count one edit twice.
+    const GOAL_IDS = ['targetMargin', 'targetProfit'];
     ids.forEach(id => field(id).addEventListener('input', () => { update(); persist(); }));
-    ids.forEach(id => field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked)));
-    // targetMargin drives the repricing panel only: it is not one of the ten
-    // shared/persisted fields, so it re-renders without touching saved inputs.
-    field('targetMargin').addEventListener('input', update);
+    ids.filter(id => !GOAL_IDS.includes(id)).forEach(id => field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked)));
     field('targetMargin').addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'scenario_compared'));
-    field('targetProfit').addEventListener('input', update);
     field('targetProfit').addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'target_profit_priced'));
     ['listingsPerMonth', 'monthlyPlusFee', 'listingCredits', 'adsCredit', 'monthlyAdSpend', 'otherPlusValue'].forEach(id => {
       field(id).addEventListener('change', () => recordUsage(safe(() => localStorage), document.getElementById('usageOptOut').checked, 'etsy_plus_compared'));
