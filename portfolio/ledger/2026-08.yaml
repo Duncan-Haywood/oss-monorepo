@@ -28592,3 +28592,36 @@ entries:
         `AGENTS.md`'s CI section now points at it and asks for the summary
         line -- including the not-run count -- in the pull request.
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Gave the already-built Hetzner Codex-worker pipeline
+        (`gitops/agents/governor`) a third queue item. Another session
+        merged `branch-pr-drain.yaml` + `seo-discoverability-audit.yaml`
+        (#2009) while this one was in flight; rebased onto that instead of
+        also landing a competing broad item, since `governor.py`'s
+        `pick_item` always starts the single highest-priority *enabled*
+        item rather than round-robining the queue -- a high-priority
+        duplicate would have starved both of theirs permanently, not just
+        delayed them. Added `product-feature-improvement.yaml` at priority
+        2 (lowest of the three) instead: real product-logic/bug-fix work,
+        explicitly scoped away from what the other two items own. #2010,
+        merged.
+      - >-
+        Confirmed `actions-runners-unavailable` (#1842) is still live as of
+        2026-08-29 ~19:09-20:14 UTC: a live job on `main` completed in 3s
+        with `runner_id: 0`, empty `runner_name`. Not a new finding, but a
+        continued one worth the timestamp -- this is now the fourth day.
+      - >-
+        Verified the Pages/"marketing materials" artifact is healthy
+        independent of that outage: `platform/pages` test suite 642/642,
+        `build.mjs` produces 164 products / 446 pages, `check.mjs` reports
+        publishable with no dead links. Nothing code-side blocks
+        `deploy-settings` or the Hetzner `tools.marisstella.dev` steps;
+        both remaining blockers are owner-only and already queued.
+      - >-
+        Verification: `python3 -m pytest gitops/tests -q` -> 48 passed.
+    mrr_end: null
