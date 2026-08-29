@@ -1104,6 +1104,90 @@ await step('the hub says which of these trades the finished work is worth doing'
   }
 });
 
+// 6bt. Whether what the contractor changed is working (`trendSentence`).
+//
+//      The only reading on the hub that asks *when* a bid was priced, and the
+//      only one the eight-row cut could quietly break: it splits a trade's bids
+//      into an older and a newer half, and the rows the page draws are the
+//      newest. Computed off `drawn` rather than `rows` it would compare the
+//      recent half against itself and report "nothing has changed" on every
+//      book forever — a failure no unit test can see, because a unit test hands
+//      the function the whole book by definition. The fixture below is built to
+//      catch exactly that: twelve fence bids, so the cut is real.
+//
+//      It also carries the label proof the two steps above carry, and one more
+//      of its own — `trendSentence` calls `bidWaitingDays` for its date clause,
+//      which ships in a different injected bundle. If that ordering ever breaks
+//      the sentence throws mid-render and takes the whole saved-bid section
+//      down with it, which is worse than drawing nothing.
+await step('the hub says whether a trade has been landing differently lately', async () => {
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    await page.evaluate((now) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      // Six fence bids won last winter, six lost since — a book whose pooled
+      // win rate is exactly 50% and whose recent half is 0 of 6. This is the
+      // shop the snapshot readings cannot see: they average the before and the
+      // after into a number describing neither half of its year.
+      const run = (outcome, n, from) => Array.from({ length: n }, (_, i) => ({
+        name: outcome + ' ' + i, at: at(from - i * 10), fields: { a: '1' },
+        outcome, decidedAt: at(from - i * 10 - 2),
+      }));
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
+        'fence-bid-calculator': [...run('lost', 6, 70), ...run('won', 6, 240)],
+        // A second trade, steady throughout and below the eight-bid floor: it
+        // must be in neither the sentence nor the split.
+        'deck-bid-calculator': [...run('won', 2, 50), ...run('lost', 2, 30)],
+      } }));
+    }, Date.now());
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const line = (await page.textContent('#bidsTrend')).replace(/\s+/g, ' ').trim();
+    check('the hub draws the trend reading at all', await page.isVisible('#bidsTrend'), line);
+    // The half a unit test cannot reach: 6 and 6, not 4 and 4. Eight rows are
+    // drawn and twelve are counted, so this is the assertion that fails if the
+    // reading is ever computed off the visible list.
+    check('it reads every bid on the device, not the eight rows drawn',
+      /0 of 6 on the 6 most recent, against 6 of 6 before them\./.test(line), line);
+    check('and names the trade as the hub names it, not as storage keys it',
+      /^Fence Bid Calculator has been landing less often than it was: /.test(line), line);
+    check('the trade below the eight-bid floor is left out entirely',
+      !/Deck/i.test(line), line);
+    check('no slug leaked into the sentence in place of a name',
+      !/-bid-calculator/.test(line), line);
+    // The date clause, which is the part that needs a helper from the other
+    // injected bundle. Its absence here would mean bidWaitingDays returned null
+    // rather than that the ordering broke — a throw would have emptied the line.
+    check('the turn is dated in days back off the recent half',
+      /The recent half starts \d+ days back\./.test(line), line);
+    check('and it says plainly that this is not a cause',
+      /moves this as much as a price does/.test(line), line);
+    // The pooled rate on the identical book, for contrast: 6 of 12, 50%, and
+    // blind to the entire finding above.
+    const rate = (await page.textContent('#bidsWinRate')).replace(/\s+/g, ' ').trim();
+    check('the snapshot rate on the same book cannot see any of this',
+      /You have won 8 of 16 decided bids — 50%/.test(rate), rate);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the trend reading is counted',
+      counts.saved_bid_trend_shown >= 1, JSON.stringify(counts));
+    check('and the counter names no trade and no direction',
+      !/fence|deck|less|more/i.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
 // 6bb. Backup and restore (`backup.mjs`) — the bids surviving the browser.
 //
 //      Everything above stands on one `localStorage` key in one browser, and

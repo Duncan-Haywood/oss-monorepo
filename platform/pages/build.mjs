@@ -1065,12 +1065,13 @@ ${subgroups
     .bids .bid-chase { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
                        border-left: 3px solid var(--accent); background: var(--bg);
                        border-radius: 0 8px 8px 0; font-size: .85rem; }
-    /* All three standing readings share one rule, in the muted border rather
+    /* All four standing readings share one rule, in the muted border rather
        than the accent one: the chase line is asking the contractor to do
        something today, and these are standing readings about their pricing.
        Stacked accent bars would make none of them the thing to act on. */
     .bids .bid-pricing,
     .bids .bid-win-rate,
+    .bids .bid-trend,
     .bids .bid-keep { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
                       border-left: 3px solid var(--line); background: var(--bg);
                       border-radius: 0 8px 8px 0; font-size: .85rem; }
@@ -1154,8 +1155,10 @@ ${contents}
         clearing your browser data clears them, so download a backup below if
         they matter. Mark one won or lost in the tool that priced it and it
         stops counting as waiting here — and once a few have been decided, this
-        page says how often your quotes are landing, and whether that is the
-        same across the tools you use or one trade pulling it down.
+        page says how often your quotes are landing, whether that is the same
+        across the tools you use or one trade pulling it down, and once a trade
+        has a longer history, whether it has been landing differently lately
+        than it used to.
       </p>
       <!-- The reason to open the hub rather than the tool: how many quotes are
            still out, and how long the oldest has been. Drawn only when there is
@@ -1183,6 +1186,13 @@ ${contents}
            contractor working six calculators can see that five of them are fine
            and the sixth is not. See winRateSentence. -->
       <p class="bid-win-rate" id="bidsWinRate" hidden></p>
+      <!-- Whether what they changed is working. Directly under the rate it is
+           the second derivative of, and the only reading here that asks when a
+           bid was priced rather than only what became of it: every line above
+           pools the whole book, so a shop that re-costed a trade in June reads
+           a rate that averages before and after and cannot see its own change.
+           Inside one tool, never pooled across trades. See trendSentence. -->
+      <p class="bid-trend" id="bidsTrend" hidden></p>
       <!-- Which of their trades the finished work is actually worth doing, and
            the only reading here about money already earned rather than money
            still being chased. The tool pages each say what one trade kept; this
@@ -1521,6 +1531,7 @@ ${BID_PRICING_HELPERS}
     let chaseShown = '';
     let pricingShown = '';
     let winRateShown = '';
+    let trendShown = '';
     let keepShown = '';
 
     function showSavedBids() {
@@ -1610,6 +1621,25 @@ ${BID_PRICING_HELPERS}
       if (rated !== '' && rated !== winRateShown) {
         winRateShown = rated;
         record('saved_bid_win_rate_shown');
+      }
+
+      // Whether what this contractor changed is working, read off the same
+      // whole book — and here the "every row, not the eight drawn" rule is
+      // load-bearing in a way it is not above: this reading splits a tool's
+      // bids into an older and a newer half, and the eight rows the page draws
+      // are the newest, so computing it from them would compare the recent
+      // half against itself.
+      const trend = document.getElementById('bidsTrend');
+      const trending = trendSentence(rows, now);
+      trend.textContent = trending;
+      trend.hidden = trending === '';
+      // Counted on change, as every line above is. record() is already silent
+      // under DNT/GPC and the opt-out, and this carries no name, no slug, no
+      // trade, no figure and no direction — only that the reading drew, which
+      // is what says whether a book here is long enough to have a history.
+      if (trending !== '' && trending !== trendShown) {
+        trendShown = trending;
+        record('saved_bid_trend_shown');
       }
 
       // Which trades the finished work is worth doing, over the same whole

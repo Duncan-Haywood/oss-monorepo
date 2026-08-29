@@ -26889,3 +26889,85 @@ entries:
         viewports with no WCAG A/AA violation, and the full journey at 0 failed
         checks including the new step 6bk. Confirmed the new build was the one
         answering before believing any of it (`curl | grep bidsKeep`).
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped `trendSentence`, the first hub reading that asks whether what a
+        contractor changed is working. Every reading here before it is a
+        snapshot pooled over the whole book — a rate, a share, a band — which is
+        the right shape for "how am I doing" and the wrong shape for the
+        question that immediately follows it. A book here is accumulated over
+        months, so a shop that raised its rates in June, or re-costed decks
+        because `winRateSentence` told them to in May, reads a pooled rate that
+        averages the before and the after: the change they made is not merely
+        invisible in it, it is diluted by exactly the half of the book it was
+        meant to fix, and the louder the change the more thoroughly the snapshot
+        hides it. On a book of twelve fence bids — six won last winter, six lost
+        since — the win rate reads "6 of 12, 50%" and the new line reads "Fence
+        Bid Calculator has been landing less often than it was: 0 of 6 on the 6
+        most recent, against 6 of 6 before them. The recent half starts 70 days
+        back." Both sentences are true; only one of them describes a half of
+        that shop's year.
+      - >-
+        The design decisions worth recording, all three about what the reading
+        refuses to do. Split inside one tool and never pooled across trades: a
+        movement summed over a fence change and a deck change describes neither,
+        and naming the trade is the entire finding. Ordered by `at` — when the
+        bid was priced — rather than by `decidedAt`, because the price is what
+        is under examination and an old quote answered late would otherwise land
+        in the recent half and be credited to a number this shop no longer
+        charges; `at` is also the field `normalizeBid` requires, where
+        `decidedAt` is absent on every bid decided before that field existed, so
+        ordering by it would drop rows silently — the failure mode this feature
+        area has now shipped twice. And halves by count rather than by calendar:
+        "the last 90 days" gives an empty half to a shop quoting four jobs a
+        month, and a difference between 1 of 3 and 5 of 9 is partly just the
+        denominators. Equal halves are what let the two counts be read straight
+        across, which is the sentence's whole grammar; on an odd count the
+        middle bid belongs to neither side.
+      - >-
+        Thresholds taken from `winRateSentence` rather than invented, because
+        both readings face the same step size. Four decided bids a side
+        (`MIN_TREND_PER_HALF`), so eight on one trade before this draws at all,
+        which is the price of asking about change rather than about state; forty
+        points (`TREND_SPLIT_POINTS`), which at that floor admits a gap of two
+        bids and refuses a gap of one. One bid of difference is a single unusual
+        job — the customer's brother-in-law underbidding once — and a reading
+        that called that a change would send a contractor to re-cost a trade
+        that never moved. Never a rate to aim for and never a cause: the second
+        sentence says plainly that a slow season or a run of unusual jobs moves
+        this as much as a price does, and the "should / aim / target / healthy /
+        ideal" test that guards the win rate and the keep reading guards both
+        branches of this one too.
+      - >-
+        One structural risk this reading carries that none of the others do, and
+        the reason it got its own browser step. The hub's "compute off every row,
+        not the eight drawn" rule is consistency for the readings above it and is
+        load-bearing here: the rows the page draws are the *newest*, so computing
+        this from them would compare the recent half against itself and report
+        that nothing has changed, on every book, forever — with nothing failing
+        anywhere, exactly the shape of the three transcription defects this
+        feature has already shipped. Journey step 6bt drives twelve bids through
+        a page that draws eight for precisely that reason, and asserts "0 of 6
+        ... against 6 of 6". A second build test pins that `bidWaitingDays` is
+        emitted before `trendSentence` calls it — they ship in different injected
+        bundles, and a throw there would take the whole saved-bid section down
+        rather than merely drawing nothing.
+      - >-
+        Queue state: zero open PRs at session start on `list_pull_requests`,
+        the tenth consecutive session, so the three-PR merge quota again had
+        nothing to draw on; one opened and merged here. Did not re-audit the
+        stale branches — the 2026-08-27, 2026-08-28 and 2026-08-29 entries
+        already record that sweep and nothing has been pushed to them since.
+      - >-
+        Verified locally, the runner outage still standing: 524 platform/pages
+        tests (512 before), eight CI python test modules, five CI python checks,
+        216 workflows valid, the artifact at 164 products / 445 pages with no
+        dead links, 164/164 tools answering in Chromium with no errors, 443
+        pages x 2 viewports with no WCAG A/AA violation, and the full journey at
+        0 failed checks including the new step 6bt. Confirmed the served build
+        was the new one before believing any of it (`curl | grep bidsTrend`),
+        which the sweep's own header asks for after a stale server cost a false
+        clean report on 2026-08-28.

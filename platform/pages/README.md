@@ -535,6 +535,77 @@ Counted as `saved_bid_win_rate_shown`: on change, local only, no name, no slug,
 no figure, and no tool — which trade someone bids is not something this site
 needs to know to tell whether the reading is worth its bytes.
 
+### Whether what you changed is working
+
+Every reading above is a snapshot — a rate, a share, a band, pooled over the
+whole book. That is the right shape for *how am I doing* and the wrong shape for
+the question that follows it. A book here is accumulated over months, so a shop
+that raised its rates in June, or re-costed decks *because* `winRateSentence`
+told them to in May, reads a pooled rate that averages the before and the after.
+The change they made is not merely invisible in it: it is diluted by exactly the
+half of the book it was meant to fix, and the louder the change, the more
+thoroughly the snapshot hides it. `trendSentence` is the reading that closes that
+loop, on the hub only.
+
+    Fence Bid Calculator has been landing less often than it was: 0 of 6 on the
+    6 most recent, against 6 of 6 before them. The recent half starts 70 days
+    back.
+
+`winRateSentence` on that identical book says "you have won 6 of 12 decided bids
+— 50%", which is true and describes neither half of this shop's year.
+
+- **Inside one tool, never pooled.** A movement summed across trades mixes a
+  fence change with a deck change and describes neither; the whole finding is
+  *which* trade moved, so the trade is the unit. Only the furthest movement is
+  named, with the slug breaking ties, for the reason every reading here names
+  one thing: a table of small movements is something to read, and this is
+  something to act on.
+- **Ordered by `at` — when the bid was priced — not by `decidedAt`.** What is
+  under examination is the price, and the price was set when the bid was made.
+  An old quote answered late would otherwise land in the recent half and be
+  counted against a number this shop no longer charges. `at` is also the field
+  `normalizeBid` requires, where `decidedAt` is absent on every bid decided
+  before that field existed — so ordering by it would drop rows silently, which
+  is the failure mode this feature area has shipped twice.
+- **Halves by count, not by calendar.** "The last 90 days" gives an empty half
+  to a shop quoting four jobs a month and two halves of wildly different size to
+  everyone else, and a difference between 1 of 3 and 5 of 9 is partly just the
+  denominators. Equal halves make the counts readable straight across, which is
+  the sentence's whole grammar. On an odd count the middle bid belongs to
+  neither side rather than being lent to one of them.
+- **Four decided bids a side** (`MIN_TREND_PER_HALF`), so eight on one trade
+  before this can be read at all — the price of asking about change rather than
+  about state. Four is `MIN_WIN_RATE_PER_TOOL`'s floor and rests on the same
+  argument: at four the achievable rates are quarters, so the smallest
+  reportable gap is two bids wide.
+- **Forty points apart** (`TREND_SPLIT_POINTS`), matching
+  `WIN_RATE_SPLIT_POINTS` against the same step size: forty admits a gap of two
+  bids and refuses a gap of one. One bid of difference is what a single unusual
+  job looks like, and a reading that called that a change would send a
+  contractor to re-cost a trade that never moved.
+- **The turn is dated in days back**, off the oldest bid in the recent half.
+  That is a fact about the sample rather than a claim about when anything
+  changed, and it gives the reader a period to think about instead of an
+  instruction. It is also the one clause needing a helper from another injected
+  bundle — `bidWaitingDays` ships with `BID_FOLLOW_UP_HELPERS`, which the hub
+  emits above the pricing helpers — so a build test pins that ordering. A throw
+  here would take the whole saved-bid section down with it.
+- **Never a target, and never a cause.** The second sentence says plainly that a
+  slow season or a run of unusual jobs moves this as much as a price does, and
+  the same "should / aim / target / healthy / ideal" test that guards
+  `winRateSentence` and `keepSentence` guards both branches of this one.
+
+The "every row, not the eight drawn" rule that the readings above follow for
+consistency is load-bearing here: the rows the page draws are the *newest*, so
+computing this from them would compare the recent half against itself and report
+that nothing has changed, on every book, forever. Journey step 6bt drives twelve
+bids through a page that draws eight for exactly that reason.
+
+Counted as `saved_bid_trend_shown`, on the same terms as the lines above: on
+change, local only, no name, no slug, no trade, no figure — and no direction
+either, since which way a shop is moving is not something this site needs to
+know to tell whether the reading is worth its bytes.
+
 ### Which of these trades is worth doing
 
 The three readings above make a contractor better at getting the yes.
