@@ -27528,3 +27528,78 @@ entries:
         and 0 page/console errors, `contrast.mjs` clean across 443 pages × 2
         viewports, and a 69-assertion Chromium pass at 390px. The 48 single-word
         queries from #1974 return byte-identical results.
+  - venture: chargeback-evidence-packet
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The reason code is the whole product, and it was a three-way
+        ternary.** `chargeback-evidence-packet` branched on two of its four
+        dispute reasons and dropped the other two into one generic list, so a
+        seller fighting a fraud claim was never told to pull the AVS/CVV result
+        and a seller fighting "not as described" was never told to keep the
+        listing as it stood at purchase. Those are the records that carry those
+        two responses. A representment is one submission; a packet that does
+        not answer the reason code is a packet with no answer in it. All four
+        reasons now have distinct required sets, split into core and
+        strengthening, with five evidence categories the original eight had no
+        room for (listing, condition photos, AVS/CVV, device/login, prior
+        undisputed orders), and the checklist re-renders from the selected
+        reason rather than showing thirteen flat boxes (#1979).
+      - >-
+        **The text download handed the issuer the seller's own gap list.** It
+        concatenated the review panel and the draft, and the review panel is
+        where "still to gather" lives. The two halves have opposite audiences
+        and are now separated by an explicit `do not submit` heading; the
+        submitted draft names only records the seller holds. Worth carrying as
+        a shape, not a one-off: on any evidence tool, the thing that helps the
+        user decide and the thing they send outward are different documents,
+        and running them together is a silent leak in the direction that costs
+        them.
+      - >-
+        **A suite of regexes over `index.html` is not a test suite.** Ten
+        assertions matched the page's source text, so they passed on code that
+        never ran and would have failed on a rename that changed nothing — and
+        they had not noticed the ternary above in any of its lifetime. Logic
+        moved to `packet.mjs` with 16 behavioural tests, including the
+        no-leaked-gaps property as a property rather than a string match;
+        `test.mjs` keeps page wiring and disclaimers and now asserts the inline
+        copy is gone. Also adds the venture's first SEO article, the organic
+        entry point every peer has and this one did not.
+  - venture: contractor-bid-readiness
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **A missed-deadline tool said "urgent" for a full day after the
+        deadline passed.** `assessBid` measured from the current instant to the
+        due date's *last second* and rounded up. Expired last night is a
+        fraction between -1 and 0, `Math.ceil` makes that 0, and `urgency`
+        tests `daysRemaining < 0` — so `past-due` could not appear until the
+        deadline was two days gone, and the page printed "0 day(s) remain" to
+        say it. The same rounding overstated every future deadline by one: due
+        today read "1 day(s) remain", due tomorrow read 2. An unparseable date
+        reached the page as "NaN day(s) remain". Fixed by collapsing both sides
+        to local midnight, which also makes the count immune to a 23- or
+        25-hour daylight-saving day (#1980).
+      - >-
+        The tell was in the mismatch between the arithmetic and the sentence.
+        A page that says "N day(s) remain" is asking a calendar-day question;
+        the code was answering an elapsed-milliseconds one. Wherever those two
+        differ, the boundary cases are wrong in both directions and the middle
+        of the range looks fine — which is why it shipped. Checked the other
+        four ventures doing day arithmetic (`grant-deadline-tracker`,
+        `grant-reporting-tracker`, `invoice-payment-terms-calculator`,
+        `payment-reconciliation-workbench`): all anchor both sides to UTC
+        midnight through a shared `parseDate`, so their differences are exact
+        multiples of a day. This was the only tool with the bug.
+      - >-
+        Verified locally, the runner outage still standing (`runner_id: 0`,
+        2s jobs, logs 404 on both PRs): 28 venture tests for the chargeback
+        tool and 8 for the bid tool, 582 platform/pages tests, the four
+        portfolio-validate scripts, build plus `check.mjs` at 164 products /
+        446 pages with no dead links, `sweep.mjs` 164/164, and `contrast.mjs`
+        clean across 444 pages × 2 viewports. Both customer journeys driven in
+        Chromium against the built artifact rather than the model: the
+        chargeback reason switch, gap flagging, save/reload/restore and the
+        article CTA; and all six deadline bands rendering their new sentence.
