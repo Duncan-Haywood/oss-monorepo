@@ -27020,3 +27020,69 @@ entries:
         0 failed checks including the new step 6bp. Confirmed the served build
         carried the new shared script before believing any of it (`curl
         pf-jobs.js | grep toolTrendSentence`).
+  - venture: cash-runway-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Gave the runway forecast the payments that do not repeat. Four weekly
+        averages could not express a quarterly tax bill or an insurance
+        renewal, so the tool answered "cash stays positive" to an owner about
+        to be $3,000 down the week that bill cleared -- worse than no answer,
+        because they believe it. Eight one-off rows now land in their own week,
+        and the forecast length is settable because a quarterly bill is 13
+        weeks out and the window was fixed at 12.
+      - >-
+        The reading that changes an outcome is not the week cash runs out, it
+        is which payment to move. `shortfallPlan` names the outflow to delay or
+        the invoice to collect early, and whether that closes the gap or covers
+        part of it. When weekly costs exceed weekly collections it says so
+        instead: moving one payment postpones that shortfall rather than fixing
+        it, and offering a date change there sells the owner a week. A payment
+        landing after the shortfall starts is not offered at all, because
+        delaying it cannot rescue a week already negative.
+      - >-
+        The gap measured is the deepest week of the negative run, not the first
+        one. Covering the first week's shortfall leaves the owner short again a
+        fortnight later, which is the shortfall they came to avoid -- the same
+        shape as the bid link that dropped `quantity` and priced a job the
+        sender never saw.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `sweep.mjs` called the finished calculator NO-RESPONSE, and it was
+        right to fail rather than pass: "Add another row" edits the form, and
+        because a row-adder sits with the rows it adds it was the first button
+        in the document, so `pressPrimaryAction` stopped there and never
+        pressed Forecast. That is the failure this file already documents --
+        the saved-bids band being pressed instead of the calculator -- arriving
+        from the other direction, and the label blocklist is where it belongs.
+        Anchored to `^add another`, so a compute button merely containing the
+        word is still pressed.
+      - >-
+        A privacy defect the exclusion list missed by one spelling.
+        `EXCLUDED_FIELD_IDS` held `usageOptOut` because a counting preference
+        is a fact about the browser, not the job. 15 published pages spell that
+        checkbox `usage` and 10 of them carry the saved-bids band, so on those
+        a restore had been writing the visitor's counting preference out of a
+        saved document -- including switching counting *on* for someone who had
+        left it off. Both spellings are excluded now. One id was never going to
+        hold: the rule is about what the control means, not what it is called.
+      - >-
+        `contractor-bid-readiness` loses the band as a consequence, and that is
+        the correct reading rather than a regression to undo. Its only other
+        fields are two real inputs; it cleared MIN_SAVEABLE_FIELDS only because
+        the privacy checkbox was being counted as a third bid field. A
+        two-field form was never a bid worth a save-and-restore band.
+      - >-
+        Verified locally, the runner outage still standing (`runner_id=0`,
+        `runner_name=""`, 2-second jobs on this PR and on every workflow on
+        `main`): 36 venture tests (12 before), 530 platform/pages tests, eight
+        repo CI checks, the artifact at 164 products / 445 pages with no dead
+        links, 164/164 tools answering in Chromium with no errors, 443 pages x
+        2 viewports with no WCAG A/AA violation, journey.mjs at 0 failed
+        checks, and a 19-check browser journey over this tool's own customer
+        path. `check_money_sign.py` caught this branch's own `money()` helper
+        signing a negative as `$-3000.00` before it shipped.
