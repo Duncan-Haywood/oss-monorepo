@@ -1,0 +1,422 @@
+# The portfolio's public site: every static, browser-runnable venture
+# surface, served from the Hetzner control-plane box.
+#
+# WHY THIS EXISTS
+#
+# `platform/pages/build.mjs` assembles 164 finished tools into one static
+# site (hub, per-tool pages, sitemaps, robots.txt, social cards). Until now
+# the only way to publish it was `.github/workflows/portfolio-pages.yml` ->
+# GitHub Pages, which is blocked twice over: Pages is not enabled on the
+# repository (owner flip `deploy-settings`), and every GitHub Actions run
+# has failed without a runner since 2026-08-26, so the artifact is not even
+# being built in CI. Meanwhile this cluster already runs ingress-nginx,
+# cert-manager and an auto-syncing `prod` Application with nothing in it but
+# a placeholder that says "add an Ingress when a product is ready".
+#
+# 164 products are ready. This is that Ingress, plus the workload behind it.
+#
+# It deliberately does NOT depend on GitHub Actions: Argo syncs this file
+# straight from `main`, and the site is built inside the cluster. That is
+# the whole point — it routes around the runner outage rather than waiting
+# on it.
+#
+# HOW THE CONTENT GETS HERE
+#
+# Two init containers, then nginx:
+#
+#   1. `fetch`  shallow-clones this repository into an emptyDir.
+#   2. `build`  runs `platform/pages/build.mjs` over that checkout and
+#               writes the finished site into a second emptyDir.
+#   3. `nginx`  serves that second emptyDir, read-only.
+#
+# The build needs no npm install: build.mjs imports only Node builtins
+# (node:fs, node:crypto, node:path, node:url, node:zlib). That is what makes
+# an in-cluster build cheap enough to do on every pod start.
+#
+# The clone needs a credential because this repository is private. See
+# `secrets/portfolio-repo-token.template.yaml` — one read-only, contents-only
+# fine-grained token, seal it, commit the SealedSecret. Nothing else in this
+# file is secret and no token is stored here.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portfolio-site-nginx
+data:
+  # nginx-unprivileged listens on 8080 as uid 101; it cannot bind 80.
+  default.conf: |
+    server {
+      listen 8080;
+      server_name _;
+      root /site;
+      index index.html;
+
+      # The site is wholly static and carries no user data: no cookies, no
+      # login, no analytics beacon that needs a permissive frame policy.
+      # These headers cost nothing and close the obvious classes.
+      add_header X-Content-Type-Options nosniff always;
+      add_header X-Frame-Options DENY always;
+      add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+      gzip on;
+      gzip_types text/css application/javascript application/json image/svg+xml;
+      gzip_min_length 1024;
+
+      # Hashed asset names are not used here, so do not tell a browser to
+      # hold a calculator for a year — a fix would never reach anyone.
+      location / {
+        try_files $uri $uri/ $uri.html =404;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      error_page 404 /404.html;
+
+      # Kubelet probes. Kept out of the access log so a readiness check every
+      # few seconds does not bury real traffic in the logs.
+      location = /healthz {
+        access_log off;
+        return 200 "ok\n";
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portfolio-site
+  annotations:
+    # Bump to force a rebuild of the site from the current `main` without
+    # otherwise changing this manifest. The refresh CronJob below does the
+    # same thing on a schedule.
+    portfolio/rebuild-nonce: "1"
+spec:
+  # Two replicas so a rebuild (or a lost node) never takes the site to zero.
+  # Each builds independently, so during a rollout the two can briefly serve
+  # different commits — acceptable for a static tool site, and the rolling
+  # update below keeps at least one serving at all times.
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: portfolio-site
+  template:
+    metadata:
+      labels:
+        app: portfolio-site
+    spec:
+      nodeSelector:
+        hcloud/node-role: control-plane
+      priorityClassName: prod-high
+      # Nothing here talks to the Kubernetes API.
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+
+      initContainers:
+        - name: fetch
+          image: alpine/git:2.47.2
+          # --depth 1 keeps this to seconds and a few tens of MB; the build
+          # reads the worktree, never the history.
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              test -n "${GH_TOKEN}" || { echo "GH_TOKEN empty; see secrets/portfolio-repo-token.template.yaml" >&2; exit 1; }
+              # The token goes in the credential store, not the remote URL,
+              # so it cannot leak through `git remote -v`, the process list,
+              # or an error message that echoes the URL back.
+              git config --global credential.helper store
+              printf 'https://x-access-token:%s@github.com\n' "${GH_TOKEN}" > "${HOME}/.git-credentials"
+              chmod 600 "${HOME}/.git-credentials"
+              git clone --depth 1 --branch main \
+                https://github.com/Duncan-Haywood/monorepo-projects.git /workspace/repo
+              rm -f "${HOME}/.git-credentials"
+              echo "fetched $(git -C /workspace/repo rev-parse --short HEAD)"
+          env:
+            - name: HOME
+              value: /workspace
+            - name: GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: portfolio-site-repo
+                  key: token
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+
+        - name: build
+          image: node:22-alpine
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              cd /workspace/repo
+              # build.mjs reads PAGES_BASE_URL from the environment; --out= is
+              # the only flag it needs here. Both flags are `--name=value`.
+              node platform/pages/build.mjs --out=/site
+              # Fail the pod rather than serve a half-built site: check.mjs is
+              # the same integrity gate the Pages workflow runs before upload.
+              # It exits non-zero on dead links or a collapsed product count.
+              node platform/pages/check.mjs --dist=/site
+              echo "built $(find /site -type f | wc -l) files"
+          env:
+            # Must match the Ingress host below, with the trailing slash.
+            # build.mjs stamps this into every canonical link, og:url and
+            # sitemap entry; a mismatch tells crawlers the real page is
+            # somewhere it is not.
+            - name: PAGES_BASE_URL
+              value: https://tools.marisstella.dev/
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: site
+              mountPath: /site
+            # check.mjs parses every emitted script through
+            # `fs.mkdtemp(os.tmpdir(), ...)`, so it needs a writable /tmp.
+            # Without this the read-only root filesystem below fails the pod.
+            - name: build-tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 1536Mi
+
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:1.27-alpine
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: site
+              mountPath: /site
+              readOnly: true
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            # nginx-unprivileged writes its temp dirs and pid under /tmp,
+            # which is what lets the root filesystem stay read-only.
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+      volumes:
+        - name: workspace
+          emptyDir:
+            sizeLimit: 2Gi
+        - name: site
+          emptyDir:
+            sizeLimit: 512Mi
+        - name: build-tmp
+          emptyDir:
+            sizeLimit: 256Mi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 64Mi
+        - name: nginx-conf
+          configMap:
+            name: portfolio-site-nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: portfolio-site
+spec:
+  selector:
+    app: portfolio-site
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# The one Ingress this cluster serves on a public name.
+#
+# `tools.marisstella.dev`, NOT the apex. `infra/README.md` records that
+# marisstella.dev already resolves to this box for something else, and
+# `gitops/prod/landing.yaml` says in as many words that this stack must not
+# hijack that name. A subdomain cannot: ingress-nginx only answers for hosts
+# a rule names, so whatever serves the apex keeps serving it.
+#
+# Publishing needs one DNS record — see gitops/README.md.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portfolio-site
+  annotations:
+    # Staging on purpose, and it must stay staging until DNS resolves.
+    #
+    # Argo auto-syncs this namespace, so this Ingress exists the moment the
+    # manifest lands — before the A record for the host below. cert-manager
+    # will then start HTTP-01 challenges that cannot succeed, and against
+    # the prod issuer those failures count towards Let's Encrypt's
+    # per-account limits for a name nobody can reach yet.
+    #
+    # Staging issues an untrusted certificate, which is exactly right for a
+    # host that is not serving anyone. Flip to `letsencrypt-prod` as the
+    # last step, once `tools.marisstella.dev` resolves to this box and a
+    # staging certificate has actually issued — see gitops/README.md.
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - tools.marisstella.dev
+      secretName: portfolio-site-tls
+  rules:
+    - host: tools.marisstella.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: portfolio-site
+                port:
+                  name: http
+---
+# Keeping the published site current without GitHub Actions.
+#
+# The pods build from `main` at start-up, so they only pick up new tools when
+# something restarts them. Argo will not do that — this manifest does not
+# change when a venture does. A nightly rollout restart is the cheapest way
+# to keep the public site within a day of `main` while the runners are down.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: portfolio-site-refresh
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: portfolio-site-refresh
+rules:
+  # Namespaced, and narrowed by name: this can restart the site and nothing
+  # else. It cannot create, delete, or read any other workload in `prod`.
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    resourceNames: ["portfolio-site"]
+    verbs: ["get", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: portfolio-site-refresh
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: portfolio-site-refresh
+subjects:
+  - kind: ServiceAccount
+    name: portfolio-site-refresh
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: portfolio-site-refresh
+spec:
+  # 04:17 UTC — off the hour, so this does not land with everything else
+  # that runs at midnight.
+  schedule: "17 4 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 3600
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: portfolio-site-refresh
+          nodeSelector:
+            hcloud/node-role: control-plane
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            runAsGroup: 65532
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl:1.31
+              command:
+                - kubectl
+                - rollout
+                - restart
+                - deployment/portfolio-site
+              env:
+                # kubectl caches API discovery under $HOME/.kube/cache. The
+                # root filesystem is read-only, so point both at the emptyDir
+                # rather than let it warn on every run.
+                - name: HOME
+                  value: /tmp
+                - name: KUBECACHEDIR
+                  value: /tmp/.kube/cache
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              resources:
+                requests:
+                  cpu: 20m
+                  memory: 32Mi
+                limits:
+                  cpu: 200m
+                  memory: 128Mi
+          volumes:
+            - name: tmp
+              emptyDir:
+                sizeLimit: 64Mi
