@@ -112,6 +112,107 @@ def test_prod_landing_has_no_marisstella_ingress() -> None:
     assert "marisstella.dev" in landing  # mentioned as do-not-hijack
 
 
+def _portfolio_site() -> dict[str, dict]:
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()))
+    return {d["kind"]: d for d in docs if d}
+
+
+def test_portfolio_site_is_synced_by_prod() -> None:
+    kustomization = yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())
+    assert "portfolio-site.yaml" in kustomization["resources"]
+
+
+def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
+    # infra/README.md records that marisstella.dev already resolves to this
+    # box for something else, and landing.yaml says the stack must not hijack
+    # it. ingress-nginx only answers for hosts a rule names, so a subdomain is
+    # safe and the bare apex is not.
+    ingress = _portfolio_site()["Ingress"]
+    hosts = [rule["host"] for rule in ingress["spec"]["rules"]]
+    assert hosts == ["tools.marisstella.dev"]
+    for host in hosts:
+        assert host not in {"marisstella.dev", "www.marisstella.dev"}
+    assert ingress["spec"]["tls"][0]["hosts"] == hosts
+
+
+def test_portfolio_site_canonical_base_matches_the_ingress_host() -> None:
+    # build.mjs stamps PAGES_BASE_URL into every canonical link, og:url and
+    # sitemap entry. If it drifts from the host actually served, every page
+    # tells crawlers the real page lives somewhere it does not.
+    site = _portfolio_site()
+    host = site["Ingress"]["spec"]["rules"][0]["host"]
+    build = [
+        c
+        for c in site["Deployment"]["spec"]["template"]["spec"]["initContainers"]
+        if c["name"] == "build"
+    ][0]
+    base = [e for e in build["env"] if e["name"] == "PAGES_BASE_URL"][0]["value"]
+    assert base == f"https://{host}/"
+
+
+def test_portfolio_site_carries_no_token_and_reads_one_from_a_secret() -> None:
+    raw = (ROOT / "prod" / "portfolio-site.yaml").read_text()
+    assert "CHANGE_ME" not in raw
+    assert "stringData" not in raw
+    fetch = [
+        c
+        for c in _portfolio_site()["Deployment"]["spec"]["template"]["spec"]["initContainers"]
+        if c["name"] == "fetch"
+    ][0]
+    token = [e for e in fetch["env"] if e["name"] == "GH_TOKEN"][0]
+    assert token["valueFrom"]["secretKeyRef"] == {"name": "portfolio-site-repo", "key": "token"}
+    # The token must not end up in the remote URL, where `git remote -v`, the
+    # process list, or an error echoing the URL would expose it.
+    assert "x-access-token:%s@github.com" in fetch["args"][0]
+    assert "https://x-access-token:${GH_TOKEN}@" not in raw
+
+
+def test_portfolio_site_refresh_can_only_restart_the_site() -> None:
+    role = _portfolio_site()["Role"]
+    assert role["rules"] == [
+        {
+            "apiGroups": ["apps"],
+            "resources": ["deployments"],
+            "resourceNames": ["portfolio-site"],
+            "verbs": ["get", "patch"],
+        }
+    ]
+
+
+def test_portfolio_site_serves_unprivileged_and_read_only() -> None:
+    pod = _portfolio_site()["Deployment"]["spec"]["template"]["spec"]
+    assert pod["securityContext"]["runAsNonRoot"] is True
+    assert pod["automountServiceAccountToken"] is False
+    for container in pod["containers"] + pod["initContainers"]:
+        sec = container["securityContext"]
+        assert sec["readOnlyRootFilesystem"] is True, container["name"]
+        assert sec["allowPrivilegeEscalation"] is False, container["name"]
+        assert sec["capabilities"]["drop"] == ["ALL"], container["name"]
+
+
+def test_portfolio_site_fits_the_prod_quota() -> None:
+    # The quota is namespace-wide and the landing pod also draws on it, so
+    # this only asserts the site cannot single-handedly exhaust it.
+    quota = [
+        d
+        for d in yaml.safe_load_all((ROOT / "prod" / "quota.yaml").read_text())
+        if d and d["kind"] == "ResourceQuota"
+    ][0]["spec"]["hard"]
+    assert quota["requests.cpu"] == "4"
+    deployment = _portfolio_site()["Deployment"]
+    replicas = deployment["spec"]["replicas"]
+    pod = deployment["spec"]["template"]["spec"]
+    # Init containers run one at a time and their requests are not additive
+    # with the app containers; the scheduler takes the max of the two.
+    init_cpu = max(_millicores(c["resources"]["requests"]["cpu"]) for c in pod["initContainers"])
+    app_cpu = sum(_millicores(c["resources"]["requests"]["cpu"]) for c in pod["containers"])
+    assert replicas * max(init_cpu, app_cpu) < 4000
+
+
+def _millicores(value: str) -> int:
+    return int(value[:-1]) if value.endswith("m") else int(float(value) * 1000)
+
+
 def test_infra_adopts_existing_servers() -> None:
     inventory = (REPO / "infra" / "inventory.tf").read_text()
     assert "163417666" in inventory

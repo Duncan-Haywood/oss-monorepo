@@ -42,6 +42,58 @@ quota. It is not a second copy of every product.
   `/data` so a sync cannot reset the 5-hour / weekly accounting. A 429
   (worker exit 42) writes `last_limit_at` and the next ticks sleep.
 
+## The public product site
+
+`prod/portfolio-site.yaml` serves the portfolio's 164 finished static
+tools on **`tools.marisstella.dev`**. It is the first thing in this
+cluster on a public name.
+
+It builds the site *in the cluster* — two init containers (shallow clone,
+then `platform/pages/build.mjs`) writing into an emptyDir that nginx
+serves. That is deliberate: it means publishing does not depend on GitHub
+Actions, which has failed without a runner on every workflow in this repo
+since 2026-08-26, nor on GitHub Pages, which is not enabled. Neither
+blocker sits in this path.
+
+A subdomain, not the apex. `marisstella.dev` already resolves to the
+cpx52 for something else and ingress-nginx only answers for hosts a rule
+names, so the apex keeps whatever serves it today.
+
+### What is still needed to make it live
+
+Three things, all owner actions. Until then Argo syncs the manifests and
+the pods crash-loop on the missing secret, which is the intended
+fail-closed state.
+
+1. **DNS.** One A record: `tools.marisstella.dev` → `89.167.29.39`.
+2. **The clone token.** The repository is private, so the init container
+   cannot clone anonymously. Mint a fine-grained token scoped to this one
+   repository with **Contents: Read-only** and nothing else, seal it, and
+   add it to `prod/kustomization.yaml` — full instructions in
+   `prod/secrets/portfolio-repo-token.template.yaml`.
+3. **A real ACME contact.** `platform/cert-manager/issuer.yaml` still
+   carries `replace-me@duncanhaywood.dev`. Let's Encrypt will refuse to
+   register that address, so TLS cannot issue until it is a real mailbox.
+   Left as a placeholder here on purpose: which address to hand an
+   external certificate authority is the owner's to choose, not an
+   agent's to guess.
+
+Point the Ingress at `letsencrypt-staging` for the first attempt. The
+prod issuer allows five duplicate certificates per week and a wrong DNS
+record burns them.
+
+### Keeping it current
+
+Pods build from `main` at start-up, so a merged venture does not appear
+until something restarts them — and Argo will not, because this manifest
+does not change when a venture does. The `portfolio-site-refresh`
+CronJob does a `rollout restart` nightly at 04:17 UTC. Its Role is
+namespaced and narrowed by resource name: it can restart this one
+Deployment and touch nothing else in `prod`.
+
+For an immediate rebuild, bump `portfolio/rebuild-nonce` on the
+Deployment.
+
 ## What this must not do
 
 - Recreate k3s from Argo (that bricks the node).
@@ -49,4 +101,6 @@ quota. It is not a second copy of every product.
 - Store an OpenAI Admin API key in the cluster (it can raise spend limits).
 - Auto-sync agents committing to the branch they deploy from.
 - Bind an Ingress to `marisstella.dev` without an explicit PR that says
-  so. The name already points at the cpx52.
+  so. The name already points at the cpx52. (`tools.marisstella.dev` is
+  bound, deliberately and on the record, by `prod/portfolio-site.yaml` —
+  a subdomain, which cannot take traffic from the apex.)
