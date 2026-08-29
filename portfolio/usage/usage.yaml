@@ -2051,6 +2051,50 @@ products:
           opt-out and DNT/GPC-respecting path as every other hub event. Still a
           baseline row: the public URL remains owner-gated on
           `deploy-settings`.
+      - as_of: 2026-08-29
+        signals:
+          live_url_visitors: null
+          bid_cost_gap_shown: 0
+          pages_carrying_the_ask: 160
+        note: >-
+          Named the narrowest point in this portfolio's money funnel instead of
+          going quiet at it. Every money reading built in the last week — the
+          tool page's `marginSentence`, the hub's `keepSentence`, the hub's
+          `mixSentence` — stands on one input no calculation can supply: what
+          the job came to once it was delivered. It is the only field here a
+          contractor has to come back *after* the work to fill in, it is
+          optional, and until now nothing in the product mentioned it. A
+          contractor who won six jobs, marked all six won and costed none saw
+          exactly what a fully costed book shows minus one paragraph, with no
+          way to tell that was a choice rather than a tool with nothing to
+          offer them. `costGapSentence` now says which: "None of the 3 jobs you
+          have won here carry what they came to once they were delivered. Put
+          that figure in the box beside 3 more of them and this panel starts
+          saying what your finished work actually kept — the one question every
+          reading above it leaves open, because they are all about winning the
+          work rather than about whether the work was worth winning." The
+          second branch is the honest one and fires while the margin *is*
+          drawing: "Of the 4 jobs you have won here, 3 carry what they came to
+          and 1 do not. A kept figure can only be drawn from the 3 — the rest
+          are missing from it rather than averaged into it." A pooled figure
+          over part of a book, printed where a reader takes it for the whole,
+          is the failure `marginSentence`'s own prose could warn about and only
+          a count can settle. Deliberately not a banner: it asks for exactly
+          what the reading still needs rather than for every row, it never
+          appears where costing every won job would still not reach the floor —
+          a prompt promising a reading the book cannot support is worse than
+          silence — and it disappears the moment the last won job carries a
+          cost. No money figure in any branch, so it is safe on a book priced
+          in more than one currency, and no "should", no share to aim for. The
+          reading to take once live is the funnel itself: `bid_cost_gap_shown`
+          as the denominator against `bid_cost_set` as the numerator, which is
+          the first direct measurement of whether naming a missing input gets
+          it filled in — and `bid_cost_set` against `bid_marked_won` remains
+          the outer funnel this sits inside. Counts are per event and carry no
+          name, no figure, no cost and not which branch drew. Same local,
+          aggregate, opt-out and DNT/GPC-respecting path as every other event.
+          Still a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:

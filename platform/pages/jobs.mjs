@@ -1211,6 +1211,97 @@ export function marginSentence(bids) {
 }
 
 /**
+ * Why the panel has gone quiet about money, and what would make it speak.
+ *
+ * Every money reading this portfolio has built in the last week — the tool
+ * page's `marginSentence`, the hub's `keepSentence`, the hub's `mixSentence` —
+ * stands on one input that no calculation can supply: what the job came to
+ * once it was delivered. It is the only field here a contractor has to come
+ * back *after* the work to fill in, and it is optional, unprompted, and easy
+ * to miss on a row that already looks finished.
+ *
+ * So the whole feature has a funnel, and until now nothing in the product
+ * mentioned it. A contractor who wins six jobs, marks all six won, and costs
+ * none of them sees exactly what a contractor who costed them all would see
+ * minus one paragraph — no gap, no prompt, no reason to believe the box beside
+ * the row is worth anything. `bid_cost_set` against `bid_marked_won` is the
+ * number `usage.yaml` says is worth watching precisely because it is the
+ * narrowest part of that funnel, and a silence is a bad way to widen it.
+ *
+ * Two branches, both of which say something true about *their* book rather
+ * than asking for data on the product's behalf:
+ *
+ *   - **The reading cannot draw yet.** Says how many of their won jobs carry a
+ *     delivered cost, how many more it would take, and — the part that makes
+ *     it worth doing rather than a chore — what the answer would be *about*:
+ *     the one question every other reading in the panel leaves open.
+ *   - **The reading is drawing, and is blind to some of the book.** A kept
+ *     figure pooled over four costed jobs while five uncosted ones sit in the
+ *     same list is a true statement about part of a book, presented where a
+ *     reader will take it for the whole. `marginSentence`'s own honest half
+ *     says the costs are only as good as the job costing; this says how many
+ *     jobs are not in them at all, which is the half a count can settle and
+ *     prose cannot.
+ *
+ * Counts only won bids whose figure the panel can actually read. A won bid
+ * with no readable hero amount could never enter a kept share whatever its
+ * cost, so asking for one would be asking for a number nothing reads — the
+ * same guard, for the same reason, that gates the cost box onto the row.
+ *
+ * Never a nag and never a target: no "you should", no share to aim for, no
+ * second sentence when the book is fully costed. Once every won job carries a
+ * cost this returns `''` and the panel is quiet again, which is the whole
+ * difference between a prompt and a banner.
+ *
+ * Returns `''` — draw nothing — when no won job is missing a cost, and when
+ * costing every one of them still would not reach `MIN_MARGIN_SAMPLE`, because
+ * a prompt that promises a reading the book cannot support is worse than
+ * silence.
+ */
+export function costGapSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var costed = 0;
+  var uncosted = 0;
+
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'won') continue;
+    var parsed = bidAmountValue(bid.amount);
+    if (!parsed) continue;
+    // The same guard `marginSentence` uses: a hero figure that is a saving or
+    // a difference is not a price to take a cost away from.
+    if (!(parsed.value > 0)) continue;
+    if (normalizeJobCost(bid.cost)) costed++; else uncosted++;
+  }
+
+  if (!uncosted) return '';
+  var won = costed + uncosted;
+
+  if (costed >= MIN_MARGIN_SAMPLE) {
+    return 'Of the ' + won + ' jobs you have won here, ' + costed + ' carry what they came to ' +
+      'and ' + uncosted + ' do not. A kept figure can only be drawn from the ' + costed +
+      ' — the rest are missing from it rather than averaged into it, so it describes part of ' +
+      'your book and not all of it.';
+  }
+
+  if (won < MIN_MARGIN_SAMPLE) return '';
+
+  var need = MIN_MARGIN_SAMPLE - costed;
+  var have = costed === 0
+    ? 'None of the ' + won + ' jobs you have won here carry what they came to once they were ' +
+      'delivered'
+    : 'Only ' + costed + ' of the ' + won + ' jobs you have won here carry what they came to ' +
+      'once they were delivered';
+  return have + '. Put that figure in the box beside ' +
+    (need === 1 ? 'one more of them' : need + ' more of them') +
+    ' and this panel starts saying what your finished work actually kept — the one question ' +
+    'every reading above it leaves open, because they are all about winning the work rather ' +
+    'than about whether the work was worth winning.';
+}
+
+/**
  * How many lost bids with a known winning price before the hub draws a reading.
  *
  * Three, where the single-tool `undercutSentence` wants two, and the extra one
@@ -2176,8 +2267,12 @@ export const BID_PRICE_BAND_HELPERS = [
   //
   // `normalizeJobCost` is the alias over it that the won-row cost box and
   // `marginSentence` both read through, so it has to be in the same list.
+  // `costGapSentence` rides here because it is the reading about the missing
+  // half of `marginSentence`'s input, so it can only ever draw on the pages
+  // that carry `marginSentence` — the ones with a hero figure, which is this
+  // bundle's own gate. It needs nothing the list did not already bring.
   ...[normalizeLostTo, normalizeJobCost, bidAmountValue, bidPriceSide, formatBidAmount,
-    priceBandSentence, undercutSentence, marginSentence].map(
+    priceBandSentence, undercutSentence, marginSentence, costGapSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
@@ -2449,7 +2544,7 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning.' : ''}</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it.' : ''}</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
@@ -2460,7 +2555,8 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>${withPriceBand ? `
     <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
     <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
-    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>` : ''}
+    <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>
+    <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-costgap" hidden></p>` : ''}
     <ul class="pf-jobs-list" id="pf-jobs-list" hidden></ul>
     <p class="pf-jobs-note">Kept in this browser only, on this site&rsquo;s own storage. Nothing is uploaded, and clearing your browser data clears it &mdash; <a href="${toRoot}#backup-box">download a backup</a> to keep a copy or open your bids on another device. Bids are kept per tool, so these are the ones you saved here.</p>
   </div>
@@ -2615,6 +2711,7 @@ ${BID_PRICE_BAND_HELPERS}
   var bandShown = '';
   var gapShown = '';
   var marginShown = '';
+  var costGapShown = '';
   var trendShown = '';
   var chaseShown = '';
 
@@ -2695,6 +2792,27 @@ ${BID_PRICE_BAND_HELPERS}
       marginEl.textContent = margin;
       marginEl.hidden = margin === '';
       if (margin !== '' && margin !== marginShown) { marginShown = margin; bump('bid_margin_shown'); }
+    }
+
+    // Directly under the reading it is about, because in the branch that
+    // fires while the margin line is drawing it says what that line does not
+    // cover, and a caveat printed above its claim is not a caveat. In the
+    // other branch the margin line is hidden and this one stands where it
+    // would have been, which is the right place for the sentence explaining
+    // why nothing is there.
+    var costGapEl = el('pf-jobs-costgap');
+    if (costGapEl) {
+      var costGap = costGapSentence(list);
+      costGapEl.textContent = costGap;
+      costGapEl.hidden = costGap === '';
+      // Counted on change, like every reading in this panel, and the event
+      // carries no name, no figure and not which branch drew — only that a
+      // contractor was shown the gap, which is what says whether naming it
+      // moves bid_cost_set at all.
+      if (costGap !== '' && costGap !== costGapShown) {
+        costGapShown = costGap;
+        bump('bid_cost_gap_shown');
+      }
     }
 
     for (var i = 0; i < list.length; i++) {

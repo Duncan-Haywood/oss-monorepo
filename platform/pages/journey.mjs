@@ -634,6 +634,19 @@ await step('costing the won jobs says whether the wins were worth having', async
       (await page.locator('[data-pf-jobs-cost]').count()) === 3);
     check('three uncosted wins say nothing about margin',
       !(await page.isVisible('#pf-jobs-margin')));
+    // …but the panel no longer says nothing at all. Before this reading, a
+    // book in exactly this state had one paragraph fewer than a costed book
+    // and no way for its owner to tell that was a choice rather than a tool
+    // with nothing to offer them — which is the narrowest point of the whole
+    // money funnel, and the one thing no calculation can widen.
+    const askedFor = (await page.textContent('#pf-jobs-costgap')).replace(/\s+/g, ' ').trim();
+    check('instead the panel says what it is missing and what that would buy',
+      await page.isVisible('#pf-jobs-costgap') &&
+      /^None of the 3 jobs you have won here carry what they came to once they were delivered\./
+        .test(askedFor), askedFor);
+    check('and asks for exactly what the reading needs, not for all of them',
+      /the box beside 3 more of them/.test(askedFor) &&
+      /the one question every reading above it leaves open/.test(askedFor), askedFor);
 
     // 40% on the small job, ~4% on the two large ones. Typed and committed
     // through 'change', which is the path a person's keyboard takes.
@@ -651,6 +664,10 @@ await step('costing the won jobs says whether the wins were worth having', async
     const margin = (await page.textContent('#pf-jobs-margin')).replace(/\s+/g, ' ').trim();
     check('the reading appears once all three are costed',
       await page.isVisible('#pf-jobs-margin'), margin);
+    // And the ask goes away the moment it is answered, which is the whole
+    // difference between a prompt and a banner.
+    check('the panel stops asking once every won job carries a cost',
+      !(await page.isVisible('#pf-jobs-costgap')));
     check('it counts the finished jobs and quotes what they charged',
       /^The 3 you finished here were priced at .* and cost you .* — you kept .*, \d+% of what you charged\./
         .test(margin), margin);
@@ -683,11 +700,43 @@ await step('costing the won jobs says whether the wins were worth having', async
     await mark(2, 'won');
     check('and the figure does not come back with the outcome',
       await page.inputValue('[data-pf-jobs-cost][data-pf-jobs-index="2"]') === '');
+    // Two of three costed now, so the ask is back and counts down rather than
+    // repeating itself.
+    const partly = (await page.textContent('#pf-jobs-costgap')).replace(/\s+/g, ' ').trim();
+    check('a partly costed book is asked only for what is still missing',
+      /^Only 2 of the 3 jobs you have won here carry/.test(partly) &&
+      /the box beside one more of them/.test(partly), partly);
+
+    // The other branch: a margin that is drawing while part of the book sits
+    // outside it. Put row 2's cost back, then add a fourth win and leave it
+    // uncosted — the shape a contractor is actually in most of the time, and
+    // the one where a pooled figure is read as the whole book.
+    await page.fill('[data-pf-jobs-cost][data-pf-jobs-index="2"]', String(costs[2]));
+    await page.dispatchEvent('[data-pf-jobs-cost][data-pf-jobs-index="2"]', 'change');
+    await page.waitForTimeout(50);
+    await page.fill('#pf-jobs-name', 'Costed 4');
+    await page.click('[data-pf-jobs="save"]');
+    await page.waitForTimeout(50);
+    await mark(0, 'won');
+    const blind = (await page.textContent('#pf-jobs-costgap')).replace(/\s+/g, ' ').trim();
+    check('a drawing margin is told how much of the book it cannot see',
+      await page.isVisible('#pf-jobs-margin') && await page.isVisible('#pf-jobs-costgap') &&
+      /^Of the 4 jobs you have won here, 3 carry what they came to and 1 do not\./.test(blind),
+      blind);
+    check('and that the missing job is absent from the figure, not averaged into it',
+      /missing from it rather than averaged into it/.test(blind) &&
+      /describes part of your book and not all of it\.$/.test(blind), blind);
+    check('the ask never prints a money figure, so it is safe on a mixed book',
+      !/[$£€]/.test(blind + ' ' + partly + ' ' + askedFor), blind);
 
     const counts = await page.evaluate(
       () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
     check('the cost entries and the reading are counted',
       counts.bid_cost_set >= 3 && counts.bid_margin_shown >= 1, JSON.stringify(counts));
+    // The funnel's own numerator and denominator, side by side: how often the
+    // gap was named against how often a cost was then typed.
+    check('and so is the ask that precedes them',
+      counts.bid_cost_gap_shown >= 1, JSON.stringify(counts));
     check('and the counter holds no customer name, figure or cost',
       !/Costed |\$/.test(JSON.stringify(counts)), JSON.stringify(counts));
   } finally {

@@ -37,6 +37,7 @@ import {
   BID_TREND_HELPERS,
   normalizeJobCost,
   marginSentence,
+  costGapSentence,
   PRICE_BAND_CLAUSE,
   bidAmountValue,
   formatBidAmount,
@@ -1647,6 +1648,140 @@ test('the cost box and the margin ride on the same gate as the price band', () =
   const script = module_();
   assert.match(script, /var marginEl = el\('pf-jobs-margin'\);/);
   assert.match(script, /if \(outcome === 'won' && gapEl\)/);
+});
+
+// --- why the money reading is quiet, and what would make it speak -----------
+
+// A won bid the panel can read a price off, with no delivered cost — the
+// common case, and the one the whole money half of this feature is gated on.
+const uncosted = (amount) => ({ name: amount, at: AT, outcome: 'won', amount });
+
+test('an uncosted book is told what it is missing and what it would buy', () => {
+  // Three wins, none costed. marginSentence draws nothing here and, before
+  // this reading, said nothing about why — the panel simply had one paragraph
+  // fewer than a costed book, with no way to tell that was a choice.
+  const sentence = costGapSentence([uncosted('$1,000'), uncosted('$2,000'), uncosted('$3,000')]);
+  assert.match(sentence,
+    /^None of the 3 jobs you have won here carry what they came to once they were delivered\./);
+  assert.match(sentence, /Put that figure in the box beside 3 more of them/);
+  assert.match(sentence, /the one question every reading above it leaves open/);
+});
+
+test('a partly costed book counts only what is still needed', () => {
+  const sentence = costGapSentence([
+    finished('$1,000', '800'), finished('$2,000', '1600'), uncosted('$3,000'),
+  ]);
+  assert.match(sentence,
+    /^Only 2 of the 3 jobs you have won here carry what they came to once they were delivered\./);
+  // One, not three: the ask is what the reading actually needs.
+  assert.match(sentence, /the box beside one more of them/);
+});
+
+test('a drawing margin is told how much of the book it cannot see', () => {
+  // Four costed jobs pool to a figure a reader will take for the whole book;
+  // five uncosted wins sit in the same list. marginSentence's honest half says
+  // the costs are only as good as the job costing. This says how many jobs are
+  // not in them at all, which is the half a count can settle and prose cannot.
+  const sentence = costGapSentence([
+    finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700'),
+    finished('$4,000', '3000'),
+    uncosted('$5,000'), uncosted('$6,000'), uncosted('$7,000'), uncosted('$8,000'),
+    uncosted('$9,000'),
+  ]);
+  assert.match(sentence, /^Of the 9 jobs you have won here, 4 carry what they came to and 5 do not\./);
+  assert.match(sentence, /missing from it rather than averaged into it/);
+  assert.match(sentence, /describes part of your book and not all of it\.$/);
+});
+
+test('a fully costed book is quiet, which is what makes this a prompt and not a banner', () => {
+  assert.equal(costGapSentence([
+    finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700'),
+  ]), '');
+  // And a book that could never reach the floor is quiet too: promising a
+  // reading two more entries cannot produce would be worse than saying nothing.
+  assert.equal(MIN_MARGIN_SAMPLE, 3);
+  assert.equal(costGapSentence([uncosted('$1,000'), uncosted('$2,000')]), '');
+  assert.equal(costGapSentence([]), '');
+  assert.equal(costGapSentence(null), '');
+  assert.equal(costGapSentence(undefined), '');
+});
+
+test('it counts only won jobs whose figure the panel can actually read', () => {
+  const rows = [uncosted('$1,000'), uncosted('$2,000'), uncosted('$3,000')];
+  const drawn = costGapSentence(rows);
+  for (const noise of [
+    // Lost, however much it cost to bid — a cost box never appears on it.
+    { name: 'lost it', at: AT, outcome: 'lost', amount: '$9,999', cost: '1' },
+    // Won on a page with no hero figure: no price to take a cost away from, so
+    // asking for one would be asking for a number nothing reads.
+    { name: 'no figure', at: AT, outcome: 'won', cost: '500' },
+    { name: 'no figure either', at: AT, outcome: 'won' },
+    // A hero figure that is a saving or a difference rather than a price.
+    { name: 'negative hero', at: AT, outcome: 'won', amount: '-$4.20' },
+    // Still waiting on an answer, so there is no delivered job to cost.
+    { name: 'waiting', at: AT, amount: '$9,999' },
+  ]) {
+    assert.equal(costGapSentence([...rows, noise]), drawn, noise.name);
+  }
+  // An unreadable cost is not a cost: that row still counts as uncosted, which
+  // is the honest reading of a box holding "about 500".
+  assert.match(
+    costGapSentence([...rows, { name: 'garbled', at: AT, outcome: 'won', amount: '$500', cost: 'about 500' }]),
+    /None of the 4 jobs/,
+  );
+});
+
+test('the cost-gap reading never nags and never states a figure to aim for', () => {
+  for (const book of [
+    [uncosted('$1,000'), uncosted('$2,000'), uncosted('$3,000')],
+    [finished('$1,000', '800'), finished('$2,000', '1600'), uncosted('$3,000')],
+    [finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700'),
+      uncosted('$4,000')],
+  ]) {
+    const sentence = costGapSentence(book);
+    assert.notEqual(sentence, '');
+    assert.doesNotMatch(sentence, /should|aim|target|too (high|low)|healthy|ideal|industry/i);
+    // No money figure: this reading counts jobs, it does not price them, so it
+    // is safe on a book whose rows are in more than one currency.
+    assert.doesNotMatch(sentence, /[$£€]/);
+  }
+});
+
+test('the injected cost-gap helper answers exactly as the module does', () => {
+  const evaluated = new Function(`${BID_AMOUNT_HELPER}
+${BID_PRICE_BAND_HELPERS}
+    return costGapSentence;`)();
+
+  for (const book of [
+    [], null,
+    [uncosted('$1,000'), uncosted('$2,000')],
+    [uncosted('$1,000'), uncosted('$2,000'), uncosted('$3,000')],
+    [finished('$1,000', '800'), finished('$2,000', '1600'), uncosted('$3,000')],
+    [finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700')],
+    [finished('$1,000', '800'), finished('$2,000', '1600'), finished('$3,000', '2700'),
+      uncosted('$4,000'), uncosted('£5,000')],
+  ]) {
+    assert.equal(evaluated(book), costGapSentence(book), JSON.stringify(book && book.length));
+  }
+});
+
+test('the cost-gap line rides on the same gate as the margin it is about', () => {
+  const withHero = injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator');
+  assert.match(withHero, /id="pf-jobs-costgap"/);
+  // Below the margin line: in the branch that fires while that line is drawing
+  // it says what the line does not cover, and a caveat above its claim is not
+  // a caveat.
+  assert.ok(withHero.indexOf('id="pf-jobs-costgap"') > withHero.indexOf('id="pf-jobs-margin"'));
+  assert.match(withHero, /still missing that figure, rather than going quiet about it/);
+
+  const without = injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator');
+  assert.doesNotMatch(without, /id="pf-jobs-costgap"/);
+
+  const script = module_();
+  assert.match(script, /var costGapEl = el\('pf-jobs-costgap'\);/);
+  assert.match(script, /var costGap = costGapSentence\(list\);/);
+  assert.match(script, /bump\('bid_cost_gap_shown'\)/);
+  assert.ok(!/bump\('bid_cost_gap_shown:' ?\+/.test(script), 'the event names nothing');
 });
 
 test('the cost box is wired for change and for Enter, like the price box', () => {
