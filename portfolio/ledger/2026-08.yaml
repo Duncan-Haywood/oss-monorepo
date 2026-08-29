@@ -28668,3 +28668,74 @@ entries:
         limit + sealed API key for the former; one DNS A record + scoped
         read-only PAT + real ACME contact email for the latter).
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The Hetzner Codex governor could never have authenticated with a
+        subscription.** `gitops/agents/workers/worker.sh` checked that
+        `CODEX_ACCESS_TOKEN` was set and then handed it to nothing; the Codex
+        CLI reads a whole auth file from `$CODEX_HOME` and has no environment
+        variable for a plan token. A subscription-only Secret would have
+        passed the startup check and failed at the first API call. This is
+        why "use the built-in quota" kept being recorded as a policy question
+        (`codex-governor-enable`, `agent-runner-subscription-login`) -- the
+        mechanism to answer it either way did not exist. `CODEX_AUTH_JSON` is
+        that route, wired the way `ventures/local-site-studio`'s Codex
+        workflow already proved out, and merged in #2015.
+      - >-
+        Two more latent breaks in the same path, both of which would have
+        surfaced on the first tick after the owner flip. `codex exec
+        --ask-for-approval` was dropped upstream and the Job installs the CLI
+        unpinned, so every run would have aborted before spending a token
+        (now `-c approval_policy="never"`). And Codex rotates its plan
+        credential on use, so the refreshed file died with the pod and the
+        second Job would have re-presented a spent refresh token -- it now
+        lives on a `codex-home` PVC, re-seeded only when the sealed value's
+        fingerprint changes. A rejected credential exits 43, distinct from
+        the 42 a 429 exits with, so an expired login is no longer slept off
+        as a quota limit.
+      - >-
+        The worker's prompt preamble said "make the smallest correct change"
+        and "prefer leaving the repo unchanged over guessing" -- the opposite
+        of what all three real queue items ask for. Replaced with
+        `gitops/agents/workers/mandate.md`, the portfolio's product-first
+        brief plus the floor a run may not cross, prepended to every item.
+        Queue items also gained `delivery`: the three real items tell the
+        agent to open a PR and merge it while `worker.sh` folded the tree and
+        opened a second one, and for `branch-pr-drain` the
+        `git reset --soft` would have folded another branch onto the wrong
+        base.
+      - >-
+        The credential choice was left with the owner rather than decided.
+        `infra/OWNER_CHECKLIST.md`'s objection to a personal plan login (no
+        euro hard stop, 5-hour/weekly windows shared with the owner's own
+        interactive use) is preserved verbatim and restated where the choice
+        is made; the metered `OPENAI_API_KEY` path still starts on a Secret
+        carrying only that key. An earlier draft made the API-key path fail
+        closed behind an opt-in flag and was reverted before merge -- it
+        would have broken the owner's own documented procedure the day they
+        followed it. Nothing was enabled: `policy.json` stays `"enabled":
+        false`, the CronJob stays suspended.
+      - >-
+        Verification, all local (every Actions job on #2015 was the known
+        no-runner outage -- `runner_id: 0`, `runner_name: ""`, 3-4s,
+        confirmed via the jobs API rather than inferred from duration):
+        `pytest gitops/tests` 57 passed (12 new), `pyflakes`, `shellcheck`,
+        `kustomize build` across 5 overlays, `kubeconform -strict` 49
+        resources 0 invalid, and `run_workflow_locally.py
+        portfolio-validate.yml` 40/40. `worker.sh` was additionally
+        exercised end-to-end against a stub `codex`/`gh` for all five
+        credential states and both delivery modes -- behaviour observed, not
+        asserted.
+      - >-
+        Queue state at the start of this run: 0 open PRs, so the 3-PR merge
+        quota was satisfied trivially (fewer than 3 -> process all -> none
+        existed). The remote-branch backlog was not re-walked: the entry
+        above from earlier today already established the top 12 are
+        superseded by `main`, and re-deriving that is the duplicated work
+        `CLAUDE.md` warns about. No branch touching `gitops/agents/` exists,
+        so #2015 had no competing implementation.
+    mrr_end: null
