@@ -28209,3 +28209,35 @@ entries:
         exactly. Not deployed: publishing is still the owner's
         `deploy-settings` flip.
     mrr_end: null
+  - venture: ventures/ubuntu-agent-server
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Wired the Codex self-directed queue to an actual repo.**
+        `config/repos.yml` had `repos: []` — the whole headless-CLI /
+        self-directed / PR-only system in `agent_runner.py` existed in
+        code and pointed at nothing. Added
+        `Duncan-Haywood/monorepo-projects` as a `tool: codex` entry
+        (`dry_run: true`, `self_directed: true`), so the box has real
+        work queued once a human provisions it and logs Codex CLI into
+        the account whose subscription quota should be spent — that
+        login and box provisioning stay owner-only per the venture's own
+        README.
+      - >-
+        Added an optional per-repo `self_directed_prompt` override
+        (previously hardcoded as one module-level constant) and used it
+        to point this repo's entry at its own README/AGENTS.md/CLAUDE.md
+        conventions, keeping the existing prompt's safety boundary
+        unchanged: PR-only, no billing/deploy/infra/secret-adjacent edits
+        from this unattended path.
+      - >-
+        Confirmed the GitHub Actions runner-allocation outage first
+        recorded 2026-08-26 (decision-queue `actions-runners-unavailable`,
+        #1842) is still live on 2026-08-29: 8 unrelated check runs on this
+        PR (ansible, python, shellcheck, build x2, check, yaml-sanity,
+        duplicate-symbols) all completed in 2-5 seconds with
+        `runner_id: 0`. Verified locally instead (yaml parse, py_compile,
+        pyflakes clean, 28/28 existing unit tests unchanged) and merged
+        on that basis, per this repo's own outage-handling rule.
+    mrr_end: null
