@@ -603,6 +603,68 @@ export function searchVariants(word) {
 }
 
 /**
+ * Share of the catalogue a word has to appear in before it stops narrowing
+ * anything. Measured, not guessed: at 164 tools the words above this line are
+ * `see` (70%), `away` (59%), `charge` (54%), `much` (52%), `special` (43%) and
+ * `not` (37%) — house phrasing ("see what a 5× special costs", "what to charge",
+ * "the cost a per-square special cannot see") rather than anything a visitor is
+ * looking for. The next word down is `number` at 32%, which is the same kind of
+ * word, so the exact cut is not load-bearing.
+ */
+export const CATALOGUE_STOPWORD_SHARE = 0.35;
+
+/**
+ * Words this catalogue's own copy repeats so often they cannot narrow a search.
+ *
+ * `SEARCH_STOPWORDS` is generic English. This is the domain half, and it has to
+ * be derived rather than listed: the copy changes every time a tool ships, and
+ * a hand-written list would be describing last month's catalogue.
+ *
+ * It matters because the matcher ANDs across query words, so a word in half the
+ * indexes still costs nothing while a word in *no* index zeroes the whole
+ * query. `how much to charge to install a water heater` returned the **boiler**
+ * calculator alone: that tool happens to use all seven content words somewhere,
+ * and the water-heater calculator does not say "charge". Dropping the two words
+ * that mean nothing here leaves `install water heater`, which finds the tool the
+ * visitor asked for.
+ *
+ * **A word that appears in any tool's name is never a stopword**, however common
+ * it is. That rule is what makes this safe: `quote` is in three names (Notary
+ * Trip Quote, Translator Project Quote, 3PL Quote Normalizer) and `rate` is in
+ * one, so neither can be dropped, and searching a tool by its own name keeps
+ * working. Without it a frequency cut would quietly delete tools from the
+ * search — the worst possible outcome for the box that exists to find them.
+ *
+ * Dropped from the index and from the query alike; they have to agree, or a
+ * query containing one would match nothing at all.
+ */
+export function catalogueStopwords(cards, share = CATALOGUE_STOPWORD_SHARE) {
+  if (cards.length === 0) return new Set();
+  const named = new Set();
+  const frequency = new Map();
+  for (const card of cards) {
+    for (const word of String(card.name ?? '').split(' ')) if (word) named.add(word);
+    for (const word of new Set(String(card.index ?? '').split(' ').filter(Boolean))) {
+      frequency.set(word, (frequency.get(word) ?? 0) + 1);
+    }
+  }
+  const floor = cards.length * share;
+  return new Set(
+    [...frequency]
+      .filter(([word, count]) => count >= floor && !named.has(word))
+      .map(([word]) => word),
+  );
+}
+
+/** One card's search index with the words that cannot narrow it removed. */
+export function withoutStopwords(index, stopwords) {
+  return index
+    .split(' ')
+    .filter((word) => word && !stopwords.has(word))
+    .join(' ');
+}
+
+/**
  * How well one card answers a query, so the hub can put the best match first.
  *
  * The hub used to filter without ranking: matched cards stayed in catalogue
@@ -899,6 +961,36 @@ export function groupByCategory(surfaces) {
 export function renderHub(surfaces, baseUrl) {
   const groups = groupByCategory(surfaces);
 
+  // Indexes first, then the words they turn out to share, then the cards. The
+  // stopword cut is a property of the whole catalogue, so it cannot be decided
+  // one card at a time.
+  const rawIndex = new Map(
+    surfaces.map((surface) => [
+      surface.slug,
+      {
+        name: searchTokens([surface.title, surface.slug]),
+        // The words a person chose for this tool: its name, plus the aliases
+        // someone wrote down because a query was reaching nothing. Both are
+        // deliberate, which is the property the closest-match trigger needs.
+        // Kept apart from `name` so an alias never earns the name weight in
+        // the ranking itself — reach and relevance are different claims.
+        strong: searchTokens([surface.title, surface.slug, aliasesFor(surface.slug)]),
+        index:
+          surface.searchIndex ??
+          searchTokens([
+            surface.title,
+            surface.fullDescription ?? surface.description,
+            surface.slug,
+            aliasesFor(surface.slug),
+          ]),
+      },
+    ]),
+  );
+  const catalogueStops = catalogueStopwords([...rawIndex.values()]);
+  // One set for the page: the browser normalises a query with exactly the list
+  // the index was built from, generic and derived words alike.
+  const stopwords = [...new Set([...SEARCH_STOPWORDS, ...catalogueStops])].sort();
+
   const itemList = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
@@ -925,15 +1017,11 @@ export function renderHub(surfaces, baseUrl) {
   // sub-group's h3. Screen-reader heading navigation is the browse path for
   // anyone not using the search box, so it has to describe the real nesting.
   const renderCard = (surface, headingLevel) => `          <li class="card" data-name="${escapeHtml(
-    searchTokens([surface.title, surface.slug]),
+    rawIndex.get(surface.slug).name,
+  )}" data-strong="${escapeHtml(
+    withoutStopwords(rawIndex.get(surface.slug).strong, catalogueStops),
   )}" data-search="${escapeHtml(
-    surface.searchIndex ??
-      searchTokens([
-        surface.title,
-        surface.fullDescription ?? surface.description,
-        surface.slug,
-        aliasesFor(surface.slug),
-      ]),
+    withoutStopwords(rawIndex.get(surface.slug).index, catalogueStops),
   )}">
             <a href="${escapeHtml(surface.slug)}/" data-tool="${escapeHtml(surface.slug)}">
               <h${headingLevel}>${escapeHtml(surface.title)}</h${headingLevel}>
@@ -1415,7 +1503,11 @@ ${DISCLAIMER_HTML}
     // the index never stores can never match, so keeping it would force every
     // query containing it down to zero hits — typing "2/10 net 30" would find
     // nothing because "2" was dropped at build time but not from the query.
-    const STOPWORDS = new Set(${JSON.stringify([...SEARCH_STOPWORDS])});
+    // Generic English plus the words this catalogue's own copy repeats so often
+    // they cannot narrow anything — derived at build time from the indexes
+    // above, never from a hand-written list that would describe last month's
+    // catalogue. A word in any tool's *name* is never in here.
+    const STOPWORDS = new Set(${JSON.stringify(stopwords)});
     const normalise = (text) =>
       text
         .toLowerCase()
@@ -1495,22 +1587,29 @@ ${DISCLAIMER_HTML}
       // showing sixty loosely-related tools under the visitor's exact words
       // would be its own kind of wrong answer.
       //
-      // Only when the strict pass found nothing. An earlier version also fired
-      // when nothing that matched had a query word in its name, to catch the
-      // sentence that matches one tool by coincidence ("how much to charge to
-      // install a water heater" returns the boiler calculator, which happens to
-      // use all five words). It cost more than it bought: an alias hit is a
-      // curated signal and has no name word by definition, so "air
-      // conditioning" and "asphalt shingles" — both answered exactly, both by
-      // alias — were demoted behind loose matches. A rule that fixes one query
-      // and breaks three is not a rule.
+      // The other half of the same failure is a sentence that matches exactly
+      // one tool by accident. "install water heater" returns the *boiler*
+      // calculator alone: it happens to use all three words somewhere in its
+      // copy, and the water-heater calculator does not say "install". One
+      // confident wrong answer is worse than none. So the shortlist also runs
+      // when nothing that matched carries a query word in data-strong — the
+      // tool's name plus its aliases, the words a person deliberately gave it.
+      // A tool nobody named and nobody aliased is a coincidence, not an answer.
       //
-      // Scored at a token boundary even though the strict passes have both
-      // just failed. The loose pass exists so a half-typed word still matches;
-      // reused for ranking it scores "air" inside "stair", "chair" and
-      // "repair", which is how a suggestion list fills up with the wrong trade.
+      // Aliases have to count. An earlier version tested the name alone, and
+      // since an alias exists precisely because the word is *not* in the name,
+      // it demoted "air conditioning" and "asphalt shingles" — both answered
+      // exactly, both by alias — behind loose matches.
+      //
+      // Scored at a token boundary even where the loose pass is in force. That
+      // pass exists so a half-typed word still matches; reused for ranking it
+      // scores "air" inside "stair", "chair" and "repair", which is how a
+      // suggestion list fills up with the wrong trade.
+      const strongly = (card) =>
+        forms.some((variants) =>
+          variants.some((word) => (' ' + (card.dataset.strong || '')).includes(' ' + word)));
       let closestFor = 0;
-      if (forms.length && shown === 0) {
+      if (forms.length && (shown === 0 || !cards.some((c) => !c.hidden && strongly(c)))) {
         const partial = cards
           .map((card) => ({
             card,
@@ -1522,11 +1621,18 @@ ${DISCLAIMER_HTML}
           .filter(({ value }) => value >= 1)
           .sort((a, b) => b.value - a.value)
           .slice(0, CLOSEST_LIMIT);
-        for (const { card, value } of partial) {
-          card.hidden = false;
-          score.set(card, value);
+        // Only when it actually offers something the strict pass did not. For a
+        // one-word query the two sets are the same by construction, and
+        // labelling an exact answer as approximate would be the page lying
+        // about its own result.
+        if (partial.some(({ card }) => card.hidden)) {
+          for (const card of cards) card.hidden = true;
+          for (const { card, value } of partial) {
+            card.hidden = false;
+            score.set(card, value);
+          }
+          closestFor = partial.length;
         }
-        closestFor = partial.length;
       }
       for (const group of groups) {
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
@@ -1552,7 +1658,9 @@ ${DISCLAIMER_HTML}
       closest.hidden = closestFor === 0;
       closest.textContent = closestFor === 0
         ? ''
-        : 'No tool matches every word. Closest ' + closestFor + ':';
+        : (shown === 0
+          ? 'No tool matches every word. Closest ' + closestFor + ':'
+          : 'No tool is named for that. Closest ' + closestFor + ':');
       count.textContent = !forms.length
         ? total + ' tools'
         : (closestFor || shown) + ' of ' + total + ' tools';
