@@ -28542,3 +28542,53 @@ entries:
         `test_consolidate` 28/28. `build.mjs` + `check.mjs` at both the
         default and the production base URL.
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Sessions have been verifying merges by improvising a different
+        subset of the workflow each time, and that is how a red `main` went
+        unseen for days.** With no runner since 2026-08-26, `CLAUDE.md`
+        tells a session to run the workflow's own commands locally and say
+        what it ran. Several did, before merging, and none of their subsets
+        happened to include `check_ask_hosts.py` -- so `Portfolio validate`
+        was failing on `main` and every local verification came back clean.
+        Added `platform/ci/run_workflow_locally.py`, which reads
+        `.github/workflows/<file>` and runs its `run:` steps in order, in
+        each step's working directory, rather than a list someone picked.
+      - >-
+        It reports what it did *not* run, which is the part that keeps
+        "verified locally" honest: `uses:` steps, steps needing a `${{ }}`
+        expression, and steps it refuses. A run that executed nothing exits
+        1 rather than printing a pass. `--force` is required for any
+        workflow not on the verification-only list, and steps screened as
+        pushing, deploying or deleting are refused outright -- this
+        repository has a `branch-cleanup.yml`, and a local verification run
+        must never be the thing that deletes a branch.
+      - >-
+        Using it immediately found three bugs in itself, each of which
+        would have produced a wrong answer in the direction that matters.
+        (1) It read `defaults.run.working-directory` off the job but not
+        the workflow, so every step in `agent-permission-harness-ci.yml`
+        ran from the repository root: `python3 harness.py` failed outright,
+        but `unittest discover` quietly collected a *different* set of
+        tests and reported them green -- a false pass, the worst outcome
+        for a verification tool. (2) `shell=True` is `/bin/sh`, and
+        `portfolio-pages.yml` opens a step with `set -euo pipefail`, which
+        dash rejects; it now runs steps under bash, as Actions does.
+        (3) A step can carry its `${{ }}` in `env:` rather than in the
+        command -- `portfolio-pages.yml`'s post-deploy check reads
+        `PAGE_URL` from the deploy action's output -- so it ran with the
+        variable unset and died on `set -u`, reporting the absence of a
+        deploy as a repository failure. All three are now tests.
+      - >-
+        Ran all five verification workflows through it against `main` +
+        this change: `portfolio-validate` 40/40, `portfolio-pages` 2/2,
+        `agent-permission-harness-ci` 4/4, `conflict-markers-ci` 2/2,
+        `duplicate-symbols-ci` 2/2. 37 unit tests on the tool itself, wired
+        into `portfolio-validate.yml` so they run wherever anything runs.
+        `AGENTS.md`'s CI section now points at it and asks for the summary
+        line -- including the not-run count -- in the pull request.
+    mrr_end: null

@@ -209,6 +209,12 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
 
+      # The local workflow runner is what sessions verify with while no
+      # runner picks up a job here, so its own tests have to run somewhere.
+      - name: Local workflow-runner unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_run_workflow_locally
+
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
       # the page's own handler never runs and the button silently does nothing.
