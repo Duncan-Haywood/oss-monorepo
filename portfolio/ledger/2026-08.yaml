@@ -27603,3 +27603,74 @@ entries:
         Chromium against the built artifact rather than the model: the
         chargeback reason switch, gap flagging, save/reload/restore and the
         article CTA; and all six deadline bands rendering their new sentence.
+  - venture: shopify-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **A share link that promised the whole scenario and sent two fifths of
+        it.** `shopify-fee-calculator`'s token carried a hand-kept
+        `NUMERIC_FIELDS` list of sixteen names while the form had grown to
+        twenty-six inputs across five panels, and `applyShare` in `index.html`
+        wrote back two of those panels. So a merchant who set their Shop Pay
+        Installments rate, their two shipping-label costs and their three POS
+        rates, copied the link and sent it to a partner had them read *this
+        page's example figures* in the Installments, label and POS
+        comparisons — three verdicts about real money, silently different from
+        the ones on the sender's screen, under a headline profit that matched
+        to the cent. The Shopify plan went the same way, and it is not
+        decoration: `comparePlans` uses `planId` to mark the row the merchant
+        is on, so the plan table differed too. Driven in Chromium against the
+        built artifact, the pre-fix build dropped nine of the twenty-seven
+        fields (`plan advanced→basic`, `posHardwareCost 499→49`,
+        `shopifyLabelCost 9.25→5.49`, …); the fixed build carries all
+        twenty-seven with the headline unchanged.
+      - >-
+        The token now carries `FIELD_IDS` — the same list the page builds its
+        form from — so an input added to the form is in the link the moment it
+        exists, and `applyShare` writes every field back rather than two
+        sections. Growing the list did not need a version bump: `CORE_FIELDS`
+        (the v1 sixteen) is what a payload must contain and everything past it
+        is optional, so a link sent before a panel was carried still opens and
+        the fields it does not mention keep the page's own starting figures. A
+        name this build does not know is still refused outright.
+      - >-
+        **The shape to carry: a second list beside the form is how a field goes
+        missing with nothing going red.** The venture already had a test
+        asserting `FIELD_IDS` matched the page's number inputs, and it passed
+        the whole time — the gap was between two lists inside the same file,
+        and then between the token and the page's write-back, neither of which
+        that test could see. Swept every `share.mjs` in the portfolio for the
+        same pattern (a private encode list that is a strict subset of the
+        exported one): no other instance. Also swept the allowlist-style share
+        modules against their forms — the bid calculators are sound, because
+        their selects are re-derived from the rates and their add-ons ride in
+        arrays.
+  - venture: etsy-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The repricing goals were neither shared nor saved.** `targetMargin`
+        and `targetProfit` were off `FIELD_IDS`, under a comment calling them
+        "not one of the ten shared/persisted fields" — written when there were
+        ten and there are now forty-nine. They are the goal the seller typed
+        and the thing the panel exists to answer, and they feed the copied
+        order summary, so a seller who set a 65% target came back next visit to
+        50% and a "charge $X" sentence for a goal they never set. A partner
+        opening their link read the same wrong number. This is
+        `where-to-sell-calculator`'s 2026-08-24 defect from the other side: that
+        one dropped `quantity` and `targetMargin` from a hand-kept allowlist too.
+      - >-
+        The guard added is the comparison nobody was making rather than another
+        example: `FIELD_IDS` must equal the set of number inputs `index.html`
+        ships, exactly, in both directions — a missing name cannot restore and a
+        stale one names a field that is gone.
+      - >-
+        Verified locally, the runner outage still standing: 274 shopify tests
+        (269 before), 160 etsy (158), 107 where-to-sell, 582 platform/pages, the
+        four portfolio-validate checks, and build plus `check.mjs` at 164
+        products / 446 pages with no dead links. Both customer journeys driven
+        in Chromium against the built artifact and against a build of the
+        pre-fix tree, which is what turned "these fields look unshared" into
+        eleven named values that changed.

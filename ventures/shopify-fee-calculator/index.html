@@ -453,11 +453,24 @@
       };
     }
 
+    /**
+     * Put a full share link back on the page — all of it.
+     *
+     * Every field the token carries, not the order and promo sections alone.
+     * Writing back two of five panels was how a recipient read this page's
+     * example Installments, label and POS figures while believing they were
+     * looking at the sender's scenario.
+     *
+     * The plan select is assigned rather than dispatched: firing its change
+     * event would run applyPlan() and overwrite the sender's own payment rates
+     * with that plan's presets, which is exactly the substitution this is
+     * fixing.
+     */
     function applyShare(state) {
-      ids.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
-      promoIds.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
+      FIELD_IDS.forEach((id) => { if (state[id] != null) document.getElementById(id).value = state[id]; });
       const radio = document.querySelector(`input[name="paymentMethod"][value="${state.paymentMethod}"]`);
       if (radio) radio.checked = true;
+      if (state.planId != null) document.getElementById("plan").value = state.planId;
     }
 
     /**

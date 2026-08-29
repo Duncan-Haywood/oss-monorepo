@@ -1,12 +1,33 @@
 // Two ways to put this calculator's state in a URL, for two different jobs.
 //
 // `encodeShareState` / `decodeShareState` carry the *whole* scenario as one
-// versioned base64 token. Every field must be present and valid or the decode
-// is refused, which is what makes a shared link trustworthy: the recipient
-// either sees exactly what the sender saw, or is told the link is unreadable.
-// Its field list must never change without a version bump — the decoder
-// compares key sets exactly, so adding a name would reject every link already
-// sent.
+// versioned base64 token. The core must be present and everything present must
+// be valid or the decode is refused, which is what makes a shared link
+// trustworthy: the recipient either sees exactly what the sender saw, or is
+// told the link is unreadable.
+//
+// "The whole scenario" was a claim this made and did not keep, until
+// 2026-08-29. The token carried a hand-kept `NUMERIC_FIELDS` list of sixteen
+// names while the page had grown to twenty-six inputs across five panels, and
+// `applyShare` in `index.html` wrote back only two of those panels. So a
+// merchant who set their Shop Pay Installments rate, their two label costs and
+// their three POS rates, copied the link, and sent it to their bookkeeper had
+// them read *this page's example figures* in the Installments, label and POS
+// comparisons — three verdicts about real money, silently different from the
+// ones on the sender's screen, under a headline profit that matched exactly.
+// `targetProfit` and the Shopify plan itself went the same way; the plan drives
+// which row `comparePlans` marks as current, so even the plan table differed.
+//
+// The list is therefore no longer kept twice. `FIELD_IDS` — the same list the
+// page builds its form from — is what the token carries, so an input added to
+// the form is in the link the moment it exists.
+//
+// Growing the list stays backward compatible rather than needing a version
+// bump: `CORE_FIELDS` (the v1 sixteen) is what a payload must contain, and
+// anything beyond it is optional on the way in. A link sent before a field
+// existed still decodes, and the fields it does not mention keep this page's
+// own starting figures. What is refused is a payload carrying a name this
+// build does not know, or a value the calculator would reject.
 //
 // `encodeInputs` / `decodeInputs` carry *whatever is known*, as ordinary query
 // text. That is what a handoff from another calculator needs:
@@ -20,9 +41,20 @@
 // closed; a handoff link must fill in what it can and leave the rest at this
 // page's own starting figures.
 
+// The plan ids come from the presets themselves rather than a copy kept here.
+// A second list is the whole reason this file needed the repair above.
+import { PLAN_IDS } from "./calc.mjs";
+
 const VERSION = 1;
 const PAYMENT_METHODS = new Set(["shopify_payments", "third_party"]);
-const NUMERIC_FIELDS = [
+
+/**
+ * The sixteen names version 1 of the token always carried. A payload without
+ * all of them is not a share link from this calculator, so it is still refused
+ * outright. Everything past this list is optional, which is what lets the list
+ * of carried fields grow without invalidating a link already sent.
+ */
+const CORE_FIELDS = [
   "price", "shippingCharged", "paymentsRate", "paymentsFixed", "shopifyTxnRate",
   "processorRate", "processorFixed", "costOfGoods", "shippingCost", "packagingCost",
   "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
@@ -67,23 +99,38 @@ function fromBase64Url(value) {
   return new TextDecoder().decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
 }
 
+/** The invariants both directions enforce, so an encoder and a decoder cannot drift. */
+function checkScenario(state, message) {
+  if (state.targetMargin >= 100 || (state.monthlyOrders === 0 && state.monthlyPlan > 0)) throw new Error(message);
+}
+
 export function encodeShareState(input) {
   const state = { v: VERSION, paymentMethod: input.paymentMethod };
-  NUMERIC_FIELDS.forEach((field) => { state[field] = Number(input[field]); });
-  if (!PAYMENT_METHODS.has(state.paymentMethod) || NUMERIC_FIELDS.some((field) => !Number.isFinite(state[field]) || state[field] < 0)) throw new Error("Cannot share invalid calculator inputs");
-  if (state.targetMargin >= 100 || (state.monthlyOrders === 0 && state.monthlyPlan > 0)) throw new Error("Cannot share invalid calculator inputs");
+  FIELD_IDS.forEach((field) => { state[field] = Number(input[field]); });
+  if (!PAYMENT_METHODS.has(state.paymentMethod) || FIELD_IDS.some((field) => !Number.isFinite(state[field]) || state[field] < 0)) throw new Error("Cannot share invalid calculator inputs");
+  // The plan is a select rather than a number, and it is not decoration: it is
+  // the row `comparePlans` marks as the one the merchant is on. A link without
+  // it puts the recipient on Basic whatever the sender was on.
+  if (PLAN_IDS.includes(input.planId)) state.planId = input.planId;
+  checkScenario(state, "Cannot share invalid calculator inputs");
   return toBase64Url(JSON.stringify(state));
 }
+
+const KNOWN_KEYS = new Set(["v", "paymentMethod", "planId", ...FIELD_IDS]);
 
 export function decodeShareState(payload) {
   let state;
   try { state = JSON.parse(fromBase64Url(payload)); } catch { throw new Error("Invalid shared calculation link"); }
   if (!state || state.v !== VERSION || !PAYMENT_METHODS.has(state.paymentMethod)) throw new Error("Unsupported shared calculation link");
-  const keys = Object.keys(state).sort();
-  const expected = ["paymentMethod", "v", ...NUMERIC_FIELDS].sort();
-  if (keys.length !== expected.length || keys.some((key, index) => key !== expected[index])) throw new Error("Invalid shared calculation link");
-  if (NUMERIC_FIELDS.some((field) => typeof state[field] !== "number" || !Number.isFinite(state[field]) || state[field] < 0)) throw new Error("Invalid shared calculation link");
-  if (state.targetMargin >= 100 || (state.monthlyOrders === 0 && state.monthlyPlan > 0)) throw new Error("Invalid shared calculation link");
+  // A name this build does not know is refused rather than ignored: it means
+  // the link was written by something else, and quietly dropping it is how a
+  // recipient ends up looking at a scenario nobody sent.
+  if (Object.keys(state).some((key) => !KNOWN_KEYS.has(key))) throw new Error("Invalid shared calculation link");
+  if (CORE_FIELDS.some((field) => !(field in state))) throw new Error("Invalid shared calculation link");
+  const carried = FIELD_IDS.filter((field) => field in state);
+  if (carried.some((field) => typeof state[field] !== "number" || !Number.isFinite(state[field]) || state[field] < 0)) throw new Error("Invalid shared calculation link");
+  if ("planId" in state && !PLAN_IDS.includes(state.planId)) throw new Error("Invalid shared calculation link");
+  checkScenario(state, "Invalid shared calculation link");
   return state;
 }
 
