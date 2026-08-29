@@ -45,9 +45,9 @@ import {
   renderShopRatesStyle,
 } from './rates.mjs';
 import {
-  BID_AMOUNT_HELPER,
   BID_FOLLOW_UP_HELPERS,
   BID_PRICING_HELPERS,
+  BID_RECORD_HELPERS,
   SAVED_BIDS_MODULE_FILE,
   SAVED_BIDS_STYLE_FILE,
   injectSavedBids,
@@ -1475,8 +1475,12 @@ ${DISCLAIMER_HTML}
     // that block also carries this function, but it is assigned after
     // showSavedBids() has already run once on load.
 ${BID_FOLLOW_UP_HELPERS}
-${BID_AMOUNT_HELPER}
-    // The cross-tool pricing reading. After BID_AMOUNT_HELPER because
+    // The record shape itself, for the reason it exists -- see
+    // BID_RECORD_HELPERS and savedBids() below. It carries
+    // normalizeHeadlineAmount, so it stands in for the BID_AMOUNT_HELPER this
+    // block used to emit here.
+${BID_RECORD_HELPERS}
+    // The cross-tool pricing reading. After BID_RECORD_HELPERS because
     // bidAmountValue calls normalizeHeadlineAmount.
 ${BID_PRICING_HELPERS}
 
@@ -1498,45 +1502,32 @@ ${BID_PRICING_HELPERS}
         // from the stored string as given. Same rule as yourTools() above.
         if (!/^[a-z0-9][a-z0-9-]*$/.test(slug)) continue;
         if (!Array.isArray(list)) continue;
-        for (const bid of list) {
-          if (!bid || typeof bid !== 'object') continue;
-          const { name, at } = bid;
-          if (typeof name !== 'string' || !name) continue;
-          if (typeof at !== 'string' || !at) continue;
-          // Anything that is not one of the two decided states is waiting,
-          // including a value written by a version of the site this page has
-          // never seen. Waiting is the safe reading: it shows the bid and
-          // offers to chase it, where trusting an unknown string could hide a
-          // live quote behind a state nothing here can clear.
-          const outcome = bid.outcome === 'won' || bid.outcome === 'lost' ? bid.outcome : null;
-          // Read through the same guard the band saved it with, not trusted as
-          // stored: any page on this origin can write this key, and this string
-          // is put on screen next to a customer's name.
-          const amount = normalizeHeadlineAmount(bid.amount) || null;
-          // When the customer answered, carried only on a decided bid because
-          // that is the only state it means anything in. This is what
-          // bidResponseDays reads, and dropping it here is what left the hub
-          // injecting chaseSentence on every visit and never able to run it.
-          // Never put on screen — only differenced against the saved date — so
-          // taken as stored, with Date.parse deciding whether it is a date.
-          const decidedAt = outcome && typeof bid.decidedAt === 'string' ? bid.decidedAt : undefined;
-          // The price a lost job went for, read through the same guard the band
-          // wrote it with rather than trusted as stored — any page on this
-          // origin can write this key. Never put on screen here: it is only
-          // ever differenced against the bid's own figure to make a percentage.
-          // Carried only on a lost bid, which is the only state it means
-          // anything in, and the only state pricingSentence reads.
-          const lostTo = outcome === 'lost' ? normalizeLostTo(bid.lostTo) || undefined : undefined;
-          // What the job came to once it was delivered, on a won row only —
-          // the mirror of lostTo above, read through the same guard that wrote
-          // it rather than trusted as stored. Never put on screen here: it is
-          // only ever divided into the bid's own figure to make a share. This
-          // is the field whose absence is the standing defect of this
-          // transcription — normalizeBid is copied by hand into the hub and
-          // the backup panel, so a key added in jobs.mjs and not here is
-          // silently dropped on the way to every hub reading that needs it.
-          const cost = outcome === 'won' ? normalizeJobCost(bid.cost) || undefined : undefined;
-          rows.push({ slug, name, at, amount, outcome, decidedAt, lostTo, cost });
+        for (const entry of list) {
+          // normalizeBid itself, not a paraphrase of it. This loop used to be
+          // a hand copy, and the copy went stale three times in a row: a field
+          // added in jobs.mjs and not here was silently dropped on the way to
+          // every hub reading that needed it, and the reading then returned ''
+          // forever with nothing failing anywhere. decidedAt did it to
+          // chaseSentence, lostTo to pricingSentence, cost to keepSentence.
+          //
+          // The rule the backup panel already follows (see BID_RECORD_HELPERS)
+          // now covers the hub too: the browser gets the tested definition
+          // through Function.prototype.toString, so anything added to a bid
+          // from here on arrives here without a second edit — and cannot be
+          // validated differently on the way.
+          const bid = normalizeBid(entry);
+          if (!bid) continue;
+          // The fields are the job itself — thirty to forty form values, kept
+          // so the band can put the whole bid back. Nothing on this page reads
+          // them, and they are the only part of the record that is large, so
+          // they are the one key dropped. Everything else rides across by
+          // spread, which is what stops this going stale again.
+          const { fields, ...row } = bid;
+          // outcome is absent rather than null on a bid still waiting, which
+          // is what lets a bid saved before outcomes existed read as waiting
+          // without migrating. The readings test it for truthiness, so the
+          // absent key and the old explicit null behave alike.
+          rows.push({ slug, ...row });
         }
       }
 
