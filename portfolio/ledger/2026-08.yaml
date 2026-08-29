@@ -28772,3 +28772,190 @@ entries:
         merged. CI showed the known runner-outage red/absent signature, not
         a real failure.
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Same local-draft bug as #2012, found in three more calculators
+        before it shipped elsewhere.** #2012 fixed `concrete-bid-calculator`'s
+        "Save draft" silently dropping the deposit split, valid-until days,
+        customer name/address, and payment-terms/notes/exclusions text --
+        reopening a saved draft restored the exact price while the deposit
+        and customer info reverted to page defaults, with nothing on screen
+        saying so. Rather than treat that as closed, scanned all ~100
+        ventures sharing the `CLIENT_IDS`/`TERM_IDS` proposal-terms pattern
+        for the same defect. Three more had it, unfixed:
+        `water-heater-bid-calculator`, `standby-generator-bid-calculator`,
+        `ev-charger-bid-calculator` (#2017, merged). Each saves/restores only
+        the calculator's own pricing inputs to/from `localStorage`; the
+        customer/deposit/terms fields on the same form were never part of
+        that payload.
+      - >-
+        Fix folds `CLIENT_IDS`/`TERM_IDS` into the saved draft (as a
+        `proposal` sub-object, matching #2012's shape) and restores them on
+        load -- but only from a local draft, not a share link: share links
+        already carry `TERM_IDS` via `proposal-terms.mjs` and deliberately
+        never carry `CLIENT_IDS` (customer name/address) for privacy, and
+        that split is preserved rather than flattened. Also wired an `input`
+        listener directly on the client/term fields, since these three
+        calculators autosave via the calculator's own `update()`, which only
+        fires on pricing-input changes -- without it, editing only the
+        deposit or customer name would still save nothing.
+      - >-
+        Re-scanned the same ~100-venture set after the fix: these three were
+        the only ones with a local `DRAFT_KEY` save/restore missing the
+        fields. Everything else either has no local draft feature or already
+        carries the fields through it -- this closes the bug class rather
+        than leaving siblings for a future session to rediscover one at a
+        time.
+      - >-
+        Verified locally: added one regression test per calculator (mirroring
+        #2012's), full ventures suite 11783/11783 passing,
+        `platform/pages/build.mjs` + `check.mjs` clean (164 products, 446
+        pages, no dead links). PR #2017's checks were the known no-runner
+        outage -- confirmed via the jobs API (3s duration, log download
+        404s) rather than inferred from timing alone -- so merged on local
+        verification per `CLAUDE.md`.
+      - >-
+        Also checked this run: 0 open PRs at start (3-PR quota satisfied
+        trivially, per the "if none exist" branch). The Hetzner Codex-runner
+        (#1996/#2000) and Hetzner-site (`prod/portfolio-site.yaml`) asks a
+        prior session confirmed current ~20 minutes earlier were not
+        re-verified -- both remain fully built and owner-blocked only on
+        credential/account actions (OpenAI org + spend limit, an interactive
+        `codex login`, a DNS record, a scoped repo token, a real ACME
+        contact) that no session can complete from here; re-deriving that
+        finding would have been the duplicated work `CLAUDE.md` warns
+        against.
+    mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Re-confirmed the two things this run's brief specifically named
+        (Hetzner deployment/CI-CD + marketing surface, and Codex-on-Hetzner
+        subscription quota) are already fully built and merged --
+        `python3 -m pytest gitops/tests -q` (57 passed) against real
+        `origin/main`. Did not duplicate either.
+      - >-
+        **Methodological finding, recorded so the next session does not
+        repeat it.** Ran `git checkout main -- .` early in this session to
+        inspect current `main`, before running `git fetch --unshallow` had
+        finished updating refs -- `main` (the local branch) was still
+        pointing at the pre-unshallow shallow-clone snapshot, not
+        `origin/main`. Every file this touched (`governor.py`, `worker.sh`,
+        `kustomization.yaml`, the secrets README) read as missing the
+        `CODEX_AUTH_JSON`/`codex-home` wiring that #2015 had already merged
+        hours earlier, and a full reimplementation was drafted before the
+        mismatch was caught -- `git rev-parse HEAD origin/main` returning
+        the same hash was the tell. `git reset --hard origin/main` (safe:
+        nothing had been committed yet) discarded it with no harm done.
+        Lesson for future sessions: after `git fetch --unshallow`, diff
+        and checkout against `origin/main`, never the local `main` ref --
+        the two can silently disagree for the rest of the session.
+      - >-
+        The one real, non-duplicate gap found: `gitops/README.md`,
+        `infra/OWNER_CHECKLIST.md`, and the `portfolio-site-hetzner-deploy`
+        row in `asks.yaml` all listed "add one DNS A record,
+        tools.marisstella.dev -> 89.167.29.39" as the first of the owner's
+        remaining steps. It's already satisfied --
+        `marisstella.dev`'s existing wildcard `A/*` record already covers
+        the subdomain (`getent hosts tools.marisstella.dev` ->
+        `89.167.29.39`). Fixed in all three places and merged (#2019), so
+        the owner's remaining list for that ask is down to two steps (clone
+        token, ACME contact) plus the non-owner issuer-flip PR.
+      - >-
+        Zero open PRs existed at run start, so the three-PR merge quota
+        resolved to "none exist" per `CLAUDE.md`. No new product work was
+        started this run -- the two areas the brief named turned out to
+        already be done, and the one real gap left in them was small enough
+        that fixing it was the whole session.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Root-caused the CI outage and shipped the fix (#2021, #2022).**
+        Every workflow in the repo has been red since 2026-08-26 -- 100% of
+        the last 40 runs on `main`. They were never failing; they were never
+        starting. Jobs carry `runner_id: 0`, `runner_name: ""`, zero steps,
+        3-6s duration, including workflows that touch nothing in any diff
+        (`Conflict markers`, `Branch cleanup`), which rules out a code
+        cause. This repo is private and user-owned, so GitHub-hosted Actions
+        minutes are metered; the included-minutes allowance or a spending
+        limit ran out. The billing API is blocked to agent sessions so the
+        exact ceiling could not be confirmed -- but the fix does not depend
+        on which one it was.
+      - >-
+        Fix: `gitops/ci/` -- Argo-synced ephemeral self-hosted runners on
+        the cpx52, which are not metered and run on hardware the portfolio
+        already pays for. Each pod registers one runner, takes one job, and
+        exits, so no checkout or environment survives into the next job.
+        Bounded blast radius since they share a node with
+        `marisstella.dev`: `ci-low` priority below `agents-low` and
+        `prod-high`, no service-account token, a NetworkPolicy granting the
+        internet but excluding pod/service CIDRs, RFC1918 and link-local
+        metadata, no ingress, a namespace quota two runners cannot exceed,
+        and an AppProject confined to the `ci` namespace.
+      - >-
+        All 242 `runs-on` lines across 217 workflows now read
+        `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`. Unset, the variable is
+        falsy and the expression falls back to `ubuntu-latest`, so the merge
+        changed nothing on its own -- and moving back when metered minutes
+        reset is clearing one repo variable rather than editing 217 files a
+        second time. `gitops/tests/test_ci_runner.py` fails if a workflow
+        ever hard-codes a runner again.
+      - >-
+        #2022 closed the one gap #2021 flagged: `hetzner-gitops-ci.yml` was
+        the only workflow shelling out to `sudo`, which the runner image
+        lacks. `kustomize`/`kubeconform` now unpack into `$RUNNER_TEMP/bin`
+        and `shellcheck` comes from the `shellcheck-py` wheel -- both work
+        unchanged on GitHub-hosted runners, so neither is a
+        self-hosted-only path that first gets exercised after the switch is
+        flipped. It also put `gitops/ci` under that job, which named its
+        overlays explicitly and so did not cover the new directory.
+      - >-
+        **Lesson for future sessions: red CI is still not failed CI, and
+        `runner_id` is the field that settles it.** Verified everything
+        locally with the real tools instead: `kustomize` v5.6.0 builds all
+        six overlays, `kubeconform` v0.6.7 `-strict` on Kubernetes 1.31.0
+        reports 58 resources 0 invalid, `shellcheck` 0.11.0 clean on all ten
+        scripts, gitops 67/67, `validate_workflows.py` green on 217.
+      - >-
+        Owner unblock is two steps, added as item 9 of
+        `infra/OWNER_CHECKLIST.md`: seal `actions-runner-secrets` (a
+        fine-grained PAT for this repo with Administration: Read and write),
+        then set repo variable `CI_RUNNER` = `self-hosted`. Not a new
+        category of ask -- it is the existing "paste a secret the owner
+        holds", and the variable and secret are one unblock, not two.
+      - >-
+        Merged #2017 (three bid calculators -- water-heater,
+        standby-generator, ev-charger -- silently dropped deposit split,
+        valid-until days, customer name/address and payment terms from
+        locally saved drafts; the price restored exactly while acceptance
+        terms reverted to page defaults). Verified locally: 280/280 tests
+        across the three ventures, webcheck sweep clean on 455 pages.
+      - >-
+        Only one open PR existed at run start, so the three-PR quota
+        resolved to "process all of them". The PR-less branch backlog is
+        stale rather than repairable: every branch sampled
+        (`rematch-1564`, `rematch-1364`, `venture/vendor-change-watch`,
+        `cursor/quote-margin-local-drafts`,
+        `cursor/janitorial-draft-persistence`,
+        `cursor/shopify-permission-drift-browser`) is already superseded by
+        a fuller implementation on `main`, usually under a different
+        filename or mechanism. Note the trap: `git diff origin/main...BRANCH`
+        is measured from the merge base and still shows work `main` already
+        absorbed independently as added -- it read as unique on
+        `rematch-1564` when `main` already had `priceToMatchProfit`.
+      - >-
+        `publish_surface.py --check` still reports 0 live surfaces. The
+        deploy-first item remains open and owner-blocked, independent of
+        this run's CI work; the agent proxy also blocks `marisstella.dev`
+        and `github.io`, so no public route could be verified from here.
+    mrr_end: null

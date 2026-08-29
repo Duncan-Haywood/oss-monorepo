@@ -362,6 +362,12 @@
     };
     const el = id => document.getElementById(id);
     const DRAFT_KEY = 'ev-charger-bid-draft';
+    // Declared here (not beside COMPANY_KEY below) so persistDraft()/
+    // restoreDraft() a few lines down can read them without a
+    // temporal-dead-zone error — `restoreDraft()` runs before the script
+    // reaches the "Customer-facing proposal" section.
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
 
     function readInputs() {
       return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
@@ -379,7 +385,18 @@
     }
 
     function persistDraft() {
-      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs())); } catch { /* private mode */ }
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          ...readInputs(),
+          // The deposit split, valid-until days, customer name/address, and the
+          // proposal's payment-terms/notes/exclusions text live on this same
+          // form but outside FIELD_IDS. Leaving them out is the local-draft
+          // version of the bug proposal-terms.mjs documents for shared links:
+          // the price restores exactly and the deposit quietly reverts to the
+          // page default, with nothing on screen saying so.
+          proposal: Object.fromEntries([...CLIENT_IDS, ...TERM_IDS].map((id) => [id, el(id).value])),
+        }));
+      } catch { /* private mode */ }
     }
 
     function restoreDraft() {
@@ -394,7 +411,16 @@
       }
       try {
         const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-        if (saved && typeof saved === 'object') writeInputs({ ...defaultInputs(), ...saved });
+        if (saved && typeof saved === 'object') {
+          writeInputs({ ...defaultInputs(), ...saved });
+          // A share-link load above already applied its five terms via
+          // applyTerms() and carries no `.proposal` (customer name/address
+          // never ride a share link, by design). Only a local-draft load
+          // reaches here with one.
+          Object.entries(saved.proposal || {}).forEach(([id, value]) => {
+            if ([...CLIENT_IDS, ...TERM_IDS].includes(id) && el(id)) el(id).value = value;
+          });
+        }
       } catch { /* ignore a corrupt draft */ }
     }
 
@@ -568,6 +594,12 @@
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
     });
+    // Client/deposit/proposal fields aren't calculator inputs, so update()
+    // never runs for them — without their own listener, editing only these
+    // and never touching a calculator field would save nothing.
+    [...CLIENT_IDS, ...TERM_IDS].forEach((id) => {
+      el(id)?.addEventListener('input', persistDraft);
+    });
     el('usageOptOut').addEventListener('change', update);
     el('copySummary').addEventListener('click', () => {
       copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
@@ -585,8 +617,6 @@
     // ---- Customer-facing proposal -------------------------------------------
 
     const COMPANY_KEY = 'ev-charger-bid-company';
-    const CLIENT_IDS = ['clientName', 'clientAddress'];
-    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
 
     // Printed at the foot of the customer's copy. Typographic apostrophes only:
     // a straight one closes this string and the whole module stops parsing.
