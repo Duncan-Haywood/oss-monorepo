@@ -297,6 +297,12 @@ const RATES_CSS = `
   border-radius:10px;background:#8080800f}
 .pf-rates-panel p{margin:0 0 10px}
 .pf-rates-list{margin:0 0 10px;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:4px 18px}
+/* An author display declaration outranks the user agent's [hidden] rule, so
+   without this the list stayed in the layout — empty, with its own 10px
+   margin, and announced as a list by a screen reader — for every visitor who
+   has not saved their shop rates yet, which is every first-time visitor.
+   Caught by asking a rendered page; see checkHiddenDisplay in check.mjs. */
+.pf-rates-list[hidden]{display:none}
 .pf-rates-list li{margin:0}
 .pf-rates-list b{font-variant-numeric:tabular-nums}
 .pf-rates-actions{display:flex;flex-wrap:wrap;gap:8px}
