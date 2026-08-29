@@ -2652,6 +2652,130 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   return next.replace(/<\/head>/i, `${tags.map((tag) => `\n${tag}`).join('')}\n</head>`);
 }
 
+/** Visible text of an HTML fragment, with script/style content dropped. */
+const stripTags = (fragment) =>
+  decodeEntities(
+    fragment
+      .replace(/<(script|style|template)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' '),
+  )
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * The prose of a fragment: its paragraphs, or all its text if it has none.
+ *
+ * Paragraphs first because the slice after a question heading is usually a
+ * short answer followed by the widget that answers it — inputs, buttons, a
+ * results table. Taking every text node would put "Calculate Reset $0.00" in
+ * an answer a search engine may quote verbatim.
+ */
+const answerProse = (fragment) => {
+  const paragraphs = [...fragment.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map(([, inner]) => stripTags(inner))
+    .filter(Boolean);
+  return paragraphs.length ? paragraphs.slice(0, 2).join(' ') : stripTags(fragment);
+};
+
+// A heading that labels its question ("Common question: should I accept Net
+// 30?") reads as a label plus a question. The label is page furniture, not
+// part of what anyone asks, so it is dropped from the structured copy.
+const FAQ_LABEL = /^(?:common questions?|faq|q)\s*[:.–—-]\s*/i;
+
+/**
+ * A function name appearing in prose, which marks the paragraph as a note about
+ * how the page works rather than an answer to the question above it.
+ *
+ * `3pl-quote-normalizer` answers four of its questions with "This block uses
+ * the same compareInboundMethods on the quote you just typed" — true, useful to
+ * a maintainer, and no kind of answer to quote back to someone who searched
+ * "should I pay the 3PL to kit". The rule is narrow on purpose: a
+ * lowercase-initial camelCase run of ten or more characters is an identifier,
+ * while the brand names that share that shape are all far shorter (`eBay`,
+ * `iPhone`, `iOS`) and every other brand here starts with a capital
+ * (`PayPal`, `DoorDash`, `TikTok`), so none of them trip it.
+ */
+const CODE_IDENTIFIER = /\b[a-z][a-z0-9]*[A-Z][a-zA-Z0-9]*\b/g;
+
+const readsAsCode = (text) =>
+  [...text.matchAll(CODE_IDENTIFIER)].some(([token]) => token.length >= 10);
+
+const FAQ_MAX_ENTRIES = 8;
+const FAQ_MIN_ANSWER = 40;
+const FAQ_MAX_QUESTION = 200;
+const FAQ_MAX_ANSWER = 600;
+
+/**
+ * Question/answer pairs a page already shows a visitor, as data.
+ *
+ * These pages answer real questions in prose — "Should unused hours roll
+ * over?", "Does leftover long-term storage flip the quote?" — and an answer
+ * engine cannot tell that prose apart from the rest of the page. `FAQPage`
+ * JSON-LD is how that is said in machine-readable form, and 129 of the 164
+ * tools ship none.
+ *
+ * It is *derived* rather than authored for a reason. Google's structured-data
+ * policy requires the question and answer to be visible on the page, and an
+ * authored block maintained beside the copy drifts from it — the schema then
+ * describes a page that no longer exists, which is worse than having none.
+ * Reading the rendered copy makes the two the same text by construction.
+ *
+ * Nothing is invented: a page with no visible Q&A gets no schema.
+ */
+export function faqEntries(html) {
+  const headings = [...html.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)].map((match) => ({
+    level: Number(match[1]),
+    text: stripTags(match[2]),
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+
+  const found = [];
+
+  headings.forEach((heading, index) => {
+    if (heading.level !== 2 && heading.level !== 3) return;
+    if (!heading.text.endsWith('?')) return;
+    // The answer runs to the next heading of any level: a sibling question, or
+    // the section that follows. Anything past it belongs to another topic.
+    const next = headings[index + 1];
+    found.push({
+      at: heading.start,
+      question: heading.text,
+      answer: answerProse(html.slice(heading.end, next ? next.start : html.length)),
+    });
+  });
+
+  for (const match of html.matchAll(/<details\b[^>]*>([\s\S]*?)<\/details>/gi)) {
+    const summary = match[1].match(/<summary\b[^>]*>([\s\S]*?)<\/summary>/i);
+    if (!summary) continue;
+    const question = stripTags(summary[1]);
+    if (!question.endsWith('?')) continue;
+    found.push({
+      at: match.index,
+      question,
+      answer: answerProse(match[1].slice(summary.index + summary[0].length)),
+    });
+  }
+
+  const seen = new Set();
+  return found
+    .sort((a, b) => a.at - b.at)
+    .map(({ question, answer }) => ({ question: question.replace(FAQ_LABEL, '').trim(), answer }))
+    .filter(({ question, answer }) => {
+      // A one-line answer is usually a caption, not an answer. Requiring real
+      // prose keeps thin pairs out rather than padding the page with them.
+      if (question.length < 2 || question.length > FAQ_MAX_QUESTION) return false;
+      if (answer.length < FAQ_MIN_ANSWER) return false;
+      if (readsAsCode(answer)) return false;
+      const key = question.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, FAQ_MAX_ENTRIES)
+    .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
+}
+
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
   if (html.includes(CHROME_MARKER)) return html;
   const bodyOpen = html.match(/<body[^>]*>/i);
@@ -2688,6 +2812,24 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
         { '@type': 'ListItem', position: 2, name: title || slug, item: canonical },
       ],
     })}</script>`;
+  }
+  if (isEntry && !html.includes('FAQPage')) {
+    // Only where the venture wrote none of its own: two FAQPage blocks on one
+    // page describe the same page twice, and a crawler is free to believe
+    // whichever it reads first. 37 ventures author their own — those are left
+    // exactly as they are.
+    const faq = faqEntries(html);
+    if (faq.length) {
+      headExtras += `\n<script type="application/ld+json">${jsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faq.map(({ question, answer }) => ({
+          '@type': 'Question',
+          name: question,
+          acceptedAnswer: { '@type': 'Answer', text: answer },
+        })),
+      })}</script>`;
+    }
   }
   if (headExtras) {
     html = /<\/head>/i.test(html)
