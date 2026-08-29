@@ -61,6 +61,13 @@ import {
   injectBidLink,
   renderBidLinkModule,
 } from './link.mjs';
+import {
+  INVALID_MODULE_FILE,
+  INVALID_STYLE_FILE,
+  injectInvalidField,
+  renderInvalidModule,
+  renderInvalidStyle,
+} from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -2758,6 +2765,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const saved = [];
   const shared = [];
   const described = [];
+  const highlighted = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -2821,13 +2829,18 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         amountSelector: pageHeadlineAmountSelector(withRates, surface.slug),
       });
       if (linked !== next) shared.push(relative);
-      if (linked === html) continue;
-      await fs.writeFile(file, linked);
+      // Last, and gated on the page's own promise rather than on anything the
+      // passes above added: it explains a message the venture's calculator
+      // writes, so a page that never prints that message must not receive it.
+      const marked = injectInvalidField(linked, toRoot);
+      if (marked !== linked) highlighted.push(relative);
+      if (marked === html) continue;
+      await fs.writeFile(file, marked);
       wrapped.push(relative);
     }
   }
 
-  return { wrapped, rated, saved, shared, described };
+  return { wrapped, rated, saved, shared, described, highlighted };
 }
 
 export function renderRobots(baseUrl) {
@@ -3071,6 +3084,7 @@ export async function collectOfflineBundle(outDir, surfaces) {
     './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
     BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
+    INVALID_MODULE_FILE, INVALID_STYLE_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -3233,6 +3247,11 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, CHROME_MODULE_FILE), renderChromeModule());
   await fs.writeFile(path.join(outDir, CHROME_STYLE_FILE), renderChromeStyle());
   await fs.writeFile(path.join(outDir, SHOP_RATES_STYLE_FILE), renderShopRatesStyle());
+  // The invalid-field runtime and its mark, on the same terms as the three
+  // above: one file each at the root, loaded by every page that promises a
+  // highlight.
+  await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
+  await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
   await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
@@ -3251,14 +3270,17 @@ export async function buildSite({
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
-  const { wrapped, rated, saved, shared, described } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
+  const { wrapped, rated, saved, shared, described, highlighted } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
   const offline = await addOfflineSupport({ outDir, base, surfaces, disableWorker });
 
-  return { outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described, offline };
+  return {
+    outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
+    highlighted, offline,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -3414,4 +3436,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added saved bids to ${result.saved.length} page(s) with a form.`);
   console.log(`Added a shareable bid link to ${result.shared.length} page(s).`);
   console.log(`Corrected canonical and share-card tags on ${result.described.length} page(s).`);
+  console.log(`Highlighted the rejected input on ${result.highlighted.length} page(s).`);
 }

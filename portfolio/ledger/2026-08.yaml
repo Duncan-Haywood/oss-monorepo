@@ -28040,3 +28040,64 @@ entries:
         validators. `test_break_even.py` errors on a missing `pytest` in this
         container, identically on a clean `main` — not from this change.
     mrr_end: null
+  - venture: platform/pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **"Check the highlighted input" was true on 0 of 103 tools.** When a bid
+        calculator here refuses a number it replaces the price with the reason
+        and labels it *check the highlighted input*. Measured in Chromium on
+        2026-08-29 against every tool that prints that line: nothing was
+        highlighted on any of them — no `aria-invalid`, no outline, no focus
+        move. Nine mark a field for unrelated reasons; none marked the field the
+        message was about. On forms carrying twenty to forty numeric inputs and
+        a repeated row per fence run, per room, per gutter line, a contractor
+        who typed a minus sign got a sentence, no price, and no way to find the
+        box — usually scrolled off a phone screen.
+      - >-
+        **`invalid.mjs`, injected at build time, now marks it: 103 of 103, and
+        every one the field actually broken.** It reads the message the
+        calculator wrote, splits it into a row scope and a field subject at the
+        connective, and scores every control the venture owns on how well its
+        label answers the subject — both directions, because recall alone lets a
+        long label win by containing everything and precision alone lets "Hours"
+        beat "Hours / post". Nothing new is validated: `calc.mjs` still decides
+        what is wrong, and this only answers *which box*, the half the sentence
+        cannot express.
+      - >-
+        Three things the browser taught that reading would not have. Native
+        validity is **evidence, not an answer** — returning the page's single
+        natively-invalid control outright marked an unrelated out-of-range field
+        for every message, "Add at least one fence run to price" included. The
+        form abbreviates what the sentence spells out (`Finished top sq ft` vs
+        "Finished square feet"), and sometimes the bracketed unit is the only
+        word the two share (`Walking surface (sq ft)` vs "Deck square feet") —
+        so units are kept, `sq`/`ft`/`lf` expand, plurals fold, and no per-tool
+        table was needed. And where no field can be named, the label now reads
+        *check the values you entered*: a promise kept only sometimes is still a
+        promise broken.
+      - >-
+        **`highlight.mjs`** is the fifth browser probe and the reason this is
+        checkable rather than claimed: it breaks one numeric field on every tool
+        that makes the promise and reads back what got marked, distinguishing
+        *marked the wrong field* from *marked nothing*. 103/103 FAIL on a build
+        of `main`; 103/103 ok after, zero wrong. It selects tools by the promise
+        in the built artifact, so a calculator landing tomorrow is covered the
+        day it ships — the gate opens, which is the failure mode this repo keeps
+        re-learning.
+      - >-
+        Counting follows the site convention: `invalid_field_marked` and
+        `invalid_no_field` in `portfolio-hub-usage`, one per distinct rejection,
+        device-local, silent under DNT/GPC and the site-wide opt-out. The second
+        is the maintenance signal — if it grows against the first, a calculator
+        has started wording its messages in a way the matcher cannot follow.
+      - >-
+        Verified: 628 `platform/pages` tests (30 new), `build.mjs` over 164
+        tools, `check.mjs dist` publishable with no dead links, `highlight.mjs`
+        103/103, and a hand-driven pass on `fence-bid-calculator` covering the
+        second run of a two-run form (marks `r2-lf`, not `r1-lf`), the mark
+        clearing when the value is fixed, the unattributable message, and the
+        usage opt-out. Not deployed: publishing is still the owner's
+        `deploy-settings` flip.
+    mrr_end: null
