@@ -27234,3 +27234,48 @@ entries:
         and `journey.mjs` at 0 failed checks and 0 page/console errors — including
         the shop-rates save/apply/clear round trip and the saved-bids band, the
         two features whose scripts moved.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The fourth instance of one defect, and the first fix that closes the
+        class. The hub's `savedBids()` was a hand transcription of `normalizeBid`,
+        and three fields were added to jobs.mjs and never carried across:
+        `decidedAt`, so `chaseSentence` was injected on every visit and returned
+        '' forever; then `lostTo`, so `pricingSentence` did the same; then `cost`,
+        for `keepSentence`. Three releases, three silences, nothing failing
+        anywhere — the module correct and tested throughout, only the copy the
+        browser ran wrong.
+      - >-
+        `BID_RECORD_HELPERS` was built for exactly this after `backup.mjs` shipped
+        a stale `normalizedBid`, and it had been applied to the backup panel and
+        never to the hub — the one page every visitor loads. The hub emits it now
+        and `savedBids()` calls the real function, spreading its result with
+        `fields` the one key dropped. Anything added to a bid from here on arrives
+        without a second edit, and cannot be validated differently on the way.
+      - >-
+        The test lesson is the one worth carrying: **pinning one field at a time
+        is structurally incapable of catching the next field.** Three tests
+        existed, each written after its field had already shipped broken, and each
+        would have passed on the day the next one broke. They are replaced by one
+        that compares the hub's embedded source against `normalizeBid.toString()`
+        character for character — a paraphrase reintroduced there fails whatever
+        it happens to get right.
+      - >-
+        Two behaviour changes stated rather than absorbed: a bid `normalizeBid`
+        rejects no longer appears in the hub index, because the band reads the
+        store through the same function and the hub was offering a link to a
+        restore that would not happen; and `outcome`/`amount` are absent rather
+        than null where there is none, which every reading already treats alike.
+        The hub grows 1.25 KB — the shared closure is larger than the copy it
+        replaced, and that is the price of the class going away.
+      - >-
+        Verified locally, the runner outage still standing: 553 platform/pages
+        tests, 22 webcheck tests, build plus `check.mjs` at 164 products / 445
+        pages with no dead links, and `journey.mjs` at 0 failed checks with
+        `saved_bid_chase_shown`, `saved_bid_pricing_shown`,
+        `saved_bid_win_rate_shown`, `saved_bid_keep_shown`,
+        `saved_bid_trend_shown` and `saved_bid_mix_shown` all firing in the
+        browser — every reading that depends on the three fields that used to go
+        missing, drawing through the shared function.
