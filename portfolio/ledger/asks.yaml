@@ -646,25 +646,28 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    Three owner steps, in order, typed out with a verification command
-    each under "Publish `tools.marisstella.dev`" in
-    `infra/OWNER_CHECKLIST.md` (the rationale for each is in
-    `gitops/README.md`): (1) add one DNS A record,
-    `tools.marisstella.dev` -> `89.167.29.39`; (2) mint a fine-grained
-    GitHub token scoped to this one repository with Contents:Read-only and
-    nothing else, then seal it into `prod/kustomization.yaml` per
+    Two owner steps remain, typed out with a verification command each
+    under "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md`
+    (the rationale for each is in `gitops/README.md`): (1) mint a
+    fine-grained GitHub token scoped to this one repository with
+    Contents:Read-only and nothing else, then seal it into
+    `prod/kustomization.yaml` per
     `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
-    private, so the in-cluster clone cannot be anonymous); (3) replace the
+    private, so the in-cluster clone cannot be anonymous); (2) replace the
     placeholder `replace-me@duncanhaywood.dev` in
     `platform/cert-manager/issuer.yaml` with a real mailbox Let's Encrypt
-    can register. Those three are all that stand between the portfolio
-    and a live site; after them it is reachable on a Let's Encrypt
-    *staging* certificate, which browsers warn about. The fourth step --
-    flipping the Ingress annotation from `letsencrypt-staging` to
-    `letsencrypt-prod` and updating the test that pins it -- is an
-    ordinary code change, not an owner action: once you confirm the
-    staging certificate issued, ask a session to open that PR rather than
-    editing two files by hand.
+    can register. The DNS step this row used to list is already
+    satisfied and needs no action: `tools.marisstella.dev` already
+    resolves to `89.167.29.39` (verified 2026-08-29 with `getent hosts
+    tools.marisstella.dev`) -- `marisstella.dev`'s existing wildcard
+    `A/*` record already covers the subdomain. The two remaining steps
+    are all that stand between the portfolio and a live site; after them
+    it is reachable on a Let's Encrypt *staging* certificate, which
+    browsers warn about. The last step -- flipping the Ingress annotation
+    from `letsencrypt-staging` to `letsencrypt-prod` and updating the
+    test that pins it -- is an ordinary code change, not an owner action:
+    once you confirm the staging certificate issued, ask a session to
+    open that PR rather than editing two files by hand.
   unlocks:
     - >-
       A public URL for 164 finished, tested, free tools at once --
@@ -676,8 +679,8 @@ decisions:
       Pages (not enabled, and would not serve a private repo's Pages site
       publicly even if it were -- see `deploy-settings`'s note). Of the
       two live deploy asks, this is the cheaper one to grant: no billing
-      change, no new account, just a DNS record, a scoped read-only token,
-      and a real email address.
+      change, no new account -- DNS already resolves, so it is down to a
+      scoped read-only token and a real email address.
   blocked_by: []
   note: >-
     Not a duplicate of `deploy-settings` (the GitHub Pages flip, opened

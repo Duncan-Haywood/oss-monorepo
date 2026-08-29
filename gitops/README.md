@@ -70,30 +70,36 @@ names, so the apex keeps whatever serves it today.
 
 ### What is still needed to make it live
 
-Four things, all owner actions. Until then Argo syncs the manifests and
-the pods crash-loop on the missing secret, which is the intended
-fail-closed state.
+DNS is already done: `tools.marisstella.dev` already resolves to
+`89.167.29.39` (verified 2026-08-29 — `marisstella.dev`'s existing
+wildcard `A/*` record already covers this subdomain, no new record
+needed). Two things remain, both owner actions. Until they land Argo
+syncs the manifests and the pods crash-loop on the missing secret,
+which is the intended fail-closed state.
 
-1. **DNS.** One A record: `tools.marisstella.dev` → `89.167.29.39`.
-2. **The clone token.** The repository is private, so the init container
+1. **The clone token.** The repository is private, so the init container
    cannot clone anonymously. Mint a fine-grained token scoped to this one
    repository with **Contents: Read-only** and nothing else, seal it, and
    add it to `prod/kustomization.yaml` — full instructions in
    `prod/secrets/portfolio-repo-token.template.yaml`.
-3. **A real ACME contact.** `platform/cert-manager/issuer.yaml` still
+2. **A real ACME contact.** `platform/cert-manager/issuer.yaml` still
    carries `replace-me@duncanhaywood.dev`. Let's Encrypt will refuse to
    register that address, so TLS cannot issue until it is a real mailbox.
    Left as a placeholder here on purpose: which address to hand an
    external certificate authority is the owner's to choose, not an
    agent's to guess.
-4. **Flip the issuer, last.** The Ingress ships pointed at
-   `letsencrypt-staging` deliberately: Argo syncs this namespace, so the
-   Ingress exists before the A record does, and challenges that cannot
-   resolve would count against Let's Encrypt limits for a name nobody can
-   reach. Once DNS resolves and a staging certificate has issued, change
-   the `cert-manager.io/cluster-issuer` annotation to `letsencrypt-prod`
-   (and update the test that pins it). Browsers will warn until you do —
-   staging is not a trusted root.
+
+Then, once a staging certificate has issued: **flip the issuer.** The
+Ingress ships pointed at `letsencrypt-staging` deliberately — Argo syncs
+this namespace, so the Ingress exists before a certificate can issue,
+and challenges that cannot resolve would count against Let's Encrypt
+limits for a name nobody can reach yet. Change the
+`cert-manager.io/cluster-issuer` annotation to `letsencrypt-prod` (and
+update the test that pins it) once a staging certificate has actually
+issued. Browsers will warn until you do — staging is not a trusted
+root. Unlike 1–2 this is an ordinary code change, not an owner action —
+ask a session to open that PR once you confirm the staging certificate
+issued.
 
 ### Keeping it current
 
