@@ -515,7 +515,7 @@ decisions:
 
 - id: codex-governor-enable
   asks: []
-  prs: []
+  prs: [1996]
   gates: deployment
   exposure: credential
   opened: "2026-08-29"
