@@ -29238,3 +29238,44 @@ entries:
         10, 11, 12 and 13. No new ask was added and no runbook written:
         `infra/OWNER_CHECKLIST.md` already types out each step.
     mrr_end: null
+  - venture: kitchen-tile-backsplash-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the venture's first `FAQPage` structured data (#2037,
+        merged): 8 real question/answer pairs added as visible
+        "Common questions" copy, picked up automatically by
+        `platform/pages/build.mjs`'s `faqEntries()` (the FAQ-schema
+        capability shipped in #2032). Confirmed the venture was a genuine,
+        unclaimed gap first -- its 55KB `index.html` (the portfolio's
+        largest bid calculator) had no `<h2>`/`<h3>` heading ending in `?`
+        and no `FAQPage` block, out of the ~123 tools #2032/#2035 measured
+        as still needing this as a content task.
+      - >-
+        Content was written from the tool's own README, form fields, and
+        comparison tables, not invented: bidding by wall and pattern, why a
+        flat $35/SF special loses on herringbone/demo jobs, customer-
+        supplied tile, leftover-box coverage on a second wall, after-hours
+        pricing, payroll burden, and a privacy answer verified against the
+        code (grepped for `fetch`/`XMLHttpRequest`/`sendBeacon` -- none
+        exist).
+      - >-
+        Verified locally, not on CI (runner outage unchanged: all 6 checks
+        on this PR's own head commit completed in ~3 seconds with the
+        `runner_id: 0` signature): `faqEntries()` parses all 8 pairs, the
+        venture's own suite 138/138, `platform/pages` suite 653/653, a full
+        build (164 tools / 457 pages) publishable per `check.mjs` with no
+        dead links, and the generated JSON-LD carries 8 `Question` entities
+        with no disclaimer text leaked in.
+      - >-
+        Session context: this was the scheduled product-first run's queue-
+        drain phase found 0 open PRs (trivially met) and confirmed the
+        Codex-on-Hetzner, CI/CD, and Hetzner-deploy asks the run was
+        specifically asked about are already fully recorded as owner-
+        blocked decision-queue rows (`codex-governor-enable`,
+        `agent-runner-subscription-login`, `actions-runners-unavailable`,
+        `portfolio-site-hetzner-deploy`) with nothing left for an agent to
+        build -- so this FAQ page was the run's product-value contribution
+        instead of re-doing that same analysis.
+    mrr_end: null
