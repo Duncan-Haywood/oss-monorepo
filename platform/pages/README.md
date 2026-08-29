@@ -1331,13 +1331,31 @@ What the first run found, on 2026-08-29:
   the size-tier defaults over them**, because a restored value was not marked
   hand-entered. Its two preset selects did not travel either, so the recipient
   read "Home & kitchen (15%)" over a 17% referral rate.
-- **47 tools drop `depositPercent` and `validDays`** — the proposal deposit and
-  how long the price is held. Their share specs carry the pricing form and not
-  the terms. One cause, not 47, which is why the report groups repeated fields
-  at the end. Still open: carrying them needs the three *text* terms
-  (`paymentTerms`, `proposalNotes`, `proposalExclusions`) to travel too, and the
-  shared spec in `share.mjs` has `numbers`, `flags` and `choices` but no text
-  kind. That is the next piece of work here.
+- **48 tools dropped `depositPercent` and `validDays`** — the proposal deposit
+  and how long the price is held. Their share specs carried the pricing form and
+  not the terms. One cause, not 48, which is why the report groups repeated
+  fields at the end.
+
+  **Fixed for the 36 on the shared spec** (2026-08-29). That spec now has a
+  `text` kind beside `numbers`, `flags` and `choices`, so the three prose terms
+  (`paymentTerms`, `proposalNotes`, `proposalExclusions`) travel with the two
+  numeric ones; `withProposalTerms` folds all five into a page's spec and
+  `readProposalTerms` collects them off the panel. The cost of leaving it was
+  measured in a browser before and after: on the pre-fix tree the recipient of a
+  turf bid printed a customer proposal asking **$1,640.44** on acceptance where
+  the sender's sheet said **$2,734.07**, held 30 days instead of 15, with the
+  payment terms gone. Both sheets now match. A term past `MAX_TERM_TEXT` is
+  dropped whole rather than truncated, and the *sender* is told which one stayed
+  behind — the lesson from the camera calculator above, applied on the way out.
+
+  **Still open for the other 12**, which predate the shared spec and keep a
+  hand-written `SHARE_FIELDS` allowlist each (`siding`, `painting`, `deck`,
+  `drywall`, `water-heater`, `window-replacement`, `ev-charger`,
+  `standby-generator`, `chimney-sweep`, `attic-insulation`, `asphalt-sealcoat`,
+  `irrigation-winterization`). Same defect, different mechanism: each needs its
+  own allowlist extended, or the venture moved onto the shared spec.
+  `platform/proposal/terms.test.mjs` deliberately does not count them as
+  passing.
 
 A preset select that comes back as `other`, or a scope draft that regenerates, is
 not a finding: the recipient now has custom rates, and `other` is the honest
