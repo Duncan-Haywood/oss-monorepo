@@ -29279,3 +29279,50 @@ entries:
         build -- so this FAQ page was the run's product-value contribution
         instead of re-doing that same analysis.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped dedicated SEO/FAQ landing pages to 5 ventures that had zero
+        FAQ or Q&A content anywhere in their HTML (#2039, merged):
+        `cash-runway-planner`, `subscription-price-impact`,
+        `vendor-rate-break-even`, `job-margin-variance`, and
+        `saas-seat-true-up`. Measured the gap first -- a grep for
+        `faq|frequently asked` across all 184 ventures found 25 with none
+        at all, a different and lower-severity list than #2032/#2035's
+        "no `FAQPage` schema" measurement, since these 5 had no visible
+        Q&A copy for the build-time `faqEntries()` capability to derive
+        schema from either. Picked the 5 as clear, well-scoped
+        "how do I decide X" calculators rather than doing all 25 in one
+        PR; the remaining 20 are an explicit follow-up.
+      - >-
+        Each page follows the portfolio's established
+        `how-much-to-charge.html` convention: authored `FAQPage` JSON-LD,
+        a worked example grounded in that venture's own `calc.mjs`/
+        `app.mjs` logic and default inputs (traced through the source, not
+        invented), and that venture's own no-warranty disclaimer text
+        reused rather than rewritten. One link added from each venture's
+        `index.html` to its new page, matching the existing link-placement
+        convention.
+      - >-
+        Verified locally (runner outage unchanged: all 11 checks on this
+        PR's head commit completed in ~3-4 seconds with the `ubuntu-latest`
+        + zero-real-steps signature): each of the 5 ventures' own test
+        suites (36/3/5/4/9, all pass), a full `platform/pages/build.mjs`
+        run (164 products / 462 pages, up from 457), and `check.mjs`
+        reporting the artifact publishable with no dead links.
+      - >-
+        Session context: independently confirmed 0 open PRs at session
+        start (three-PR quota trivially met) and, before writing any new
+        code, independently re-derived the same finding two other sessions
+        recorded today -- CI/CD (`gitops/ci`), the Hetzner portfolio-site
+        deploy (`gitops/prod/portfolio-site.yaml`), and Codex CLI on a
+        subscription's included quota (`ventures/ubuntu-agent-server`,
+        PR #2000) are all already fully engineered and PR'd, blocked only
+        on owner-only account actions (sealing tokens, an interactive
+        `codex login`, a real ACME contact email) already named in
+        `infra/OWNER_CHECKLIST.md` and decision-queue rows 10-12. No new
+        ask was added; this entry exists so a fourth session doesn't
+        re-run the same audit.
+    mrr_end: null
