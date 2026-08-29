@@ -29076,3 +29076,54 @@ entries:
         says not to produce, so left un-PR'd along with the calculator
         code it was bundled with.
     mrr_end: null
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged #2030: `reviewGrant`/`sampleGrants` defaulted an omitted
+        `today` to `new Date().toISOString().slice(0, 10)` -- the UTC
+        calendar date -- and `index.html` never passes `today`, so every
+        real visit ran on that default. For several hours of every day off
+        the meridian that is a different day than the one on the visitor's
+        own clock (behind local for positive UTC offsets in the morning,
+        ahead of it for negative offsets in the evening), so a report due
+        today could render "Overdue" a day early or "On track" a day past
+        when a late filing would actually start costing money. Same bug
+        class as `contractor-bid-readiness` #1980 ("deadline count off by a
+        day in both directions") but from the reference date itself, not
+        the day-diff rounding; the sibling `grant-deadline-tracker` already
+        had the right pattern (`todayStamp`'s local
+        `getFullYear`/`getMonth`/`getDate`) and this venture didn't.
+      - >-
+        Full-portfolio sweep first, before hunting per-venture: rebuilt with
+        `platform/pages/build.mjs`, `check.mjs` (164 products, 446 pages, no
+        dead links), then `platform/pages/sweep.mjs` under Playwright
+        against the pre-installed sandbox Chromium -- 164/164 tools answered
+        with no errors, so this was not a dead-tool find. The bug is a wrong
+        *status label* near a day boundary, which a load-and-perturb sweep
+        can't see; found it instead by grepping for the UTC-vs-local date
+        pattern the repo has already had to fix once (`grant-deadline-tracker`'s
+        `todayStamp` exists because of it) and finding the one sibling
+        venture without the fix.
+      - >-
+        Reproduced live in both directions: built the pre-fix and post-fix
+        trees separately, served both, and loaded the tool in Chromium with
+        the browser timezone forced to Pacific/Kiritimati (UTC+14, no DST,
+        so local and UTC dates differ for nearly the whole real day). With
+        the browser's local date at 2026-08-30 (UTC still 2026-08-29), the
+        pre-fix build dated the first sample row's next report
+        `2026-08-08`; the post-fix build dated the same row `2026-08-09` --
+        matching the visitor's calendar. New `calc.test.mjs` case sets
+        `process.env.TZ` to the same zone and asserts the no-argument call
+        matches an explicit local-date call and diverges from an explicit
+        UTC-date call; confirmed it fails against the pre-fix code
+        (`-2236 !== -2237`) before restoring the fix.
+      - >-
+        Verified locally: venture suite 10/10 (1 new), full ventures suite
+        11787/11787, platform/pages suite 642/642, rebuild + check.mjs (164
+        products, 446 pages, no dead links), sweep.mjs 164/164. PR #2030
+        checks came back `runner_id: 0`, `runner_name: ""`, ~3s duration --
+        the known outage signature, not a regression -- so merged on local
+        verification per CLAUDE.md.
+    mrr_end: null
