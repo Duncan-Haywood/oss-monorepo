@@ -2541,6 +2541,13 @@ const JOBS_CSS = `
 .pf-jobs-save input{font:inherit;font-size:.85rem;color:inherit;background:transparent;
   border:1px solid #80808059;border-radius:7px;padding:3px 8px;min-width:0;flex:1 1 14em}
 .pf-jobs-list{margin:0 0 10px;padding:0;list-style:none;display:grid;gap:6px}
+/* Same guard as .pf-jobs-revision, and it was already needed here: the script
+   sets this list's hidden attribute when there are no saved bids, and grid
+   outranks the user agent rule, so a contractor with nothing saved got an
+   empty list element — announced by a screen reader, and carrying its own
+   10px margin — inside the panel. Caught by asking a rendered page rather
+   than by reading this file; see checkHiddenDisplay in check.mjs. */
+.pf-jobs-list[hidden]{display:none}
 .pf-jobs-list li{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline;
   padding:6px 0;border-top:1px solid #80808033}
 .pf-jobs-list li:first-child{border-top:0}

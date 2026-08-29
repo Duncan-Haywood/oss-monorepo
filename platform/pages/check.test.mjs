@@ -300,3 +300,103 @@ test('malformed JSON-LD is caught', async () => {
   });
   assert.equal(mentioning(problems, 'not valid JSON').length, 1);
 });
+
+// ---------------------------------------------------------------------------
+// Elements hidden in markup that CSS puts back on the page
+// ---------------------------------------------------------------------------
+//
+// `hidden` is a hint, not a style: any author `display` outranks the user
+// agent's `[hidden]{display:none}`. It shipped twice on this site — an empty
+// saved-bids list and an empty shop-rates list, live on 342 built pages — and
+// nothing here could see it, because the defect exists only in the resolved
+// cascade. These pin the shape.
+
+const hiddenPage = (css, markup) =>
+  `<style>${css}</style>${markup}<footer>No warranty.</footer>`;
+
+test('a display rule on a hidden element is caught', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage('.bar{display:flex}', '<p class="bar" hidden>x</p>'),
+  });
+  assert.equal(mentioning(problems, '.bar sets display:flex').length, 1);
+});
+
+test('the guard that fixes it clears the report', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage(
+      '.bar{display:flex}.bar[hidden]{display:none}',
+      '<p class="bar" hidden>x</p>',
+    ),
+  });
+  assert.deepEqual(mentioning(problems, '.bar sets display'), []);
+});
+
+test('an id is checked the same way as a class', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage('#bar{display:grid}', '<p id="bar" hidden>x</p>'),
+  });
+  assert.equal(mentioning(problems, '#bar sets display:grid').length, 1);
+});
+
+test('a stylesheet the page links is read, not only its inline style', async () => {
+  const problems = await problemsFor({
+    'tool/index.html':
+      '<link rel="stylesheet" href="../s.css"><p class="bar" hidden>x</p><footer>No warranty.</footer>',
+    's.css': '.bar{display:flex}',
+  });
+  assert.equal(mentioning(problems, '.bar sets display:flex').length, 1);
+});
+
+test('aria-hidden is not the hidden attribute', async () => {
+  // The first version of this check used `\bhidden`, which matches after the
+  // hyphen. It reported 20 venture calculators whose itemised template row is
+  // `aria-hidden="true"` — a label for assistive technology, nothing to do
+  // with display. A gate with twenty false positives is a gate nobody keeps.
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage('.bar{display:grid}', '<p class="bar" aria-hidden="true">x</p>'),
+  });
+  assert.deepEqual(mentioning(problems, '.bar sets display'), []);
+});
+
+test('a class literally named "hidden" is not the hidden attribute either', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage('.bar{display:grid}', '<p class="bar hidden-note">x</p>'),
+  });
+  assert.deepEqual(mentioning(problems, '.bar sets display'), []);
+});
+
+test('a rule about the children of a hidden element is not the defect', async () => {
+  // `.bar li` styles what is inside a hidden list. Approximating this as a hit
+  // is how a checker earns its way into someone's ignore list.
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage('.bar li{display:grid}', '<p class="bar" hidden>x</p>'),
+  });
+  assert.deepEqual(mentioning(problems, 'sets display'), []);
+});
+
+test('a display rule on an element that is never hidden is not reported', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage('.bar{display:flex}', '<p class="bar">x</p>'),
+  });
+  assert.deepEqual(mentioning(problems, 'sets display'), []);
+});
+
+test('hidden="until-found" is a different feature and is left alone', async () => {
+  // The browser reveals it on find-in-page; it is not display:none, so a
+  // display rule on it is not this defect.
+  const problems = await problemsFor({
+    'tool/index.html': hiddenPage('.bar{display:grid}', '<p class="bar" hidden="until-found">x</p>'),
+  });
+  assert.deepEqual(mentioning(problems, '.bar sets display'), []);
+});
+
+test('one missing guard on a shared bar is reported once, not once per page', async () => {
+  // These stylesheets are site-wide: without this, a single missing guard is
+  // 342 identical lines and the one that matters is buried.
+  const page = hiddenPage('.bar{display:flex}', '<p class="bar" hidden>x</p>');
+  const problems = await problemsFor({
+    'index.html': `<a href="tool/" data-tool="tool">Tool</a>${page}`,
+    'tool/index.html': page,
+  });
+  assert.equal(mentioning(problems, '.bar sets display:flex').length, 1);
+});

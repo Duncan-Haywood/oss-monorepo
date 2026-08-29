@@ -260,6 +260,133 @@ async function checkInlineScripts(site, servedPages, problems) {
   await fs.rm(scratch, { recursive: true, force: true });
 }
 
+/**
+ * An element the script toggles with `hidden`, that CSS keeps on the page.
+ *
+ * Why this exists
+ * ---------------
+ * `hidden` is not a style, it is a hint: the user agent stylesheet says
+ * `[hidden]{display:none}`, and *any* author rule setting `display` on the same
+ * element outranks it — no `!important`, no specificity contest, author beats
+ * user agent. So a bar written the obvious way,
+ *
+ *   .pf-jobs-revision{display:flex}          <p class="pf-jobs-revision" hidden>
+ *
+ * is on the page from the moment it loads, empty, with its buttons behind it.
+ * The script that "reveals" it is toggling an attribute with no effect.
+ *
+ * Nothing in this repo could see that. `build.test.mjs` asserts the element
+ * ships with `hidden` and it does; the script sets `.hidden` and it does; the
+ * stylesheet declares `display:flex` and that is correct in isolation. The
+ * defect only exists in the resolved cascade, which is to say only in a
+ * browser — and `journey.mjs` and `contrast.mjs`, the two things here that run
+ * one, both need Playwright and neither is in CI.
+ *
+ * It has already shipped twice. `.pf-jobs-list` (display:grid) and
+ * `.pf-rates-list` (display:flex) are both toggled with `hidden` and were both
+ * live on 342 built pages: a contractor with nothing saved got an empty list
+ * element in the panel, holding its own margin and announced by a screen reader
+ * as a list of nothing. A third, `.pf-jobs-revision`, was caught the day it was
+ * written by driving a browser over it, which is what prompted this check.
+ *
+ * What it matches, and what it deliberately does not
+ * --------------------------------------------------
+ * Only the shape the defect actually takes here: a rule whose selector is one
+ * bare class or id, setting `display` to anything but `none`, on an element the
+ * markup ships carrying `hidden`. A guard — `.thing[hidden]{display:none}` —
+ * clears it.
+ *
+ * Selectors with combinators, pseudo-classes or attribute matches are skipped
+ * rather than approximated. This is a gate on a publish, so a false positive
+ * costs more than a missed case: `.pf-jobs-list li` styles the children of a
+ * hidden list and is not a defect, and a checker that cannot tell the two apart
+ * is one nobody leaves switched on. Every occurrence so far has been the bare
+ * form, because that is how these stylesheets are written.
+ */
+const CSS_COMMENT_RE = /\/\*[\s\S]*?\*\//g;
+const CSS_RULE_RE = /([^{}]+)\{([^{}]*)\}/g;
+const BARE_SELECTOR_RE = /^([.#][\w-]+)$/;
+const GUARD_SELECTOR_RE = /^([.#][\w-]+)\[hidden\]$/;
+const DISPLAY_RE = /(?:^|;)\s*display\s*:\s*([^;!]+)/i;
+const TAG_RE = /<(\w+)\b([^>]*)>/g;
+// `\bhidden` is wrong here and the mistake is worth naming: `\b` matches after
+// the hyphen in `aria-hidden`, so the first version of this check reported 20
+// venture calculators whose itemised template row is `aria-hidden="true"` —
+// which is a label for assistive technology and has nothing to do with
+// `display`. The hyphen has to be excluded on both sides, and quoted values
+// stripped first so `class="hidden"` is not read as the attribute either.
+const HIDDEN_ATTR_RE = /(?<![\w-])hidden(?![\w-])/i;
+const UNTIL_FOUND_RE = /(?<![\w-])hidden\s*=\s*["']?until-found/i;
+const ATTR_VALUE_RE = /=\s*("[^"]*"|'[^']*')/g;
+
+export function checkHiddenDisplay(html, css) {
+  // Which selectors the markup actually toggles. Read off the tags carrying
+  // `hidden` rather than off the stylesheet, so a rule about an element that is
+  // never hidden is never reported.
+  const hiddenSelectors = new Set();
+  for (const [, , attrs] of html.matchAll(TAG_RE)) {
+    if (!HIDDEN_ATTR_RE.test(attrs.replace(ATTR_VALUE_RE, '=""'))) continue;
+    // `hidden="until-found"` is a different feature — the element is findable
+    // and is revealed by the browser itself — and it is not display:none, so a
+    // display rule on it is not this defect.
+    if (UNTIL_FOUND_RE.test(attrs)) continue;
+    const id = /\bid\s*=\s*"([^"]*)"/i.exec(attrs)?.[1];
+    if (id) hiddenSelectors.add(`#${id}`);
+    for (const cls of (/\bclass\s*=\s*"([^"]*)"/i.exec(attrs)?.[1] ?? '').split(/\s+/)) {
+      if (cls) hiddenSelectors.add(`.${cls}`);
+    }
+  }
+  if (hiddenSelectors.size === 0) return [];
+
+  const body = css.replace(CSS_COMMENT_RE, '');
+  const guarded = new Set();
+  const offenders = new Map();
+
+  for (const [, selectorList, declarations] of body.matchAll(CSS_RULE_RE)) {
+    const display = DISPLAY_RE.exec(declarations)?.[1]?.trim().toLowerCase();
+    if (!display) continue;
+    for (const raw of selectorList.split(',')) {
+      const selector = raw.trim();
+      const guard = GUARD_SELECTOR_RE.exec(selector);
+      if (guard) {
+        if (display === 'none') guarded.add(guard[1]);
+        continue;
+      }
+      const bare = BARE_SELECTOR_RE.exec(selector)?.[1];
+      if (!bare || display === 'none') continue;
+      if (!hiddenSelectors.has(bare)) continue;
+      if (!offenders.has(bare)) offenders.set(bare, display);
+    }
+  }
+
+  const problems = [];
+  for (const [selector, display] of offenders) {
+    if (guarded.has(selector)) continue;
+    problems.push(
+      `${selector} sets display:${display}, which outranks the user agent's ` +
+      `[hidden]{display:none} — the element ships with hidden and renders anyway. ` +
+      `Add ${selector}[hidden]{display:none}`,
+    );
+  }
+  return problems;
+}
+
+/** Every stylesheet a page links, from the artifact, concatenated. */
+async function linkedStylesheets(site, relative, html, cache) {
+  const sheets = [];
+  for (const [, href] of html.matchAll(/<link\b[^>]*\brel\s*=\s*"stylesheet"[^>]*\bhref\s*=\s*"([^"]+)"/gi)) {
+    if (isExternal(href)) continue;
+    const target = path.resolve(site, path.dirname(relative), decodeURIComponent(href.split('?')[0]));
+    if (path.relative(path.resolve(site), target).startsWith('..')) continue;
+    if (!cache.has(target)) cache.set(target, await fs.readFile(target, 'utf8').catch(() => ''));
+    sheets.push(cache.get(target));
+  }
+  // Inline blocks count too: most ventures style their own page from a <style>
+  // in the head, and the bars are not the only things these pages hide.
+  for (const [, block] of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)) sheets.push(block);
+  return sheets.join('\n');
+}
+
 export async function checkSite(site, { minProducts = 1 } = {}) {
   const problems = [];
 
@@ -330,6 +457,27 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   const servedPages = files.filter((f) => f.endsWith('.html'));
 
   await checkInlineScripts(site, servedPages, problems);
+
+  // ---- Elements hidden in markup that CSS puts back on the page -----------
+  //
+  // Reported once per selector rather than once per page: these bars are shared
+  // across the whole artifact, so a single missing guard is 342 identical lines
+  // and the one that matters is the first.
+  {
+    const sheetCache = new Map();
+    const seen = new Set();
+    for (const relative of servedPages) {
+      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      if (!HIDDEN_ATTR_RE.test(html)) continue;
+      const css = await linkedStylesheets(site, relative, html, sheetCache);
+      if (!css) continue;
+      for (const problem of checkHiddenDisplay(html, css)) {
+        if (seen.has(problem)) continue;
+        seen.add(problem);
+        problems.push(`${relative}: ${problem}`);
+      }
+    }
+  }
 
   // ---- Disclaimers and leaked payload -------------------------------------
   for (const product of productDirs) {

@@ -27390,6 +27390,88 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        **The saved-bids band answered half of the question it was written
+        for.** Its own header opens on the Friday call — "what was that number
+        again, and what if we skip the tear-off?" — and `restore` settles only
+        the first clause. Watched end to end in a browser, the second clause
+        fails plainly: the contractor drops a line, the page reprices, and
+        Tuesday's figure leaves the screen. The one number the call is about —
+        the difference against the proposal the customer is holding — was the
+        one piece of arithmetic on the page the tool was not doing, and it was
+        being done in someone's head against a half-remembered figure.
+      - >-
+        `revisionSentence` now holds the quoted figure while a restored bid is
+        on the form and states the change in money and percent —
+        "$18,376.98 now, against $22,683.07 saved — $4,306 less (19%)" — on the
+        116 tool pages that capture a hero figure. It refuses rather than
+        guesses (unreadable figure, or two currencies, draws nothing; this file
+        has no rates), drops the percent below a tenth of a point and on a
+        saved figure of zero or less, and quotes both prices as the strings the
+        tools wrote so they match the printed proposal character for character.
+        Nothing is stored: it ends on save, on delete, and on Stop comparing.
+      - >-
+        It watches the **hero element**, not the form. 160 tools reprice their
+        own way — on input, on a button, after a deferred module rebuilds
+        itemised rows — and none of them announce it; the figure changing is
+        the only event common to all of them.
+      - >-
+        A second defect fell out of the same sequence and is the smaller half
+        only by line count: restoring never put the bid's **name** back in the
+        box, so a re-save after the reprice wrote a second row under today's
+        date and the match-by-name in the save path — which exists for exactly
+        this sequence, and says so in its own comment — never fired. The
+        feature that keeps one job's history had been quietly growing two rows
+        per job for anyone who used it as documented.
+      - >-
+        **The browser found a defect no unit test could have.** `display:flex`
+        on the new line outranks the user agent's `[hidden]{display:none}`, so
+        the line rendered — empty, with a Stop comparing button behind it — on
+        every page load of 116 tools. Every assertion available at build time
+        passed. The lesson generalises past this line: any rule in
+        `pf-jobs.css` that sets `display` on an element the script toggles
+        needs its own `[hidden]` guard, and only a rendered page can say so.
+        Pinned by a test that names the regression.
+      - >-
+        **The same defect was already live, twice, and nobody could see it.**
+        Driving a browser over all 445 built pages and asking each `[hidden]`
+        element for its computed display found `.pf-jobs-list` (grid) and
+        `.pf-rates-list` (flex) rendering on **342 pages**: the saved-bids list
+        for a contractor with nothing saved, and the shop-rates list for every
+        first-time visitor — empty elements holding their own 10px margin and
+        announced by a screen reader as a list of nothing. Both fixed.
+      - >-
+        `checkHiddenDisplay` in `check.mjs` now gates it at publish, which is
+        the part that outlives this session: for every element the markup ships
+        with `hidden`, it refuses a bare-selector rule setting `display` to
+        anything but `none` unless a `[hidden]` guard clears it. Run against
+        the pre-fix artifact it names exactly those two selectors and nothing
+        else — the same answer the browser gave, from a check that needs no
+        browser and runs in CI today.
+      - >-
+        Its first version reported **20 venture calculators** and every one was
+        wrong: `\bhidden` matches after the hyphen in `aria-hidden`, which is
+        what those itemised template rows carry. Worth recording because the
+        repo has already learned the general form of it — a gate that never
+        opens is a gate nobody uses, and a gate that cries wolf twenty times on
+        day one is the same gate. Rules with combinators (`.bar li`) and a
+        class merely *named* `hidden` are skipped rather than approximated, and
+        both cases are pinned by tests.
+      - >-
+        Verified locally, the runner outage still standing (`validate`,
+        `build`, `check` all red at `runner_id: 0` and 1-2s, the signature
+        `CLAUDE.md` documents): 580 platform/pages tests (566 before), build
+        plus `check.mjs` at 164 products / 445 pages with no dead links,
+        `sweep.mjs` **164/164 tools answered with no errors** — the check that
+        matters when one shared file ships on 237 pages — `journey.mjs` 0
+        failed checks and 0 page/console errors, and a 14-step Chromium pass
+        over the new sequence: price, save, cold reload, restore, reprice,
+        read, Stop, restore, re-save. The re-save replaces the row rather than
+        adding a second, and the band still never prints.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         **The hub's stopword list described a catalogue that no longer exists.**
         `SEARCH_STOPWORDS` is generic English — the, and, with. What it never
         had is this catalogue's *own* repeated phrasing, and the matcher ANDs
