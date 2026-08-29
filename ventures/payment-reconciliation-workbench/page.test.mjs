@@ -22,3 +22,19 @@ test('the results panel wires every element app.mjs writes into', () => {
   }
   assert.match(html, /What to check/);
 });
+
+test('editing the tolerance and pressing Enter re-runs the match, not only the button click', () => {
+  // #tolerance sits outside a <form>, so a plain <input type="number"> swallows
+  // Enter by default. Once results are already showing, adjusting the
+  // tolerance and pressing Enter -- the natural close-out on a phone's numeric
+  // keypad -- must reprice the match exactly as clicking "Run reconciliation"
+  // does, or the table keeps showing results from the old tolerance with
+  // nothing on screen to say they are stale.
+  const appSource = fs.readFileSync(new URL('./src/app.mjs', import.meta.url), 'utf8');
+  assert.match(
+    appSource,
+    /\$\('tolerance'\)\.addEventListener\('keydown', event => \{ if \(event\.key === 'Enter'\) \{ event\.preventDefault\(\); run\(\); \} \}\)/,
+    'no Enter-key handler on #tolerance calling run()',
+  );
+  assert.match(appSource, /\$\('run'\)\.addEventListener\('click', run\)/, 'run() is not shared between the click and Enter-key paths');
+});
