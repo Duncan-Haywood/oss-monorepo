@@ -37,15 +37,23 @@ import {
   renderServiceWorker,
   renderSocialCard,
 } from './offline.mjs';
-import { injectShopRates } from './rates.mjs';
+import {
+  SHOP_RATES_MODULE_FILE,
+  SHOP_RATES_STYLE_FILE,
+  injectShopRates,
+  renderShopRatesModule,
+  renderShopRatesStyle,
+} from './rates.mjs';
 import {
   BID_AMOUNT_HELPER,
   BID_FOLLOW_UP_HELPERS,
   BID_PRICING_HELPERS,
   SAVED_BIDS_MODULE_FILE,
+  SAVED_BIDS_STYLE_FILE,
   injectSavedBids,
   pageHeadlineAmountSelector,
   renderSavedBidsModule,
+  renderSavedBidsStyle,
   stripForInjection,
 } from './jobs.mjs';
 import {
@@ -1850,6 +1858,12 @@ ${OFFLINE_WIDGET_SCRIPT}
 const CHROME_MARKER = 'pf-chrome';
 
 /**
+ * The one thing the shared chrome script cannot know until it is on a page:
+ * which tool it is counting a view of. See `CHROME_SCRIPT`.
+ */
+const CHROME_SLUG_ATTR = 'data-pf-slug';
+
+/**
  * How a page says it carries no availability promise, in any of the wordings
  * the ventures actually use. Deliberately loose: several write the clause in
  * their own voice ("Hosted URLs, when they exist, carry no availability SLA"),
@@ -1911,7 +1925,11 @@ const NO_SLA_CLAUSE =
 // (`favicon.ico` is the deliberate exception elsewhere in this file: the
 // browser draws it onto its own furniture, so there is no host page for it to
 // inherit from.)
-const CHROME_STYLE = `<style id="pf-chrome-style">
+//
+// Raw CSS rather than a `<style>` element: it is written once to
+// `pf-chrome.css` at the site root and linked from all 442 published pages.
+// See `CHROME_STYLE_FILE`.
+const CHROME_CSS = `
 .pf-chrome{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:.9rem;line-height:1.5;
   color:inherit;--pf-line:rgba(128,128,128,.34);--pf-fill:rgba(128,128,128,.07)}
 .pf-chrome a{color:inherit;text-decoration:underline;text-underline-offset:2px}
@@ -1951,18 +1969,44 @@ const CHROME_STYLE = `<style id="pf-chrome-style">
  * than in each venture: a calculator that adopts the proposal next week is
  * covered without touching it. */
 @media print{.pf-chrome{display:none !important}}
-</style>`;
+`;
+
+/**
+ * The chrome's stylesheet as one file, for the whole site.
+ *
+ * It was written into every published page — 2.75 KB × 442 pages, **1.19 MiB
+ * of the built site**, all of it the same bytes. Nothing in it was ever
+ * per-page: the block is deliberately palette-free (see above), which is
+ * exactly what makes it shareable.
+ *
+ * The `id` the element carried did one job: it let a test find the chrome's own
+ * rules among a venture's. The filename does that now, and better — the tests
+ * that used to fish the block out of a built page and `continue` when they
+ * could not find one would have gone silently green the moment it moved.
+ */
+export const CHROME_STYLE_FILE = 'pf-chrome.css';
+
+/** The contents of that file. Written once by the build, at the site root. */
+export function renderChromeStyle() {
+  return CHROME_CSS.trimStart();
+}
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
 // opened, never who opened them, never leaving the device, and silent for a
 // browser asking not to be counted. Until this shipped the only page that
 // counted anything was the hub, so a visitor arriving from search at a deep SEO
 // page was invisible — which is most of the traffic these pages are written for.
-const CHROME_SCRIPT = (slug) => `<script>
+//
+// The slug is the only per-page value, and it rides on the `<script>` tag as
+// `data-pf-slug` now that this is one shared file. See `CHROME_MODULE_FILE`.
+const CHROME_SCRIPT = () => `
 (function(){
   try{
     if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
     if(localStorage.getItem('portfolio-hub-optout')==='1')return;
+    var tag=document.querySelector('script[${CHROME_SLUG_ATTR}]');
+    var slug=tag?tag.getAttribute('${CHROME_SLUG_ATTR}')||'':'';
+    if(!slug)return;
     var k='portfolio-hub-usage';
     var bump=function(event){
       try{
@@ -1972,14 +2016,14 @@ const CHROME_SCRIPT = (slug) => `<script>
         localStorage.setItem(k,JSON.stringify(c));
       }catch(e){}
     };
-    bump('tool_viewed:${slug}');
+    bump('tool_viewed:'+slug);
     document.addEventListener('click',function(e){
       var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
     });
   }catch(e){}
 })();
-</script>`;
+`;
 
 /**
  * Gives a horizontally scrolling box the keyboard access it silently lost.
@@ -2006,7 +2050,7 @@ const CHROME_SCRIPT = (slug) => `<script>
  * semantics, so a screen reader would stop announcing rows and columns. The
  * accessible name comes from the caption or heading the venture already wrote.
  */
-const SCROLL_A11Y_SCRIPT = `<script>
+const SCROLL_A11Y_SCRIPT = `
 (function(){
   // Which elements can scroll sideways is decided by CSS, so the candidate set
   // only changes when the cascade does — on load and on resize, where a media
@@ -2050,7 +2094,27 @@ const SCROLL_A11Y_SCRIPT = `<script>
   addEventListener('change',quick);
   addEventListener('click',quick);
 })();
-</script>`;
+`;
+
+/**
+ * The chrome's two browser halves as one file, for the whole site.
+ *
+ * Both ran on all 442 published pages and neither was ever per-page except for
+ * the slug the counter names — 663 B and 994 B written out 442 times each, or
+ * **715 KiB of the built site**. They ship together because they ship to the
+ * same set of pages: two files would be two requests to say what one says.
+ *
+ * A classic script, as both were inline. It sits at the end of the body, after
+ * the markup it reads, and neither half needs to run before the venture's own
+ * module: the counter records a page view and the scroll pass waits for
+ * `DOMContentLoaded` or measures immediately, whichever comes first.
+ */
+export const CHROME_MODULE_FILE = 'pf-site.js';
+
+/** The contents of that file. Written once by the build, at the site root. */
+export function renderChromeModule() {
+  return `${stripForInjection(CHROME_SCRIPT())}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n`;
+}
 
 // ---------------------------------------------------------------------------
 // Number inputs
@@ -2306,12 +2370,16 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     </p>
   </div>
 </aside>
-${stripForInjection(CHROME_SCRIPT(slug))}
-${stripForInjection(SCROLL_A11Y_SCRIPT)}`;
+<script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(slug)}"></script>`;
 
-  const withStyle = html.replace(/<\/head>/i, `${CHROME_STYLE}\n</head>`);
+  // A link now, not a `<style>` body: one file at the site root, fetched once
+  // and served from cache for every other tool on the site. See
+  // `CHROME_STYLE_FILE`.
+  const styleLink =
+    `<link rel="stylesheet" href="${escapeHtml(`${toRoot}${CHROME_STYLE_FILE}`)}">`;
+  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
-  const stylePrefix = withStyle === html ? `${CHROME_STYLE}\n` : '';
+  const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
   return withStyle
     .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
@@ -2369,7 +2437,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // Last: the bar anchors under the site nav, so the chrome has to be there
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
-      const withRates = injectShopRates(withCard, surface.slug);
+      const withRates = injectShopRates(withCard, surface.slug, toRoot);
       if (withRates !== withCard) rated.push(relative);
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
@@ -2631,11 +2699,15 @@ export function renderNotFound(baseUrl) {
 const BUNDLE_EXTENSIONS = new Set(['.mjs', '.js', '.css']);
 
 export async function collectOfflineBundle(outDir, surfaces) {
-  // The shared saved-bids script is loaded by every tool page in this bundle,
-  // so a tool cached for offline use without it opens with no band at all.
+  // The shared scripts and stylesheets are loaded by every tool page in this
+  // bundle, so a tool cached for offline use without them opens with no band at
+  // all — or, for the stylesheets, with an unstyled one bolted to the page.
+  // That is the cost of extracting them: what used to be inline and therefore
+  // cached with the page is now a separate request the cache has to know about.
   const assets = new Set([
     './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
-    BID_LINK_MODULE_FILE,
+    BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
+    CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -2792,6 +2864,13 @@ export async function buildSite({
   // band loads it from here; it used to be written into each of them.
   await fs.writeFile(path.join(outDir, SAVED_BIDS_MODULE_FILE), renderSavedBidsModule());
   await fs.writeFile(path.join(outDir, BID_LINK_MODULE_FILE), renderBidLinkModule());
+  // The shop-rates script and the chrome's own, on the same terms, plus the
+  // three stylesheets this build used to write into every page it touched.
+  await fs.writeFile(path.join(outDir, SHOP_RATES_MODULE_FILE), renderShopRatesModule());
+  await fs.writeFile(path.join(outDir, CHROME_MODULE_FILE), renderChromeModule());
+  await fs.writeFile(path.join(outDir, CHROME_STYLE_FILE), renderChromeStyle());
+  await fs.writeFile(path.join(outDir, SHOP_RATES_STYLE_FILE), renderShopRatesStyle());
+  await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 

@@ -65,6 +65,21 @@ export const SHOP_RATES_KEY = 'portfolio-shop-rates';
 const SHOP_RATES_MARKER = 'pf-rates';
 
 /**
+ * The one thing the shared script cannot know until it is on a page: which of
+ * the four fields this tool carries and what each is called here, as
+ * `fieldId:inputId` pairs. See `RATES_SCRIPT`.
+ */
+const RATES_FIELDS_ATTR = 'data-pf-rates-fields';
+
+/**
+ * Escaped, not interpolated. The field pairs and the two asset paths are
+ * attribute values now, so the character that would break out of one is the
+ * quote rather than the backslash a JSON string literal had to guard against.
+ */
+const attr = (value) => String(value)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/**
  * Pages that spell a carried field with a different input id.
  *
  * Only a *verified* rename belongs here: the label on that page has to name the
@@ -265,8 +280,12 @@ export function pageTakesShopRates(html, slug = '') {
  * ventures here are deliberately light-only and carry no `prefers-color-scheme`
  * rule, so a band painted from its own dark palette would sit as a near-black
  * slab on a cream page for any visitor with a dark OS.
+ *
+ * Raw CSS rather than a `<style>` element: it is written once to
+ * `pf-rates.css` at the site root and linked from the pages that carry the bar.
+ * See `SHOP_RATES_STYLE_FILE`.
  */
-const RATES_STYLE = `<style>
+const RATES_CSS = `
 .pf-rates{font:inherit;font-size:.85rem;line-height:1.45;color:inherit;
   max-width:1060px;margin:0 auto;padding:8px 18px 0;box-sizing:border-box}
 .pf-rates-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
@@ -296,7 +315,7 @@ const RATES_STYLE = `<style>
  * allow-list: a contractor who had saved their rates and left the panel open
  * would have handed the customer their margin along with the quote. */
 @media print{.pf-rates{display:none !important}}
-</style>`;
+`;
 
 /** "a, b and c" — the carried fields named the way the page labels them. */
 function fieldSentence(fields) {
@@ -355,22 +374,45 @@ ${note ? `    <p class="pf-rates-note">${note}</p>\n` : ''}    <ul class="pf-rat
  *     were when the bid was last touched; the saved rates are what they are now.
  *     If a contractor raises their wage, every tool has to show it, or the
  *     feature is a lie the second time it matters.
+ *
+ * One file for the whole site, on the `pf-jobs.js` precedent. Only
+ * two things about this script were ever per-page — *which* of the four fields
+ * the tool carries, and what each one's input is called there — and both now
+ * ride on the `<script>` tag as `data-pf-rates-fields`.
  */
-const RATES_SCRIPT = (fields) => `<script type="module">
+const RATES_SCRIPT = () => `
 (function(){
+  // Everything a field *means* — its label, its units, its ceiling — is the
+  // same on all 105 pages, so it stays here as a constant rather than
+  // travelling through the DOM. The tag carries only the two facts that differ.
+  var CATALOG = ${JSON.stringify(
+    Object.fromEntries(
+      SHOP_RATE_FIELDS.map(({ id, label, prefix, suffix, max }) => [
+        id,
+        { label, prefix: prefix || '', suffix: suffix || '', max },
+      ]),
+    ),
+  )};
+
   // Only the fields this page was verified to carry, each with the input id it
   // uses here. A field absent from this list is one whose meaning differs on
   // this tool; it is never read and never written.
-  var FIELDS = ${JSON.stringify(
-    fields.map(({ id, inputId, label, prefix, suffix, max }) => ({
-      id,
-      inputId: inputId || id,
-      label,
-      prefix: prefix || '',
-      suffix: suffix || '',
-      max,
-    })),
-  )};
+  //
+  // Read back from the tag rather than compiled in, and validated on the way:
+  // a pair naming a field this build does not know is dropped rather than
+  // trusted, for the reason pf-jobs.js re-checks its amount selector — the
+  // value used to be a build-time literal and now arrives through the DOM.
+  var tag = document.querySelector('script[${RATES_FIELDS_ATTR}]');
+  var FIELDS = (tag ? tag.getAttribute('${RATES_FIELDS_ATTR}') || '' : '')
+    .split(',')
+    .map(function(pair){
+      var parts = pair.split(':');
+      var spec = CATALOG[parts[0]];
+      if (!spec || !parts[1]) return null;
+      return { id: parts[0], inputId: parts[1], label: spec.label,
+        prefix: spec.prefix, suffix: spec.suffix, max: spec.max };
+    })
+    .filter(Boolean);
   var ALL_FIELDS = ${SHOP_RATE_FIELDS.length};
   var KEY = ${JSON.stringify(SHOP_RATES_KEY)};
 
@@ -384,6 +426,12 @@ const RATES_SCRIPT = (fields) => `<script type="module">
   // Defensive: the build only injects the fields it found, but a venture could
   // rename one tomorrow, and a bar offering a field the page no longer has is
   // worse than none. Removing the panel is the honest outcome.
+  //
+  // An empty list is the same verdict and needs saying separately now that the
+  // list arrives through the DOM: the loop below cannot fail on a list with
+  // nothing in it, so without this a page whose tag lost its attribute would
+  // draw a bar that saves nothing and reads as broken.
+  if (!FIELDS.length) { root.remove(); return; }
   for (var i = 0; i < FIELDS.length; i++) {
     if (!fieldFor(FIELDS[i])) { root.remove(); return; }
   }
@@ -606,7 +654,39 @@ const RATES_SCRIPT = (fields) => `<script type="module">
   if (document.readyState === 'complete') start();
   else window.addEventListener('load', start, { once: true });
 })();
-</script>`;
+`;
+
+/**
+ * The shop-rates script as one file, for the whole site.
+ *
+ * It was written into all 105 pages carrying the bar — **781 KiB of the built
+ * site**, the same ~7.5 KB of JavaScript over and over, paid for on every page
+ * load and again by every tool a contractor saves for offline use. One file at
+ * the root is fetched once and served from cache for every tool after the
+ * first, which is exactly the journey this bar exists to serve: the second
+ * calculator someone crosses to.
+ *
+ * Still stripped of its prose, and for the guarantee rather than the bytes —
+ * `stripForInjection` is what proves no line of the shipped source opens a
+ * template literal it does not close.
+ */
+export const SHOP_RATES_MODULE_FILE = 'pf-rates.js';
+
+/** The contents of that file. Written once by the build, at the site root. */
+export function renderShopRatesModule() {
+  return `${stripForInjection(RATES_SCRIPT())}\n`;
+}
+
+/**
+ * The bar's stylesheet, extracted for the same reason and on the same terms.
+ * Nothing in it was ever per-page.
+ */
+export const SHOP_RATES_STYLE_FILE = 'pf-rates.css';
+
+/** The contents of that file. Written once by the build, at the site root. */
+export function renderShopRatesStyle() {
+  return RATES_CSS.trimStart();
+}
 
 /**
  * Add the shop-rates bar to one already-published page.
@@ -626,7 +706,7 @@ const RATES_SCRIPT = (fields) => `<script type="module">
  * each of thirty-six tools. Under the nav it is the first thing below the site
  * bar on every one of them.
  */
-export function injectShopRates(html, slug = '') {
+export function injectShopRates(html, slug = '', toRoot = './') {
   if (typeof html !== 'string') return html;
   if (html.includes(SHOP_RATES_MARKER)) return html;
 
@@ -637,14 +717,30 @@ export function injectShopRates(html, slug = '') {
   if (!bodyOpen || !/<\/body>/i.test(html)) return html;
 
   const markup = RATES_MARKUP(fields, PARTIAL_SHOP_RATE_PAGES[slug] ?? '');
-  const withStyle = html.replace(/<\/head>/i, `${RATES_STYLE}\n</head>`);
+  // A link now, not a `<style>` body: one file at the site root, cached across
+  // every tool a contractor opens. See `SHOP_RATES_STYLE_FILE`.
+  const styleLink =
+    `<link rel="stylesheet" href="${attr(toRoot + SHOP_RATES_STYLE_FILE)}">`;
+  const withStyle = html.replace(/<\/head>/i, `${styleLink}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
-  const stylePrefix = withStyle === html ? `${RATES_STYLE}\n` : '';
+  const stylePrefix = withStyle === html ? `${styleLink}\n` : '';
 
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);
   const anchored = nav
     ? withStyle.replace(nav[0], `${nav[0]}\n${stylePrefix}${markup}`)
     : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
-  return anchored.replace(/<\/body>/i, `${stripForInjection(RATES_SCRIPT(fields))}\n</body>`);
+  // A tag, not a body. The script is one file at the site root now — see
+  // `renderShopRatesModule` — and the field pairs are the only thing that
+  // varies per page.
+  //
+  // `type="module"` is kept from when this was inline, and for the same reason:
+  // module scripts are deferred and run in document order, so this one, last in
+  // the document, sees a form the venture's own deferred module has finished
+  // building. A classic external script would run the moment it arrived.
+  const pairs = fields.map((field) => `${field.id}:${field.inputId || field.id}`).join(',');
+  const tag = `<script type="module" src="${attr(toRoot + SHOP_RATES_MODULE_FILE)}"` +
+    ` ${RATES_FIELDS_ATTR}="${attr(pairs)}"></script>`;
+
+  return anchored.replace(/<\/body>/i, `${tag}\n</body>`);
 }

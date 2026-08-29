@@ -11,7 +11,11 @@ import {
   SHOP_RATE_ALIASES,
   SHOP_RATE_FIELDS,
   SHOP_RATES_KEY,
+  SHOP_RATES_MODULE_FILE,
+  SHOP_RATES_STYLE_FILE,
   injectShopRates,
+  renderShopRatesModule,
+  renderShopRatesStyle,
   normalizeRates,
   pageCarriesShopRates,
   pageShopRateFields,
@@ -27,6 +31,12 @@ const page = (body, head = '') =>
   `<!doctype html><html><head><title>t</title>${head}</head><body>${body}</body></html>`;
 
 const form = SHOP_RATE_FIELDS.map((f) => `<input id="${f.id}" type="number" value="1">`).join('');
+
+// The browser half is one file at the site root now, so the rules it enforces
+// are asserted against that file rather than against a page it was written
+// into. What the page still has to carry — the tag, its field pairs, and the
+// stylesheet link — is asserted separately below.
+const script = renderShopRatesModule();
 
 // ---------------------------------------------------------------------------
 // The field spec against the actual products
@@ -210,7 +220,9 @@ test('an alias carries a field a page spells differently', async () => {
 
   const out = injectShopRates(html, 'snow-removal-bid-calculator');
   assert.notEqual(out, html, 'the bar has to reach the page it was aliased for');
-  assert.match(out, /"inputId":"operatorWage"/);
+  // The alias is one of the two facts the shared script cannot know until it is
+  // on a page, so it rides on the tag.
+  assert.match(out, /data-pf-rates-fields="[^"]*hourlyWage:operatorWage/);
 });
 
 test('an aliased id is only ever the one the venture actually uses', async () => {
@@ -283,27 +295,68 @@ test('saving on a partial page merges rather than replacing what is stored', () 
     page('<input id="overheadRate"><input id="targetMargin">'),
     'appliance-repair-quote-calculator',
   );
-  assert.match(out, /var merged = readAll\(\);/);
-  assert.match(out, /Object\.keys\(rates\)\.forEach/);
+  assert.notEqual(out, page('<input id="overheadRate"><input id="targetMargin">'));
+  assert.match(script, /var merged = readAll\(\);/);
+  assert.match(script, /Object\.keys\(rates\)\.forEach/);
 });
 
 test('a saved set missing one field still opens the tools that have it', () => {
   // Was `kept === FIELDS.length ? out : null`, which discarded three good rates
   // because a fourth had never been saved.
-  const out = injectShopRates(page(form));
-  assert.match(out, /return kept > 0 \? out : null;/);
+  assert.match(script, /return kept > 0 \? out : null;/);
 });
 
 // ---------------------------------------------------------------------------
 // Injection
 // ---------------------------------------------------------------------------
 
-test('injectShopRates adds the bar, the style and the script exactly once', () => {
+test('injectShopRates adds the bar, the style link and the script tag exactly once', () => {
   const once = injectShopRates(page(form));
   assert.match(once, /data-pf-rates-root/);
-  assert.match(once, /<style>\s*\n\.pf-rates\{/);
-  assert.match(once, /<script type="module">/);
+  assert.match(once, new RegExp(`<link rel="stylesheet" href="\\./${SHOP_RATES_STYLE_FILE}">`));
+  assert.match(once, new RegExp(`<script type="module" src="\\./${SHOP_RATES_MODULE_FILE}"`));
+  // The stylesheet and the script are files now, not bodies: a page that
+  // carried either inline would be paying for it 105 times over.
+  assert.doesNotMatch(once, /<style>\s*\n\.pf-rates\{/);
+  assert.doesNotMatch(once, /<script type="module">/);
   assert.equal(injectShopRates(once), once, 'the pass must be safe to run twice');
+});
+
+test('the tag names exactly the fields the page carries, and nothing else', () => {
+  const out = injectShopRates(page(form));
+  const pairs = out.match(/data-pf-rates-fields="([^"]*)"/)[1].split(',');
+  assert.deepEqual(pairs, SHOP_RATE_FIELDS.map((f) => `${f.id}:${f.id}`));
+
+  // A partial page names only its own two, so the shared script cannot write
+  // into a field this tool was never read to carry.
+  const partial = injectShopRates(
+    page('<input id="overheadRate"><input id="targetMargin">'),
+    'appliance-repair-quote-calculator',
+  );
+  assert.deepEqual(
+    partial.match(/data-pf-rates-fields="([^"]*)"/)[1].split(','),
+    ['overheadRate:overheadRate', 'targetMargin:targetMargin'],
+  );
+});
+
+test('a field the tag names but the build does not know is dropped, not trusted', () => {
+  // The list used to be a build-time literal and now arrives through the DOM,
+  // where any page on this origin could put something else in it. The script
+  // reads a field's label, units and ceiling from its own table, keyed by id,
+  // so a pair naming an unknown id has nothing to resolve to.
+  assert.match(script, /var spec = CATALOG\[parts\[0\]\];/);
+  assert.match(script, /if \(!spec \|\| !parts\[1\]\) return null;/);
+  // And an empty list is the same verdict as a missing input: no bar at all,
+  // rather than one that saves nothing.
+  assert.match(script, /if \(!FIELDS\.length\) \{ root\.remove\(\); return; \}/);
+});
+
+test('the shared stylesheet is the bar it styles, and only that', () => {
+  const css = renderShopRatesStyle();
+  assert.match(css, /^\.pf-rates\{/);
+  assert.match(css, /@media print\{\.pf-rates\{display:none !important\}\}/);
+  // No element wrapper: it is served as a stylesheet, not written into a page.
+  assert.doesNotMatch(css, /<style|<\/style>/);
 });
 
 test('the bar sits under the site navigation when there is one', () => {
@@ -324,8 +377,8 @@ test('the script is a module, so it runs after the venture restores a bid', () =
   // the venture's deferred module has restored a saved or shared bid. It would
   // then decide what to overwrite by reading a form that is not filled in yet.
   const out = injectShopRates(page(form));
-  const script = out.slice(out.lastIndexOf('<script'));
-  assert.match(script, /^<script type="module">/);
+  const tag = out.slice(out.lastIndexOf('<script'));
+  assert.match(tag, /^<script type="module" src="/);
 });
 
 test('nothing is injected into a fragment with no body', () => {
@@ -335,13 +388,14 @@ test('nothing is injected into a fragment with no body', () => {
 
 test('a page with no head still gets the stylesheet before the bar it styles', () => {
   const out = injectShopRates(`<body>${form}</body>`);
-  assert.ok(out.indexOf('.pf-rates{') < out.indexOf('data-pf-rates-root'));
+  const link = out.indexOf(`<link rel="stylesheet" href="./${SHOP_RATES_STYLE_FILE}">`);
+  assert.ok(link >= 0, 'the link has to be written even with nowhere in the head to put it');
+  assert.ok(link < out.indexOf('data-pf-rates-root'));
 });
 
-test('the injected script names the storage key and every field id', () => {
-  const out = injectShopRates(page(form));
-  assert.ok(out.includes(JSON.stringify(SHOP_RATES_KEY)));
-  for (const field of SHOP_RATE_FIELDS) assert.ok(out.includes(`"${field.id}"`), field.id);
+test('the shared script names the storage key and every field id', () => {
+  assert.ok(script.includes(JSON.stringify(SHOP_RATES_KEY)));
+  for (const field of SHOP_RATE_FIELDS) assert.ok(script.includes(`"${field.id}"`), field.id);
 });
 
 test('the bar carries the privacy statement it has to carry', () => {
@@ -350,31 +404,28 @@ test('the bar carries the privacy statement it has to carry', () => {
   assert.match(out, /Nothing is uploaded/);
 });
 
-test('the injected script honours the site-wide usage opt-out', () => {
-  const out = injectShopRates(page(form));
-  assert.match(out, /doNotTrack/);
-  assert.match(out, /globalPrivacyControl/);
-  assert.match(out, /portfolio-hub-optout/);
+test('the shared script honours the site-wide usage opt-out', () => {
+  assert.match(script, /doNotTrack/);
+  assert.match(script, /globalPrivacyControl/);
+  assert.match(script, /portfolio-hub-optout/);
 });
 
 test('a bid link keeps the sender numbers unless the visitor asks otherwise', () => {
   // The rule `share.mjs` exists to protect: a link that computes a different
   // price for the recipient than the sender saw is worse than no link.
-  const out = injectShopRates(page(form));
   // Both spellings: a bid link uses the ids of the page that made it, which for
   // an aliased field is the page's own id rather than the canonical one.
-  assert.match(out, /if \(!force && \(params\.has\(f\.inputId\) \|\| params\.has\(f\.id\)\)\)/);
+  assert.match(script, /if \(!force && \(params\.has\(f\.inputId\) \|\| params\.has\(f\.id\)\)\)/);
   // #1796 moved bid links into the fragment. Reading only location.search
   // would make every shared bid look like an ordinary page and overwrite it.
-  assert.match(out, /location\.hash \|\| location\.search/);
+  assert.match(script, /location\.hash \|\| location\.search/);
 });
 
 test('the injected script rejects a blank field before Number()', () => {
   // Number('') is 0. Without this guard, clearing a field and clicking Save
   // persists a $0 wage onto the next trade.
-  const out = injectShopRates(page(form));
-  assert.match(out, /raw === '' \|\| raw === null \|\| raw === undefined/);
-  assert.match(out, /kept === FIELDS\.length \? out : null/);
+  assert.match(script, /raw === '' \|\| raw === null \|\| raw === undefined/);
+  assert.match(script, /kept === FIELDS\.length \? out : null/);
 });
 
 test('the page that produces the rates does not also receive the bar', () => {
