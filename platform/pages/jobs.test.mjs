@@ -133,6 +133,26 @@ test('the usage opt-out is never part of a bid', () => {
   );
 });
 
+/**
+ * And under the other spelling, which is the one 15 published pages actually
+ * use. The exclusion named a single id and so silently missed them: on the 10
+ * that carry this band a restore was writing the visitor's counting preference
+ * out of a saved document, including switching it on for someone who had left
+ * it off.
+ */
+test('the usage checkbox is never part of a bid under either spelling', () => {
+  assert.ok(EXCLUDED_FIELD_IDS.has('usage'));
+  assert.deepEqual(
+    pageSaveableFieldIds(page('<input id="usage" type="checkbox"><input id="a"><input id="b">')),
+    ['a', 'b'],
+  );
+  // Only the exact id. A field that merely starts with it is the venture's.
+  assert.deepEqual(
+    pageSaveableFieldIds(page('<input id="usageHours"><input id="a"><input id="b">')),
+    ['usageHours', 'a', 'b'],
+  );
+});
+
 /** Including this feature's own name box, which would otherwise save itself. */
 test('the site chrome’s own inputs are never part of a bid', () => {
   assert.deepEqual(
