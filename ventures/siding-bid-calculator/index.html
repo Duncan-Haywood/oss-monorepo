@@ -411,6 +411,30 @@
       el('verdict').hidden = true;
     }
 
+    /**
+     * A preset id off a stranger's URL, put back on its select.
+     *
+     * Two rules, both learned from shipped defects. It is checked against the
+     * options this page actually offers, because a fragment is the one part of
+     * these pages a stranger writes and the value ends up on a document the
+     * contractor prints. And it is assigned *without* dispatching `change`:
+     * that handler re-stamps the preset's own rates over whatever is in the
+     * form, which on arrival would replace the sender's typed supplier price
+     * with the preset's — the failure `amazon-fba-calculator` shipped when it
+     * carried its placement presets by dispatching.
+     *
+     * Returns false when the link carried nothing usable, so the caller can
+     * fall back to reconstructing the choice from the rates that did travel.
+     */
+    function applySharedChoice(id, value) {
+      if (typeof value !== 'string' || value === '') return false;
+      const select = el(id);
+      if (!select) return false;
+      if (![...select.options].some(option => option.value === value)) return false;
+      select.value = value;
+      return true;
+    }
+
     function applyShare(payload) {
       if (!payload) return;
       COST_IDS.forEach(id => {
@@ -435,12 +459,14 @@
         wallsHost.innerHTML = '';
         payload.walls.forEach(addWallRow);
       }
-      const match = MATERIAL_PRESETS.find(preset =>
-        Number(preset.hoursPerSquare) === Number(payload.hoursPerSquare) &&
-        Number(preset.wastePercent) === Number(payload.wastePercent) &&
-        Number(preset.materialPerSquare) === Number(payload.materialPerSquare)
-      );
-      el('materialType').value = match ? match.id : 'other';
+      if (!applySharedChoice('materialType', payload.materialType)) {
+        const match = MATERIAL_PRESETS.find(preset =>
+          Number(preset.hoursPerSquare) === Number(payload.hoursPerSquare) &&
+          Number(preset.wastePercent) === Number(payload.wastePercent) &&
+          Number(preset.materialPerSquare) === Number(payload.materialPerSquare)
+        );
+        el('materialType').value = match ? match.id : 'other';
+      }
       RATE_IDS.forEach(id => { if (payload[id] !== undefined) el(id).dataset.edited = '1'; });
     }
 
@@ -553,9 +579,18 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    /**
+     * What the link carries: the priced job, plus the material choice that
+     * describes it. Kept out of `readInput` so `calculateBid` is still handed
+     * only the figures it computes with.
+     */
+    function readShareInput() {
+      return { ...readInput(), materialType: el('materialType').value };
+    }
+
     async function copyShare() {
       const terms = readTerms(el);
-      const hash = withTerms(encodeShare(readInput()), terms);
+      const hash = withTerms(encodeShare(readShareInput()), terms);
       const url = `${location.origin}${location.pathname}#${hash}`;
       await writeClipboard(url);
       history.replaceState(null, '', `#${hash}`);

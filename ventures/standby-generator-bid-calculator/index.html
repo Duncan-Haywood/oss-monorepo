@@ -332,7 +332,14 @@
       el(id).innerHTML = rows.map((row) => `<option value="${getValue(row)}">${getLabel(row)}</option>`).join('');
     }
 
+    // The size picker is a shortcut that writes `generatorKw`; the running kW
+    // beside it is what the bid is priced from. So it needs a state for "the
+    // kW in this bid is not one of these", or it names a machine the job is
+    // not for: type 17 kW and the dropdown used to fall back to the fourth
+    // preset and read "22 kW", on the sender's own screen and again on a
+    // recipient's after a shared link put the number back.
     fillSelect('presetKw', GENERATOR_PRESETS, (row) => row.generatorKw, (row) => row.label);
+    el('presetKw').insertAdjacentHTML('afterbegin', '<option value="">Custom size (set kW below)</option>');
     fillSelect('loadMode', LOAD_MODES, (row) => row.id, (row) => row.label);
     fillSelect('fuel', FUELS, (row) => row.id, (row) => row.label);
     fillSelect('serviceAmps', SERVICE_AMPS, (row) => row, (row) => `${row} A`);
@@ -350,14 +357,25 @@
       return input;
     }
 
+    /**
+     * Point the size picker at the kW the bid is actually priced from, or at
+     * "Custom size" when that is nobody's catalogue size. Called wherever the
+     * kW can change — a restore, a shared link, or the setter typing — so the
+     * two controls cannot end up naming different machines.
+     */
+    function syncPresetKw() {
+      const kw = String(el('generatorKw').value);
+      const preset = GENERATOR_PRESETS.find((row) => String(row.generatorKw) === kw);
+      el('presetKw').value = preset ? String(preset.generatorKw) : '';
+    }
+
     function writeInputs(input) {
       const defaults = defaultInputs();
       const merged = { ...defaults, ...input };
       for (const field of INPUT_FIELDS) {
         if (el(field)) el(field).value = merged[field] ?? '';
       }
-      const preset = GENERATOR_PRESETS.find((row) => String(row.generatorKw) === String(merged.generatorKw));
-      el('presetKw').value = preset ? String(preset.generatorKw) : String(GENERATOR_PRESETS[3].generatorKw);
+      syncPresetKw();
     }
 
     function count(event) {
@@ -526,10 +544,14 @@
     }
 
     el('presetKw').addEventListener('change', () => {
+      // "Custom size" is where the picker lands when the kW is the setter's
+      // own; choosing it must not blank the number the bid is priced from.
+      if (el('presetKw').value === '') return;
       el('generatorKw').value = el('presetKw').value;
       count('bid_calculated');
       update();
     });
+    el('generatorKw').addEventListener('input', syncPresetKw);
     INPUT_FIELDS.forEach((id) => {
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));

@@ -435,6 +435,30 @@
       el('verdict').hidden = true;
     }
 
+    /**
+     * A preset id off a stranger's URL, put back on its select.
+     *
+     * Two rules, both learned from shipped defects. It is checked against the
+     * options this page actually offers, because a fragment is the one part of
+     * these pages a stranger writes and the value ends up on a document the
+     * contractor prints. And it is assigned *without* dispatching `change`:
+     * that handler re-stamps the preset's own rates over whatever is in the
+     * form, which on arrival would replace the sender's typed sheet price with
+     * the preset's — the failure `amazon-fba-calculator` shipped when it
+     * carried its placement presets by dispatching.
+     *
+     * Returns false when the link carried nothing usable, so the caller can
+     * fall back to reconstructing the choice from the rates that did travel.
+     */
+    function applySharedChoice(id, value) {
+      if (typeof value !== 'string' || value === '') return false;
+      const select = el(id);
+      if (!select) return false;
+      if (![...select.options].some(option => option.value === value)) return false;
+      select.value = value;
+      return true;
+    }
+
     function applyShare(payload) {
       if (!payload) return;
       COST_IDS.forEach(id => {
@@ -451,18 +475,22 @@
         roomsHost.innerHTML = '';
         payload.rooms.forEach(addRoomRow);
       }
-      const board = BOARD_PRESETS.find(preset =>
-        Number(preset.hangHoursPer100) === Number(payload.hangHoursPer100) &&
-        Number(preset.wastePercent) === Number(payload.wastePercent) &&
-        Number(preset.materialPer100) === Number(payload.materialPer100) &&
-        Number(preset.sheetSqFt) === Number(payload.sheetSqFt)
-      );
-      el('boardType').value = board ? board.id : 'other';
-      const texture = TEXTURE_PRESETS.find(preset =>
-        Number(preset.hoursPer100) === Number(payload.textureHoursPer100) &&
-        Number(preset.materialPer100) === Number(payload.textureMaterialPer100)
-      );
-      el('textureType').value = texture ? texture.id : 'none';
+      if (!applySharedChoice('boardType', payload.boardType)) {
+        const board = BOARD_PRESETS.find(preset =>
+          Number(preset.hangHoursPer100) === Number(payload.hangHoursPer100) &&
+          Number(preset.wastePercent) === Number(payload.wastePercent) &&
+          Number(preset.materialPer100) === Number(payload.materialPer100) &&
+          Number(preset.sheetSqFt) === Number(payload.sheetSqFt)
+        );
+        el('boardType').value = board ? board.id : 'other';
+      }
+      if (!applySharedChoice('textureType', payload.textureType)) {
+        const texture = TEXTURE_PRESETS.find(preset =>
+          Number(preset.hoursPer100) === Number(payload.textureHoursPer100) &&
+          Number(preset.materialPer100) === Number(payload.textureMaterialPer100)
+        );
+        el('textureType').value = texture ? texture.id : 'none';
+      }
       [...BOARD_RATE_IDS, ...TEXTURE_RATE_IDS].forEach(id => {
         if (payload[id] !== undefined) el(id).dataset.edited = '1';
       });
@@ -579,9 +607,22 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    /**
+     * What the link carries: the priced job, plus the two preset choices that
+     * describe it. Kept out of `readInput` so `calculateBid` is still handed
+     * only the figures it computes with.
+     */
+    function readShareInput() {
+      return {
+        ...readInput(),
+        boardType: el('boardType').value,
+        textureType: el('textureType').value,
+      };
+    }
+
     async function copyShare() {
       const terms = readTerms(el);
-      const hash = withTerms(encodeShare(readInput()), terms);
+      const hash = withTerms(encodeShare(readShareInput()), terms);
       const url = `${location.origin}${location.pathname}#${hash}`;
       await writeClipboard(url);
       history.replaceState(null, '', `#${hash}`);
