@@ -27886,3 +27886,64 @@ entries:
         `check.mjs` at 164 products / 446 pages with no dead links, `sweep.mjs`
         164/164, `roundtrip.mjs` 124/128, and all 48 proposal-term tools still
         round-tripping clean in Chromium.
+  - venture: platform/proposal
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The four preset selects #1986 named and left, and the customer
+        proposals they were mislabelling.** Every one is a dropdown that stamps
+        a kit of rates into the form and is then reconstructed on arrival by
+        matching those rates back against the preset table. That match only
+        holds while the setter leaves the kit alone — and a contractor typing
+        their own supplier price is the ordinary case, not the edge one. So the
+        recipient's page fell to "Other / custom rates" while holding the
+        sender's figures, and the sheet the customer receives lost the material
+        it names: `drywall-bid-calculator` prints `textureLabel` on the
+        proposal, and `attic-insulation-bid-calculator` drafts its scope lines
+        from the product ("blow **blown fiberglass** over 1,120 sq ft" became
+        "blow insulation over 1,120 sq ft"). Measured in Chromium before and
+        after on all four.
+      - >-
+        **Carried, not inferred — and assigned without dispatching.** The four
+        ids ride in each venture's own share allowlist now
+        (`boardType`/`textureType`, `productType`, `materialType`), and
+        `applySharedChoice` puts them back after checking the value against the
+        options that page actually offers: a fragment is the one part of these
+        pages a stranger writes, and this value reaches a document a contractor
+        prints. It sets `.value` and fires nothing, because the `change`
+        handler re-stamps the preset's own rates — dispatching would replace
+        the sender's typed sheet price with the venture's ballpark, which is
+        precisely the defect #1984 repaired on `amazon-fba-calculator`. Proved
+        by round-tripping an edited rate beside the choice: 71.5 / 16.25 / 412
+        arrive unchanged under the right label.
+      - >-
+        **Two pickers that named a machine the bid was not for.**
+        `standby-generator-bid-calculator` fell back to `GENERATOR_PRESETS[3]`
+        whenever the running kW matched no preset, so typing 17 kW made the
+        size dropdown read "22 kW" — on the setter's own screen, before any
+        link was involved. It has a "Custom size" state now, and the picker
+        re-syncs from the kW field in both directions.
+        `parking-lot-striping-bid-calculator` was the one starting-job picker of
+        64 built without a placeholder, so it always claimed a preset and
+        `copySummary` titled the bid with it. Both now read honestly, and the
+        striping run goes 1→0 on `jobPresets` to nothing.
+      - >-
+        `Number('')` is `0`, so "no job chosen" reads as the first preset in an
+        index lookup — which is why the placeholder came with `selectedJob()`
+        rather than a `if (!job)` guard. Selecting the placeholder back must
+        leave the takeoff alone; it does, verified in a browser (212 stalls
+        typed, 212 stalls after).
+      - >-
+        Verified locally, the runner outage still standing: 12,496 node tests
+        (12,493 on `main`), build plus `check.mjs` at 164 products / 446 pages
+        with no dead links, the five portfolio-validate checks, `sweep.mjs`
+        164/164, and `roundtrip.mjs` at **128/128** against 124/128 on `main`.
+      - >-
+        Concurrency note: #1986 landed mid-session with its own repair of the
+        same probe (`?query#fragment`) and of `mobile-detailing-bid-calculator`
+        — the latter by taking the venture's hand-rolled copy button away and
+        letting the injected control carry the terms, which is the better fix.
+        Both of this session's duplicates were dropped rather than merged, and
+        what is left is the half #1986 named as remaining.
+    mrr_end: null

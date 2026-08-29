@@ -292,6 +292,16 @@
     const el = id => document.getElementById(id);
 
     const presetSelect = el('jobPresets');
+    // A placeholder first, the way the other 63 starting-job pickers on this
+    // site open. Without it this select always names a preset — including
+    // after every figure on the form has been replaced by the striper's own
+    // takeoff, and again on a recipient's screen after a shared bid link puts
+    // those figures back. The label it then claims is the job the sender
+    // started from, and `copySummary` prints it as the title of the bid.
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = 'Choose a starting job…';
+    presetSelect.append(placeholder);
     JOB_PRESETS.forEach((job, index) => {
       const option = document.createElement('option');
       option.value = String(index);
@@ -324,6 +334,18 @@
         targetMargin: el('targetMargin').value,
         proposedPrice: el('proposedPrice').value,
       };
+    }
+
+    /**
+     * The starting job the picker names, or `null` on the placeholder.
+     *
+     * The empty check is the whole point: `Number('')` is 0, so an index
+     * lookup reads "no job chosen" as the first preset in the list.
+     */
+    function selectedJob() {
+      const value = presetSelect.value;
+      if (value === '') return null;
+      return JOB_PRESETS[Number(value)] ?? null;
     }
 
     function applyJob(job) {
@@ -413,7 +435,7 @@
 
     async function copySummary() {
       const result = calculateBid(readInput());
-      const job = JOB_PRESETS[Number(presetSelect.value)]?.label || 'Parking lot striping';
+      const job = selectedJob()?.label || 'Parking lot striping';
       const text = formatBidSummary(result, job);
       try {
         await navigator.clipboard.writeText(text);
@@ -456,7 +478,13 @@
     }
 
     presetSelect.addEventListener('change', () => {
-      applyJob(JOB_PRESETS[Number(presetSelect.value)]);
+      const job = selectedJob();
+      // Back to the placeholder is not a job to apply; re-stamping the first
+      // preset over the takeoff the striper just typed would be the worst
+      // reading of that click — and it is what an index lookup does, because
+      // `Number('')` is 0.
+      if (!job) return;
+      applyJob(job);
       count('bid_calculated');
       update();
     });

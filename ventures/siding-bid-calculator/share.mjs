@@ -7,6 +7,13 @@
 
 export const SHARE_FIELDS = Object.freeze([
   'walls',
+  // The material the bid is for. Not arithmetic — the three rates it stamps
+  // are — but it names the work on the customer's proposal, and it used to be
+  // reconstructed on arrival by matching those rates back against the preset
+  // table. A setter who typed their own supplier price, which is the ordinary
+  // case, matched nothing: the recipient's page read "Other / custom rates"
+  // over the sender's fiber cement.
+  'materialType',
   'openingSqFt',
   'openingCount',
   'wastePercent',
