@@ -28739,6 +28739,7 @@ entries:
         `CLAUDE.md` warns about. No branch touching `gitops/agents/` exists,
         so #2015 had no competing implementation.
     mrr_end: null
+
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
@@ -28795,4 +28796,49 @@ entries:
         contact) that no session can complete from here; re-deriving that
         finding would have been the duplicated work `CLAUDE.md` warns
         against.
+    mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Re-confirmed the two things this run's brief specifically named
+        (Hetzner deployment/CI-CD + marketing surface, and Codex-on-Hetzner
+        subscription quota) are already fully built and merged --
+        `python3 -m pytest gitops/tests -q` (57 passed) against real
+        `origin/main`. Did not duplicate either.
+      - >-
+        **Methodological finding, recorded so the next session does not
+        repeat it.** Ran `git checkout main -- .` early in this session to
+        inspect current `main`, before running `git fetch --unshallow` had
+        finished updating refs -- `main` (the local branch) was still
+        pointing at the pre-unshallow shallow-clone snapshot, not
+        `origin/main`. Every file this touched (`governor.py`, `worker.sh`,
+        `kustomization.yaml`, the secrets README) read as missing the
+        `CODEX_AUTH_JSON`/`codex-home` wiring that #2015 had already merged
+        hours earlier, and a full reimplementation was drafted before the
+        mismatch was caught -- `git rev-parse HEAD origin/main` returning
+        the same hash was the tell. `git reset --hard origin/main` (safe:
+        nothing had been committed yet) discarded it with no harm done.
+        Lesson for future sessions: after `git fetch --unshallow`, diff
+        and checkout against `origin/main`, never the local `main` ref --
+        the two can silently disagree for the rest of the session.
+      - >-
+        The one real, non-duplicate gap found: `gitops/README.md`,
+        `infra/OWNER_CHECKLIST.md`, and the `portfolio-site-hetzner-deploy`
+        row in `asks.yaml` all listed "add one DNS A record,
+        tools.marisstella.dev -> 89.167.29.39" as the first of the owner's
+        remaining steps. It's already satisfied --
+        `marisstella.dev`'s existing wildcard `A/*` record already covers
+        the subdomain (`getent hosts tools.marisstella.dev` ->
+        `89.167.29.39`). Fixed in all three places and merged (#2019), so
+        the owner's remaining list for that ask is down to two steps (clone
+        token, ACME contact) plus the non-owner issuer-flip PR.
+      - >-
+        Zero open PRs existed at run start, so the three-PR merge quota
+        resolved to "none exist" per `CLAUDE.md`. No new product work was
+        started this run -- the two areas the brief named turned out to
+        already be done, and the one real gap left in them was small enough
+        that fixing it was the whole session.
     mrr_end: null
