@@ -23,5 +23,6 @@ configMapGenerator:
       - example.item.yaml=queue/example.item.yaml
       - branch-pr-drain.yaml=queue/branch-pr-drain.yaml
       - seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml
+      - product-feature-improvement.yaml=queue/product-feature-improvement.yaml
 generatorOptions:
   disableNameSuffixHash: true

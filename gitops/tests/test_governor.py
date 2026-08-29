@@ -203,6 +203,55 @@ def test_minimal_yaml_reads_prompt_block() -> None:
     assert "Do not run" in item.prompt
 
 
+def test_product_feature_improvement_queue_item_is_real_and_enabled() -> None:
+    # This is the third real queue item the Hetzner Codex worker can run
+    # once an owner seals codex-secrets and flips policy.enabled /
+    # cronjob.suspend (decision-queue item agent-runner-subscription-login,
+    # #2000). It must stay a valid, enabled item so that flip has real work
+    # waiting once branch-pr-drain and seo-discoverability-audit are caught
+    # up or disabled.
+    text = (AGENTS / "queue" / "product-feature-improvement.yaml").read_text()
+    raw = g._minimal_yaml_mapping(text)
+    item = g.queue_item_from_dict(raw)
+    assert item.id == "product-feature-improvement"
+    assert item.enabled is True
+    assert item.repo == "Duncan-Haywood/monorepo-projects"
+    assert "gh pr create" not in item.prompt  # worker.sh itself runs `gh pr create`, not the prompt
+    assert "merge it yourself" in item.prompt.lower()
+
+
+def test_governor_queue_configmap_includes_all_real_items() -> None:
+    kustomization = (AGENTS / "kustomization.yaml").read_text()
+    for entry in (
+        "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
+        "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
+        "product-feature-improvement.yaml=queue/product-feature-improvement.yaml",
+    ):
+        assert entry in kustomization
+
+
+def test_real_queue_items_are_priority_ordered_pr_drain_then_seo_then_features() -> None:
+    # pick_item always starts the single highest-priority enabled item and
+    # never round-robins (see governor.py::pick_item), so with three
+    # permanently-enabled items only the top one ever actually runs until a
+    # human reprioritizes or disables it in git. Landing existing branch/PR
+    # work and fixing discoverability metadata are cheaper and more bounded
+    # than open-ended feature work, so they must stay ahead of it -- this
+    # pins that ordering against an accidental priority edit.
+    items = {
+        raw["id"]: raw["priority"]
+        for raw in (
+            g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text())
+            for name in (
+                "branch-pr-drain.yaml",
+                "seo-discoverability-audit.yaml",
+                "product-feature-improvement.yaml",
+            )
+        )
+    }
+    assert items["branch-pr-drain"] > items["seo-discoverability-audit"] > items["product-feature-improvement"]
+
+
 def test_effective_window_budget_leaves_interactive_slack() -> None:
     policy = _policy(target_utilization=0.90, reserve_for_interactive=0.10)
     assert policy.effective_window_budget() == 16_200
