@@ -28223,7 +28223,12 @@ entries:
         work queued once a human provisions it and logs Codex CLI into
         the account whose subscription quota should be spent — that
         login and box provisioning stay owner-only per the venture's own
-        README.
+        README. This is the single-box Ansible/systemd-timer system,
+        deliberately separate from `gitops/agents/governor/`'s k8s
+        job-per-run design (see the `portfolio` entry below on the same
+        day): that governor is built around a spend-capped
+        `OPENAI_API_KEY` on a separate OpenAI org, not a subscription
+        login, and stays a distinct owner decision.
       - >-
         Added an optional per-repo `self_directed_prompt` override
         (previously hardcoded as one module-level constant) and used it
@@ -28240,4 +28245,64 @@ entries:
         `runner_id: 0`. Verified locally instead (yaml parse, py_compile,
         pyflakes clean, 28/28 existing unit tests unchanged) and merged
         on that basis, per this repo's own outage-handling rule.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Queue-drain pass found the queue already empty.** A 2026-08-29
+        scheduled session was briefed to merge at least three open PRs
+        before any new work. `list_pull_requests` and `search_pull_requests`
+        both returned zero open PRs against `Duncan-Haywood/monorepo-
+        projects`. Checked 275 remote branches for unmerged unique commits
+        (`git rev-list --count origin/main..<branch>`): 169 had at least
+        one. Direct-compared the top nine by ahead-count against current
+        `main` (`appointment-deposit-calculator`, `payment-reconciliation-
+        workbench`, `window-replacement-bid-calculator`, `no-show-fee-
+        calculator`, `tender-bid-readiness`, `chargeback-evidence-packet`
+        x2, `rematch-spray-foam`, `saas-seat-true-up`) and every one was
+        strictly behind what is already on `main` -- each diff against the
+        live tree was pure deletions of code, tests, or scoring/publish-
+        surface entries `main` already carries. This is the swarm-cadence
+        pattern the ledger already has a name for: `main` absorbs shipped
+        work within hours, so an orphaned local branch is evidence of an
+        abandoned session, not of unmerged value. No PR was opened for any
+        of the nine; opening one to then close it as superseded would have
+        been the exact "supersede_check first" workflow with an extra,
+        pointless round trip. Did not exhaustively check the remaining 160
+        (mostly 1-2-commit branches, many already-`Merge main into ...`
+        rebasing loops or ledger/decision-queue bookkeeping) -- flagging
+        here rather than claiming a full sweep.
+      - >-
+        `session_gate.py` verdict: PROCEED (meta-work share 4% of last 25
+        entries, well under the 70% threshold; break-even $0.12/session).
+      - >-
+        Checked the two things the scheduling brief asked to prioritize,
+        CI/CD and deployment, before doing anything else. Both are already
+        fully diagnosed and queued, not new findings: the GitHub Actions
+        runner outage (`decision_queue` row `actions-runners-unavailable`,
+        #1842) is still live as of 2026-08-29T18:07Z -- the "Claude routine
+        trigger" and "Conflict markers" runs sampled from `list_workflow_runs`
+        both completed in 5 seconds, the outage's own signature -- and the
+        GitHub Pages publish flip (`deploy-settings` row) is still the same
+        single owner action from Settings -> Pages. Neither got a duplicate
+        ask; see `asks.yaml`, which already carried both.
+      - >-
+        Investigated the brief's third ask -- "set up the codex cli ... on
+        the hetzner vm" -- rather than implementing it directly, because
+        `.github/workflows/hetzner-gitops-ci.yml`'s own header says "Never
+        start a Codex Job" and `gitops/agents/governor/` turned out to be a
+        complete, already-built, already-tested Codex budget governor
+        (CronJob + policy ConfigMap + per-item work queue) sitting at
+        `enabled: false` / `suspend: true` specifically because
+        `infra/OWNER_CHECKLIST.md` gates it to the owner: a separate OpenAI
+        org with a hard spend limit, a sealed project API key, and only then
+        the two flips. That checklist also explicitly warns against the
+        literal reading of "use up the built-in quota" -- logging the
+        governor in with a personal ChatGPT Plus/Pro account -- as the one
+        wrong way to do this (no spend cap, competes with interactive use).
+        Added `codex-governor-enable` to `asks.yaml` (not there before) with
+        that correction spelled out, rather than building the unsafe version
+        or silently doing nothing.
     mrr_end: null
