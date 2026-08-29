@@ -633,6 +633,9 @@ workflows:
 - workflow: vendor-change-evidence-ci.yml
   classification: none
   publishes: []
+- workflow: vendor-change-watch-ci.yml
+  classification: none
+  publishes: []
 - workflow: vendor-rate-break-even-ci.yml
   classification: none
   publishes: []
