@@ -37,6 +37,9 @@ import {
   searchTokens,
   searchVariants,
   searchScore,
+  catalogueStopwords,
+  withoutStopwords,
+  CATALOGUE_STOPWORD_SHARE,
   aliasesFor,
   SEARCH_ALIASES,
   subcategoryFor,
@@ -948,7 +951,7 @@ test('the hub carries a name index and the ranking function it is scored with', 
   );
   // Scoring needs the tool's own name apart from its description and aliases;
   // without the attribute every card scores alike and the order never changes.
-  assert.match(html, /<li class="card" data-name="[^"]*roofing[^"]*" data-search=/);
+  assert.match(html, /<li class="card" data-name="[^"]*roofing[^"]*" data-strong="[^"]*" data-search=/);
 });
 
 test('a query that matches every word in nothing is offered the closest tools', async () => {
@@ -970,9 +973,70 @@ test('a query that matches every word in nothing is offered the closest tools', 
   // trade. Measured: it put the stair-lift and wheelchair-ramp calculators
   // above the two cooling tools for "air conditioning".
   assert.match(html, /searchScore\(card\.dataset\.name \|\| '', card\.dataset\.search, forms, true\)/);
-  // And only when the strict pass found nothing, so an exact answer is never
-  // replaced by suggestions.
-  assert.match(html, /if \(forms\.length && shown === 0\) \{/);
+  // And only when it offers something the strict pass did not, so a one-word
+  // query -- where the two sets are the same by construction -- is never
+  // labelled approximate.
+  assert.match(html, /if \(partial\.some\(\(\{ card \}\) => card\.hidden\)\) \{/);
+});
+
+test('a word this catalogue repeats everywhere stops narrowing a search', () => {
+  const cards = [
+    { name: 'roofing bid calculator', index: 'roofing bid calculator see away charge squares' },
+    { name: 'fence bid calculator', index: 'fence bid calculator see away charge lineal' },
+    { name: 'deck bid calculator', index: 'deck bid calculator see away joists' },
+  ];
+  const stops = catalogueStopwords(cards, 0.7);
+  // In every index, in no name: house phrasing, not something anyone searches.
+  assert.ok(stops.has('see'));
+  assert.ok(stops.has('away'));
+  // 2 of 3 is 67%, under the 70% floor used here.
+  assert.ok(!stops.has('charge'));
+  // Words that identify one tool are what the search is for.
+  for (const word of ['squares', 'lineal', 'joists']) assert.ok(!stops.has(word));
+
+  // The rule that makes the cut safe: a word in any tool's NAME is never
+  // dropped, however common. Without it a frequency cut would quietly delete
+  // tools from the search -- the worst outcome for the box that finds them.
+  const named = [
+    { name: 'notary trip quote', index: 'notary trip quote fee' },
+    { name: 'quote margin check', index: 'quote margin check' },
+    { name: 'deck bid calculator', index: 'deck bid calculator quote' },
+  ];
+  assert.ok(!catalogueStopwords(named, 0.5).has('quote'));
+
+  assert.deepEqual(catalogueStopwords([]), new Set());
+  assert.equal(withoutStopwords('roofing see away bid', new Set(['see', 'away'])), 'roofing bid');
+  assert.equal(withoutStopwords('roofing bid', new Set()), 'roofing bid');
+});
+
+test('the hub drops the catalogue words that narrow nothing, from index and query alike', async () => {
+  const html = await read('index.html');
+  const { surfaces } = await site();
+  // Derived from the built catalogue rather than listed, because the copy
+  // changes every time a tool ships and a hand-written list would be
+  // describing last month's catalogue.
+  const cards = [...html.matchAll(/data-name="([^"]*)" data-strong="[^"]*" data-search="([^"]*)"/g)]
+    .map(([, name, index]) => ({ name, index }));
+  assert.equal(cards.length, surfaces.length);
+
+  const stops = catalogueStopwords(
+    cards.map(({ name, index }) => ({ name, index })),
+    CATALOGUE_STOPWORD_SHARE,
+  );
+  // Whatever the catalogue is on the day this runs, the two have to agree: a
+  // word the index never stores can never match, so a query keeping one would
+  // return nothing at all.
+  const shipped = new Set(JSON.parse(html.match(/const STOPWORDS = new Set\((\[[^\]]*\])\)/)[1]));
+  for (const word of stops) {
+    assert.ok(shipped.has(word), `derived stopword "${word}" is not in the page's query filter`);
+    for (const card of cards) {
+      assert.ok(!card.index.split(' ').includes(word), `"${word}" is still indexed on a card`);
+    }
+  }
+  // No tool is ever made unfindable by its own name.
+  for (const card of cards) {
+    for (const word of card.name.split(' ').filter(Boolean)) assert.ok(!shipped.has(word));
+  }
 });
 
 test('the hub ships one stemmer, not a second copy that can drift', async () => {
@@ -1056,8 +1120,16 @@ test('the query drops exactly the words the index dropped', async () => {
   // stores can never match anything.
   const html = await read('index.html');
   const rendered = JSON.parse(html.match(/const STOPWORDS = new Set\((\[[\s\S]*?\])\)/)[1]);
+  // Two ways a word leaves the index and both have to hold: the generic list
+  // is dropped by `searchTokens` at the moment tokens are made, and the
+  // catalogue's own repeated words are cut from each card afterwards, once the
+  // whole catalogue is known and the frequency can be counted.
+  const indexes = [...html.matchAll(/ data-search="([^"]*)"/g)].map(([, index]) => index.split(' '));
+  assert.ok(indexes.length > 0, 'expected cards to compare against');
   for (const word of rendered) {
-    assert.equal(searchTokens([word]), '', `"${word}" is a query stopword but is still indexed`);
+    const generic = searchTokens([word]) === '';
+    const indexed = indexes.some((tokens) => tokens.includes(word));
+    assert.ok(generic || !indexed, `"${word}" is a query stopword but is still indexed`);
   }
   assert.ok(html.includes('word.length >= 2'), 'query must drop single characters as the index does');
 });
