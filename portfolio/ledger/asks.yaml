@@ -262,56 +262,6 @@ decisions:
     workflow from `gated` to `live`, and that flip is what will turn the
     check red until the snapshot is rewritten to record it.
 
-- id: hetzner-portfolio-site-live
-  asks: []
-  prs: [1999]
-  gates: deployment
-  exposure: credential
-  opened: "2026-08-29"
-  action: >-
-    Four owner steps, in order, per `gitops/README.md` ("What is still
-    needed to make it live"): (1) add one DNS A record,
-    `tools.marisstella.dev` → `89.167.29.39`; (2) mint a fine-grained
-    GitHub token scoped to this one repository with Contents: Read-only
-    and nothing else, and seal it per
-    `gitops/prod/secrets/portfolio-repo-token.template.yaml` so the
-    cluster's init container can clone the private repo; (3) replace the
-    placeholder `replace-me@duncanhaywood.dev` in
-    `gitops/platform/cert-manager/issuer.yaml` with a real mailbox Let's
-    Encrypt will accept; (4) once DNS resolves and a staging cert has
-    issued, flip the Ingress's `cert-manager.io/cluster-issuer`
-    annotation from `letsencrypt-staging` to `letsencrypt-prod` (and
-    update the test that pins it).
-  unlocks:
-    - >-
-      A live public URL for the assembled 161-tool portfolio site
-      (`tools.marisstella.dev`) that depends on neither GitHub Actions
-      nor GitHub Pages: `gitops/prod/portfolio-site.yaml` builds
-      `platform/pages/build.mjs`'s output inside the cluster via init
-      containers, so it is unaffected by the `actions-runners-unavailable`
-      outage and by `deploy-settings` (Pages) staying ungranted. Argo
-      already syncs the manifest; the pods are crash-looping on the
-      missing secret today, which is the intended fail-closed state.
-    - >-
-      A second, independent path to the same "stranger can use these
-      products" outcome `deploy-settings` targets — useful because that
-      ask has been open since 2026-08-19 and this one shares none of its
-      blockers.
-  blocked_by: []
-  note: >-
-    Not a duplicate of `deploy-settings`: that ask is specifically the
-    GitHub Pages Settings toggle for a repo-hosted static site; this ask
-    is the Hetzner/Argo path documented in `portfolio/hosting/README.md`'s
-    "Amended 2026-08-29" section, which explains why Pages alone would
-    not have worked even if granted (private repo, and Actions has had no
-    runner since 2026-08-26). The path itself shipped in #1999 and the
-    four remaining owner steps were written up as a ledger outcome in
-    #2000 the same day, but neither PR added a row here, so the live
-    queue (`decision_queue.py`) did not surface it. Added by a later
-    2026-08-29 scheduled session specifically asked to prioritize
-    deployment and CI/CD, to close that gap rather than re-derive the
-    finding.
-
 - id: agent-runner-subscription-login
   asks: []
   prs: [2000]
@@ -677,8 +627,10 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    Four steps, in order, all in `gitops/README.md` under "What is still
-    needed to make it live": (1) add one DNS A record,
+    Three owner steps, in order, typed out with a verification command
+    each under "Publish `tools.marisstella.dev`" in
+    `infra/OWNER_CHECKLIST.md` (the rationale for each is in
+    `gitops/README.md`): (1) add one DNS A record,
     `tools.marisstella.dev` -> `89.167.29.39`; (2) mint a fine-grained
     GitHub token scoped to this one repository with Contents:Read-only and
     nothing else, then seal it into `prod/kustomization.yaml` per
@@ -686,9 +638,14 @@ decisions:
     private, so the in-cluster clone cannot be anonymous); (3) replace the
     placeholder `replace-me@duncanhaywood.dev` in
     `platform/cert-manager/issuer.yaml` with a real mailbox Let's Encrypt
-    can register; (4) only after DNS resolves and a staging cert has
-    issued, flip the Ingress annotation from `letsencrypt-staging` to
-    `letsencrypt-prod` (and update the test that pins it).
+    can register. Those three are all that stand between the portfolio
+    and a live site; after them it is reachable on a Let's Encrypt
+    *staging* certificate, which browsers warn about. The fourth step --
+    flipping the Ingress annotation from `letsencrypt-staging` to
+    `letsencrypt-prod` and updating the test that pins it -- is an
+    ordinary code change, not an owner action: once you confirm the
+    staging certificate issued, ask a session to open that PR rather than
+    editing two files by hand.
   unlocks:
     - >-
       A public URL for 164 finished, tested, free tools at once --
@@ -715,3 +672,33 @@ decisions:
     land, Argo syncs the manifests and the pods crash-loop on the missing
     secret by design (fail closed), and `tools.marisstella.dev` serves
     whatever placeholder currently answers for the cpx52.
+
+
+    This row is the one entry for the Hetzner site deploy. Do not add a
+    second. #2003 opened it; hours later #2006 added
+    `hetzner-portfolio-site-live` -- the same four owner steps, the same
+    #1999, written by a session that read `gitops/README.md` and did not
+    read this file. Two rows claiming PR 1999 trips
+    `decision_queue.py`'s own duplicate guard, so from that merge until
+    2026-08-29 the tool exited on `PR 1999 claimed by both ...` and
+    printed no queue at all: the owner could not read the deployment asks
+    that gate every live URL in the portfolio. The duplicate was removed
+    and its only unique claim is folded in above (that this path is a
+    second, independent route to the same outcome `deploy-settings`
+    targets, sharing none of its blockers). Before adding any deployment
+    ask, run `python3 portfolio/ledger/decision_queue.py` and read what is
+    already here.
+
+
+    Verified 2026-08-29 by a scheduled session, ahead of the owner steps:
+    the in-cluster build the pod runs was rehearsed locally with the
+    manifest's exact commands and `PAGES_BASE_URL=https://
+    tools.marisstella.dev/`. `build.mjs --out=` then `check.mjs --dist=`
+    produced 164 products / 446 pages / no dead links, with zero
+    `duncan-haywood.github.io` URLs surviving in the output, so the
+    canonical, `og:url` and sitemap entries stamp the Hetzner host and
+    not the dark Pages origin. `check.mjs` also exits 1 on both a missing
+    and an empty site directory, which is what makes the build container
+    fail the pod rather than serve an empty site. Nothing in the build
+    half of this deploy is waiting on anything; all four remaining steps
+    are the owner's.

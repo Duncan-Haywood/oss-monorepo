@@ -28435,3 +28435,110 @@ entries:
         owner/human-only actions. No code gap found in any of the three;
         did not duplicate this work or re-open closed decision-queue items.
     mrr_end: null
+
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The owner's decision queue was printing nothing at all, for four
+        days, and no one saw it.** `decision_queue.py` exited on
+        `asks.yaml: PR 1999 claimed by both hetzner-portfolio-site-live and
+        portfolio-site-hetzner-deploy` and rendered no queue. #2003 added a
+        row for the Hetzner site deploy; hours later #2006 added the same
+        ask again under a second id, by a session that had read
+        `gitops/README.md` and not this file. Both claimed PR 1999, which
+        trips the file's own duplicate guard. The cost is specific: the
+        deployment asks that gate every live URL in the portfolio were the
+        ones the owner could not read. Removed the later duplicate, folded
+        its one unique claim into the survivor, and left a note in that row
+        saying it is the single entry for this deploy so a third session
+        does not add a fourth.
+      - >-
+        **Fixed the failure mode, not just the row.** `--check` stays
+        strict because CI needs a gate, but the human path now prints the
+        queue anyway and exits 1, rather than answering "what does the
+        owner have to decide?" with one stderr line and silence. A
+        bookkeeping mistake in one row should not hide the other thirteen.
+        Rendering is best-effort: a malformed record falls back to the old
+        behaviour instead of dumping a traceback. Four tests cover it, plus
+        a named regression test asserting no two rows claim the same PR.
+      - >-
+        **`main` was red on two `Portfolio validate` steps since
+        2026-08-29 and nothing could report it.** `check_ask_hosts.py` and
+        `test_consolidate.py` both fail on `main` as of `bab42558` —
+        verified by stashing this session's diff and re-running. Neither is
+        a flake and neither was introduced here: adding the Hetzner deploy
+        ask made the ask text name `tools.marisstella.dev`, and that
+        checker demands a measured egress verdict for every host an ask
+        names. This is the outage compounding — the runner has been dark
+        since 2026-08-26, so a red `main` is unobservable through GitHub
+        and only shows up if a session runs the workflow's own commands.
+      - >-
+        The check was asking the wrong question of the right file. Its
+        subject is hosts the owner is asked to *allowlist* — hosts a
+        session must fetch from. `tools.marisstella.dev` and
+        `duncan-haywood.github.io` are hosts this portfolio *publishes on*:
+        the other direction, nothing fetches them, nothing can measure
+        them. The failure message's proposed fix — probe them and ingest
+        the verdict — would have been worse than the failure: it records a
+        denial for the portfolio's own not-yet-deployed publication target,
+        in the same table the egress ask reads, where it reads as evidence
+        that our own deploy host is egress-blocked. Exempted the three
+        publication hosts explicitly rather than by a rule like "skip
+        deployment asks", which would also skip a third-party host such a
+        row legitimately needs to fetch. Five tests, including one that
+        the exemption is not a blanket (a third-party host in the same
+        sentence is still checked) and one that every exempt host is
+        justified by a committed manifest rather than by prose.
+      - >-
+        **Rehearsed the Hetzner deploy's in-cluster build, which had never
+        been executed.** Ran the two commands `gitops/prod/portfolio-
+        site.yaml`'s init containers run, with the manifest's own
+        `PAGES_BASE_URL=https://tools.marisstella.dev/`: 164 products, 446
+        pages, no dead links, and zero `duncan-haywood.github.io` URLs
+        surviving anywhere in the output — so canonical, `og:url` and
+        sitemap entries stamp the Hetzner host and not the dark Pages
+        origin, which is the failure that would have quietly cost the site
+        its search identity on day one. Also confirmed `check.mjs` exits 1
+        on both a missing and an empty site directory, which is what makes
+        the build container fail the pod rather than serve an empty site.
+        The build half of this deploy is waiting on nothing.
+      - >-
+        Consolidated the owner's remaining go-live steps into
+        `infra/OWNER_CHECKLIST.md` — the file already titled "What you
+        still have to type" — with a verification command for each, rather
+        than adding a third document. Corrected the count while doing it:
+        the ask said four owner steps and it is three. The fourth, flipping
+        the Ingress from `letsencrypt-staging` to `letsencrypt-prod` and
+        updating the test that pins it, is an ordinary code change an agent
+        opens as a PR once the owner confirms the staging certificate
+        issued. Three owner actions now stand between 164 finished tools
+        and a public URL: one DNS A record, one sealed read-only clone
+        token, one real ACME mailbox.
+      - >-
+        Queue drain: **zero open PRs** at the start of this run, so the
+        three-PR merge quota had nothing to act on — confirmed twice
+        (`list_pull_requests` and a `search_pull_requests` for
+        `is:pr is:open`). Reviewed the branches carrying unique commits
+        against `main`. `claude/festive-mccarthy-xrn3ua` is the only one
+        with substantial unmerged work (35 files, 9179 insertions): a
+        Next.js `ventures/vendor-watch`, whose product function shipped on
+        `main` as the `vendor-change-watch` CLI in #2002 three days after
+        that branch went quiet. Deliberately did not open a PR for it. It
+        would add a second vendor-watcher venture, in a server shape that
+        `portfolio/hosting/README.md` reserves for processes rather than
+        browser tools, carrying an SSRF-exposed `/api/watch/check` route
+        that nobody can deploy today — a duplicate implementation of a
+        just-merged product, which is the case `CLAUDE.md` names directly.
+        Recorded here rather than closed or merged; its hardened
+        `check-url.ts` is TypeScript and the shipped CLI is Python, so
+        there is nothing cheap to salvage across.
+      - >-
+        Verification, since no runner ran any of it: all 38 single-line
+        steps of `.github/workflows/portfolio-validate.yml` executed
+        locally, 0 failures. `portfolio/ledger` and `gitops/tests` under
+        pytest, 209 passed. `test_decision_queue` 34/34,
+        `test_consolidate` 28/28. `build.mjs` + `check.mjs` at both the
+        default and the production base URL.
+    mrr_end: null

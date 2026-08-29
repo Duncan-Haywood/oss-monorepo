@@ -106,6 +106,64 @@ codes as exit 42.
    Only then flip `gitops/agents/governor/cronjob.yaml` `suspend: false`
    and `policy.json` `"enabled": true`.
 
+## Publish `tools.marisstella.dev` (the whole product portfolio)
+
+This is the shortest path from "164 finished tools nobody can reach" to a
+public URL, and every step in it is yours — none of it is waiting on an
+agent. `gitops/README.md` explains *why* each one exists; this is the
+order to type them in and how to tell each worked.
+
+The build half is done and was rehearsed on 2026-08-29 with the exact
+commands the pod runs (`PAGES_BASE_URL=https://tools.marisstella.dev/
+node platform/pages/build.mjs --out=… && node platform/pages/check.mjs
+--dist=…`): 164 products, 446 pages, no dead links, and no
+`duncan-haywood.github.io` URL surviving anywhere in the output. Nothing
+about it depends on GitHub Actions (no runner since 2026-08-26) or on
+GitHub Pages (not enabled, and a private repo's Pages site is not public
+on the free tier anyway).
+
+1. **DNS.** One A record at the registrar: `tools.marisstella.dev` →
+   `89.167.29.39`. A subdomain — `marisstella.dev` keeps whatever serves
+   it today. Verify: `dig +short tools.marisstella.dev` returns that
+   address.
+
+2. **The clone token.** The repo is private, so the pod's `fetch` init
+   container cannot clone anonymously. Mint a **fine-grained** PAT — this
+   repository only, **Contents: Read-only**, nothing else — then seal it
+   exactly as `gitops/prod/secrets/portfolio-repo-token.template.yaml`
+   says, commit `portfolio-repo-token.sealed.yaml` beside the template,
+   and add that filename to `gitops/prod/kustomization.yaml`. Verify:
+   `kubectl -n prod get pods -l app=portfolio-site` goes from
+   `Init:CrashLoopBackOff` to `Running`, and
+   `kubectl -n prod logs deploy/portfolio-site -c build` ends in
+   `built … files`.
+
+3. **A real ACME contact.** Replace `replace-me@duncanhaywood.dev` in
+   `gitops/platform/cert-manager/issuer.yaml` with a mailbox that
+   exists — Let's Encrypt refuses to register the placeholder, so no
+   certificate can issue until this changes. (Same address as item 6
+   above; do it once.) Verify:
+   `kubectl -n prod get certificate` reports `READY=True`.
+
+Steps 1–3 are all that stand between the portfolio and a live site. Once
+they land the site is reachable, on a Let's Encrypt **staging**
+certificate — browsers will warn, because staging is not a trusted root.
+
+4. **The issuer flip, last.** Only after step 1 resolves and a staging
+   certificate has issued, change the Ingress annotation
+   `cert-manager.io/cluster-issuer` in `gitops/prod/portfolio-site.yaml`
+   from `letsencrypt-staging` to `letsencrypt-prod`, and update
+   `gitops/tests/test_manifests.py::test_portfolio_site_starts_on_the_staging_certificate_issuer`
+   which pins it. Unlike 1–3 this one is not owner-only — it is an
+   ordinary code change an agent can open as a PR once you confirm the
+   staging certificate issued, and asking for it that way is less work
+   than editing two files by hand.
+
+Deliberately **not** on this list: enabling GitHub Pages. That is a
+separate queued ask (`deploy-settings`) and, on its own, would not put
+these tools in front of anyone — see `portfolio/hosting/README.md`'s
+2026-08-29 amendment.
+
 ## You do not hand to an agent
 
 - The only copy of the age private key
