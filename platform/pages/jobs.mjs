@@ -87,8 +87,17 @@ export const MIN_SAVEABLE_FIELDS = 3;
  * chrome itself injects is prefixed `pf-` and is likewise not the venture's
  * form — including this feature's own name box, which would otherwise save
  * itself.
+ *
+ * `usage` is the same checkbox under the other spelling this repo uses, and the
+ * exclusion missed it: 15 published pages name it that way and 10 of them carry
+ * this band, so on those a restore has been writing the visitor's counting
+ * preference out of a saved document. The direction that matters is the one
+ * where it turns counting *on* for someone who left it off. One id was never
+ * going to hold — the rule is about what the control means, not what it is
+ * called — so both spellings are named here and `pageSaveableFieldIds` is
+ * tested against both.
  */
-export const EXCLUDED_FIELD_IDS = new Set(['usageOptOut']);
+export const EXCLUDED_FIELD_IDS = new Set(['usageOptOut', 'usage']);
 
 const EXCLUDED_ID_PREFIX = 'pf-';
 

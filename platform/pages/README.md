@@ -289,6 +289,16 @@ reaches 234 pages against the rates bar's 103. Excluded: `usageOptOut`, which
 is a fact about the browser rather than the job, and anything the chrome itself
 injects.
 
+`usage` is the same checkbox under the other spelling this repo uses, and it was
+not excluded until 2026-08-29. Fifteen published pages name it that way and ten
+of them carry this band, so on those a restore had been writing the visitor's
+counting preference out of a saved document — including switching counting *on*
+for someone who had left it off, which is the direction that matters. Both
+spellings are excluded now. One consequence worth knowing: a page whose only
+other saveable fields were two real inputs no longer clears
+`MIN_SAVEABLE_FIELDS`, so `contractor-bid-readiness` loses the band it only ever
+had because the privacy checkbox was being counted as a third bid field.
+
 **A restore is atomic or refused**, and that rule shapes the module. The
 itemised calculators build their inputs at runtime, so a bid saved with four
 rooms can meet a form with one. Writing back only the fields that still exist

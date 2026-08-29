@@ -67,7 +67,16 @@ const LAUNCH = chromePath ? { executablePath: chromePath } : {};
 // Buttons that produce a file, the clipboard, or an empty form rather than a
 // result. Clicking one proves nothing about whether the tool computes, and
 // "Clear" actively destroys the evidence.
-const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share/i;
+//
+// "Add another …" joins them for the same reason and one further one. It edits
+// the form — it reveals or appends an input row — so pressing it can never make
+// a tool answer, and because a row-adder sits with the rows it adds, it is
+// often the *first* button in the document: `pressPrimaryAction` would stop
+// there and record a working tool as NO-RESPONSE, having never pressed its
+// action at all. That is `cash-runway-planner`, whose one-off payment rows have
+// an "Add another row" above the Forecast button. Anchored, so a compute
+// button that merely contains the word is still pressed.
+const NOT_AN_ACTION = /copy|download|print|clear|export|reset|share|^add another\b/i;
 
 // Several tools open on an empty form and offer their own worked example. That
 // button is the shortest path this product has to first value, so a sweep that
