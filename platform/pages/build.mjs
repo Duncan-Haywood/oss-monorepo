@@ -2652,9 +2652,26 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   return next.replace(/<\/head>/i, `${tags.map((tag) => `\n${tag}`).join('')}\n</head>`);
 }
 
+// `decodeEntities` covers the five that matter for markup safety. Prose needs
+// the typographic ones too: an answer written with `&ldquo;` reaches JSON-LD as
+// the literal characters `&ldquo;`, and a search engine renders exactly that
+// inside the answer it shows. Numeric forms are decoded generically; the named
+// map is the punctuation these pages actually use.
+const TEXT_ENTITIES = {
+  nbsp: ' ', ldquo: '“', rdquo: '”', lsquo: '‘', rsquo: '’', mdash: '—', ndash: '–',
+  hellip: '…', times: '×', minus: '−', deg: '°', plusmn: '±', frac12: '½', frac14: '¼',
+  euro: '€', pound: '£', cent: '¢', trade: '™', reg: '®', copy: '©', apos: "'",
+};
+
+const decodeTextEntities = (value) =>
+  decodeEntities(value)
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&([a-z][a-z0-9]*);/gi, (whole, name) => TEXT_ENTITIES[name.toLowerCase()] ?? whole);
+
 /** Visible text of an HTML fragment, with script/style content dropped. */
 const stripTags = (fragment) =>
-  decodeEntities(
+  decodeTextEntities(
     fragment
       .replace(/<(script|style|template)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
       .replace(/<[^>]+>/g, ' '),
@@ -2700,6 +2717,21 @@ const CODE_IDENTIFIER = /\b[a-z][a-z0-9]*[A-Z][a-zA-Z0-9]*\b/g;
 const readsAsCode = (text) =>
   [...text.matchAll(CODE_IDENTIFIER)].some(([token]) => token.length >= 10);
 
+/**
+ * The end of the block an answer lives in.
+ *
+ * The last question on a page has no heading after it, so its answer would
+ * otherwise run to the end of the document — straight through `</main>` and
+ * into the footer, where every tool here carries the same "No warranty. This
+ * free tool is not tax, financial, or business advice" paragraph. That would
+ * be picked up as the answer's second paragraph and quoted, on every page, as
+ * part of the answer to whatever its last question happened to be.
+ */
+const toBlockEnd = (fragment) => {
+  const boundary = fragment.search(/<\/(?:section|main|article|aside)\b|<footer\b|<hr\b/i);
+  return boundary === -1 ? fragment : fragment.slice(0, boundary);
+};
+
 const FAQ_MAX_ENTRIES = 8;
 const FAQ_MIN_ANSWER = 40;
 const FAQ_MAX_QUESTION = 200;
@@ -2741,7 +2773,9 @@ export function faqEntries(html) {
     found.push({
       at: heading.start,
       question: heading.text,
-      answer: answerProse(html.slice(heading.end, next ? next.start : html.length)),
+      answer: answerProse(
+        toBlockEnd(html.slice(heading.end, next ? next.start : html.length)),
+      ),
     });
   });
 
