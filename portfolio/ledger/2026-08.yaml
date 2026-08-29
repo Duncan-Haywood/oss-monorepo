@@ -28740,6 +28740,39 @@ entries:
         so #2015 had no competing implementation.
     mrr_end: null
 
+  - venture: hvac-maintenance-contract-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The tool has no `<form>` and recalculates only on an explicit click
+        of "Calculate maintenance plan". Reproduced live in Chromium: editing
+        the target-margin field from 20% to 50% and pressing Enter left the
+        monthly price on screen at $80.21, the stale pre-edit figure, with
+        nothing indicating it was out of date; clicking the button produced
+        the correct $128.33. Eleven number inputs sit on this page, and
+        Enter/Go after the last one is the natural close-out gesture on a
+        phone's numeric keypad -- the device this portfolio is written for.
+      - >-
+        Each tracked input now recalculates on Enter, calling the same
+        `calculate()` the button calls, wired off the same `ids` array the
+        calculation itself reads rather than a second hardcoded list.
+        Disclaimer and usage tracking untouched. Portfolio-wide scan (all
+        102 `*-bid-calculator` ventures plus every button-click "quote"
+        tool `sweep.mjs` flags with a `via "..."` annotation) found two
+        siblings with the identical shape -- no `<form>`, compute only on
+        click, no Enter handling: `payment-reconciliation-workbench` and
+        `tender-bid-readiness`. Both would repay the same fix in a future
+        session; left out of scope here per the single-venture brief.
+      - >-
+        Verified locally: venture suite 7/7 (3 new), full ventures suite
+        11783/11783, platform/pages suite 642/642, rebuild + check.mjs (164
+        products, 446 pages, no dead links), sweep.mjs 164/164, and the fix
+        reproduced fixed live in Chromium against the rebuilt dist. #2024,
+        merged. CI showed the known runner-outage red/absent signature, not
+        a real failure.
+    mrr_end: null
+
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
