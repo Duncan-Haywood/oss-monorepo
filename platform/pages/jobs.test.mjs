@@ -19,6 +19,7 @@ import {
   BID_PRICING_HELPERS,
   winRateSentence,
   MIN_WIN_RATE_SAMPLE,
+  WIN_RATE_SPLIT_POINTS,
   MIN_CROSS_TOOL_SAMPLE,
   MIN_MARGIN_SAMPLE,
   MARGIN_SPREAD_POINTS,
@@ -26,6 +27,8 @@ import {
   MIN_KEEP_TOOLS,
   KEEP_SPREAD_POINTS,
   keepSentence,
+  MIN_MIX_TOOLS,
+  mixSentence,
   MIN_TREND_PER_HALF,
   TREND_SPLIT_POINTS,
   trendSplit,
@@ -2079,6 +2082,200 @@ ${BID_PRICING_HELPERS}
       kept('c', '£400', '300', 'C'), kept('c', '$400', '300', 'C')],
   ]) {
     assert.equal(evaluated(book), keepSentence(book), JSON.stringify(book && book.length));
+  }
+});
+
+// --- the hub's mix reading --------------------------------------------------
+
+// A lost bid on a named tool. It carries no figure and no cost on purpose: a
+// lost quote is what makes a win rate readable and contributes nothing to a
+// kept share, which is the asymmetry this reading has to hold both halves of.
+const missed = (slug, label) => ({
+  name: slug + ' lost', at: AT, slug, outcome: 'lost',
+  ...(label ? { label } : {}),
+});
+
+// Fence: four wins (two of them costed, keeping 5%) and one loss — lands 4 of
+// 5. Deck: two costed wins keeping 28%, and six losses — lands 2 of 8. Every
+// other reading in the panel reads this book as good news about fences.
+const opposed = () => [
+  kept('fence-bid-calculator', '$1,000', '950', 'Fence'),
+  kept('fence-bid-calculator', '$1,000', '950', 'Fence'),
+  kept('fence-bid-calculator', '$1,000', undefined, 'Fence'),
+  kept('fence-bid-calculator', '$1,000', undefined, 'Fence'),
+  missed('fence-bid-calculator', 'Fence'),
+  kept('deck-bid-calculator', '$5,000', '3600', 'Deck'),
+  kept('deck-bid-calculator', '$5,000', '3600', 'Deck'),
+  ...Array.from({ length: 6 }, () => missed('deck-bid-calculator', 'Deck')),
+];
+
+test('the trade that lands most and the trade that pays most are crossed', () => {
+  const sentence = mixSentence(opposed());
+  // winRateSentence reads this book and names Fence as the trade that is
+  // working; keepSentence reads the same book and names Deck. Neither is
+  // wrong, and neither says the thing that decides what to do on Monday.
+  assert.match(sentence, /^The work you win is not the work that pays: /);
+  assert.match(
+    sentence,
+    /Fence lands 4 of 5 quotes and keeps 5% of what it charged on the 2 you costed;/,
+  );
+  assert.match(sentence, /Deck lands 2 of 8 and keeps 28% on 2\./);
+  assert.match(sentence, /worth a price rise before it is worth more of your time/);
+  assert.match(sentence, /re-cost it before you re-price it\.$/);
+});
+
+test('the trade that lands most being the trade that pays most is also a finding', () => {
+  // The same two books swapped. Every other line in the panel warns about
+  // something; this branch exists because "keep selling this" is a decision
+  // too, and no single tool page can reach it either.
+  const sentence = mixSentence([
+    kept('fence-bid-calculator', '$5,000', '3600', 'Fence'),
+    kept('fence-bid-calculator', '$5,000', '3600', 'Fence'),
+    kept('fence-bid-calculator', '$5,000', undefined, 'Fence'),
+    kept('fence-bid-calculator', '$5,000', undefined, 'Fence'),
+    missed('fence-bid-calculator', 'Fence'),
+    kept('deck-bid-calculator', '$1,000', '950', 'Deck'),
+    kept('deck-bid-calculator', '$1,000', '950', 'Deck'),
+    ...Array.from({ length: 6 }, () => missed('deck-bid-calculator', 'Deck')),
+  ]);
+  assert.match(sentence, /^The work you win is also the work that pays: /);
+  assert.match(
+    sentence,
+    /Fence lands 4 of 5 quotes and keeps 28% of what it charged on the 2 you costed,/,
+  );
+  // One trade holds both other ends, so it is named once rather than twice.
+  assert.match(sentence, /where Deck lands 2 of 8 and keeps 5% on 2\./);
+  assert.equal(sentence.match(/Deck/g).length, 1);
+  assert.match(sentence, /worth answering with more selling rather than a price change/);
+});
+
+test('two trades at the other end are both named', () => {
+  // Fence tops both rankings; Lawn is the worst keeper and Deck the worst
+  // lander, so the sentence has two trades to name rather than one.
+  const sentence = mixSentence([
+    kept('fence-bid-calculator', '$5,000', '3600', 'Fence'),
+    kept('fence-bid-calculator', '$5,000', '3600', 'Fence'),
+    kept('fence-bid-calculator', '$5,000', undefined, 'Fence'),
+    kept('fence-bid-calculator', '$5,000', undefined, 'Fence'),
+    missed('fence-bid-calculator', 'Fence'),
+    // Lawn keeps 2% and lands 2 of 4.
+    kept('lawn-care-bid-calculator', '$1,000', '980', 'Lawn'),
+    kept('lawn-care-bid-calculator', '$1,000', '980', 'Lawn'),
+    missed('lawn-care-bid-calculator', 'Lawn'),
+    missed('lawn-care-bid-calculator', 'Lawn'),
+    // Deck keeps 10% and lands 2 of 8.
+    kept('deck-bid-calculator', '$1,000', '900', 'Deck'),
+    kept('deck-bid-calculator', '$1,000', '900', 'Deck'),
+    ...Array.from({ length: 6 }, () => missed('deck-bid-calculator', 'Deck')),
+  ]);
+  assert.match(sentence, /where Deck lands 2 of 8 and Lawn keeps 2% on 2\./);
+});
+
+test('the mix reading needs both halves of both trades before it says anything', () => {
+  assert.equal(MIN_MIX_TOOLS, 2);
+  const book = opposed();
+  assert.notEqual(mixSentence(book), '');
+
+  // One tool cannot be crossed with anything, however long its own history.
+  assert.equal(mixSentence(book.filter((row) => row.slug === 'fence-bid-calculator')), '');
+  // A trade with a win rate but no costed job is missing half the cross. Deck
+  // keeps its eight decided bids and loses one of its two delivered costs.
+  assert.equal(mixSentence(book.map((row) => (
+    row.slug === 'deck-bid-calculator' && row.cost ? { ...row, cost: undefined } : row
+  ))).indexOf('Deck'), -1);
+  // A trade with costed jobs but too few decided bids is missing the other
+  // half: fence drops to three decided, under MIN_WIN_RATE_PER_TOOL.
+  assert.equal(mixSentence(book.filter((row, i) => !(row.slug === 'fence-bid-calculator' &&
+    (i === 2 || i === 4)))), '');
+  assert.equal(mixSentence([]), '');
+  assert.equal(mixSentence(null), '');
+  assert.equal(mixSentence(undefined), '');
+});
+
+test('the mix reading draws nothing when the two rankings neither oppose nor agree', () => {
+  // Fence lands 4 of 5 and keeps 5%; Deck lands 3 of 6 and keeps 28%. The
+  // kept-share gap clears KEEP_SPREAD_POINTS and the rate gap — 80 against 50
+  // — does not clear WIN_RATE_SPLIT_POINTS, so there is no finding, and a
+  // sentence saying so would be a line on the busiest page in the site that
+  // changes nothing anyone does.
+  assert.ok(WIN_RATE_SPLIT_POINTS > 30);
+  assert.equal(mixSentence([
+    kept('fence-bid-calculator', '$1,000', '950', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', '950', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', undefined, 'Fence'),
+    kept('fence-bid-calculator', '$1,000', undefined, 'Fence'),
+    missed('fence-bid-calculator', 'Fence'),
+    kept('deck-bid-calculator', '$5,000', '3600', 'Deck'),
+    kept('deck-bid-calculator', '$5,000', '3600', 'Deck'),
+    kept('deck-bid-calculator', '$5,000', undefined, 'Deck'),
+    ...Array.from({ length: 3 }, () => missed('deck-bid-calculator', 'Deck')),
+  ]), '');
+  // And the mirror: rates far apart, kept shares 3 points apart.
+  assert.equal(mixSentence([
+    kept('fence-bid-calculator', '$1,000', '950', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', '950', 'Fence'),
+    kept('fence-bid-calculator', '$1,000', undefined, 'Fence'),
+    kept('fence-bid-calculator', '$1,000', undefined, 'Fence'),
+    missed('fence-bid-calculator', 'Fence'),
+    kept('deck-bid-calculator', '$1,000', '920', 'Deck'),
+    kept('deck-bid-calculator', '$1,000', '920', 'Deck'),
+    ...Array.from({ length: 6 }, () => missed('deck-bid-calculator', 'Deck')),
+  ]), '');
+});
+
+test('a trade priced in two currencies is dropped from the cross, never converted', () => {
+  const book = opposed().map((row, i) => (
+    row.slug === 'deck-bid-calculator' && i === 6 ? { ...row, amount: '£5,000' } : row
+  ));
+  // Deck is gone entirely, and with it the only trade Fence could be crossed
+  // against — so the reading refuses rather than reporting on Fence alone.
+  assert.equal(mixSentence(book), '');
+});
+
+test('the mix reading says the same thing whatever order the book arrives in', () => {
+  const book = opposed();
+  assert.equal(mixSentence(book), mixSentence([...book].reverse()));
+  // Two trades that have gone the same way cannot swap places between renders.
+  const tied = [
+    kept('a-calculator', '$1,000', '800', 'A'), kept('a-calculator', '$1,000', '800', 'A'),
+    missed('a-calculator', 'A'), missed('a-calculator', 'A'),
+    kept('b-calculator', '$1,000', '800', 'B'), kept('b-calculator', '$1,000', '800', 'B'),
+    missed('b-calculator', 'B'), missed('b-calculator', 'B'),
+  ];
+  assert.equal(mixSentence(tied), mixSentence([...tied].reverse()));
+});
+
+test('the mix reading never states a rate, a margin or a mix to aim for', () => {
+  // The guard every reading in this panel carries. This one needs it most: it
+  // is the only line here that tells someone to change a price, so an invented
+  // number beside that instruction would be the worst kind of advice this site
+  // could give.
+  for (const book of [
+    opposed(),
+    opposed().map((row) => (row.slug === 'fence-bid-calculator' && row.cost
+      ? { ...row, amount: '$5,000', cost: '3600' } : row)).map((row) => (
+      row.slug === 'deck-bid-calculator' && row.cost ? { ...row, cost: '4900' } : row)),
+  ]) {
+    const sentence = mixSentence(book);
+    assert.notEqual(sentence, '');
+    assert.doesNotMatch(sentence, /should|aim|target|too (high|low)|healthy|ideal|industry/i);
+  }
+});
+
+test('the injected mix helper answers exactly as the module does', () => {
+  // The guarantee every reading here carries: the hub runs the tested body,
+  // not a paraphrase of it.
+  const evaluated = new Function(`${BID_AMOUNT_HELPER}
+${BID_PRICING_HELPERS}
+    return mixSentence;`)();
+
+  for (const book of [
+    [], null,
+    opposed(),
+    opposed().filter((row) => row.slug === 'fence-bid-calculator'),
+    [...opposed(), kept('deck-bid-calculator', '$5,000', undefined, 'Deck')],
+  ]) {
+    assert.equal(evaluated(book), mixSentence(book), JSON.stringify(book && book.length));
   }
 });
 

@@ -1104,6 +1104,92 @@ await step('the hub says which of these trades the finished work is worth doing'
   }
 });
 
+// 6bx. Whether the work that lands is the work that pays (`mixSentence`).
+//
+//      The reading that needs both of the two above at once, on the same
+//      trade, which is why it gets a browser step of its own rather than
+//      riding on 6bk's fixture: it is the only line on the hub that reads a
+//      tool's decided *and* costed history together, so a wiring fault in
+//      either half silences it while both neighbours keep drawing and nothing
+//      anywhere looks wrong. The label round trip is the same one 6bk proves
+//      and is proved again here because this sentence names two trades in a
+//      different order and a card-matching bug could reach one and not the
+//      other.
+//
+//      The fixture is the book every other reading in this panel calls good
+//      news: the fence work is landing, four quotes out of five. It is landing
+//      because it is priced at a twentieth over what it costs to deliver, and
+//      the deck work that keeps 28% is the work being lost.
+await step('the hub says whether the work that lands is the work that pays', async () => {
+  await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    await page.evaluate((now) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      let n = 0;
+      const decided = (outcome, day, extra) => ({
+        name: 'Job ' + (++n), at: at(day), fields: { a: '1' },
+        outcome, decidedAt: at(day - 2), ...extra,
+      });
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
+        // Lands 4 of 5. The two costed wins keep 100 of 2,000 — 5%.
+        'fence-bid-calculator': [
+          decided('won', 40, { amount: '$1,000', cost: '950' }),
+          decided('won', 39, { amount: '$1,000', cost: '950' }),
+          decided('won', 38, { amount: '$1,000' }),
+          decided('won', 37, { amount: '$1,000' }),
+          decided('lost', 36, {}),
+        ],
+        // Lands 2 of 8. The two costed wins keep 2,800 of 10,000 — 28%.
+        'deck-bid-calculator': [
+          decided('won', 35, { amount: '$5,000', cost: '3600' }),
+          decided('won', 34, { amount: '$5,000', cost: '3600' }),
+          ...[33, 32, 31, 30, 29, 28].map((d) => decided('lost', d, {})),
+        ],
+      } }));
+    }, Date.now());
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(200);
+
+    const line = (await page.textContent('#bidsMix')).replace(/\s+/g, ' ').trim();
+    check('the hub draws the crossed reading at all',
+      await page.isVisible('#bidsMix'), line);
+    check('it says plainly that the two disagree',
+      /^The work you win is not the work that pays: /.test(line), line);
+    // Both halves of both trades, by their card headings rather than their
+    // slugs — the part only a browser can prove, because nothing in storage
+    // carries a label.
+    check('and names the landing trade with both its figures',
+      /Fence Bid Calculator lands 4 of 5 quotes and keeps 5% of what it charged on the 2 you costed;/
+        .test(line), line);
+    check('and the paying trade with both of its own',
+      /Deck Bid Calculator lands 2 of 8 and keeps 28% on 2\./.test(line), line);
+    check('no slug leaked into the sentence in place of a name',
+      !/-bid-calculator/.test(line), line);
+    check('it points the price rise at the trade that is winning',
+      /worth a price rise before it is worth more of your time/.test(line), line);
+    // Percentages and counts only. A currency symbol here would mean money was
+    // pooled across two trades, which this reading must never do.
+    check('no money figure is on the mix line', !/[$£€]/.test(line), line);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the mix reading is counted',
+      counts.saved_bid_mix_shown >= 1, JSON.stringify(counts));
+    check('and the counter names no trade, no figure and no branch',
+      !/fence|deck|pays|Job /i.test(JSON.stringify(counts)), JSON.stringify(counts));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
 // 6bp. The same finding, in the panel on the tool's own page
 //      (`toolTrendSentence`).
 //

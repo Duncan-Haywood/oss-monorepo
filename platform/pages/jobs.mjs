@@ -1645,6 +1645,187 @@ export function keepSentence(bids) {
 }
 
 /**
+ * How many tools must carry both readings before the two can be crossed.
+ *
+ * Two, and structural rather than statistical for the reason `MIN_KEEP_TOOLS`
+ * is: at one tool there is nothing to cross. The sample bars that matter are
+ * the ones the two halves already set — `MIN_WIN_RATE_PER_TOOL` decided bids
+ * for a rate, `MIN_KEEP_PER_TOOL` costed wins for a kept share — and a tool
+ * has to clear *both* to appear here at all, which is a much higher bar than
+ * either reading applies on its own.
+ */
+export const MIN_MIX_TOOLS = 2;
+
+/**
+ * Whether the work this contractor wins is the work that pays.
+ *
+ * The one question the panel could already answer twice and had never asked
+ * once. `winRateSentence` names the trade that lands most often;
+ * `keepSentence` names the trade that keeps most of what it charges. Both are
+ * true and neither is a decision, because the decision is what happens when
+ * you put them side by side:
+ *
+ *     Fence   wins 4 of 5    keeps  5%
+ *     Decks   wins 1 of 5    keeps 28%
+ *
+ * A contractor reading those two lines one under the other reads two
+ * compliments and one complaint — fences are landing, decks are not — and the
+ * action they suggest separately is the wrong one in both cases: chase more
+ * fence work, cut the deck price. Crossed, they say the opposite and say it
+ * plainly. The fences land because they are cheap, and every extra one is
+ * another job that keeps a twentieth of its price; the decks are the work
+ * worth having and the quotes are being lost.
+ *
+ * This is the shape underpricing takes from the inside, and it is invisible
+ * from any single tool page by construction: a tool knows its own win rate and
+ * its own kept share, and the finding is that those two disagree *between*
+ * trades. It is the reason the hub carries a bid panel at all.
+ *
+ * Two branches, and both are findings:
+ *
+ *   - **They point apart.** The trade that lands most keeps least. Named with
+ *     both figures for each, because a contractor cannot act on "your mix is
+ *     wrong" and can act on "fences at 5%, decks at 28%".
+ *   - **They point the same way.** The trade that lands most also keeps most —
+ *     the one combination where selling more of the same work is the right
+ *     move, and worth saying out loud precisely because every other reading
+ *     here is a warning.
+ *
+ * Where the two rankings neither oppose nor agree by a clear margin, this
+ * draws nothing. That is not a missing branch: the whole reading *is* the
+ * comparison, so a sentence saying the comparison was inconclusive would be a
+ * line on the one page every visitor loads that changes nothing anyone does.
+ *
+ * Thresholds are borrowed rather than invented — `WIN_RATE_SPLIT_POINTS` for
+ * the rate gap, `KEEP_SPREAD_POINTS` for the kept-share gap — because the
+ * noise each is protecting against is the same noise as in the reading it came
+ * from. Requiring both at once makes this strictly rarer than either neighbour,
+ * which is the right price for a sentence that tells someone to raise a price.
+ *
+ * Percentages and counts only, so it is safe across currencies on the argument
+ * `keepSentence` makes: a share of a bid's own price is a fact inside that
+ * bid's currency, and a count of outcomes has no unit at all. A tool whose
+ * costed wins are in two currencies is dropped rather than summed.
+ *
+ * Never a target — not a win rate, not a margin, not a mix. It says which of
+ * *their* trades is behaving which way, and never what the answer should be.
+ *
+ * Returns `''` — draw nothing — until `MIN_MIX_TOOLS` tools each carry both
+ * readings and one of the two branches clears its gap.
+ */
+export function mixSentence(bids) {
+  if (!bids || !bids.length) return '';
+
+  var slugs = [];
+  var byTool = {};
+
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'won' && bid.outcome !== 'lost') continue;
+    var slug = typeof bid.slug === 'string' ? bid.slug : '';
+    if (!slug) continue;
+
+    if (!byTool[slug]) {
+      slugs.push(slug);
+      byTool[slug] = { slug: slug, label: slug, decided: 0, won: 0, jobs: 0,
+        charged: 0, spent: 0, currency: '', mixed: false };
+      var label = typeof bid.label === 'string' ? bid.label.trim() : '';
+      if (label) byTool[slug].label = label;
+    }
+    var tool = byTool[slug];
+    tool.decided++;
+    if (bid.outcome !== 'won') continue;
+    tool.won++;
+
+    // The kept share is counted off the won rows only, and only the ones
+    // carrying both a cost and a readable price — the same evidence
+    // `keepSentence` needs, read through the same two guards so that a figure
+    // one reading would refuse cannot reach the other.
+    var cost = normalizeJobCost(bid.cost);
+    if (!cost) continue;
+    var parsed = bidAmountValue(bid.amount);
+    if (!parsed) continue;
+    if (!(parsed.value > 0)) continue;
+    // `bidAmountValue` only ever returns one of three symbols, so the empty
+    // string is a safe "nothing costed here yet" sentinel.
+    if (!tool.currency) tool.currency = parsed.currency;
+    else if (parsed.currency !== tool.currency) tool.mixed = true;
+    tool.jobs++;
+    tool.charged += parsed.value;
+    tool.spent += Number(cost);
+  }
+
+  var ranked = [];
+  for (var s = 0; s < slugs.length; s++) {
+    var candidate = byTool[slugs[s]];
+    if (candidate.mixed) continue;
+    if (candidate.decided < MIN_WIN_RATE_PER_TOOL) continue;
+    if (candidate.jobs < MIN_KEEP_PER_TOOL) continue;
+    if (!(candidate.charged > 0)) continue;
+    candidate.rate = (candidate.won / candidate.decided) * 100;
+    candidate.share = ((candidate.charged - candidate.spent) / candidate.charged) * 100;
+    ranked.push(candidate);
+  }
+  if (ranked.length < MIN_MIX_TOOLS) return '';
+
+  // Two orderings of the same list, each broken by slug so that two trades
+  // which have gone the same way cannot swap places between two renders of one
+  // book — the rule every ranked reading in this file follows.
+  var byKeep = ranked.slice().sort(function (a, b) {
+    return b.share - a.share || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+  });
+  var byRate = ranked.slice().sort(function (a, b) {
+    return b.rate - a.rate || (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0);
+  });
+
+  var payer = byKeep[0];
+  var leanest = byKeep[byKeep.length - 1];
+  var lander = byRate[0];
+  var rarest = byRate[byRate.length - 1];
+
+  function landing(tool) {
+    return tool.won + ' of ' + tool.decided;
+  }
+  function keeping(tool) {
+    return Math.round(tool.share) + '% on ' + tool.jobs;
+  }
+
+  // The leading trade is written out in full — "keeps 5% of what it charged on
+  // the 2 you costed" — and every trade after it in the short form, because
+  // the units only need saying once and the sentence is already long.
+  function leading(tool) {
+    return tool.label + ' lands ' + landing(tool) + ' quotes and keeps ' +
+      Math.round(tool.share) + '% of what it charged on the ' + tool.jobs + ' you costed';
+  }
+
+  if (payer.slug !== lander.slug) {
+    if (lander.rate - payer.rate < WIN_RATE_SPLIT_POINTS) return '';
+    if (payer.share - lander.share < KEEP_SPREAD_POINTS) return '';
+    return 'The work you win is not the work that pays: ' + leading(lander) + '; ' +
+      payer.label + ' lands ' + landing(payer) + ' and keeps ' + keeping(payer) + '. ' +
+      'That is what underpricing looks like from the inside: the trade you land most is ' +
+      'worth a price rise before it is worth more of your time, and the one that keeps most ' +
+      'is worth chasing at a number you would have turned down. It can see that a trade ' +
+      'keeps less, never why — so re-cost it before you re-price it.';
+  }
+
+  if (lander.rate - rarest.rate < WIN_RATE_SPLIT_POINTS) return '';
+  if (payer.share - leanest.share < KEEP_SPREAD_POINTS) return '';
+  // The other end is usually one trade wearing both labels — with two tools it
+  // always is — so it is named once when it is one and twice when it is two.
+  var other = leanest.slug === rarest.slug
+    ? leanest.label + ' lands ' + landing(leanest) + ' and keeps ' + keeping(leanest)
+    : rarest.label + ' lands ' + landing(rarest) + ' and ' + leanest.label + ' keeps ' +
+      keeping(leanest);
+  return 'The work you win is also the work that pays: ' + leading(lander) + ', where ' +
+    other + '. ' +
+    'That is the one pairing here worth answering with more selling rather than a price ' +
+    'change, because the quotes already land and the finished jobs already keep. It says ' +
+    'nothing about how much of that work there is to be sold.';
+}
+
+/**
  * How many decided bids one tool needs on each side of the split.
  *
  * Four, the same floor `MIN_WIN_RATE_PER_TOOL` sets and for the same reason: at
@@ -2056,6 +2237,7 @@ export const BID_PRICING_HELPERS = [
   `var MIN_KEEP_PER_TOOL = ${MIN_KEEP_PER_TOOL};`,
   `var MIN_KEEP_TOOLS = ${MIN_KEEP_TOOLS};`,
   `var KEEP_SPREAD_POINTS = ${KEEP_SPREAD_POINTS};`,
+  `var MIN_MIX_TOOLS = ${MIN_MIX_TOOLS};`,
   `var MIN_TREND_PER_HALF = ${MIN_TREND_PER_HALF};`,
   `var TREND_SPLIT_POINTS = ${TREND_SPLIT_POINTS};`,
   // `trendDetail` calls `bidWaitingDays`, which is not in this bundle: it
@@ -2067,8 +2249,14 @@ export const BID_PRICING_HELPERS = [
   // script includes both, and each bundle then carries the one sentence its own
   // page draws — the hub names the trade that moved, the tool page cannot need
   // to — rather than paying for the other's.
+  // `mixSentence` needs nothing the three readings before it did not already
+  // bring — `bidAmountValue`, `normalizeJobCost`, and the four bars borrowed
+  // from `winRateSentence` and `keepSentence` — which is the point of it
+  // riding in this bundle rather than a new one: it is the two of them
+  // crossed, and crossing them costs the hub no byte it was not already
+  // paying.
   ...[normalizeLostTo, normalizeJobCost, bidAmountValue, pricingSentence, winRateSentence,
-    keepSentence, trendSplit, trendDetail, trendDirection, trendSentence].map(
+    keepSentence, mixSentence, trendSplit, trendDetail, trendDirection, trendSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');

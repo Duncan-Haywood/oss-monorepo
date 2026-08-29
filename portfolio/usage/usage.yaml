@@ -2005,6 +2005,52 @@ products:
           surfaces the returning users of this portfolio actually live on. Still
           a baseline row: the public URL remains owner-gated on
           `deploy-settings`.
+      - as_of: 2026-08-29
+        signals:
+          live_url_visitors: null
+          saved_bid_mix_shown: 0
+          readings_the_hub_now_crosses: 2
+        note: >-
+          Whether the work a contractor wins is the work that pays. The panel
+          could already answer that question twice and had never once asked it:
+          `winRateSentence` names the trade that lands most often,
+          `keepSentence` names the trade that keeps most of what it charges, and
+          a shop reading those two lines one under the other reads two
+          compliments and one complaint. Crossed, the same two numbers say the
+          opposite. On the fixture the browser step drives — Fence landing 4 of
+          5 and keeping 5%, Deck landing 2 of 8 and keeping 28% — the hub now
+          reads "The work you win is not the work that pays", names both trades
+          with both of their figures, and points the price rise at the trade
+          that is *winning* rather than at the one that is losing. That is the
+          shape underpricing takes from the inside, and it is invisible from any
+          single tool page by construction: one tool knows its own win rate and
+          its own kept share, and the finding is that those two disagree between
+          trades. It is the strongest argument yet for the hub carrying a bid
+          panel at all. The mirror branch is drawn too and is a finding rather
+          than a consolation — where the best-landing trade is also the
+          best-keeping one, that is the single pairing on the page worth
+          answering with more selling rather than a price change. Where the two
+          rankings neither clearly oppose nor clearly agree it draws nothing: a
+          hedge would be a line on the busiest page in the site that changes
+          nothing anyone does. Sample bars are borrowed rather than invented —
+          four decided bids for a rate, two costed wins for a share, 40 points
+          of rate gap, 15 points of kept-share gap — and a tool must clear all
+          of them at once, which makes this strictly rarer than either
+          neighbour and is the right price for the one line here that tells
+          someone to raise a price. Never a rate, a margin or a mix to aim for,
+          pinned by the same test over every branch. Percentages and counts
+          only, so a book of dollar and euro jobs compares without a conversion
+          this site does not have; a trade priced in two currencies is dropped
+          rather than converted. The reading to take once live is
+          `saved_bid_mix_shown` against `saved_bid_keep_shown` — how many of
+          the contractors who cost their finished jobs have enough decided bids
+          on the same trades to get the cross, which is what says whether this
+          reading is worth the bar it sets or whether the bar has to come down.
+          Counts are per event and carry no name, no slug, no trade, no figure
+          and not even which of the two branches drew. Same local, aggregate,
+          opt-out and DNT/GPC-respecting path as every other hub event. Still a
+          baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:

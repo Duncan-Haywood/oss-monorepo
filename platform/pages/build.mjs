@@ -1072,9 +1072,10 @@ ${subgroups
     .bids .bid-pricing,
     .bids .bid-win-rate,
     .bids .bid-trend,
-    .bids .bid-keep { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
-                      border-left: 3px solid var(--line); background: var(--bg);
-                      border-radius: 0 8px 8px 0; font-size: .85rem; }
+    .bids .bid-keep,
+    .bids .bid-mix { color: var(--ink); margin: -4px 0 12px; padding: 8px 10px;
+                     border-left: 3px solid var(--line); background: var(--bg);
+                     border-radius: 0 8px 8px 0; font-size: .85rem; }
     .bids li a:has(.bid-state[data-state="won"]) .bid-name,
     .bids li a:has(.bid-state[data-state="lost"]) .bid-name { font-weight: 550; color: var(--muted); }
     .bids .bid-more { margin: 10px 0 0; font-size: .82rem; color: var(--muted); }
@@ -1158,7 +1159,10 @@ ${contents}
         page says how often your quotes are landing, whether that is the same
         across the tools you use or one trade pulling it down, and once a trade
         has a longer history, whether it has been landing differently lately
-        than it used to.
+        than it used to. Add what a won job came to once it was delivered and
+        it also says which of your trades keeps the most of what it charges —
+        and whether that is the same trade your quotes actually land on, which
+        is the one thing no single tool here can tell you.
       </p>
       <!-- The reason to open the hub rather than the tool: how many quotes are
            still out, and how long the oldest has been. Drawn only when there is
@@ -1202,6 +1206,15 @@ ${contents}
            of a bid's own price is unit-free, so trades and currencies compare
            without a conversion. See keepSentence. -->
       <p class="bid-keep" id="bidsKeep" hidden></p>
+      <!-- The two lines above, crossed. Last because it is the only reading
+           here that is a decision rather than a measurement: the rate says
+           which quotes land, the kept share says which finished jobs paid, and
+           a shop whose best-landing trade is its worst-keeping one is being
+           told by both of the lines above to do the wrong thing. Drawn only
+           when the two rankings clearly oppose or clearly agree — a hedge
+           would be a line on the busiest page in the site that changes
+           nothing. See mixSentence. -->
+      <p class="bid-mix" id="bidsMix" hidden></p>
       <ul id="bidsList"></ul>
       <p class="bid-more" id="bidsMore" hidden></p>
     </section>
@@ -1533,6 +1546,7 @@ ${BID_PRICING_HELPERS}
     let winRateShown = '';
     let trendShown = '';
     let keepShown = '';
+    let mixShown = '';
 
     function showSavedBids() {
       const section = document.getElementById('bids');
@@ -1658,6 +1672,25 @@ ${BID_PRICING_HELPERS}
       if (keeping !== '' && keeping !== keepShown) {
         keepShown = keeping;
         record('saved_bid_keep_shown');
+      }
+
+      // Whether the work that lands is the work that pays — the two readings
+      // directly above, crossed. Off the same whole book for the same reason
+      // they are: a mix that changed when the visitor pressed "Show all" would
+      // be telling them to raise a different price each time they looked.
+      const mix = document.getElementById('bidsMix');
+      const mixed = mixSentence(rows);
+      mix.textContent = mixed;
+      mix.hidden = mixed === '';
+      // Counted on change rather than on every render, as every line above is.
+      // record() is already silent under DNT/GPC and the opt-out, and this
+      // carries no name, no slug, no trade, no figure and not even which of
+      // the two branches drew — only that a book here was long enough on both
+      // halves at once to cross them, which is the one thing the reading's
+      // sample bars make worth knowing.
+      if (mixed !== '' && mixed !== mixShown) {
+        mixShown = mixed;
+        record('saved_bid_mix_shown');
       }
 
       const seen = responseWindow(rows);
