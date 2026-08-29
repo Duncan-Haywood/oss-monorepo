@@ -27332,3 +27332,56 @@ entries:
         `contrast.mjs` clean across 443 pages × 2 viewports, and a 22-assertion
         ranking pass in Chromium at 390px covering six queries, the zero-result
         state, catalogue restore, and no horizontal overflow while ranked.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Thirteen of twenty-two typed sentences returned nothing at all.** The
+        hub's matcher ANDs across query words — which is what keeps "ebay return"
+        precise, and what turns a sentence into zero results. Probed with
+        phrasings a visitor would actually type: "new roof estimate", "tree
+        removal quote", "freight class calculator", "snow plowing seasonal
+        contract", "concrete patio cost per square foot", "commercial janitorial
+        square foot price", "charge for a mobile detail" and six more each
+        returned **nothing** while the exact tool sat in the catalogue. One word
+        of the sentence is enough — estimate, quote, class, seasonal, price —
+        and none of them is in any index. Requiring the visitor to guess the
+        indexed keyword is the hub's job, not theirs.
+      - >-
+        When nothing matches every word the strict answer now stands as the none
+        it is, and the page offers the best partial matches instead of a dead
+        end: ranked by the `searchScore` shipped hours earlier in #1974, capped
+        at eight, and labelled "No tool matches every word. Closest N:" —
+        presenting near-misses as matches would be its own wrong answer. Twelve
+        of the thirteen now lead with exactly the right tool. A query no tool
+        answers ("locksmith rekey") keeps the honest empty state.
+      - >-
+        Two constraints on the fallback, both arrived at by measuring a version
+        that was worse. It first also fired when nothing that matched had a
+        query word in its **name**, to catch the sentence matching one tool by
+        coincidence ("how much to charge to install a water heater" returns the
+        boiler calculator, which happens to use all five words somewhere). That
+        demoted "air conditioning" and "asphalt shingles" — both answered
+        exactly, both by *alias*, which has no name word by definition — behind
+        loose matches. A rule that fixes one query and breaks three is not a
+        rule; the trigger is back to "the strict pass found nothing".
+      - >-
+        And the shortlist is scored at a **token boundary** even though both
+        strict passes have just failed. Reusing the loose substring pass for
+        ranking scores "air" inside stair, chair and repair: measured, it put the
+        stair-lift and wheelchair-ramp calculators above the two cooling tools
+        for "air conditioning". The loose pass exists so a half-typed word still
+        matches, which is not the same job as ordering suggestions.
+      - >-
+        Verified locally, the runner outage still standing: 557 platform/pages
+        tests (556 before), build plus `check.mjs` at 164 products / 445 pages
+        with no dead links, `sweep.mjs` 164/164, `journey.mjs` 0 failed checks and
+        0 page/console errors, `contrast.mjs` clean across 443 pages × 2
+        viewports, and a 59-assertion Chromium pass at 390px: five sentences lead
+        with the right tool and are labelled approximate and capped; three exact
+        answers ("air conditioning", "asphalt shingles", "fence") are untouched
+        with no suggestion label; an unanswerable query keeps the empty state;
+        the full 164-card catalogue order is restored on clear. The 48
+        single-word queries from #1974 return byte-identical results — the
+        fallback is a no-op for a one-word query by construction.

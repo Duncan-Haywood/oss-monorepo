@@ -1065,6 +1065,7 @@ ${subgroups
                     border: 1px solid var(--line); border-radius: 9px;
                     background: var(--panel); color: var(--ink); }
     .count { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
+    .closest { font-size: .85rem; color: var(--ink); margin: 6px 0 0; max-width: 520px; }
     /* Multi-column rather than grid: one section holds eight sub-groups and the
        rest hold none, and grid would size every cell in the row to that tallest
        one, leaving four columns of white space beside it. Columns just flow. */
@@ -1227,6 +1228,7 @@ ${subgroups
       <input id="q" type="search" placeholder="eBay fees, tile backsplash, freight, VAT…"
              autocomplete="off" spellcheck="false">
       <p class="count" id="count"></p>
+      <p class="closest" id="closest" hidden></p>
     </div>
 
 ${contents}
@@ -1359,7 +1361,12 @@ ${DISCLAIMER_HTML}
     const q = document.getElementById('q');
     const count = document.getElementById('count');
     const empty = document.getElementById('empty');
+    const closest = document.getElementById('closest');
     const contents = document.getElementById('contents');
+    // How many near-misses to offer when nothing matches every word. Enough to
+    // be a real second chance on a phone, short enough that the list is still
+    // a suggestion rather than the catalogue back again.
+    const CLOSEST_LIMIT = 8;
     const cards = [...document.querySelectorAll('.card')];
     // Sub-groups and their parent sections both empty out on a query. Each is
     // decided from its own descendant cards, so one flat list covers both and
@@ -1474,6 +1481,53 @@ ${DISCLAIMER_HTML}
             : 0,
         );
       }
+      // Every word has to hit, which is what keeps a two-word query precise —
+      // and what turns a typed sentence into nothing at all. "new roof
+      // estimate", "tree removal quote" and "freight class calculator" each
+      // returned zero against the built site while the tool sat there, because
+      // one word of the sentence ("estimate", "quote", "class") is not in any
+      // index. People type sentences; requiring the visitor to guess the
+      // keyword is the hub's job, not theirs.
+      //
+      // So when nothing matches every word, keep the strict pass as the answer
+      // it is — none — and offer the best partial matches instead of a dead
+      // end. Ranked by the same function, capped, and labelled as approximate:
+      // showing sixty loosely-related tools under the visitor's exact words
+      // would be its own kind of wrong answer.
+      //
+      // Only when the strict pass found nothing. An earlier version also fired
+      // when nothing that matched had a query word in its name, to catch the
+      // sentence that matches one tool by coincidence ("how much to charge to
+      // install a water heater" returns the boiler calculator, which happens to
+      // use all five words). It cost more than it bought: an alias hit is a
+      // curated signal and has no name word by definition, so "air
+      // conditioning" and "asphalt shingles" — both answered exactly, both by
+      // alias — were demoted behind loose matches. A rule that fixes one query
+      // and breaks three is not a rule.
+      //
+      // Scored at a token boundary even though the strict passes have both
+      // just failed. The loose pass exists so a half-typed word still matches;
+      // reused for ranking it scores "air" inside "stair", "chair" and
+      // "repair", which is how a suggestion list fills up with the wrong trade.
+      let closestFor = 0;
+      if (forms.length && shown === 0) {
+        const partial = cards
+          .map((card) => ({
+            card,
+            value: searchScore(card.dataset.name || '', card.dataset.search, forms, true),
+          }))
+          // A whole word has to land somewhere. Below that the score is only
+          // the name-length tie-break, which every card has and which means
+          // nothing on its own.
+          .filter(({ value }) => value >= 1)
+          .sort((a, b) => b.value - a.value)
+          .slice(0, CLOSEST_LIMIT);
+        for (const { card, value } of partial) {
+          card.hidden = false;
+          score.set(card, value);
+        }
+        closestFor = partial.length;
+      }
       for (const group of groups) {
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
       }
@@ -1491,8 +1545,17 @@ ${DISCLAIMER_HTML}
         restore();
         ranked = false;
       }
-      empty.style.display = shown === 0 ? 'block' : 'none';
-      count.textContent = forms.length ? shown + ' of ' + total + ' tools' : total + ' tools';
+      // The dead end stays a dead end only when even the partial pass found
+      // nothing — "wifi" and "locksmith" match no tool here, and saying so is
+      // the honest answer.
+      empty.style.display = shown === 0 && closestFor === 0 ? 'block' : 'none';
+      closest.hidden = closestFor === 0;
+      closest.textContent = closestFor === 0
+        ? ''
+        : 'No tool matches every word. Closest ' + closestFor + ':';
+      count.textContent = !forms.length
+        ? total + ' tools'
+        : (closestFor || shown) + ' of ' + total + ' tools';
       // The contents index answers "where is my section"; a query has already
       // answered it. Leaving it up would also lie, since its counts are of the
       // whole catalogue and the page below is filtered.

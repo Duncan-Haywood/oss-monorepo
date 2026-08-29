@@ -295,6 +295,50 @@ written in the trade's vocabulary (`reroof`, `squares`, `pitch`, `tear-off`)
 and never in the material's. Same for `grass` against the sod and lawn-care
 tools, `dumpster` against junk removal, and `ac` against the two cooling tools.
 
+### The dead end a typed sentence used to hit
+
+The matcher ANDs across query words, which is what keeps `ebay return` precise
+— and what turns a sentence into nothing at all. Probed with 22 phrasings a
+visitor would actually type, **13 returned zero results** while the right tool
+sat there, because one word of the sentence is in no index:
+
+| Query | Before | Now leads with |
+|---|---|---|
+| `new roof estimate` | *nothing* | Roofing Bid Calculator |
+| `tree removal quote` | *nothing* | Tree Service Bid Calculator |
+| `freight class calculator` | *nothing* | LTL Freight Class Estimator |
+| `snow plowing seasonal contract` | *nothing* | Snow Removal Bid Calculator |
+| `concrete patio cost per square foot` | *nothing* | Concrete Bid Calculator |
+| `commercial janitorial square foot price` | *nothing* | Janitorial Bid Calculator |
+| `charge for a mobile detail` | *nothing* | Mobile Detailing Bid Calculator |
+
+`estimate`, `quote`, `class`, `seasonal`, `price` — one such word is enough.
+Requiring the visitor to guess the indexed keyword is the hub's job, not
+theirs.
+
+So when nothing matches every word, the strict answer stands as the none it is
+and the page offers the best partial matches instead of a dead end: scored by
+`searchScore`, capped at `CLOSEST_LIMIT` (8), and labelled **"No tool matches
+every word. Closest N:"** — presenting near-misses as matches would be its own
+wrong answer. A query no tool answers (`locksmith rekey`) keeps the honest
+empty state.
+
+Two constraints on that fallback, both of them measured rather than assumed:
+
+- **Only when the strict pass found nothing.** An earlier version also fired
+  when nothing that matched had a query word in its *name*, to catch the
+  sentence that matches one tool by coincidence (`how much to charge to install
+  a water heater` returns the boiler calculator, which happens to use all five
+  words). It cost more than it bought: an alias hit is a curated signal and has
+  no name word by definition, so `air conditioning` and `asphalt shingles` —
+  both answered exactly, both by alias — were demoted behind loose matches. A
+  rule that fixes one query and breaks three is not a rule.
+- **Scored at a token boundary**, even though both strict passes have just
+  failed. The loose substring pass exists so a half-typed word still matches;
+  reused for ranking it scores `air` inside *stair*, *chair* and *repair*, and
+  the shortlist fills with the wrong trade — measured, it put the stair-lift
+  and wheelchair-ramp calculators above the two cooling tools.
+
 An alias key is matched against the slug's `-`-separated words as a contiguous
 run, not as a raw substring. That is a fix, not a refinement: a substring test
 reads the slug as one string and cannot see where a word starts, and
