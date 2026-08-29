@@ -1800,10 +1800,10 @@ test('the hub carries the winning price its pricing reading is computed from', a
 test('the hub draws the pooled pricing reading, and counts it once per change', async () => {
   const hub = await read('index.html');
   assert.match(hub, /<p class="bid-pricing" id="bidsPricing" hidden><\/p>/);
-  // One rule for all four standing readings, so the pricing line and the three
+  // One rule for all five standing readings, so the pricing line and the four
   // beneath it cannot drift apart visually.
   assert.match(hub,
-    /\.bids \.bid-pricing,\s*\.bids \.bid-win-rate,\s*\.bids \.bid-trend,\s*\.bids \.bid-keep \{/);
+    /\.bids \.bid-pricing,\s*\.bids \.bid-win-rate,\s*\.bids \.bid-trend,\s*\.bids \.bid-keep,\s*\.bids \.bid-mix \{/);
   const script = hub.slice(hub.indexOf('function showSavedBids'));
   // Read off every row, not the eight drawn — otherwise the reading would
   // change when the visitor pressed "Show all".
@@ -1870,6 +1870,28 @@ test('the hub draws which trade keeps most, and counts it once per change', asyn
   // The body the hub runs is the tested one, embedded rather than rewritten.
   assert.ok(hub.includes('var keepSentence = function keepSentence('),
     'keepSentence is not embedded in the hub');
+});
+
+test('the hub crosses the win rate with the kept share, and counts it once per change', async () => {
+  const hub = await read('index.html');
+  assert.match(hub, /<p class="bid-mix" id="bidsMix" hidden><\/p>/);
+  // Under the two lines it is drawn from, because it is the answer to the
+  // question those two raise together and reads as a non sequitur above them.
+  assert.ok(hub.indexOf('id="bidsMix"') > hub.indexOf('id="bidsKeep"'), 'drawn above its inputs');
+  const script = hub.slice(hub.indexOf('function showSavedBids'));
+  // Off every row, for the reason every reading above it is: a mix that moved
+  // when the visitor pressed "Show all" would be telling them to raise a
+  // different price each time they looked.
+  assert.match(script, /const mixed = mixSentence\(rows\)/);
+  assert.match(script, /mix\.hidden = mixed === ''/);
+  // Counted on change, and the event names no trade and not even which of the
+  // two branches drew — only that a book was long enough on both halves at
+  // once to cross them.
+  assert.match(script, /record\('saved_bid_mix_shown'\)/);
+  assert.ok(!/record\('saved_bid_mix_shown:' ?\+/.test(script), 'the event names nothing');
+  // The body the hub runs is the tested one, embedded rather than rewritten.
+  assert.ok(hub.includes('var mixSentence = function mixSentence('),
+    'mixSentence is not embedded in the hub');
 });
 
 test('the hub draws whether a trade has been landing differently, on every row', async () => {
