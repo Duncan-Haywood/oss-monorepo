@@ -27140,3 +27140,49 @@ entries:
         two repo CI checks, and the full `journey.mjs` browser run at 0 failed
         checks — including a new step 6bx that proves this reading's label
         round trip and its counter in a real Chromium against the built site.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Named the narrowest point in this feature's money funnel instead of
+        going quiet at it. Every money reading built here in the last week —
+        `marginSentence` on the tool page, `keepSentence` and `mixSentence` on
+        the hub — stands on one input no calculation can supply: what the job
+        came to once it was delivered. It is the only field a contractor has to
+        come back *after* the work to fill in, it is optional, and nothing in
+        the product mentioned it, so a book with six uncosted wins looked like a
+        tool with nothing to offer rather than one waiting on a number.
+        `costGapSentence` says which: "None of the 3 jobs you have won here
+        carry what they came to once they were delivered. Put that figure in the
+        box beside 3 more of them and this panel starts saying what your
+        finished work actually kept."
+      - >-
+        The second branch fixes a live misreading rather than a silence. A kept
+        figure pooled over four costed jobs, printed where five uncosted ones
+        sit in the same list, is read as the whole book: "Of the 4 jobs you have
+        won here, 3 carry what they came to and 1 do not. A kept figure can only
+        be drawn from the 3 — the rest are missing from it rather than averaged
+        into it." `marginSentence`'s own honest half can say the costs are only
+        as good as the job costing; only a count can say how many jobs are not
+        in them at all.
+      - >-
+        A prompt and not a banner, by three rules: it asks for exactly what the
+        reading still needs rather than for every row, it never appears where
+        costing every won job would still not reach the floor — promising a
+        reading the book cannot support is worse than silence — and it
+        disappears the moment the last won job carries a cost. No money figure
+        in any branch, so it is safe on a book priced in two currencies, and no
+        share to aim for. `bid_cost_gap_shown` against `bid_cost_set` makes the
+        funnel measurable for the first time.
+      - >-
+        Verified locally, the runner outage still standing (`runner_id=0`,
+        `runner_name=""`, 3-second jobs on this PR and on every recent
+        `Portfolio validate` run on `main`): 548 platform/pages tests (8 new),
+        the artifact at 164 products / 445 pages with no dead links,
+        `clauses.mjs` over 442 pages, `validate_usage.py` and its 14 unit tests,
+        four repo CI checks, `sweep.mjs` at 164/164 tools answering with no
+        errors, and `journey.mjs` at 0 failed checks — its cost step extended
+        rather than duplicated, so one browser fixture now walks all three
+        states: the ask appearing, going away when answered, and the blind-spot
+        branch drawn beside a live margin.
