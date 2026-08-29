@@ -28739,3 +28739,60 @@ entries:
         `CLAUDE.md` warns about. No branch touching `gitops/agents/` exists,
         so #2015 had no competing implementation.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Same local-draft bug as #2012, found in three more calculators
+        before it shipped elsewhere.** #2012 fixed `concrete-bid-calculator`'s
+        "Save draft" silently dropping the deposit split, valid-until days,
+        customer name/address, and payment-terms/notes/exclusions text --
+        reopening a saved draft restored the exact price while the deposit
+        and customer info reverted to page defaults, with nothing on screen
+        saying so. Rather than treat that as closed, scanned all ~100
+        ventures sharing the `CLIENT_IDS`/`TERM_IDS` proposal-terms pattern
+        for the same defect. Three more had it, unfixed:
+        `water-heater-bid-calculator`, `standby-generator-bid-calculator`,
+        `ev-charger-bid-calculator` (#2017, merged). Each saves/restores only
+        the calculator's own pricing inputs to/from `localStorage`; the
+        customer/deposit/terms fields on the same form were never part of
+        that payload.
+      - >-
+        Fix folds `CLIENT_IDS`/`TERM_IDS` into the saved draft (as a
+        `proposal` sub-object, matching #2012's shape) and restores them on
+        load -- but only from a local draft, not a share link: share links
+        already carry `TERM_IDS` via `proposal-terms.mjs` and deliberately
+        never carry `CLIENT_IDS` (customer name/address) for privacy, and
+        that split is preserved rather than flattened. Also wired an `input`
+        listener directly on the client/term fields, since these three
+        calculators autosave via the calculator's own `update()`, which only
+        fires on pricing-input changes -- without it, editing only the
+        deposit or customer name would still save nothing.
+      - >-
+        Re-scanned the same ~100-venture set after the fix: these three were
+        the only ones with a local `DRAFT_KEY` save/restore missing the
+        fields. Everything else either has no local draft feature or already
+        carries the fields through it -- this closes the bug class rather
+        than leaving siblings for a future session to rediscover one at a
+        time.
+      - >-
+        Verified locally: added one regression test per calculator (mirroring
+        #2012's), full ventures suite 11783/11783 passing,
+        `platform/pages/build.mjs` + `check.mjs` clean (164 products, 446
+        pages, no dead links). PR #2017's checks were the known no-runner
+        outage -- confirmed via the jobs API (3s duration, log download
+        404s) rather than inferred from timing alone -- so merged on local
+        verification per `CLAUDE.md`.
+      - >-
+        Also checked this run: 0 open PRs at start (3-PR quota satisfied
+        trivially, per the "if none exist" branch). The Hetzner Codex-runner
+        (#1996/#2000) and Hetzner-site (`prod/portfolio-site.yaml`) asks a
+        prior session confirmed current ~20 minutes earlier were not
+        re-verified -- both remain fully built and owner-blocked only on
+        credential/account actions (OpenAI org + spend limit, an interactive
+        `codex login`, a DNS record, a scoped repo token, a real ACME
+        contact) that no session can complete from here; re-deriving that
+        finding would have been the duplicated work `CLAUDE.md` warns
+        against.
+    mrr_end: null
