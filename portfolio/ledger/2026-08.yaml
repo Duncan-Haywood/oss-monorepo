@@ -28959,3 +28959,63 @@ entries:
         this run's CI work; the agent proxy also blocks `marisstella.dev`
         and `github.io`, so no public route could be verified from here.
     mrr_end: null
+  - venture: payment-reconciliation-workbench
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged #2027: `#tolerance` sat outside a `<form>`, so pressing Enter
+        after adjusting it (having already run a reconciliation once) left
+        the review queue showing matches from the old tolerance with no
+        sign they were stale -- the exact bug shape #2024/#2025 fixed in
+        the hvac-maintenance-contract-calculator sibling, which named this
+        venture as a follow-up. Extracted the click handler into a shared
+        `run()` called by both the button and a new Enter-key listener.
+        Verified: venture suite 20/20 (1 new), platform/pages rebuild still
+        164 tools, and manually reproduced fixed in headless Chromium
+        (served over http://, module scripts need a real origin) --
+        widening tolerance 3→10 and pressing Enter moved a previously
+        date-tolerance-rejected payout from unmatched to matched.
+      - >-
+        Checked `tender-bid-readiness`, the other sibling named in the same
+        follow-up note, and left it alone: its only input is a `<textarea>`
+        where Enter is a normal newline, not a swallowed submit. Adding a
+        handler there would break multi-line paste editing -- not every
+        instance of "a sibling venture with number inputs" is this bug.
+      - >-
+        No open PRs existed at run start (`list_pull_requests` and
+        `search_pull_requests` both returned zero), so the mandate's
+        three-PR merge quota resolved to "none to process." 279 branches
+        exist with no PR; #829's own sweep already documented this as
+        ~99% landed-or-abandoned noise, and a prior session
+        (see the CI-outage entry above) sampled six of them and found
+        each superseded under a different filename or mechanism. Did not
+        re-sample the pile further given that standing evidence -- see
+        `branch-cleanup-automation` in the decision queue for the base
+        rate.
+      - >-
+        This session's brief also asked specifically about CI/CD,
+        deploying marketing/portfolio materials on the Hetzner boxes, and
+        setting up Codex CLI there to spend a subscription's built-in
+        quota on unattended dev work. All three are already fully built
+        and already have PRs open against them (`codex-governor-enable`
+        #1996, `agent-runner-subscription-login` #2000,
+        `portfolio-site-hetzner-deploy` #1999, CI restore per
+        `actions-runners-unavailable` #1842) -- every remaining step for
+        all three is owner-only (mint/seal a GitHub PAT with
+        Administration:Read/write for the CI runner; create a separate
+        OpenAI org with a hard spend limit, or run `codex login`
+        interactively on the Hetzner box for the subscription-quota path;
+        seal `codex-secrets`; mint and seal a repo-scoped clone token and
+        set a real ACME contact email for the Hetzner portfolio-site
+        Ingress). No agent session can create the accounts, complete the
+        interactive OAuth login, or hold the resulting tokens. Confirmed
+        the CI outage is still live as of today (2026-08-29): the most
+        recent `Claude routine trigger` workflow run on `main` still
+        completed with `conclusion: failure`. Did not attempt to verify
+        the Hetzner site's TLS certificate state (the one remaining
+        non-owner step, flipping the cert-manager issuer to prod) --
+        this session's egress reaches `tools.marisstella.dev` only via
+        the agent proxy, which returned a 403 on the CONNECT tunnel, same
+        restriction a prior session already recorded.
+    mrr_end: null
