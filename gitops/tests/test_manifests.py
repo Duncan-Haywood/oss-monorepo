@@ -135,6 +135,44 @@ def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
     assert ingress["spec"]["tls"][0]["hosts"] == hosts
 
 
+def test_portfolio_site_types_es_modules_as_javascript() -> None:
+    # nginx's mime.types has no .mjs entry (verified against 1.24: it maps
+    # `js` and nothing else), so .mjs falls through to
+    # default_type application/octet-stream — and a browser refuses to
+    # execute an ES module with a non-JavaScript MIME type, which the
+    # nosniff header below makes absolute. The site ships 551 .mjs files
+    # loaded with <script type="module"> on 261 pages, so without this the
+    # calculators render and silently do not compute. GitHub Pages types
+    # .mjs correctly, which is why this never showed on that host.
+    conf = _portfolio_site()["ConfigMap"]["data"]["default.conf"]
+    # An empty `types { }` immediately before the default_type is
+    # load-bearing, so assert the adjacency rather than the two parts: a
+    # POPULATED types block in this context replaces the inherited mime map
+    # instead of extending it, stripping the content type off every other
+    # file on the site.
+    for suffix, mime in ((r"\.mjs$", "text/javascript"), (r"\.webmanifest$", "application/manifest+json")):
+        block = f"location ~ {suffix} {{\n    types {{ }}\n    default_type {mime};"
+        assert block in conf, f"missing or reordered: {suffix} -> {mime}"
+
+
+def _location_blocks(conf: str) -> list[str]:
+    """Split on locations at their real indentation, so prose mentioning the
+    word 'location' in a comment does not read as a block."""
+    return conf.split("\n  location ")[1:]
+
+
+def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
+    # add_header does not merge across levels: a location setting any
+    # add_header drops all of them inherited from the server block. So a
+    # location that sets Cache-Control silently loses nosniff unless it
+    # restates it — which is exactly how the .mjs fix could have opened a
+    # hole while closing one.
+    blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
+    assert len(blocks) == 4, [b.splitlines()[0] for b in blocks]
+    for block in blocks:
+        assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
+
+
 def test_portfolio_site_starts_on_the_staging_certificate_issuer() -> None:
     # Argo auto-syncs prod, so this Ingress exists before DNS for its host
     # does. Against the prod issuer, challenges that cannot resolve burn
