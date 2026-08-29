@@ -29127,3 +29127,55 @@ entries:
         the known outage signature, not a regression -- so merged on local
         verification per CLAUDE.md.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Merged #2033: added the missing "how much to charge" SEO landing
+        page to 11 of 102 `*-bid-calculator` ventures** (ev-charger,
+        flooring, hood-cleaning, mobile-detailing, moving, pest-control,
+        pressure-washing, security-camera, snow-removal,
+        standby-generator, water-heater). 91 siblings already ship a
+        dedicated page answering their niche's core search question
+        (`how-much-to-charge.html`, `FAQPage` JSON-LD, its own title/meta)
+        per `PRODUCT_PLAYBOOK.md`'s discoverability checklist; found the
+        gap by diffing which `*-bid-calculator` directories have a second
+        `.html` file against which don't.
+      - >-
+        Each new page reuses the venture's own already-reviewed `FAQPage`
+        Q&A verbatim (most of the 11 already carried one on `index.html`
+        itself, just never on a dedicated URL) and copies that venture's
+        own no-warranty clause word-for-word, so the disclaimer cannot
+        drift between the calculator and its companion page. Wired into
+        each calculator's header (`seo-link` link + CSS rule matching
+        every sibling), `sitemap.xml`, and README. Caught one self-made
+        bug before merge: a hand-typed `FAQPage` JSON-LD block on the
+        mobile-detailing page was missing a closing brace between two
+        `Question` entries -- `platform/pages/check.mjs` flagged it as
+        invalid JSON on the first rebuild, which is exactly the kind of
+        defect that check exists to catch.
+      - >-
+        Verified locally, not on CI (still the 2026-08-26+ runner-outage
+        window): all 11 ventures' full suites green (782 tests, 0
+        failures), full `platform/pages` suite 642/642, a rebuild via
+        `node platform/pages/build.mjs` producing 457 pages (up from 446)
+        with `check.mjs` reporting no dead links, `clauses.mjs` confirming
+        every page in the 11 ventures carries the no-warranty clause, and
+        both the calculator and its new page returning 200 from a local
+        static server for all 11.
+      - >-
+        Investigated two other candidate fleet-wide bug classes first and
+        ruled both out as already fully fixed, worth recording so a future
+        session doesn't re-run the same audit: (1) the "local draft drops
+        deposit/proposal terms" defect (#2012, #2017) only ever affected
+        the 5 ventures using a `DRAFT_KEY` pattern, all already fixed or
+        not applicable; (2) a naive regex diff of each `share.mjs`
+        `SHARE_FIELDS` allowlist against each calculator's real input IDs
+        initially flagged several ventures as dropping fields from shared
+        links, but every flag was a parsing artifact -- JS comments
+        containing possessive apostrophes (`"the recipient's page"`) broke
+        a single-quote-delimited regex. Stripping comments before matching
+        found zero real gaps across the ~100 ventures using either
+        `share.mjs` pattern.
+    mrr_end: null
