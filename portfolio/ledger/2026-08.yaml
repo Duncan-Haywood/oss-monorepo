@@ -27947,3 +27947,47 @@ entries:
         Both of this session's duplicates were dropped rather than merged, and
         what is left is the half #1986 named as remaining.
     mrr_end: null
+  - venture: platform/pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **A picker that ate the takeoff, on 40 of 65 tools.** `presets.mjs` is a
+        new browser probe asking what none of the other four ask: when the
+        contractor picks the placeholder *back*, does the form survive? It does
+        not. Measured in Chromium on `metal-roof-bid-calculator`: choose a
+        starting job, replace the numbers with your own takeoff (77 × 41,
+        **$39,125.74**), reopen the dropdown, select "Choose a starting job…" —
+        and the takeoff is gone, replaced by the first worked example at
+        **$11,097.21**. No warning, no undo, and the page looks exactly as
+        healthy afterwards. `foundation-repair` lost $24,365 → $9,489,
+        `spray-foam` $20,842 → $10,979, `mold-remediation` $9,093 → $1,724.
+      - >-
+        **One expression, 102 call sites, 63 pages.** `JOB_PRESETS[Number(select.value)]`
+        followed by `if (!preset) return;` — and `Number('')` is **0**, so "no
+        job chosen" resolves to the first preset in the list and the guard never
+        fires. The tools spelling it `if (select.value === '') return;` were
+        always correct. The two spellings look alike and behave completely
+        differently, which is why this needed a browser rather than a reading:
+        nothing about the dangerous one is visible at the call site. Written now
+        as `presets.value === '' ? null : JOB_PRESETS[…]`, so the hazard is
+        legible where it lives.
+      - >-
+        **The read sites are why the fix is 102 and not 40.** `copySummary` uses
+        the same lookup for the *title* of the bid a contractor copies, so with
+        the placeholder selected it named a preset they had not chosen. That half
+        is invisible to this probe, which only drives the picker — a probe's
+        finding is a symptom of the cause, not its boundary.
+      - >-
+        The probe finds pickers **structurally** — a select with an empty-valued
+        option whose real options rewrite the form — rather than by name, so a
+        tool landing tomorrow with a differently-named picker is covered on the
+        day it lands. `standby-generator`'s `presetKw` was caught by exactly
+        that, never having been named anywhere in the file.
+      - >-
+        Verified locally, the runner outage still standing: `presets.mjs`
+        **65/65** against 25/65 before, 12,496 node tests, build plus `check.mjs`
+        at 164 products / 446 pages with no dead links, the five
+        portfolio-validate checks, `sweep.mjs` 164/164 and `roundtrip.mjs`
+        128/128 both unchanged.
+    mrr_end: null

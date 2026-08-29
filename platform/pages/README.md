@@ -10,10 +10,11 @@ node platform/pages/check.mjs dist                # check the artifact
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
-Then, in a browser, the four checks CI cannot run — `journey.mjs` (the customer
+Then, in a browser, the five checks CI cannot run — `journey.mjs` (the customer
 journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
-every page be read and reached), and `roundtrip.mjs` (does a shared bid arrive as
-the bid that was sent). See [Driving the customer
+every page be read and reached), `roundtrip.mjs` (does a shared bid arrive as
+the bid that was sent), and `presets.mjs` (does picking "no preset" leave the
+takeoff alone). See [Driving the customer
 journey](#driving-the-customer-journey).
 
 Then serve it and click around:
@@ -1395,27 +1396,87 @@ than left as prose because a probe reporting 39 known-benign failures is a probe
 whose fortieth, real one goes unread — 88/128 became 124/128 with nothing hidden
 that moves a number.
 
-**What the four remaining failures are**, as of 2026-08-29, all one shape and
-none yet decided:
+**The four that remained after that** were one shape, and are closed (#1987).
+Each was a preset select on a form whose numbers no longer matched any preset —
+exactly the state this probe creates by perturbing every input. Two answered
+honestly (`other`, `none`) and two named a *different specific thing* (`22`,
+index `0`) rather than admitting no preset applied:
 
-| tool | field | what the recipient sees |
-|---|---|---|
-| `standby-generator` | `presetKw 10→22` | `generatorKw` carried; the select fell back to `GENERATOR_PRESETS[3]` |
-| `parking-lot-striping` | `jobPresets 1→0` | the fields carried; the select has no "no preset" option and defaults to index 0 |
-| `drywall` | `textureType orange-peel→none` | the texture hours carried; the select re-derives and finds no match |
-| `attic-insulation`, `drywall` | `proposalScope` | a cascade — the draft regenerates naming the handed-back label |
+| tool | field | what the recipient saw | how it was closed |
+|---|---|---|---|
+| `drywall` | `boardType`, `textureType` | the rates carried; the select re-derived and found no match, so the customer's proposal named neither the board nor the texture (`textureLabel`) | the ids now ride in the share allowlist |
+| `attic-insulation` | `productType` | the same, cascading into the drafted scope: "blow **blown fiberglass** over 1,120 sq ft" became "blow insulation over 1,120 sq ft" | as above |
+| `siding` | `materialType` | "Other / custom rates" over the sender's fiber cement | as above |
+| `standby-generator` | `presetKw 10→22` | `generatorKw` carried; the select fell back to `GENERATOR_PRESETS[3]` — so typing 17 kW made it read "22 kW" with no link involved at all | a "Custom size" state, re-synced from the kW field both ways |
 
-Each is a preset select on a form whose numbers no longer match any preset,
-which is exactly the state this probe creates by perturbing every input. Two of
-them answer honestly (`other`, `none`); two name a *different specific thing*
-(`22`, index `0`) rather than admitting no preset applies. `drywall` puts that
-label on the customer's proposal (`textureLabel`, index.html:706), so it is the
-one worth reading first. Adding a neutral "custom" option to the two selects that
-lack one would close all four, including the scope cascade — small, per-venture,
-and not yet done.
+Carrying a preset id is only safe the way `applySharedChoice` does it: validated
+against the options that page offers, and assigned **without** dispatching
+`change`. Dispatching re-stamps the preset's own rates and would replace the
+sender's typed price with the venture's ballpark — the defect #1984 repaired on
+`amazon-fba-calculator`. That distinction is the whole reason the exemption above
+and these four fixes can both be right: a picker whose label is *scaffolding*
+should hand back its placeholder, and one whose label *names the work on a
+customer's document* has to travel.
+
+The run has been **128/128** since #1987 — the first clean pass across every
+share link on the site.
 
 Not in CI, for the same reason as `sweep.mjs` and `contrast.mjs`: Playwright is
 not a dependency of this repo.
+
+### Checking a picker does not eat the takeoff
+
+`presets.mjs` asks what none of the other probes do: **when the contractor picks
+the placeholder back, does the form survive?**
+
+```bash
+node platform/pages/presets.mjs   # same BASE_URL / PLAYWRIGHT / CHROME_PATH / DIST env vars
+node platform/pages/presets.mjs metal-roof-bid-calculator   # or just these tools
+```
+
+For each select carrying an empty-valued option: choose a real option, type a
+takeoff over the figures it stamps, then choose the placeholder — and require
+that nothing but the select itself moves.
+
+It found data loss on **40 of 65 pickers** on its first run (2026-08-29). One
+expression, repeated across the family:
+
+```js
+const preset = JOB_PRESETS[Number(select.value)];
+if (!preset) return;
+```
+
+`Number('')` is **0**, so "no job chosen" resolves to the *first preset in the
+list* and the guard never fires. Measured in Chromium on
+`metal-roof-bid-calculator`: a roofer chooses a starting job, replaces the
+numbers with their own takeoff (77 × 41, **$39,125.74**), reopens the dropdown
+and selects "Choose a starting job…" — and the takeoff is gone, replaced by the
+worked example at **$11,097.21**. No warning, no undo, and the page looks exactly
+as healthy afterwards. `foundation-repair` lost $24,365 → $9,489,
+`spray-foam` $20,842 → $10,979, `mold-remediation` $9,093 → $1,724.
+
+The tools that spell the guard `if (select.value === '') return;` were always
+correct. The two spellings look alike and behave completely differently, which is
+why this needed a browser rather than a reading: the difference is invisible at
+the call site, and 63 pages carried the dangerous one at 102 call sites. It is
+now written so the danger is legible where it lives:
+
+```js
+const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+```
+
+The read sites matter as much as the change handlers, and are why the fix covers
+all 102 rather than the 40 the probe flags: `copySummary` uses the same lookup
+for the bid's *title*, so with the placeholder selected it titled a contractor's
+summary with a preset they had not chosen. That half is invisible to this probe,
+which only drives the picker.
+
+The probe finds pickers **structurally** — a select with an empty-valued option
+whose real options rewrite the form — rather than by name, so a new tool with a
+differently-named picker is covered on the day it lands. `standby-generator`'s
+`presetKw` was caught by exactly that, without ever being named.
+
+Not in CI, for the same reason as the three above.
 
 ## Deploying
 
