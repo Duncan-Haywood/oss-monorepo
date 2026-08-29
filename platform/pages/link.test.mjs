@@ -388,3 +388,69 @@ test('no bid link on the page whose form is the shop\u2019s cost structure', () 
   assert.equal(linked, html);
   assert.doesNotMatch(linked, /Copy link to this bid/);
 });
+
+// ---------------------------------------------------------------------------
+// A value the cap turned away is named, not silently dropped
+// ---------------------------------------------------------------------------
+//
+// The regression: `security-camera-bid-calculator` generates a proposal scope
+// draft from the priced job that runs past MAX_LINK_VALUE, so the encoder set
+// it aside — rightly, a fragment is not the place for prose. The decoder then
+// found one control on the form the link did not mention, read that as a link
+// written by a different tool, and refused the whole bid. Every link the page
+// itself wrote was refused, on the one tool whose scope text is long enough.
+// Driven in Chromium: 33 of 43 fields stayed at their defaults and the headline
+// read $7,440 against the sender's $2,768, under a note telling the recipient to
+// ask the sender what tool they had used.
+
+test('an over-long value is named in the payload rather than vanishing', () => {
+  const scope = 'x'.repeat(MAX_LINK_VALUE + 1);
+  const decoded = decodeBidLink('#' + encodeBidLink({ fields: { lengthFt: '14', proposalScope: scope } }));
+  assert.deepEqual(decoded.fields, { lengthFt: '14' });
+  assert.deepEqual(decoded.omitted, ['proposalScope']);
+});
+
+test('nothing is named when everything fits, so a link stays as small as it was', () => {
+  const decoded = decodeBidLink('#' + encodeBidLink({ fields: { lengthFt: '14', note: 'short' } }));
+  assert.equal('omitted' in decoded, false);
+});
+
+test('a field dropped for any other reason is still not named', () => {
+  // A number, a null, an object: those are not values a control can hold, so
+  // they were never carriable and naming them would tell the recipient the
+  // sender had a field they do not.
+  const decoded = decodeBidLink('#' + encodeBidLink({ fields: { lengthFt: '14', bad: 7, worse: null } }));
+  assert.equal('omitted' in decoded, false);
+});
+
+test('an omitted name from a stranger is validated like any other id', () => {
+  const fragment = BID_LINK_PREFIX + encodeURIComponent(JSON.stringify({
+    v: 1,
+    f: { lengthFt: '14' },
+    o: ['proposalScope', 'pf-bid-name', 'usageOptOut', 42, ''],
+  }));
+  assert.deepEqual(decodeBidLink('#' + fragment).omitted, ['proposalScope']);
+});
+
+test('a payload whose omitted list is junk is read as naming nothing', () => {
+  for (const value of ['proposalScope', 7, {}, null]) {
+    const fragment = BID_LINK_PREFIX + encodeURIComponent(JSON.stringify({ v: 1, f: { lengthFt: '14' }, o: value }));
+    assert.equal('omitted' in decodeBidLink('#' + fragment), false);
+  }
+});
+
+test('the browser bundle carries the helper the encoder now calls', () => {
+  assert.match(BID_LINK_HELPERS, /var omittedForLength = /);
+  assert.match(BID_LINK_HELPERS, /var MAX_LINK_VALUE = /);
+});
+
+test('the page script treats a named omission as accounted for, not as a mismatch', () => {
+  // The other half of the same defect. `decodeBidLink` can name the field and
+  // the guard can still refuse the link, which is exactly what happened; the
+  // fix is only real if the browser adds those names to the link side before
+  // it compares. Asserted against the emitted source because this branch runs
+  // in a page, and the browser pass in the PR is what exercises it end to end.
+  const source = renderBidLinkModule();
+  assert.match(source, /var skipped = incoming\.omitted \|\| \[\];/);
+  assert.match(source, /for \(var s = 0; s < skipped\.length; s\+\+\) link\[skipped\[s\]\] = 1;/);
+});

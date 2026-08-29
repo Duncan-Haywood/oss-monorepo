@@ -12,8 +12,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { decodeInputs, encodeInputs } from "./share.mjs";
-import { FULFILLMENT_VALUES, INPUT_FIELDS, TOGGLE_FIELDS } from "./calc.mjs";
+import { decodeInputs, encodeInputs, ENUM_FIELDS } from "./share.mjs";
+import { FULFILLMENT_VALUES, INPUT_FIELDS, TOGGLE_FIELDS, CATEGORY_PRESETS, STORAGE_PRESETS } from "./calc.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
@@ -120,7 +120,7 @@ test("empty and malformed input yields an empty object rather than throwing", ()
 
 test("the page offers the link and reads one on arrival", () => {
   assert.match(html, /id="copyLink"/);
-  assert.match(html, /import \{ decodeInputs, encodeInputs \} from "\.\/share\.mjs"/);
+  assert.match(html, /import \{ decodeInputs, encodeInputs, ENUM_FIELDS \} from "\.\/share\.mjs"/);
   assert.match(html, /applySharedLink\(\);/);
 });
 
@@ -134,4 +134,42 @@ test("the page says the values stay in the fragment", () => {
 test("the page imports its field list rather than keeping a second copy", () => {
   assert.match(html, /import \{ INPUT_FIELDS as ids, TOGGLE_FIELDS as toggleIds \} from "\.\/calc\.mjs"/);
   assert.doesNotMatch(html, /const ids = \[/);
+});
+
+// ---------------------------------------------------------------------------
+// The two preset selects, and the rates a restore used to lose
+// ---------------------------------------------------------------------------
+//
+// Found by driving the page in Chromium rather than by reading it: a link
+// copied after changing the category came back with the placement fees reset to
+// the size-tier defaults, because `applySharedLink` wrote the restored values
+// without marking them hand-entered and `syncPlacementRates` then treated them
+// as still automatic. The referral and storage rates travelled correctly the
+// whole time; the labels above them did not, so the recipient's page read
+// "Home & kitchen (15%)" over a 17% rate.
+
+test("carries the category and storage season, so labels and rates agree", () => {
+  const restored = decodeInputs(encodeInputs({ salePrice: 30, category: "jewelry", storageSeason: "peak" }));
+  assert.equal(restored.category, "jewelry");
+  assert.equal(restored.storageSeason, "peak");
+});
+
+test("a category the calculator has no rate for is refused", () => {
+  assert.deepEqual(decodeInputs("#category=antiques&storageSeason=summer"), {});
+  assert.equal(encodeInputs({ salePrice: 30, category: "antiques" }), "salePrice=30");
+});
+
+test("the option lists come from the presets rather than a copy", () => {
+  assert.deepEqual([...ENUM_FIELDS.category], Object.keys(CATEGORY_PRESETS));
+  assert.deepEqual([...ENUM_FIELDS.storageSeason], Object.keys(STORAGE_PRESETS));
+});
+
+test("a restored rate is marked hand-entered so a preset cannot overwrite it", () => {
+  assert.ok(html.includes('if (autoFields.has(id) || placementAutoFields.has(id)) field.dataset.auto = "0";'));
+});
+
+test("the selects are assigned without dispatching, so a preset cannot fire", () => {
+  const apply = html.slice(html.indexOf("function applySharedLink"), html.indexOf("function applySharedLink") + 1800);
+  assert.match(apply, /document\.getElementById\(id\)\.value = shared\[id\];/);
+  assert.doesNotMatch(apply, /dispatchEvent/);
 });

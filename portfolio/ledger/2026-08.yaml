@@ -27674,3 +27674,69 @@ entries:
         in Chromium against the built artifact and against a build of the
         pre-fix tree, which is what turned "these fields look unshared" into
         eleven named values that changed.
+  - venture: platform/pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The share-link defect class now has a probe, and it found two more
+        the same hour.** `sweep.mjs` proves every tool computes and
+        `contrast.mjs` proves every page can be read; both pass on a tool whose
+        link drops half the form, because the link is a second serialization of
+        the page and nothing on the page disagrees with it. The recipient sees
+        a complete, plausible, different answer. `roundtrip.mjs` changes every
+        control, copies the link the page's own button copies, opens it in a
+        browser that has never seen the tool, and compares every field and the
+        headline. 128 tools have a link to copy; 36 have none.
+      - >-
+        **`security-camera-bid-calculator`'s bid link never opened at all.** Its
+        proposal scope draft is generated from the priced job and runs past
+        `MAX_LINK_VALUE`, so `encodeBidLink` set it aside — rightly, a fragment
+        is not the place for prose. The decoder then found one control on the
+        form the link had not mentioned, which is the signature of a link
+        written by a *different* tool, so the guard refused the whole bid and
+        told the recipient to ask the sender what tool they had used. On every
+        link the page itself wrote. 33 of 43 fields stayed at their defaults and
+        the headline read $7,440 against the sender's $2,768. The fix is to name
+        the omission in the payload rather than let it read as a disagreement:
+        an `o` list of ids the encoder set aside for length, re-validated on the
+        way in like any other id from a stranger's URL, and both sender and
+        recipient are now told which field stayed behind. The guard keeps its
+        teeth for the case it was built for.
+      - >-
+        **`amazon-fba-calculator` restored the sender's placement fees and then
+        wrote the size-tier defaults over them.** `applySharedLink` set the
+        values without marking them hand-entered, so `syncPlacementRates` read
+        them as still automatic. Its two preset selects did not travel either —
+        the referral and storage *rates* did, so the arithmetic was right while
+        the recipient's page read "Home & kitchen (15%)" over a 17% rate.
+        Carried now, by the option keys the presets define rather than a copied
+        list, and assigned without dispatching so a preset cannot overwrite the
+        sender's own rate on arrival.
+      - >-
+        **Still open, and named rather than fixed: 47 tools drop
+        `depositPercent` and `validDays`** — the proposal deposit and how long
+        the price is held. Their share specs carry the pricing form and not the
+        terms. It is one cause rather than 47 findings, which is why the report
+        now groups fields dropped by more than one tool. It is left as its own
+        piece of work because carrying them properly needs the three *text*
+        terms to travel too, and the shared spec in `share.mjs` has `numbers`,
+        `flags` and `choices` but no text kind. Half-migrating it would ship a
+        link that carries the deposit and not the payment terms.
+      - >-
+        Two things the first draft got wrong, both worth carrying: `CSS.escape`
+        is a browser global, so a node-side selector build threw and the probe
+        reported "no editable number inputs" on every tool — a probe that finds
+        nothing deserves the same suspicion as one that finds everything. And
+        matching `#share` caught a *section* named `share` on
+        `cam-reconciliation-check`, a 0×0 div the run then spent thirty seconds
+        trying to click; a probe whose failures are its own selectors teaches
+        everyone to ignore it.
+      - >-
+        Verified locally, the runner outage still standing (`runner_id: 0`,
+        empty runner name, 2-3s jobs on `main` too): 589 platform/pages tests
+        (582 before), 297 amazon-fba (292), 83 security-camera, the four
+        portfolio-validate checks, build plus `check.mjs` at 164 products / 446
+        pages with no dead links, and `sweep.mjs` 164/164. Both repaired tools
+        round-trip clean in Chromium against the built artifact — 45 fields and
+        an unchanged $2,768 on the camera bid, 87 fields on the FBA calculator.

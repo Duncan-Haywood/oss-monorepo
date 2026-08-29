@@ -119,6 +119,26 @@ function normalizeLinkValue(value) {
 }
 
 /**
+ * Is this a value the cap turned away, rather than one that was never carriable?
+ *
+ * The distinction decides whether a link opens at all, and getting it wrong
+ * killed the feature outright on `security-camera-bid-calculator`. Its proposal
+ * scope draft is generated from the priced job and runs past 512 characters, so
+ * the encoder dropped it — correctly, a fragment is not the place for prose —
+ * and the decoder then found one control on the form that the link did not
+ * mention. That is the signature of a link written by a *different* tool, so the
+ * guard refused the whole bid and told the recipient to ask the sender what
+ * tool they used. On every link the page itself had just written.
+ *
+ * A field the sender's own encoder set aside for length is not a disagreement
+ * about what this form is. It is a known omission, and naming it in the payload
+ * is what lets the guard keep its teeth for the case it was built for.
+ */
+function omittedForLength(value) {
+  return typeof value === 'string' && value.length > MAX_LINK_VALUE;
+}
+
+/**
  * Is this an id the link may carry?
  *
  * Mirrors `jobs.mjs`'s exclusions — its own controls, and the usage opt-out,
@@ -147,11 +167,16 @@ export function encodeBidLink(input) {
   if (!fields || typeof fields !== 'object') return '';
 
   const out = {};
+  const omitted = [];
   let count = 0;
   for (const id of Object.keys(fields)) {
     if (!isLinkableId(id)) continue;
     const value = normalizeLinkValue(fields[id]);
-    if (value === null) continue;
+    if (value === null) {
+      // Named, not silently skipped — see `omittedForLength`.
+      if (omittedForLength(fields[id]) && omitted.length < MAX_LINK_FIELDS) omitted.push(id);
+      continue;
+    }
     if (count >= MAX_LINK_FIELDS) break;
     out[id] = value;
     count++;
@@ -159,6 +184,7 @@ export function encodeBidLink(input) {
   if (count === 0) return '';
 
   const payload = { v: 1, f: out };
+  if (omitted.length > 0) payload.o = omitted;
   const amount = normalizeHeadlineAmount(
     typeof input.amount === 'string' ? input.amount : '');
   if (amount) payload.a = amount;
@@ -203,8 +229,17 @@ export function decodeBidLink(hash) {
   }
   if (count === 0) return null;
 
+  // Re-validated like any other id from a stranger's URL: only names this form
+  // could have offered, and never more than a form's worth of them.
+  const omitted = Array.isArray(parsed.o)
+    ? parsed.o.filter((id) => isLinkableId(id)).slice(0, MAX_LINK_FIELDS)
+    : [];
+
   const amount = normalizeHeadlineAmount(typeof parsed.a === 'string' ? parsed.a : '');
-  return amount ? { fields, amount } : { fields };
+  const result = { fields };
+  if (omitted.length > 0) result.omitted = omitted;
+  if (amount) result.amount = amount;
+  return result;
 }
 
 /**
@@ -330,6 +365,7 @@ export const BID_LINK_HELPERS = [
   ...[
     normalizeHeadlineAmount,
     normalizeLinkValue,
+    omittedForLength,
     isLinkableId,
     encodeBidLink,
     decodeBidLink,
@@ -465,13 +501,28 @@ ${BID_LINK_HELPERS}
   };
 
   var copy = function(){
-    var fragment = encodeBidLink({ fields: readForm(), amount: shownAmount() });
+    var values = readForm();
+    var fragment = encodeBidLink({ fields: values, amount: shownAmount() });
     if (!fragment) { say('There is no bid on this form to send yet.', true); return; }
+
+    // "Every number on this form" has to stay true. A long block of prose is
+    // not a number and does not fit in a URL, and the sender is told which one
+    // stayed behind rather than finding out from the recipient.
+    var long = [];
+    for (var key in values) {
+      if (!Object.prototype.hasOwnProperty.call(values, key)) continue;
+      if (typeof values[key] === 'string' && values[key].length > MAX_LINK_VALUE) long.push(key);
+    }
+    var caveat = long.length
+      ? ' Your ' + long.join(', ') + (long.length === 1 ? ' is' : ' are') +
+        ' too long to fit in a link and stayed behind; paste ' +
+        (long.length === 1 ? 'it' : 'them') + ' separately if the wording matters.'
+      : '';
 
     var url = location.origin + location.pathname + location.search + '#' + fragment;
     var done = function(){
       bump('bid_link_copied');
-      say('Link copied. It carries every number on this form, and the page it opens will say if the figure it works out is not the one you are sending. Nothing was uploaded — the whole bid rides in the link itself.', false);
+      say('Link copied. It carries every number on this form, and the page it opens will say if the figure it works out is not the one you are sending. Nothing was uploaded — the whole bid rides in the link itself.' + caveat, false);
     };
     var fallback = function(){
       try {
@@ -498,6 +549,11 @@ ${BID_LINK_HELPERS}
     var form = {}; var link = {};
     for (var f = 0; f < formIds.length; f++) form[formIds[f]] = 1;
     for (var l = 0; l < linkIds.length; l++) link[linkIds[l]] = 1;
+    // A field the sender's encoder set aside for length is accounted for: the
+    // link says so by name. It is not a control this form has and the link had
+    // never heard of, which is the only thing the guard below is asking about.
+    var skipped = incoming.omitted || [];
+    for (var s = 0; s < skipped.length; s++) link[skipped[s]] = 1;
 
     var missing = []; var extra = [];
     for (var m = 0; m < linkIds.length; m++) if (!form[linkIds[m]]) missing.push(linkIds[m]);
@@ -530,11 +586,20 @@ ${BID_LINK_HELPERS}
     }
     bump('bid_link_opened');
 
+    // Said rather than left to be noticed: the numbers are the bid, but a
+    // recipient who sees an empty scope box should know it was too long to
+    // travel and not that the sender left it blank.
+    var left = skipped.length
+      ? ' The sender\\'s ' + skipped.join(', ') + (skipped.length === 1 ? ' was' : ' were') +
+        ' too long to fit in a link, so ' + (skipped.length === 1 ? 'it is' : 'they are') +
+        ' this page\\'s own wording below.'
+      : '';
+
     var settle = function(){
       var agrees = bidAmountAgrees(incoming.amount, shownAmount());
       if (agrees === true) {
         say('Opened from a shared bid — ' + written + ' fields, and this page works out the same ' +
-          incoming.amount + ' the sender saw. Change anything below to reprice it.', false);
+          incoming.amount + ' the sender saw. Change anything below to reprice it.' + left, false);
       } else if (agrees === false) {
         say('Opened from a shared bid — ' + written + ' fields. The sender saw ' + incoming.amount +
           ' and this page works out ' + shownAmount().replace(/\\s+/g, ' ').trim() +
@@ -543,7 +608,7 @@ ${BID_LINK_HELPERS}
         bump('bid_link_amount_differs');
       } else {
         say('Opened from a shared bid — ' + written + ' fields written to the form below. ' +
-          'The link did not carry the figure the sender saw, so this page cannot confirm it matches.', false);
+          'The link did not carry the figure the sender saw, so this page cannot confirm it matches.' + left, false);
       }
     };
     if (typeof requestAnimationFrame === 'function') requestAnimationFrame(settle); else setTimeout(settle, 0);

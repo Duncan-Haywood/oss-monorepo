@@ -1012,7 +1012,7 @@
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
     import { deleteScenario, listScenarios, saveScenario } from "./scenarios.mjs";
-    import { decodeInputs, encodeInputs } from "./share.mjs";
+    import { decodeInputs, encodeInputs, ENUM_FIELDS } from "./share.mjs";
     // Single-sourced from calc.mjs so the page and the share link can never
     // disagree about which inputs exist.
     import { INPUT_FIELDS as ids, TOGGLE_FIELDS as toggleIds } from "./calc.mjs";
@@ -1313,6 +1313,11 @@
       return {
         ...raw,
         fulfillmentMethod: fulfillmentMethod(),
+        // Not used by the arithmetic — the rates these fill are read as their
+        // own fields — but carried so a link says which category and season the
+        // sender was on rather than leaving the recipient's labels disagreeing
+        // with the recipient's numbers.
+        ...Object.fromEntries(Object.keys(ENUM_FIELDS).map((id) => [id, document.getElementById(id).value])),
         lowPriceEligible: document.getElementById("lowPriceEligible").checked,
         groceryExempt: document.getElementById("groceryExempt").checked,
         newFnskuExempt: document.getElementById("newFnskuExempt").checked,
@@ -1827,7 +1832,26 @@
       let applied = 0;
       for (const id of ids) {
         if (!(id in shared)) continue;
-        document.getElementById(id).value = String(shared[id]);
+        const field = document.getElementById(id);
+        field.value = String(shared[id]);
+        // A restored rate counts as hand-entered, and the two sets that decide
+        // which rates derive themselves are the ones asked — not the presence
+        // of the attribute, which the sync writes later and so is absent on the
+        // load a link arrives on. Without this the size-tier sync treats the two
+        // placement rates as still automatic and writes the tier default
+        // straight over them, so a seller who tuned their own placement fees and
+        // copied the link watched the recipient's page put the ballpark figures
+        // back — with nothing said, and the fee comparison answering a different
+        // question than the one sent.
+        if (autoFields.has(id) || placementAutoFields.has(id)) field.dataset.auto = "0";
+        applied += 1;
+      }
+      for (const id of Object.keys(ENUM_FIELDS)) {
+        if (!(id in shared)) continue;
+        // Assigned, not dispatched: firing `change` would run the preset and
+        // overwrite the sender's own referral or storage rate with this
+        // category's default, which is the substitution being avoided.
+        document.getElementById(id).value = shared[id];
         applied += 1;
       }
       for (const id of toggleIds) {

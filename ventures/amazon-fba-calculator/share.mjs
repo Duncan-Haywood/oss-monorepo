@@ -27,7 +27,26 @@
 // so the recipient computed a different profit than the sender saw and nothing
 // went red.
 
-import { INPUT_FIELDS, TOGGLE_FIELDS, FULFILLMENT_VALUES } from './calc.mjs';
+import {
+  INPUT_FIELDS, TOGGLE_FIELDS, FULFILLMENT_VALUES,
+  CATEGORY_PRESETS, STORAGE_PRESETS,
+} from './calc.mjs';
+
+/**
+ * The two preset selects, carried by the option keys the presets themselves
+ * define rather than by a list copied here.
+ *
+ * They were left out on the argument that the numbers they fill — the referral
+ * rate and the storage rate — ride in the link anyway, so the arithmetic is
+ * right either way. That is true and it is not enough: the recipient's page
+ * then reads "Home & kitchen (15%)" over a referral rate of 17%, and the two
+ * disagree about the job on screen. A seller who trusts the label prices the
+ * wrong category.
+ */
+export const ENUM_FIELDS = Object.freeze({
+  category: Object.freeze(Object.keys(CATEGORY_PRESETS)),
+  storageSeason: Object.freeze(Object.keys(STORAGE_PRESETS)),
+});
 
 /**
  * Encode the current inputs as URL query text.
@@ -50,6 +69,9 @@ export function encodeInputs(input) {
   }
   if (FULFILLMENT_VALUES.includes(input?.fulfillmentMethod)) {
     params.set('fulfillmentMethod', input.fulfillmentMethod);
+  }
+  for (const [field, allowed] of Object.entries(ENUM_FIELDS)) {
+    if (allowed.includes(input?.[field])) params.set(field, input[field]);
   }
   return params.toString();
 }
@@ -79,5 +101,11 @@ export function decodeInputs(value) {
   }
   const method = params.get('fulfillmentMethod');
   if (FULFILLMENT_VALUES.includes(method)) result.fulfillmentMethod = method;
+  for (const [field, allowed] of Object.entries(ENUM_FIELDS)) {
+    // Only an option the select actually offers, so a crafted link cannot name
+    // a category the calculator has no referral rate for.
+    const value = params.get(field);
+    if (allowed.includes(value)) result[field] = value;
+  }
   return result;
 }
