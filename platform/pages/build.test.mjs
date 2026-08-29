@@ -49,6 +49,10 @@ import {
   SOURCE_URL_PREFIX,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
+// The hub embeds these rather than paraphrasing them, so the tests that used to
+// pin its transcription line by line now compare against the definitions
+// themselves. See "the hub validates a saved bid with the tested definition".
+import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 
 const BASE = 'https://example.test/site/';
 const VENTURES = path.join(REPO_ROOT, 'ventures');
@@ -1797,31 +1801,61 @@ test('the hub marks which quotes have gone quiet, not just how many', async () =
   assert.match(hub, /\.bids \.bid-chase-tag \{/);
 });
 
-test('the hub carries the timestamp the chase window is computed from', async () => {
-  // The regression this feature was: the hub injected chaseSentence on every
-  // visit and could never run it, because savedBids() built rows without
-  // decidedAt — the one field bidResponseDays reads. Nothing failed; the code
-  // shipped, was tested, and returned '' forever.
+test('the hub validates a saved bid with the tested definition, not a copy of it', async () => {
+  // This replaces three tests that each pinned one field of a hand copy, and
+  // it exists because pinning fields one at a time never caught the next one.
+  //
+  // `savedBids()` was a transcription of `normalizeBid`, and it went stale
+  // three times running. `decidedAt` was missing, so the hub injected
+  // `chaseSentence` on every visit and it returned '' forever. Then `lostTo`,
+  // so `pricingSentence` did the same. Then `cost`, for `keepSentence`. Each
+  // time the module was correct and tested and the copy the browser ran was
+  // not, and nothing failed anywhere.
+  //
+  // So the assertion is structural rather than per-field: the hub runs the
+  // real function, and the source it runs is the source jobs.mjs tests.
   const hub = await read('index.html');
   const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
-  assert.match(script, /rows\.push\(\{ slug, name, at, amount, outcome, decidedAt, lostTo, cost \}\)/);
-  // Only on a decided bid, which is the only state it means anything in.
-  assert.match(script, /outcome && typeof bid\.decidedAt === 'string'/);
+
+  assert.match(script, /const bid = normalizeBid\(entry\);/,
+    'the hub is validating saved bids by hand again');
+  // Spread, not a field list. A field list is what went stale: it has to be
+  // edited every time a bid grows a key, and forgetting is silent.
+  assert.match(script, /rows\.push\(\{ slug, \.\.\.row \}\)/);
+  // `fields` is the one key deliberately dropped — the whole job, thirty to
+  // forty form values that nothing on this page reads.
+  assert.match(script, /const \{ fields, \.\.\.row \} = bid;/);
+
+  // The half that makes it durable: what the browser runs is character for
+  // character what the test suite exercises. A paraphrase reintroduced here
+  // fails this line, whatever it happens to get right.
+  assert.ok(hub.includes(`var normalizeBid = ${stripForInjection(normalizeBid.toString())};`),
+    'the hub does not carry the tested normalizeBid');
 });
 
-test('the hub carries the winning price its pricing reading is computed from', async () => {
-  // Exactly the regression above, one field along: pricingSentence reads
-  // lostTo, so a savedBids() that dropped it would inject the reading on every
-  // visit and return '' forever. Same failure, same silence, same test.
+test('every guard the record shape calls is in scope on the hub', async () => {
+  // The other half of the test above. `normalizeBid` closes over five
+  // functions and four constants; embedding it without them would throw on the
+  // first saved bid rather than fail quietly, but it would throw on the one
+  // page every visitor loads, so it is worth a line each.
+  //
+  // `normalizeLostTo` and `pricingSentence` are named because they are the
+  // pair the lost-price reading needs, and that reading is the one that spent
+  // a release returning ''.
   const hub = await read('index.html');
-  const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
-  // Through the guard the band wrote it with, never trusted as stored: any page
-  // on this origin can write this key.
-  assert.match(script, /const lostTo = outcome === 'lost' \? normalizeLostTo\(bid\.lostTo\) \|\| undefined : undefined/);
-  // And the guard has to actually be in scope on the hub, which is the half
-  // that BID_PRICING_HELPERS exists to deliver.
-  assert.ok(hub.includes('var normalizeLostTo = function normalizeLostTo('),
-    'normalizeLostTo is not embedded in the hub');
+  // Presence, not shape: `isExcludedId` is an arrow and the rest are named
+  // function expressions, and which of the two a helper happens to be is not
+  // something this test should have an opinion about. What matters is that the
+  // name resolves — a missing one throws on the first saved bid, on the one
+  // page every visitor loads. The test above is what pins the *source* of the
+  // function these are the closure of.
+  for (const name of ['normalizeBidName', 'normalizeOutcome', 'normalizeLostTo',
+    'normalizeJobCost', 'normalizeHeadlineAmount', 'isExcludedId']) {
+    assert.ok(hub.includes(`var ${name} = `), `${name} is not embedded in the hub`);
+  }
+  for (const name of ['EXCLUDED_FIELD_IDS', 'EXCLUDED_ID_PREFIX', 'BID_OUTCOMES', 'MAX_LOST_TO']) {
+    assert.ok(hub.includes(`var ${name} = `), `${name} is not embedded in the hub`);
+  }
   assert.ok(hub.includes('var pricingSentence = function pricingSentence('),
     'pricingSentence is not embedded in the hub');
 });
@@ -1864,22 +1898,25 @@ test('the hub draws the win rate, and counts it once per change', async () => {
     'winRateSentence is not embedded in the hub');
 });
 
-test('the hub carries the job cost its keep reading is computed from', async () => {
-  // The third instance of the regression the two tests above pin, and the
-  // reason this one is worth its own test: `savedBids()` is a hand copy of
-  // `normalizeBid`, so `cost` — added to jobs.mjs when the won-row cost box
-  // shipped — was never transcribed here. Any hub reading that divides a cost
-  // into a price would have been injected on every visit and returned ''
-  // forever, with nothing failing anywhere.
-  const hub = await read('index.html');
-  const script = hub.slice(hub.indexOf('function savedBids'), hub.indexOf('function showSavedBids'));
-  // Through the guard the band wrote it with, and only on a won row — the
-  // state a delivered job can exist in.
-  assert.match(script, /const cost = outcome === 'won' \? normalizeJobCost\(bid\.cost\) \|\| undefined : undefined/);
-  // And that guard has to be in scope on the hub, which is the half
-  // BID_PRICING_HELPERS delivers.
-  assert.ok(hub.includes('var normalizeJobCost = function normalizeJobCost('),
-    'normalizeJobCost is not embedded in the hub');
+test('a cost and a winning price reach the hub only in the state they mean something in', async () => {
+  // The three fields whose absence each cost a release are now carried by
+  // `normalizeBid` rather than by this page, so what is worth asserting is the
+  // rule they are carried *under* — which is the rule the tool page uses,
+  // because it is now literally the same code. A cost belongs to a job that
+  // was done and a winning price to one that was lost; carried through any
+  // other state they would be counted again the next time the outcome moved.
+  assert.deepEqual(
+    normalizeBid({ name: 'n', at: '2026-08-01', fields: { a: '1' },
+      outcome: 'won', cost: '900', lostTo: '1200' }),
+    { name: 'n', at: '2026-08-01', fields: { a: '1' }, outcome: 'won', cost: '900' },
+    'a won bid must not carry a winning price it was not lost to',
+  );
+  assert.deepEqual(
+    normalizeBid({ name: 'n', at: '2026-08-01', fields: { a: '1' },
+      outcome: 'lost', cost: '900', lostTo: '1200' }),
+    { name: 'n', at: '2026-08-01', fields: { a: '1' }, outcome: 'lost', lostTo: '1200' },
+    'a lost bid must not carry a delivered cost',
+  );
 });
 
 test('the hub draws which trade keeps most, and counts it once per change', async () => {
@@ -1977,9 +2014,15 @@ test('the hub and the calculator band share one definition of a waiting bid', as
 test('an outcome the hub does not recognise leaves the bid in the chase list', async () => {
   // Hiding a live quote behind a state this page cannot clear is worse than
   // showing it in the wrong column: the bid would never be chased again.
-  const hub = await read('index.html');
-  const script = hub.slice(hub.indexOf('function savedBids'));
-  assert.match(script, /bid\.outcome === 'won' \|\| bid\.outcome === 'lost' \? bid\.outcome : null/);
+  //
+  // Asserted against the function the hub now runs rather than against a line
+  // of the page. A bid written by a version of this site the visitor's browser
+  // has never seen comes back with no `outcome` key at all, and every reading
+  // tests that for truthiness — so it reads as waiting, which is the safe one.
+  const bid = normalizeBid({ name: 'n', at: '2026-08-01', fields: { a: '1' }, outcome: 'archived' });
+  assert.ok(bid, 'an unknown outcome must not discard the bid');
+  assert.equal('outcome' in bid, false);
+  assert.equal(normalizeOutcome('archived'), null);
 });
 
 test('every saved-bid row says which of the three states it is in', async () => {
