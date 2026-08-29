@@ -28842,3 +28842,87 @@ entries:
         already be done, and the one real gap left in them was small enough
         that fixing it was the whole session.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Root-caused the CI outage and shipped the fix (#2021, #2022).**
+        Every workflow in the repo has been red since 2026-08-26 -- 100% of
+        the last 40 runs on `main`. They were never failing; they were never
+        starting. Jobs carry `runner_id: 0`, `runner_name: ""`, zero steps,
+        3-6s duration, including workflows that touch nothing in any diff
+        (`Conflict markers`, `Branch cleanup`), which rules out a code
+        cause. This repo is private and user-owned, so GitHub-hosted Actions
+        minutes are metered; the included-minutes allowance or a spending
+        limit ran out. The billing API is blocked to agent sessions so the
+        exact ceiling could not be confirmed -- but the fix does not depend
+        on which one it was.
+      - >-
+        Fix: `gitops/ci/` -- Argo-synced ephemeral self-hosted runners on
+        the cpx52, which are not metered and run on hardware the portfolio
+        already pays for. Each pod registers one runner, takes one job, and
+        exits, so no checkout or environment survives into the next job.
+        Bounded blast radius since they share a node with
+        `marisstella.dev`: `ci-low` priority below `agents-low` and
+        `prod-high`, no service-account token, a NetworkPolicy granting the
+        internet but excluding pod/service CIDRs, RFC1918 and link-local
+        metadata, no ingress, a namespace quota two runners cannot exceed,
+        and an AppProject confined to the `ci` namespace.
+      - >-
+        All 242 `runs-on` lines across 217 workflows now read
+        `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`. Unset, the variable is
+        falsy and the expression falls back to `ubuntu-latest`, so the merge
+        changed nothing on its own -- and moving back when metered minutes
+        reset is clearing one repo variable rather than editing 217 files a
+        second time. `gitops/tests/test_ci_runner.py` fails if a workflow
+        ever hard-codes a runner again.
+      - >-
+        #2022 closed the one gap #2021 flagged: `hetzner-gitops-ci.yml` was
+        the only workflow shelling out to `sudo`, which the runner image
+        lacks. `kustomize`/`kubeconform` now unpack into `$RUNNER_TEMP/bin`
+        and `shellcheck` comes from the `shellcheck-py` wheel -- both work
+        unchanged on GitHub-hosted runners, so neither is a
+        self-hosted-only path that first gets exercised after the switch is
+        flipped. It also put `gitops/ci` under that job, which named its
+        overlays explicitly and so did not cover the new directory.
+      - >-
+        **Lesson for future sessions: red CI is still not failed CI, and
+        `runner_id` is the field that settles it.** Verified everything
+        locally with the real tools instead: `kustomize` v5.6.0 builds all
+        six overlays, `kubeconform` v0.6.7 `-strict` on Kubernetes 1.31.0
+        reports 58 resources 0 invalid, `shellcheck` 0.11.0 clean on all ten
+        scripts, gitops 67/67, `validate_workflows.py` green on 217.
+      - >-
+        Owner unblock is two steps, added as item 9 of
+        `infra/OWNER_CHECKLIST.md`: seal `actions-runner-secrets` (a
+        fine-grained PAT for this repo with Administration: Read and write),
+        then set repo variable `CI_RUNNER` = `self-hosted`. Not a new
+        category of ask -- it is the existing "paste a secret the owner
+        holds", and the variable and secret are one unblock, not two.
+      - >-
+        Merged #2017 (three bid calculators -- water-heater,
+        standby-generator, ev-charger -- silently dropped deposit split,
+        valid-until days, customer name/address and payment terms from
+        locally saved drafts; the price restored exactly while acceptance
+        terms reverted to page defaults). Verified locally: 280/280 tests
+        across the three ventures, webcheck sweep clean on 455 pages.
+      - >-
+        Only one open PR existed at run start, so the three-PR quota
+        resolved to "process all of them". The PR-less branch backlog is
+        stale rather than repairable: every branch sampled
+        (`rematch-1564`, `rematch-1364`, `venture/vendor-change-watch`,
+        `cursor/quote-margin-local-drafts`,
+        `cursor/janitorial-draft-persistence`,
+        `cursor/shopify-permission-drift-browser`) is already superseded by
+        a fuller implementation on `main`, usually under a different
+        filename or mechanism. Note the trap: `git diff origin/main...BRANCH`
+        is measured from the merge base and still shows work `main` already
+        absorbed independently as added -- it read as unique on
+        `rematch-1564` when `main` already had `priceToMatchProfit`.
+      - >-
+        `publish_surface.py --check` still reports 0 live surfaces. The
+        deploy-first item remains open and owner-blocked, independent of
+        this run's CI work; the agent proxy also blocks `marisstella.dev`
+        and `github.io`, so no public route could be verified from here.
+    mrr_end: null
