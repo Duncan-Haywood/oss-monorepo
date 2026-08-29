@@ -29179,3 +29179,62 @@ entries:
         found zero real gaps across the ~100 ventures using either
         `share.mjs` pattern.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped FAQ structured data as a build-time capability rather than
+        per-venture copy (#2032, merged): `platform/pages/build.mjs` now
+        derives `FAQPage` JSON-LD from the Q&A a page already shows a
+        visitor. Derived rather than authored on purpose -- Google requires
+        the question and answer to be visible on the page, so reading the
+        rendered copy makes schema and page the same text by construction
+        and they cannot drift. A page with no visible Q&A gets nothing;
+        nothing is invented.
+      - >-
+        Measured the gap before building: 129 of 164 tools shipped no
+        `FAQPage` at all. Coverage went 35 -> 41 tools. The honest ceiling
+        is low because only 14 ventures phrase any heading as a question --
+        so the remaining ~123 tools are a *content* task now, with no
+        schema work attached. That is the concrete next step for a session
+        looking for discoverability work.
+      - >-
+        Wrote the first of that content (#2035, merged):
+        `ebay-fee-calculator`, the portfolio's largest tool (26 scenario
+        comparisons, 129 KB, longest `llms.txt` entry) had no FAQ at all
+        and gained six questions sellers actually search, answered from
+        what the tool does. Its privacy answer was verified against the
+        code first -- 32 `localStorage` uses, zero `fetch`/`XMLHttpRequest`/
+        `sendBeacon` -- rather than asserted.
+      - >-
+        Three defects found by reading the generated output rather than by
+        a failing test, all fixed with tests. (1) Answers absorbed widget
+        copy, putting "Calculate Reset $0.00" in text a search engine may
+        quote. (2) `3pl-quote-normalizer` answered four questions with
+        maintainer notes naming internal functions ("This block uses the
+        same compareInboundMethods"); filtered by a deliberately narrow
+        rule -- a lowercase-initial camelCase run of 10+ characters, which
+        eBay/iPhone/PayPal/DoorDash/TikTok all fail to trip. (3) The last
+        answer on a page ran past `</main>` into the footer, so every
+        tool's "No warranty... not tax, financial, or business advice"
+        would have been quoted as part of its final answer; and `&ldquo;`
+        reached JSON-LD undecoded, which a search engine renders literally.
+      - >-
+        Verified locally, not on CI (runner outage unchanged: job
+        99170269602 on this run's own PR, 4s, `runner_id: 0`,
+        `runner_name: ""`, label `ubuntu-latest` -- confirming `CI_RUNNER`
+        is still unset): `platform/pages` 653/653, `ebay-fee-calculator`
+        446/446, build 164 tools / 457 pages, `check.mjs` publishable with
+        no dead links, plus a sweep parsing the `FAQPage` JSON-LD back out
+        of all 41 tools that carry it -- zero raw entities, zero
+        disclaimer leaks.
+      - >-
+        Zero open PRs existed at session start, so there was no queue to
+        drain. All three of the run's stated priorities -- CI/CD,
+        deployment of marketing surfaces to Hetzner, and the Codex CLI
+        spending its built-in quota -- are code-complete and blocked only
+        on owner-held credentials, already recorded as decision-queue rows
+        10, 11, 12 and 13. No new ask was added and no runbook written:
+        `infra/OWNER_CHECKLIST.md` already types out each step.
+    mrr_end: null
