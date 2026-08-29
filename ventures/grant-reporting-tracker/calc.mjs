@@ -3,6 +3,24 @@ export function parseDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+// The visitor's own calendar date, not UTC's. `new Date().toISOString()`
+// reads the UTC date, which is a different day from the visitor's local date
+// for several hours every day everywhere except right on the meridian — ahead
+// of local for negative UTC offsets in the evening, behind it for positive
+// offsets overnight. `reviewGrant` and `sampleGrants` call this only when the
+// page omits `today` (the only way either is ever actually invoked, since
+// index.html never passes one), so that mismatch reached every visitor: a
+// report due today could show "Overdue" a day early, or "On track" a day
+// past what a filed-late letter says, depending only on the visitor's clock.
+function localToday() {
+  const now = new Date();
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-');
+}
+
 // Month arithmetic in UTC, clamping to the last day of a shorter target month
 // so 31 January plus one month is 28 February rather than 3 March. Accepts a
 // negative shift, which `sampleGrants` needs to work backwards from a report
@@ -37,7 +55,7 @@ export function addMonths(value, months) {
  * day status boundaries that the drift cannot change which status each row
  * lands in.
  */
-export function sampleGrants(today = new Date().toISOString().slice(0, 10)) {
+export function sampleGrants(today = localToday()) {
   const awardDateFor = (reportInDays, intervalMonths) => {
     const base = parseDate(today);
     if (!base) return null;
@@ -51,7 +69,7 @@ export function sampleGrants(today = new Date().toISOString().slice(0, 10)) {
   ];
 }
 
-export function reviewGrant(grant, today = new Date().toISOString().slice(0, 10)) {
+export function reviewGrant(grant, today = localToday()) {
   const nextReport = addMonths(grant.awardDate, Number(grant.intervalMonths));
   const days = nextReport ? Math.ceil((parseDate(nextReport) - parseDate(today)) / 86400000) : null;
   const restrictedBalance = Number(grant.awardAmount) - Number(grant.spentAmount);
