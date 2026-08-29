@@ -483,7 +483,11 @@
 
     async function copySummary() {
       const result = calculateBid(readInput());
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
       const text = formatBidSummary(result, preset ? preset.label : 'Screened porch / lanai');
       try {
         await navigator.clipboard.writeText(text);
@@ -551,7 +555,7 @@
       });
     });
     el('jobPresets').addEventListener('change', () => {
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
       if (!preset) return;
       el('attachment').value = preset.attachment;
       el('roof').value = preset.roof;
