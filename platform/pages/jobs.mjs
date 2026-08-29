@@ -1659,9 +1659,9 @@ export const MIN_TREND_PER_HALF = 4;
 export const TREND_SPLIT_POINTS = 40;
 
 /**
- * Whether what this contractor changed is working.
+ * Whether what this contractor changed is working: the split both readings use.
  *
- * Every other reading on the hub is a snapshot: a rate, a share, a band, pooled
+ * Every other reading here is a snapshot: a rate, a share, a band, pooled
  * over the whole book. That is the right shape for "how am I doing" and the
  * wrong shape for the question that follows it. A book is accumulated over
  * months. A shop that raised its rates in June, or re-costed decks *because*
@@ -1704,6 +1704,103 @@ export const TREND_SPLIT_POINTS = 40;
  *     does. A tool that printed the cause would be inventing the finding rather
  *     than reporting it.
  *
+ * This function is the arithmetic alone, over one tool's bids, so the two
+ * sentences built on it cannot disagree about what moved: `trendSentence` on
+ * the hub, which groups the book by tool and names the trade, and
+ * `toolTrendSentence` in the panel on that tool's own page, which does not need
+ * to. Returns `null` below `MIN_TREND_PER_HALF` a side or under
+ * `TREND_SPLIT_POINTS` of movement — the ordinary case for a book where nothing
+ * changed, and the right answer for it.
+ */
+export function trendSplit(bids) {
+  if (!bids || !bids.length) return null;
+
+  var decided = [];
+  for (var i = 0; i < bids.length; i++) {
+    var bid = bids[i];
+    if (!bid || typeof bid !== 'object') continue;
+    if (bid.outcome !== 'won' && bid.outcome !== 'lost') continue;
+    var at = typeof bid.at === 'string' ? bid.at : '';
+    if (!at) continue;
+    // A bid whose date will not parse cannot be placed on either side of the
+    // split, and placing it anyway would put it wherever the store happened to
+    // hold it. Dropped from this reading only; every other line still counts it.
+    var t = Date.parse(at);
+    if (t !== t) continue;
+    decided.push({ t: t, at: at, won: bid.outcome === 'won',
+      name: typeof bid.name === 'string' ? bid.name : '' });
+  }
+
+  var half = Math.floor(decided.length / 2);
+  if (half < MIN_TREND_PER_HALF) return null;
+
+  // Oldest first, with the bid's own name breaking ties so two bids saved in
+  // the same second cannot swap sides of the split between two renders of the
+  // same book.
+  decided.sort(function (a, b) {
+    return a.t - b.t || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+  });
+
+  var earlier = decided.slice(0, half);
+  var later = decided.slice(decided.length - half);
+
+  var earlierWon = 0;
+  var laterWon = 0;
+  for (var e = 0; e < half; e++) {
+    if (earlier[e].won) earlierWon++;
+    if (later[e].won) laterWon++;
+  }
+
+  // Exact, because the denominators are equal by construction: the point
+  // difference is the bid difference over the half size.
+  var move = ((laterWon - earlierWon) / half) * 100;
+  if (Math.abs(move) < TREND_SPLIT_POINTS) return null;
+
+  return { half: half, earlierWon: earlierWon, laterWon: laterWon, move: move,
+    turnedAt: later[0].at };
+}
+
+/**
+ * Everything the two trend readings say after their subject.
+ *
+ * The counts, the date of the turn, and the honest half — identical whether the
+ * sentence is naming a trade on the hub or speaking about the page it is on, so
+ * it is written once. Only the subject differs, which is the one part each
+ * caller knows and the other cannot.
+ */
+export function trendDetail(split, nowMs) {
+  var counts = split.laterWon + ' of ' + split.half + ' on the ' + split.half +
+    ' most recent, against ' + split.earlierWon + ' of ' + split.half + ' before them.';
+
+  var since = bidWaitingDays(split.turnedAt, nowMs);
+  var when = since === null || !(since > 0)
+    ? ''
+    : ' The recent half starts ' + since + (since === 1 ? ' day' : ' days') + ' back.';
+
+  var edge = ' Both halves hold the same number of bids, so the counts read straight across — ' +
+    'but they are two halves of one trade\u2019s own book, and a slow season or a run of ' +
+    'unusual jobs moves this as much as a price does. It says where to look, not what changed.';
+
+  return counts + when + edge;
+}
+
+/**
+ * The direction, as the two sentences say it.
+ *
+ * A movement of exactly zero never reaches here — `trendSplit` refuses
+ * anything under `TREND_SPLIT_POINTS` — so there is no third word to pick.
+ */
+export function trendDirection(move) {
+  return move < 0 ? 'less' : 'more';
+}
+
+/**
+ * The hub's version: which of this contractor's trades has moved.
+ *
+ * Groups the whole book by tool, reads each one through `trendSplit`, and names
+ * the trade that moved furthest. This is the half no single tool page can
+ * produce — a crew working six calculators is told which one to go and look at.
+ *
  * Returns `''` when no tool has eight decided bids or none has moved far
  * enough — the ordinary case for a book where nothing changed, and the right
  * answer for it.
@@ -1717,95 +1814,61 @@ export function trendSentence(rows, nowMs) {
   for (var i = 0; i < rows.length; i++) {
     var row = rows[i];
     if (!row || typeof row !== 'object') continue;
-    if (row.outcome !== 'won' && row.outcome !== 'lost') continue;
     var slug = typeof row.slug === 'string' ? row.slug : '';
     if (!slug) continue;
-    var at = typeof row.at === 'string' ? row.at : '';
-    if (!at) continue;
-    // A bid whose date will not parse cannot be placed on either side of the
-    // split, and placing it anyway would put it wherever the store happened to
-    // hold it. Dropped from this reading only; every other line still counts it.
-    var t = Date.parse(at);
-    if (t !== t) continue;
     if (!byTool[slug]) {
       byTool[slug] = { slug: slug, label: slug, bids: [] };
       var label = typeof row.label === 'string' ? row.label.trim() : '';
       if (label) byTool[slug].label = label;
       slugs.push(slug);
     }
-    byTool[slug].bids.push({
-      at: at,
-      t: t,
-      won: row.outcome === 'won',
-      name: typeof row.name === 'string' ? row.name : '',
-    });
+    byTool[slug].bids.push(row);
   }
 
   var best = null;
 
   for (var s = 0; s < slugs.length; s++) {
     var tool = byTool[slugs[s]];
-    var half = Math.floor(tool.bids.length / 2);
-    if (half < MIN_TREND_PER_HALF) continue;
-
-    // Oldest first, with the bid's own name breaking ties so two bids saved in
-    // the same second cannot swap sides of the split between two renders of
-    // the same book.
-    tool.bids.sort(function (a, b) {
-      return a.t - b.t || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
-    });
-
-    var earlier = tool.bids.slice(0, half);
-    var later = tool.bids.slice(tool.bids.length - half);
-
-    var earlierWon = 0;
-    var laterWon = 0;
-    for (var e = 0; e < half; e++) {
-      if (earlier[e].won) earlierWon++;
-      if (later[e].won) laterWon++;
-    }
-
-    // Exact, because the denominators are equal by construction: the point
-    // difference is the bid difference over the half size.
-    var move = ((laterWon - earlierWon) / half) * 100;
-    if (Math.abs(move) < TREND_SPLIT_POINTS) continue;
-
-    var candidate = {
-      label: tool.label,
-      slug: tool.slug,
-      half: half,
-      earlierWon: earlierWon,
-      laterWon: laterWon,
-      move: move,
-      turnedAt: later[0].at,
-    };
+    var split = trendSplit(tool.bids);
+    if (!split) continue;
     // The furthest movement, with the slug breaking ties: only one trade is
     // named, for the reason every reading here names one — a table of small
     // movements is a thing to read, and this is a thing to go and act on.
     if (!best ||
-      Math.abs(candidate.move) > Math.abs(best.move) ||
-      (Math.abs(candidate.move) === Math.abs(best.move) && candidate.slug < best.slug)) {
-      best = candidate;
+      Math.abs(split.move) > Math.abs(best.split.move) ||
+      (Math.abs(split.move) === Math.abs(best.split.move) && tool.slug < best.slug)) {
+      best = { slug: tool.slug, label: tool.label, split: split };
     }
   }
 
   if (!best) return '';
 
-  var centre = best.label + ' has been landing ' +
-    (best.move < 0 ? 'less' : 'more') + ' often than it was: ' +
-    best.laterWon + ' of ' + best.half + ' on the ' + best.half + ' most recent, against ' +
-    best.earlierWon + ' of ' + best.half + ' before them.';
+  return best.label + ' has been landing ' + trendDirection(best.split.move) +
+    ' often than it was: ' + trendDetail(best.split, nowMs);
+}
 
-  var since = bidWaitingDays(best.turnedAt, nowMs);
-  var when = since === null || !(since > 0)
-    ? ''
-    : ' The recent half starts ' + since + (since === 1 ? ' day' : ' days') + ' back.';
-
-  var edge = ' Both halves hold the same number of bids, so the counts read straight across — ' +
-    'but they are two halves of one trade’s own book, and a slow season or a run of ' +
-    'unusual jobs moves this as much as a price does. It says where to look, not what changed.';
-
-  return centre + when + edge;
+/**
+ * The tool page's version, drawn in the saved-bid panel of the tool itself.
+ *
+ * The same finding as `trendSentence`, moved to where it is worth the most. The
+ * hub is a page a contractor visits when a customer rings back; the tool page
+ * is the page they are on **while deciding what to charge for the next one**,
+ * which is the only moment this reading can still change an outcome. It costs
+ * nothing extra to put it there — the panel already holds this tool's whole
+ * book, and the script is one shared file rather than a copy per page.
+ *
+ * No trade is named, because there is only one: these bids are the page's own,
+ * and a sentence saying "Fence Bid Calculator" on the fence calculator would be
+ * telling the reader where they are standing.
+ *
+ * Returns `''` below eight decided bids on this tool, or when they have not
+ * moved far enough — which on most tools is most of the time.
+ */
+export function toolTrendSentence(bids, nowMs) {
+  var split = trendSplit(bids);
+  if (!split) return '';
+  return 'The bids you saved here have been landing ' + trendDirection(split.move) +
+    ' often than they were: ' + trendDetail(split, nowMs);
 }
 
 /**
@@ -1930,6 +1993,27 @@ export const BID_PRICE_BAND_HELPERS = [
 ].join('\n');
 
 /**
+ * The trend reading's arithmetic and the tool page's sentence, as source.
+ *
+ * Emitted into the one shared band script every tool page loads. It needs no
+ * figure and no currency — only that a bid was decided and dated — so unlike
+ * the price band above it is not conditional on the page having a hero number:
+ * a tool that saves no amounts can still tell its user their quotes have
+ * stopped landing.
+ *
+ * `trendDetail` calls `bidWaitingDays`, which arrives with
+ * `BID_FOLLOW_UP_HELPERS` — emitted above this in the same script, and the
+ * reason neither list may be injected on its own.
+ */
+export const BID_TREND_HELPERS = [
+  `var MIN_TREND_PER_HALF = ${MIN_TREND_PER_HALF};`,
+  `var TREND_SPLIT_POINTS = ${TREND_SPLIT_POINTS};`,
+  ...[trendSplit, trendDetail, trendDirection, toolTrendSentence].map(
+    (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
+  ),
+].join('\n');
+
+/**
  * `pricingSentence` and the two readers it needs, as source, for the hub.
  *
  * Emitted after `BID_AMOUNT_HELPER` and not usable without it: `bidAmountValue`
@@ -1965,11 +2049,17 @@ export const BID_PRICING_HELPERS = [
   `var KEEP_SPREAD_POINTS = ${KEEP_SPREAD_POINTS};`,
   `var MIN_TREND_PER_HALF = ${MIN_TREND_PER_HALF};`,
   `var TREND_SPLIT_POINTS = ${TREND_SPLIT_POINTS};`,
-  // `trendSentence` calls `bidWaitingDays`, which is not in this bundle: it
+  // `trendDetail` calls `bidWaitingDays`, which is not in this bundle: it
   // arrives with `BID_FOLLOW_UP_HELPERS`, which the hub emits above this one.
   // Nothing here may be injected on its own.
+  //
+  // The three trend helpers below are also in `BID_TREND_HELPERS`, and that is
+  // not a duplicate for the same reason `normalizeLostTo` is in two lists: no
+  // script includes both, and each bundle then carries the one sentence its own
+  // page draws — the hub names the trade that moved, the tool page cannot need
+  // to — rather than paying for the other's.
   ...[normalizeLostTo, normalizeJobCost, bidAmountValue, pricingSentence, winRateSentence,
-    keepSentence, trendSentence].map(
+    keepSentence, trendSplit, trendDetail, trendDirection, trendSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
@@ -2162,14 +2252,15 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning.' : ''}</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning.' : ''}</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
       <button type="button" data-pf-jobs="save">Save this bid</button>
     </div>
     <p class="pf-jobs-summary" id="pf-jobs-summary" hidden></p>
-    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>${withPriceBand ? `
+    <p class="pf-jobs-chase" id="pf-jobs-chase" hidden></p>
+    <p class="pf-jobs-band pf-jobs-trend" id="pf-jobs-trend" hidden></p>${withPriceBand ? `
     <p class="pf-jobs-band" id="pf-jobs-band" hidden></p>
     <p class="pf-jobs-band pf-jobs-gap" id="pf-jobs-gap" hidden></p>
     <p class="pf-jobs-band pf-jobs-margin" id="pf-jobs-margin" hidden></p>` : ''}
@@ -2236,6 +2327,7 @@ const JOBS_SCRIPT = () => `
   var UNSAVEABLE = ${JSON.stringify([...UNSAVEABLE_TYPES])};
 
 ${BID_FOLLOW_UP_HELPERS}
+${BID_TREND_HELPERS}
 ${BID_AMOUNT_HELPER}
 ${BID_PRICE_BAND_HELPERS}
 
@@ -2326,6 +2418,7 @@ ${BID_PRICE_BAND_HELPERS}
   var bandShown = '';
   var gapShown = '';
   var marginShown = '';
+  var trendShown = '';
   var chaseShown = '';
 
   var render = function(){
@@ -2354,6 +2447,27 @@ ${BID_PRICE_BAND_HELPERS}
     // row, leaving the contractor to hold "9 days" in their head and check
     // twenty ages against it. The count and the rows now come off one value.
     var seen = responseWindow(list);
+
+    // Whether this trade has been landing differently lately, drawn above the
+    // money readings and on every page the panel reaches rather than only the
+    // ones with a hero figure — it needs no figure at all, only that a bid was
+    // decided and dated.
+    //
+    // The hub says this too, and naming the trade there is the half no tool
+    // page can produce. This is the half no hub page can: a contractor reads
+    // the hub when a customer rings back, and reads this panel while deciding
+    // what to charge for the next job, which is the only moment the finding can
+    // still change an outcome.
+    var trendEl = el('pf-jobs-trend');
+    if (trendEl) {
+      var trending = toolTrendSentence(list, Date.now());
+      trendEl.textContent = trending;
+      trendEl.hidden = trending === '';
+      if (trending !== '' && trending !== trendShown) {
+        trendShown = trending;
+        bump('bid_trend_shown');
+      }
+    }
 
     // Absent on a tool with no headline figure: the build emits neither the
     // paragraph nor the functions there, so this element is the guard. Counted

@@ -28,7 +28,10 @@ import {
   keepSentence,
   MIN_TREND_PER_HALF,
   TREND_SPLIT_POINTS,
+  trendSplit,
   trendSentence,
+  toolTrendSentence,
+  BID_TREND_HELPERS,
   normalizeJobCost,
   marginSentence,
   PRICE_BAND_CLAUSE,
@@ -2237,4 +2240,99 @@ ${BID_PRICING_HELPERS}
     assert.equal(evaluated(book, TREND_NOW), trendSentence(book, TREND_NOW),
       JSON.stringify(book && book.length));
   }
+});
+
+// --- the same finding, in the panel on the tool's own page ------------------
+
+test('the tool page says it about its own bids, and names no trade', () => {
+  // The hub's copy of this reading has to name the trade, because a crew works
+  // six calculators and the finding is which one moved. On the fence page there
+  // is only one, and a sentence saying "Fence Bid Calculator" there would be
+  // telling the reader where they are standing. These rows carry no slug and no
+  // label at all — which is also what the panel actually holds.
+  const bare = turned.map(({ slug, label, ...bid }) => bid);
+  const sentence = toolTrendSentence(bare, TREND_NOW);
+  assert.match(sentence,
+    /^The bids you saved here have been landing less often than they were: 0 of 4/);
+  assert.doesNotMatch(sentence, /Fence|calculator/i);
+  // And the detail after the subject is the hub's, word for word: one split,
+  // one set of counts, one honest half, so the two pages cannot disagree about
+  // what moved.
+  const detail = trendSentence(turned, TREND_NOW).split('was: ')[1];
+  assert.equal(sentence.endsWith(detail), true, sentence);
+});
+
+test('the two sentences refuse on exactly the same evidence', () => {
+  for (const book of [
+    [], null, undefined,
+    turned.slice(1),
+    turned.map((bid) => ({ ...bid, outcome: 'won' })),
+  ]) {
+    assert.equal(toolTrendSentence(book, TREND_NOW), '', JSON.stringify(book));
+    assert.equal(trendSentence(book, TREND_NOW), '');
+  }
+  // trendSplit is the single gate under both, so the floors are asserted once.
+  assert.equal(trendSplit(turned.slice(1)), null);
+  assert.equal(trendSplit(turned).half, MIN_TREND_PER_HALF);
+  assert.equal(trendSplit(turned).move, -100);
+});
+
+test('the tool page draws the trend without needing a headline figure', () => {
+  // The price band, the undercut line and the margin all ride on the page
+  // having a hero number to compare. This one counts outcomes and never looks
+  // at a figure, so a tool that stores no amounts can still tell its user their
+  // quotes have stopped landing — and the markup must not gate it away with the
+  // money readings.
+  const without = injectSavedBids(page(inputs(4)), 'cleaning-dilution-calculator');
+  assert.match(without, /id="pf-jobs-trend"/);
+  assert.doesNotMatch(without, /id="pf-jobs-margin"/);
+  const withHero = injectSavedBids(page(inputs(4) + hero('price')), 'fence-bid-calculator');
+  assert.match(withHero, /id="pf-jobs-trend"/);
+  // Said in the panel's own copy, on both, because the line is on both.
+  assert.match(without, /landing differently lately/);
+  assert.match(withHero, /landing differently lately/);
+
+  const script = module_();
+  // The element is the guard, as it is for every reading in this panel.
+  assert.match(script, /var trendEl = el\('pf-jobs-trend'\);/);
+  assert.match(script, /var trending = toolTrendSentence\(list, Date\.now\(\)\);/);
+  // Counted on change rather than per render, so marking three bids in a row is
+  // three readings and not thirty. No name, no figure, no direction.
+  assert.match(script, /bump\('bid_trend_shown'\)/);
+  assert.ok(!/bump\('bid_trend_shown:' ?\+/.test(script), 'the event names nothing');
+});
+
+test('the shared band script carries the trend body the tests run', () => {
+  // The guarantee the whole file is built on, checked on the second bundle:
+  // the browser runs the tested definition, not a paraphrase. Two lists are
+  // needed because trendDetail calls bidWaitingDays, which ships with the
+  // follow-up helpers — and the band script emits both, in that order.
+  const evaluated = new Function(`${BID_FOLLOW_UP_HELPERS}
+${BID_TREND_HELPERS}
+    return toolTrendSentence;`)();
+  for (const book of [
+    [], null, turned.slice(1), turned,
+    turned.map((bid) => ({ ...bid, outcome: bid.outcome === 'won' ? 'lost' : 'won' })),
+  ]) {
+    assert.equal(evaluated(book, TREND_NOW), toolTrendSentence(book, TREND_NOW),
+      JSON.stringify(book && book.length));
+  }
+  const script = module_();
+  assert.ok(script.indexOf('var bidWaitingDays = function bidWaitingDays(') <
+    script.indexOf('var trendDetail = function trendDetail('),
+    'trendDetail is emitted before the helper it calls');
+});
+
+test('the band bundle ships one sentence, not both', () => {
+  // BID_TREND_HELPERS and BID_PRICING_HELPERS share the arithmetic and part
+  // company at the sentence. Neither page pays for the other's: the hub cannot
+  // use a sentence that names no trade, and the tool page cannot use one that
+  // groups a book by slug it does not have.
+  assert.ok(BID_TREND_HELPERS.includes('var toolTrendSentence = function'));
+  assert.ok(!BID_TREND_HELPERS.includes('var trendSentence = function'));
+  assert.ok(BID_PRICING_HELPERS.includes('var trendSentence = function'));
+  assert.ok(!BID_PRICING_HELPERS.includes('var toolTrendSentence = function'));
+  // And the money readings still stay off the hub, which is the rule this
+  // split was modelled on.
+  assert.ok(!BID_PRICING_HELPERS.includes('var priceBandSentence = function'));
 });
