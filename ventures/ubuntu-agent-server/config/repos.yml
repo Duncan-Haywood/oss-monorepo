@@ -12,7 +12,53 @@
 # first to claim an issue (via the in-progress label) does the work, so
 # they naturally divide labor without colliding.
 
-repos: []
+repos:
+  # This monorepo itself. tool: codex uses the OpenAI Codex CLI's
+  # subscription-based OAuth login (ChatGPT Plus/Pro's included usage,
+  # not metered API billing — see README's "What this does NOT do": the
+  # login itself still has to happen once, interactively, on the box).
+  # self_directed_prompt points it at this repo's own product-portfolio
+  # conventions (CLAUDE.md, portfolio/DIRECTION.md) instead of the generic
+  # default below, but keeps the same conservative boundary: PR-only, no
+  # billing/deploy/infra edits from this unattended path.
+  #
+  # dry_run stays true — and the master switch
+  # (agent_runner_start_disabled in group_vars/all.yml) stays true — until
+  # a human has actually provisioned a box, logged the codex CLI in
+  # interactively, and watched a few dry runs behave. Flipping either is
+  # an owner action, not something this entry does by itself.
+  - repo: "Duncan-Haywood/monorepo-projects"
+    tool: codex
+    trigger_label: agent
+    base_branch: main
+    dry_run: true
+    self_directed: true
+    self_directed_cooldown_hours: 24
+    model_tier: null
+    self_directed_prompt: |
+      There is no specific issue assigned — you're finding your own next
+      task, following this repo's own working agreement: read README.md,
+      AGENTS.md, and CLAUDE.md at the repo root first.
+
+      This is a product portfolio. Its job is to ship free tools people
+      actually use, not to write plans about tools. Review recent commits,
+      portfolio/ledger/, and open issues, then use your judgment to make
+      ONE complete, high-value improvement to a real venture under
+      ventures/. Good candidates: fixing a real bug in a shipped
+      calculator or tool, completing a thin or half-built product slice
+      end to end (logic, UI, tests, disclaimer text, usage tracking),
+      closing a test-coverage gap, or a small well-scoped feature clearly
+      implied by existing code/docs but not yet done.
+
+      Boundaries, same as any unattended run: prefer leaving the repo
+      unchanged over guessing at something ambiguous. Do not modify
+      billing, pricing, payment, deployment/CI/infra, or legal files, or
+      anything secret-adjacent, unless a human explicitly asked for that
+      in this task — none did. This run only ever produces a PR — it
+      cannot merge or deploy anything; a human or another agent session
+      reviews it through the repo's normal PR pipeline. Explain your
+      reasoning in the PR so that review can evaluate the judgment call,
+      not just the diff.
 
 # --- examples, commented out ---
 #
