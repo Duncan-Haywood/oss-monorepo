@@ -171,9 +171,17 @@ def render(decisions: list[dict], today: dt.date) -> str:
     oldest = max(age_days(d["opened"], today) for d in decisions)
 
     out = ["The account owner's decision queue", ""]
+    # "related", not "open". Every one of the seven pull requests this file
+    # names was closed by 2026-08-27 -- six merged, one closed unmerged -- while
+    # this line went on calling them open, so the queue's first sentence
+    # overstated it by seven items that no longer exist. The numbers are
+    # provenance: which PR raised the decision, or which one a revert is waiting
+    # on. A decision does not stop being the owner's because its PR closed
+    # (`funding-sponsors-live` is exactly that: merged, then reverted by #862,
+    # still undecided), and it does not become theirs again because one opened.
     out.append(
         f"  {len(decisions)} decisions, collapsed from {n_asks} asks and "
-        f"{n_prs} open pull requests."
+        f"{n_prs} related pull requests."
     )
     out.append(f"  Oldest has waited {oldest} days.")
     out.append(
