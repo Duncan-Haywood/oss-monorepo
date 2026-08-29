@@ -28306,3 +28306,77 @@ entries:
         that correction spelled out, rather than building the unsafe version
         or silently doing nothing.
     mrr_end: null
+  - venture: gitops
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a publish path for the portfolio site that depends on neither
+        GitHub Actions nor GitHub Pages (#1999, merged). `gitops/prod/portfolio-site.yaml`
+        builds the site inside the k3s cluster -- shallow clone, then
+        `platform/pages/build.mjs`, then nginx over the result -- and serves
+        it on `tools.marisstella.dev` through the ingress-nginx and cert-manager
+        that were already running. `prod` had been auto-syncing a placeholder
+        that said "add an Ingress in a follow-up PR when a product is ready";
+        164 tools were ready, so this is that PR.
+      - >-
+        The finding that changes the deploy calculus: **this repository is
+        private** (`"visibility": "private"` from the API). GitHub Pages from a
+        private repo does not serve a public site on the free tier, so the
+        queued `deploy-settings` flip would NOT by itself have put these tools
+        in front of strangers -- which is what `portfolio/hosting/README.md`
+        assumed when it routed all static surfaces to Pages. Amended that doc
+        in place with the reasoning. Three blockers stacked on the Pages route
+        (not enabled, private repo, no runner since 2026-08-26); the Hetzner
+        route shares none of them.
+      - >-
+        Caught three defects before they could reach a cluster, none of which
+        YAML parsing would have found. `build.mjs`/`check.mjs` take
+        `--out=`/`--base=`/`--dist=`, not the space-separated flags first
+        written. `check.mjs` needs a writable `/tmp` for its `mkdtemp` parse
+        scratch, which `readOnlyRootFilesystem: true` denies -- it now gets an
+        emptyDir. And the Ingress originally pointed at `letsencrypt-prod`:
+        since Argo auto-syncs `prod`, the Ingress exists before its A record
+        does, so cert-manager would have started HTTP-01 challenges that
+        cannot resolve and counted the failures against Let's Encrypt limits
+        for a name nobody can reach. Ships on `letsencrypt-staging` with a
+        test pinning it; flipping to prod is documented as the last step.
+      - >-
+        Added `kubeconform -strict` to `hetzner-gitops-ci.yml` after the
+        existing `kustomize build`. Parsing as YAML only proves it is YAML;
+        `-strict` rejects unknown fields, which is the class that matters --
+        a misspelled `readOnlyRootFilesystem` parses fine and protects nothing.
+      - >-
+        Widened the `ubuntu-agent-server` Codex `self_directed_prompt` per the
+        owner's ask to spend the subscription quota the way supervised sessions
+        do, naming CI/CD and marketing. It may now work on CI, deployment
+        manifests and SEO/landing content, which it previously excluded. Kept
+        PR-only, and money, legal text, secrets and self-enablement stay out of
+        scope -- "similar prompt" is not "same authority" when nobody is
+        watching. **Nothing was enabled:** `dry_run: true` and
+        `agent_runner_start_disabled: true` are untouched, and this is the
+        subscription-OAuth `agent_runner` path, not the metered
+        `gitops/agents/governor` that `OWNER_CHECKLIST.md` gates -- the
+        2026-08-29 `codex-governor-enable` ask still stands unchanged.
+      - >-
+        Queue drain: one open PR existed (#1994), provably superseded by #1995
+        on `main` -- `supersede_check.py` exit 0 with an identical-merge proof,
+        confirmed by reading both files (`main`'s entry has the same eight
+        config keys plus a `self_directed_prompt` the branch lacked). Closed
+        with the proof recorded. Ran the same identical-merge proof across all
+        169 remote branches ahead of `main`: 77 carry content `main` lacks, and
+        the largest are the rename case -- `vendor-change-watch` is
+        re-implemented on `main` as `vendor-watch` + `vendor-change-evidence`,
+        `shopify-permission-drift`'s browser tool lives under `site/`,
+        `print-atelier`'s preflight lib is already there. Opening PRs for those
+        would add second copies of live features; left alone deliberately.
+      - >-
+        Not deployed, and not claimed to be. No cluster access and no SSH key
+        were held or sought. Four owner steps remain, in `gitops/README.md`:
+        an A record for `tools.marisstella.dev` -> 89.167.29.39; a sealed
+        fine-grained Contents:Read-only clone token (the repo is private, so
+        the init container cannot clone anonymously); a real ACME contact to
+        replace `replace-me@duncanhaywood.dev` on the issuer; then the flip to
+        `letsencrypt-prod`. Until then the pods fail closed on the missing
+        secret and the placeholder landing stays up.
+    mrr_end: null
