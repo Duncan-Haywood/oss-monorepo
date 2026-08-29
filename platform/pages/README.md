@@ -1027,6 +1027,98 @@ no figures. `bid_link_opened` is the first signal in this portfolio that a tool
 reached a *second* person, and `bid_link_amount_differs` is the one to watch: it
 is a defect report the visitor did not have to write.
 
+## Pointing at the input that was rejected
+
+103 tools here refuse to price a job like this:
+
+```
+Wood privacy, 6 ft: linear feet must be at least 0
+check the highlighted input
+```
+
+The first line is the hero number, replaced by the message. The second is the
+label under it. Measured in Chromium on 2026-08-29 against
+`fence-bid-calculator`, **nothing on the page was highlighted**: no
+`aria-invalid`, no outline, no focus move. Every one of the 103 pages that
+prints that sentence printed it without drawing a highlight; nine of them mark
+a field for some unrelated reason, and none marked the field the message was
+about.
+
+The cost is not cosmetic. These forms carry twenty to forty numeric inputs and
+repeat rows per fence run, per room, per gutter line: `fence-bid-calculator`
+opens with 26 visible number fields. A contractor who fat-fingers a minus sign
+gets a sentence, an instruction to look at a highlight that does not exist, and
+no price — with the offending box usually scrolled off a phone screen. Recovery
+from a typo is the second most-travelled path through these tools, and it dead
+ended.
+
+`invalid.mjs` reads the message the calculator wrote, finds the field it names,
+and marks it — `aria-invalid="true"` plus an outline (an outline, not a border:
+a border would reflow the form on every failed keystroke). It invents no
+validation of its own; `calc.mjs` remains the only thing that decides what is
+wrong. This answers only "which box?", which is the half the message cannot
+express and the page already claimed to have answered.
+
+It ships the way everything else here does: two files at the site root,
+`pf-invalid.mjs` and `pf-invalid.css`, linked from the pages that promise a
+highlight and named in the offline bundle — never written into a venture. The
+gate is the promise itself, so a calculator that lands tomorrow carrying that
+line is covered on the day it ships, and one that never prints it gets nothing.
+
+Finding the field is text, because there is no other link between a message and
+an input:
+
+- The message splits into a **scope** and a **subject** — `Wood privacy, 6 ft`
+  and `linear feet` — at the connective (`must`, `cannot`, `has to`, …).
+- Every visible control the *venture* owns is scored on how well its label
+  answers the subject, in both directions. Recall alone lets a long label win
+  by containing everything plus ten other words; precision alone lets `Hours`
+  beat `Hours / post` for "hours per post".
+- Controls the build injected are skipped by their `pf-` class ancestry. The
+  shop-rates bar carries an input labelled "Crew hourly wage", which is exactly
+  what a wage message matches.
+- The scope breaks the tie between rows: with two runs on the form, breaking
+  the second run's linear feet marks `r2-lf`, not `r1-lf`.
+- Native validity is **evidence, not an answer**. An earlier version returned
+  the page's single natively-invalid control outright, and on a form where one
+  unrelated field is already out of range that marked it for every message —
+  "Add at least one fence run to price" included. It is now a bonus on the
+  score, and the tie-breaker only where the words already brush against that
+  control.
+- Two wording drifts were measured and are handled by normalisation, not by a
+  per-tool table: the form abbreviates what the sentence spells out
+  (`Finished top sq ft` / "Finished square feet"), and sometimes the bracketed
+  unit is the only word the two share (`Walking surface (sq ft)` / "Deck square
+  feet"). So the unit is kept, `sq`/`ft`/`lf` expand, and plurals fold.
+
+**Measured across the whole family** — build the site, serve it, drive every one
+of the 103 tools in Chromium, break one numeric field on each and read back what
+got marked:
+
+| | before | after |
+|---|---|---|
+| Tools promising a highlight | 103 | 103 |
+| …that marked a field | 0 | 103 |
+| …that marked the field actually broken | 0 | 103 |
+| …still promising with nothing marked | 103 | 0 |
+
+Focus is never taken: the visitor is usually typing in the field that is wrong,
+and stealing focus mid-keystroke eats the next character. The page scrolls to
+the field only when no control has focus at all, which is the case where they
+cannot see what to fix.
+
+Where no field can be named — "Add at least one fence run to price" is about the
+form, not a box — the label stops promising a highlight and reads *check the
+values you entered* instead. A promise kept only sometimes is still a promise
+broken.
+
+Counting is the site convention: `invalid_field_marked` and `invalid_no_field`
+in `portfolio-hub-usage`, one per distinct rejection, local only, silent under
+DNT/GPC and the site-wide opt-out. No slug, no field names, no figures. The
+second is the maintenance signal: if it grows against the first, some
+calculator has started wording its messages in a way the matcher cannot follow,
+and those pages are back to pointing at a highlight nobody drew.
+
 ## Offline and installable
 
 The people these tools are for are often somewhere with no signal at the moment
@@ -1477,6 +1569,39 @@ differently-named picker is covered on the day it lands. `standby-generator`'s
 `presetKw` was caught by exactly that, without ever being named.
 
 Not in CI, for the same reason as the three above.
+
+### Checking the page points at the input it rejected
+
+`highlight.mjs` asks the question behind ["Pointing at the input that was
+rejected"](#pointing-at-the-input-that-was-rejected): **when the calculator
+refuses a number, is the box it is refusing actually marked?**
+
+```bash
+node platform/pages/highlight.mjs   # same BASE_URL / PLAYWRIGHT / CHROME_PATH / DIST env vars
+node platform/pages/highlight.mjs fence-bid-calculator   # or just these tools
+```
+
+For every tool that prints "check the highlighted input" it breaks one of the
+venture's own numeric fields — preferring one the markup itself constrains, so
+-5 is out of range by the page's own declaration — and reads back what got
+marked. Three outcomes, and they are different failures:
+
+| | |
+|---|---|
+| `ok` | the field that was broken is the field that got marked, **or** the message named no field and the label stopped promising a highlight |
+| `WRONG` | something was marked, but not the field that was broken |
+| `FAIL` | the page still promises a highlight and marked nothing |
+
+Run against `main` before `invalid.mjs`, every one of the 103 came back `FAIL`.
+It is **103/103 `ok`** now, with zero `WRONG` — every tool marks the exact field
+the probe broke.
+
+It selects tools by the promise in the built artifact, not by a list, so a
+calculator that lands tomorrow carrying that line is checked the day it ships —
+and one that does not print it is left alone rather than reported for a promise
+it never made.
+
+Not in CI, for the same reason as the four above.
 
 ## Deploying
 
