@@ -1,0 +1,114 @@
+# Self-hosted Actions runners
+
+## Why this exists
+
+This repository is private and owned by a user account, so GitHub-hosted
+Actions minutes are metered. From **2026-08-26** every workflow run came back
+red, including ones that touch nothing (`Conflict markers`, `Branch cleanup`).
+They were not failing — they were never starting:
+
+```
+started_at  2026-08-29T21:20:55Z
+completed_at 2026-08-29T21:20:58Z
+runner_id   0
+runner_name ""
+steps       []
+```
+
+`runner_id: 0` with no steps means no runner was ever assigned. A real
+`Portfolio validate` installs Python and Node and runs 36 steps; it cannot
+finish in three seconds. The 3-6 second duration is a proxy for this and can
+mislead — a real job *can* fail fast — but an unassigned runner cannot be
+anything else. `CLAUDE.md` documents the same signature.
+
+Self-hosted runners are not metered. They restore CI whether the ceiling that
+was hit was the included-minutes allowance or a spending limit, and they run on
+hardware the portfolio already pays for.
+
+## The switch
+
+All 242 `runs-on` lines across 217 workflows now read:
+
+```yaml
+runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+```
+
+Unset, `vars.CI_RUNNER` is the empty string, which is falsy, so the expression
+falls back to `ubuntu-latest`. **Merging this changes nothing** until the repo
+variable is set. Setting it to `self-hosted` moves every workflow onto this
+stack at once; clearing it moves them all back when metered minutes reset. That
+is the point of routing through one variable rather than editing 217 files
+twice.
+
+`gitops/tests/test_ci_runner.py` fails if a workflow hard-codes a runner again.
+
+## Turning it on
+
+Two steps, both yours — an agent can build this stack but cannot hold a token
+or change repository settings.
+
+1. **Seal the PAT.** Copy
+   `secrets/actions-runner-token.template.yaml`, replace `CHANGE_ME`, seal it
+   with `kubeseal`, and commit the sealed output. Prefer a fine-grained PAT
+   scoped to this repository alone with **Administration: Read and write** —
+   that is the narrowest permission that can mint a runner registration token.
+   A classic PAT needs full `repo` scope, which is broader than necessary.
+
+2. **Set the repo variable.** Settings → Secrets and variables → Actions →
+   Variables → New repository variable, `CI_RUNNER` = `self-hosted`.
+
+Argo syncs `gitops/ci` automatically. Until the sealed Secret exists the runner
+pods stay in `CreateContainerConfigError` — expected, and the reason the
+Application shows Degraded before step 1.
+
+## How a job runs
+
+Each pod registers one **ephemeral** runner, takes exactly one job, and exits;
+the Deployment starts a replacement. Nothing persists between jobs — no
+checkout, no `node_modules`, no environment. A long-lived runner would carry
+one job's leftovers into the next, which is the usual way self-hosted CI starts
+producing results that do not reproduce.
+
+Two replicas: a PR here typically triggers `Portfolio validate`, `Page
+integrity`, `Conflict markers` and the touched venture's own CI. One runner
+would serialise them.
+
+## What it can and cannot reach
+
+CI runs whatever a workflow file says to run, on the same node as
+`marisstella.dev`. On a private repo that is only ever a collaborator's code,
+but the blast radius is bounded anyway:
+
+- `priorityClassName: ci-low`, below `agents-low` and `prod-high`. A CI burst
+  is never why the public site loses a pod.
+- `automountServiceAccountToken: false` — no Kubernetes API credentials.
+- A NetworkPolicy allowing egress to the internet (needed: `api.github.com` to
+  register, and every workflow runs `actions/setup-node` or `setup-python`)
+  with the pod CIDR, service CIDR, RFC1918 ranges and link-local
+  `169.254.0.0/16` cloud metadata excluded. DNS to CoreDNS is allowed back
+  explicitly on port 53.
+- No ingress at all.
+- A namespace `ResourceQuota` two runners at full limits cannot exceed.
+
+## Known limitations
+
+- **`hetzner-gitops-ci.yml` will still fail on self-hosted runners.** It is the
+  only one of the 217 that shells out to `sudo` — `sudo mv kustomize
+  /usr/local/bin/`, `sudo apt-get install shellcheck` — and the official runner
+  image ships neither `sudo` nor those packages. The other 216 are
+  `actions/checkout` plus `actions/setup-node`/`setup-python`, which download
+  their own toolchains and need nothing from the base image. Fixing it means
+  either installing those tools into `$GITHUB_PATH` under `$HOME` instead of
+  `/usr/local/bin`, or building a small image on top of the runner with
+  `kustomize`, `kubeconform` and `shellcheck` baked in. Flipping the switch
+  takes CI from 217 workflows failing to one — but that one is a real gap, not
+  a rounding error, and it is the workflow that validates this very directory.
+- `pull_request_target` workflows run with repository write access. On a
+  private repo the risk is bounded because only collaborators can open PRs, but
+  if this repository is ever made public, move those workflows back to
+  GitHub-hosted runners before flipping `CI_RUNNER`.
+- The PAT expires. When it does, runner pods `CrashLoopBackOff` with
+  `Could not read a registration token` and CI goes quiet — the same symptom as
+  the outage this stack exists to end. Worth a calendar reminder.
+- The runner image pins `2.328.0`. GitHub deprecates old runner versions; bump
+  the tag in `runner.yaml` when registration starts warning.

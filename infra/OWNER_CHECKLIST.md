@@ -117,6 +117,17 @@ codes as exit 42 and a rejected credential as exit 43.
    `codex-secrets` (`OPENAI_API_KEY`, `GH_TOKEN`) in a follow-up PR.
    Only then flip `gitops/agents/governor/cronjob.yaml` `suspend: false`
    and `policy.json` `"enabled": true`.
+9. **Restore CI.** Every workflow has been red since 2026-08-26 with
+   `runner_id: 0` and zero steps — jobs that were never assigned a
+   runner, because metered Actions minutes on this private repo ran out.
+   Two steps bring it back on hardware you already pay for:
+   seal `actions-runner-secrets` from
+   `gitops/ci/secrets/actions-runner-token.template.yaml` (a
+   fine-grained PAT for this repo with **Administration: Read and
+   write**), then set the repository variable `CI_RUNNER` =
+   `self-hosted`. Clearing that variable moves all 217 workflows back to
+   GitHub-hosted runners when your minutes reset. Details and the
+   security posture: `gitops/ci/README.md`.
 
 ## Publish `tools.marisstella.dev` (the whole product portfolio)
 

@@ -113,3 +113,30 @@ spec:
       kind: "*"
     - group: bitnami.com
       kind: SealedSecret
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ci
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: Self-hosted Actions runners. Cannot dest prod, agents or staging.
+  sourceRepos:
+    - https://github.com/Duncan-Haywood/monorepo-projects.git
+  destinations:
+    - namespace: ci
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: policy
+      kind: "*"
+    - group: bitnami.com
+      kind: SealedSecret
