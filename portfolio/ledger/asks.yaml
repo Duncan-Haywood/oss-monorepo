@@ -62,17 +62,27 @@ decisions:
 
 - id: actions-runners-unavailable
   asks: []
-  prs: [1842]
+  prs: [1842, 2021, 2022]
   gates: deployment
   exposure: credential
   opened: "2026-08-26"
   action: >-
-    Restore GitHub Actions runner allocation for this repository: check
+    Two independent unblocks now exist; either clears this row. (a) Check
     Settings → Billing → Spending limit for Actions (and that the payment
-    method is current), then re-run any failed workflow to confirm. Since
-    roughly 22:10–23:25 UTC on 2026-08-26 every workflow in the repo dies in
-    3–6 seconds with `runner_id: 0`, an empty check-run output and a 404 on
-    log download. No agent can fix this; it is an account-level setting.
+    method is current) — the metered GitHub-hosted allowance this repo has
+    used since 2026-08-26. (b) Cheaper and does not touch billing: run the
+    self-hosted-runner path #2021/#2022 already shipped on hardware you
+    already pay for — seal `actions-runner-secrets` (a fine-grained PAT,
+    Administration: Read and write) per
+    `gitops/ci/secrets/actions-runner-token.template.yaml`, then set repo
+    variable `CI_RUNNER=self-hosted`. Typed out as owner-checklist item 9
+    in `infra/OWNER_CHECKLIST.md`; details in `gitops/ci/README.md`. Since
+    roughly 22:10–23:25 UTC on 2026-08-26 every workflow using the default
+    `ubuntu-latest` label dies in 3–6 seconds with `runner_id: 0`, an empty
+    check-run output and a 404 on log download — confirmed still true as of
+    2026-08-29T21:51Z (`Portfolio validate` on `main`, job 99165691846, 4s,
+    `ubuntu-latest`). No agent can grant either unblock; both are
+    account-level actions (billing access or a sealed secret).
   unlocks:
     - "**Verification for the whole fleet.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build are the guards that stop a stale branch reverting newer work or re-declaring an existing export. All of them are dark, so every merge is landing on local verification alone."
     - "The Pages build that `deploy-settings` would publish. That flip cannot produce a site while no runner will build one, so this ask now gates that one in practice."
@@ -82,6 +92,15 @@ decisions:
     #1842 and in the 2026-08 ledger until then. It belongs here because it
     is owner-only and because it silently weakens every other row: a granted
     ask still cannot ship if nothing can build.
+
+
+    Updated 2026-08-29: #2021/#2022 shipped the self-hosted-runner
+    alternative (all 242 `runs-on` lines across 217 workflows now read
+    `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`, gated behind one unset repo
+    variable) — see the 2026-08 ledger entry for #2023. This row previously
+    named only the billing path and read as though nothing else could be
+    done; it can now be closed by whichever unblock the owner prefers
+    without waiting on the other.
 
 
     Why it reads as normal and is not. `AGENTS.md` already warns that bot
