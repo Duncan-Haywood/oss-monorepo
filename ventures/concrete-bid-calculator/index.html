@@ -375,6 +375,15 @@
         fields: Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         reinforcement: el('reinforcement').value,
         access: el('access').value,
+        // The deposit split, valid-until days, customer name/address, and the
+        // proposal's payment-terms/notes/exclusions text live on this same
+        // form but outside COST_IDS. Leaving them out here is the draft-save
+        // version of the bug `platform/proposal/terms.mjs` documents for
+        // shared links: the price restores exactly and the deposit quietly
+        // reverts to the page default, with nothing on screen saying so.
+        proposal: Object.fromEntries(
+          [...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+        ),
       };
     }
 
@@ -408,6 +417,9 @@
         });
         if ([...el('reinforcement').options].some(option => option.value === draft.reinforcement)) el('reinforcement').value = draft.reinforcement;
         if ([...el('access').options].some(option => option.value === draft.access)) el('access').value = draft.access;
+        Object.entries(draft.proposal || {}).forEach(([id, value]) => {
+          if ([...CLIENT_IDS, ...TERM_IDS].includes(id) && el(id)) el(id).value = value;
+        });
         count('draft_loaded');
         update();
         setDraftStatus('Loaded saved draft');

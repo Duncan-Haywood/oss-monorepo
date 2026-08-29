@@ -56,6 +56,24 @@ test('recurring drafts have visible local controls and aggregate events', () => 
   assert.match(scriptSource, /draft_cleared/);
 });
 
+test('saved drafts carry the deposit, valid-until, and customer/proposal-terms fields, not just the pricing inputs', () => {
+  // The price restoring perfectly while the deposit split silently reverts
+  // to the page default is the exact defect `platform/proposal/terms.mjs`
+  // documents for shared bid links -- here it is the local "Save draft"
+  // button instead of a link. `draftData()` must read CLIENT_IDS/TERM_IDS
+  // (deposit %, valid days, customer name/address, payment terms, notes,
+  // exclusions), and `loadDraft()` must write them back, or a contractor's
+  // saved job reopens with the right price and the wrong money-on-acceptance.
+  const draftDataFn = scriptSource.match(/function draftData\(\)\s*\{[\s\S]*?\n    \}/);
+  assert.ok(draftDataFn, 'draftData() not found');
+  assert.match(draftDataFn[0], /CLIENT_IDS/, 'draftData() does not save the customer name/address fields');
+  assert.match(draftDataFn[0], /TERM_IDS/, 'draftData() does not save the deposit/valid-days/terms fields');
+
+  const loadDraftFn = scriptSource.match(/function loadDraft\(\)\s*\{[\s\S]*?\n    \}/);
+  assert.ok(loadDraftFn, 'loadDraft() not found');
+  assert.match(loadDraftFn[0], /draft\.proposal/, 'loadDraft() does not restore the saved proposal-terms fields');
+});
+
 test('figures named in schema.org featureList are actually rendered', () => {
   const featureList = html.match(/"featureList":\s*"([^"]+)"/);
   assert.ok(featureList, 'no schema.org featureList found');
