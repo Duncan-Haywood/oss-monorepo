@@ -137,3 +137,14 @@ test('the local draft carries the deposit, valid-until, and customer/proposal-te
   assert.ok(restoreDraftFn, 'restoreDraft() not found');
   assert.match(restoreDraftFn[0], /saved\.proposal/, 'restoreDraft() does not restore the saved proposal-terms fields');
 });
+
+test('the "how much to charge" SEO page exists, is linked from the calculator, and is in the sitemap', () => {
+  assert.match(html, /how-much-to-charge\.html/, 'index.html does not link to the companion SEO page');
+  const doc = readFileSync(new URL('./how-much-to-charge.html', import.meta.url), 'utf8');
+  assert.match(doc, /How much should I charge to install an EV charger/i);
+  assert.match(doc, /FAQPage/);
+  assert.match(doc, /No warranty/);
+  assert.match(doc, /href="\.\/"/, 'the SEO page has no link back to the calculator');
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /how-much-to-charge\.html/);
+});
