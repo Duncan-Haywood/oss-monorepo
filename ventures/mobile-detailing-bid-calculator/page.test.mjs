@@ -104,15 +104,33 @@ test('the form exposes every default the calculator reads, including whole-stop 
   for (const id of required) {
     assert.ok(declaredIds.has(id), `missing #${id} for a default the calculator reads`);
   }
-  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'copyLink', 'reset', 'usageOptOut', 'claimHint']) {
+  for (const id of ['totalHours', 'laborCost', 'effectiveRate', 'reset', 'usageOptOut', 'claimHint']) {
     assert.ok(declaredIds.has(id), `missing result or action #${id}`);
   }
 });
 
-test('share and persist read Object.keys(defaults), so a new field cannot drop off the link', () => {
+test('persist reads Object.keys(defaults), so a new field cannot drop off the saved draft', () => {
   assert.match(scriptSource, /const ids = Object\.keys\(defaults\)/, 'the page keeps its own field list instead of defaults');
-  assert.match(scriptSource, /location\.hash/, 'the bid must ride in the fragment, not the query string');
-  assert.ok(!/`\?\$\{/.test(scriptSource), 'the bid link must not be built with a query string');
+});
+
+// This page used to copy its own link *and* receive the one the build injects,
+// two buttons writing two hash formats side by side. Whichever the detailer
+// clicked decided what the customer's copy carried: the injected control reads
+// every field off the form, including the proposal deposit and terms, while the
+// inline one serialized `readInput()` and left all five behind. Worse, `persist`
+// rewrote the fragment in its own format on every keystroke, so a visitor who
+// opened a shared bid and then changed one number had the sender's link
+// replaced in their address bar by a different encoding of a different bid.
+//
+// The inline half is gone and the injected control owns the fragment.
+// `platform/pages/check.mjs` refuses to publish a page carrying both.
+test('the fragment belongs to the injected bid link, not to this page', () => {
+  assert.ok(!/location\.hash/.test(scriptSource),
+    'this page must not read or write the fragment; the injected bid link owns it');
+  assert.ok(!/id="copyLink"/.test(html),
+    'the inline copy button is redundant beside the injected one and must not come back');
+  assert.match(scriptSource, /localStorage\.setItem\('mobile-detailing-inputs'/,
+    'the draft is still kept on the visitor\'s own device between visits');
 });
 
 test('the default $180 example stays in the black when wage is skipped', () => {

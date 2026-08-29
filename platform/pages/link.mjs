@@ -305,10 +305,22 @@ export function pageBuildsFieldsAtRuntime(html) {
   return /\bid\s*=\s*(?:"[^"]*\$\{|'[^']*\$\{|`[^`]*\$\{|\$\{)/.test(html);
 }
 
-/** Should the bid-link control be drawn on this page? */
-export function pageTakesBidLink(html) {
+/**
+ * Should the bid-link control be drawn on this page?
+ *
+ * `hasShareModule` is the venture's `share.mjs` on disk, passed by the build
+ * because the markup cannot always answer the question `pageHasOwnShareLink`
+ * asks. `freelance-retainer-calculator` keeps its whole script in `app.js`, so
+ * the import, the button id (`share`) and the label ("Copy shareable link") are
+ * all outside the html — and it shipped with its own button *and* this one,
+ * writing two hash formats side by side, which is the exact thing that gate
+ * exists to prevent. A file in the venture's directory is a fact; a string in
+ * its markup was only ever a proxy for one.
+ */
+export function pageTakesBidLink(html, { hasShareModule = false } = {}) {
   if (typeof html !== 'string') return false;
   if (!pageTakesSavedBids(html)) return false;
+  if (hasShareModule) return false;
   if (pageHasOwnShareLink(html)) return false;
   return !pageBuildsFieldsAtRuntime(html);
 }
@@ -662,10 +674,13 @@ export function renderBidLinkModule() {
  * able to answer it. Defaults to `html` so a caller with one copy still works.
  */
 export function injectBidLink(html, options = {}) {
-  const { slug = '', toRoot = './', amountSelector = '', source = html } = options;
+  const {
+    slug = '', toRoot = './', amountSelector = '', source = html, hasShareModule = false,
+  } = options;
   if (typeof html !== 'string') return html;
   if (html.includes(LINK_MARKER)) return html;
-  if (!pageTakesBidLink(typeof source === 'string' ? source : html)) return html;
+  const gate = typeof source === 'string' ? source : html;
+  if (!pageTakesBidLink(gate, { hasShareModule })) return html;
   if (!/<\/body>/i.test(html)) return html;
 
   const line = html.match(/<p class="pf-jobs-line">[\s\S]*?<\/p>/i);

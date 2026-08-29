@@ -488,6 +488,36 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  // ---- Two buttons that copy two different links --------------------------
+  //
+  // `link.mjs` skips a page that already has its own share control, and states
+  // why: "a second button beside `copyShare`, writing a second hash format, is
+  // worse than the drift it fixes." That gate matches three spellings, and
+  // `mobile-detailing-bid-calculator` used a fourth — `id="copyLink"`, no
+  // `share.mjs`, label "Copy shareable link" — so it shipped with both.
+  //
+  // Which of the two the contractor clicked decided whether the customer's
+  // deposit travelled: the injected control reads every field off the form, the
+  // inline one serialized `readInput()` and left the proposal terms behind. A
+  // page cannot be correct with two answers to "what does this link carry",
+  // whichever one is better, so this refuses to publish one.
+  const OWN_COPY_CONTROL =
+    /<button[^>]*\bid="(copyShare|copyLink|shareLink|share)"/g;
+  for (const product of productDirs) {
+    const index = path.join(site, product, 'index.html');
+    const html = await fs.readFile(index, 'utf8').catch(() => null);
+    if (html === null || !html.includes('id="pf-link-copy"')) continue;
+    OWN_COPY_CONTROL.lastIndex = 0;
+    const own = [...html.matchAll(OWN_COPY_CONTROL)].map((match) => match[1]);
+    if (own.length > 0) {
+      problems.push(
+        `${product}/index.html: ships the injected bid link *and* its own #${own.join(', #')} — `
+        + 'two buttons writing two hash formats, so what a shared link carries depends on '
+        + 'which one was clicked. Drop the redundant control, or teach pageHasOwnShareLink '
+        + 'to recognise it so the injected one is not added.');
+    }
+  }
+
   for (const relative of files) {
     if (LEAKED_FILE_RE.test(relative)) problems.push(`${relative}: repo bookkeeping or test payload was published`);
     else if (relative.split('/').some((segment) => LEAKED_DIRS.has(segment))) {

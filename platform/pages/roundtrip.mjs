@@ -87,6 +87,33 @@ const COPY_CONTROLS = ['button#copyShare', 'button#copyLink', 'button#shareLink'
 // excluded from the link by the page, correctly, so both are excluded here.
 const NOT_IN_A_LINK = new Set(['usageOptOut', 'optOut', 'pf-bid-name', 'remember']);
 
+/**
+ * The proposal's prose terms, typed by this probe rather than left at default.
+ *
+ * The pass below changes selects and number inputs. That was enough to catch
+ * `depositPercent` and `validDays` on 48 tools — and not enough to catch the
+ * three *textareas* beside them, which sat empty on both sides of every
+ * round-trip and compared equal. The link dropped all five; the probe reported
+ * two, and the fix was scoped to two until someone read the panel.
+ *
+ * Named rather than "every textarea", because a textarea on these pages is as
+ * often an input the tool parses as it is prose: `cut-list-optimizer` takes a
+ * parts list in one, `photos-import` a CSV, and typing a sentence into either
+ * would break the calculation and report a dropped field that is really a
+ * refused edit. These four are the ones `platform/proposal/adopt.mjs` generates
+ * on all 103 adopting pages, and they hold wording only.
+ *
+ * `proposalScope` is deliberately not among them. It is a draft generated from
+ * the priced job, and the recipient's page regenerates it from the same numbers
+ * — so a link that does not carry it is correct, and a probe that typed into it
+ * would be reporting on a feature working as designed.
+ */
+const PROSE_FIELDS = [
+  ['proposalExclusions', 'Permits\nSprinkler relocation\nTree removal'],
+  ['paymentTerms', 'Half on acceptance, balance on completion. Card payments add 3%.'],
+  ['proposalNotes', 'Crew starts 7am; driveway must be clear of vehicles.'],
+];
+
 /** Every published tool directory in the built artifact. */
 async function toolSlugs() {
   const entries = await fs.readdir(DIST, { withFileTypes: true });
@@ -231,6 +258,18 @@ async function roundTrip(browser, slug) {
     }
     if (edited === 0) return { slug, status: 'skip', detail: 'no editable number inputs' };
 
+    // The prose terms, on the pages that have them. Typed the way a person
+    // would, so the page's own listeners see it — `fill` dispatches input, and
+    // the proposal panel redraws from that.
+    for (const [id, text] of PROSE_FIELDS) {
+      const present = await page.evaluate((fieldId) => {
+        const node = document.getElementById(fieldId);
+        return !!node && !node.readOnly && !node.disabled;
+      }, id);
+      if (!present) continue;
+      try { await page.fill(cssId(id), text, { timeout: 2000 }); } catch { /* hidden at this width */ }
+    }
+
     const before = await page.evaluate(READ_FIELDS);
     const beforeHero = await page.evaluate(READ_HERO);
     await page.click(control);
@@ -249,8 +288,16 @@ async function roundTrip(browser, slug) {
       return { slug, status: 'skip', detail: `${control} copied nothing${refusal ? ` (${refusal.trim()})` : ''}` };
     }
 
-    const marker = link.indexOf('#') >= 0 ? link.indexOf('#') : link.indexOf('?');
-    if (marker < 0) return { slug, status: 'fail', detail: 'the copied link carries no bid' };
+    // Whichever comes *first*, not whichever exists. A link can carry both:
+    // `painting-bid-calculator` writes its figures as a query string and its
+    // proposal terms in the fragment, because a fragment is not sent in the
+    // request line a server logs and a payment-terms clause is the painter's
+    // own wording. Preferring `#` there reopened the tool with the terms and
+    // none of the bid, and this probe reported 33 dropped fields and a moved
+    // headline on a link a person would have pasted whole.
+    const marks = [link.indexOf('?'), link.indexOf('#')].filter((at) => at >= 0);
+    if (marks.length === 0) return { slug, status: 'fail', detail: 'the copied link carries no bid' };
+    const marker = Math.min(...marks);
 
     const second = await openTool(browser, slug, link.slice(marker));
     const after = await second.page.evaluate(READ_FIELDS);
@@ -264,8 +311,24 @@ async function roundTrip(browser, slug) {
       const flat = String(value).replace(/\s+/g, ' ').trim();
       return flat.length > 40 ? `${flat.slice(0, 40)}…` : flat;
     };
+    // A preset select that comes back empty or as `other` is not a finding, and
+    // the README has said so since this file shipped — the recipient now holds
+    // custom rates, and "Choose a starting job…" or `other` is the honest label
+    // for them. Carrying the preset id instead would re-apply it on arrival and
+    // write the venture's kit figures over the sender's own, which is the exact
+    // defect #1984 repaired on `amazon-fba-calculator`.
+    //
+    // Implemented rather than left as prose because a probe that reports 39
+    // known-benign failures is a probe whose 40th, real one goes unread. The
+    // teeth stay: every field such a select would have written is compared like
+    // any other, so a preset that took the rates with it still fails here.
+    const selectIds = new Set(selects.map((select) => select.id));
+    const presetHandback = (id) =>
+      selectIds.has(id) && (after[id] === '' || after[id] === 'other');
+
     const dropped = Object.keys(before)
       .filter((id) => !NOT_IN_A_LINK.has(id) && id in after && !sameValue(before[id], after[id]))
+      .filter((id) => !presetHandback(id))
       .map((id) => `${id} ${short(before[id])}→${short(after[id])}`);
     const pageErrors = [...errors, ...second.errors];
 
