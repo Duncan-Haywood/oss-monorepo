@@ -624,7 +624,7 @@ decisions:
     this as "metered key, correct" vs "personal login, wrong". That framing
     held partly because the subscription route did not work: the worker
     checked that `CODEX_ACCESS_TOKEN` was set and never handed it to the
-    CLI, which reads a whole `auth.json` from `$CODEX_HOME`. A
+    CLI, which reads a whole auth file from `$CODEX_HOME`. A
     subscription-only Secret would have failed at the first API call. That
     is fixed -- `CODEX_AUTH_JSON` is now a real, tested option, persisted
     on a PVC because Codex rotates the credential on use.
