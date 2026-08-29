@@ -27991,3 +27991,52 @@ entries:
         portfolio-validate checks, `sweep.mjs` 164/164 and `roundtrip.mjs`
         128/128 both unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The owner's decision queue was counting seven closed pull requests as
+        open.** Checked every number it names against the GitHub API rather than
+        against the file: #731, #788, #813, #829, #839 and #1842 are merged,
+        #870 is closed unmerged, all by 2026-08-27. The queue's first sentence
+        still read "collapsed from 8 asks and 7 **open** pull requests", so the
+        one artifact whose whole job is directing the owner's scarce attention
+        overstated itself by seven items that no longer exist — and did it in
+        the line they read first.
+      - >-
+        **Two rows sent the owner to a closed page.** `funding-sponsors-live`
+        said "Merge or decline #839" — #839 was merged on 2026-08-24 and
+        reverted hours later by #862, so the thing to decide is whether to
+        re-land `.github/FUNDING.yml`, not what to do with a PR. Its note still
+        said "left unmerged", which is the opposite of what happened.
+        `routine-trigger-cadence` said "Merge or decline #788, and if merging,
+        first create the secret" — #788 merged five days ago and
+        `claude-routine-trigger.yml` is on `main` now, so the live question is
+        the secret or deleting the workflow, and until one of them the schedule
+        fires and fails every 20 minutes. Both rewritten to the decision that
+        is actually open. Its note also still named a `validate` failure #1842
+        fixed.
+      - >-
+        The schema said `prs` were "open pull request numbers", which is what
+        made the drift invisible: nothing re-reads a row when its PR closes.
+        The field is provenance and now says so, with the rule that matters —
+        a decision does not stop being the owner's because its PR closed
+        (`funding-sponsors-live` is exactly that), so on close, rewrite the
+        action rather than the row. `test_decision_queue` pinned the old
+        wording and failed on the change, which is the test doing its job; it
+        now pins the new one and that "open pull requests" is gone.
+      - >-
+        Nothing was removed from the queue. Every one of the eleven decisions
+        is still the owner's; three of the four corrections are wording, one is
+        a count. What changes is that `deploy-settings` and
+        `actions-runners-unavailable` — the two rows actually holding 164
+        finished tools off the internet — are no longer ranked below rows that
+        read as pending and are not.
+      - >-
+        Verified: `decision_queue.py --check` (11 decisions, schema OK), 29
+        decision-queue tests, `break_even.py --check`, router validate (181
+        VENTURE.yaml), usage validate, candidate and doc-consistency
+        validators. `test_break_even.py` errors on a missing `pytest` in this
+        container, identically on a clean `main` — not from this change.
+    mrr_end: null

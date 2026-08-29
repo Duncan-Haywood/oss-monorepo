@@ -146,7 +146,11 @@ class Render(unittest.TestCase):
             decision(),
             decision(id="prs", asks=[], prs=[372, 368], gates="deployment"),
         ], TODAY)
-        self.assertIn("2 decisions, collapsed from 1 asks and 2 open", out)
+        # "related", not "open": this file's PR numbers are provenance, and
+        # calling them open had the queue overstating itself by seven closed
+        # pull requests. See the `prs` note in asks.yaml.
+        self.assertIn("2 decisions, collapsed from 1 asks and 2 related", out)
+        self.assertNotIn("open pull requests", out)
 
     def test_blocked_items_are_marked(self):
         out = render([

@@ -35,7 +35,16 @@
 # Schema (checked by `decision_queue.py --check` in CI):
 #   id           short slug, unique
 #   asks         list of #139 ask numbers this decision covers (may be empty)
-#   prs          list of open pull request numbers this decision covers
+#   prs          list of pull request numbers this decision relates to --
+#                provenance, not liveness. Every one named here was closed by
+#                2026-08-27 while the schema still said "open" and the summary
+#                line still counted them that way, which made the queue read
+#                seven items larger than it was. A decision does not stop
+#                being the owner's because its PR closed: `funding-sponsors-
+#                live` was merged and then reverted, and is still undecided.
+#                So when a PR here closes, re-read the `action` and say what
+#                the owner does *now* -- never leave it reading "merge or
+#                decline #N", which sends them to a closed page.
 #   gates        revenue | distribution | deployment | measurement
 #   exposure     none | credential | legal-person
 #   opened       "YYYY-MM-DD" the ask first appeared on #139
@@ -98,10 +107,15 @@ decisions:
   exposure: none
   opened: "2026-08-24"
   action: >-
-    Merge or decline #788, and if merging, first create the
-    `CLAUDETRIGGERAPIKEY` repository secret it depends on (Settings ->
-    Secrets and variables -> Actions), since the PR body says the job fails
-    loudly on its first step without it.
+    Decide whether the 4-minute routine cadence runs, now that the merge half
+    is already done: #788 landed on 2026-08-24 and
+    `.github/workflows/claude-routine-trigger.yml` is on `main` today. Yes
+    means creating the `CLAUDETRIGGERAPIKEY` repository secret (Settings ->
+    Secrets and variables -> Actions) and accepting the spend below; no means
+    deleting the workflow file, which no session may do on its own because
+    the owner requested it. Until one of those, the schedule fires and every
+    run fails on its first step for want of the secret -- the safe state, but
+    a noisy one.
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,
@@ -118,12 +132,11 @@ decisions:
     change. `permissions: {}`, no third-party actions, token passed via
     `env:` not shell-spliced, `concurrency` with `cancel-in-progress` so
     deferred runs can't stack. `test` and the `agent-permission-harness`
-    suite pass; `validate` currently fails --
-    `platform/ci/publish_surface.py --check` flags the new workflow file as
-    not yet reflected in the publish-surface snapshot (classified `none`,
-    which looks right since the job only POSTs to `api.anthropic.com` and
-    never publishes) -- a `--write` re-run is needed before this is
-    mergeable regardless of the spend decision.
+    suite pass. The `validate` failure this row used to name -- the new
+    workflow missing from the publish-surface snapshot -- was resolved by
+    #1842's `--write` re-run; `publish_surface.py --check` reports 216
+    workflows, 0 live as of 2026-08-29, and the classification stands at
+    `none` since the job only POSTs to `api.anthropic.com`.
 
 - id: payout-rail
   asks: [2]
@@ -422,7 +435,13 @@ decisions:
   exposure: legal-person
   opened: "2026-08-24"
   action: >-
-    Merge or decline #839 (`.github/FUNDING.yml`, `github: [Duncan-Haywood]`).
+    Say yes or no to a live "Sponsor" button on this repo pointing at the
+    owner's own GitHub Sponsors profile. #839 is not the thing to act on --
+    it was merged on 2026-08-24 and reverted the same day by #862, so
+    `.github/FUNDING.yml` is absent from `main` today and the safe state is
+    already in place. Yes means re-landing that one file (15 lines, `github:
+    [Duncan-Haywood]`); no means this row closes and the portfolio carries no
+    funding surface.
   unlocks:
     - >-
       A live "Sponsor" button on the repo pointed at the owner's real GitHub
@@ -445,9 +464,12 @@ decisions:
     <cursoragent@cursor.com>") then edited that same open PR to fill in
     `github: [Duncan-Haywood]`, unilaterally turning a no-op placeholder into
     a live funding config, with no queue entry recording that an agent -- not
-    the PR's opener -- made that call. Left unmerged pending the owner's
-    decision on whether that Sponsors profile should be surfaced here at
-    all.
+    the PR's opener -- made that call. It then *was* merged, by the owner
+    treating it as a docs-only edit, and reverted hours later by #862 once a
+    concurrent session flagged it -- so the state pending the owner's decision
+    is `main` without the file, not a PR waiting to merge. This row said
+    "left unmerged" until 2026-08-29, which sent anyone acting on it to a
+    closed PR.
 
 - id: agent-cross-review-automerge
   asks: []
