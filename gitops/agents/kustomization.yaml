@@ -21,5 +21,7 @@ configMapGenerator:
   - name: governor-queue
     files:
       - example.item.yaml=queue/example.item.yaml
+      - branch-pr-drain.yaml=queue/branch-pr-drain.yaml
+      - seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml
 generatorOptions:
   disableNameSuffixHash: true
