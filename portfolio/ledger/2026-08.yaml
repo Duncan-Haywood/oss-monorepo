@@ -27810,3 +27810,79 @@ entries:
         164/164, and a Chromium round-trip of all 48 repaired tools — five terms
         and the bid figure arriving intact on every one, against the same probe
         reporting all five dropped on every tool built from `main`.
+  - venture: platform/pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The probe that named the terms defect could not have found three
+        fifths of it.** `roundtrip.mjs` perturbs selects and number inputs, so
+        `depositPercent` and `validDays` showed up on 48 tools and the three
+        *textareas* beside them never did — they sat empty on both sides of
+        every round-trip and compared equal. That is why the finding read as
+        two fields rather than five, and why the fix was scoped to two until
+        someone read the panel. The prose pass is named rather than "every
+        textarea": a textarea here is as often an input the tool parses as it is
+        wording, and typing a sentence into `cut-list-optimizer`'s parts list
+        would report a dropped field that is really a refused edit.
+      - >-
+        **A link that carries both a query string and a fragment was opened at
+        the wrong half.** The probe took `#` when present and `?` otherwise, and
+        `painting-bid-calculator` now writes its figures as a query and its
+        proposal terms in the fragment — so the probe reopened the tool with the
+        terms and none of the bid, and reported 33 dropped fields and a moved
+        headline on a link a person would have pasted whole. First of the two
+        marks, not whichever exists.
+      - >-
+        **Two pages shipped two copy buttons writing two hash formats.**
+        `link.mjs` skips a page that already has its own share control and says
+        why; that gate reads the markup, and both of these slipped it in
+        opposite directions. `freelance-retainer-calculator` keeps its whole
+        script in `app.js`, so the import, the button id (`share`) and the label
+        ("Copy shareable link") were all outside the html — it got a second
+        button. `mobile-detailing-bid-calculator` had a `#copyLink` button and no
+        share module at all, just an inline one-liner serializing `readInput()`,
+        so it got one too — and there the choice was money: the injected control
+        reads every field off the form including the deposit and terms, the
+        inline one left all five behind. Worse, its `persist()` rewrote the
+        fragment in its own format on every keystroke, so a visitor who opened a
+        shared bid and changed one number had the sender's link replaced in
+        their address bar by a different encoding of a different bid.
+      - >-
+        **Fixed in opposite directions, because a different control was the
+        better one on each.** The build now answers "does this page have its own
+        share control" from two facts together — a copy button in the markup
+        *and* a same-directory script that imports `share.mjs` — so
+        freelance-retainer keeps its own purpose-built control and loses the
+        injected one, while mobile-detailing loses its inline half and keeps the
+        injected one that carries the terms and checks the figure. Requiring
+        both halves matters: the script alone took the bid link off sixty deep
+        "should I…" pages that load the same `app.js` and have nothing to
+        conflict with. Exactly one page changed in the built artifact.
+        `check.mjs` now refuses to publish a page carrying both, matched on
+        `<button` and not a bare id — `cam-reconciliation-check` names a
+        *section* `share`.
+      - >-
+        **A probe reporting 39 known-benign failures is a probe whose fortieth
+        goes unread.** The README has said since this file shipped that a preset
+        select handing back `other` is not a finding; the code did not implement
+        it, so 35 tools failed on `jobPresets` every run. Implemented narrowly —
+        a *select* whose restored value is empty or `other`, and only that — the
+        run goes 88/128 to 124/128 with nothing hidden that moves a number,
+        because every field such a select would have written is still compared.
+      - >-
+        **The four that remain are one shape, and named rather than half-fixed.**
+        Each is a preset select on a form whose numbers no longer match any
+        preset. Two answer honestly (`other`, `none`); two name a different
+        specific thing — `standby-generator` falls back to `GENERATOR_PRESETS[3]`
+        and `parking-lot-striping` has no "no preset" option and defaults to
+        index 0. `drywall` puts that label on the *customer's* proposal
+        (`textureLabel`), which is what makes it worth reading first. A neutral
+        "custom" option on the two selects that lack one would close all four,
+        including the `proposalScope` cascade behind two of them.
+      - >-
+        Verified locally, the runner outage still standing: 12,493 node tests
+        (12,483 before), the seven portfolio-validate page checks, build plus
+        `check.mjs` at 164 products / 446 pages with no dead links, `sweep.mjs`
+        164/164, `roundtrip.mjs` 124/128, and all 48 proposal-term tools still
+        round-tripping clean in Chromium.

@@ -2704,6 +2704,48 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
     .replace(/<\/body>/i, `${footer}\n</body>`);
 }
 
+/** A copy-link button a venture wrote itself, in any of its four spellings. */
+const OWN_COPY_BUTTON = /<button[^>]*\bid="(share|copyShare|copyLink|shareLink)"/;
+
+/**
+ * Does this page already carry a share control of its own?
+ *
+ * `pageHasOwnShareLink` reads the markup, which is enough for the 58 pages that
+ * import `share.mjs` inline. `freelance-retainer-calculator` does not: its whole
+ * script lives in `app.js`, so the import, the button id (`share`) and the label
+ * ("Copy shareable link") were all outside the html the gate could see, and the
+ * page shipped with its own button *and* the injected one — two controls writing
+ * two hash formats, which is precisely what that gate exists to prevent.
+ *
+ * Both halves are required, and each rules out a page the other would get wrong:
+ *
+ *   * **The script.** Without it, `mobile-detailing-bid-calculator` counts —
+ *     it has a `#copyLink` button and no share module at all, just an inline
+ *     one-liner that serialized `readInput()` and dropped the proposal terms.
+ *     That page wants the injected control, not protection from it.
+ *   * **The button.** Without it, the venture's deep "should I…" pages count,
+ *     because they load the same `app.js`. They carry a form and no share
+ *     control, and treating the script as the answer took the bid link off
+ *     sixty pages that had nothing to conflict with.
+ *
+ * Only same-directory scripts are read: a `../` or absolute src is the site
+ * chrome, which is this build's own and never a venture's share control.
+ */
+export async function pageHasOwnShareControl(dir, html, cache) {
+  if (typeof html !== 'string') return false;
+  if (!OWN_COPY_BUTTON.test(html)) return false;
+  const SRC_RE = /<script[^>]*\bsrc="([^"]+)"/g;
+  for (const [, src] of html.matchAll(SRC_RE)) {
+    if (/^[a-z]+:|^\/\/|^\/|\.\./i.test(src)) continue;
+    if (!/\.m?js$/.test(src)) continue;
+    if (!cache.has(src)) {
+      cache.set(src, await fs.readFile(path.join(dir, src), 'utf8').catch(() => ''));
+    }
+    if (/share\.mjs/.test(cache.get(src))) return true;
+  }
+  return false;
+}
+
 /**
  * Adds the navigation to every published venture page. Runs after the hub is
  * written, because `repairLinks` treats a link to a file that does not exist yet
@@ -2721,6 +2763,8 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
     const dir = path.join(outDir, surface.slug);
     if (!(await exists(dir))) continue;
     const related = relatedTools(surfaces, surface.slug);
+    // Read once per venture; several pages in a directory load the same script.
+    const scriptCache = new Map();
 
     for (const file of (await listFiles(dir)).filter((f) => f.endsWith('.html'))) {
       const relative = path.relative(outDir, file);
@@ -2773,6 +2817,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         slug: surface.slug,
         toRoot,
         source: withRates,
+        hasShareModule: await pageHasOwnShareControl(dir, html, scriptCache),
         amountSelector: pageHeadlineAmountSelector(withRates, surface.slug),
       });
       if (linked !== next) shared.push(relative);

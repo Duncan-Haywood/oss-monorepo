@@ -400,3 +400,61 @@ test('one missing guard on a shared bar is reported once, not once per page', as
   });
   assert.equal(mentioning(problems, '.bar sets display:flex').length, 1);
 });
+
+// ---------------------------------------------------------------------------
+// Two buttons that copy two different links
+// ---------------------------------------------------------------------------
+//
+// `link.mjs` skips a page that already has its own share control, because "a
+// second button beside `copyShare`, writing a second hash format, is worse than
+// the drift it fixes". Two pages slipped past that gate and shipped with both.
+// On `mobile-detailing-bid-calculator` it decided real money: the injected
+// control read every field off the form, including the proposal deposit and
+// terms, while the inline one serialized `readInput()` and left all five behind.
+// Whichever button the detailer clicked decided what the customer's copy said.
+
+test('a page shipping both the injected bid link and its own copy button is refused', async () => {
+  const problems = await problemsFor({
+    'tool/index.html': '<button id="copyLink" type="button">Copy shareable link</button>'
+      + '<button id="pf-link-copy" type="button">Copy link to this bid</button>'
+      + '<footer>No warranty.</footer>',
+  });
+  const found = mentioning(problems, 'two buttons writing two hash formats');
+  assert.equal(found.length, 1, problems.join('\n'));
+  assert.match(found[0], /#copyLink/);
+});
+
+test('every spelling of a venture copy button is caught, not just copyShare', async () => {
+  for (const id of ['share', 'copyShare', 'copyLink', 'shareLink']) {
+    const problems = await problemsFor({
+      'tool/index.html': `<button id="${id}" type="button">Copy</button>`
+        + '<button id="pf-link-copy" type="button">Copy link to this bid</button>'
+        + '<footer>No warranty.</footer>',
+    });
+    assert.equal(mentioning(problems, 'two hash formats').length, 1, `#${id} was not caught`);
+  }
+});
+
+test('one control of either kind is fine, and a non-button id is not a control', async () => {
+  const only = {
+    'tool/index.html': '<button id="pf-link-copy" type="button">Copy link to this bid</button>'
+      + '<footer>No warranty.</footer>',
+  };
+  assert.deepEqual(mentioning(await problemsFor(only), 'two hash formats'), []);
+
+  const own = {
+    'tool/index.html': '<button id="copyShare" type="button">Copy share link</button>'
+      + '<footer>No warranty.</footer>',
+  };
+  assert.deepEqual(mentioning(await problemsFor(own), 'two hash formats'), []);
+
+  // `cam-reconciliation-check` names a *section* `share`. A probe that matched
+  // it spent thirty seconds clicking a 0×0 div; a check that matched it would
+  // refuse to publish a page with no second control at all.
+  const section = {
+    'tool/index.html': '<section id="share"><h2>Share</h2></section>'
+      + '<button id="pf-link-copy" type="button">Copy link to this bid</button>'
+      + '<footer>No warranty.</footer>',
+  };
+  assert.deepEqual(mentioning(await problemsFor(section), 'two hash formats'), []);
+});

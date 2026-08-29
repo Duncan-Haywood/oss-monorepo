@@ -1306,9 +1306,18 @@ node platform/pages/roundtrip.mjs   # same BASE_URL / PLAYWRIGHT / CHROME_PATH /
 node platform/pages/roundtrip.mjs shopify-fee-calculator   # or just these tools
 ```
 
-For each tool: change every select and number input, copy the link the page's own
-button copies, open it in a browser that has never seen the tool, and compare
-every control and the headline figure. Exit status is non-zero on any difference.
+For each tool: change every select and number input, type into the proposal's
+three prose terms, copy the link the page's own button copies, open it in a
+browser that has never seen the tool, and compare every control and the headline
+figure. Exit status is non-zero on any difference.
+
+The prose pass is named rather than "every textarea": a textarea on these pages
+is as often an input the tool parses as it is wording — `cut-list-optimizer`
+takes a parts list in one — and typing a sentence into that would report a
+dropped field that is really a refused edit. Its absence is why the first run
+reported `depositPercent` and `validDays` on 48 tools and not the three
+textareas beside them, and why the fix was scoped to two of five terms until
+someone read the panel.
 
 This failure is silent by construction. The link is a second serialization of the
 form, and nothing on the page disagrees with it — the recipient sees a complete,
@@ -1375,9 +1384,35 @@ What the first run found, on 2026-08-29:
   12 vendored ones all name the same five ids, and every adopting page wires
   them), and `sync.test.mjs` (no vendored copy drifts from the canonical one).
 
-A preset select that comes back as `other`, or a scope draft that regenerates, is
-not a finding: the recipient now has custom rates, and `other` is the honest
-label for them.
+A preset select that comes back empty or as `other` is not a finding, and is no
+longer reported as one: the recipient now holds custom rates, and "Choose a
+starting job…" or `other` is the honest label for them. Carrying the preset id
+instead would re-apply it on arrival and write the venture's kit figures over the
+sender's own — the exact defect #1984 repaired on `amazon-fba-calculator`. The
+teeth stay, because every field such a select would have written is compared like
+any other: a preset that takes the rates with it still fails. Implemented rather
+than left as prose because a probe reporting 39 known-benign failures is a probe
+whose fortieth, real one goes unread — 88/128 became 124/128 with nothing hidden
+that moves a number.
+
+**What the four remaining failures are**, as of 2026-08-29, all one shape and
+none yet decided:
+
+| tool | field | what the recipient sees |
+|---|---|---|
+| `standby-generator` | `presetKw 10→22` | `generatorKw` carried; the select fell back to `GENERATOR_PRESETS[3]` |
+| `parking-lot-striping` | `jobPresets 1→0` | the fields carried; the select has no "no preset" option and defaults to index 0 |
+| `drywall` | `textureType orange-peel→none` | the texture hours carried; the select re-derives and finds no match |
+| `attic-insulation`, `drywall` | `proposalScope` | a cascade — the draft regenerates naming the handed-back label |
+
+Each is a preset select on a form whose numbers no longer match any preset,
+which is exactly the state this probe creates by perturbing every input. Two of
+them answer honestly (`other`, `none`); two name a *different specific thing*
+(`22`, index `0`) rather than admitting no preset applies. `drywall` puts that
+label on the customer's proposal (`textureLabel`, index.html:706), so it is the
+one worth reading first. Adding a neutral "custom" option to the two selects that
+lack one would close all four, including the scope cascade — small, per-venture,
+and not yet done.
 
 Not in CI, for the same reason as `sweep.mjs` and `contrast.mjs`: Playwright is
 not a dependency of this repo.

@@ -454,3 +454,16 @@ test('the page script treats a named omission as accounted for, not as a mismatc
   assert.match(source, /var skipped = incoming\.omitted \|\| \[\];/);
   assert.match(source, /for \(var s = 0; s < skipped\.length; s\+\+\) link\[skipped\[s\]\] = 1;/);
 });
+
+// The build passes what the markup cannot say: whether this page loads a share
+// control of its own from a separate script. See `pageHasOwnShareControl` in
+// `build.mjs` for the two pages that made this necessary.
+test('a page the build reports as already having a share control gets no second one', () => {
+  const html = injectSavedBids(page(), 'demo', './');
+  assert.equal(pageTakesBidLink(page()), true);
+  assert.equal(pageTakesBidLink(page(), { hasShareModule: true }), false);
+  assert.equal(pageTakesBidLink(page(), { hasShareModule: false }), true);
+  // and the injection agrees with its own gate
+  assert.equal(injectBidLink(html, { source: page(), hasShareModule: true }), html);
+  assert.notEqual(injectBidLink(html, { source: page(), hasShareModule: false }), html);
+});

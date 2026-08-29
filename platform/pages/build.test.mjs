@@ -51,6 +51,7 @@ import {
   SITE_NAME,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
+  pageHasOwnShareControl,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
@@ -2895,4 +2896,57 @@ test('no published page hides a link inside a panel that sets no link colour', a
   }
   assert.deepEqual(offenders.slice(0, 5), [],
     'a result panel paints its own background but leaves links to the browser default');
+});
+
+
+// ---- Two share controls on one page ---------------------------------------
+//
+// `link.mjs` skips a page that already has its own share button, and says why:
+// "a second button beside `copyShare`, writing a second hash format, is worse
+// than the drift it fixes." That gate reads the markup, and on 2026-08-29 two
+// pages slipped past it in opposite directions.
+
+test('a page whose share control lives in a separate script still counts as having one', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  await fs.writeFile(path.join(dir, 'app.js'), "import { encodeShare } from './share.mjs';\n");
+  await fs.writeFile(path.join(dir, 'share.mjs'), 'export const x = 1;\n');
+  const html = '<button id="share" type="button">Copy shareable link</button>'
+    + '<script type="module" src="app.js"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), true);
+});
+
+test('a deep page loading the same script, with no button, does not', async () => {
+  // freelance-retainer-calculator's "should I…" articles load `app.js` too.
+  // They carry a form and no share control, so the injected one is what they
+  // want — reading the script alone took the bid link off sixty such pages.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  await fs.writeFile(path.join(dir, 'app.js'), "import { encodeShare } from './share.mjs';\n");
+  const html = '<form><input id="hours"></form><script type="module" src="app.js"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
+});
+
+test('a button with no share module behind it does not count either', async () => {
+  // mobile-detailing-bid-calculator had a `#copyLink` button and an inline
+  // one-liner that serialized `readInput()` and dropped the proposal terms.
+  // That page wanted the injected control, not protection from it.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  await fs.writeFile(path.join(dir, 'app.js'), 'const x = 1;\n');
+  const html = '<button id="copyLink" type="button">Copy shareable link</button>'
+    + '<script type="module" src="app.js"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
+});
+
+test('the site chrome is never mistaken for a venture share control', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  const html = '<button id="share" type="button">Copy shareable link</button>'
+    + '<script src="../pf-chrome.js"></script><script src="/pf-link.js"></script>'
+    + '<script src="https://example.test/share.mjs"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
+});
+
+test('a missing script is an answer, not a crash', async () => {
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'pf-share-'));
+  const html = '<button id="share"></button><script src="gone.js"></script>';
+  assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
+  assert.equal(await pageHasOwnShareControl(dir, null, new Map()), false);
 });
