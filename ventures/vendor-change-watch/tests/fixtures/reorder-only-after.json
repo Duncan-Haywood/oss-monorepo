@@ -1,0 +1,11 @@
+{
+  "vendor": "AcmeSaaS",
+  "page_url": "https://acmesaas.test/legal/terms",
+  "page_type": "terms",
+  "captured_at": "2026-08-24T09:00:00Z",
+  "fetch_status": "ok",
+  "sections": [
+    {"heading": "Definitions", "text": "\"Service\"   means the AcmeSaaS platform."},
+    {"heading": "Governing law", "text": "These terms are governed by the laws of Delaware."}
+  ]
+}
