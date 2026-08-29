@@ -29326,3 +29326,37 @@ entries:
         ask was added; this entry exists so a fourth session doesn't
         re-run the same audit.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued the FAQ/AI-discovery coverage push from #2032/#2035: added
+        verified "Common questions" sections to 5 more bid calculators (deck,
+        concrete, fence, drywall, exterior-painting), each check-derived
+        against that venture's own calc.mjs so claims about scope, pricing
+        logic, and privacy match the real code. Merged as #2041. FAQPage
+        JSON-LD now present in all 5 (platform/pages/build.mjs derives it
+        automatically from visible Q&A; nothing hand-authored as schema).
+        ~118 tools, mostly the rest of the 102-strong *-bid-calculator
+        family, still lack it -- no shared template exists across them, so
+        it stays a venture-by-venture content task.
+      - >-
+        Verified locally during the still-ongoing runner outage (job
+        99175848143 on this PR's own head, 3s, runner_id 0): each touched
+        venture's own suite (88/73/62/92/70, all passing), platform/pages
+        full suite 653/653, and a full 164-tool build + check.mjs (457
+        pages, no dead links).
+      - >-
+        Checked the run's other stated priorities first and found nothing
+        to add: 0 open PRs existed (three-PR quota moot); the two most
+        recently closed PRs (#1994, #2004) were both legitimately closed
+        with supersede_check.py identical-merge proofs by other concurrent
+        sessions working the same CI/CD-deployment-Codex area within the
+        last few hours; and a ~10-branch sample of the ~280-branch backlog
+        (3pl-quote-normalizer, chargeback-evidence-packet, vendor-change-
+        watch, and several generic session branches) showed all sampled
+        branches were stale pre-reorg snapshots already superseded by
+        main -- one diff showed the branch removing features main now
+        has -- so no branch-to-PR conversion was attempted.
+    mrr_end: null
