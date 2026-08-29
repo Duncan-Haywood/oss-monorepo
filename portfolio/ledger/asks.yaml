@@ -262,6 +262,106 @@ decisions:
     workflow from `gated` to `live`, and that flip is what will turn the
     check red until the snapshot is rewritten to record it.
 
+- id: hetzner-portfolio-site-live
+  asks: []
+  prs: [1999]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    Four owner steps, in order, per `gitops/README.md` ("What is still
+    needed to make it live"): (1) add one DNS A record,
+    `tools.marisstella.dev` → `89.167.29.39`; (2) mint a fine-grained
+    GitHub token scoped to this one repository with Contents: Read-only
+    and nothing else, and seal it per
+    `gitops/prod/secrets/portfolio-repo-token.template.yaml` so the
+    cluster's init container can clone the private repo; (3) replace the
+    placeholder `replace-me@duncanhaywood.dev` in
+    `gitops/platform/cert-manager/issuer.yaml` with a real mailbox Let's
+    Encrypt will accept; (4) once DNS resolves and a staging cert has
+    issued, flip the Ingress's `cert-manager.io/cluster-issuer`
+    annotation from `letsencrypt-staging` to `letsencrypt-prod` (and
+    update the test that pins it).
+  unlocks:
+    - >-
+      A live public URL for the assembled 161-tool portfolio site
+      (`tools.marisstella.dev`) that depends on neither GitHub Actions
+      nor GitHub Pages: `gitops/prod/portfolio-site.yaml` builds
+      `platform/pages/build.mjs`'s output inside the cluster via init
+      containers, so it is unaffected by the `actions-runners-unavailable`
+      outage and by `deploy-settings` (Pages) staying ungranted. Argo
+      already syncs the manifest; the pods are crash-looping on the
+      missing secret today, which is the intended fail-closed state.
+    - >-
+      A second, independent path to the same "stranger can use these
+      products" outcome `deploy-settings` targets — useful because that
+      ask has been open since 2026-08-19 and this one shares none of its
+      blockers.
+  blocked_by: []
+  note: >-
+    Not a duplicate of `deploy-settings`: that ask is specifically the
+    GitHub Pages Settings toggle for a repo-hosted static site; this ask
+    is the Hetzner/Argo path documented in `portfolio/hosting/README.md`'s
+    "Amended 2026-08-29" section, which explains why Pages alone would
+    not have worked even if granted (private repo, and Actions has had no
+    runner since 2026-08-26). The path itself shipped in #1999 and the
+    four remaining owner steps were written up as a ledger outcome in
+    #2000 the same day, but neither PR added a row here, so the live
+    queue (`decision_queue.py`) did not surface it. Added by a later
+    2026-08-29 scheduled session specifically asked to prioritize
+    deployment and CI/CD, to close that gap rather than re-derive the
+    finding.
+
+- id: agent-runner-subscription-login
+  asks: []
+  prs: [2000]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    Three linked owner steps, per `ventures/ubuntu-agent-server/README.md`
+    ("Guardrails, in order of how hard they are to bypass by accident")
+    and `config/repos.yml`'s comments: (1) provision the Hetzner agent box
+    (`make provision`) if not already done; (2) on that box, run `codex
+    login` interactively, once, against a subscription account (ChatGPT
+    Plus/Pro/Team's *included* usage — ansible cannot do an interactive
+    OAuth login for you, and this is a different credential from the
+    `codex-governor-enable` ask's metered project API key); (3) only
+    after watching a few dry runs behave correctly, flip
+    `agent_runner_start_disabled: false` in `group_vars/all.yml` and
+    `dry_run: false` on the repo entries in `config/repos.yml` you want
+    live (`make provision` again to apply).
+  unlocks:
+    - >-
+      Unattended Codex dev work on this repo's own issues, billed against
+      a subscription's included usage rather than metered per-token API
+      spend — the literal "use the Codex CLI to spend the built-in quota"
+      shape a 2026-08-29 scheduled session was asked for. The self-directed
+      prompt already points it at this repo's own conventions
+      (`CLAUDE.md`, `portfolio/DIRECTION.md`), widened for that ask in
+      #1999. It only proposes PRs; merging stays a human or a separate
+      supervised session, same as every other agent in this repo.
+  blocked_by: []
+  note: >-
+    Not a duplicate of `codex-governor-enable`: that ask is the
+    `gitops/agents/governor` Kubernetes CronJob, metered by an OpenAI
+    project API key with a hard dollar spend limit under a separate org.
+    This ask is `ventures/ubuntu-agent-server`'s `agent_runner` role,
+    which authenticates via an interactive `codex login` against a
+    subscription plan instead — a distinct mechanism with a distinct
+    owner action (nobody can script an interactive OAuth login), and
+    `README.md` line ~17 is explicit that it is "not metered API
+    billing." Both existed on `main` before this row; neither had a
+    queue entry. `dry_run: true` and `agent_runner_start_disabled: true`
+    remain untouched by #1999/#2000 on purpose — widening the prompt is
+    not the same as flipping the switch, and only the owner flips it.
+    Which ChatGPT/Codex account to log in with (a dedicated one vs. the
+    owner's personal plan) is the owner's call to make explicitly, not an
+    agent's to infer from "use the built-in quota" — a personal Plus/Pro
+    login here competes with the owner's own interactive use of that
+    account and has no hard spend cap of its own; a dedicated plan avoids
+    that trade-off.
+
 - id: publication-identity
   asks: [0, 1, 5]
   prs: []
