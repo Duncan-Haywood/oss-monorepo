@@ -95,3 +95,18 @@ test('the SEO article answers the search phrase and stays crawlable', () => {
   assert.match(seo, /index\.html/);
   assert.doesNotMatch(seo, /<textarea/i);
 });
+
+test('the rim fields are guarded before they reach a function that throws', () => {
+  // `suggestedRimBf` rejects a negative with a throw, `applyGeometryKits` runs
+  // before `update()` in every handler that calls it, and a throw there means
+  // `update()` never runs. Measured in Chromium: a typed minus sign in the rim
+  // height left an uncaught error in the console and froze every derived
+  // board-foot figure on the form. The plane fields have always returned early
+  // instead; these do now too.
+  const kits = scriptSource.slice(scriptSource.indexOf('function applyGeometryKits'));
+  const body = kits.slice(0, kits.indexOf('function readInput'));
+  const guard = body.indexOf('[rimLf, rimHeight, rimThickness].every(Number.isFinite)');
+  assert.ok(guard > -1, 'the rim inputs are read straight into suggestedRimBf');
+  assert.ok(guard < body.indexOf('suggestedRimBf('), 'the guard must come before the call');
+  assert.match(body, /rimLf < 0 \|\| rimHeight < 0 \|\| rimThickness < 0/);
+});
