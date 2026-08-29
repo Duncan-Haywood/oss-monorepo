@@ -255,6 +255,53 @@ It uses CSS multi-column rather than grid. One section holds eight sub-groups
 and the rest hold none, and grid sizes every cell in a row to the tallest, which
 left four columns of white space beside trades.
 
+### Ranking, not just filtering
+
+Search used to hide the cards a query missed and leave the rest exactly where
+the build wrote them — which is alphabetical inside a sub-group. That reads
+fine at four hits and fails at twelve. Measured against the built site:
+
+| Query | Led with (before) | Leads with (now) |
+|---|---|---|
+| `roof` | Chimney Sweep, Dryer Vent, Gutter Cleaning | Roofing, Flat Roof, Metal Roof |
+| `doors` | Delivery App Margin, Shopify Fee | Entry Door, Garage Door, Interior Door |
+| `concrete` | Stair Lift | Concrete, Concrete Lifting |
+| `tile` | Basement Waterproofing, Skylight | Kitchen Tile Backsplash, Flooring |
+| `windows` | No-Show Fee | Window Cleaning, Egress Window |
+
+In every one of those the tool the visitor had named by name was on the page
+and below the fold — on a 390px phone they met three wrong answers and no
+right one, which is indistinguishable from the tool not existing.
+
+`searchScore` weights a query word found in the tool's **name** at four times
+the same word found in its description or aliases, sums that over the query's
+words, and adds a sub-1 tie-break favouring the shorter name (so `roof` reaches
+Roofing Bid Calculator before Metal Roof Bid Calculator). Ties fall back to
+catalogue order, which the sort is stable in. Cards carry `data-name` for the
+name half; the function is injected into the hub by `.toString()` for the same
+reason the stemmer is, and `build.test.mjs` pins the shipped text against the
+export.
+
+Ranking **reorders siblings in place** — cards inside their list, sub-groups
+inside their section, sections inside the page — rather than moving matches
+into one flat results list. A card therefore never leaves the heading that
+describes it, so the outline a screen reader walks stays the one the markup
+built, and clearing the box restores the catalogue exactly.
+
+Ranking cannot rescue a query that matches nothing. Two of the fixes above are
+aliases rather than weights: `shingle` and `asphalt shingles` returned **zero**
+results while `roofing-bid-calculator` sat there, because that tool's copy is
+written in the trade's vocabulary (`reroof`, `squares`, `pitch`, `tear-off`)
+and never in the material's. Same for `grass` against the sod and lawn-care
+tools, `dumpster` against junk removal, and `ac` against the two cooling tools.
+
+An alias key is matched against the slug's `-`-separated words as a contiguous
+run, not as a raw substring. That is a fix, not a refinement: a substring test
+reads the slug as one string and cannot see where a word starts, and
+`basement-waterproofing-bid-calculator` **ends** `…roofing-bid-calculator` — so
+under the old matcher the shingle words landed on the French-drain calculator
+and `shingle` returned a basement tool. Nothing about that failure is red.
+
 Categories are also what `relatedTools` and the machine surfaces read, so a
 mis-filed tool is not only badly placed on the hub — it is offered to the wrong
 visitor at the foot of every sibling page, and described to assistants under the

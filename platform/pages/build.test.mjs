@@ -36,6 +36,7 @@ import {
   renderVentureSitemap,
   searchTokens,
   searchVariants,
+  searchScore,
   aliasesFor,
   SEARCH_ALIASES,
   subcategoryFor,
@@ -852,18 +853,102 @@ test('aliases give a tool the words its own copy never uses', () => {
   // power-washing result.
   assert.equal(aliasesFor('well-pump-bid-calculator'), '');
   assert.equal(aliasesFor('ebay-fee-calculator'), '');
+
+  // The trade's word and the material's word for the same roof.
+  assert.match(aliasesFor('roofing-bid-calculator'), /shingle/);
+  assert.match(aliasesFor('sod-install-bid-calculator'), /grass/);
+  assert.match(aliasesFor('lawn-care-bid-calculator'), /mowing/);
+  assert.match(aliasesFor('junk-removal-bid-calculator'), /dumpster/);
+  for (const slug of ['mini-split-bid-calculator', 'hvac-maintenance-contract-calculator']) {
+    assert.match(aliasesFor(slug), /\bac\b/);
+  }
+});
+
+test('an alias reaches a slug word, never a word ending', () => {
+  // The failure this replaces was live and invisible: the key is matched
+  // against the slug, and a raw substring test reads the slug as one string.
+  // "basement-waterproofing-bid-calculator" ends "…roofing-bid-calculator", so
+  // under a substring test the shingle words land on the French-drain
+  // calculator and "shingle" starts returning a basement tool. Nothing about
+  // that is red -- the alias table looks right and the query returns a result.
+  assert.equal(aliasesFor('basement-waterproofing-bid-calculator'), '');
+  assert.match(aliasesFor('roofing-bid-calculator'), /shingle/);
+
+  // Only a run of whole slug words claims a tool: the key's words have to be
+  // adjacent and in order, and neither may be half of a longer word.
+  assert.equal(aliasesFor('snow-plow-removal-bid-calculator'), '');
+  assert.equal(aliasesFor('removal-snow-bid-calculator'), '');
+  assert.equal(aliasesFor('snowplow-removal-bid-calculator'), '');
+  // A tool whose slug carries the run keeps the alias wherever the run sits.
+  assert.match(aliasesFor('snow-removal-bid-calculator'), /plowing/);
+  assert.match(aliasesFor('commercial-snow-removal-bid-calculator'), /plowing/);
 });
 
 test('every alias names a venture that exists', async () => {
   // A typo'd or renamed slug makes an alias silently dead -- the query keeps
-  // returning nothing and nothing turns red.
+  // returning nothing and nothing turns red. Asked through aliasesFor rather
+  // than through a substring test of its own, so the check answers the
+  // question that matters: does any published tool actually receive it?
   const slugs = (await site()).surfaces.map((s) => s.slug);
-  for (const { slug } of SEARCH_ALIASES) {
+  for (const alias of SEARCH_ALIASES) {
     assert.ok(
-      slugs.some((published) => published.includes(slug)),
-      `alias "${slug}" matches no published venture`,
+      slugs.some((published) => aliasesFor(published).includes(alias.add)),
+      `alias "${alias.slug}" reaches no published venture`,
     );
   }
+});
+
+test('search ranks the tool a query names above one that merely mentions it', () => {
+  const name = (title, slug) => searchTokens([title, slug]);
+  const index = (...parts) => searchTokens(parts);
+  const forms = (...words) => words.map(searchVariants);
+
+  const roofing = {
+    name: name('Roofing Bid Calculator', 'roofing-bid-calculator'),
+    index: index('Roofing Bid Calculator', 'Price a residential reroof from roof squares, pitch, waste'),
+  };
+  // Its copy says "roof" — it is roof work — but it is not the roofing
+  // calculator, and it led the results for "roof" before ranking existed.
+  const chimney = {
+    name: name('Chimney Sweep Bid Calculator', 'chimney-sweep-bid-calculator'),
+    index: index('Chimney Sweep Bid Calculator', 'Price a sweep and inspection from flue, roof pitch, and access'),
+  };
+  const score = (tool, ...words) => searchScore(tool.name, tool.index, forms(...words), true);
+
+  assert.ok(score(roofing, 'roof') > score(chimney, 'roof'));
+
+  // Two words in the name beat a name word plus a description word, so a
+  // query gets more specific rather than merely longer.
+  assert.ok(score(chimney, 'chimney', 'sweep') > score(chimney, 'chimney', 'roof'));
+
+  // The shorter name wins a tie, on the reading that the query covered more of
+  // it. Never more than a tie-break: the fraction is below 1 by construction,
+  // so it cannot lift a description match over a name match.
+  const metalRoof = {
+    name: name('Metal Roof Bid Calculator', 'metal-roof-bid-calculator'),
+    index: index('Metal Roof Bid Calculator', 'Price a standing-seam metal roof from panel squares'),
+  };
+  assert.ok(score(roofing, 'roof') > score(metalRoof, 'roof'));
+  assert.ok(score(metalRoof, 'roof') - Math.floor(score(metalRoof, 'roof')) < 1);
+
+  // A tool no word reaches still scores below one a single word does, so a
+  // non-match can never be ordered above a match.
+  const ebay = { name: name('eBay Fee Calculator', 'ebay-fee-calculator'), index: index('eBay Fee Calculator') };
+  assert.ok(score(ebay, 'roof') < score(chimney, 'roof'));
+});
+
+test('the hub carries a name index and the ranking function it is scored with', async () => {
+  const html = await read('index.html');
+  // Ranking decides what a visitor sees first. A hand-written copy in the page
+  // that drifted from the tested export would be a ranking bug with a green
+  // suite -- the same failure the stemmer injection above exists to prevent.
+  assert.ok(
+    html.includes(searchScore.toString()),
+    'hub page does not carry the exact searchScore source that build.mjs exports',
+  );
+  // Scoring needs the tool's own name apart from its description and aliases;
+  // without the attribute every card scores alike and the order never changes.
+  assert.match(html, /<li class="card" data-name="[^"]*roofing[^"]*" data-search=/);
 });
 
 test('the hub ships one stemmer, not a second copy that can drift', async () => {

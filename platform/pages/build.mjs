@@ -141,11 +141,51 @@ export const SEARCH_ALIASES = [
   // only widens, so a word this tool does not price would put it in front of
   // someone pricing a different job — reach bought with a wrong answer.
   { slug: 'security-camera', add: 'cctv surveillance nvr dvr ip camera poe low voltage lowvoltage' },
+  // The roof this tool prices is the one nobody calls "a reroof" when they
+  // search for it. Its own copy says "reroof", "squares", "pitch" and
+  // "tear-off" — every word of the trade's vocabulary and none of the
+  // material's, so "shingle", the single most obvious query a homeowner or a
+  // roofer types, returned nothing at all. Not added to the flat-roof or
+  // metal-roof calculators: those price membrane and panel, and a shingle
+  // query reaching them is the wrong answer rather than a wider one.
+  { slug: 'roofing', add: 'shingle shingles asphalt architectural laminate three tab dimensional' },
+  // "Sod" is the trade word for what the customer calls grass. The lawn-care
+  // route tool is the recurring-service half of the same query.
+  { slug: 'sod-install', add: 'grass turfgrass' },
+  { slug: 'lawn-care', add: 'grass mowing mow mower cutting' },
+  // Priced by the yard and the landfill ticket, sold to the customer as a
+  // dumpster or a truckload.
+  { slug: 'junk-removal', add: 'dumpster truckload truck load' },
+  // "AC" is how this equipment is asked for everywhere except its own spec
+  // sheet. Both tools already answer "air conditioning" through the alias
+  // above; neither answered the two letters people actually type. "unit" rides
+  // along because the query is nearly always "ac unit", and the matcher ANDs
+  // across words — "ac" alone would still have found nothing.
+  { slug: 'mini-split', add: 'ac unit units' },
+  { slug: 'hvac-maintenance', add: 'ac unit units' },
 ];
 
-/** The alias words for one venture, or '' when it has none. */
+/**
+ * The alias words for one venture, or '' when it has none.
+ *
+ * The key is matched against the slug's `-`-separated words as a contiguous
+ * run, not as a raw substring. A substring test reads a slug as one long
+ * string and cannot see where a word starts, so it silently attaches an alias
+ * to a tool that merely *ends* the same way: `basement-waterproofing-bid-
+ * calculator` contains the substring `roofing-bid-calculator`, so keying the
+ * shingle words above off `roofing` — or even off the full roofing slug —
+ * would have put "shingle" in front of someone pricing a French drain. That is
+ * the failure the comment above this table warns about, arriving through the
+ * matcher rather than through a badly chosen word.
+ */
 export function aliasesFor(slug) {
-  return SEARCH_ALIASES.filter((alias) => slug.includes(alias.slug))
+  const words = String(slug).split('-');
+  const claims = (key) => {
+    const wanted = String(key).split('-');
+    return words.some((_, start) =>
+      wanted.every((word, offset) => words[start + offset] === word));
+  };
+  return SEARCH_ALIASES.filter((alias) => claims(alias.slug))
     .map((alias) => alias.add)
     .join(' ');
 }
@@ -563,6 +603,43 @@ export function searchVariants(word) {
 }
 
 /**
+ * How well one card answers a query, so the hub can put the best match first.
+ *
+ * The hub used to filter without ranking: matched cards stayed in catalogue
+ * order, which is alphabetical inside a sub-group. That is fine at four hits
+ * and useless at twelve. Measured against the built site, "roof" returned
+ * twelve tools led by chimney-sweep, dryer-vent and gutter-cleaning — all of
+ * which merely mention a roof — with `roofing-bid-calculator` far enough down
+ * that a phone showed three wrong answers and no right one. "windows" led with
+ * the no-show fee calculator; "concrete" with the stair-lift calculator. The
+ * tool the visitor named by name was present every time and buried every time.
+ *
+ * A word found in the tool's *name* is worth four of the same word found in
+ * its description or aliases, which is the whole of the fix: a tool called
+ * "Roofing Bid Calculator" outranks one whose copy happens to say "roof". The
+ * weights are per query word and summed, so a two-word query that hits both
+ * words in a name beats one that hits a name and a description.
+ *
+ * The trailing fraction is a tie-break and never more than that: it is under 1
+ * by construction, so it can only order cards that scored the same on words.
+ * It prefers the shorter name, on the reading that a query matching most of a
+ * name found the tool it was looking for — "roof" wants Roofing Bid Calculator
+ * before Metal Roof Bid Calculator. Equal names fall back to catalogue order,
+ * which the sort is stable in.
+ */
+export function searchScore(nameIndex, searchIndex, forms, boundary) {
+  const hit = (index, word) =>
+    boundary ? (' ' + index).includes(' ' + word) : index.includes(word);
+  let score = 0;
+  for (const variants of forms) {
+    if (variants.some((word) => hit(nameIndex, word))) score += 4;
+    else if (variants.some((word) => hit(searchIndex, word))) score += 1;
+  }
+  const nameWords = nameIndex ? nameIndex.split(' ').filter(Boolean).length : 0;
+  return score + 1 / (2 + nameWords);
+}
+
+/**
  * The `<title>`/`<h1>` of every other page in a venture.
  *
  * These are the venture's SEO articles, and they are phrased as the question a
@@ -847,7 +924,9 @@ export function renderHub(surfaces, baseUrl) {
   // outline stays legal: a card is an h3 in a flat category and an h4 under a
   // sub-group's h3. Screen-reader heading navigation is the browse path for
   // anyone not using the search box, so it has to describe the real nesting.
-  const renderCard = (surface, headingLevel) => `          <li class="card" data-search="${escapeHtml(
+  const renderCard = (surface, headingLevel) => `          <li class="card" data-name="${escapeHtml(
+    searchTokens([surface.title, surface.slug]),
+  )}" data-search="${escapeHtml(
     surface.searchIndex ??
       searchTokens([
         surface.title,
@@ -1288,9 +1367,28 @@ ${DISCLAIMER_HTML}
     const groups = [...document.querySelectorAll('.subgroup, .group')];
     const total = cards.length;
 
+    // The catalogue order, kept so clearing the box puts the directory back
+    // exactly as it was rendered. Ranking reorders siblings in place — cards
+    // inside their list, sub-groups inside their section, sections inside the
+    // page — so a card never leaves the heading that describes it and the
+    // document outline a screen reader walks stays the one the markup built.
+    const sections = [...document.querySelectorAll('.group')];
+    const subgroups = [...document.querySelectorAll('.subgroup')];
+    // Sections are not the last children of their parent (the empty-state
+    // paragraph, the offline widget and the footer follow them), so they are
+    // re-inserted before a fixed anchor rather than appended.
+    const sectionAnchor = sections.length ? sections[sections.length - 1].nextSibling : null;
+    const sectionHome = sections.length ? sections[0].parentNode : null;
+    let ranked = false;
+
     // Injected from build.mjs rather than written twice: a stemmer that
     // disagreed with its tests would be a search bug nothing could catch.
     ${searchVariants.toString()}
+
+    // Likewise injected rather than reimplemented: the weights below decide
+    // what a visitor sees first, and a copy that drifted from the tested one
+    // would be a ranking bug with a green suite.
+    ${searchScore.toString()}
 
     // Every query word must hit, so "ebay return" narrows to the eBay tool
     // instead of finding nothing because those two words are never adjacent.
@@ -1318,6 +1416,43 @@ ${DISCLAIMER_HTML}
         .filter((word) => word.length >= 2 && !STOPWORDS.has(word))
         .map(searchVariants);
 
+    // Highest-scoring visible card inside a container, or -1 when it has none.
+    // Hidden cards are excluded on purpose: a sub-group whose only match is
+    // filtered out has nothing to offer this query and should not lead on the
+    // strength of a card the visitor cannot see.
+    const best = (node, score) => {
+      let top = -1;
+      for (const card of node.querySelectorAll('.card')) {
+        if (!card.hidden) top = Math.max(top, score(card));
+      }
+      return top;
+    };
+
+    // Re-insert each node among its own siblings, highest score first. Sort is
+    // stable, so equal scores keep catalogue order — which is what makes a
+    // one-word query that matches nothing in particular leave the page looking
+    // exactly as it did.
+    const reorder = (nodes, valueOf, anchor) => {
+      const byParent = new Map();
+      for (const node of nodes) {
+        if (!byParent.has(node.parentNode)) byParent.set(node.parentNode, []);
+        byParent.get(node.parentNode).push(node);
+      }
+      for (const [parent, siblings] of byParent) {
+        const ordered = siblings
+          .map((node, index) => ({ node, index, value: valueOf(node) }))
+          .sort((a, b) => b.value - a.value || a.index - b.index);
+        for (const { node } of ordered) parent.insertBefore(node, anchor ?? null);
+      }
+    };
+
+    // Put the catalogue back in the order the build wrote it.
+    const restore = () => {
+      for (const card of cards) card.parentNode.appendChild(card);
+      for (const subgroup of subgroups) subgroup.parentNode.appendChild(subgroup);
+      for (const section of sections) sectionHome.insertBefore(section, sectionAnchor);
+    };
+
     function filter() {
       const forms = normalise(q.value.trim());
       // Token-prefix first; fall back to a loose substring pass so a query that
@@ -1327,13 +1462,34 @@ ${DISCLAIMER_HTML}
         boundary = false;
       }
       let shown = 0;
+      const score = new Map();
       for (const card of cards) {
         const hit = !forms.length || matches(card.dataset.search, forms, boundary);
         card.hidden = !hit;
         if (hit) shown += 1;
+        score.set(
+          card,
+          hit && forms.length
+            ? searchScore(card.dataset.name || '', card.dataset.search, forms, boundary)
+            : 0,
+        );
       }
       for (const group of groups) {
         group.hidden = ![...group.querySelectorAll('.card')].some((c) => !c.hidden);
+      }
+      // Best answer first, and only while there is a query to be best for. A
+      // container's score is its best card's, so the section holding the top
+      // tool leads the page and the visitor never scrolls past a heading of
+      // near-misses to reach the tool they named.
+      if (forms.length) {
+        const valueOf = (card) => score.get(card) ?? 0;
+        reorder(cards, valueOf);
+        reorder(subgroups, (node) => best(node, valueOf));
+        reorder(sections, (node) => best(node, valueOf), sectionAnchor);
+        ranked = true;
+      } else if (ranked) {
+        restore();
+        ranked = false;
       }
       empty.style.display = shown === 0 ? 'block' : 'none';
       count.textContent = forms.length ? shown + ' of ' + total + ' tools' : total + ' tools';

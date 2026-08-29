@@ -27279,3 +27279,56 @@ entries:
         `saved_bid_trend_shown` and `saved_bid_mix_shown` all firing in the
         browser — every reading that depends on the three fields that used to go
         missing, drawing through the shared function.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **The hub found the right tool every time and showed it fourth.** Search
+        filtered without ranking, so matches stayed in catalogue order —
+        alphabetical inside a sub-group. Probed with 48 queries a tradesperson or
+        a homeowner actually types: `roof` returned twelve tools led by Chimney
+        Sweep, Dryer Vent and Gutter Cleaning; `doors` led with Delivery App
+        Margin and Shopify Fee; `concrete` with Stair Lift; `tile` with Basement
+        Waterproofing; `windows` with No-Show Fee. The named tool was present in
+        every one of those and below the fold on a 390px phone, which from the
+        visitor's side is indistinguishable from its not existing. `searchScore`
+        now weights a name hit at four times a description hit, sums over the
+        query's words, and tie-breaks on the shorter name; each of those five
+        queries now leads with the tool it names.
+      - >-
+        Ranking reorders **siblings in place** — cards inside their list,
+        sub-groups inside their section, sections inside the page — rather than
+        pulling matches into one flat results list. That was the design decision
+        worth making: a flat list is easier to write and would have detached
+        every card from the heading that describes it, which is the browse path
+        for anyone using a screen reader. Clearing the box restores the
+        catalogue byte-for-byte, verified by comparing the full 164-card DOM
+        order before and after.
+      - >-
+        Ranking cannot rescue a query that matches nothing, and four did.
+        `shingle` and `asphalt shingles` returned **zero** results while
+        `roofing-bid-calculator` sat there: that tool's copy is written in the
+        trade's vocabulary — reroof, squares, pitch, tear-off — and never in the
+        material's. Same shape for `grass` against sod and lawn care, `dumpster`
+        against junk removal, and `ac` against the two cooling tools. Six alias
+        rows, all four queries now answer.
+      - >-
+        Adding the roofing alias surfaced a live defect in the alias matcher
+        itself. `aliasesFor` tested the key as a raw **substring** of the slug,
+        which cannot see where a slug word starts:
+        `basement-waterproofing-bid-calculator` ends `…roofing-bid-calculator`,
+        so keying the shingle words off `roofing` — or off the full roofing slug
+        — would have put "shingle" in front of someone pricing a French drain.
+        The table's own comment warns about exactly this failure and guards
+        against it in the choice of words, where it was arriving through the
+        matcher. Keys are matched as a contiguous run of `-`-separated slug
+        words now. Every existing alias still resolves to the same single tool.
+      - >-
+        Verified locally, the runner outage still standing: 556 platform/pages
+        tests (553 before), build plus `check.mjs` at 164 products / 445 pages
+        with no dead links, `sweep.mjs` at 164/164 tools answering with no
+        errors, `journey.mjs` at 0 failed checks and 0 page/console errors,
+        `contrast.mjs` clean across 443 pages × 2 viewports, and a 22-assertion
+        ranking pass in Chromium at 390px covering six queries, the zero-result
+        state, catalogue restore, and no horizontal overflow while ranked.
