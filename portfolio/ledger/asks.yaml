@@ -620,6 +620,25 @@ decisions:
     drain pass (see the 2026-08.yaml ledger entry for that session), so
     there was no existing PR to review, fix, or merge toward this.
 
+    UPDATE 2026-08-29 (later session, PR #2012). The paragraph above framed
+    this as "metered key, correct" vs "personal login, wrong". That framing
+    held partly because the subscription route did not work: the worker
+    checked that `CODEX_ACCESS_TOKEN` was set and never handed it to the
+    CLI, which reads a whole auth file from `$CODEX_HOME`. A
+    subscription-only Secret would have failed at the first API call. That
+    is fixed -- `CODEX_AUTH_JSON` is now a real, tested option, persisted
+    on a PVC because Codex rotates the credential on use.
+
+    What did NOT change, and is still this row's decision: which credential
+    to seal, and on which account. The checklist's objection to a *personal*
+    plan login stands verbatim in `infra/OWNER_CHECKLIST.md` -- no euro hard
+    stop, and the 5-hour/weekly windows are shared with the owner's own
+    interactive use. The metered-key path is untouched and still starts on a
+    Secret carrying only `OPENAI_API_KEY`. Both are documented with their
+    trade-offs in `gitops/agents/secrets/README.md`; the owner picks by
+    choosing what to seal, and the governor stays `suspend: true` /
+    `enabled: false` either way. No agent flipped anything.
+
 - id: portfolio-site-hetzner-deploy
   asks: []
   prs: [1999]

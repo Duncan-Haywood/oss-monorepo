@@ -5,6 +5,7 @@ resources:
   - rbac.yaml
   - networkpolicy.yaml
   - quota.yaml
+  - codex-home.yaml
   - governor/rbac.yaml
   - governor/cronjob.yaml
   - governor/state.yaml
@@ -18,6 +19,7 @@ configMapGenerator:
   - name: codex-worker-script
     files:
       - worker.sh=workers/worker.sh
+      - mandate.md=workers/mandate.md
   - name: governor-queue
     files:
       - example.item.yaml=queue/example.item.yaml

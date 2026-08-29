@@ -38,6 +38,15 @@ quota. It is not a second copy of every product.
   not eight always-on Codex processes.
 - The governor is **suspended** and `enabled: false` until you seal
   tokens and flip both knobs in git.
+- A worker authenticates with **either** a metered `OPENAI_API_KEY` or a
+  ChatGPT plan's `CODEX_AUTH_JSON`; the plan credential is persisted on
+  the `codex-home` PVC because Codex rotates it on use. Which one to seal
+  is the owner's call — `agents/secrets/README.md` lays out the
+  trade-off, and `infra/OWNER_CHECKLIST.md` is the procedure.
+- Every queue item's prompt is prefixed with `agents/workers/mandate.md`,
+  the standing product-first brief and the floor a run may not cross. An
+  item sets `delivery: agent` when its own prompt opens the PR, or leaves
+  it unset to let the worker commit, push and open one.
 - Budget counters live in ConfigMap `governor-state`. Argo ignores
   `/data` so a sync cannot reset the 5-hour / weekly accounting. A 429
   (worker exit 42) writes `last_limit_at` and the next ticks sleep.

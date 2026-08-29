@@ -9,6 +9,9 @@ workdir: ""
 modelClass: chore
 priority: 3
 enabled: true
+# This item's prompt opens its own PR and merges it, so worker.sh must not
+# fold the tree into one commit and open a second one.
+delivery: agent
 prompt: |
   Read this repo's CLAUDE.md, AGENTS.md, and PRODUCT_PLAYBOOK.md
   section 5e (the SEO/AI-discovery checklist) first.

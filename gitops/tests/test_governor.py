@@ -194,6 +194,54 @@ def test_job_manifest_has_no_kube_token_and_pins_agent_node() -> None:
     assert json.loads(env["QUEUE_ITEM_JSON"])["id"] == "task-a"
 
 
+def test_job_mounts_the_persistent_codex_home() -> None:
+    # Codex rotates the plan credential on use. Without a volume the refreshed
+    # auth.json dies with the pod and every later Job re-presents a spent
+    # refresh token, which looks like "the login broke" and is not recoverable
+    # from inside the cluster.
+    manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
+    spec = manifest["spec"]["template"]["spec"]
+    volume = [v for v in spec["volumes"] if v["name"] == "codex-home"][0]
+    assert volume["persistentVolumeClaim"]["claimName"] == "codex-home"
+    mount = [
+        m for m in spec["containers"][0]["volumeMounts"] if m["name"] == "codex-home"
+    ][0]
+    assert mount["mountPath"] == "/var/lib/codex"
+    assert mount.get("readOnly") is not True
+
+
+def test_delivery_defaults_to_the_harness_and_rejects_anything_else() -> None:
+    assert g.queue_item_from_dict(
+        {"id": "a", "repo": "o/r", "prompt": "p"}
+    ).delivery == "harness"
+    assert g.queue_item_from_dict(
+        {"id": "a", "repo": "o/r", "prompt": "p", "delivery": "agent"}
+    ).delivery == "agent"
+    with pytest.raises(ValueError):
+        g.queue_item_from_dict(
+            {"id": "a", "repo": "o/r", "prompt": "p", "delivery": "whatever"}
+        )
+
+
+def test_delivery_reaches_the_worker_and_the_real_items_own_theirs() -> None:
+    item = g.queue_item_from_dict(
+        {"id": "a", "repo": "o/r", "prompt": "p", "delivery": "agent"}
+    )
+    manifest = g.build_job_manifest(item, "gpt-5-mini", now=NOW)
+    env = {e["name"]: e["value"] for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]}
+    assert json.loads(env["QUEUE_ITEM_JSON"])["delivery"] == "agent"
+
+    # All three real items tell the agent to open its own PR and merge it, so
+    # the harness must not also fold and open one.
+    for name in (
+        "branch-pr-drain.yaml",
+        "seo-discoverability-audit.yaml",
+        "product-feature-improvement.yaml",
+    ):
+        raw = g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text())
+        assert g.queue_item_from_dict(raw).delivery == "agent", name
+
+
 def test_minimal_yaml_reads_prompt_block() -> None:
     text = (AGENTS / "queue" / "example.item.yaml").read_text()
     raw = g._minimal_yaml_mapping(text)
