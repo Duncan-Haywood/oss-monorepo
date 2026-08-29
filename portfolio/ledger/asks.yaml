@@ -512,3 +512,60 @@ decisions:
     question, so the close's *outcome* (no unattended auto-merge enabled)
     was fine even though its stated rationale leaned on the same
     not-independently-verified "product-first direction" premise.
+
+- id: codex-governor-enable
+  asks: []
+  prs: []
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    Three linked owner steps, per `infra/OWNER_CHECKLIST.md`: (1) create a
+    separate OpenAI org -- not the main personal one -- with a dashboard
+    monthly spend limit set to "Enforce a hard limit"; (2) mint a project
+    API key under that org (never an Admin key) and seal it, with a
+    scoped `GH_TOKEN` (Contents read/write, Pull requests write, Metadata
+    read only; no Administration/Secrets/Workflows/Actions/Environments/
+    Pages), into the `codex-secrets` Kubernetes Secret per
+    `gitops/agents/secrets/codex-token.template.yaml`; (3) only after that
+    seal, flip `gitops/agents/governor/cronjob.yaml` `suspend: false` and
+    `gitops/agents/governor/policy.json` `"enabled": true`.
+  unlocks:
+    - >-
+      A working, already-built "Codex CLI does unattended dev work on the
+      Hetzner agent box" pipeline: a budget-governed CronJob
+      (`gitops/agents/governor/governor.py`) that starts at most one Codex
+      worker Job every 5 minutes inside a 5-hour utilization window and a
+      weekly budget fraction, backs off on 429s, and picks work from
+      `gitops/agents/queue/*.yaml`. All of the code, RBAC, and tests for
+      this already exist and are unused -- `policy.json` reads `"enabled":
+      false` and the CronJob reads `suspend: true` today, exactly as
+      `OWNER_CHECKLIST.md` left them pending this ask.
+  blocked_by: []
+  note: >-
+    Not a duplicate of `routine-trigger-cadence` (which is about Claude
+    Code's own scheduled routine and its Anthropic-side spend) or of
+    `agent-cross-review-automerge` (unattended auto-*merge*, closed). This
+    is the third, distinct "unattended automation that spends paid API
+    budget" surface CLAUDE.md gates to the owner, and it had no queue row
+    of its own before this entry.
+
+    IMPORTANT correction to how this is sometimes described verbally: a
+    2026-08-29 scheduled session was asked to "set up the codex cli to use
+    up the built-in quota for dev work" on the Hetzner VM. `infra/
+    OWNER_CHECKLIST.md` line 80 already says, in the owner's own words,
+    "Do **not** `codex login` with your main ChatGPT/Plus/Pro account. That
+    burns the personal 5-hour / weekly quota and has no euro hard stop." A
+    personal-plan login is exactly what a literal reading of "use up the
+    built-in quota" would do, and it is the one path this checklist singles
+    out as wrong: no spend cap, and it competes with interactive use of the
+    same account. The already-built governor instead uses a project API key
+    under a *separate* org with a hard dollar limit -- metered spend with a
+    ceiling, not a personal-plan quota. No session should implement the
+    personal-login shape; this row exists so the owner chooses the
+    already-designed one deliberately rather than by default.
+
+    Also checked and not duplicative: 0 open PRs and no unmerged branch
+    with meaningful, non-superseded work were found in a 2026-08-29 queue-
+    drain pass (see the 2026-08.yaml ledger entry for that session), so
+    there was no existing PR to review, fix, or merge toward this.
