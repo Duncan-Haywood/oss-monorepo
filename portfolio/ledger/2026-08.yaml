@@ -26971,3 +26971,52 @@ entries:
         was the new one before believing any of it (`curl | grep bidsTrend`),
         which the sweep's own header asks for after a stale server cost a false
         clean report on 2026-08-28.
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Moved the trend reading shipped earlier this session to the page where
+        it is worth the most. `trendSentence` draws on the hub, which is the
+        page a contractor opens when a customer rings back; `toolTrendSentence`
+        now draws in the saved-bid panel of the tool itself, which is the page
+        they are on while deciding what to charge for the next job — the only
+        moment the finding can still change an outcome. It names no trade there,
+        because there is only one and saying it would be telling the reader
+        where they are standing: "The bids you saved here have been landing less
+        often than they were: 0 of 5 on the 5 most recent, against 5 of 5 before
+        them."
+      - >-
+        The arithmetic was extracted rather than copied, which is the decision
+        that matters here. `trendSplit` is the split alone and `trendDetail`
+        writes everything after the subject, so the hub and the tool page cannot
+        disagree about what moved — the failure this feature area has shipped
+        three times is exactly a second hand-written copy going quietly stale.
+        The two injected bundles then part company at the sentence:
+        `BID_TREND_HELPERS` carries the tool page's and `BID_PRICING_HELPERS`
+        the hub's, so neither page pays bytes for a sentence it cannot draw,
+        which is the rule that already keeps the money readings off the hub.
+      - >-
+        One placement decision worth recording. Every other reading in that
+        panel — the price band, the undercut line, the margin — is gated on the
+        page carrying a headline figure, because each divides or compares one.
+        This one counts outcomes and never reads a number, so gating it the same
+        way would have silently excluded about a third of the 237 pages the
+        panel reaches. It ships unconditionally instead, and journey step 6bp
+        drives it on `cleaning-dilution-calculator`, a tool with no hero figure
+        anywhere on the page, to keep it that way.
+      - >-
+        A false assertion caught in the browser rather than shipped: the new
+        step first asserted that the usage counter held no trade name at all,
+        which fails on a real device because `tool_viewed:<slug>` is a
+        long-standing counter this reading does not answer for. Narrowed to the
+        reading's own keys — `bid_trend_shown` and nothing beside it — which is
+        the claim actually being made.
+      - >-
+        Verified locally, the runner outage still standing: 529 platform/pages
+        tests (524 before), the artifact at 164 products / 445 pages with no
+        dead links, 164/164 tools answering in Chromium with no errors, 443
+        pages x 2 viewports with no WCAG A/AA violation, and the full journey at
+        0 failed checks including the new step 6bp. Confirmed the served build
+        carried the new shared script before believing any of it (`curl
+        pf-jobs.js | grep toolTrendSentence`).

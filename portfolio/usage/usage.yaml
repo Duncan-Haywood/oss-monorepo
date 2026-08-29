@@ -1977,6 +1977,34 @@ products:
           figure and no direction. Same local, aggregate, opt-out and
           DNT/GPC-respecting path as every other hub event. Still a baseline
           row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-29
+        signals:
+          live_url_visitors: null
+          bid_trend_shown: 0
+          pages_carrying_the_panel: 237
+        note: >-
+          The same trend reading, moved to where it is worth the most: the
+          saved-bid panel on each tool's own page, as `toolTrendSentence`. The
+          hub is the page a contractor opens when a customer rings back; the
+          tool page is the page they are on while deciding what to charge for
+          the next job, which is the only moment the finding can still change an
+          outcome. It names no trade there — there is only one, and saying it
+          would be telling the reader where they are standing. Both sentences
+          are built on one `trendSplit`, so the two pages cannot disagree about
+          what moved, and the two injected bundles part company at the sentence
+          so neither page pays for the other's. It is the one reading in that
+          panel not gated on the page having a headline figure: it counts
+          outcomes and never reads a number, so a tool that stores no amounts
+          can still tell its user their quotes have stopped landing — a third of
+          the pages the panel reaches would otherwise have been silently
+          excluded. Counted as `bid_trend_shown`, local only, on change, with no
+          name, no trade, no figure and no direction. The reading to take once
+          live is `bid_trend_shown` against `saved_bid_trend_shown` — whether
+          this finding is met where it can still be acted on or only afterwards
+          on the hub, which is the first evidence about which of the two
+          surfaces the returning users of this portfolio actually live on. Still
+          a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:

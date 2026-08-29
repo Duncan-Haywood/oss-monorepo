@@ -606,6 +606,25 @@ change, local only, no name, no slug, no trade, no figure — and no direction
 either, since which way a shop is moving is not something this site needs to
 know to tell whether the reading is worth its bytes.
 
+**The same finding also ships in the panel on each tool's own page**, as
+`toolTrendSentence` — "The bids you saved here have been landing less often
+than they were: …". The hub is the page a contractor opens when a customer
+rings back; the tool page is the page they are on *while deciding what to
+charge for the next job*, which is the only moment this reading can still
+change an outcome. It names no trade there, because there is only one and
+saying it would be telling the reader where they are standing.
+
+Both sentences are built on `trendSplit`, which is the arithmetic alone, so
+they cannot disagree about what moved; `trendDetail` writes everything after
+the subject once. The two bundles part company at the sentence —
+`BID_TREND_HELPERS` carries the tool page's, `BID_PRICING_HELPERS` the hub's —
+so neither page pays for the other's, the same rule that keeps the money
+readings off the hub. It is the one reading in the panel **not** gated on the
+page having a headline figure: it counts outcomes and never reads a number, so
+a tool that stores no amounts can still tell its user their quotes have stopped
+landing. Counted there as `bid_trend_shown`. Journey step 6bp drives it on
+`cleaning-dilution-calculator`, a page with no hero figure at all.
+
 ### Which of these trades is worth doing
 
 The three readings above make a contractor better at getting the yes.

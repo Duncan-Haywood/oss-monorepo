@@ -1104,6 +1104,98 @@ await step('the hub says which of these trades the finished work is worth doing'
   }
 });
 
+// 6bp. The same finding, in the panel on the tool's own page
+//      (`toolTrendSentence`).
+//
+//      The hub step below proves the reading; this one proves it reaches the
+//      page where it is worth the most. A contractor opens the hub when a
+//      customer rings back, and opens this panel while deciding what to charge
+//      for the next job — the only moment the finding can still change an
+//      outcome.
+//
+//      Two things only a browser settles, and both are wiring. First, the line
+//      is on a tool with **no headline figure**: every other reading in this
+//      panel rides on the page having a hero number to compare, and this one
+//      counts outcomes and never looks at a figure, so gating it away with the
+//      money half would silently cost it a third of the pages the panel
+//      reaches. Second, `trendDetail` calls `bidWaitingDays`, which ships in a
+//      different injected bundle in the same shared script — if that ordering
+//      ever breaks the panel throws mid-render and the whole feature goes with
+//      it, which a string assertion cannot see.
+await step('the tool page says whether its own quotes have been landing differently', async () => {
+  const SLUG = 'cleaning-dilution-calculator';
+  await page.goto(`${BASE}/${SLUG}/`, { waitUntil: 'networkidle' });
+  const held = await page.evaluate(() => {
+    const raw = localStorage.getItem('portfolio-saved-bids');
+    localStorage.removeItem('portfolio-saved-bids');
+    return raw;
+  });
+  try {
+    check('this tool keeps no headline figure, so the money readings are absent',
+      (await page.locator('#pf-jobs-margin').count()) === 0 &&
+      (await page.locator('#pf-jobs-band').count()) === 0);
+
+    await page.evaluate((now) => {
+      const at = (d) => new Date(now - d * 86400000).toISOString();
+      const run = (outcome, n, from) => Array.from({ length: n }, (_, i) => ({
+        name: outcome + ' ' + i, at: at(from - i * 10), fields: { a: '1' },
+        outcome, decidedAt: at(from - i * 10 - 2),
+      }));
+      localStorage.setItem('portfolio-saved-bids', JSON.stringify({ v: 1, bids: {
+        // Five won last spring, five lost since, plus one still waiting that
+        // must not be counted on either side.
+        'cleaning-dilution-calculator': [
+          ...run('lost', 5, 60), ...run('won', 5, 200),
+          { name: 'Still out', at: at(1), fields: { a: '1' } },
+        ],
+      } }));
+    }, Date.now());
+    await page.reload({ waitUntil: 'networkidle' });
+    await jobsReady();
+    await page.click('#pf-jobs-toggle');
+    await page.waitForTimeout(100);
+
+    const line = (await page.textContent('#pf-jobs-trend')).replace(/\s+/g, ' ').trim();
+    check('the panel draws the reading with no hero figure anywhere on the page',
+      await page.isVisible('#pf-jobs-trend'), line);
+    check('it speaks about this page rather than naming the trade back at the reader',
+      /^The bids you saved here have been landing less often than they were: /.test(line) &&
+      !/Cleaning|Dilution|calculator/i.test(line), line);
+    check('the waiting bid is on neither side of the split',
+      /0 of 5 on the 5 most recent, against 5 of 5 before them\./.test(line), line);
+    // The clause that needs bidWaitingDays out of the other bundle. Its absence
+    // would mean the helper returned null; a throw would have emptied the panel.
+    check('and the turn is dated, which is the cross-bundle half',
+      /The recent half starts \d+ days back\./.test(line), line);
+    check('no money figure is on it, because this reading never reads one',
+      !/[$£€]/.test(line), line);
+
+    // On disk, not in the render.
+    await page.reload({ waitUntil: 'networkidle' });
+    await jobsReady();
+    await page.click('#pf-jobs-toggle');
+    await page.waitForTimeout(100);
+    check('the reading survives a reload',
+      (await page.textContent('#pf-jobs-trend')).replace(/\s+/g, ' ').trim() === line);
+
+    const counts = await page.evaluate(
+      () => JSON.parse(localStorage.getItem('portfolio-hub-usage') || '{}'));
+    check('the panel reading is counted separately from the hub\'s',
+      counts.bid_trend_shown >= 1, JSON.stringify(counts));
+    // The event itself carries nothing. `tool_viewed:<slug>` is a different,
+    // long-standing counter and is not this reading's to answer for, so the
+    // assertion is over this reading's own keys rather than the whole blob.
+    const trendKeys = Object.keys(counts).filter((k) => k.indexOf('bid_trend') === 0);
+    check('and the event names no trade, no direction and no figure',
+      trendKeys.length === 1 && trendKeys[0] === 'bid_trend_shown', trendKeys.join(' '));
+  } finally {
+    await page.evaluate((raw) => {
+      if (raw === null) localStorage.removeItem('portfolio-saved-bids');
+      else localStorage.setItem('portfolio-saved-bids', raw);
+    }, held);
+  }
+});
+
 // 6bt. Whether what the contractor changed is working (`trendSentence`).
 //
 //      The only reading on the hub that asks *when* a bid was priced, and the
