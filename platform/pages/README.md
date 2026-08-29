@@ -10,9 +10,10 @@ node platform/pages/check.mjs dist                # check the artifact
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
-Then, in a browser, the three checks CI cannot run — `journey.mjs` (the customer
-journey), `sweep.mjs` (does every tool still compute), and `contrast.mjs` (can
-every page be read and reached). See [Driving the customer
+Then, in a browser, the four checks CI cannot run — `journey.mjs` (the customer
+journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
+every page be read and reached), and `roundtrip.mjs` (does a shared bid arrive as
+the bid that was sent). See [Driving the customer
 journey](#driving-the-customer-journey).
 
 Then serve it and click around:
@@ -1294,6 +1295,56 @@ result panel with no link rule, a `tabindex` added without measuring. Opacity is
 the one worth naming: it is invisible to review, it multiplies a colour the
 chrome never chose, and there is no value of it that is safe on a host already
 at the AA floor.
+
+### Checking a shared bid arrives as the bid that was sent
+
+`roundtrip.mjs` asks the question the other three cannot: **does the link a tool
+copies open as the bid it was copied from?**
+
+```bash
+node platform/pages/roundtrip.mjs   # same BASE_URL / PLAYWRIGHT / CHROME_PATH / DIST env vars
+node platform/pages/roundtrip.mjs shopify-fee-calculator   # or just these tools
+```
+
+For each tool: change every select and number input, copy the link the page's own
+button copies, open it in a browser that has never seen the tool, and compare
+every control and the headline figure. Exit status is non-zero on any difference.
+
+This failure is silent by construction. The link is a second serialization of the
+form, and nothing on the page disagrees with it — the recipient sees a complete,
+plausible, *different* answer. It had already cost this portfolio twice, both
+found by hand after shipping: `where-to-sell-calculator` dropping `quantity` and
+`targetMargin` from its own allowlist (2026-08-24), and `shopify-fee-calculator`
+serializing sixteen of twenty-six fields and writing back two of five panels
+(2026-08-29).
+
+What the first run found, on 2026-08-29:
+
+- **`security-camera-bid-calculator`'s link never opened at all.** Its proposal
+  scope draft runs past `MAX_LINK_VALUE`, so the encoder set it aside — rightly.
+  The decoder then found a control the link had not mentioned, read that as a
+  link written by some other tool, and refused the whole bid. 33 of 43 fields
+  stayed at their defaults and the headline read $7,440 against the sender's
+  $2,768. An omission the encoder makes on purpose is now named in the payload,
+  so the guard keeps its teeth for the case it was built for.
+- **`amazon-fba-calculator` restored the sender's placement fees and then wrote
+  the size-tier defaults over them**, because a restored value was not marked
+  hand-entered. Its two preset selects did not travel either, so the recipient
+  read "Home & kitchen (15%)" over a 17% referral rate.
+- **47 tools drop `depositPercent` and `validDays`** — the proposal deposit and
+  how long the price is held. Their share specs carry the pricing form and not
+  the terms. One cause, not 47, which is why the report groups repeated fields
+  at the end. Still open: carrying them needs the three *text* terms
+  (`paymentTerms`, `proposalNotes`, `proposalExclusions`) to travel too, and the
+  shared spec in `share.mjs` has `numbers`, `flags` and `choices` but no text
+  kind. That is the next piece of work here.
+
+A preset select that comes back as `other`, or a scope draft that regenerates, is
+not a finding: the recipient now has custom rates, and `other` is the honest
+label for them.
+
+Not in CI, for the same reason as `sweep.mjs` and `contrast.mjs`: Playwright is
+not a dependency of this repo.
 
 ## Deploying
 
