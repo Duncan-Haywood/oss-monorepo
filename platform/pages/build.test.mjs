@@ -951,6 +951,30 @@ test('the hub carries a name index and the ranking function it is scored with', 
   assert.match(html, /<li class="card" data-name="[^"]*roofing[^"]*" data-search=/);
 });
 
+test('a query that matches every word in nothing is offered the closest tools', async () => {
+  const html = await read('index.html');
+  // The matcher ANDs across words, which keeps two-word queries precise and
+  // turns a typed sentence into nothing at all: "new roof estimate", "tree
+  // removal quote" and "freight class calculator" each returned zero against
+  // the built site while the tool sat there, because one word of the sentence
+  // is in no index. The dead end is now a ranked shortlist, and the page says
+  // it is approximate rather than presenting near-misses as matches.
+  assert.match(html, /<p class="closest" id="closest" hidden><\/p>/);
+  assert.match(html, /No tool matches every word\. Closest /);
+  // Capped: sixty loosely-related tools under the visitor's exact words would
+  // be its own kind of wrong answer.
+  assert.match(html, /const CLOSEST_LIMIT = \d+;/);
+  // Scored at a token boundary. The loose substring pass exists so a
+  // half-typed word still matches; reused for ranking it scores "air" inside
+  // "stair", "chair" and "repair", and the shortlist fills with the wrong
+  // trade. Measured: it put the stair-lift and wheelchair-ramp calculators
+  // above the two cooling tools for "air conditioning".
+  assert.match(html, /searchScore\(card\.dataset\.name \|\| '', card\.dataset\.search, forms, true\)/);
+  // And only when the strict pass found nothing, so an exact answer is never
+  // replaced by suggestions.
+  assert.match(html, /if \(forms\.length && shown === 0\) \{/);
+});
+
 test('the hub ships one stemmer, not a second copy that can drift', async () => {
   const html = await read('index.html');
   // The browser gets searchVariants by source injection. If that ever becomes
