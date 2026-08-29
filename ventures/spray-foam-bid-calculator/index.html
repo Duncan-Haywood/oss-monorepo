@@ -388,13 +388,25 @@
       const width = Number(el('widthFeet').value);
       const thickness = Number(el('thicknessInches').value);
       if (![length, width, thickness].every(Number.isFinite) || length <= 0 || width <= 0 || thickness <= 0) return;
+      // The three rim fields get the same guard as the three plane fields, and
+      // for a reason the plane ones never exposed: `suggestedRimBf` *throws* on
+      // a value it will not take, this runs before `update()` in every handler
+      // that calls it, and a throw here means `update()` never runs at all. A
+      // typed minus sign in the rim height left an uncaught error in the
+      // console and froze every derived board-foot figure on the form until it
+      // was removed. Returning early is what the plane fields already do.
+      const rimLf = Number(el('rimLf').value);
+      const rimHeight = Number(el('rimHeightInches').value);
+      const rimThickness = Number(el('rimThicknessInches').value);
+      if (![rimLf, rimHeight, rimThickness].every(Number.isFinite)) return;
+      if (rimLf < 0 || rimHeight < 0 || rimThickness < 0) return;
       const area = el('area').value;
       const cell = el('cell').value;
       const pitch = el('pitch').value;
       const plane = suggestedAreaSf(length, width, area, pitch);
       const openBf = suggestedOpenBf(plane, thickness, cell);
       const closedBf = suggestedClosedBf(plane, thickness, cell);
-      const rimBf = suggestedRimBf(el('rimLf').value, el('rimHeightInches').value, el('rimThicknessInches').value);
+      const rimBf = suggestedRimBf(rimLf, rimHeight, rimThickness);
       const waste = suggestedWastePercent(cell);
       if (!el('areaSf').dataset.edited) el('areaSf').value = Number(plane.toFixed(4));
       if (!el('openBf').dataset.edited) el('openBf').value = Number(openBf.toFixed(4));
