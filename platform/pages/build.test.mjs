@@ -1728,6 +1728,34 @@ test('a page with no visible Q&A gets no schema rather than an invented one', ()
   assert.ok(!html.includes('FAQPage'));
 });
 
+test('typographic entities are decoded, not carried into the answer', () => {
+  // `&ldquo;` reaching JSON-LD intact is rendered literally by a search engine
+  // inside the answer it shows.
+  const entries = faqEntries(`<html><body><main>
+    <h3>Should I take the &ldquo;partial refund&rdquo; instead?</h3>
+    <p>It depends on the item&rsquo;s value back in stock &mdash; postage&nbsp;included &#8212; against the return label.</p>
+  </main></body></html>`);
+  assert.equal(entries[0].question, 'Should I take the “partial refund” instead?');
+  assert.ok(!entries[0].answer.includes('&'), `no raw entity survived: ${entries[0].answer}`);
+  assert.match(entries[0].answer, /item’s value back in stock — postage included —/);
+});
+
+test('the last answer on a page stops at the end of its block', () => {
+  // Without a boundary this answer runs past </main> and picks up the footer
+  // disclaimer every tool here carries, on every page with a trailing question.
+  const entries = faqEntries(`<html><body><main>
+    <section>
+      <h3>Does free shipping actually cost me money?</h3>
+      <p>Free shipping is priced into the item, so it pays only when the sell-through lift covers the postage.</p>
+    </section>
+  </main>
+  <footer><p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice.</p></footer>
+  </body></html>`);
+  assert.equal(entries.length, 1);
+  assert.ok(!entries[0].answer.includes('No warranty'), 'the disclaimer is not part of the answer');
+  assert.ok(entries[0].answer.endsWith('postage.'));
+});
+
 test('a maintainer note is not mistaken for an answer', () => {
   const entries = faqEntries(`<html><body>
     <h2>Should I pay the 3PL to kit, or skip the bundle?</h2>
