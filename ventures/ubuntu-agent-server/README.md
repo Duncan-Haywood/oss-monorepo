@@ -212,6 +212,19 @@ no extra coordination logic needed.
    comments that on the issue — without touching git or GitHub beyond that
    comment. Flip to `false` per repo once you've watched it behave
    correctly a few times.
+
+   **One thing `dry_run` does not gate: filing the self-directed issue.**
+   On a repo with `self_directed: true`, step 3 above runs *before* any of
+   this — `maybe_self_direct()` is called from the poll loop and
+   `create_self_directed_issue()` shells out to `gh issue create`, neither
+   of which reads `dry_run`. So a dry-run self-directed repo will still
+   open one real GitHub issue per cooldown window (24h by default). That
+   is deliberate rather than an oversight: gating it too would leave a
+   dry-run self-directed repo doing nothing observable at all, and the
+   point of `dry_run` is to give you runs to watch. But it means "touches
+   nothing on GitHub beyond a comment" is true of the *work*, not of the
+   whole loop — worth knowing before you flip the kill switch, because
+   `Duncan-Haywood/monorepo-projects` is configured this way today.
 3. **Repo allowlist**: the runner only ever looks at repos explicitly listed
    in `config/repos.yml` — never "every repo this token can see." This file
    is real, version-controlled config now (see "Everything as code" below)
