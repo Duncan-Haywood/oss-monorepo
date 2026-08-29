@@ -145,6 +145,69 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   themselves. `check.mjs` fails the build if a published tool is missing from
   it, or if it names one that did not ship.
 
+## Everything this build injects is a file
+
+The passes above add the same navigation, the same two bands and the same
+keyboard-access sweep to every page. For a long time each of them wrote its
+CSS and its JavaScript *into* the page, which is the obvious thing to do when
+a venture is a standalone site — and became the wrong thing to do the moment
+there were 442 of them under one origin. Measured on the built site:
+
+| Asset | Size | Pages | Written into the site |
+|---|---|---|---|
+| `pf-chrome.css` | 2.75 KB | 442 | 1.19 MiB |
+| `pf-jobs.css` | 5.44 KB | 237 | 1.26 MiB |
+| `pf-rates.js` | 7.55 KB | 106 | 781 KiB |
+| `pf-site.js` | 1.66 KB | 442 | 715 KiB |
+| `pf-rates.css` | 1.78 KB | 105 | 183 KiB |
+
+**4.1 MiB of a 25 MiB site, all of it the same bytes.** `pf-jobs.js` was
+extracted first (above) on exactly this arithmetic; these five are the rest of
+it. Each is now written once at the site root and linked from the pages that
+need it: the site is 25 MiB → 21 MiB, and the opt-in offline bundle 14.85 MiB →
+12.58 MiB against its 16 MiB budget.
+
+What a visitor actually gets from that is not the total. It is the *second*
+page: a contractor comparing a deck bid against a fence bid used to re-download
+~18 KB of identical chrome, band styling and script on arrival, and now
+downloads none of it. That is the journey the shop-rates bar exists to serve.
+
+Three things this changes, each of which is a way to get it wrong:
+
+- **A shared asset can be a 404 where an inline one could not.** These pages
+  are served at two depths — `/<slug>/` and `/<slug>/some-question.html`, which
+  is where search traffic lands — so every `href` and `src` is built from the
+  same `toRoot` the chrome and the favicon use. `build.test.mjs` resolves each
+  one against the file it is written into and requires it to land on the site
+  root; `check.mjs` counts the same references as links, so a wrong path fails
+  the artifact rather than shipping an unstyled band.
+- **The offline bundle has to know about them.** What was inline was cached
+  with the page for free. `collectOfflineBundle` names all six shared files
+  explicitly — a tool cached without `pf-jobs.css` opens with the band as
+  unstyled markup, and without `pf-rates.js` with no bar at all.
+- **A per-page value now travels through the DOM.** `pf-rates.js` needs to know
+  which of the four shop-rate fields this tool carries and what each is called
+  here, so the pairs ride on the tag as `data-pf-rates-fields`
+  (`hourlyWage:operatorWage,…`) and the script resolves each id against its own
+  constant table. A pair naming a field the build does not know is dropped
+  rather than trusted, and an empty list removes the bar instead of drawing one
+  that saves nothing — the same re-check `pf-jobs.js` applies to its amount
+  selector, for the same reason. Everything a field *means* — its label, its
+  units, its ceiling — stayed in the script, because none of it was ever
+  per-page. `pf-site.js` carries the slug it counts the same way, as
+  `data-pf-slug`.
+
+The stylesheets need none of that: nothing in them was ever per-page, which is
+what made the chrome's palette-free rules (`color:inherit`, neutral greys) worth
+having twice over.
+
+One consequence worth knowing about the tests. Several of them read a rule or a
+line of script out of a built page and skipped a page that did not carry one.
+Once the block moved to a file, those `continue`d over all 442 pages and passed
+without asserting anything — the gate-that-never-opens shape this repo keeps
+re-learning. They read the shared file directly now, and count the pages that
+link it separately.
+
 ## How the hub is organised
 
 Two levels, both derived from the slug in `build.mjs` — there is no manifest to
@@ -279,8 +342,8 @@ scripts are deferred and run in document order, so this one — last in the
 document — sees a form the venture's own deferred module has finished building.
 A classic external script would run the moment it arrived.
 
-`rates.mjs` and the chrome still inline theirs (701 KiB and 310 KiB across the
-site). The same extraction applies to both and has not been done.
+The rest of what this build injects is extracted the same way — see [Everything
+this build injects is a file](#everything-this-build-injects-is-a-file).
 
 Every field on the page is saved together under a name the visitor types, and
 restoring puts the whole job back. Because a bid never crosses tools, no field

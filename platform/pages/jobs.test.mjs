@@ -59,6 +59,8 @@ import {
   SAVED_BIDS_KEY,
   injectSavedBids,
   renderSavedBidsModule,
+  renderSavedBidsStyle,
+  SAVED_BIDS_STYLE_FILE,
   SAVED_BIDS_MODULE_FILE,
   normalizeBid,
   normalizeBidName,
@@ -81,6 +83,8 @@ const VENTURES = path.join(HERE, '..', '..', 'ventures');
 // about what the browser runs reads it here rather than out of a page. The page
 // carries only the tag that names it, which is what the tag assertions check.
 const module_ = () => renderSavedBidsModule();
+// The band's stylesheet, likewise one file for the whole site.
+const style = () => renderSavedBidsStyle();
 
 const page = (body, head = '') =>
   `<!doctype html><html><head><title>t</title>${head}</head><body>${body}</body></html>`;
@@ -264,8 +268,13 @@ test('a non-string is returned unchanged', () => {
  * exists so a homeowner receives their own price and nothing else.
  */
 test('the band is hidden in print', () => {
+  // The stylesheet is one file at the site root now, so the rule is read from
+  // there and the page is checked for the link that pulls it in. Either half
+  // missing is the same defect: the band lands on the sheet the homeowner is
+  // handed, listing the other customers by name.
   const out = injectSavedBids(page(inputs(6)), 'x');
-  assert.match(out, /@media print\{\.pf-jobs\{display:none !important\}\}/);
+  assert.match(out, new RegExp(`<link rel="stylesheet" href="\\./${SAVED_BIDS_STYLE_FILE}">`));
+  assert.match(style(), /@media print\{\.pf-jobs\{display:none !important\}\}/);
 });
 
 /** With scripting off there is nothing behind the buttons. */
@@ -1984,8 +1993,7 @@ test('the quiet mark is a word, not only a colour', () => {
   // 180 venture palettes do not agree on a warning hue, and a visitor may not
   // separate two of them at all. Weight and a border carry it, so it also
   // survives a monochrome print.
-  const injected = injectSavedBids(page(inputs(4)), 'fence-bid-calculator');
-  assert.match(injected, /\.pf-jobs-quiet\{[^}]*border:1px solid currentColor/);
+  assert.match(style(), /\.pf-jobs-quiet\{[^}]*border:1px solid currentColor/);
 });
 
 test('the feature list says the tool knows how long an answer takes', () => {

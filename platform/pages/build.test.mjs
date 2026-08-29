@@ -1510,14 +1510,37 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   // From the injected element, not the style block that names the same class:
   // the venture's own footer sits above it and carries its own GitHub links.
   const chrome = page.slice(page.indexOf('<aside class="pf-chrome pf-chrome-foot"'));
+  // The counter is one file at the site root now; the page carries the tag that
+  // names which tool it is counting.
+  const script = await read('pf-site.js');
 
-  assert.ok(chrome.includes("localStorage.getItem('portfolio-hub-optout')"), 'the hub opt-out applies here too');
-  assert.ok(chrome.includes('doNotTrack') && chrome.includes('globalPrivacyControl'));
-  assert.ok(chrome.includes('tool_viewed:etsy-profit-calculator'));
+  assert.ok(script.includes("localStorage.getItem('portfolio-hub-optout')"), 'the hub opt-out applies here too');
+  assert.ok(script.includes('doNotTrack') && script.includes('globalPrivacyControl'));
+  assert.ok(script.includes("bump('tool_viewed:'+slug)"));
+  assert.match(chrome, /<script src="\.\.\/pf-site\.js" data-pf-slug="etsy-profit-calculator">/);
+  assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(script), 'nothing is transmitted');
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
   const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
   assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
+  // Nor does the shared file: an off-origin request from a script every page
+  // loads would be the whole privacy claim undone in one line.
+  assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);
+});
+
+test('a page carries no inline chrome script or stylesheet, only links to the shared ones', async () => {
+  // The extraction this replaced: 2.75 KB of CSS and 1.66 KB of JS were written
+  // into all 442 published pages -- 1.9 MiB of the built site, and the same
+  // bytes every time. A page that regrew either would be paying for it again on
+  // every load and again in the offline bundle.
+  const page = await read('etsy-profit-calculator', 'index.html');
+  assert.doesNotMatch(page, /<style id="pf-chrome-style">/);
+  assert.doesNotMatch(page, /data-pf-scrollable'\)/, 'the scroll pass is a file, not a body');
+  assert.match(page, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
+
+  const css = await read('pf-chrome.css');
+  assert.match(css, /^\.pf-chrome\{/);
+  assert.doesNotMatch(css, /<style|<\/style>/, 'it is served as a stylesheet, not written into a page');
 });
 
 test('the sponsor line on a tool page is optional and gates nothing', async () => {
@@ -1694,14 +1717,20 @@ test('no injected script carries a template literal across a line break', async 
   //
   // An odd count of unescaped backticks on a line means a literal opened or
   // closed on it and continues onto the next.
-  for (const file of ['index.html', ['fence-bid-calculator', 'index.html']]) {
-    const html = await read(...[].concat(file));
-    const injected = [...html.matchAll(/<script(?![^>]*application\/ld\+json)[^>]*>([\s\S]*?)<\/script>/g)]
-      .map((m) => m[1])
-      // The venture's own module is the one script on the page the build did
-      // not write; it is identified by the marker only injected scripts carry.
-      .filter((body) => /pf-jobs|pf-rates|pf-chrome|portfolio-hub-usage/.test(body));
-    assert.ok(injected.length > 0, `no injected script found in ${file}`);
+  // The hub is still assembled inline; everything the build injects into a
+  // venture page is now a file at the site root, so the guard reads those.
+  const inlineHub = [...(await read('index.html'))
+    .matchAll(/<script(?![^>]*application\/ld\+json)[^>]*>([\s\S]+?)<\/script>/g)]
+    .map((m) => m[1])
+    .filter((body) => /pf-jobs|pf-rates|pf-chrome|portfolio-hub-usage/.test(body));
+  assert.ok(inlineHub.length > 0, 'no injected script found in the hub');
+
+  const shared = [];
+  for (const file of ['pf-jobs.js', 'pf-link.js', 'pf-rates.js', 'pf-site.js']) {
+    shared.push(await read(file));
+  }
+
+  for (const injected of [inlineHub, shared]) {
     for (const body of injected) {
       for (const [n, line] of body.split('\n').entries()) {
         const ticks = (line.match(/(?<!\\)`/g) || []).length;
@@ -2268,8 +2297,10 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // the bottom of a cream page. Measured with a headless browser at the time:
   // the fixed version holds 13.7:1 or better on every tool in both OS schemes,
   // and a tool with its own dark mode still flips (17.4:1 light, 15.1:1 dark).
+  // One stylesheet at the site root since the extraction; the page links it.
   const html = await read('etsy-profit-calculator', 'index.html');
-  const style = html.match(/<style id="pf-chrome-style">([\s\S]*?)<\/style>/)[1];
+  assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
+  const style = await read('pf-chrome.css');
 
   assert.ok(!/prefers-color-scheme/.test(style),
     'the chrome must not branch on the OS theme — the host page decides');
@@ -2295,13 +2326,19 @@ test('nothing this build injects reaches a printed customer proposal', async () 
   assert.ok(html.includes('id="proposalDoc"'),
     'deck-bid-calculator no longer carries a proposal; point this test at one that does');
 
-  const chromeStyle = html.match(/<style id="pf-chrome-style">([\s\S]*?)<\/style>/)[1];
+  // The three stylesheets are files at the site root now, so the rules are read
+  // from there and the page is checked for the links that pull them in. An
+  // unlinked stylesheet is the same defect as a missing print rule: the band
+  // would render, unstyled, on the sheet the homeowner is handed.
+  const chromeStyle = await read('pf-chrome.css');
+  assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-chrome\.css">/);
   assert.match(chromeStyle, /@media print\{\.pf-chrome\{display:none !important\}\}/,
     'the site navigation would print on the customer’s proposal');
 
-  const styles = [...html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((m) => m[1]);
-  const ratesStyle = styles.find((style) => style.includes('.pf-rates-list'));
-  assert.ok(ratesStyle, 'the shop-rates band is no longer injected; this test needs rewriting');
+  const ratesStyle = await read('pf-rates.css');
+  assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-rates\.css">/,
+    'the shop-rates band is no longer injected; this test needs rewriting');
+  assert.ok(ratesStyle.includes('.pf-rates-list'));
   assert.match(ratesStyle, /@media print\{\.pf-rates\{display:none !important\}\}/,
     'the contractor’s wage, burden, overhead and margin would print on the customer’s proposal');
 });
@@ -2479,6 +2516,71 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
   assert.ok(tagged > 200, `only ${tagged} pages carry the band`);
 });
 
+test('every stylesheet and script this build injects is one file, at the right depth', async () => {
+  // The same arithmetic as the saved-bids script above, run over what was left
+  // inline beside it. Measured on the built site before this change:
+  //
+  //   pf-chrome.css  2.75 KB x 442 pages = 1.19 MiB
+  //   pf-jobs.css    5.44 KB x 237 pages = 1.26 MiB
+  //   pf-rates.js    7.55 KB x 106 pages =  781 KiB
+  //   pf-site.js     1.66 KB x 442 pages =  715 KiB
+  //   pf-rates.css   1.78 KB x 105 pages =  183 KiB
+  //
+  // 4.1 MiB of a 25 MiB site, all of it the same bytes, downloaded again for
+  // every tool a contractor opens and again for every one they save offline.
+  const { outDir, offline } = await site();
+
+  // The two facts a shared asset has to get right: it exists, and every page
+  // that needs it resolves to it. A src that is correct at `/<slug>/` is a 404
+  // at `/<slug>/some-question.html`, which is where search traffic lands.
+  const assets = {
+    'pf-chrome.css': { attr: 'link', gate: () => true },
+    'pf-site.js': { attr: 'script', gate: () => true },
+    'pf-rates.css': { attr: 'link', gate: (html) => html.includes('data-pf-rates-root') },
+    'pf-rates.js': { attr: 'script', gate: (html) => html.includes('data-pf-rates-root') },
+    'pf-jobs.css': { attr: 'link', gate: (html) => html.includes('data-pf-jobs-root') },
+  };
+
+  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
+  for (const [name, { attr, gate }] of Object.entries(assets)) {
+    const body = await read(name);
+    assert.ok(body.length > 400, `${name} was not written to the site root`);
+    assert.ok(offline.bundle.includes(name),
+      `a tool cached offline without ${name} opens unstyled or without its band`);
+
+    let carrying = 0;
+    for (const file of pages) {
+      const html = await fs.readFile(file, 'utf8');
+      const rel = path.relative(outDir, file);
+      if (rel === 'index.html' || rel === '404.html') continue; // the hub is its own document
+      if (!html.includes('pf-chrome')) continue;               // not a page this build wraps
+      if (!gate(html)) continue;
+      carrying += 1;
+      const pattern = attr === 'link'
+        ? new RegExp(`<link rel="stylesheet" href="([^"]*${name.replace('.', '\\.')})">`)
+        : new RegExp(`<script[^>]* src="([^"]*${name.replace('.', '\\.')})"`);
+      const href = html.match(pattern)?.[1];
+      assert.ok(href, `${rel} needs ${name} and does not load it`);
+      assert.equal(path.resolve(path.dirname(file), href), path.join(outDir, name),
+        `${rel} points at ${href}, which does not resolve to the site root`);
+    }
+    assert.ok(carrying > 100, `only ${carrying} pages load ${name}`);
+  }
+
+  // And the copies they replaced are gone. A page carrying both would pay for
+  // the bytes twice and, for the scripts, run the feature twice.
+  for (const file of pages) {
+    const html = await fs.readFile(file, 'utf8');
+    const rel = path.relative(outDir, file);
+    if (rel === 'index.html' || rel === '404.html') continue;
+    assert.ok(!html.includes('<style id="pf-chrome-style">'), `${rel} still inlines the chrome CSS`);
+    assert.ok(!html.includes('.pf-jobs-quiet{'), `${rel} still inlines the saved-bids CSS`);
+    assert.ok(!html.includes('.pf-rates-list b{'), `${rel} still inlines the shop-rates CSS`);
+    assert.ok(!html.includes("bump('tool_viewed:"), `${rel} still inlines the chrome counter`);
+    assert.ok(!html.includes('var ALL_FIELDS'), `${rel} still inlines the shop-rates script`);
+  }
+});
+
 // ---------------------------------------------------------------------------
 // Legibility
 //
@@ -2491,18 +2593,14 @@ test('the saved-bids script is one file the whole site loads, not 234 copies', a
 // ---------------------------------------------------------------------------
 
 test('the injected chrome never dims text it did not choose the colour of', async () => {
-  const { outDir } = await site();
-  const pages = (await walk(outDir)).filter((f) => f.endsWith('.html'));
-  const offenders = [];
-  for (const file of pages) {
-    const html = await fs.readFile(file, 'utf8');
-    // Only the chrome's own stylesheet: a venture is free to use opacity on
-    // markup whose colour it also owns and can check.
-    const style = html.match(/<style id="pf-chrome-style">([\s\S]*?)<\/style>/)?.[1];
-    if (!style) continue;
-    if (/opacity\s*:/.test(style)) offenders.push(path.relative(outDir, file));
-  }
-  assert.deepEqual(offenders.slice(0, 5), [],
+  // Only the chrome's own stylesheet: a venture is free to use opacity on
+  // markup whose colour it also owns and can check. It is one file at the site
+  // root now, which is also why this reads it directly rather than sampling
+  // pages -- a page-by-page scan with a `continue` on "no inline block" would
+  // have gone quiet the moment the block moved, and passed on every page.
+  const style = await read('pf-chrome.css');
+  assert.ok(/\.pf-chrome-foot/.test(style), 'pf-chrome.css is not the chrome stylesheet');
+  assert.ok(!/opacity\s*:/.test(style),
     'the chrome sets an opacity on text whose colour comes from the host page, ' +
     'so its contrast depends on a palette it cannot see');
 });
@@ -2532,25 +2630,29 @@ test('the hub names its quietest ink rather than tinting it', async () => {
 
 test('a sideways-scrolling box is given keyboard access, and only when it scrolls', async () => {
   const { outDir } = await site();
+  const pass = await fs.readFile(path.join(outDir, 'pf-site.js'), 'utf8');
+
+  // Measured, not asserted statically: whether a box overflows depends on the
+  // viewport and on how long the numbers rendered, so a `tabindex="0"` in the
+  // markup would put a dead tab stop on every table that fits.
+  assert.match(pass, /scrollWidth\s*>\s*\w+\.clientWidth/,
+    'the pass marks scroll boxes without measuring them');
+  assert.match(pass, /removeAttribute\('tabindex'\)/,
+    'the pass never releases the tab stop when the box fits again');
+
+  // `role="region"` on a <table> replaces its table semantics, so a screen
+  // reader stops announcing rows and columns. The tab stop is the whole fix.
+  assert.ok(!/setAttribute\('role'/.test(pass),
+    'the pass overrides the role of the box it makes focusable');
+
+  // The pass is one file now, so what each page has to carry is the tag that
+  // loads it. A page that lost the tag loses keyboard access to every wide
+  // table on it, silently — which is why this is counted rather than sampled.
   const pages = (await walk(outDir)).filter((f) => f.endsWith('.html') && !f.endsWith('offline.html'));
   let carrying = 0;
   for (const file of pages) {
     const html = await fs.readFile(file, 'utf8');
-    if (!html.includes('data-pf-scrollable')) continue;
-    carrying += 1;
-
-    // Measured, not asserted statically: whether a box overflows depends on the
-    // viewport and on how long the numbers rendered, so a `tabindex="0"` in the
-    // markup would put a dead tab stop on every table that fits.
-    assert.match(html, /scrollWidth\s*>\s*\w+\.clientWidth/,
-      `${path.relative(outDir, file)} marks scroll boxes without measuring them`);
-    assert.match(html, /removeAttribute\('tabindex'\)/,
-      `${path.relative(outDir, file)} never releases the tab stop when the box fits again`);
-
-    // `role="region"` on a <table> replaces its table semantics, so a screen
-    // reader stops announcing rows and columns. The tab stop is the whole fix.
-    assert.ok(!/setAttribute\('role'/.test(html),
-      `${path.relative(outDir, file)} overrides the role of the box it makes focusable`);
+    if (/<script src="[^"]*pf-site\.js"/.test(html)) carrying += 1;
   }
   assert.ok(carrying > 200, `only ${carrying} pages carry the keyboard-scroll pass`);
 });

@@ -2428,8 +2428,12 @@ export function addSavedBidsClause(html, withPriceBand = false) {
  * Most ventures here are deliberately light-only and carry no
  * `prefers-color-scheme` rule, so a band painted from its own dark palette
  * would sit as a near-black slab on a cream page for any visitor with a dark OS.
+ *
+ * Raw CSS rather than a `<style>` element, because it is written once to
+ * `pf-jobs.css` at the site root and linked from the 237 pages that carry the
+ * band. See `SAVED_BIDS_STYLE_FILE`.
  */
-const JOBS_STYLE = `<style>
+const JOBS_CSS = `
 .pf-jobs{font:inherit;font-size:.85rem;line-height:1.45;color:inherit;
   max-width:1060px;margin:0 auto;padding:8px 18px 0;box-sizing:border-box}
 .pf-jobs-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
@@ -2509,7 +2513,7 @@ const JOBS_STYLE = `<style>
  * outside those sheets' allow-list: a contractor who left the panel open would
  * have handed one customer a list of the others. */
 @media print{.pf-jobs{display:none !important}}
-</style>`;
+`;
 
 /**
  * The prose is rendered at build time and the script only wires it, so what a
@@ -3314,6 +3318,37 @@ export function renderSavedBidsModule() {
 }
 
 /**
+ * The band's stylesheet as one file, for the same reason the script became one.
+ *
+ * The script was extracted in #1917 and the stylesheet beside it was left
+ * inline, which turned out to be the larger half: the band's CSS is ~5.4 KB and
+ * it was written into all 237 pages that carry the band — **1.26 MiB of the
+ * built site**, against the 15 KB the shared script now costs once. It is the
+ * same bytes every time; nothing in it was ever per-page.
+ *
+ * A stylesheet is the easier extraction of the two, because it has no
+ * per-page values to carry at all — no slug, no selector, nothing to ride on
+ * the tag. The only thing the link needs is the depth of the page it is on,
+ * which the build already computes for the chrome and the favicon.
+ */
+export const SAVED_BIDS_STYLE_FILE = 'pf-jobs.css';
+
+/** The contents of that file. Written once by the build, at the site root. */
+export function renderSavedBidsStyle() {
+  return `${JOBS_CSS.trimStart()}`;
+}
+
+/**
+ * Escaped, not interpolated. Both the stylesheet link and the script tag now
+ * carry values into attribute position — a path built from the page's depth,
+ * the venture's slug, and a CSS selector — so the character that would break
+ * out of one is the quote, not the backslash a JSON string literal had to
+ * guard against.
+ */
+const htmlAttr = (value) => String(value)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/**
  * Add the saved-bids bar to one already-published page.
  *
  * Returns the html unchanged when the page carries no form worth remembering
@@ -3351,9 +3386,13 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
   // The claim goes in with the feature, never on its own. See the clause above.
   const declared = addSavedBidsClause(html, amountSelector !== '');
 
-  const withStyle = declared.replace(/<\/head>/i, `${JOBS_STYLE}\n</head>`);
+  // A link now, not a `<style>` body: one file at the site root, cached across
+  // every tool a contractor opens. See `SAVED_BIDS_STYLE_FILE`.
+  const styleLink =
+    `<link rel="stylesheet" href="${htmlAttr(toRoot + SAVED_BIDS_STYLE_FILE)}">`;
+  const withStyle = declared.replace(/<\/head>/i, `${styleLink}\n</head>`);
   // A page with no <head> still gets the stylesheet, ahead of the bar it styles.
-  const stylePrefix = withStyle === declared ? `${JOBS_STYLE}\n` : '';
+  const stylePrefix = withStyle === declared ? `${styleLink}\n` : '';
 
   const rates = withStyle.match(/<section class="pf-rates"[\s\S]*?<\/section>/i);
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);
@@ -3371,11 +3410,7 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
   // the document, sees a form the venture's own deferred module has finished
   // building. A classic external script would run the moment it arrived, which
   // could be before that.
-  // Escaped, not interpolated. The slug used to be JSON-encoded into a string
-  // literal; it is now an attribute value, so the character that would break
-  // out of it is a different one and the guard has to move with it.
-  const attr = (value) => String(value)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const attr = htmlAttr;
   const tag = `<script type="module" src="${attr(toRoot + SAVED_BIDS_MODULE_FILE)}"` +
     ` ${JOBS_SLUG_ATTR}="${attr(slug)}" ${JOBS_AMOUNT_ATTR}="${attr(amountSelector)}"></script>`;
 
