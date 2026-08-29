@@ -20,6 +20,7 @@ import {
   collectPageTitles,
   injectFavicon,
   discoverSurfaces,
+  faqEntries,
   injectChrome,
   isPublishable,
   NO_SLA_PATTERN,
@@ -1678,6 +1679,103 @@ test('a page that writes its own availability clause is not given a second', () 
   });
   assert.ok(!html.includes('pf-sla'), 'the venture already says it');
   assert.ok(html.includes(own), 'and its own wording survives');
+});
+
+// FAQ schema is read off the rendered copy rather than authored beside it,
+// because Google requires the question and answer to be visible on the page.
+// These tests pin the two halves of that: what counts as a visible Q&A pair,
+// and that nothing is emitted for a page that shows none.
+
+test('a visible question heading becomes FAQ schema', () => {
+  const page = `<html><head></head><body>
+    <h2>Should unused hours roll over?</h2>
+    <p>Rolling hours forward turns a retainer into a bank the client draws down in a slow month.</p>
+    <h2>Your rates</h2>
+    <p>Not a question, so not an answer.</p>
+  </body></html>`;
+  const entries = faqEntries(page);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].question, 'Should unused hours roll over?');
+  assert.match(entries[0].answer, /^Rolling hours forward/);
+  assert.ok(!entries[0].answer.includes('Not a question'), 'the answer stops at the next heading');
+});
+
+test('a labelled question drops the label but keeps the question', () => {
+  const entries = faqEntries(`<html><body>
+    <h2>Common question: should I accept Net 30?</h2>
+    <p>Net 30 is a loan to the customer, priced at whatever your own cash costs you to replace.</p>
+  </body></html>`);
+  assert.equal(entries[0].question, 'should I accept Net 30?');
+});
+
+test('a details/summary FAQ is read too, and its widget copy is not', () => {
+  const entries = faqEntries(`<html><body>
+    <details><summary>Is a deposit a cancellation fee?</summary>
+      <p>A deposit is applied to the balance; a cancellation fee is charged when nobody arrives.</p>
+      <button>Calculate</button><output>$0.00</output>
+    </details>
+  </body></html>`);
+  assert.equal(entries.length, 1);
+  assert.ok(!entries[0].answer.includes('Calculate'), 'buttons are not part of the answer');
+  assert.ok(!entries[0].answer.includes('$0.00'));
+});
+
+test('a page with no visible Q&A gets no schema rather than an invented one', () => {
+  assert.deepEqual(faqEntries('<html><body><h2>The heater and the house</h2><p>Prose.</p></body></html>'), []);
+  const html = injectChrome('<html><head></head><body><h2>Rates</h2><p>Prose.</p></body></html>', {
+    slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true,
+  });
+  assert.ok(!html.includes('FAQPage'));
+});
+
+test('a maintainer note is not mistaken for an answer', () => {
+  const entries = faqEntries(`<html><body>
+    <h2>Should I pay the 3PL to kit, or skip the bundle?</h2>
+    <p>The dedicated kitting calculator already has the full math. This block uses the same
+       compareKitting on the quote you just typed, so you do not leave the page.</p>
+  </body></html>`);
+  assert.deepEqual(entries, [], 'an answer naming a function is a note about the page, not an answer');
+});
+
+test('a brand that looks like camelCase still answers', () => {
+  // eBay, iPhone and PayPal must not be read as identifiers; only a long
+  // lowercase-initial run is.
+  const entries = faqEntries(`<html><body>
+    <h2>Does an eBay label still beat PayPal shipping on an iPhone sale?</h2>
+    <p>Compare the label price against the claim rate you actually see; eBay and PayPal both
+       price the same parcel differently once tracking is included.</p>
+  </body></html>`);
+  assert.equal(entries.length, 1);
+});
+
+test('a thin pair is left out', () => {
+  // A caption under a question heading is not an answer; quoting it as one
+  // would put a fragment in a search result.
+  assert.deepEqual(faqEntries('<html><body><h2>Why?</h2><p>Because.</p></body></html>'), []);
+});
+
+test('a venture that authors its own FAQ schema is not given a second', () => {
+  const own = '<script type="application/ld+json">{"@type":"FAQPage"}</script>';
+  const html = injectChrome(
+    `<html><head>${own}</head><body><h2>Does this reach your income goal?</h2>` +
+      '<p>It compares the retainer against the floor your own costs set, month by month.</p></body></html>',
+    { slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true },
+  );
+  assert.equal(html.match(/FAQPage/g).length, 1, 'only the venture’s own block');
+});
+
+test('the FAQ schema is injected on an entry page and escapes its copy', () => {
+  const html = injectChrome(
+    '<html><head></head><body><h2>Is a quote with &lt;/script&gt; in it safe?</h2>' +
+      '<p>Yes: the value is escaped as JSON unicode before it reaches the document.</p></body></html>',
+    { slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true },
+  );
+  assert.ok(html.includes('"FAQPage"'));
+  // The block must not be able to close itself early and spill into markup.
+  const block = html.slice(html.indexOf('"FAQPage"'));
+  const json = block.slice(0, block.indexOf('</script>'));
+  assert.ok(!json.includes('<'), 'no raw angle bracket inside the JSON-LD');
+  assert.match(json, /\\u003c/, 'it is carried as a unicode escape instead');
 });
 
 test('the chrome escapes venture copy', () => {
