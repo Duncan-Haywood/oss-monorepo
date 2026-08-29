@@ -21,6 +21,9 @@ issues are waiting, and its cooldown has elapsed, this creates a new GitHub
 issue itself (visible, auditable — not a hidden internal task) with a
 broad "use your judgment" prompt, then processes it exactly like any
 human-filed issue. Same guardrails apply: dry_run, PR-only, kill switch.
+A repo entry may set `self_directed_prompt` to replace the default prompt
+text (e.g. to point a portfolio repo at its own product conventions)
+without touching this file.
 
 Secret scanning: if `gitleaks` is on PATH, every diff is scanned before
 push; a match blocks the push and fails the run rather than silently
@@ -236,11 +239,13 @@ def mark_self_directed_run(repo: str) -> None:
     self_directed_cooldown_path(repo).write_text(datetime.now(timezone.utc).isoformat())
 
 
-def create_self_directed_issue(repo: str, trigger_label: str, log: RunLog) -> dict | None:
+def create_self_directed_issue(
+    repo: str, trigger_label: str, log: RunLog, prompt: str = SELF_DIRECTED_PROMPT
+) -> dict | None:
     result = gh(
         "issue", "create", "--repo", repo,
         "--title", "[agent] find something worth doing",
-        "--body", SELF_DIRECTED_PROMPT,
+        "--body", prompt,
         "--label", trigger_label,
         "--label", LABEL_SELF_DIRECTED,
         check=False,
@@ -259,7 +264,7 @@ def create_self_directed_issue(repo: str, trigger_label: str, log: RunLog) -> di
     return {
         "number": number,
         "title": "[agent] find something worth doing",
-        "body": SELF_DIRECTED_PROMPT,
+        "body": prompt,
         "labels": [{"name": trigger_label}, {"name": LABEL_SELF_DIRECTED}],
     }
 
@@ -283,7 +288,8 @@ def maybe_self_direct(cfg: dict, repo: str, trigger_label: str, log: RunLog) -> 
     if not self_directed_ready(repo, cooldown):
         log.write(f"[{repo}] self_directed cooldown not elapsed, skipping")
         return []
-    new_issue = create_self_directed_issue(repo, trigger_label, log)
+    prompt = cfg.get("self_directed_prompt") or SELF_DIRECTED_PROMPT
+    new_issue = create_self_directed_issue(repo, trigger_label, log, prompt)
     if not new_issue:
         return []
     mark_self_directed_run(repo)
