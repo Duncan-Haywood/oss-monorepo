@@ -63,7 +63,24 @@ AI-wrap by default.
   queued the outage. An outage job has empty check-run output and 404s on log
   download; a real `Portfolio validate` installs Python and Node and runs 36
   steps, so it cannot finish in five seconds. Verify locally, record what you
-  ran, and do not "fix" code the check never executed. See `CLAUDE.md`.
+  ran, and do not "fix" code the check never executed. See `CLAUDE.md`. The
+  single field that settles it is `runner_id: 0` with an empty `runner_name` —
+  no runner was ever assigned, so no step ran.
+- **Verify with the workflow's own step list, not a subset you chose.**
+
+  ```
+  python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
+  ```
+
+  It reads `.github/workflows/<file>` and runs its `run:` steps in order, in
+  each step's working directory, then reports what passed and names every step
+  it did *not* run (`uses:` steps, steps needing a `${{ }}` expression, steps
+  that look like they would push or deploy). Improvising a subset instead is
+  how `main` came to be failing two `Portfolio validate` steps for days in
+  August: several sessions each verified locally before merging, and none of
+  their subsets happened to include `check_ask_hosts.py`. Paste the summary
+  line into the pull request — including the count it says did not run, which
+  is the part that keeps "verified locally" honest.
 - **`git fetch --unshallow` first.** A scheduled session's clone is shallow, so
   every branch reads as an unrelated history: no merge base, `git merge` refuses,
   and a normal PR looks like a 2,800-file catastrophe. That is the clone, not the
