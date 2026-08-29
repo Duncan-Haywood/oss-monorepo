@@ -90,19 +90,20 @@ but the blast radius is bounded anyway:
 - No ingress at all.
 - A namespace `ResourceQuota` two runners at full limits cannot exceed.
 
+## No workflow needs anything from the base image
+
+All 217 are `actions/checkout` plus `actions/setup-node`/`setup-python`, which
+download their own toolchains. `hetzner-gitops-ci.yml` used to be the one
+exception — it installed `kustomize` and `kubeconform` with `sudo mv ...
+/usr/local/bin/` and `shellcheck` with `sudo apt-get`, and the official runner
+image ships neither `sudo` nor a package index. It now unpacks the two binaries
+into `$RUNNER_TEMP/bin` and takes `shellcheck` from the `shellcheck-py` wheel,
+which bundles the real binary. Both work unchanged on GitHub-hosted runners, so
+this is not a self-hosted-only code path that only gets exercised after the
+switch is flipped.
+
 ## Known limitations
 
-- **`hetzner-gitops-ci.yml` will still fail on self-hosted runners.** It is the
-  only one of the 217 that shells out to `sudo` — `sudo mv kustomize
-  /usr/local/bin/`, `sudo apt-get install shellcheck` — and the official runner
-  image ships neither `sudo` nor those packages. The other 216 are
-  `actions/checkout` plus `actions/setup-node`/`setup-python`, which download
-  their own toolchains and need nothing from the base image. Fixing it means
-  either installing those tools into `$GITHUB_PATH` under `$HOME` instead of
-  `/usr/local/bin`, or building a small image on top of the runner with
-  `kustomize`, `kubeconform` and `shellcheck` baked in. Flipping the switch
-  takes CI from 217 workflows failing to one — but that one is a real gap, not
-  a rounding error, and it is the workflow that validates this very directory.
 - `pull_request_target` workflows run with repository write access. On a
   private repo the risk is bounded because only collaborators can open PRs, but
   if this repository is ever made public, move those workflows back to
