@@ -17,6 +17,15 @@
 // does not match the sheet the customer is holding. `platform/proposal` made
 // the Tuesday half a real document; the Friday half was still nothing.
 //
+// The Friday question has two clauses and this file long answered only the
+// first. Restoring settles "what was that number again"; then the contractor
+// deletes the tear-off line, the page reprices, and Tuesday's figure is gone
+// from the screen — leaving them to subtract, in their head, against a number
+// they are half-remembering, in order to say the one sentence the call is
+// about. `revisionSentence` is the second clause: while a restored bid is on
+// the form, the band holds the figure it was quoted at and says what the change
+// is worth, in money and in percent.
+//
 // What existed already is not this. `share.mjs` encodes the current form into a
 // URL fragment, which is a fine way to send a bid to someone else, but it only
 // helps a contractor who thought to copy that link somewhere before closing the
@@ -883,9 +892,10 @@ export function bidPriceSide(side, direction) {
  * single tool never renders one of its two averages to a different precision
  * than the other unless they genuinely straddle it.
  *
- * Only averages go through here. Every figure quoted back as an actual bid is
- * the stored string, so no number a contractor reads to a customer has been
- * through a rounding rule this file invented.
+ * Only figures this file computed go through here — the averages, and
+ * `revisionSentence`'s difference between two quotes. Every figure quoted back
+ * as an actual bid is the stored string, so no number a contractor reads to a
+ * customer has been through a rounding rule this file invented.
  */
 export function formatBidAmount(currency, value) {
   var decimals = Math.abs(value) < 100 ? 2 : 0;
@@ -893,6 +903,80 @@ export function formatBidAmount(currency, value) {
   var parts = fixed.split('.');
   var whole = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   return (value < 0 ? '-' : '') + currency + whole + (parts[1] ? '.' + parts[1] : '');
+}
+
+/**
+ * Below this, the change is not worth a percentage.
+ *
+ * A rounded 0.0% beside a real money difference reads as "no change" and is
+ * wrong; the money half is exact and says it on its own.
+ */
+export const MIN_REVISION_PERCENT = 0.1;
+
+/**
+ * What the form says now, against the figure the restored bid was saved at.
+ *
+ * Why this exists
+ * ---------------
+ * The module header opens on the Friday call — "what was that number again, and
+ * what if we skip the tear-off?" — and until now this file answered only its
+ * first half. `restore` puts the whole job back, which settles "what was that
+ * number". Then the contractor deletes the tear-off line and the page reprices,
+ * and the figure they quoted on Tuesday is gone from the screen: the only thing
+ * left is a new number, with no relation drawn to the one the customer is
+ * holding a printed proposal of.
+ *
+ * That relation is the entire content of the phone call. "It comes to seven two
+ * ten" is not an answer to "what if we skip it"; "twelve hundred and forty
+ * less, about fifteen percent" is. A contractor doing that subtraction in their
+ * head, off a number they are half-remembering, is exactly how a concession
+ * gets quoted at the wrong size — and it is the one arithmetic error on this
+ * page that the tool was not already doing for them.
+ *
+ * Deliberately not a stored field. This compares a saved bid against the live
+ * form, so it is true only for as long as the form still holds that job; the
+ * moment it is saved over, the two agree by construction and there is nothing
+ * to say. Nothing here writes to the store.
+ *
+ * Returns `''` — draw nothing — whenever the comparison cannot be honest:
+ * either figure unreadable, or the two in different currencies. Mixed
+ * currencies are refused rather than converted, the same rule
+ * `priceBandSentence` follows and for the same reason: this file has no rates
+ * and should never acquire any.
+ *
+ * The two quotes are the strings the tools wrote. The *difference* is not — it
+ * is computed here, so it is written to `formatBidAmount`'s rule like every
+ * other figure this file derives, which rounds to whole units above 100. On a
+ * $22,683.07 quote that reads "$4,306 less" rather than "$4,306.09": the right
+ * precision for a number said out loud, and the reason both quotes are printed
+ * beside it rather than the difference alone.
+ *
+ * The percentage is omitted, not inverted, when the saved figure is zero or
+ * negative. A few tools here headline a profit that can go below zero, where
+ * "40% less" against a loss is a sentence with no agreed meaning; the money
+ * difference is exact in every case, so it carries the reading alone.
+ */
+export function revisionSentence(quoted, live) {
+  var was = bidAmountValue(quoted);
+  var now = bidAmountValue(live);
+  if (!was || !now) return '';
+  if (was.currency !== now.currency) return '';
+
+  var delta = now.value - was.value;
+  // The figures are quoted back as the strings the tools wrote, never
+  // reformatted: what the contractor reads here has to match the proposal in
+  // the customer's hand character for character.
+  if (delta === 0) return 'Still ' + now.text + ', the figure this bid was saved at.';
+
+  var share = '';
+  if (was.value > 0) {
+    var percent = Math.round((Math.abs(delta) / was.value) * 1000) / 10;
+    if (percent >= MIN_REVISION_PERCENT) share = ' (' + percent + '%)';
+  }
+  return (
+    now.text + ' now, against ' + was.text + ' saved — ' +
+    formatBidAmount(was.currency, Math.abs(delta)) + (delta > 0 ? ' more' : ' less') + share + '.'
+  );
 }
 
 /**
@@ -2260,6 +2344,7 @@ export const BID_PRICE_BAND_HELPERS = [
   `var MAX_LOST_TO = ${MAX_LOST_TO};`,
   `var MIN_MARGIN_SAMPLE = ${MIN_MARGIN_SAMPLE};`,
   `var MARGIN_SPREAD_POINTS = ${MARGIN_SPREAD_POINTS};`,
+  `var MIN_REVISION_PERCENT = ${MIN_REVISION_PERCENT};`,
   // `normalizeLostTo` is emitted here as well as in `BID_RECORD_HELPERS`, and
   // that is not a duplicate: no script includes both lists, the record helpers
   // exist for the backup panel, and the page script builds its records by hand
@@ -2271,8 +2356,14 @@ export const BID_PRICE_BAND_HELPERS = [
   // half of `marginSentence`'s input, so it can only ever draw on the pages
   // that carry `marginSentence` — the ones with a hero figure, which is this
   // bundle's own gate. It needs nothing the list did not already bring.
+  //
+  // `revisionSentence` rides here for that same gate rather than for any
+  // kinship with the readings around it: it is about one bid against the form
+  // rather than about a book of them, but it reads a hero figure through
+  // `bidAmountValue` and writes a difference through `formatBidAmount`, so it
+  // can only ever draw where those two already ship.
   ...[normalizeLostTo, normalizeJobCost, bidAmountValue, bidPriceSide, formatBidAmount,
-    priceBandSentence, undercutSentence, marginSentence, costGapSentence].map(
+    revisionSentence, priceBandSentence, undercutSentence, marginSentence, costGapSentence].map(
     (fn) => `var ${fn.name} = ${stripForInjection(fn.toString())};`,
   ),
 ].join('\n');
@@ -2386,7 +2477,9 @@ export const PRICE_BAND_CLAUSE =
   'and, once a few are decided, what your won bids on this tool have averaged against the ones you ' +
   'lost, including how far over the winning price you were on the lost jobs whose final price you know, ' +
   'and — for the won jobs you enter a delivered cost against — what those jobs actually kept once ' +
-  'they were done, so a job worked at a loss is visible rather than averaged away';
+  'they were done, so a job worked at a loss is visible rather than averaged away; restoring a saved ' +
+  'bid also pins the figure it was quoted at, so any change you then make is priced against the ' +
+  'number the customer already has, in money and in percent';
 
 /**
  * Both spellings, because the repo uses both — a strict match on
@@ -2473,6 +2566,21 @@ const JOBS_CSS = `
    them: the two paragraphs are one reading, and the second continues the
    first rather than answering a different question. */
 .pf-jobs-gap{margin-top:-4px}
+/* The one reading in this band that lives outside the panel, because it is the
+   only one that is about the form rather than about the list: a contractor
+   comparing a revision is looking at the fields, not at their saved bids, and a
+   line they have to open a panel to see is a line they will not see. It takes
+   the chase line's currentColor rule for the same palette reason, and sits on
+   its own row so a long sentence never squeezes the Saved bids button. */
+.pf-jobs-revision{margin:6px 0 0;padding:8px 10px;border-left:3px solid currentColor;
+  background:#8080801a;border-radius:0 7px 7px 0;font-variant-numeric:tabular-nums;
+  display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
+/* An author display declaration outranks the user agent's [hidden] rule, so
+   without this the line is visible — and empty — on every page load. It is the
+   only rule in this stylesheet that sets display on an element the script
+   toggles, which is why nothing else here needs the same guard. */
+.pf-jobs-revision[hidden]{display:none}
+.pf-jobs-revision-text{flex:1 1 16em}
 .pf-jobs-age{font-variant-numeric:tabular-nums}
 /* The row-level half of the chase line, and it takes that line's currentColor
    treatment for the same reason: 180 venture palettes do not agree on a warning
@@ -2546,9 +2654,13 @@ const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="p
   <p class="pf-jobs-line">
     <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
-  </p>
+  </p>${withPriceBand ? `
+  <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
+    <span class="pf-jobs-revision-text" id="pf-jobs-revision-text" role="status"></span>
+    <button type="button" data-pf-jobs="stop-compare">Stop comparing</button>
+  </p>` : ''}
   <div class="pf-jobs-panel" id="pf-jobs-panel" hidden>
-    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it.' : ''}</p>
+    <p>Keep this bid so it is still here when the customer calls back. Every number on this form is saved together, under a name you choose, along with the figure it gave you, and restoring one puts the whole job back exactly as you priced it. Mark each one won or lost when you hear &mdash; the ones you have not heard back on stay listed as waiting, with how long they have been out. Once a few have come back, this panel says how long yours actually take, and how many are still out past that. Once enough of them have been decided, it also says whether the bids you save here have been landing differently lately than they used to.${withPriceBand ? ' Once a few here are decided, this panel says what the ones you won averaged against the ones you lost, so you can see where your price tips. On a lost bid you can also note what the job went for, if you heard &mdash; then it says how far off you actually were, which is the part guessing gets wrong in both directions. On a won one, note what the job came to once it was done and this panel says what those jobs actually kept, so you can see whether the ones you are winning are worth winning &mdash; and it tells you how many of your won jobs are still missing that figure, rather than going quiet about it. Restoring a bid also pins the figure it was saved at above this panel, so when the customer asks what it costs without the tear-off, the new number is shown against the one they already have &mdash; and by how much, in money and in percent.' : ''}</p>
     <div class="pf-jobs-save">
       <label class="pf-jobs-label" for="pf-jobs-name">Name this bid</label>
       <input type="text" id="pf-jobs-name" maxlength="60" autocomplete="off" placeholder="e.g. 14 Oak St — Mrs Reid">
@@ -2710,6 +2822,50 @@ ${BID_PRICE_BAND_HELPERS}
   };
   var when = function(at){
     return typeof at === 'string' ? at.slice(0, 10) : '';
+  };
+
+  // The figure a restored bid was saved at, held only while the form still
+  // holds that job. Null is "nothing to compare", which is where every page
+  // load starts: this is deliberately not stored, because the form it compares
+  // against does not survive a reload either.
+  var comparing = null;
+  var revisionShown = '';
+  var revisionWatch = null;
+
+  var liveAmount = function(){
+    if (!AMOUNT_SELECTOR) return '';
+    var node = document.querySelector(AMOUNT_SELECTOR);
+    return normalizeHeadlineAmount(node ? node.textContent : '');
+  };
+
+  var drawRevision = function(){
+    var box = el('pf-jobs-revision');
+    if (!box) return;
+    var sentence = comparing ? revisionSentence(comparing, liveAmount()) : '';
+    el('pf-jobs-revision-text').textContent = sentence;
+    box.hidden = sentence === '';
+    if (sentence !== '' && sentence !== revisionShown) {
+      revisionShown = sentence;
+      bump('bid_revision_shown');
+    }
+  };
+
+  // Watches the figure, not the form. Every one of these tools reprices its own
+  // way — some on input, some on a button, some after a deferred module has
+  // rebuilt itemised rows — and none of them announce it. The hero number
+  // changing is the one event common to all of them.
+  var watchAmount = function(){
+    if (revisionWatch || !AMOUNT_SELECTOR || typeof MutationObserver !== 'function') return;
+    var node = document.querySelector(AMOUNT_SELECTOR);
+    if (!node) return;
+    revisionWatch = new MutationObserver(drawRevision);
+    revisionWatch.observe(node, { childList: true, characterData: true, subtree: true });
+  };
+
+  var stopComparing = function(){
+    comparing = null;
+    revisionShown = '';
+    drawRevision();
   };
 
   var bandShown = '';
@@ -2987,6 +3143,10 @@ ${BID_PRICE_BAND_HELPERS}
       return;
     }
     box.value = '';
+    // Nothing left to compare: the stored bid is now this form. Leaving the
+    // line up would have it read "Still £7,210" against a figure the customer
+    // was never quoted, which is the one way this reading could mislead.
+    stopComparing();
     render();
     bump('bid_saved');
     say(
@@ -3042,6 +3202,22 @@ ${BID_PRICE_BAND_HELPERS}
       written++;
     }
     bump('bid_restored');
+
+    // The name travels back with the numbers. Without it a contractor who
+    // restores "14 Oak St", drops the tear-off and saves gets a second row
+    // under today's date instead of replacing their own, and the save path's
+    // match-by-name, which exists for exactly this sequence, never fires.
+    el('pf-jobs-name').value = bid.name;
+
+    // And the figure it was quoted at, so the reprice that follows is shown
+    // against the number the customer is holding rather than against nothing.
+    // Absent on a bid saved before amounts, or on a tool with no hero figure:
+    // both end as null and draw no line, which is the same as before.
+    comparing = normalizeHeadlineAmount(bid.amount) || null;
+    revisionShown = '';
+    watchAmount();
+    drawRevision();
+
     say('Restored “' + bid.name + '” — ' + written + ' fields. The bid below is repriced from it.');
   };
 
@@ -3198,6 +3374,9 @@ ${BID_PRICE_BAND_HELPERS}
     if (!bid) { render(); return; }
     list.splice(index, 1);
     if (!writeMine(list)) { say('This browser would not update its storage.'); return; }
+    // Deleting the job is the clearest statement that it is finished with, so
+    // the comparison against its quoted figure goes with it.
+    stopComparing();
     render();
     bump('bid_deleted');
     say('Deleted “' + bid.name + '”. The numbers on this bid are unchanged.');
@@ -3235,6 +3414,16 @@ ${BID_PRICE_BAND_HELPERS}
     if (location.hash === '#pf-jobs') {
       setOpen(true);
       try { root.scrollIntoView({ block: 'start' }); } catch (e) {}
+    }
+
+    // Its own listener: the line sits outside the panel on purpose — see the
+    // stylesheet — so the panel's delegated handler never sees this click.
+    var revisionBox = el('pf-jobs-revision');
+    if (revisionBox) {
+      revisionBox.addEventListener('click', function(event){
+        var button = event.target.closest ? event.target.closest('[data-pf-jobs]') : null;
+        if (button && button.getAttribute('data-pf-jobs') === 'stop-compare') stopComparing();
+      });
     }
 
     el('pf-jobs-name').addEventListener('keydown', function(event){

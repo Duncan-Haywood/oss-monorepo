@@ -41,6 +41,8 @@ import {
   PRICE_BAND_CLAUSE,
   bidAmountValue,
   formatBidAmount,
+  revisionSentence,
+  MIN_REVISION_PERCENT,
   priceBandSentence,
   EXCLUDED_FIELD_IDS,
   HEADLINE_AMOUNT_OVERRIDES,
@@ -955,6 +957,118 @@ test('an average is written to the precision its own tool answers in', () => {
   // A seller-fee page answers in cents; rounding $2.35 to $2 misstates it.
   assert.equal(formatBidAmount('$', 2.35), '$2.35');
   assert.equal(formatBidAmount('£', -1.2), '-£1.20');
+});
+
+// ---------------------------------------------------------------------------
+// The reprice, against the figure the customer already has
+// ---------------------------------------------------------------------------
+
+test('a cheaper reprice is stated against the quoted figure, in money and percent', () => {
+  assert.equal(
+    revisionSentence('$8,450', '$7,210'),
+    '$7,210 now, against $8,450 saved — $1,240 less (14.7%).',
+  );
+});
+
+test('a dearer reprice reads the same way, pointed the other direction', () => {
+  assert.equal(
+    revisionSentence('$8,450', '$9,100'),
+    '$9,100 now, against $8,450 saved — $650 more (7.7%).',
+  );
+});
+
+test('the figures are quoted back exactly as the tool wrote them', () => {
+  // Not reformatted: the contractor is reading this out against a printed
+  // proposal, so the characters have to match it.
+  assert.equal(
+    revisionSentence('£240.50', '£198.00'),
+    '£198.00 now, against £240.50 saved — £42.50 less (17.7%).',
+  );
+  // A unit appended to the hero is a second fact about the quote, not a
+  // second quote — bidAmountValue drops it and so does this.
+  assert.equal(
+    revisionSentence('$589.38 · 13.2 h', '$610.00 · 14.1 h'),
+    '$610.00 now, against $589.38 saved — $20.62 more (3.5%).',
+  );
+});
+
+test('a form still holding the bid it restored says so rather than nothing', () => {
+  // The state a restore lands in. Silence here would read as "the comparison
+  // is broken", which is the opposite of what has happened.
+  assert.equal(revisionSentence('$8,450', '$8,450'), 'Still $8,450, the figure this bid was saved at.');
+});
+
+test('a difference too small to round to a tenth of a percent drops the percent', () => {
+  // A rounded 0.0% beside a real $2 difference reads as "no change".
+  const sentence = revisionSentence('$100,000', '$99,998');
+  // The difference is written to formatBidAmount's own rule — cents under
+  // $100 — because it is a figure this file computed rather than one a tool
+  // wrote, the same treatment the panel's averages get.
+  assert.equal(sentence, '$99,998 now, against $100,000 saved — $2.00 less.');
+  assert.ok(!sentence.includes('%'));
+  assert.equal(MIN_REVISION_PERCENT, 0.1);
+});
+
+test('a quote that cannot be read, on either side, draws nothing', () => {
+  assert.equal(revisionSentence('', '$7,210'), '');
+  assert.equal(revisionSentence('$8,450', ''), '');
+  // A range is not a quote this can subtract from.
+  assert.equal(revisionSentence('$1,200–$1,800', '$7,210'), '');
+  assert.equal(revisionSentence(undefined, undefined), '');
+});
+
+test('two currencies are refused rather than converted — this file has no rates', () => {
+  assert.equal(revisionSentence('$8,450', '£7,210'), '');
+});
+
+test('a saved figure of zero or less carries the money difference without a percent', () => {
+  // Some seller-fee tools headline a profit that can go below zero, where
+  // "40% more" against a loss is a sentence with no agreed meaning.
+  assert.equal(
+    revisionSentence('-$1.20', '$3.40'),
+    '$3.40 now, against -$1.20 saved — $4.60 more.',
+  );
+});
+
+test('the comparison line is on the pages that can draw it, and only those', () => {
+  const withHero = injectSavedBids(page(`<p id="h" class="hero-number">$1,035</p>${inputs(6)}`), 'x');
+  assert.match(withHero, /<p class="pf-jobs-revision" id="pf-jobs-revision" hidden>/);
+  // A tool with no headline figure stores no amounts, so it could never fill
+  // this line — and a line that can never fill is an empty box on the page.
+  const noHero = injectSavedBids(page(inputs(6)), 'x');
+  assert.ok(!noHero.includes('pf-jobs-revision'));
+});
+
+test('the comparison line stays down until the script has something to say', () => {
+  // Regression: the rule below sets `display:flex`, which outranks the user
+  // agent's `[hidden]` rule. Without the guard the line rendered — empty, with
+  // a Stop comparing button behind it — on every page load of 116 tools. Found
+  // by driving a browser; no unit test then existing could have seen it.
+  assert.match(style(), /\.pf-jobs-revision\[hidden\]\{display:none\}/);
+  assert.match(style(), /\.pf-jobs-revision\{[^}]*display:flex/);
+  assert.match(module_(), /box\.hidden = sentence === ''/);
+});
+
+test('restoring a bid puts its name back in the box', () => {
+  // Otherwise a re-save after "what if we skip the tear-off" writes a second
+  // row under today's date, and the match-by-name that exists for exactly this
+  // sequence never fires.
+  assert.match(module_(), /el\('pf-jobs-name'\)\.value = bid\.name;/);
+});
+
+test('the comparison ends when the stored bid becomes the form', () => {
+  // Saving over the bid makes the two agree by construction; leaving the line
+  // up would quote a figure the customer was never given.
+  const script = module_();
+  const save = script.slice(script.indexOf('var save = function'), script.indexOf('var restore = function'));
+  assert.ok(save.includes('stopComparing();'));
+});
+
+test('the reprice reading ships to the browser with the readers it calls', () => {
+  // It reads a hero figure through bidAmountValue and writes a difference
+  // through formatBidAmount, so it can only draw where those two already are.
+  assert.ok(BID_PRICE_BAND_HELPERS.includes('var revisionSentence ='));
+  assert.ok(BID_PRICE_BAND_HELPERS.includes(`var MIN_REVISION_PERCENT = ${MIN_REVISION_PERCENT};`));
 });
 
 test('the band brackets where the price tips when wins and losses separate', () => {
