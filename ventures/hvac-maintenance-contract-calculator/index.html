@@ -24,6 +24,15 @@
     import { calculatePlan, formatPlanSummary } from './calc.mjs'; import { recordUsage } from './usage.mjs';
     const ids = ['visits','hours','rate','travel','parts','callbacks','callbackHours','callbackCost','overhead','margin','proposed']; const $ = id => document.getElementById(id); let latest;
     function calculate(){ try { latest=calculatePlan({visitsPerYear:$("visits").value,laborHoursPerVisit:$("hours").value,loadedHourlyRate:$("rate").value,travelCostPerVisit:$("travel").value,partsReservePerVisit:$("parts").value,callbackVisitsPerYear:$("callbacks").value,callbackHours:$("callbackHours").value,callbackCostPerVisit:$("callbackCost").value,annualOverhead:$("overhead").value,targetMargin:$("margin").value,proposedMonthlyPrice:$("proposed").value}); $("monthly").textContent=`$${latest.monthlyPrice.toFixed(2)}`; $("floor").textContent=`$${latest.breakEvenMonthlyPrice.toFixed(2)}`; $("annual").textContent=`$${latest.annualPrice.toFixed(2)}`; $("techHours").textContent=latest.totalTechnicianHours.toFixed(1); $("cost").textContent=`$${latest.annualCost.toFixed(2)}`; $("effective").textContent=`$${latest.effectiveHourlyRevenue.toFixed(2)}`; $("summary").textContent=formatPlanSummary(latest); const warning=$("warning"); warning.hidden=!latest.proposed?.belowBreakEven; warning.textContent=latest.proposed?.belowBreakEven?'The proposed price is below the break-even floor. Check the scope, reserve, or price before agreeing to it.':''; recordUsage(localStorage,false,'plan_calculated'); } catch(error){ $("warning").hidden=false; $("warning").textContent=error.message; } }
-    $("calculate").addEventListener('click',calculate); $("copy").addEventListener('click',async()=>{if(latest){await navigator.clipboard.writeText(formatPlanSummary(latest)); recordUsage(localStorage,false,'summary_copied'); $("copy").textContent='Summary copied'; setTimeout(()=>$("copy").textContent='Copy plan summary',1500)}}); calculate();
+    $("calculate").addEventListener('click',calculate); $("copy").addEventListener('click',async()=>{if(latest){await navigator.clipboard.writeText(formatPlanSummary(latest)); recordUsage(localStorage,false,'summary_copied'); $("copy").textContent='Summary copied'; setTimeout(()=>$("copy").textContent='Copy plan summary',1500)}});
+    // There is no <form> here, so a number input's own Enter key does nothing
+    // by default. Without this, editing a field and pressing Enter (the
+    // natural close-out on a phone's numeric keypad) leaves the metrics
+    // showing the previous, now-wrong figures with no sign anything is stale
+    // -- the display looks exactly as confident as it does after a real
+    // calculation. Recalculate on Enter from any of the tracked inputs, same
+    // as clicking the button.
+    ids.forEach(id => $(id).addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); calculate(); } }));
+    calculate();
   </script>
 </body></html>
