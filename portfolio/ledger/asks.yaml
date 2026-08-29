@@ -569,3 +569,49 @@ decisions:
     with meaningful, non-superseded work were found in a 2026-08-29 queue-
     drain pass (see the 2026-08.yaml ledger entry for that session), so
     there was no existing PR to review, fix, or merge toward this.
+
+- id: portfolio-site-hetzner-deploy
+  asks: []
+  prs: [1999]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    Four steps, in order, all in `gitops/README.md` under "What is still
+    needed to make it live": (1) add one DNS A record,
+    `tools.marisstella.dev` -> `89.167.29.39`; (2) mint a fine-grained
+    GitHub token scoped to this one repository with Contents:Read-only and
+    nothing else, then seal it into `prod/kustomization.yaml` per
+    `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
+    private, so the in-cluster clone cannot be anonymous); (3) replace the
+    placeholder `replace-me@duncanhaywood.dev` in
+    `platform/cert-manager/issuer.yaml` with a real mailbox Let's Encrypt
+    can register; (4) only after DNS resolves and a staging cert has
+    issued, flip the Ingress annotation from `letsencrypt-staging` to
+    `letsencrypt-prod` (and update the test that pins it).
+  unlocks:
+    - >-
+      A public URL for 164 finished, tested, free tools at once --
+      `gitops/prod/portfolio-site.yaml` already builds `platform/pages/
+      build.mjs`'s output inside the k3s cluster and serves it through
+      ingress-nginx and cert-manager that are already running on the paid-
+      for cpx52 box. This path depends on neither GitHub Actions (dark
+      since 2026-08-26, see `actions-runners-unavailable`) nor GitHub
+      Pages (not enabled, and would not serve a private repo's Pages site
+      publicly even if it were -- see `deploy-settings`'s note). Of the
+      two live deploy asks, this is the cheaper one to grant: no billing
+      change, no new account, just a DNS record, a scoped read-only token,
+      and a real email address.
+  blocked_by: []
+  note: >-
+    Not a duplicate of `deploy-settings` (the GitHub Pages flip, opened
+    2026-08-19). That ask is now known to be insufficient on its own --
+    `portfolio/hosting/README.md`'s 2026-08-29 amendment records three
+    stacked blockers on the Pages route (not enabled, repo is private so
+    Pages would not go public on the free tier, and no Actions runner to
+    build the artifact since 2026-08-26). This row is the separate Hetzner
+    path merged in #1999, which shares none of those three blockers and
+    was not represented in this file before. Until any of these four steps
+    land, Argo syncs the manifests and the pods crash-loop on the missing
+    secret by design (fail closed), and `tools.marisstella.dev` serves
+    whatever placeholder currently answers for the cpx52.
