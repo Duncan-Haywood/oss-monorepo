@@ -12,7 +12,38 @@
 # first to claim an issue (via the in-progress label) does the work, so
 # they naturally divide labor without colliding.
 
-repos: []
+repos:
+  # Codex CLI's subscription quota (ChatGPT Plus/Pro OAuth login, not the
+  # metered OpenAI API) is otherwise unused between labeled-issue runs. This
+  # repo has 160+ shipped ventures and a real backlog of small,
+  # well-scoped follow-up work, so it's a reasonable target for the
+  # self-directed loop once the box exists.
+  #
+  # Starts at the safest settings on purpose, same as every entry here:
+  # dry_run: true (logs what it would push/PR, touches nothing on GitHub
+  # beyond a comment) and the box-wide `agent_runner_start_disabled` kill
+  # switch in group_vars/all.yml stays true until this has been watched run
+  # a few times. Flip dry_run to false per-repo only after that.
+  #
+  # This intentionally does NOT hand Codex the full autonomous
+  # product-development mandate that drives the scheduled cloud sessions on
+  # this repo (the one that opens PRs, merges on green CI, and touches
+  # deployment/marketing surfaces). That mandate assumes the operator trusts
+  # the session with merge and deploy authority; this box's agent_runner is
+  # deliberately PR-only and its SELF_DIRECTED_PROMPT (agent_runner.py)
+  # explicitly excludes billing/pricing/legal/marketing-copy and
+  # deployment/infra files — see the README's guardrail list, item 6. Giving
+  # this loop the same authority as the cloud sessions is a real trust-
+  # boundary change, not a config toggle, so it isn't made here; widen
+  # SELF_DIRECTED_PROMPT deliberately if that's wanted later.
+  - repo: "Duncan-Haywood/monorepo-projects"
+    tool: codex
+    trigger_label: agent
+    base_branch: main
+    dry_run: true
+    self_directed: true
+    self_directed_cooldown_hours: 24
+    model_tier: null
 
 # --- examples, commented out ---
 #
