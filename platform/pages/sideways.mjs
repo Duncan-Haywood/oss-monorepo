@@ -60,8 +60,9 @@ const DIST = process.env.DIST || path.join(HERE, 'dist');
 /**
  * 360 rather than 320: it is the width of the phones this audience actually
  * carries, and the width `sweep.mjs`'s 390 rounds down to. 320 is the width
- * WCAG 1.4.10 names, and `WIDTH=320` is worth running — it finds pages this
- * default does not, and every one of them is real.
+ * WCAG 1.4.10 names; both are clean as of 2026-08-29, and `WIDTH=320` is the
+ * one to run before believing a narrow-viewport change — it found four pages
+ * this default did not, each needing a fix in its own venture.
  */
 const WIDTH = Number(process.env.WIDTH || 360);
 const HEIGHT = Number(process.env.HEIGHT || 780);
