@@ -33810,3 +33810,55 @@ entries:
         Left for a follow-up: `compareReturns`, `compareAgedWfs` and
         `compareWfsBox` were swept less thoroughly than the three fixed here.
     mrr_end: null
+  - venture: shopify-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Third fix in the same defect class this session (after #2220
+        faire-wholesale-calculator and #2225 etsy-profit-calculator), found
+        by widening the audit to sibling marketplace/fee calculators
+        (`reverb-fee-calculator`, `tiktok-shop-fee-calculator`,
+        `shopify-fee-calculator`) via a background agent instructed to
+        numerically confirm any finding before touching code. A concurrent
+        session independently found and fixed the identical pattern in
+        `walmart-marketplace-calculator` the same hour (#2231/#2232, merged
+        just ahead of this one) -- four ventures, same bug, found
+        independently by two different sessions, which is a stronger signal
+        this is a systemic gap in this calculator family's break-even
+        solvers rather than a one-off.
+      - >-
+        Six call sites in `shopify-fee-calculator/calc.mjs` gated a
+        crossing-rate solve on "this path's profit is positive," returning a
+        trivial Infinity/0/null whenever the scaled comparison path already
+        lost money -- without checking whether the path compared against was
+        also losing money, in which case a real positive crossing rate still
+        exists. Fixed: `compareAbandonedCheckout` (email/discount recovery
+        %), `compareSubscriptions` (paid-cycles / skip %),
+        `expectedProfitAfterRefunds`'s `breakEvenRefundRate` (reported a
+        literal 0% "already break-even" on an order already losing money
+        before any refund -- backwards; correct answer is null, unreachable,
+        since a convex mix of two non-positive numbers can't land on zero
+        once the base is negative), `comparePickup` (no-show %, including the
+        case where a no-show is the *better* outcome because completed COGS
+        exceeds it), `compareUpsell` (post-take %), `compareManualPayment`
+        (hold %). Every one renders in the calculator's summary sentence a
+        merchant reads to set store policy. `reverb-fee-calculator` and
+        `tiktok-shop-fee-calculator` were read in full and found clean --
+        no changes there.
+      - >-
+        Reviewed the agent's diff directly (not just its self-report) before
+        shipping, spot-verifying two of the six fixes' reasoning and tests
+        by hand. All six regression tests independently reconstruct the
+        crossing point from primary `calculateOrder`-backed pipeline fields
+        (not by calling the fixed helper) and confirm the two paths actually
+        tie at the reported rate -- the check every one of these bugs would
+        have failed. Verified myself: full venture suite 280/280 pass (274
+        pre-existing + 6 new); `run_workflow_locally.py --for-changes` --
+        the venture's own CI workflow run steps pass, `pages.yml`/
+        `portfolio-pages.yml` failed only on the same known local-runner
+        artifact seen on #2220/#2225 (no regression, diff touches no
+        build/HTML file). Merged as #2233 (squash); no file overlap with the
+        concurrent walmart-marketplace-calculator PR, confirmed before
+        merging. GitHub Actions still down (runner outage, unrelated).
+    mrr_end: null
