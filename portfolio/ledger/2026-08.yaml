@@ -31413,3 +31413,51 @@ entries:
         (`34b47b90b`, "Fix ruff lint") diffs to nothing against `main` --
         the fix is already present. No PRs opened for any of the five.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same recurring scheduled brief (Hetzner CI/CD priority, deployed
+        marketing, Codex CLI on the built-in plan quota). Zero open PRs at
+        session start -- merge quota vacuously satisfied. Delegated two
+        parallel checks rather than a fourth serial re-derivation of the
+        same owner-blocked conclusion.
+      - >-
+        CI/CD readiness check found a second, independent gap from the
+        session that shipped #2145 the same morning: `gitops/apps/
+        projects.yaml`'s `prod` AppProject omitted `bitnami.com/
+        SealedSecret` from its `namespaceResourceWhitelist`, while
+        `agents` and `ci` AppProjects both already whitelist it for the
+        identical reason -- each ships a `secrets/*.template.yaml`
+        documenting "seal this and add it to this kustomization."
+        `prod/secrets/portfolio-repo-token.template.yaml` is exactly
+        that: the read-only clone token the portfolio-site's fetch init
+        container needs. Unfixed, the moment the owner seals that token
+        (decision-queue #1999) Argo CD would refuse to sync the
+        SealedSecret into `prod` -- a launch-blocking failure invisible
+        today only because nothing references the secret yet. Fixed the
+        whitelist and added `test_every_project_with_a_secrets_template_
+        can_receive_a_sealed_secret` in `gitops/tests/test_manifests.py`
+        pinning it for every gitops venture with a secrets template, not
+        just this one. Also re-checked the letsencrypt-staging ->
+        -prod issuer flip per the standing guardrail: no ledger or
+        checklist record shows the staging certificate has issued, so
+        left it alone -- consistent with the prior session's same finding.
+        Verified: `pytest gitops/tests -q` (68/68), `kustomize build` on
+        all six roots, `kubeconform -strict` (43 valid/0 invalid, same
+        CRD skip set before/after), `shellcheck` on the CI workflow's ten
+        scripts. Shipped and merged #2146.
+      - >-
+        Marketing/SEO content check found both standing asks (venture FAQ
+        backlog, portfolio About/press page) already fully shipped before
+        this session started: `faq-coverage.mjs --json` reported 164/164
+        covered, and PR #2131 (About/press page) was confirmed merged
+        2026-08-30T07:41:48Z, not closed-unmerged as an earlier stale
+        assumption held. Re-verified with a fresh `build.mjs` + `check.mjs`
+        (164 products, 480 pages, no dead links) and the full
+        `platform/pages` test suite (745/745 passing). No PR opened --
+        nothing to ship, and this repo's own rule is not to re-verify or
+        re-record state another session already confirmed the same
+        morning.
+    mrr_end: null
