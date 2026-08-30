@@ -637,9 +637,10 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Three trailing bullets under "Optional" describe the machine surfaces
-  // rather than a tool, so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 3);
+  // Four trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, catalog.json, the sitemap and the source repo —
+  // so the count is tools plus those.
+  assert.equal(bullets.length, surfaces.length + 4);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -3218,10 +3219,72 @@ test('llms.txt and catalog.json name the category pages', async () => {
   assert.ok(!/\]\([^)]*\/c\/[^)]+\/\)/.test(llms));
 });
 
-test('the hub sitemap holds the hub and the categories, and nothing else', () => {
+// ---- About / press page ---------------------------------------------------
+//
+// The page carries two claims nothing else on the site makes in one place: the
+// privacy statement a visitor reads before typing their costs into a stranger's
+// calculator, and the boilerplate somebody copies when they link to it. Both
+// fail silently — a wrong tool count in the press blurb is a claim that is
+// simply untrue, and a page nothing links is a page nobody reads.
+
+test('the About page ships, carries the disclaimer, and states the real catalogue size', async () => {
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+
+  assert.match(about, /no warranty/i, 'About must carry the liability disclaimer like every page');
+  assert.match(about, new RegExp(`${surfaces.length} free calculators`));
+  // The copy-paste boilerplate: its numbers come from `surfaces`, so they
+  // cannot drift from the catalogue the way hand-written blurbs do.
+  assert.match(about, new RegExp(`${surfaces.length} free, private calculators`));
+  assert.ok(
+    about.includes(`<link rel="canonical" href="${BASE}about/">`),
+    'About needs its own canonical, not the hub\'s',
+  );
+});
+
+test('the About page is reachable from the hub, the categories and every tool page', async () => {
+  const { outDir, surfaces } = await site();
+
+  assert.match(await read('index.html'), /href="about\/"/, 'the hub footer links About');
+  assert.match(
+    await read(CATEGORY_PATH_PREFIX, 'trades', 'index.html'),
+    /href="\.\.\/\.\.\/about\/"/,
+    'a category page links About at the right depth',
+  );
+
+  // The shared chrome is what puts the link on all 164 tool pages; without it
+  // the privacy statement is unreachable from the pages that collect input.
+  const tool = surfaces[0].slug;
+  const toolHtml = await fs.readFile(path.join(outDir, tool, 'index.html'), 'utf8');
+  assert.match(toolHtml, /href="\.\.\/about\/"/, `${tool} links About from its chrome footer`);
+});
+
+test('every link the About page makes resolves', async () => {
+  const { outDir } = await site();
+  const file = path.join(outDir, 'about', 'index.html');
+  const html = await fs.readFile(file, 'utf8');
+  const hrefs = [...html.matchAll(/href="([^"#]+)"/g)]
+    .map((m) => m[1])
+    .filter((href) => !/^(https?:|mailto:|data:)/.test(href));
+
+  for (const href of hrefs) {
+    assert.ok(await exists(hrefTarget(href, file, outDir)), `About links ${href}, which is not there`);
+  }
+});
+
+test('the About page makes no off-origin request, which is the claim it makes', async () => {
+  // The page tells the reader there is no third-party script on this site. A
+  // page that itself pulled a font or an analytics tag would make that a lie,
+  // and it is the one page where the lie would be load-bearing.
+  assert.deepEqual(offOriginResources(await read('about', 'index.html')), []);
+});
+
+test('the hub sitemap holds the hub, the categories and About, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  assert.deepEqual(locs, [BASE, `${BASE}c/marketplace/`, `${BASE}c/trades/`]);
+  // About is a hub-level page and belongs to no venture, so this sitemap is the
+  // only one that can carry it.
+  assert.deepEqual(locs, [BASE, `${BASE}c/marketplace/`, `${BASE}c/trades/`, `${BASE}about/`]);
 
   // Called with no categories it still emits a valid urlset naming the hub —
   // the shape every caller before this change relied on.

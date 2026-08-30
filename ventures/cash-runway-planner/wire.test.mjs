@@ -171,10 +171,10 @@ test('a business spending more than it collects is told so instead of sold a dat
   dom.handlers.get('submit')({ preventDefault() {} });
   assert.match(dom.output.innerHTML, /not a timing problem/);
   assert.match(dom.output.innerHTML, /you spend \$400\.00 more than you collect/);
-  // The van payment starts after the first negative week, so delaying it
-  // cannot rescue that week and must not be offered as if it could.
-  assert.doesNotMatch(dom.output.innerHTML, /Moving <strong>Van<\/strong>/);
-  assert.match(dom.output.innerHTML, /Nothing dated is available to move/);
+  // The van payment lands after the first negative week but at or before the
+  // trough, so it still deepens the deficit and is still worth naming -- as
+  // a partial cover, not a solution, alongside the structural note.
+  assert.match(dom.output.innerHTML, /Moving <strong>Van<\/strong> \(\$1000\.00, week 3\) out of this window covers \$1000\.00 of it\./);
 });
 
 test('a negative balance puts the minus outside the dollar sign', async () => {
