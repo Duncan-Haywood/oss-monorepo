@@ -30781,3 +30781,34 @@ entries:
         `python3 -m pytest gitops/tests -q` (67/67, unchanged -- doc/comment
         fix only, no manifest or secret content touched). Merged as #2112.
     mrr_end: null
+  - venture: commercial-photo-license-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The 2026-08-30 "164/164" FAQ-backlog-complete claim (#2105) was
+        scoped to the batches those sessions were tracking, not to every
+        entry page: a fresh scan of all 159 ventures with an index.html for
+        "Common questions" / "FAQPage" / "frequently asked" found 4 still
+        missing it. Three (chargeback-evidence-packet, cut-list-optimizer,
+        etsy-profit-calculator) already answer real questions on satellite
+        docs pages, which the discoverability checklist's "one docs page
+        per specific question" item allows -- left alone.
+        commercial-photo-license-calculator had none anywhere: no FAQ
+        section, no FAQPage schema, no satellite pages, just a two-question
+        ad-hoc block. Shipped and merged #2114: an 8-question "Common
+        questions" section plus matching FAQPage JSON-LD, explaining the
+        actual multiplier math in app.mjs::calculate() (channel averaging
+        vs. summing, the square-root term scale, the exclusivity tiers,
+        where the rush premium applies). Every number cited was computed
+        from calculate() itself, not invented. Verified locally: node
+        --test in the venture (3/3 pass), platform/pages/faq-duplicate.mjs
+        repo-wide (469 pages, zero duplicates -- the exact defect class
+        #2108 added this guard for), platform/pages/faq-coverage.mjs (1/1
+        entry page ships derived schema), node --test
+        platform/pages/faq-visible.test.mjs (3/3 pass, confirming the
+        authored FAQPage text is also real visible page content, not
+        schema-only), platform/pages/clauses.mjs (no-warranty clause
+        present), and both ld+json blocks parse as valid JSON. CI showed
+        the documented outage signature; not treated as a real failure.
+    mrr_end: null
