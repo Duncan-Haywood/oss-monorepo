@@ -31795,3 +31795,55 @@ entries:
         (no-warranty clause on all 469 pages); full platform/pages suite
         (745/745). Shipped and merged #2162.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Opened with a live check: zero open PRs, so the merge quota was
+        moot and no owner-gated item was skipped. Stood in for CI instead,
+        which has been dead four days -- confirmed rather than assumed via
+        runner_id 0 and an empty runner_name on job 99243378515 on main.
+        Swept the repo: 12,391 venture tests, 866 platform tests, 72
+        gitops tests, and all 42 Portfolio validate steps. Exactly one
+        thing was red.
+      - >-
+        cloud-egress-calculator carried a FAQPage whose JSON-LD asserted
+        text no visitor can find: `--` in the markup where the prose
+        renders an em dash, so two of four Q&A pairs failed Google's
+        requirement that FAQ markup be visible on the page. #2159 added
+        those two questions at 10:19 today; faq-visible.test.mjs catches
+        it and nothing ran it. Fixed and merged #2165, and taught the
+        guard to bisect for the longest matching prefix so its report
+        names the character rather than saying "2/4 pair(s) not on the
+        page" -- which reads as "write this FAQ" and invites rewriting
+        correct copy.
+      - >-
+        The reason it was reachable is worth more than the fix.
+        run_workflow_locally.py already ran a workflow's real step list
+        rather than an improvised subset, but AGENTS.md named only
+        portfolio-validate.yml, and the guard lives in portfolio-pages.yml
+        (any ventures/** change). Added --for-changes, which reads the
+        paths: filters off all 218 workflows and runs the ones the current
+        diff would trigger. Merged #2166. This session made the same
+        mistake first: hand-grepped a 14-step list out of a workflow that
+        actually has 42.
+      - >-
+        The safety gate took two attempts and the first was wrong.
+        Screening step commands for `git push` passes branch-cleanup.yml
+        clean -- it deletes refs from inside branch_cleanup.py, so every
+        shell command is an innocent `python3 ...`. Capability cannot be
+        hidden that way: the gate is now the declared permission plus any
+        secrets. reference, applied per job, since portfolio-pages.yml
+        pairs a read-only build job with a writing deploy job.
+      - >-
+        Not deployed, and not claimed to be. No cluster access held or
+        sought. tools.marisstella.dev resolves to 89.167.29.39 (confirmed);
+        HTTP to it is blocked by this session's egress policy, so nothing
+        is claimed about what serves it. Three owner actions still gate
+        everything: the sealed Contents:Read-only clone token for the
+        site, the Administration PAT plus CI_RUNNER for self-hosted CI,
+        and codex-secrets (GH_TOKEN + CODEX_AUTH_JSON) plus the two
+        governor flips for the Hetzner Codex worker. All three code halves
+        are complete; owner notified with the exact steps.
+    mrr_end: null
