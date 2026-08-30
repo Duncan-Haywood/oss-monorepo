@@ -77,6 +77,19 @@ const IMPORT_RE = /\bfrom\s+['"](\.{1,2}\/[^'"]+)['"]/g;
 const DYNAMIC_IMPORT_RE = /\bimport\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g;
 const LOC_RE = /<loc>([^<]+)<\/loc>/g;
 
+// Directories at the artifact root that are this build's own pages, not a
+// published venture. Every other root directory is a product, and the checks
+// below hold it to a product's contract: an `index.html`, a hub link, a row in
+// `llms.txt`, a disclaimer. `c/` holds the category landing pages, which are
+// none of those things — they have their own checks further down, because the
+// ways they fail are different (a category with no page, a page listing a tool
+// that did not ship).
+//
+// Kept as a set rather than a prefix test so a venture named `c-something` is
+// still checked as a product.
+export const CATEGORY_DIR = 'c';
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR]);
+
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
 // page missing it ships calculated money figures with no limitation of
@@ -397,7 +410,9 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   }
 
   const entries = await fs.readdir(site, { withFileTypes: true });
-  const productDirs = entries.filter((e) => e.isDirectory()).map((e) => e.name);
+  const productDirs = entries
+    .filter((e) => e.isDirectory() && !SITE_OWN_DIRS.has(e.name))
+    .map((e) => e.name);
   if (productDirs.length === 0) problems.push('no product directories in the artifact');
   else if (productDirs.length < minProducts) {
     problems.push(`only ${productDirs.length} product(s) published, expected at least ${minProducts} — discovery may have regressed`);
@@ -414,6 +429,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   // link with nothing behind it is a 404 a visitor sees. A product with no hub
   // link is worse and quieter: it built, deployed, passed every other check,
   // and no visitor can reach it.
+  let hubCategoryLinks = new Set();
   const hubHtml = await fs.readFile(path.join(site, 'index.html'), 'utf8').catch(() => null);
   if (hubHtml !== null) {
     // Scripts first, because a hub link is markup and script is not. The
@@ -431,6 +447,55 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       }
     }
     if (!DISCLAIMER_MARKER.test(hubHtml)) problems.push('index.html: carries no disclaimer');
+    hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
+  }
+
+  // ---- Category landing pages ---------------------------------------------
+  //
+  // Same reachability argument as the products, one level up. These pages exist
+  // to be the entry point organic search sends a visitor to, so the failure
+  // that matters is a page that shipped and nothing links, or a link with no
+  // page behind it — and neither shows up anywhere else: the hub still renders,
+  // every product still resolves.
+  {
+    const categoryRoot = path.join(site, CATEGORY_DIR);
+    const shipped = (await fs.readdir(categoryRoot, { withFileTypes: true }).catch(() => []))
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+
+    for (const id of hubCategoryLinks) {
+      if (!shipped.includes(id)) {
+        problems.push(`index.html: links category "${id}" but ${CATEGORY_DIR}/${id}/ did not ship`);
+      }
+    }
+    for (const id of shipped) {
+      // No "only if the hub linked something" escape hatch, unlike the product
+      // check above. That guard exists there so a stub hub does not report all
+      // 164 products at once; here the directory only exists because this build
+      // wrote it, so a category page with no hub link is always the defect.
+      if (!hubCategoryLinks.has(id)) {
+        problems.push(`${CATEGORY_DIR}/${id}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+      const relative = path.join(CATEGORY_DIR, id, 'index.html');
+      const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+      if (html === null) {
+        problems.push(`${CATEGORY_DIR}/${id}/: has no index.html`);
+        continue;
+      }
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      // A category page that lists a tool the build did not publish is a 404
+      // handed to the one visitor who was closest to using it.
+      const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      const tools = new Set([...markup.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+      if (tools.size === 0) problems.push(`${relative}: lists no tools`);
+      for (const slug of tools) {
+        if (!productDirs.includes(slug)) {
+          problems.push(`${relative}: links "${slug}" but no such product shipped`);
+        }
+      }
+    }
   }
 
   // Same reachability argument as the hub, for the machine-readable door. A
@@ -696,6 +761,14 @@ if (invokedDirectly) {
 
   const files = await walk(site);
   const pages = files.filter((f) => f.endsWith('.html')).length;
-  const products = (await fs.readdir(site, { withFileTypes: true })).filter((e) => e.isDirectory()).length;
-  console.log(`${site} looks publishable: ${products} products, ${pages} pages, no dead links.`);
+  // Same exclusion `checkSite` applies: `c/` holds this build's own category
+  // pages, and counting it as a product overstates the catalogue by one.
+  const rootDirs = (await fs.readdir(site, { withFileTypes: true })).filter((e) => e.isDirectory());
+  const products = rootDirs.filter((e) => !SITE_OWN_DIRS.has(e.name)).length;
+  const categories = rootDirs.some((e) => e.name === CATEGORY_DIR)
+    ? (await fs.readdir(path.join(site, CATEGORY_DIR), { withFileTypes: true })).filter((e) => e.isDirectory()).length
+    : 0;
+  console.log(
+    `${site} looks publishable: ${products} products, ${categories} category pages, ${pages} pages, no dead links.`,
+  );
 }

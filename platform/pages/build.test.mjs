@@ -53,6 +53,12 @@ import {
   REPO_ROOT,
   SOURCE_URL_PREFIX,
   pageHasOwnShareControl,
+  categoryPagePath,
+  CATEGORY_PATH_PREFIX,
+  CHROME_MODULE_FILE,
+  renderHubSitemap,
+  renderLlmsTxt,
+  renderCatalog,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
@@ -3075,4 +3081,188 @@ test('a missing script is an answer, not a crash', async () => {
   const html = '<button id="share"></button><script src="gone.js"></script>';
   assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
   assert.equal(await pageHasOwnShareControl(dir, null, new Map()), false);
+});
+
+// ---------------------------------------------------------------------------
+// Category landing pages
+//
+// The hub is one URL carrying 164 tools across six trades, which is the wrong
+// shape for organic search: it cannot describe itself as a roofing page without
+// lying to the other 153. These pages are the fix, and the ways they fail are
+// quiet — a category with no page, a page nothing links, a page listing a tool
+// that did not ship. Each is checked below.
+// ---------------------------------------------------------------------------
+
+test('every category gets a landing page at its own URL', async () => {
+  const { outDir, surfaces } = await site();
+  const groups = groupByCategory(surfaces);
+
+  assert.ok(groups.length >= 5, 'the taxonomy still has several categories');
+
+  for (const { category, items } of groups) {
+    const file = path.join(outDir, categoryPagePath(category.id), 'index.html');
+    assert.ok(await exists(file), `${category.id} has no landing page`);
+
+    const html = await fs.readFile(file, 'utf8');
+    // Every tool in the category, and only tools in the category.
+    const linked = new Set([...html.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+    assert.deepEqual(
+      [...linked].sort(),
+      items.map((s) => s.slug).sort(),
+      `${category.id} does not link exactly its own tools`,
+    );
+  }
+});
+
+test('a category page carries the tags that make it findable', async () => {
+  const { outDir, surfaces } = await site();
+  const { category, items } = groupByCategory(surfaces).find((g) => g.category.id === 'trades');
+  const html = await fs.readFile(
+    path.join(outDir, categoryPagePath(category.id), 'index.html'),
+    'utf8',
+  );
+  const url = `${BASE}${categoryPagePath(category.id)}`;
+
+  // The canonical is the whole point: without it these pages and the hub
+  // compete for the same queries with the hub's copy winning, which is the
+  // situation they exist to end.
+  assert.ok(html.includes(`<link rel="canonical" href="${url}">`));
+  assert.ok(html.includes(`<meta property="og:url" content="${url}">`));
+  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
+
+  // The title is the category's own phrase, not the hub's.
+  assert.ok(/<title>Free contractor bid calculators[^<]*<\/title>/.test(html));
+
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.+?)<\/script>/s)[1]);
+  assert.equal(ld['@type'], 'CollectionPage');
+  assert.equal(ld.url, url);
+  assert.equal(ld.mainEntity.numberOfItems, items.length);
+  // A breadcrumb is how a search result shows "site › category" rather than a
+  // bare URL, and it is the only structured signal that these pages are one
+  // level down rather than six sibling front pages.
+  assert.equal(ld.breadcrumb.itemListElement.length, 2);
+  assert.equal(ld.breadcrumb.itemListElement[1].item, url);
+});
+
+test('a category page carries the disclaimer and a route back', async () => {
+  const { outDir, surfaces } = await site();
+  for (const { category } of groupByCategory(surfaces)) {
+    const html = await fs.readFile(
+      path.join(outDir, categoryPagePath(category.id), 'index.html'),
+      'utf8',
+    );
+    assert.match(html, /no warranty/i, `${category.id} ships without a disclaimer`);
+    assert.ok(html.includes('data-pf-to="hub"'), `${category.id} has no route back to the hub`);
+    // Sibling links, so a page reached from search is not a leaf.
+    assert.ok(
+      html.includes(`href="../../${CATEGORY_PATH_PREFIX}/`),
+      `${category.id} links no sibling category`,
+    );
+  }
+});
+
+test('a category page counts its own visits without identifying anyone', async () => {
+  const { outDir, surfaces } = await site();
+  const { category } = groupByCategory(surfaces)[0];
+  const html = await fs.readFile(
+    path.join(outDir, categoryPagePath(category.id), 'index.html'),
+    'utf8',
+  );
+
+  // The same shared counter every tool page loads, named with the category so
+  // arrivals here are distinguishable from arrivals at a tool.
+  assert.ok(html.includes(`src="../../${CHROME_MODULE_FILE}"`));
+  assert.ok(html.includes(`data-pf-slug="${CATEGORY_PATH_PREFIX}/${category.id}"`));
+  // Cards are counted as cross-tool clicks, which is what says whether the page
+  // converts. Without this an arrival and a bounce look identical.
+  assert.ok(/data-tool="[^"]+" data-pf-to="[^"]+"/.test(html));
+});
+
+test('the hub links every category page, and the sitemap lists them', async () => {
+  const { outDir, surfaces } = await site();
+  const ids = groupByCategory(surfaces).map(({ category }) => category.id);
+
+  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  for (const id of ids) {
+    assert.ok(hub.includes(`data-category="${id}"`), `the hub does not link ${id}`);
+  }
+
+  const listed = await sitemapUrlPaths();
+  for (const id of ids) {
+    assert.ok(
+      listed.has(`${pathOf(BASE)}${categoryPagePath(id)}`),
+      `${id} is in no sitemap, so it is built and never found`,
+    );
+  }
+});
+
+test('llms.txt and catalog.json name the category pages', async () => {
+  const { surfaces } = await site();
+  const llms = renderLlmsTxt(surfaces, BASE);
+  const catalog = JSON.parse(renderCatalog(surfaces, BASE));
+
+  for (const { category, items } of groupByCategory(surfaces)) {
+    assert.ok(
+      llms.includes(`Category page: ${BASE}${categoryPagePath(category.id)}`),
+      `llms.txt does not name the ${category.id} page`,
+    );
+    const row = catalog.categories.find((c) => c.id === category.id);
+    assert.ok(row, `catalog.json has no ${category.id} row`);
+    assert.equal(row.url, `${BASE}${categoryPagePath(category.id)}`);
+    assert.equal(row.tool_count, items.length);
+  }
+
+  // The bare-URL form matters: `check.mjs` reads markdown links in llms.txt as
+  // product slugs, so a `[…](…/c/trades/)` link would be reported as a product
+  // that did not ship.
+  assert.ok(!/\]\([^)]*\/c\/[^)]+\/\)/.test(llms));
+});
+
+test('the hub sitemap holds the hub and the categories, and nothing else', () => {
+  const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  assert.deepEqual(locs, [BASE, `${BASE}c/marketplace/`, `${BASE}c/trades/`]);
+
+  // Called with no categories it still emits a valid urlset naming the hub —
+  // the shape every caller before this change relied on.
+  assert.ok(renderHubSitemap(BASE).includes(`<loc>${BASE}</loc>`));
+});
+
+test('tools whose audience browses a section are filed in it', async () => {
+  // Each of these sat in the catch-all while the section its buyer reads was
+  // right there. The tool existed, the visitor was browsing the correct
+  // heading, and it was not under it — the quietest way a catalogue loses a
+  // product, because nothing 404s and every check still passes.
+  const placements = {
+    'cleaning-dilution-calculator': ['trades', 'trades-cleaning'],
+    'hvac-maintenance-contract-calculator': ['trades', 'trades-mep'],
+    'appliance-repair-quote-calculator': ['trades', 'trades-mep'],
+    // Airbnb vs Vrbo is two marketplaces' fee schedules on one booking, which
+    // is the marketplace section's job, not a service quote.
+    'str-host-payout-calculator': ['marketplace', null],
+    'notary-trip-quote': ['services', null],
+    'booth-rent-vs-commission': ['services', null],
+    'translator-project-quote': ['services', null],
+  };
+
+  for (const [slug, [category, subcategory]] of Object.entries(placements)) {
+    assert.equal(categoryFor(slug).id, category, `${slug} is not in ${category}`);
+    const sub = subcategoryFor(slug);
+    assert.equal(sub ? sub.id : null, subcategory, `${slug} is in the wrong sub-group`);
+  }
+});
+
+test('the catch-all holds only what no section claims', async () => {
+  const { surfaces } = await site();
+  const more = groupByCategory(surfaces).find((g) => g.category.id === 'more');
+
+  // Not a fixed list — new ventures land here until a rule claims them, which
+  // is the fallback working. The bound is what matters: a catch-all that grows
+  // back past a screenful means the taxonomy has stopped keeping up, which is
+  // exactly the state this change found it in (14 tools, six of them one
+  // coherent category).
+  assert.ok(
+    more.items.length <= 8,
+    `the catch-all has grown to ${more.items.length} tools — time for another category`,
+  );
 });
