@@ -33120,3 +33120,59 @@ entries:
         so there was no per-product presentation backlog left to work by
         hand this run.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `deploy-cicd-readiness`'s own queue item
+        (`gitops/agents/queue/deploy-cicd-readiness.yaml`). Found a real
+        sync-time gap: `prod/portfolio-site.yaml` ships a `CronJob`
+        (`portfolio-site-refresh`, the nightly rebuild) and a namespaced,
+        resource-named `Role`/`RoleBinding` (restart that one Deployment,
+        nothing else), but the `prod` `AppProject` in `apps/projects.yaml`
+        only whitelisted `""`, `apps`, `networking.k8s.io`, `policy` and
+        `bitnami.com/SealedSecret` on its `namespaceResourceWhitelist`.
+        Argo refuses to sync a resource whose apiGroup/kind is not on that
+        list, so the CronJob and both RBAC objects would fail to apply --
+        the identical failure class #2146 already fixed once for prod's
+        SealedSecret, recurred here for `batch/CronJob` and
+        `rbac.authorization.k8s.io/Role`+`RoleBinding` added after that
+        fix landed, with nothing checking whether the whitelist kept up.
+      - >-
+        Fixed by adding `batch/CronJob` and
+        `rbac.authorization.k8s.io/Role`+`RoleBinding` to the `prod`
+        AppProject, named by kind (not `"*"`) since the RBAC group is the
+        one whitelist here that should stay no wider than what it needs to
+        admit. Also generalized the SealedSecret-only regression test into
+        `test_every_manifest_kind_is_on_its_appproject_whitelist`, which
+        now checks every kind actually shipped under
+        `prod`/`staging`/`agents`/`ci` against its own AppProject, so the
+        next resource added to a venture cannot repeat this silently.
+        Merged as #2207.
+      - >-
+        Verified: confirmed the new test fails against the pre-fix
+        `projects.yaml` (`AssertionError: prod AppProject cannot receive
+        rbac.authorization.k8s.io/Role from prod/portfolio-site.yaml`) and
+        passes with the fix; `python3 -m pytest gitops/tests -q` 89/89.
+        Installed `kustomize` v5.6.0 and `kubeconform` v0.6.7 locally
+        (pinned to the versions `hetzner-gitops-ci.yml` itself installs)
+        and ran `kustomize build` on all six trees plus `kubeconform
+        -strict -kubernetes-version 1.31.0`: 58 resources, 43 valid, 0
+        invalid, 0 errors. Also ran `pyflakes` on the governor and both
+        `infra/tests` suites clean. PR #2207's 7 checks came back
+        `runner_id: 0`, ~3s, empty `runner_name` -- confirmed via
+        `get_workflow_job` before merging on local verification, per the
+        standing outage. Checked `decision_queue.py` first; this specific
+        gap (AppProject whitelist vs. shipped manifest kinds) was not
+        already queued -- #2146/#2148 cover only the earlier SealedSecret
+        instance of the same class.
+      - >-
+        Did not pick a second item from the queue prompt's list this run:
+        the task said make one smallest correct change and stop, and the
+        Ingress issuer flip stays blocked -- nothing in `asks.yaml` or this
+        ledger records a staging certificate having actually issued yet
+        (item 13 still describes the clone-token seal as the one remaining
+        step before the site is even reachable), so that flip is still not
+        this session's to make.
+    mrr_end: null
