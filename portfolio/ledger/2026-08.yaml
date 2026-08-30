@@ -29827,3 +29827,60 @@ entries:
         unblock steps; skipping a second near-duplicate notification for
         this entry.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a live uncaught-storage-error bug in 3 ventures' usage.mjs
+        (#2065, merged 1630b2405): `vendor-rate-break-even`,
+        `translator-project-quote`, `saas-seat-true-up`. Found by
+        auditing all 155 `ventures/*/usage.mjs` for the try/catch guard
+        established in #2046/#2057, matching it against the 9 ventures
+        that still had no `usage.test.mjs`.
+      - >-
+        `vendor-rate-break-even`'s `recordUsage()` called
+        `JSON.parse`/`getItem`/`setItem` with no try/catch at all, called
+        straight from three unguarded sites in `index.html` (page load,
+        "add scenario", "save draft") -- a blocked or full `localStorage`
+        silently dropped the "Saved" button feedback.
+        `translator-project-quote` and `saas-seat-true-up` each had a
+        narrower version of the same gap: `enabled()`/`usageAllowed()`
+        called `storage.getItem()` for the opt-out flag with no
+        try/catch, and `record()`/`recordEvent()` check that function
+        before their own try block, so the throw still escaped. In
+        `saas-seat-true-up` this is directly visible: the form's submit
+        handler re-renders inside a try/catch that also fires
+        `recordEvent()`, so the thrown storage error replaced the
+        correctly-computed "$1296.00 seat review" message with the
+        literal string "blocked" -- the same misleading-error-banner
+        pattern #2057 fixed in 4 other ventures.
+      - >-
+        Confirmed both ways with Playwright against the rebuilt dist,
+        `localStorage` forced to throw via `addInitScript`: pre-fix (via
+        `git stash` of just the `usage.mjs` change) both ventures threw
+        uncaught `pageerror`s, and `saas-seat-true-up`'s on-screen result
+        message read "blocked"; post-fix, zero console/page errors and
+        the correct message in both cases.
+      - >-
+        The other 6 ventures the same scan turned up
+        (`3pl-quote-normalizer`, `backup-verification-evidence`,
+        `consent-change-record`, `job-margin-variance`,
+        `ltl-freight-class-estimator`, `subscription-price-impact`)
+        already guarded every storage call correctly; they only lacked
+        `usage.test.mjs`, added here too (95 new tests total across all
+        9 ventures).
+      - >-
+        Verified locally (runner outage unchanged -- confirmed via
+        `runner_id: 0` / `runner_name: ''` on every check-run for this
+        PR's head sha, ~3s duration): full `node --test
+        ventures/**/*.test.mjs` (11892/11892), `platform/pages` suite
+        (673/673), and a full `build.mjs` + `check.mjs` run (164
+        products / 479 pages, no dead links -- unchanged, this PR
+        touches no page content).
+      - >-
+        Session context: 0 open PRs at start. Re-confirmed rather than
+        re-derived that Hetzner deployment and CI/CD are fully
+        code-complete and owner-gated (`decision_queue.py` rows 8, 10-13);
+        no new ask queued.
+    mrr_end: null
