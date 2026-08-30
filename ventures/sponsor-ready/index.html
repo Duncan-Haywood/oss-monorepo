@@ -66,6 +66,18 @@
       </ul>
     </section>
 
+    <section class="disclaimer">
+      <h2>Common questions</h2>
+      <h3>Does a high score mean GitHub will approve me for Sponsors?</h3>
+      <p>No. This checklist has nothing to do with GitHub's own Sponsors program eligibility review — it scores publicly documented signals (a FUNDING.yml, a substantial README, recent activity, a license, and similar) that tend to correlate with a repo looking sponsor-ready to a human visitor. It never tells you to enable Sponsors and is not affiliated with GitHub.</p>
+      <h3>Why did my scan fail with a rate-limit error?</h3>
+      <p>Every check calls GitHub's public API directly from your browser, unauthenticated, which GitHub caps at 60 requests per hour per visitor IP. If you or others on the same network have scanned several repos recently, wait a few minutes and try again — there is no server-side proxy here to work around the limit.</p>
+      <h3>Can I check a private repository?</h3>
+      <p>No. The tool only calls GitHub's public, unauthenticated API, so it can only see what an anonymous visitor to your repo page could see. A private repo returns a 404 and the checklist has no way to read it.</p>
+      <h3>Does it store or send the name of the repo I scanned anywhere?</h3>
+      <p>Your repo target is sent only to api.github.com, the same request your own browser would make visiting the repo page. This site has no server and stores nothing about which repos you check; only anonymous, aggregate usage counts like "a scan happened" may be recorded locally, with an opt-out below.</p>
+    </section>
+
     <footer class="footer">
       <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
       <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
