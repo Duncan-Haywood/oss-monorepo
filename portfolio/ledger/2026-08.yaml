@@ -34094,3 +34094,52 @@ entries:
         og:url tags will not point at the dead GitHub Pages origin. Site
         build reproduced locally, 168 tools in 22s.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        CI/CD health check: confirmed the Actions runner outage first
+        reported 2026-08-26 is still ongoing as of 2026-08-30T16:36Z --
+        job 99287949572 on a push to main shows runner_id 0, runner_name
+        "", 3-second duration, the documented outage signature. gitops CI
+        (98 gitops/tests, pyflakes, infra-layout tests) and the Pages
+        build/check/test suite all verified green locally; nothing on the
+        repo side needed fixing. Matches the already-queued
+        actions-runners-unavailable decision-queue ask -- not duplicated.
+      - >-
+        Confirmed codex-governor-enable (#1996) is still accurately queued
+        in asks.yaml with its three linked owner steps unchanged; not
+        touched, out of scope for this session per its own mandate.
+      - >-
+        platform/pages: found and fixed 7 real search-discoverability gaps
+        by extending the same empirical method SEARCH_ALIASES already
+        documents (query a candidate word through searchVariants against
+        the built card index; add only where it returns nothing while a
+        tool answers it). tuckpointing-bid-calculator now answers "brick",
+        "masonry", "mortar", "repointing", "brickwork";
+        paver-patio-bid-calculator answers "hardscape"/"hardscaping";
+        wheelchair-ramp-bid-calculator answers "ada"/"accessibility"/
+        "accessible"; drywall-bid-calculator answers "sheetrock";
+        tree-service-bid-calculator answers "arborist";
+        well-pump-bid-calculator answers "submersible";
+        vinyl-liner-bid-calculator answers "replacement"/"replacing" (the
+        one case where searchVariants' suffix list has no -ment rule, so it
+        never stemmed to the tool's own "replace"). Updated the one
+        existing test that asserted well-pump-bid-calculator carries no
+        alias at all -- that guarded an unrelated substring-collision bug,
+        not this. Verified: node platform/pages/build.mjs (168 tools,
+        clean), node platform/pages/check.mjs dist (168 products, 485
+        pages, no dead links), node --test build.test.mjs (237/237), and a
+        standalone script re-confirming all 7 target queries now match
+        against the rebuilt catalog with no unintended collisions. Merged
+        as #2247 (squash). No venture product logic touched.
+      - >-
+        Surveyed ~163 static-index ventures for weak/missing meta
+        description, OG tags, or JSON-LD before landing on the search-alias
+        fix: every one already carries all three (the build injects og:*/
+        canonical/JSON-LD where a venture omits them, and llms.txt is
+        generated site-wide, not per-venture), so the marketing-surface gap
+        this session found and closed was discoverability of existing good
+        copy, not missing copy.
+    mrr_end: null
