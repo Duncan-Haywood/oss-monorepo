@@ -973,6 +973,42 @@ test("shipping first needs a higher collection floor than holding the order", ()
   assert.ok(r.breakEvenShippedPct > 95, "defaults should lose if you ship first");
 });
 
+test("break-even hold rate solves when both the card and the bank-transfer hold are losses", () => {
+  // A steep manual-payment discount on a thin-margin SKU makes paidProfit
+  // negative -- holding for a bank transfer loses money even at 100%
+  // collection, not just costs more. The card path is a bigger loss still,
+  // so a real, positive collection rate ties the two. A guard that requires
+  // paidProfit > 0 before dividing would report the floor as null instead.
+  const input = {
+    price: 10,
+    shippingCharged: 0,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 8,
+    shippingCost: 3,
+    packagingCost: 0.3,
+    otherCost: 0,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+    paymentMethod: "shopify_payments",
+    collectionPct: 95,
+    manualDiscountPct: 20,
+    chaseCost: 0,
+  };
+  const r = compareManualPayment(input);
+  assert.ok(r.card.kept < 0, "the card path already loses money");
+  assert.ok(r.paidProfit < 0, "holding for the bank transfer loses money even if everyone pays");
+  assert.ok(
+    r.breakEvenHoldPct !== null && Number.isFinite(r.breakEvenHoldPct),
+    `hold floor should be reachable, got ${r.breakEvenHoldPct}`,
+  );
+  // Independently confirm the reported rate is really where holding ties
+  // the card, using the pipeline's own card/paidProfit rather than
+  // re-invoking the formula under test.
+  const holdKeptAtEdge = (r.breakEvenHoldPct / 100) * r.paidProfit;
+  near(holdKeptAtEdge, r.card.kept, "holding ties the card at the reported collection rate");
+});
+
 test("empty collection fields use the published defaults", () => {
   const r = compareManualPayment({
     price: 48,
@@ -1427,6 +1463,51 @@ test("summary names the abandoned leftover and does not tell you to send emails"
   assert.doesNotMatch(text, /should send|must offer|turn on emails|turn on recovery/i);
 });
 
+test("break-even recover rates still solve when the completed order is already a loss", () => {
+  // Cost of goods eats most of a $10 ticket, so the completed order (and the
+  // discounted one) both lose money before any recovery is applied. A
+  // hard-code that treats "completed profit <= 0" as "no rate can match"
+  // would report both floors as unreachable even though the leave/email
+  // baselines are also negative and a real, positive rate ties them.
+  const input = {
+    price: 10,
+    shippingCharged: 0,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 9,
+    shippingCost: 1,
+    packagingCost: 0.3,
+    otherCost: 0,
+    monthlyPlan: 0,
+    monthlyOrders: 100,
+    paymentMethod: "shopify_payments",
+    organicRecoverPct: 20,
+    emailRecoverPct: 40,
+    discountRecoverPct: 60,
+    recoveryDiscountPct: 5,
+    emailCostPerAbandoned: 0.05,
+    monthlyAbandonedCheckouts: 80,
+  };
+  const r = compareAbandonedCheckout(input);
+  assert.ok(r.leave.completedProfit < 0, "full-price completed order already loses money");
+  assert.ok(r.discount.completedProfit < 0, "discounted completed order also loses money");
+  assert.ok(
+    Number.isFinite(r.breakEvenEmailRecoverPct),
+    `email recover floor should be reachable, got ${r.breakEvenEmailRecoverPct}`,
+  );
+  assert.ok(
+    Number.isFinite(r.breakEvenDiscountRecoverPct),
+    `discount recover floor should be reachable, got ${r.breakEvenDiscountRecoverPct}`,
+  );
+  // Independently confirm the reported rate is really where the two paths
+  // tie, by recomputing through the primary calculateOrder-backed pipeline
+  // at that rate rather than trusting the formula that produced it.
+  const atEmailEdge = compareAbandonedCheckout({ ...input, emailRecoverPct: r.breakEvenEmailRecoverPct });
+  near(atEmailEdge.email.expected, atEmailEdge.leave.expected, "email ties leave at its reported break-even rate");
+  const atDiscountEdge = compareAbandonedCheckout({ ...input, discountRecoverPct: r.breakEvenDiscountRecoverPct });
+  near(atDiscountEdge.discount.expected, atDiscountEdge.email.expected, "discount ties email at its reported break-even rate");
+});
+
 const SUB_BASE = {
   price: 48,
   shippingCharged: 6,
@@ -1544,6 +1625,62 @@ test("summary names the subscription leftover and does not tell you to turn subs
   assert.doesNotMatch(text, /should offer|must offer|turn on subscriptions|turn on selling plans/i);
 });
 
+test("break-even paid cycles and skip rate still solve when the subscription itself loses money", () => {
+  // A shallow subscribe discount plus a billing fee on a thin-margin SKU
+  // makes monthlyCycleProfit negative -- the subscription loses money on
+  // every paid cycle, not just costs more. The one-time order is also a
+  // loss here, so a real, positive cycle count still ties them; a hard-code
+  // that requires monthlyCycleProfit > 0 before dividing would report both
+  // floors as unreachable instead.
+  const input = {
+    price: 10,
+    shippingCharged: 0,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 9.5,
+    shippingCost: 1,
+    packagingCost: 0.2,
+    otherCost: 0,
+    monthlyPlan: 0,
+    monthlyOrders: 100,
+    paymentMethod: "shopify_payments",
+    subscribeDiscountPct: 5,
+    prepaidDiscountPct: 15,
+    prepaidMonths: 3,
+    subscriptionFeePct: 1,
+    expectedCycles: 5,
+    skipPct: 20,
+    subscribeEnrollPct: 25,
+    monthlySubscriptionBuyers: 80,
+  };
+  const r = compareSubscriptions(input);
+  assert.ok(r.oneTime.cycleProfit < 0, "one-time order already loses money");
+  assert.ok(r.monthly.cycleProfit < 0, "subscription cycle also loses money");
+  assert.ok(
+    Number.isFinite(r.breakEvenPaidCycles),
+    `paid-cycles floor should be reachable, got ${r.breakEvenPaidCycles}`,
+  );
+  assert.ok(
+    Number.isFinite(r.breakEvenSkipPct),
+    `skip-rate floor should be reachable, got ${r.breakEvenSkipPct}`,
+  );
+  // Independently confirm the reported cycle count is really where the two
+  // paths tie: it is defined by monthlyCycleProfit * cycles == oneTimeProfit,
+  // checked here with plain arithmetic on the pipeline's own outputs rather
+  // than by re-invoking the formula under test.
+  near(
+    r.monthly.cycleProfit * r.breakEvenPaidCycles,
+    r.oneTime.cycleProfit,
+    "monthly lifetime at the reported cycle count matches one-time",
+  );
+  const paidCyclesAtReportedSkip = r.expectedCycles * (1 - r.breakEvenSkipPct / 100);
+  near(
+    r.monthly.cycleProfit * paidCyclesAtReportedSkip,
+    r.oneTime.cycleProfit,
+    "monthly lifetime at the reported skip rate matches one-time",
+  );
+});
+
 const PICKUP_BASE = {
   price: 48,
   shippingCharged: 6,
@@ -1641,6 +1778,45 @@ test("summary names the pickup leftover and does not tell you to turn pickup on"
   assert.doesNotMatch(text, /should offer|must offer|turn on pickup|turn on local pickup/i);
 });
 
+test("break-even no-show rate solves when a no-show is the better outcome than completing", () => {
+  // High cost of goods relative to price makes a completed free-pickup sale
+  // a much bigger loss than the fixed labor/bag cost of a no-show -- so a
+  // no-show is the *better* outcome here, and a higher no-show rate is what
+  // lifts free pickup up to match shipping, not down. A guard that requires
+  // free pickup to already lead at 0% no-show misses this crossing entirely.
+  const input = {
+    price: 10,
+    shippingCharged: 5,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 50,
+    shippingCost: 4,
+    packagingCost: 0.5,
+    otherCost: 0,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+    paymentMethod: "shopify_payments",
+    pickupFee: 3,
+    pickupMinutes: 8,
+    pickupHourlyRate: 18,
+    pickupPackagingCost: 0.4,
+    pickupNoShowPct: 12,
+    monthlyPickupOrders: 40,
+  };
+  const r = comparePickup(input);
+  assert.ok(r.free.completedProfit < r.ship.expectedProfit, "free pickup starts behind shipping if everyone shows");
+  assert.ok(
+    Number.isFinite(r.breakEvenNoShowPct),
+    `no-show floor should be reachable, got ${r.breakEvenNoShowPct}`,
+  );
+  // Independently confirm the reported rate is really where free pickup
+  // rises to meet shipping, using the pipeline's own completedProfit and
+  // noShowResult rather than re-invoking the formula under test.
+  const showFrac = 1 - r.breakEvenNoShowPct / 100;
+  const freeExpectedAtEdge = showFrac * r.free.completedProfit + (1 - showFrac) * r.noShowResult;
+  near(freeExpectedAtEdge, r.ship.expectedProfit, "free pickup ties shipping at the reported no-show rate");
+});
+
 const UPSELL_BASE = {
   price: 48,
   shippingCharged: 6,
@@ -1735,6 +1911,47 @@ test("summary names the upsell leftover and does not tell you to turn an offer o
   assert.match(text, /11\.1%/);
   assert.match(text, /1\.8%/);
   assert.doesNotMatch(text, /should offer|must offer|turn on upsells|install rebuy/i);
+});
+
+test("break-even post-purchase take rate solves when the add-on itself loses money", () => {
+  // The add-on is priced under its own cost, so addOnProfit is negative --
+  // every one-click take loses money, not just costs more. The checkout
+  // path is a bigger loss still (from the drop rate), so a real, positive
+  // take rate ties the two. A guard that requires addOnProfit > 0 before
+  // dividing would report the floor as unreachable instead.
+  const input = {
+    price: 30,
+    shippingCharged: 5,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    costOfGoods: 10,
+    shippingCost: 3,
+    packagingCost: 0.5,
+    otherCost: 0,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+    paymentMethod: "shopify_payments",
+    addOnPrice: 1,
+    addOnCost: 2,
+    addOnDiscountPct: 0,
+    checkoutTakePct: 10,
+    postPurchaseTakePct: 20,
+    checkoutDropPct: 10,
+    addOnPackagingCost: 0.2,
+    addOnShippingCost: 1,
+    monthlyUpsellCheckouts: 50,
+  };
+  const r = compareUpsell(input);
+  assert.ok(r.addOnProfit < 0, "the add-on loses money on every take");
+  assert.ok(
+    Number.isFinite(r.breakEvenPostTakeVsCheckout),
+    `post-purchase take floor should be reachable, got ${r.breakEvenPostTakeVsCheckout}`,
+  );
+  // Independently confirm the reported rate is really where one-click ties
+  // the checkout offer, using the pipeline's own heroProfit/addOnProfit
+  // rather than re-invoking the formula under test.
+  const postExpectedAtEdge = r.skip.completedProfit + (r.breakEvenPostTakeVsCheckout / 100) * r.addOnProfit;
+  near(postExpectedAtEdge, r.checkout.expectedProfit, "one-click ties the checkout offer at the reported rate");
 });
 
 const refundBase = {
@@ -1848,6 +2065,46 @@ test("break-even refund rate is the mix that zeros expected profit", () => {
     returnShippingCost: 4,
   });
   near(atEdge.shopifyPayments.expectedProfit, 0, "profit at break-even refund rate");
+});
+
+test("break-even refund rate is null, not 0%, when the order already loses money before any refunds", () => {
+  // Cost of goods eats most of the ticket, so completedProfit is negative
+  // even at 0% refunds. refundOutcomeProfit is a sum of pure costs (never
+  // positive), so the mix of the two is a weighted average of two
+  // non-positive numbers -- it can never land on exactly zero. The correct
+  // answer is "unreachable" (null); reporting "0%" instead falsely tells a
+  // merchant already losing money on every sale that they are already at
+  // break-even before any refunds.
+  const input = {
+    price: 10,
+    shippingCharged: 0,
+    paymentsRate: 2.9,
+    paymentsFixed: 0.3,
+    shopifyTxnRate: 2,
+    processorRate: 3.49,
+    processorFixed: 0.49,
+    costOfGoods: 8,
+    shippingCost: 3,
+    packagingCost: 0.2,
+    otherCost: 0,
+    monthlyPlan: 0,
+    monthlyOrders: 1,
+    paymentMethod: "shopify_payments",
+  };
+  const mix = expectedProfitAfterRefunds({ ...input, refundRatePercent: 0 });
+  assert.ok(mix.shopifyPayments.completedProfit < 0, "the order already loses money at 0% refunds");
+  assert.ok(mix.shopifyPayments.refundOutcomeProfit <= 0, "the refund outcome is a pure cost, never a gain");
+  assert.equal(mix.shopifyPayments.breakEvenRefundRate, null);
+  // Independently confirm no refund rate reaches break-even by sampling the
+  // primary pipeline across the whole range, rather than trusting the
+  // formula that produced the null.
+  for (const rate of [0, 10, 25, 50, 75, 90, 100]) {
+    const sample = expectedProfitAfterRefunds({ ...input, refundRatePercent: rate });
+    assert.ok(
+      sample.shopifyPayments.expectedProfit < -1e-9,
+      `expected profit should stay negative at ${rate}% refunds, got ${sample.shopifyPayments.expectedProfit}`,
+    );
+  }
 });
 
 test("refunds can flip which payment path still wins", () => {
