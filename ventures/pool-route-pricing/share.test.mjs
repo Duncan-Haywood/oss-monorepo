@@ -32,8 +32,19 @@ test('a non-string source decodes to an empty object instead of throwing', () =>
   assert.deepEqual(decodeInputs(42), {});
 });
 
-test('every default field is covered by the field list', () => {
-  assert.deepEqual(new Set(FIELD_IDS), new Set(Object.keys(DEFAULTS)));
+test('every default field is covered by the field list, plus the optional current price', () => {
+  const defaultIds = new Set(Object.keys(DEFAULTS));
+  for (const id of defaultIds) assert.ok(FIELD_IDS.includes(id));
+  assert.ok(FIELD_IDS.includes('currentPrice'));
+  assert.equal(FIELD_IDS.length, defaultIds.size + 1);
+});
+
+test('current price rides the share link only when the sender set one', () => {
+  const withCurrent = encodeInputs({ ...DEFAULTS, currentPrice: 65 });
+  assert.deepEqual(decodeInputs(withCurrent), { ...DEFAULTS, currentPrice: 65 });
+
+  const withoutCurrent = encodeInputs(DEFAULTS);
+  assert.equal(decodeInputs(withoutCurrent).currentPrice, undefined);
 });
 
 test('buildShareUrl strips any existing query or hash before attaching the route', () => {

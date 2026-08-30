@@ -7,7 +7,7 @@ import { decodeInputs, buildShareUrl } from './share.mjs';
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('the page wires draft persistence and a shareable link without a build step', () => {
-  assert.match(html, /import\{decodeInputs,buildShareUrl\}from'\.\/share\.mjs'/);
+  assert.match(html, /import\{decodeInputs,buildShareUrl,FIELD_IDS\}from'\.\/share\.mjs'/);
   assert.match(html, /id="share"/);
   assert.match(html, /id="shareStatus"/);
   assert.match(html, /buildShareUrl\(location\.href,currentInputs\(\)\)/);
@@ -16,6 +16,13 @@ test('the page wires draft persistence and a shareable link without a build step
   assert.match(html, /localStorage\.setItem\(DRAFT_KEY,JSON\.stringify\(inputs\)\)/);
   assert.match(html, /recordEvent\('share-link'\)/);
   assert.match(html, /recordEvent\('estimate'\)/);
+});
+
+test('the optional current-price field is wired to its own result box and event', () => {
+  assert.match(html, /id="currentPrice"/);
+  assert.match(html, /id="currentBox"/);
+  assert.match(html, /recordEvent\('current-price-checked'\)/);
+  assert.match(html, /<code>current-price-checked<\/code>/);
 });
 
 test('a shared link takes priority over a saved draft, which takes priority over the defaults', () => {
