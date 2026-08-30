@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Do You Calculate a Mixed-VAT-Rate Tax Breakdown on an Invoice?</title>
+<meta name="description" content="See the arithmetic: group invoice lines by tax rate, sum the net per rate, multiply by the rate, round to cents — the same check the e-invoice preflight tool runs before flagging rule INV-037/INV-038.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How do you calculate a mixed-VAT-rate tax breakdown on an invoice?">
+<meta property="og:description" content="A worked table: two invoice lines at different VAT rates, grouped, summed, and rounded to cents — the exact figures the e-invoice preflight checker expects in tax_breakdown.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you calculate a mixed-VAT-rate tax breakdown?","acceptedAnswer":{"@type":"Answer","text":"Group the invoice lines by their tax rate, sum each group's net amount, then multiply that group's net by its rate and round to the nearest cent. Two consulting lines totalling €200.00 net at 19% produce €38.00 tax; one books line of €100.00 net at 7% produces €7.00 tax. Each rate gets its own row: 19% / €200.00 / €38.00 and 7% / €100.00 / €7.00. The invoice total (€345.00 gross) is the sum of every line's net plus every line's tax, not a single blended rate applied once."}},{"@type":"Question","name":"What happens if a mixed-rate invoice has no tax breakdown?","acceptedAnswer":{"@type":"Answer","text":"The preflight checker flags rule INV-037: an invoice mixes tax rates without a per-rate breakdown. If a tax_breakdown is supplied but a row's taxable or tax amount does not match what the lines at that rate actually sum to, or a row's tax is not its taxable amount times its own percentage, it flags INV-038 instead, naming the exact row and the figure it expected."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#0b5f8a}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch}.lede{font-size:1.05rem;max-width:64ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#3d4f5f;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #d3dbe4;padding:.5rem .45rem;text-align:right}th:first-child,td:first-child{text-align:left}.fine{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>How do you calculate a mixed-VAT-rate tax breakdown?</h1>
+<p class="lede">When an invoice has lines taxed at more than one rate, each rate needs its own row: the net of only the lines at that rate, and the tax that net produces at that rate. The table below is the exact fixture the checker's own test suite uses to confirm rule INV-037/INV-038 pass a correct breakdown.</p>
+</header>
+<section>
+<h2>Two lines, two rates</h2>
+<div class="table-wrap">
+<table>
+<caption>2 &times; €100.00 consulting at 19%, plus 1 &times; €100.00 books at 7%. Each line's net is quantity &times; unit price; each line's tax is that net &times; its own rate, rounded to the nearest cent.</caption>
+<thead>
+<tr><th scope="col">Line</th><th scope="col">Qty &times; price</th><th scope="col">Rate</th><th scope="col">Net</th><th scope="col">Tax</th></tr>
+</thead>
+<tbody>
+<tr><td>Consulting</td><td>2 &times; €100.00</td><td>19%</td><td>€200.00</td><td>€38.00</td></tr>
+<tr><td>Books</td><td>1 &times; €100.00</td><td>7%</td><td>€100.00</td><td>€7.00</td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<caption>tax_breakdown: one row per rate, summing only the lines at that rate. This is what the checker compares the supplied breakdown against.</caption>
+<thead>
+<tr><th scope="col">tax_percent</th><th scope="col">taxable</th><th scope="col">tax</th></tr>
+</thead>
+<tbody>
+<tr><td>19</td><td>€200.00</td><td>€38.00</td></tr>
+<tr><td>7</td><td>€100.00</td><td>€7.00</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Per rate: taxable = sum of net for every line at that rate. tax = taxable &times; rate &divide; 100, rounded half-up to the cent. The invoice totals are the sum across rates: €300.00 net, €45.00 tax, €345.00 gross &mdash; not one rate applied to the whole invoice.</p>
+<p>A single blended calculation would get this wrong. Applying 19% to the full €300.00 net gives €57.00 tax, €12.00 more than the correct €45.00, because the books line is only taxed at 7%. The checker does not average or infer a rate; it groups lines by their own <code>tax_percent</code> first, and every row in the breakdown has to reconcile to that grouping exactly &mdash; a row for a rate no line uses, a missing row for a rate that is used, or a taxable/tax figure that does not match the summed lines each produce their own finding (INV-037 for a missing breakdown on a mixed-rate invoice, INV-038 for a supplied one that does not reconcile).</p>
+<p><a href="./">Open the checker</a> and drop your own invoice to see its breakdown validated line by line. Nothing you drop is uploaded.</p>
+<p class="fine">This page is arithmetic, not tax or legal advice. It does not determine the correct VAT rate for a line or replace review by a qualified professional.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>How do you calculate a mixed-VAT-rate tax breakdown?</h3>
+<p>Group the invoice lines by their tax rate, sum each group's net amount, then multiply that group's net by its rate and round to the nearest cent. Two consulting lines totalling €200.00 net at 19% produce €38.00 tax; one books line of €100.00 net at 7% produces €7.00 tax. Each rate gets its own row: 19% / €200.00 / €38.00 and 7% / €100.00 / €7.00. The invoice total (€345.00 gross) is the sum of every line's net plus every line's tax, not a single blended rate applied once.</p>
+<h3>What happens if a mixed-rate invoice has no tax breakdown?</h3>
+<p>The preflight checker flags rule INV-037: an invoice mixes tax rates without a per-rate breakdown. If a tax_breakdown is supplied but a row's taxable or tax amount does not match what the lines at that rate actually sum to, or a row's tax is not its taxable amount times its own percentage, it flags INV-038 instead, naming the exact row and the figure it expected.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything runs in your browser. Invoice contents are never uploaded. We count only anonymous feature events in local storage, never people, content, or invoice data, with an opt-out on the checker page.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change the checker.</p>
+</footer>
+</main>
+</body></html>

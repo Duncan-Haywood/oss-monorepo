@@ -179,6 +179,8 @@
   <p>No. The page only reads files or pasted JSON in your browser and reports observations. It never contacts a tax authority or submission network.</p>
   <h3>How do I check an e-invoice before submission?</h3>
   <p>Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note, a Factur-X / ZUGFeRD / XRechnung PDF with an embedded invoice, or paste the JSON shape. The checker unwraps the PDF in the browser when needed and reports missing fields, date-shape mistakes, a header allowance or charge whose amount does not match its percentage, a purchase-order reference that repeats the invoice number or is a placeholder, payment terms days that do not match the due date, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity.</p>
+  <h3>How do you calculate a mixed-VAT-rate tax breakdown?</h3>
+  <p>Group the lines by rate, sum each rate's net, multiply by that rate, and round to the cent — see the <a href="how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">worked example</a> the INV-037/INV-038 checks are built from.</p>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
