@@ -171,6 +171,32 @@ export const SEARCH_ALIASES = [
   // across words — "ac" alone would still have found nothing.
   { slug: 'mini-split', add: 'ac unit units' },
   { slug: 'hvac-maintenance', add: 'ac unit units' },
+  // "Tuckpointing" and "repointing" name the same job; a homeowner or GC
+  // typing either word, or the material ("mortar", "brick", "masonry"),
+  // found nothing, because the tool's own copy only ever says
+  // "tuckpointing" and "wall".
+  { slug: 'tuckpointing', add: 'brick masonry mortar repointing brickwork' },
+  // The trade word for what this tool prices is "hardscape" or
+  // "hardscaping"; the tool's own copy says "paver" and "patio" but never
+  // the word the industry and the customer both search first.
+  { slug: 'paver-patio', add: 'hardscape hardscaping' },
+  // The regulation that drives most of this tool's demand is never named in
+  // its own copy, so a search for the term that actually motivates the
+  // purchase ("ADA ramp", "wheelchair accessibility") found nothing.
+  { slug: 'wheelchair-ramp', add: 'ada accessibility accessible' },
+  // "Sheetrock" is the genericized brand name half the trade uses instead
+  // of "drywall".
+  { slug: 'drywall', add: 'sheetrock' },
+  // The professional a homeowner searches for tree work by title.
+  { slug: 'tree-service', add: 'arborist' },
+  // The pump type most residential wells actually use, and the word a
+  // customer researching a quote is as likely to type as "well pump".
+  { slug: 'well-pump', add: 'submersible' },
+  // "Replacement" does not stem down to "replace" under the suffix list
+  // above (no `-ment` rule), so a query built around the word a customer
+  // actually uses — "pool liner replacement" — matched nothing even though
+  // the tool's own copy says "replace" throughout.
+  { slug: 'vinyl-liner', add: 'replacement replacing' },
 ];
 
 /**
