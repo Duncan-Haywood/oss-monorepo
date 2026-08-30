@@ -58,6 +58,28 @@ export function filterTenders(rows, { category = "", minimum = 0, through = "" }
     .sort((a, b) => a.deadline.localeCompare(b.deadline));
 }
 
+// Days from `today` to `deadline`, both "YYYY-MM-DD". Parsed as UTC calendar
+// dates (not `new Date(string)`, which is DST/timezone-sensitive) so a
+// deadline of "tomorrow" reads as 1 regardless of the visitor's offset.
+function daysUntil(deadline, today) {
+  const toUTCDays = (value) => {
+    const [year, month, day] = String(value).split("-").map(Number);
+    return Date.UTC(year, month - 1, day) / 86400000;
+  };
+  return Math.round(toUTCDays(deadline) - toUTCDays(today));
+}
+
+// A tender is "worth your time" right now when its deadline is close and has
+// not already passed. `row.deadline < today` used to be read as "urgent" in
+// the table, which flags exactly the opposite rows: a deadline that already
+// closed weeks ago (nothing left to do) while a deadline closing tomorrow
+// (the one that actually needs action) got no emphasis at all.
+export function isUrgent(deadline, today, windowDays = 7) {
+  if (!deadline || !today) return false;
+  const diff = daysUntil(deadline, today);
+  return diff >= 0 && diff <= windowDays;
+}
+
 export function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
