@@ -359,6 +359,29 @@ test("compareFairePromoted rejects impossible rates and fractional extra orders"
   assert.throws(() => promotedNote({}), /missing rows/);
 });
 
+test("compareFairePromoted's breakEvenCampaignRate uses the discounted subtotal, not raw merchandise", () => {
+  // With a brand-funded opening discount, the promoted-listings fee is a
+  // percent of orderSubtotal (post-discount), not of merchandise
+  // (pre-discount) -- the rate ceiling must be solved against the same base
+  // the fee is actually charged on, or it understates how much rate the
+  // campaign can tolerate before skipping wins.
+  const comparison = compareFairePromoted({ ...naReorder, openingDiscountRate: 30 });
+  assert.equal(comparison.merchandise, 200);
+  // Brute-force cross-check: the rate where campaign cash meets skip cash.
+  let lo = 0;
+  let hi = 99;
+  for (let i = 0; i < 60; i += 1) {
+    const mid = (lo + hi) / 2;
+    const at = compareFairePromoted({ ...naReorder, openingDiscountRate: 30, campaignPromotedRate: mid });
+    if (at.campaign.cash > at.skip.cash) lo = mid;
+    else hi = mid;
+  }
+  assert.ok(Math.abs(comparison.breakEvenCampaignRate - lo) < 1e-6, `${comparison.breakEvenCampaignRate} vs brute-force ${lo}`);
+  // Regression pin: the old (merchandise-based) formula reported ~5.0077%.
+  assert.ok(comparison.breakEvenCampaignRate > 7, `expected > 7, got ${comparison.breakEvenCampaignRate}`);
+  assert.ok(Math.abs(comparison.breakEvenCampaignRate - 7.153846153846152) < 1e-9);
+});
+
 test("PROMOTED_DEFAULTS match the page starting point", () => {
   assert.equal(PROMOTED_DEFAULTS.organicFirstOrders, 4);
   assert.equal(PROMOTED_DEFAULTS.extraPromotedOrders, 1);
