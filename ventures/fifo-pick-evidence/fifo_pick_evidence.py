@@ -53,8 +53,16 @@ def check_rows(rows):
 
 def read_report(path):
     with Path(path).open(newline="", encoding="utf-8") as handle:
-        rows = list(csv.DictReader(handle))
-    missing_headers = [field for field in REQUIRED if field not in (rows[0].keys() if rows else [])]
+        reader = csv.DictReader(handle)
+        # Read the header row from the reader itself, not from the first data
+        # row. A pick log with headers but zero picks (nothing moved yet today,
+        # or a filtered export) used to leave `rows` empty, so this fell back to
+        # `[]` and reported every required column as missing -- blaming the file
+        # for a problem it does not have and hiding the real, unremarkable
+        # answer: no rows, no observations.
+        fieldnames = reader.fieldnames or []
+        rows = list(reader)
+    missing_headers = [field for field in REQUIRED if field not in fieldnames]
     if missing_headers:
         raise ValueError("missing required columns: " + ", ".join(missing_headers))
     observations = check_rows(rows)
