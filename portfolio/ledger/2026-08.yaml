@@ -30865,3 +30865,35 @@ entries:
         present), and both ld+json blocks parse as valid JSON. CI showed
         the documented outage signature; not treated as a real failure.
     mrr_end: null
+  - venture: fifo-pick-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Read through several ventures' calc/CLI logic looking for a real,
+        user-visible functional gap rather than another FAQ or usage-tracking
+        pass (both already portfolio-wide per today's sweep). Found one in
+        this venture's CLI: `read_report()` detected the CSV's required
+        columns from `rows[0].keys() if rows else []` -- the first *data*
+        row -- so a pick log with every required header but zero data rows
+        (a scheduled evidence check run before the first pick of the day, or
+        a filtered export with nothing matching) fell back to an empty
+        column set and raised "missing required columns: order_id, sku,
+        lot, received_at, picked_at", blaming a well-formed file for a
+        problem it did not have and hiding the real, unremarkable answer
+        (0 rows checked, no observations). Reproduced before fixing.
+      - >-
+        Fixed by reading the header row from `csv.DictReader.fieldnames`
+        instead, which exists independent of whether any data rows follow.
+        A genuinely empty file (no header row at all) still correctly
+        raises the missing-columns error. Added two tests: headers-only CSV
+        now returns a clean zero-row report, and a fully empty file still
+        errors. Verified `python3 -m unittest -v` in the venture (7/7
+        passed) and a manual CLI run confirming exit code 0 and correct
+        JSON output on a headers-only CSV. Confirmed the disclaimer and
+        opt-in `--usage-file` counter were already present and untouched.
+        Ran `node platform/pages/build.mjs` (164 tools, this CLI venture
+        has no index.html so is unaffected) and `node
+        platform/pages/check.mjs` (no dead links) to confirm the portfolio
+        build was not broken. Shipped and merged #2117.
+    mrr_end: null
