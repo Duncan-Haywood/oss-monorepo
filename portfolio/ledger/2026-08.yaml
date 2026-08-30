@@ -33862,3 +33862,51 @@ entries:
         concurrent walmart-marketplace-calculator PR, confirmed before
         merging. GitHub Actions still down (runner outage, unrelated).
     mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session: checked open PRs (zero open) and the
+        owner decision queue before any new work, per the mandate's
+        three-PR quota gate. Both the Hetzner portfolio-site deploy and the
+        Codex-CLI-on-Hetzner-agent-box asks the session was specifically
+        given are already fully built and queued (`portfolio-site-hetzner-deploy`
+        #1999, `codex-governor-enable` #1996, `agent-runner-subscription-login`
+        #2000) -- each needs only an owner-held secret or interactive login,
+        confirmed via `decision_queue.py` and `infra/OWNER_CHECKLIST.md`
+        rather than re-derived, so nothing new was queued.
+      - >-
+        Followed the shopify-fee-calculator break-even-solver defect class
+        (#2233/#2234) into `amazon-fba-calculator`, the one sibling
+        marketplace/fee calculator not yet swept. Found the mirror-image
+        bug: `compareSubscribeSave`'s `offsetUnits` gated its `Infinity`
+        case ("no volume of extra S&S sales can offset the loss") on
+        `noneRow.profit > 0` -- the list-price row's sign, not whether a
+        real gap needs closing -- so it silently returned `0` ("no offset
+        needed") whenever list price was itself already unprofitable, even
+        though the S&S row was strictly worse and, being <= 0 profit per
+        unit itself, mathematically could never close that gap. Reviewed
+        `compareCoupons`' analogous `breakEvenUnits` for the mirror-image
+        display bug (negative units shown when list is unprofitable but the
+        discounted row is profitable); confirmed unreachable in practice,
+        since both functions only ever discount price, so the discounted
+        row's profit can never exceed the list row's -- no change needed
+        there.
+      - >-
+        Regression test reconstructs both rows' profit straight from
+        `calculateListing`/`subscribeSaveListing` (the primary pipeline,
+        not the function under test), with a fixture where list price is
+        already negative and S&S is worse, and confirms both the
+        `Infinity` result and the summary text's "cannot recover" warning.
+        `node --test calc.test.mjs`: 159/159 (158 pre-existing + 1 new).
+        Full venture suite `node --test *.test.mjs`: 301/301.
+        `run_workflow_locally.py --for-changes`: `amazon-fba-calculator-ci.yml`
+        2/2 and `conflict-markers-ci.yml` 2/2 pass; `pages.yml`/
+        `portfolio-pages.yml` showed the same known local-runner artifact
+        (confirmed via the job API: `runner_id: 0`, 3s duration, matching
+        the documented outage signature exactly) -- no regression, diff
+        touches no build/HTML file. `build.mjs` + `check.mjs` with the
+        change included: 168 products, 485 pages, no dead links. Merged as
+        #2238 (squash).
+    mrr_end: null
