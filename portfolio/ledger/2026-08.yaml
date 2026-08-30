@@ -34174,3 +34174,71 @@ entries:
         merging. A one-line-per-answer fix, trivial for the next session
         that touches that venture.
     mrr_end: null
+  - venture: etsy-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        First hit from the ceiling-helper sweep that #2245's entry proposed:
+        search for helpers that clamp an out-of-range result to a boundary
+        value, rather than comparison solvers that divide two path profits.
+        maxAffordableOffsiteRate ended in Math.max(0, rate), so a listing
+        already below the profit floor before any ad fee reported a 0%
+        ceiling. False on its own terms -- 0% Offsite Ads is not affordable
+        either when the order is under water at 0%.
+      - >-
+        Reached the user as copy contradicting the numbers beside it. A $12
+        listing costing $15 to fulfil rendered "Organic (no offsite ads)
+        keeps -$4.59 ... The order stays at or above $0.00 leftover until
+        Offsite Ads reach about 0.0%." The same false ceiling fed three
+        verdict branches in index.html and the "Ceiling that still breaks
+        even" cell on are-etsy-offsite-ads-worth-it.html.
+      - >-
+        Returns null (no rate qualifies) and Infinity (zero-revenue, where a
+        percentage fee cannot move profit and the floor is already met) --
+        previously both collapsed to 0. An existing test pinned cap === 0, so
+        the old behaviour was deliberate rather than accidental; updated with
+        the reasoning, since the value it pinned is the one the UI printed
+        wrongly. Three tests, two confirmed failing pre-fix, one guarding
+        against over-correcting a tight-but-real sub-1% ceiling into "none".
+        Merged as #2250.
+    mrr_end: null
+  - venture: faire-wholesale-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Third venture from the same sweep. openHouseDiscountCeiling and
+        payNowRateCeiling both clamped unreachable to 0, and the same file's
+        payNowWaitCeiling already returned null for that case -- so the
+        convention existed and these two were the outliers. Worth noting as a
+        search heuristic: an internal inconsistency between sibling helpers in
+        one file was the strongest single signal in this whole sweep.
+      - >-
+        Open House: "The waived commission still funds about 0.0% off before
+        leftover matches everyday" printed beside its own rows showing the
+        event $50.00 behind at the everyday discount. Pay Now: "match if the
+        rate falls to about 0.0%" when at 0.0% offering was $6.74 behind --
+        which happens when Pay Now's remittance wait exceeds the normal
+        payout, so the early-payment benefit is negative before any discount.
+        Confirmed the two meanings of 0 are genuinely distinct rather than
+        assuming it (wait=0/carry=0 ties exactly at 0% and is a real ceiling;
+        wait=120/carry=60 is behind by $6.74 and is not).
+      - >-
+        Fixing the rate helper made a previously-unreachable code path
+        reachable and exposed a second defect: the skip-branch sentence
+        spliced noun fallbacks into "falls to about ___", giving "falls to
+        about an unreachable Pay Now rate". Rewritten to compose only the
+        levers that have a number, with a plain sentence when none does. A
+        fix that makes dead copy live is responsible for that copy.
+      - >-
+        Five tests, three confirmed failing pre-fix, two over-correction
+        guards. ebay-fee-calculator's calculateSourcingCeiling and
+        maxAffordablePromotedRate were swept and are already correct --
+        calculateSourcingCeiling clamps to 0 but exposes isReachable and its
+        UI renders "unreachable", which is the pattern the other three have
+        now been brought up to. Verified locally during the Actions runner
+        outage: faire 106/106, etsy 164/164, tiktok 80/80, ebay 456/456, page
+        integrity 489/489, site build 168 products / 488 pages no dead links.
+        Merged as #2251.
+    mrr_end: null
