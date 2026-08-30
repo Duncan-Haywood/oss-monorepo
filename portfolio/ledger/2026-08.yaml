@@ -30624,6 +30624,80 @@ entries:
         38 passed. Zero open PRs existed at session start, so the mandate's
         three-PR merge quota was trivially satisfied (nothing to drain).
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2108: a guard against a doubled FAQ, plus the
+        three pages on main that already had one. The prior session's own
+        entry records that contractor-bid-readiness "auto-merged clean but
+        left two 'Common questions' sections in one page -- caught by grep,
+        not by any test". This session turned that observation into a test
+        and then found the same shape already live. Nothing in the repo
+        catches it: faq-coverage.mjs counts pages with at least one derived
+        entry, so a second section only improves the number;
+        faq-visible.test.mjs checks authored schema is visible, which a
+        duplicate satisfies twice over; check_pages.mjs parses the HTML, and
+        duplicated HTML parses fine. platform/pages/faq-duplicate.mjs is now
+        wired into Portfolio validate -- centrally, because the defect is
+        created by a merge and no per-venture workflow fires on a file its
+        own branch never edited.
+      - >-
+        The guard is deliberately narrow: a repeated FAQ section heading, and
+        the same h2/h3 question asked twice. A fuzzy near-duplicate version
+        was written first and flagged 13 pages that are all correct as
+        written -- the ~40 how-much-to-charge landing pages title themselves
+        with the question they answer and ask it again in the FAQ (so h1 is
+        excluded), several calculators pair short inline <details> help with
+        the search-worded heading (so <summary> is excluded), and landing
+        pages ask both a general question and a narrower variant of it
+        ("...to replace a well pump" beside "...and pressure tank"). A gate
+        that fires on those gets switched off. Also worth recording for
+        whoever extends it: faqEntries() already de-duplicates by lower-cased
+        question, so the derived *schema* was never at risk -- the defect is
+        only ever what the reader sees, which is why the checker reads the
+        rendered headings rather than going through faqEntries().
+      - >-
+        Three pages on main already carried a duplicate. no-show-fee-calculator
+        authored its own FAQPage JSON-LD and kept a hand-maintained visible
+        copy of the same five questions beside the real section so
+        faq-visible.test.mjs would pass; the copies had drifted into
+        differently-worded twins and one sat outside </main>. Dropped both, so
+        build.mjs derives from the one visible section -- 7 questions now
+        instead of 5, verified in the built page -- and rewrote the venture's
+        own test, which had been asserting the old hand-authored shape
+        (blocks.length >= 2) and was therefore the thing keeping the
+        duplicate alive. retainage-cashflow-calculator titled an
+        inputs-and-table widget with the question its FAQ answers; retitled
+        the widget. mobile-detailing-bid-calculator's FAQ opened by citing
+        3.25 labor hours against a laborHours default of 3 (the same FAQ
+        later states 3 hands-on against 4.25 whole-stop) -- every other
+        figure in that batch checked out against each venture's calc.mjs.
+      - >-
+        PR queue drained to empty. #2104 merged by a concurrent session
+        mid-review after this session had verified it locally (5 venture
+        suites, clause check, page-integrity sweep, every quoted figure
+        recomputed from calc.mjs). #2105 was behind main and conflicted on
+        the five overlapping ventures; merged main in and resolved all five
+        in main's favour, which is where the contractor-bid-readiness
+        auto-resolve surfaced -- it merged before the fix could be pushed,
+        with an equivalent resolution. No PR closed, no competing
+        implementation opened.
+      - >-
+        Re-rehearsed the production deploy build after today's six concurrent
+        FAQ batches, with the exact parameters the pod uses
+        (PAGES_BASE_URL=https://tools.marisstella.dev/): 164 products, 479
+        pages, no dead links, and zero duncan-haywood.github.io URLs
+        surviving anywhere in the output. CI on #2108 came back red on all 10
+        checks with the documented outage signature -- runner_id 0,
+        runner_name empty, 3-second jobs (05:33:18 -> 05:33:21), no step ever
+        run -- confirmed via the jobs API, not read as a real failure.
+        Deployment, CI restore and Codex-on-Hetzner remain owner-only on the
+        credential steps already queued (portfolio-site-hetzner-deploy,
+        actions-runners-unavailable, codex-governor-enable,
+        agent-runner-subscription-login); no duplicate ask added.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
