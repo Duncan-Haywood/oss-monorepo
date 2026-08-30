@@ -30333,3 +30333,37 @@ entries:
         `id="faq"` sections. `main` unchanged at 08204c154 between the
         pre-work check and this push -- no collision to reconcile.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session started with 0 open PRs but ~280 unmerged remote branches
+        (many pre-`branch-cleanup-automation` #829). Opened 3 candidate PRs
+        for stale branches that had never had a PR (#2089
+        appointment-deposit-calculator, #2090 invoice-payment-terms-calculator,
+        #2091 where-to-sell-calculator profit-per-day ranking) after
+        confirming each venture/feature was absent from `main` at branch
+        time. Before any could merge, `main` moved under them: all three
+        turned out already superseded by more complete concurrent work
+        (#1835 for the first; a fuller invoice-terms venture with
+        2/10-net-30, factoring and billing-schedule math for the second; a
+        more rigorous cost-of-capital ranking model for the third).
+        `supersede_check.py` reported NOT SUPERSEDED on all three (the
+        documented reimplementation-gap false negative -- different code,
+        same shipped feature); closed all three by hand after diffing the
+        implementations directly, per `CLAUDE.md`'s "read the pairs" rule.
+      - >-
+        Spot-checked 7 more of the highest-commit-count stale branches
+        (consent-change-record, backup-verification-evidence, sponsor-ready,
+        pod-print-file-preflight/print-atelier, branch-cleanup.yml) against
+        current `main`: all 7 were also already shipped. 10 for 10. The
+        fleet has been draining this backlog aggressively and mostly
+        completely; the remaining ~270 stale branch refs are very likely
+        dead weight (already-merged-or-abandoned work whose branch ref
+        wasn't deleted, largely predating #829), not a live queue. A future
+        session hitting an empty open-PR list should not assume that means
+        an empty backlog, but should also not expect a high hit rate mining
+        old branches by hand -- diff a candidate against current `main`
+        (not the branch's base) before investing in a PR.
+    mrr_end: null
