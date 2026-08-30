@@ -29360,3 +29360,73 @@ entries:
         main -- one diff showed the branch removing features main now
         has -- so no branch-to-PR conversion was attempted.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found and fixed a portfolio-wide SEO defect nobody had measured:
+        300 of the 305 pages carrying authored `FAQPage` JSON-LD showed
+        none of it -- the schema described question-and-answer content
+        that existed only inside the `<script>` tag (#2043, merged).
+        Google's structured-data policy requires the Q&A to be visible on
+        the source page, so all of it was ignorable markup, and at that
+        scale it is what a structured-data manual action is for. Since
+        organic search and AI discovery are the portfolio's entire
+        acquisition plan, this put the whole SEO investment at risk.
+      - >-
+        The fix took no invented copy: 298 pages gained a "Common
+        questions" section rendering their own JSON-LD's Q&A as visible
+        prose above the disclaimer footer, and
+        `booth-rent-vs-commission` / `hood-cleaning-bid-calculator`
+        instead had their authored block deleted -- both already showed
+        real Q&A in `<details>`/`<summary>` that the JSON-LD paraphrased
+        rather than quoted, so removing it lets `build.mjs` derive the
+        schema from the visible copy and the two now agree by
+        construction.
+      - >-
+        Root cause worth remembering: `faqEntries()` in
+        `platform/pages/build.mjs` already documents this exact failure
+        ("an authored block maintained beside the copy drifts from it")
+        and derives schema to avoid it -- but derivation only runs for
+        entry pages (`isEntry && !html.includes('FAQPage')`), so the ~190
+        secondary landing pages author their own by hand and nothing ever
+        checked them. `platform/pages/faq-visible.test.mjs` is now that
+        check, deliberately a whole-portfolio scan because these pages get
+        written one at a time by different sessions copying whichever
+        neighbour they opened, which is how 300 accumulated.
+      - >-
+        Also shipped SEO landing pages for the 5 tools that had no FAQ or
+        Q&A content at all (`ltl-freight-class-estimator`,
+        `notary-trip-quote`, `pool-route-pricing`,
+        `change-order-margin-calculator`,
+        `hvac-maintenance-contract-calculator`), each worked example
+        computed from that venture's own `calc.mjs` defaults rather than
+        estimated -- 12.5 lb/ft3 and class 85, $129.00, $264.21 per
+        account, a $693.00 floor against a $574.00 instinctive quote, and
+        $80.21/month against a $64.17 break-even.
+      - >-
+        Deploy readiness independently verified rather than assumed: the
+        in-cluster build path was exercised under the pod's real
+        conditions -- a worktree with no git history, matching the
+        `--depth 1` clone in `gitops/prod/portfolio-site.yaml`'s `fetch`
+        init container -- and produced a byte-identical, publishable
+        artifact. The sealed-secret template's name and key
+        (`portfolio-site-repo` / `token`) match what the pod expects, so
+        sealing per the template will work first try. Public reachability
+        could not be checked from a session: the agent proxy returns 403
+        on `tools.marisstella.dev`, which says nothing about the site.
+      - >-
+        Session context: 0 open PRs at start (the one open PR, #2040, was
+        merged by a concurrent session 11 seconds after it opened), so the
+        three-PR quota was met by an empty queue. Re-confirmed the three
+        owner-blocked asks rather than re-auditing them from scratch:
+        Hetzner deploy (#1999) needs a sealed read-only clone token and a
+        real ACME email; CI (#2021/#2022) needs a sealed runner PAT and
+        `CI_RUNNER=self-hosted`; Codex-on-included-quota (#2000) needs an
+        interactive `codex login`. No new ask was queued. Also checked and
+        cleared a hypothesis: the Enter-key stale-result bug class fixed
+        one-at-a-time in #2024/#2027 is not systemic -- a sweep of all 164
+        tools found only two candidates, both textarea JSON tools where
+        Enter correctly inserts a newline.
+    mrr_end: null
