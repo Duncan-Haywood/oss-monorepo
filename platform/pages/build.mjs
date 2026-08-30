@@ -344,6 +344,27 @@ export function socialCardFileFor(categoryId) {
   return `social-card-${categoryId}.png`;
 }
 
+/**
+ * The share card for one tool, served from inside that tool's own directory.
+ *
+ * Named by slug, not by title: a slug is the URL and therefore already the
+ * thing that cannot change without a redirect, whereas titles here are edited
+ * for search wording several times a year. Under `<slug>/` rather than at the
+ * root so 164 files do not land beside `robots.txt`, and so deleting a venture
+ * takes its card with it.
+ *
+ * Categories keep their own tinted card (`socialCardFileFor`) because a
+ * category page is not a tool and has no slug of this kind.
+ */
+export function toolCardFileFor(slug) {
+  return `${slug}/share-card.png`;
+}
+
+// The two lines every tool and category card carries besides its headline.
+// Both are claims the site already makes on its manifest and its About page —
+// a card is the wrong place to introduce a new one.
+export const CARD_FOOTER = 'Runs in your browser · nothing you type is uploaded';
+
 export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
 
 /**
@@ -3272,14 +3293,21 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   add('property', 'og:title', title);
   add('property', 'og:description', description);
   if (baseUrl) {
-    // `cardFile` lets a page point at its category's tinted card instead of
-    // the generic one — see `socialCardFileFor`. Falls back to the site-wide
-    // default for callers (the hub, the About page) that have no category.
+    // `cardFile` lets a page point at the card drawn for its own tool — see
+    // `toolCardFileFor`. Falls back to the site-wide default for callers (the
+    // hub, the About page) that are not a tool.
     const image = `${baseUrl}${cardFile || SOCIAL_CARD_FILE}`;
     add('property', 'og:image', image);
     add('property', 'og:image:width', '1200');
     add('property', 'og:image:height', '630');
-    add('property', 'og:image:alt', `${SITE_NAME} — free, private, in your browser`);
+    // The alt text describes the card that was actually drawn, which now
+    // carries the tool's name. A screen reader announcing the site name on a
+    // card that says "Deck bid calculator" is describing a different picture.
+    add(
+      'property',
+      'og:image:alt',
+      cardFile && title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — free, private, in your browser`,
+    );
     // Without a card type X renders a link as plain text. `summary_large_image`
     // is the wide form, which is what a 1200×630 card is drawn for.
     add('name', 'twitter:card', 'summary_large_image');
@@ -3647,7 +3675,10 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         baseUrl,
         title: pageMeta.title,
         description: pageMeta.description,
-        cardFile: socialCardFileFor(categoryFor(surface.slug).id),
+        // Every page inside a tool points at that tool's card, deep SEO pages
+        // included: they are shared as "the deck bid calculator's page about
+        // labour rates", so the tool's name is the right thing on the picture.
+        cardFile: toolCardFileFor(surface.slug),
       });
       if (withCard !== chromed) described.push(relative);
       // Last: the bar anchors under the site nav, so the chrome has to be there
@@ -4172,16 +4203,42 @@ export async function buildSite({
   // The site-wide card: what the hub and the About page point at, since
   // neither belongs to one category.
   await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
-  // One tinted card per category, so a tool page or a category page points at
-  // a share card that actually looks like its section rather than the
-  // generic default — see `socialCardFileFor`.
+  // One card per category, tinted and headlined with the section's own name.
   await Promise.all(
     ALL_CATEGORIES.map((category) =>
       fs.writeFile(
         path.join(outDir, socialCardFileFor(category.id)),
-        renderSocialCard(category.accent),
+        renderSocialCard({
+          color: category.accent,
+          headline: category.title,
+          kicker: SITE_NAME,
+          footer: CARD_FOOTER,
+        }),
       )),
   );
+  // And one per tool, headlined with the tool's own name on its category's
+  // tint. This is the difference between 164 shares of the same anonymous
+  // picture and 164 shares that each say what they link to — the single
+  // highest-leverage change available to a portfolio whose only distribution
+  // is organic. `cardtext.mjs` is what makes it possible without a font
+  // dependency; before it existed there was nothing to draw a headline with.
+  //
+  // Sequential, not `Promise.all`: each card is a 1200x630 CPU-bound raster
+  // and the in-cluster build runs under a 2-core limit, so firing 164 at once
+  // buys no wall-clock and peaks memory at 164 frame buffers.
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    await fs.writeFile(
+      path.join(outDir, toolCardFileFor(surface.slug)),
+      renderSocialCard({
+        color: categoryFor(surface.slug).accent,
+        headline: surface.title,
+        kicker: SITE_NAME,
+        footer: CARD_FOOTER,
+      }),
+    );
+  }
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.

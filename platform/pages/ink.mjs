@@ -41,7 +41,21 @@
 // the whole story. This is the floor, not the ceiling.
 
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+// `resolve` is aliased: this module already has a CSS-variable resolver of
+// that name below, and the two would collide.
+import { dirname, join, resolve as resolvePath } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// `ventures/` relative to *this file*, not to the process's working directory.
+//
+// The default used to be the bare string 'ventures', which resolves against
+// cwd — so `auditVentures()` found the tree when the suite was run from the
+// repository root and threw ENOENT when it was run from `platform/pages`.
+// That second spelling is the one `portfolio-pages.yml` uses
+// (`working-directory: platform/pages`), so the audit has been failing in the
+// workflow that publishes the site while passing for anyone who ran it by hand
+// from the root.
+const VENTURES_ROOT = resolvePath(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ventures');
 
 /** WCAG 2.1 minimum for normal-size text (1.4.3 Contrast (Minimum), level AA). */
 export const AA_NORMAL = 4.5;
@@ -294,7 +308,7 @@ function venturePages(root) {
   return pages;
 }
 
-export function auditVentures(root = 'ventures') {
+export function auditVentures(root = VENTURES_ROOT) {
   const findings = [];
   const declined = [];
   let decided = 0;

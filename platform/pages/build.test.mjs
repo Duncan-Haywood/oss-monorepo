@@ -50,6 +50,7 @@ import {
   injectDiscoveryTags,
   SOCIAL_CARD_FILE,
   socialCardFileFor,
+  toolCardFileFor,
   ALL_CATEGORIES,
   SITE_NAME,
   REPO_ROOT,
@@ -3230,22 +3231,90 @@ test('every category page points at its own tinted share card, and the file exis
   assert.equal(new Set(hexes).size, hexes.length, 'two categories rendered an identical card');
 });
 
-test("a tool page's share card matches the category it is actually filed under", async () => {
+test('every tool points at a share card of its own, and that card exists', async () => {
   const { outDir, surfaces } = await site();
-  // One tool per category, cross-checked against `categoryFor` itself rather
-  // than hard-coded, so a future re-filing cannot make this test lie.
-  const samples = ['ebay-fee-calculator', 'flat-roof-bid-calculator', 'cash-runway-planner'].filter(
-    (slug) => surfaces.some((s) => s.slug === slug),
-  );
-  assert.ok(samples.length > 0, 'none of the sample slugs exist in this build');
-  for (const slug of samples) {
-    const html = await fs.readFile(path.join(outDir, slug, 'index.html'), 'utf8');
-    const expected = `${BASE}${socialCardFileFor(categoryFor(slug).id)}`;
+  for (const surface of surfaces) {
+    const entry = path.join(outDir, surface.slug, 'index.html');
+    if (!(await exists(entry))) continue;
+    const html = await fs.readFile(entry, 'utf8');
+    const expected = `${BASE}${toolCardFileFor(surface.slug)}`;
     assert.ok(
       html.includes(`<meta property="og:image" content="${expected}">`),
-      `${slug} does not point at ${expected}`,
+      `${surface.slug} does not point at ${expected}`,
+    );
+    assert.ok(
+      await exists(path.join(outDir, toolCardFileFor(surface.slug))),
+      `${toolCardFileFor(surface.slug)} was never written`,
     );
   }
+});
+
+test('two tools never render the same share card', async () => {
+  const { outDir, surfaces } = await site();
+  // The whole point of drawing a headline is that a share of one tool does not
+  // look like a share of another. Byte-identical cards would mean the headline
+  // silently stopped being drawn -- which is exactly the regression that would
+  // otherwise pass every other test here, because the file still exists and
+  // every link still resolves.
+  const seen = new Map();
+  for (const surface of surfaces) {
+    const file = path.join(outDir, toolCardFileFor(surface.slug));
+    if (!(await exists(file))) continue;
+    const hex = (await fs.readFile(file)).toString('hex');
+    assert.ok(
+      !seen.has(hex),
+      `${surface.slug} and ${seen.get(hex)} rendered an identical card`,
+    );
+    seen.set(hex, surface.slug);
+  }
+  assert.ok(seen.size > 1, 'no tool cards were written at all');
+});
+
+test("a tool page's share card is tinted with the category it is filed under", async () => {
+  // Cross-checked against `categoryFor` itself rather than hard-coded, so a
+  // future re-filing cannot make this test lie.
+  const samples = ['ebay-fee-calculator', 'flat-roof-bid-calculator', 'cash-runway-planner'];
+  for (const slug of samples) {
+    const accent = categoryFor(slug).accent;
+    assert.ok(accent, `${slug}'s category carries no accent colour`);
+    const card = renderSocialCard({ color: accent, headline: 'Sample', kicker: 'Kicker' });
+    const plain = renderSocialCard({ color: '#000000', headline: 'Sample', kicker: 'Kicker' });
+    assert.ok(!card.equals(plain), `${slug}'s accent had no effect on its card`);
+  }
+});
+
+test("a deep page inside a tool shares the tool's card, not the site's", async () => {
+  const { outDir, surfaces } = await site();
+  // Deep SEO pages are shared as "that calculator's page about X", so the
+  // picture should name the calculator. Before per-tool cards they fell back
+  // to the site-wide default along with everything else.
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    const deep = (await listFiles(dir)).find(
+      (f) => f.endsWith('.html') && path.relative(outDir, f) !== path.join(surface.slug, 'index.html'),
+    );
+    if (!deep) continue;
+    const html = await fs.readFile(deep, 'utf8');
+    assert.ok(
+      html.includes(`<meta property="og:image" content="${BASE}${toolCardFileFor(surface.slug)}">`),
+      `${path.relative(outDir, deep)} does not point at its tool's card`,
+    );
+    return;
+  }
+  assert.fail('no tool in this build has a page below its entry point');
+});
+
+test("a tool page's card alt text names the tool, not just the site", async () => {
+  const { outDir, surfaces } = await site();
+  const surface = surfaces.find((s) => s.slug === 'ebay-fee-calculator') ?? surfaces[0];
+  const html = await fs.readFile(path.join(outDir, surface.slug, 'index.html'), 'utf8');
+  const alt = html.match(/<meta property="og:image:alt" content="([^"]+)">/);
+  assert.ok(alt, `${surface.slug} has no og:image:alt`);
+  // The card really does carry these words now, so the alt describing them is
+  // a description rather than a claim about a picture that says nothing.
+  assert.match(alt[1], /Free small-business calculators$/);
+  assert.notEqual(alt[1], 'Free small-business calculators — free, private, in your browser');
 });
 
 test('the hub and About page keep the generic site-wide card, not a category one', async () => {
