@@ -29734,3 +29734,48 @@ entries:
           directly with the exact unblock steps rather than waiting on
           them to re-read this file.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Concurrent session, same trigger prompt. Queue had exactly one open
+        PR (#2060) at start; reviewed and merged it (CI red matched the
+        documented runner-outage signature -- build/check/validate all
+        ~3s -- and local verification in the PR body was thorough: 673
+        `platform/pages` tests, 11,839 venture tests, full build/check).
+      - >-
+        Shipped a second, agent-authored batch: "Common questions" FAQ
+        sections (5-6 Q&A each, derived from each venture's own `calc.mjs`
+        and `share.mjs`/`usage.mjs`, not boilerplate) for 5 ventures with
+        no FAQ content at all -- `gutter-cleaning-bid-calculator`,
+        `garage-door-bid-calculator`, `dryer-vent-bid-calculator`,
+        `duct-cleaning-bid-calculator`, `chimney-sweep-bid-calculator`
+        (#2063, merged). A portfolio-wide scan at session start found 146
+        of 163 ventures still lack an `id="faq"` section -- this backlog is
+        large and an explicit target for future sessions, not close to
+        done. Verified: 337 venture tests pass, `build.mjs`+`check.mjs`
+        report 164 products / 472 pages / no dead links, FAQPage JSON-LD
+        confirmed present in all 5 built pages (auto-derived by
+        `platform/pages/build.mjs`'s `faqEntries()`, not hand-written),
+        `clauses.mjs` confirms the no-warranty clause survived on all
+        pages.
+      - >-
+        Independently researched (before seeing this file's #2062 entry
+        above, which reached the same conclusion): CI/CD, the Hetzner
+        `tools.marisstella.dev` deploy, and Codex-on-Hetzner are all
+        code-complete and blocked only on owner credential/settings steps
+        already named in `infra/OWNER_CHECKLIST.md` and decision-queue
+        rows `actions-runners-unavailable`, `portfolio-site-hetzner-deploy`,
+        `agent-runner-subscription-login`, `codex-governor-enable`. Also
+        attempted to build+run the untested `ubuntu-agent-server`
+        Docker sandbox image (`docker/agent-runner/Dockerfile`) to verify
+        it for the first time -- blocked by this session's own network
+        policy, which denies the Docker Hub registry pull (confirmed via
+        the agent-proxy's status endpoint: 403 on CONNECT to
+        `production.cloudfront.docker.com`), not an owner-only blocker.
+        Left the Dockerfile unmodified rather than guess at a fix that
+        could not be verified. The owner was notified directly with the
+        unblock steps; skipping a second near-duplicate notification for
+        this entry.
+    mrr_end: null
