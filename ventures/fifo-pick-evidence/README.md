@@ -1,9 +1,27 @@
 # FIFO Pick Evidence
 
 Small 3PL warehouses can turn a pick-log CSV into a portable FIFO exception
-report before a customer audit. This local CLI checks whether older inventory
-was still waiting when a newer lot was picked, and calls out missing or
+report before a customer audit. This tool checks whether older inventory was
+still waiting when a newer lot was picked, and calls out missing or
 ill-formed timestamps. It does not upload the log or certify an operation.
+
+## Browser tool
+
+Open `index.html` (or `npm run serve` and visit `localhost:8000`) and drag in
+a pick-log CSV, or paste it directly. Everything runs client-side in
+`evidence.js` — the file is never uploaded. Download the report as Markdown
+or JSON, or load the bundled worked example first to see the report shape.
+
+```sh
+cd ventures/fifo-pick-evidence
+npm test      # node --test: evidence.js, usage.js, and page wiring
+npm run serve # then open http://localhost:8000
+```
+
+## Command-line tool
+
+The identical check also ships as a local Python CLI, for scheduled runs,
+CI pipelines, or scripted use:
 
 ```sh
 cd ventures/fifo-pick-evidence
@@ -17,9 +35,12 @@ to opt into a local count of reports run. No usage file is created by default.
 
 ## Privacy and limits
 
-Everything runs on your machine. The pick log and report are never uploaded;
-there are no accounts, cookies, tracking pixels, or analytics vendors. The
-optional counter stores only a total event count and is never sent anywhere.
+Everything runs on your machine or in your browser tab. The pick log and
+report are never uploaded; there are no accounts, cookies, tracking pixels,
+or analytics vendors. The browser tool counts only anonymous, aggregate
+local events (opt-out in the page footer, and it honors Do Not Track /
+Global Privacy Control); the CLI's optional counter stores only a total
+event count. Neither is ever sent anywhere.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not engineering, legal, tax, financial, or
