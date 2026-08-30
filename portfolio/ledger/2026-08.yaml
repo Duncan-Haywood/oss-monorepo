@@ -33572,3 +33572,56 @@ entries:
         clause cut rather than a full sentence, per the same prior entry's
         note -- per-venture copywriting, not a mechanical fix.
     mrr_end: null
+  - venture: etsy-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same scheduled brief as the two entries above (CI/CD, Hetzner deploy,
+        Hetzner marketing material, Codex-on-Hetzner re-prioritized) and the
+        same standing conclusion re-confirmed rather than re-derived: the
+        self-hosted-runner path, the Hetzner GitOps portfolio site, and both
+        Codex-on-Hetzner pipelines (single-box agent-runner and the k8s
+        budget governor) are each fully built and gated on an owner-only
+        action already queued in `decision_queue.py`. Not re-litigated at
+        length -- this is at least the fifth session today reaching the same
+        finding. 0 open PRs at session start.
+      - >-
+        Delegated a second correctness audit (same class of bug as #2220:
+        a formula silently wrong outside the input range every existing test
+        happened to exercise) to a background agent, scoped to
+        `ventures/etsy-profit-calculator` and required to numerically confirm
+        any finding against an independently brute-forced value before
+        touching code. It found a real one: `compareShopSale`'s
+        `breakEvenPercentSellThroughPct`/`breakEvenDollarSellThroughPct` and
+        `compareStarSeller`'s `breakEvenSellThroughPct` all hard-coded 0%
+        whenever the discounted/badge-chasing path's packed-sale profit was
+        `<= 0`, treating "loses money on every packed sale" as "already broke
+        even" without checking whether the baseline path was also losing
+        money -- when both are negative they still cross at a real rate. On a
+        $10 item / $12 materials fixture: a 90%-off sale packs an $11 loss
+        against a $2 full-price loss, true crossing rate 9.09%, code reported
+        0%; a $5 Star Seller label packs a $7 loss against the same $2
+        baseline, true crossing rate 14.29%, code reported 0%. Both numbers
+        render directly in the calculator's summary sentence a seller reads.
+      - >-
+        Reviewed the agent's diff directly before shipping it (not merely its
+        self-report): a shared `breakEvenSellThroughRate` helper replacing
+        the three ad hoc branches, and two regression tests that derive the
+        correct crossing rate independently (plain division on
+        `calculateOrder` output, not by calling the fixed formula) and then
+        re-run the comparison at the reported rate to confirm the two paths
+        actually tie -- the check the old bug would have failed. Verified
+        myself: full venture suite 162/162 pass;
+        `run_workflow_locally.py --for-changes` -- `etsy-profit-calculator-
+        ci.yml` 2/2 run steps pass, `pages.yml`/`portfolio-pages.yml` failed
+        only on the same known local-runner artifact (skipped `${{ }}`-gated
+        build step, no site directory to check -- not a regression, this
+        diff touches no build/HTML file). Merged as #2225 (squash) after a
+        real merge conflict against `portfolio/ledger/2026-08.yaml` (two
+        sessions' ledger appends landed on `main` between this PR's open and
+        merge) -- resolved by keeping both sides' entries, re-ran the venture
+        suite post-merge (162/162 still), re-verified `mergeable_state`
+        before merging. GitHub Actions is still down (runner outage,
+        unrelated to this change).
+    mrr_end: null
