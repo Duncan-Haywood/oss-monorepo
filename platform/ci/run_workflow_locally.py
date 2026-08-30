@@ -103,6 +103,27 @@ MUTATING = [
 
 EXPRESSION = re.compile(r"\$\{\{")
 
+# A `${{ vars.X }}` in an `env:` block is the one expression this tool *can*
+# evaluate honestly, because the repository state it stands for is knowable:
+# an unset repository variable is the empty string, and every workflow here is
+# written around that. `gitops/ci/README.md` says so outright for `CI_RUNNER`
+# ("Unset, `vars.CI_RUNNER` is the empty string, which is falsy, so the
+# expression falls back to `ubuntu-latest`"), and `portfolio-pages.yml`'s
+# `PAGES_BASE_URL` is the same shape -- `build.mjs` reads it as
+# `process.env.PAGES_BASE_URL || DEFAULT_BASE_URL`.
+#
+# Skipping those steps was not conservative, it was wrong twice over: it did
+# not run the site build, and then "Check the built artifact" ran against a
+# `dist` nothing had created and was reported as FAIL. A verification tool
+# reporting a red deploy path that is actually green is the same failure mode
+# SHELL above exists to prevent, one step further along.
+#
+# `${{ secrets.X }}` and `${{ steps.X.outputs.Y }}` keep the skip. A secret
+# blanked here would run the step without the credential it exists to use, and
+# a step output has no unset-state meaning at all -- the post-deploy
+# `PAGE_URL` check is exactly that, and must stay skipped.
+VARS_EXPRESSION = re.compile(r"\$\{\{\s*vars\.([A-Za-z_][A-Za-z0-9_]*)\s*\}\}")
+
 # GitHub Actions runs a Linux `run:` step under bash, and workflows here rely
 # on that: `portfolio-pages.yml` opens a step with `set -euo pipefail`, which
 # is a syntax error in dash. Python's `shell=True` is `/bin/sh`, so without
@@ -140,6 +161,12 @@ class Step:
         self.reason = ""
         self.seconds = 0.0
         self.tail = []
+        # env: entries to add for this step. Populated only from `vars.`
+        # expressions resolved to their unset value; see VARS_EXPRESSION.
+        self.env = {}
+        # Names of those variables, so the report can say the step ran with
+        # them unset rather than leaving the reader to assume they were set.
+        self.unset_vars = []
 
     @property
     def label(self):
@@ -192,7 +219,17 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
             # failure -- it is a step that cannot mean anything until a real
             # deploy has happened -- so it is skipped and named, like any
             # other step this tool cannot honestly evaluate.
-            env_text = " ".join(str(v) for v in (raw.get("env") or {}).values())
+            raw_env = {str(k): str(v) for k, v in (raw.get("env") or {}).items()}
+            # Resolve `${{ vars.X }}` to the empty string an unset repository
+            # variable actually has, and record which ones. What is left after
+            # that is an expression this tool genuinely cannot evaluate.
+            for key, value in raw_env.items():
+                resolved, hits = VARS_EXPRESSION.subn("", value)
+                if hits:
+                    step.env[key] = resolved
+                    step.unset_vars.extend(
+                        m.group(1) for m in VARS_EXPRESSION.finditer(value))
+            env_text = " ".join(step.env.get(k, v) for k, v in raw_env.items())
             if (EXPRESSION.search(command) or EXPRESSION.search(str(workdir))
                     or EXPRESSION.search(env_text)):
                 step.status = "skipped"
@@ -395,11 +432,17 @@ def execute(step: Step, timeout: int) -> None:
         step.reason = f"working-directory {step.workdir} does not exist"
         return
 
+    # A resolved `vars.` entry must win over anything of the same name already
+    # in this shell's environment: the point is to reproduce the repository's
+    # unset state, and inheriting a developer's stray export would verify a
+    # configuration CI does not have.
+    env = {**os.environ, **step.env} if step.env else None
+
     start = time.monotonic()
     try:
         done = subprocess.run(
             step.run, shell=True, cwd=cwd, capture_output=True,
-            text=True, timeout=timeout, executable=SHELL,
+            text=True, timeout=timeout, executable=SHELL, env=env,
         )
     except subprocess.TimeoutExpired:
         step.status = "failed"
@@ -437,6 +480,14 @@ def report(name, steps, uses_skipped, forced) -> int:
 
     for step in setup_failed:
         print(f"SETUP   {step.label}: {step.reason}")
+    # Never silent: a step that ran with a repository variable resolved to its
+    # unset value verified the unset configuration, which is what CI has today
+    # but not necessarily what it will have after an owner sets one.
+    for step in steps:
+        if step.unset_vars and step.status in ("ok", "failed"):
+            print(f"UNSET   {step.label}: ran with "
+                  + ", ".join(f"vars.{v}" for v in sorted(set(step.unset_vars)))
+                  + " empty, as an unset repository variable is")
     for step in skipped + refused:
         print(f"SKIPPED {step.label}: {step.reason}")
     for note in uses_skipped:
