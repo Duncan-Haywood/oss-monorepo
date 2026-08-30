@@ -35126,3 +35126,62 @@ entries:
         770/770, build.mjs 168 tools / 494 pages + check.mjs no dead links,
         faq-coverage 168/168, faq-duplicate clean. Merged as #2291.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-drain phase (session brief required merging >=3 open PRs before
+        new work): 0 open PRs existed at run start. Sampled 12 of the 175
+        remote branches not reachable from main, targeting the ones with
+        real unique diffs against their own merge-base (not just main's
+        independent drift). Opened PRs for the 4 most promising and
+        verified them locally first (node --test all green): #2293
+        cut-list-optimizer material-cost estimate, #2294
+        amazon-fba-calculator buy-cost-check rename, #2295 ebay-fee-calculator
+        target-leftover price, #2296 3pl-quote-normalizer export page.
+      - >-
+        All 4 turned out fully superseded by main once conflicts were
+        inspected: main had independently grown a superset (an on-hand-stock
+        feature already carries the same cost fields for #2293; #2294's
+        renamed DOM id was already on main, just interleaved with newer
+        unrelated fields that broke supersede_check.py's line scan until
+        checked by hand; #2295's function is on main verbatim, comment says
+        "Salvaged from #1564"; #2296's export.html is byte-identical to
+        main bar one CSS color). Closed all 4 with a comment naming the
+        superseding code, per the supersede-check discipline this file
+        requires.
+      - >-
+        Spot-checked 8 more branches by diffing each one's unique commits
+        directly against current main (not just the merge-base): 4
+        new-venture scaffolds (interior-door-bid-calculator,
+        subcontractor-cashflow-planner, appointment-deposit-calculator,
+        invoice-payment-terms-calculator) all already exist on main as
+        larger supersets under the identical file paths; a
+        mobile-detailing-bid-calculator fix and a where-to-sell-calculator
+        share-link fix are both already on main (the latter is the exact
+        share.mjs field-drop bug this file already describes as fixed); a
+        governor RBAC test (fix/governor-rbac-configmap-scope) duplicates
+        two tests already on main; two new landing pages
+        (shopify-fee-calculator, ebay-fee-calculator TRS page) already
+        exist on main too. 12/12 sampled branches were superseded -- treat
+        the rest of the 175 as very likely the same until a session finds
+        one that is not.
+      - >-
+        Net PR-quota outcome: 0 merged. Not a shortfall against the
+        mandate -- the repairable queue was empty of anything not already
+        shipped, which the mandate's own terms treat as satisfying the gate
+        ("if none exist, start new work after the overlap check"). Recorded
+        here so a future session does not re-spend a run re-deriving the
+        same 12 branches.
+      - >-
+        Re-verified (corroborates commit 87de7f9d / PR #2289, not a new
+        finding) that the run brief's other 3 asks -- CI restore, Hetzner
+        portfolio-site deploy, Codex CLI on the Hetzner agent box against
+        plan/subscription quota -- are still fully coded and queued
+        (decision_queue.py items 8/10 for CI+deploy, 11/12 for Codex) and
+        blocked purely on owner-only steps (interactive codex login OAuth;
+        sealing a spend-capped OpenAI-org key or a repo clone token).
+        Confirmed CI is still down site-wide as of this run (runner_id 0,
+        ~4s jobs on main HEAD 3e0c52e). No duplicate asks added.
+    mrr_end: null
