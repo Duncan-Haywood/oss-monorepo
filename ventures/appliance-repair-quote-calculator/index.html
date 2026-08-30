@@ -44,6 +44,19 @@
     </table>
     <p class="note">Years and replacement prices are your planning figures, not a remaining-life appraisal. <a href="should-i-repair-or-replace-this-appliance.html">Should I repair or replace this appliance?</a></p>
   </section>
+  <section class="wide" id="faq">
+    <h2>Common questions</h2>
+    <h3>Why isn't the walk-away floor the same as the target price?</h3>
+    <p>The walk-away floor is your modeled cost — labor, marked-up parts, trip cost, callback reserve, and overhead — with zero profit in it. The target price divides that cost by <code>1 − margin</code>, so a 30% target margin on a $444.68 cost quotes $635.25, not $444.68 plus 30%. Anything you collect below the floor loses money on this job the moment you factor in the reserve and overhead you already built into it.</p>
+    <h3>How does the callback / warranty reserve actually get priced in?</h3>
+    <p>It's a percentage of labor, marked-up parts, and trip cost combined — not of the final price — and it lands before overhead and margin are applied, so it compounds with both rather than sitting outside them. A 5% reserve on a $385 direct job adds $19.25 to the base the overhead percentage and the margin formula then both work from, which is why a callback rate that looks small on paper still moves the quoted price by more than 5%.</p>
+    <h3>If the customer declines and I recommend replace, what do I actually keep?</h3>
+    <p>Whatever diagnostic or trip fee you collect for the visit, plus anything you keep from selling or installing the replacement unit — separate from the profit you'd have made finishing the repair. The calculator compares that total against your repair profit directly, so you can see in dollars whether walking with the diagnostic and a referral beats finishing the job, not just whether the customer prefers one option.</p>
+    <h3>Why can the repair be the better deal for you and the worse deal for the customer at the same time?</h3>
+    <p>Because the two sides are measured differently: your side compares total profit kept, the customer's side compares price per remaining year of service. A repair with a high margin can still cost a customer more per year than a replacement that lasts three times longer, even though it's the more profitable job for you to finish — which is exactly the tension the repair-vs-replace verdict is built to surface instead of hide.</p>
+    <h3>Why does parts markup apply before overhead and margin, not after?</h3>
+    <p>Parts markup is added once, to the parts cost itself, before that marked-up figure joins labor and trip cost as part of direct cost. Overhead and the callback reserve then apply to that combined direct cost, and target margin applies last, to the full cost including overhead — so a change to parts markup ripples through the reserve, the overhead dollar amount, and the final target price, not just the parts line.</p>
+  </section>
   <footer>
     <label><input id="optOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

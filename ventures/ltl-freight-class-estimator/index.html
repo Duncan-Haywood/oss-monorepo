@@ -29,6 +29,52 @@
       <label>Length (inches)<input id="length" type="number" min="0.01" step="0.01" value="48"></label><label>Width (inches)<input id="width" type="number" min="0.01" step="0.01" value="40"></label><label>Height (inches)<input id="height" type="number" min="0.01" step="0.01" value="36"></label><label>Weight per piece (lb)<input id="weight" type="number" min="0.01" step="0.01" value="500"></label><label>Identical pieces<input id="pieces" type="number" min="1" step="1" value="1"></label>
     </div><div class="actions"><button id="copy" type="button">Copy estimate</button><button class="secondary" id="reset" type="button">Reset example</button></div><p id="status" class="hint" role="status"></p></section>
      <section class="result"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><p class="threshold" id="threshold"></p><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does density decide the class rather than weight?</h3>
+      <p>Because a trailer runs out of space long before it runs out of weight. A carrier is selling
+        floor and cube, so the question that sets the rate is how much weight your freight brings per
+        cubic foot it occupies. Density is total weight divided by total cube, and the class bands here
+        run from class 50 at 50 lb/ft&sup3; and up, down to class 500 below 0.5 lb/ft&sup3;. Light,
+        bulky freight is expensive to move for exactly the reason it feels cheap to lift.</p>
+
+      <h3>How close am I to the next class down?</h3>
+      <p>The estimate tells you, which is the practical use of this page. The worked example is a single
+        48&Prime; &times; 40&Prime; &times; 36&Prime; pallet at 500 lb: 40 ft&sup3;, 12.5 lb/ft&sup3;,
+        which lands in the class 85 band that starts at 12. The next band down, class 77.5, begins at
+        13.5 lb/ft&sup3; &mdash; so on that pallet you are a lb/ft&sup3; away. Sometimes that gap closes
+        by consolidating two shipments, or by taking four inches off a pallet that is packed taller than
+        it needs to be. Sometimes it does not close and it is worth knowing before you quote.</p>
+
+      <h3>Which dimensions do I measure?</h3>
+      <p>The packed outside dimensions, including the pallet, the stretch wrap, and anything that
+        overhangs. Not the box, not the product. A carrier dimensioner measures the space your freight
+        actually occupies on the trailer, so measuring the carton and ignoring a 2-inch overhang is how
+        an estimate and a re-class notice end up disagreeing. Height is measured from the floor,
+        pallet included.</p>
+
+      <h3>Is weight per piece or for the whole shipment?</h3>
+      <p>Per piece &mdash; and pieces means identical ones. The estimate multiplies both cube and weight
+        by the piece count, so density is unchanged by how many identical pallets you ship. That is
+        correct for density, and it is also why a mixed shipment cannot be estimated in one pass here:
+        if your pallets differ, run the heavy configuration and the light one separately, because the
+        real shipment classes as its parts rather than its average.</p>
+
+      <h3>Why isn&rsquo;t this an official freight class?</h3>
+      <p>Because density is only one of the four things that set an NMFC classification. Handling,
+        stowability, and liability &mdash; how fragile, how stackable, how valuable and how prone to
+        theft or damage &mdash; can move the class regardless of how dense the freight is, and many
+        commodities have their own NMFC item number that is not density-based at all. This is a
+        planning estimate for the density half. Verify it with your carrier or a qualified freight
+        professional before booking, and expect accessorials (liftgate, residential, inside delivery)
+        to sit on top of whatever the class turns out to be.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the estimate runs entirely in your browser. Nothing
+        about your freight is sent anywhere. The usage counter is a local, opt-out tally of which
+        features were used, never your dimensions or weights.</p>
+    </section>
   </main>
   <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
   <script type="module">

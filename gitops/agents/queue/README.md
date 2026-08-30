@@ -4,12 +4,21 @@ Each `*.yaml` file here is a job the governor may start. Argo syncs them
 into a ConfigMap. The governor does **not** keep eight Codex processes
 hot; it creates at most `maxConcurrent` Jobs (1 on the cpx22).
 
-`branch-pr-drain.yaml`, `seo-discoverability-audit.yaml`, and
-`product-feature-improvement.yaml` are the real, enabled items — the same
-priority order they're named in, since `pick_item` always starts the
+`branch-pr-drain.yaml` (5), `deploy-cicd-readiness.yaml` (4),
+`seo-discoverability-audit.yaml` (3), and
+`product-feature-improvement.yaml` (2) are the real, enabled items — the
+same priority order they're named in, since `pick_item` always starts the
 single highest-`priority` enabled item and does not round-robin. Drain the
-PR/branch backlog first, then metadata, then general feature work; raise
-or disable an item in git to change that order. Enabling an item here does
+PR/branch backlog first, then the delivery path, then metadata and
+content, then general feature work; raise or disable an item in git to
+change that order.
+
+`deploy-cicd-readiness` sits second on purpose. The portfolio has 164
+finished tools and no public URL, so the delivery path is worth more per
+run than another metadata pass — but its remaining *owner* steps (a sealed
+clone token, an ACME contact, `CI_RUNNER`, the governor flip) are not
+agent-actionable and are already queued. That item covers only the code
+half, and says so. Enabling an item here does
 not spend anything by itself: the governor stays a no-op until an owner
 seals `codex-secrets` and flips `governor/policy.json` `enabled: true` and
 `governor/cronjob.yaml` `suspend: false` (decision-queue item
