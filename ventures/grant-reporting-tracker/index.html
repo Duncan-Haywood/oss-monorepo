@@ -48,7 +48,7 @@
   const readGrants=()=>{try{return loadGrants(localStorage.getItem(storageKey));}catch{return [];}};
   const saveGrants=()=>{try{localStorage.setItem(storageKey,JSON.stringify(grants));}catch{} };
   let grants=readGrants();
-  const track=(event)=>{if(document.querySelector('#usage').checked){try{const key='grant-tracker-events';const data=JSON.parse(localStorage.getItem(key)||'{}');data[event]=(data[event]||0)+1;localStorage.setItem(key,JSON.stringify(data));}catch{}}};
+  const track=(event)=>{if(document.querySelector('#usage').checked&&!navigator.doNotTrack&&!navigator.globalPrivacyControl){try{const key='grant-tracker-events';const data=JSON.parse(localStorage.getItem(key)||'{}');data[event]=(data[event]||0)+1;localStorage.setItem(key,JSON.stringify(data));}catch{}}};
   const render=()=>{const rows=reviewAll(grants); tbody.innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.name)}</td><td>${escapeHtml(r.funder)}</td><td>${r.nextReport||'Check date'}</td><td class="status ${r.status==='Overdue'?'overdue':r.status==='Due soon'?'soon':''}">${r.status}</td><td>${Number(r.restrictedBalance).toFixed(2)}</td></tr>`).join(''); table.hidden=!rows.length; empty.hidden=!!rows.length; return rows;};
   const escapeHtml=(v)=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   form.addEventListener('submit',e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));grants.push(data);saveGrants();form.reset();form.intervalMonths.value=6;render();track('grant_added');}); document.querySelector('#review').onclick=()=>{render();track('reviewed');}; document.querySelector('#clear').onclick=()=>{grants=[];try{localStorage.removeItem(storageKey);}catch{} note('');render();};
