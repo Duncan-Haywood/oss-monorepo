@@ -76,5 +76,48 @@
     <button type="submit">Forecast</button><button id="download" type="button">Download CSV</button><button id="reset" type="button">Reset local draft</button>
   </form>
   <section id="output" aria-live="polite">Enter your numbers to see the forecast.</section>
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>What counts as &ldquo;week 1&rdquo;?</h3>
+    <p>The week you are looking at the page, not a fixed calendar boundary. Each row in the results list
+      shows both the week number and its calendar date (&ldquo;w/c&rdquo;), so &ldquo;week 4&rdquo; means
+      something concrete when you decide which payment to move. On the defaults &mdash; $5,000 starting
+      cash, $1,800 invoiced weekly with a 2-week collection delay, $1,400 in weekly costs &mdash; no income
+      lands until week 3, so the lowest balance is $2,200 in week 2, before collections catch up.</p>
+
+    <h3>Why won't it accept a collection delay like 1.5 weeks?</h3>
+    <p>Because the forecast is a whole-week timeline: a fractional delay would be silently rounded up
+      internally (1.5 forecasts identically to 2), and you would never learn the number you typed was not
+      the number used. Rejecting it up front means the forecast always answers the delay you actually
+      entered.</p>
+
+    <h3>When there's a shortfall, what does the suggested fix actually do?</h3>
+    <p>It targets the deepest week of the negative run, not just the first week it turns negative &mdash;
+      covering only the first week would leave you short again days later. Then it looks for one of two
+      moves already on your one-off list: delaying the largest outgoing payment dated at or before the
+      shortfall starts, or pulling forward the soonest incoming payment dated after the low point. Each
+      suggestion says plainly whether it &ldquo;closes the gap&rdquo; or only &ldquo;covers&rdquo; part of
+      it, based on whether its amount meets the deficit at the trough.</p>
+
+    <h3>Why does it sometimes say &ldquo;this is not a timing problem&rdquo;?</h3>
+    <p>When your weekly costs exceed your weekly collected income &mdash; a structural gap, not a one-off
+      &mdash; moving a single payment only postpones the same shortfall by a week rather than closing it.
+      The planner checks for that (weekly costs minus weekly income) before suggesting a specific payment
+      to move, so it does not sell a move-this-bill fix to a gap that reopens on its own the following
+      week.</p>
+
+    <h3>Why do only 3 one-off rows show at first, and why is there a limit of 8?</h3>
+    <p>Three rows cover the common case &mdash; a tax bill, a renewal, a chased invoice &mdash; without
+      cluttering the form; &ldquo;Add another row&rdquo; reveals more up to 8. The 8-row cap keeps the
+      form's field set identical on every visit, which is what lets a saved draft restore correctly: the
+      restore logic compares the saved fields against the form's fields and refuses to restore anything
+      that doesn't match.</p>
+
+    <h3>Does anything here leave my browser?</h3>
+    <p>No. The forecast, the CSV export, and the saved draft all run and stay in local storage on your
+      device. The only optional exception is anonymous local usage counting, which is off unless you check
+      the box, and is disabled automatically when Do Not Track or Global Privacy Control is on.</p>
+  </section>
   <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, or legal advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Your data stays in this browser. Usage counting is opt-in and is disabled when DNT or GPC is enabled.</footer>
 </main><script type="module" src="./app.mjs"></script></body></html>

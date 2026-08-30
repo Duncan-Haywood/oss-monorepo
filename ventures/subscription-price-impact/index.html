@@ -19,6 +19,43 @@
     <label>Monthly fixed costs<input id="monthlyCosts" type="number" min="0" step="0.01" value="500"></label>
   </div><p class="note">Use your own observed churn and costs to pressure-test the scenarios. This tool does not predict customer behavior.</p></section>
   <section id="result"><h2>Price-change readout</h2><div id="headline" class="hero"></div><div id="subhead"></div><dl><dt>Current monthly revenue</dt><dd id="currentRevenue"></dd><dt>Proposed revenue before churn</dt><dd id="proposedRevenue"></dd><dt>Revenue change before churn</dt><dd id="revenueChange"></dd><dt>Subscribers at revenue break-even</dt><dd id="breakEvenCustomers"></dd></dl><h2>Churn scenarios</h2><table><thead><tr><th>Churn</th><th>Subscribers left</th><th>Contribution</th></tr></thead><tbody id="scenarios"></tbody></table><p id="status" class="note" role="status" aria-live="polite"></p></section></main>
+  <section id="faq" style="max-width:960px;margin:18px auto 0">
+    <h2>Common questions</h2>
+
+    <h3>How much churn can a price increase actually absorb?</h3>
+    <p>On the default example &mdash; 100 subscribers going from $20 to $25 a month &mdash; revenue reaches
+      the same $2,000 you make today at just 80 subscribers, so you can lose up to 20 of the current 100
+      (20% churn) before the increase has cost you anything. That 20% is not a prediction of how many
+      people will actually leave; it is the ceiling this specific increase can absorb before it stops
+      paying off. &ldquo;Subscribers at revenue break-even&rdquo; and the churn-scenario table show the
+      same number two ways.</p>
+
+    <h3>Why does a price decrease show 0% maximum churn?</h3>
+    <p>Because break-even is measured in revenue, and cutting the price raises the subscriber count needed
+      to match today's revenue above the count you already have. Drop $20 to $15 on the same 100
+      subscribers and break-even needs about 133 &mdash; more than you have &mdash; so the calculator
+      reports zero headroom: any churn at all, even churn that had nothing to do with the price cut, drops
+      you below where you started. This tool does not model new customers a lower price might attract; it
+      only tracks retention of the base you already have.</p>
+
+    <h3>Is &ldquo;subscribers at revenue break-even&rdquo; the same as break-even on profit?</h3>
+    <p>No. That figure is revenue against revenue &mdash; it ignores costs entirely. The profit view is the
+      contribution column in the churn-scenario table, which nets your monthly fixed costs out of revenue
+      at each churn level. A price change can clear the revenue break-even and still fail to clear the
+      contribution break-even if your fixed costs are large relative to the price change.</p>
+
+    <h3>What does &ldquo;contribution&rdquo; leave out?</h3>
+    <p>Only the monthly fixed costs you type in. It does not subtract payment-processing fees, support
+      cost per seat, hosting that scales with usage, or anything else that moves with subscriber count
+      rather than staying flat month to month. If a meaningful share of your costs are variable, contribution
+      overstates the profit impact of both the increase and the churn.</p>
+
+    <h3>Why does the churn-scenario table stop at 20%?</h3>
+    <p>Those five columns (0, 5, 10, 15, 20%) are a representative spread for sanity-checking a
+      scenario, not a forecast bounded at 20%. Churn above that is entirely possible and the table simply
+      does not print it; use your own historical churn rate, not the table's range, to judge whether a
+      given increase is likely to land above or below its break-even point.</p>
+  </section>
   <footer><label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendor. We count only anonymous feature events in local storage, and you can turn that off above. Do Not Track and Global Privacy Control disable counting automatically.</p><p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
   <script type="module">
     import { calculateImpact } from './calc.mjs'; import { recordUsage } from './usage.mjs';
