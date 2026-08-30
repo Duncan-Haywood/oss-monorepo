@@ -32051,3 +32051,71 @@ entries:
         pytest module in this sandbox, unrelated to this venture.
         Shipped and merged #2176.
     mrr_end: null
+  - venture: tiktok-shop-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **PR queue drain, per the scheduling brief's mandatory first phase:
+        0 open PRs found** (`list_pull_requests` and `search_pull_requests`
+        agreed), so the three-PR quota had nothing to draw on. Sampled ~30
+        of the ~175 remote branches with commits ahead of `main` by
+        ahead/behind count and recency. Found and (after a self-caught
+        mistake, see below) confirmed the branch backlog is fully
+        superseded, extending four other sessions' identical finding today.
+      - >-
+        **Self-caught mistake, corrected before merging anything wrong:**
+        cherry-picked four branches' ledger-only commits into #2168 after a
+        commit-message grep against `main` found nothing, then discovered
+        via `git log -S"<actual outcome text>"` that all four were already
+        on `main` under different commit hashes from a squash merge (a
+        squash merge drops the source commit's message, so a title grep
+        cannot find it). Closed #2168 unmerged and landed the corrected
+        method plus a fifth confirmation instead, in #2169.
+      - >-
+        **Declined the brief's literal "set up Codex CLI on the built-in
+        quota" instruction and told the owner why**, rather than building
+        it or silently doing nothing. `infra/OWNER_CHECKLIST.md` and the
+        `codex-governor-enable` row in `asks.yaml` (both already on `main`)
+        document that a full budget-governed Codex worker
+        (`gitops/agents/governor`) already exists, is tested, and is
+        disabled pending three owner-only steps — and explicitly warn that
+        a personal ChatGPT Plus/Pro `codex login` (the literal reading of
+        "built-in quota") is the one shape not to build, since it has no
+        spend cap and competes with the owner's own interactive use. Sent
+        a push notification naming this plus the CI-restore and Hetzner-
+        deploy blockers, all three already fully engineered and owner-
+        gated, rather than adding a duplicate ask.
+      - >-
+        **Product work: TikTok Shop's decision-page depth (3, versus eBay
+        24 / Amazon FBA 20 / Shopify 18 / Etsy 11) is real and still open**,
+        confirmed by counting `*.html` files, not by trusting the stale
+        figure in an earlier ledger entry. Shipped
+        `should-i-bundle-tiktok-shop-orders.html`: a multi-buy-discount
+        decision page backed by new `compareBundleDiscount`/
+        `bundleDiscountNote` functions in `calc.mjs`. The finding worth
+        keeping: `calculateOrder` already charges `paymentFixed` and
+        `otherPerOrder` once per order regardless of quantity while every
+        other cost scales with units in both paths, so a bundle at 0%
+        discount saves *exactly* those two flat costs and nothing more —
+        $0.40 on the shipped example. A typical "10% off a 2-pack" spends
+        far more than that saves: $2.30 less than two separate orders
+        ($1.62 vs $3.92), with a breakeven discount around 1.5%. Verified
+        the invariant against real computed output before asserting it in
+        a test, rather than deriving it by hand and hoping — the derived
+        version was off by $0.036 per order and would have shipped a wrong
+        assertion. Shipped and merged #2178.
+      - >-
+        Caught and fixed two real FAQPage/visible-copy mismatches (an
+        em dash vs `--`, a curly quote vs a straight quote) with
+        `faq-visible.test.mjs` before merging — the exact class of bug
+        #2165 fixed on `cloud-egress-calculator` earlier this week.
+        Verified locally: 78/78 venture tests, `build.mjs`+`check.mjs`
+        (164 products, 481 pages, no dead links), FAQ coverage unchanged
+        at 164/164, `check_form_defaults.py` clean, and a real headless-
+        Chromium pass (via the globally installed Playwright package,
+        which this repo does not itself depend on) at desktop and 360px
+        confirming the numbers, the winner flip at a shallower discount,
+        the validation error on an invalid quantity, and no horizontal
+        overflow.
+    mrr_end: null
