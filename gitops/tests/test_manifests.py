@@ -122,6 +122,44 @@ def test_agents_project_cannot_dest_prod() -> None:
     assert [d["namespace"] for d in prod] == ["prod"]
 
 
+def test_governor_role_reads_no_configmap_it_cannot_name() -> None:
+    # governor.py's only ConfigMap calls (_load_state / _save_state) GET and
+    # PUT one object, governor-state -- never a namespace-wide list, never any
+    # other ConfigMap. An unnamed `configmaps` rule with verbs get/list/create
+    # used to sit alongside the resourceNames-narrowed one, granting read
+    # access to every ConfigMap in `agents` (governor-policy, governor-script,
+    # governor-queue, codex-worker-script -- none of which governor.py ever
+    # requests over the API, it mounts them as volumes) plus a `list` verb
+    # nothing calls. #2269 cut it to bare `create`; #2276 removed it entirely,
+    # since governor/state.yaml seeds governor-state in git.
+    #
+    # Carried over from #2273, which was closed as superseded. The narrowing it
+    # proposed did land by another route, but nothing kept it from creeping
+    # back. This is that guard.
+    #
+    # `create` is the one verb an unnamed rule may still carry if a future
+    # change wants the self-healing create path back: it returns the object it
+    # made and never one it did not, so it leaks nothing about the sibling
+    # ConfigMaps. get/list/watch would.
+    docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
+    role = next(d for d in docs if d and d["kind"] == "Role")
+    rules = role["rules"]
+    cm_rules = [r for r in rules if "configmaps" in r["resources"]]
+
+    named = [r for r in cm_rules if r.get("resourceNames")]
+    assert len(named) == 1, named
+    assert named[0]["resourceNames"] == ["governor-state"]
+    assert sorted(named[0]["verbs"]) == ["get", "patch", "update"]
+
+    for rule in cm_rules:
+        if rule.get("resourceNames"):
+            continue
+        assert sorted(rule["verbs"]) == ["create"], rule
+
+    for rule in rules:
+        assert "*" not in rule.get("verbs", [])
+
+
 def test_governor_starts_disabled() -> None:
     cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
     assert cron["spec"]["suspend"] is True
