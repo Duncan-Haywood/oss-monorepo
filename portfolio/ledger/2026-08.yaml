@@ -29609,3 +29609,58 @@ entries:
         `runner_id: 0` on job 99187804658, ~4s duration) -- not a
         regression.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Branch-backlog drain: checked 20 of the 171 unmerged branches
+        (`git branch -r --no-merged origin/main`) across all three naming
+        fleets (`cursor/*`, `claude/*`, `session/agent_*`), sampling
+        recency, diff size, and venture diversity rather than a single
+        cluster. Merged 2 genuinely missing PRs: #2052
+        (`no-show-fee-calculator` -- union-merged the branch's
+        `computeRecoveryEstimate` alongside main's independently-shipped
+        `computeRecovery`, 91/91 tests) and #2056
+        (`retainage-cashflow-calculator` -- added a download-record
+        feature, caught and fixed a silent `summaryText` name collision
+        the auto-merge produced with no conflict markers, 52/52 tests).
+      - >-
+        The other 18 were already fully superseded, each confirmed with
+        `supersede_check.py` (10 identical-merge proofs, exit 0; 4
+        RENAME SUSPECTED verdicts resolved by reading the pairs by hand)
+        plus a manual diff against the specific functions/fields the
+        branch would touch, not just the tool's exit code. Two patterns
+        held across the sample: every "ship a brand-new venture" branch
+        tried (6 of 6: cut-list-optimizer, fifo-pick-evidence,
+        invoice-payment-terms-calculator, payment-reconciliation-workbench,
+        window-replacement-bid-calculator, tender-bid-readiness) was
+        already shipped, usually as a strict superset with extra fixes;
+        and three ledger-only branches (`ledger-seo-faq-pages`,
+        `codex-governor-ask-and-queue-drain-report`,
+        `upbeat-mayer-3ipos6-ledger`) each duplicated an entry already on
+        `main` byte-for-byte or near it.
+      - >-
+        Net read for the next session: this backlog's easy repairable
+        work is thin. A ~10% hit rate held across three different branch
+        fleets and multiple ventures, not one bad cluster, so sampling
+        another 20 at random is unlikely to do much better than this run
+        did. Whatever repairable work remains in the other ~150 branches
+        is probably concentrated in a few larger, harder-to-verify diffs
+        rather than spread evenly -- worth a session's time only if it
+        targets those specifically rather than repeating this sweep.
+      - >-
+        Also checked, this run: deployment and CI/CD are fully
+        owner-gated with nothing a session can do to progress them
+        further (`platform/ci/publish_surface.py` confirms zero
+        workflows publish on push to `main`; GitHub Actions has had no
+        runner since 2026-08-26). The Codex-on-Hetzner "spend the
+        built-in ChatGPT-plan quota on dev work" pipeline the owner
+        asked about is already fully built
+        (`gitops/agents/governor/`, `workers/worker.sh` +
+        `workers/mandate.md`, `codex-home.yaml` PVC) but deliberately
+        suspended pending three owner-only steps, already correctly
+        queued as decision_queue items `agent-runner-subscription-login`
+        (#2000) and `codex-governor-enable` (#1996) -- not duplicated
+        here.
+    mrr_end: null
