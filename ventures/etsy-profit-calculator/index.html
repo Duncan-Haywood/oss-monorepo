@@ -337,12 +337,20 @@
       const organic = rows.find((row) => row.offsiteAdRate === 0);
       const at15 = rows.find((row) => row.offsiteAdRate === 15);
       const verdict = document.getElementById('offsiteVerdict');
+      // A null cap means the order is already below $0.00 before any ad fee,
+      // so there is no ceiling to quote — saying "stays at or above $0.00
+      // until about 0.0%" would contradict the organic row printed beside it.
+      const ceiling = cap === null
+        ? ' No Offsite Ads rate keeps it at or above $0.00 — it is already below that at 0%.'
+        : Number.isFinite(cap)
+          ? ` The order stays at or above $0.00 leftover until about ${cap.toFixed(1)}%.`
+          : '';
       if (at15 && at15.stillProfitable) {
-        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads still leave ${money(at15.profit)}. The order stays profitable until about ${cap.toFixed(1)}%.`;
+        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads still leave ${money(at15.profit)}.${cap === null ? ceiling : ` The order stays profitable until about ${cap.toFixed(1)}%.`}`;
       } else if (at15 && !at15.stillProfitable) {
-        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads leave ${money(at15.profit)}. The order stays at or above $0.00 leftover until about ${cap.toFixed(1)}%.`;
+        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads leave ${money(at15.profit)}.${ceiling}`;
       } else {
-        verdict.textContent = `Organic keeps ${money(organic.profit)}. The order stays at or above $0.00 leftover until about ${cap.toFixed(1)}%.`;
+        verdict.textContent = `Organic keeps ${money(organic.profit)}.${ceiling}`;
       }
       const best = Math.max(...rows.map((r) => r.profit));
       document.getElementById('offsiteRows').replaceChildren(...rows.map((item) => {

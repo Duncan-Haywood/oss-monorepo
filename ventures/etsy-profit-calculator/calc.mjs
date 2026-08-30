@@ -89,9 +89,17 @@ export function maxAffordableOffsiteRate(input, minProfit = 0) {
   const floor = Number(minProfit);
   if (!Number.isFinite(floor)) throw new Error('Minimum profit must be a number');
   const organic = calculateOrder({ ...input, offsiteAdRate: 0 });
-  if (organic.revenue <= 0) return 0;
+  // Already under the floor before a single ad fee is charged, so no rate
+  // reaches it — not even 0%. Clamping to 0 here claimed 0% was affordable
+  // when it is not, and the caller then printed "stays at or above $0.00
+  // until Offsite Ads reach about 0.0%" directly beneath a row showing the
+  // order already below $0.00 at 0%. null is "no rate qualifies".
+  if (organic.profit < floor) return null;
+  // No revenue for a percentage fee to sit on, so the rate cannot move
+  // profit at all. The floor is already met above, so every rate clears it.
+  if (organic.revenue <= 0) return Infinity;
   const rate = (organic.profit - floor) / organic.revenue * 100;
-  if (!Number.isFinite(rate)) return 0;
+  if (!Number.isFinite(rate)) return null;
   return Math.max(0, rate);
 }
 
@@ -112,9 +120,11 @@ export function offsiteAdsNote(rows, maxRate) {
     const ahead = row.profitVsOrganic >= 0 ? 'more' : 'less';
     return ` ${row.label} take ${money(row.offsiteAdFee)} and leave ${money(row.profit)} — ${gap} ${ahead}.`;
   }).join('');
-  const cap = Number.isFinite(maxRate)
-    ? ` The order stays at or above $0.00 leftover until Offsite Ads reach about ${maxRate.toFixed(1)}%.`
-    : '';
+  const cap = maxRate === null
+    ? ' No Offsite Ads rate keeps this order at or above $0.00 — it is already below that before any ad fee.'
+    : Number.isFinite(maxRate)
+      ? ` The order stays at or above $0.00 leftover until Offsite Ads reach about ${maxRate.toFixed(1)}%.`
+      : '';
   return `${organicLine}${others}${cap}`;
 }
 
