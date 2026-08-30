@@ -24,6 +24,46 @@
   <label>Proposed price (optional)<input id="proposedPrice" type="number" min="0" step=".01" value="0"></label>
 </div></section><section><h2>Approval summary</h2><p>Copy this after checking quantities, schedule, and contract terms.</p><textarea id="summary" class="summary" aria-label="Change-order summary" readonly></textarea><button id="copy">Copy summary</button><span id="copyStatus" aria-live="polite"></span></section></div>
 <section class="result"><h2>Your price floor</h2><div class="hero" id="targetPrice">$0.00</div><p>Target price for the margin you entered.</p><dl><dt>Walk-away cost floor</dt><dd id="walkAwayPrice">$0.00</dd><dt>Loaded labor</dt><dd id="loadedLabor">$0.00</dd><dt>Materials + subcontractor</dt><dd id="otherCosts">$0.00</dd><dt>Overhead</dt><dd id="overheadCost">$0.00</dd><dt>Estimated margin</dt><dd id="margin">0.0%</dd></dl><div id="verdict" class="alert">Enter a proposed price to compare it with your floor.</div></section></main>
+<section id="faq">
+  <h2>Common questions</h2>
+
+  <h3>What is the difference between the walk-away price and the target price?</h3>
+  <p>The walk-away price is your cost floor &mdash; loaded labor plus materials, subcontractor cost, and
+    overhead, with zero profit. The target price divides that floor by one minus your target margin, so it
+    already has the margin built in. On the defaults (8 hours at $28/hr, 25% burden, $350 materials, 10%
+    overhead, 20% target margin), the floor is $693.00 and the target price is $866.25 &mdash; the gap
+    between them is exactly the profit a 20% margin requires.</p>
+
+  <h3>Why is loaded labor $280 for 8 hours at $28/hour, not $224?</h3>
+  <p>Because payroll burden is applied to the wage before multiplying by hours: hours &times; wage
+    &times; (1 + burden). At the default 25% burden that adds $56 &mdash; the employer-side taxes and
+    insurance cost of that labor, not profit. Change-order pricing built on the $224 bare-wage number
+    would be quietly working at a loss on every hour billed.</p>
+
+  <h3>Why does overhead apply to materials and subcontractor cost, not just labor?</h3>
+  <p>Overhead is a percentage of the whole direct cost &mdash; loaded labor plus materials plus
+    subcontractor cost &mdash; because the business absorbs its overhead on every dollar that flows
+    through a job, not only the payroll dollars. On the defaults that direct cost is $630.00, and 10%
+    overhead on that full figure is $63.00.</p>
+
+  <h3>What does &ldquo;above cost, but below your target margin&rdquo; mean?</h3>
+  <p>It means the proposed price covers your walk-away floor and leaves some profit, just not as much as
+    your target margin asks for. On the defaults, proposing $750 against the $693 floor leaves $57 of
+    profit &mdash; but margin is profit divided by price, not by cost, so $57 / $750 is 7.6%, short of a
+    20% target by 12.4 points. A price can clear cost by a comfortable-looking dollar amount and still miss
+    the margin you were aiming for.</p>
+
+  <h3>Why is target margin capped at 99%?</h3>
+  <p>The target price divides the cost floor by (1 &minus; target margin). At 100% that division is by
+    zero; the calculator caps the input at 99% so a mistyped margin produces a very large, clearly wrong
+    price instead of an error or an infinite one.</p>
+
+  <h3>Where is my data saved?</h3>
+  <p>Only in this browser's local storage, as a draft you can return to. Anonymous feature counts (that
+    you calculated, or copied a summary) are on by default and can be turned off with the button in the
+    footer; Do Not Track and Global Privacy Control disable them automatically. Nothing you type is
+    uploaded anywhere.</p>
+</section>
 <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, engineering, or construction advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Inputs stay in this browser. Anonymous feature counts are local and opt-out; DNT/GPC disables them. <button id="usageToggle">Disable local usage counting</button></footer>
 <script type="module">
 import {calculateChangeOrder,summaryText} from './calc.mjs';

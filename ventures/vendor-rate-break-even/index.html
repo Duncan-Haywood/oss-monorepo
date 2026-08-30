@@ -18,6 +18,38 @@
 </style></head><body><header><div class="kicker">Decision tool for service operators</div><h1>Does the vendor rate actually save you money?</h1><p>Compare your current cost with supplier discounts, subcontractor rates, or equipment leases at the job volume you really expect.</p><p><a href="./is-switching-vendors-worth-it.html">Is switching vendors worth it?</a></p></header>
 <main class="grid"><section class="card"><h2>Your current operation</h2><label>Jobs per month<input id="jobs" type="number" min="1" step="1" value="20"></label><label>Revenue per job<input id="revenue" type="number" min="0" step="1" value="500"></label><label>Current fixed cost / month<input id="baseFixed" type="number" min="0" step="1" value="0"></label><label>Current variable cost / job<input id="baseVariable" type="number" min="0" step="1" value="120"></label><div id="scenarioInputs"></div><div class="controls"><button id="add" type="button">Add scenario</button><button id="save" type="button">Save draft</button></div><label class="note"><input id="optout" type="checkbox"> Do not count anonymous local usage events</label></section>
 <section class="card"><div class="hero"><span>Best at this volume</span><strong id="best">Enter costs below</strong><span id="bestNote" class="note"></span></div><div class="results"><table><thead><tr><th>Option</th><th>Monthly cost</th><th>Cost / job</th><th>Savings / job</th><th>Break-even</th></tr></thead><tbody id="results"></tbody></table></div><p class="note">Break-even is an estimate based only on the fixed and per-job costs you enter. Review contracts, taxes, fuel, minimums, and service quality separately.</p></section></main>
+<section class="card" id="faq" style="margin-top:18px">
+  <h2>Common questions</h2>
+
+  <h3>What does &ldquo;break-even&rdquo; mean in the results table?</h3>
+  <p>The job volume at which a scenario's own fixed fee is fully paid back by the per-job amount it
+    saves you, compared with your current variable cost. On the defaults &mdash; a $100/month bulk
+    supplier fee that cuts your $120 variable cost to $90 &mdash; that $30/job saving pays back the fee
+    at 4 jobs, so &ldquo;4 jobs/mo&rdquo; is the threshold, not a forecast of your actual volume.</p>
+
+  <h3>Why doesn't break-even change when I edit &ldquo;Jobs per month&rdquo;?</h3>
+  <p>Because it isn't supposed to. Break-even only compares each scenario's fixed cost against the
+    per-job saving it offers &mdash; a fixed threshold of the deal itself. &ldquo;Jobs per month&rdquo;
+    instead sets the monthly cost and cost-per-job columns, which do move, and it decides how far past
+    (or short of) that fixed threshold your actual volume lands.</p>
+
+  <h3>Why does a scenario show &ldquo;Already cheaper&rdquo; instead of a job count?</h3>
+  <p>When a scenario's fixed cost is no higher than what you pay today and its per-job cost is lower, the
+    payback point is zero or negative &mdash; there is no volume threshold to clear because it costs less
+    from the first job. The default subcontractor scenario ($0 fixed, $115/job against your $120) is this
+    case: cheaper at any volume, including one job a month.</p>
+
+  <h3>Why does a scenario show &ldquo;Not cheaper&rdquo; instead of a job count?</h3>
+  <p>That means its per-job cost is equal to or higher than what you pay today, so no amount of volume
+    ever pays back its fixed fee &mdash; there is nothing to break even against. Check the &ldquo;Savings /
+    job&rdquo; column for that row: it will read zero or negative.</p>
+
+  <h3>Does the &ldquo;Revenue per job&rdquo; field change which option wins?</h3>
+  <p>No. It is recorded for your own reference but does not enter the cost, savings, or break-even math
+    &mdash; those compare only fixed cost, variable cost, and job volume. Revenue matters to whether the
+    job is worth doing at all; it has no bearing on which vendor is cheaper for a job you're already
+    doing.</p>
+</section>
 <footer class="note">
   <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
