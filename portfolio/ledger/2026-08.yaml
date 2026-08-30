@@ -35365,3 +35365,48 @@ entries:
         no dead links, faq-coverage.mjs unchanged at 168/168,
         faq-duplicate.mjs clean. Merged as #2301.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Sampled the 5 branches with no PR
+        (`session/consolidate-783-781`, `session/decision-queue-stale-
+        prs-777-731`, `session/remove-stale-local-site-studio-entry`,
+        `tmp/ssh-key-smoke`, `venture/vendor-change-watch`) with a two-dot
+        diff against current `main`: three had zero unique lines (already
+        superseded -- `decision-queue-stale-prs-777-731` and `vendor-
+        change-watch` outright, and `remove-stale-local-site-studio-entry`
+        because `main` already replaced that ask row with the more accurate
+        `local-site-studio-subtree-gate-crossing` entry rather than deleting
+        it outright); `tmp/ssh-key-smoke`'s merge-base is 936 commits and a
+        month behind `main`, and its SSH-runner-classify work is superseded
+        by the shipped self-hosted-runner path (#2021/#2022). Only
+        `session/consolidate-783-781` had real unique content: a 2026-08-24
+        session's own ledger record of consolidating #783/#781, written but
+        never pushed. Opened and merged as #2304 after validating the YAML
+        parsed (361 entries).
+      - >-
+        This run's brief specifically asked to prioritize CI/CD, Hetzner
+        deployment, marketing-material deployment, and standing up Codex CLI
+        on the Hetzner VM against its own subscription quota for unattended
+        dev work. Checked each against `portfolio/ledger/asks.yaml` rather
+        than re-deriving: all four trace to rows already fully built and
+        owner-blocked -- `actions-runners-unavailable` (self-hosted-runner
+        code shipped, needs a sealed PAT or a raised Actions spending limit;
+        reconfirmed live via the GitHub API, job 33339887764, `runner_id: 0`,
+        3s duration, as of 2026-08-30T22:43Z), `deploy-settings` /
+        `portfolio-site-hetzner-deploy` (the Pages artifact itself is done --
+        rebuilt and checked clean this session, 168 products, 496 pages, no
+        dead links -- blocked on the Pages flip or a scoped repo token), and
+        `codex-governor-enable` (a budget-governed Codex worker CronJob is
+        fully coded, tested, and `suspend: true` today; its note already
+        warns by name against the exact "log in with the personal ChatGPT
+        plan to use up its quota" shape this run's brief described, because
+        that path has no dollar ceiling and competes with the owner's own
+        interactive use -- the built alternative is a metered project API
+        key under a separate org with a hard spend cap). Implemented none of
+        the three: each needs a credential or account action only the owner
+        can take. No new decision-queue rows added; the existing ones
+        already carry this framing.
+    mrr_end: null
