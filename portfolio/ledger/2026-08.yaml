@@ -5,6 +5,60 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Zero open PRs at session start again, so the three-PR merge quota was
+        satisfied by an empty queue and the run went to product work. Confirmed
+        the deploy/CI-CD/Codex asks are still owner-gated and added nothing to
+        the decision queue -- #2307 recorded the same conclusion hours earlier.
+      - >-
+        Shipped #2308: a question-shaped guide page for the last nine published
+        tools that had none (equipment-rental-break-even, tender-radar,
+        tender-bid-readiness, construction-evidence-log, public-record-watch,
+        vendor-change-evidence, consent-change-record, npm-deployment-evidence,
+        repository-branch-hygiene). All nine were the evidence and procurement
+        tools -- the corner of the portfolio where a buyer is most likely to
+        arrive with a question rather than a product name, and the corner that
+        had no page answering one. Site went from 496 to 506 published pages.
+      - >-
+        The same PR fixed two whole-portfolio page tests that were already red
+        on `main` before the branch existed, verified by stashing and re-running.
+        Both were character-level and both fixes were to the copy, not the test.
+        `faq-visible`: visibleText() decodes only six entities, so `&mdash;` and
+        `&minus;` never match a literal dash, and a tag becomes a space, so
+        `<em>x</em>.` reads as "x ." -- three ventures affected. `ink`: two link
+        colours at 4.11:1 and 4.10:1, now #b0451c at 5.02:1. platform/pages went
+        from 768 pass / 2 fail to 770 / 0.
+      - >-
+        A content error surfaced while aligning that markup: contractor-bid-
+        readiness' JSON-LD placed the "next morning" after a 2099-01-01 deadline
+        at 2099-01-01T09:00, which is the deadline day itself. The visible copy
+        was right, so the JSON-LD now matches it rather than the other way round.
+      - >-
+        Shipped #2309: platform/pages/guide-coverage.mjs, the reporter for the
+        gap #2308 closed. Nothing previously reported a tool merging with no
+        secondary page -- check.mjs sees no dead link, clauses.mjs no missing
+        disclaimer, faq-coverage.mjs is satisfied by the entry page -- which is
+        precisely how nine of them accumulated in one corner unnoticed.
+        Reporting only, exit 0, never a gate: gating it would push sessions
+        toward filler pages that compete with the tool for its own query.
+      - >-
+        Learned, and worth not re-deriving: a `find -maxdepth 1` count of pages
+        per venture is wrong. It reported ai-engineering-academy as having no
+        secondary page when it ships six nested calculators, and #2308's
+        "known limitations" note repeated that error before #2309 corrected it.
+        guide-coverage.mjs reads the same page list the builder does; the
+        current reading is 168 of 168 surfaces covered.
+      - >-
+        Both PRs merged on local verification. Actions still has no runner --
+        job 99341392147 on this branch returned runner_id 0, runner_name "",
+        zero steps, 3 seconds -- so every check arrived red without running.
+        Ran instead: platform/pages 777/777, build 168 tools / 506 pages,
+        check.mjs no dead links, check_pages.mjs 507 pages sound, webcheck
+        22/22, clauses.mjs clean on all nine, and each touched venture's suite.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Zero open PRs at session start, so the mandate's three-PR merge quota
         was satisfied vacuously and the run went straight to product work
         rather than a third consecutive re-verification of the owner-blocked
