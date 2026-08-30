@@ -31986,3 +31986,31 @@ entries:
         `faq-visible`/`faq-coverage`/`faq-duplicate` all clean. Shipped and
         merged #2171.
     mrr_end: null
+  - venture: standby-generator-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued this session's FAQ-depth pass (same pattern as #2171 on
+        `water-heater-bid-calculator`). Live check before starting: fetched
+        `origin/main`, found #2173 (`pool-route-pricing`) merged by another
+        session in the interim -- unrelated venture, no overlap, rebased
+        cleanly.
+      - >-
+        `standby-generator-bid-calculator` was tied for thinnest FAQ in the
+        portfolio at 2 questions. Added a third grounded in `calc.mjs`'s
+        arithmetic: switching the default 15-foot fuel line from natural
+        gas to propane adds 2.1 labor hours and $475 in materials (LP
+        regulator kit, tank hookup, pricier pipe), about $974 more on the
+        bid ($6,106.00 to $7,080.12) -- with a note that the calculator does
+        not price the tank itself.
+      - >-
+        Used plain straight quotes throughout from the start this time,
+        having hit the curly-quote/HTML-entity JSON-LD-vs-visible-copy
+        mismatch on #2171. Verified locally (Actions runner outage
+        unchanged, not attempted on CI): venture suite 97/97 (95 existing +
+        2 new), full `platform/pages` suite 746/746, `build.mjs` +
+        `check.mjs` against a fresh dist (164 products, 480 pages, no dead
+        links), faq-visible/faq-coverage/faq-duplicate/clauses all clean.
+        Shipped and merged #2174.
+    mrr_end: null
