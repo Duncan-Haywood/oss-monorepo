@@ -34838,3 +34838,31 @@ entries:
         partial fix (`offsetUnits`) to its unfixed sibling two lines away,
         rather than a fresh line-by-line calculator sweep.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        A concurrent session opened #2273 within two minutes of this
+        session's #2269, fixing the identical `governor` RBAC over-grant
+        with a more thorough diff: #2269 kept a `create` verb on the theory
+        the governor's very first tick needs to create `governor-state`,
+        but #2273 pointed out `governor/state.yaml` already seeds that
+        ConfigMap in git -- the same pattern `prod/site-usage.yaml` already
+        uses and documents for the identical reason -- so the code path
+        never actually takes the create branch and the verb is avoidable
+        too. #2273 went conflicted the moment #2269 merged first (same
+        lines, same file). Rather than let it rot half-repaired, carried its
+        diff forward on top of current `main` as #2276 (merged, 116/116
+        `gitops/tests` passed) and closed #2273 pointing at it, after
+        `supersede_check.py 2273` returned SUPERSEDED against `main` post-
+        merge (it had returned NOT SUPERSEDED before #2276 landed, from a
+        stale local fetch -- re-ran after `git fetch origin main` and got
+        the true answer, which is the exact failure mode
+        `supersede_check.py`'s own README warns a session to check for).
+      - >-
+        Governor is still `suspend: true` / `"enabled": false` throughout
+        both PRs (owner-only, per `infra/OWNER_CHECKLIST.md`) -- neither
+        changed current cluster behavior, only the code path for when the
+        owner flips it.
+    mrr_end: null
