@@ -32405,3 +32405,62 @@ entries:
         carries all three asks. No owner action was available for a
         session to take on any of them.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Separate scheduled run, same brief (drain PRs first, then
+        prioritize CI/CD, Hetzner deployment, and Codex-on-Hetzner). Zero
+        open PRs at session start (`list_pull_requests` and
+        `search_pull_requests` both empty) -- quota vacuous, confirmed
+        independently of the sibling run recorded immediately above this
+        entry.
+      - >-
+        Independently re-derived the same CI/CD/Hetzner/Codex conclusion via
+        a different path -- `portfolio/ledger/decision_queue.py` and
+        `asks.yaml` directly, not `hosting/README.md` -- and reached the
+        same answer: `portfolio-site-hetzner-deploy` (#1999) and
+        `codex-governor-enable` (#1996) are fully built and both gated on an
+        owner-only credential/spend decision already queued (11 and 14 rows
+        respectively at read time). `asks.yaml`'s own note on
+        `codex-governor-enable` explicitly names this run's literal request
+        ("set up the codex cli to use up the built-in quota for dev work")
+        as the wrong shape (personal-plan login, no spend cap) versus the
+        already-designed metered-key or sealed-`CODEX_AUTH_JSON` path the
+        owner has yet to choose. Did not duplicate either row.
+      - >-
+        Product work: `vendor-change-evidence` was CLI-only (single-file
+        Python, `src/vendor_change.py`) with no way for a stranger to try it
+        without a clone -- same shape as `npm-deployment-evidence` before
+        its 2026-08-30 browser front end, which this follows structurally.
+        Shipped `index.html`/`app.js`/`evidence.js`/`usage.js`/`style.css`:
+        paste a before/after vendor-policy snapshot pair, get the identical
+        changed/unchanged/inconclusive verdict the CLI produces, parsed
+        entirely client-side (snapshots never uploaded). `evidence.js` ports
+        `vendor_change.py`'s `compare()` rules line-for-line so the two
+        surfaces cannot silently diverge. Added a worked-example button
+        using the venture's existing `examples/before.json` /
+        `after.json`, an aggregate-only opt-out `localStorage` usage
+        counter matching house style, Common Questions and
+        what-this-is-and-isn't sections, and a `static-page-in-repo` row in
+        `portfolio/usage/usage.yaml` separate from the existing `local-cli`
+        row per that file's one-row-per-surface rule.
+      - >-
+        Verified: `node --test` 22/22 in the venture (snapshot parsing,
+        compare rules, Markdown/JSON rendering, usage counter, page wiring);
+        `python3 -m unittest discover -s tests` 4/4 (the unmodified CLI
+        still passes unchanged); `platform/pages/build.mjs` + `check.mjs`
+        picked the new page up as product 166/166, 483 pages, no dead
+        links; `faq-coverage.mjs` 166/166; full `platform/pages` suite
+        746/746; `check_conflict_markers.py` and
+        `check_duplicate_symbols.py` clean; `portfolio/usage/
+        validate_usage.py` clean (179 products, 344 readings). Manually
+        exercised in a real browser via Playwright against the pre-installed
+        Chromium: worked example produces `changed`/`content_changed`, a
+        hand-typed identical pair produces `unchanged`, invalid JSON in
+        either box shows the visitor-facing error, and the Markdown
+        download fires with the expected filename. CI outage confirmed
+        still active (checked before merge, per CLAUDE.md's local-
+        verification rule) -- merged on local verification.
+    mrr_end: null
