@@ -3227,3 +3227,42 @@ test('the hub sitemap holds the hub and the categories, and nothing else', () =>
   // the shape every caller before this change relied on.
   assert.ok(renderHubSitemap(BASE).includes(`<loc>${BASE}</loc>`));
 });
+
+test('tools whose audience browses a section are filed in it', async () => {
+  // Each of these sat in the catch-all while the section its buyer reads was
+  // right there. The tool existed, the visitor was browsing the correct
+  // heading, and it was not under it — the quietest way a catalogue loses a
+  // product, because nothing 404s and every check still passes.
+  const placements = {
+    'cleaning-dilution-calculator': ['trades', 'trades-cleaning'],
+    'hvac-maintenance-contract-calculator': ['trades', 'trades-mep'],
+    'appliance-repair-quote-calculator': ['trades', 'trades-mep'],
+    // Airbnb vs Vrbo is two marketplaces' fee schedules on one booking, which
+    // is the marketplace section's job, not a service quote.
+    'str-host-payout-calculator': ['marketplace', null],
+    'notary-trip-quote': ['services', null],
+    'booth-rent-vs-commission': ['services', null],
+    'translator-project-quote': ['services', null],
+  };
+
+  for (const [slug, [category, subcategory]] of Object.entries(placements)) {
+    assert.equal(categoryFor(slug).id, category, `${slug} is not in ${category}`);
+    const sub = subcategoryFor(slug);
+    assert.equal(sub ? sub.id : null, subcategory, `${slug} is in the wrong sub-group`);
+  }
+});
+
+test('the catch-all holds only what no section claims', async () => {
+  const { surfaces } = await site();
+  const more = groupByCategory(surfaces).find((g) => g.category.id === 'more');
+
+  // Not a fixed list — new ventures land here until a rule claims them, which
+  // is the fallback working. The bound is what matters: a catch-all that grows
+  // back past a screenful means the taxonomy has stopped keeping up, which is
+  // exactly the state this change found it in (14 tools, six of them one
+  // coherent category).
+  assert.ok(
+    more.items.length <= 8,
+    `the catch-all has grown to ${more.items.length} tools — time for another category`,
+  );
+});

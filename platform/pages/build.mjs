@@ -245,7 +245,11 @@ const CATEGORY_RULES = [
     // section feeds into, so it belongs here for the same reason — landing in
     // the catch-all would hide the one page that answers "which of these?" from
     // the readers of all the pages that answer "how much on this one?".
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare)/.test(slug),
+    // `str-host` is an Airbnb-vs-Vrbo payout calculator: a host comparing two
+    // marketplaces' fee schedules on one booking, which is this section's exact
+    // job. It sat in the catch-all because the slug does not start with a
+    // storefront's name.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host)/.test(slug),
   },
   {
     id: 'trades',
@@ -259,7 +263,26 @@ const CATEGORY_RULES = [
     // payroll burden and overhead rate that every bid calculator below asks for.
     // Landing in the catch-all would have hidden it from exactly the readers who
     // meet those two fields.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate)/.test(slug),
+    // `cleaning-dilution`, `hvac-maintenance` and `appliance-repair` are trade
+    // work whose slugs end in something other than `bid-calculator`, so they
+    // landed in the catch-all — where a cleaning contractor reading "Cleaning,
+    // restoration & insulation" and an HVAC contractor reading "HVAC, plumbing
+    // & electrical" never saw them. The tool existed, its audience was browsing
+    // the right section, and it was not in it.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair)/.test(slug),
+  },
+  {
+    id: 'services',
+    title: 'Service business pricing & quotes',
+    blurb: 'Price a visit, a route, a booking, or a licence — for the service businesses that quote work without bidding a construction job.',
+    // These six were the coherent half of the catch-all: one-person and small
+    // service businesses (salon, photographer, mobile notary, pool route, event
+    // rental, translator) that all do the same job — turn time, travel and
+    // materials into a price for a customer — and none of which is a trade bid,
+    // a marketplace fee, or a back-office reconciliation. Grouped by an explicit
+    // slug list rather than a keyword, because what unites them is the buyer,
+    // and no substring names that.
+    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project)/.test(slug),
   },
   {
     id: 'logistics',
@@ -370,6 +393,14 @@ const CATEGORY_PAGE_COPY = {
       'Winning the work and getting paid for it are two different problems. These tools cover the second one: when the cash actually arrives, what a payment term costs you, and what a price change has to earn before it breaks even.',
     audience: 'small-business owners and operators',
   },
+  services: {
+    title: 'Free pricing calculators for service businesses',
+    description:
+      'Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time, materials and licence terms into a price you can hand a customer.',
+    intro:
+      'A service business quotes work without bidding a construction job, and the arithmetic is its own: travel time nobody bills, a route that has to cover the truck, a licence term that changes what the work is worth. These tools price that, one trade at a time.',
+    audience: 'small service businesses',
+  },
   more: {
     title: 'More free small-business calculators',
     description:
@@ -422,7 +453,7 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-cleaning',
       title: 'Cleaning, restoration & insulation',
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam)/.test(slug),
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam)/.test(slug),
     },
     {
       id: 'trades-roof',
@@ -440,7 +471,7 @@ const SUBCATEGORY_RULES = {
       // `security-camera` sits here as low-voltage electrical work: the people
       // who bid it are the electrical and structured-cabling trades, and it is
       // closer to a panel or EV-charger job than to anything in the other groups.
-      test: (slug) => /^(furnace|boiler|mini-split|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera)/.test(slug),
+      test: (slug) => /^(furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
