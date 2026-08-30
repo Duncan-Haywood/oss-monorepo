@@ -32119,3 +32119,62 @@ entries:
         the validation error on an invalid quantity, and no horizontal
         overflow.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped platform/ci/browser_checks.py (#2180): one command that
+        runs the six browser checks in platform/pages/ — journey, sweep,
+        contrast, roundtrip, presets, sideways. They need Playwright,
+        which is not a repo dependency, so no workflow has ever run them,
+        and with the runner outage they are the only guard left against a
+        page that renders and computes nothing.
+      - >-
+        The point of it is the sentinel. journey.mjs and sweep.mjs each
+        document the same trap — a server left from an earlier build keeps
+        the port, the second http.server exits "Address already in use",
+        and the run greens against the old tree; it cost a false clean
+        report on 2026-08-28. The tool writes a random token into the tree
+        under test and reads it back over HTTP before any browser starts,
+        so a stale origin is now a refusal with a named reason. It also
+        serves threaded, which is the README's own workaround for the
+        mirror defect (single-threaded http.server dropping requests and
+        producing phantom requestfailed findings).
+      - >-
+        Verified locally (runner outage unchanged, nothing attempted on
+        CI): platform/ci 249/249 unittest; platform/pages 746/746 node
+        --test; build.mjs+check.mjs 164 products / 480 pages, no dead
+        links; sweep.mjs 164/164 tools answered with no errors;
+        sideways.mjs 479 pages at 360px, none scroll sideways; a separate
+        165-page Chromium pass found zero console or page errors.
+        run_workflow_locally.py --for-changes selected 5 workflows, 4
+        passed; portfolio-validate.yml 38/42 run-steps, its 4 failures all
+        "No module named pytest" in this sandbox — installed pytest and
+        ran each in its own working-directory: 75 + 32 + 8 passed.
+        portfolio-pages.yml/deploy correctly held for write permission.
+      - >-
+        Learned, and not previously recorded: the Hetzner deploy artifact
+        is sound. Ran the exact in-cluster build from
+        gitops/prod/portfolio-site.yaml with
+        PAGES_BASE_URL=https://tools.marisstella.dev/ — both --out= and
+        --dist= parse as the manifest assumes, check.mjs exits 0, and the
+        output carries zero github.io references with 650 files stamped
+        tools.marisstella.dev including robots.txt's Sitemap line and
+        every canonical. Nobody had built under that base URL before. The
+        only remaining blocker is still the sealed read-only clone token.
+      - >-
+        Learned: the branch backlog holds no repairable work, and
+        supersede_check.py's line scan cannot say so. Swept 29 remote
+        branches with commits off main; 11 came back NOT SUPERSEDED and
+        every one checked was the same false positive — an old branch
+        whose few unmatched lines are comment wording while main has moved
+        far past it. Merging claude/funny-archimedes-7qv0f4 would delete
+        582,019 lines to add 977. Exit code stays 1, so nothing gets
+        wrongly closed, but a session reading only the verdict could think
+        there was work to merge. A "main is N lines ahead" line in the NOT
+        SUPERSEDED report would settle it in one glance.
+      - >-
+        Queue state at run start: zero open PRs. The standing mandate's
+        three-PR merge quota was unmeetable for that reason, not skipped.
+    mrr_end: null
