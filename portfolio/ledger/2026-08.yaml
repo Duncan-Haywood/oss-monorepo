@@ -31354,3 +31354,62 @@ entries:
         + `check.mjs` (164 products, 480 pages, no dead links). Shipped
         and merged #2142.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same recurring brief as the prior row (Hetzner CI/CD priority,
+        deployed marketing, Codex CLI on the built-in plan quota) --
+        re-checked rather than re-derived: `list_pull_requests` returned 0
+        open, and `gitops/agents/queue/deploy-cicd-readiness.yaml`
+        (priority 4, `delivery: agent`) is the standing item for exactly
+        this ask, already code-complete and owner-blocked (confirmed via
+        `portfolio/ledger/decision_queue.py` rows 10-12:
+        actions-runners-unavailable, agent-runner-subscription-login,
+        codex-governor-enable -- all three cite the same 2026-08-29
+        session this brief already reached). No duplicate ask added.
+      - >-
+        Picked that queue item's task: one concrete, finishable defect in
+        the delivery path. Found a real bug in
+        `gitops/ci/runner-entrypoint.sh`: the ephemeral runner's
+        EXIT/INT/TERM cleanup trap reused the registration-token to call
+        `config.sh remove`, but GitHub's registration-token and
+        remove-token endpoints are distinct and not interchangeable --
+        `config.sh remove` silently fails against the wrong token type,
+        swallowed by `|| true`, which would have left an orphaned runner
+        listed offline in the repo's Settings > Actions > Runners on the
+        abnormal-exit path (pod evicted before a job ever landed). Not
+        reachable today since the runner stack is still owner-gated
+        (`suspend: true` / `CI_RUNNER` unset), but would have bitten the
+        first time a pod got rescheduled after the owner flips it on.
+        Factored the token fetch into `fetch_token(kind)`, called once
+        per operation, and added
+        `test_runner_uses_a_separate_token_to_deregister` pinning both
+        endpoints and the removed reused-token call. Verified: `python3
+        -m pytest gitops/tests -q` (68/68, was 67), `bash -n` on the
+        script, and a standalone smoke test of the extracted parsing
+        logic against two mocked API responses (no live GitHub API call
+        possible from this sandbox -- egress to `api.github.com` docs and
+        most hosts is proxy-restricted). PR checks came back red in the
+        known 2-3s `runner_id: 0` outage signature, not a regression.
+        Shipped and merged #2145.
+      - >-
+        Checked 5 un-PR'd remote branches for the branch-to-PR
+        presumption (`session/consolidate-783-781`,
+        `session/decision-queue-stale-prs-777-731`,
+        `session/remove-stale-local-site-studio-entry`,
+        `tmp/ssh-key-smoke`, `venture/vendor-change-watch`). None carried
+        unique value worth a PR: two are 0-1 commits editing a
+        hand-maintained `decision-queue.md` that no longer exists on
+        `main` (the queue is now code-generated via `decision_queue.py`,
+        making both structurally obsolete); one is a 4-commit ledger
+        consolidation of PRs #783/#781 branched so far behind `main` that
+        replaying it would delete ~600K lines of since-added content, and
+        the consolidation's own subject (already-merged PRs) has no
+        remaining value to land; `tmp/ssh-key-smoke` is a 936-commit-behind
+        CI probe scratch branch from 2026-08-24; and
+        `venture/vendor-change-watch`'s one commit
+        (`34b47b90b`, "Fix ruff lint") diffs to nothing against `main` --
+        the fix is already present. No PRs opened for any of the five.
+    mrr_end: null
