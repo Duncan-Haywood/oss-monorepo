@@ -231,10 +231,11 @@ def test_delivery_reaches_the_worker_and_the_real_items_own_theirs() -> None:
     env = {e["name"]: e["value"] for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]}
     assert json.loads(env["QUEUE_ITEM_JSON"])["delivery"] == "agent"
 
-    # All three real items tell the agent to open its own PR and merge it, so
+    # All four real items tell the agent to open its own PR and merge it, so
     # the harness must not also fold and open one.
     for name in (
         "branch-pr-drain.yaml",
+        "deploy-cicd-readiness.yaml",
         "seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml",
     ):
@@ -272,32 +273,43 @@ def test_governor_queue_configmap_includes_all_real_items() -> None:
     kustomization = (AGENTS / "kustomization.yaml").read_text()
     for entry in (
         "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
+        "deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml",
         "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml=queue/product-feature-improvement.yaml",
     ):
         assert entry in kustomization
 
 
-def test_real_queue_items_are_priority_ordered_pr_drain_then_seo_then_features() -> None:
+def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_then_features() -> None:
     # pick_item always starts the single highest-priority enabled item and
-    # never round-robins (see governor.py::pick_item), so with three
+    # never round-robins (see governor.py::pick_item), so with four
     # permanently-enabled items only the top one ever actually runs until a
     # human reprioritizes or disables it in git. Landing existing branch/PR
-    # work and fixing discoverability metadata are cheaper and more bounded
-    # than open-ended feature work, so they must stay ahead of it -- this
-    # pins that ordering against an accidental priority edit.
+    # work comes first; deploy-cicd-readiness.yaml's own header comment
+    # puts it "below branch-pr-drain (5), because landing work that already
+    # exists still comes first, and above the two content items" -- fixing
+    # discoverability metadata and open-ended feature work are cheaper and
+    # more bounded than keeping the delivery path code-complete, so they
+    # must stay behind it. This pins that four-way ordering against an
+    # accidental priority edit to any one item.
     items = {
         raw["id"]: raw["priority"]
         for raw in (
             g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text())
             for name in (
                 "branch-pr-drain.yaml",
+                "deploy-cicd-readiness.yaml",
                 "seo-discoverability-audit.yaml",
                 "product-feature-improvement.yaml",
             )
         )
     }
-    assert items["branch-pr-drain"] > items["seo-discoverability-audit"] > items["product-feature-improvement"]
+    assert (
+        items["branch-pr-drain"]
+        > items["deploy-cicd-readiness"]
+        > items["seo-discoverability-audit"]
+        > items["product-feature-improvement"]
+    )
 
 
 def test_effective_window_budget_leaves_interactive_slack() -> None:
