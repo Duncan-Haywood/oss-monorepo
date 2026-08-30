@@ -49,6 +49,8 @@ import {
   truncate,
   injectDiscoveryTags,
   SOCIAL_CARD_FILE,
+  socialCardFileFor,
+  ALL_CATEGORIES,
   SITE_NAME,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
@@ -1208,6 +1210,23 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('something-brand-new').id, 'more');
 });
 
+test('every category names a distinct share-card file and accent colour', () => {
+  assert.equal(ALL_CATEGORIES.length, 7, 'the six named sections plus the catch-all');
+  const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
+  assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
+  const accents = ALL_CATEGORIES.map((category) => category.accent);
+  assert.ok(accents.every((hex) => /^#[0-9a-f]{6}$/i.test(hex)), 'every accent is a real hex colour');
+  assert.equal(new Set(accents).size, accents.length, 'no two categories share an accent');
+});
+
+test("socialCardFileFor names a file under the category's own id, not its title", () => {
+  // The id is what stays stable across a rename; the title is prose that gets
+  // rewritten. Filing the card under the title would break the link the first
+  // time someone edited a heading.
+  assert.equal(socialCardFileFor('trades'), 'social-card-trades.png');
+  assert.equal(socialCardFileFor('more'), 'social-card-more.png');
+});
+
 // These four sat in "More free tools" — the section a visitor reads last, if at
 // all — while the category they belong to was one scroll above them. A seller
 // looking for the TikTok Shop fee tool had no reason to keep scrolling past the
@@ -1572,6 +1591,46 @@ test('the share card is a PNG at the size a wide card is cropped to', () => {
   assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
   // Under 600x315 Facebook drops the image entirely.
   assert.ok(SOCIAL_CARD_WIDTH >= 600 && SOCIAL_CARD_HEIGHT >= 315);
+});
+
+test('a colour argument changes the field the card is drawn on', () => {
+  // Two categories, two visibly different cards -- this is the whole point of
+  // giving `renderSocialCard` a colour: a scraper that renders both should not
+  // produce the same image.
+  const teal = renderSocialCard('#12594a');
+  const amber = renderSocialCard('#5c4412');
+  assert.notDeepEqual(teal, amber);
+  // Both are still well-formed PNGs at the same fixed size -- only the field
+  // colour was asked to change, not the geometry a scraper crops to.
+  for (const png of [teal, amber]) {
+    assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    assert.equal(png.readUInt32BE(16), SOCIAL_CARD_WIDTH);
+    assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
+  }
+});
+
+test('omitting the colour argument reproduces the original site-wide card', () => {
+  // Every existing caller of `renderSocialCard()` -- the hub, the About page --
+  // must keep getting exactly what they got before this parameter existed.
+  assert.deepEqual(renderSocialCard(), renderSocialCard('#12594a'));
+});
+
+test('injectDiscoveryTags points a page at its own card when one is given', () => {
+  const page = '<html><head><title>Flat Roof</title></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, {
+    canonical: CANONICAL,
+    baseUrl: BASE,
+    title: 'Flat Roof Bid Calculator',
+    cardFile: 'social-card-trades.png',
+  });
+  assert.ok(out.includes(`<meta property="og:image" content="${BASE}social-card-trades.png">`));
+  assert.ok(!out.includes(`content="${BASE}${SOCIAL_CARD_FILE}"`));
+});
+
+test('injectDiscoveryTags falls back to the site-wide card with no cardFile', () => {
+  const page = '<html><head><title>About</title></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'About' });
+  assert.ok(out.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
 });
 
 test('every published page names a canonical that resolves to its own URL', async () => {
@@ -3143,6 +3202,59 @@ test('a category page carries the tags that make it findable', async () => {
   // level down rather than six sibling front pages.
   assert.equal(ld.breadcrumb.itemListElement.length, 2);
   assert.equal(ld.breadcrumb.itemListElement[1].item, url);
+});
+
+test('every category page points at its own tinted share card, and the file exists', async () => {
+  const { outDir, surfaces } = await site();
+  for (const { category } of groupByCategory(surfaces)) {
+    const html = await fs.readFile(
+      path.join(outDir, categoryPagePath(category.id), 'index.html'),
+      'utf8',
+    );
+    const expected = `${BASE}${socialCardFileFor(category.id)}`;
+    assert.ok(
+      html.includes(`<meta property="og:image" content="${expected}">`),
+      `${category.id} page does not point at its own card`,
+    );
+    assert.ok(
+      await exists(path.join(outDir, socialCardFileFor(category.id))),
+      `${socialCardFileFor(category.id)} was never written`,
+    );
+  }
+  // Distinct categories must not collapse onto the same bytes on disk --
+  // that would defeat the whole point of tinting per category.
+  const cardBuffers = await Promise.all(
+    ALL_CATEGORIES.map((category) => fs.readFile(path.join(outDir, socialCardFileFor(category.id)))),
+  );
+  const hexes = cardBuffers.map((buf) => buf.toString('hex'));
+  assert.equal(new Set(hexes).size, hexes.length, 'two categories rendered an identical card');
+});
+
+test("a tool page's share card matches the category it is actually filed under", async () => {
+  const { outDir, surfaces } = await site();
+  // One tool per category, cross-checked against `categoryFor` itself rather
+  // than hard-coded, so a future re-filing cannot make this test lie.
+  const samples = ['ebay-fee-calculator', 'flat-roof-bid-calculator', 'cash-runway-planner'].filter(
+    (slug) => surfaces.some((s) => s.slug === slug),
+  );
+  assert.ok(samples.length > 0, 'none of the sample slugs exist in this build');
+  for (const slug of samples) {
+    const html = await fs.readFile(path.join(outDir, slug, 'index.html'), 'utf8');
+    const expected = `${BASE}${socialCardFileFor(categoryFor(slug).id)}`;
+    assert.ok(
+      html.includes(`<meta property="og:image" content="${expected}">`),
+      `${slug} does not point at ${expected}`,
+    );
+  }
+});
+
+test('the hub and About page keep the generic site-wide card, not a category one', async () => {
+  const { outDir } = await site();
+  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  const about = await fs.readFile(path.join(outDir, 'about', 'index.html'), 'utf8');
+  for (const html of [hub, about]) {
+    assert.ok(html.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
+  }
 });
 
 test('a category page carries the disclaimer and a route back', async () => {
