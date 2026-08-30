@@ -30698,3 +30698,46 @@ entries:
         actions-runners-unavailable, codex-governor-enable,
         agent-runner-subscription-login); no duplicate ask added.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Investigated a list of 13 ventures flagged as missing usage.mjs
+        local usage-tracking (cam-reconciliation-check,
+        cash-runway-planner, change-order-margin-calculator,
+        chargeback-evidence-packet, commercial-photo-license-calculator,
+        construction-evidence-log, freelance-retainer-calculator,
+        grant-reporting-tracker, no-show-fee-calculator,
+        payment-reconciliation-workbench, repository-branch-hygiene,
+        sponsor-ready, tender-bid-readiness). The premise didn't hold for
+        any of the 13 on inspection: each already ships compliant, tested
+        usage tracking, just not as a top-level usage.mjs file --
+        sponsor-ready has usage.js (same shape, different extension);
+        cam-reconciliation-check, change-order-margin-calculator,
+        chargeback-evidence-packet, and tender-bid-readiness track inline
+        in index.html already honoring doNotTrack/globalPrivacyControl;
+        cash-runway-planner, commercial-photo-license-calculator,
+        construction-evidence-log, freelance-retainer-calculator,
+        no-show-fee-calculator, and payment-reconciliation-workbench keep
+        it in app.mjs/app.js or src/usage.mjs; repository-branch-hygiene is
+        a CLI tool whose tested --usage-log flag is the right shape for a
+        script. A repo-wide scan (grep for
+        doNotTrack/globalPrivacyControl/usage-log across every file) of
+        all 159 ventures with an index.html found exactly one real gap:
+        grant-reporting-tracker's opt-in usage checkbox recorded events
+        without honoring DNT/GPC, unlike every sibling implementation, and
+        its README's event list (reviewed/exported only) didn't match what
+        the page actually tracks (grant_added, reviewed, sample_loaded,
+        exported too). Fixed both in #2109 and merged after local
+        verification: node --test in the venture (10/10 pass), portfolio/
+        usage/validate_usage.py (177 products, 341 readings, valid), and
+        platform/pages build.mjs + check.mjs (164 products, 479 pages, no
+        dead links). CI on the PR showed the documented metered-minutes
+        outage signature (runner_id 0, ~3s duration on ubuntu-latest across
+        all 7 check runs), confirmed before merging on local verification
+        alone. Did not refactor the other 12 ventures' working, tested
+        tracking into a different file shape for naming consistency --
+        that would add regression risk on live products for no behavior
+        change.
+    mrr_end: null
