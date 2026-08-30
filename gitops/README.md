@@ -73,8 +73,8 @@ names, so the apex keeps whatever serves it today.
 DNS is already done: `tools.marisstella.dev` already resolves to
 `89.167.29.39` (verified 2026-08-29 — `marisstella.dev`'s existing
 wildcard `A/*` record already covers this subdomain, no new record
-needed). Two things remain, both owner actions. Until they land Argo
-syncs the manifests and the pods crash-loop on the missing secret,
+needed). **One thing remains**, and it is an owner action. Until it lands
+Argo syncs the manifests and the pods crash-loop on the missing secret,
 which is the intended fail-closed state.
 
 1. **The clone token.** The repository is private, so the init container
@@ -82,12 +82,30 @@ which is the intended fail-closed state.
    repository with **Contents: Read-only** and nothing else, seal it, and
    add it to `prod/kustomization.yaml` — full instructions in
    `prod/secrets/portfolio-repo-token.template.yaml`.
-2. **A real ACME contact.** `platform/cert-manager/issuer.yaml` still
-   carries `replace-me@duncanhaywood.dev`. Let's Encrypt will refuse to
-   register that address, so TLS cannot issue until it is a real mailbox.
-   Left as a placeholder here on purpose: which address to hand an
-   external certificate authority is the owner's to choose, not an
-   agent's to guess.
+
+**The ACME contact is no longer on this list (changed 2026-08-30.)** It
+used to be item 2: both ClusterIssuers carried
+`replace-me@duncanhaywood.dev`, and replacing it was described here as an
+owner action blocking TLS. It never needed to be one. An ACME account
+contact is optional — RFC 8555 §7.3 makes `contact` optional and
+cert-manager's `email` field follows — so
+`platform/cert-manager/issuer.yaml` now ships with no `email` at all and
+registers normally.
+
+The reasoning that kept the placeholder ("which address to hand an
+external certificate authority is the owner's to choose, not an agent's
+to guess") still stands, and omitting the field honours it: declining to
+name an address is not the same as guessing one. The placeholder itself
+was the only option that satisfied nobody — it either blocks issuance
+outright or files expiry warnings at a mailbox nobody reads.
+
+What is given up is Let's Encrypt's expiry-warning email. cert-manager
+renews at two-thirds of the certificate lifetime without it. If the owner
+wants those warnings, adding `email:` back to both issuers is a one-line
+change each that cert-manager applies by updating the existing account
+registration — no reissue, no downtime, and it can happen long after the
+site is live. `gitops/tests/test_manifests.py` pins the property that
+matters: an address here may be real or absent, never a placeholder.
 
 Then, once a staging certificate has issued: **flip the issuer.** The
 Ingress ships pointed at `letsencrypt-staging` deliberately — Argo syncs

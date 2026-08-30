@@ -665,23 +665,30 @@ decisions:
   exposure: credential
   opened: "2026-08-29"
   action: >-
-    Two owner steps remain, typed out with a verification command each
-    under "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md`
-    (the rationale for each is in `gitops/README.md`): (1) mint a
-    fine-grained GitHub token scoped to this one repository with
-    Contents:Read-only and nothing else, then seal it into
-    `prod/kustomization.yaml` per
+    ONE owner step remains, typed out with a verification command under
+    "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md` (the
+    rationale is in `gitops/README.md`): mint a fine-grained GitHub token
+    scoped to this one repository with Contents:Read-only and nothing
+    else, then seal it into `prod/kustomization.yaml` per
     `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
-    private, so the in-cluster clone cannot be anonymous); (2) replace the
-    placeholder `replace-me@duncanhaywood.dev` in
-    `platform/cert-manager/issuer.yaml` with a real mailbox Let's Encrypt
-    can register. The DNS step this row used to list is already
-    satisfied and needs no action: `tools.marisstella.dev` already
-    resolves to `89.167.29.39` (verified 2026-08-29 with `getent hosts
-    tools.marisstella.dev`) -- `marisstella.dev`'s existing wildcard
-    `A/*` record already covers the subdomain. The two remaining steps
-    are all that stand between the portfolio and a live site; after them
-    it is reachable on a Let's Encrypt *staging* certificate, which
+    private, so the in-cluster clone cannot be anonymous). Both of the
+    other steps this row used to list are gone and need no action. DNS:
+    `tools.marisstella.dev` already resolves to `89.167.29.39` (verified
+    2026-08-29 with `getent hosts tools.marisstella.dev`) --
+    `marisstella.dev`'s existing wildcard `A/*` record already covers the
+    subdomain. ACME contact: dropped 2026-08-30. This row used to ask for
+    a real mailbox to replace `replace-me@duncanhaywood.dev`, on the
+    stated grounds that Let's Encrypt would refuse to register the
+    placeholder. An ACME account contact is optional (RFC 8555 makes
+    `contact` optional and cert-manager's `email` follows), so
+    `platform/cert-manager/issuer.yaml` now omits `email` entirely and
+    registers normally -- no address to choose, nothing to wait on.
+    Adding a real one later, purely to receive Let's Encrypt's expiry
+    warnings, is a one-line change per issuer that cert-manager applies by
+    updating the existing account registration; it is optional and it does
+    not block anything. That single remaining step is all that stands
+    between the portfolio and a live site; after it the site is
+    reachable on a Let's Encrypt *staging* certificate, which
     browsers warn about. The last step -- flipping the Ingress annotation
     from `letsencrypt-staging` to `letsencrypt-prod` and updating the
     test that pins it -- is an ordinary code change, not an owner action:

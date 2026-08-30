@@ -366,3 +366,81 @@ def test_agents_app_does_not_reset_governor_state() -> None:
     assert "RespectIgnoreDifferences=true" in app["spec"]["syncPolicy"]["syncOptions"]
     state = yaml.safe_load((AGENTS / "governor" / "state.yaml").read_text())
     assert state["metadata"]["name"] == "governor-state"
+
+
+def _cluster_issuers() -> list[dict]:
+    path = ROOT / "platform" / "cert-manager" / "issuer.yaml"
+    return [d for d in yaml.safe_load_all(path.read_text()) if d and d["kind"] == "ClusterIssuer"]
+
+
+def test_acme_issuers_hand_no_placeholder_address_to_a_certificate_authority() -> None:
+    # An ACME contact is optional (RFC 8555 makes `contact` optional and
+    # cert-manager's `email` follows), so the issuers ship without one rather
+    # than with a placeholder. The placeholder was the worst of the three
+    # options: it either blocks issuance outright or routes expiry warnings to
+    # a mailbox nobody reads, and it put an owner action on the critical path
+    # to a live site for neither benefit.
+    #
+    # A real address is welcome here later. What must never come back is a
+    # made-up one, so this pins the property (no placeholder) rather than the
+    # current value (no email at all).
+    placeholders = ("replace-me", "change-me", "changeme", "example.com", "example.org", "@localhost")
+    issuers = _cluster_issuers()
+    assert issuers, "expected the staging and prod ClusterIssuers"
+    for issuer in issuers:
+        email = issuer["spec"]["acme"].get("email")
+        if email is None:
+            continue
+        lowered = email.lower()
+        assert "@" in lowered, f"{issuer['metadata']['name']}: {email!r} is not an address"
+        for token in placeholders:
+            assert token not in lowered, f"{issuer['metadata']['name']} still carries a placeholder: {email!r}"
+
+
+def test_acme_issuers_start_on_staging_and_offer_prod() -> None:
+    by_name = {i["metadata"]["name"]: i for i in _cluster_issuers()}
+    assert set(by_name) == {"letsencrypt-staging", "letsencrypt-prod"}
+    assert "acme-staging-v02" in by_name["letsencrypt-staging"]["spec"]["acme"]["server"]
+    assert "acme-staging" not in by_name["letsencrypt-prod"]["spec"]["acme"]["server"]
+    # HTTP-01 through ingress-nginx is the only solver this cluster can serve;
+    # a DNS-01 solver would need a provider credential nothing here holds.
+    for issuer in by_name.values():
+        solvers = issuer["spec"]["acme"]["solvers"]
+        assert [s["http01"]["ingress"]["class"] for s in solvers] == ["nginx"]
+
+
+def test_portfolio_site_build_uses_flags_the_build_scripts_accept() -> None:
+    # The site is built inside the pod by a shell command in the manifest, not
+    # by a script in the repo, so nothing else makes the manifest's command
+    # line and the build scripts' actual argument parsing move together. If
+    # `build.mjs` renamed `--out=` the only symptom would be prod pods
+    # crash-looping after the owner seals the clone token — the one moment
+    # nobody wants to be debugging flag names.
+    site = _portfolio_site()
+    build = [
+        c
+        for c in site["Deployment"]["spec"]["template"]["spec"]["initContainers"]
+        if c["name"] == "build"
+    ][0]
+    script = build["args"][0]
+    # Comments inside the script mention the flags by name, so match the
+    # command lines only — otherwise a renamed flag still "passes" on the
+    # strength of the comment that documents the old spelling.
+    commands = [
+        line.strip()
+        for line in script.splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    ]
+
+    for source, flag in (("pages/build.mjs", "--out="), ("pages/check.mjs", "--dist=")):
+        invocations = [c for c in commands if source in c]
+        assert invocations, f"the manifest no longer runs platform/{source}"
+        for invocation in invocations:
+            assert flag in invocation, f"the manifest no longer passes {flag}: {invocation!r}"
+        text = (REPO / "platform" / source).read_text()
+        assert flag in text, f"{source} does not parse {flag} that the manifest passes"
+
+    # Both scripts are run bare by `node`, so the build stage must stay
+    # dependency-free: there is no npm install step in the pod, and adding one
+    # would need network egress the NetworkPolicy does not grant this pod.
+    assert "npm install" not in script and "npm ci" not in script
