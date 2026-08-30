@@ -627,3 +627,9 @@ test("calculator page classifies the typed buy cost against the zero-profit ceil
   assert.match(scriptSource, /buyCostCheck/);
   assert.match(scriptSource, /sourcing_check_used/);
 });
+
+test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
+  assert.match(html, /id="buyCostStatus"/);
+  assert.match(scriptSource, /buyCostCheck/);
+  assert.match(scriptSource, /sourcing_check_used/);
+});

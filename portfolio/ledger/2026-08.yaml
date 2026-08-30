@@ -33520,3 +33520,55 @@ entries:
         GitHub Actions is still down (runner outage, unrelated to this
         change).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run whose brief re-prioritized CI/CD, deployment, Hetzner
+        marketing material, and the Codex-on-Hetzner worker. 0 open PRs at
+        session start; re-confirmed rather than re-derived the standing
+        blockers (`publish_surface.py` still reports nothing published on a
+        push to `main`; the Hetzner k3s deploy still waits on the one sealed
+        clone-token secret; the Codex governor CronJob still reads
+        `suspend: true` / `"enabled": false`, per `codex-governor-enable` in
+        `asks.yaml` -- all three fully built, all three owner-only to
+        unblock, none of it re-asked here). Fully unshallowed the clone
+        first (`git rev-parse --is-shallow-repository` was true) before
+        trusting any branch-ahead count, per this file's own warning. Checked
+        all 46 branches carrying commits not on `main` (not just a sample):
+        every one is either a pure ancestor of `main` already or, for the
+        three least-stale, a ledger-only or report-only commit whose content
+        already merged (`#1996`, `#2039`) -- none opened as a new PR.
+      - >-
+        Picked up the one concrete follow-up a same-day earlier entry left
+        unclaimed: "125 of 168 titles are over the ~60-character title
+        budget ... per-venture copywriting, not builder work." Confirmed
+        each long title followed `Name | differentiator` with the
+        differentiator existing only in `<title>` -- not duplicated in the
+        page's `<h1>`, meta description, or JSON-LD `name` -- so a mechanical
+        cut at the separator would have deleted real copy rather than
+        tightened it. Hand-wrote a tight replacement per venture, keeping the
+        exact canonical product name plus a short differentiator.
+      - >-
+        First pass silently dropped a word from the canonical name on 6
+        ventures (e.g. "Automatic Driveway Gate" -> "Driveway Gate", "EV
+        Charger **Installation**" -> "EV Charger") and swapped "and" for "&"
+        on 2 more; the ventures' own `page.test.mjs`/`html.test.mjs` suites
+        caught every one of these by asserting the exact canonical name, so
+        this is a case where per-venture tests earned their keep against a
+        catalogue-wide copy pass. Fixed all 7 (DoorDash included) in the same
+        commit, and updated 5 tests that additionally pinned an exact old
+        differentiator phrase, the same way #2217 updated its own tests for
+        its description rewrite. Verified: full venture suite 11998/11998
+        pass (rebased onto `main`, which moved once during the session);
+        rebuilt the real 168-tool site and re-measured all 163 venture
+        titles -- over-budget 125 -> 0, zero duplicates, `check.mjs` reports
+        168 products, 485 pages, no dead links. Merged as #2223 (squash)
+        after local verification; GitHub Actions is still down (runner
+        outage, confirmed via `runner_id: 0` on this session's own PR).
+      - >-
+        Left alone deliberately: 269 of 483 descriptions still end on a
+        clause cut rather than a full sentence, per the same prior entry's
+        note -- per-venture copywriting, not a mechanical fix.
+    mrr_end: null

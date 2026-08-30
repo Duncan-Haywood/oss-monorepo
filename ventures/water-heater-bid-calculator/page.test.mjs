@@ -8,7 +8,7 @@ const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
 
 test('the landing page names the search phrase and refuses a code opinion', () => {
   assert.match(html, /Water Heater Replacement Bid Calculator/);
-  assert.match(html, /How Much to Charge to Replace a Water Heater/);
+  assert.match(html, /Tank vs Tankless/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /FAQPage/);
   assert.match(html, /not plumbing, electrical, engineering, code/);

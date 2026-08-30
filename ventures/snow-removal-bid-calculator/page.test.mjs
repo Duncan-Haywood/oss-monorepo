@@ -7,7 +7,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /Price the winter, not the driveway/);
-  assert.match(html, /<title>Snow Removal Bid Calculator \| Per-Push vs Seasonal Contract Price<\/title>/);
+  assert.match(html, /<title>Snow Removal Bid Calculator — Per-Push vs Seasonal<\/title>/);
   assert.match(html, /meta name="description"/);
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /FAQPage/);

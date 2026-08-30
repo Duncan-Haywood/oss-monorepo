@@ -7,7 +7,7 @@ const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
 
 test('the landing page names the search phrase and refuses a code opinion', () => {
   assert.match(html, /EV Charger Installation Bid Calculator/);
-  assert.match(html, /How Much to Charge to Install a Level 2 EVSE/);
+  assert.match(html, /Level 2 EVSE/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /FAQPage/);
   assert.match(html, /not electrical, engineering, code/);

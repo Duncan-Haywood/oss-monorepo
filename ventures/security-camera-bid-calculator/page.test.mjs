@@ -10,7 +10,7 @@ const script = /<script type="module">([\s\S]*?)<\/script>/.exec(html)[1];
 
 test('the landing page names the search phrase and refuses an engineering opinion', () => {
   assert.match(html, /Security Camera Installation Bid Calculator/);
-  assert.match(html, /How Much to Charge to Install CCTV/);
+  assert.match(html, /<title>[^<]*CCTV Storage/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /FAQPage/);
   assert.match(html, /SoftwareApplication/);
