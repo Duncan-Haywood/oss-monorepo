@@ -1654,6 +1654,18 @@ test("nextCheaperWeightLb steps into the previous fulfillment band", () => {
   assert.throws(() => nextCheaperWeightLb("envelope", 1), /Unknown size tier/);
 });
 
+test("nextCheaperWeightLb heavier than every listed band still steps only one band down", () => {
+  // 10 lb (160 oz) is priced by defaultFulfillmentFee's per-pound formula,
+  // above every entry in STANDARD_WEIGHT_BAND_OZ (top entry is 80 oz / 5 lb).
+  // The next cheaper stop is 5 lb (the top of that heaviest listed band,
+  // where the fee flattens back to $6.44) — not 3 lb, which would silently
+  // skip the 5 lb band a shipper could reach with a much smaller trim.
+  assert.equal(nextCheaperWeightLb("large_standard", 10), 5);
+  assert.equal(nextCheaperWeightLb("large_standard", 20), 5);
+  // Exactly at the heaviest listed band still steps down one band, as before.
+  assert.equal(nextCheaperWeightLb("large_standard", 5), 3);
+});
+
 test("compareSizeTierPackaging: default 8×6×2 box drops a tier by flattening to 0.75 in", () => {
   const comparison = compareSizeTierPackaging({
     salePrice: 29.99,
