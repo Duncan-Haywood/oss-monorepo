@@ -25,6 +25,18 @@ prompt: |
   one already being worked by another agent this run -- check for an
   open PR on that venture first and skip it if one exists.
 
+  The largest measured gap is FAQ content, and there is a tool for it:
+  `node platform/pages/faq-coverage.mjs` names every entry page with no
+  question-shaped heading, so `build.mjs` derives no `FAQPage` schema for
+  it. Picking one of those pages is usually the highest-value choice
+  here. Write a "Common questions" section of `<h3>`-and-`<p>` pairs
+  answering what a real buyer in that niche would actually ask, with the
+  answers derived from what that venture's own `calc.mjs` does -- the
+  real starting rates, hours, and thresholds, quoted accurately. Do not
+  hand-write a `FAQPage` JSON-LD block beside it: `build.mjs` derives the
+  schema from the visible copy, and that is what keeps the two from
+  drifting apart.
+
   Fix the gaps for that one venture: real search phrases a niche user
   would type, accurate JSON-LD, working Open Graph tags. Do not fabricate
   traction, testimonials, or benchmarks. Verify the change with

@@ -50,6 +50,43 @@ Do not close a PR as "already on main" without running
 `python3 portfolio/ledger/supersede_check.py <pr-number>`. Exit 0 is the only
 proof that the close destroys nothing.
 
+## Deployment and CI/CD count as product work
+
+A finished tool nobody can reach has not shipped. Work that moves the portfolio
+toward *running in public* ranks with feature work here, not below it:
+
+- **Deployment.** The portfolio's own delivery path is GitOps: Argo CD on the
+  hel1 cluster syncs `gitops/` from `main`, so a correct manifest merged to
+  `main` *is* the deploy. `gitops/README.md` is the map and
+  `gitops/prod/portfolio-site.yaml` is the live product site. You cannot reach
+  the cluster and must not try; you change what it syncs.
+- **CI/CD.** The checks are the only thing standing between a stale branch and
+  a silent revert. Repairing a broken workflow, or the self-hosted runner stack
+  in `gitops/ci/`, protects every future merge.
+- **Owner-blocked is not agent-blocked.** Several steps here need a credential
+  or an account only the owner can supply, and they are already written up in
+  `infra/OWNER_CHECKLIST.md` and `portfolio/ledger/decision_queue.py`. Do the
+  code half completely, leave the manifest fail-closed, and name the exact
+  remaining owner step. Never seal, invent, or work around a secret, and never
+  add a duplicate ask to the queue.
+
+## Getting it in front of people
+
+Distribution here is organic only: search, AI answers, and useful public
+content. There is no ad budget and no outreach automation, so the reachable
+work is on the product surface itself — clear positioning, honest landing copy,
+question-shaped FAQ content that both search engines and AI assistants can
+quote, structured data, `sitemap.xml`, `robots.txt`, `llms.txt`, share cards,
+and internal links between related tools. `platform/pages/build.mjs` derives
+most of that from each venture's own visible copy, so improve the copy and the
+metadata follows; do not hand-write a schema block beside it.
+
+Two limits are absolute. Marketing claims must be true — never invent traction,
+testimonials, benchmarks, endorsements, or user counts. And never publish
+outward: no posting to communities, no submitting listings, no registering
+accounts. Building the asset is yours; putting the portfolio's name somewhere
+public is the owner's.
+
 ## Verifying
 
 CI in this repository is unreliable and you must not read it naively:
