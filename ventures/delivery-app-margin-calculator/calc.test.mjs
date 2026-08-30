@@ -113,6 +113,32 @@ test("compareChannels ranks by profit and reports the dine-in gap", () => {
   assert.ok(comparison.spread > 0, "paths do not all leave the same");
 });
 
+test("compareChannels reports the commission rate that would match dine-in, at the current price", () => {
+  const comparison = compareChannels(CHANNEL_PRESETS, shared);
+  const dineIn = comparison.results.find((result) => result.id === "dine-in");
+  const dash = comparison.results.find((result) => result.id === "doordash");
+  assert.equal(dineIn.commissionToMatchDineIn, null, "dine-in has nothing to solve against itself");
+  assert.ok(Number.isFinite(dash.commissionToMatchDineIn), "DoorDash gets a solved commission rate");
+  // On the default ticket DoorDash's own packaging and bagging minutes alone
+  // already give up more than the dine-in gap, so no commission cut reaches
+  // it (matches the negative-rate case covered directly on calculateChannel
+  // above) -- this is the field the results table and copy summary render.
+  assert.ok(dash.commissionToMatchDineIn < 0, "packaging and labor already exceed the dine-in gap at 0% commission");
+});
+
+test("compareChannels' solved commission rate round-trips when it is reachable", () => {
+  // Zero out DoorDash's extra cash costs so the only gap versus dine-in is
+  // the commission itself, making a positive, reachable rate exist to solve
+  // for and round-trip -- the case the negative test above cannot cover.
+  const leanDash = { ...preset("doordash"), packagingCost: 0, extraLaborMinutes: 0 };
+  const comparison = compareChannels([preset("dine-in"), leanDash], shared);
+  const dineIn = comparison.results.find((result) => result.id === "dine-in");
+  const dash = comparison.results.find((result) => result.id === "doordash");
+  assert.ok(dash.commissionToMatchDineIn > 0 && dash.commissionToMatchDineIn < dash.percentRate * 100);
+  const matched = calculateChannel({ ...leanDash, commissionRate: dash.commissionToMatchDineIn }, shared);
+  close(matched.profit, dineIn.profit, "solved commission reproduces the dine-in profit at DoorDash's own listed price");
+});
+
 test("a switched-off channel is omitted from the ranking", () => {
   const comparison = compareChannels(CHANNEL_PRESETS, shared);
   assert.ok(!comparison.results.some((result) => result.id === "other"));

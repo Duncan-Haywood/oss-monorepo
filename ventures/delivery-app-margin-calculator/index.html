@@ -176,6 +176,7 @@
               <th scope="col">You keep</th>
               <th scope="col">Vs dine-in</th>
               <th scope="col">Price to match dine-in</th>
+              <th scope="col">Commission to match dine-in</th>
               <th scope="col">This month vs dine-in</th>
             </tr>
           </thead>
@@ -208,7 +209,11 @@
       bagging minutes at $18/hour add another $3.65 the percentage comparison
       never shows. The decision number is the listed price that leaves you the
       same cash as dine-in — often around 45% higher on that ticket — and the
-      monthly gap if you do not raise it.
+      monthly gap if you do not raise it. Since you cannot always set that
+      price yourself, the table also solves the other side: the commission
+      rate this path would need, at its current listed price, to match
+      dine-in — the number worth having ready when a plan renewal or a
+      lower-commission tier comes up.
       <a href="doordash-fees-for-restaurants.html">DoorDash fees on one restaurant ticket</a>
       works the default example through in full.
     </p>
@@ -264,6 +269,18 @@
     const money = (value) =>
       Number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
     const signedMoney = (value) => `${value > 0 ? "−" : ""}${money(Math.abs(value))}`;
+    // A commission rate is only a real answer between 0% (already there at no
+    // commission) and 100% (calculateChannel itself refuses that boundary).
+    // Negative means extra cash — packaging, labor, a driver — already
+    // exceeds the gap, so no commission cut, however deep, gets there;
+    // >=100% means the same thing from the other side, since profit only
+    // falls as commission rises.
+    const commissionMatchText = (pct) =>
+      pct === null
+        ? "—"
+        : pct < 0 || pct >= 100
+        ? "not reachable by rate alone"
+        : `${pct.toFixed(1)}%`;
 
     const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));
     let channels = freshChannels();
@@ -408,6 +425,7 @@
             <td class="money">${money(result.profit)}</td>
             <td class="money">${result.gapVsDineIn === null || result.gapVsDineIn === 0 ? "—" : signedMoney(result.gapVsDineIn)}</td>
             <td class="money">${result.priceToMatchDineIn === null ? "—" : money(result.priceToMatchDineIn)}</td>
+            <td class="money">${commissionMatchText(result.commissionToMatchDineIn)}</td>
             <td class="money">${result.monthlyGapVsDineIn === null || result.monthlyGapVsDineIn === 0 ? "—" : signedMoney(result.monthlyGapVsDineIn)}</td>
           </tr>`).join("");
     }
@@ -435,7 +453,7 @@
         `Best path keeps ${money(lastComparison.best.profit)} on a ${money(ticketPrice)} ticket (${lastComparison.best.margin.toFixed(1)}% margin).`,
         `At ${monthlyOrders} expected orders/month, the best path contributes ${money(lastComparison.best.profit * monthlyOrders)} before fixed overhead.`,
         ...lastComparison.results.slice().sort((a, b) => a.rank - b.rank).map((result) =>
-          `${result.label}: keeps ${money(result.profit)}; price to match dine-in ${result.priceToMatchDineIn === null ? "not available" : money(result.priceToMatchDineIn)}.`),
+          `${result.label}: keeps ${money(result.profit)}; price to match dine-in ${result.priceToMatchDineIn === null ? "not available" : money(result.priceToMatchDineIn)}; commission to match dine-in ${result.commissionToMatchDineIn === null ? "not available" : commissionMatchText(result.commissionToMatchDineIn)}.`),
         "Rates are operator-entered assumptions. Verify against current statements before relying on this draft.",
       ];
       try {
