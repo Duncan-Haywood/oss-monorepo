@@ -32354,3 +32354,54 @@ entries:
         merging on local verification per CLAUDE.md. Shipped and merged
         #2186.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine run, opening task: drain the open-PR queue. Zero
+        open PRs at session start, so triaged the branch-to-PR backlog
+        instead (176 remote branches carry commits not on `main`). Sampled
+        ~18 across both the oldest (2026-08-24/25) and the freshest
+        (2026-08-30) ends by diffing each against `main`'s current tip
+        rather than trusting branch names or prior ledger claims. All but
+        one were already superseded, several more fully than the branch
+        itself (`3pl-quote-normalizer`'s branch added a bare `compare.html`;
+        `main` already has that plus `drivers.html`, `sensitivity.html`,
+        `negotiation.html` and eight more pages).
+      - >-
+        The one non-superseded, tested, conflict-free branch found --
+        `claude/local-ci-select-by-diff`, adding `--for-changes` to
+        `run_workflow_locally.py` so a session can select the workflows a
+        given diff would actually trigger instead of guessing -- was opened
+        as #2190 and merged after independently re-running its test suite
+        (63/63, not just taken on the commit's word) and checking for
+        merge conflicts against current `main` (none). This is a second,
+        independent confirmation that the branch backlog is real but
+        already almost entirely absorbed by `main`'s pace, not a queue
+        waiting to be drained.
+      - >-
+        Second task, per this run's explicit brief to prioritize CI/CD,
+        Hetzner deployment, and setting up autonomous Codex CLI usage on
+        the Hetzner box: read `hosting/README.md`, `gitops/README.md` and
+        `decision_queue.py` directly rather than relying on prior sessions'
+        say-so. All three are independently confirmed already fully
+        engineered and gated on owner-only actions, matching this repo's
+        own automation policy (no unattended workflow that spends paid API
+        budget without owner approval): the portfolio site
+        (`tools.marisstella.dev`) is built and DNS'd, blocked only on
+        minting and sealing a read-only repo clone token
+        (`prod/secrets/portfolio-repo-token.template.yaml`); the Codex-Jobs
+        governor CronJob on the `cpx22` agent box is fully wired
+        (`agents/workers/mandate.md` as its standing prompt, budget
+        counters, a taint keeping it off the prod node) and sits
+        `enabled: false` until an `OPENAI_API_KEY` or `CODEX_AUTH_JSON` is
+        sealed per `agents/secrets/README.md` and `infra/OWNER_CHECKLIST.md`;
+        the GitHub Actions runner outage (`runner_id: 0`, dead since
+        2026-08-26, reconfirmed live on this run's own workflow list) is
+        exactly why the Hetzner path builds the site in-cluster rather than
+        depending on Actions or Pages. Did not build a fourth confirmation
+        doc or duplicate any decision-queue row -- `asks.yaml` already
+        carries all three asks. No owner action was available for a
+        session to take on any of them.
+    mrr_end: null
