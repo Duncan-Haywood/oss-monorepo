@@ -32807,3 +32807,50 @@ entries:
         ask was added; this entry exists so a fourth session doesn't
         re-run the same audit.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, same recurring brief (drain PRs first, then
+        prioritize CI/CD, Hetzner deployment, and Codex-on-Hetzner). 0
+        open PRs at session start (`list_pull_requests` and
+        `search_pull_requests` both empty) -- quota vacuous.
+      - >-
+        Re-checked the CI/CD-Hetzner-Codex request against `main` rather
+        than re-deriving it from scratch: `config/repos.yml`'s `codex`
+        entry, the widened `self_directed_prompt` naming CI/deployment/
+        marketing as priorities, `gitops/prod/portfolio-site.yaml`, and
+        `bootstrap/scripts/seal-owner-secrets.sh` are all already merged.
+        Everything left is an owner-typed secret or spend-limit decision,
+        already named in `infra/OWNER_CHECKLIST.md` and decision-queue
+        items 12-13. Did not duplicate the ask or re-record the finding --
+        it is already in this file above (twice) from two sibling runs
+        earlier today.
+      - >-
+        Product work: repo-wide sweep for calculator result panels
+        missing `aria-live` (every venture with `id="results"`, checked
+        for any `aria-live` anywhere in that venture's HTML/JS), following
+        the same pattern two sibling sessions applied one-page-at-a-time
+        today (walmart-marketplace-calculator #2194, ebay-fee-calculator
+        #2176). Found 7 still missing it: appointment-deposit-calculator,
+        commercial-photo-license-calculator, npm-deployment-evidence,
+        payment-reconciliation-workbench, sponsor-ready,
+        vendor-change-evidence, vendor-rate-break-even. Added
+        `aria-live="polite"` to each result container in one PR (#2198)
+        rather than one PR per venture. `vendor-rate-break-even` needed
+        the live region on the wrapping `<section>` rather than the
+        `<tbody id="results">` itself, since a `<tbody>` interacts poorly
+        with `aria-live` and the hero "best option" text updates in the
+        same recalculation.
+      - >-
+        Verified: each venture's own suite unchanged and green
+        (12/12, 3/3, 21/21, 20/20, 36/36, 22/22, 11/11).
+        `platform/pages/build.mjs` -- 166 products, 483 pages.
+        `platform/pages/check.mjs` -- publishable, no dead links.
+        `node --test platform/pages/build.test.mjs` -- 226/226.
+        `faq-coverage.mjs` -- 166/166. CI outage reconfirmed on the PR's
+        own head commit (`ubuntu-latest`, ~3-4s, no steps) before merging
+        on local verification, per `CLAUDE.md`'s guidance for the outage
+        window. Merged as #2198.
+    mrr_end: null
