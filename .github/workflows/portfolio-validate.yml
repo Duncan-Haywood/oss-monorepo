@@ -257,6 +257,21 @@ jobs:
       - name: Clause-checker unit tests
         run: node --test platform/pages/clauses.test.mjs
 
+      # The FAQ backlog was drained by six concurrent sessions on 2026-08-30,
+      # each appending a "Common questions" section to whichever ventures its
+      # own snapshot reported as missing. Two snapshots overlapped by five
+      # ventures, and the merge auto-resolved one file into two complete FAQ
+      # sections with no conflict and no failing test. `no-show-fee-calculator`
+      # reached main in the same shape from an older route.
+      #
+      # Checked centrally because the defect is created by a *merge*: no
+      # per-venture workflow fires on a file its own branch never edited.
+      - name: No page carries a duplicated FAQ section or question
+        run: node platform/pages/faq-duplicate.mjs
+
+      - name: Duplicate-FAQ checker unit tests
+        run: node --test platform/pages/faq-duplicate.test.mjs
+
       # Every venture footer offers the local usage counter's opt-out "with Do
       # Not Track / Global Privacy Control", and Global Privacy Control is a
       # valid opt-out signal under CCPA and several state privacy laws. That
