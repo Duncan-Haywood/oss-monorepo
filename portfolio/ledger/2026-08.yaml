@@ -32215,3 +32215,76 @@ entries:
         to this one venture; no UI or calculation-engine change, only the
         generated summary string. Shipped and merged #2182.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at run start (verified, not inherited), so the
+        mandate's three-PR merge quota was satisfied vacuously. Third
+        consecutive session to find the queue empty.
+      - >-
+        Confirmed the three named priorities of this run's brief --
+        deployment/CI-CD, marketing materials, and Codex CLI on the
+        Hetzner box spending a plan's built-in quota -- are all already
+        built and all blocked on the same class of thing: a sealed secret
+        only the owner can create. Marketing needs no work at all; the
+        build already emits llms.txt, catalog.json, per-category social
+        cards, sitemaps and structured data across 470 pages. Nothing was
+        added to the decision queue; rows 10, 11, 12 and 13 already say
+        this.
+      - >-
+        Shipped the missing piece rather than re-verifying the blockers a
+        fourth time: `bootstrap/scripts/seal-owner-secrets.sh` seals all
+        three (prod clone token, CI runner PAT, codex-secrets) in one run
+        and wires each into the right kustomization. Merged #2184.
+      - >-
+        The finding that motivated it: the instructions for all three were
+        already written and already correct, spread across
+        infra/OWNER_CHECKLIST.md, gitops/README.md, gitops/ci/README.md,
+        gitops/agents/secrets/README.md and two template headers, plus
+        fourteen decision-queue rows -- each written at the moment it
+        became true. Assembly was the bottleneck, not information. Worth
+        remembering the next time a blocker survives several sessions of
+        accurate documentation.
+      - >-
+        Two real defects in the hand procedure it replaces, both fixed by
+        the script rather than described again. (1) kubeseal defaults to a
+        Service named `sealed-secrets-controller`; this cluster's is
+        `sealed-secrets`, so the default invocation 404s before sealing
+        anything. Three files warn about this in prose; the script asks
+        the cluster instead, and a test asserts the name is not a literal.
+        (2) "Replace CHANGE_ME, seal, commit the output" requires a
+        warning against committing the file you just edited -- so values
+        are now read with echo off, base64-encoded in a shell variable,
+        piped to kubeseal on stdin, and the ciphertext is checked for the
+        plaintext before it is written. No plaintext reaches disk or argv.
+      - >-
+        It also refuses a mis-scoped token at the prompt: the site token
+        must read the repo, and the CI PAT must actually mint a runner
+        registration token (the exact call runner-entrypoint.sh makes), so
+        a wrong scope surfaces before it becomes a CrashLoopBackOff after
+        an Argo sync.
+      - >-
+        Verified locally: `pytest gitops/tests -q` 86 passed (72 existing
+        + 14 new). The new tests run the real script end to end against
+        fake kubectl/kubeseal/curl in a throwaway repo layout -- covering
+        the encrypt guard (a kubeseal that echoes its input must write
+        nothing), controller-name discovery, fail-closed on a missing
+        controller, idempotent kustomization edits, comment preservation,
+        and that the real templates are byte-identical after a full run.
+        shellcheck clean and added to the gitops CI shellcheck list.
+      - >-
+        Not verified and stated as such in the PR: an actual seal against
+        the live cluster. The script has never met a real kubeseal; its
+        first real run is the owner's, which is why --dry-run exists and
+        why the encrypt guard refuses to write rather than trusting
+        output. Public reachability of tools.marisstella.dev also could
+        not be checked -- this container's egress proxy 403s the domain
+        (DNS resolves correctly to 89.167.29.39).
+      - >-
+        Actions outage unchanged and confirmed on this PR's own checks by
+        the field that settles it: job 99257780982, `runner_id: 0`,
+        `runner_name: ""`, 4 seconds, no steps. Read as the known outage,
+        not as a regression; merged on local verification per CLAUDE.md.
+    mrr_end: null
