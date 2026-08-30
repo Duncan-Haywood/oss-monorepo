@@ -34,6 +34,59 @@ test("classifyRun matches the Python verified path for a healthy artifact", () =
   assert.equal(result.status, "verified");
 });
 
+test("classifyRun requires an integrity read when asked, even if exit code and size are fine", () => {
+  const result = classifyRun(TREND_EXAMPLE_NIGHTS[0], { requireIntegrity: true });
+  assert.equal(result.status, "inconclusive");
+  assert.match(result.reasons[0], /integrity is required.*no end-to-end integrity check was recorded/);
+});
+
+test("classifyRun accepts an intact integrity result under requireIntegrity", () => {
+  const record = {
+    ...TREND_EXAMPLE_NIGHTS[0],
+    artifact: { ...TREND_EXAMPLE_NIGHTS[0].artifact, integrity: { result: "intact", format: "tar" } },
+  };
+  const result = classifyRun(record, { requireIntegrity: true });
+  assert.equal(result.status, "verified");
+});
+
+test("classifyRun keeps a corrupt artifact failed under requireIntegrity, not inconclusive", () => {
+  const record = {
+    ...TREND_EXAMPLE_NIGHTS[0],
+    artifact: { ...TREND_EXAMPLE_NIGHTS[0].artifact, integrity: { result: "corrupt", detail: "bad checksum" } },
+  };
+  const result = classifyRun(record, { requireIntegrity: true });
+  assert.equal(result.status, "failed");
+});
+
+test("classifyRun names an unsupported format under requireIntegrity", () => {
+  const record = {
+    ...TREND_EXAMPLE_NIGHTS[0],
+    artifact: { ...TREND_EXAMPLE_NIGHTS[0].artifact, integrity: { result: "unsupported", detail: "zstd" } },
+  };
+  const result = classifyRun(record, { requireIntegrity: true });
+  assert.equal(result.status, "inconclusive");
+  assert.match(result.reasons[0], /unsupported by this tool/);
+});
+
+test("requireIntegrity is off by default so stat-only nights still read verified", () => {
+  const result = classifyRun(TREND_EXAMPLE_NIGHTS[0]);
+  assert.equal(result.status, "verified");
+});
+
+test("buildTrend threads requireIntegrity through every night and records it on the result", () => {
+  const trend = buildTrend(TREND_EXAMPLE_NIGHTS, undefined, { requireIntegrity: true });
+  assert.equal(trend.require_integrity, true);
+  assert.ok(trend.rows.every((row) => row.status === "inconclusive"));
+  assert.equal(trend.latest.status, "inconclusive");
+  assert.ok(trend.limitations.some((line) => /no end-to-end artifact read/.test(line)));
+});
+
+test("buildTrend without requireIntegrity keeps the stat-only limitations line", () => {
+  const trend = buildTrend(TREND_EXAMPLE_NIGHTS);
+  assert.equal(trend.require_integrity, false);
+  assert.ok(trend.limitations.some((line) => /never opens the archive itself/.test(line)));
+});
+
 test("parseRunPayload accepts a single record, an array, or a records wrapper", () => {
   assert.equal(parseRunPayload(JSON.stringify(TREND_EXAMPLE_NIGHTS[0])).length, 1);
   assert.equal(parseRunPayload(JSON.stringify(TREND_EXAMPLE_NIGHTS)).length, 4);
