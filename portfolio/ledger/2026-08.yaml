@@ -31939,3 +31939,50 @@ entries:
         month's adjacent portfolio entry -- not re-recorded here to avoid
         duplicating that finding.
     mrr_end: null
+  - venture: water-heater-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session ("continue product-first development"; this run's
+        brief also asked to prioritize CI/CD, deployment, marketing
+        artifacts, and standing up the Hetzner Codex worker). Opened with a
+        live check: zero open PRs, so the mandate's three-PR merge quota
+        was satisfied vacuously. Read `gitops/README.md`,
+        `gitops/agents/workers/mandate.md`,
+        `gitops/agents/secrets/README.md`, and
+        `portfolio/ledger/decision_queue.py` for the CI/CD and Codex-worker
+        asks: all of it (self-hosted Actions runner behind `CI_RUNNER`, the
+        Hetzner portfolio-site GitOps deploy, and a Codex worker driven by
+        `mandate.md` -- already "a similar prompt to this one running on
+        the Hetzner VM") is code-complete and already queued
+        (`actions-runners-unavailable`, `agent-runner-subscription-login`,
+        `codex-governor-enable`, `portfolio-site-hetzner-deploy`), blocked
+        purely on owner-only actions (sealing secrets, an interactive
+        `codex login`, a repo variable flip). Did not duplicate any of
+        those asks.
+      - >-
+        `node platform/pages/faq-coverage.mjs` showed
+        `water-heater-bid-calculator` tied for the thinnest FAQ in the
+        portfolio at 2 questions (with `einvoice-preflight`,
+        `retainage-cashflow-calculator`, `standby-generator-bid-calculator`),
+        continuing the pattern from #2159/#2162. `calc.mjs` already warns
+        that a 1/2-inch gas line often can't feed a condensing tankless, but
+        nothing quantified the cost. Added a third FAQ question (visible
+        `<h3>/<p>` and the hand-authored FAQPage JSON-LD, kept in sync by
+        hand) with a worked example: a 10-foot gas-line upsize to 3/4-inch
+        adds 4 labor hours and $270 in materials, about $804 more on the bid
+        at default rates ($1,525.94 to $2,329.59).
+      - >-
+        First pass used curly quotes in the JSON-LD and HTML entities in the
+        visible copy; `platform/pages/faq-visible.test.mjs` correctly caught
+        the resulting text mismatch (109-char divergence) before merge.
+        Fixed by using plain straight quotes in both. Verified locally
+        (Actions runner outage unchanged, not attempted on CI): venture
+        suite 96/96 (94 existing + 2 new -- a numeric-lock test on the
+        worked example and a visible/JSON-LD parity test), full
+        `platform/pages` suite 746/746, `build.mjs` + `check.mjs` against a
+        fresh dist (164 products, 480 pages, no dead links),
+        `faq-visible`/`faq-coverage`/`faq-duplicate` all clean. Shipped and
+        merged #2171.
+    mrr_end: null
