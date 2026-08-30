@@ -5,6 +5,62 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Zero open PRs at session start, so the mandate's three-PR merge quota
+        was satisfied vacuously and the run went straight to product work
+        rather than a third consecutive re-verification of the owner-blocked
+        deploy/CI-CD/Codex asks (#2107, #2116, #2119 already record that
+        conclusion; nothing was added to the decision queue).
+      - >-
+        Ran the browser-only auditors that are not in CI because Playwright is
+        not a dependency here -- this container ships Chromium at
+        /opt/pw-browsers, so `journey.mjs`, `sweep.mjs`, `presets.mjs` and
+        `contrast.mjs` could all be run for real. Journey, sweep and presets
+        were clean. `contrast.mjs` was not: 20 serious WCAG 2.1 AA 1.4.3
+        violations across 4 pages that were live on `main`, all on links.
+        hvac-maintenance-contract-calculator's link to its own article sits in
+        a #123c3a header no rule gives a link colour, so the browser default
+        #0000ee rendered at 1.28:1 -- effectively invisible, on the anchor that
+        carries the SEO surface. medical-courier-route-margin,
+        music-lesson-break-even and translator-project-quote carried accent
+        link colours at 4.09-4.49:1, and medical-courier's `footer{opacity:.85}`
+        composited its to 3.31:1.
+      - >-
+        The finding that matters beyond these four pages: this is the same
+        defect class the 2026-08-28 sweep fixed 104 instances of, back within
+        two days. `contrast.mjs` needs Playwright and axe-core and so has never
+        run in CI, and the existing a11y-*-ci workflows gate the research
+        corpora under portfolio/research/, not ventures/. Nothing was watching
+        the portfolio's own shipped pages.
+      - >-
+        Shipped #2120: the four pages fixed, plus `platform/pages/ink.mjs`, a
+        browser-free engine that reproduces all five findings from the inline
+        stylesheet alone -- axe's blended #bc754c at 3.31:1 included -- and
+        `.github/workflows/link-contrast-ci.yml` running it on every change to
+        ventures/**/*.html. It decides link text only and says so loudly:
+        without a DOM there is no way to know which box a bare class sits in,
+        and a first cut that decided them anyway produced 510 findings against
+        axe's zero. Narrowing it surfaced two bugs in the gate itself (ignored
+        cascade order on `opacity`; element-selector boxes only), both now
+        pinned by tests. Every run prints what it declined and how many
+        non-link colours it never looked at, so a clean result cannot be read
+        as a whole-page pass -- the confusion
+        portfolio/research/a11y-delivered-contrast/ was written about.
+      - >-
+        Verified before merge, all locally, because every check on the PR came
+        back red in 3 seconds with runner_id 0 (the outage since 2026-08-26,
+        confirmed on the field rather than the duration): contrast.mjs clean
+        over 477 pages x 2 viewports; journey.mjs 0 failures and 0 console
+        errors; sweep 164/164; check.mjs 479 pages no dead links; webcheck 481
+        sound; 711/711 platform/pages tests; 18/18 new; the four ventures'
+        suites 35/35; and `ink.mjs --strict` exiting 1 with all five findings
+        when the page fixes are reverted -- the row that says the new gate
+        fails on what it was written for, not just passes on the fixed tree.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Session opened against the "prioritize deployment/CI-CD, ship
         marketing materials, and stand up Codex CLI on Hetzner against its
         built-in quota" brief. Checked the mandate's three-PR merge quota
