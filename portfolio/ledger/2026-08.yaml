@@ -30333,3 +30333,99 @@ entries:
         `id="faq"` sections. `main` unchanged at 08204c154 between the
         pre-work check and this push -- no collision to reconcile.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session started with 0 open PRs but ~280 unmerged remote branches
+        (many pre-`branch-cleanup-automation` #829). Opened 3 candidate PRs
+        for stale branches that had never had a PR (#2089
+        appointment-deposit-calculator, #2090 invoice-payment-terms-calculator,
+        #2091 where-to-sell-calculator profit-per-day ranking) after
+        confirming each venture/feature was absent from `main` at branch
+        time. Before any could merge, `main` moved under them: all three
+        turned out already superseded by more complete concurrent work
+        (#1835 for the first; a fuller invoice-terms venture with
+        2/10-net-30, factoring and billing-schedule math for the second; a
+        more rigorous cost-of-capital ranking model for the third).
+        `supersede_check.py` reported NOT SUPERSEDED on all three (the
+        documented reimplementation-gap false negative -- different code,
+        same shipped feature); closed all three by hand after diffing the
+        implementations directly, per `CLAUDE.md`'s "read the pairs" rule.
+      - >-
+        Spot-checked 7 more of the highest-commit-count stale branches
+        (consent-change-record, backup-verification-evidence, sponsor-ready,
+        pod-print-file-preflight/print-atelier, branch-cleanup.yml) against
+        current `main`: all 7 were also already shipped. 10 for 10. The
+        fleet has been draining this backlog aggressively and mostly
+        completely; the remaining ~270 stale branch refs are very likely
+        dead weight (already-merged-or-abandoned work whose branch ref
+        wasn't deleted, largely predating #829), not a live queue. A future
+        session hitting an empty open-PR list should not assume that means
+        an empty backlog, but should also not expect a high hit rate mining
+        old branches by hand -- diff a candidate against current `main`
+        (not the branch's base) before investing in a PR.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session, 0 open PRs at start. Did not redo the 171-branch
+        drain two concurrent sessions had just finished this same morning
+        (see the two preceding entries) -- spot-checked the 5
+        most-recently-touched PR-less branches instead of trusting either
+        drain's "essentially all superseded" summary at face value, since
+        this file has recorded that verdict being wrong before.
+      - >-
+        One spot-checked branch, `claude/codex-governor-ask-and-queue-drain-report`,
+        is not merely superseded but **actively destructive**: its
+        `asks.yaml` diff, read against current `main`, deletes the
+        `agent-runner-subscription-login` row and the shipped
+        self-hosted-runner-alternative and `CODEX_AUTH_JSON` updates to
+        `actions-runners-unavailable`/`codex-governor-enable` -- because
+        the branch predates #2000/#2012/#2021/#2022 landing and a raw
+        two-dot diff of a stale branch against a moved `main` reads as
+        "changes" in either direction. Left unmerged, not just un-PR'd; a
+        future session should not merge it without first diffing it
+        against current `main`'s `asks.yaml`, not the branch's own base.
+      - >-
+        Shipped and merged #2092: FAQ sections on 4 net-new-covered
+        ventures (subscription-price-impact, cash-runway-planner,
+        change-order-margin-calculator, cleaning-dilution-calculator).
+        A 5th, vendor-rate-break-even, collided head-on with a concurrent
+        session's #2087 landing its own FAQ section on the same file
+        while this PR was open (both independently derived the same
+        numbers -- $100/mo bulk-supplier fee, $30/job saving, 4-job
+        payback). Resolved by merging main into the branch and dropping
+        this branch's copy in favour of the one already on `main`, rather
+        than keeping both and shipping two `id="faq"` blocks in one page.
+        Re-verified after the merge: 49 venture tests, 679 platform
+        tests, page-integrity sweep 481/481, build+check 164/479/no dead
+        links, exactly one `id="faq"` in the resolved file. FAQPage
+        coverage 100 -> 112 of 164 across this session plus the two it
+        collided with.
+      - >-
+        Looked for the next distinct high-value pattern after the FAQ
+        vein: grepped every venture's `calc.mjs` exports against the rest
+        of its own directory for the "shipped engine logic no page can
+        reach" shape a prior session found in `tiktok-shop-fee-calculator`
+        (#1942). Checked the highest-signal function-shaped hits by hand
+        (`shop-rate-calculator`'s `compareCurrentRate`,
+        `toilet-replacement-bid-calculator`'s `compareOwnerSupply`,
+        `security-camera-bid-calculator`'s `collectWarnings`) rather than
+        trusting the grep: all three were false positives -- called by
+        another exported function in the same file that a page does
+        render (a helper's own export is invisible to a same-file usage
+        check). Worth recording so the next session does not re-run the
+        same scan expecting a different answer: this vein is not an
+        unmined one on the ventures checked so far.
+      - >-
+        Codex-on-Hetzner, CI/CD, and Hetzner deployment: not re-verified a
+        third time this morning. Two preceding sessions already confirmed
+        (independently) that all three are fully built and merged, gated
+        only on the owner-only steps in `decision_queue.py` and
+        `infra/OWNER_CHECKLIST.md`. Re-running that same check a third
+        time in one morning would be motion, not progress.
+    mrr_end: null
