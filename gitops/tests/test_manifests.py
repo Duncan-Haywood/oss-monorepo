@@ -79,6 +79,39 @@ def test_every_project_with_a_secrets_template_can_receive_a_sealed_secret() -> 
         )
 
 
+def test_every_manifest_kind_is_on_its_appproject_whitelist() -> None:
+    # Argo refuses to sync a resource whose apiGroup/kind is missing from its
+    # AppProject's namespaceResourceWhitelist -- not a YAML error, a sync
+    # failure at apply time that looks identical to "waiting on the owner"
+    # until someone reads the Application's status. #2146 caught this for
+    # prod's SealedSecret; this generalizes the check to every kind actually
+    # shipped in prod/staging/agents/ci so the next resource added to a
+    # venture (a CronJob, a Role, ...) cannot silently repeat it.
+    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
+    by_name = {d["metadata"]["name"]: d for d in docs if d}
+    for venture in ("prod", "staging", "agents", "ci"):
+        whitelist = by_name[venture]["spec"]["namespaceResourceWhitelist"]
+        allowed = {(e.get("group"), e.get("kind")) for e in whitelist}
+        wildcard_all = ("*", "*") in allowed
+        for path in (ROOT / venture).rglob("*.yaml"):
+            # kustomization.yaml describes a build, not a resource Argo ever
+            # applies, and secrets/*.template.yaml are placeholders (CHANGE_ME)
+            # meant to be sealed before they are ever real manifests.
+            if path.name == "kustomization.yaml" or "secrets" in path.parts:
+                continue
+            for doc in yaml.safe_load_all(path.read_text()):
+                if not doc or "kind" not in doc:
+                    continue
+                api_version = doc.get("apiVersion", "")
+                group = api_version.split("/")[0] if "/" in api_version else ""
+                kind = doc["kind"]
+                ok = wildcard_all or (group, kind) in allowed or (group, "*") in allowed
+                assert ok, (
+                    f"{venture} AppProject cannot receive {group or 'core'}/{kind} "
+                    f"from {path.relative_to(ROOT)} -- Argo will refuse to sync it"
+                )
+
+
 def test_agents_project_cannot_dest_prod() -> None:
     docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
     by_name = {d["metadata"]["name"]: d for d in docs if d}
