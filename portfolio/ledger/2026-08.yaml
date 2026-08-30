@@ -1,5 +1,58 @@
 period: 2026-08
 entries:
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session opened against the "prioritize deployment/CI-CD, ship
+        marketing materials, and stand up Codex CLI on Hetzner against its
+        built-in quota" brief. Checked the mandate's three-PR merge quota
+        first: zero open PRs existed at session start (list_pull_requests),
+        so the quota is trivially satisfied per its own "if none exist,
+        start new work after the overlap check" rule -- nothing to drain.
+      - >-
+        Re-verified the deployment/CI-CD/Codex-on-Hetzner premise before
+        building anything new, same conclusion the immediately preceding
+        session recorded in #2107: all three are already fully engineered
+        on `main` (self-hosted Actions-runner path in `gitops/ci/`, the
+        `tools.marisstella.dev` GitOps site deploy in
+        `gitops/prod/portfolio-site.yaml`, and the Codex governor +
+        `ventures/ubuntu-agent-server` subscription-login runner -- the
+        literal "spend the built-in ChatGPT-plan quota" shape asked for).
+        `python3 -m pytest gitops/tests -q` still passes clean (67/67).
+        Every remaining step is an owner-only credential/account action,
+        already itemized in `infra/OWNER_CHECKLIST.md` and tracked as
+        decision-queue rows actions-runners-unavailable,
+        agent-runner-subscription-login, codex-governor-enable and
+        portfolio-site-hetzner-deploy -- did not duplicate any of these as
+        a new ask.
+      - >-
+        Sampled the open-branch backlog for anything the branch-pr-drain
+        queue item could land: of ~185 remote branches with commits ahead
+        of `main`, the four checked (`pr/appointment-deposit-calculator`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/where-to-sell-rank-by-profit-per-day`,
+        `cursor/ventures-marketing-0830`) were all unsafe to merge as-is.
+        The three `pr/*` branches predate a major repo reorganization --
+        diffing each against current `main` shows 550k+ line deletions,
+        i.e. merging would delete work rather than add it. The fourth,
+        dated the same day, turned out to be based on `main` from before
+        today's FAQ backlog closed out (#2102/#2104/#2105) and a
+        doubled-FAQ guard shipped (#2108): its own FAQ-content commits are
+        already superseded, and it also reverts `platform/pages/
+        faq-duplicate.mjs`. Left all four unmerged rather than force a
+        landing that deletes shipped work; none reached the point of
+        opening a PR. This matches the branch-cleanup-automation
+        decision-queue row's own finding that the branch list is ~99%
+        landed-or-abandoned noise, with concrete examples rather than the
+        aggregate figure.
+      - >-
+        Delegated one real (non-FAQ, non-usage-tracking, non-CI/CD) venture
+        improvement to a background session to avoid idling while
+        re-confirming the above; its own ledger entry, if any, records
+        that separately.
+    mrr_end: null
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
