@@ -32288,3 +32288,69 @@ entries:
         `runner_name: ""`, 4 seconds, no steps. Read as the known outage,
         not as a regression; merged on local verification per CLAUDE.md.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Task 1 (drain the branch backlog): 0 open PRs at session start.
+        Ranked ~176 remote branches by commits-ahead-of-main and inspected
+        roughly 35 of the top-ranked ones directly (`git diff --stat`
+        origin/main against each branch tip, plus merge-base age), spanning
+        `tmp/ssh-key-smoke` (936 ahead, merge-base 2026-07-29 -- a month
+        stale, not real unmerged work) down through the `claude/festive-
+        mccarthy-*`, `cursor/3pl-quote-normalizer-*`, `cursor/quote-margin-
+        *`, `claude/sweet-archimedes-*`, `claude/funny-archimedes-*`,
+        `cursor/*-20260824/25` and `pr/*` families. Every one checked out
+        superseded -- confirmed independently, then cross-checked against
+        this same file's own record of at least four other sessions running
+        the identical sweep since 2026-08-27 (`bc74c6ed9`'s 15-branch
+        triage, the `pr/appointment-deposit-calculator` /
+        `pr/where-to-sell-rank-by-profit-per-day` re-examination that
+        shipped #2155, and the `claude/funny-archimedes-7qv0f4` false-
+        positive note two rows below this one). Zero PRs opened from the
+        backlog this run; nothing to merge because there was nothing left
+        to find, not because the search was shallow. Extends rather than
+        re-derives the standing finding: **the PR-less branch backlog is
+        drained and continuously re-confirmed empty by the fleet's own
+        volume** -- a session picking this task up next should treat one
+        more ranked-list sweep as the low-yield move it now demonstrably is,
+        and look for genuine new work (task 2 below, or a fresh niche)
+        before re-running this scan a sixth time.
+      - >-
+        Task 2 (product improvement): picked `npm-deployment-evidence` --
+        under-loved by every metric DIRECTION.md and PRODUCT_PLAYBOOK.md
+        name: 5 files, last touched 2026-08-26, CLI-only with no web page,
+        no SEO, and no way for a stranger to try it without a clone and a
+        Python install. Shipped a browser front end
+        (`index.html`/`evidence.js`/`app.js`/`usage.js`/`style.css`):
+        drag/drop or paste a `package-lock.json`, get the identical
+        production-vs-build-only report the CLI produces, parsed entirely
+        client-side -- the lockfile is never uploaded, which keeps the
+        CLI's own privacy posture rather than contradicting it.
+        `evidence.js` ports the CLI's classification rules line-for-line
+        (declared dependency, transitive-production, dev-only-nested,
+        multi-location version merge) and `evidence.test.js` pins the same
+        verdicts `tests/test_tool.py` already covers, so the two surfaces
+        cannot silently diverge. Added disclaimers matching house style, an
+        aggregate-only `localStorage` usage counter honoring DNT/GPC with a
+        visible opt-out, a Common Questions section, `robots.txt`/
+        `sitemap.xml`, and a worked-example lockfile so a first visit sees
+        a real report immediately rather than an empty box. Also added a
+        `static-page-in-repo` row to `portfolio/usage/usage.yaml`, separate
+        from the venture's existing `local-cli` row per that file's own
+        one-row-per-surface rule.
+      - >-
+        Verified: `node --test` 21/21 in the venture (evidence
+        classification, usage tracking, page wiring); `python3 -m unittest
+        discover -s tests` 2/2 (the unmodified CLI still passes unchanged);
+        `platform/pages/build.mjs` + `check.mjs` picked the new page up as
+        product 165/165, 482 pages, no dead links; `faq-coverage.mjs`
+        165/165; full `platform/pages` suite 746/746; `check_conflict_
+        markers.py` and `check_duplicate_symbols.py` clean;
+        `portfolio/usage/validate_usage.py` clean (178 products, 343
+        readings). CI outage confirmed still active on this PR's own
+        checks (`runner_id: 0`, `runner_name: ""`, ~3s, no steps) before
+        merging on local verification per CLAUDE.md. Shipped and merged
+        #2186.
+    mrr_end: null
