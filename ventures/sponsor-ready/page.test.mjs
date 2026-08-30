@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
+const require = createRequire(import.meta.url);
 const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('page carries the no-warranty clause and a local-only privacy line', () => {
@@ -33,4 +35,37 @@ test('offers a worked example so a first visit does not start on an empty box', 
   // Scoring ourselves rather than a stranger's repo is a deliberate choice;
   // if the example ever points elsewhere that should be a conscious edit.
   assert.match(page, /this tool's own repo/i);
+});
+
+test('index links to the sponsors-readiness-checklist SEO/AI-discovery page', () => {
+  assert.match(page, /github-sponsors-readiness-checklist\.html/);
+});
+
+const docsPage = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
+
+test('the readiness-checklist page answers the search question with a worked table', () => {
+  const html = docsPage('github-sponsors-readiness-checklist.html');
+  assert.match(html, /10 signals, ranked by weight/i);
+  assert.match(html, /FAQPage/);
+  assert.match(html, /"@type":"Question"/);
+  assert.match(html, /href="\.\/"/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /Best-effort hosting, no SLA/);
+});
+
+test('the readiness-checklist table matches scoring.js\'s own weights, so it cannot drift out of sync', () => {
+  const html = docsPage('github-sponsors-readiness-checklist.html');
+  const { CHECKS } = require('./scoring.js');
+  for (const check of CHECKS) {
+    assert.match(html, new RegExp(`>${check.weight}<`), `missing weight ${check.weight} for ${check.id}`);
+    assert.ok(html.includes(check.label), `missing label for ${check.id}`);
+  }
+});
+
+test('robots and sitemap let crawlers find the new page', () => {
+  const robots = docsPage('robots.txt');
+  const sitemap = docsPage('sitemap.xml');
+  assert.match(robots, /Allow: \//);
+  assert.match(sitemap, /sponsor-ready\/<\/loc>/);
+  assert.match(sitemap, /github-sponsors-readiness-checklist\.html/);
 });
