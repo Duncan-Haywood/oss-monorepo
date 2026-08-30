@@ -44,19 +44,32 @@ deployment, or a server you started yourself). There is no sentinel in
 that mode -- this cannot write into a tree it does not own -- so the
 report says the origin was taken on trust.
 
-What it does not do. It does not install Playwright and does not pick a
-browser. `PLAYWRIGHT` names the module when it is not resolvable from this
-repo (a global install: `PLAYWRIGHT=$(npm root -g)/playwright/index.js`),
-and `CHROME_PATH` reuses a Chromium already on the machine; both are
-passed through to the checks untouched, and a missing Playwright is
-reported as a skip with that instruction rather than as a failure, because
-"the browser is not installed here" and "the site is broken" are not the
-same result.
+What it does not do. It does not install Playwright. `PLAYWRIGHT` names the
+module when it is not resolvable from this repo (a global install:
+`PLAYWRIGHT=$(npm root -g)/playwright/index.js`), and a missing Playwright
+is reported as a skip with that instruction rather than as a failure,
+because "the browser is not installed here" and "the site is broken" are
+not the same result.
+
+It does find a browser, but only when you did not name one. `CHROME_PATH`
+still reuses a Chromium already on the machine and is passed through
+untouched; when it is unset, `PLAYWRIGHT_BROWSERS_PATH` is searched for one
+and the newest build found is used. That exists because Playwright pins a
+browser *build number* and refuses to launch anything else -- so an install
+pinned at 1234 will not touch the `chromium-1194` sitting beside it, and
+says so with "run npx playwright install", which is the wrong advice in a
+container that ships browsers at a fixed path and blocks the download.
+Following it costs a run. Setting `executablePath` sidesteps the pin, and
+that is all this does; a Chromium found this way is not the build
+Playwright was tested against, so a launch that still fails is worth
+reading rather than working around further.
 """
 
 import argparse
+import glob
 import http.server
 import os
+import re
 import secrets
 import socket
 import socketserver
@@ -160,6 +173,52 @@ def playwright_available(env) -> bool:
     return proc.returncode == 0
 
 
+def discover_chrome(env) -> str | None:
+    """A Chromium already on this machine, when `CHROME_PATH` was not given.
+
+    Playwright pins a browser *build number* in the package, and refuses to
+    launch anything else: an install whose pin is 1234 will not touch a
+    `chromium-1194` sitting right beside it. Its error says to run
+    `npx playwright install`, which is the wrong advice in a container that
+    ships browsers at a fixed path and blocks the download — and following it
+    is how a session spends its run installing a second copy of a browser it
+    already has.
+
+    `executablePath` sidesteps the pin, which is what `CHROME_PATH` is for.
+    All this does is fill it in when the answer is discoverable, so the
+    override stays available for the case where it is not.
+
+    Returns None when the caller already chose, or when nothing was found —
+    both mean "change nothing", and a launch failure then reports itself.
+    """
+    if env.get("CHROME_PATH") or env.get("CHROMIUM_PATH"):
+        return None  # an explicit choice always wins
+
+    root = env.get("PLAYWRIGHT_BROWSERS_PATH")
+    if not root or not os.path.isdir(root):
+        return None
+
+    # The full browser, never `chromium_headless_shell-*`: the checks drive a
+    # real page, and the shell build is a different binary with a different
+    # name under the same tree.
+    found = [
+        path
+        for pattern in ("chromium-*/chrome-linux/chrome", "chromium/chrome-linux/chrome")
+        for path in glob.glob(os.path.join(root, pattern))
+        if os.access(path, os.X_OK)
+    ]
+    if not found:
+        return None
+
+    def build_number(path: str) -> int:
+        match = re.search(r"chromium-(\d+)", path)
+        return int(match.group(1)) if match else -1
+
+    # Newest build when a machine carries several, so a stale tree left by an
+    # older install does not win on alphabetical order.
+    return max(found, key=build_number)
+
+
 def run_check(name: str, base: str, env, timeout: int) -> tuple[int, str]:
     """Run one check. Returns (exit code, tail of its output)."""
     path = os.path.join(PAGES, f"{name}.mjs")
@@ -220,6 +279,11 @@ def main(argv=None) -> int:
               "  PLAYWRIGHT=$(npm root -g)/playwright/index.js  for a global install",
               file=sys.stderr)
         return 2
+
+    chrome = discover_chrome(env)
+    if chrome:
+        env["CHROME_PATH"] = chrome
+        print(f"Using the Chromium already here: {chrome}")
 
     tmp = None
     httpd = None
