@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Does This E-invoice Error Code Mean? — INV Rule Reference</title>
+<meta name="description" content="Every rule code the e-invoice preflight reports, in one table: what INV-012, INV-018, INV-025, INV-045 and the rest actually mean, and the concrete fix for each. Structure, arithmetic, tax, dates, payment, and reference checks.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/what-does-this-e-invoice-error-code-mean.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What does this e-invoice error code mean?">
+<meta property="og:description" content="A reference for every INV rule the preflight reports — what it means and how to fix it, grouped by structure, arithmetic, tax, dates, payment, and references.">
+<meta property="og:url" content="https://example.invalid/einvoice-preflight/what-does-this-e-invoice-error-code-mean.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does an INV rule code from the e-invoice preflight mean?","acceptedAnswer":{"@type":"Answer","text":"Each INV code names one specific defect the preflight found in the invoice you gave it, so that a report can point at a single field rather than saying the document is bad. INV-012 means a line's net does not equal quantity times unit price. INV-017 means gross does not equal net plus tax. INV-018 means the tax total does not match what the line tax percentages add up to. INV-025 means an IBAN fails its published country checksum. INV-045 means a credit-transfer or SEPA payment means was given without an IBAN. These are the tool's own identifiers for its own checks, not codes issued by a tax authority or a submission network."}},{"@type":"Question","name":"Are these the same codes my e-invoicing network sends back on a rejection?","acceptedAnswer":{"@type":"Answer","text":"No. INV codes are internal to this preflight and are not EN 16931 BR- rule identifiers, Peppol validation artefact codes, or any authority's rejection codes. The preflight runs before submission and reports arithmetic and structural observations about the file in front of it. A network's own validator may accept a document this tool flags, or reject one it passes. Use the INV code to find and fix the underlying field; quote your network's code, not this one, when you contact them."}},{"@type":"Question","name":"Why did the preflight flag my invoice when the totals look right?","acceptedAnswer":{"@type":"Answer","text":"The most common cause is cent rounding applied at a different stage than the checker applies it. The preflight rounds half-up to cents and compares the rounded figures, so a line net carried at full floating precision in an ERP export can disagree with the printed total by a cent and raise INV-012, INV-014 or INV-018. The second most common cause is a field that is present but empty rather than absent — an empty string is not a missing field, and several checks treat the two differently. The report names the JSON path of the value it compared, which is the fastest way to see which of the two it is."}}]}</script>
+<style>
+:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}
+body{max-width:1080px;margin:0 auto;padding:32px 18px 64px}
+a{color:#12506e}
+.eyebrow{font-weight:700}
+header{max-width:760px;margin:1rem 0 24px}
+h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:24ch}
+.lede{font-size:1.05rem;max-width:66ch;color:#3d4a57}
+section{background:#fff;border:1px solid #cbd8e2;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:3px 3px 0 #d6e1ea;margin:1rem 0}
+h2{margin-top:0}
+h3{margin-bottom:.3rem}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+caption{caption-side:bottom;color:#56646f;font-size:.85rem;text-align:left;padding-top:.6rem}
+th,td{border-bottom:1px solid #cbd8e2;padding:.5rem .45rem;text-align:left;vertical-align:top}
+code{background:#eef2f6;border-radius:4px;padding:.05rem .3rem;font-size:.92em;white-space:nowrap}
+th:first-child,td:first-child{white-space:nowrap}
+.fine{font-size:.88rem;color:#56646f}
+footer{color:#56646f;font-size:.86rem}
+footer p{margin:.6rem 0}
+</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; E-invoice Preflight</a></p>
+<header>
+<h1>What does this e-invoice error code mean?</h1>
+<p class="lede">The preflight reports each defect with a rule code, the field it looked at, and a suggested fix, so you can go straight to the value that needs changing. This page is the full reference: every code the checker can emit, what it means, and what to do about it.</p>
+</header>
+
+<section>
+<h2>First, what these codes are not</h2>
+<p><code>INV-</code> codes are this tool's own identifiers for its own checks. They are <strong>not</strong> EN&nbsp;16931 <code>BR-</code> business rules, not Peppol validation artefact identifiers, and not the rejection codes a tax authority or submission network sends back. The preflight reads the file in front of it and reports arithmetic and structural observations before you submit; it never contacts a network, and it does not decide tax treatment or legal validity.</p>
+<p>That distinction matters in both directions. A network validator may reject a document this tool passes, because it applies country and scheme rules this tool does not implement. It may also accept one this tool flags, because some of these checks are stricter than a network requires — the remittance and reference checks in particular are about getting paid, not about passing validation. When you contact your network or service provider, quote <em>their</em> code, not this one.</p>
+</section>
+
+<section>
+<h2>Document structure and required fields</h2>
+<div class="table-wrap">
+<table>
+<caption>The shape checks. These run first, because most later checks need these fields to exist before they can compare anything.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-001</code></td><td>The document root is not a JSON object, or a required top-level field is missing. The required set is invoice number, issue date, currency, supplier, customer, lines, and totals.</td><td>Add the named field. The report gives its path, so <code>/totals</code> means the totals object itself is absent.</td></tr>
+<tr><td><code>INV-002</code></td><td>The invoice number is empty or is not text.</td><td>Provide a non-empty invoice number as a string.</td></tr>
+<tr><td><code>INV-003</code></td><td>The issue date is not an ISO calendar date. A date that looks right but does not exist, such as a 31st in a 30-day month, fails here too.</td><td>Use <code>YYYY-MM-DD</code>.</td></tr>
+<tr><td><code>INV-004</code></td><td>The currency is not a three-letter uppercase code.</td><td>Use an ISO-style code such as <code>EUR</code> or <code>GBP</code>.</td></tr>
+<tr><td><code>INV-007</code></td><td>The invoice carries no line items.</td><td>Add at least one line.</td></tr>
+<tr><td><code>INV-008</code></td><td>A line is not an object, so its fields cannot be read.</td><td>Give the line a description, quantity, unit price, and tax percentage.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Parties: supplier, customer, VAT identifiers, electronic addresses</h2>
+<div class="table-wrap">
+<table>
+<caption>Checks on who the invoice is from and to. The VAT and endpoint checks are typo catches computed from published checksum and format rules — never a registration or directory lookup, because nothing leaves your browser.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-005</code></td><td>The supplier or customer identifier is missing.</td><td>Add the party identifier from the source system.</td></tr>
+<tr><td><code>INV-006</code></td><td>The supplier or customer name is missing.</td><td>Add the party name.</td></tr>
+<tr><td><code>INV-022</code></td><td>A VAT identifier uses a country prefix the checker does not recognise.</td><td>Use a published VAT country prefix, or omit <code>vat_id</code> if the value is an internal identifier rather than a VAT number.</td></tr>
+<tr><td><code>INV-023</code></td><td>A VAT identifier fails that country's published checksum — almost always a transposed or dropped digit.</td><td>Correct the digits. This is a checksum test, not a registration lookup: it cannot tell you whether a well-formed number is actually registered.</td></tr>
+<tr><td><code>INV-039</code></td><td>A party's electronic address is present but is not an object carrying both a scheme and an id.</td><td>Provide <code>endpoint.scheme</code> (the EAS code) and <code>endpoint.id</code>, or omit the endpoint entirely.</td></tr>
+<tr><td><code>INV-040</code></td><td>A party's electronic address id is empty or is not text.</td><td>Provide the id as text, or omit the endpoint.</td></tr>
+<tr><td><code>INV-041</code></td><td>The electronic address does not match the published shape for the scheme it declares — for example a GLN whose check digit does not compute.</td><td>Correct the identifier. This is a format check, not a directory lookup.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Lines, totals, and arithmetic</h2>
+<p>These are the checks that catch the largest share of real defects, because they compare numbers that were produced at different times by different parts of an ERP export. Everything is rounded half-up to cents before comparison.</p>
+<div class="table-wrap">
+<table>
+<caption>Arithmetic checks. Where a figure is wrong, the report names the value the checker computed, so you can paste it straight in if the lines are the side you trust.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-009</code></td><td>A line quantity is not a positive number.</td><td>Use a positive numeric quantity.</td></tr>
+<tr><td><code>INV-010</code></td><td>A line unit price is not a non-negative number.</td><td>Use a non-negative numeric unit price.</td></tr>
+<tr><td><code>INV-011</code></td><td>A line tax percentage is not a valid number.</td><td>Use the percentage from your authoritative source. The tool never chooses a tax rate for you.</td></tr>
+<tr><td><code>INV-012</code></td><td>A line's net is missing, or does not equal quantity &times; unit price at cent precision.</td><td>Set the line net to the computed figure the report names, or correct the quantity and unit price.</td></tr>
+<tr><td><code>INV-013</code></td><td>The invoice net total is missing or is not a non-negative number.</td><td>Provide a numeric net total.</td></tr>
+<tr><td><code>INV-014</code></td><td>The net total does not match the sum of the lines <em>after</em> header allowances and charges are applied.</td><td>Set the net total to the computed figure, or correct the lines and adjustments. If this fires alongside <code>INV-050</code>–<code>INV-052</code>, fix the adjustments first.</td></tr>
+<tr><td><code>INV-015</code></td><td>The invoice tax total is missing or is not a non-negative number.</td><td>Provide a numeric tax total.</td></tr>
+<tr><td><code>INV-016</code></td><td>The invoice gross total is missing or is not a non-negative number.</td><td>Provide a numeric gross total.</td></tr>
+<tr><td><code>INV-017</code></td><td>Gross does not equal net plus tax.</td><td>Set gross to the computed figure, or correct whichever of the three totals is wrong.</td></tr>
+<tr><td><code>INV-018</code></td><td>The tax total does not match what the line tax percentages add up to.</td><td>Set the tax total to the computed figure, or correct the line inputs. On an invoice with more than one rate, read the <a href="how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">mixed-rate worked example</a> first — per-rate rounding is the usual cause.</td></tr>
+<tr><td><code>INV-019</code></td><td>Batch runs only: the same invoice number appears on more than one file in the batch.</td><td>Use a unique invoice number, or remove the duplicate before submission.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Tax treatment, exemptions, and per-rate breakdown</h2>
+<div class="table-wrap">
+<table>
+<caption>Tax checks. The tool reports structural facts about the tax you declared; it never decides what rate or exemption applies.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-035</code></td><td>A 0% or exempt line carries no exemption reason.</td><td>Add <code>tax_reason</code> or <code>tax_reason_code</code> on the line, or <code>tax_exemption_reason</code> on the invoice — or correct the tax percentage if the line was not meant to be zero-rated.</td></tr>
+<tr><td><code>INV-036</code></td><td>An exemption reason field is present but empty or not text.</td><td>Provide it as text, or omit it if the line is neither 0% nor exempt.</td></tr>
+<tr><td><code>INV-037</code></td><td>The invoice mixes tax rates but carries no per-rate tax breakdown.</td><td>Add <code>tax_breakdown</code> with one row per rate, or use a single rate. The <a href="how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">worked example</a> shows the arithmetic this check expects.</td></tr>
+<tr><td><code>INV-038</code></td><td>A tax breakdown row is not an object.</td><td>Give each row a tax percentage, a taxable amount, and a tax amount.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Dates, invoice periods, and payment terms</h2>
+<div class="table-wrap">
+<table>
+<caption>Date checks. Impossible orderings are caught here — an end before a start, a due date before issue — because receiving systems commonly reject them outright.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-020</code></td><td>The due date is not an ISO calendar date.</td><td>Use <code>YYYY-MM-DD</code>.</td></tr>
+<tr><td><code>INV-021</code></td><td>The due date is earlier than the issue date.</td><td>Set the due date to the issue date or later.</td></tr>
+<tr><td><code>INV-042</code></td><td>The invoice period is present but is not an object with both a start and an end.</td><td>Use <code>period.start</code> and <code>period.end</code> as ISO dates, or omit the period.</td></tr>
+<tr><td><code>INV-043</code></td><td>The invoice period ends before it starts.</td><td>Set the end to the start date or later.</td></tr>
+<tr><td><code>INV-053</code></td><td>Payment terms days is empty, or is not a positive whole number of days.</td><td>Use a positive whole number such as 30, or omit <code>payment.terms_days</code>.</td></tr>
+<tr><td><code>INV-054</code></td><td>The due date does not equal the issue date plus the stated terms days. This usually means one of the two was edited by hand and the other was not.</td><td>Set the due date to the computed date the report names, or correct the terms days.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Payment: IBAN, BIC, means, and remittance</h2>
+<p>These checks are about getting paid rather than passing validation. A network may well accept an invoice that fails them; a buyer's accounts-payable system may still not be able to pay it.</p>
+<div class="table-wrap">
+<table>
+<caption>Payment checks. The IBAN and BIC tests are computed locally from published checksum and country rules — no bank is contacted.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-024</code></td><td>The payment IBAN is empty or is not text.</td><td>Provide the IBAN as text, or omit <code>payment.iban</code>.</td></tr>
+<tr><td><code>INV-025</code></td><td>The IBAN fails its published country checksum — a transposed digit is the usual cause, and it is the defect most likely to cost you a payment.</td><td>Correct the digits. This is a checksum test, not a bank lookup: a well-formed IBAN can still be the wrong account.</td></tr>
+<tr><td><code>INV-026</code></td><td>The payment BIC is empty or is not text.</td><td>Provide the BIC as text, or omit <code>payment.bic</code>.</td></tr>
+<tr><td><code>INV-027</code></td><td>The BIC's country does not match the IBAN's country.</td><td>Correct whichever is wrong so both agree, or omit the BIC.</td></tr>
+<tr><td><code>INV-030</code></td><td>The invoice names an IBAN but no remittance reference, so a buyer paying it has nothing to quote on the transfer.</td><td>Add <code>payment.remittance</code>, or omit the IBAN if payment is not by transfer.</td></tr>
+<tr><td><code>INV-031</code></td><td>The remittance reference is empty or is not text.</td><td>Provide it as text, or omit it.</td></tr>
+<tr><td><code>INV-044</code></td><td>The payment means code is empty or is not a documented UNCL&nbsp;4461 code.</td><td>Use a published code such as 30, 58, or 10, or omit <code>payment.means</code>.</td></tr>
+<tr><td><code>INV-045</code></td><td>The means is a credit transfer, SEPA transfer, or direct debit, but no IBAN is given.</td><td>Add the IBAN, switch to a cash or card means, or omit the means.</td></tr>
+<tr><td><code>INV-046</code></td><td>The means is cash, cheque, or card, yet the invoice also names an IBAN — the two disagree about how you expect to be paid.</td><td>Use a transfer means with the IBAN, or drop the IBAN.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Settlement amounts, document type, and references</h2>
+<div class="table-wrap">
+<table>
+<caption>Checks on what is still owed, what kind of document this is, and the references a buyer's accounts-payable system matches against.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-028</code></td><td>The prepaid amount is present but is not a non-negative number.</td><td>Provide a numeric prepaid amount, or omit <code>totals.prepaid</code>.</td></tr>
+<tr><td><code>INV-029</code></td><td>The amount due is present but is not a non-negative number.</td><td>Provide a numeric amount due, or omit <code>totals.due</code>.</td></tr>
+<tr><td><code>INV-032</code></td><td>The document type is not a known invoice, credit note, or debit note.</td><td>Use <code>invoice</code>, <code>credit_note</code>, or <code>debit_note</code>, or omit the field.</td></tr>
+<tr><td><code>INV-033</code></td><td>A credit or debit note does not name the invoice it reverses.</td><td>Add <code>original_invoice</code> with the number being credited or debited.</td></tr>
+<tr><td><code>INV-034</code></td><td>A credit or debit note names itself as the invoice it reverses — usually a template that copied the invoice number into both fields.</td><td>Point <code>original_invoice</code> at the original document, not at this one.</td></tr>
+<tr><td><code>INV-047</code></td><td>The buyer reference is present but empty, not text, or a placeholder.</td><td>Add the cost-centre or buyer text the buyer asked for, or omit <code>buyer_reference</code>.</td></tr>
+<tr><td><code>INV-048</code></td><td>The purchase-order reference is present but empty, not text, or a placeholder.</td><td>Add the buyer's purchase-order number, or omit <code>order_reference</code>.</td></tr>
+<tr><td><code>INV-049</code></td><td>The purchase-order reference repeats the invoice number, which is what an export does when the buyer's PO was never captured. Accounts payable cannot match it.</td><td>Set it to the buyer's actual purchase-order number, or omit it.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Header allowances and charges</h2>
+<div class="table-wrap">
+<table>
+<caption>Document-level discounts and surcharges — the ones applied after the lines are summed.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-050</code></td><td>The adjustments field is present but is empty or is not a list of rows.</td><td>Provide a list of allowance or charge rows, or omit <code>adjustments</code>.</td></tr>
+<tr><td><code>INV-051</code></td><td>An allowance or charge base is missing or invalid, so its amount cannot be checked against its percentage.</td><td>Provide a non-negative base, or omit both base and percent and state the amount directly.</td></tr>
+<tr><td><code>INV-052</code></td><td>An allowance or charge reason is longer than the 100-character field receiving systems commonly provide.</td><td>Shorten the reason so it survives the receiving system, or drop the row.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Read failures</h2>
+<div class="table-wrap">
+<table>
+<caption>Reported when the file could not be parsed at all, so no other check could run against it.</caption>
+<thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
+<tbody>
+<tr><td><code>INV-READ</code></td><td>The invoice could not be read — malformed JSON, XML that is not UBL or CII, or a PDF with no embedded invoice XML to unwrap.</td><td>Resolve the read error and run the preflight again. For a PDF, confirm it is a Factur-X, ZUGFeRD, or XRechnung file that actually carries an XML attachment.</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2>Common questions</h2>
+<h3>What does an INV rule code from the e-invoice preflight mean?</h3>
+<p>Each INV code names one specific defect the preflight found in the invoice you gave it, so that a report can point at a single field rather than saying the document is bad. INV-012 means a line's net does not equal quantity times unit price. INV-017 means gross does not equal net plus tax. INV-018 means the tax total does not match what the line tax percentages add up to. INV-025 means an IBAN fails its published country checksum. INV-045 means a credit-transfer or SEPA payment means was given without an IBAN. These are the tool's own identifiers for its own checks, not codes issued by a tax authority or a submission network.</p>
+<h3>Are these the same codes my e-invoicing network sends back on a rejection?</h3>
+<p>No. INV codes are internal to this preflight and are not EN 16931 BR- rule identifiers, Peppol validation artefact codes, or any authority's rejection codes. The preflight runs before submission and reports arithmetic and structural observations about the file in front of it. A network's own validator may accept a document this tool flags, or reject one it passes. Use the INV code to find and fix the underlying field; quote your network's code, not this one, when you contact them.</p>
+<h3>Why did the preflight flag my invoice when the totals look right?</h3>
+<p>The most common cause is cent rounding applied at a different stage than the checker applies it. The preflight rounds half-up to cents and compares the rounded figures, so a line net carried at full floating precision in an ERP export can disagree with the printed total by a cent and raise INV-012, INV-014 or INV-018. The second most common cause is a field that is present but empty rather than absent — an empty string is not a missing field, and several checks treat the two differently. The report names the JSON path of the value it compared, which is the fastest way to see which of the two it is.</p>
+<p class="fine">This page is a reference for the tool's own checks. It is not tax or legal advice, and it does not tell you whether a document is legally valid or will be accepted by any network.</p>
+<p><a href="./">Open the preflight</a> and drop a JSON, UBL, CII, or Factur-X file to see which of these fire on your own invoice. Nothing you provide is uploaded.</p>
+</section>
+
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything runs in your browser. Your data is never uploaded. We count only anonymous feature events in local storage, never people, content, IPs, or cookies, with an opt-out on the checker page.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change the tool.</p>
+</footer>
+</main>
+</body></html>
