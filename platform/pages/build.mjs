@@ -336,6 +336,13 @@ export function categoryPagePath(categoryId) {
 }
 
 /**
+ * The one page on this site that is about the site rather than about a job to
+ * be done. Served as a directory so the URL a person types, links, or reads
+ * aloud is `/about` with no extension.
+ */
+export const ABOUT_PATH = 'about/';
+
+/**
  * The copy each category page is published with.
  *
  * Separate from `CATEGORY_RULES` because these are different jobs. The rules
@@ -1295,7 +1302,7 @@ ${siblings}
     </section>
 
     <footer>${DISCLAIMER_HTML}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a></p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every tool page loads, with the
@@ -1306,6 +1313,254 @@ ${siblings}
        count on each card is the second half of that: arrivals without opens
        means the copy is wrong, not that the page is unwanted. -->
   <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`${CATEGORY_PATH_PREFIX}/${category.id}`)}" defer></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * Prose rules the card-and-grid sheet has no need for. Appended to
+ * `CATEGORY_STYLE` rather than replacing it so the About page inherits the same
+ * palette, the same `.wrap`, the same footer treatment — a visitor arriving
+ * from a tool page should not feel they have left the site.
+ */
+const ABOUT_STYLE = `
+    .prose { max-width: 720px; }
+    .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
+    .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
+    .prose p { color: var(--muted); line-height: 1.62; margin: 0 0 14px; }
+    .prose ul { color: var(--muted); line-height: 1.62; padding-left: 22px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 7px; }
+    .prose a { color: var(--accent); }
+    .prose strong { color: var(--ink); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+             padding: 18px 20px; margin: 0 0 16px; }
+    .panel h3 { margin-top: 0; }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    .boiler { font-size: .93rem; line-height: 1.6; color: var(--ink);
+              background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+              padding: 13px 15px; margin: 0 0 12px; white-space: pre-wrap;
+              font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+`;
+
+/**
+ * The site's About page — and, in its second half, its press kit.
+ *
+ * Why a static catalogue of calculators needs one at all:
+ *
+ * 1. **Trust.** Every one of these tools asks a stranger to type their costs,
+ *    their margins, or their client's numbers into a page they found through
+ *    search. The single most common reason not to is the reasonable suspicion
+ *    that a free calculator is a lead magnet and the numbers are the product.
+ *    Here they are not, and that is checkable — no form, no account, no
+ *    beacon, no third-party script. Nowhere on the site said so in one place a
+ *    person could read before deciding.
+ *
+ * 2. **Distribution.** Organic linking is the whole acquisition plan. Somebody
+ *    writing a forum answer or a trade-association newsletter needs a sentence
+ *    to describe this, a URL to point at, and permission to do it. Making them
+ *    invent all three is why good tools go unlinked. The press-kit section
+ *    hands over exactly that, pre-written and copy-pasteable.
+ *
+ * Every claim here is one the build itself keeps true: the counts come from
+ * `surfaces`, and the privacy claims are properties of the generated output
+ * (no `fetch`, no `sendBeacon`, no third-party origin) rather than promises
+ * written by hand and left to rot.
+ */
+export function renderAboutPage({ surfaces, groups, baseUrl }) {
+  const url = `${baseUrl}${ABOUT_PATH}`;
+  // Served one level down, like a category page is served two.
+  const toRoot = '../';
+  const total = surfaces.length;
+  const categoryCount = groups.length;
+  const title = 'About these tools';
+  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type into them (nothing — every tool runs entirely in your browser).`;
+
+  // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
+  // it cannot drift from the catalogue the way hand-written marketing copy does.
+  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, no upload: everything runs in your browser.`;
+  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, no upload, and no third-party analytics — the numbers a user types never leave their device, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
+
+  const aboutLd = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: title,
+    url,
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: title, item: url },
+      ],
+    },
+  };
+
+  const categoryLinks = groups
+    .map(
+      ({ category, items }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
+          categoryPageCopy(category).title,
+        )}</a> <span>(${items.length})</span></li>`,
+    )
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(description)}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(aboutLd)}</script>
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${total} free tools</a> › About</p>
+    <header>
+      <p class="eyebrow">About</p>
+      <h1>${escapeHtml(title)}</h1>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and nothing you type into them is uploaded anywhere.</p>
+    </header>
+
+    <main class="prose">
+      <h2>What this is</h2>
+      <p>
+        A working set of ${total} small, single-purpose web tools across
+        ${categoryCount} areas — pricing a job, checking what a marketplace sale
+        actually nets, planning cashflow, normalising freight quotes, and
+        assembling the evidence a compliance obligation asks for. Each one
+        exists because the arithmetic behind it is easy to get wrong under time
+        pressure and expensive to get wrong in front of a customer.
+      </p>
+      <p>
+        They are deliberately narrow. A tool here answers one question for one
+        kind of business, rather than being a spreadsheet template that answers
+        none of them well.
+      </p>
+
+      <h2>What happens to what you type</h2>
+      <div class="panel">
+        <h3>Nothing. There is no server that could receive it.</h3>
+        <p>
+          Every tool on this site is a static page. The calculation happens in
+          your browser, in JavaScript you can read — use <em>View Source</em>,
+          or read the same file
+          <a href="https://github.com/Duncan-Haywood/monorepo-projects">in the
+          public source repository</a>. Specifically:
+        </p>
+        <ul>
+          <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
+          <li><strong>Nothing you enter is transmitted.</strong> These pages make no network request with your input — no form post, no background beacon.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. The only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>No cookies and no cross-site identifiers.</strong></li>
+          <li><strong>It works offline.</strong> Once a tool has loaded, it keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are.</li>
+        </ul>
+      </div>
+      <p>
+        The one thing that is counted is which tools get opened, as a plain
+        tally that is written to your own browser's local storage and is never
+        sent anywhere. It exists so the next tool built is one people actually
+        opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
+        <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
+        there is an opt-out checkbox at the foot of
+        <a href="${escapeHtml(toRoot)}" data-pf-to="hub">the tool list</a>.
+      </p>
+
+      <h2>Why it is free</h2>
+      <p>
+        Because keeping it free costs almost nothing. A static page has no
+        per-user cost, so there is no usage to meter and no reason to build a
+        paywall around arithmetic. There is no paid tier, no trial, and no
+        feature held back — the version you are using is the whole product.
+      </p>
+      <p>
+        If one of these has saved you money,
+        <a href="https://github.com/sponsors/Duncan-Haywood">sponsoring on
+        GitHub</a> is welcome and entirely optional. Declining changes nothing
+        about what any tool does, and nothing here is gated behind it.
+      </p>
+
+      <h2>What these tools are not</h2>
+      <p>
+        They are estimates and working records, not professional advice and not
+        a determination made on anyone's behalf. They do not replace a
+        quantity surveyor, an accountant, a lawyer, or an engineer, and the
+        output of any of them is a starting figure to check against your own
+        numbers before you quote it to a customer or file it anywhere. The full
+        terms are in the footer of this and every other page.
+      </p>
+
+      <h2>Linking to these tools</h2>
+      <p>
+        You do not need permission to link to anything here, quote a page, or
+        screenshot a result — for a forum answer, a trade newsletter, a course
+        handout, or a write-up. Linking straight to the individual tool is more
+        use to a reader than linking to the front page. If it helps, here is
+        the description, already written:
+      </p>
+      <h3>One line</h3>
+      <p class="boiler">${escapeHtml(shortBoiler)}</p>
+      <h3>A paragraph</h3>
+      <p class="boiler">${escapeHtml(longBoiler)}</p>
+      <h3>The facts, if you would rather write your own</h3>
+      <ul>
+        <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
+        <li><strong>Runs client-side.</strong> Static pages; no account, no upload, no third-party analytics; works offline once opened.</li>
+        <li><strong>Open source</strong> under the MIT licence — <a href="https://github.com/Duncan-Haywood/monorepo-projects">github.com/Duncan-Haywood/monorepo-projects</a>.</li>
+        <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
+      </ul>
+      <p>
+        Please do not describe these as certified, audited, guaranteed, or as
+        professional advice — they are none of those things, and saying so
+        would mislead the person you are recommending them to.
+      </p>
+
+      <h2>For crawlers and assistants</h2>
+      <p>
+        The catalogue is published in machine-readable form so an assistant can
+        cite the right tool rather than guess at one:
+        <a href="${escapeHtml(`${toRoot}catalog.json`)}">catalog.json</a> lists
+        every tool with its category and description,
+        <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> is the same
+        catalogue as prose, and
+        <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">sitemap.xml</a> indexes
+        every published page. Every tool page carries
+        <code>SoftwareApplication</code> structured data.
+      </p>
+    </main>
+
+    <section class="siblings">
+      <h2>Browse by trade</h2>
+      <ul>
+${categoryLinks}
+      </ul>
+    </section>
+
+    <footer>${DISCLAIMER_HTML}
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a></p>
+    </footer>
+  </div>
+  <!-- The same local-only counter every other page loads. An About page that
+       nobody reaches is a different problem from one that is reached and does
+       not send anyone on to a tool, and only the cross_tool_click half of this
+       tells them apart. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="about" defer></script>
 </body>
 </html>
 `;
@@ -1796,6 +2051,7 @@ ${DISCLAIMER_HTML}
       <p>
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
+        <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
         <a href="sitemap.xml">Sitemap</a>
@@ -3247,6 +3503,8 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
 ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
       &nbsp;·&nbsp;
+      <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
+      &nbsp;·&nbsp;
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
       is optional and changes nothing about what these tools do.
     </p>
@@ -3441,9 +3699,12 @@ ${entries.join('\n')}
  * crawler following `robots.txt` reaches them through the same index.
  */
 export function renderHubSitemap(baseUrl, categoryIds = []) {
-  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
-    categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`),
-  );
+  const urls = [`  <url><loc>${baseUrl}</loc></url>`]
+    .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
+    // The About page is a hub-level surface, not a venture's, so it is listed
+    // here or in no sitemap at all — and an unlisted page is one a crawler
+    // reaches only by following a footer link on a page it happened to find.
+    .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`]);
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -3602,6 +3863,7 @@ export function renderLlmsTxt(surfaces, baseUrl) {
   const optional = [
     '## Optional',
     '',
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Source](${SOURCE_URL_PREFIX.replace('/blob/main/', '')}): MIT-licensed source for every tool on this site.`,
@@ -3857,6 +4119,15 @@ export async function buildSite({
       renderCategoryPage({ category, items, groups: categoryGroups, baseUrl: base }),
     );
   }
+
+  // After the categories because the About page links every one of them, and
+  // before the sitemaps for the same reason they are.
+  const aboutDir = path.join(outDir, ABOUT_PATH);
+  await fs.mkdir(aboutDir, { recursive: true });
+  await fs.writeFile(
+    path.join(aboutDir, 'index.html'),
+    renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
+  );
 
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
   await fs.writeFile(
