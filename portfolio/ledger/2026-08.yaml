@@ -35240,3 +35240,51 @@ entries:
         tools, 495 pages, up from 494) + check.mjs no dead links. Merged
         as #2298.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Third concurrent session against the same brief (prioritize
+        CI/CD, Hetzner deployment, Codex CLI on the agent box against
+        subscription quota). Not re-recording the branch/PR-queue and
+        infra-readiness findings already on record above and in commit
+        87de7f9d -- independently reached the same conclusions (0 open
+        PRs; ~20 more branches sampled by two different rankings
+        [highest-commit-count and most-recent-commit], all already
+        superseded once checked with a two-dot diff against current
+        `main` rather than the merge-base; gitops/CI/Codex-governor
+        infra fully coded and already queued at #2000/#1996, no
+        duplicate asks added).
+      - >-
+        Ran the whole-site Playwright sweep (`platform/pages/sweep.mjs`)
+        against a fresh build for the first time this run found on
+        record -- 168/168 tools answered with no errors, using this
+        environment's pre-installed Chromium
+        (`PLAYWRIGHT=.../playwright/index.js CHROME_PATH=.../chrome`).
+        Also reran venture suite (12528/12528) and platform/pages suite
+        (770/770) locally; both clean, matching the figures already on
+        record. Nothing broken to repair.
+      - >-
+        Product pick: contractor-bid-readiness, one of the remaining
+        single-page ventures with no PRODUCT_PLAYBOOK.md 5e standalone
+        docs page (its FAQ already explained the days-remaining logic
+        inline, but had no indexable page of its own for that specific
+        query -- unlike several sibling ventures that already do).
+      - >-
+        Shipped does-a-bid-due-today-count-as-a-day-remaining.html: a
+        worked table grounded in daysUntilDue()/deadlineSentence()/
+        assessBid() output showing a bid due today reads 0 days
+        remaining (not 1) and a deadline that passed overnight reads
+        past-due immediately (not after a full day) -- the two bugs
+        model.mjs's own comments already document fixing.
+        days-remaining-page.test.mjs asserts every table figure against
+        the real functions rather than hand-typing them. Linked from
+        index.html's existing FAQ answer and added to sitemap.xml.
+      - >-
+        Verified locally (Actions down, same runner_id 0 signature,
+        reconfirmed on this session's own PR): venture suite 19/19 (6
+        new), build.mjs (168 tools, 496 pages, up from 494) + check.mjs
+        no dead links, faq-coverage.mjs unchanged at 168/168,
+        faq-duplicate.mjs clean. Merged as #2301.
+    mrr_end: null
