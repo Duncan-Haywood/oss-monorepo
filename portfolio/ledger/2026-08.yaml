@@ -31492,6 +31492,48 @@ entries:
         dist (164 products, 480 pages, no dead links). Shipped and merged
         #2149.
     mrr_end: null
+  - venture: backup-verification-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        faq-coverage.mjs (164/164) and clauses.mjs (no-warranty clause on
+        all 469 pages) both already reported full coverage, so skipped the
+        FAQ/share-card pass other recent sessions had already swept.
+        Instead compared this venture's Python CLI
+        (src/backup_evidence/report.py) against its browser port
+        (report.mjs, imported by index.html): the Python side has a
+        `require_integrity` option on `classify_run`/`check` (its own
+        README documents `--require-integrity`, with CLI test coverage),
+        but the JS port's `classifyRun`/`buildTrend` had no such
+        parameter at all -- a visitor who recorded runs with
+        `--verify-integrity` had no way to apply that stricter bar in the
+        browser trend page; every stat-only "verified" night stayed
+        verified there regardless of whether anything ever read the file.
+      - >-
+        Shipped and merged #2151: added `requireIntegrity` to
+        `classifyRun`/`buildTrend` in report.mjs, mirroring
+        `classify_run`'s `require_integrity` behavior (corrupt still
+        fails outright; unsupported/inconclusive/missing integrity
+        results become inconclusive with a reason naming which; intact
+        still verifies). Wired a checkbox into index.html that re-renders
+        loaded records when toggled, added a matching FAQ answer, and
+        threaded a require-integrity-aware line into buildTrend's
+        limitations output. Off by default -- no behavior change for a
+        visitor who doesn't turn it on.
+      - >-
+        Verified locally: `node --test` in the venture directory (19/19
+        pass -- 7 new tests covering requireIntegrity on classifyRun and
+        buildTrend, plus the existing page/usage tests unaffected);
+        `python3 -m unittest discover -s tests -v` (89/89 pass, unchanged
+        -- Python side untouched); `node platform/pages/build.mjs` (164
+        tools, no errors) + `check.mjs` (164 products, 480 pages, no dead
+        links) + `faq-coverage.mjs` (164/164) + `faq-duplicate.mjs` (no
+        duplicated FAQ sections) + `clauses.mjs` (no-warranty clause still
+        on all 469 pages). PR showed the documented 2026-08-26 runner
+        outage signature (all-red/absent checks); merged on local
+        verification per CLAUDE.md.
+    mrr_end: null
   - venture: cut-list-optimizer
     agent_spend_usd: null
     human_hours: 0
