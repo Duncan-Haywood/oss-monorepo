@@ -158,6 +158,66 @@ class Collect(unittest.TestCase):
         """)
         self.assertEqual(steps[0].status, "pending")
 
+    def test_an_unset_repository_variable_resolves_to_empty_rather_than_skipping(self):
+        """`portfolio-pages.yml`'s "Build the site": the command is plain, and
+        `PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}` is an optional override
+        that `build.mjs` reads as `process.env.X || DEFAULT_BASE_URL`. Skipping
+        it did not just lose one step -- "Check the built artifact" then ran
+        against a `dist` nothing had created and was reported FAIL, so the
+        deploy-critical workflow read red while it was green."""
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: build
+                    env:
+                      PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+                    run: node build.mjs --out=dist
+        """)
+        self.assertEqual(steps[0].status, "pending")
+        self.assertEqual(steps[0].env, {"PAGES_BASE_URL": ""})
+        self.assertEqual(steps[0].unset_vars, ["PAGES_BASE_URL"])
+
+    def test_a_secret_in_env_still_skips(self):
+        """Blanking a secret would run the step without the credential it
+        exists to use, which is a confusing failure, not a verification."""
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: publish
+                    env:
+                      TOKEN: ${{ secrets.NPM_TOKEN }}
+                    run: echo hi
+        """)
+        self.assertEqual(steps[0].status, "skipped")
+
+    def test_a_vars_expression_in_the_command_still_skips(self):
+        """Only `env:` is resolved. A `vars.` reference inline in the command
+        would have to be substituted into shell text, which is the literal-text
+        hazard the skip exists for."""
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: inline
+                    run: echo ${{ vars.CI_RUNNER }}
+        """)
+        self.assertEqual(steps[0].status, "skipped")
+
+    def test_a_partially_templated_env_value_keeps_its_literal_half(self):
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: mixed
+                    env:
+                      BASE: https://${{ vars.HOST }}/tools
+                    run: echo 1
+        """)
+        self.assertEqual(steps[0].status, "pending")
+        self.assertEqual(steps[0].env, {"BASE": "https:///tools"})
+
     def test_multiline_run_blocks_are_collected(self):
         """The ad-hoc runs that missed a red `main` skipped these."""
         steps, _ = self.collect("""
@@ -219,6 +279,30 @@ class Execute(unittest.TestCase):
     def test_output_is_captured_for_the_report(self):
         step = self.run_one("echo diagnostic; exit 1")
         self.assertIn("diagnostic", step.tail)
+
+    def test_a_resolved_variable_reaches_the_step_as_empty(self):
+        step = runner.Step("j", "n", 'test -z "${BASE_URL-unset}"', ".")
+        step.env = {"BASE_URL": ""}
+        runner.execute(step, timeout=60)
+        self.assertEqual(step.status, "ok", step.tail)
+
+    def test_a_resolved_variable_beats_one_already_in_the_environment(self):
+        """The point is to reproduce CI's unset state. A developer's stray
+        export would otherwise verify a configuration CI does not have."""
+        os.environ["PF_TEST_STRAY"] = "leaked"
+        self.addCleanup(os.environ.pop, "PF_TEST_STRAY", None)
+        step = runner.Step("j", "n", 'test -z "$PF_TEST_STRAY"', ".")
+        step.env = {"PF_TEST_STRAY": ""}
+        runner.execute(step, timeout=60)
+        self.assertEqual(step.status, "ok", step.tail)
+
+    def test_the_rest_of_the_environment_survives_a_resolved_variable(self):
+        os.environ["PF_TEST_KEEP"] = "kept"
+        self.addCleanup(os.environ.pop, "PF_TEST_KEEP", None)
+        step = runner.Step("j", "n", 'test "$PF_TEST_KEEP" = kept', ".")
+        step.env = {"OTHER": ""}
+        runner.execute(step, timeout=60)
+        self.assertEqual(step.status, "ok", step.tail)
 
     def test_a_missing_working_directory_fails_rather_than_runs_in_the_repo(self):
         step = self.run_one("true", workdir="no/such/dir")
