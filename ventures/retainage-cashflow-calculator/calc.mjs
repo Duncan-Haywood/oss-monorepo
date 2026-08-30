@@ -419,3 +419,24 @@ export function summaryText({ projectName, result, currency = '$' }) {
     'Numbers-only snapshot for a bookkeeper. The full worksheet export includes delay scenarios, release math, and the follow-up draft. Scenario only. Review the contract, payment terms, and local requirements. Not legal, tax, financial, or engineering advice.',
   ].join('\n');
 }
+
+export function cashFlowRecordText({ projectName, invoiceReference, dueDate, result, currency = '$', generatedDate = new Date().toISOString().slice(0, 10) }) {
+  const project = projectName?.trim() || '[project name]';
+  const invoice = invoiceReference?.trim() || '[invoice or pay application reference]';
+  const due = dueDate?.trim() || '[due date]';
+  return [
+    'CONSTRUCTION RETAINAGE CASH-FLOW RECORD',
+    `Generated: ${generatedDate}`,
+    `Project: ${project}`,
+    `Invoice / pay application: ${invoice}`,
+    `Payment due: ${due}`,
+    '',
+    `Retainage withheld: ${currency}${result.retainageWithheld.toFixed(2)}`,
+    `Earned but unpaid: ${currency}${result.earnedUnpaid.toFixed(2)}`,
+    `Modeled carrying cost: ${currency}${result.carryingCost.toFixed(2)}`,
+    `Total modeled cash outstanding: ${currency}${result.totalCashOutstanding.toFixed(2)}`,
+    '',
+    'This is a user-entered scenario and account-record aid, not a determination of interest, payment deadline, lien right, entitlement, or legal remedy.',
+    'Review the figures and supporting records before relying on or sharing this record.'
+  ].join('\n');
+}

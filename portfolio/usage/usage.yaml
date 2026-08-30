@@ -61,6 +61,11 @@ products:
           local_calculation_events: 0
           payment_draft_copies: 0
         note: Shipped browser-local retainage and payment-delay worksheet; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          cash_flow_record_downloads: 0
+        note: Added a browser-local plain-text cash-flow record download for carrying a reviewed snapshot into a contractor's own records; public URL remains owner-gated.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
