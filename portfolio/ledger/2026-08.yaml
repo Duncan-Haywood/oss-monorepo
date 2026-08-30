@@ -35185,3 +35185,58 @@ entries:
         Confirmed CI is still down site-wide as of this run (runner_id 0,
         ~4s jobs on main HEAD 3e0c52e). No duplicate asks added.
     mrr_end: null
+  - venture: payment-reconciliation-workbench
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session opened against the same brief as the concurrent run
+        recorded just above (prioritize CI/CD, Hetzner deployment, and
+        Codex CLI against subscription quota). Checked the three-PR quota
+        independently first: zero open PRs at session start. Re-audited
+        the branch backlog with a fresh script against a corrected
+        `origin/main` (the initial pass used a stale local `main` ref 300+
+        commits behind, which would have wrongly flagged ~190 branches as
+        carrying unique work); after the fix, confirmed the same
+        conclusion already on record here and in commit 87de7f9d: all
+        venture directories referenced by the ~175 nonzero branches
+        already exist on `main`. Not re-recording that scan as a new
+        finding.
+      - >-
+        Checked the three infra asks against the decision queue
+        independently and reached the same result already on record:
+        CI restore, Hetzner portfolio-site deploy, and Codex CLI on the
+        Hetzner agent box (subscription-quota and metered-API variants)
+        are all fully coded (`gitops/ci/`, `gitops/prod/`,
+        `gitops/agents/`) and already queued (items 10, 11, 12, 13),
+        blocked purely on owner-only steps. No duplicate asks added.
+      - >-
+        Product pick: payment-reconciliation-workbench was one of 10
+        remaining single-page ventures with no PRODUCT_PLAYBOOK.md §5e
+        deep docs page. Its split-payout grouping
+        (`findDepositGroup`/`explainExceptions` in `src/reconcile.mjs`)
+        had no page answering "why does my payout show up as two bank
+        deposits", the natural search question for its second-most-used
+        matching path.
+      - >-
+        Shipped why-does-one-payout-show-up-as-two-bank-deposits.html:
+        answers the split-deposit case with the venture's own
+        `reconcile.test.mjs` fixture (a $100.00 payout landing as $60.00
+        + $40.00 deposits, matched as one group), plus what happens when
+        a split does not sum exactly (falls back to the single-deposit
+        fee hint, $100.00 payout vs $96.80 deposit, 3.20% short). Linked
+        from index.html's FAQ and added to sitemap.xml.
+      - >-
+        split-deposit-page.test.mjs asserts every figure against actual
+        `reconcile()`/`explanation()` output rather than hand-typed
+        numbers, including the literal em dash in the quoted
+        explanation() sentence rather than an &mdash; entity -- the same
+        entity-vs-literal-character drift class recorded against the
+        prior einvoice-preflight docs pages, deliberately avoided here.
+      - >-
+        Verified locally (Actions down, runner_id 0 / runner_name ""
+        signature, reconfirmed on this session's own PR): venture suite
+        30/30 (8 new), clauses.mjs clean on both pages, build.mjs (168
+        tools, 495 pages, up from 494) + check.mjs no dead links. Merged
+        as #2298.
+    mrr_end: null
