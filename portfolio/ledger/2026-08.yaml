@@ -31354,3 +31354,55 @@ entries:
         + `check.mjs` (164 products, 480 pages, no dead links). Shipped
         and merged #2142.
     mrr_end: null
+  - venture: where-to-sell-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start (quota satisfied vacuously again),
+        so instead of stopping there this session ran
+        `supersede_check.py --no-fetch` against stale
+        `origin/pr/*`-style branches to check the branch-to-PR presumption
+        properly. `pr/appointment-deposit-calculator` confirmed fully
+        superseded on closer reading despite a 34-line mechanical flag
+        (main's #1835 salvage refactored the same validation into
+        `calc.mjs`, tests import the real functions instead of
+        duplicating the math, and additionally validate `noticeHours`,
+        which the branch never did) -- correctly left alone, no PR opened.
+      - >-
+        `pr/where-to-sell-rank-by-profit-per-day` flagged NOT SUPERSEDED
+        (232 unmatched lines) despite an earlier ledger entry this same
+        month recording it as superseded by main's own
+        speed/profit-per-day ranking work (#1721/#1494/#1497) and closing
+        PRs #2138/#2139 on that basis. Re-examined by reading main's
+        current `calc.mjs` directly rather than trusting either verdict:
+        main's shipped ranking dimensions are expected-returns,
+        monthly-volume, and shelf-time/turnover -- none of which is the
+        branch's actual feature, a `daysToSell`-weighted profit-per-day
+        toggle with `cashTurnsPerYear`/`fastestReturn` and a callout that
+        only fires when re-ranking by speed changes the answer. The two
+        are easy to conflate (both are "speed matters" framings on the
+        same file) but are not the same computation, so the earlier close
+        was a miss of the same rename-shaped trap CLAUDE.md warns about,
+        just in the other direction (calling two different features one
+        feature, not calling one feature two names).
+      - >-
+        Reconciled the branch onto current main: kept main's nullable
+        days-to-sell semantics (load-bearing for its shelf-time engine)
+        and rebuilt the rank-by toggle on top rather than reintroducing
+        the branch's `DEFAULT_DAYS_TO_SELL=21` fallback. Also fixed a real
+        share-link data-loss bug the branch's `share.mjs` change was
+        chasing: `rankBy` and `daysToSell` were missing from the payload
+        allowlist, so a shared link could show the recipient a different
+        ranking than the sender saw -- same defect class as the
+        `quantity`/`targetMargin` bug CLAUDE.md documents on this same
+        venture's share links. The raw merge also produced a duplicate
+        `const daysToSell` declaration (syntax error) and two duplicate
+        trailing `<th>` table columns already rendered elsewhere under
+        better headers; both removed. One test's assumption (uniform
+        default holding period) no longer held once main's shelf-time
+        work gave each preset its own pace, so it was rewritten against
+        real behavior instead of deleted. `node --test
+        ventures/where-to-sell-calculator/*.test.mjs`: 119/119 passing.
+        Shipped and merged #2155.
+    mrr_end: null
