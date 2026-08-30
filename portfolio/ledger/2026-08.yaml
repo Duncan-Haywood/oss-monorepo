@@ -30033,3 +30033,45 @@ entries:
         `infra/OWNER_CHECKLIST.md`, and a fourth duplicate ask is not the
         blocker.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start, so checked all 171 remote branches
+        with commits not on `main` (`git branch -r --no-merged origin/main`)
+        for unmerged value before starting new work, per the mandate's
+        overlap-check requirement. Sampled every category -- the mandate
+        family (`product-first-development-mandate-*`,
+        `autonomous-development-mandate-*` and siblings, 24 branches), the
+        `quote-margin-*` family (21 branches), named single-feature branches
+        (window-replacement, grant-deadline-tracker, faire-wholesale,
+        chargeback-evidence-packet and others), and the four one-off branches
+        that looked most likely to be real (`venture/vendor-change-watch`,
+        `pipeline/dns-evidence-monitor`,
+        `decision-queue/session-gate-economics-premise`,
+        `agent/software-evidence-provenance`). Every one sampled is already a
+        strict subset of what is on `main` today -- e.g.
+        `quote-margin-csv-escape-kilo-20260825`'s `toCsv` is fully
+        superseded by `main`'s `csvCell`, which adds formula-injection
+        protection the branch never had. Conclusion: this backlog is stale
+        housekeeping from the 2026-08-24/25 burst, not held-back work: `main`
+        has since caught up on and surpassed every branch checked. Not acted
+        on further -- bulk-deleting 171 branches is a destructive action
+        outside this session's product-delivery scope and CLAUDE.md
+        deprioritizes admin cleanup that does not block shipping; flagging it
+        here for whoever next reaches for the branch list instead of
+        re-deriving this.
+      - >-
+        Two more FAQ batches merged continuing the #2069-#2072 series, same
+        day: #2073 (carpet-install, concrete-lifting, countertop,
+        crown-molding, deck-staining, egress-window) and #2075
+        (crawl-space-encapsulation, entry-door, epoxy-garage-floor,
+        fireplace-insert, flat-roof, foundation-repair). Coverage 74 -> 86 of
+        164 including a concurrent session's #2074 (job-margin-variance).
+        Verified per PR: 568 then 485 venture tests green, build+check 164
+        products / 479 pages / no dead links, conflict-markers/money-sign/
+        form-defaults clean each time. CI red on both merges is the
+        documented runner outage (`runner_id: 0`, ~3-4s jobs on that head
+        SHA), confirmed via the check-runs endpoint rather than assumed.
+    mrr_end: null
