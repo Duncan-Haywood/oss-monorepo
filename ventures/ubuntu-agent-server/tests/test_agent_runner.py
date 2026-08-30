@@ -330,3 +330,113 @@ def test_empty_when_gh_fails(agent_runner, fake_log, monkeypatch):
 
     result = agent_runner.list_candidate_issues("owner/repo", "agent", fake_log)
     assert result == []
+
+
+# --- codex model routing ------------------------------------------------
+#
+# The IDs that used to be hardcoded here ("gpt-5-mini"/"gpt-5") were an
+# admitted guess. A wrong --model value makes `codex exec` exit non-zero
+# before generating anything, on every poll cycle, so an unverified guess
+# was worse than no routing: it converted a working default into a
+# permanent failure. Routing is now opt-in and both halves are required.
+
+def test_codex_model_routing_is_off_by_default(load_agent_runner, monkeypatch):
+    monkeypatch.delenv("CODEX_MODEL_LOW", raising=False)
+    monkeypatch.delenv("CODEX_MODEL_HIGH", raising=False)
+    mod = load_agent_runner()
+    assert "codex" not in mod.MODEL_BY_TIER
+    # No AGENT_MODEL exported means codex.sh omits --model entirely, so the
+    # signed-in plan's own model (and its included quota) is what serves.
+    assert mod.model_env_for("codex", "high") == {}
+    assert mod.model_env_for("codex", "low") == {}
+
+
+def test_codex_model_routing_opt_in(load_agent_runner, monkeypatch):
+    monkeypatch.setenv("CODEX_MODEL_LOW", "verified-low")
+    monkeypatch.setenv("CODEX_MODEL_HIGH", "verified-high")
+    mod = load_agent_runner()
+    assert mod.model_env_for("codex", "low") == {"AGENT_MODEL": "verified-low"}
+    assert mod.model_env_for("codex", "high") == {"AGENT_MODEL": "verified-high"}
+
+
+def test_codex_model_routing_ignores_half_a_pair(load_agent_runner, monkeypatch):
+    """One tier configured would silently route that tier and not the other."""
+    monkeypatch.setenv("CODEX_MODEL_HIGH", "verified-high")
+    monkeypatch.delenv("CODEX_MODEL_LOW", raising=False)
+    mod = load_agent_runner()
+    assert "codex" not in mod.MODEL_BY_TIER
+
+
+def test_claude_aliases_are_unconditional(load_agent_runner, monkeypatch):
+    """Claude routes on stable tier aliases, so it must not depend on env."""
+    monkeypatch.delenv("CODEX_MODEL_LOW", raising=False)
+    monkeypatch.delenv("CODEX_MODEL_HIGH", raising=False)
+    mod = load_agent_runner()
+    assert mod.MODEL_BY_TIER["claude"] == {"low": "haiku", "high": "sonnet"}
+
+
+# --- runner scripts -----------------------------------------------------
+
+def _runner_source(name):
+    from pathlib import Path
+    return (
+        Path(__file__).resolve().parent.parent
+        / "roles" / "agent_runner" / "files" / "runners" / name
+    ).read_text()
+
+
+def _runner_code(name):
+    """Executable lines only.
+
+    The comment block in codex.sh quotes the removed flag verbatim to explain
+    why it is gone, which is worth keeping — so the flag check has to look at
+    what actually runs, not at the prose about it.
+    """
+    return "\n".join(
+        line for line in _runner_source(name).splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    )
+
+
+def test_codex_runner_does_not_pass_removed_approval_flag():
+    """Regression: --ask-for-approval was removed from `codex exec` upstream.
+
+    Passing it makes the CLI exit 2 on argument parsing ("unexpected
+    argument"), which killed every codex run before a token was generated.
+    Verified against codex-cli 0.151.0.
+    """
+    assert "--ask-for-approval" not in _runner_code("codex.sh")
+
+
+def test_codex_runner_drops_api_key_unless_opted_in():
+    """The included-quota path must not silently fall through to metered API
+    billing just because OPENAI_API_KEY happens to be in the environment."""
+    code = _runner_code("codex.sh")
+    assert "unset OPENAI_API_KEY" in code
+    assert "CODEX_USE_API_KEY" in code
+
+
+def test_codex_runner_preflights_login():
+    assert "codex login status" in _runner_code("codex.sh")
+
+
+# --- self-directed prompt ----------------------------------------------
+
+def test_self_directed_prompt_allows_deployment_and_marketing(agent_runner):
+    """The owner directed that deployment/CI-CD and marketing material are
+    priority work; the old prompt's boundaries forbade both outright."""
+    prompt = agent_runner.SELF_DIRECTED_PROMPT
+    assert "Deployment, CI/CD, infrastructure-as-code, and marketing material ARE in" in prompt
+
+
+def test_self_directed_prompt_keeps_third_party_boundaries(agent_runner):
+    """Relaxing the deploy/marketing carve-outs must not relax the ones that
+    protect someone other than us."""
+    prompt = agent_runner.SELF_DIRECTED_PROMPT.lower()
+    for guard in ("money", "secrets", "personal data", "disclaimer", "fabricate"):
+        assert guard in prompt, f"missing boundary: {guard}"
+
+
+def test_self_directed_prompt_defers_to_repo_docs(agent_runner):
+    prompt = agent_runner.SELF_DIRECTED_PROMPT
+    assert "CLAUDE.md" in prompt and "AGENTS.md" in prompt

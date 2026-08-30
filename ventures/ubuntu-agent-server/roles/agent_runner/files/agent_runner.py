@@ -86,13 +86,29 @@ GIT_IDENTITY = {
 # documented --model flags (see README's per-tool table). The runner
 # scripts read these via env var (AGENT_MODEL) if set, so the actual model
 # IDs live here, in one place, not scattered across shell scripts.
-# VERIFY these are valid for your account/plan before trusting model_tier
-# routing — wrong values fail loudly (the CLI errors), they don't silently
-# fall back, which is preferable but still worth catching in dry_run first.
-MODEL_BY_TIER = {
+#
+# Claude's entries are stable *aliases* ("haiku"/"sonnet"), which resolve to
+# whatever that tier currently is — they do not go stale.
+#
+# Codex has no such aliases: --model takes a concrete ID. The IDs that used
+# to sit here ("gpt-5-mini"/"gpt-5") were written down as an admitted guess
+# and never checked against a live account. A wrong ID fails the whole run,
+# and it fails on every poll cycle, so the guess was strictly worse than not
+# routing at all. Codex now defaults to no override: `codex exec` without
+# --model uses the model the signed-in plan actually serves, which is both
+# correct-by-construction and what keeps runs on the plan's included quota.
+#
+# To opt back in, set CODEX_MODEL_LOW / CODEX_MODEL_HIGH to IDs you have
+# confirmed with `codex exec --model <id>` on the box. Both must be set;
+# a half-configured pair would route one tier and not the other.
+_CODEX_MODEL_LOW = os.environ.get("CODEX_MODEL_LOW")
+_CODEX_MODEL_HIGH = os.environ.get("CODEX_MODEL_HIGH")
+
+MODEL_BY_TIER: dict[str, dict[str, str]] = {
     "claude": {"low": "haiku", "high": "sonnet"},
-    "codex": {"low": "gpt-5-mini", "high": "gpt-5"},
 }
+if _CODEX_MODEL_LOW and _CODEX_MODEL_HIGH:
+    MODEL_BY_TIER["codex"] = {"low": _CODEX_MODEL_LOW, "high": _CODEX_MODEL_HIGH}
 
 USE_DOCKER = os.environ.get("AGENT_RUNNER_USE_DOCKER", "false").lower() == "true"
 DOCKER_IMAGE = os.environ.get("AGENT_RUNNER_DOCKER_IMAGE", "agent-runner:latest")
@@ -201,24 +217,73 @@ def label(repo: str, number: int, name: str) -> None:
 
 # --- self-directed work -----------------------------------------------
 
+# The brief an unattended agent works from when no issue is waiting.
+#
+# This used to be a generic "find a bug or a docs gap" prompt whose
+# boundaries ruled out deployment/infra configuration and marketing copy.
+# The owner has since directed that deployment, CI/CD, and marketing
+# material are priority work rather than off-limits, so those two carve-outs
+# are gone. The boundaries that remain are the ones that protect someone
+# other than us: money, legally binding claims, real people's data, and
+# secrets. Those are not style preferences and do not relax.
+#
+# Keep this prompt in sync with the product-first direction in the target
+# repo's own CLAUDE.md / DIRECTION.md — this is the fallback for repos that
+# do not carry one, not a competing policy.
 SELF_DIRECTED_PROMPT = """\
 There is no specific issue assigned — you're finding your own next task.
 
-Review this repository (code, README, open issues, recent commit history)
-and use your judgment to identify ONE high-value improvement, then make it.
-Good candidates: a real bug, a gap in test coverage, unclear or missing
-documentation, a rough edge in the developer experience, a genuine
-performance problem, or a small well-scoped feature that's clearly implied
-by existing code/docs but not yet done.
+Read this repository's own contributor docs first (CLAUDE.md, AGENTS.md,
+README, any DIRECTION/PLAYBOOK file) and follow them. They outrank this
+prompt wherever they are more specific; this is the fallback brief, not a
+competing policy.
 
-Boundaries, same as any unattended run: prefer leaving the repo unchanged
-over guessing at something ambiguous. Do not modify billing, pricing,
-payment, legal, or marketing-copy files, deployment/infra configuration,
-or anything secret-adjacent, unless a human explicitly asked for that in
-this task — none did. Stay inside normal software-engineering territory:
-code, tests, docs, dev tooling. A human reviews the PR this produces;
-explain your reasoning there so they can evaluate the judgment call, not
-just the diff.
+The objective is to create real value for the people who use what this
+repository ships. Pick ONE high-value piece of work and finish it, in
+roughly this order of preference:
+
+1. Repair something users touch that is broken, unreachable, or half-built.
+2. Carry finished work the last mile: get it deployed, reachable, and
+   verified through the route a real user would actually take.
+3. Make an existing product materially more useful — a missing step in a
+   core workflow, a failure state that strands people, time-to-first-value.
+4. Make it discoverable and understandable: landing copy, onboarding, docs,
+   SEO and machine-readable descriptions, honest launch material.
+5. A well-scoped new capability that existing code and docs clearly imply.
+
+Prefer work a user could notice over internal tidying, unless the internal
+work is what unblocks the rest. Finish one thing completely — including
+tests and a manual pass over the primary path — rather than starting three.
+Scaffolding, placeholder pages, and mock-only interfaces do not count as
+done. Do not claim something is deployed, verified, or working unless you
+checked it yourself.
+
+Boundaries, same as any unattended run. Prefer leaving the repo unchanged
+over guessing at something ambiguous. Do not:
+
+- take, move, or collect money, or wire up billing, pricing, or payout rails;
+- make legal, tax, medical, or compliance claims on the project's behalf, or
+  weaken a liability disclaimer that is already there;
+- publish under the project's public name — a store listing, a package
+  publish, a production domain cutover. Building the artifact privately is
+  fine; shipping it under the owner's name is theirs to decide;
+- touch secrets, credentials, or tokens, or commit anything secret-adjacent;
+- collect personal data, scrape people, or add a third-party analytics
+  vendor. Usage measurement counts events, never people;
+- fabricate traction, testimonials, benchmarks, endorsements, or user
+  numbers in any marketing material you write. Claim only what is true and
+  that you have verified;
+- perform destructive or irreversible operations outside the task, including
+  rewriting shared history or deleting another contributor's work.
+
+Deployment, CI/CD, infrastructure-as-code, and marketing material ARE in
+scope — the owner asked for them specifically. Treat production changes with
+the care they deserve: preserve unrelated running services, keep changes
+reversible, and verify health after the fact.
+
+A human reviews the PR this produces. Explain your reasoning there — what
+you picked, why it was the highest-value thing available, what you verified
+and how — so they can evaluate the judgment call, not just the diff.
 """
 
 
