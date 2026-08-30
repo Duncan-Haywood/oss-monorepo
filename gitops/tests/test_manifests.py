@@ -332,7 +332,18 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
     # POPULATED types block in this context replaces the inherited mime map
     # instead of extending it, stripping the content type off every other
     # file on the site.
-    for suffix, mime in ((r"\.mjs$", "text/javascript"), (r"\.webmanifest$", "application/manifest+json")):
+    #
+    # `.csv` is the third of the same class -- nginx 1.27.0's mime.types has no
+    # entry for it either, and fifo-pick-evidence ships examples/picks.csv as
+    # the sample a visitor loads into the tool. Found by generalizing rather
+    # than by it breaking: `platform/pages/check.mjs` now fails the build when
+    # the site emits an extension neither nginx nor this ConfigMap types, so a
+    # fourth cannot reach production the quiet way the first two did.
+    for suffix, mime in (
+        (r"\.mjs$", "text/javascript"),
+        (r"\.webmanifest$", "application/manifest+json"),
+        (r"\.csv$", "text/csv"),
+    ):
         block = f"location ~ {suffix} {{\n    types {{ }}\n    default_type {mime};"
         assert block in conf, f"missing or reordered: {suffix} -> {mime}"
 
@@ -349,8 +360,13 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # location that sets Cache-Control silently loses nosniff unless it
     # restates it — which is exactly how the .mjs fix could have opened a
     # hole while closing one.
+    #
+    # The count is pinned so a *new* location cannot be added without someone
+    # reading this: 5 today (.mjs, .webmanifest, .csv, /sw.js, /). Bumping the
+    # number is the reminder to restate the headers in the block being added,
+    # which is the whole point of the loop below.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 4, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 5, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 

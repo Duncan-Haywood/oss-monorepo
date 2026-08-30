@@ -34,8 +34,15 @@ import path from 'node:path';
 import os from 'node:os';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 const execFileAsync = promisify(execFile);
+
+// Anchored to this file, not to cwd: the build pod runs `node
+// platform/pages/check.mjs` from the repo root, but the test suite and a
+// laptop run it from elsewhere. Same idiom as build.mjs.
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(HERE, '..', '..');
 
 const PLACEHOLDER_ORIGIN = 'https://example.invalid';
 
@@ -413,6 +420,117 @@ async function linkedStylesheets(site, relative, html, cache) {
   return sheets.join('\n');
 }
 
+// ---- What nginx will call each file when the pod serves it -----------------
+//
+// The public site is served by `nginx-unprivileged` in
+// `gitops/prod/portfolio-site.yaml`, and nginx types a response purely by file
+// extension. An extension its `mime.types` does not list falls through to
+// `default_type application/octet-stream`, and the site sets
+// `X-Content-Type-Options: nosniff`, so the browser is forbidden from guessing
+// its way out. For a `<script type="module">` that is fatal: the module is
+// refused and the page renders but does nothing.
+//
+// That has already happened twice. `.mjs` is not in nginx's mime.types (still
+// true as of 1.27), and neither is `.webmanifest`; both needed an explicit
+// `location` block. Neither showed up on GitHub Pages, which types them
+// correctly -- so the bug was invisible until the moment the site moved to
+// nginx, which is exactly when nobody is watching.
+//
+// This map is the third fix: rather than wait for the next extension to break,
+// every extension the build emits has to be listed here with how it gets
+// typed. A venture that ships a new asset kind fails the build with
+// instructions instead of silently serving octet-stream in production.
+//
+//   'stock' -- nginx's own conf/mime.types covers it. Verified against
+//              nginx 1.27.0's conf/mime.types, which is the tag the
+//              `nginxinc/nginx-unprivileged:1.27-alpine` image builds from.
+//   'conf'  -- nginx does NOT cover it; portfolio-site.yaml carries an
+//              explicit `location ~ \.EXT$` block. Cross-checked below
+//              against the manifest itself, so deleting the block fails here.
+export const SERVED_EXTENSIONS = new Map([
+  ['.html', 'stock'],
+  ['.css', 'stock'],
+  ['.js', 'stock'],
+  ['.json', 'stock'],
+  ['.xml', 'stock'],
+  ['.txt', 'stock'],
+  ['.png', 'stock'],
+  ['.svg', 'stock'],
+  ['.ico', 'stock'],
+  ['.pdf', 'stock'],
+  ['.mjs', 'conf'],
+  ['.webmanifest', 'conf'],
+  ['.csv', 'conf'],
+]);
+
+// Where the served config lives, relative to the repo root. The build pod
+// clones the whole repository and runs this script from that checkout, so the
+// manifest is on disk next to the site being checked.
+const NGINX_MANIFEST = 'gitops/prod/portfolio-site.yaml';
+
+/**
+ * Every extension in `site` must be one this site knows how to serve.
+ *
+ * `conf`-typed extensions are additionally checked against the manifest, so
+ * the two cannot drift apart: dropping a `location` block from
+ * portfolio-site.yaml fails the build that would have shipped past it.
+ *
+ * `nginxConf` is the manifest text, or null when the check runs outside a
+ * repository checkout (a bare `check.mjs --dist=...` against a downloaded
+ * artifact). The extension allowlist still applies; only the cross-check is
+ * skipped, since there is nothing to cross-check against.
+ */
+export function checkServedExtensions(files, nginxConf) {
+  const problems = [];
+  const seen = new Map();
+
+  for (const relative of files) {
+    // A file that should not have shipped at all is already a problem, and the
+    // leak check owns it. Reporting `VENTURE.yaml` a second time under "nginx
+    // cannot type .yaml" buries the actual fix (delete it) under a mime-type
+    // question nobody needs to answer.
+    if (LEAKED_FILE_RE.test(relative)) continue;
+    if (relative.split('/').some((segment) => LEAKED_DIRS.has(segment))) continue;
+    // Node reports no extension for a dotfile like `.nojekyll`, which is what
+    // we want: it is never linked, and nginx's default_type is correct for it.
+    const ext = path.extname(relative).toLowerCase();
+    if (!ext) continue;
+    if (!seen.has(ext)) seen.set(ext, relative);
+  }
+
+  for (const [ext, example] of [...seen].sort()) {
+    const how = SERVED_EXTENSIONS.get(ext);
+    if (!how) {
+      problems.push(
+        `${example}: nothing says how nginx should type "${ext}". Add it to ` +
+          `SERVED_EXTENSIONS in platform/pages/check.mjs -- 'stock' if nginx's ` +
+          `mime.types already lists it, otherwise add a location block to ` +
+          `${NGINX_MANIFEST} and mark it 'conf'. Left alone it is served as ` +
+          `application/octet-stream, which nosniff makes unrecoverable.`,
+      );
+      continue;
+    }
+    if (how === 'conf' && nginxConf !== null) {
+      // Matches the manifest's own idiom: an empty `types { }` (which extends
+      // the inherited map rather than replacing it) immediately before the
+      // default_type. Looking for the escaped extension alone would pass on a
+      // block that had lost its types/default_type pair.
+      const block = new RegExp(
+        `location\\s+~\\s+\\\\${ext.replace('.', '\\.')}\\$\\s*\\{\\s*\\n\\s*types\\s*\\{\\s*\\}\\s*\\n\\s*default_type\\s+\\S+;`,
+      );
+      if (!block.test(nginxConf)) {
+        problems.push(
+          `${example}: "${ext}" is marked 'conf' but ${NGINX_MANIFEST} has no ` +
+            `\`location ~ \\${ext}$\` block typing it. nginx's mime.types does ` +
+            `not cover it, so it would serve as application/octet-stream.`,
+        );
+      }
+    }
+  }
+
+  return problems;
+}
+
 export async function checkSite(site, { minProducts = 1 } = {}) {
   const problems = [];
 
@@ -561,6 +679,14 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
 
   const files = await walk(site);
   const servedPages = files.filter((f) => f.endsWith('.html'));
+
+  // The pod runs this from its own clone, so the manifest that will serve
+  // these files is on disk. Absent (a bare run against a downloaded artifact)
+  // only skips the cross-check, not the allowlist.
+  const nginxConf = await fs
+    .readFile(path.join(REPO_ROOT, NGINX_MANIFEST), 'utf8')
+    .catch(() => null);
+  problems.push(...checkServedExtensions(files, nginxConf));
 
   await checkInlineScripts(site, servedPages, problems);
 
