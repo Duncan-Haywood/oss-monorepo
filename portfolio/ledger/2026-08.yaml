@@ -34866,3 +34866,74 @@ entries:
         changed current cluster behavior, only the code path for when the
         owner flips it.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2278: the Codex governor failed *open* on an unreadable
+        budget ConfigMap. `_load_state` treats a non-200 in-cluster GET as
+        "no state yet" and falls back to `state_path`, which is on the
+        pod's own filesystem and empty on every fresh pod -- so `decide()`
+        saw "0 seconds used, 0 jobs started this window" on every tick,
+        indistinguishable from a genuinely fresh window. The 5-hour and
+        weekly caps would have stopped capping and the governor would have
+        authorized a job every tick, forever. Reachable two ways now that
+        #2276 removed the `create` verb: the ConfigMap is absent (namespace
+        rebuilt, Argo app re-added, sync not landed) and the GET 404s, or
+        RBAC drifts and it 403s -- and it can no longer heal itself into
+        existence. main() now holds when it cannot read the counters
+        (keying off unreadable, not zero -- a readable fresh budget still
+        starts work), and `_save_state` reports whether the write landed so
+        a dropped write fails the tick instead of letting the budget drift
+        behind reality while the CronJob shows green. Governor stays
+        `suspend: true` / `"enabled": false`, so nothing about current
+        cluster behavior changed.
+      - >-
+        Shipped #2279: generalized the `.mjs` / `.webmanifest` MIME bugs
+        into a build gate, and it immediately found a third instance
+        already in the tree. nginx types purely by extension; anything
+        missing from its mime.types serves as `application/octet-stream`,
+        which the site's `nosniff` header makes unrecoverable. `.csv` is
+        absent from nginx 1.27.0's map and `fifo-pick-evidence` ships
+        `examples/picks.csv` as the sample a visitor loads into the tool.
+        `check.mjs` -- the gate the build pod already runs before nginx
+        serves anything -- now requires every emitted extension to be
+        either covered by nginx's stock map or explicitly typed in
+        `portfolio-site.yaml`, cross-checked against the manifest so the
+        two cannot drift. Worth noting *why* this class kept shipping:
+        both earlier instances were invisible on GitHub Pages, which types
+        them correctly, so they could only surface on nginx -- i.e. in
+        production, unwatched. Deleting the `.mjs` block now reproduces the
+        original bug and is caught by name.
+      - >-
+        Verified the deploy path end-to-end rather than trusting the
+        checklist: ran the exact pod sequence
+        (`PAGES_BASE_URL=https://tools.marisstella.dev/ build.mjs --out=`
+        then `check.mjs --dist=`) -- 168 products, 491 pages, no dead
+        links, 1631 files, 33MB, ~30s, exit 0, comfortably inside the
+        manifest's 512Mi emptyDir and its measured resource limits.
+        `tools.marisstella.dev` already resolves. The site is genuinely
+        ready; the sole remaining blocker is the owner-only clone token
+        (`gitops/prod/secrets/portfolio-repo-token.template.yaml`).
+        Likewise confirmed the two other owner asks are code-complete, not
+        merely claimed: `worker.sh` really does implement the subscription
+        path (writes `$CODEX_HOME/auth.json` from `CODEX_AUTH_JSON`, sets
+        `cli_auth_credentials_store = "file"`, prefers the non-billing
+        credential), and `workers/mandate.md` already mirrors the
+        product-first mandate including deployment/CI-CD as first-class.
+        No duplicate owner asks added.
+      - >-
+        Process note for future sessions: the three-PR merge quota was not
+        met and could not be. Three PRs were open at session start
+        (#2273/#2274/#2275); other sessions merged #2274 and #2275 within
+        three minutes, and #2273 was closed as superseded while this
+        session was mid-repair on it. The queue was empty from then on --
+        drained, not skipped. #2273's close was correct on the merits
+        (#2269 had landed the same narrowing and made the better call on
+        the `create` verb), but it discarded the branch's regression test;
+        that test is salvaged in #2278. The reusable lesson is that at
+        ~1.8 sessions/hour a PR can be merged or closed out from under a
+        repair in progress, so re-read PR state immediately before pushing
+        a repair, not just before starting one.
+    mrr_end: null
