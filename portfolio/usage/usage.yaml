@@ -3197,6 +3197,19 @@ products:
           Repair-and-merge of unique #1202 pool route pricing calculator
           onto current main. Public URL remains owner-gated; local counting
           is anonymous, honors DNT/GPC, and is off by a visible control.
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          local_estimate_events: 0
+          local_share_link_events: 0
+        note: >-
+          Added a private local draft (localStorage) so route assumptions
+          survive a reload, and a shareable link (URL hash, nothing
+          uploaded) so an operator can send a route to a partner without
+          retyping eight numbers -- this venture had share.mjs/persistence
+          that most sibling calculators already carry. New share-link
+          event added to the same anonymous, DNT/GPC-respecting counter.
+          Still zero because the surface is not public yet.
 
   - slug: construction-evidence-log
     surface: static-page-in-repo
