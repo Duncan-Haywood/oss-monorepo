@@ -11,13 +11,23 @@ rules:
   - apiGroups: ["batch"]
     resources: ["jobs"]
     verbs: ["get", "list", "watch", "create"]
+  # The only ConfigMap the governor ever touches is governor-state, and
+  # `governor/state.yaml` seeds it in git the same way
+  # `prod/site-usage.yaml` seeds `portfolio-site-usage` -- so, as that
+  # manifest's own comment says, "create cannot be narrowed by name, which
+  # is why the ConfigMap is seeded in git rather than made by the job."
+  # There used to be a second, namespace-wide `configmaps` rule here
+  # (verbs get/list/create, no resourceNames) that granted read access to
+  # every ConfigMap in `agents` -- governor-policy, governor-script,
+  # governor-queue, codex-worker-script -- none of which governor.py ever
+  # requests over the API (it reads them from mounted volumes instead), plus
+  # a `list` verb `_load_state`/`_save_state` never call: they GET and
+  # PUT/POST one ConfigMap by name. Removed; this Role now grants exactly
+  # the three verbs the code path in governor.py actually uses.
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: ["governor-state"]
     verbs: ["get", "update", "patch"]
-  - apiGroups: [""]
-    resources: ["configmaps"]
-    verbs: ["get", "list", "create"]
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["get", "list"]
