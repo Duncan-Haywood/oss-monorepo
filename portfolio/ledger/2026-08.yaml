@@ -34617,6 +34617,43 @@ entries:
         diff against its merge base. Merging any of them would regress a
         shipped product.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `gitops/agents/queue/deploy-cicd-readiness.yaml`'s own task
+        directly instead of waiting on the (not-yet-enabled) governor: read
+        every gitops/prod manifest, `gitops/ci/runner.yaml` and its
+        entrypoint, all four AppProjects, and `.github/workflows/*.yml`'s
+        action versions looking for the four candidate gap classes the item
+        names. All came back clean -- `kustomize build` on all six gitops
+        trees plus `kubeconform -strict` on the output (49/49 valid),
+        `pytest gitops/tests` (113 passed) before touching anything, current
+        action pins throughout (checkout@v4, setup-node@v4, setup-python@v5,
+        deploy-pages@v4), and no ledger/checklist record of a staging TLS
+        certificate for tools.marisstella.dev having issued (so the
+        staging->prod issuer flip was correctly left alone rather than
+        guessed at).
+      - >-
+        Found the actual gap under candidate 3 (tests vs. manifests): three
+        `test_governor.py` tests billed themselves as covering "all real
+        items" / "the real queue items" but only ever listed three of the
+        four real, `enabled: true` items under `gitops/agents/queue/` --
+        `deploy-cicd-readiness.yaml` itself (priority 4, `delivery: agent`)
+        went unchecked in the ConfigMap-inclusion test, the delivery-mode
+        test, and the priority-ordering test since the day it was added. As
+        shipped, a typo'd priority/delivery field on that item, or dropping
+        its entry from `gitops/agents/kustomization.yaml`, would still pass
+        every existing test. Widened all three tests to include it and pin
+        the real four-way order (branch-pr-drain(5) >
+        deploy-cicd-readiness(4) > seo-discoverability-audit(3) >
+        product-feature-improvement(2)); no manifest changed, only test
+        coverage. `pytest gitops/tests` still 113 passed after. Merged as
+        #2268; red CI on it confirmed job-by-job as the documented
+        2026-08-26 runner outage (`runner_id: 0`, 0 steps, ~3s on all six
+        checks), not a regression.
+    mrr_end: null
   - venture: vendor-watch
     agent_spend_usd: null
     human_hours: 0
