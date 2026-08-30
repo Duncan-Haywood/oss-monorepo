@@ -49,7 +49,10 @@ quota. It is not a second copy of every product.
   it unset to let the worker commit, push and open one.
 - Budget counters live in ConfigMap `governor-state`. Argo ignores
   `/data` so a sync cannot reset the 5-hour / weekly accounting. A 429
-  (worker exit 42) writes `last_limit_at` and the next ticks sleep.
+  (worker exit 42) writes `last_limit_at` and the next ticks sleep. The
+  same object holds `runs_by_item`, the per-window count `pick_item`
+  divides priority by so one always-eligible item cannot take every tick —
+  see `agents/queue/README.md`.
 
 ## The public product site
 

@@ -283,11 +283,13 @@ def test_governor_queue_configmap_includes_all_real_items() -> None:
 
 
 def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_then_features() -> None:
-    # pick_item always starts the single highest-priority enabled item and
-    # never round-robins (see governor.py::pick_item), so with four
-    # permanently-enabled items only the top one ever actually runs until a
-    # human reprioritizes or disables it in git. Landing existing branch/PR
-    # work comes first; deploy-cicd-readiness.yaml's own header comment
+    # pick_item weights `(priority + 1) / (runs + 1)`, so this ordering is
+    # what sets how often each item runs relative to the others (roughly
+    # 6:5:4:3) and which one opens each window. It used to be far more
+    # load-bearing than that: pick_item took the single highest-priority item
+    # every tick, so only `branch-pr-drain` could ever run and the other three
+    # were unreachable. Landing existing branch/PR work still comes first --
+    # it opens every window; deploy-cicd-readiness.yaml's own header comment
     # puts it "below branch-pr-drain (5), because landing work that already
     # exists still comes first, and above the two content items" -- fixing
     # discoverability metadata and open-ended feature work are cheaper and
@@ -603,3 +605,119 @@ def test_a_dropped_state_write_fails_the_tick(fake_api_server, tmp_path) -> None
     fake_api_server._configmap = None
     stale = {"metadata": {"resourceVersion": "1"}}
     assert g._save_state(_state(), "agents", "governor-state", tmp_path / "s.json", stale) is False
+
+
+# --- Queue rotation -------------------------------------------------------
+#
+# `pick_item` used to be `sorted(key=(-priority, id))[0]`: the single
+# highest-priority enabled item, every tick, forever. With the four real
+# queue items that meant `branch-pr-drain` took 100% of the Codex quota and
+# `deploy-cicd-readiness`, `seo-discoverability-audit` and
+# `product-feature-improvement` were unreachable -- not deprioritised,
+# unreachable, until someone hand-edited priorities in git.
+#
+# That was defensible while the PR/branch backlog was the bottleneck. It
+# stopped being defensible on 2026-08-30, when the repo had zero open PRs and
+# every one of ~180 unmerged branches was superseded: the top item had nothing
+# left to do and would still have consumed the whole budget re-triaging an
+# empty queue.
+
+
+def _four_real_priorities() -> list[g.QueueItem]:
+    return [
+        _item(id="branch-pr-drain", priority=5),
+        _item(id="deploy-cicd-readiness", priority=4),
+        _item(id="seo-discoverability-audit", priority=3),
+        _item(id="product-feature-improvement", priority=2),
+    ]
+
+
+def test_highest_priority_item_still_opens_the_window() -> None:
+    # Rotation must not cost the "drain existing work first" ordering: with a
+    # clean slate the top item is still the one that runs.
+    assert g.pick_item(_four_real_priorities(), {}).id == "branch-pr-drain"
+
+
+def test_every_enabled_item_runs_instead_of_only_the_top_one() -> None:
+    queue = _four_real_priorities()
+    state = _state()
+    for _ in range(20):
+        item = g.pick_item(queue, state.runs_by_item)
+        g.record_job_started(state, item.id)
+
+    assert set(state.runs_by_item) == {i.id for i in queue}, state.runs_by_item
+    # Higher priority still runs more often -- the point is proportion, not
+    # equality. Against the old selector this list was [20, 0, 0, 0].
+    counts = [state.runs_by_item[i.id] for i in queue]
+    assert counts == sorted(counts, reverse=True), counts
+    assert counts[0] > counts[-1]
+
+
+def test_a_priority_zero_item_is_not_weightless() -> None:
+    # Score is (priority + 1) / (runs + 1). Without the +1 a priority-0 item
+    # scores 0 on every tick and can never win, which is the same starvation
+    # bug in a different place.
+    queue = [_item(id="top", priority=5), _item(id="zero", priority=0)]
+    state = _state()
+    for _ in range(12):
+        g.record_job_started(state, g.pick_item(queue, state.runs_by_item).id)
+    assert state.runs_by_item.get("zero", 0) > 0, state.runs_by_item
+
+
+def test_pick_item_is_deterministic_on_a_tie() -> None:
+    # Equal priority and equal runs must resolve by id, not by queue order,
+    # so two governor replicas reading the same state agree.
+    queue = [_item(id="b-task", priority=3), _item(id="a-task", priority=3)]
+    assert g.pick_item(queue, {}).id == "a-task"
+    assert g.pick_item(list(reversed(queue)), {}).id == "a-task"
+
+
+def test_pick_item_without_state_keeps_the_old_highest_priority_behaviour() -> None:
+    # The runs argument is optional so a caller that has no state (and the
+    # first tick after a rollover) still gets plain priority order.
+    assert g.pick_item(_four_real_priorities()).id == "branch-pr-drain"
+
+
+def test_rollover_restarts_the_rotation() -> None:
+    state = _state(window_started_at=NOW - 20_000, runs_by_item={"branch-pr-drain": 4})
+    rolled = g.rollover(state, NOW, _policy(window_seconds=18_000))
+    assert rolled.runs_by_item == {}
+    # ...and an unfinished window leaves the counts alone.
+    fresh = _state(window_started_at=NOW - 60, runs_by_item={"branch-pr-drain": 4})
+    assert g.rollover(fresh, NOW, _policy()).runs_by_item == {"branch-pr-drain": 4}
+
+
+def test_rollover_keeps_the_dedup_ledger_so_a_job_is_not_recharged() -> None:
+    # `rollover` used to rebuild BudgetState without `accounted_job_uids`,
+    # silently resetting the dedup ledger `absorb_finished_jobs` reads. A Job
+    # still listed in the namespace at the moment a window rolled over was
+    # therefore absorbed a second time and its duration charged against the
+    # fresh window -- making the governor believe it had spent budget it had
+    # not, and hold early. That under-spends the very quota this stack exists
+    # to use.
+    job = g.JobView(uid="job-1", succeeded=True, duration_seconds=600)
+    policy = _policy(window_seconds=18_000)
+    state = _state(window_started_at=NOW - 20_000)
+
+    _, state = g.tick(policy, state, [job], [_item()], NOW)
+    assert state.estimated_seconds_used == 0.0  # absorbed, then the window rolled
+
+    # The same finished Job is still listed on the next tick.
+    _, state = g.tick(policy, state, [job], [_item()], NOW + 60)
+    assert state.estimated_seconds_used == 0.0, state.accounted_job_uids
+
+
+def test_state_roundtrip_carries_the_run_counts() -> None:
+    original = _state(runs_by_item={"branch-pr-drain": 2, "seo-discoverability-audit": 1})
+    restored = g.state_from_dict(g.state_to_dict(original), NOW)
+    assert restored.runs_by_item == {"branch-pr-drain": 2, "seo-discoverability-audit": 1}
+    # Values come back from JSON as ints even if the ConfigMap held strings.
+    coerced = g.state_from_dict({"runs_by_item": {"x": "3"}}, NOW)
+    assert coerced.runs_by_item == {"x": 3}
+
+
+def test_tick_records_the_run_against_the_item_it_started() -> None:
+    queue = _four_real_priorities()
+    decision, state = g.tick(_policy(), _state(), [], queue, NOW)
+    assert decision.action == "start"
+    assert state.runs_by_item == {decision.item.id: 1}
