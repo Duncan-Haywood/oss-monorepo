@@ -31210,3 +31210,31 @@ entries:
         479 pages, no dead links -- this venture's index.html was untouched).
         Shipped and merged #2128.
     mrr_end: null
+  - venture: etsy-profit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        It was the only venture with an `index.html` and no
+        "common questions"/FAQ prose (checked every `ventures/*/index.html`
+        for the pattern). Added five question/answer pairs -- what "Return
+        on cash" measures and why it can read "--", whether the break-even
+        price accounts for Offsite Ads vs on-site Etsy Ads, how the
+        production partner's reject rate changes the comparison, why the
+        Offsite Ads table duplicates the order form's rate field, and
+        whether typed inputs leave the browser -- each checked against the
+        real formulas in `calc.mjs` rather than guessed.
+      - >-
+        This venture's own section headings already end in "?", so
+        `platform/pages/build.mjs`'s `faqEntries()` was already synthesizing
+        `FAQPage` JSON-LD from them and hit its 8-entry cap before reaching
+        the new section (confirmed by running `faqEntries()` locally against
+        the file). The new content is still genuine, verified, on-page copy
+        answering questions the existing prose left unaddressed; it just
+        adds no new JSON-LD on this particular page.
+      - >-
+        Verified `node --test ventures/etsy-profit-calculator/*.test.mjs`
+        (160/160 passing) and `platform/pages/build.mjs` + `check.mjs`
+        against a fresh dist (164 products, 480 pages, no dead links,
+        etsy-profit-calculator included). Shipped and merged #2134.
+    mrr_end: null
