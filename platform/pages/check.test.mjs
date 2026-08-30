@@ -563,3 +563,59 @@ test('a category page in no sitemap is reported', async () => {
     problems.join('\n'),
   );
 });
+
+// ---- Snippet budget --------------------------------------------------------
+//
+// The defect this guards is drift, not a one-off: a description grows a clause
+// every time a session adds a feature to the tool, nobody ever takes one out,
+// and 138 of 168 published pages had crossed the budget before anything
+// measured it. `build.mjs` cuts them; this is what notices if it stops.
+
+/** A site whose canonical chain reaches the per-page discovery checks. */
+const shareable = (relative, description) => ({
+  'index.html':
+    `<link rel="canonical" href="${url('')}">` +
+    '<a href="tool/" data-tool="tool">Tool</a>' +
+    '<footer><a href="about/">About</a> No warranty.</footer>',
+  [relative]:
+    `<link rel="canonical" href="${url('tool/')}">` +
+    '<meta property="og:url" content="' + url('tool/') + '">' +
+    `<meta property="og:image" content="${url('social-card.png')}">` +
+    '<meta name="twitter:card" content="summary_large_image">' +
+    `<meta name="description" content="${description}">` +
+    '<p>Tool</p><footer>No warranty.</footer>',
+});
+
+const LONG = `Calculate order profit, ${'whether one option still beats another, '.repeat(6)}and what is left.`;
+
+test('a description over the snippet budget is caught', async () => {
+  const problems = await problemsFor(shareable('tool/index.html', LONG));
+  const found = mentioning(problems, 'description is');
+  assert.equal(found.length, 1, problems.join('\n'));
+  assert.ok(found[0].includes('over the 160-character budget'), found[0]);
+});
+
+test('a description inside the budget passes', async () => {
+  const problems = await problemsFor(
+    shareable('tool/index.html', 'Price a job before you quote it, with your own truck and disposal cost in the arithmetic.'),
+  );
+  assert.deepEqual(mentioning(problems, 'character budget'), []);
+});
+
+test('an over-long og:description is caught even when the meta description is short', async () => {
+  const files = shareable('tool/index.html', 'Short and fine.');
+  files['tool/index.html'] = files['tool/index.html'].replace(
+    '<p>Tool</p>',
+    `<meta property="og:description" content="${LONG}"><p>Tool</p>`,
+  );
+  const problems = await problemsFor(files);
+  assert.equal(mentioning(problems, 'og:description is').length, 1, problems.join('\n'));
+});
+
+test('entities are counted as the one character a reader sees', async () => {
+  // `&amp;` is five characters of markup and one of prose. Counting markup
+  // would fail a page whose description is comfortably inside the budget.
+  const description = `Fees ${'&amp; '.repeat(20)}what is left after them.`;
+  const problems = await problemsFor(shareable('tool/index.html', description));
+  assert.deepEqual(mentioning(problems, 'character budget'), [], description);
+});

@@ -410,7 +410,7 @@ const CATEGORY_PAGE_COPY = {
   marketplace: {
     title: 'Free marketplace seller fee calculators',
     description:
-      'Free fee and profit calculators for eBay, Etsy, Amazon, Shopify, Walmart, TikTok Shop, Faire, Reverb and delivery apps. Enter your own cost of goods and see what an order actually nets. Runs in your browser.',
+      'Free fee and profit calculators for eBay, Etsy, Amazon, Shopify, Walmart, TikTok Shop, Faire and Reverb. Enter your cost of goods, see what an order nets.',
     intro:
       'Every marketplace publishes a fee schedule and none of them publish what you keep. These calculators put your own cost of goods, shipping and return rate into the arithmetic, so the number you get is the one that lands in your account — not a percentage off the sale price.',
     audience: 'people selling on marketplaces',
@@ -418,7 +418,7 @@ const CATEGORY_PAGE_COPY = {
   trades: {
     title: 'Free contractor bid calculators and estimating tools',
     description:
-      'Free bid calculators for roofing, HVAC, plumbing, electrical, concrete, painting, cleaning and more. Price materials, crew hours, payroll burden and overhead, then print a customer proposal with the scope and deposit split.',
+      'Free bid calculators for roofing, HVAC, plumbing, electrical, concrete, painting and cleaning. Price materials, crew hours and overhead, then print a proposal.',
     intro:
       'A bid that only counts materials and an hourly rate loses money on burden, overhead and the extras nobody wrote down. These calculators price a job the way the trade does, then print the customer a proposal with the scope, the deposit split and a line to sign.',
     audience: 'trade contractors',
@@ -426,7 +426,7 @@ const CATEGORY_PAGE_COPY = {
   logistics: {
     title: 'Free freight, 3PL and cloud cost calculators',
     description:
-      'Free tools to normalise a 3PL quote, audit an LTL freight bill, price owner-operator miles, cost a cut list, and size a cloud egress transfer before you sign for it.',
+      'Free tools to normalise a 3PL quote, audit an LTL freight bill, price owner-operator miles, cost a cut list and size a cloud egress transfer before you sign.',
     intro:
       'Freight and cloud quotes are priced to be hard to compare: different accessorial lists, different fuel bases, different units. These tools put competing quotes on one basis so the cheapest headline rate and the cheapest total stop being different answers.',
     audience: 'logistics and infrastructure buyers',
@@ -434,7 +434,7 @@ const CATEGORY_PAGE_COPY = {
   evidence: {
     title: 'Free compliance check and evidence record tools',
     description:
-      'Free tools that produce a dated record of what you checked — e-invoicing readiness, backup verification, DNS evidence, accessibility and permission drift, chargeback packets. Observations you act on, never a determination made on your behalf.',
+      'Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, DNS evidence, accessibility, chargeback packets.',
     intro:
       'The hard part of a compliance obligation is usually not the check — it is proving later that you did it, on the day you say you did. These tools produce a dated, exportable record of an observation you made, in a form you can hand to whoever asks.',
     audience: 'small teams preparing compliance evidence',
@@ -442,7 +442,7 @@ const CATEGORY_PAGE_COPY = {
   backoffice: {
     title: 'Free small-business cash flow and pricing tools',
     description:
-      'Free calculators for cash runway, invoice payment terms, CAM reconciliation, SaaS seat true-ups, subscription price changes and break-even on a price move — the arithmetic after the job is won.',
+      'Free calculators for cash runway, invoice payment terms, CAM reconciliation, SaaS seat true-ups and break-even on a price move — the arithmetic after the win.',
     intro:
       'Winning the work and getting paid for it are two different problems. These tools cover the second one: when the cash actually arrives, what a payment term costs you, and what a price change has to earn before it breaks even.',
     audience: 'small-business owners and operators',
@@ -450,7 +450,7 @@ const CATEGORY_PAGE_COPY = {
   services: {
     title: 'Free pricing calculators for service businesses',
     description:
-      'Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time, materials and licence terms into a price you can hand a customer.',
+      'Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time and materials into a price.',
     intro:
       'A service business quotes work without bidding a construction job, and the arithmetic is its own: travel time nobody bills, a route that has to cover the truck, a licence term that changes what the work is worth. These tools price that, one trade at a time.',
     audience: 'small service businesses',
@@ -458,7 +458,7 @@ const CATEGORY_PAGE_COPY = {
   more: {
     title: 'More free small-business calculators',
     description:
-      'The rest of the free, browser-only calculators on this site — everything that does not sit in the marketplace, trade, logistics, compliance or back-office sections.',
+      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, logistics, compliance and back-office sections.',
     intro:
       'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
     audience: 'small businesses',
@@ -702,6 +702,80 @@ export function truncate(text, limit = 180) {
   const cut = text.slice(0, limit);
   const lastSpace = cut.lastIndexOf(' ');
   return `${cut.slice(0, lastSpace > 40 ? lastSpace : limit).replace(/[,;:.\s]+$/, '')}…`;
+}
+
+/**
+ * How long a published page's own description may be.
+ *
+ * 160 is where a search result stops showing one: Google renders roughly that
+ * many characters of a snippet on a desktop result and fewer on a phone. It is
+ * also the budget that matters for the other half of this site's acquisition —
+ * a link pasted into a trade group or a Discord — where the preview card gives
+ * the description two or three lines and drops the rest.
+ */
+export const SNIPPET_MAX = 160;
+
+/**
+ * A boundary is only worth cutting at if it leaves most of the budget used —
+ * otherwise an early full stop turns a 160-character budget into a 20-character
+ * snippet, which is a worse result than the truncation being avoided.
+ */
+const snippetFloor = (limit) => Math.floor(limit * 0.6);
+
+const lastIndexMatching = (text, pattern) => {
+  let at = -1;
+  for (const match of text.matchAll(pattern)) at = match.index;
+  return at;
+};
+
+/**
+ * A page description cut to something a search result and a share card can
+ * actually show, ending where the prose does rather than mid-thought.
+ *
+ * WHY THIS EXISTS
+ *
+ * These descriptions accrete. Every session that adds a feature to a tool adds
+ * a clause to its description saying so, nothing ever trims one, and the result
+ * is copy no reader will ever see the end of: 138 of 168 published pages were
+ * over the snippet budget, 11 of them past 300 characters, and the eBay
+ * calculator had reached 1,862 — a single sentence of twenty-five "whether X
+ * still beats Y" clauses, of which a search result showed the first 160 and
+ * stopped in the middle of the word "whether".
+ *
+ * The long copy is not waste and is not deleted here: `readMeta` keeps it as
+ * `fullDescription`, which is what the hub's search indexes and what `llms.txt`
+ * hands a model. It is only wrong in the two places a human reads a fixed
+ * number of characters. So the budget is applied where it is published, not to
+ * the venture's own source, and a session can keep writing as much as the tool
+ * deserves without having to think about a limit.
+ *
+ * `truncate` is the wrong instrument for this: it cuts at a whole word, which
+ * for a description made of clauses lands on "...whether a…". Prefer a sentence
+ * end inside the budget (nothing is added and no truncation is visible), then a
+ * clause boundary with an ellipsis, and only fall back to a word.
+ */
+export function snippetize(text, limit = SNIPPET_MAX) {
+  const clean = String(text ?? '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= limit) return clean;
+
+  const floor = snippetFloor(limit);
+  const window = clean.slice(0, limit);
+
+  // A sentence that ends inside the budget is the best possible cut: the
+  // snippet is a whole thought and nothing marks it as shortened.
+  const sentence = lastIndexMatching(window, /[.!?](?=["')\]]?(?:\s|$))/g);
+  if (sentence >= floor) return clean.slice(0, sentence + 1);
+
+  // Otherwise end at the last clause. The ellipsis is honest — the sentence
+  // does go on — and it is where a reader would have stopped anyway.
+  const clause = lastIndexMatching(window, /[,;:](?=\s)|\s[—–-](?=\s)/g);
+  if (clause >= floor) return `${clean.slice(0, clause).replace(/[\s,;:—–-]+$/, '')}…`;
+
+  // `truncate` overshoots by the ellipsis on text with no space to fall back to
+  // (a single unbroken token), which is the one input that would ship a snippet
+  // over the budget this function exists to hold.
+  const word = truncate(clean, limit);
+  return word.length <= limit ? word : `${clean.slice(0, limit - 1)}…`;
 }
 
 /**
@@ -1310,13 +1384,13 @@ ${subItems.map(renderCard).join('\n')}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(`${copy.title} | ${SITE_NAME}`)}</title>
-  <meta name="description" content="${escapeHtml(copy.description)}">
+  <meta name="description" content="${escapeHtml(snippetize(copy.description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(copy.title)}">
-  <meta property="og:description" content="${escapeHtml(copy.description)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(copy.description))}">
   <meta property="og:url" content="${escapeHtml(url)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${socialCardFileFor(category.id)}`)}">
@@ -1421,11 +1495,11 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const total = surfaces.length;
   const categoryCount = groups.length;
   const title = 'About these tools';
-  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type into them (nothing — every tool runs entirely in your browser).`;
+  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
 
   // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
   // it cannot drift from the catalogue the way hand-written marketing copy does.
-  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, no upload: everything runs in your browser.`;
+  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
   const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, no upload, and no third-party analytics — the numbers a user types never leave their device, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
 
   const aboutLd = {
@@ -1459,7 +1533,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
-  <meta name="description" content="${escapeHtml(description)}">
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
@@ -1762,7 +1836,9 @@ ${subgroups
   <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
   <meta name="description" content="${escapeHtml(
-    `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
+    snippetize(
+      `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers and small teams. Everything runs in your browser, nothing uploaded.`,
+    ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -3265,6 +3341,11 @@ export const SITE_NAME = 'Free small-business calculators';
  *
  * Everything is added only where the page does not already say it: a venture's
  * own card copy is written for its audience and beats anything derived here.
+ *
+ * The one exception is a description longer than a search result or a share
+ * card will show — see `snippetize`. That copy is still the venture's own, so
+ * it is cut rather than replaced, and a description already inside the budget
+ * is never touched.
  */
 export function injectDiscoveryTags(html, { canonical, baseUrl, title, description, cardFile } = {}) {
   if (!canonical) return html;
@@ -3279,6 +3360,45 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
     () => `<link rel="canonical" href="${escapeHtml(canonical)}">`,
   );
 
+  // Whole-tag matcher rather than `[^>]*`: a hand-written description may
+  // contain a bare `>` ("net > 0"), and stopping at it would silently leave the
+  // longest descriptions — the ones this pass exists to cut — unmatched.
+  const metaTags = () => [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
+  const tagFor = (attr, value) =>
+    metaTags().find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0])) ?? null;
+  const contentOf = (tag) => decodeEntities(/\bcontent=(["'])([\s\S]*?)\1/i.exec(tag)?.[2] ?? '');
+
+  /** Rewrite one existing meta tag's content in place; a no-op if it has none. */
+  const rewrite = (match, content) => {
+    const replaced = match[0].replace(
+      /\bcontent=(["'])([\s\S]*?)\1/i,
+      () => `content="${escapeHtml(content)}"`,
+    );
+    if (replaced === match[0]) return;
+    next = next.slice(0, match.index) + replaced + next.slice(match.index + match[0].length);
+  };
+
+  // The page's own description is the truest source for its snippet — a deep
+  // SEO page inside a tool describes itself, not the tool — and `description`
+  // is the caller's fallback for the pages that carry none.
+  const descriptionTag = tagFor('name', 'description');
+  const ownDescription = descriptionTag ? contentOf(descriptionTag[0]) : '';
+  const snippet = snippetize(ownDescription || description || '');
+  if (descriptionTag && ownDescription.length > SNIPPET_MAX && snippet) {
+    rewrite(descriptionTag, snippet);
+  }
+
+  // The same budget on the social side, where the page may carry its own
+  // `og:description` copied from the over-long meta description it shipped with.
+  const ogTag = tagFor('property', 'og:description');
+  if (ogTag && contentOf(ogTag[0]).length > SNIPPET_MAX) {
+    rewrite(ogTag, snippetize(contentOf(ogTag[0])));
+  }
+  const twitterTag = tagFor('name', 'twitter:description');
+  if (twitterTag && contentOf(twitterTag[0]).length > SNIPPET_MAX) {
+    rewrite(twitterTag, snippetize(contentOf(twitterTag[0])));
+  }
+
   const has = (attr, value) =>
     new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/:/g, ':')}["']`, 'i').test(next);
   const tags = [];
@@ -3291,7 +3411,10 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   add('property', 'og:type', 'website');
   add('property', 'og:site_name', SITE_NAME);
   add('property', 'og:title', title);
-  add('property', 'og:description', description);
+  // `snippet`, not `description`: the caller's copy is trimmed to a hub card
+  // (180) rather than to a share card, so adding it raw would ship the very
+  // over-long description this pass just cut out of the page beside it.
+  add('property', 'og:description', snippet);
   if (baseUrl) {
     // `cardFile` lets a page point at the card drawn for its own tool — see
     // `toolCardFileFor`. Falls back to the site-wide default for callers (the

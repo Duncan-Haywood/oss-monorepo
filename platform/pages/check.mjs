@@ -103,6 +103,13 @@ export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR]);
 // broken-link weight.
 const DISCLAIMER_MARKER = /no warranty/i;
 
+// The budget a published description has to fit, restated rather than imported.
+// This file checks the artifact `build.mjs` produced and is deliberately not
+// built out of it, so importing the builder to learn its own limit would let a
+// mistake in `snippetize` mark its own homework. `build.test.mjs` asserts the
+// two numbers agree, which is the part worth automating.
+export const SNIPPET_MAX = 160;
+
 // Every `<script>` on a page, with its attributes and its inline body. Used to
 // parse-check the bodies; `SCRIPT_OR_STYLE_RE` above strips them instead.
 const SCRIPT_BLOCK_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
@@ -696,6 +703,37 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       ]) {
         const has = new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value}["']`, 'i').test(html);
         if (!has) problems.push(`${relative}: no ${value}, so a shared link previews without it`);
+      }
+
+      // A description longer than a result or a card will show.
+      //
+      // These grow on their own: a session adds a feature to a tool and adds a
+      // clause to its description saying so, and nothing ever takes one out.
+      // 138 of 168 pages had drifted past the budget and one had reached 1,862
+      // characters — a snippet that read "...whether a" and stopped. `build.mjs`
+      // cuts them (`snippetize`), so reaching here over the budget means either
+      // that pass did not run on this page or something after it wrote a longer
+      // one back. Both ship copy no reader sees the end of, on the two surfaces
+      // this site is actually found through.
+      for (const [attr, value] of [
+        ['name', 'description'],
+        ['property', 'og:description'],
+        ['name', 'twitter:description'],
+      ]) {
+        // Whole-tag matcher: a description may contain a bare `>`, and a
+        // `[^>]*` scan would stop at it and miss the longest ones of all.
+        const tag = [...html.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)]
+          .find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0]));
+        if (!tag) continue;
+        const content = /\bcontent=(["'])([\s\S]*?)\1/i.exec(tag[0])?.[2] ?? '';
+        // Entities are one character to a reader and to the count that matters.
+        const length = content.replace(/&(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);/gi, ' ').length;
+        if (length > SNIPPET_MAX) {
+          problems.push(
+            `${relative}: ${value} is ${length} characters, over the ${SNIPPET_MAX}-character ` +
+              'budget a search result and a share card show',
+          );
+        }
       }
     }
   }

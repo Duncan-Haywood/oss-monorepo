@@ -47,6 +47,8 @@ import {
   groupByCategory,
   groupBySubcategory,
   truncate,
+  snippetize,
+  SNIPPET_MAX,
   injectDiscoveryTags,
   SOCIAL_CARD_FILE,
   socialCardFileFor,
@@ -1582,6 +1584,124 @@ test('the pass is safe to run twice', () => {
 test('a fragment with no head is left alone rather than corrupted', () => {
   const fragment = '<div>partial</div>';
   assert.equal(injectDiscoveryTags(fragment, { canonical: CANONICAL, baseUrl: BASE }), fragment);
+});
+
+// ---- Snippet budget -------------------------------------------------------
+//
+// The defect: descriptions accrete a clause per feature and nothing trims them,
+// so the copy a search result and a share card show ran off the end. The eBay
+// calculator reached 1,862 characters of one sentence.
+
+test('a description already inside the budget is returned untouched', () => {
+  const short = 'Bid the membrane, not the coupon.';
+  assert.equal(snippetize(short), short);
+});
+
+test('a snippet never exceeds the budget', () => {
+  const clauses = Array.from({ length: 40 }, (_, i) => `whether option ${i} still beats the last`);
+  for (const text of [clauses.join(', '), clauses.join('. '), 'x'.repeat(400), clauses.join(' ')]) {
+    assert.ok(snippetize(text).length <= SNIPPET_MAX, `too long for: ${text.slice(0, 30)}…`);
+  }
+});
+
+test('a sentence ending inside the budget is the cut, with no ellipsis added', () => {
+  const text =
+    'Free Faire wholesale fee calculator for brands: net payout after 15% commission and the ' +
+    '$10 new-customer fee. Compare first orders, Faire Direct, Open House, and Promoted Listings.';
+  const out = snippetize(text);
+  assert.ok(out.endsWith('new-customer fee.'), out);
+  assert.ok(!out.includes('…'), 'a whole sentence is not a truncation and must not be marked as one');
+});
+
+test('one long sentence of clauses is cut at a clause, not mid-thought', () => {
+  // The shape the eBay description actually had: no full stop for 1,862
+  // characters, so a word-boundary trim lands on a dangling "whether a".
+  const text =
+    'Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, ' +
+    'and cost of goods, then see what a return rate still leaves, whether a partial refund beats ' +
+    'taking the return, whether local pickup still beats the label after no-shows.';
+  const out = snippetize(text);
+  assert.ok(out.length <= SNIPPET_MAX);
+  assert.ok(out.endsWith('…'), out);
+  // The point of the clause rule: the snippet stops on a complete clause.
+  assert.ok(!/\b(whether|and|the|a)…$/.test(out), `cut mid-thought: ${out}`);
+  assert.ok(out.startsWith('Calculate eBay order profit'), out);
+});
+
+test('text with no boundary at all still falls back to a whole word', () => {
+  const out = snippetize(`${'alpha '.repeat(60)}omega`);
+  assert.ok(out.length <= SNIPPET_MAX);
+  assert.ok(!/\s\S*[a-z]…$/.test(out.replace(/alpha…$/, '')), out);
+  assert.ok(out.endsWith('…'));
+});
+
+test('an over-long page description is cut where it is published', () => {
+  const long =
+    'Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, ' +
+    'and cost of goods, then see what a return rate still leaves, whether a partial refund beats ' +
+    'taking the return, whether local pickup still beats the label after no-shows.';
+  const page = `<html><head><title>eBay</title><meta name="description" content="${long}"></head><body>x</body></html>`;
+  const out = injectDiscoveryTags(page, {
+    canonical: CANONICAL,
+    baseUrl: BASE,
+    title: 'eBay Fee Calculator',
+    description: long,
+  });
+
+  const shipped = /<meta name="description" content="([^"]*)">/.exec(out)[1];
+  assert.ok(shipped.length <= SNIPPET_MAX, `shipped ${shipped.length} characters`);
+  assert.equal(shipped, snippetize(long));
+  // The share card gets the same cut, not the caller's 180-character card copy.
+  const og = /<meta property="og:description" content="([^"]*)">/.exec(out)[1];
+  assert.ok(og.length <= SNIPPET_MAX, `og:description shipped ${og.length} characters`);
+});
+
+test("a description inside the budget keeps the venture's exact words", () => {
+  const own = 'Price a septic pump-out before you quote it, with your own truck and disposal cost.';
+  const page = `<html><head><meta name="description" content="${own}"></head><body>x</body></html>`;
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  assert.ok(out.includes(`<meta name="description" content="${own}">`), out);
+});
+
+test("a venture's own over-long og:description is cut too", () => {
+  const long = `Some pitch, ${'and another clause, '.repeat(20)}and the end.`;
+  const page =
+    '<html><head><meta property="og:description" content="' + long + '"></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  const og = /<meta property="og:description" content="([^"]*)">/.exec(out)[1];
+  assert.ok(og.length <= SNIPPET_MAX, `${og.length} characters`);
+  assert.equal(out.match(/og:description/g).length, 1, 'cut in place, not duplicated');
+});
+
+test('a description containing a bare > is still found and cut', () => {
+  // `[^>]*` tag matching stops at the first `>` inside the attribute, which
+  // would leave exactly the longest descriptions unmatched by both this pass
+  // and the check that guards it.
+  const long = `Shows when net > 0, ${'and when it is not, '.repeat(15)}and what to charge.`;
+  const page = `<html><head><meta name="description" content="${long}"></head><body>x</body></html>`;
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  const shipped = /<meta name="description" content="([^"]*)">/.exec(out)[1];
+  // Measured decoded: `&gt;` is four characters in the attribute and one to a
+  // reader, and the reader's count is the one the budget is about. This is the
+  // same count `check.mjs` makes.
+  const decoded = shipped.replace(/&(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);/gi, ' ');
+  assert.ok(decoded.length <= SNIPPET_MAX, `${decoded.length} characters`);
+  assert.ok(shipped.includes('&gt;'), 'the tag was found and rewritten, not skipped');
+});
+
+test('cutting a description is idempotent', () => {
+  const long = `Some pitch, ${'and another clause, '.repeat(20)}and the end.`;
+  const page = `<html><head><meta name="description" content="${long}"></head><body>x</body></html>`;
+  const opts = { canonical: CANONICAL, baseUrl: BASE, title: 'T' };
+  const once = injectDiscoveryTags(page, opts);
+  assert.equal(injectDiscoveryTags(once, opts), once);
+});
+
+test("check.mjs guards the same budget the builder cuts to", async () => {
+  // Restated in `check.mjs` on purpose — it must not be built out of the module
+  // it checks — so the number is the one thing that can silently drift.
+  const { SNIPPET_MAX: guarded } = await import('./check.mjs');
+  assert.equal(guarded, SNIPPET_MAX);
 });
 
 test('the share card is a PNG at the size a wide card is cropped to', () => {
