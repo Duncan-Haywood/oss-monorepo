@@ -15,9 +15,15 @@ rules:
     resources: ["configmaps"]
     resourceNames: ["governor-state"]
     verbs: ["get", "update", "patch"]
+  # "create" cannot be scoped by resourceNames (the object doesn't exist yet
+  # to name) and is only needed once, the very first tick before
+  # governor-state exists. governor.py never lists or gets any configmap by
+  # name other than governor-state -- the rule above already covers that --
+  # so "get"/"list" here would only ever grant read access to configmaps the
+  # governor has no code path that reads.
   - apiGroups: [""]
     resources: ["configmaps"]
-    verbs: ["get", "list", "create"]
+    verbs: ["create"]
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["get", "list"]
