@@ -31722,3 +31722,38 @@ entries:
         before this change and touches no shared code this PR modified.
         Shipped and merged #2159.
     mrr_end: null
+  - venture: delivery-app-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Opened with a live check: zero open PRs, decision_queue.py and
+        session_gate.py both unchanged (PROCEED), so no owner-gated or
+        deploy-first item was skipped. Repo-wide FAQ/link checks
+        (faq-coverage.mjs 164/164, faq-duplicate.mjs, clauses.mjs, check.mjs)
+        already passed clean, so instead of re-sweeping that, read
+        individual calculators for a scoped gap and found one: this
+        venture's header, meta description, and calc.mjs all name
+        DoorDash, Uber Eats, and Grubhub as first-class channels, but the
+        visible "Common questions" FAQ and its hand-authored FAQPage
+        JSON-LD (build.mjs correctly skips deriving one where a page
+        already hand-authors it) only ever answered a DoorDash-specific
+        question. A search for "how much does Uber Eats take from
+        restaurants" or "Grubhub commission for restaurants" found
+        nothing tailored on a page that computes exactly that.
+      - >-
+        Added one FAQ question per platform, in both the visible section
+        and the FAQPage JSON-LD, mirroring the existing DoorDash
+        question's tone and citing the same presets calc.mjs already
+        ships (Uber Eats 30%, Grubhub 25%).
+      - >-
+        Verified locally (runner outage unchanged, not attempted on CI):
+        venture suite 30/30 (29 existing + 1 new test asserting both
+        platforms appear in the visible FAQ and the FAQPage JSON-LD);
+        both ld+json blocks confirmed to still parse as valid JSON;
+        build.mjs + check.mjs against a fresh dist (164 products, 480
+        pages, no dead links); faq-coverage.mjs (164/164),
+        faq-duplicate.mjs (no duplicated FAQ questions), clauses.mjs
+        (no-warranty clause on all 469 pages); full platform/pages suite
+        (745/745). Shipped and merged #2162.
+    mrr_end: null
