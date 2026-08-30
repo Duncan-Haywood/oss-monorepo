@@ -33282,3 +33282,61 @@ entries:
         `get_workflow_job`) -- merged on local verification per the
         standing outage guidance.
     mrr_end: null
+  - venture: fifo-pick-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, explicitly prioritizing CI/CD, Hetzner deployment,
+        marketing, and Codex-on-Hetzner. 0 open PRs at session start, so the
+        three-PR quota was vacuous. Re-confirmed rather than re-derived the
+        standing finding: CI/CD-Hetzner-deploy and Codex-on-Hetzner are both
+        fully built and blocked only on the owner-sealed secrets
+        `bootstrap/scripts/seal-owner-secrets.sh` already covers in one
+        command (`infra/OWNER_CHECKLIST.md`, `decision_queue.py`'s
+        `portfolio-site-hetzner-deploy` / `codex-governor-enable` rows) --
+        no duplicate ask added.
+      - >-
+        Shipped #2213: a browser front end for `fifo-pick-evidence`, the
+        last CLI-only "evidence" venture without one (after
+        npm-deployment-evidence #2186 and vendor-change-evidence #2193).
+        `evidence.js` ports `fifo_pick_evidence.py`'s
+        check_rows/read_report rules line for line (missing-data,
+        invalid-timestamp, time-order, fifo-exception, and the
+        headers-only-is-a-clean-zero-row-report fix) so the browser tool
+        and the CLI cannot silently diverge; `index.html`/`app.js` follow
+        the established drag-drop-or-paste, download-Markdown-or-JSON,
+        opt-out-usage-counting pattern with the same disclaimers and a
+        Common-questions FAQ for search/AI discovery.
+      - >-
+        Also fixed `.github/workflows/fifo-pick-evidence-ci.yml`, found
+        while verifying this PR with `run_workflow_locally.py
+        --for-changes`: its smoke-test step ran the bundled example CSV,
+        which by design contains one FIFO exception, so the CLI's
+        documented `exit 1 if observations found` made this step fail on
+        every run that worked correctly -- unrelated to this PR's own
+        change, pre-existing on `main`. The step now only fails above exit
+        1 (a real crash or rejected input).
+      - >-
+        Verified: 19/19 `node --test` in the venture (evidence.js,
+        usage.js, page wiring); the unmodified CLI's own 7/7 `python3 -m
+        unittest`, confirming both implementations agree on the same
+        fixtures; `platform/pages`'s full suite 747/747; `build.mjs` +
+        `check.mjs` 168 products/485 pages, no dead links, FAQPage schema
+        present; `validate_usage.py` valid (181 products/346 readings
+        after the new baseline row). Reproduced the CI workflow's pre-fix
+        failure locally, then confirmed the fix. All 9 checks on PR #2213
+        were the outage signature (`runner_id: 0`, ~3s, confirmed via
+        `get_workflow_job`) -- merged on local verification per the
+        standing outage guidance.
+      - >-
+        Did not find further CI/CD, marketing, or Hetzner gaps this run:
+        `gitops/prod/` still has exactly one product surface
+        (`portfolio-site.yaml`), same owner-gated clone-token ask;
+        `faq-coverage.mjs`/`faq-duplicate.mjs` report full coverage with no
+        per-product presentation backlog. A full Playwright browser sweep
+        timed out in this sandbox on unrelated outbound network noise
+        (Chromium's own background requests hitting the egress proxy) --
+        an environment limit, not a code issue, since this tool needs no
+        network access; direct unit coverage stood in for it.
+    mrr_end: null
