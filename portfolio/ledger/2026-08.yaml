@@ -30523,3 +30523,56 @@ entries:
         verification per CLAUDE.md's outage-handling rule rather than waiting
         on a runner that will not be assigned.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2104: Common questions FAQ sections on 6 entry
+        pages -- cam-reconciliation-check, hvac-maintenance-contract-calculator,
+        mobile-detailing-bid-calculator, subcontractor-cashflow-planner,
+        contractor-bid-readiness, and (attempted) medical-courier-route-margin.
+        Picked via faq-coverage.mjs (the accurate measure, not the id="faq"
+        wrapper count) rather than another candidate list. Each got 5-6
+        question-shaped h3 headings derived from that venture's own
+        calc.mjs/model.mjs called directly with the page's own default
+        inputs, not estimated -- build.mjs derives FAQPage JSON-LD from
+        the headings, so no hand-written schema. Ran into the exact
+        concurrent-duplicate case CLAUDE.md's "Duplicate PRs" section
+        describes: another session merged #2102 (medical-courier-route-margin
+        FAQ) while this PR was open, producing a genuine merge conflict on
+        that one file. Resolved by taking main's already-shipped version for
+        that file and keeping the other 5, verified with faq-coverage.mjs
+        (133 on main alone -> 138 after merge, confirming no double-count),
+        rather than re-deriving or discarding either side's work. Verified:
+        node --test on all 6 ventures' own suites (100/100 pass, no calc
+        logic touched), clauses.mjs no-warranty check on all 6, full
+        build.mjs + check.mjs (164 products, 479 pages, no dead links) both
+        before and after the merge-conflict resolution. FAQPage coverage:
+        132 -> 138 of 164 entry pages. PR checks showed 0 check runs (absent
+        CI -- GITHUB_TOKEN-authored PRs do not trigger Actions here), not
+        red CI; merged on local verification per CLAUDE.md.
+      - >-
+        26 entry pages still lack a question-shaped heading per
+        faq-coverage.mjs --json (down from 32 this session started with):
+        3pl-quote-normalizer, ai-engineering-academy,
+        backup-verification-evidence, consent-change-record,
+        construction-evidence-log, home-elevator-bid-calculator,
+        irrigation-winterization-bid-calculator,
+        landscape-lighting-bid-calculator, parking-lot-striping-bid-calculator,
+        patio-door-bid-calculator, pergola-bid-calculator,
+        plantation-shutter-bid-calculator, pole-barn-bid-calculator,
+        pool-route-pricing, popcorn-ceiling-bid-calculator,
+        portable-restroom-event-quote, screened-porch-bid-calculator,
+        sewer-hydrojet-bid-calculator, shed-install-bid-calculator,
+        shopify-a11y-evidence, soffit-fascia-bid-calculator, sponsor-ready,
+        tender-bid-readiness, tender-radar, vinyl-liner-bid-calculator, and
+        walk-in-shower-bid-calculator -- a good next batch for the same
+        pattern. Everything else checked (meta description,
+        SoftwareApplication JSON-LD, no-warranty disclaimer, local usage
+        tracking) was already present and specific/niche-grounded across
+        essentially every venture sampled, including all 6 picked here
+        before this session's edits -- the FAQ/FAQPage layer is the one
+        discoverability gap actually worth another session's time right
+        now, not a general SEO rewrite.
+    mrr_end: null
