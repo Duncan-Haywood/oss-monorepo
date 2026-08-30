@@ -29733,6 +29733,54 @@ entries:
           represented there in full, and the account owner was notified
           directly with the exact unblock steps rather than waiting on
           them to re-read this file.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Portfolio-wide green sweep at `d47e3a083`, recorded because no
+          session had run one since the Actions outage began on 2026-08-26
+          and every merge in those four days landed on local verification of
+          the touched paths alone. The entry above verified #2060's own
+          claims (`platform/pages` 673/673, build + check); this is the rest
+          of the repository, which nothing had re-checked: `node --test
+          ventures/*/*.test.mjs` 11,839/11,839, 89 Python test files each run
+          from its own directory as CI does (all pass),
+          `platform/webcheck/check_pages.mjs` 481 pages sound, and every
+          validator clean -- `router/validate.py` (182 VENTURE.yaml),
+          `validate_doc_consistency`, `validate_candidates`,
+          `score_ventures --check` (183 scores), `validate_usage` (177
+          products, 341 readings), `check_form_defaults`,
+          `check_money_sign`, `validate_workflows` (217 files). The outage
+          has not been hiding a regression. Scoped claim: true for the
+          window 2026-08-26 to `d47e3a083`, not afterwards -- a session
+          wanting it past new merges should re-run rather than cite this.
+      - >-
+          The in-cluster Hetzner build was rehearsed with the init
+          containers' exact invocation from `gitops/prod/portfolio-site.yaml`
+          rather than the local defaults:
+          `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+          platform/pages/build.mjs --out=/site`, then `node
+          platform/pages/check.mjs --dist=/site`. Both succeed with the new
+          category pages, which stamp the Hetzner origin into canonical,
+          `og:url`, `sitemap-hub.xml` and `llms.txt`, with relative assets
+          resolving two levels up; nginx's `try_files` serves a category
+          directory from the `index.html` inside it. So
+          `portfolio-site-hetzner-deploy` gained no new blocker from #2060 --
+          worth recording because the deploy path builds from `main` at pod
+          start, and a page shape it could not serve would only surface on
+          the day the owner seals the clone token.
+      - >-
+          Concurrency note for whoever reads this next: this entry and the
+          one above it were written by two sessions minutes apart, both
+          recording #2060. Rather than open a third ledger PR or close
+          either, the overlap was resolved by keeping the earlier entry
+          whole and cutting this one down to the two findings it did not
+          already contain. `CLAUDE.md`'s duplicate-PR rule asks for exactly
+          that -- extend or consolidate, do not duplicate -- and the prior
+          20-branch sweep had already flagged ledger-only branches
+          duplicating entries byte-for-byte as a recurring waste.
+    mrr_end: null
     mrr_end: null
   - venture: platform
     agent_spend_usd: null
