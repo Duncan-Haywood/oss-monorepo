@@ -31282,3 +31282,75 @@ entries:
         deploy route (Pages or the Hetzner site) unblocks, same as
         everything else in `platform/pages/`.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session's brief asked to prioritize Hetzner CI/CD,
+        deployed marketing materials, and getting the Codex CLI running
+        unattended dev work on the Hetzner box against its subscription
+        quota. All three are already fully built and queued
+        (`portfolio-site-hetzner-deploy` #1999, `codex-governor-enable`
+        #1996) behind owner-only steps -- minting an OpenAI org with a
+        spend cap, sealing a scoped API key and GH_TOKEN into the
+        `codex-secrets` k8s Secret, sealing a read-only repo token for the
+        Hetzner site's clone, and replacing the placeholder ACME contact
+        email -- none of which an agent can perform. Re-verified fresh
+        rather than trusting the same-day prior confirmation: pulled a
+        live Actions job (`99229142809`, `runner_id: 0`, 2s duration) to
+        confirm the runner outage (#1849) is still active, and read
+        `gitops/agents/governor/cronjob.yaml` (`suspend: true`),
+        `gitops/agents/governor/policy.json` (`"enabled": false`),
+        `gitops/prod/kustomization.yaml` (no sealed repo-token entry) and
+        both cert-manager issuers (still `replace-me@duncanhaywood.dev`)
+        directly to confirm no drift since the last recorded check. No
+        ledger duplication added there; this row exists because a PR
+        merged this session (see below) and every merge here gets a row.
+      - >-
+        0 open PRs at session start. Applied the mandate's
+        branch-to-PR-presumption instead of treating that as a vacuous
+        quota: sampled 25 of the ~287 un-PR'd remote branches, weighted
+        toward the freshest (least likely to already be superseded).
+        Two looked genuinely unique by `supersede_check.py`'s line-scan
+        (`pr/appointment-deposit-calculator`,
+        `pr/where-to-sell-rank-by-profit-per-day`) and both tests suites
+        passed standalone, but merging `origin/main` into each produced
+        add/add conflicts across the whole venture -- `main` had
+        independently shipped the identical feature (appointment-deposit
+        calculator via #1835; where-to-sell speed/profit-per-day ranking
+        via #1721/#1494/#1497, more thoroughly than either branch).
+        Confirmed by reading `main`'s current implementation directly, not
+        just trusting the scan's per-line verdict -- the scan cannot match
+        two differently-worded reimplementations of the same feature at
+        the same path. Opened both as PRs #2138/#2139 to run the check
+        formally, then closed both, naming the superseding commits in each
+        close comment. The remaining 23 branches (checked by a
+        sub-session) were empty, ledger-only, or independently confirmed
+        superseded by direct diff against current `main` -- zero were
+        mergeable. This backlog appears to already be continuously drained
+        by the fleet's own volume (166/184 ventures touched in the prior
+        24h alone); further sampling has sharply diminishing returns.
+      - >-
+        Product work: read core logic (not FAQ/usage-tracking) in 4
+        untouched-in-24h evidence/watch tools looking for a genuine
+        wrong-output bug -- `cra-evidence-desk`, `dns-configuration-
+        evidence`, `npm-deployment-evidence`, and `vendor-change-evidence`
+        all checked out correct against their own stated logic. Found one
+        in `mcp-supply-chain-watch`'s `classify()`: a catch-all fallback
+        labeled any change to an untracked field (e.g. an `annotations`
+        block) as `"description-change"` with the reason "description
+        changed" even when the description text was byte-identical between
+        snapshots -- a factually false report from a tool whose entire job
+        is naming what changed in an MCP manifest for security review.
+        Repro: two snapshots differing only in
+        `annotations.readOnlyHint` produced `bucket: description-change`,
+        `reason: description changed without a detected instruction
+        signal`. Fixed by gating that bucket on an actual description-text
+        diff and adding a new `metadata-change` bucket that names the
+        fields that actually changed; added a regression test pinning the
+        repro. Verified `python3 -m unittest discover -s tests -v` (5/5
+        passing, pre- and post-merge) and `node platform/pages/build.mjs`
+        + `check.mjs` (164 products, 480 pages, no dead links). Shipped
+        and merged #2142.
+    mrr_end: null
