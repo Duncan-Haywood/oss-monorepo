@@ -111,3 +111,58 @@ test('matched rows carry no explanation', () => {
   assert.equal(result[0].status, 'matched');
   assert.equal(explanation(result[0]), '');
 });
+
+test('explains an exact-amount deposit that landed just outside the tolerance', () => {
+  // The most ordinary real exception: the bank posted the same money a few days
+  // later than the operator allowed for. Before the hint window was widened
+  // past the match window this row came back with an empty "What to check"
+  // column, because any deposit near enough to be hinted had already matched.
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-25,100.00', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint.difference, 0);
+  assert.equal(payoutRow.hint.feeLike, false);
+  assert.match(explanation(payoutRow), /same amount, 5 days apart/);
+  assert.match(explanation(payoutRow), /outside the date tolerance you set/);
+});
+
+test('names the gap in whole days, singular at one day past the tolerance', () => {
+  // The operator's next action is to widen the tolerance to cover the gap, so
+  // the number is the actionable part of the sentence, not decoration.
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-22,100.00', 'deposits');
+  const result = reconcile(payouts, deposits, 1);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.match(explanation(payoutRow), /same amount, 2 days apart/);
+
+  const sameDay = reconcile(
+    readRecords('date,net\n2026-08-20,100.00', 'payouts'),
+    readRecords('date,amount\n2026-08-21,100.00', 'deposits'),
+    0,
+  );
+  assert.match(explanation(sameDay.find(row => row.status === 'unmatched payout')), /same amount, 1 day apart/);
+});
+
+test('the widened hint window is still bounded', () => {
+  // Wider than the matcher, not unbounded: a deposit more than a week past the
+  // tolerance is not offered as a lead, because at that distance an equal
+  // amount is as likely to be a different transaction as a late one.
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-09-05,100.00', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint, undefined);
+  assert.equal(explanation(payoutRow), '');
+});
+
+test('still prefers the closest amount over the closest date across the wider window', () => {
+  // Widening the window must not let a near-in-date but far-off-in-amount row
+  // outrank an exact amount further out; the ranking is amount first.
+  const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
+  const deposits = readRecords('date,amount\n2026-08-21,10.00\n2026-08-27,100.00', 'deposits');
+  const result = reconcile(payouts, deposits, 3);
+  const payoutRow = result.find(row => row.status === 'unmatched payout');
+  assert.equal(payoutRow.hint.deposit.date, '2026-08-27');
+  assert.equal(payoutRow.hint.difference, 0);
+});
