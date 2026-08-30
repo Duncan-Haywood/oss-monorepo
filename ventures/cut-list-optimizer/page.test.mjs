@@ -96,7 +96,7 @@ test('the liability disclaimer and privacy note are real markup, not swallowed t
 test('the sheet-goods inputs and result fields are present', () => {
   for (const id of [
     'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-unit', 'sheet-cost',
-    'sheet-rotate', 'sheet-parts', 'sheet-headline', 'sheet-message', 'sheet-count',
+    'sheet-rotate', 'sheet-parts', 'sheet-onhand', 'sheet-headline', 'sheet-message', 'sheet-count',
     'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost', 'sheet-oversize',
     'sheet-compare', 'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
     'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
@@ -105,6 +105,11 @@ test('the sheet-goods inputs and result fields are present', () => {
   ]) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
+});
+
+test('the sheet-goods on-hand offcut field is parsed, drafted, and wired to a render', () => {
+  assert.match(scriptSource, /onHand:\s*parseOnHandSheets\(\$\('sheet-onhand'\)\.value\)/, 'renderSheet does not pass the on-hand offcut field into optimizeSheets');
+  assert.match(scriptSource, /DRAFT_FIELDS\s*=\s*\[[^\]]*'sheet-onhand'[^\]]*\]/s, 'sheet-onhand is missing from DRAFT_FIELDS, so a saved draft loses it');
 });
 
 test('every id list the script iterates names a real element', () => {

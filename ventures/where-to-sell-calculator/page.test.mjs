@@ -214,8 +214,10 @@ test('every shared input the calculator reads is on the page and in the share li
   const calc = readFileSync(new URL('./calc.mjs', import.meta.url), 'utf8');
   const share = readFileSync(new URL('./share.mjs', import.meta.url), 'utf8');
   const readByCalc = new Set([...calc.matchAll(/\bshared\.([A-Za-z][A-Za-z0-9]*)/g)].map((m) => m[1]));
-  // Toggles, not numeric inputs: they ride the link as their own booleans.
-  for (const flag of ['includeSubscription', 'includeReturns']) readByCalc.delete(flag);
+  // Toggles/modes, not numeric inputs: they ride the link as their own
+  // boolean or string field rather than through the numeric SHARED_FIELDS
+  // list, and are covered by their own dedicated round-trip tests instead.
+  for (const flag of ['includeSubscription', 'includeReturns', 'rankBy']) readByCalc.delete(flag);
 
   for (const key of readByCalc) {
     assert.match(

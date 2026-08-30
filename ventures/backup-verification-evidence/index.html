@@ -61,6 +61,7 @@
     <h2>Night-over-night</h2>
     <p class="hero-number" id="headline">Waiting for records</p>
     <p class="note" id="subhead">Each night is classified the same way as <code>backup-evidence check</code>. A 20% size drop versus the previous night or the prior-night median is flagged, even when that night still reads as verified.</p>
+    <p class="note"><label><input type="checkbox" id="require-integrity"> Require an end-to-end integrity read to count as verified &mdash; matches <code>check --require-integrity</code>. A night with no recorded integrity result (most runs, unless recorded with <code>--verify-integrity</code>) shows as <strong>inconclusive</strong> instead of verified.</label></p>
     <div id="alerts"></div>
     <table>
       <thead>
@@ -99,6 +100,8 @@
     <p>The comparison is night-over-night: each row is judged against the previous night's size and the median of the nights before it. Load a single record and there is nothing to compare it to, so drop or paste at least two consecutive nights, or load the shrinking-dump example to see it work.</p>
     <h3>Does my run-record data leave my browser?</h3>
     <p>No. Files you drop or paste are parsed and compared entirely client-side; nothing is uploaded. The only thing kept is an anonymous local count of which buttons get used, which Do Not Track and Global Privacy Control turn off automatically.</p>
+    <h3>What does "Require an end-to-end integrity read" change?</h3>
+    <p>Most run records only carry an exit code and an artifact stat, so "verified" here means those agreed &mdash; it does not mean anything opened the file. If you recorded runs with <code>backup-evidence record --verify-integrity</code>, each record also carries an <code>integrity</code> result; turning this on reports any night without a conclusive <code>intact</code> read as <strong>inconclusive</strong> instead of verified, even if its exit code and size were fine. It never reads the archive itself &mdash; it only reads the integrity result already in the record you gave it.</p>
   </section>
 
   <footer>
@@ -108,7 +111,7 @@
   </footer>
 
   <script type="module">
-    import { parseRunPayload, buildTrend, formatBytes, trendSummary, markdownTrend } from "./report.mjs";
+    import { parseRunPayload, buildTrend, formatBytes, trendSummary, markdownTrend, DEFAULT_SHRINK_RATIO } from "./report.mjs";
     import { TREND_EXAMPLE_NIGHTS } from "./examples.mjs";
     import { record, setUsageOptOut } from "./usage.mjs";
 
@@ -119,6 +122,7 @@
     const rows = document.querySelector("#rows");
     const report = document.querySelector("#report");
     const drop = document.querySelector("#drop");
+    const requireIntegrity = document.querySelector("#require-integrity");
     let latestTrend = null;
     let latestRecords = [];
 
@@ -135,7 +139,7 @@
 
     function render(records) {
       latestRecords = records;
-      const trend = buildTrend(records);
+      const trend = buildTrend(records, DEFAULT_SHRINK_RATIO, { requireIntegrity: requireIntegrity.checked });
       latestTrend = trend;
       const summary = trendSummary(trend);
       status.textContent = `${records.length} run record${records.length === 1 ? "" : "s"} compared locally.`;
@@ -258,6 +262,10 @@
       link.click();
       URL.revokeObjectURL(url);
       record("report_downloaded");
+    });
+
+    requireIntegrity.addEventListener("change", () => {
+      if (latestRecords.length) render(latestRecords);
     });
 
     document.querySelector("#optout").addEventListener("click", () => {

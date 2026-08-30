@@ -32,7 +32,7 @@ function finding(status, record, reasons, extra = {}) {
   };
 }
 
-export function classifyRun(record) {
+export function classifyRun(record, { requireIntegrity = false } = {}) {
   if (!record || typeof record !== "object" || Array.isArray(record)) {
     return {
       status: STATUS_INCONCLUSIVE,
@@ -97,6 +97,20 @@ export function classifyRun(record) {
       `the artifact's integrity could not be established: ${
         integrity.detail || "the integrity check did not complete"
       }`,
+    );
+  }
+
+  if (requireIntegrity && integrity.result !== "intact") {
+    const reason = integrity.result === "unsupported"
+      ? "the artifact format is unsupported by this tool"
+      : integrity.result === "inconclusive"
+        ? "the integrity read did not reach a conclusive end"
+        : "no end-to-end integrity check was recorded";
+    return finding(
+      STATUS_INCONCLUSIVE,
+      record,
+      [`integrity is required, but ${reason}`],
+      { integrity },
     );
   }
 
@@ -210,13 +224,13 @@ export function parseRunPayload(text) {
   throw new Error("JSON must be a run record, an array of run records, or {records: [...]}.");
 }
 
-export function buildTrend(records, shrinkRatio = DEFAULT_SHRINK_RATIO) {
+export function buildTrend(records, shrinkRatio = DEFAULT_SHRINK_RATIO, { requireIntegrity = false } = {}) {
   const ratio =
     typeof shrinkRatio === "number" && shrinkRatio > 0 && shrinkRatio < 1
       ? shrinkRatio
       : DEFAULT_SHRINK_RATIO;
   const ordered = orderedRecords(records);
-  const findings = ordered.map(classifyRun);
+  const findings = ordered.map((record) => classifyRun(record, { requireIntegrity }));
   const rows = [];
   const alerts = [];
   let previousSize = null;
@@ -291,6 +305,7 @@ export function buildTrend(records, shrinkRatio = DEFAULT_SHRINK_RATIO) {
 
   return {
     shrink_ratio: ratio,
+    require_integrity: requireIntegrity,
     row_count: rows.length,
     alert_count: alerts.length,
     latest: rows.length ? rows[rows.length - 1] : null,
@@ -300,6 +315,9 @@ export function buildTrend(records, shrinkRatio = DEFAULT_SHRINK_RATIO) {
       "A size drop is an observation, not a determination that data was lost.",
       "Incremental backups and retention pruning can shrink a repository on purpose.",
       `Only drops of ${Math.round(ratio * 100)}% or more versus the previous night or the prior-night median are flagged.`,
+      requireIntegrity
+        ? "Requiring integrity means a night with no end-to-end artifact read reports inconclusive here even if its exit code and size/age all checked out."
+        : "A night reports verified from its exit code and artifact stat alone unless its own run record already carries an integrity result; this page never opens the archive itself.",
       "This does not replace a test restore.",
     ],
   };

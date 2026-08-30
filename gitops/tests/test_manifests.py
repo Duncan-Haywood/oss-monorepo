@@ -56,6 +56,29 @@ def test_no_live_secrets_in_git() -> None:
             assert needle not in text, f"{path} looks like it contains {needle}"
 
 
+def test_every_project_with_a_secrets_template_can_receive_a_sealed_secret() -> None:
+    # A venture that ships secrets/*.template.yaml documents "seal this and
+    # commit the SealedSecret into this kustomization" as its own next step.
+    # If the venture's AppProject does not whitelist bitnami.com/SealedSecret,
+    # Argo refuses to sync that resource the moment it lands -- a sync
+    # failure caused by a rule mismatch, not by the actual owner steps still
+    # pending. This caught prod: it has secrets/portfolio-repo-token.template.yaml
+    # but its AppProject omitted the kind that agents and ci both whitelist
+    # for the identical reason.
+    docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
+    by_name = {d["metadata"]["name"]: d for d in docs if d}
+    for venture_dir in ("prod", "staging", "agents", "ci"):
+        templates = list((ROOT / venture_dir).glob("secrets/*.template.yaml"))
+        if not templates:
+            continue
+        whitelist = by_name[venture_dir]["spec"]["namespaceResourceWhitelist"]
+        kinds = [(e.get("group"), e.get("kind")) for e in whitelist]
+        assert ("bitnami.com", "SealedSecret") in kinds or ("*", "*") in kinds, (
+            f"{venture_dir} ships {[t.name for t in templates]} but its AppProject "
+            f"cannot receive a SealedSecret: {whitelist}"
+        )
+
+
 def test_agents_project_cannot_dest_prod() -> None:
     docs = list(yaml.safe_load_all((ROOT / "apps" / "projects.yaml").read_text()))
     by_name = {d["metadata"]["name"]: d for d in docs if d}
