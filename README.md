@@ -17,6 +17,12 @@ setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
 directory that inherits the platform automatically.
 
+**Product-first operating rule:** prioritize a runnable, free customer workflow
+over administrative analysis. New narrow ventures are authorized when they are
+not duplicates, have a measurable user problem, and ship with the disclaimer,
+privacy boundary, usage counter, and discoverability basics described in
+`PRODUCT_PLAYBOOK.md`.
+
 ## Layout
 
 ```

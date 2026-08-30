@@ -324,6 +324,17 @@ products:
           and scope risk. Public URL remains owner-gated; counters are local,
           aggregate, and opt-out.
 
+  - slug: appointment-deposit-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Shipped a zero-dependency browser calculator for service-business
+          appointment deposits and policy drafts. Public deployment remains
+          owner-gated; local events are opt-out and contain no customer inputs.
 # Example of the shape, once a product has shipped:
 #
 # products:
