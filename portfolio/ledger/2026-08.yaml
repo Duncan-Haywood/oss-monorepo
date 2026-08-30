@@ -30429,3 +30429,56 @@ entries:
         `infra/OWNER_CHECKLIST.md`. Re-running that same check a third
         time in one morning would be motion, not progress.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session with an owner ask attached: prioritize
+        deployment/CI-CD and Hetzner marketing-site delivery, and set up
+        Codex CLI to spend a ChatGPT plan's included quota on this repo's
+        own dev work. Confirmed (fresh, not trusted from the ledger alone)
+        by reading `gitops/agents/queue/deploy-cicd-readiness.yaml`,
+        `gitops/agents/workers/mandate.md`, `gitops/ci/README.md`,
+        `infra/OWNER_CHECKLIST.md`, and `portfolio/hosting/README.md`,
+        then running the suites myself: `pytest gitops/tests` (67 passed)
+        and `ventures/ubuntu-agent-server`'s own suite (38 passed). All
+        three asks are already fully engineered and merged (self-hosted
+        Actions runner stack, `tools.marisstella.dev` GitOps site deploy,
+        Codex governor + queue with deploy-cicd and SEO workstreams at
+        priorities 3-4) as of this morning's #2082. Nothing left to build;
+        every remaining step is an owner-only credential/account action
+        already itemized in `infra/OWNER_CHECKLIST.md` and
+        `decision_queue.py` (seal a fine-grained PAT + set `CI_RUNNER` for
+        CI; seal a read-only clone-token PAT + a real ACME contact email
+        for the Hetzner site; an interactive `codex login` + provisioning
+        flip for the Codex worker). Did not duplicate any of these as new
+        decision-queue asks.
+      - >-
+        Branch/PR drain: 0 open PRs at start. Sampled ~28 of the
+        highest-commits-ahead of the 171 unreviewed branches (3 parallel
+        background agents on 12 branches, plus direct
+        `supersede_check.py` runs on ~16 more) rather than trusting a
+        prior session's "essentially all superseded" summary at face
+        value. 100% hit rate for either mechanical SUPERSEDED
+        (identical-merge proof) or the same feature already shipped
+        better on `main` under different names (RENAME SUSPECTED,
+        manually confirmed inferior each time -- e.g.
+        `claude/funny-archimedes-6av5kj`'s profit-per-day toggle for
+        where-to-sell-calculator vs. main's richer
+        velocity/`profitPerDay`/disagreement-callout model). Zero merges;
+        treated the repairable queue as empty rather than grinding through
+        the remaining ~143 branches for a vanishingly small return.
+      - >-
+        Shipped and merged #2099: FAQ section on equipment-rental-break-even
+        (0 -> 1 of 1 entry pages with derived FAQPage schema). First pick,
+        change-order-margin-calculator, turned out to collide with a
+        concurrent session's own FAQ landing on that exact file moments
+        before push (same shape as this file's earlier vendor-rate-break-even
+        collision) -- dropped that duplicate before opening a PR rather than
+        shipping a second `id="faq"` block, and picked equipment-rental-
+        break-even instead. Every number in the FAQ answers is the
+        calculator's own `model.mjs` output for the page's default inputs,
+        checked by calling `calculate()` directly, not estimated. Verified:
+        8/8 venture tests, build+check 164 products/479 pages/no dead links.
+    mrr_end: null
