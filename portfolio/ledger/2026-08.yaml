@@ -29884,3 +29884,30 @@ entries:
         code-complete and owner-gated (`decision_queue.py` rows 8, 10-13);
         no new ask queued.
     mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a workflow gap: the linear-stock panel (dimensional lumber
+        and other bar stock) had no way to print the cutting plan, while
+        the sheet-goods panel has had a Print button since it shipped and
+        the page's own schema.org featureList already advertised a
+        "printable job ticket" for the tool as a whole. Added #linear-print,
+        wired to window.print() exactly like the existing #sheet-print
+        (#2066, merged d99d9fb7).
+      - >-
+        Verified: node --test ventures/cut-list-optimizer 92/92 (added a
+        page test asserting both Print buttons exist and are wired, plus
+        the new id in the primary-journey id-presence test), node --test
+        platform/pages 673/673, build.mjs + check.mjs unchanged (164
+        products, 479 pages, no dead links). Playwright against the page
+        served over http (file:// blocks the ES module imports via CORS):
+        switched to the Linear stock tab, confirmed the default cut list
+        still renders, confirmed #linear-print is visible and its click
+        invokes window.print() (intercepted to avoid a blocking OS dialog),
+        confirmed #sheet-print still does too, zero console/page errors.
+        CI showed red on all 6 checks (validate/check/build x2/site-test/
+        page-integrity), each ~3s with runner_id 0 on job 99193998935 --
+        the confirmed runner outage, not a regression.
+    mrr_end: null
