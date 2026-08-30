@@ -29911,3 +29911,75 @@ entries:
         page-integrity), each ~3s with runner_id 0 on job 99193998935 --
         the confirmed runner outage, not a regression.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to a figure recorded earlier in this file: the FAQ backlog
+        is not "146 of 163 ventures" and never was. That count is of the
+        `id="faq"` wrapper element. `faqEntries()` in
+        `platform/pages/build.mjs` does not look at wrappers -- it derives
+        `FAQPage` schema from any `h2`/`h3` whose text ends in a question
+        mark, plus `<details><summary>`. So `where-to-sell-calculator`,
+        `amazon-fba-calculator`, `etsy-profit-calculator`,
+        `shopify-fee-calculator` and `janitorial-bid-calculator` were all
+        counted as missing while already shipping complete FAQ sections and
+        complete schema. Measured the way the builder computes it, real
+        coverage that morning was 57 of 164 entry pages and the backlog was
+        107, not 146. Found by starting to rewrite `where-to-sell-calculator`
+        before noticing its existing FAQ -- roughly the cost this correction
+        saves the next session.
+      - >-
+        Shipped `platform/pages/faq-coverage.mjs` (+6 tests) so the number
+        cannot be got wrong again: it imports `faqEntries` rather than
+        reimplementing it, so a change to what the builder derives changes
+        the report in the same commit. `node platform/pages/faq-coverage.mjs`
+        prints coverage and names every uncovered entry page; `--json` and a
+        `<slug>` argument are supported. Deliberately reporting-only, not a
+        CI gate: a venture may legitimately have nothing worth asking, and
+        failing a build over a missing FAQ pushes sessions toward padding
+        pages with filler questions, which is worse than no FAQ.
+      - >-
+        Two FAQ batches merged this session, 12 ventures, all derived from
+        each venture's own `calc.mjs` rather than boilerplate: #2070
+        (roofing, painting, window-replacement, siding, furnace,
+        tree-service) and #2071 (metal-roof, solar-pv, junk-removal,
+        mold-remediation, paver-patio, retaining-wall) -- the highest
+        search-demand contractor tools with no question-shaped copy at all.
+        Coverage 57 -> 74 of 164 including a concurrent session's parallel
+        alphabetical sweep (#2069 and after); 90 entry pages remain, named by
+        the reporter above. Verified: 917 venture tests across the twelve,
+        `platform/pages` 679/679, build+check 164 products / 479 pages / no
+        dead links, `check_pages.mjs` 481 sound, router validate 182 valid.
+      - >-
+        Method note for whoever verifies pages in a browser next: drive them
+        over HTTP, not `file://`. Chromium blocks ES-module imports from
+        `file://`, so every one of these calculators renders a dead `$--`
+        hero there whether or not anything is wrong. An initial pass this
+        session read that as a regression on changed pages until an unchanged
+        page showed the identical symptom. Serving the built site and
+        re-running gave a real price on all twelve with zero page or console
+        errors. Also incidental: `readsAsCode` in `build.mjs` drops any
+        answer containing a camelCase identifier of 10+ characters -- correct
+        behaviour, but it silently excludes an FAQ answer that names a
+        function by its real name.
+      - >-
+        Deployment/CI-CD and Codex-on-Hetzner re-checked against the code
+        rather than re-derived from this file, because the session brief
+        raised all three again: still complete and still owner-gated, no
+        change since the three preceding entries. `codex.sh` already
+        implements the subscription-quota path the brief asks for (it drops
+        `OPENAI_API_KEY` from the child environment unless
+        `CODEX_USE_API_KEY=true`, and preflights `codex login status` with
+        the fix named in the error), and `config/repos.yml` already carries a
+        product-first `self_directed_prompt` widened on 2026-08-29 to cover
+        CI, deployment manifests, and SEO content. What remains is owner-only
+        and unchanged: one interactive `codex login` on the box, flipping
+        `dry_run` and `agent_runner_start_disabled`, plus the DNS record,
+        sealed clone token, and ACME contact for
+        `portfolio-site-hetzner-deploy`. No new decision-queue row added --
+        every step is already named in `decision_queue.py` and
+        `infra/OWNER_CHECKLIST.md`, and a fourth duplicate ask is not the
+        blocker.
+    mrr_end: null
