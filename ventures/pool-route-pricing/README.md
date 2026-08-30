@@ -8,7 +8,7 @@ Your route assumptions are kept as a private local draft in this browser and res
 
 ## Privacy and usage
 
-Everything runs in your browser. Your route assumptions are never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. The saved draft lives only in this browser's local storage, and a shared link carries its numbers in the URL hash, read only on the recipient's own device. We count anonymous local feature events only (`estimate`, `share-link`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No people, IP addresses, or route content are recorded. The counter is not sent to the maintainers.
+Everything runs in your browser. Your route assumptions are never uploaded, and we don't have accounts, tracking cookies, or an analytics vendor. The saved draft lives only in this browser's local storage, and a shared link carries its numbers in the URL hash, read only on the recipient's own device. We count anonymous local feature events only (`estimate`, `share-link`, `current-price-checked`), with a visible opt-out. Do Not Track and Global Privacy Control disable counting automatically. No people, IP addresses, or route content are recorded. The counter is not sent to the maintainers.
 
 ## Disclaimer
 

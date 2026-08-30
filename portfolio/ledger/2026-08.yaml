@@ -31847,3 +31847,207 @@ entries:
         governor flips for the Hetzner Codex worker. All three code halves
         are complete; owner notified with the exact steps.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **A commit-message grep against `main` is not a duplication check --
+        a squash merge drops it.** Sampled ~30 of the ~175 remote branches
+        with commits ahead of `main` and found four "PR-less" branches
+        (`claude/clever-bohr-rcp8ih`, `claude/codex-governor-ask-and-queue-
+        drain-report`, `claude/upbeat-mayer-3ipos6-ledger`, `claude/ledger-
+        seo-faq-pages`) whose single ledger-only commit looked unmerged:
+        `git merge-base --is-ancestor` said false, and grepping `main`'s
+        ledger for each commit's own message ("15-branch PR-less backlog
+        triage", "shipped engine no page could reach", etc.) found nothing.
+        Cherry-picked all four onto a branch and opened #2168. All four were
+        already on `main` -- squash-merged as #2029, #1996, #1943, and #2040
+        respectively, each under a *different* commit hash carrying only the
+        PR title, not the original branch commit's message. `git log
+        -S"<a distinctive outcome sentence>" -- <file>` found the real,
+        already-merged commit immediately for all four; the message grep
+        could not, structurally, because a squash merge never carries the
+        source commit's message into `main`'s history. Closed #2168 rather
+        than merging duplicate ledger prose.
+      - >-
+        Corrected method for the next session checking whether a PR-less
+        branch is really unmerged: `git merge-base --is-ancestor <branch> main`
+        rules out a fast-forward/merge-commit landing but says nothing about
+        a squash merge, which is this repo's default (`squash` merge_method
+        is what this session and others use). Diff the branch's actual
+        content against `main` (`supersede_check.py`'s identical-merge proof,
+        or `git log -S"<content, not the commit message>"`), not the commit
+        title -- the same trap the "RENAME SUSPECTED" section in `CLAUDE.md`
+        already names for feature code applies just as much to ledger prose
+        that got rephrased into a PR title during squash.
+      - >-
+        Net effect: no new product or infra work landed this session. Spent
+        the run's first phase draining the PR queue (found 0 open PRs, both
+        `list_pull_requests` and `search_pull_requests`) and sampling the
+        branch backlog per the scheduling brief, which asked to prioritize
+        merging existing work plus CI/CD, Hetzner deployment, and "Codex CLI
+        on the built-in quota." All three of the latter are, per five now-
+        independent session confirmations on `main` (this one included),
+        fully engineered and blocked only on the three owner-only steps in
+        `infra/OWNER_CHECKLIST.md` (`codex-governor-enable`,
+        `actions-runners-unavailable`, `portfolio-site-hetzner-deploy` in
+        `asks.yaml`) -- including the explicit warning that "use up the
+        built-in quota" read literally (a personal ChatGPT Plus/Pro `codex
+        login`) is the one shape not to build, since it has no spend cap and
+        competes with the owner's own interactive use. No new ask added;
+        owner notified directly instead, per the scheduling brief's own
+        instruction to surface exactly this kind of decision rather than
+        silently building the unsafe version or silently doing nothing.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed 0 open PRs (list_pull_requests and search_pull_requests
+        both empty), then sampled 5 more PR-less branches with commits
+        ahead of main against the mandate's three-PR merge quota:
+        `pr/invoice-payment-terms-calculator`, `pr/appointment-deposit-
+        calculator`, and `pr/where-to-sell-rank-by-profit-per-day` were
+        already known superseded (ledger's #2089/#2090/#2091 entry, this
+        session independently re-confirmed the third by hand-diffing
+        calc.mjs/share.mjs rather than trusting supersede_check.py's line
+        scan alone, since two siblings below turned out to be scan misses).
+      - >-
+        Two branches not previously recorded: `cursor/cut-list-linear-cost-
+        20260824` ("show linear stock material cost") is superseded by
+        `main`'s already-merged #1087 -- same four files, same element ids
+        and test assertions, main's version is a strict superset (adds
+        on-hand-offcut cost accuracy the branch's older calc.mjs lacks).
+        `cursor/mls-photo-report-20260824` ("export MLS photo preflight
+        reports") is superseded by a later independent session's work on
+        `main`: `PhotoCheckTool.tsx` already ships a "Download dated JSON
+        report" button wired to `createEvidenceReport()`, `roadmap.ts`
+        marks `p2-photo-preflight-record` done, and `usage.yaml` already
+        records the JSON-export event as of 2026-08-26 -- the branch is an
+        independently-written, weaker duplicate of the same button (own
+        field/event names, no handoff-summary feature). Neither merged.
+      - >-
+        Net: 0 of 5 sampled branches were repairable; all were confirmed-
+        superseded reimplementations of features `main` already ships more
+        completely, consistent with this month's established ~94%
+        (16/17, then 29/30, now 5/5) supersession rate across three
+        independent sampling passes of the same ~175-branch backlog. CI/CD,
+        Hetzner portfolio-site deploy, and Codex-governor status (all three
+        code-complete, all three owner-blocked) already covered by this
+        month's adjacent portfolio entry -- not re-recorded here to avoid
+        duplicating that finding.
+    mrr_end: null
+  - venture: water-heater-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session ("continue product-first development"; this run's
+        brief also asked to prioritize CI/CD, deployment, marketing
+        artifacts, and standing up the Hetzner Codex worker). Opened with a
+        live check: zero open PRs, so the mandate's three-PR merge quota
+        was satisfied vacuously. Read `gitops/README.md`,
+        `gitops/agents/workers/mandate.md`,
+        `gitops/agents/secrets/README.md`, and
+        `portfolio/ledger/decision_queue.py` for the CI/CD and Codex-worker
+        asks: all of it (self-hosted Actions runner behind `CI_RUNNER`, the
+        Hetzner portfolio-site GitOps deploy, and a Codex worker driven by
+        `mandate.md` -- already "a similar prompt to this one running on
+        the Hetzner VM") is code-complete and already queued
+        (`actions-runners-unavailable`, `agent-runner-subscription-login`,
+        `codex-governor-enable`, `portfolio-site-hetzner-deploy`), blocked
+        purely on owner-only actions (sealing secrets, an interactive
+        `codex login`, a repo variable flip). Did not duplicate any of
+        those asks.
+      - >-
+        `node platform/pages/faq-coverage.mjs` showed
+        `water-heater-bid-calculator` tied for the thinnest FAQ in the
+        portfolio at 2 questions (with `einvoice-preflight`,
+        `retainage-cashflow-calculator`, `standby-generator-bid-calculator`),
+        continuing the pattern from #2159/#2162. `calc.mjs` already warns
+        that a 1/2-inch gas line often can't feed a condensing tankless, but
+        nothing quantified the cost. Added a third FAQ question (visible
+        `<h3>/<p>` and the hand-authored FAQPage JSON-LD, kept in sync by
+        hand) with a worked example: a 10-foot gas-line upsize to 3/4-inch
+        adds 4 labor hours and $270 in materials, about $804 more on the bid
+        at default rates ($1,525.94 to $2,329.59).
+      - >-
+        First pass used curly quotes in the JSON-LD and HTML entities in the
+        visible copy; `platform/pages/faq-visible.test.mjs` correctly caught
+        the resulting text mismatch (109-char divergence) before merge.
+        Fixed by using plain straight quotes in both. Verified locally
+        (Actions runner outage unchanged, not attempted on CI): venture
+        suite 96/96 (94 existing + 2 new -- a numeric-lock test on the
+        worked example and a visible/JSON-LD parity test), full
+        `platform/pages` suite 746/746, `build.mjs` + `check.mjs` against a
+        fresh dist (164 products, 480 pages, no dead links),
+        `faq-visible`/`faq-coverage`/`faq-duplicate` all clean. Shipped and
+        merged #2171.
+    mrr_end: null
+  - venture: standby-generator-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Continued this session's FAQ-depth pass (same pattern as #2171 on
+        `water-heater-bid-calculator`). Live check before starting: fetched
+        `origin/main`, found #2173 (`pool-route-pricing`) merged by another
+        session in the interim -- unrelated venture, no overlap, rebased
+        cleanly.
+      - >-
+        `standby-generator-bid-calculator` was tied for thinnest FAQ in the
+        portfolio at 2 questions. Added a third grounded in `calc.mjs`'s
+        arithmetic: switching the default 15-foot fuel line from natural
+        gas to propane adds 2.1 labor hours and $475 in materials (LP
+        regulator kit, tank hookup, pricier pipe), about $974 more on the
+        bid ($6,106.00 to $7,080.12) -- with a note that the calculator does
+        not price the tank itself.
+      - >-
+        Used plain straight quotes throughout from the start this time,
+        having hit the curly-quote/HTML-entity JSON-LD-vs-visible-copy
+        mismatch on #2171. Verified locally (Actions runner outage
+        unchanged, not attempted on CI): venture suite 97/97 (95 existing +
+        2 new), full `platform/pages` suite 746/746, `build.mjs` +
+        `check.mjs` against a fresh dist (164 products, 480 pages, no dead
+        links), faq-visible/faq-coverage/faq-duplicate/clauses all clean.
+        Shipped and merged #2174.
+    mrr_end: null
+  - venture: ebay-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Sitewide guards (FAQ visibility/coverage/duplicate, links,
+        contrast, clauses — 746/746 platform/pages tests) were already
+        clean, so instead of re-sweeping those, checked for feature
+        parity across ventures: 137 of 158 product pages wrap their live
+        result panel in aria-live="polite"; 21 do not.
+        ebay-fee-calculator — the portfolio's largest single calculator,
+        25 sub-tools on one page — was one of them. Its "Order result"
+        panel and all 25 "If you..." sensitivity panels recompute on
+        every keystroke with no live-region announcement, so a
+        screen-reader user got no signal the numbers changed without
+        manually re-navigating to the panel after each edit.
+      - >-
+        Added aria-live="polite" to the result section and all 25
+        sensitivity sections, matching the pattern already used on 137
+        sibling pages (deck-bid-calculator, roofing-bid-calculator, etc).
+        Pure attribute addition — no JS or computed values touched.
+      - >-
+        Verified locally (runner outage unchanged, not attempted on CI):
+        venture suite 448/448; full platform/pages suite 746/746;
+        run_workflow_locally.py --for-changes selected 7 workflows, 4
+        passed clean (ebay-fee-calculator-ci.yml, link-contrast-ci.yml,
+        page-integrity-ci.yml, conflict-markers-ci.yml all 2/2);
+        portfolio-pages.yml/deploy correctly held for write permission.
+        The two "build the site" checks failed locally only because
+        their own build step needs a ${{ }} expression the local runner
+        skips — ran build_pages_site.py+check_pages_links.py (164
+        products, 470 pages, no dead links) and platform/pages'
+        build.mjs+check.mjs (164 products, 480 pages, no dead links) by
+        hand instead. portfolio-validate.yml's 4 failures are a missing
+        pytest module in this sandbox, unrelated to this venture.
+        Shipped and merged #2176.
+    mrr_end: null

@@ -13,7 +13,13 @@
 
 import { DEFAULTS } from './calc.mjs';
 
-export const FIELD_IDS = Object.keys(DEFAULTS);
+// The eight route-assumption fields are always present, so they live in
+// DEFAULTS and get a starting value on first load. `currentPrice` is a
+// ninth, optional field — what an operator actually charges today, entered
+// only when they're checking an existing route rather than pricing a new
+// one — so it stays out of DEFAULTS (no default value to pin the field to)
+// but still rides in the same draft/share round trip when it's been set.
+export const FIELD_IDS = [...Object.keys(DEFAULTS), 'currentPrice'];
 
 function usableNumber(value) {
   if (value === '' || value === null || value === undefined) return null;
