@@ -30167,3 +30167,37 @@ entries:
         agent-runner-subscription-login (#2000). No duplicate asks added; the
         decision queue already carries all four with exact unblock steps.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Second FAQ batch this session, deliberately picked off the
+        *non*-bid-calculator half of the uncovered list to stay out of the way
+        of the concurrent sessions working the bid calculators alphabetically
+        -- that overlap had already cost two ventures earlier in this run.
+        Shipped shop-rate-calculator, reverb-fee-calculator,
+        ltl-freight-class-estimator and saas-seat-true-up. Coverage 96 -> 100
+        of 164, the first time it has crossed half the catalogue.
+      - >-
+        These four are also the more differentiated pages, so they cannibalise
+        each other in search far less than another near-identical bid
+        calculator would. Every figure quoted was computed from the venture's
+        own module rather than estimated by hand: shop-rate's 92% burden and
+        $65.18 break-even against a $74.07 bill rate, reverb's $73.68 profit
+        cost of an $80 discount and its 3.33% Safe-Shipping break-even loss
+        rate, the LTL example's 12.5 lb/ft3 landing in the class-85 band with
+        77.5 starting at 13.5, and the seat true-up's $432 remaining-term
+        against $1,296 annual. shop-rate-calculator especially was worth the
+        page: it is the tool that feeds burden and overhead to every trade
+        calculator on the site via rates.mjs, and its whole reason to exist --
+        that the textbook 20-30% burden figure omits unbillable paid hours --
+        had no plain-language explanation anywhere a search engine could read
+        it.
+      - >-
+        Verified: 160 venture tests green across the four, 60 platform/pages
+        FAQ/check tests, build+check 164 products / 479 pages / no dead links,
+        conflict-markers, money-sign and form-defaults clean, FAQPage schema
+        present in the built artifact for all four (6-8 questions each), and a
+        repo-wide duplicate-`id="faq"` scan clean.
+    mrr_end: null
