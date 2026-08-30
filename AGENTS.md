@@ -66,7 +66,24 @@ AI-wrap by default.
   ran, and do not "fix" code the check never executed. See `CLAUDE.md`. The
   single field that settles it is `runner_id: 0` with an empty `runner_name` —
   no runner was ever assigned, so no step ran.
-- **Verify with the workflow's own step list, not a subset you chose.**
+- **Verify with the workflow's own step list, not a subset you chose — and
+  with every workflow your change would start, not just the one you know.**
+
+  ```
+  python3 platform/ci/run_workflow_locally.py --for-changes
+  ```
+
+  That reads the `paths:` filter on every workflow, works out which ones your
+  current diff against `origin/main` would trigger, and runs the jobs among
+  them that cannot write anything (holding, and naming, any job that grants a
+  write permission or reads a secret). Prefer it to naming a single workflow.
+  Naming `portfolio-validate.yml` alone is how a `FAQPage` whose JSON-LD did
+  not match its own visible copy reached `main` on 2026-08-30: the guard that
+  catches it lives in `portfolio-pages.yml`, which runs on any `ventures/**`
+  change, and the session that merged verified the wrong workflow. Add
+  `--list` to see the selection without running it.
+
+  To run one workflow by name:
 
   ```
   python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
