@@ -45,12 +45,26 @@ export function parseTenders(text) {
   });
 }
 
+// Splits a trade/category filter into individual OR terms. A contractor's
+// source portal often spells the same trade differently row to row ("roofing"
+// vs "roof repair" vs "reroofing"), so the field accepts a comma- or
+// newline-separated list instead of forcing a re-run per spelling.
+export function parseTradeTerms(value) {
+  return String(value || "")
+    .split(/[,\n]/)
+    .map((term) => term.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export function filterTenders(rows, { category = "", minimum = 0, through = "" } = {}) {
-  const trade = String(category || "").trim().toLowerCase();
+  const terms = parseTradeTerms(category);
   const min = Number(minimum) || 0;
   return rows
     .filter((row) => {
-      if (trade && !String(row.category || "").toLowerCase().includes(trade)) return false;
+      if (terms.length) {
+        const haystack = `${row.category || ""} ${row.title || ""}`.toLowerCase();
+        if (!terms.some((term) => haystack.includes(term))) return false;
+      }
       if (Number(row.value || 0) < min) return false;
       if (through && row.deadline > through) return false;
       return true;

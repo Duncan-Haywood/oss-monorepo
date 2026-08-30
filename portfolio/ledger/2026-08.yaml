@@ -31031,3 +31031,41 @@ entries:
         the moment any of the three gates flips is currently sound. No code
         changes.
     mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked this venture for a real functional gap rather than another
+        FAQ/a11y/usage-tracking pass (all swept to exhaustion by same-day
+        sessions per #2115/#2118/#2121). Its own README FAQ documented the
+        gap directly: the trade/category filter matched a single substring
+        against the CSV's category column, so a tender portal that spells
+        the same trade three ways across rows ("roofing" / "roof repair" /
+        "reroof") forced a contractor to normalize the CSV by hand or run
+        the filter once per spelling -- working against the venture's own
+        kill criterion of saving 30 minutes per review (VENTURE.yaml).
+      - >-
+        Shipped and merged #2122: filterTenders() (site/calc.mjs) now
+        splits the trade field on commas/newlines into OR terms
+        (parseTradeTerms, new exported helper) and matches each term
+        against both category and title, so one pass covers every spelling
+        the contractor already knows to list, and a trade word that only
+        appears in the title (thin category column) is still caught. Empty
+        and single-term filters are unchanged -- fully backward compatible.
+        Updated the input hint, the FAQ answer (which previously told users
+        this wasn't possible), and the README to match.
+      - >-
+        Verified locally: node --test calc.test.mjs in
+        ventures/tender-radar/site (8/8 pass, 4 new: term
+        parsing/trimming/blank-dropping, multi-term OR match across
+        category+title, single-term title-only match, empty filter keeps
+        every row). platform/pages build.mjs + check.mjs (164 products, 479
+        pages, no dead links). platform/pages/faq-duplicate.mjs (469 pages,
+        no duplicated FAQ sections -- checked because the FAQ answer text
+        was edited). platform/pages/clauses.mjs tender-radar (no-warranty
+        clause present, unchanged). CI on the PR came back red on all 8
+        checks; confirmed the documented outage signature before merging
+        (runner_id 0, runner_name empty, ~3s duration 07:14:00-07:14:03 on
+        the validate job) rather than treating it as a real failure.
+    mrr_end: null

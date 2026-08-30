@@ -300,6 +300,22 @@ Top: 31.5 x 11.25 x 2</textarea>
     </section>
   </div>
 
+  <section id="faq">
+    <h2>Common questions</h2>
+    <h3>How does the sheet layout decide where each piece goes?</h3>
+    <p>Largest pieces are placed first, into the first spot on the sheet they fit, with your saw kerf and edge trim already subtracted from the usable area. It is a fast, practical heuristic, not a proven-optimal packing — always confirm the diagram against your own stock and saw before cutting.</p>
+    <h3>What does adding <code>grain</code> to the end of a line do?</h3>
+    <p>It locks that one piece to its listed orientation even when "Pieces may be rotated 90°" is checked for everything else. Use it for a veneer face, a printed panel, or anything where the direction has to run one way — leaving rotation on for the rest of the list still lets the layout use less material on parts that don't care which way they're cut.</p>
+    <h3>What's the difference between "material used" and "offcut area"?</h3>
+    <p>Material used is the actual area of the parts you listed; offcut area is everything left over on the sheets you buy, including the strips lost to kerf and edge trim. Utilization is used area divided by total sheet area bought — on the default three-part list it lands well under 100%, because a sheet you buy is a fixed size whether or not the parts fill it.</p>
+    <h3>When should I use the sheet-size or board-length comparison instead of just my usual size?</h3>
+    <p>Whenever more than one size is actually stocked at the yard. The comparison re-runs the same cut list against each candidate size — for example a 4×8 against a 5×5 or a half-sheet — and ranks them by sheets needed, or by total cost once you enter a price for each. A size that looks cheaper per sheet can still lose if it takes more sheets to fit the same parts.</p>
+    <h3>Does the linear stock planner use my on-hand offcuts before buying new stock?</h3>
+    <p>Yes. Cuts are placed into your listed offcuts first, largest cut first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the default example, the on-hand list already covers part of the required cuts, which is why "Sheets to buy" or "New pieces to buy" can come in lower than the raw cut count would suggest.</p>
+    <h3>Is my cut list uploaded anywhere?</h3>
+    <p>No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below.</p>
+  </section>
+
   <footer>
     <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
     <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite">Drafts are saved only on this device.</span></div>
