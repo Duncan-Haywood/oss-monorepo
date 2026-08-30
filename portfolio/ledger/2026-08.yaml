@@ -34496,3 +34496,36 @@ entries:
         variable remain the owner's, unchanged. What changed is that the code
         those seals switch on has now been run.
     mrr_end: null
+  - venture: cam-reconciliation-check
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the docs page this venture was missing -- one of the 13
+        remaining single-page ventures flagged against PRODUCT_PLAYBOOK.md
+        5e ("one docs page per specific question"), following the pattern
+        shipped for appointment-deposit-calculator (#2244),
+        subcontractor-cashflow-planner (#2254), booth-rent-vs-commission
+        (#2256), and sponsor-ready (#2258). Merged as #2261. Checked
+        git for-each-ref and recent branches first; no concurrent session
+        had claimed any of the 13 today.
+      - >-
+        how-much-cam-do-i-owe-based-on-square-footage.html answers "how
+        much CAM do you owe based on your square footage" with a table
+        of area share, modeled annual CAM, and modeled monthly CAM across
+        six suite sizes (250-8,000 sq ft) in a fixed 10,000 sq ft /
+        $120,000-expense building. Table figures come from calc.mjs's
+        reconcile(), not hand-typed. An authored FAQPage block matches the
+        visible copy verbatim (one consistent em-dash character used in
+        both, to avoid the recurring faq-visible.test.mjs dash mismatch),
+        linked from index.html's FAQ section, and added to sitemap.xml.
+      - >-
+        Verified: venture suite 8/8 (4 new, including one that recomputes
+        the table from reconcile() and asserts it against the page rather
+        than trusting hand-typed numbers), full platform/pages suite
+        762/762 (faq-visible.test.mjs included), build.mjs (168 tools) +
+        check.mjs (491 pages, up from 490 with this venture's changes
+        stashed out -- confirmed +1 -- no dead links), clauses.mjs
+        cam-reconciliation-check (2 pages, no-warranty clause on both,
+        exit 0). No calculator logic touched.
+    mrr_end: null
