@@ -34359,3 +34359,28 @@ entries:
         that correction spelled out, rather than building the unsafe version
         or silently doing nothing.
     mrr_end: null
+  - venture: subcontractor-cashflow-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same real gap as the appointment-deposit-calculator entry above
+        (PRODUCT_PLAYBOOK.md 5e's "one docs page per specific question"):
+        this venture had only its single index.html with no secondary docs
+        page. Added how-much-cash-do-i-need-for-net-30-payment-terms.html,
+        a worked table of expected payment day / cash needed / funding gap
+        at five payment terms (net 15/30/45/60/90) on the calculator's own
+        $10,000-invoice defaults, with an authored FAQPage block whose
+        answers are quoted verbatim in the visible copy. Hit the same
+        em-dash/JSON-LD mismatch class flagged against
+        booth-rent-vs-commission in the prior entry -- caught it locally
+        via faq-visible.test.mjs before merging by switching the page's
+        &mdash; entities to a literal em dash matching the JSON-LD, rather
+        than leaving a second instance for a later session to find.
+        Merged as #2254. Verified locally (Actions runner outage
+        continues): venture suite 9/9, platform/pages full suite 761/762
+        (the sole remaining failure is the pre-existing
+        booth-rent-vs-commission mismatch, confirmed unaffected by this
+        change), clauses.mjs (478 pages carry the no-warranty clause),
+        build.mjs (168 tools) + check.mjs (489 pages, no dead links) clean.
+    mrr_end: null
