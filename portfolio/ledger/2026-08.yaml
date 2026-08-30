@@ -32464,3 +32464,59 @@ entries:
         still active (checked before merge, per CLAUDE.md's local-
         verification rule) -- merged on local verification.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the six browser checks CI cannot run (no runner since
+        2026-08-26; they need Playwright and axe-core, which this
+        container has). All six now pass: sweep 164/164 tools answered,
+        journey 0 failed checks, roundtrip 128/128 share links, presets
+        ok, sideways 481 pages with no sideways scroll, contrast 480
+        pages x 2 viewports with no WCAG A/AA violations.
+      - >-
+        Getting them to start cost most of the run's verification time,
+        for two reasons now fixed in #2189. Playwright pins a browser
+        build number and refuses to launch a different one, so a global
+        install pinned at 1234 will not touch the chromium-1194 beside
+        it -- and its error advises `npx playwright install`, which is
+        wrong wherever the download is blocked. browser_checks.py now
+        fills CHROME_PATH in when it is unset and discoverable. That
+        exposed the second: sideways.mjs was the only one of the six
+        launching with no options at all, so it could not run anywhere
+        the override is needed, including every machine the README's own
+        global-install instructions describe.
+      - >-
+        contrast found 2 serious WCAG 2.1 AA 1.4.3 violations on
+        where-to-sell-calculator: the "Rank by" legend at 2.06:1 (#574d80
+        on the dark verdict panel), the control choosing whether channels
+        rank by keep-per-sale or keep-per-day. Fixed and merged as #2192.
+      - >-
+        Learned, and the reason the fix is a token rather than another
+        override: this was the *second* occurrence. The page already
+        carried a comment explaining that #574d80 renders at 2.06:1
+        inside the dark panel, and a fix scoped to `.verdict thead th` --
+        the one element that had the problem then. A fieldset added to
+        the same panel later reached for the same ink and reproduced the
+        bug. A narrow override cannot protect elements that do not exist
+        yet, and a comment warning about the hazard did not stop the next
+        author walking into it. --muted-ink is now redeclared wherever
+        the background changes, so new elements inherit the readable
+        shade. The 2026-08-28 sweep fixing 104 instances and the
+        2026-08-29 sweep finding 20 more are the same pattern at repo
+        scale.
+      - >-
+        The trap inside that fix, worth carrying forward: the phone
+        layout re-lights the results rows *inside* the dark panel, so a
+        blanket `.verdict` override would have made them light-on-light
+        at ~2.3:1 -- a new violation in place of the old one. The token
+        is declared in the same rule as the background it belongs to so
+        the two cannot drift.
+      - >-
+        Verified: computed ratios in a real browser (legend 2.06 -> 6.05,
+        thead th unchanged at 6.05, #share-status on white unchanged at
+        7.56), full axe sweep clean afterwards, sideways unchanged,
+        119/119 venture tests, 226 builder tests, check.mjs 165 products
+        / 482 pages / no dead links.
+    mrr_end: null
