@@ -122,6 +122,25 @@ data:
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
+      # Third of the same class, found by generalizing the two above rather
+      # than by it breaking: nginx's mime.types has no `csv` entry either
+      # (verified against 1.27.0). `fifo-pick-evidence` ships `examples/
+      # picks.csv` as the sample a visitor loads into the tool, and without
+      # this it arrives as application/octet-stream — a file the browser can
+      # only save, never preview, and which no spreadsheet handler claims.
+      #
+      # `platform/pages/check.mjs` now fails the build if the site emits an
+      # extension nothing here types, so a fourth one cannot reach production
+      # the quiet way these two did.
+      location ~ \.csv$ {
+        types { }
+        default_type text/csv;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
       # The service worker controls every page under its scope, so a stale
       # copy outlives a deploy. Browsers revalidate it anyway; this makes it
       # explicit rather than relying on that.
