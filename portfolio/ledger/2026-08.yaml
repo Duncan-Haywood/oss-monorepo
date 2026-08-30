@@ -31461,3 +31461,34 @@ entries:
         re-record state another session already confirmed the same
         morning.
     mrr_end: null
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `platform/pages/faq-coverage.mjs` reported 164/164 entry pages
+        already deriving FAQPage schema, so no page had zero
+        question-shaped headings; picked the thinnest FAQ section instead
+        (2 Q&A) after checking every venture's derived-entry count.
+        Title, meta description, og:title/og:description, and a
+        SoftwareApplication JSON-LD block were already present and
+        niche-specific on this page, so the gap was FAQ depth, not a
+        missing tag.
+      - >-
+        Added four question/answer pairs to the existing "Common
+        questions" section, each checked against `calc.mjs`: how the
+        deposit amount is derived (price times depositPercent / 100),
+        why the booking-rate input feeds the annual-secured-cash
+        estimate (weeklyBookings = bookingsPerWeek x bookingRate / 100,
+        then x deposit x 52), what the drafted policy actually does with
+        the free-cancellation notice-hours cutoff, and that the tool
+        gives no recommended deposit percentage (pulled from the file's
+        own header comment). No hand-written JSON-LD -- build.mjs derives
+        FAQPage schema from this visible copy, confirmed by running
+        `faqEntries()` locally: it now returns all 6 Q&A pairs verbatim.
+      - >-
+        Verified `node --test` in the venture directory (12/12 passing)
+        and `node platform/pages/build.mjs` + `check.mjs` against a fresh
+        dist (164 products, 480 pages, no dead links). Shipped and merged
+        #2149.
+    mrr_end: null
