@@ -867,8 +867,12 @@ test('aliases give a tool the words its own copy never uses', () => {
 
   // Keyed by slug so an alias cannot wander onto an unrelated tool: the
   // well-pump calculator talks about pressure and must not become a
-  // power-washing result.
-  assert.equal(aliasesFor('well-pump-bid-calculator'), '');
+  // power-washing result. It does carry its own alias now — the pump type
+  // most residential wells use, and a word its own copy never says — which
+  // is the same fix as every other entry above, not the collision this
+  // guards against.
+  assert.match(aliasesFor('well-pump-bid-calculator'), /submersible/);
+  assert.doesNotMatch(aliasesFor('well-pump-bid-calculator'), /power washing/);
   assert.equal(aliasesFor('ebay-fee-calculator'), '');
 
   // The trade's word and the material's word for the same roof.
