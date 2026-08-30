@@ -737,8 +737,8 @@ export function compareFairePromoted(input = {}) {
   const winner = leaders.length === 1 ? leaders[0].id : "tie";
 
   let breakEvenCampaignRate = Infinity;
-  if (campaignBilled > 1e-12 && merchandise > 1e-12) {
-    breakEvenCampaignRate = (extraOrders * organicProfit * 100) / (campaignBilled * merchandise);
+  if (campaignBilled > 1e-12 && organic.orderSubtotal > 1e-12) {
+    breakEvenCampaignRate = (extraOrders * organicProfit * 100) / (campaignBilled * organic.orderSubtotal);
     if (breakEvenCampaignRate < -1e-9) breakEvenCampaignRate = Infinity;
   } else if (extraOrders === 0 && billedOrganicOrders === 0) {
     breakEvenCampaignRate = Infinity;
