@@ -1,10 +1,23 @@
 # npm Deployment Evidence
 
-If a JavaScript vulnerability scanner lists packages your deployed app never loads, this local, free-first CLI shows the lockfile evidence behind that distinction. It reads `package-lock.json` v2/v3, separates production-path dependencies from npm-marked dev-only dependencies, and exports a portable Markdown or JSON report.
+If a JavaScript vulnerability scanner lists packages your deployed app never loads, this free, local-first tool shows the lockfile evidence behind that distinction. It reads `package-lock.json` v2/v3, separates production-path dependencies from npm-marked dev-only dependencies, and exports a portable Markdown or JSON report.
 
 After using this, you can now review which dependencies reach your production path, which used to require manually tracing a lockfile.
 
-## Run
+## Browser tool
+
+Open `index.html` (or the deployed page once it has a public URL). Drag in a
+`package-lock.json`, drop a file, or paste its contents — parsing runs
+entirely in your browser via `evidence.js`; the file is never uploaded, and
+there is no server for it to go to. A worked example is one click away for a
+first visit. Download the same Markdown or JSON report the CLI produces.
+
+```bash
+npm test    # node --test — evidence.js, usage.js, and page wiring
+npm run serve  # python3 -m http.server 8000, then open index.html
+```
+
+## CLI
 
 ```bash
 python3 npm_deployment_evidence.py package-lock.json
@@ -12,7 +25,7 @@ python3 npm_deployment_evidence.py package-lock.json --format json --output evid
 python3 npm_deployment_evidence.py package-lock.json --usage-file .usage.json
 ```
 
-The report is deterministic apart from its generated date. It never makes network calls and never uploads the lockfile. Usage counting is optional, local, aggregate-only, and can be disabled with `--no-usage`; it records only the number of reports generated.
+The report is deterministic apart from its generated date. It never makes network calls and never uploads the lockfile. Usage counting is optional, local, aggregate-only, and can be disabled with `--no-usage`; it records only the number of reports generated. The browser tool's `evidence.js` implements the identical classification rules — see `evidence.test.js` for parity coverage (declared dependencies, transitive-production, dev-only-nested, merged multi-location versions) alongside the CLI's own `tests/test_tool.py`.
 
 ## Limits and safety
 
@@ -32,4 +45,4 @@ Potential future business model: a hosted or CI-integrated team report with rete
 
 ## Privacy
 
-Everything runs locally. Customer lockfiles and source are never uploaded; there are no accounts, cookies, tracking pixels, or analytics vendors. The optional usage file contains only an aggregate event count.
+Everything runs locally, in the CLI or in the browser tab. Customer lockfiles and source are never uploaded; there are no accounts, cookies, tracking pixels, or analytics vendors. The optional CLI usage file and the browser's `localStorage` counter each hold only an aggregate event count — never a package name or lockfile content — and the browser counter honors Do Not Track / Global Privacy Control and has a visible opt-out.
