@@ -32991,3 +32991,65 @@ entries:
         href fix above; `portfolio/usage/validate_usage.py` valid (180
         products / 345 readings after the new baseline row).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, same recurring brief (drain PRs first, then CI/CD,
+        Hetzner deployment, marketing materials, and Codex-on-Hetzner). 0
+        open PRs at session start, so the three-PR quota was vacuous --
+        `list_pull_requests` returned `[]`. Did not re-derive the
+        CI/CD-Hetzner-Codex finding a fifth time: re-checked it against
+        `main` and it is where #2107/#2116/#2119/#2162/#2199/#2202 left it,
+        blocked only on an owner-sealed read-only PAT (`deploy-settings`)
+        and the governor's project key (`codex-governor-enable`). No
+        duplicate ask added. Branch backlog likewise left alone -- the
+        37-branch sample recorded earlier is consistent enough.
+      - >-
+        Shipped #2203. `faqEntries()` in build.mjs derives FAQPage schema
+        only for entry pages (`isEntry`), so ~200 secondary landing pages
+        author their own JSON-LD by hand -- and 8 of them carried none at
+        all: `fba-vs-fbm`, `why-paypal-costs-more`,
+        `doordash-fees-for-restaurants`, `etsy-vs-ebay-fees`,
+        `returns-change-the-ranking`, `wfs-vs-seller-fulfilled`,
+        `how-to-price-lawn-mowing`, `affiliate-commission-on-returns`.
+        Those are the prose explainers written to capture one high-intent
+        search each -- the portfolio's whole organic-search and
+        AI-discovery surface -- so they were the pages an assistant could
+        parse least while 198 siblings shipped full schema. Each gained a
+        two-question FAQPage block grounded in the numbers the page
+        already works through, plus the matching visible "Common
+        questions" section `faq-visible.test.mjs` requires.
+      - >-
+        The five `3pl-quote-normalizer` pages still without JSON-LD
+        (compare, export, sensitivity, drivers, negotiation) are app
+        views, not articles. FAQPage markup there would describe a form
+        rather than an answer, and schema that misdescribes a page is
+        treated as spam, so they were deliberately left alone. Worth
+        recording so the next sweep does not "fix" them.
+      - >-
+        Closed the gap rather than filling it, which is the reusable part:
+        `faq-visible.test.mjs` guards pages that *have* JSON-LD against
+        invisible copy, but it skips a page with none at all -- there is
+        nothing to compare -- so nothing caught the absence, and these 8
+        accumulated one at a time exactly as the 188 invisible-FAQ pages
+        did. New `platform/pages/secondary-schema.test.mjs` separates
+        prose from tool structurally (does the page carry form controls?),
+        since these pages are named for the question they answer and are
+        indistinguishable by path, and holds 206 of 206 secondary prose
+        pages at full coverage.
+      - >-
+        Verified: 747/747 `platform/pages` tests (746 + the new guard,
+        which was confirmed to *fail* on a page with its JSON-LD stripped
+        before the page was restored -- a test that cannot fail is not a
+        guard); the 7 affected ventures' own suites, 967 tests, all green;
+        build.mjs 166 products / 483 pages; check.mjs publishable, no dead
+        links; faq-coverage 166/166; both page layouts rendered in
+        Chromium to confirm the section displays above the disclaimer in
+        the page's own style. CI on the PR head was 13 red checks, all the
+        runner outage -- confirmed on `runner_id: 0` / `runner_name: ""`
+        (job 99272944692, 3s, `ubuntu-latest`) rather than on duration
+        alone, which `CLAUDE.md` warns is only a proxy. Merged on local
+        verification per the outage guidance.
+    mrr_end: null
