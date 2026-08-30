@@ -32178,3 +32178,40 @@ entries:
         Queue state at run start: zero open PRs. The standing mandate's
         three-PR merge quota was unmeetable for that reason, not skipped.
     mrr_end: null
+  - venture: change-order-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        All deploy/CI/CD work confirmed still owner-blocked
+        (Pages/Hetzner/PATs); picked an existing venture to deepen instead
+        of another undeployed clone. Confirmed 0 open PRs, so no overlap
+        risk.
+      - >-
+        Found and fixed a real bug in the customer-facing "Approval
+        summary" (the copy-to-clipboard text a contractor sends for
+        change-order sign-off): its "Estimated added cost" line printed
+        `result.walkAwayPrice` a second time under a different label
+        instead of `result.directCost` (labor + materials + subcontractor,
+        before overhead markup). The two values only match at 0% overhead;
+        with the UI's default 10% overhead, the sent-to-customer document
+        showed the same number twice and never disclosed the actual direct
+        cost. Example: directCost $400.00 vs walkAwayPrice $440.00 for a
+        10hr/$20/25%-burden/$100-materials/$50-sub/10%-overhead input --
+        both summary lines read $440.00 before the fix.
+      - >-
+        Fixed the copy-paste in `calc.mjs`'s `summaryText()` and reordered
+        the lines (added cost -> walk-away price -> target price) to match
+        computation order. Added a regression test asserting
+        `directCost !== walkAwayPrice` and that each summary line carries
+        its own value.
+      - >-
+        Verified locally (Actions runner outage unchanged, not attempted
+        on CI): `node --test` in the venture, 5/5 pass (3 existing + 2
+        new/extended). Manually ran `calculateChangeOrder`+`summaryText`
+        via `node -e` and confirmed the printed summary now shows distinct
+        $400.00/$440.00 values. Grepped the repo for other references to
+        `summaryText`/"Estimated added cost" -- none, so the fix is scoped
+        to this one venture; no UI or calculation-engine change, only the
+        generated summary string. Shipped and merged #2182.
+    mrr_end: null
