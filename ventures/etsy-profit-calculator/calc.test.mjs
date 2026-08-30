@@ -621,6 +621,36 @@ test('rejects negative or over-100 Star Seller inputs', () => {
   assert.throws(() => compareStarSeller({ ...PAGE_ORDER, starSellerSellThroughPct: -5 }), /Star Seller sell-through/);
 });
 
+// Regression: breakEvenSellThroughPct used to hard-code 0% whenever the
+// Star Seller path already packed a loss, the same wrong-branch bug fixed
+// in compareShopSale above. $10 item, $12 materials packs a $2 loss
+// unsigned (-$1 expected at 50% sell-through); a $5 Star Seller label with
+// no message time deepens that to a $7 packed loss. The paths only tie once
+// Star Seller's -$7-per-sale expected value grows to -$1, which brute-force
+// division (independent of compareStarSeller's own formula) puts at
+// -1 / -7 * 100 = 14.2857...% — not 0%.
+test('a Star Seller path that loses more per packed sale than staying unsigned needs real conversion lift, not 0%, to break even', () => {
+  const input = {
+    price: 10, shippingCharged: 0, listingFee: 0, transactionRate: 0, paymentRate: 0,
+    paymentFixed: 0, offsiteAdRate: 0, shippingCost: 0, materialCost: 12, otherCost: 0,
+    starSellerShippingCost: 5, starSellerMessageMinutes: 0, starSellerHourlyWage: 0,
+    unsignedSellThroughPct: 50, starSellerSellThroughPct: 50, starSellerListings: 40,
+  };
+  const result = compareStarSeller(input);
+  assert.equal(result.unsigned.profit, -2);
+  assert.equal(result.starSeller.profit, -7);
+
+  const unsignedExpected = 0.5 * result.unsigned.profit;
+  const bruteForcedRate = (unsignedExpected / result.starSeller.profit) * 100;
+  near(bruteForcedRate, 100 / 7, 'algebraic crossing point');
+
+  assert.equal(result.breakEvenSellThroughPct, 14.29);
+  assert.notEqual(result.breakEvenSellThroughPct, 0);
+
+  const atBreakEven = compareStarSeller({ ...input, starSellerSellThroughPct: result.breakEvenSellThroughPct });
+  near(atBreakEven.extraExpected, 0, 'Star Seller path ties unsigned at the reported rate');
+});
+
 test('shop-sale defaults match the 20% / $5 / 40% vs 55% example', () => {
   assert.deepEqual(SHOP_SALE_DEFAULTS, {
     salePercent: 20,
@@ -740,6 +770,47 @@ test('rejects negative or over-100 shop-sale inputs', () => {
   assert.throws(() => compareShopSale({ ...PAGE_ORDER, saleDollar: -5 }), /Sale dollar off/);
   assert.throws(() => compareShopSale({ ...PAGE_ORDER, listedSellThroughPct: 101 }), /at most 100/);
   assert.throws(() => compareShopSale({ ...PAGE_ORDER, saleSellThroughPct: -5 }), /Sale sell-through/);
+});
+
+// Regression: when the full-price order already loses money and the sale
+// price loses even more per packed sale, both breakEvenPercentSellThroughPct
+// and breakEvenDollarSellThroughPct used to hard-code 0% instead of solving
+// the crossing point — because the old branch treated "packed sale profit
+// <= 0" as "already broke even" without checking where the two negative
+// expected values actually meet. $10 item, $12 materials: full price packs
+// a $2 loss (-$1 expected at 50% sell-through); 90% off / $9 off both drop
+// the price to $1, packing an $11 loss. The two paths only tie once the
+// sale's -$11-per-sale expected value grows (in magnitude) to match the
+// full price's -$1, which brute-forcing the crossing independently (not by
+// copying calc.mjs's formula) puts at -1 / -11 * 100 = 9.0909...% — not 0%.
+test('a sale that loses more per packed sale than full price needs real conversion lift, not 0%, to break even', () => {
+  const input = {
+    price: 10, shippingCharged: 0, listingFee: 0, transactionRate: 0, paymentRate: 0,
+    paymentFixed: 0, offsiteAdRate: 0, shippingCost: 0, materialCost: 12, otherCost: 0,
+    salePercent: 90, saleDollar: 9, listedSellThroughPct: 50, saleSellThroughPct: 50, saleListings: 40,
+  };
+  const result = compareShopSale(input);
+  assert.equal(result.asListed.profit, -2);
+  assert.equal(result.percent.profit, -11);
+  assert.equal(result.dollar.profit, -11);
+
+  // Independently derive the crossing rate from calculateOrder, not from
+  // compareShopSale's own breakEven formula: find sale-path sell-through
+  // r such that r/100 * percentProfit == listedExpected (both computed
+  // straight from calculateOrder).
+  const listedExpected = 0.5 * result.asListed.profit;
+  const bruteForcedRate = (listedExpected / result.percent.profit) * 100;
+  near(bruteForcedRate, 9.090909090909092, 'algebraic crossing point');
+
+  assert.equal(result.breakEvenPercentSellThroughPct, 9.09);
+  assert.equal(result.breakEvenDollarSellThroughPct, 9.09);
+  assert.notEqual(result.breakEvenPercentSellThroughPct, 0);
+
+  // Confirm the pinned rate actually ties the two paths (the bug this
+  // guards against reported a rate where they did not).
+  const atBreakEven = compareShopSale({ ...input, saleSellThroughPct: result.breakEvenPercentSellThroughPct });
+  near(atBreakEven.percentExtraExpected, 0, 'percent path ties full price at the reported rate');
+  near(atBreakEven.dollarExtraExpected, 0, 'dollar path ties full price at the reported rate');
 });
 
 test('free-shipping defaults match the $32 / 40-order example', () => {
