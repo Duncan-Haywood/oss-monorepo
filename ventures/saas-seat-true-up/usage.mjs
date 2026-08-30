@@ -17,7 +17,13 @@ export function usageAllowed() {
   }
   const ls = storage();
   if (!ls) return false;
-  return ls.getItem(OPT_OUT) !== 'true';
+  // recordEvent() (and the #disable click handler) call this with no
+  // try/catch of their own -- a blocked getItem must not throw out of here.
+  try {
+    return ls.getItem(OPT_OUT) !== 'true';
+  } catch {
+    return false;
+  }
 }
 
 export function recordEvent(eventName) {
