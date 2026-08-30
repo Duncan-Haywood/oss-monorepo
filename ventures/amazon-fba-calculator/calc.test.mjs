@@ -856,6 +856,26 @@ test("an unprofitable Subscribe & Save discount cannot be offset with more volum
   assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
 });
 
+test("Subscribe & Save cannot be offset when list price is already unprofitable too", () => {
+  // A $12 listing with $8 COGS and this fee structure loses money at list
+  // price already, and S&S loses more per unit (typed.profit < none.profit
+  // < 0) -- confirmed by both being negative below, reconstructed straight
+  // from calculateListing/subscribeSaveListing, not by calling
+  // compareSubscribeSave's own offsetUnits. No amount of additional
+  // S&S-only volume can close that gap, since each such sale itself loses
+  // money; offsetUnits must be Infinity regardless of the list row's sign.
+  const lowMarginBase = { ...base, salePrice: 12 };
+  const comparison = compareSubscribeSave({ ...lowMarginBase, snsPercent: 5, snsEnrollPct: 40 });
+  const listProfit = calculateListing(lowMarginBase).fba.profit;
+  const snsProfit = subscribeSaveListing(lowMarginBase, { snsPercent: 5 }).profit;
+  assert.ok(listProfit < 0, "list price already loses money");
+  assert.ok(snsProfit < listProfit, "S&S loses even more per unit");
+  near(comparison.none.profit, listProfit, "list row matches primary calc");
+  near(comparison.typed.profit, snsProfit, "S&S row matches primary calc");
+  assert.equal(comparison.offsetUnits, Infinity);
+  assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
+});
+
 test("subscribeSaveSummary names the buyer price, the mixed month, and the offset units", () => {
   const text = subscribeSaveSummary(compareSubscribeSave({
     ...base,
