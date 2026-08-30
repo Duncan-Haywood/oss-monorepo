@@ -34384,3 +34384,36 @@ entries:
         change), clauses.mjs (478 pages carry the no-warranty clause),
         build.mjs (168 tools) + check.mjs (489 pages, no dead links) clean.
     mrr_end: null
+  - venture: booth-rent-vs-commission
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Picked up the trivial fix the 2026-08-27 appointment-deposit-
+        calculator entry flagged and left for the next session: the
+        authored FAQPage JSON-LD on how-many-clients-does-booth-rent-
+        need.html used "--" in three answers where the visible prose uses
+        "—", failing platform/pages/faq-visible.test.mjs. Swapped the three
+        dashes; no behavior change. faq-visible.test.mjs 4/4 (was 3/4),
+        venture suite 22/22, build.test.mjs 237/237, build.mjs (168 tools)
+        + check.mjs (488 pages, no dead links) clean, clauses.mjs
+        (no-warranty clause intact on both pages). Merged as #2256.
+      - >-
+        Before that: triaged the branch backlog per a brief citing 11
+        candidate branches as unlanded unique work (20/477, 3/460, 11/768,
+        7/738, 19/1115, 14/1126, 13/1066, 12/1154, 8/986, 6/986, 5/986
+        ahead/behind main). Ran portfolio/ledger/supersede_check.py against
+        each; all 11 verdict SUPERSEDED (6 by identical-merge proof, 5 by
+        the line scan) or, on manual read of the 2-3 that scanned NOT
+        SUPERSEDED on ledger/pipeline-bookkeeping lines only (xrn3ua,
+        appointment-deposit, where-to-sell, qb5q6b, jwkwz5), confirmed the
+        actual product code already exists on main in equal-or-more-
+        complete form (e.g. where-to-sell-calculator's calc.mjs/share.mjs
+        already carry profitPerDay ranking and daysToSell through share
+        links; vendor-watch's TS/Next.js surface on main is a strict
+        superset of the branch's files). No PRs opened for the backlog;
+        opening one for admittedly-superseded work would just be a new
+        instance of the thing CLAUDE.md's Duplicate-PRs section warns
+        against. Zero open PRs existed at session start, so no queue to
+        clear either.
+    mrr_end: null
