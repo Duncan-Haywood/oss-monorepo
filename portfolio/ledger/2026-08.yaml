@@ -31688,3 +31688,37 @@ entries:
         (403). That is an environment limit and says nothing about the
         site, which is still fail-closed on the missing secret.
     mrr_end: null
+  - venture: cloud-egress-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Opened with a live check: zero open PRs, and this morning's branch
+        sweep and gitops verification (#2107/#2116/#2119/#2156) already
+        recorded, so neither was repeated. `platform/pages/faq-coverage.mjs`
+        (164/164 entry pages covered) showed this venture tied for the
+        thinnest FAQ in the portfolio at 2 questions.
+      - >-
+        Added two FAQ questions grounded in `calc.mjs`'s actual arithmetic:
+        the break-even outbound-transfer volume
+        (`breakEvenEgressGb`) worked through a concrete crossover
+        (95.33 GB/month, with both sides of it shown), and an explicit
+        scope statement that the total excludes migration cost and
+        contract minimums. Kept the visible `<h3>/<p>` copy and the
+        page's own hand-written `FAQPage` JSON-LD in sync by hand, since
+        this venture hand-authors its schema and `build.mjs`'s
+        header-derived generator correctly skips pages that already
+        contain one.
+      - >-
+        Added a numeric-lock test for the new worked example and a
+        schema/copy parity check. Verified locally (runner outage
+        unchanged, not attempted on CI): venture suite 58/58 (56 existing
+        + 2 new); `build.mjs` still builds 164 products; `check.mjs`
+        reports 164 products, 7 category pages, 480 pages, no dead
+        links; `faq-coverage.mjs cloud-egress-calculator` still covered;
+        `platform/pages` faq-coverage/faq-duplicate/check test files
+        64/64, including 469 pages with no duplicated FAQ content. Full
+        platform/pages suite (745/745) was run earlier this session
+        before this change and touches no shared code this PR modified.
+        Shipped and merged #2159.
+    mrr_end: null
