@@ -34754,3 +34754,87 @@ entries:
         `claude/festive-mccarthy-*` branches (several also reference #927 in
         their history) can skip re-deriving this.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real bug in the Codex governor's state persistence
+        (`gitops/agents/governor/governor.py`): `_save_state`'s create path
+        POSTed to `/api/v1/namespaces/agents/configmaps/governor-state`, a
+        route the real Kubernetes API server has no handler for (create only
+        exists on the collection URL). The response was never checked, so
+        once the owner enables the governor the very first tick's 5-hour/
+        weekly budget window would silently fail to persist, and every later
+        tick would "create" again from a blank state -- the GET that would
+        have found it also 404s, since it was never actually created. Fixed
+        to POST to the collection endpoint and log a failed save. Also
+        narrowed the governor's Role: it granted get/list/create on every
+        ConfigMap in the namespace, but the code only ever reads/writes the
+        one named `governor-state` (already covered by a resourceNames-scoped
+        rule) and never lists any -- only `create` needed the unscoped rule.
+        Added two regression tests against a real local `http.server` that
+        404s a POST to a named-resource path the way the actual API server
+        does, so a lenient mock cannot hide this class of bug again.
+        Verified: `pytest gitops/tests -q` 115 passed; confirmed the new
+        tests fail against the pre-fix code and pass again after restoring
+        it. This governor is still `suspend: true` / `"enabled": false`
+        (owner-only, per `infra/OWNER_CHECKLIST.md`), so nothing about
+        current cluster behavior changed -- this only fixes the code path
+        for when the owner flips it. (#2269)
+      - >-
+        Open-PR queue was empty at session start (0 open, verified via both
+        `list_pull_requests` and `search_pull_requests`), so the three-PR
+        drain quota required no action. Picked this session's work from
+        `gitops/agents/queue/deploy-cicd-readiness.yaml`, the queue item
+        written specifically for "find one concrete, finishable defect in
+        the delivery path" sessions with no cluster access.
+      - >-
+        Confirmed the Codex-on-Hetzner "built-in quota" path the owner asked
+        about is already fully built and tested (`worker.sh` already
+        supports `CODEX_AUTH_JSON`, the subscription-credential mode, logged
+        as such), and CI restoration and the public-site clone token are
+        likewise code-complete -- all three are blocked only on the three
+        owner secret seals and two flag flips in `infra/OWNER_CHECKLIST.md`
+        (`bootstrap/scripts/seal-owner-secrets.sh` does all three seals in
+        one command). No code gap remains on any of the three; nothing here
+        is agent-actionable further.
+    mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed `breakEvenUnits` in `compareCoupons` and `compareSubscribeSave`
+        (calc.mjs): whenever the list-price month was already unprofitable
+        (`noneRow.profit <= 0`), both silently fell through to `null` -- shown
+        on the page as "a break-even volume is not defined" -- even when the
+        coupon/S&S price lost even more per unit, where the honest answer is
+        `Infinity` ("extra volume cannot recover the month"). Concrete
+        example: a $12 listing with $8 COGS already loses ~$2.80/unit at list
+        price; a 15% coupon loses ~$4.93/unit. Before: `breakEvenUnits: null`,
+        summary text "not defined". After: `breakEvenUnits: Infinity`,
+        summary text "Extra volume cannot recover the list-price month: the
+        couponed unit itself does not pay" -- consistent with the message
+        already shown when list price is profitable but the coupon isn't.
+      - >-
+        This is the identical reasoning error `compareSubscribeSave`'s
+        neighbouring `offsetUnits` computation was already fixed for (its own
+        comment names the bug precisely), but the fix was never carried over
+        to `breakEvenUnits` two lines below it, nor to `compareCoupons`'
+        separate copy. The repo's own test suite had a test titled "Subscribe
+        & Save cannot be offset when list price is already unprofitable too"
+        that asserted `offsetUnits === Infinity` but never checked
+        `breakEvenUnits` in that same scenario -- the gap this PR closes.
+        Fix: drop the `noneRow.profit > 0` gate on both copies, keeping only
+        `typedRow.profit <= 0 -> Infinity` (matching `offsetUnits`), and
+        remove the now-unreachable `null` branch and its dead summary text.
+      - >-
+        Verified: `node --test` on the venture, 302/302 (300 previously + 2
+        new/modified -- the missing assertion added to the existing
+        subscribeSave test, plus the analogous new compareCoupons test; both
+        fail against the old code and pass against the fix). Merged as #2270.
+        Found by tracing the exact bug-shape comment left behind by a prior,
+        partial fix (`offsetUnits`) to its unfixed sibling two lines away,
+        rather than a fresh line-by-line calculator sweep.
+    mrr_end: null
