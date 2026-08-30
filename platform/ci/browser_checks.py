@@ -303,6 +303,18 @@ def main(argv=None) -> int:
                     print("build.mjs failed; not running the checks", file=sys.stderr)
                     return 1
 
+            # sideways.mjs, presets.mjs, roundtrip.mjs, contrast.mjs and
+            # highlight.mjs each walk the built tree on disk (to list pages,
+            # or to compare served output against source) in addition to
+            # fetching over BASE_URL. Without DIST they fall back to
+            # `<script-dir>/dist`, which is empty in the common case (no
+            # --dist given, built fresh under a tempdir) and stale in the
+            # dangerous case (an old platform/pages/dist a previous build
+            # left lying around matches by coincidence). sweep.mjs and
+            # journey.mjs never read DIST, which is why this was invisible
+            # until a run actually exercised the other four.
+            env["DIST"] = dist
+
             port = args.port or free_port()
             base = f"http://127.0.0.1:{port}"
             token = write_sentinel(dist)
