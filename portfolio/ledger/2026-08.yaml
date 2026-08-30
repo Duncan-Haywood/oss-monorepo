@@ -29664,3 +29664,88 @@ entries:
         (#2000) and `codex-governor-enable` (#1996) -- not duplicated
         here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2060 (merged): a landing page per category for the
+        assembled site, under a reserved `c/` prefix. The taxonomy in
+        `groupByCategory` had driven the hub's sections and `llms.txt`'s
+        headings for weeks without ever producing a page, so all 164 tools
+        competed for organic search on one hub URL that cannot describe
+        itself as a roofing page without misdescribing the other 153. Seven
+        pages now carry their own title, meta description, canonical, OG and
+        Twitter tags, and JSON-LD (CollectionPage + ItemList +
+        BreadcrumbList): `c/trades/` (115), `c/marketplace/` (12),
+        `c/backoffice/` (11), `c/evidence/` (9), `c/logistics/` (7),
+        `c/services/` (6), `c/more/` (4). Hub section headings link them,
+        `sitemap-hub.xml` lists them, `llms.txt` names each under its
+        heading, and `catalog.json` gained a `categories` array.
+      - >-
+        Same PR fixed a taxonomy drift the pages made legible: the catch-all
+        held 14 of 164 products and nine belonged elsewhere.
+        `cleaning-dilution-calculator`, `hvac-maintenance-contract-calculator`
+        and `appliance-repair-quote-calculator` were plain mis-filings -- the
+        hub section their buyer reads was already there and the tool was not
+        in it, which nothing catches because no page 404s and every check
+        passes. `str-host-payout-calculator` compares two marketplaces' fee
+        schedules and belonged in `marketplace`. The remaining six (salon
+        booth rent, commercial photo licensing, mobile notary travel, pool
+        route pricing, porta-potty event rental, translator project quotes)
+        were one coherent category that did not exist, now `services`.
+        Catch-all is 4. Two tests pin it: one asserts each moved tool's
+        category and sub-group, one bounds the catch-all at 8 rather than
+        listing members, so the next drift fails a test instead of going
+        unnoticed.
+      - >-
+        Measurement added, not just pages: each category page loads the same
+        anonymous local-only counter the tool pages use, keyed `c/` plus the
+        category id, and each card counts a `cross_tool_click`. Arrivals with
+        no opens will say the copy is wrong; no arrivals will say the page is
+        not worth keeping. Without it the pages would be unfalsifiable.
+      - >-
+        `check.mjs` extended for the same reason: `c/` is the first root
+        directory that is not a published product, so the product contract
+        (index.html, hub link, llms.txt row, disclaimer) has to skip it --
+        and skipping it must not leave it unchecked. It now has its own
+        checks for a hub link with no page behind it, a page nothing links,
+        a missing disclaimer, a page listing a tool that did not ship, and an
+        empty page.
+      - >-
+        Finding worth not re-deriving: `main` is fully green under the
+        Actions outage. Every merge since 2026-08-26 has landed on local
+        verification alone, so this run ran the whole suite at `d47e3a083`
+        (post-merge): 11,839 venture tests pass, 673 `platform/pages` tests
+        pass, 89 Python test files pass when each is run from its own
+        directory as CI does, `check_pages.mjs` sweeps 481 pages sound,
+        `build.mjs` + `check.mjs` report 164 products / 7 category pages /
+        479 pages with no dead links, and every validator is clean
+        (`router/validate.py` 182 VENTURE.yaml, `validate_doc_consistency`,
+        `validate_candidates`, `score_ventures --check` 183 scores,
+        `validate_usage` 177 products, `check_form_defaults`,
+        `check_money_sign`, `validate_workflows` 217 files). Four dark CI
+        days have not hidden a regression. A session that wants this fact
+        again should re-run rather than trust it past new merges, but it did
+        not need re-deriving between 2026-08-26 and `d47e3a083`.
+      - >-
+        Also verified, and the reason the above is worth recording: the
+        in-cluster deploy path still works with these pages. Rehearsed the
+        init containers' exact invocation --
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs --out=/site` then `node
+        platform/pages/check.mjs --dist=/site` -- and the category pages
+        stamp the Hetzner origin in canonical, `og:url`, sitemap and
+        `llms.txt`, with relative assets resolving two levels up. nginx's
+        `try_files` serves a category directory from the index.html inside
+        it. Nothing new blocks `portfolio-site-hetzner-deploy`.
+      - >-
+        No new owner ask filed. The three priorities this run was briefed on
+        (CI/CD restore, Hetzner deploy, Codex-on-Hetzner using the ChatGPT
+        plan's included quota) are already fully built and already queued as
+        `actions-runners-unavailable` (#1842/#2021/#2022),
+        `portfolio-site-hetzner-deploy` (#1999),
+        `codex-governor-enable` (#1996) and
+        `agent-runner-subscription-login` (#2000). The previous entry
+        records the same conclusion; not duplicated further.
+    mrr_end: null
