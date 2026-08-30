@@ -254,6 +254,54 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a Manual J, or an HVAC design &mdash; replace them with your own takeoff.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How can a competitor advertise a furnace replacement for $2,495?</h3>
+      <p>Usually because the special is written around one specific job: a 60,000&nbsp;BTU 80% AFUE unit
+        dropped into an open basement, with the first 15&nbsp;ft of duct included, no coil, no gas work, no
+        haul-away, and no thermostat. That job is one of the presets here, and it does price low. What does
+        not scale with a trip charge is everything the coupon leaves out. Price your actual job beside it and
+        the gap stops being a mystery and starts being a list of line items you can show the homeowner.</p>
+
+      <h3>Why is "included duct" its own field?</h3>
+      <p>Because that is where the coupon and the real job diverge. Only footage <em>past</em> the included
+        run is charged &mdash; extra feet = max(0, duct run &minus; included) &mdash; and those feet cost
+        both material per foot and hours per foot. A 40&nbsp;ft run against a 15&nbsp;ft allowance is
+        25&nbsp;ft of chargeable duct; a 12&nbsp;ft basement run against the same allowance is zero, not a
+        credit. That asymmetry is exactly what makes the brochure price honest on the small job and
+        catastrophic on the big one.</p>
+
+      <h3>Why does the attic cost more than the basement for the same furnace?</h3>
+      <p>Access hours. A basement or open utility set is the baseline at zero extra hours, an interior closet
+        adds about 1, and an attic adds about 2 &mdash; the carry, the platform, the working room, and the
+        condensate run you cannot reach standing up. That is separate from the equipment premium: a 96%
+        condensing furnace starts around 5.25&nbsp;h to hang against 4 for an 80%, plus roughly $400 of
+        material, and a heat pump around 6&nbsp;h plus roughly $1,600. Attic + condensing stacks both.</p>
+
+      <h3>What does the calculator not include?</h3>
+      <p>It is not a Manual J, a load calculation, or an HVAC design, and picking 100,000&nbsp;BTU here is
+        not a finding that the house needs it &mdash; sizing is your load calc, not this page's. It also
+        does not price recurring maintenance contracts, ductless mini-split installs, water-heater
+        replacement, or standby generators; those are different jobs with their own tools. This prices a
+        furnace or heat-pump changeout: the unit, where it sits, the coil, the gas, and the duct that is not
+        in the coupon.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = total cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the homeowner's number reads and how your books
+        read it. Overhead is a separate markup on direct cost (labor + material + travel and equipment),
+        applied before margin and never to itself or to profit. Marking a $6,000 cost up 20% gives $7,200,
+        which is only a 16.7% margin; a 20% target margin gives $7,500. Across a heating season that gap is
+        several installs.</p>
+
+      <h3>Is my pricing data uploaded anywhere?</h3>
+      <p>No. No account and no network requests &mdash; every wage, material cost, and price stays in this
+        browser. The business details saved for the printed proposal live in this browser's local storage,
+        and "Forget my business details" clears them. The optional local usage counter records only which
+        features were used and the day, never your costs or prices, and the footer checkbox turns it off.</p>
+    </section>
   </main>
 
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
