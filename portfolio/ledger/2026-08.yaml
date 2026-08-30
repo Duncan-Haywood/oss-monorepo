@@ -29568,3 +29568,44 @@ entries:
         adding a ledger row, since row 13 (`portfolio-site-hetzner-deploy`)
         and rows 11-12 already cover it.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a live crash/mislead bug in 4 ventures' usage.mjs
+        (#2057, merged d88d22b6): `cleaning-dilution-calculator`,
+        `contractor-bid-readiness`, `hvac-maintenance-contract-calculator`,
+        `music-lesson-break-even`. Found by auditing all 146
+        `ventures/*/usage.mjs` for the try/catch guard `ebay-fee-calculator`
+        got in #2046 -- these four were the only ones with none, and none
+        had a `usage.test.mjs`.
+      - >-
+        Two of the four (`hvac-maintenance-contract-calculator`,
+        `music-lesson-break-even`) call `recordUsage()` as the last line
+        inside the same try block that renders the priced result, so a
+        thrown storage error (blocked/private-browsing localStorage,
+        corrupted JSON) was caught by the *outer* catch and shown in the
+        visible warning/error banner as if the calculation itself were
+        wrong, even though it had already rendered correctly.
+        `contractor-bid-readiness` had no try/catch at its call site at
+        all -- an uncaught exception straight out of a click handler.
+        `cleaning-dilution-calculator` calls it from a debounced
+        `setTimeout`, so failure was a silent uncaught rejection per
+        keystroke rather than a visible break.
+      - >-
+        Confirmed the bug both ways: pre-fix `usage.mjs` throws in
+        isolation when handed a storage stub whose `getItem`/`setItem`
+        throw; post-fix, Playwright against the rebuilt dist with
+        `localStorage` forced to throw via `addInitScript` shows zero
+        `pageerror`/console-error events on all four pages after clicking
+        each page's primary action.
+      - >-
+        Verified locally: new `usage.test.mjs` per venture (7+13+11+11 =
+        42/42, malformed-JSON/blocked-storage/opt-out cases), full
+        `node --test ventures/**/*.test.mjs` (11839/11839), platform/pages
+        suite (656/656), `build.mjs` + `check.mjs` (164 products / 472
+        pages, no dead links). CI showed red (runner outage, confirmed via
+        `runner_id: 0` on job 99187804658, ~4s duration) -- not a
+        regression.
+    mrr_end: null
