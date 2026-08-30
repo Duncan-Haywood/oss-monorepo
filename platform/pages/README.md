@@ -17,6 +17,22 @@ the bid that was sent), `presets.mjs` (does picking "no preset" leave the
 takeoff alone), and `sideways.mjs` (does any page scroll sideways on a phone).
 See [Driving the customer journey](#driving-the-customer-journey).
 
+Run all six with one command, which builds, serves and tears down for you:
+
+```
+PLAYWRIGHT=$(npm root -g)/playwright/index.js \
+  python3 platform/ci/browser_checks.py            # all six, fresh build
+python3 platform/ci/browser_checks.py --checks sweep,sideways --dist platform/pages/dist
+```
+
+Prefer it over starting a server by hand. It removes both traps the checks
+below document: it **refuses to run** unless the origin echoes a sentinel token
+it just wrote into the tree under test (so a leftover server answering for an
+older build is an error, not a false pass), and it serves through a *threading*
+server, so the single-threaded `http.server` drops that produce phantom
+`requestfailed` findings do not happen. Every check still runs standalone
+exactly as documented — this only orchestrates them.
+
 Then serve it and click around:
 
 ```

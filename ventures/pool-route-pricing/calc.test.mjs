@@ -31,3 +31,48 @@ test('default 40-account weekly route includes windshield time', () => {
   assert.equal(result.minimumMonthlyPrice, result.minimumRouteRevenue / 40);
   assert.ok(result.minimumMonthlyPrice > result.totalCost / 40);
 });
+
+test('current price is omitted when not entered', () => {
+  const result = calculate({ accounts: 10, visits: 4, serviceMinutes: 30, driveMinutes: 15, laborRate: 30, chemicalCost: 10, overhead: 5, targetMargin: 25 });
+  assert.equal(result.current, null);
+});
+
+test('current price above the minimum clears the target margin', () => {
+  const result = calculate({
+    accounts: 1, visits: 1, serviceMinutes: 60, driveMinutes: 0,
+    laborRate: 50, chemicalCost: 10, overhead: 15, targetMargin: 25,
+    currentPrice: 120,
+  });
+  // totalCost is 75, minimumMonthlyPrice is 100 (see the target-margin test above).
+  assert.equal(result.current.routeRevenue, 120);
+  assert.equal(result.current.profit, 45);
+  assert.ok(Math.abs(result.current.margin - 37.5) < 1e-9);
+  assert.equal(result.current.meetsTarget, true);
+  assert.equal(result.current.belowBreakEven, false);
+  assert.ok(result.current.gapToMinimum < 0);
+});
+
+test('current price below cost is flagged as below break-even', () => {
+  const result = calculate({
+    accounts: 1, visits: 1, serviceMinutes: 60, driveMinutes: 0,
+    laborRate: 50, chemicalCost: 10, overhead: 15, targetMargin: 25,
+    currentPrice: 50,
+  });
+  assert.equal(result.current.profit, -25);
+  assert.equal(result.current.belowBreakEven, true);
+  assert.equal(result.current.meetsTarget, false);
+  assert.equal(result.current.gapToMinimum, 50);
+});
+
+test('current price of exactly the minimum meets target (no false negative at the boundary)', () => {
+  const result = calculate({
+    accounts: 1, visits: 1, serviceMinutes: 60, driveMinutes: 0,
+    laborRate: 50, chemicalCost: 10, overhead: 15, targetMargin: 25,
+    currentPrice: 100,
+  });
+  assert.equal(result.current.meetsTarget, true);
+});
+
+test('rejects a negative current price', () => {
+  assert.throws(() => calculate({ accounts: 1, visits: 1, serviceMinutes: 1, driveMinutes: 1, laborRate: 1, chemicalCost: 1, overhead: 1, targetMargin: 10, currentPrice: -5 }), /zero or greater/);
+});

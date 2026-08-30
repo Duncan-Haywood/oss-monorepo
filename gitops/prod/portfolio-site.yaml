@@ -248,6 +248,17 @@ spec:
             readOnlyRootFilesystem: true
             capabilities:
               drop: ["ALL"]
+          # Measured on 2026-08-30 against `main` at fa041f0, running both
+          # commands above exactly as this container does (165 tools, 482
+          # pages, 1596 files emitted):
+          #
+          #   build.mjs   25s, peak RSS 134Mi
+          #   check.mjs   11s, peak RSS  99Mi
+          #
+          # So the request is ~4x the observed peak and the limit ~11x. That
+          # headroom is deliberate: both numbers scale with the tool count,
+          # which has grown all month, and an OOM here fails the pod rather
+          # than degrading — the site would go to zero on a rollout.
           resources:
             requests:
               cpu: 250m
@@ -302,6 +313,10 @@ spec:
         - name: workspace
           emptyDir:
             sizeLimit: 2Gi
+        # The finished site measured 32Mi across 1596 files on 2026-08-30,
+        # so this is ~16x what it holds today. An emptyDir that fills does
+        # not fail the write — the kubelet evicts the pod — so this is sized
+        # for a year of growth rather than for the current build.
         - name: site
           emptyDir:
             sizeLimit: 512Mi

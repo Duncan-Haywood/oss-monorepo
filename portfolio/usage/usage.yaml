@@ -3332,6 +3332,22 @@ products:
           main. Local snapshot compare only; failed fetches stay inconclusive.
           Keep #1368 open until supersede_check exits 0.
 
+  - slug: vendor-change-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js/usage.js/
+          style.css): paste before/after snapshots, get the identical
+          changed/unchanged/inconclusive report the CLI produces, parsed
+          entirely client-side. evidence.js ports vendor_change.py's compare()
+          rules line-for-line so the two surfaces cannot silently diverge.
+
   - slug: tender-radar
     surface: static-page-in-repo
     readings:
@@ -3587,6 +3603,24 @@ products:
           Shipped a local package-lock v2/v3 production-vs-dev reachability
           report. No public URL; usage is an optional local aggregate
           counter only.
+
+  - slug: npm-deployment-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+          example_used: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js) that
+          runs the CLI's identical lockfile-classification logic
+          client-side — drag/drop or paste a package-lock.json, never
+          uploaded. Separate surface from the existing local-cli row per
+          this file's own rule; first reading is the baseline, no public
+          URL yet.
 
   - slug: cra-evidence-desk
     surface: local-cli

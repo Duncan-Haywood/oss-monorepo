@@ -34,9 +34,9 @@ export function summaryText(input, result) {
   };
   const label = input.title?.trim() || 'Scope change';
   return `${label}\nAdded work: ${result.hours.toFixed(2)} labor hours\n` +
+    `Estimated added cost (labor, materials, subcontractor): ${money(result.directCost)}\n` +
+    `Walk-away price (added cost + overhead): ${money(result.walkAwayPrice)}\n` +
     `Target change-order price: ${money(result.targetPrice)}\n` +
-    `Walk-away price: ${money(result.walkAwayPrice)}\n` +
-    `Estimated added cost: ${money(result.walkAwayPrice)}\n` +
     `Proposed price: ${money(result.proposedPrice)}\n` +
     `Estimated margin at proposed price: ${(result.proposedMargin * 100).toFixed(1)}%\n` +
     `Review labor, materials, schedule, and customer approval before proceeding.`;

@@ -22,6 +22,22 @@ test('summary is proposal-ready and contains no hidden input data', () => {
   assert.match(text, /Target change-order price/);
 });
 
+test('summary reports the direct cost, not a second copy of the walk-away price', () => {
+  // Regression test: the "Estimated added cost" line used to print
+  // result.walkAwayPrice a second time under a different label, so the
+  // customer-facing summary silently omitted the actual direct cost
+  // (labor + materials + subcontractor, before overhead markup) and
+  // instead showed the walk-away price twice.
+  const input = { hours: 10, wage: 20, burdenPercent: 25, materials: 100, subcontractor: 50, overheadPercent: 10, targetMarginPercent: 20 };
+  const result = calculateChangeOrder(input);
+  assert.equal(result.directCost, 400);
+  assert.equal(result.walkAwayPrice, 440);
+  assert.notEqual(result.directCost, result.walkAwayPrice);
+  const text = summaryText(input, result);
+  assert.match(text, /Estimated added cost \(labor, materials, subcontractor\): \$400\.00/);
+  assert.match(text, /Walk-away price \(added cost \+ overhead\): \$440\.00/);
+});
+
 test('treats non-finite and negative numeric input as zero', () => {
   const result = calculateChangeOrder({
     hours: 'Infinity',

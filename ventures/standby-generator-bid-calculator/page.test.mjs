@@ -16,6 +16,20 @@ test('the landing page names the search phrase and refuses a code opinion', () =
   assert.match(html, /Do not keep anonymous local usage counts/);
 });
 
+test('the propane-vs-natural-gas FAQ question appears in both the visible copy and the FAQPage JSON-LD', () => {
+  const question = 'How much more does propane cost than natural gas for a standby install?';
+  assert.match(html, new RegExp(`<h3>${question.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</h3>`));
+  const jsonLdBlocks = [...html.matchAll(/<script type="application\/ld\+json">(.+?)<\/script>/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  const faqSchema = jsonLdBlocks.find((doc) => doc['@type'] === 'FAQPage');
+  assert.ok(faqSchema, 'no FAQPage JSON-LD block found');
+  const entry = faqSchema.mainEntity.find((q) => q.name === question);
+  assert.ok(entry, 'FAQPage JSON-LD is missing the propane-vs-natural-gas question');
+  assert.match(entry.acceptedAnswer.text, /roughly \$974 more/);
+  assert.match(entry.acceptedAnswer.text, /\$6,106\.00 to \$7,080\.12/);
+});
+
 test('the page wires the calculator, usage, and share modules', () => {
   assert.match(html, /from '\.\/calc\.mjs'/);
   assert.match(html, /from '\.\/usage\.mjs'/);
