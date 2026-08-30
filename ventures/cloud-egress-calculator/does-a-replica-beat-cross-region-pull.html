@@ -127,6 +127,12 @@
     not advice. It does not claim a replica will stay in sync at the change
     volume you typed.
   </p>
+  <h2>Common questions</h2>
+  <h3>Does S3 cross-region replication cost less than pulling the data every month?</h3>
+  <p>Only when the monthly pull is large enough to cover replica storage and change-sync. On a 500 GB dataset pulled 800 GB a month at $0.02/GB, keep-pulling is $16.00. A replica at $0.023/GB-month plus 20 GB of monthly changes is $11.90 after a $10.00 seed. The replica path is $4.10 cheaper this month. The seed pays back in about 2.4 months. Over 12 months including the seed the replica path is $39.20 cheaper ($152.80 vs $192.00). The paths match at 595 GB of monthly pull. Paste your quoted rates; this page does not fetch provider prices.</p>
+  <h3>When does keeping the cross-region pull stay cheaper?</h3>
+  <p>When monthly pull volume sits below replica storage plus change-sync, divided by the cross-region rate. On these defaults that floor is 595 GB/month. At 400 GB of pull, keep-pulling is $8.00 and the replica path is $11.90, so keep-pulling is $3.90 cheaper this month. The page solves that volume from the rates you enter. It does not recommend turning replication on or off.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
