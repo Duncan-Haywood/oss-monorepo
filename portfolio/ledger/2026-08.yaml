@@ -34565,3 +34565,55 @@ entries:
         the same "hard-coded 0/null ceiling" bug shape the fleet has been
         fixing elsewhere; 12 other ventures checked and found clean.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a false FAIL in `platform/ci/run_workflow_locally.py`, the only
+        verification anything gets while the runner outage lasts. It skipped
+        any step with a `${{ }}` anywhere in `env:`, so
+        `portfolio-pages.yml`'s "Build the site" (which carries
+        `PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}`) never ran -- and then
+        "Check the built artifact" ran `check.mjs dist` against a `dist`
+        nothing had created and was reported FAIL. The deploy-critical
+        workflow read red while it was green, which is the failure mode the
+        `SHELL` constant already exists to prevent, one step further along.
+        An unset repository variable *is* the empty string (gitops/ci/README.md
+        says so for `CI_RUNNER`; `build.mjs` reads
+        `process.env.PAGES_BASE_URL || DEFAULT_BASE_URL`), so `${{ vars.X }}`
+        in `env:` now resolves to empty and the step runs, with an `UNSET`
+        report line naming it. `secrets.` and `steps.*.outputs.` keep the skip.
+        Result: 1/2-with-1-failed -> 3/3 passed. (#2265)
+      - >-
+        Fixed `bootstrap/scripts/seal-owner-secrets.sh` preflight exiting on
+        the *first* missing tool, costing the owner a round trip per
+        prerequisite on the single command that unblocks the site, CI and the
+        Codex worker. It now reports all three with an install link each.
+        (#2264)
+      - >-
+        Verified the whole delivery path end to end, which nothing had done
+        since Actions went runnerless on 2026-08-26: `portfolio-validate.yml`
+        42/42, `portfolio-pages.yml` 3/3, `pytest gitops/tests` 113 passed,
+        shellcheck clean on all four delivery scripts, and a build with
+        `PAGES_BASE_URL=https://tools.marisstella.dev/` leaking zero
+        `github.io` URLs (canonicals, sitemap, robots.txt and og:url all
+        stamp the Hetzner host). 168 tools, 491 pages, no dead links. The
+        marketing surface is intact: llms.txt, 7 social cards, hub JSON-LD
+        and per-product SoftwareApplication/FAQPage/BreadcrumbList/Offer.
+        Nothing on the deploy path is broken -- it is waiting only on the
+        owner's three seals.
+      - >-
+        Open-PR queue was empty (0 open, verified via both list and search).
+        Re-confirmed the PR-less branch backlog is entirely superseded, so
+        the earlier "all superseded" triage still holds and does not need
+        re-deriving: `main` is a strict superset in every case checked --
+        `ventures/vendor-watch` has 35 files on `main` including LICENSE,
+        robots.txt and sitemap.xml that the 20-commit
+        `claude/festive-mccarthy-xrn3ua` lacks; `where-to-sell-calculator/
+        calc.mjs` is 670 lines on `main` vs 317 on its branch and already
+        carries `rankBy`, `profitPerDay`, `fastestReturn` and
+        `cashTurnsPerYear`; `claude/sweet-archimedes-6nrsur` has an empty
+        diff against its merge base. Merging any of them would regress a
+        shipped product.
+    mrr_end: null
