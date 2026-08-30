@@ -26,6 +26,21 @@
   </div><div class="actions"><button type="submit">Add grant</button><button class="secondary" type="button" id="sample">Load sample grants</button> <button class="secondary" type="button" id="clear">Clear all saved awards</button></div></form></section>
   <section class="card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h2>Review queue</h2><div><button class="secondary" id="review">Review grants</button> <button class="secondary" id="export">Export CSV</button></div></div><p id="empty" class="privacy">No awards yet. Add the first one above, or load sample grants to see how the queue reads.</p><p id="sample-note" class="privacy" role="status" hidden></p><div style="overflow:auto"><table hidden id="table"><thead><tr><th>Grant</th><th>Funder</th><th>Next report</th><th>Status</th><th>Restricted balance</th></tr></thead><tbody></tbody></table></div></section>
   <section class="card privacy"><label><input type="checkbox" id="usage"> Count anonymous local feature use in this browser (off by default)</label><p>Grant information stays on this device. Nothing is uploaded. Usage counts contain only feature names and are never sent anywhere.</p></section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How is the next report date calculated?</h3>
+    <p>Award date plus the reporting interval you entered, in months. A 31 January award reporting every month lands on 28 February rather than rolling into March, so the interval stays consistent even when it crosses a shorter month.</p>
+    <h3>When does a report count as "Due soon" versus "Overdue"?</h3>
+    <p>Due soon means the next report date is within 30 days of today. Overdue means that date has already passed. Anything further out shows On track. The comparison uses your own device's local date, not a server's clock.</p>
+    <h3>What is the restricted balance?</h3>
+    <p>Award amount minus what you have recorded as spent. It is arithmetic on the two numbers you entered, not a determination of what a funder will allow as an eligible expense.</p>
+    <h3>Do the sample grants use real award data?</h3>
+    <p>No. "Load sample grants" generates three placeholder awards timed relative to today's date so you can see one overdue, one due soon, and one on-track row before entering your own awards. Nothing about them is fetched or saved anywhere.</p>
+    <h3>Is this a substitute for my grant agreement's reporting requirements?</h3>
+    <p>No. The queue is a planning aid built from dates and amounts you supply. It does not read your award agreement, determine allowable costs, or confirm a funder's actual deadline — check the agreement and your grant professional for that.</p>
+    <h3>Where is my grant data stored?</h3>
+    <p>In this browser's local storage only. Nothing is uploaded to a server, and closing the tab does not lose your awards — they are still there next time you open the page on the same device and browser.</p>
+  </section>
   <footer><strong>No warranty.</strong> This tool is free and as-is. It is not financial, legal, or tax advice and does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it. The authors accept no liability for loss or damage arising from its use. A review queue is not a filing, compliance determination, or funder deadline confirmation.</footer>
 </main><script type="module">
   import { reviewAll, toCsv, loadGrants, sampleGrants } from './calc.mjs';
