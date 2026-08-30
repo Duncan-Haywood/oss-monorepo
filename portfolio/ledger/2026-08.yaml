@@ -33176,3 +33176,49 @@ entries:
         step before the site is even reachable), so that flip is still not
         this session's to make.
     mrr_end: null
+  - venture: change-order-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Read ~10 ventures' calc.mjs/index.html/README (ebay-fee-calculator,
+        amazon-fba-calculator, etsy-profit-calculator, freight-accessorial-
+        auditor, invoice-payment-terms-calculator, equipment-rental-break-
+        even, change-order-margin-calculator) before picking. Most of the
+        ~167 ventures are already deep with dozens of scenario pages; this
+        one is small (calc.mjs + one index.html), and reading its inline
+        script line-by-line found a real, shipped-but-broken feature: the
+        FAQ tells the user their entries are "saved ... as a draft you can
+        return to", and `update()` did write the full form to
+        `localStorage['change-order-draft']` on every change, but nothing
+        ever read that key back on load -- a returning user always got the
+        hardcoded HTML defaults, never their own numbers. Also found a real
+        accessibility gap: `#verdict`, the primary line that changes on
+        every keystroke (below cost / meets target / short by N points),
+        had no `aria-live`, so screen reader users got no notice of it
+        changing.
+      - >-
+        Fixed both: added `restoreDraft()`, called before the first
+        `update()`, that reads the saved draft and defensively validates it
+        (bad/missing JSON, non-object, non-string field values are all
+        ignored rather than applied or thrown); added `role="status"
+        aria-live="polite"` to `#verdict`. Added `page.test.mjs` following
+        the existing `ebay-fee-calculator/page.test.mjs` convention of
+        regex-asserting on the raw HTML/inline-script text, since this
+        venture's script is inline with no module boundary to import
+        through. Merged as #2209.
+      - >-
+        Verified: `node --test` in the venture 9/9 pass (5 pre-existing +
+        4 new). Hand-simulated the inline script against a minimal DOM/
+        localStorage shim outside the repo -- set `hours` to 99, re-ran the
+        script against fresh default-valued elements simulating a reload,
+        confirmed the field came back as 99 instead of the HTML default of
+        8 (and reproduces the original stuck-at-8 bug without the fix).
+        `node platform/pages/build.mjs` clean (167 tools); `node
+        platform/pages/check.mjs platform/pages/dist` reports "looks
+        publishable: 167 products, 7 category pages, 484 pages, no dead
+        links"; `node platform/pages/clauses.mjs change-order-margin-
+        calculator` confirms the no-warranty clause on both pages. PR
+        showed the standing runner-outage CI signature (repo-wide since
+        2026-08-26); merged on local verification per policy.
+    mrr_end: null
