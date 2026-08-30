@@ -191,12 +191,20 @@ export const SOCIAL_CARD_HEIGHT = 630;
  * that room the card read as a picture someone had cropped badly — which is a
  * worse first impression than no image. Centred, it reads as a logo card,
  * which is what it is.
+ *
+ * `color` swaps the field the mark sits on. This is how a share into the
+ * marketplace-fee forum and a share into a roofing group render as visibly
+ * different cards without drawing 164 of them: `build.mjs` calls this once
+ * per *category* (seven calls, not one per tool), so the file a page points
+ * at is tied to a stable category id rather than to a title that drifts.
+ * Same mark, same layout, only the field colour moves — nothing here reads
+ * text, so nothing here can go stale the way a rasterised headline would.
  */
-export function renderSocialCard() {
+export function renderSocialCard(color = THEME_COLOR) {
   const width = SOCIAL_CARD_WIDTH;
   const height = SOCIAL_CARD_HEIGHT;
   const rgba = Buffer.alloc(width * height * 4);
-  const [ar, ag, ab] = hexToRgb(THEME_COLOR);
+  const [ar, ag, ab] = hexToRgb(color);
 
   const put = (x, y, r, g, b) => {
     const i = (y * width + x) * 4;

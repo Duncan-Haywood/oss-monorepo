@@ -237,6 +237,10 @@ const CATEGORY_RULES = [
     id: 'marketplace',
     title: 'Marketplace seller tools',
     blurb: 'Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.',
+    // The share-card field colour for every tool in this section — see
+    // `socialCardFileFor` and `SOCIAL_CARD_ACCENTS` below for why each
+    // category gets its own tint. This one is the site's own brand teal.
+    accent: '#12594a',
     // `tiktok-shop` and `delivery-app` sell through someone else's storefront and
     // pay someone else's fee schedule, which is what this section is: they sat in
     // the catch-all, where a seller looking for their marketplace never scrolled.
@@ -254,6 +258,7 @@ const CATEGORY_RULES = [
   {
     id: 'trades',
     title: 'Trade & contractor bids',
+    accent: '#5c4412',
     // Names the proposal because it is the half a visitor is searching for.
     // The bid arithmetic is what the contractor needs; the printed quote is
     // what wins them the job, and it was invisible on the one page most
@@ -274,6 +279,7 @@ const CATEGORY_RULES = [
   {
     id: 'services',
     title: 'Service business pricing & quotes',
+    accent: '#1d4a5c',
     blurb: 'Price a visit, a route, a booking, or a licence — for the service businesses that quote work without bidding a construction job.',
     // These six were the coherent half of the catch-all: one-person and small
     // service businesses (salon, photographer, mobile notary, pool route, event
@@ -287,6 +293,7 @@ const CATEGORY_RULES = [
   {
     id: 'logistics',
     title: 'Logistics, freight & cloud cost',
+    accent: '#3d2f5c',
     blurb: 'Normalise a quote, audit a bill, or size a transfer window before you sign for it.',
     // `ltl-`, `owner-operator-` and `medical-courier-` are freight arithmetic that
     // was landing in the catch-all only because the slug did not start with "3pl".
@@ -295,6 +302,7 @@ const CATEGORY_RULES = [
   {
     id: 'evidence',
     title: 'Compliance checks & evidence records',
+    accent: '#5c2a1f',
     blurb: 'Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.',
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
@@ -303,6 +311,7 @@ const CATEGORY_RULES = [
   {
     id: 'backoffice',
     title: 'Back-office money & contracts',
+    accent: '#1f5c35',
     blurb: 'Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.',
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
@@ -314,11 +323,28 @@ const FALLBACK_CATEGORY = {
   id: 'more',
   title: 'More free tools',
   blurb: 'Everything else that runs entirely in your browser.',
+  accent: '#3a4552',
 };
 
 export function categoryFor(slug) {
   return CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
 }
+
+/**
+ * The share-card image a page in this category points at. One file per
+ * category (7 total, named by a stable id) rather than one per tool (164,
+ * named by a title that renames): a rebrand or a retitled tool never breaks
+ * this filename, and a share into the roofing group and a share into the
+ * marketplace-fee thread render as visibly different cards without anyone
+ * drawing 164 of them. See `renderSocialCard`'s `color` parameter in
+ * `offline.mjs` for why a colour field is the whole difference — there is no
+ * font rasteriser in this build to draw a per-category headline with.
+ */
+export function socialCardFileFor(categoryId) {
+  return `social-card-${categoryId}.png`;
+}
+
+export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
 
 /**
  * Where a category's own landing page is served.
@@ -1272,10 +1298,10 @@ ${subItems.map(renderCard).join('\n')}
   <meta property="og:description" content="${escapeHtml(copy.description)}">
   <meta property="og:url" content="${escapeHtml(url)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
-  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${socialCardFileFor(category.id)}`)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta property="og:image:alt" content="${escapeHtml(`${copy.title} — free, private, in your browser`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>${CATEGORY_STYLE}  </style>
@@ -3219,7 +3245,7 @@ export const SITE_NAME = 'Free small-business calculators';
  * Everything is added only where the page does not already say it: a venture's
  * own card copy is written for its audience and beats anything derived here.
  */
-export function injectDiscoveryTags(html, { canonical, baseUrl, title, description } = {}) {
+export function injectDiscoveryTags(html, { canonical, baseUrl, title, description, cardFile } = {}) {
   if (!canonical) return html;
   if (!/<\/head>/i.test(html)) return html;
 
@@ -3246,7 +3272,10 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   add('property', 'og:title', title);
   add('property', 'og:description', description);
   if (baseUrl) {
-    const image = `${baseUrl}${SOCIAL_CARD_FILE}`;
+    // `cardFile` lets a page point at its category's tinted card instead of
+    // the generic one — see `socialCardFileFor`. Falls back to the site-wide
+    // default for callers (the hub, the About page) that have no category.
+    const image = `${baseUrl}${cardFile || SOCIAL_CARD_FILE}`;
     add('property', 'og:image', image);
     add('property', 'og:image:width', '1200');
     add('property', 'og:image:height', '630');
@@ -3618,6 +3647,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         baseUrl,
         title: pageMeta.title,
         description: pageMeta.description,
+        cardFile: socialCardFileFor(categoryFor(surface.slug).id),
       });
       if (withCard !== chromed) described.push(relative);
       // Last: the bar anchors under the site nav, so the chrome has to be there
@@ -4139,8 +4169,19 @@ export async function buildSite({
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
-  // One card for the whole site, named by every page's og:image.
+  // The site-wide card: what the hub and the About page point at, since
+  // neither belongs to one category.
   await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
+  // One tinted card per category, so a tool page or a category page points at
+  // a share card that actually looks like its section rather than the
+  // generic default — see `socialCardFileFor`.
+  await Promise.all(
+    ALL_CATEGORIES.map((category) =>
+      fs.writeFile(
+        path.join(outDir, socialCardFileFor(category.id)),
+        renderSocialCard(category.accent),
+      )),
+  );
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
