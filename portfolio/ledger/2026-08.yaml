@@ -34989,3 +34989,76 @@ entries:
         runner_id 0 (the documented repo-wide outage), verified locally
         instead per CLAUDE.md.
     mrr_end: null
+  - venture: einvoice-preflight
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Session opened against a brief to prioritize deployment/CI-CD,
+        ship marketing materials, and stand up Codex CLI on the Hetzner
+        box against its built-in plan quota. Checked the mandate's
+        three-PR merge quota first: zero open PRs at session start
+        (list_pull_requests and search_pull_requests both empty).
+        Delegated a full re-audit of the ~288-branch backlog to a
+        subagent rather than trusting the prior sessions' empty-queue
+        reading blind; it confirmed the same conclusion already on
+        record (most recently #2107/#2116/#2119 and others further back
+        in this file): all ~175 branches with commits ahead of `main`
+        are superseded, absorbed, or stale drift, none carrying unique
+        unshipped value. Not re-recording that as new -- it is the
+        fourth-plus confirmation, not a finding.
+      - >-
+        Checked the three infra asks the brief named against the owner
+        decision queue: CI restore (`actions-runners-unavailable`, item
+        10), Hetzner portfolio-site deploy (`deploy-settings` +
+        `portfolio-site-hetzner-deploy`, items 8/13), and Codex CLI on
+        the Hetzner agent box spending plan/subscription quota rather
+        than metered API spend (`agent-runner-subscription-login` +
+        `codex-governor-enable`, items 11/12). All four are already
+        fully coded (`gitops/ci/`, `gitops/prod/`,
+        `gitops/agents/workers/` + `governor.py`, which already supports
+        `CODEX_AUTH_JSON` from a `codex login` specifically so the
+        worker draws on a ChatGPT plan's included usage instead of
+        billed tokens) and already queued, dated within the last 1-11
+        days -- added no duplicate asks.
+      - >-
+        Product pick: `einvoice-preflight` was one of 11 remaining
+        single-page ventures with no separate PRODUCT_PLAYBOOK.md §5e
+        deep landing page (`portfolio/pipeline`'s tracked gap, down from
+        12 after the prior session's photo-license page). Picked it for
+        its clean numeric breakdown.mjs-equivalent (mixed-rate VAT
+        grouping) over the workflow/evidence-log ventures in the same
+        list (construction-evidence-log, contractor-bid-readiness,
+        fifo-pick-evidence, etc.), which do not have a worked-arithmetic
+        angle.
+      - >-
+        Shipped how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html:
+        answers "how do you calculate a mixed-VAT-rate tax breakdown"
+        with the venture's own breakdown.test.mjs `mixed()` fixture (2 x
+        EUR100 consulting at 19%, 1 x EUR100 books at 7% -> EUR200/EUR38
+        and EUR100/EUR7, EUR345 gross), so the worked numbers are the
+        checker's own validated example, not independently typed.
+        mixed-vat-page.test.mjs asserts inspectTaxBreakdown() on that
+        exact invoice shape returns no findings, then asserts every
+        dollar figure shown (including the EUR57 wrong-blended-rate
+        contrast figure) appears in the page and is arithmetically what
+        the prose claims. Linked from index.html's FAQ and added to
+        sitemap.xml.
+      - >-
+        First local run failed mixed-vat-page.test.mjs: the visible HTML
+        used &euro; entities while the test checked the literal character,
+        which a plain string match does not expand -- fixed by using the
+        literal character throughout, the same drift class CLAUDE.md
+        documents for dashes/quotes and the prior photo-license page hit
+        for x/&times;.
+      - >-
+        Verified locally (Actions down, runner_id 0 signature since
+        2026-08-26, reconfirmed on this session's own push to `main`
+        moments before opening this PR): venture suite 219/219 (4 new),
+        full platform/pages suite 770/770, build.mjs (168 tools, 482
+        pages, up from 481) + check.mjs (493 pages, no dead links) clean,
+        faq-coverage.mjs unchanged at 168/168, faq-duplicate.mjs clean.
+        Checked open PRs and re-fetched origin/main immediately before
+        pushing; only this venture's 4 files were staged. Merged as
+        #2288.
+    mrr_end: null
