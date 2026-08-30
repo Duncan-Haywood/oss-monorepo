@@ -32910,3 +32910,84 @@ entries:
         and this one. Left alone rather than adding a ninth page neither
         needed. `faq-coverage.mjs` unchanged at 166/166.
     mrr_end: null
+
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine run, brief explicitly named three priorities:
+        drain the PR/branch backlog first, then prioritize CI/CD, Hetzner
+        deployment, and marketing materials, then set up Codex CLI on the
+        Hetzner box spending a subscription's built-in quota. Zero open PRs
+        at session start (`list_pull_requests` and `search_pull_requests`
+        both empty) -- quota vacuous, the Nth session today to find this.
+      - >-
+        Sampled 4 more PR-less stale branches for repairable work via
+        parallel worktree agents, spanning different venture areas:
+        `cursor/amazon-fba-sourcing-check-20260824` (superseded same-day by
+        merged #2161), `cursor/print-preflight-value-20260824` (superseded
+        by merged #989/#1520), `rematch-spray-foam` (main's
+        spray-foam-bid-calculator is already a strict superset, extra
+        `compareCellBids` feature included), and
+        `pr/where-to-sell-rank-by-profit-per-day` (its standalone
+        marketplace-fee-comparison venture was self-reverted mid-branch as
+        a duplicate of the already-shipped where-to-sell-calculator /
+        marketplace-fee-compare; its one remaining genuine contribution was
+        already recovered and merged today via #2155). Zero PRs opened from
+        this sample -- consistent with sibling sessions' own branch-drain
+        findings recorded earlier today (#2191, #2195, #2197, #2200): the
+        176-branch backlog is being absorbed same-day by fleet concurrency
+        faster than any one session can sample it for gaps.
+      - >-
+        Re-checked the run's second explicit priority (CI/CD, Hetzner
+        deployment, marketing materials, Codex-on-Hetzner) directly against
+        `portfolio/ledger/decision_queue.py`, `asks.yaml`,
+        `infra/OWNER_CHECKLIST.md`, and `gitops/README.md` rather than
+        trusting prior sessions' say-so, and reached the same answer at
+        least four other sessions recorded today: `portfolio-site-hetzner-
+        deploy` (#1999), `codex-governor-enable` (#1996), and `agent-
+        runner-subscription-login` (#2000) are fully built, tested, and
+        each blocked on one owner-only action (seal a scoped GitHub token
+        via kubeseal from a laptop with a kubeconfig; mint an OpenAI org +
+        spend limit, or run an interactive `codex login` on the Hetzner
+        agent box for the "built-in quota" path the brief asked for). The
+        one repair the fleet found missing --
+        `bootstrap/scripts/seal-owner-secrets.sh`, sealing all three in one
+        command -- already merged as #2184 earlier today. "Marketing
+        materials" needs no separate build: `platform/pages/build.mjs`
+        already generates llms.txt, OG share cards, sitemap.xml,
+        robots.txt, and FAQPage structured data for every venture from its
+        own visible copy. Nothing new added to the decision queue.
+      - >-
+        Product work: `public-record-watch` was CLI-only (Python, compares
+        two customer-authorized public-register JSON snapshots) with no way
+        for a stranger to try it without a clone and a Python install --
+        same shape `npm-deployment-evidence` and `vendor-change-evidence`
+        had before their own browser front ends shipped earlier today.
+        Shipped `index.html`/`evidence.js`/`app.js`/`usage.js`/`style.css`
+        following that exact established pattern: `evidence.js` ports
+        `report.py`'s compare logic (added/removed/changed/unchanged
+        records, register-mismatch guard, same limitations text) so CLI and
+        browser tool always agree. Merged as #2201.
+      - >-
+        Learned: a template-literal `href="${report.source_url}"` inside
+        `app.js` tripped `check.mjs`'s link scanner (`REFERENCE_RE` matches
+        `href=`/`src=` literally inside `.js` files, not just `.html`, and
+        has no exception for JS template interpolation the way it does for
+        inline `<script>` blocks in HTML). Fixed by rendering the source
+        URL as plain text instead of wrapping it in a literal `href=`,
+        matching `vendor-change-evidence`'s own app.js convention -- worth
+        remembering before adding a clickable link to any dynamically
+        rendered value in a venture's `.js` file.
+      - >-
+        Verified: `node --test` 22/22 in the venture (comparison logic
+        incl. mismatched-register and invalid-input rejection, usage
+        counter incl. DNT/GPC opt-out, page wiring/disclaimer/FAQ-shape);
+        `python3 -m unittest discover -s tests` 6/6 (the unmodified CLI
+        still passes, proving the two implementations agree on the same
+        fixtures); `platform/pages/build.mjs` + `check.mjs` picked the new
+        page up as product 167/167, 484 pages, no dead links, after the
+        href fix above; `portfolio/usage/validate_usage.py` valid (180
+        products / 345 readings after the new baseline row).
+    mrr_end: null
