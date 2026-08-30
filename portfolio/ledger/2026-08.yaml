@@ -34697,6 +34697,63 @@ entries:
         by having already merged, and nothing about its current stale tip
         changes that.
     mrr_end: null
+  - venture: consent-change-record
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Tasked with driving `claude/festive-mccarthy-jwkwz5` (the exact head
+        branch of closed PR #927, "graduate a HAR-diff v0 for consent-banner
+        verification") to a merged PR. `supersede_check.py` exits 1 against
+        current `origin/main` (159 unmatched lines across 11 files: the
+        product's `tool/*.mjs`, `index.html`, `LICENSE`, `README.md`,
+        `VENTURE.yaml`, and five pipeline/bookkeeping files) -- no RENAME
+        SUSPECTED section, so the line-level heuristic alone says "real
+        unique work."
+      - >-
+        A full manual line-by-line diff of every flagged file (not just the
+        RENAME SUSPECTED sample) shows it isn't. `ventures/consent-change-record/tool/`
+        already exists on `main`, shipped by merged PR #1258 ("Consolidate
+        consent evidence product workflow", merged 2026-08-26T17:22:17Z) --
+        unrelated to this branch and to its own recovery attempt, closed PR
+        #973. `main`'s `tool/har-diff.mjs`, `index.html`, and
+        `har-diff.test.mjs` are a strict superset of this branch's versions:
+        every line the checker flagged as absent is either (a) present in
+        `main` under different line-wrapping/formatting (e.g. a
+        multi-line destructure vs. this branch's single-line one -- same
+        semantics, different bytes) or (b) part of the "persisting
+        third-party trackers survive the consent choice" feature `main`
+        already has and this branch does not -- the exact enhancement #973
+        proposed adding, independently already shipped. `tool/trackers.mjs`,
+        `tool/usage.mjs`, `tool/usage.test.mjs`, `tool/trackers.test.mjs`,
+        and `tool/robots.txt` are byte-identical between the branch and
+        `main`. `main`'s CI workflow
+        (`.github/workflows/consent-change-record-ci.yml`) already runs
+        `node --test` in `tool/` plus the sibling comparator's tests plus
+        the portfolio's no-warranty-clause check -- a superset of this
+        branch's single `node --test` step.
+      - >-
+        The only genuinely distinct content left is a cosmetic LICENSE
+        copyright-holder line ("Consent Change Record contributors" vs.
+        `main`'s "Duncan Haywood") and stale 2026-08-24 pipeline
+        bookkeeping (`VENTURE.yaml` kill-criteria/claims, `candidates.yaml`
+        verdict, `venture-scores.yaml`, `usage.yaml` baseline,
+        `portfolio/ledger` entry, `pipeline/README.md` row) that predates
+        the venture's current, more-evolved shape on `main` -- merging it in
+        would regress `main`'s newer records (e.g. `usage.yaml`'s
+        2026-08-26 reading), not add product value.
+      - >-
+        Did not open a PR. This is the same failure shape recorded above for
+        `vendor-watch`/`festive-mccarthy-xrn3ua`: `supersede_check.py`'s
+        line scan can false-negative when a *different* branch reshipped
+        the same feature with reformatted code and rewritten prose rather
+        than a byte-for-byte or identifier-rename match, so neither its
+        line scan nor its RENAME SUSPECTED heuristic catches it. Recording
+        the `#1258` merge here, and the file-by-file proof above, so a
+        future session picking up one of the other ~14 sibling
+        `claude/festive-mccarthy-*` branches (several also reference #927 in
+        their history) can skip re-deriving this.
+    mrr_end: null
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
