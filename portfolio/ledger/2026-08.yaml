@@ -31238,3 +31238,47 @@ entries:
         against a fresh dist (164 products, 480 pages, no dead links,
         etsy-profit-calculator included). Shipped and merged #2134.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Checked deploy-readiness first: `publish_surface.py` moved to
+        `platform/ci/`, and `platform/ci/publish_surface.py` plus
+        `gitops/README.md` confirm both routes (Pages, Hetzner) are still
+        blocked purely on owner credentials already tracked in
+        `decision_queue.py` -- did not re-notify the owner a further time,
+        since the immediately preceding entries this same morning already
+        did. Also confirmed the portfolio's marketing/discoverability
+        surface (About/press page, FAQPage schema on 164/164 entries,
+        SoftwareApplication schema on all 184 venture pages, llms.txt,
+        catalog.json, sitemaps, Open Graph/Twitter cards, usage-tracking
+        checkboxes) is already comprehensively built -- these were not
+        gaps to fill.
+      - >-
+        The one real gap found: every one of the 164 tool pages and the hub
+        pointed `og:image` at one identical `social-card.png`, so a link
+        shared into a roofing group and one shared into a marketplace-fee
+        thread rendered as the same picture -- `build.mjs`'s own comment
+        calls `og:image` "the single largest determinant of whether anyone
+        clicks." Shipped and merged #2140: `renderSocialCard` in
+        `offline.mjs` takes an optional background colour, and `build.mjs`
+        now draws one tinted card per *category* (7, keyed to a stable
+        category id) rather than per tool (164, which the code's own prior
+        comment had already ruled out as unmaintainable against title
+        drift). Tool pages and category pages now point at their own
+        category's card via a new `cardFile` param on `injectDiscoveryTags`;
+        the hub and About page keep the generic default.
+      - >-
+        Picked the 7-colour palette by rendering the real PNGs locally and
+        viewing them as images before committing to hex values, not
+        guessing blind. Verified `node --test platform/pages/*.test.mjs`
+        (724/724 passing, +9 new tests covering the colour parameter,
+        per-category file uniqueness, and an integration check against the
+        real 164-tool build), `build.mjs` + `check.mjs` (164 products, 480
+        pages, no dead links), `faq-duplicate.mjs` (469 pages clean), and
+        `clauses.mjs` (no-warranty clause intact). No disclaimer or
+        usage-tracking surface touched; ships to `main` the moment the next
+        deploy route (Pages or the Hetzner site) unblocks, same as
+        everything else in `platform/pages/`.
+    mrr_end: null
