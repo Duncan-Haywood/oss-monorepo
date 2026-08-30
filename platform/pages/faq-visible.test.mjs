@@ -61,6 +61,41 @@ function authoredFaq(html) {
   return pairs;
 }
 
+/**
+ * Where an authored string stops matching the page, or `null` if it matches.
+ *
+ * A bare `includes` failure says only that a pair is missing, which reads as
+ * "this FAQ is not written on the page" -- so a session that hits it tends to
+ * rewrite prose that is already there, word for word. In practice the copy is
+ * usually present and one character apart: `--` in the JSON-LD against the em
+ * dash the page renders, a straight quote against a curly one. The longest
+ * prefix that *does* match points at that character directly.
+ *
+ * Prefix matching is monotone -- if a prefix of length n is present so is
+ * every shorter one -- so the boundary can be found by bisection rather than
+ * by scanning a 500-character answer one character at a time.
+ */
+function divergence(needle, haystack) {
+  if (haystack.includes(needle)) return null;
+  let low = 0;
+  let high = needle.length;
+  while (low < high) {
+    const mid = Math.ceil((low + high) / 2);
+    if (haystack.includes(needle.slice(0, mid))) low = mid;
+    else high = mid - 1;
+  }
+  const matched = needle.slice(0, low);
+  // With no common prefix there is no anchor, and `indexOf('')` would answer 0
+  // -- quoting the top of the page as though the text diverged there.
+  const at = matched ? haystack.indexOf(matched) : -1;
+  const window = 24;
+  return {
+    index: low,
+    authored: `${matched.slice(-window)}${needle.slice(low, low + window)}`,
+    onPage: at === -1 ? '' : haystack.slice(Math.max(0, at + low - window), at + low + window),
+  };
+}
+
 test('every authored FAQPage question and answer is visible on its page', async () => {
   const { pages } = await collectPages();
   const offenders = [];
@@ -71,13 +106,22 @@ test('every authored FAQPage question and answer is visible on its page', async 
     if (pairs.length === 0) continue;
     checked += 1;
     const visible = visibleText(html);
-    const hidden = pairs.filter(
-      ([question, answer]) =>
-        !visible.includes(squash(question)) || !visible.includes(squash(answer)),
-    );
-    if (hidden.length) {
-      offenders.push(`${displayPath}: ${hidden.length}/${pairs.length} pair(s) not on the page`);
+    const notes = [];
+    for (const [question, answer] of pairs) {
+      for (const [role, text] of [
+        ['question', question],
+        ['answer', answer],
+      ]) {
+        const gap = divergence(squash(text), visible);
+        if (!gap) continue;
+        notes.push(
+          `${role} of "${squash(question).slice(0, 60)}" diverges after ${gap.index} char(s)\n` +
+            `      JSON-LD: …${gap.authored}…\n` +
+            `      on page: …${gap.onPage}…`,
+        );
+      }
     }
+    if (notes.length) offenders.push(`${displayPath}\n    ${notes.join('\n    ')}`);
   }
 
   assert.ok(checked > 0, 'expected to find pages carrying FAQPage markup');
@@ -85,9 +129,32 @@ test('every authored FAQPage question and answer is visible on its page', async 
     offenders,
     [],
     `FAQPage markup must be visible to the visitor. Render the question as a heading and ` +
-      `the answer as the prose beneath it, using the same strings the JSON-LD carries:\n  ` +
+      `the answer as the prose beneath it, using the same strings the JSON-LD carries. ` +
+      `Where the two lines below differ by punctuation only, the copy is already on the ` +
+      `page and it is the JSON-LD that needs correcting:\n  ` +
       offenders.join('\n  '),
   );
+});
+
+test('divergence points at the character where the JSON-LD leaves the page', () => {
+  const onPage = 'the volume where savings — and the gap — cancel out';
+  const authored = 'the volume where savings -- and the gap -- cancel out';
+
+  assert.equal(divergence(onPage, onPage), null, 'an exact match has no divergence');
+
+  const gap = divergence(authored, onPage);
+  assert.equal(gap.index, 'the volume where savings '.length);
+  // The report has to show both sides at the same offset, or it cannot
+  // distinguish "punctuation differs" from "this sentence is absent".
+  assert.ok(gap.authored.includes('savings --'), gap.authored);
+  assert.ok(gap.onPage.includes('savings —'), gap.onPage);
+
+  // A genuinely absent answer still reports. Nothing matches from the first
+  // character, which is what tells a reader "write this copy" rather than
+  // "correct this punctuation".
+  const absent = divergence('zebra crossing', onPage);
+  assert.equal(absent.index, 0);
+  assert.equal(absent.onPage, '');
 });
 
 test('visibleText ignores markup, script, and style, and authoredFaq reads only FAQPage', () => {
