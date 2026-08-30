@@ -584,12 +584,18 @@ def _save_state(
     cm_name: str,
     file_path: Path,
     existing: dict[str, Any] | None,
-) -> None:
+) -> bool:
+    """Persist the budget counters. Returns False if the cluster write failed.
+
+    The return value matters because a lost write is not cosmetic: the next
+    tick reloads whatever is still in the ConfigMap, so a silent failure means
+    the seconds just spent are never counted against the window.
+    """
     blob = json.dumps(state_to_dict(state), separators=(",", ":"))
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(blob)
     if not (os.environ.get("KUBERNETES_SERVICE_HOST") and cm_name):
-        return
+        return True
     body = {
         "apiVersion": "v1",
         "kind": "ConfigMap",
@@ -610,6 +616,8 @@ def _save_state(
         code, payload = _k8s("POST", f"/api/v1/namespaces/{namespace}/configmaps", body)
     if code not in (200, 201):
         print(f"save state failed: {code} {payload}", file=sys.stderr)
+        return False
+    return True
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -629,6 +637,37 @@ def main(argv: list[str] | None = None) -> int:
         jobs = _load_cluster_jobs(namespace)
 
     decision, state = tick(policy, state, jobs, queue, now)
+
+    # Fail closed when the budget counters could not be read from the cluster.
+    #
+    # _load_state only returns the ConfigMap payload when its GET returned 200,
+    # so in-cluster + a configured state ConfigMap + existing_cm is None means
+    # that GET did not succeed. It then fell back to `state_path`, which lives
+    # on the pod's own filesystem and is empty on every fresh pod -- so `state`
+    # here is a *blank* budget, not the real one.
+    #
+    # Left alone that reads as "0 seconds used, 0 jobs started this window" on
+    # every single tick, and the 5-hour and weekly caps stop capping anything:
+    # the governor would authorize another job every tick, forever. That is the
+    # exact runaway this component exists to prevent, so an unreadable state
+    # ConfigMap has to stop job creation rather than quietly widen the budget.
+    #
+    # Reachable two ways, both now that `create` is off the Role (#2276): the
+    # ConfigMap is genuinely absent (namespace rebuilt, Argo app re-added, sync
+    # not yet landed) and the GET 404s, or RBAC drifts and it 403s. Argo does
+    # seed governor-state from governor/state.yaml, so this is the unhappy
+    # path -- but it is the one where being wrong costs money.
+    if (
+        os.environ.get("KUBERNETES_SERVICE_HOST")
+        and state_cm
+        and existing_cm is None
+        and decision.action == "start"
+    ):
+        decision = Decision(
+            "hold",
+            f"budget state unavailable: could not read configmap/{state_cm} "
+            f"in {namespace}; refusing to start on an unverified budget",
+        )
     print(
         json.dumps(
             {
@@ -663,8 +702,11 @@ def main(argv: list[str] | None = None) -> int:
             )
             created_ok = code in {200, 201}
 
-    _save_state(state, namespace, state_cm, state_path, existing_cm)
-    return 0 if created_ok else 1
+    # A dropped state write leaves the seconds just spent uncounted, so surface
+    # it as a failed tick: the CronJob shows up in `kubectl get jobs` as failed
+    # instead of the budget quietly drifting behind reality.
+    saved_ok = _save_state(state, namespace, state_cm, state_path, existing_cm)
+    return 0 if (created_ok and saved_ok) else 1
 
 
 if __name__ == "__main__":

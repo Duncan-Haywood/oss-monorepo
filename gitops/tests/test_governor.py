@@ -503,3 +503,103 @@ def test_save_state_updates_the_named_resource_when_it_already_exists(fake_api_s
 
     loaded, _ = g._load_state("agents", "governor-state", tmp_path / "other.json", NOW)
     assert loaded.jobs_started_this_window == 5
+
+
+def _governor_tree(tmp_path: Path) -> tuple[Path, Path, Path]:
+    """policy.json + a one-item queue dir + a state path, as main() reads them."""
+    policy_path = tmp_path / "policy.json"
+    policy_path.write_text(
+        json.dumps(
+            {
+                "enabled": True,
+                "maxConcurrent": 1,
+                "models": {"chore": "gpt-5-mini", "deep": "gpt-5"},
+            }
+        )
+    )
+    queue_dir = tmp_path / "queue"
+    queue_dir.mkdir()
+    (queue_dir / "item.json").write_text(
+        json.dumps(
+            {
+                "id": "demo",
+                "repo": "Duncan-Haywood/monorepo-projects",
+                "prompt": "do the thing",
+                "modelClass": "chore",
+            }
+        )
+    )
+    return policy_path, queue_dir, tmp_path / "state.json"
+
+
+def _run_main(monkeypatch, tmp_path, capsys) -> dict:
+    policy_path, queue_dir, state_path = _governor_tree(tmp_path)
+    monkeypatch.setenv("GOVERNOR_POLICY", str(policy_path))
+    monkeypatch.setenv("GOVERNOR_QUEUE", str(queue_dir))
+    monkeypatch.setenv("GOVERNOR_STATE", str(state_path))
+    monkeypatch.setenv("GOVERNOR_NAMESPACE", "agents")
+    monkeypatch.setenv("GOVERNOR_STATE_CONFIGMAP", "governor-state")
+    rc = g.main([])
+    lines = [ln for ln in capsys.readouterr().out.splitlines() if ln.strip()]
+    return {"rc": rc, "decision": json.loads(lines[0]), "lines": lines}
+
+
+def test_unreadable_state_configmap_holds_instead_of_starting(
+    fake_api_server, monkeypatch, tmp_path, capsys
+) -> None:
+    # The fake server has no ConfigMap yet, so _load_state's GET 404s exactly
+    # the way the real API server does when governor-state is absent (namespace
+    # rebuilt, Argo app re-added, sync not landed) or when RBAC drifts and the
+    # GET 403s.
+    #
+    # _load_state then falls back to `state_path` -- the pod's own filesystem,
+    # empty on every fresh pod -- so the budget it hands back reads "0 seconds
+    # used, 0 jobs started this window". Without the guard in main() that is a
+    # green light on every single tick: the 5-hour and weekly caps stop capping
+    # and the governor authorizes another job forever, which is the exact
+    # runaway it exists to prevent. `create` came off the Role in #2276, so the
+    # ConfigMap can no longer heal itself into existence either.
+    assert fake_api_server._configmap is None
+
+    result = _run_main(monkeypatch, tmp_path, capsys)
+
+    assert result["decision"]["action"] == "hold"
+    assert "budget state unavailable" in result["decision"]["reason"]
+    assert "governor-state" in result["decision"]["reason"]
+    # The point of the guard: no Job was POSTed despite an enabled policy, a
+    # non-empty queue and a budget that *looked* completely unspent.
+    job_posts = [p for m, p in fake_api_server.requests if m == "POST" and "/jobs" in p]
+    assert job_posts == []
+
+
+def test_readable_state_configmap_still_starts(
+    fake_api_server, monkeypatch, tmp_path, capsys
+) -> None:
+    # Control for the test above: the guard must key off "could not read the
+    # counters", not off "the counters are zero". A genuinely fresh but
+    # readable budget is still allowed to start work, otherwise the governor
+    # would never start anything at all.
+    g._save_state(_state(), "agents", "governor-state", tmp_path / "seed.json", existing=None)
+    assert fake_api_server._configmap is not None
+
+    result = _run_main(monkeypatch, tmp_path, capsys)
+
+    assert result["decision"]["action"] == "start"
+    job_posts = [p for m, p in fake_api_server.requests if m == "POST" and "/jobs" in p]
+    assert job_posts == ["/apis/batch/v1/namespaces/agents/jobs"]
+
+
+def test_a_dropped_state_write_fails_the_tick(fake_api_server, tmp_path) -> None:
+    # A lost write is not cosmetic: the next tick reloads whatever is still in
+    # the ConfigMap, so the seconds just spent are never charged to the window.
+    # _save_state used to print to stderr and return None regardless, which
+    # main() could not distinguish from success -- the CronJob went green while
+    # the budget silently drifted behind reality.
+    ok = g._save_state(_state(), "agents", "governor-state", tmp_path / "s.json", existing=None)
+    assert ok is True
+
+    # existing= a stale resourceVersion with no ConfigMap behind it forces the
+    # PUT branch against a server that 404s it.
+    fake_api_server._configmap = None
+    stale = {"metadata": {"resourceVersion": "1"}}
+    assert g._save_state(_state(), "agents", "governor-state", tmp_path / "s.json", stale) is False
