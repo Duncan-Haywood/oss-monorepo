@@ -30741,3 +30741,43 @@ entries:
         that would add regression risk on live products for no behavior
         change.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session responding to an explicit brief:
+        prioritize Hetzner CI/CD and marketing-materials deployment, and set
+        up Codex CLI on the Hetzner box spending its own plan quota with a
+        mandate similar to this session's. Confirmed 0 open PRs (merge quota
+        trivially satisfied) and re-checked the ~13 most-recently-updated of
+        286 remote branches for unique unmerged work; all were strictly
+        behind main (diffs were net removals against current main), matching
+        the prior 2026-08-29/30 session's finding on the top 9 of 169. Both
+        infra asks the brief named are already fully built and merged
+        (governor, worker, workers/mandate.md, deploy-cicd-readiness and
+        seo-discoverability-audit queue items from #2015) and correctly
+        gated on owner-only steps (minting/sealing credentials) already
+        queued as decisions #1996 and #1999 -- did not seal secrets, flip
+        the governor, or duplicate the ask. No dedicated "marketing
+        materials" system exists separate from the SEO/FAQ backlog (already
+        104+/164, see prior entries) and the portfolio-site deploy itself,
+        which is the same #1999 owner-blocker.
+      - >-
+        Picked up the deploy-cicd-readiness queue item's task by hand (an
+        agent audit for one concrete, fixable CI/CD delivery-path defect)
+        since the governor that would run it unattended is still disabled.
+        Found one the prior same-day session's identical search missed:
+        gitops/prod/secrets/portfolio-repo-token.template.yaml's documented
+        `kubeseal` command omitted `--controller-name`, so it would 404
+        against this cluster's actual sealed-secrets controller Service
+        (named `sealed-secrets`, the Argo Application/Helm-release name,
+        not kubeseal's default `sealed-secrets-controller`) -- blocking the
+        owner's very first step on all three pending secrets
+        (portfolio-repo-token, actions-runner-token, codex-token). Fixed in
+        all three places that reference sealing a secret
+        (gitops/prod/secrets/portfolio-repo-token.template.yaml,
+        gitops/ci/README.md, gitops/agents/secrets/README.md). Verified
+        `python3 -m pytest gitops/tests -q` (67/67, unchanged -- doc/comment
+        fix only, no manifest or secret content touched). Merged as #2112.
+    mrr_end: null
