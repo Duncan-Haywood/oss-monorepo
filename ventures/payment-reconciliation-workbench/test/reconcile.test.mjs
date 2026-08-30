@@ -20,6 +20,16 @@ test('parses quoted commas and rejects malformed rows instead of silently droppi
   assert.throws(() => readRecords('date,net\n2026-08-20,100.00\nnot-a-date,25.50', 'payouts'), /invalid date or amount/);
 });
 
+test('a blank or symbol-only amount cell is rejected, not silently read as $0.00', () => {
+  // Number('') is 0, not NaN — a bare currency symbol and pure whitespace
+  // strip down to '' the same way a missing export column does. Any of
+  // these used to slip past the finite check and mint a phantom $0.00
+  // record instead of failing the row the way a bad date already does.
+  assert.throws(() => readRecords('date,net\n2026-08-20,\n2026-08-21,50.00', 'payouts'), /invalid date or amount/);
+  assert.throws(() => readRecords('date,net\n2026-08-20,$\n2026-08-21,50.00', 'payouts'), /invalid date or amount/);
+  assert.throws(() => readRecords('date,net\n2026-08-20,   \n2026-08-21,50.00', 'payouts'), /invalid date or amount/);
+});
+
 test('matches a payout split across multiple bank deposits', () => {
   const payouts = readRecords('date,net\n2026-08-20,100.00', 'payouts');
   const deposits = readRecords('date,amount\n2026-08-21,60.00\n2026-08-22,40.00', 'deposits');

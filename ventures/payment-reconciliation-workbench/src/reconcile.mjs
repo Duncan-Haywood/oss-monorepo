@@ -22,7 +22,13 @@ function parseCsv(text) {
 }
 
 function column(headers, names) { return headers.findIndex(h => names.includes(h)); }
-function cents(value) { const clean = String(value).replace(/[$€£,\s]/g, ''); const number = Number(clean); return Number.isFinite(number) ? Math.round(number * 100) : NaN; }
+// A blank cell, a bare currency symbol, or whitespace all strip down to an
+// empty string. `Number('')` is 0, not NaN, so without the digit check below
+// a missing amount silently became a real $0.00 record instead of the
+// invalid-row error the tool promises — and a phantom $0.00 payout or
+// deposit then sits in the exception queue (or worse, pairs with a genuine
+// $0.00 row) instead of the export being sent back for a fix.
+function cents(value) { const clean = String(value).replace(/[$€£,\s]/g, ''); if (!/\d/.test(clean)) return NaN; const number = Number(clean); return Number.isFinite(number) ? Math.round(number * 100) : NaN; }
 function dateValue(value) { const parsed = Date.parse(value); return Number.isNaN(parsed) ? NaN : parsed; }
 
 export function readRecords(text, label) {
