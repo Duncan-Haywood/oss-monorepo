@@ -77,7 +77,7 @@ test('every element the script reaches for exists in the markup', () => {
 });
 
 test('inputs and result fields for the primary journey are present', () => {
-  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
+  for (const id of ['stock', 'kerf', 'unit', 'cuts', 'onhand', 'stock-cost', 'currency', 'headline', 'message', 'saved', 'bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization', 'plan', 'copy-plan', 'linear-print', 'copy-status', 'optout', 'linear-compare-block', 'linear-compare', 'linear-compare-copy', 'linear-compare-status']) {
     assert.ok(declaredIds.has(id), `#${id} is missing from index.html`);
   }
 });
@@ -140,6 +140,17 @@ test('every module the page imports exists and exports what it names', async () 
 test('the landing page points at the 4×8 vs 5×5 comparison', () => {
   assert.match(markup, /href="compare-4x8-vs-5x5.html"/);
   assert.match(markup, /compare other sheet sizes/i);
+});
+
+test('both the sheet and linear plans can be printed', () => {
+  // The linear-stock cutting plan is a job ticket read at the saw just like
+  // the sheet layout is -- the page's own schema.org featureList advertises
+  // a "printable job ticket" for both, so both need a Print button wired to
+  // window.print(), not only the sheet-goods panel.
+  for (const id of ['sheet-print', 'linear-print']) {
+    assert.match(markup, new RegExp(`id="${id}"[^>]*>Print<`), `#${id} button is missing from index.html`);
+    assert.match(scriptSource, new RegExp(`\\$\\('${id}'\\)\\.addEventListener\\('click', \\(\\) => window\\.print\\(\\)\\)`), `#${id} is not wired to window.print()`);
+  }
 });
 
 test('the linear stock-length comparison is present and apply actions escape labels', () => {
