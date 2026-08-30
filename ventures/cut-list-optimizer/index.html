@@ -280,6 +280,7 @@ Top: 31.5 x 11.25 x 2</textarea>
         <div id="plan"></div>
         <div class="actions">
           <button type="button" id="copy-plan" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="linear-print">Print</button>
           <span class="muted" id="copy-status" role="status" aria-live="polite"></span>
         </div>
       </section>
@@ -757,6 +758,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     wireCopy('copy-plan', 'copy-status', 'copies');
     wireCopy('linear-compare-copy', 'linear-compare-status', 'compares');
     $('sheet-print').addEventListener('click', () => window.print());
+    $('linear-print').addEventListener('click', () => window.print());
 
     function closestFromEvent(event, selector) {
       const start = event.target instanceof Element ? event.target : event.target.parentElement;
