@@ -3,6 +3,30 @@
 An agent can write this tree. It cannot mint accounts, money, or
 identities. Nothing here applies itself.
 
+## The short version: three seals, one command
+
+Three sealed secrets are what the live site, working CI, and the Codex
+worker are each waiting on. They are items 8, 9 and "Publish
+`tools.marisstella.dev`" below, and they were spread across six files
+because each was written when it became true. From a laptop with a
+kubeconfig and `kubeseal`:
+
+```bash
+./bootstrap/scripts/seal-owner-secrets.sh --dry-run   # preflight only
+./bootstrap/scripts/seal-owner-secrets.sh             # all three, in order
+```
+
+It prompts for each token with echo off, verifies against the GitHub API
+that the token can do the one thing its pod needs (a mis-scoped one is
+rejected before it becomes a CrashLoopBackOff), seals it, and wires it
+into the right `kustomization.yaml`. Only ciphertext is written. Commit
+the `*.sealed.yaml` files, push, and Argo does the rest.
+
+Read the rest of this file for what each token is and how to scope it —
+the script assumes you have already decided that. What it does not do:
+mint the tokens, flip `CI_RUNNER`, or enable the governor. Those stay
+yours, deliberately.
+
 ## Already true (from the console you pasted)
 
 - Two Helsinki servers exist: cpx52 `#163417666` and cpx22 `#163580094`.

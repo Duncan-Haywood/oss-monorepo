@@ -4,6 +4,11 @@ Nothing in this folder is applied by kustomize. Seal these on a laptop
 that holds the Sealed Secrets key, then commit the `SealedSecret` YAML
 into `gitops/agents/` in a follow-up PR.
 
+`./bootstrap/scripts/seal-owner-secrets.sh agents` does that, and offers
+the two credentials below as a choice rather than leaving you to edit the
+template around whichever one you picked. Read "Which one to seal" first —
+that decision is the owner's, and the script only records it.
+
 Seal with `kubeseal --format yaml --controller-namespace sealed-secrets
 --controller-name sealed-secrets < codex-token.template.yaml >
 codex-token.sealed.yaml`. The `--controller-name` flag is required: kubeseal

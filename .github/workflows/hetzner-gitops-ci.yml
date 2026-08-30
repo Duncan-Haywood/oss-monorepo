@@ -110,6 +110,7 @@ jobs:
             bootstrap/preflight.sh \
             bootstrap/label-existing.sh \
             bootstrap/scripts/gen-age-key.sh \
+            bootstrap/scripts/seal-owner-secrets.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
             gitops/agents/workers/worker.sh \
