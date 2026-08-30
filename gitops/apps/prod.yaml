@@ -14,6 +14,16 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: prod
+  ignoreDifferences:
+    # The nightly usage CronJob writes the site's page counts into this
+    # ConfigMap's `/data`. Git holds an empty seed, so without this a sync
+    # would erase the history on every reconcile — the same reason the agents
+    # Application ignores `governor-state`.
+    - group: ""
+      kind: ConfigMap
+      name: portfolio-site-usage
+      jsonPointers:
+        - /data
   syncPolicy:
     automated:
       prune: true

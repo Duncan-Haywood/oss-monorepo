@@ -45,11 +45,44 @@ metadata:
 data:
   # nginx-unprivileged listens on 8080 as uid 101; it cannot bind 80.
   default.conf: |
+    # The access log, narrowed to what a page count needs and nothing else.
+    #
+    # This file is included from nginx.conf's `http` block, which is the only
+    # context `log_format` is valid in — hence its position above `server`
+    # rather than inside it.
+    #
+    # The stock `combined` format this replaces records `$remote_addr`,
+    # `$http_user_agent` and `$http_referer`. That is a visitor's IP address,
+    # device fingerprint and browsing history sitting in a pod log, for a
+    # static site that has no account, no cookie and no reason to know any of
+    # it — and it contradicts this manifest's own claim below that the site
+    # "carries no user data". Three fields are enough to count page views:
+    #
+    #   $time_iso8601  the day, for bucketing
+    #   $status        so a 404 or a 5xx is not counted as a visit
+    #   $uri           the page, post-`try_files`, with NO query string
+    #
+    # `$uri` rather than `$request` is deliberate twice over: `$request`
+    # carries the raw query string, and `$uri` is already resolved to the file
+    # served, which is what `usage/aggregate.py` buckets on. Shared bids
+    # travel in the URL fragment (`share.mjs`), which a browser never sends,
+    # so a contractor's pricing is not in this log by any route.
+    #
+    # Dropping a field here is what makes the privacy claim structural: a
+    # later change to the aggregator cannot start reporting an address that
+    # was never written down.
+    log_format privacy '$time_iso8601 $status $uri';
+
     server {
       listen 8080;
       server_name _;
       root /site;
       index index.html;
+
+      # /dev/stdout so the lines are readable through the Kubernetes API,
+      # which is how `portfolio-site-usage` collects them without a shared
+      # volume between the two replicas.
+      access_log /dev/stdout privacy;
 
       gzip on;
       gzip_types text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml;

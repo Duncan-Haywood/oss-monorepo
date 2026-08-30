@@ -131,6 +131,21 @@ Deployment and touch nothing else in `prod`.
 For an immediate rebuild, bump `portfolio/rebuild-nonce` on the
 Deployment.
 
+### Knowing whether anyone uses it
+
+`prod/site-usage.yaml` is the site's usage signal, and it is the only one
+there will be: every venture's own `usage.mjs` counts into the visitor's
+`localStorage` and deliberately never transmits, so publishing alone would
+leave every row in `portfolio/usage/usage.yaml` at `null` forever.
+
+nginx's access log is narrowed to `$time_iso8601 $status $uri` — no client
+address, user agent, referrer or query string is written at all, which is
+also a fix: the stock `combined` format was logging all three on a static
+site that has no account and no cookie. A CronJob reduces each day of those
+lines to one integer per tool and keeps 30 days in the
+`portfolio-site-usage` ConfigMap. `portfolio/usage/README.md` has the read
+command and the two caveats.
+
 ## What this must not do
 
 - Recreate k3s from Argo (that bricks the node).
