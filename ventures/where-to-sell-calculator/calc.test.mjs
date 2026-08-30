@@ -262,11 +262,19 @@ test("an unsold-item cost still shows up when the price is zero", () => {
   assert.equal(result.margin, 0, "margin is defined as zero when there is no revenue");
 });
 
-test("holding period ships identical on every channel, so it changes nothing until edited", () => {
+test("shipped days-to-sell already vary by channel, so the two rankings need not match out of the box", () => {
+  // An earlier draft of this feature shipped every channel with the same
+  // placeholder days-to-sell, so the two rankings agreed until a seller
+  // edited something. The shelf-time work replaced that with illustrative
+  // per-channel paces (eBay 21, Etsy 45, Amazon 28, own-store 40, local 14),
+  // so the full order can already differ in the shipped defaults. Local is
+  // both cheapest and fastest here, so it still wins either way — the winner
+  // agreeing is not evidence the two rankings are the same list.
   const byProfit = compareChannels(CHANNEL_PRESETS, shared);
   const byDay = compareChannels(CHANNEL_PRESETS, { ...shared, rankBy: "profitPerDay" });
-  assert.deepEqual(byDay.ranked, byProfit.ranked);
-  assert.equal(byProfit.speedChangesTheAnswer, false);
+  assert.equal(byDay.ranked[0], byProfit.ranked[0], "local wins on fees and on speed at these shipped defaults");
+  assert.notDeepEqual(byDay.ranked, byProfit.ranked, "the rest of the order still reflects each channel's own pace");
+  assert.equal(byProfit.speedChangesTheAnswer, false, "the winner does not change, so there is nothing to call out");
 });
 
 test("profit per day and cash turnover divide by the holding period", () => {
