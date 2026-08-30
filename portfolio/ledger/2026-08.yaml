@@ -31619,3 +31619,72 @@ entries:
         `node --test *.test.mjs` in the venture directory: 105/105
         passing, no regressions. Shipped and merged #2152.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Opened the run with a live check of open PRs rather than a prior
+        session's list: zero were open, so the merge-first phase was
+        vacuous and there was no queue to drain. Branch sweep found no
+        unique unmerged work -- the branches that read as "ahead of main"
+        are stale heads from squash-merged PRs, whose commits by
+        construction never appear in `main`'s history.
+      - >-
+        Found that the ACME contact was never a real blocker, and removed
+        it. Both ClusterIssuers in
+        `gitops/platform/cert-manager/issuer.yaml` carried
+        `replace-me@duncanhaywood.dev`, and three documents
+        (`gitops/README.md`, `infra/OWNER_CHECKLIST.md` items 6 and 2, and
+        the `portfolio-site-hetzner-deploy` row in `asks.yaml`) listed
+        replacing it as an owner action blocking TLS on
+        tools.marisstella.dev. An ACME account contact is optional -- RFC
+        8555 makes `contact` optional and cert-manager's `email` follows --
+        so the issuers now omit `email` and register normally. The
+        placeholder was the only option that satisfied nobody: it either
+        blocks issuance outright or files expiry warnings at a mailbox
+        nobody reads. Omitting is also the only option an agent can take
+        without guessing an address, which the original comment rightly
+        forbade. Shipped and merged #2156.
+      - >-
+        Net effect: the Hetzner site deploy goes from two owner steps to
+        one. The sealed read-only clone token is now the single thing
+        standing between 164 finished free tools and a public URL. DNS was
+        already satisfied (2026-08-29).
+      - >-
+        Added three regression tests (`gitops/tests/test_manifests.py`, 69
+        -> 72). The third is the one worth keeping in mind: the site is
+        built by a shell command written inside the manifest, so nothing
+        made that command line and `build.mjs`/`check.mjs`'s argument
+        parsing move together. A renamed `--out=` would have surfaced only
+        as prod pods crash-looping the moment the owner seals the clone
+        token. Its own first draft passed a negative check because the
+        script's comment mentions the flag; it now matches command lines
+        only.
+      - >-
+        Verified locally, the Actions runner outage being unchanged
+        (confirmed on this PR's own `gitops` job: `runner_id: 0`,
+        `runner_name: ""`, 3 seconds): 72 gitops tests; a negative check
+        per new test; `kustomize build` over six overlays plus
+        `kubeconform -strict` at k8s 1.31.0 (58 resources, 0 invalid);
+        infra layout and hcloud-scope; the ledger unit tests; and the
+        in-cluster build path run exactly as the manifest runs it (164
+        products, 7 category pages, 480 pages, no dead links).
+      - >-
+        Re-checked the two other standing deployment asks and shipped no
+        code for either, because both are complete on the code side and
+        wait only on a credential: the self-hosted runner stack
+        (`gitops/ci/`) needs a sealed PAT plus `CI_RUNNER=self-hosted`,
+        and the Codex-on-subscription path is fully wired -- `worker.sh`
+        seeds `auth.json` from `CODEX_AUTH_JSON` onto the `codex-home`
+        PVC, re-seeding only when the sealed fingerprint changes. Left
+        `gitops/agents/workers/mandate.md` unchanged on purpose: it
+        already carries deployment and CI/CD as first-class work, and a
+        three-PR merge quota would be incoherent for a worker whose own
+        floor forbids merging any PR it did not open.
+      - >-
+        Could not verify anything publicly: outbound requests to
+        tools.marisstella.dev are refused by this environment's proxy
+        (403). That is an environment limit and says nothing about the
+        site, which is still fail-closed on the missing secret.
+    mrr_end: null
