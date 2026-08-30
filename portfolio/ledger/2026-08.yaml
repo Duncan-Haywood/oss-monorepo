@@ -34617,3 +34617,46 @@ entries:
         diff against its merge base. Merging any of them would regress a
         shipped product.
     mrr_end: null
+  - venture: vendor-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Tasked with driving `claude/festive-mccarthy-xrn3ua` to a merged PR.
+        Found the definitive answer prior sessions' line-scans and CLI/TS
+        reasoning approached but never confirmed directly:
+        `pull_request_read` on **#905** ("Graduate vendor-change-evidence
+        candidate: add vendor-watch venture") shows `head.ref:
+        claude/festive-mccarthy-xrn3ua`, `merged: true`, `merged_at:
+        2026-08-26T21:27:15Z`. This branch is not a separate unmerged
+        implementation to compare against `main` -- it is the literal source
+        branch of the PR that shipped `ventures/vendor-watch`. There is
+        nothing left to open a second PR for.
+      - >-
+        `supersede_check.py` still exits 1 (88 unmatched lines, three files
+        RENAME SUSPECTED) because the branch ref kept moving after #905
+        merged: its current tip (`e776e92f`, "Merge main into vendor-watch",
+        21:47:46) is 20 minutes younger than the merge and is *not* an
+        ancestor of `main` and *not* a descendant of the PR's merged head
+        (`4fb6c996`, fetched via `refs/pull/905/head`) either -- a
+        divergent continuation, not the shipped work. Diffing that tip
+        against `4fb6c996` shows it net-*removes* `LICENSE`, `robots.txt`,
+        `sitemap.xml`, and the `UsageTracker` opt-out bits that were present
+        at merge time (7 insertions, 88 deletions across 7 files). Diffing
+        it against current `main` confirms the same shape: `main` is a
+        strict superset (`ventures/vendor-watch/src/lib/check-url.ts` diff
+        shows only `main`'s later, additive `baseline` parameter from #1821,
+        "keep each visitor's snapshots in their own browser",
+        2026-08-26T22:38:36Z -- committed after this branch went quiet). The
+        remaining unmatched lines are old `portfolio/ledger`,
+        `pipeline/candidates.yaml`, and `scoring/venture-scores.yaml`
+        bookkeeping text and superficial README wording, not product code.
+      - >-
+        Did not open a PR -- doing so from the current branch tip would
+        propose deleting `LICENSE`, `robots.txt`, `sitemap.xml`, and the
+        caller-baseline feature from a shipped product, i.e. regress it.
+        Recording the `#905` merge record here so a future session can
+        stop re-deriving this from line-scans: the branch is done, closed
+        by having already merged, and nothing about its current stale tip
+        changes that.
+    mrr_end: null
