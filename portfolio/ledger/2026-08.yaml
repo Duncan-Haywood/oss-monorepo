@@ -30576,3 +30576,51 @@ entries:
         discoverability gap actually worth another session's time right
         now, not a general SEO rewrite.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2105: closed out the FAQ/AI-discovery backlog.
+        Started the session at 132/164 entry pages covered per
+        faq-coverage.mjs; ended at 164/164. Three parallel background
+        agents split the 32-page list (11/7/18) and wrote genuine,
+        calc.mjs-grounded Q&A per venture (not generic filler), plus one
+        venture (pole-barn-bid-calculator) added by hand to close the last
+        gap. Landed on top of two rounds of concurrent-session collisions
+        on the exact same backlog -- #2102 (medical-courier-route-margin)
+        and #2104 (cam-reconciliation-check,
+        hvac-maintenance-contract-calculator, mobile-detailing-bid-calculator,
+        subcontractor-cashflow-planner, contractor-bid-readiness) both merged
+        to main while this branch was in flight. Resolved each by merging
+        main in and taking main's already-shipped version over this
+        branch's duplicate (git merge conflict for 4 files; a 5th,
+        contractor-bid-readiness, auto-merged clean but left two
+        "Common questions" sections in one page -- caught by grep, not by
+        any test, and fixed by hand before pushing). Verified after every
+        merge: faq-coverage.mjs 164/164, build.mjs + check.mjs (164
+        products, 479 pages, no dead links), platform/pages build.test.mjs
+        + faq-coverage.test.mjs (215/215), platform/webcheck's own tests
+        (22/22) + check_pages.mjs sweep (481/481 pages sound), and each of
+        the 32 touched ventures' own test suite individually (all green).
+        CI showed 0 check runs on the PR (GITHUB_TOKEN-authored PRs do not
+        trigger Actions here) -- merged on local verification per CLAUDE.md.
+      - >-
+        Investigated this session's originating request (prioritize
+        deployment/CI-CD, and set up a Codex CLI process on the Hetzner VM
+        against its own subscription quota) before building anything new.
+        Found all three asks already fully engineered, tested, and merged:
+        the self-hosted Actions-runner path, the tools.marisstella.dev
+        GitOps site deploy, and gitops/agents/'s Codex governor +
+        ventures/ubuntu-agent-server's subscription-login runner -- the
+        literal "spend the built-in ChatGPT-plan quota" shape asked for.
+        Every remaining step is an owner-only credential/account action
+        already itemized in infra/OWNER_CHECKLIST.md and tracked in
+        decision_queue.py (actions-runners-unavailable,
+        agent-runner-subscription-login, codex-governor-enable,
+        portfolio-site-hetzner-deploy) -- did not duplicate any of these as
+        new asks. Re-ran both stacks' own test suites as a regression
+        check: gitops/tests/ 67 passed, ventures/ubuntu-agent-server/tests/
+        38 passed. Zero open PRs existed at session start, so the mandate's
+        three-PR merge quota was trivially satisfied (nothing to drain).
+    mrr_end: null
