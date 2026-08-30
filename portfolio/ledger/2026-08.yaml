@@ -35240,6 +35240,51 @@ entries:
         tools, 495 pages, up from 494) + check.mjs no dead links. Merged
         as #2298.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed two bugs in the Codex governor's scheduler that would have
+        wasted the subscription quota the moment the owner flips it on.
+        Merged as #2300. Argo syncs `gitops/` from `main`, so the merge is
+        the deploy.
+      - >-
+        `pick_item` was `sorted(key=(-priority, id))[0]` -- the single
+        highest-priority enabled item, every tick, forever. With the four
+        real queue items that made `branch-pr-drain` (5) take 100% of the
+        budget and left `deploy-cicd-readiness` (4),
+        `seo-discoverability-audit` (3) and `product-feature-improvement`
+        (2) unreachable, not merely deprioritised. Defensible while the
+        PR/branch backlog was the bottleneck; not defensible now that the
+        backlog is drained (zero open PRs, ~180 branches superseded, as
+        already recorded twice above), because the top item has nothing to
+        do and would still have spent the whole budget re-triaging an empty
+        queue. Now scores `(priority + 1) / (runs + 1)` on per-window
+        starts held in `governor-state`: the top item still opens every
+        window, the four then run about 6:5:4:3, and the `+1` on priority
+        keeps a priority-0 item from being weightless so nothing starves.
+      - >-
+        Second bug, same path: `rollover` rebuilt BudgetState without
+        `accounted_job_uids`, resetting the dedup ledger
+        `absorb_finished_jobs` reads. A Job still listed when a window
+        rolled over was absorbed again and its duration charged against the
+        fresh window, so the governor held early believing it had spent
+        budget it had not -- under-spending the quota this stack exists to
+        use. Both now have regression tests.
+      - >-
+        Verified locally (Actions still down: job 99332890243 on this
+        session's own PR head, runner_id 0, runner_name "", 3s,
+        label ubuntu-latest): pyflakes clean, `pytest gitops/tests
+        infra/tests` 144 passed (9 new). Also re-ran the delivery path
+        while CI is dark -- validate.py 182 ventures, candidate/rubric/
+        probe-index validators, score_ventures --check 183, validate_usage,
+        check_pages.mjs 496 pages sound -- and a cluster-identical site
+        build (PAGES_BASE_URL=https://tools.marisstella.dev/) with zero
+        residual github.io URLs in canonicals, llms.txt, sitemaps or
+        JSON-LD. No duplicate asks added; the three owner blockers are
+        already queue items 8, 10 and the Codex row.
+    mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
     human_hours: 0
