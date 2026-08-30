@@ -30033,6 +30033,70 @@ entries:
         `infra/OWNER_CHECKLIST.md`, and a fourth duplicate ask is not the
         blocker.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Product-first scheduled session, designated branch
+        claude/clever-bohr-czh9xj. Ran session_gate.py first (PROCEED). git
+        fetch --unshallow first (clone was shallow); tip 5e02b74d2, ended at
+        1f326e79d.
+      - >-
+        Branch-backlog drain: 171 remote branches carried unmerged commits
+        against 0 open PRs at session start. Personally checked ~20 branches
+        with supersede_check.py plus manual verification, then split the
+        remaining 101 across two background agents (50 + 51) instructed to
+        distrust a bare NOT-SUPERSEDED verdict and grep main for an equivalent
+        feature under a different name first -- the exact trap this file has
+        documented before. Combined result: essentially the entire backlog is
+        dead. Confirmed superseded (feature already shipped on main under
+        different wording/filenames even where the line-scanner said NOT
+        SUPERSEDED): cursor/janitorial-frequency-cut-e646 (main already has
+        compareFrequencyReduction under the same name),
+        cursor/ebay-top-rated-plus-a8c1 (main's compareTopRatedPlus),
+        cursor/einvoice-sarif-20260824 (main's formats.py/checks.py are a
+        superset, SARIF report already shipped),
+        cursor/print-preflight-value-20260824's product code (main already has
+        the print-file-preflight route/component; only its pipeline-probe
+        evidence trail was novel and was judged not worth the merge risk),
+        plus the ~140 branches the two agents covered (see their reports for
+        the full per-branch list). Two genuinely mergeable items were found
+        and landed: a stale ledger record (claude/nifty-goodall-u8h5tm, #2076)
+        and a small hand-portable feature (below, #2084). One item flagged
+        rather than force-merged: session/agent_8a29846d-...-3pl's
+        minimumOrders metric was ported by hand into current main instead of
+        merging its ~50-line calc.mjs snapshot, which would have regressed
+        main's ~960-line current file (sensitivity, kitting, aged-storage,
+        return-disposition already built since).
+      - >-
+        Shipped ventures/3pl-quote-normalizer's minimumOrders metric (#2084):
+        the order volume at which line-item spend alone -- not the
+        minimum-spend clause -- sets the bill, surfaced in negotiationLines(),
+        summary(), and the results panel. 3 new tests, 100/100 passing.
+      - >-
+        Landed a 5-venture FAQ/SEO batch via a background agent (#2081):
+        appliance-repair-quote-calculator, gutter-install-bid-calculator,
+        hardwood-refinishing-bid-calculator, tuckpointing-bid-calculator,
+        wheelchair-ramp-bid-calculator. Coverage 88/164 -> 92/164. The agent's
+        first 4 targets turned out already covered by a concurrent session's
+        PR #2073 (discovered via merge conflict, not the initial coverage
+        check which ran against a stale local ref) and were dropped in favour
+        of 4 different ventures to avoid a duplicate id="faq" block.
+      - >-
+        Deployment/CI-CD/Codex-on-Hetzner re-checked against the code because
+        the session brief raised all three again (explicit user request this
+        time): still exactly as the four preceding entries described -- fully
+        built and merged, blocked only on owner-only credential/DNS steps
+        already named in decision_queue.py and infra/OWNER_CHECKLIST.md. One
+        real correction found and posted: issue #1925's prior status comment
+        listed DNS as a remaining step for portfolio-site-hetzner-deploy;
+        infra/OWNER_CHECKLIST.md already records DNS as done
+        (tools.marisstella.dev resolves via marisstella.dev's wildcard record,
+        confirmed 2026-08-29), so it is two owner steps remaining, not three.
+        Posted the correction as an issue comment rather than a new
+        decision-queue row.
+    mrr_end: null
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
