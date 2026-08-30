@@ -31110,3 +31110,45 @@ entries:
         (runner_id 0, runner_name empty, ~3s duration 07:14:00-07:14:03 on
         the validate job) rather than treating it as a real failure.
     mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session responding to a brief prioritizing
+        Hetzner CI/CD, marketing-materials deployment, and Codex CLI on the
+        Hetzner box. Confirmed 0 open PRs (merge quota trivially satisfied)
+        and, per this same-day file's `platform` entry above, did not
+        re-run the 176-branch audit or re-confirm the four owner-blocked
+        infra asks (actions-runners-unavailable, codex-governor-enable,
+        agent-runner-subscription-login, portfolio-site-hetzner-deploy) --
+        a session earlier today already did both exhaustively and already
+        notified the owner with the exact remaining steps; nothing had
+        changed to justify duplicating either. A background agent
+        independently re-ran the branch scan before receiving the
+        stop-early message and reached the identical zero-mergeable
+        conclusion, so no time was lost either way.
+      - >-
+        Found a real, user-visible bug in a venture untouched by any
+        session today: tender-radar's shortlist table flagged a row
+        "urgent" (red/bold) when `row.deadline < today` -- i.e. once the
+        deadline had *already passed* -- so a tender closing tomorrow (the
+        one needing action) got no emphasis while one that closed weeks ago
+        did. Fixed by adding `isUrgent(deadline, today, windowDays=7)` to
+        calc.mjs (UTC-safe day math, avoiding `new Date(string)`
+        timezone/DST bugs) and wiring index.html's render loop to it.
+      - >-
+        The fix branch was cut from a slightly stale main and conflicted
+        with #2122 (merged minutes earlier, multi-term trade filtering in
+        the same file) -- an ordinary concurrent-edit collision, not
+        overlapping work to discard. Merged main into the branch, resolved
+        the one real conflict (an import-line union in calc.test.mjs; the
+        two test suites themselves did not collide), and verified both
+        features still work together. Verified locally: `node --test
+        ventures/tender-radar/site/*.test.mjs` (9/9 pass -- 4 new cases
+        pinning the exact regression and the 7/8-day window boundary, plus
+        the 5 pre-existing/#2122 cases unchanged), `node
+        platform/pages/build.mjs` + `check.mjs` against a fresh dist (164
+        products, 479 pages, no dead links, tender-radar included). Shipped
+        and merged #2127.
+    mrr_end: null
