@@ -30482,3 +30482,44 @@ entries:
         checked by calling `calculate()` directly, not estimated. Verified:
         8/8 venture tests, build+check 164 products/479 pages/no dead links.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Another scheduled session with the same owner ask (prioritize
+        deployment/CI-CD and Hetzner marketing-site delivery; set up Codex
+        CLI to spend a ChatGPT plan's quota on this repo's own dev work).
+        Did not re-verify a third time in one day: this file's own prior
+        entry already confirmed (fresh, that morning) that all three are
+        fully engineered and merged, gated only on the owner-only steps in
+        `infra/OWNER_CHECKLIST.md` and `decision_queue.py`. Spot-checked
+        only what could have changed since -- `publish_surface.py` (still
+        nothing publishes on push to main without an owner-set gate) and
+        `list_pull_requests` (0 open) -- rather than re-reading the gitops
+        tree again.
+      - >-
+        0 open PRs at start; merge quota trivially satisfied. Did not
+        re-sample the ~608-branch backlog: this file's own immediately
+        preceding entry sampled ~28 of the highest-value branches that same
+        morning at 100% supersession, and treated the repairable queue as
+        empty. Re-sampling a few hours later against an unchanged `main`
+        would not have produced a different reading.
+      - >-
+        Shipped and merged #2102: FAQ section on medical-courier-route-margin
+        (0 -> 1 of 1 entry pages with derived FAQPage schema), continuing the
+        pattern from #2099. Its companion deep page already had hand-authored
+        FAQPage JSON-LD, but the entry page most search/AI traffic lands on
+        had none. Four Q&A pairs derived from calc.mjs's actual behaviour,
+        including one correcting a plausible-sounding but wrong assumption --
+        the "Route type" dropdown (Scheduled/STAT/Dedicated) only labels the
+        copied summary text and does not change the calculation, confirmed by
+        reading calc.mjs rather than guessing from the UI. Verified:
+        faq-coverage.mjs 0/1 -> 1/1, venture's 5/5 tests, site build+check
+        164 products/479 pages/no dead links, platform/pages build.test.mjs
+        + faq-coverage.test.mjs 215/215. CI on the PR was red on all five
+        checks (validate/build/check/test/page-integrity) with the confirmed
+        outage signature (runner_id 0, ~3s duration) -- merged on local
+        verification per CLAUDE.md's outage-handling rule rather than waiting
+        on a runner that will not be assigned.
+    mrr_end: null
