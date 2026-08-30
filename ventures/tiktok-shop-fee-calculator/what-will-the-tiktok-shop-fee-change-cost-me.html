@@ -307,7 +307,17 @@
             ? `This SKU stops clearing. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new rates.`
             : `This SKU already loses money at today's rates. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new ones.`);
         }
-        actions.push(`Most the unit can cost and still clear: ${money(impact.maxBuyCostBefore)} before, <strong>${money(impact.maxBuyCostAfter)}</strong> after — the number to take to a supplier if the price cannot move.`);
+        // A null ceiling means the SKU loses money even on free goods, so
+        // there is no supplier price to go and ask for. Saying "n/a before,
+        // n/a after — the number to take to a supplier" would point a seller
+        // at a negotiation that cannot fix this listing.
+        if (impact.maxBuyCostAfter === null) {
+          actions.push(impact.maxBuyCostBefore === null
+            ? `No unit cost clears this SKU under either schedule — even free goods lose money on it. Only the listing price (or the fulfilment and ad costs) can fix that.`
+            : `Under the new schedule no unit cost clears this SKU — even free goods lose money on it. It cleared at up to ${money(impact.maxBuyCostBefore)} before, so a supplier conversation alone will not recover it; the listing price has to move.`);
+        } else {
+          actions.push(`Most the unit can cost and still clear: ${money(impact.maxBuyCostBefore)} before, <strong>${money(impact.maxBuyCostAfter)}</strong> after — the number to take to a supplier if the price cannot move.`);
+        }
         if (impact.extraCostPerMonth > 0) {
           actions.push(`Doing nothing costs about ${money(impact.extraCostPerMonth)} a month at ${impact.before.monthlyOrders.toFixed(0)} orders.`);
         }

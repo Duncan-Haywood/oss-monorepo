@@ -209,6 +209,46 @@ test("max buy cost is the COGS that drives expected profit to zero", () => {
   assert.ok(over.expectedProfit < 0, "a penny more loses money");
 });
 
+test("max buy cost is null when even free goods lose money", () => {
+  // Fulfilment plus ads exceed what the item can ever keep, so no COGS clears.
+  const neverClears = {
+    ...sample(),
+    itemPrice: 8,
+    cogs: 2,
+    fulfillmentCost: 6.5,
+    adSpend: 3,
+  };
+
+  // Establish the premise from calculateOrder directly, not from the function
+  // under test: a free unit is still a loss here.
+  const free = calculateOrder({ ...neverClears, cogs: 0 });
+  assert.ok(free.expectedProfit < 0, "premise: free goods already lose money");
+
+  assert.equal(maxBuyCost(neverClears), null);
+
+  // The pre-fix value was 0, which read as "pay up to $0.00 and you break
+  // even". Guard the actual falsehood, not just the sentinel.
+  assert.ok(
+    calculateOrder({ ...neverClears, cogs: 0 }).expectedProfit < 0,
+    "0 would have been a false ceiling",
+  );
+});
+
+test("max buy cost of exactly zero stays 0, not null", () => {
+  // A SKU that breaks even precisely at free goods has a real $0.00 ceiling.
+  // It must stay distinguishable from "no cost clears this".
+  const atZero = { ...sample(), cogs: 0 };
+  const tuned = {
+    ...atZero,
+    fulfillmentCost: atZero.fulfillmentCost + calculateOrder(atZero).expectedProfit,
+  };
+  near(calculateOrder(tuned).expectedProfit, 0, "premise: breaks even at zero COGS");
+
+  const buy = maxBuyCost(tuned);
+  assert.notEqual(buy, null, "a genuine zero ceiling is not 'unreachable'");
+  near(buy, 0, "ceiling is $0.00");
+});
+
 test("a 100% return rate with unsellable goods and kept affiliate is a loss", () => {
   const result = calculateOrder({ ...sample(), returnRate: 100 });
   assert.equal(result.belowBreakEven, true);

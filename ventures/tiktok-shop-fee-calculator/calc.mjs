@@ -549,7 +549,16 @@ export function feeChangeNote(impact) {
 export function maxBuyCost(input) {
   const probe = { ...input, cogs: 0 };
   const atZero = calculateOrder(probe);
-  if (atZero.expectedProfit < 0) return 0;
+  // When the SKU loses money even on free goods, no purchase cost clears it.
+  // Returning 0 here said "pay at most $0.00 and you break even", which is
+  // false — at $0.00 it is still under water — and is indistinguishable from
+  // the legitimate answer for a SKU that breaks even exactly at zero COGS.
+  // The fee-change page presents this as "the number to take to a supplier",
+  // so a 0 sent a seller to negotiate a price that was never going to work
+  // when the real answer is that the listing price has to move. `null` is
+  // what breakEvenPrice and priceForTargetMargin already return when no
+  // input reaches the target.
+  if (atZero.expectedProfit < 0) return null;
   let lo = 0;
   let hi = Math.max(1, Number(input.itemPrice) || 1);
   let found = false;
