@@ -34697,3 +34697,41 @@ entries:
         by having already merged, and nothing about its current stale tip
         changes that.
     mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed `breakEvenUnits` in `compareCoupons` and `compareSubscribeSave`
+        (calc.mjs): whenever the list-price month was already unprofitable
+        (`noneRow.profit <= 0`), both silently fell through to `null` -- shown
+        on the page as "a break-even volume is not defined" -- even when the
+        coupon/S&S price lost even more per unit, where the honest answer is
+        `Infinity` ("extra volume cannot recover the month"). Concrete
+        example: a $12 listing with $8 COGS already loses ~$2.80/unit at list
+        price; a 15% coupon loses ~$4.93/unit. Before: `breakEvenUnits: null`,
+        summary text "not defined". After: `breakEvenUnits: Infinity`,
+        summary text "Extra volume cannot recover the list-price month: the
+        couponed unit itself does not pay" -- consistent with the message
+        already shown when list price is profitable but the coupon isn't.
+      - >-
+        This is the identical reasoning error `compareSubscribeSave`'s
+        neighbouring `offsetUnits` computation was already fixed for (its own
+        comment names the bug precisely), but the fix was never carried over
+        to `breakEvenUnits` two lines below it, nor to `compareCoupons`'
+        separate copy. The repo's own test suite had a test titled "Subscribe
+        & Save cannot be offset when list price is already unprofitable too"
+        that asserted `offsetUnits === Infinity` but never checked
+        `breakEvenUnits` in that same scenario -- the gap this PR closes.
+        Fix: drop the `noneRow.profit > 0` gate on both copies, keeping only
+        `typedRow.profit <= 0 -> Infinity` (matching `offsetUnits`), and
+        remove the now-unreachable `null` branch and its dead summary text.
+      - >-
+        Verified: `node --test` on the venture, 302/302 (300 previously + 2
+        new/modified -- the missing assertion added to the existing
+        subscribeSave test, plus the analogous new compareCoupons test; both
+        fail against the old code and pass against the fix). Merged as #2270.
+        Found by tracing the exact bug-shape comment left behind by a prior,
+        partial fix (`offsetUnits`) to its unfixed sibling two lines away,
+        rather than a fresh line-by-line calculator sweep.
+    mrr_end: null
