@@ -73,7 +73,7 @@
     <section class="disclaimer">
       <h2>Common questions</h2>
       <h3>What counts as a FIFO exception?</h3>
-      <p>A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning the newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the row and the older row it was picked ahead of, so you can check the physical pick against the log.</p>
+      <p>A row is flagged when, for the same SKU, an order that arrived earlier was still picked after the order in that row — meaning the newer lot moved out first while older inventory of the same SKU sat waiting. The report names both the row and the older row it was picked ahead of, so you can check the physical pick against the log. See <a href="./what-counts-as-a-fifo-exception.html">a worked example</a> for the exact rows that do and do not get flagged.</p>
       <h3>Why does a row show "invalid timestamp" instead of a time?</h3>
       <p><code>received_at</code> and <code>picked_at</code> must be ISO 8601 with an explicit timezone, such as a trailing <code>Z</code> or a <code>+00:00</code> offset. A bare local timestamp with no zone is reported as invalid rather than guessed at, because guessing a timezone would guess the very ordering this report exists to check.</p>
       <h3>Is my pick log uploaded anywhere?</h3>
