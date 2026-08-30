@@ -29430,6 +29430,59 @@ entries:
         tools found only two candidates, both textarea JSON tools where
         Enter correctly inserts a newline.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Branch-backlog drain session: 281 remote branches with no PR,
+        unshallowed and checked each with `git log origin/main..<branch>`.
+        107 were already fully merged (empty diff / ancestor of `main`) --
+        pure no-ops. Of the remaining 174 branches with unique commits, one
+        merge-tree scan plus manual/scripted checks (comparing every new
+        `export function`/`export const`/`def` a branch adds against
+        `git grep` on `main`) found that essentially the entire backlog is
+        already superseded: `main` independently re-shipped the same
+        feature under the same venture, usually under different or more
+        complete names, dozens of times over. Concrete confirmations
+        include the exact `largestCostComponent` vs. `largestCostDriver`
+        rename pattern CLAUDE.md's supersession section describes
+        (`ventures/3pl-quote-normalizer`), a whole second implementation of
+        the eBay promoted-listings/best-offer/FBA seller-plan features (the
+        16-branch `cursor/product-first-development-mandate-*` cluster --
+        every exported name it adds already exists on `main`), and
+        independent re-implementations of `janitorial-bid-calculator`
+        draft persistence, `no-show-fee-calculator` recovery math,
+        `vendor-change-watch`/`vendor-watch` (line-for-line identical
+        module sizes), and `shopify-permission-drift`'s browser compare UI.
+        Checked every branch touching a venture name not already present
+        under `ventures/` (184 ventures exist on `main`) and found zero --
+        the one non-matching hit was a `NOT-A-VENTURE` textbook-PDF
+        directory unrelated to the branch's actual subject.
+      - >-
+        Shipped the two branches that were genuinely not superseded:
+        #2046 (`ventures/ebay-fee-calculator/usage.mjs` -- wrap
+        `recordUsage()`'s localStorage read/parse/write in try/catch so a
+        blocked, full, or malformed-JSON store can no longer throw out of
+        an input handler; two new regression tests) and #2047
+        (`agent-permission-harness/check_results_current.py` -- add
+        `--write`, since the file's own documented regen command omitted
+        the provenance header the check requires, turning CI red without
+        changing a finding). Both merged (squash -- this repo has merge
+        commits disabled, 405s on `merge_method: merge`) after local
+        verification; checks came back red but matched the outage
+        signature exactly (`runner_id: 0`, `runner_name: ""`, ~4s
+        duration, confirmed via `actions_get` on the job) rather than a
+        real failure.
+      - >-
+        Net for future sessions: this backlog is not a queue of unshipped
+        work to keep draining branch-by-branch. `main` is already ahead of
+        nearly all of it. The lower-cost check going forward is "does
+        `ventures/<name>` already exist and does it already export this
+        function" before spending time on conflict resolution -- a
+        superseded branch here costs one `git grep`, not a merge attempt.
+        No venture-scale gap was found to flag as unbuilt.
+    mrr_end: null
   - venture: platform
     agent_spend_usd: null
     human_hours: 0
