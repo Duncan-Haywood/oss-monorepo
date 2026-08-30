@@ -88,6 +88,15 @@
   </script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #191430; background: #eeecf8; }
+    /* Secondary ink: captions, notes, status lines, column headings — text that
+       should recede without becoming unreadable. It is a token rather than a
+       literal because this page has two backgrounds, and the shade that reads
+       on one is invisible on the other. #574d80 on the cream page is 6.4:1;
+       the same value inside the dark .verdict panel is 2.06:1, which is what
+       an audit caught twice. Redeclaring the token wherever the background
+       changes means anything added later inherits the readable shade instead
+       of repeating the bug. */
+    :root { --muted-ink: #574d80; }
     body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
     h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
@@ -109,7 +118,7 @@
     .group-heading { font-weight: 700; font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; color: #4b32a8; margin: 6px 0 0; }
     .check { display: flex; gap: .5rem; align-items: center; font-weight: 600; }
     .check input { width: auto; }
-    .verdict { background: #241a52; color: #f5f2ff; border-color: #241a52; }
+    .verdict { background: #241a52; color: #f5f2ff; border-color: #241a52; --muted-ink: #a49cc4; }
     .verdict a { color: #c9bcff; }
     .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 2px; }
     .negative { color: #ffb0a2; } .positive { color: #bdf0c6; }
@@ -130,14 +139,7 @@
     table { width: 100%; border-collapse: collapse; font-size: .92rem; min-width: 640px; }
     th, td { padding: 9px 6px; text-align: right; border-bottom: 1px solid #ded9f0; vertical-align: top; }
     th:first-child, td:first-child { text-align: left; }
-    thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #574d80; }
-    /* #574d80 is the muted ink for this page's cream background, and the only
-       table on it is the results table inside the dark verdict panel — where
-       the same value renders at 2.06:1 and the column headings naming Price,
-       Fees and You keep become unreadable. Overriding inside the panel keeps
-       the light-background uses (.status, details p.note, .rates .cell-label)
-       on the shade they were chosen for. */
-    .verdict thead th { color: #a49cc4; }
+    thead th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted-ink); }
     /* The results table sits inside the dark verdict panel, so the winning row
        is marked with a lighter shade of that panel rather than a light tint,
        which would leave light text on a light background. */
@@ -165,13 +167,13 @@
     details { border: 1px solid #ded9f0; border-radius: 10px; padding: 10px 12px; margin-bottom: 9px; background: #faf9ff; }
     summary { cursor: pointer; font-weight: 650; }
     details .fields { margin-top: 12px; grid-template-columns: repeat(3, 1fr); }
-    details p.note { font-size: .84rem; color: #574d80; margin: 8px 0 0; }
+    details p.note { font-size: .84rem; color: var(--muted-ink); margin: 8px 0 0; }
     .error { color: #b3241c; font-weight: 650; }
     .verdict .error { color: #ffb0a2; }
     button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #a49bd0; background: #fff; cursor: pointer; }
     button:hover { background: #f0ecff; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-    .status { font-size: .85rem; color: #574d80; min-height: 1.3em; }
+    .status { font-size: .85rem; color: var(--muted-ink); min-height: 1.3em; }
     .faq { margin-top: 18px; }
     .faq h3 { margin-bottom: 4px; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a4270; }
@@ -214,11 +216,15 @@
       /* The shelf-time table sits on white. Reuse the card shape, invert the
          palette so light text is not left on a light card. */
       .rates tbody tr {
-        background: #f7f5ff; border-color: #c9c0ee; color: #191430;
+        /* These cards re-light the background *inside* the dark verdict
+           panel, so they take the page's secondary ink back rather than the
+           panel's. The token is redeclared in the same rule as the background
+           it belongs to, so the two cannot drift apart. */
+        background: #f7f5ff; border-color: #c9c0ee; color: #191430; --muted-ink: #574d80;
       }
       .rates tbody tr.shelf-best { background: #ebe6ff; border-color: #4b32a8; }
       .rates tbody th[scope="row"] { border-bottom-color: #d0cbe8; }
-      .rates .cell-label { color: #574d80; }
+      .rates .cell-label { color: var(--muted-ink); }
     }
   </style>
 </head>
@@ -279,7 +285,7 @@
           <input id="unsoldRecoveryPct" type="number" min="0" max="100" step="1" value="100">
         </label>
       </div>
-      <p class="note" style="font-size:.84rem;color:#574d80">
+      <p class="note" style="font-size:.84rem;color:var(--muted-ink)">
         These apply to every channel. Anything a particular channel does
         differently — a higher price on Etsy, no postage on a local sale —
         goes in that channel’s own panel below the table.
@@ -509,7 +515,7 @@
 
   <style>
     .rank-by { border: 1px solid #cfc7e8; border-radius: 10px; padding: 10px 14px; margin: 14px 0 4px; display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: center; }
-    .rank-by legend { font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #574d80; padding: 0 4px; }
+    .rank-by legend { font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-ink); padding: 0 4px; }
     .rank-by label { font-size: .88rem; font-weight: 600; }
     .speed-note { margin-top: 10px; padding: 10px 12px; border-radius: 8px; background: #fff5e2; border: 1px solid #d9a441; color: #5d4108; }
   </style>
