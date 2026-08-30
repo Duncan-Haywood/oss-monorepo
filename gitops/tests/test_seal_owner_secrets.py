@@ -46,6 +46,22 @@ LEAKY_KUBESEAL = """#!/usr/bin/env bash
 cat
 """
 
+# The same failure wearing a different hat: output that carries the token
+# decoded rather than as the base64 the manifest was built with. A guard that
+# only knew the encoded form would wave this through.
+DECODING_KUBESEAL = """#!/usr/bin/env bash
+python3 -c '
+import base64, sys
+for line in sys.stdin:
+    key, _, value = line.partition(": ")
+    value = value.strip()
+    try:
+        print("%s: %s" % (key, base64.b64decode(value, validate=True).decode()))
+    except Exception:
+        print(line.rstrip())
+'
+"""
+
 FAKE_KUBECTL = """#!/usr/bin/env bash
 case "$*" in
   *"config current-context"*) echo "hel1" ;;
@@ -179,6 +195,31 @@ def test_a_kubeseal_that_did_not_encrypt_is_refused(sandbox: dict) -> None:
     assert result.returncode != 0 or "refusing to write" in result.stderr
     sealed = sandbox["root"] / "gitops" / "prod" / "secrets" / "portfolio-repo-token.sealed.yaml"
     assert not sealed.exists(), "a token that survived kubeseal must never hit the disk"
+
+
+def test_output_carrying_the_decoded_token_is_refused(sandbox: dict) -> None:
+    # "kubeseal did not encrypt" is not the only shape a leak can take. The
+    # base64 check alone would pass this, because the token comes back in a
+    # form the manifest never contained.
+    _bin(sandbox["bin"] / "kubeseal", DECODING_KUBESEAL)
+    token = "github_pat_site_TESTVALUE"
+    result = _run(sandbox, ["site", "--no-probe"], stdin=f"{token}\n")
+
+    assert "plaintext" in result.stderr, result.stderr
+    sealed = sandbox["root"] / "gitops" / "prod" / "secrets" / "portfolio-repo-token.sealed.yaml"
+    assert not sealed.exists(), "a decoded token must never hit the disk either"
+
+
+def test_both_agent_credentials_are_guarded_not_just_the_first(sandbox: dict) -> None:
+    # The agents seal carries two values. A guard that checked only one would
+    # leak the other, and CODEX_AUTH_JSON is the more sensitive of the pair.
+    _bin(sandbox["bin"] / "kubeseal", DECODING_KUBESEAL)
+    auth_json = '{"tokens":{"access_token":"stub"}}'
+    result = _run(sandbox, ["agents", "--no-probe"], stdin=f'1\n{auth_json}\ngithub_pat_a\n')
+
+    assert "plaintext" in result.stderr, result.stderr
+    sealed = sandbox["root"] / "gitops" / "agents" / "secrets" / "codex-token.sealed.yaml"
+    assert not sealed.exists()
 
 
 def test_an_empty_value_seals_nothing(sandbox: dict) -> None:
