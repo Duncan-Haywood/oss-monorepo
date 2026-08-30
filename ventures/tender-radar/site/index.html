@@ -24,6 +24,7 @@
     .actions{display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap}
     .actions button{width:auto}
     .notice,.privacy{color:var(--muted);font-size:.9rem}
+    .hint{display:block;font-size:.75rem;color:var(--muted);margin-top:.3rem;font-weight:400}
     .error{color:#a22}
     .summary{font-weight:700}
     .table-wrap{overflow:auto}
@@ -49,7 +50,7 @@ Hall painting,City Council,2026-10-02,painting,12000,https://example.test/paint
 Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</textarea>
     </label>
     <div class="controls">
-      <label for="category">Trade or category<input id="category" value="roofing"></label>
+      <label for="category">Trade or category<input id="category" value="roofing" placeholder="roofing, roof repair, reroof"><span class="hint">Comma-separate synonyms; matches category or title.</span></label>
       <label for="minimum">Minimum value<input id="minimum" type="number" min="0" value="20000"></label>
       <label for="through">Deadline on or before<input id="through" type="date"></label>
     </div>
@@ -74,7 +75,7 @@ Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</text
     <h3>What CSV format does it expect?</h3>
     <p>Columns named <code>title, buyer, deadline, category, value, url</code>, with <code>deadline</code> as a sortable date string like <code>2026-09-18</code> and <code>value</code> as a plain number. Most tender portals export something close to this; if a column is named differently, rename the header row in your CSV before pasting it in, since the parser matches on those exact names.</p>
     <h3>Does the category filter understand synonyms, like &ldquo;roofing&rdquo; matching &ldquo;roof repair&rdquo;?</h3>
-    <p>No, it's a plain text match against the category column you pasted, not a trade taxonomy or a fuzzy search. If your source CSV categorizes the same trade under different words across rows, you'll need to normalize the category column yourself first or run the filter more than once.</p>
+    <p>Type a comma-separated list &mdash; <code>roofing, roof repair, reroof</code> &mdash; and a row matches if any term appears in its category or title. It is still a plain text match, not a trade taxonomy or a fuzzy search, so a spelling you did not list (&ldquo;re-roofing&rdquo; with a hyphen, say) still needs adding by hand. This replaced an earlier version that only took one term and made you re-run the filter per spelling.</p>
     <h3>Does this tell me if I'm eligible to bid or improve my odds of winning?</h3>
     <p>No &mdash; as the section above states, it does not decide eligibility, verify a notice, predict your chance of winning, or submit a bid. It only sorts and filters a CSV you already have to a deadline-ordered shortlist; treat every row as something to confirm against the original portal.</p>
     <h3>Is my tender list uploaded anywhere?</h3>
@@ -88,7 +89,7 @@ Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</text
   </footer>
 </main>
 <script type="module">
-import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv} from "./calc.mjs";
+import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv, isUrgent} from "./calc.mjs";
 import {record, enabled, setEnabled} from "./usage.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -99,7 +100,7 @@ function render(list) {
   $("results").innerHTML = list.map((row) => {
     const href = safeUrl(row.url);
     const source = href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">Open source</a>` : "-";
-    return `<tr><td class="${row.deadline < today ? "urgent" : ""}">${escapeHtml(row.deadline)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.buyer)}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.value)}</td><td>${source}</td></tr>`;
+    return `<tr><td class="${isUrgent(row.deadline, today) ? "urgent" : ""}">${escapeHtml(row.deadline)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.buyer)}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.value)}</td><td>${source}</td></tr>`;
   }).join("");
   $("status").className = "summary";
   $("status").textContent = `${list.length} tender${list.length === 1 ? "" : "s"} shortlisted. Verify each against the original source.`;

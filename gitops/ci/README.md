@@ -49,10 +49,15 @@ or change repository settings.
 
 1. **Seal the PAT.** Copy
    `secrets/actions-runner-token.template.yaml`, replace `CHANGE_ME`, seal it
-   with `kubeseal`, and commit the sealed output. Prefer a fine-grained PAT
-   scoped to this repository alone with **Administration: Read and write** —
-   that is the narrowest permission that can mint a runner registration token.
-   A classic PAT needs full `repo` scope, which is broader than necessary.
+   with `kubeseal --controller-namespace sealed-secrets --controller-name
+   sealed-secrets` (the `--controller-name` flag is required — kubeseal's
+   default `sealed-secrets-controller` does not match this cluster's actual
+   controller Service name; see the comment in
+   `gitops/prod/secrets/portfolio-repo-token.template.yaml` for why), and
+   commit the sealed output. Prefer a fine-grained PAT scoped to this
+   repository alone with **Administration: Read and write** — that is the
+   narrowest permission that can mint a runner registration token. A classic
+   PAT needs full `repo` scope, which is broader than necessary.
 
 2. **Set the repo variable.** Settings → Secrets and variables → Actions →
    Variables → New repository variable, `CI_RUNNER` = `self-hosted`.

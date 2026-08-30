@@ -1389,6 +1389,46 @@ the one worth naming: it is invisible to review, it multiplies a colour the
 chrome never chose, and there is no value of it that is safe on a host already
 at the AA floor.
 
+#### The browser-free half of that check
+
+`contrast.mjs` not being in CI is what let the same defect class come back. A
+browser run on **2026-08-30**, two days after the sweep above, found 20 fresh
+serious 1.4.3 violations on four pages that had been live in `main` since. All
+20 were on links, and three of the four are the accent-as-text shape the earlier
+run had already fixed 104 instances of.
+
+`ink.mjs` closes that gap for the part of it that needs no browser:
+
+```bash
+node platform/pages/ink.mjs            # report
+node platform/pages/ink.mjs --strict   # non-zero exit on a violation
+```
+
+It reads each venture's inline `<style>` and decides **link text only** —
+resolving `var()` against `:root`, honouring declaration order, judging
+`.verdict a` against `.verdict`'s own fill, and compositing a container's
+`opacity` the way the browser does. On the four pages above it reproduces all
+five findings exactly, axe's blended `#bc754c` at 3.31:1 included, from the
+stylesheet alone. `.github/workflows/link-contrast-ci.yml` runs it on every
+change to `ventures/**/*.html`.
+
+Links only, deliberately. Without a DOM there is no way to know which box a bare
+class sits in: `.positive{color:#a9e8b5}` reads as a 1.16:1 failure against the
+page and is in fact fine, because it only ever renders inside a dark `.result`
+panel. A first cut decided those anyway and produced **510 findings against
+axe-core's zero**. Links are the element whose colour is routinely set
+independent of its container, which is why they carry every violation both runs
+actually found.
+
+Every run also prints what it *declined* — an unresolvable `var()`, a page with
+no inline stylesheet — and the count of non-link colours it never looked at
+(3273 of them). That is not decoration:
+`portfolio/research/a11y-delivered-contrast/` exists because an engine handed no
+stylesheet decided nothing, emitted no 1.4.3 finding, and was byte-identical in
+its output to a page that had been checked and passed. A clean `ink.mjs` run is
+a floor, not a ceiling; run `contrast.mjs` over a build before believing it is
+the whole story.
+
 ### Checking a shared bid arrives as the bid that was sent
 
 `roundtrip.mjs` asks the question the other three cannot: **does the link a tool
