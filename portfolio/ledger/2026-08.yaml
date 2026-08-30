@@ -33690,3 +33690,65 @@ entries:
         counters record can ever leave the browser. A checklist item can be
         satisfied 168 times and still not produce the number it exists for.
     mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run (brief re-prioritized CI/CD, Hetzner deployment,
+        Hetzner marketing material, and Codex-on-Hetzner). 0 open PRs at
+        session start, so re-confirmed rather than re-derived the same
+        standing blocker at least five same-day sessions already reached:
+        the self-hosted-runner path, the Hetzner GitOps site, and both
+        Codex-on-Hetzner pipelines are code-complete and gated on owner-only
+        seals already queued in `decision_queue.py`. Not re-litigated; no
+        duplicate ask added. Delegated the branch-drain instead of skipping
+        it: grouped ~286 remote branches by commit SHA and checked ~85
+        distinct-SHA candidates (product-named `cursor/*` branches first)
+        against `main`, since branch-cleanup automation (#829) means a
+        branch still alive is far more likely to be a squash-merge orphan
+        than live work.
+      - >-
+        Relabelled `compareSizeTierPackaging`'s result field
+        (`ventures/amazon-fba-calculator/calc.mjs`) from `buyCheck` to
+        `buyCostStatus` with plain over/under/at-ceiling copy, from
+        `cursor/amazon-fba-sourcing-check-20260824` (predated this month's
+        peak-storage and target-margin-at-buy features; merged `main` in and
+        resolved conflicts keeping both sides). Added a page test. Merged as
+        #2222 after `node --test`: 300/300 pass. GitHub Actions still down
+        (runner outage, unrelated).
+      - >-
+        Of the ~85 branches checked, all but two were confirmed empty or
+        superseded diffs against current `main` (several `supersede_check.py`
+        exit-1 verdicts were false negatives on inspection -- same feature
+        under a renamed function/file, the exact class of miss this repo's
+        own tooling docs warn about) -- including `chargeback-evidence-packet`
+        and `saas-seat-true-up`, already landed as #1144/#1130, and the
+        `3pl-quote-normalizer-driver`/`largestCostComponent` rename case
+        CLAUDE.md names directly. One `agent-cross-review` branch adding
+        autonomous auto-merge workflows was left untouched as out of bounds
+        for a session, not reviewed for merge.
+    mrr_end: null
+  - venture: public-record-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Second real bug found in the same branch-drain pass (see the
+        `amazon-fba-calculator` entry above for the session's CI/CD/Hetzner/
+        Codex re-confirmation and branch-triage method): `build_report()` in
+        `report.py`, mirrored in `evidence.js`, compared two register
+        snapshots for a `register` mismatch but never checked `source_url`,
+        so two snapshots naming the same register but pulled from different
+        source sites could be silently diffed together and reported as one
+        continuous history.
+      - >-
+        Sourced from `cursor/public-record-watch-launch-20260824`, the
+        most-evolved of three duplicate forks of this venture. Fixed the
+        mismatch check in both `report.py` and `evidence.js`, added a test to
+        each, and corrected one existing test that incidentally varied
+        `source_url` for an unrelated reason (would have started failing once
+        the check existed). Merged as #2226 after `node --test` (23) and
+        `python3 -m unittest` (7): all pass. GitHub Actions still down
+        (runner outage, unrelated).
+    mrr_end: null
