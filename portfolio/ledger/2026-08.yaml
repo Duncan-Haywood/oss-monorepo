@@ -35365,3 +35365,51 @@ entries:
         no dead links, faq-coverage.mjs unchanged at 168/168,
         faq-duplicate.mjs clean. Merged as #2301.
     mrr_end: null
+  - venture: fifo-pick-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fourth concurrent session against the same brief (prioritize CI/CD,
+        Hetzner deployment, and Codex CLI on the agent box against
+        subscription quota). Confirmed the same conclusions already on
+        record above and in commit 87de7f9d rather than re-scanning from
+        scratch: zero open PRs (checked via both list_pull_requests and
+        search_pull_requests); sampled 10 of the ~175 nonzero branches with
+        `supersede_check.py --no-fetch` (a mix of the highest-commit-count
+        and most-recently-touched), all ten SUPERSEDED; and the CI-restore,
+        Hetzner portfolio-site deploy, and Codex-CLI-on-Hetzner-agent-box
+        asks are each fully coded (`gitops/ci/`, `gitops/prod/`,
+        `gitops/agents/`, including the governor's priority-fairness
+        scheduler already merged as #2300) and already queued, blocked
+        purely on the owner sealing `codex-secrets` / a scoped repo token
+        and flipping two suspend/enabled flags. No duplicate asks added.
+      - >-
+        Product pick: fifo-pick-evidence, one of the 8 remaining
+        single-page ventures with no PRODUCT_PLAYBOOK.md §5e standalone
+        docs page. Its FAQ already asked "What counts as a FIFO exception?"
+        inline on index.html with no indexable page of its own for that
+        query.
+      - >-
+        Shipped what-counts-as-a-fifo-exception.html: a worked two-row
+        table grounded in evidence.js's own checkRows() output (SKU A,
+        earlier-arriving order OLD-1 picked last, later-arriving order
+        NEW-1 picked first -- NEW-1 is the flagged row, OLD-1 stays clean),
+        plus the two adjacent questions the page's own claims needed
+        checking against: the older row is never itself flagged, and
+        different SKUs picked out of order never trigger the check. Linked
+        from index.html's existing FAQ answer and added to sitemap.xml.
+      - >-
+        fifo-exception-page.test.mjs asserts the worked table's row/order
+        numbers against real checkRows() output rather than hand-typed
+        figures, and adds regression coverage for the single-SKU-row and
+        different-SKU edge cases alongside the existing evidence.test.js
+        fixture the worked example replays.
+      - >-
+        Verified locally (Actions down, runner_id 0 / runner_name ""
+        signature on this PR's own check run, 3s jobs): venture suite
+        25/25 (6 new), build.mjs (168 tools, 497 pages, up from 496) +
+        check.mjs no dead links, faq-coverage.mjs 168/168, faq-duplicate.mjs
+        clean, portfolio/router/validate.py 182 ventures valid. Merged as
+        #2305.
+    mrr_end: null
