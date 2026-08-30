@@ -194,6 +194,10 @@
 Shelf: 30 x 11.25 x 4
 Top: 31.5 x 11.25 x 2</textarea>
           </label>
+          <label class="wide">Offcuts you already have
+            <span class="muted">Optional &mdash; sized <code>width x height</code>, used before anything is bought</span>
+            <textarea id="sheet-onhand" spellcheck="false">31.5 x 11.25</textarea>
+          </label>
         </div>
       </section>
 
@@ -310,8 +314,8 @@ Top: 31.5 x 11.25 x 2</textarea>
     <p>Material used is the actual area of the parts you listed; offcut area is everything left over on the sheets you buy, including the strips lost to kerf and edge trim. Utilization is used area divided by total sheet area bought — on the default three-part list it lands well under 100%, because a sheet you buy is a fixed size whether or not the parts fill it.</p>
     <h3>When should I use the sheet-size or board-length comparison instead of just my usual size?</h3>
     <p>Whenever more than one size is actually stocked at the yard. The comparison re-runs the same cut list against each candidate size — for example a 4×8 against a 5×5 or a half-sheet — and ranks them by sheets needed, or by total cost once you enter a price for each. A size that looks cheaper per sheet can still lose if it takes more sheets to fit the same parts.</p>
-    <h3>Does the linear stock planner use my on-hand offcuts before buying new stock?</h3>
-    <p>Yes. Cuts are placed into your listed offcuts first, largest cut first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the default example, the on-hand list already covers part of the required cuts, which is why "Sheets to buy" or "New pieces to buy" can come in lower than the raw cut count would suggest.</p>
+    <h3>Does the planner use my on-hand offcuts before buying new stock?</h3>
+    <p>Yes, on both tabs. Cuts and panels are placed into your listed offcuts first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the sheet-goods tab an offcut is sized as <code>width x height</code> and can be larger than the sheet you'd otherwise buy — a leftover full sheet, say. On both tabs an untouched offcut stays off the plan entirely, since it's still on the rack, not consumed. On the default examples, the on-hand list already covers part of the required list, which is why "Sheets to buy" or "New pieces to buy" can come in lower than the raw part count would suggest.</p>
     <h3>Is my cut list uploaded anywhere?</h3>
     <p>No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below.</p>
   </section>
@@ -344,7 +348,7 @@ Top: 31.5 x 11.25 x 2</textarea>
 
   <script type="module">
     import { parseCuts, parseStock, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison } from './calc.mjs';
-    import { parsePanels, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
+    import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
     import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
 
@@ -399,7 +403,11 @@ Top: 31.5 x 11.25 x 2</textarea>
     const SHEET_STATS = ['sheet-count', 'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost'];
 
     function renderSheetSvg(result, sheet, index, unit) {
-      const { sheetWidth: w, sheetHeight: h, trim } = result;
+      // An on-hand offcut is its own size, not the configured sheet size, and
+      // carries no factory-edge trim to draw — its edges were already square.
+      const w = sheet.width;
+      const h = sheet.height;
+      const trim = sheet.source === 'on-hand' ? 0 : result.trim;
       const stroke = Math.max(w, h) / 900;
       const fontSize = Math.max(w, h) / 42;
       const pieces = sheet.placements.map((p) => {
@@ -418,8 +426,9 @@ Top: 31.5 x 11.25 x 2</textarea>
       const trimLine = trim > 0
         ? `<rect x="${trim}" y="${trim}" width="${w - 2 * trim}" height="${h - 2 * trim}" fill="none" stroke="#af4d29" stroke-width="${stroke}" stroke-dasharray="${Math.max(w, h) / 90}"/>`
         : '';
+      const sheetKind = sheet.source === 'on-hand' ? 'on-hand offcut' : 'sheet';
       return `<svg viewBox="0 0 ${w} ${h}" role="img" preserveAspectRatio="xMidYMid meet">
-          <title>Sheet ${index + 1} layout: ${sheet.placements.length} pieces on a ${w} by ${h} ${escapeHtml(unit)} sheet</title>
+          <title>Sheet ${index + 1} layout: ${sheet.placements.length} pieces on a ${w} by ${h} ${escapeHtml(unit)} ${sheetKind}</title>
           <rect x="0" y="0" width="${w}" height="${h}" fill="#efeadf" stroke="#aaa394" stroke-width="${stroke}"/>
           ${trimLine}${pieces}
         </svg>`;
@@ -437,8 +446,9 @@ Top: 31.5 x 11.25 x 2</textarea>
         )).join('');
         const keepers = sheet.offcuts.slice(0, 3)
           .map((o) => `${o.width.toFixed(2)} × ${o.height.toFixed(2)}`).join(', ');
+        const tag = sheet.source === 'on-hand' ? ' — on-hand offcut' : '';
         return `<div class="sheet-card">
-            <h3>Sheet ${index + 1} — ${sheet.placements.length} piece${sheet.placements.length === 1 ? '' : 's'}</h3>
+            <h3>Sheet ${index + 1}${tag} — ${sheet.placements.length} piece${sheet.placements.length === 1 ? '' : 's'}</h3>
             ${renderSheetSvg(result, sheet, index, unit)}
             <ol class="piece-list">${pieces}</ol>
             ${keepers ? `<p class="muted">Offcuts worth keeping: ${keepers} ${escapeHtml(unit)}</p>` : ''}
@@ -458,17 +468,24 @@ Top: 31.5 x 11.25 x 2</textarea>
           trim: Number($('sheet-trim').value),
           allowRotation: $('sheet-rotate').checked,
           panels: parsePanels($('sheet-parts').value),
+          onHand: parseOnHandSheets($('sheet-onhand').value),
         });
         const count = result.sheets.length;
-        $('sheet-headline').textContent = `${count} sheet${count === 1 ? '' : 's'}`;
+        $('sheet-headline').textContent = !count
+          ? 'No sheets needed'
+          : result.sheetsPurchased === 0
+            ? 'Nothing to buy'
+            : `Buy ${result.sheetsPurchased} sheet${result.sheetsPurchased === 1 ? '' : 's'}`;
         $('sheet-message').textContent = count
           ? 'Largest pieces are placed first. Confirm every dimension against your own stock and saw.'
           : 'No piece on this list fits a sheet that size.';
-        $('sheet-count').textContent = count;
+        $('sheet-count').textContent = result.onHandUsed
+          ? `${result.sheetsPurchased} (+ ${result.onHandUsed} on-hand offcut${result.onHandUsed === 1 ? '' : 's'} used)`
+          : result.sheetsPurchased;
         $('sheet-utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
         $('sheet-used').textContent = `${result.panelArea.toFixed(2)} sq ${unit}`;
         $('sheet-waste').textContent = `${result.wasteArea.toFixed(2)} sq ${unit}`;
-        $('sheet-total-cost').textContent = sheetCost ? (count * sheetCost).toFixed(2) : 'add a sheet price';
+        $('sheet-total-cost').textContent = sheetCost ? (result.sheetsPurchased * sheetCost).toFixed(2) : 'add a sheet price';
         $('sheet-oversize').innerHTML = result.oversize.length
           ? `<strong>${result.oversize.length} piece${result.oversize.length === 1 ? ' does' : 's do'} not fit on a sheet this size:</strong> `
             + result.oversize.map((p) => `${escapeHtml(p.label)} (${p.width} × ${p.height})`).join(', ')
@@ -691,7 +708,7 @@ Top: 31.5 x 11.25 x 2</textarea>
     /* ---------------- Wiring ---------------- */
 
     const DRAFT_FIELDS = [
-      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-unit', 'sheet-rotate',
+      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand', 'sheet-unit', 'sheet-rotate',
       'stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency',
     ];
 
@@ -758,7 +775,7 @@ Top: 31.5 x 11.25 x 2</textarea>
 
     wireInputs(
       [
-        'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts',
+        'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand',
         'sheet-unit', 'sheet-rotate',
         'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
         'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
