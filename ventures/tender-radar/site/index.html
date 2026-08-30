@@ -89,7 +89,7 @@ Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</text
   </footer>
 </main>
 <script type="module">
-import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv} from "./calc.mjs";
+import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv, isUrgent} from "./calc.mjs";
 import {record, enabled, setEnabled} from "./usage.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -100,7 +100,7 @@ function render(list) {
   $("results").innerHTML = list.map((row) => {
     const href = safeUrl(row.url);
     const source = href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">Open source</a>` : "-";
-    return `<tr><td class="${row.deadline < today ? "urgent" : ""}">${escapeHtml(row.deadline)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.buyer)}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.value)}</td><td>${source}</td></tr>`;
+    return `<tr><td class="${isUrgent(row.deadline, today) ? "urgent" : ""}">${escapeHtml(row.deadline)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.buyer)}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.value)}</td><td>${source}</td></tr>`;
   }).join("");
   $("status").className = "summary";
   $("status").textContent = `${list.length} tender${list.length === 1 ? "" : "s"} shortlisted. Verify each against the original source.`;
