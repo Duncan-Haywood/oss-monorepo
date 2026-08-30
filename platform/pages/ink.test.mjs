@@ -185,7 +185,11 @@ test('a page with no stylesheet, or no background, is declined not passed', () =
 // --- the shipped tree -------------------------------------------------------
 
 test('every venture page currently on this branch clears 4.5:1 on its links', () => {
-  const { findings, decided, pages } = auditVentures('ventures');
+  // No argument: the default resolves `ventures/` from this file, so the audit
+  // reads the same tree whether the suite is run from the repository root or
+  // from `platform/pages` -- which is the directory `portfolio-pages.yml` runs
+  // it in, and where passing 'ventures' threw ENOENT.
+  const { findings, decided, pages } = auditVentures();
   assert.deepEqual(findings, [], findings.map((f) =>
     `${f.label} ${f.selector}: ${f.color} on ${f.background} = ${f.ratio}:1`).join('\n'));
   // A gate that silently stopped reading every page would also report zero.
