@@ -54,13 +54,17 @@ def load(path: str) -> dict:
 def classify(old: dict, new: dict) -> tuple[str, str]:
     old_text = old.get("description", "")
     new_text = new.get("description", "")
-    if INSTRUCTION.search(new_text) and not INSTRUCTION.search(old_text):
+    description_changed = old_text != new_text
+    if description_changed and INSTRUCTION.search(new_text) and not INSTRUCTION.search(old_text):
         return "instruction-bearing", "new description contains model-directed language"
     old_schema = json.dumps(old.get("inputSchema", {}), sort_keys=True)
     new_schema = json.dumps(new.get("inputSchema", {}), sort_keys=True)
     if old_schema != new_schema:
         return "schema-change", "inputSchema changed"
-    return "description-change", "description changed without a detected instruction signal"
+    if description_changed:
+        return "description-change", "description changed without a detected instruction signal"
+    changed_keys = sorted(key for key in set(old) | set(new) if old.get(key) != new.get(key))
+    return "metadata-change", f"fields changed without a description or inputSchema difference: {', '.join(changed_keys)}"
 
 
 def compare(before: dict, after: dict) -> dict:
