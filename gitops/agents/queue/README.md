@@ -7,11 +7,25 @@ hot; it creates at most `maxConcurrent` Jobs (1 on the cpx22).
 `branch-pr-drain.yaml` (5), `deploy-cicd-readiness.yaml` (4),
 `seo-discoverability-audit.yaml` (3), and
 `product-feature-improvement.yaml` (2) are the real, enabled items — the
-same priority order they're named in, since `pick_item` always starts the
-single highest-`priority` enabled item and does not round-robin. Drain the
-PR/branch backlog first, then the delivery path, then metadata and
-content, then general feature work; raise or disable an item in git to
-change that order.
+same priority order they're named in. Drain the PR/branch backlog first,
+then the delivery path, then metadata and content, then general feature
+work; raise or disable an item in git to change that order.
+
+`pick_item` scores each enabled item `(priority + 1) / (runs + 1)` and takes
+the highest, where `runs` is how many Jobs that item has been started for in
+the current 5-hour window. So the top item opens every window, and over a
+window the four run in roughly `6:5:4:3` — priority sets *how often*, not
+*instead of*.
+
+It did not always. Until 2026-08-30 this was `sorted(key=(-priority, id))[0]`:
+the single highest-priority item, every tick, forever. `branch-pr-drain` took
+100% of the quota and the other three were unreachable — not deprioritised,
+unreachable, until someone hand-edited priorities in git. That was defensible
+while the PR/branch backlog was the bottleneck. It stopped being defensible
+the day the backlog drained: the repo hit zero open PRs with every one of
+~180 unmerged branches superseded, so the top item had nothing left to do and
+would still have spent the whole budget re-triaging an empty queue. A queue
+whose lower items can never run is a queue with one item in it.
 
 `deploy-cicd-readiness` sits second on purpose. The portfolio has 164
 finished tools and no public URL, so the delivery path is worth more per

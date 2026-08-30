@@ -77,6 +77,10 @@ class BudgetState:
     last_limit_at: float | None = None
     jobs_started_this_window: int = 0
     accounted_job_uids: list[str] = field(default_factory=list)
+    # How many Jobs each queue item has been started for in the current
+    # window. `pick_item` divides by this so a permanently-enabled top item
+    # cannot take every tick. Reset by `rollover`, which is what bounds it.
+    runs_by_item: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -174,11 +178,44 @@ def load_queue(items: Iterable[dict[str, Any]]) -> list[QueueItem]:
     return out
 
 
-def pick_item(queue: Iterable[QueueItem]) -> QueueItem | None:
+def pick_item(
+    queue: Iterable[QueueItem], runs_by_item: dict[str, int] | None = None
+) -> QueueItem | None:
+    """Pick the next item, weighting priority against how often it has run.
+
+    This used to be `sorted(key=(-priority, id))[0]` -- the single
+    highest-priority enabled item, every tick, forever. That starves every
+    other item: with the four real items (branch-pr-drain 5,
+    deploy-cicd-readiness 4, seo-discoverability-audit 3,
+    product-feature-improvement 2) only `branch-pr-drain` could ever run, and
+    the other three were unreachable until someone edited priorities in git.
+
+    That was tolerable while the PR/branch backlog was the bottleneck. It
+    stopped being tolerable once the backlog drained: on 2026-08-30 the repo
+    had zero open PRs and every one of ~180 unmerged branches was superseded,
+    so the top item had nothing to do and would still have taken 100% of the
+    Codex quota -- re-triaging an empty queue every run.
+
+    Score is `(priority + 1) / (runs + 1)`. The `+1` on priority keeps a
+    priority-0 item from being weightless (score 0 can never win), so no
+    enabled item starves. Within a window the first pick is still the
+    highest-priority item, and over many picks the items run in roughly their
+    weight ratio -- 6:5:4:3 for the four above. Ties break toward higher
+    priority, then by id, so the choice stays deterministic.
+    """
     enabled = [item for item in queue if item.enabled]
     if not enabled:
         return None
-    return sorted(enabled, key=lambda item: (-item.priority, item.id))[0]
+    runs = runs_by_item or {}
+
+    def rank(item: QueueItem) -> tuple[float, int, str]:
+        # Sorted ascending, so negate the two "bigger wins" terms and leave the
+        # id ascending -- the same final tiebreak the old `sorted(..., id)[0]`
+        # used, which keeps the choice stable across governor restarts.
+        score = (item.priority + 1) / (runs.get(item.id, 0) + 1)
+        return (-score, -item.priority, item.id)
+
+    return min(enabled, key=rank)
 
 
 def rollover(state: BudgetState, now: float, policy: Policy) -> BudgetState:
@@ -187,10 +224,15 @@ def rollover(state: BudgetState, now: float, policy: Policy) -> BudgetState:
     used = state.estimated_seconds_used
     week_used = state.week_seconds_used
     started = state.jobs_started_this_window
+    runs = state.runs_by_item
     if now - window_started >= policy.window_seconds:
         window_started = now
         used = 0.0
         started = 0
+        # Clearing this both bounds the dict (ids of items long since deleted
+        # from the queue cannot accumulate) and restarts the rotation, so each
+        # window opens on the highest-priority item again.
+        runs = {}
     if now - week_started >= WEEK_SECONDS:
         week_started = now
         week_used = 0.0
@@ -201,6 +243,11 @@ def rollover(state: BudgetState, now: float, policy: Policy) -> BudgetState:
         week_seconds_used=week_used,
         last_limit_at=state.last_limit_at,
         jobs_started_this_window=started,
+        # Copied, not aliased: BudgetState is mutable and absorb_finished_jobs
+        # appends to this list, so sharing it would let the returned state and
+        # the one passed in drift into each other.
+        accounted_job_uids=list(state.accounted_job_uids),
+        runs_by_item=dict(runs),
     )
 
 
@@ -236,7 +283,7 @@ def decide(
     if state.week_seconds_used >= week_budget:
         return Decision("hold", "weekly budget fraction exhausted")
 
-    item = pick_item(queue)
+    item = pick_item(queue, state.runs_by_item)
     if item is None:
         return Decision("hold", "queue empty")
 
@@ -256,8 +303,10 @@ def record_job_finished(state: BudgetState, duration_seconds: float) -> BudgetSt
     return state
 
 
-def record_job_started(state: BudgetState) -> BudgetState:
+def record_job_started(state: BudgetState, item_id: str | None = None) -> BudgetState:
     state.jobs_started_this_window += 1
+    if item_id:
+        state.runs_by_item[item_id] = state.runs_by_item.get(item_id, 0) + 1
     return state
 
 
@@ -276,6 +325,9 @@ def state_from_dict(raw: dict[str, Any] | None, now: float) -> BudgetState:
         last_limit_at=None if last is None else float(last),
         jobs_started_this_window=int(data.get("jobs_started_this_window") or 0),
         accounted_job_uids=[str(u) for u in (data.get("accounted_job_uids") or [])],
+        runs_by_item={
+            str(k): int(v) for k, v in (data.get("runs_by_item") or {}).items()
+        },
     )
 
 
@@ -359,7 +411,7 @@ def tick(
     state = rollover(state, now, policy)
     decision = decide(policy, state, count_running(jobs), queue, now)
     if decision.action == "start":
-        record_job_started(state)
+        record_job_started(state, decision.item.id if decision.item else None)
     return decision, state
 
 
