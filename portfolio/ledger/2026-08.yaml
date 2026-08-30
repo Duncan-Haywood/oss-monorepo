@@ -31847,3 +31847,56 @@ entries:
         governor flips for the Hetzner Codex worker. All three code halves
         are complete; owner notified with the exact steps.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **A commit-message grep against `main` is not a duplication check --
+        a squash merge drops it.** Sampled ~30 of the ~175 remote branches
+        with commits ahead of `main` and found four "PR-less" branches
+        (`claude/clever-bohr-rcp8ih`, `claude/codex-governor-ask-and-queue-
+        drain-report`, `claude/upbeat-mayer-3ipos6-ledger`, `claude/ledger-
+        seo-faq-pages`) whose single ledger-only commit looked unmerged:
+        `git merge-base --is-ancestor` said false, and grepping `main`'s
+        ledger for each commit's own message ("15-branch PR-less backlog
+        triage", "shipped engine no page could reach", etc.) found nothing.
+        Cherry-picked all four onto a branch and opened #2168. All four were
+        already on `main` -- squash-merged as #2029, #1996, #1943, and #2040
+        respectively, each under a *different* commit hash carrying only the
+        PR title, not the original branch commit's message. `git log
+        -S"<a distinctive outcome sentence>" -- <file>` found the real,
+        already-merged commit immediately for all four; the message grep
+        could not, structurally, because a squash merge never carries the
+        source commit's message into `main`'s history. Closed #2168 rather
+        than merging duplicate ledger prose.
+      - >-
+        Corrected method for the next session checking whether a PR-less
+        branch is really unmerged: `git merge-base --is-ancestor <branch> main`
+        rules out a fast-forward/merge-commit landing but says nothing about
+        a squash merge, which is this repo's default (`squash` merge_method
+        is what this session and others use). Diff the branch's actual
+        content against `main` (`supersede_check.py`'s identical-merge proof,
+        or `git log -S"<content, not the commit message>"`), not the commit
+        title -- the same trap the "RENAME SUSPECTED" section in `CLAUDE.md`
+        already names for feature code applies just as much to ledger prose
+        that got rephrased into a PR title during squash.
+      - >-
+        Net effect: no new product or infra work landed this session. Spent
+        the run's first phase draining the PR queue (found 0 open PRs, both
+        `list_pull_requests` and `search_pull_requests`) and sampling the
+        branch backlog per the scheduling brief, which asked to prioritize
+        merging existing work plus CI/CD, Hetzner deployment, and "Codex CLI
+        on the built-in quota." All three of the latter are, per five now-
+        independent session confirmations on `main` (this one included),
+        fully engineered and blocked only on the three owner-only steps in
+        `infra/OWNER_CHECKLIST.md` (`codex-governor-enable`,
+        `actions-runners-unavailable`, `portfolio-site-hetzner-deploy` in
+        `asks.yaml`) -- including the explicit warning that "use up the
+        built-in quota" read literally (a personal ChatGPT Plus/Pro `codex
+        login`) is the one shape not to build, since it has no spend cap and
+        competes with the owner's own interactive use. No new ask added;
+        owner notified directly instead, per the scheduling brief's own
+        instruction to surface exactly this kind of decision rather than
+        silently building the unsafe version or silently doing nothing.
+    mrr_end: null
