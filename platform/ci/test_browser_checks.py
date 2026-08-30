@@ -132,5 +132,64 @@ class Registry(unittest.TestCase):
             httpd.server_close()
 
 
+class DiscoverChrome(unittest.TestCase):
+    """Filling in `CHROME_PATH` when the machine already has a browser.
+
+    Playwright pins a browser build number and will not launch a different
+    one, even from the tree right beside it. Its advice ("npx playwright
+    install") is wrong wherever the download is blocked, so a session that
+    follows it loses the run to an install it cannot do.
+    """
+
+    def _tree(self, *builds, shell=()):
+        root = tempfile.mkdtemp(prefix="bc-browsers-")
+        for name in [*builds, *shell]:
+            leaf = "headless_shell" if name in shell else "chrome"
+            path = os.path.join(root, name, "chrome-linux", leaf)
+            os.makedirs(os.path.dirname(path))
+            with open(path, "w") as fh:
+                fh.write("#!/bin/sh\n")
+            os.chmod(path, 0o755)
+        return root
+
+    def test_an_explicit_choice_is_never_overridden(self):
+        root = self._tree("chromium-1194")
+        env = {"PLAYWRIGHT_BROWSERS_PATH": root, "CHROME_PATH": "/somewhere/else"}
+        self.assertIsNone(bc.discover_chrome(env))
+        # CHROMIUM_PATH is sweep.mjs's older spelling for the same knob.
+        env = {"PLAYWRIGHT_BROWSERS_PATH": root, "CHROMIUM_PATH": "/somewhere/else"}
+        self.assertIsNone(bc.discover_chrome(env))
+
+    def test_a_browser_in_the_tree_is_found(self):
+        root = self._tree("chromium-1194")
+        found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertEqual(found, os.path.join(root, "chromium-1194", "chrome-linux", "chrome"))
+
+    def test_the_newest_build_wins(self):
+        # Alphabetical order would pick 1194 over 989, and a stale tree left
+        # by an older install would then shadow the current one.
+        root = self._tree("chromium-989", "chromium-1194")
+        found = bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root})
+        self.assertIn("chromium-1194", found)
+
+    def test_the_headless_shell_is_not_mistaken_for_a_browser(self):
+        # Same tree, different binary and a different name. The checks drive a
+        # real page; launching the shell build fails later and less clearly.
+        root = self._tree(shell=("chromium_headless_shell-1194",))
+        self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root}))
+
+    def test_nothing_found_changes_nothing(self):
+        # None means "leave the environment alone", so a launch failure gets to
+        # report itself instead of being pre-empted by a wrong guess.
+        self.assertIsNone(bc.discover_chrome({}))
+        self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": "/no/such/dir"}))
+        self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": self._tree()}))
+
+    def test_a_non_executable_file_is_not_offered(self):
+        root = self._tree("chromium-1194")
+        os.chmod(os.path.join(root, "chromium-1194", "chrome-linux", "chrome"), 0o644)
+        self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root}))
+
+
 if __name__ == "__main__":
     unittest.main()
