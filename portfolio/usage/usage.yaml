@@ -3332,6 +3332,22 @@ products:
           main. Local snapshot compare only; failed fetches stay inconclusive.
           Keep #1368 open until supersede_check exits 0.
 
+  - slug: vendor-change-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js/usage.js/
+          style.css): paste before/after snapshots, get the identical
+          changed/unchanged/inconclusive report the CLI produces, parsed
+          entirely client-side. evidence.js ports vendor_change.py's compare()
+          rules line-for-line so the two surfaces cannot silently diverge.
+
   - slug: tender-radar
     surface: static-page-in-repo
     readings:
