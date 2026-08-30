@@ -32854,3 +32854,59 @@ entries:
         on local verification, per `CLAUDE.md`'s guidance for the outage
         window. Merged as #2198.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start. Opened and merged #2197 -- a PR for
+        `claude/ledger-consolidate-2026-08-30`, the one branch this pass
+        found with genuinely unique, unmerged content (it folds three
+        narrower ledger-only branches into one entry). Merging it hit a
+        conflict against the two ledger entries `main` gained in the
+        meantime; both sides were purely additive appends past a common
+        base, so the resolution concatenated both tails rather than
+        preferring either, verified by diffing each side's prefix against
+        the merge-base file before writing the merge.
+      - >-
+        Spot-checked 13 further PR-less branches beyond the 24 already
+        named in prior entries (`rematch-1364/1564/1172/spray-foam`,
+        `cursor/subcontractor-cashflow-launch-20260825`,
+        `cursor/autonomous-development-mandate-7494`,
+        `venture/vendor-change-watch`,
+        `claude/festive-mccarthy-{xrn3ua,qb5q6b,jwkwz5}`,
+        `claude/sweet-archimedes-6nrsur`, plus the three superseded ledger
+        branches folded into #2197). Every one was already on `main`:
+        `priceToMatchProfit` carries a code comment saying so verbatim
+        ("Salvaged from #1564 onto current main"), `vendor-watch` /
+        `sponsor-ready` / `consent-change-record` exist on `main` with
+        *more* files than the branch, and mobile-detailing's whole-stop
+        hours plus loaded-wage fields are already in `main`'s
+        `index.html` and `calc.mjs` under the same field names. Sample
+        size is now 37 of ~175 PR-less branches ahead of `main`, 100%
+        superseded -- consistent enough with the prior 24-branch finding
+        that a session short on time can treat this backlog as fully
+        mined rather than re-sampling it from scratch.
+      - >-
+        Directly answered this run's brief (CI/CD, Hetzner deployment, and
+        Codex CLI as priorities) by re-checking rather than assuming: both
+        remain exactly where #2107/#2116/#2119/#2162 (session context)
+        left them. `gitops/prod/secrets/portfolio-repo-token.template.yaml`
+        still opens "Template only -- not applied, and not referenced by
+        kustomization.yaml" -- the Hetzner site deploy needs one owner-sealed
+        read-only PAT and nothing else. `gitops/agents/governor/{cronjob.yaml,
+        policy.json}` are still `suspend: true` / `enabled: false`, gated on
+        a separate OpenAI org with a hard spend cap plus a sealed project
+        key per `infra/OWNER_CHECKLIST.md`, which itself warns that a
+        personal ChatGPT-Plus `codex login` is the one way not to do this.
+        Both asks already exist in `asks.yaml` (`deploy-settings`,
+        `codex-governor-enable`); adding a third copy of either would be
+        the duplicate-ask CLAUDE.md warns against, so none was added.
+      - >-
+        Checked whether the marketplace decision-page depth gap flagged
+        earlier the same day (Walmart 5, Reverb 6, "the next two") was
+        still open before touching it: both were already at 8 and 8
+        respectively, grown by concurrent sessions between that finding
+        and this one. Left alone rather than adding a ninth page neither
+        needed. `faq-coverage.mjs` unchanged at 166/166.
+    mrr_end: null
