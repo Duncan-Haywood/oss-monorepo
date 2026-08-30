@@ -33379,3 +33379,88 @@ entries:
         superseded (each branch's added feature already exists, more
         completely, on current `main`) -- none opened as new PRs.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, with the brief explicitly prioritizing CI/CD,
+        deployment, Hetzner marketing material, and the Codex-on-Hetzner
+        worker. 0 open PRs at session start and at end, so the three-PR
+        merge quota was moot rather than skipped. Spot-checked the
+        branches still ahead of `main` with `supersede_check.py`: the
+        largest product one (`cursor/3pl-quote-normalizer-compare-20260825`)
+        came back SUPERSEDED by identical-merge proof, and the next
+        (`claude/festive-mccarthy-xrn3ua`) carries only old ledger lines,
+        so no branch was converted into a new PR.
+      - >-
+        Found and fixed a real, catalogue-wide marketing defect nothing had
+        measured: the published `<meta name="description">` and
+        `og:description` on every page had been accreting a clause per
+        feature with nothing ever trimming one. 370 of 483 pages were past
+        the ~160-character budget a search result and a share card render,
+        11 past 300, and `ebay-fee-calculator` had reached 1,862 characters
+        of a single sentence of twenty-five "whether X still beats Y"
+        clauses -- a snippet that cut off mid-word at "whether a". Search
+        and organic sharing are this portfolio's only acquisition channels,
+        so that copy is the marketing surface. `build.mjs` already knew
+        about the 1,862 characters (`readMeta`'s own comment says so) but
+        had only solved it for hub cards and the search index; the tags
+        Google and Slack actually read were never touched.
+      - >-
+        Fixed with `snippetize()` in `platform/pages/build.mjs`, which cuts
+        to a whole *thought* rather than a whole word (`truncate` lands on
+        "...whether a..."): a sentence end inside the budget wins with no
+        ellipsis, else the last clause boundary with one, else a word.
+        `injectDiscoveryTags` applies it where a page is published, only
+        when over budget, so a venture's own in-budget copy is untouched.
+        The hub, About and the seven category pages are generated rather
+        than copied, so their hand-written copy was tightened to fit and
+        wrapped in `snippetize` as a floor. `check.mjs` now fails the
+        artifact on any over-budget description, with the budget restated
+        rather than imported so the checker is not built out of the module
+        it checks (a test asserts the two numbers agree). Both sides match
+        meta tags with a whole-tag matcher instead of `[^>]*`, which stops
+        at a bare `>` in a description ("net > 0") and would have missed
+        exactly the longest ones. Merged as #2217.
+      - >-
+        Verified: 762/762 `platform/pages` tests (16 new; two of them
+        caught real bugs before commit -- `truncate` overshoots its limit
+        by the ellipsis on text with no space, and the bare-`>` case).
+        Rebuilt the real 168-tool site and re-measured all 483 pages:
+        over-budget descriptions 370 -> 0, longest 1,862 -> 160, median
+        204 -> 141, eBay now 151 characters reading as a complete thought.
+        `check.mjs` reports the artifact publishable (168 products, 7
+        category pages, 485 pages, no dead links). Hub search index and
+        `llms.txt` confirmed still carrying the full text (`fullDescription`
+        unchanged). `run_workflow_locally.py portfolio-validate.yml` 42/42
+        `run:` steps. All 6 Playwright/Chromium browser checks green
+        (sideways, presets, roundtrip, contrast, sweep, journey) -- the
+        sweep that timed out for the previous session completed here after
+        installing `playwright` and `axe-core` into the scratchpad and
+        passing `PLAYWRIGHT=` to the orchestrator. #2217's 4 checks were
+        the outage signature, confirmed via `get_workflow_job`:
+        `runner_id: 0`, empty `runner_name`, 3s.
+      - >-
+        Left alone deliberately, and named as follow-up in the PR: 125 of
+        168 titles are over the ~60-character title budget, but a title is
+        short hand-written copy where an automatic cut reads worse than the
+        truncation it avoids; and 269 of 483 descriptions now end on a
+        clause cut rather than a sentence, because their source copy is one
+        clause chain with no sentence break between characters 96 and 160.
+        Both are per-venture copywriting, not builder work.
+      - >-
+        Re-confirmed rather than re-derived the standing blockers, and
+        added no duplicate asks: `publish_surface.py` still reports nothing
+        published on a push to `main`; `gitops/prod/portfolio-site.yaml` is
+        still gated on the one sealed read-only clone token; and the
+        Codex-on-Hetzner worker the brief asked for is already fully built
+        for the "built-in quota" shape -- `worker.sh` seeds `auth.json` from
+        `CODEX_AUTH_JSON` onto the `codex-home` PVC, fingerprints the seal
+        so a rotated refresh token is not overwritten, and exits 43 for a
+        rejected credential versus 42 for a quota limit. `mandate.md` was
+        read against this run's own brief and already carries the same
+        product-first floor, deployment-counts-as-product-work section, and
+        outage guidance. Its remaining step is the owner sealing the
+        credential, which is queued.
+    mrr_end: null
