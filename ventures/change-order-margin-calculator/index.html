@@ -23,7 +23,7 @@
   <label>Target margin (%)<input id="targetMarginPercent" type="number" min="0" max="99" step=".1" value="20"></label>
   <label>Proposed price (optional)<input id="proposedPrice" type="number" min="0" step=".01" value="0"></label>
 </div></section><section><h2>Approval summary</h2><p>Copy this after checking quantities, schedule, and contract terms.</p><textarea id="summary" class="summary" aria-label="Change-order summary" readonly></textarea><button id="copy">Copy summary</button><span id="copyStatus" aria-live="polite"></span></section></div>
-<section class="result"><h2>Your price floor</h2><div class="hero" id="targetPrice">$0.00</div><p>Target price for the margin you entered.</p><dl><dt>Walk-away cost floor</dt><dd id="walkAwayPrice">$0.00</dd><dt>Loaded labor</dt><dd id="loadedLabor">$0.00</dd><dt>Materials + subcontractor</dt><dd id="otherCosts">$0.00</dd><dt>Overhead</dt><dd id="overheadCost">$0.00</dd><dt>Estimated margin</dt><dd id="margin">0.0%</dd></dl><div id="verdict" class="alert">Enter a proposed price to compare it with your floor.</div></section></main>
+<section class="result"><h2>Your price floor</h2><div class="hero" id="targetPrice">$0.00</div><p>Target price for the margin you entered.</p><dl><dt>Walk-away cost floor</dt><dd id="walkAwayPrice">$0.00</dd><dt>Loaded labor</dt><dd id="loadedLabor">$0.00</dd><dt>Materials + subcontractor</dt><dd id="otherCosts">$0.00</dd><dt>Overhead</dt><dd id="overheadCost">$0.00</dd><dt>Estimated margin</dt><dd id="margin">0.0%</dd></dl><div id="verdict" class="alert" role="status" aria-live="polite">Enter a proposed price to compare it with your floor.</div></section></main>
 <section id="faq">
   <h2>Common questions</h2>
 
@@ -73,6 +73,18 @@ const ids=['title','hours','wage','burdenPercent','materials','subcontractor','o
                                                                                                                                                                                  return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
                                                                                                                                                                                };let usage=localStorage.getItem('change-order-usage-enabled')!=='false';let countTimer;
 function count(event){if(!usage||navigator.doNotTrack==='1'||navigator.globalPrivacyControl)return;const key=`change-order-${event}`;localStorage.setItem(key,String(Number(localStorage.getItem(key)||0)+1));}
+function restoreDraft(){
+  // The FAQ tells the user their entries are "saved ... as a draft you can
+  // return to", and update() below does write one to localStorage on every
+  // change. Nothing ever read it back on load, so a returning user always
+  // got the hardcoded defaults instead of their own numbers — the draft was
+  // written but never restored. This reads it once, before the first
+  // render, so a reload actually returns to where the user left off.
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem('change-order-draft') || 'null'); } catch { saved = null; }
+  if (!saved || typeof saved !== 'object') return;
+  ids.forEach(id => { if (typeof saved[id] === 'string' && $(id)) $(id).value = saved[id]; });
+}
 function update(){const input=Object.fromEntries(ids.map(id=>[id,$(id).value]));const r=calculateChangeOrder(input);$('targetPrice').textContent=money(r.targetPrice);$('walkAwayPrice').textContent=money(r.walkAwayPrice);$('loadedLabor').textContent=money(r.loadedLabor);$('otherCosts').textContent=money(r.directCost-r.loadedLabor);$('overheadCost').textContent=money(r.overheadCost);$('margin').textContent=`${(r.proposedMargin*100).toFixed(1)}%`;const v=$('verdict');v.className='alert';v.textContent=r.proposedPrice?(r.belowCost?`Below the cost floor by ${money(r.walkAwayPrice-r.proposedPrice)}. Do not proceed without revising the price or scope.`:(r.targetMet?'This proposed price meets your target margin. Verify the estimate before approval.':`Above cost, but below your target margin by ${((Number(input.targetMarginPercent)||0)-r.proposedMargin*100).toFixed(1)} points.`)):'Enter a proposed price to compare it with your floor.';if(r.belowCost)v.className+=' bad';$('summary').value=summaryText(input,r);localStorage.setItem('change-order-draft',JSON.stringify(input));clearTimeout(countTimer);countTimer=setTimeout(()=>count('calculated'),800)}
-ids.forEach(id=>$(id).addEventListener('input',update));$('copy').addEventListener('click',async()=>{await navigator.clipboard.writeText($('summary').value);$('copyStatus').textContent=' Copied.';count('summary-copied')});$('usageToggle').addEventListener('click',()=>{usage=false;localStorage.setItem('change-order-usage-enabled','false');$('usageToggle').textContent='Local usage counting disabled'});update();
+ids.forEach(id=>$(id).addEventListener('input',update));$('copy').addEventListener('click',async()=>{await navigator.clipboard.writeText($('summary').value);$('copyStatus').textContent=' Copied.';count('summary-copied')});$('usageToggle').addEventListener('click',()=>{usage=false;localStorage.setItem('change-order-usage-enabled','false');$('usageToggle').textContent='Local usage counting disabled'});restoreDraft();update();
 </script></body></html>
