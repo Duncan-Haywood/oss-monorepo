@@ -219,6 +219,30 @@ def test_job_template_from_governor_hides_sa_token() -> None:
     assert "codex-worker" in rbac
 
 
+def test_governor_role_touches_exactly_one_configmap_by_name() -> None:
+    # governor.py's only ConfigMap calls (_load_state / _save_state) GET and
+    # PUT/POST a single named object, governor-state -- never a namespace-wide
+    # list, never any other ConfigMap. A second, unnamed `configmaps` rule
+    # (get/list/create) used to sit alongside the resourceNames-narrowed one,
+    # granting read access to every ConfigMap in `agents`
+    # (governor-policy, governor-script, governor-queue,
+    # codex-worker-script -- none of which governor.py ever requests over the
+    # API, it mounts them as volumes) plus a `list` verb nothing calls. Same
+    # shape `prod/site-usage.yaml`'s Role already avoids, and for the same
+    # reason: the ConfigMap this job writes is seeded in git
+    # (`governor/state.yaml`, mirroring `portfolio-site-usage`), so `create`
+    # is not needed either.
+    docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
+    role = next(d for d in docs if d and d["kind"] == "Role")
+    rules = role["rules"]
+    cm_rules = [r for r in rules if "configmaps" in r["resources"]]
+    assert len(cm_rules) == 1, cm_rules
+    assert cm_rules[0]["resourceNames"] == ["governor-state"]
+    assert sorted(cm_rules[0]["verbs"]) == ["get", "patch", "update"]
+    for rule in rules:
+        assert "*" not in rule.get("verbs", [])
+
+
 def test_root_tracks_main_of_this_repo() -> None:
     root = yaml.safe_load((ROOT / "root.yaml").read_text())
     assert root["spec"]["source"]["repoURL"].endswith("Duncan-Haywood/monorepo-projects.git")
