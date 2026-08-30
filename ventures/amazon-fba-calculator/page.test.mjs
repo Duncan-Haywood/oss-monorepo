@@ -621,3 +621,9 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(acosSeo, /Best-effort hosting, no SLA/);
   assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
+
+test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
+  assert.match(html, /id="buyCostStatus"/);
+  assert.match(scriptSource, /buyCostCheck/);
+  assert.match(scriptSource, /sourcing_check_used/);
+});
