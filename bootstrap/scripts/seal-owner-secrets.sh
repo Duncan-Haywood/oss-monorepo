@@ -57,15 +57,25 @@ ok()   { printf '  + %s\n' "$*"; }
 
 step "Preflight"
 
+# Collect every missing tool before reporting. Exiting on the first one costs
+# the owner a round trip per prerequisite -- install kubectl, re-run, discover
+# kubeseal, re-run -- and the owner is the scarce resource this whole script
+# exists to spend less of. One list, one install, one re-run.
+MISSING=()
 for tool in kubectl kubeseal base64; do
-  command -v "$tool" >/dev/null 2>&1 || {
+  command -v "$tool" >/dev/null 2>&1 || MISSING+=("$tool")
+done
+if [[ ${#MISSING[@]} -gt 0 ]]; then
+  for tool in "${MISSING[@]}"; do
     warn "missing: $tool"
     case "$tool" in
-      kubeseal) warn "  https://github.com/bitnami-labs/sealed-secrets/releases" ;;
+      kubectl)  warn "    https://kubernetes.io/docs/tasks/tools/" ;;
+      kubeseal) warn "    https://github.com/bitnami-labs/sealed-secrets/releases" ;;
     esac
-    exit 1
-  }
-done
+  done
+  warn "install the above and re-run. Nothing was sealed."
+  exit 1
+fi
 ok "kubectl, kubeseal, base64 present"
 
 if ! kubectl version -o json >/dev/null 2>&1; then

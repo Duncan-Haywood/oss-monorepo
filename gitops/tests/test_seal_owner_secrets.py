@@ -133,6 +133,37 @@ def test_dry_run_checks_preflight_without_asking_for_a_token(sandbox: dict) -> N
     assert not sandbox["capture"].exists(), "a dry run must not reach kubeseal"
 
 
+def test_preflight_names_every_missing_tool_not_just_the_first(sandbox: dict) -> None:
+    # The owner runs this once, on a laptop, and each round trip is a day of
+    # 168 built tools staying unreachable. A preflight that exits on the first
+    # missing prerequisite hides the second one until the re-run, so the fix
+    # for "missing: kubectl" is followed by "missing: kubeseal" and another
+    # wait. Both names have to arrive in the same report.
+    empty = sandbox["env"]["PATH"].split(os.pathsep)[0]  # the fakes, minus the real PATH
+    env = dict(sandbox["env"])
+    env["PATH"] = empty
+    (Path(empty) / "kubectl").unlink()
+    (Path(empty) / "kubeseal").unlink()
+
+    # Invoked through an explicit `bash` because PATH no longer carries one
+    # for the shebang's `env` to find -- the point of the test is an empty
+    # PATH, not an unrunnable script.
+    result = subprocess.run(
+        [shutil.which("bash") or "/bin/bash", str(sandbox["script"]), "--dry-run"],
+        capture_output=True,
+        text=True,
+        env=env,
+        cwd=sandbox["root"],
+    )
+
+    assert result.returncode == 1
+    assert "missing: kubectl" in result.stderr
+    assert "missing: kubeseal" in result.stderr, (
+        "preflight stopped at the first missing tool; the owner would only "
+        "learn about the second one on a re-run"
+    )
+
+
 def test_controller_name_is_discovered_not_hardcoded(sandbox: dict) -> None:
     # kubeseal defaults to a Service named "sealed-secrets-controller"; this
     # cluster's is "sealed-secrets", because the chart is an Argo Application
