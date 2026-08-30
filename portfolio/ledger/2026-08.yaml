@@ -33464,3 +33464,59 @@ entries:
         outage guidance. Its remaining step is the owner sealing the
         credential, which is queued.
     mrr_end: null
+  - venture: faire-wholesale-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run whose brief re-prioritized CI/CD, Hetzner deployment,
+        Hetzner marketing material, and a Codex-CLI-on-Hetzner worker. Read the
+        already-built state of all four rather than re-deriving it: the
+        self-hosted-runner path (`gitops/ci/`), the Hetzner GitOps portfolio
+        site (`gitops/prod/portfolio-site.yaml`), the single-box agent-runner
+        Codex loop (`ventures/ubuntu-agent-server`), and the budget-governed
+        k8s Codex worker (`gitops/agents/governor/`) are each fully built and
+        gated on an owner-only action already queued in
+        `portfolio/ledger/decision_queue.py` (billing/spend-limit or a PAT for
+        the runner; a sealed read-only clone token for the site; an
+        interactive `codex login` or a capped OpenAI project key for the two
+        Codex paths). All 167 ventures with an `index.html` already carry
+        meta description, JSON-LD, and OG tags per `PRODUCT_PLAYBOOK.md` §5e
+        -- nothing to add there either. 0 open PRs at session start, so the
+        three-PR merge quota was moot. Nothing new added to the decision
+        queue; this is at least the fourth session today reaching the same
+        conclusion (per #2107/#2116/#2119 and the entries immediately above),
+        so it was not re-litigated at length.
+      - >-
+        Found and fixed a real correctness bug instead: `compareFairePromoted`
+        (`ventures/faire-wholesale-calculator/calc.mjs`) reports
+        `breakEvenCampaignRate` -- the promoted-listings rate at which running
+        a campaign matches skipping it, read directly in the calculator's
+        one-sentence summary -- by dividing by `merchandise` (pre-discount
+        wholesale total) instead of `orderSubtotal` (post-discount, the actual
+        base the promoted fee is computed on:
+        `fees.promoted: orderSubtotal * promotedRate / 100`). Every existing
+        test used a fixture with no `openingDiscountRate`, where the two
+        happen to be equal, so the bug never surfaced. On a 30%-discount
+        fixture the code reported a 5.01% ceiling; brute-forcing the true
+        crossover (and an independent algebraic derivation) gives 7.15% -- a
+        brand would be told they can spend less on promoted listings than
+        they actually can before it stops paying off.
+      - >-
+        Fixed the denominator to `organic.orderSubtotal` (guard included).
+        Added a regression test that brute-forces the true break-even rate by
+        binary search and pins the exact corrected value, so the old wrong
+        formula cannot silently return. `grep` confirmed no other file
+        duplicates this formula. Verified: full venture suite 101/101 pass;
+        `run_workflow_locally.py --for-changes` selected 4 workflows --
+        `faire-wholesale-calculator-ci.yml` (the one this touches) 2/2 run
+        steps pass, `conflict-markers-ci.yml` 2/2 pass, `pages.yml` /
+        `portfolio-pages.yml` failed only because the local runner skips their
+        `${{ }}`-gated build step (no site directory to check against --
+        expected, not a regression, since this diff touches no build/HTML
+        file); manually built the real portfolio site anyway since this
+        venture's pages come from the hub builder -- 168 products, 485 pages,
+        no dead links. Merged as #2220 (squash) after local verification;
+        GitHub Actions is still down (runner outage, unrelated to this
+        change).
+    mrr_end: null
