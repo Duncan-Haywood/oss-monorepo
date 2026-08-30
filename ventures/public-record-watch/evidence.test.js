@@ -32,6 +32,11 @@ test("added, removed, and changed records are all detected", () => {
   assert.equal(report.review_required, true);
 });
 
+test("compare rejects snapshots from different source_url values", () => {
+  const after = { ...BEFORE, source_url: "https://other.test/register" };
+  assert.throws(() => compare(BEFORE, after), /same source_url/);
+});
+
 test("identical records are unchanged and do not require review", () => {
   const after = { ...BEFORE, captured_at: "2026-08-25T12:00:00Z" };
   const report = compare(BEFORE, after);

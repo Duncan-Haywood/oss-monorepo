@@ -56,6 +56,9 @@ function compare(before, after) {
   if (before.register !== after.register) {
     throw new Error("Both snapshots must describe the same register.");
   }
+  if (before.source_url !== after.source_url) {
+    throw new Error("Both snapshots must use the same source_url.");
+  }
   const old = new Map(before.records.map((item) => [item.id, item]));
   const next = new Map(after.records.map((item) => [item.id, item]));
   const ids = [...new Set([...old.keys(), ...next.keys()])].sort();
