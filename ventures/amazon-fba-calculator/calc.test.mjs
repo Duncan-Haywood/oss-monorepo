@@ -531,6 +531,21 @@ test("an unprofitable coupon cannot recover the month with more volume", () => {
   assert.match(couponSummary(comparison), /cannot recover/i);
 });
 
+test("a coupon cannot be recovered when list price is already unprofitable too", () => {
+  // Same reasoning error compareSubscribeSave's offsetUnits was fixed for:
+  // a $12 listing with $8 COGS already loses money at list price, and a
+  // coupon can only lose more per unit (typed.profit < none.profit < 0).
+  // breakEvenUnits used to fall through to `null` ("not defined") here
+  // because its gate required none.profit > 0 before ever reporting
+  // Infinity -- silently hiding that no volume of couponed sales helps.
+  const lowMarginBase = { ...base, salePrice: 12 };
+  const comparison = compareCoupons({ ...lowMarginBase, couponPercent: 15, couponFee: 0.6 });
+  assert.ok(comparison.none.profit < 0, "list price already loses money");
+  assert.ok(comparison.typed.profit < comparison.none.profit, "coupon loses even more per unit");
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(couponSummary(comparison), /cannot recover/i);
+});
+
 test("expected lift is compared to the list-price month, not to itself", () => {
   const comparison = compareCoupons({
     ...base,
@@ -873,6 +888,11 @@ test("Subscribe & Save cannot be offset when list price is already unprofitable 
   near(comparison.none.profit, listProfit, "list row matches primary calc");
   near(comparison.typed.profit, snsProfit, "S&S row matches primary calc");
   assert.equal(comparison.offsetUnits, Infinity);
+  // breakEvenUnits shares the same gate as offsetUnits (both flag "the
+  // discounted unit itself does not pay") and used to fall through to
+  // `null` ("not defined") whenever the list row was unprofitable, exactly
+  // the reasoning error the comment above describes for offsetUnits.
+  assert.equal(comparison.breakEvenUnits, Infinity);
   assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
 });
 

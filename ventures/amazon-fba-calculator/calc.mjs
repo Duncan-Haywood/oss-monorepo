@@ -928,17 +928,20 @@ export function compareCoupons(input) {
   const typedRow = withDeltas.find((row) => row.isCurrent) ?? withDeltas[withDeltas.length - 1];
 
   // Units at the couponed per-unit profit that match this month's list-price
-  // profit. Null when list profit is not positive. Infinity when the coupon
-  // unit itself does not pay — extra volume cannot recover the month.
-  let breakEvenUnits = null;
-  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
-  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+  // profit. Infinity when the coupon unit itself does not pay: every extra
+  // couponed sale then contributes zero or negative profit, so it can never
+  // recover the month, whatever the list row's own sign. Gating that on
+  // noneRow.profit > 0 (as this used to) silently reported "not defined"
+  // whenever the list price was itself unprofitable, even though the coupon
+  // was just as unrecoverable — see compareSubscribeSave's offsetUnits,
+  // fixed for the identical reasoning error.
+  const breakEvenUnits = typedRow.profit <= 0
+    ? Infinity
+    : (noneRow.profit * monthlyUnits) / typedRow.profit;
 
-  const extraUnitsNeeded = breakEvenUnits === null
-    ? 0
-    : breakEvenUnits === Infinity
-      ? Infinity
-      : Math.max(0, breakEvenUnits - monthlyUnits);
+  const extraUnitsNeeded = breakEvenUnits === Infinity
+    ? Infinity
+    : Math.max(0, breakEvenUnits - monthlyUnits);
   const liftPctNeeded = monthlyUnits === 0 || extraUnitsNeeded === Infinity
     ? extraUnitsNeeded
     : (extraUnitsNeeded / monthlyUnits) * 100;
@@ -978,9 +981,6 @@ export function couponSummary(comparison) {
   const perUnit = `${offer} drops the buyer price from ${money(typed.listPrice)} to ${money(typed.buyerPays)} and leaves ${money(typed.profit)} after the ${money(typed.couponFee)} redemption fee — ${money(Math.abs(typed.profitDelta))} ${typed.profitDelta < 0 ? "less" : "more"} than list.`;
   if (comparison.breakEvenUnits === Infinity) {
     return `${perUnit} Extra volume cannot recover the list-price month: the couponed unit itself does not pay.`;
-  }
-  if (comparison.breakEvenUnits === null) {
-    return `${perUnit} The list-price unit is not profitable on these inputs, so a break-even volume is not defined.`;
   }
   const units = comparison.breakEvenUnits;
   const lift = comparison.liftPctNeeded;
@@ -1092,9 +1092,13 @@ export function compareSubscribeSave(input) {
     offsetUnits = (enrolledUnits * (noneRow.profit - typedRow.profit)) / typedRow.profit;
   }
 
-  let breakEvenUnits = null;
-  if (noneRow.profit > 0 && typedRow.profit <= 0) breakEvenUnits = Infinity;
-  else if (typedRow.profit > 0) breakEvenUnits = (noneRow.profit * monthlyUnits) / typedRow.profit;
+  // Same reasoning as offsetUnits just above: Infinity whenever the S&S unit
+  // itself does not pay, regardless of the list row's own sign, rather than
+  // gating on noneRow.profit > 0 and silently falling through to "not
+  // defined" whenever the list price was itself unprofitable.
+  const breakEvenUnits = typedRow.profit <= 0
+    ? Infinity
+    : (noneRow.profit * monthlyUnits) / typedRow.profit;
 
   return {
     rows: withDeltas,
