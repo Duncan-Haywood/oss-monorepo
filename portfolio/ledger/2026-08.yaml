@@ -33625,3 +33625,68 @@ entries:
         before merging. GitHub Actions is still down (runner outage,
         unrelated to this change).
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same scheduled product-first brief as the entries above (CI/CD,
+        Hetzner deploy, Hetzner marketing material, Codex-on-Hetzner). 0 open
+        PRs at session start, so the brief's three-PR merge quota was vacuous
+        rather than skipped -- confirmed via `list_pull_requests` state=open,
+        and the 175 remote branches ahead of `main` are squash-merge residue,
+        none carrying an open PR. Re-confirmed without re-deriving: the
+        self-hosted runner path, the Hetzner GitOps site, and both
+        Codex-on-Hetzner pipelines are each code-complete and gated on owner
+        seals already queued in `decision_queue.py`. Marketing surface checked
+        directly rather than assumed: `check.mjs` reports 168 products / 485
+        pages / no dead links, `faq-coverage.mjs` reports 168 of 168 entry
+        pages shipping derived FAQPage schema, and llms.txt / sitemaps /
+        robots / per-category social cards all build. No gap there to fix.
+      - >-
+        Found and closed a real gap in the delivery path instead, one that
+        publishing would not have revealed until it was too late to notice:
+        every venture's `usage.mjs` is deliberately localStorage-only and
+        never transmits, so `tools.marisstella.dev` going live would NOT have
+        moved any row in `portfolio/usage/usage.yaml` off `null`. The
+        portfolio would have shipped 168 tools to the public and gone on
+        having no idea which of them anyone opened -- while `DIRECTION.md`
+        names usage as the only honest signal for allocating the fleet.
+      - >-
+        Merged as #2228 (squash). Narrows the site's nginx access log to
+        `$time_iso8601 $status $uri` and adds a nightly CronJob reducing a day
+        of those lines to one page-view count per tool in the
+        `portfolio-site-usage` ConfigMap (30 days; Argo ignores its `/data`).
+        The log narrowing is also a privacy fix in its own right: the stock
+        `combined` format the ConfigMap was inheriting logs `$remote_addr`,
+        `$http_user_agent` and `$http_referer` -- a visitor's IP, device
+        fingerprint and browsing history in a pod log, on a static site with
+        no account and no cookie, contradicting `portfolio-site.yaml`'s own
+        claim that the site carries no user data. Enforcing "count events,
+        never people" by what nginx is configured to write, rather than by
+        what the aggregator promises to discard, is what makes it structural.
+        RBAC: pods list, pods/log get, and get/update on that one ConfigMap by
+        name -- no create, no delete.
+      - >-
+        Verified locally (Actions still down -- this PR's own checks ran 4s
+        with `runner_id: 0` and an empty `runner_name`, the documented outage
+        signature): `pytest gitops/tests` 98 passed (89 before, 9 new),
+        pyflakes clean, `kustomize build` on all six overlays, `kubeconform
+        -strict -kubernetes-version 1.31.0` 64 resources 0 invalid, `nginx -t`
+        against the real ConfigMap contents. End to end: installed nginx and
+        ran it with this exact config over a real `build.mjs` dist, requested
+        pages, assets, a 404 and a URL carrying `?secret=...&price=...`, and
+        confirmed the log holds no address, agent, referrer or query string --
+        then fed those exact lines through `count_lines()` and got the
+        expected per-tool counts. Public verification not possible and not
+        claimed: the site does not serve until the clone token is sealed, and
+        this sandbox's egress proxy 403s the host besides.
+      - >-
+        Learned, and worth not re-deriving: "instrumented" and "measurable"
+        were not the same thing here, and the difference was invisible from
+        the usage docs alone. Every venture had a `usage.mjs`, every PR
+        checklist asked for one, and `usage.yaml`'s nulls were being read as
+        "nothing is live yet" -- when the actual cause was that nothing those
+        counters record can ever leave the browser. A checklist item can be
+        satisfied 168 times and still not produce the number it exists for.
+    mrr_end: null
