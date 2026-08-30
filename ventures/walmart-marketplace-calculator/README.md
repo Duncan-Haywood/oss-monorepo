@@ -79,6 +79,11 @@ mixes aged storage on leftover units with a removal you sell yourself.
 mixes extra ad units with last-click ACOS on organic sales.
 [Should I match the lower Walmart offer?](should-i-match-the-walmart-buy-box.html)
 mixes take rate with a permanent match and a time-boxed promo.
+[Does a smaller box cut my WFS fee?](does-a-smaller-box-cut-wfs-fees.html)
+is the one decision here that leaves the price alone: it compares the
+carton as shipped against a repack, names which measurement is over the
+Standard ceiling and by how much, and nets the repack labour off the fee
+step it saves.
 
 It is not an Amazon FBA calculator, not a Faire wholesale fee tool, and
 not a cross-channel “where to sell” ranker. Those already exist in this

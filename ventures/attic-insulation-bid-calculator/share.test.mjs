@@ -29,6 +29,7 @@ const sample = {
   overheadRate: 15,
   targetMargin: 28,
   proposedPrice: 4800,
+  productType: 'fiberglass',
   secret: 'must-not-round-trip',
 };
 
@@ -79,4 +80,12 @@ test('SHARE_FIELDS includes the lines a dropped field would silently change', ()
   for (const key of ['areas', 'rPerInch', 'cuFtPerBag', 'penetrations', 'removeExisting', 'targetMargin', 'proposedPrice', 'dumpsterCost']) {
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);
   }
+});
+
+test('the product the bid is for travels with it', () => {
+  // Reconstructed on arrival from the four rates it stamps until 2026-08-29,
+  // so a setter who typed their own bag price handed the recipient "Other /
+  // custom rates" and a draft scope that said only "blow insulation".
+  const restored = decodeShare(encodeShare(sample));
+  assert.equal(restored.productType, 'fiberglass');
 });

@@ -22,7 +22,7 @@
     form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     label { font-weight: 650; font-size: .86rem; }
     input { display: block; width: 100%; box-sizing: border-box; margin-top: 5px; padding: 10px; border: 1px solid #a9b4af; border-radius: 7px; font: inherit; }
-    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #d45c35; color: #fff; font-weight: 700; cursor: pointer; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #c05430; color: #fff; font-weight: 700; cursor: pointer; }
     button.secondary { background: #e8eee9; color: #123b36; }
     .full { grid-column: 1 / -1; }
     .hero { font-size: 1.45rem; color: #123b36; font-weight: 800; margin: 0 0 12px; }
@@ -34,7 +34,16 @@
     a { color: #123b36; font-weight: 700; }
     footer { margin-top: 25px; border-top: 1px solid #d8d3c9; padding-top: 16px; }
     @media (max-width: 800px) { body { padding: 16px; } .layout, form { grid-template-columns: 1fr; } }
-  </style>
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
 </head>
 <body>
   <header>

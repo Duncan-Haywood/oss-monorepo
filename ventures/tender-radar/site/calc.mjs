@@ -45,17 +45,53 @@ export function parseTenders(text) {
   });
 }
 
+// Splits a trade/category filter into individual OR terms. A contractor's
+// source portal often spells the same trade differently row to row ("roofing"
+// vs "roof repair" vs "reroofing"), so the field accepts a comma- or
+// newline-separated list instead of forcing a re-run per spelling.
+export function parseTradeTerms(value) {
+  return String(value || "")
+    .split(/[,\n]/)
+    .map((term) => term.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export function filterTenders(rows, { category = "", minimum = 0, through = "" } = {}) {
-  const trade = String(category || "").trim().toLowerCase();
+  const terms = parseTradeTerms(category);
   const min = Number(minimum) || 0;
   return rows
     .filter((row) => {
-      if (trade && !String(row.category || "").toLowerCase().includes(trade)) return false;
+      if (terms.length) {
+        const haystack = `${row.category || ""} ${row.title || ""}`.toLowerCase();
+        if (!terms.some((term) => haystack.includes(term))) return false;
+      }
       if (Number(row.value || 0) < min) return false;
       if (through && row.deadline > through) return false;
       return true;
     })
     .sort((a, b) => a.deadline.localeCompare(b.deadline));
+}
+
+// Days from `today` to `deadline`, both "YYYY-MM-DD". Parsed as UTC calendar
+// dates (not `new Date(string)`, which is DST/timezone-sensitive) so a
+// deadline of "tomorrow" reads as 1 regardless of the visitor's offset.
+function daysUntil(deadline, today) {
+  const toUTCDays = (value) => {
+    const [year, month, day] = String(value).split("-").map(Number);
+    return Date.UTC(year, month - 1, day) / 86400000;
+  };
+  return Math.round(toUTCDays(deadline) - toUTCDays(today));
+}
+
+// A tender is "worth your time" right now when its deadline is close and has
+// not already passed. `row.deadline < today` used to be read as "urgent" in
+// the table, which flags exactly the opposite rows: a deadline that already
+// closed weeks ago (nothing left to do) while a deadline closing tomorrow
+// (the one that actually needs action) got no emphasis at all.
+export function isUrgent(deadline, today, windowDays = 7) {
+  if (!deadline || !today) return false;
+  const diff = daysUntil(deadline, today);
+  return diff >= 0 && diff <= windowDays;
 }
 
 export function escapeHtml(value) {

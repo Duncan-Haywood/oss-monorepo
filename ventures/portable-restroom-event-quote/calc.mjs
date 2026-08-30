@@ -178,6 +178,12 @@ export function calculateQuote(input) {
     })),
     totalUnits,
     unitDays,
+    // Returned because they are the two terms the *customer* is agreeing to —
+    // how long the units stay and how often they are serviced — so the
+    // proposal can put them in the scope. Everything else derived from them
+    // here is a cost, and the customer's copy never carries costs.
+    daysOnSite,
+    serviceVisits,
     rentalCost,
     serviceCost,
     mileageCost,

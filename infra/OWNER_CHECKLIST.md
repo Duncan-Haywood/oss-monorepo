@@ -3,6 +3,30 @@
 An agent can write this tree. It cannot mint accounts, money, or
 identities. Nothing here applies itself.
 
+## The short version: three seals, one command
+
+Three sealed secrets are what the live site, working CI, and the Codex
+worker are each waiting on. They are items 8, 9 and "Publish
+`tools.marisstella.dev`" below, and they were spread across six files
+because each was written when it became true. From a laptop with a
+kubeconfig and `kubeseal`:
+
+```bash
+./bootstrap/scripts/seal-owner-secrets.sh --dry-run   # preflight only
+./bootstrap/scripts/seal-owner-secrets.sh             # all three, in order
+```
+
+It prompts for each token with echo off, verifies against the GitHub API
+that the token can do the one thing its pod needs (a mis-scoped one is
+rejected before it becomes a CrashLoopBackOff), seals it, and wires it
+into the right `kustomization.yaml`. Only ciphertext is written. Commit
+the `*.sealed.yaml` files, push, and Argo does the rest.
+
+Read the rest of this file for what each token is and how to scope it —
+the script assumes you have already decided that. What it does not do:
+mint the tokens, flip `CI_RUNNER`, or enable the governor. Those stay
+yours, deliberately.
+
 ## Already true (from the console you pasted)
 
 - Two Helsinki servers exist: cpx52 `#163417666` and cpx22 `#163580094`.
@@ -77,12 +101,24 @@ right split.
 - Mint a **project API key**. Put `OPENAI_API_KEY` in the sealed secret.
 - Do **not** put an Admin API key in the cluster. The Admin API can raise
   the spend limit — that is the workaround. A normal project key cannot.
-- Do **not** `codex login` with your main ChatGPT/Plus/Pro account. That
-  burns the personal 5-hour / weekly quota and has no euro hard stop.
 
-Governor stays `suspend: true` / `enabled: false` until that key is
-sealed. The worker already accepts `OPENAI_API_KEY` and treats those 429
-codes as exit 42.
+**Or the plan quota, if you would rather not spend money.** Since
+2026-08-29 the worker also accepts `CODEX_AUTH_JSON` — the contents of
+`~/.codex/auth.json` after a `codex login` — and a tick on that credential
+costs nothing extra. It is a genuine alternative, not a shortcut, and the
+old warning here is the reason it is not simply the better one:
+
+- A plan has **no euro hard stop**. The ceiling is the plan's 5-hour and
+  weekly windows, which is a different kind of limit from a spend cap.
+- Those windows are shared with whoever is signed into that account. Do
+  **not** use your main ChatGPT/Plus/Pro login unless you are content for
+  the fleet to compete with your own interactive use; a separate plan seat
+  avoids the trade entirely.
+
+Seal one or the other (or both — the non-billing one wins, and the worker
+logs which it used). Either way the governor stays `suspend: true` /
+`enabled: false` until you flip it, and the worker treats the 429 spend
+codes as exit 42 and a rejected credential as exit 43.
 
 ## You do once (laptop)
 
@@ -96,8 +132,10 @@ codes as exit 42.
 4. Fine-grained GH token (agents) + read-only deploy key (Argo).
 5. Age keypair — `bootstrap/scripts/gen-age-key.sh`. Private key stays
    offline. Public key goes in `.sops.yaml`.
-6. ACME email — replace `replace-me@duncanhaywood.dev` in
-   `gitops/platform/cert-manager/issuer.yaml`.
+6. ~~ACME email~~ — **no longer required (2026-08-30).** An ACME account
+   contact is optional, so `gitops/platform/cert-manager/issuer.yaml`
+   ships without one instead of with a placeholder. Add a real address
+   later if you want Let's Encrypt's expiry warnings; nothing waits on it.
 7. Merge this PR, then from the laptop with the **write** token:
    `tofu plan` (must not replace either server) → `tofu apply` → the
    three bootstrap scripts.
@@ -105,6 +143,82 @@ codes as exit 42.
    `codex-secrets` (`OPENAI_API_KEY`, `GH_TOKEN`) in a follow-up PR.
    Only then flip `gitops/agents/governor/cronjob.yaml` `suspend: false`
    and `policy.json` `"enabled": true`.
+9. **Restore CI.** Every workflow has been red since 2026-08-26 with
+   `runner_id: 0` and zero steps — jobs that were never assigned a
+   runner, because metered Actions minutes on this private repo ran out.
+   Two steps bring it back on hardware you already pay for:
+   seal `actions-runner-secrets` from
+   `gitops/ci/secrets/actions-runner-token.template.yaml` (a
+   fine-grained PAT for this repo with **Administration: Read and
+   write**), then set the repository variable `CI_RUNNER` =
+   `self-hosted`. Clearing that variable moves all 217 workflows back to
+   GitHub-hosted runners when your minutes reset. Details and the
+   security posture: `gitops/ci/README.md`.
+
+## Publish `tools.marisstella.dev` (the whole product portfolio)
+
+This is the shortest path from "164 finished tools nobody can reach" to a
+public URL, and every step in it is yours — none of it is waiting on an
+agent. `gitops/README.md` explains *why* each one exists; this is the
+order to type them in and how to tell each worked.
+
+The build half is done and was rehearsed on 2026-08-29 with the exact
+commands the pod runs (`PAGES_BASE_URL=https://tools.marisstella.dev/
+node platform/pages/build.mjs --out=… && node platform/pages/check.mjs
+--dist=…`): 164 products, 446 pages, no dead links, and no
+`duncan-haywood.github.io` URL surviving anywhere in the output. Nothing
+about it depends on GitHub Actions (no runner since 2026-08-26) or on
+GitHub Pages (not enabled, and a private repo's Pages site is not public
+on the free tier anyway).
+
+**DNS — already done, no action needed.** `tools.marisstella.dev`
+already resolves to `89.167.29.39` (verified 2026-08-29:
+`getent hosts tools.marisstella.dev`) — `marisstella.dev`'s existing
+wildcard `A/*` record already covers the subdomain, so the A record this
+checklist used to list as step 1 does not need adding.
+
+1. **The clone token.** The repo is private, so the pod's `fetch` init
+   container cannot clone anonymously. Mint a **fine-grained** PAT — this
+   repository only, **Contents: Read-only**, nothing else — then seal it
+   exactly as `gitops/prod/secrets/portfolio-repo-token.template.yaml`
+   says, commit `portfolio-repo-token.sealed.yaml` beside the template,
+   and add that filename to `gitops/prod/kustomization.yaml`. Verify:
+   `kubectl -n prod get pods -l app=portfolio-site` goes from
+   `Init:CrashLoopBackOff` to `Running`, and
+   `kubectl -n prod logs deploy/portfolio-site -c build` ends in
+   `built … files`.
+
+2. ~~A real ACME contact.~~ **Removed 2026-08-30 — this is no longer an
+   owner action.** The issuers used to carry
+   `replace-me@duncanhaywood.dev` and this list said no certificate could
+   issue until it became a real mailbox. An ACME account contact is
+   optional, so `gitops/platform/cert-manager/issuer.yaml` now omits
+   `email` entirely and registers normally. Verify alongside step 1:
+   `kubectl -n prod get certificate` reports `READY=True`.
+
+   Optional, any time: add a real address back to both issuers to receive
+   Let's Encrypt expiry warnings. cert-manager updates the existing
+   account registration in place — no reissue, no downtime.
+
+**Step 1 is now the only thing standing between the portfolio and a live
+site.** Once it lands the site is reachable, on a Let's Encrypt
+**staging** certificate — browsers will warn, because staging is not a
+trusted root.
+
+3. **The issuer flip, last.** Only after a staging certificate has
+   issued, change the Ingress annotation
+   `cert-manager.io/cluster-issuer` in `gitops/prod/portfolio-site.yaml`
+   from `letsencrypt-staging` to `letsencrypt-prod`, and update
+   `gitops/tests/test_manifests.py::test_portfolio_site_starts_on_the_staging_certificate_issuer`
+   which pins it. Unlike 1–2 this one is not owner-only — it is an
+   ordinary code change an agent can open as a PR once you confirm the
+   staging certificate issued, and asking for it that way is less work
+   than editing two files by hand.
+
+Deliberately **not** on this list: enabling GitHub Pages. That is a
+separate queued ask (`deploy-settings`) and, on its own, would not put
+these tools in front of anyone — see `portfolio/hosting/README.md`'s
+2026-08-29 amendment.
 
 ## You do not hand to an agent
 

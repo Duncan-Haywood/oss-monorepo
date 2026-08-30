@@ -484,7 +484,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Sunroom / three-season room') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const attachment = ATTACHMENT_PRESETS.find((item) => item.id === result.attachment)?.label ?? result.attachment;
   const enclosure = ENCLOSURE_PRESETS.find((item) => item.id === result.enclosure)?.label ?? result.enclosure;
   const foundation = FOUNDATION_PRESETS.find((item) => item.id === result.foundation)?.label ?? result.foundation;

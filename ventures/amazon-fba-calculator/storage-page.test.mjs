@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareStorageSeasons, storageSeasonNote } from "./calc.mjs";
+import { INPUT_FIELDS, blendedStorageRate, compareStorageSeasons, storageSeasonNote } from "./calc.mjs";
 
 const html = readFileSync(new URL("./peak-vs-off-peak-storage.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -106,4 +106,32 @@ test("worked example on the page matches the locked comparison", () => {
 test("sitemap and index point at the peak-storage page", () => {
   assert.match(sitemap, /peak-vs-off-peak-storage\.html/);
   assert.match(index, /peak-vs-off-peak-storage\.html/);
+});
+
+// The calculator's own storage rate is a single field, but a stay crossing
+// Oct-Dec is billed at two. These guard the blend the hero number now applies,
+// and the default that keeps the previous single-rate result intact.
+test("the calculator asks how much of the stay falls in peak", () => {
+  const { markup, scripts } = parse(index);
+  const script = scripts.join("\n");
+  assert.ok(markup.includes('id="peakMonths"'), "index.html is missing #peakMonths");
+  assert.ok(INPUT_FIELDS.includes("peakMonths"), "peakMonths must be in the collected ids");
+  assert.match(script, /blendedStorageRate\(\{/, "the hero number must blend the two rates");
+  // Both the fee placeholder and the result read the blended input; a stray
+  // readInput() at either site would price a Q4 stay at the January rate.
+  assert.doesNotMatch(script, /calculateListing\(readInput\(\)\)/);
+  assert.doesNotMatch(script, /calculateListing\(\{ \.\.\.readInput\(\), fulfillmentFee: undefined \}\)/);
+});
+
+test("peak months default to zero so the single-rate result is unchanged", () => {
+  const field = parse(index).markup.match(/<input id="peakMonths"[^>]*>/);
+  assert.ok(field, "peakMonths field not found");
+  assert.match(field[0], /value="0"/);
+});
+
+test("a stay split across the seasons is billed at neither flat rate", () => {
+  const blended = blendedStorageRate({ offPeakMonths: 1, peakMonths: 2 });
+  assert.ok(blended > 0.87, "a stay with peak months costs more than the off-peak rate");
+  assert.ok(blended < 2.4, "a stay with off-peak months costs less than the all-peak rate");
+  assert.equal(blended.toFixed(2), ((1 * 0.87 + 2 * 2.4) / 3).toFixed(2));
 });

@@ -21,10 +21,14 @@ import { CHANNEL_PRESETS } from './calc.mjs';
 
 import { INPUT_FIELDS as EBAY_FIELDS } from '../ebay-fee-calculator/calc.mjs';
 import { FIELD_IDS as ETSY_FIELDS } from '../etsy-profit-calculator/share.mjs';
+import { INPUT_FIELDS as AMAZON_FIELDS } from '../amazon-fba-calculator/calc.mjs';
+import { FIELD_IDS as SHOPIFY_FIELDS } from '../shopify-fee-calculator/share.mjs';
 
 const TARGET_FIELDS = {
   'ebay-fee-calculator': EBAY_FIELDS,
   'etsy-profit-calculator': ETSY_FIELDS,
+  'amazon-fba-calculator': AMAZON_FIELDS,
+  'shopify-fee-calculator': SHOPIFY_FIELDS,
 };
 
 const SHARED = {
@@ -140,10 +144,37 @@ test('values ride in the fragment, which no server ever receives', () => {
 test('a channel with no prefillable calculator gets no link', () => {
   // A link that silently arrives showing someone else's defaults is worse
   // than no link, so these are omitted rather than pointed somewhere close.
-  for (const channel of ['amazon', 'own-store', 'local', 'other']) {
+  // `own-store` and `local` have no dedicated calculator in the portfolio that
+  // accepts inputs from a link; `other` is whatever the seller typed in, so
+  // there is nothing to point at.
+  for (const channel of ['local', 'other']) {
     assert.equal(handoffFor(channel), null, channel);
     assert.equal(handoffUrl(channel, SHARED), null, channel);
   }
+});
+
+test('Amazon carries the item into the FBA-vs-FBM calculator', () => {
+  // This page prices Amazon as one channel. The question it leaves open —
+  // whether to send the unit to FBA or ship it yourself — is the first thing
+  // the dedicated calculator answers, and it needs the item to answer it.
+  const url = handoffUrl('amazon', SHARED);
+  assert.match(url, /^\.\.\/amazon-fba-calculator\/#/);
+  const params = paramsOf(url);
+  assert.equal(params.get('salePrice'), '40');
+  assert.equal(params.get('costOfGoods'), '12');
+  assert.equal(params.get('fbmShippingCost'), '5.2');
+  assert.equal(params.get('packagingCost'), '1.1');
+});
+
+test('postage charged to the buyer is dropped on the Amazon handoff, not folded in', () => {
+  // Amazon's referral fee is charged on the order total, but that calculator
+  // takes the sale price and derives fulfilment from the size tier rather than
+  // from what the buyer paid for postage. Adding `shippingCharged` into
+  // `salePrice` would inflate the referral fee and print a worse number than
+  // the seller will actually see, so it is deliberately not carried.
+  const params = paramsOf(handoffUrl('amazon', SHARED));
+  assert.equal(params.get('salePrice'), '40', 'sale price must be the item price alone');
+  assert.equal(params.has('shippingCharged'), false);
 });
 
 test('an unknown channel id is handled rather than thrown on', () => {
@@ -162,17 +193,38 @@ test('handoffs come back best-channel first, not table-order first', () => {
     { id: 'ebay', label: 'eBay', rank: 3 },
   ];
   const offered = handoffsForResults(results, SHARED);
-  assert.deepEqual(offered.map((o) => o.channel), ['etsy', 'ebay']);
+  assert.deepEqual(offered.map((o) => o.channel), ['etsy', 'amazon', 'ebay']);
   assert.equal(offered[0].isBest, true);
   assert.equal(offered[1].isBest, false);
 });
 
 test('channels without a handoff are skipped, not rendered empty', () => {
   const offered = handoffsForResults(
-    [{ id: 'own-store', label: 'Own store', rank: 1, isBest: true }],
+    [{ id: 'local', label: 'Local / direct', rank: 1, isBest: true }],
     SHARED,
   );
   assert.deepEqual(offered, []);
+});
+
+test('an own store carries the item into the Shopify calculator', () => {
+  // This page prices an own store as "no commission, you pay the plan and card
+  // processing". Which processor is the decision it leaves open, and Shopify
+  // charges an extra third-party transaction fee on top of an outside one.
+  const url = handoffUrl('own-store', { ...SHARED, monthlyOrders: 120 });
+  assert.match(url, /^\.\.\/shopify-fee-calculator\/#/);
+  const params = paramsOf(url);
+  assert.equal(params.get('price'), '40');
+  assert.equal(params.get('costOfGoods'), '12');
+  assert.equal(params.get('shippingCharged'), '6');
+  assert.equal(params.get('packagingCost'), '1.1');
+});
+
+test('monthly order count travels to Shopify, because the plan is amortised over it', () => {
+  // Without it the plan is spread over this page's default order count rather
+  // than the seller's, and an own store can win on fees and lose on cash.
+  assert.equal(paramsOf(handoffUrl('own-store', { ...SHARED, monthlyOrders: 120 })).get('monthlyOrders'), '120');
+  // ...and no other target has a field for it, so it must not leak sideways.
+  assert.equal(paramsOf(handoffUrl('ebay', { ...SHARED, monthlyOrders: 120 })).has('monthlyOrders'), false);
 });
 
 test('each offered handoff carries a usable href and both labels', () => {

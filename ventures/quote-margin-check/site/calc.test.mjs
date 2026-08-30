@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { loadQuote, calculate, overrunScenarios, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, changeOrderPrice } from "./calc.mjs";
+import { loadQuote, calculate, overrunScenarios, targetRateLadder, targetHoursBudget, directCostSpikeScenarios, directCostSpikeSummary, discountAskScenarios, discountAskSummary, compareBillingModels, billingModelSummary, billingModelNote, loadKillFeeProgress, compareKillFee, killFeeSummary, targetPriceBreakdown, encodeQuote, decodeQuote, QUOTE_PRESETS } from "./calc.mjs";
 
 test("calculates hidden time and target price", () => {
   const quote = loadQuote({
@@ -12,12 +12,28 @@ test("calculates hidden time and target price", () => {
     overhead: 180,
     subcontractor_cost: 300,
     target_hourly_rate: 75,
+    time_buffer_percent: 20,
   });
   const result = calculate(quote);
   assert.equal(result.total_hours, 35);
   assert.ok(Math.abs(result.effective_hourly_rate - 54.8571428) < 1e-6);
   assert.equal(result.target_price, 3105);
+  assert.equal(result.break_even_price, 480);
   assert.equal(result.gap_to_target, -705);
+  assert.equal(result.minimum_price_adjustment, 705);
+  assert.equal(result.buffered_hours, 42);
+  assert.equal(result.buffered_target_price, 3630);
+  assert.equal(result.hidden_hours, 11);
+  assert.equal(result.hidden_time_percent, (11 / 35) * 100);
+  assert.equal(result.target_rate_hours, 25.6);
+  assert.ok(Math.abs(result.hours_cushion + 9.4) < 1e-9);
+});
+
+test("defaults the time buffer to zero", () => {
+  const quote = loadQuote({ price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
+  const result = calculate(quote);
+  assert.equal(result.buffered_hours, 10);
+  assert.equal(result.buffered_target_price, 1000);
 });
 
 test("defaults optional costs and time to zero", () => {
@@ -50,11 +66,20 @@ test("reports price left after direct costs", () => {
   const quote = loadQuote({ price: 1000, delivery_hours: 10, overhead: 125, subcontractor_cost: 75, target_hourly_rate: 80 });
   assert.equal(calculate(quote).cost_coverage, 800);
   assert.equal(calculate(quote).discount_room, 0);
+  assert.equal(calculate(quote).minimum_price_adjustment, 0);
 });
 
 test("reports discount room above target without recommending a price", () => {
   const quote = loadQuote({ price: 4000, delivery_hours: 10, target_hourly_rate: 100 });
   assert.equal(calculate(quote).discount_room, 3000);
+  assert.equal(calculate(quote).minimum_price_adjustment, 0);
+});
+
+test("reports target-rate capacity from the quoted price", () => {
+  const quote = loadQuote({ price: 1500, delivery_hours: 10, admin_hours: 2, revision_hours: 1, overhead: 100, target_hourly_rate: 100 });
+  const result = calculate(quote);
+  assert.equal(result.target_rate_hours, 14);
+  assert.equal(result.hours_cushion, 1);
 });
 
 test("currency defaults and is trimmed", () => {
@@ -75,6 +100,16 @@ test("calculates transparent overrun sensitivity without changing the quote", ()
   assert.deepEqual(overrunScenarios(quote, report).map((scenario) => scenario.total_hours), [38.5, 43.75, 52.5]);
   assert.equal(overrunScenarios(quote, report)[0].effective_hourly_rate, 49.87012987012987);
   assert.equal(report.total_hours, 35);
+});
+
+test("builds a target-rate ladder from the same hours and direct costs", () => {
+  const quote = loadQuote({ price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 });
+  const report = calculate(quote);
+  assert.deepEqual(targetRateLadder(quote, report, [50, 75, 100]), [
+    { hourly_rate: 50, target_price: 2230, difference_from_quote: -170 },
+    { hourly_rate: 75, target_price: 3105, difference_from_quote: 705 },
+    { hourly_rate: 100, target_price: 3980, difference_from_quote: 1580 },
+  ]);
 });
 
 test("compares a cost rise without changing hours or the quoted price", () => {
@@ -414,18 +449,33 @@ test("breaks target price into delivery, hidden time, and direct costs", () => {
   });
 });
 
-test("prices extra scope at the quote's target rate plus new direct costs", () => {
-  const quote = loadQuote({ price: 2400, delivery_hours: 24, target_hourly_rate: 75 });
-  assert.deepEqual(changeOrderPrice(quote, 4, 60), {
-    extra_hours: 4,
-    extra_direct_costs: 60,
-    target_price: 360,
-    effective_hourly_rate: 75,
-  });
+test("share links round-trip validated quote inputs from query or fragment", () => {
+  const quote = loadQuote({ currency: "EUR", price: 1800, delivery_hours: 12, admin_hours: 2.5, revision_hours: 1, overhead: 40, subcontractor_cost: 120, target_hourly_rate: 90 });
+  assert.deepEqual(decodeQuote(`?${encodeQuote(quote)}`), quote);
+  assert.deepEqual(decodeQuote(`#${encodeQuote(quote)}`), quote);
 });
 
-test("rejects negative or non-finite change-order inputs", () => {
-  const quote = loadQuote({ price: 1000, delivery_hours: 10, target_hourly_rate: 100 });
-  assert.throws(() => changeOrderPrice(quote, -1));
-  assert.throws(() => changeOrderPrice(quote, 1, Infinity));
+test("share links require the core quote fields", () => {
+  assert.equal(decodeQuote("currency=USD&price=100"), null);
+  assert.throws(() => decodeQuote("price=100&delivery_hours=2&target_hourly_rate=50&admin_hours=not-a-number"));
+});
+
+test("presets are valid editable starting points", () => {
+  for (const preset of Object.values(QUOTE_PRESETS)) {
+    const quote = loadQuote({ currency: "USD", ...preset });
+    assert.ok(calculate(quote).total_hours > 0);
+  }
+});
+
+test("target-rate hours budget is leftover cash divided by the supplied rate", () => {
+  const quote = loadQuote({
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+  });
+  assert.equal(targetHoursBudget(quote, calculate(quote)), 25.6);
 });

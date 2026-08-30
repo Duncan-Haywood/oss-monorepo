@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { encodeInputs, decodeInputs, FIELD_IDS } from './share.mjs';
 
 test('round-trips a full set of inputs unchanged', () => {
@@ -145,4 +146,24 @@ test('carries Etsy label fields so a shared link does not drop the label table',
   assert.equal(decoded.thirdPartyClaimRatePercent, 2.5);
   assert.equal(decoded.labelUploadMinutes, 4);
   assert.equal(decoded.monthlyLabelShipments, 40);
+});
+
+test('carries the repricing goals so a link and a return visit keep the target', () => {
+  const decoded = decodeInputs(encodeInputs({ price: 30, targetMargin: 65, targetProfit: 12.5 }));
+  assert.equal(decoded.targetMargin, 65);
+  assert.equal(decoded.targetProfit, 12.5);
+});
+
+// The guard on the defect above, rather than another example of it.
+//
+// `targetMargin` and `targetProfit` went missing because the allowlist is a
+// second copy of the form, kept by hand: the page grew two inputs and this list
+// did not, and nothing anywhere compared them. So compare them. Every number
+// input the page ships must be carried, and nothing may be carried that the
+// page does not have — a stale id would silently never restore.
+test('the field list is exactly the number inputs the page ships', async () => {
+  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const ids = [...html.matchAll(/<input\b[^>]*\bid="([^"]+)"[^>]*\btype="number"/g)].map(m => m[1]);
+  assert.ok(ids.length > 40, `expected the form to be found, saw ${ids.length} number inputs`);
+  assert.deepEqual([...FIELD_IDS].sort(), [...new Set(ids)].sort());
 });

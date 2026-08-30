@@ -12,6 +12,13 @@ test("calculator page prices extra scope as a change-order floor", async () => {
   assert.match(page, /arithmetic floor/);
 });
 
+test("calculator page prices a time-buffered target", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="time_buffer_percent"/);
+  assert.match(page, /buffered_target_price/);
+  assert.match(page, /time_buffer_compared/);
+});
+
 test("calculator page renders the cost-rise table and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="cost-spike"/);
@@ -47,9 +54,12 @@ test("SEO page numbers match the calculator defaults", async () => {
 test("calculator page renders the discount-ask table and records the event", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="discount-ask"/);
+  assert.match(page, /id="copy-discounts"/);
+  assert.match(page, /Copy discount ladder/);
   assert.match(page, /discountAskScenarios/);
   assert.match(page, /discountAskSummary/);
   assert.match(page, /discount_ask_compared/);
+  assert.match(page, /discount_ladder_copied/);
   assert.match(page, /if-they-ask-for-10-percent-off\.html/);
   assert.match(page, /Hours to cut to hold target/);
   assert.match(page, /quoteCsv/);
@@ -188,6 +198,15 @@ test("calculator page can export and import a portable draft file", async () => 
   assert.match(page, /Download draft/);
 });
 
+test("calculator page can download a private plain-text review summary", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="download-summary"/);
+  assert.match(page, /Download review summary/);
+  assert.match(page, /quote-margin-review\.txt/);
+  assert.match(page, /review_summary_downloaded/);
+  assert.match(page, /formatReviewSummary/);
+});
+
 test("calculator page can download a local JSON report", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="download-report"/);
@@ -216,12 +235,43 @@ test("offers portable Markdown review actions", async () => {
   assert.match(page, /quote-margin-review\.md/);
 });
 
+test("calculator page renders a target-rate price ladder", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="ladder"/);
+  assert.match(page, /targetRateLadder/);
+  assert.match(page, /rate_ladder_compared/);
+  assert.match(page, /Price ladder/);
+});
+
+test("calculator page records a local send, revise, or hold after the review", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /reviewDecision/);
+  assert.match(page, /data-decision="send"/);
+  assert.match(page, /data-decision="revise"/);
+  assert.match(page, /data-decision="hold"/);
+  assert.match(page, /quote_decision_\$\{action\}/);
+  assert.match(page, /I'll send it/);
+});
+
+test("calculator page copies a fragment share link and prefers it over a local draft", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="copy-share-link"/);
+  assert.match(page, /encodeQuote/);
+  assert.match(page, /decodeQuote/);
+  assert.match(page, /url\.hash = encodeQuote/);
+  assert.match(page, /share_link_copied/);
+  assert.match(page, /decodeQuote\(window\.location\.hash\)/);
+});
+
 test("calculator page copies a proposal-ready review summary", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(page, /id="copy-summary"/);
   assert.match(page, /formatReviewSummary/);
+  assert.match(page, /overrunRows: overrunScenarios/);
   assert.match(page, /review_summary_copied/);
   assert.match(page, /Copy review summary/);
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\("copy"\)/);
 });
 
 test("calculator page renders the fixed-vs-hourly comparison and records the event", async () => {
@@ -262,4 +312,46 @@ test("fixed-vs-hourly SEO page numbers match the calculator defaults", async () 
   assert.match(page, /No warranty/);
   assert.match(page, /no SLA/);
   assert.match(page, /GitHub Sponsors/);
+});
+
+test("calculator page offers editable quote starting points, not recommendations", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /id="preset"/);
+  assert.match(page, /QUOTE_PRESETS/);
+  assert.match(page, /quote_preset_selected/);
+  assert.match(page, /editable examples, not pricing recommendations/);
+  assert.doesNotMatch(page, /should use this preset|must start from/i);
+});
+
+test("calculator page shows the target-rate hours budget without recommending a cut", async () => {
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /r\.target_rate_hours/);
+  assert.match(page, /Hours supported at target rate/);
+  assert.match(page, /hours_budget_shown/);
+  assert.doesNotMatch(page, /should cut hours|must reduce scope/i);
+});
+
+test("the hours-budget field says none rather than a negative hour count", async () => {
+  // The dl renders r.target_rate_hours, which is signed and goes negative once
+  // direct costs pass the price. Guard the branch that catches that here: the
+  // dl is built by a template literal, so calc.test.mjs stays green whatever
+  // this field renders.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /r\.cost_coverage <= 0 \? `none — direct costs leave nothing to pay for time`/);
+});
+
+test("every scenario panel on the page reports a usage signal of its own", async () => {
+  // The overrun table shipped without one, so nothing recorded whether the
+  // time-overrun view was ever read while every panel beside it was counted.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  for (const event of [
+    "overrun_sensitivity_compared",
+    "cost_spike_compared",
+    "discount_ask_compared",
+    "billing_model_compared",
+    "rate_ladder_compared",
+    "hours_budget_shown",
+  ]) {
+    assert.match(page, new RegExp(`recordEvent\\("${event}"\\)`), `${event} is not recorded`);
+  }
 });

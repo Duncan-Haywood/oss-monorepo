@@ -60,6 +60,10 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .span2 { grid-column: 1 / -1; }
     .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -75,7 +79,16 @@
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
 </head>
 <body>
   <header>
@@ -186,6 +199,12 @@
       merchant funding.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Is Shopify Capital a loan?</h3>
+  <p>Shopify Capital is usually a merchant cash advance: you receive a lump sum and repay a larger amount by remitting a holdback percent of daily sales. The gap between repayment and the advance is a fee, not a stated APR. This page turns that fee into a simple annualized cost over the days the holdback lasts. That figure is arithmetic on your inputs, not a Truth-in-Lending APR and not financial advice.</p>
+  <h3>When does Shopify Capital still pay?</h3>
+  <p>It pays when the extra profit you can only earn by having the cash now covers the fee before the holdback finishes. This calculator shows the fee, days of holdback, a wait-and-save path from leftover profit, a bank line at a typed APR, and the extra monthly profit that would make Capital match waiting. Leave extra monthly profit at zero if you are not buying inventory or running a campaign you would otherwise skip.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -203,7 +222,11 @@
       "paymentsRate", "paymentsFixed", "costOfGoods", "shippingCost",
       "packagingCost", "otherCost", "monthlyPlan", "monthlyOrders", "targetMargin",
     ];
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
 
     function readInput() {
       return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));

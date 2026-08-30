@@ -44,3 +44,17 @@ test("index and sitemap point at the plan-upgrade comparison", () => {
   assert.match(index, /basic-vs-grow\.html/);
   assert.match(sitemap, /basic-vs-grow\.html/);
 });
+
+test("index surfaces compareShopPayInstallments on the order itself", () => {
+  assert.match(index, /compareShopPayInstallments/);
+  assert.match(index, /id="installmentCompare"/);
+  assert.match(index, /id="installmentHeadline"/);
+  assert.match(index, /shop_pay_installments_compared/);
+  assert.match(index, /id="installmentRate"/);
+  assert.match(index, /should-i-offer-shop-pay-installments\.html/);
+  const table = index.match(/<table id="installmentTable">[\s\S]*?<\/table>/);
+  assert.ok(table, "index.html is missing the installment comparison table");
+  const columns = table[0].match(/<th\b/g).length;
+  const cells = (index.match(/installment\.rows\.map[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "installment row emits a different cell count than the header");
+});

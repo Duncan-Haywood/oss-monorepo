@@ -34,20 +34,37 @@ async function ventureCopies(filename) {
   return found;
 }
 
-for (const filename of ['proposal.mjs', 'proposal.test.mjs']) {
-  test(`every venture copy of ${filename} matches platform/proposal`, async () => {
-    const canonical = await readFile(new URL(filename, HERE), 'utf8');
+// `terms.mjs` is vendored under a different name: `einvoice-preflight` already
+// ships a `terms.mjs` of its own about invoice payment terms, and two unrelated
+// files with one name is how a sync test starts comparing the wrong pair.
+const VENDORED = [
+  ['proposal.mjs', 'proposal.mjs'],
+  ['proposal.test.mjs', 'proposal.test.mjs'],
+  ['terms.mjs', 'proposal-terms.mjs'],
+  ['terms.test.mjs', 'proposal-terms.test.mjs'],
+];
+
+for (const [canonicalName, filename] of VENDORED) {
+  test(`every venture copy of ${filename} matches platform/proposal/${canonicalName}`, async () => {
+    let canonical = await readFile(new URL(canonicalName, HERE), 'utf8');
+    // The vendored suite imports the module beside it, under its vendored name.
+    if (canonicalName === 'terms.test.mjs') {
+      canonical = canonical.replace("} from './terms.mjs';", "} from './proposal-terms.mjs';");
+    }
     const copies = await ventureCopies(filename);
     assert.ok(copies.length > 0, `no venture has adopted ${filename}; delete it here or wire it up`);
     const drifted = copies.filter((copy) => copy.source !== canonical).map((copy) => copy.slug);
-    assert.deepEqual(drifted, [], `these copies have drifted from platform/proposal/${filename}: ${drifted.join(', ')}`
+    assert.deepEqual(drifted, [], `these copies have drifted from platform/proposal/${canonicalName}: ${drifted.join(', ')}`
       + '\nFix the canonical file, then copy it into every venture that has one.');
   });
 }
 
-test('a venture that ships the module also ships its tests', async () => {
-  const modules = (await ventureCopies('proposal.mjs')).map((copy) => copy.slug);
-  const tests = new Set((await ventureCopies('proposal.test.mjs')).map((copy) => copy.slug));
-  const untested = modules.filter((slug) => !tests.has(slug));
-  assert.deepEqual(untested, [], `these ventures vendor proposal.mjs with no tests: ${untested.join(', ')}`);
-});
+for (const module of ['proposal.mjs', 'proposal-terms.mjs']) {
+  test(`a venture that ships ${module} also ships its tests`, async () => {
+    const modules = (await ventureCopies(module)).map((copy) => copy.slug);
+    const suite = module.replace(/\.mjs$/, '.test.mjs');
+    const tests = new Set((await ventureCopies(suite)).map((copy) => copy.slug));
+    const untested = modules.filter((slug) => !tests.has(slug));
+    assert.deepEqual(untested, [], `these ventures vendor ${module} with no tests: ${untested.join(', ')}`);
+  });
+}

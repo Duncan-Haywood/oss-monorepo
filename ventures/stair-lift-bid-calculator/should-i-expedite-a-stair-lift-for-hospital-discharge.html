@@ -21,7 +21,10 @@
     th:first-child, td:first-child { text-align: left; }
     .cta { display: inline-block; margin: 18px 0; padding: 12px 16px; background: #2d2218; color: #f6efe3; border-radius: 8px; text-decoration: none; font-weight: 700; }
     footer { margin-top: 36px; font-size: .85rem; color: #5c5346; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="index.html">← Stair lift bid calculator</a></p>
@@ -56,6 +59,14 @@
   <h2>How to use the comparison</h2>
   <p>Open the <a href="index.html">stair lift bid calculator</a>, pick the cheap-special or losing-job preset, and put their Saturday number in “price you’re considering.” The access table scores that number against a weekday slot, discharge week while they stay home, and Saturday / after-hours. Nothing is uploaded.</p>
   <p>This is the same arithmetic as <a href="how-much-to-charge-to-install-a-stair-lift.html">how much to charge to install a stair lift</a>. It is not a medical-discharge plan, a labor-law determination, or a reason to refuse a customer — it is the walk-away number on each access window.</p>
+
+  <h2>Common questions</h2>
+  <h3>Should I expedite a stair lift for hospital discharge?</h3>
+  <p>Only after you price next-day rail freight plus a slower occupied set, or Saturday overtime plus a second dispatch. A $3,995 Facebook special on a straight indoor rail sits under that walk-away number even on a weekday slot.</p>
+  <h3>Does a discharge-week install change the bid?</h3>
+  <p>Yes. Same wage, slower rail, set, chair, and punch-list, plus a starting next-day rail ticket. On a typical straight indoor rail the discharge-week bid is $6,190.67 versus $5,333.37 when they can wait for a weekday slot and ground freight.</p>
+  <h3>Can I take the weekday $4,500 number on Saturday?</h3>
+  <p>Usually not on the job they actually want. On a cheap straight indoor rail the after-hours walk-away is $5,354.39. $4,500 covers a weekday slot and loses $854.39 after hours. On a curved heavy-duty job, $2,495 still loses money even on the weekday.</p>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not building-code, accessibility, medical-device, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

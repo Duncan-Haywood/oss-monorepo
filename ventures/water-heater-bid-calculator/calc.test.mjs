@@ -90,6 +90,20 @@ test('propane is not modelled; a gas tankless still adds the upsize kit that a â
   assert.ok(existing.warnings.some((line) => /3\/4 in/.test(line)));
 });
 
+test('the gas-upsize FAQ\'s worked numbers stay locked to the arithmetic they describe', () => {
+  // index.html's FAQ (and its FAQPage JSON-LD) quotes an exact dollar and hour
+  // delta for a 10-foot gas-tankless run. If calc.mjs's rates ever change,
+  // this test breaks before the page quietly starts lying to a reader.
+  const base = { ...typical(), heaterType: 'tankless_gas', tanklessGpm: 7, gasLineFeet: 10 };
+  const existing = calculateBid({ ...base, gasLine: 'existing_ok' });
+  const upsize = calculateBid({ ...base, gasLine: 'upsize_3_4' });
+  assert.equal(existing.price.toFixed(2), '1525.94');
+  assert.equal(upsize.price.toFixed(2), '2329.59');
+  assert.ok(Math.abs(upsize.laborHours - existing.laborHours - 4) < 1e-9);
+  assert.equal((upsize.materialsCost - existing.materialsCost).toFixed(2), '270.00');
+  assert.equal(Math.round(upsize.price - existing.price), 804);
+});
+
 test('power-vent and concentric vents are a different takeoff than reusing the B-vent', () => {
   const reuse = calculateBid({
     ...typical(),

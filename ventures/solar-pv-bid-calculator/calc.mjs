@@ -195,7 +195,11 @@ export function calculateBid(input) {
  * Costs and wages are omitted on purpose — this is the customer-facing side.
  */
 export function formatBidSummary(result) {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const watts = result.dcWatts.toLocaleString('en-US');
   return [
     'SOLAR PV INSTALL BID',

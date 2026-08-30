@@ -6,7 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { compareAgedInventory } from "./calc.mjs";
+import { compareAgedInventory, compareHoldVsRemove } from "./calc.mjs";
 
 const html = readFileSync(new URL("./should-i-remove-aged-amazon-inventory.html", import.meta.url), "utf8");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -42,11 +42,15 @@ test("every raw-text element is closed", () => {
 test("the page imports the comparison it claims to run", () => {
   assert.match(scriptSource, /compareAgedInventory/);
   assert.match(scriptSource, /aged_inventory_compared/);
+  assert.match(scriptSource, /compareHoldVsRemove/);
+  assert.match(scriptSource, /hold_vs_remove_compared/);
 });
 
 test("every results column has a cell, and every cell has a column", () => {
   assert.ok(rowTemplate, "could not find the per-path <tr> template");
-  const headers = [...markup.matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
+  const firstTable = markup.match(/<table>[\s\S]*?<\/table>/);
+  assert.ok(firstTable, "could not find the keep-vs-dispose table");
+  const headers = [...firstTable[0].matchAll(/<th scope="col"[^>]*>([\s\S]*?)<\/th>/g)].map((m) =>
     m[1].replace(/\s+/g, " ").trim());
   const cells = (rowTemplate[0].match(/<t[hd][\s>]/g) || []).length;
   assert.equal(
@@ -118,4 +122,63 @@ test("hosted surface carries the no-SLA sentence the playbook requires", () => {
 test("index and sitemap point at the aged-inventory comparison", () => {
   assert.match(index, /should-i-remove-aged-amazon-inventory\.html/);
   assert.match(sitemap, /should-i-remove-aged-amazon-inventory\.html/);
+});
+
+test("hold-vs-remove defaults on the page still prefer holding a $29.99 leftover", () => {
+  assert.match(html, /id="remainingUnits"[^>]*value="20"/);
+  assert.match(html, /id="expectedMonthsToSell"[^>]*value="3"/);
+  assert.match(html, /id="monthsAlreadyStored"[^>]*value="5"/);
+  const decision = compareHoldVsRemove({
+    remainingUnits: 20,
+    expectedMonthsToSell: 3,
+    monthsAlreadyStored: 5,
+    agedStartsAfterMonths: 6,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 1.5,
+    removalFeePerUnit: 1.04,
+    salvagePerUnit: 0,
+    cubicFeet: (8 * 6 * 2) / 1728,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: 4.15,
+    adsPerUnit: 0,
+  });
+  assert.equal(decision.betterPath, "hold");
+  assert.match(markup, /id="hold-vs-remove"/);
+});
+
+test("the expected-horizon row is marked as the seller's own, not as the best one", () => {
+  // `tr.best` is this page's "winning option" bold, and the sibling pages use
+  // `tr.winner-row` the same way. The hold-vs-remove scenarios table marks the
+  // horizon the seller *said they expect*, which is usually not the highest-cash
+  // row -- holding costs accrue, so a shorter horizon nets more. On the shipped
+  // defaults, 1 month nets $446.66 against $441.40 at the typed 3 months, so
+  // bolding the 3-month row claimed a recommendation the arithmetic contradicts.
+  assert.match(html, /tr\.yours td \{/, "the expected-horizon row needs its own style");
+  assert.doesNotMatch(
+    html,
+    /expectedMonthsToSell \? "best"/,
+    "expected horizon must not reuse the winning-option class",
+  );
+  assert.match(html, /expectedMonthsToSell \? "yours"/);
+  assert.match(html, /\(you expect\)/, "the marked row should say why it is marked");
+
+  // The claim the comment rests on: a shorter horizon really does net more, so
+  // "your horizon" and "best horizon" are genuinely different rows here.
+  const at = (months) => compareHoldVsRemove({
+    remainingUnits: 20,
+    expectedMonthsToSell: months,
+    monthsAlreadyStored: 5,
+    agedStartsAfterMonths: 6,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 1.5,
+    removalFeePerUnit: 1.04,
+    salvagePerUnit: 0,
+    cubicFeet: (8 * 6 * 2) / 1728,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: 4.15,
+    adsPerUnit: 0,
+  }).holdAdvantage;
+  assert.ok(at(1) > at(3), "a shorter horizon nets more, so the typed row is not the best row");
 });

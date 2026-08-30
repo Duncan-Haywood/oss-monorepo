@@ -31,6 +31,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: A seller arriving from the cross-channel comparison with the item already filled in will read the FBA-versus-FBM split, where one asked to retype eighty inputs will not — so the handoff, not the depth of this page, decides whether its scenarios are used at all.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will come back to a saved scenario link for the same SKU when the supplier quote or the fee preview changes, rather than re-entering the listing from scratch.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

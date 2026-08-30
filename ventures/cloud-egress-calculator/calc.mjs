@@ -72,6 +72,33 @@ export function compareScenarios(input = {}) {
   };
 }
 
+/**
+ * Ticket-ready text for a migration review. Totals and the cheaper option
+ * only — no stored-GB, request, or rate-sheet inputs, so a copied note
+ * cannot leak a price sheet.
+ */
+export function decisionSummary(input = {}) {
+  const firstName = input.first?.name || "Option A";
+  const secondName = input.second?.name || "Option B";
+  const result = compareScenarios({
+    first: { ...input.first },
+    second: { ...input.second },
+  });
+  const cheaperName = result.cheaper === "first" ? firstName : result.cheaper === "second" ? secondName : null;
+  const lines = [
+    "Cloud egress cost comparison",
+    `${firstName}: $${result.first.total.toFixed(2)}/month`,
+    `${secondName}: $${result.second.total.toFixed(2)}/month`,
+  ];
+  if (cheaperName) lines.push(`${cheaperName} is cheaper by $${result.savings.toFixed(2)}/month.`);
+  else lines.push("Both options have the same monthly cost.");
+  if (result.annualSavings) {
+    lines.push(`Annual impact: $${result.annualSavings.toFixed(2)}.`);
+  }
+  lines.push("Review current provider price sheets before relying on this estimate.");
+  return lines.join("\n");
+}
+
 export function reviewRecord(input = {}) {
   const workload = {
     storageGb: nonNegative(input.storageGb, "Storage"),
@@ -161,7 +188,9 @@ export function compareCdn(input = {}) {
 }
 
 function money(value) {
-  return `$${value.toFixed(2)}`;
+  const format = (value) => `$${value.toFixed(2)}`;
+  const text = format(Math.abs(value));
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 export function cdnNote(result) {

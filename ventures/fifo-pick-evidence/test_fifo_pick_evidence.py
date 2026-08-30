@@ -36,6 +36,26 @@ class FifoEvidenceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 read_report(path)
 
+    def test_headers_only_csv_is_a_clean_zero_row_report_not_a_missing_column_error(self):
+        # A pick log with every required column but nothing picked yet (a
+        # scheduled check run before the first pick of the day, or a filtered
+        # export) is a valid, empty report -- not a malformed file. Column
+        # detection has to come from the header row itself, not from row zero.
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "picks.csv"
+            path.write_text("order_id,sku,lot,received_at,picked_at\n")
+            report = read_report(path)
+            self.assertEqual(report["rows_checked"], 0)
+            self.assertEqual(report["status"], "no-observations")
+            self.assertEqual(report["observations"], [])
+
+    def test_completely_empty_file_still_reports_missing_columns(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "picks.csv"
+            path.write_text("")
+            with self.assertRaises(ValueError):
+                read_report(path)
+
 
 if __name__ == "__main__":
     unittest.main()

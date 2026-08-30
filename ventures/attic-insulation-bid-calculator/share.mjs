@@ -7,6 +7,14 @@
 
 export const SHARE_FIELDS = Object.freeze([
   'areas',
+  // The product the bid is for. Not arithmetic — the four rates it stamps are
+  // — but it names the material in the scope lines the customer reads
+  // ("blow blown fiberglass over 894 sq ft…"), and it used to be reconstructed
+  // on arrival by matching those rates back against the preset table. A setter
+  // who typed their own bag price, which is the ordinary case, matched
+  // nothing: the recipient's page fell to "Other / custom rates" and the
+  // proposal it drafted said only "blow insulation".
+  'productType',
   'rPerInch',
   'cuFtPerBag',
   'pricePerBag',

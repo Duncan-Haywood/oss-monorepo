@@ -78,8 +78,19 @@ export function computeAll(values) {
   const retainageWithheld = round2(values.contractValue * values.retainagePct / 100);
   const earnedUnpaid = round2(Math.max(0, values.contractValue - values.paidToDate));
   const retainageStillUnpaid = round2(Math.min(retainageWithheld, earnedUnpaid));
-  const carryingCost = round2(earnedUnpaid * values.annualCarryingRatePct / 100 * values.daysOutstanding / 365);
-  return { retainageWithheld, retainageStillUnpaid, earnedUnpaid, carryingCost, totalCashOutstanding: round2(earnedUnpaid + carryingCost) };
+  const unroundedDailyCarryingCost = earnedUnpaid * values.annualCarryingRatePct / 100 / 365;
+  const dailyCarryingCost = round2(unroundedDailyCarryingCost);
+  const thirtyDayDelayCost = round2(unroundedDailyCarryingCost * 30);
+  const carryingCost = round2(unroundedDailyCarryingCost * values.daysOutstanding);
+  return {
+    retainageWithheld,
+    retainageStillUnpaid,
+    earnedUnpaid,
+    dailyCarryingCost,
+    thirtyDayDelayCost,
+    carryingCost,
+    totalCashOutstanding: round2(earnedUnpaid + carryingCost),
+  };
 }
 
 // Common AIA-style reduction: withhold the full retainage rate on completed
@@ -284,7 +295,11 @@ export function partialReleaseNote(comparison) {
   if (!comparison?.waive || !comparison?.accelerate || !comparison?.wait) {
     throw new Error('Partial-release comparison is missing rows');
   }
-  const money = value => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const { partialOffer, fullRelease, remainder, waitDays, waive, accelerate, wait } = comparison;
   const waitPhrase = waitDays === 0
     ? `Full retainage available today is ${money(fullRelease)}.`
@@ -304,7 +319,24 @@ export function followUpDraft({ projectName, payerName, invoiceReference, dueDat
   const invoice = invoiceReference?.trim() || '[invoice or pay application reference]';
   const due = dueDate?.trim() || '[due date]';
   const retainage = result.retainageStillUnpaid ?? result.retainageWithheld;
-  return [`Subject: Payment status request — ${project}`, '', `Hello ${payer},`, '', `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${retainage.toFixed(2)} in retainage based on the figures in my worksheet.`, '', 'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.', '', 'Thank you,', '[your name]', '', 'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.'].join('\n');
+  const delayLine = Number.isFinite(result.dailyCarryingCost) && Number.isFinite(result.thirtyDayDelayCost)
+    ? `Using my carrying-cost assumption, each additional day represents approximately ${currency}${result.dailyCarryingCost.toFixed(2)} in modeled carrying cost; a 30-day delay would model approximately ${currency}${result.thirtyDayDelayCost.toFixed(2)}.`
+    : null;
+  return [
+    `Subject: Payment status request — ${project}`,
+    '',
+    `Hello ${payer},`,
+    '',
+    `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${retainage.toFixed(2)} in retainage based on the figures in my worksheet.`,
+    ...(delayLine ? [delayLine] : []),
+    '',
+    'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.',
+    '',
+    'Thank you,',
+    '[your name]',
+    '',
+    'Review the figures, contract, payment terms, and local requirements before sending. This draft is not legal advice.',
+  ].join('\n');
 }
 
 export function worksheetSummary({ projectName, payerName, invoiceReference, dueDate, values, result, scenarios = [], release = null, partialRelease = null, rateRows = [] }) {
@@ -324,6 +356,8 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
     `Earned but unpaid: $${result.earnedUnpaid.toFixed(2)}`,
     `Days since payment was due: ${values.daysOutstanding}`,
     `Annual carrying-cost assumption: ${values.annualCarryingRatePct.toFixed(1)}%`,
+    ...(Number.isFinite(result.dailyCarryingCost) ? [`Modeled cost per additional day: $${result.dailyCarryingCost.toFixed(2)}`] : []),
+    ...(Number.isFinite(result.thirtyDayDelayCost) ? [`Modeled cost of another 30 days: $${result.thirtyDayDelayCost.toFixed(2)}`] : []),
     `Modeled carrying cost: $${result.carryingCost.toFixed(2)}`,
     `Total modeled cash outstanding: $${result.totalCashOutstanding.toFixed(2)}`,
     ...(scenarios.length ? ['', 'Further-delay scenarios (modeled):', ...scenarios.map(s => `+${s.days} days: $${s.totalCashOutstanding.toFixed(2)} outstanding; $${s.additionalCarryingCost.toFixed(2)} added carrying cost`)] : []),
@@ -344,5 +378,65 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
     }), rateComparisonNote(rateRows)] : []),
     '',
     'This is a private worksheet export, not advice or evidence of entitlement. Verify the figures, contract, payment terms, and local requirements before relying on it.'
+  ].join('\n');
+}
+
+export function evidenceSnapshot({ inputs, result, projectName = '', payerName = '', invoiceReference = '', dueDate = '' }) {
+  const { inputs: _resultInputs, values: _resultValues, ...modeledResults } = result;
+  return {
+    exportedAt: new Date().toISOString(),
+    product: 'construction-retainage-calculator',
+    project: { projectName: projectName.trim(), payerName: payerName.trim(), invoiceReference: invoiceReference.trim(), dueDate: dueDate.trim() },
+    inputs,
+    modeledResults,
+    note: 'User-provided inputs and deterministic modeled results. Review against the contract and records; this is not legal, tax, financial, or engineering advice.'
+  };
+}
+
+export function paymentScheduleSummary(rows, currency = '$') {
+  const validRows = rows.filter(row => String(row.label || '').trim() || row.billed || row.paid);
+  if (!validRows.length) return 'No payment milestones provided.';
+  const lines = validRows.map((row, index) => {
+    const billed = Number(row.billed) || 0;
+    const paid = Number(row.paid) || 0;
+    const outstanding = Math.max(0, billed - paid);
+    return `${index + 1}. ${String(row.label || '').trim() || `Milestone ${index + 1}`} | billed ${currency}${billed.toFixed(2)} | paid ${currency}${paid.toFixed(2)} | outstanding ${currency}${outstanding.toFixed(2)}`;
+  });
+  return ['Payment milestone schedule', '=========================', ...lines, '', 'Review this schedule against invoices, payment applications, and bank records before relying on it.'].join('\n');
+}
+
+export function summaryText({ projectName, result, currency = '$' }) {
+  const project = projectName?.trim() || '[project name]';
+  const stillUnpaid = result.retainageStillUnpaid ?? result.retainageWithheld;
+  return [
+    `Retainage cash-flow summary: ${project}`,
+    `Retainage withheld: ${currency}${result.retainageWithheld.toFixed(2)}`,
+    `Retainage still unpaid: ${currency}${stillUnpaid.toFixed(2)}`,
+    `Earned but unpaid: ${currency}${result.earnedUnpaid.toFixed(2)}`,
+    `Modeled carrying cost: ${currency}${result.carryingCost.toFixed(2)}`,
+    `Total modeled cash outstanding: ${currency}${result.totalCashOutstanding.toFixed(2)}`,
+    '',
+    'Numbers-only snapshot for a bookkeeper. The full worksheet export includes delay scenarios, release math, and the follow-up draft. Scenario only. Review the contract, payment terms, and local requirements. Not legal, tax, financial, or engineering advice.',
+  ].join('\n');
+}
+
+export function cashFlowRecordText({ projectName, invoiceReference, dueDate, result, currency = '$', generatedDate = new Date().toISOString().slice(0, 10) }) {
+  const project = projectName?.trim() || '[project name]';
+  const invoice = invoiceReference?.trim() || '[invoice or pay application reference]';
+  const due = dueDate?.trim() || '[due date]';
+  return [
+    'CONSTRUCTION RETAINAGE CASH-FLOW RECORD',
+    `Generated: ${generatedDate}`,
+    `Project: ${project}`,
+    `Invoice / pay application: ${invoice}`,
+    `Payment due: ${due}`,
+    '',
+    `Retainage withheld: ${currency}${result.retainageWithheld.toFixed(2)}`,
+    `Earned but unpaid: ${currency}${result.earnedUnpaid.toFixed(2)}`,
+    `Modeled carrying cost: ${currency}${result.carryingCost.toFixed(2)}`,
+    `Total modeled cash outstanding: ${currency}${result.totalCashOutstanding.toFixed(2)}`,
+    '',
+    'This is a user-entered scenario and account-record aid, not a determination of interest, payment deadline, lien right, entitlement, or legal remedy.',
+    'Review the figures and supporting records before relying on or sharing this record.'
   ].join('\n');
 }

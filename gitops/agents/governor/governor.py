@@ -99,6 +99,11 @@ class QueueItem:
     enabled: bool = True
     ref: str = "main"
     workdir: str = ""
+    # Who pushes the branch and opens the PR. "harness" (the default) means
+    # worker.sh folds the working tree into one commit and opens the PR after
+    # the agent exits. "agent" means the item's own prompt does it, which is
+    # the only workable mode for a task that spans several branches.
+    delivery: Literal["harness", "agent"] = "harness"
 
 
 @dataclass(frozen=True)
@@ -143,6 +148,9 @@ def queue_item_from_dict(raw: dict[str, Any]) -> QueueItem:
     model_class = raw.get("modelClass") or raw.get("model_class") or "chore"
     if model_class not in ("chore", "deep"):
         raise ValueError(f"unsupported modelClass: {model_class}")
+    delivery = str(raw.get("delivery") or "harness")
+    if delivery not in ("harness", "agent"):
+        raise ValueError(f"unsupported delivery: {delivery}")
     return QueueItem(
         id=item_id,
         repo=repo,
@@ -152,6 +160,7 @@ def queue_item_from_dict(raw: dict[str, Any]) -> QueueItem:
         enabled=bool(raw.get("enabled", True)),
         ref=str(raw.get("ref") or "main"),
         workdir=str(raw.get("workdir") or ""),
+        delivery=delivery,
     )
 
 
@@ -411,7 +420,13 @@ def build_job_manifest(
                             ],
                             "envFrom": [{"secretRef": {"name": "codex-secrets", "optional": True}}],
                             "volumeMounts": [
-                                {"name": "worker", "mountPath": "/opt/worker", "readOnly": True}
+                                {"name": "worker", "mountPath": "/opt/worker", "readOnly": True},
+                                # Codex refreshes its subscription credential on
+                                # use and the old refresh token stops working.
+                                # Without somewhere to keep the refreshed file,
+                                # the sealed Secret goes stale after the first
+                                # Job and every later run fails to authenticate.
+                                {"name": "codex-home", "mountPath": "/var/lib/codex"},
                             ],
                             "resources": {
                                 "requests": {"cpu": "500m", "memory": "1Gi"},
@@ -420,7 +435,8 @@ def build_job_manifest(
                         }
                     ],
                     "volumes": [
-                        {"name": "worker", "configMap": {"name": "codex-worker-script", "defaultMode": 0o555}}
+                        {"name": "worker", "configMap": {"name": "codex-worker-script", "defaultMode": 0o555}},
+                        {"name": "codex-home", "persistentVolumeClaim": {"claimName": "codex-home"}},
                     ],
                 },
             },

@@ -123,3 +123,52 @@ test("sitemap and index point at the liquidation page", () => {
   assert.match(sitemap, /should-i-liquidate-aged-fba-inventory\.html/);
   assert.match(index, /should-i-liquidate-aged-fba-inventory\.html/);
 });
+
+// The calculator page now renders this comparison itself rather than only
+// linking out. These guard the wiring: renderLiquidation writes into ids that
+// must exist, reads inputs that must be in the collected ids, and emits one
+// cell per column. agedRemovalFee is a distinct id so MCF's removalFee is
+// not reused.
+test("the calculator page carries the liquidation section renderLiquidation writes into", () => {
+  const { markup, scripts } = parse(index);
+  const script = scripts.join("\n");
+  assert.match(markup, /id="liquidation"/);
+  for (const id of [
+    "liquidationVerdict",
+    "liquidationRows",
+    "liquidationNote",
+    "agedUnits",
+    "monthlySellThroughPct",
+    "horizonMonths",
+    "aisPerUnit",
+    "recoveryPct",
+    "liquidationFee",
+    "agedRemovalFee",
+    "elsewhereNet",
+    "disposalFee",
+  ]) {
+    assert.ok(markup.includes(`id="${id}"`), `index.html is missing #${id}`);
+  }
+  assert.match(script, /compareLiquidation/, "renderLiquidation must import the comparison");
+  assert.match(script, /liquidationNote/, "the note must come from calc.mjs, not be retyped");
+  assert.match(script, /"agedUnits",/, "agedUnits must be in the collected ids");
+  assert.match(script, /"agedRemovalFee",/, "agedRemovalFee must be in the collected ids");
+  assert.match(script, /removalFee: input\.agedRemovalFee/, "MCF removalFee must not be passed through as the return-removal fee");
+  assert.match(script, /liquidation_compared/, "changing liquidation fields must count usage");
+});
+
+test("the calculator's liquidation table renders one cell per column", () => {
+  const { markup, scripts } = parse(index);
+  const table = markup.match(/<table id="liquidationTable">[\s\S]*?<\/table>/);
+  assert.ok(table, "index.html is missing the liquidation table");
+  const columns = table[0].match(/<th\b/g).length;
+  const body = scripts.join("\n").match(/function renderLiquidation\([\s\S]*?\n    \}\n/);
+  assert.ok(body, "renderLiquidation not found on the calculator page");
+  const cells = body[0].match(/packCell\(tr,/g).length;
+  assert.equal(cells, columns, "renderLiquidation emits a different cell count than the header row");
+});
+
+test("a missing aged-pile figure does not blank the profit result", () => {
+  const script = parse(index).scripts.join("\n");
+  assert.match(script, /try \{\s*renderLiquidation\(readInput\(\)\);\s*\} catch \(liquidationError\) \{/);
+});

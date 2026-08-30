@@ -21,6 +21,8 @@ export const INPUT_FIELDS = [
   'packagingCost',
   'otherCost',
   'targetMargin',
+  'targetRoi',
+  'targetProfit',
   'returnRatePercent',
   'returnShippingCost',
   'feeRefundOnReturnPercent',
@@ -226,6 +228,10 @@ export function calculateOrder(input) {
   const cashInvested = (costOfGoods + shippingCost + packagingCost + otherCost) * quantity;
   const costs = feeTotal + cashInvested;
   const profit = revenue - costs;
+  // Net sale proceeds available to recover the cash spent on this order. This
+  // deliberately excludes modeled operating outlays because those are what
+  // the checkpoint compares against as invested cash.
+  const cashRecovered = revenue - feeTotal;
 
   // Fixed (non-percentage) cash outlay that must be recovered before the
   // percentage-based fees are covered, used to solve for break-even price.
@@ -258,6 +264,9 @@ export function calculateOrder(input) {
     fees,
     feeTotal,
     cashInvested,
+    cashRecovered,
+    cashRecoveryPct: cashInvested === 0 ? null : cashRecovered / cashInvested * 100,
+    cashSurplus: cashRecovered - cashInvested,
     costs,
     profit,
     unitProfit: profit / quantity,
@@ -275,6 +284,19 @@ export function calculateOrder(input) {
     targetMarginPrice: targetRevenueDenominator <= 0
       ? Infinity
       : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    // Inverse of targetMarginPrice: highest item cost that still hits the
+    // requested net margin at the current sale price. Distinct from
+    // calculateSourcingCeiling, which solves for a target ROI.
+    maxCostOfGoods: targetRevenueDenominator <= 0
+      ? 0
+      : Math.max(
+        0,
+        (price + shippingCharged) * targetRevenueDenominator
+          - fixedFee / quantity
+          - shippingCost
+          - packagingCost
+          - otherCost,
+      ),
     returnRatePercent,
     returnShippingCost,
     feeRefundOnReturnPercent,
@@ -289,6 +311,122 @@ export function calculateOrder(input) {
     // Null-equivalent Infinity means even every order coming back still pays
     // (no sunk shipping/fees). Zero means the completed sale already loses.
     breakEvenReturnRate,
+    // Inverse of leftover: the item price that holds a typed leftover
+    // after the same fee stack. Complementary to targetMarginPrice
+    // (percent of revenue) and calculateSourcingCeiling (max buy for ROI).
+    // Salvaged from #1564.
+    targetProfitPrice: priceToMatchProfit(input, input.targetProfit ?? 0),
+  };
+}
+
+/**
+ * Item price that leaves `targetProfit` after the typed fee stack.
+ *
+ * Percentage fees sit on item plus shipping charged, so this is not
+ * leftover plus costs — a $1 leftover target is not a $1 price move.
+ * Salvaged from #1564 onto current main. Not eBay's live fee schedule.
+ */
+export function priceToMatchProfit(input, targetProfit) {
+  const profit = Number(targetProfit);
+  if (!Number.isFinite(profit)) throw new Error('Target profit must be a number');
+  const number = (value, name) => {
+    const result = Number(value);
+    if (!Number.isFinite(result) || result < 0) throw new Error(`${name} must be a non-negative number`);
+    return result;
+  };
+  const quantity = number(input.quantity ?? 1, 'Units');
+  if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
+  const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
+  const finalValueRate = number(input.finalValueRate ?? 13.25, 'Final value fee rate');
+  const fixedFee = number(input.fixedFee ?? 0.3, 'Per-order fixed fee');
+  const promotedRate = number(input.promotedRate ?? 0, 'Promoted listings rate');
+  const intlFeeRate = number(input.intlFeeRate ?? 0, 'International fee rate');
+  const costOfGoods = number(input.costOfGoods ?? 0, 'Cost of goods');
+  const shippingCost = number(input.shippingCost ?? 0, 'Shipping cost');
+  const packagingCost = number(input.packagingCost ?? 0, 'Packaging cost');
+  const otherCost = number(input.otherCost ?? 0, 'Other cost');
+  const percentRate = (finalValueRate + promotedRate + intlFeeRate) / 100;
+  if (percentRate >= 1) return Infinity;
+  const fixedPerUnit = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
+  const price = (profit / quantity + fixedPerUnit) / (1 - percentRate) - shippingCharged;
+  return Math.round(Math.max(0, price) * 100) / 100;
+}
+
+// Default promoted-listings rates a reseller actually types into eBay's
+// campaign picker, plus 0% so "do not promote" is always on the table.
+export const PROMOTED_RATE_PRESETS = [0, 2, 4, 6, 8, 10, 12];
+
+/**
+ * Highest promoted-listings rate that still meets a goal, holding every
+ * other assumption still. Each extra ad point takes 1% of order revenue,
+ * so the unpromoted margin is the remaining budget for ads.
+ *
+ * forTargetMargin: false → leftover stays non-negative (break-even).
+ * forTargetMargin: true  → net margin stays at the seller's target.
+ * A negative result means the goal is already missed with ads off.
+ * Salvaged from #1482 leftover onto current main.
+ */
+export function maxAffordablePromotedRate(input, options = {}) {
+  const forTargetMargin = options.forTargetMargin === true;
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  const target = forTargetMargin ? Number(input.targetMargin ?? 0) : 0;
+  return unpromoted.margin - target;
+}
+
+/**
+ * Same order at several ad rates. The seller's typed rate is always
+ * included so the "now" row cannot drift from the headline result.
+ * profitDelta is against the unpromoted (0%) row — the cash promoting
+ * this listing actually costs, not a price-move delta.
+ * Complementary to comparePromotedStandard (skip vs one campaign).
+ */
+export function calculatePromotedTable(input, rates = PROMOTED_RATE_PRESETS) {
+  if (!Array.isArray(rates) || rates.length === 0) {
+    throw new Error('At least one promoted-listings rate is required');
+  }
+  const currentRate = Number(input.promotedRate ?? 0);
+  if (!Number.isFinite(currentRate) || currentRate < 0) {
+    throw new Error('Promoted listings rate must be a non-negative number');
+  }
+  const uniqueRates = [...new Set([...rates.map(Number), currentRate])];
+  for (const rate of uniqueRates) {
+    if (!Number.isFinite(rate) || rate < 0) {
+      throw new Error('Promoted listings rate must be a non-negative number');
+    }
+  }
+  uniqueRates.sort((a, b) => a - b);
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  return uniqueRates.map((rate) => {
+    const scenario = calculateOrder({ ...input, promotedRate: rate });
+    return {
+      ...scenario,
+      promotedRate: rate,
+      isCurrent: rate === currentRate,
+      isUnpromoted: rate === 0,
+      profitDelta: scenario.profit - unpromoted.profit,
+    };
+  });
+}
+
+export function calculateSourcingCeiling(input, targetRoi) {
+  const target = Number(targetRoi);
+  if (!Number.isFinite(target) || target < 0) throw new Error('Target ROI must be a non-negative number');
+  // Validate the seller's actual inputs first so a bad cost of goods or
+  // quantity is not silently replaced by the zero-cost, one-unit baseline.
+  const current = calculateOrder(input);
+  const baseline = calculateOrder({ ...input, costOfGoods: 0, quantity: 1 });
+  const otherCashPerUnit = Number(input.shippingCost ?? 0) + Number(input.packagingCost ?? 0) + Number(input.otherCost ?? 0);
+  const targetRate = target / 100;
+  const numerator = baseline.unitProfit - targetRate * otherCashPerUnit;
+  const maximumAcquisitionCost = Math.max(0, numerator / (1 + targetRate));
+  return {
+    targetRoi: target,
+    maximumAcquisitionCost,
+    maximumBatchAcquisitionCost: maximumAcquisitionCost * current.quantity,
+    quantity: current.quantity,
+    currentAcquisitionCost: Number(input.costOfGoods ?? 0),
+    isReachable: numerator >= 0,
+    amountOverCeiling: Math.max(0, Number(input.costOfGoods ?? 0) - maximumAcquisitionCost),
   };
 }
 
@@ -473,7 +611,11 @@ export function listingFormatNote(comparison) {
   if (!comparison?.bin || !comparison?.auction) {
     throw new Error('Listing-format comparison is missing rows');
   }
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const { bin, auction } = comparison;
   const gap = Math.abs(auction.expectedProfit - bin.expectedProfit);
   const ahead = auction.expectedProfit >= bin.expectedProfit ? 'more' : 'less';

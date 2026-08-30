@@ -6,8 +6,9 @@ and international fees, shipping, packaging, and — the part generic fee
 calculators leave out — **what you paid to source the item**. From that it
 reports net profit, margin, return on your invested cash (ROI), and the lowest
 resale price that still breaks even. Set a target net margin to get the listing
-price required to reach it, which makes the calculator useful for repricing as
-well as sourcing.
+price required to reach it, and the maximum item cost that still preserves that
+margin at the current sale price. That pair is useful for both repricing and
+sourcing.
 Enter multiple units to see total batch economics and profit per unit without
 repeating the calculation. The fixed fee is charged once per order, while
 product and fulfilment costs scale per unit. Break-even and target-margin prices
@@ -269,10 +270,17 @@ drive that decision:
 - **ROI** — profit as a percentage of the cash you actually invested (item
   cost + shipping + packaging + other), because fees come out of the sale, not
   your pocket up front.
+- **Cash recovery checkpoint** — sale revenue after modeled fees, the percentage
+  of modeled invested cash recovered by that sale, and the resulting cash
+  surplus or shortfall. The surplus is the same arithmetic as net profit, shown
+  in sourcing language so a seller can see whether the sale replenishes the cash
+  tied up in the item.
 - **Break-even item price** — the lowest price you can list at without losing
   money, holding shipping charged constant.
 - **Target-margin item price** — the price needed to reach a chosen net margin
   after the same fees and cash costs.
+- **Sourcing ceiling** — the highest acquisition cost per item, plus the batch
+  budget, that still reaches the target ROI after all other cash costs.
 - **Repricing sensitivity** — profit, margin, and the signed change against
   your current price at listing prices 10% and 20% either side of it.
   Percentage fees scale with the price, so a $1 increase never leaves $1 more
@@ -380,6 +388,10 @@ drive that decision:
   The table also names the skip claim rate and premium that
   still tie skip.
 
+The recovery checkpoint does not model inventory velocity, returns, taxes,
+storage, labor, or the time value of money. A positive checkpoint is not a
+recommendation to buy or list an item.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not tax, financial, or business advice, and it
 does not replace a qualified professional. **You are responsible for reviewing
@@ -402,7 +414,8 @@ browser; it never records the inputs. Turn it off with the checkbox in the
 footer, or your browser's Do Not Track / Global Privacy Control setting.
 
 The counted events are `order_profit_calculated`, `target_margin_calculated`,
-`batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
+`max_acquisition_cost_calculated`,
+`sourcing_ceiling_calculated`, `batch_calculated`, `return_rate_viewed`, `listing_format_compared`,
 `partial_refund_compared`, `authenticity_compared`,
 `local_pickup_compared`, `lot_vs_singles_compared`,
 `standard_envelope_compared`, `combined_shipping_compared`,
@@ -449,6 +462,9 @@ once per visit and only after an input is edited — counting the table's
 first paint would just re-count page loads and say nothing about whether
 the view is used.
 
+Usage recording is best-effort. If local storage is blocked, full, or contains
+invalid old data, the calculator continues to work and simply skips that count.
+
 ## Support
 
 The tool is free and full-featured. The
@@ -463,7 +479,7 @@ sellers do not re-enter them, including the expected return rate and return
 postage. **Copy shareable link** puts those assumptions in the URL fragment
 for a collaborator; anyone with the link can read the figures, so do not
 share sensitive information. Nothing is uploaded. **Download repricing CSV**
-exports the price-sensitivity table (item price, offset, net, margin, unit
+exports the price-sensitivity table (item price, units, offset, net, margin, unit
 profit, and change versus the current list). Use **Reset saved inputs**
 to remove the local setup.
 

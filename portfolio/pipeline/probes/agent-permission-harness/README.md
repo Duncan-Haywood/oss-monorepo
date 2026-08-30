@@ -54,7 +54,10 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 ## The result
 
 Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
-`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
+`python3 check_results_current.py --write` — not `python3 harness.py` on its
+own, which omits the provenance header the check expects and so fails it
+without changing a single finding.
+[`results-2026-08-21.md`](results-2026-08-21.md) is kept
 as the prior snapshot: the two differ only in R7, and the difference is the
 subject of the amendment below.
 

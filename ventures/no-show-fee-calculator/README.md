@@ -46,12 +46,15 @@ No build step, no install, no dependencies. It's plain HTML/CSS/JS.
    together with) chasing a no-show invoice after the fact.
 5. Get: the fee amount, how many no-shows/late-cancels you can expect in a
    year at your rate, what that time is worth, and an estimate of fee
-   revenue you could collect if you enforce the policy — plus a comparison of
+   revenue you could collect if you enforce the policy, the modeled share of
+   lost slot value recovered, and the exposure still unrecovered (both per
+   month and as a full-year figure) — plus a comparison of
    that after-the-fact fee against keeping a deposit, a table that compares
    collecting the fee on a full book against overbooking 50%, 100%, and 150%
    of the empty chairs (and against dropping the fee and only overbooking),
-   and a plain-text cancellation policy you can copy straight into your
-   booking system, client agreement, or website. Optionally type what a
+   and a plain-text cancellation policy (including how you plan to collect
+   the fee) you can copy straight into your booking system, client
+   agreement, or website. Optionally type what a
    double-booked chair costs you; leave it blank to price overflow as one
    session.
 
@@ -153,6 +156,11 @@ portfolio-wide rules this follows.
   different, recurring, quantifiable pain.
 - **Shape:** pure static site, zero marginal cost, zero third-party
   dependency, no AI needed — deterministic arithmetic is the whole product.
+
+The recovery percentage is a comparison of modeled fee collections with the
+appointment value at risk. It reflects the enforcement assumption you enter;
+it is not a forecast of client behavior or a guarantee that fees can be
+collected.
 
 ## Usage tracking
 

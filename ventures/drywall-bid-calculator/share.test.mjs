@@ -32,6 +32,8 @@ const sample = {
   overheadRate: 16,
   targetMargin: 26,
   proposedPrice: 6400,
+  boardType: 'typex-4x8',
+  textureType: 'orange-peel',
   secret: 'must-not-round-trip',
 };
 
@@ -80,4 +82,15 @@ test('SHARE_FIELDS includes the lines a dropped field would silently change', ()
   for (const key of ['rooms', 'wastePercent', 'finishLevel', 'tearOff', 'textureHoursPer100', 'targetMargin', 'proposedPrice', 'dumpsterCost']) {
     assert.ok(SHARE_FIELDS.includes(key), `missing ${key}`);
   }
+});
+
+test('the board and texture the bid is for travel with it', () => {
+  // Both used to be reconstructed on arrival by matching the carried rates
+  // back against the preset table, so a setter who typed their own sheet
+  // price — the ordinary case — handed the recipient "Other / custom rates"
+  // and "No texture" over their own Type X and orange peel, and a customer
+  // proposal that named neither.
+  const restored = decodeShare(encodeShare(sample));
+  assert.equal(restored.boardType, 'typex-4x8');
+  assert.equal(restored.textureType, 'orange-peel');
 });

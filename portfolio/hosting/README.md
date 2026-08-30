@@ -17,6 +17,43 @@ in GitHub Actions secrets. Do not add a third cloud to host a calculator.
 Do not put public sites on the agent box. Do not put a static calculator on
 Hetzner just because the box is there.
 
+## Amended 2026-08-29: the whole static site also goes to Hetzner
+
+The row above still holds for a *single* calculator. It stopped holding for
+the **assembled portfolio site**, which now also deploys to the Hetzner
+control-plane box via `gitops/prod/portfolio-site.yaml`, on
+`tools.marisstella.dev`.
+
+The GitHub Pages route was decided when it looked like one owner flip away.
+It is not:
+
+- **Pages is not enabled**, and enabling it is the queued `deploy-settings`
+  ask — still open.
+- **The repository is private.** Pages from a private repository does not
+  serve a public site on the free tier, so the flip alone would not have
+  put these tools in front of strangers. This was not accounted for when
+  the row above was written.
+- **Nothing is building the artifact.** Every GitHub Actions run in this
+  repo has failed without a runner since 2026-08-26 (`runner_id: 0`,
+  3-second jobs), so `portfolio-pages.yml` has not produced a deployable
+  artifact in days, and would not on the day Pages was switched on.
+
+The Hetzner path shares none of those three blockers: Argo syncs the
+manifest from `main` and the site is built inside the cluster, so it needs
+neither Actions nor Pages. The box is already paid for and already runs
+ingress-nginx and cert-manager. Its own remaining step is now **one**: a
+sealed read-only clone token, listed in `gitops/README.md`. The DNS record
+turned out to already exist (the wildcard `A/*` on `marisstella.dev` covers
+the subdomain, verified 2026-08-29), and the ACME contact stopped being a
+step on 2026-08-30 — an ACME account contact is optional, so the issuers
+ship without one rather than with a placeholder nobody could act on.
+
+This is an addition, not a replacement. If Pages is later enabled and the
+runners come back, the same `build.mjs` output serves both; `PAGES_BASE_URL`
+is the only thing that differs, and each route stamps its own canonical
+URLs. Publish through one of them at a time so the two do not compete in
+search results for the same pages.
+
 ## What we are not adding
 
 - **Cloudflare** (Pages, Workers, Access) is not a portfolio default. Gated

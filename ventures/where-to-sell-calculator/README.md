@@ -30,6 +30,9 @@ Three things flat "X% fee" comparisons get wrong, all of which this models:
 - **The fee percentage is not the decision.** What matters is the price each
   channel needs to leave you the same money — a channel with higher fees still
   wins if you can list higher there. That is the last column of the table.
+- **A monthly plan needs a volume reality check.** The table shows the minimum
+  whole-order count needed for this item's economics to recover a subscription,
+  or `—` when no order volume can recover it.
 - **Per-sale profit is not monthly cash.** A direct sale that keeps $33 and
   happens four times a month loses to a marketplace that keeps $26 and happens
   forty times. Put expected sales on each channel; a monthly plan is spread
@@ -70,9 +73,9 @@ link can read those assumptions, so do not include confidential costs.
 
 Use **Download comparison CSV** to take the ranked table into a spreadsheet.
 The file has one row per compared channel and includes fees, keep, expected
-keep after returns, monthly keep, days to sell, profit per day, and the
-break-even / match-the-leader prices. It is calculated results only — not
-your saved usage counts.
+keep after returns, monthly keep, days to sell, profit per day, orders to
+cover a monthly plan, and the break-even / match-the-leader prices. It is
+calculated results only — not your saved usage counts.
 
 ### Reading the table
 
@@ -89,6 +92,9 @@ questions the ranking alone does not:
   not counted as invested; that keeps the figure comparable across channels
   whose fee structures differ. It reads "—" when nothing was invested (a
   giveaway, or an item with no per-unit cost), rather than an infinite return.
+- **Orders to cover plan** — the minimum whole-order volume needed to recover a
+  monthly subscription from this item's profit before that plan. It is `0` for
+  channels without a monthly plan and `—` when the economics cannot recover it.
 - **Monthly keep** — per-sale profit times the sales you expect on that
   channel. Leave the per-channel field blank to use the shared monthly-orders
   figure. When volumes differ, the hero can name a different winner for the
@@ -110,6 +116,12 @@ money working", break-even answers "how far can I move the price", cash
 per day answers "do I wait on the cheaper channel or list where it moves",
 and after returns answers "does the completed-sale winner still win in the
 mix I actually ship".
+
+On a narrow screen the comparison becomes one card per channel instead of a
+wide table, with the channel as the card's heading and every figure on its
+own labelled line. "Where should I sell this?" is often asked while standing
+over the item — at a thrift store, a garage sale, a storage unit — so the
+phone layout shows the same numbers rather than a table dragged sideways.
 
 ### The second table: what a listing is worth, not what a sale is worth
 
@@ -185,6 +197,31 @@ schedule — those vary by category, country, plan, and account, and they change
 Replace the defaults with the numbers on your own statements; that is what
 makes the comparison yours rather than a generic estimate.
 
+## How fast it sells is part of the answer
+
+The highest net per sale is not the same as the most money per month. A channel
+that nets $6 less but sells in three days instead of ninety returns your cash
+thirty times more often, and a reseller with finite cash feels that far more
+than the six dollars.
+
+So each channel has an optional **days to sell**, and the table shows what it
+keeps *per day of waiting* alongside what it keeps per sale. Ranking can be
+switched between the two. When they disagree — the usual case once real
+turnaround numbers go in — the page says so in words above the table, because
+that disagreement is the whole reason to look.
+
+Speed is stated as a **turnover count** ("the same cash goes round 122 times a
+year") rather than an annualised percentage. Annualising a three-day flip is
+arithmetically true and reads as a promise; the count says the same thing
+without implying it compounds.
+
+Each channel ships with an **illustrative** days-to-sell figure, not a claim
+about how fast your category actually moves there — how fast a channel moves
+*your* category is an observation only you have. Replace it with how long your
+last similar listings actually took. Leave it at zero (or blank) for a channel
+you have not timed — that reads as unknown, and the channel simply sits out
+the speed ranking rather than winning on a blank.
+
 ## What it deliberately does not model
 
 Fees are the part that is easy to calculate, not the whole decision. You can
@@ -234,6 +271,13 @@ template emits cells (a mismatch silently renders every value under the wrong
 heading), that every figure named in the page's schema.org `featureList` is
 actually rendered, and that the fields which can be `null` are rendered
 defensively.
+
+The holding-period tests cover the same ground: that the shipped default
+changes no ranking until it is edited, that profit-per-day and turnover divide
+by the period, that a blank period reads as unknown rather than instant and
+sorts last on speed rather than winning, that a faster channel can outrank a
+more profitable one, and that no speed upset is claimed against a channel the
+seller never timed.
 
 ## Privacy
 

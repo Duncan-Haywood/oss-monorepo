@@ -11,6 +11,10 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Weighting each channel by how fast it sells changes the answer often enough to be worth entering, because a reseller with finite cash is choosing return per day rather than profit per sale.
+    status: untested
+    checked: null
+    evidence: customer-contact
   - claim: Amortising monthly plans over expected orders and counting per-listing fees changes which channel wins often enough that the comparison alters a listing decision, rather than confirming the one the seller already made.
     status: untested
     checked: null

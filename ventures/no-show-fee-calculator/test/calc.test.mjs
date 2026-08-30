@@ -10,6 +10,7 @@ import {
   computeAnnualExposure,
   computeAnnualFeeRevenue,
   computeRecovery,
+  computeRecoveryEstimate,
   computeAll,
   compareFeeScenarios,
   compareCollectionPolicies,
@@ -184,6 +185,17 @@ test("computeRecovery handles zero exposure and zero fee without infinity", () =
   });
 });
 
+test("computeRecoveryEstimate compares modeled collections with lost value", () => {
+  assert.deepEqual(computeRecoveryEstimate({ annualFeeRevenue: 4368, annualLostRevenue: 6240 }), {
+    recoveredPct: 70,
+    remainingAnnualExposure: 1872,
+  });
+  assert.deepEqual(computeRecoveryEstimate({ annualFeeRevenue: 10, annualLostRevenue: 0 }), {
+    recoveredPct: 0,
+    remainingAnnualExposure: 0,
+  });
+});
+
 test("computeAll composes the individual calculations consistently", () => {
   const values = {
     price: 75,
@@ -198,6 +210,8 @@ test("computeAll composes the individual calculations consistently", () => {
   const exposure = computeAnnualExposure(values);
   assert.equal(result.noShowsPerYear, exposure.noShowsPerYear);
   assert.equal(result.annualLostRevenue, exposure.annualLostRevenue);
+  assert.equal(result.recoveredPct, 70);
+  assert.equal(result.remainingAnnualExposure, 1872);
   assert.equal(
     result.annualFeeRevenue,
     computeAnnualFeeRevenue({
@@ -565,6 +579,28 @@ test("generatePolicyText supports a selected currency symbol", () => {
   assert.match(text, /50% of the session price \(€37\.50\)/);
 });
 
+test("generatePolicyText includes the selected collection method", () => {
+  const text = generatePolicyText({
+    businessName: "Riverside Training",
+    serviceName: "session",
+    noticeHours: 24,
+    feePercent: 50,
+    feeAmount: 37.5,
+    collectionMethod: "invoice",
+  });
+  assert.match(text, /send an invoice for the cancellation or no-show fee/);
+});
+
+test("generatePolicyText uses a safe collection fallback for unknown methods", () => {
+  const text = generatePolicyText({
+    noticeHours: 24,
+    feePercent: 100,
+    feeAmount: 10,
+    collectionMethod: "unsupported-value",
+  });
+  assert.match(text, /contact you to arrange payment/);
+});
+
 test("generatePolicyText falls back to placeholders when name/service are blank", () => {
   const text = generatePolicyText({
     businessName: "",
@@ -584,8 +620,8 @@ test("generatePolicyText always ends with the non-warranty disclaimer", () => {
 });
 
 test("buildShareUrl encodes supported inputs without server state", () => {
-  const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", depositPercent: "50", businessName: "Riverside & Co", serviceName: "training session", ignored: "secret" }, "https://example.test/calculator");
-  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&depositPercent=50&businessName=Riverside+%26+Co&serviceName=training+session");
+  const url = buildShareUrl({ currency: "EUR", price: "75", bookingsPerWeek: "20", noShowRatePct: "8", noticeHours: "24", feePercent: "100", enforcementRatePct: "70", depositPercent: "50", businessName: "Riverside & Co", serviceName: "training session", collectionMethod: "invoice", ignored: "secret" }, "https://example.test/calculator");
+  assert.equal(url, "https://example.test/calculator?currency=EUR&price=75&bookingsPerWeek=20&noShowRatePct=8&noticeHours=24&feePercent=100&enforcementRatePct=70&depositPercent=50&businessName=Riverside+%26+Co&serviceName=training+session&collectionMethod=invoice");
   assert.equal(url.includes("ignored"), false);
 });
 
@@ -597,11 +633,32 @@ test("index.html's embedded JSON-LD blocks are valid JSON", () => {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const html = readFileSync(path.join(here, "..", "index.html"), "utf8");
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
-  assert.ok(blocks.length >= 2, "expected at least a SoftwareApplication and a FAQPage block");
+  assert.ok(blocks.length >= 1, "expected at least a SoftwareApplication block");
   for (const [, json] of blocks) {
     const parsed = JSON.parse(json);
     assert.ok(parsed["@context"] === "https://schema.org");
   }
+});
+
+// The FAQ schema is *derived* from the visible questions by
+// `platform/pages/build.mjs`, not hand-authored here. This page used to carry
+// its own FAQPage block plus a second visible copy of the same five questions
+// so the two would agree; the copies drifted apart in wording and readers saw
+// the FAQ twice. Asserting the visible questions exist is the invariant that
+// matters — the builder turns exactly these into schema, so they cannot drift.
+test("index.html carries visible question headings for the derived FAQ schema", () => {
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const html = readFileSync(path.join(here, "..", "index.html"), "utf8");
+  const questions = [...html.matchAll(/<h[23]\b[^>]*>([\s\S]*?)<\/h[23]>/gi)]
+    .map(([, text]) => text.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim())
+    .filter((text) => text.endsWith("?"));
+  assert.ok(questions.length >= 4, `expected visible FAQ questions, found ${questions.length}`);
+  assert.equal(new Set(questions).size, questions.length, "a question is asked twice on the page");
+  assert.equal(
+    (html.match(/>Common questions</g) || []).length,
+    1,
+    "the page should carry exactly one Common questions section",
+  );
 });
 
 test("index.html contains the required disclaimer wording", () => {
@@ -855,6 +912,7 @@ test("the draft field set matches the shareable field set", () => {
   // bug this guards: both are derived from SHARE_FIELDS in calc.mjs.
   assert.ok(DRAFT_FIELDS.includes("currency"));
   assert.ok(DRAFT_FIELDS.includes("serviceName"));
+  assert.ok(DRAFT_FIELDS.includes("collectionMethod"));
   assert.equal(new Set(DRAFT_FIELDS).size, DRAFT_FIELDS.length);
 });
 

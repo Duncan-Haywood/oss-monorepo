@@ -1,6 +1,6 @@
 # Listing Lens — Real Estate Agent Photo App
 
-Listing Lens is an AI-first iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. The product focuses on guided capture, instant AI enhancement, optional cloud polish, MLS-ready delivery, lightweight 3D/video outputs, and agent branding.
+Listing Lens is an AI-first iPhone real estate photography concept: pro-level listing media in 30 minutes, directly from an agent's phone. Its free MLS listing photo preflight check lets agents download a dated, portable findings report before delivery, without uploading photos or using an account.
 
 The free **MLS listing photo preflight checker** is the first usable product
 surface: select JPEG/PNG delivery files, inspect a dated floor spec for
@@ -9,6 +9,27 @@ pairing, then download a portable JSON evidence record. This is a file check,
 not a promise that a particular MLS will accept a listing.
 
 **Status:** Concept / market validation
+
+## Free photo preflight
+
+The `/photo-check` browser tool checks JPEG and PNG listing files against the
+dated floor spec, then copies a short handoff summary or downloads a Markdown
+record of the observations. The
+record names what was checked and what was not checked; it is not a portal
+submission or an MLS acceptance guarantee.
+
+Everything in the browser tool runs locally. Photos are never uploaded, and
+there are no accounts, tracking cookies, or analytics vendors. Anonymous
+feature events are counted in local browser storage and can be removed by
+clearing site data.
+
+**No warranty.** This tool is provided free and as-is, without warranty of any
+kind, express or implied. It is not legal, tax, financial, medical, or
+engineering advice, and it does not replace a qualified professional. **You are
+responsible for reviewing and verifying its output before relying on it**, and
+for meeting any obligation it helps you prepare for. To the maximum extent
+permitted by law, the authors accept no liability for any loss or damage arising
+from its use.
 
 ## ⚠ Human action needed to unblock the next stage
 
@@ -208,4 +229,4 @@ The static export is generated in `research/out/`.
 
 ## License
 
-Private / proprietary.
+MIT — see `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and does not change what the preflight check does.

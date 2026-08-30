@@ -50,6 +50,45 @@ const PLACEMENT_PATHS = /** @type {const} */ (["minimal", "partial", "optimized"
 
 const FULFILLMENT_METHODS = new Set(["fba", "fbm"]);
 
+/**
+ * Every numeric input on the page, in the order the page asks for them.
+ *
+ * This lives here rather than in `index.html` so `share.mjs` and the page read
+ * the same list. The alternative — an allowlist maintained beside the encoder —
+ * is how a shared link silently loses a field: `where-to-sell-calculator`
+ * shipped exactly that, dropping `quantity` and `targetMargin`, so the
+ * recipient computed a different profit than the sender saw and nothing went
+ * red. `share.test.mjs` also checks this list against the `id` attributes in
+ * `index.html`, so a new input is shareable the day it ships.
+ */
+export const INPUT_FIELDS = [
+  "salePrice", "referralRate", "length", "width", "height", "weightLb",
+  "monthsInStorage", "storageRate", "fulfillmentFee", "costOfGoods",
+  "inboundPerUnit", "fbmShippingCost", "fbmHandlingCost", "packagingCost", "adsPerUnit",
+  "otherCost", "monthlySellerFee", "individualPerUnit", "monthlyUnits", "targetMargin",
+  "returnRate", "returnHandlingFee", "unsellableReturnRate",
+  "lowPriceThreshold", "lowPriceSalePrice", "raisePrice", "lowPriceFulfillmentFee",
+  "couponPercent", "couponFixed", "couponFee", "couponLiftPct",
+  "snsPercent", "snsEnrollPct",
+  "dtcSalePrice", "mcfFulfillmentFee", "dtcProcessorRate", "dtcProcessorFixed", "removalFee",
+  "smallOrderQty", "largeOrderQty", "largeCogs", "largeInboundPerUnit", "largeMonthsInStorage",
+  "amazonLabelFee", "amazonBagFee", "amazonBubbleFee", "amazonPrepFee",
+  "placementUnits", "freightMinimal", "freightPartial", "freightOptimized",
+  "placementMinimalPerUnit", "placementPartialPerUnit", "placementOptimizedPerUnit",
+  "repackCostPerUnit", "peakMonths",
+  "onHandUnits", "soldLast30Days", "soldLast90Days", "lowInventoryFee",
+  "agedUnits", "monthlySellThroughPct", "horizonMonths", "aisPerUnit",
+  "recoveryPct", "liquidationFee", "agedRemovalFee", "elsewhereNet", "disposalFee",
+  "vineUnits", "conversionLiftPct", "vineMonths", "vineReferralRate",
+  "sfpShippingCost", "sfpMinutes", "sfpHourlyWage", "fbaTakePct", "sfpTakePct", "fbmTakePct",
+];
+
+/** The page's checkbox inputs, carried as `1`/`0` so a link can turn one off. */
+export const TOGGLE_FIELDS = ["lowPriceEligible", "groceryExempt", "newFnskuExempt"];
+
+/** Values the `fulfillmentMethod` radio accepts. */
+export const FULFILLMENT_VALUES = [...FULFILLMENT_METHODS];
+
 function number(value, name, fallback = 0) {
   if (value === undefined || value === null || value === "") {
     const result = Number(fallback);
@@ -62,6 +101,12 @@ function number(value, name, fallback = 0) {
   if (!Number.isFinite(result) || result < 0) {
     throw new Error(`${name} must be a non-negative number`);
   }
+  return result;
+}
+
+function wholeNumber(value, name, fallback = 0) {
+  const result = number(value, name, fallback);
+  if (!Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
   return result;
 }
 
@@ -408,7 +453,35 @@ export function calculateListing(input) {
 
   function finish(path, cogsInCash) {
     path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
+    path.targetMarginBuyCost = Math.max(
+      0,
+      salePrice - path.feeTotal - (path.cashInvested - cogsInCash) - salePrice * targetMarginRate,
+    );
     return path;
+  }
+
+  // Ads sit in cashInvested, so profit already includes the current PPC spend.
+  // Add the spend back to see how much advertising the unit can still carry
+  // before it loses money, or before it misses the seller's target margin.
+  // ACOS is that spend as a percent of the sale price — the number PPC
+  // campaigns are actually managed against.
+  function attachAdLimits(path) {
+    const profitBeforeAds = path.profit + adsPerUnit;
+    const breakEvenAds = Math.max(0, profitBeforeAds);
+    const targetProfit = salePrice * targetMarginRate;
+    const targetMarginAds = Math.max(0, profitBeforeAds - targetProfit);
+    const acos = (ads) => (salePrice <= 0 ? null : (ads / salePrice) * 100);
+    return {
+      ...path,
+      profitBeforeAds,
+      breakEvenAds,
+      breakEvenAcos: acos(breakEvenAds),
+      currentAcos: acos(adsPerUnit),
+      targetMarginAds,
+      targetMarginAcos: acos(targetMarginAds),
+      adsStillPay: path.profit >= -1e-9,
+      targetMarginReachableWithAds: profitBeforeAds + 1e-9 >= targetProfit,
+    };
   }
 
   const fbaCash = sharedCash + inboundPerUnit + storagePerUnit;
@@ -452,14 +525,14 @@ export function calculateListing(input) {
     returnHandlingFee,
     unsellableRate,
   };
-  const fbaAfterReturns = withExpectedReturns(fba, {
+  const fbaAfterReturns = attachAdLimits(withExpectedReturns(fba, {
     ...returnAssumptions,
     fulfillmentFee,
-  });
-  const fbmAfterReturns = withExpectedReturns(fbm, {
+  }));
+  const fbmAfterReturns = attachAdLimits(withExpectedReturns(fbm, {
     ...returnAssumptions,
     fulfillmentFee: 0,
-  });
+  }));
 
   const selected = fulfillmentMethod === "fba" ? fbaAfterReturns : fbmAfterReturns;
   const fbaAdvantage = fbaAfterReturns.profit - fbmAfterReturns.profit;
@@ -892,7 +965,11 @@ export function compareCoupons(input) {
 }
 
 export function couponSummary(comparison) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const typed = comparison.typed;
   if (typed.discount === 0 && typed.couponFee === 0) {
     return "No coupon is entered, so every row but the list-price line is a what-if against this listing.";
@@ -1031,7 +1108,11 @@ export function compareSubscribeSave(input) {
 }
 
 export function subscribeSaveSummary(comparison) {
-  const money = (value) => `$${value.toFixed(2)}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toFixed(2)}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const typed = comparison.typed;
   if (typed.snsPercent === 0) {
     return "No Subscribe & Save discount is entered, so every row but the list-price line is a what-if against this listing.";
@@ -2008,6 +2089,134 @@ export function compareAgedInventory(input) {
   };
 }
 
+/**
+ * Months of the remaining stay that fall after the aged-inventory threshold.
+ * Age is counted at the end of each future month: a unit already stored for
+ * `monthsAlreadyStored` months, held one more month, is age
+ * `monthsAlreadyStored + 1`. Surcharge applies when that age is strictly
+ * greater than `agedStartsAfterMonths` (the usual “after 6 months” reading).
+ *
+ * Complementary to compareAgedInventory, which applies a typed per-unit AIS
+ * every month of the horizon. This answers a different question: how many of
+ * the remaining months will actually be billed at the surcharge.
+ */
+export function agedSurchargeMonths({
+  monthsAlreadyStored,
+  additionalMonths,
+  agedStartsAfterMonths,
+}) {
+  const already = number(monthsAlreadyStored, "Months already stored");
+  const extra = number(additionalMonths, "Additional months");
+  const threshold = number(agedStartsAfterMonths, "Aged surcharge starts after months", 6);
+  let surchargeMonths = 0;
+  for (let month = 1; month <= extra; month += 1) {
+    if (already + month > threshold) surchargeMonths += 1;
+  }
+  return surchargeMonths;
+}
+
+function warehouseCostPerUnit({
+  cubicFeet,
+  additionalMonths,
+  monthsAlreadyStored,
+  agedStartsAfterMonths,
+  storageRate,
+  agedSurchargePerCuFt,
+}) {
+  const cuFt = number(cubicFeet, "Cubic feet");
+  const extra = number(additionalMonths, "Additional months");
+  const storage = number(storageRate, "Storage rate");
+  const surcharge = number(agedSurchargePerCuFt, "Aged surcharge per cu ft");
+  const surchargeMonths = agedSurchargeMonths({
+    monthsAlreadyStored,
+    additionalMonths: extra,
+    agedStartsAfterMonths,
+  });
+  return {
+    surchargeMonths,
+    storagePerUnit: cuFt * storage * extra,
+    surchargePerUnit: cuFt * surcharge * surchargeMonths,
+    warehousePerUnit: cuFt * storage * extra + cuFt * surcharge * surchargeMonths,
+  };
+}
+
+/**
+ * Forward-looking hold-vs-remove for units already in FBA.
+ *
+ * Cost of goods, inbound already paid, storage already billed, and the
+ * professional monthly plan are sunk either way and are excluded. The hold
+ * path assumes the remaining units sell at `salePrice` after
+ * `expectedMonthsToSell` more months, paying referral, fulfillment, ads, and
+ * the *future* warehouse bill. The remove path pays the removal/disposal fee
+ * and recovers `salvagePerUnit` (liquidation, FBM elsewhere, or $0).
+ *
+ * Distinct from compareAgedInventory (keep / return / dispose over a sell-
+ * through horizon with a flat per-unit AIS). Salvaged from #1495.
+ */
+export function compareHoldVsRemove(input) {
+  const remainingUnits = wholeNumber(input.remainingUnits, "Remaining units", 1);
+  if (remainingUnits < 1) throw new Error("Remaining units must be at least 1");
+  const expectedMonthsToSell = number(input.expectedMonthsToSell, "Expected months to sell", 2);
+  const monthsAlreadyStored = number(input.monthsAlreadyStored, "Months already stored");
+  const agedStartsAfterMonths = number(input.agedStartsAfterMonths, "Aged surcharge starts after months", 6);
+  const storageRate = number(input.storageRate, "Storage rate");
+  const agedSurchargePerCuFt = number(input.agedSurchargePerCuFt, "Aged surcharge per cu ft");
+  const removalFeePerUnit = number(input.removalFeePerUnit, "Removal fee per unit");
+  const salvagePerUnit = number(input.salvagePerUnit, "Salvage per unit");
+  const cubicFeet = number(input.cubicFeet, "Cubic feet");
+  const salePrice = number(input.salePrice, "Sale price");
+  const referralRate = number(input.referralRate, "Referral rate");
+  const fulfillmentFee = number(input.fulfillmentFee, "Fulfillment fee");
+  const adsPerUnit = number(input.adsPerUnit, "Ads per unit");
+
+  const referral = salePrice * (referralRate / 100);
+  const sellingCosts = referral + fulfillmentFee + adsPerUnit;
+  const removeNetPerUnit = salvagePerUnit - removalFeePerUnit;
+
+  function outcome(additionalMonths) {
+    const warehouse = warehouseCostPerUnit({
+      cubicFeet,
+      additionalMonths,
+      monthsAlreadyStored,
+      agedStartsAfterMonths,
+      storageRate,
+      agedSurchargePerCuFt,
+    });
+    const holdNetPerUnit = salePrice - sellingCosts - warehouse.warehousePerUnit;
+    return {
+      additionalMonths,
+      ...warehouse,
+      holdNetPerUnit,
+      holdTotal: holdNetPerUnit * remainingUnits,
+      removeNetPerUnit,
+      removeTotal: removeNetPerUnit * remainingUnits,
+      holdAdvantage: (holdNetPerUnit - removeNetPerUnit) * remainingUnits,
+    };
+  }
+
+  const expected = outcome(expectedMonthsToSell);
+  const holdAdvantage = expected.holdAdvantage;
+  let monthsUntilRemoveWins = null;
+  for (let month = 0; month <= 36; month += 1) {
+    if (outcome(month).holdAdvantage < 0) {
+      monthsUntilRemoveWins = month;
+      break;
+    }
+  }
+
+  return {
+    remainingUnits,
+    expectedMonthsToSell,
+    monthsAlreadyStored,
+    agedStartsAfterMonths,
+    sellingCosts,
+    ...expected,
+    betterPath: holdAdvantage > 0 ? "hold" : holdAdvantage < 0 ? "remove" : "tie",
+    monthsUntilRemoveWins,
+    scenarios: [1, 2, 3, 6].map(outcome),
+  };
+}
+
 function liquidationSummary({
   winner,
   keepCash,
@@ -2555,8 +2764,14 @@ export function nextCheaperWeightLb(tier, weightLb) {
   const bands = STANDARD_WEIGHT_BAND_OZ[tier];
   if (bands) {
     const oz = weight * 16;
-    const current = bands.find((band) => oz <= band) ?? bands[bands.length - 1];
-    const index = bands.indexOf(current);
+    const index = bands.findIndex((band) => oz <= band);
+    // Heavier than every listed band: those weights price by the pound past
+    // this point (see defaultFulfillmentFee's extraBands math), so the next
+    // cheaper stop is the top of the heaviest listed band, not one band
+    // further down — treating it as already sitting in that band (as a
+    // `?? bands[bands.length - 1]` fallback used to) skipped straight past
+    // the real next-cheaper weight to the band below it.
+    if (index === -1) return bands[bands.length - 1] / 16;
     if (index <= 0) return null;
     return bands[index - 1] / 16;
   }

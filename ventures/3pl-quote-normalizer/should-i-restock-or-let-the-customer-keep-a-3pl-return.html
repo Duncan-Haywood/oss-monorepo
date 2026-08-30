@@ -17,7 +17,7 @@
     label{font-weight:700;font-size:.9rem}
     input,button{display:block;width:100%;box-sizing:border-box;padding:10px;margin-top:5px;font:inherit}
     input{border:1px solid #a9b4af;border-radius:7px}
-    button{border:0;border-radius:8px;background:#d45c35;color:#fff;font-weight:700;cursor:pointer}
+    button{border:0;border-radius:8px;background:#c05430;color:#fff;font-weight:700;cursor:pointer}
     button.secondary{background:#e8eee9;color:#123b36}
     table{width:100%;border-collapse:collapse;margin-top:18px}
     th,td{text-align:right;padding:11px 8px;border-bottom:1px solid #ddd}
@@ -27,7 +27,10 @@
     .note{color:#52605d;font-size:.9rem}
     a{color:#123b36;font-weight:700}
     @media(max-width:700px){body{padding:12px}form{grid-template-columns:1fr}main,.card{padding:16px}}
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
 <main>
@@ -198,5 +201,11 @@
   });
   render();
 </script>
+  <h2>Common questions</h2>
+  <h3>Should I restock a 3PL return or let the customer keep it?</h3>
+  <p>The sale is already refunded. Restock pays the prepaid label, inbound return handling, inspect/putaway, and storage until it sells again, then writes off the unsellable fraction. Destroy pays the label, inbound, and a dispose fee, then writes off the full unit cost. Customer-keeps skips the label and the 3PL return lines and writes off the unit. On a cheap SKU with an expensive label, letting them keep it is usually cheaper. Restock wins once unit cost covers those extra 3PL fees at your restockable rate.</p>
+  <h3>When does restocking beat letting the customer keep a return?</h3>
+  <p>Divide the extra 3PL path (label + inbound + restock + storage + leftover destroy) by the restockable rate. That is the unit-cost threshold. At the default $8 label, $3.50 inbound, $4 restock, $0.40 storage, $1.50 leftover destroy, and 70% restockable, restock first beats customer-keeps at $23.36 cost of goods.</p>
+
 </body>
 </html>

@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { calculateCashFloat, calculateIncomeCoverage, calculatePlan, comparePaymentTerms, compareRetainerUsage, compareUnusedHourRollover } from './app.js';
+import { calculateCashFloat, calculateIncomeCoverage, calculatePlan, comparePaymentTerms, compareRetainerScenarios, compareRetainerUsage, compareUnusedHourRollover } from './app.js';
 
 const index = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const termsPage = readFileSync(new URL('./retainer-payment-terms.html', import.meta.url), 'utf8');
 const rolloverPage = readFileSync(new URL('./unused-hour-rollover.html', import.meta.url), 'utf8');
 const goalPage = readFileSync(new URL('./will-this-retainer-hit-my-income-goal.html', import.meta.url), 'utf8');
+const hoursPage = readFileSync(new URL('./how-many-retainer-hours.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
 assert.match(index, /id="paymentTerms"/);
@@ -70,6 +71,37 @@ assert.match(index, /id="coverageRequiredFill"/);
 assert.match(index, /id="coverageVerdict"/);
 assert.match(index, /will-this-retainer-hit-my-income-goal\.html/);
 assert.match(sitemap, /will-this-retainer-hit-my-income-goal\.html/);
+assert.match(index, /id="scenarioRows"/);
+assert.match(index, /id="scenarioInsight"/);
+assert.match(index, /how-many-retainer-hours\.html/);
+assert.match(index, /How many hours should a monthly retainer include/);
+assert.match(sitemap, /how-many-retainer-hours\.html/);
+
+assert.match(hoursPage, /No warranty/);
+assert.match(hoursPage, /GitHub Sponsors/);
+assert.match(hoursPage, /Best-effort hosting, no SLA/);
+assert.match(hoursPage, /not financial, tax, or legal advice/);
+
+const hourRows = compareRetainerScenarios({ income: 6000, costs: 1800, hours: 160, utilization: 65, retainerHours: 20, buffer: 15 });
+const publishedHours = [
+  { hours: 10, price: '$862.50', left: '94.0 hrs', share: '10%' },
+  { hours: 15, price: '$1,293.75', left: '89.0 hrs', share: '14%' },
+  { hours: 20, price: '$1,725', left: '84.0 hrs', share: '19%' },
+  { hours: 25, price: '$2,156.25', left: '79.0 hrs', share: '24%' },
+  { hours: 30, price: '$2,587.50', left: '74.0 hrs', share: '29%' },
+];
+for (const row of publishedHours) {
+  const computed = hourRows.find((item) => item.retainerHours === row.hours);
+  assert.ok(computed && computed.ok, `${row.hours}h package must price`);
+  const price = computed.retainer === 1725
+    ? `$${computed.retainer.toLocaleString('en-US')}`
+    : `$${computed.retainer.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  assert.equal(price, row.price, `${row.hours}h price`);
+  assert.equal(`${computed.remainingCapacity.toFixed(1)} hrs`, row.left, `${row.hours}h leftover`);
+  assert.equal(`${Math.round(computed.shareOfCapacity * 100)}%`, row.share, `${row.hours}h share`);
+  assert.ok(hoursPage.includes(row.price), `hours page missing ${row.price}`);
+  assert.ok(hoursPage.includes(row.left), `hours page missing ${row.left}`);
+}
 
 assert.match(goalPage, /No warranty/);
 assert.match(goalPage, /GitHub Sponsors/);

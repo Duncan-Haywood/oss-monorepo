@@ -1,0 +1,27 @@
+[project]
+name = "vendor-change-watch"
+version = "0.1.0"
+description = "Watch vendor terms/privacy/security pages you choose and get a source-linked diff when they change."
+requires-python = ">=3.10"
+readme = "README.md"
+dependencies = []
+
+[project.scripts]
+vendor-watch = "vendor_watch.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+files = "src"

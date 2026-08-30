@@ -1,12 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, compareRetainageRates, rateComparisonNote } from './calc.mjs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, summaryText, cashFlowRecordText, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
   assert.equal(parsed.ok, true);
-  assert.deepEqual(computeAll(parsed.values), { retainageWithheld: 10000, retainageStillUnpaid: 10000, earnedUnpaid: 25000, carryingCost: 739.73, totalCashOutstanding: 25739.73 });
+  assert.deepEqual(computeAll(parsed.values), { retainageWithheld: 10000, retainageStillUnpaid: 10000, earnedUnpaid: 25000, dailyCarryingCost: 8.22, thirtyDayDelayCost: 246.58, carryingCost: 739.73, totalCashOutstanding: 25739.73 });
+});
+
+test('draft names the modeled cost of another day and 30 days', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
+  const draft = followUpDraft({ result: computeAll(parsed.values), currency: '$' });
+  assert.match(draft, /each additional day represents approximately \$8\.22/);
+  assert.match(draft, /a 30-day delay would model approximately \$246\.58/);
 });
 
 test('rejects missing and inconsistent inputs', () => {
@@ -292,6 +299,61 @@ test('worksheet summary includes the retainage-rate comparison', () => {
   assert.match(summary, /10\.0% \(this worksheet\): withheld \$10000\.00; progress cash \$90000\.00; bid to keep progress cash \$111111\.11 \(\$11111\.11 extra\)/);
 });
 
+test('payment schedule export ignores blank rows and calculates outstanding amounts', () => {
+  const summary = paymentScheduleSummary([
+    { label: 'Mobilization', billed: '12000', paid: '5000' },
+    { label: '', billed: '', paid: '' }
+  ]);
+  assert.match(summary, /1\. Mobilization \| billed \$12000\.00 \| paid \$5000\.00 \| outstanding \$7000\.00/);
+  assert.doesNotMatch(summary, /2\./);
+  assert.match(summary, /Review this schedule/);
+});
+
+test('snapshot contains local inputs, modeled results, and safety note', () => {
+  const snapshot = evidenceSnapshot({ inputs: { contractValue: 100000 }, result: { earnedUnpaid: 25000, inputs: { contractValue: 100000 } }, projectName: ' Main Street ' });
+  assert.equal(snapshot.project.projectName, 'Main Street');
+  assert.deepEqual(snapshot.inputs, { contractValue: 100000 });
+  assert.equal(snapshot.modeledResults.earnedUnpaid, 25000);
+  assert.equal(snapshot.modeledResults.inputs, undefined);
+  assert.match(snapshot.note, /not legal/);
+  assert.match(snapshot.exportedAt, /^20\d\d-/);
+});
+
+test('the page offers a private payment milestone schedule', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="milestoneSection"/);
+  assert.match(page, /id="addMilestone"/);
+  assert.match(page, /id="downloadSchedule"/);
+  assert.match(page, /paymentScheduleSummary\(/);
+  assert.match(page, /retainage-cashflow:milestone-downloads/);
+});
+
+test('the page offers a private JSON evidence snapshot', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="jsonSnapshot"/);
+  assert.match(page, /evidenceSnapshot\(/);
+  assert.match(page, /retainage-cashflow:snapshot-downloads/);
+});
+
+test('summary export contains modeled values and safety boundary', () => {
+  const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
+  const summary = summaryText({ projectName: 'Main Street remodel', result: computeAll(parsed.values) });
+  assert.match(summary, /Main Street remodel/);
+  assert.match(summary, /Retainage withheld: \$10000\.00/);
+  assert.match(summary, /Retainage still unpaid: \$10000\.00/);
+  assert.match(summary, /Total modeled cash outstanding: \$25739\.73/);
+  assert.match(summary, /Not legal, tax, financial, or engineering advice/);
+  assert.doesNotMatch(summary, /Hello /);
+});
+
+test('the page offers a compact cash-summary download', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="downloadSummary"/);
+  assert.match(page, /summaryText\(/);
+  assert.match(page, /retainage-cash-flow-summary\.txt/);
+  assert.match(page, /retainage-cashflow:summary-downloads/);
+});
+
 test('the page restores drafts through decodeDraft, not a bare JSON.parse', () => {
   // The bug this guards: restoreDraft used to apply whatever parsed out of
   // local storage, so a stale or hand-edited draft was written over the working
@@ -301,4 +363,19 @@ test('the page restores drafts through decodeDraft, not a bare JSON.parse', () =
   const restore = page.slice(page.indexOf('function restoreDraft()'), page.indexOf('$(\'form\').addEventListener'));
   assert.match(restore, /decodeDraft\(raw\)/);
   assert.doesNotMatch(restore, /JSON\.parse/);
+});
+
+test('cash-flow record creates a portable record with explicit assumptions', () => {
+  const record = cashFlowRecordText({ projectName: 'Library remodel', invoiceReference: 'Pay app 4', dueDate: '2026-08-30', generatedDate: '2026-08-25', result: { retainageWithheld: 10000, earnedUnpaid: 25000, carryingCost: 739.73, totalCashOutstanding: 25739.73 } });
+  assert.match(record, /Project: Library remodel/);
+  assert.match(record, /Total modeled cash outstanding: \$25739\.73/);
+  assert.match(record, /not a determination of interest/);
+});
+
+test('the page offers a downloadable cash-flow record', () => {
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /id="downloadRecord"/);
+  assert.match(page, /cashFlowRecordText\(/);
+  assert.match(page, /retainage-cash-flow-record\.txt/);
+  assert.match(page, /retainage-cashflow:record-downloads/);
 });

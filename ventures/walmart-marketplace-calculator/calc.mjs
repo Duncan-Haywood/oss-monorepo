@@ -1739,3 +1739,232 @@ export function calculateListing(input) {
     matchStillProfitable: matched.selected.profit >= 0,
   };
 }
+
+// A repack is the one WFS lever that does not touch the price.
+//
+// Every other decision page here trades leftover against take rate: match the
+// Buy Box, run ads, offer 2-day. This one leaves the listing alone. The WFS
+// fulfillment fee is a step function of the shipped box — its longest, median
+// and shortest sides and its billable weight — so a carton that is half an inch
+// over on one side pays a whole tier more on every unit, forever, and nothing on
+// the listing says so. `classifySizeTier` and `defaultFulfillmentFee` already
+// encoded those steps and were being used only to price the box a seller
+// already had.
+//
+// What the seller cannot see from Seller Center is *which* measurement is the
+// one costing them. A carton at 19 × 13 × 7 and 3 lb is Oversize, and the fee
+// preview shows one number; it does not say "the 19-inch side is the only thing
+// keeping you out of Standard, and it is one inch." That single sentence is the
+// product here, and it is why `sizeTierGaps` reports each side separately
+// rather than a boolean.
+export const WFS_BOX_DEFAULTS = {
+  length: 19,
+  width: 13,
+  height: 7,
+  weightLb: 3,
+  newLength: 17.5,
+  newWidth: 13,
+  newHeight: 7,
+  newWeightLb: 2.9,
+  repackCostPerUnit: 0.35,
+  monthlyUnits: 120,
+};
+
+/** The Standard-tier ceilings `classifySizeTier` enforces, named so a page can quote them. */
+export const STANDARD_TIER_LIMITS = {
+  longestIn: 18,
+  medianIn: 14,
+  shortestIn: 8,
+  weightLb: 20,
+};
+
+/**
+ * Why each box misses Standard, measurement by measurement.
+ *
+ * Returns one row per constraint with how much it is over (0 when it clears),
+ * so a page can say "the longest side is 1 in over" instead of "not Standard".
+ * A box already in Standard returns all-zero overages and `clears: true`, which
+ * is the honest answer to "what should I shave?" — nothing.
+ */
+export function sizeTierGaps({ length, width, height, weightLb }) {
+  const l = number(length, "Length");
+  const w = number(width, "Width");
+  const h = number(height, "Height");
+  const weight = number(weightLb, "Weight");
+  const [longest, median, shortest] = [l, w, h].sort((a, b) => b - a);
+
+  const rows = [
+    { id: "longest", label: "Longest side", value: longest, limit: STANDARD_TIER_LIMITS.longestIn, unit: "in" },
+    { id: "median", label: "Median side", value: median, limit: STANDARD_TIER_LIMITS.medianIn, unit: "in" },
+    { id: "shortest", label: "Shortest side", value: shortest, limit: STANDARD_TIER_LIMITS.shortestIn, unit: "in" },
+    { id: "weight", label: "Weight", value: weight, limit: STANDARD_TIER_LIMITS.weightLb, unit: "lb" },
+  ].map((row) => ({ ...row, over: Math.max(0, row.value - row.limit) }));
+
+  const blocking = rows.filter((row) => row.over > 1e-9);
+  return { rows, blocking, clears: blocking.length === 0 };
+}
+
+/**
+ * The shipped box against a proposed repack, at the same price.
+ *
+ * Deliberately *not* a call to `calculateListing`: the listing's referral fee,
+ * cost of goods and inbound cost are identical on both sides, so folding them in
+ * would bury a $4 fulfillment step inside a $20 ticket and invite the reader to
+ * compare two profits that differ by exactly the thing this page is about.
+ * The comparison is the fulfillment fee and the repack cost, and nothing else.
+ */
+export function compareWfsBox(input = {}) {
+  const current = {
+    length: number(input.length, "Length", WFS_BOX_DEFAULTS.length),
+    width: number(input.width, "Width", WFS_BOX_DEFAULTS.width),
+    height: number(input.height, "Height", WFS_BOX_DEFAULTS.height),
+    weightLb: number(input.weightLb, "Weight", WFS_BOX_DEFAULTS.weightLb),
+  };
+  const proposed = {
+    length: number(input.newLength, "New length", WFS_BOX_DEFAULTS.newLength),
+    width: number(input.newWidth, "New width", WFS_BOX_DEFAULTS.newWidth),
+    height: number(input.newHeight, "New height", WFS_BOX_DEFAULTS.newHeight),
+    weightLb: number(input.newWeightLb, "New weight", WFS_BOX_DEFAULTS.newWeightLb),
+  };
+  const repackCostPerUnit = number(
+    input.repackCostPerUnit,
+    "Repack cost per unit",
+    WFS_BOX_DEFAULTS.repackCostPerUnit,
+  );
+  const monthlyUnits = number(input.monthlyUnits, "Monthly units", WFS_BOX_DEFAULTS.monthlyUnits);
+  if (monthlyUnits === 0) throw new Error("Monthly units must be greater than zero");
+
+  const box = (dims, id, label) => {
+    const tier = classifySizeTier(dims);
+    return {
+      id,
+      label,
+      ...dims,
+      tier,
+      tierLabel: SIZE_TIER_LABELS[tier],
+      cubicFeet: cubicFeet(dims),
+      fulfillmentFee: defaultFulfillmentFee(tier, dims.weightLb),
+      gaps: sizeTierGaps(dims),
+    };
+  };
+
+  const shipped = box(current, "current", "Box today");
+  const repacked = box(proposed, "repacked", "Repacked box");
+
+  const feeSaving = shipped.fulfillmentFee - repacked.fulfillmentFee;
+  const netPerUnit = feeSaving - repackCostPerUnit;
+  const monthlySaving = netPerUnit * monthlyUnits;
+  const tierChanged = shipped.tier !== repacked.tier;
+
+  // The repack cost the saving can absorb before the two are level. Negative
+  // when the repack raises the fee — there is no cost that rescues that, and
+  // reporting a negative break-even is more honest than clamping it to zero.
+  const breakEvenRepackCost = feeSaving;
+
+  // Volume is only meaningful when a per-unit gain exists to multiply.
+  const breakEvenUnits = netPerUnit > 1e-9 ? 0 : Infinity;
+
+  const winner = Math.abs(netPerUnit) <= 1e-9 ? "tie" : netPerUnit > 0 ? "repacked" : "current";
+
+  return {
+    rows: [shipped, repacked],
+    current: shipped,
+    repacked,
+    winner,
+    tierChanged,
+    feeSaving,
+    repackCostPerUnit,
+    netPerUnit,
+    monthlySaving,
+    monthlyUnits,
+    breakEvenRepackCost,
+    breakEvenUnits,
+    summary: wfsBoxSummary({
+      winner,
+      shipped,
+      repacked,
+      tierChanged,
+      feeSaving,
+      repackCostPerUnit,
+      netPerUnit,
+      monthlySaving,
+      monthlyUnits,
+      breakEvenRepackCost,
+    }),
+  };
+}
+
+function gapSentence(gaps) {
+  if (gaps.clears) return "";
+  const parts = gaps.blocking.map(
+    (row) => `${row.label.toLowerCase()} is ${row.over.toFixed(2)} ${row.unit} over the ${row.limit} ${row.unit} Standard ceiling`,
+  );
+  if (parts.length === 1) return ` The only thing outside Standard is that its ${parts[0]}.`;
+  return ` Outside Standard because its ${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}.`;
+}
+
+function wfsBoxSummary({
+  winner,
+  shipped,
+  repacked,
+  tierChanged,
+  feeSaving,
+  repackCostPerUnit,
+  netPerUnit,
+  monthlySaving,
+  monthlyUnits,
+  breakEvenRepackCost,
+}) {
+  const units = `${monthlyUnits} unit${monthlyUnits === 1 ? "" : "s"} a month`;
+  const tierBit = tierChanged
+    ? `The repack moves the box from ${shipped.tierLabel} to ${repacked.tierLabel}.`
+    : `Both boxes bill as ${shipped.tierLabel}.`;
+  const gapBit = gapSentence(repacked.gaps);
+
+  // A repack that changes nothing is the most common real answer and the one a
+  // tool is most tempted to dress up. Say it plainly, and say what would have
+  // to change instead of implying the shaving was worth doing.
+  if (Math.abs(feeSaving) <= 1e-9) {
+    return (
+      `${tierBit} The fulfillment fee is ${moneyLabel(shipped.fulfillmentFee)} either way, so the ` +
+      `repack saves nothing and the ${moneyLabel(repackCostPerUnit)} of labour and materials is a ` +
+      `straight loss of ${moneyLabel(Math.abs(monthlySaving))} across ${units}.${gapBit}`
+    );
+  }
+
+  if (feeSaving < 0) {
+    return (
+      `${tierBit} The repacked box costs ${moneyLabel(Math.abs(feeSaving))} more per unit to fulfil, ` +
+      `not less — before the ${moneyLabel(repackCostPerUnit)} repack. Across ${units} that is ` +
+      `${moneyLabel(Math.abs(monthlySaving))} worse than shipping the box as it is.${gapBit}`
+    );
+  }
+
+  const feeBit =
+    `${tierBit} The fulfillment fee falls ${moneyLabel(feeSaving)} per unit, from ` +
+    `${moneyLabel(shipped.fulfillmentFee)} to ${moneyLabel(repacked.fulfillmentFee)}.`;
+  const floorBit =
+    ` The repack pays for itself up to ${moneyLabel(breakEvenRepackCost)} a unit in labour and materials.`;
+
+  if (winner === "repacked") {
+    return (
+      `${feeBit} After ${moneyLabel(repackCostPerUnit)} to repack, that is ${moneyLabel(netPerUnit)} ` +
+      `a unit, or ${moneyLabel(monthlySaving)} across ${units}.${floorBit}${gapBit}`
+    );
+  }
+  if (winner === "tie") {
+    return `${feeBit} The ${moneyLabel(repackCostPerUnit)} repack costs exactly what it saves, so the two are level.${gapBit}`;
+  }
+  return (
+    `${feeBit} But repacking costs ${moneyLabel(repackCostPerUnit)} a unit, which is more than the ` +
+    `fee it saves — ${moneyLabel(Math.abs(netPerUnit))} a unit worse, or ` +
+    `${moneyLabel(Math.abs(monthlySaving))} across ${units}.${floorBit}${gapBit}`
+  );
+}
+
+export function wfsBoxNote(comparison) {
+  if (!comparison?.current || !comparison?.repacked) {
+    throw new Error("WFS box comparison is missing rows");
+  }
+  return comparison.summary;
+}

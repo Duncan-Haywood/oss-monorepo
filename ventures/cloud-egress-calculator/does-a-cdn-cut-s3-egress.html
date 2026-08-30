@@ -60,7 +60,10 @@
     .note { font-size: .9rem; color: #445064; }
     footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
     @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Cloud egress cost calculator</a></p>
@@ -114,6 +117,12 @@
     transfer path in front of one store. The calculator is arithmetic,
     not advice. It does not claim a cache will hit at the rate you typed.
   </p>
+  <h2>Common questions</h2>
+  <h3>Does a CDN cut S3 egress?</h3>
+  <p>Not always. Every user download still pays CDN egress. Cache misses also pay origin fetch for the bytes that leave the origin toward the CDN. On a 100 GB month at $0.09 origin and $0.085 CDN, 80% hits bill $10.30 on the CDN path versus $9.00 origin-only. The CDN path matches origin-only around 94.4% hits. Paste your quoted rates; this page does not fetch provider prices.</p>
+  <h3>What hit rate makes a CDN cheaper than origin egress?</h3>
+  <p>The hit-rate floor is the cache-hit percentage where both paths bill the same. Below that floor, origin-only is cheaper on these rates. The page solves that volume from the rates you enter. It does not recommend turning a CDN on or off.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

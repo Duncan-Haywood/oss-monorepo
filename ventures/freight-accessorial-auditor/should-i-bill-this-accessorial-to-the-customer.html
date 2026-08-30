@@ -28,7 +28,10 @@
     .error { color: #9a3412; }
     footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
     @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Freight accessorial invoice auditor</a></p>
@@ -87,6 +90,12 @@
     (is the bill right?). This page is who holds the cash after you pay
     the carrier. It does not invoice anyone or file a claim.
   </p>
+  <h2>Common questions</h2>
+  <h3>Should I bill this accessorial to the customer?</h3>
+  <p>On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim.</p>
+  <h3>When does reviewing a freight extra cost more than eating it?</h3>
+  <p>When the gap is crumbs and the review is expensive. An $80 line against $30 supported is a $50 gap. Ten hours at $125/hr is $1,250.00 of labor. Eating that line on $80 already collected keeps $0.00. A credit still finishes $1,200.00 behind eating.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

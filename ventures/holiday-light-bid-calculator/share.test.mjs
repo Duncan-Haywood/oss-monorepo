@@ -8,6 +8,13 @@ import {
   loadBid,
   clearBid,
   restoreBid,
+  withProposalTerms,
+  readProposalTerms,
+  overlongTerms,
+  overlongTermsNote,
+  MAX_TERM_TEXT,
+  PROPOSAL_TERM_NUMBERS,
+  PROPOSAL_TERM_TEXT,
 } from './share.mjs';
 
 // These exercise the transform, so the spec below is a stand-in rather than
@@ -231,4 +238,227 @@ test('rows survive a save and reload', () => {
 test('a spec with no rows is unaffected by any of this', () => {
   assert.equal(encodeBid(SPEC, { area: '48', areas: [{ type: 'office' }] }).includes('areas'), false);
   assert.equal(decodeBid(SPEC, 'area=48&areas=office:1:2').areas, undefined);
+});
+
+// A select whose options are numbers is the case that broke. The DOM hands
+// back a string, but a page is free to coerce before calling in here, and
+// `sewer-line-replace-bid-calculator` does exactly that in `readInput()` so its
+// own arithmetic gets a number. Encoding used to require `typeof === 'string'`,
+// so the field vanished from the link and from the save without a word: a bid
+// priced for a 6-inch lateral reopened as the default 4-inch one, at a
+// different price, for the recipient and for the setter's own next visit.
+const NUMERIC_CHOICE_SPEC = {
+  key: 'saved-bid',
+  numbers: ['runFeet'],
+  flags: [],
+  choices: { diameterIn: ['4', '6'], grade: ['plain', 'fancy'] },
+};
+
+test('a select the page coerced to a number still reaches the link', () => {
+  const encoded = encodeBid(NUMERIC_CHOICE_SPEC, { diameterIn: 6, runFeet: '80' });
+  assert.equal(new URLSearchParams(encoded).get('diameterIn'), '6');
+  assert.deepEqual(
+    decodeBid(NUMERIC_CHOICE_SPEC, encoded),
+    { diameterIn: '6', runFeet: '80' },
+  );
+});
+
+test('a coerced select survives a save and reload', () => {
+  const storage = fakeStorage();
+  saveBid(storage, NUMERIC_CHOICE_SPEC, { diameterIn: 6, runFeet: '80' });
+  assert.deepEqual(loadBid(storage, NUMERIC_CHOICE_SPEC), { diameterIn: '6', runFeet: '80' });
+});
+
+test('coercion tolerance does not widen what a select will accept', () => {
+  // The allowed list still decides. A number the select does not offer is
+  // rejected exactly as an unoffered string is, and a value that is neither a
+  // string nor a finite number never gets as far as being compared — `true`
+  // must not arrive as the option `"true"`, nor an object as `"[object
+  // Object]"`.
+  for (const rejected of [8, -6, NaN, Infinity, true, false, null, undefined, {}, ['6'], () => '6']) {
+    const encoded = encodeBid(NUMERIC_CHOICE_SPEC, { diameterIn: rejected, runFeet: '80' });
+    assert.equal(
+      new URLSearchParams(encoded).has('diameterIn'),
+      false,
+      `${String(rejected)} should not have been accepted as a diameter`,
+    );
+  }
+});
+
+test('a coerced row cell reaches the link too', () => {
+  const NUMERIC_ROW_SPEC = {
+    ...ROW_SPEC,
+    rows: {
+      param: 'areas',
+      fields: [
+        { key: 'coats', kind: 'choice', options: ['1', '2'] },
+        { key: 'squareFeet', kind: 'number' },
+      ],
+    },
+  };
+  const encoded = encodeBid(NUMERIC_ROW_SPEC, { areas: [{ coats: 2, squareFeet: '400' }] });
+  assert.deepEqual(
+    decodeBid(NUMERIC_ROW_SPEC, encoded).areas,
+    [{ coats: '2', squareFeet: '400' }],
+  );
+  // and an unoffered number is still refused
+  assert.deepEqual(
+    decodeBid(NUMERIC_ROW_SPEC, encodeBid(NUMERIC_ROW_SPEC, { areas: [{ coats: 9, squareFeet: '400' }] })).areas,
+    [{ squareFeet: '400' }],
+  );
+});
+
+// ---- Proposal terms -------------------------------------------------------
+//
+// The defect these cover, recorded 2026-08-29: 48 bid calculators carried the
+// pricing form into a shared link and left the proposal terms behind, so a bid
+// sent at a 50% deposit held for 15 days reopened at the venture's defaults —
+// 30% and 30 days — under a headline figure that matched the sender's to the
+// cent. The same terms were missing from the setter's own saved bid.
+
+test('the proposal terms ride in a link and come back as sent', () => {
+  const spec = withProposalTerms(SPEC);
+  const values = {
+    area: '900', wage: '38', margin: '18',
+    extraA: true, extraB: false, scope: 'full', grade: 'fancy',
+    depositPercent: '50',
+    validDays: '15',
+    paymentTerms: 'Half on acceptance, balance on completion.',
+    proposalNotes: 'Crew starts 7am; driveway must be clear.',
+    proposalExclusions: 'Permits\nSprinkler repair',
+  };
+  assert.deepEqual(decodeBid(spec, encodeBid(spec, values)), values);
+});
+
+test('newlines survive, because an exclusions list is a list', () => {
+  const spec = withProposalTerms(SPEC);
+  const values = { area: '1', proposalExclusions: 'Permits\nDisposal\nSprinkler repair' };
+  assert.equal(
+    decodeBid(spec, encodeBid(spec, values)).proposalExclusions,
+    'Permits\nDisposal\nSprinkler repair',
+  );
+});
+
+test('a term too long to travel is dropped whole, never half-sent', () => {
+  const spec = withProposalTerms(SPEC);
+  const essay = 'x'.repeat(MAX_TERM_TEXT + 1);
+  const decoded = decodeBid(spec, encodeBid(spec, { area: '1', paymentTerms: essay }));
+  assert.equal(decoded.paymentTerms, undefined);
+  assert.equal(decoded.area, '1');
+  // and the sender is told which one stayed behind rather than the recipient
+  // reading it as a field the sender left blank
+  assert.deepEqual(overlongTerms({ paymentTerms: essay }), ['paymentTerms']);
+  assert.deepEqual(overlongTerms({ paymentTerms: 'Net 30.' }), []);
+  assert.deepEqual(overlongTerms(null), []);
+});
+
+test('a term at the ceiling still travels', () => {
+  const spec = withProposalTerms(SPEC);
+  const exact = 'x'.repeat(MAX_TERM_TEXT);
+  assert.equal(decodeBid(spec, encodeBid(spec, { paymentTerms: exact })).paymentTerms, exact);
+});
+
+test('a crafted link cannot paste control characters into a printed proposal', () => {
+  const spec = withProposalTerms(SPEC);
+  const crafted = new URLSearchParams({ area: '1', paymentTerms: 'Net \u001b[2J\u0007 30' }).toString();
+  assert.equal(decodeBid(spec, crafted).paymentTerms, 'Net [2J 30');
+});
+
+test('a crafted link cannot paste an essay past the ceiling', () => {
+  const spec = withProposalTerms(SPEC);
+  const crafted = new URLSearchParams({
+    area: '1', proposalNotes: 'x'.repeat(MAX_TERM_TEXT + 1),
+  }).toString();
+  assert.equal(decodeBid(spec, crafted).proposalNotes, undefined);
+});
+
+test('a term holding only whitespace is not carried as terms the sender wrote', () => {
+  const spec = withProposalTerms(SPEC);
+  const encoded = encodeBid(spec, { area: '1', paymentTerms: '  \n  ' });
+  assert.equal(new URLSearchParams(encoded).has('paymentTerms'), false);
+});
+
+test('the terms are saved with the bid, so they are typed once', () => {
+  const storage = fakeStorage();
+  const spec = withProposalTerms(SPEC);
+  saveBid(storage, spec, { area: '900', depositPercent: '50', paymentTerms: 'Net 15.' });
+  const loaded = loadBid(storage, spec);
+  assert.equal(loaded.depositPercent, '50');
+  assert.equal(loaded.paymentTerms, 'Net 15.');
+});
+
+test('a link wins over stored terms, as it does over stored figures', () => {
+  const storage = fakeStorage();
+  const spec = withProposalTerms(SPEC);
+  saveBid(storage, spec, { area: '900', depositPercent: '30', paymentTerms: 'Net 30.' });
+  const restored = restoreBid(spec, {
+    search: encodeBid(spec, { area: '900', depositPercent: '50', paymentTerms: 'Net 15.' }),
+    storage,
+  });
+  assert.equal(restored.source, 'link');
+  assert.equal(restored.values.depositPercent, '50');
+  assert.equal(restored.values.paymentTerms, 'Net 15.');
+});
+
+test('folding the terms in twice leaves one copy of each', () => {
+  const once = withProposalTerms(SPEC);
+  const twice = withProposalTerms(once);
+  assert.deepEqual(twice.numbers, once.numbers);
+  assert.deepEqual(twice.text, once.text);
+  assert.equal(new Set(twice.numbers).size, twice.numbers.length);
+  assert.equal(new Set(twice.text).size, twice.text.length);
+});
+
+test('a spec that already names a term keeps its own ordering', () => {
+  const spec = withProposalTerms({ ...SPEC, numbers: ['depositPercent', 'area'] });
+  assert.deepEqual(spec.numbers, ['depositPercent', 'area', 'validDays']);
+});
+
+test('every named term is one kind or the other, and no id is both', () => {
+  const overlap = PROPOSAL_TERM_NUMBERS.filter(id => PROPOSAL_TERM_TEXT.includes(id));
+  assert.deepEqual(overlap, []);
+});
+
+test('withProposalTerms leaves a non-spec alone rather than inventing one', () => {
+  assert.equal(withProposalTerms(null), null);
+  assert.equal(withProposalTerms('nope'), 'nope');
+});
+
+test('readProposalTerms takes the terms off the page and leaves the rest', () => {
+  const page = {
+    depositPercent: { value: '50' },
+    validDays: { value: '15' },
+    paymentTerms: { value: 'Net 15.' },
+    proposalNotes: { value: '' },
+    proposalExclusions: { value: 'Permits' },
+  };
+  const values = readProposalTerms({ area: '900' }, id => page[id] ?? null);
+  assert.equal(values.area, '900');
+  assert.equal(values.depositPercent, '50');
+  assert.equal(values.paymentTerms, 'Net 15.');
+  assert.equal(values.proposalNotes, '');
+});
+
+test('a page without the proposal panel is unchanged, and a throwing lookup is survivable', () => {
+  assert.deepEqual(readProposalTerms({ area: '900' }, () => null), { area: '900' });
+  assert.deepEqual(
+    readProposalTerms({ area: '900' }, () => { throw new Error('no such id'); }),
+    { area: '900' },
+  );
+  assert.deepEqual(readProposalTerms({ area: '900' }, undefined), { area: '900' });
+  assert.deepEqual(readProposalTerms(null, () => null), {});
+});
+
+test('the note names the box on screen, not the id in the markup', () => {
+  const long = 'x'.repeat(MAX_TERM_TEXT + 1);
+  assert.equal(overlongTermsNote({ paymentTerms: 'Net 30.' }), '');
+  assert.match(overlongTermsNote({ paymentTerms: long }), /^your payment terms is too long/);
+  assert.match(
+    overlongTermsNote({ paymentTerms: long, proposalNotes: long }),
+    /^your payment terms and notes are too long/,
+  );
+  assert.match(
+    overlongTermsNote({ proposalExclusions: long, paymentTerms: long, proposalNotes: long }),
+    /^your not-included list, payment terms and notes are too long/,
+  );
 });

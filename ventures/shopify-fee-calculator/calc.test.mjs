@@ -206,6 +206,22 @@ test("reports an unreachable target margin when fees leave no margin room", () =
   assert.equal(r.selected.targetMarginPrice, Infinity);
 });
 
+test("calculates the item price required for a target net profit", () => {
+  const input = {
+    price: 48, shippingCharged: 6, paymentsRate: 2.9, paymentsFixed: 0.3,
+    costOfGoods: 14, shippingCost: 5, packagingCost: 1, monthlyPlan: 39,
+    monthlyOrders: 100, targetProfit: 20, paymentMethod: "shopify_payments",
+  };
+  const r = calculateOrder(input);
+  const atTarget = calculateOrder({ ...input, price: r.selected.targetProfitPrice });
+  near(atTarget.selected.profit, 20, "profit at target price");
+});
+
+test("reports an unreachable target profit when the fee rate is 100%", () => {
+  const r = calculateOrder({ price: 10, paymentsRate: 100, targetProfit: 20, paymentMethod: "shopify_payments" });
+  assert.equal(r.selected.targetProfitPrice, Infinity);
+});
+
 test("ROI is null when no cash was invested", () => {
   const r = calculateOrder({
     price: 20,

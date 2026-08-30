@@ -15,10 +15,66 @@ test("normalizes the full monthly quote and minimum", () => {
   assert.deepEqual(result.components, ["receiving", "storage", "pickPack", "packaging", "shipping", "returns", "fixed"]);
 });
 
+test("minimum orders estimates the volume where line items alone clear the minimum", () => {
+  const result = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
+  assert.ok(result.minimumOrders > 0);
+  const atThatVolume = Math.ceil(result.minimumOrders);
+  const atMinimumOrders = calculate({
+    orders: atThatVolume,
+    unitsPerOrder: 1.5,
+    pallets: 1,
+    minimumMonthly: 2000,
+    inboundUnits: atThatVolume * 1.5,
+  });
+  assert.ok(atMinimumOrders.quote.subtotal >= 2000 - 1);
+});
+
+test("minimum orders is zero when no minimum monthly spend is set", () => {
+  const result = calculate({ orders: 100, minimumMonthly: 0 });
+  assert.equal(result.minimumOrders, 0);
+});
+
+test("negotiation lines and summary name the minimum-clearing volume only when a minimum applies", () => {
+  const withMinimum = calculate({ orders: 100, unitsPerOrder: 1.5, pallets: 1, minimumMonthly: 2000 });
+  assert.ok(negotiationLines(withMinimum).some((line) => line.includes("clear the minimum")));
+  assert.ok(summary(withMinimum).includes("clear the minimum"));
+  const noMinimum = calculate({ orders: 100, minimumMonthly: 0 });
+  assert.ok(!negotiationLines(noMinimum).some((line) => line.includes("clear the minimum")));
+  assert.ok(!summary(noMinimum).includes("clear the minimum"));
+});
+
 test("break-even reflects the in-house comparison", () => {
   const result = calculate({ orders: 100, inHousePerOrder: 20, minimumMonthly: 0 });
-  assert.equal(Math.round(result.breakEvenOrders), Math.round(result.quote.total / 20));
+  const atBreakEven = calculate({ orders: result.breakEvenOrders, inHousePerOrder: 20, minimumMonthly: 0 });
+  const justBelow = calculate({ orders: Math.max(0, result.breakEvenOrders - 1), inHousePerOrder: 20, minimumMonthly: 0 });
+  assert.ok(atBreakEven.delta >= 0);
+  assert.ok(justBelow.delta < 0);
   assert.ok(result.delta > 0);
+});
+
+test("reports no break-even when 3PL variable cost always exceeds in-house", () => {
+  const result = calculate({ orders: 100, shipping: 20, inHousePerOrder: 10 });
+  assert.equal(result.breakEvenOrders, 0);
+  assert.equal(result.breakEvenFound, false);
+});
+
+test("a high monthly minimum is priced into the searched break-even volume", () => {
+  const result = calculate({ orders: 100, inHousePerOrder: 20, minimumMonthly: 2500, inboundUnits: 150 });
+  assert.equal(result.breakEvenFound, true);
+  const atBreakEven = calculate({
+    orders: result.breakEvenOrders,
+    inHousePerOrder: 20,
+    minimumMonthly: 2500,
+    inboundUnits: result.breakEvenOrders * 1.5,
+  }, false);
+  const justBelow = calculate({
+    orders: Math.max(0, result.breakEvenOrders - 1),
+    inHousePerOrder: 20,
+    minimumMonthly: 2500,
+    inboundUnits: Math.max(0, result.breakEvenOrders - 1) * 1.5,
+  }, false);
+  assert.ok(atBreakEven.delta >= 0);
+  if (result.breakEvenOrders > 0) assert.ok(justBelow.delta < 0);
 });
 
 test("zero volume stays finite and does not apply a minimum", () => {
@@ -34,8 +90,14 @@ test("compares two normalized quotes and creates a negotiation report", () => {
   const comparison = compareQuotes(first, second);
   assert.equal(comparison.cheaper, "first");
   assert.equal(comparison.totalDelta, second.quote.total - first.quote.total);
-  assert.match(negotiationLines(first).join("\n"), /shipping: \$800\.00/);
+  assert.match(negotiationLines(first).join("\n"), /Shipping: \$800\.00/);
   assert.match(negotiationLines(first).join("\n"), /Subtotal before minimum/);
+});
+
+test("negotiation report uses buyer-facing line item labels", () => {
+  const lines = negotiationLines(calculate({ orders: 100, shipping: 8 }));
+  assert.match(lines.join("\n"), /Shipping: \$800\.00/);
+  assert.doesNotMatch(lines.join("\n"), /shipping:/);
 });
 
 test("does not pick a winner when normalized quote totals tie", () => {

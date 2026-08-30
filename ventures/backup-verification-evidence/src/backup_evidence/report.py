@@ -34,7 +34,7 @@ def _parse_timestamp(value: str) -> datetime:
     return parsed
 
 
-def classify_run(record: dict[str, Any]) -> dict[str, Any]:
+def classify_run(record: dict[str, Any], *, require_integrity: bool = False) -> dict[str, Any]:
     """Classify one backup run record. Never raises on customer-supplied input.
 
     `record` shape (all customer-supplied, nothing fetched or inferred):
@@ -126,6 +126,21 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
             f"{integrity.get('detail', 'the integrity check did not complete')}"
         )
 
+    if require_integrity and integrity_result != integrity_mod.INTACT:
+        if integrity_result == integrity_mod.UNSUPPORTED:
+            reason = "the artifact format is unsupported by this tool"
+        elif integrity_result == integrity_mod.INCONCLUSIVE:
+            reason = "the integrity read did not reach a conclusive end"
+        else:
+            reason = "no end-to-end integrity check was recorded"
+        return {
+            "status": STATUS_INCONCLUSIVE,
+            "reasons": [f"integrity is required, but {reason}"],
+            "tool": record["tool"],
+            "finished_at": record["finished_at"],
+            "integrity": integrity,
+        }
+
     expected = record.get("expected") or {}
     size_bytes = artifact.get("size_bytes")
     min_size = expected.get("min_size_bytes")
@@ -213,7 +228,9 @@ def classify_run(record: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def build_history_report(records: list[dict[str, Any]]) -> dict[str, Any]:
+def build_history_report(
+    records: list[dict[str, Any]], *, require_integrity: bool = False
+) -> dict[str, Any]:
     """Classify a list of run records and summarize the most recent one.
 
     Records are sorted by `finished_at` where parseable; unparseable timestamps
@@ -228,7 +245,7 @@ def build_history_report(records: list[dict[str, Any]]) -> dict[str, Any]:
         return (0, record["finished_at"])
 
     ordered = sorted(records, key=sort_key)
-    findings = [classify_run(record) for record in ordered]
+    findings = [classify_run(record, require_integrity=require_integrity) for record in ordered]
     counts: dict[str, int] = {}
     for finding in findings:
         counts[finding["status"]] = counts.get(finding["status"], 0) + 1
@@ -272,6 +289,7 @@ def build_history_report(records: list[dict[str, Any]]) -> dict[str, Any]:
         "latest": latest,
         "findings": findings,
         "limitations": limitations,
+        "require_integrity": require_integrity,
     }
 
 

@@ -77,6 +77,7 @@ test("figures named in schema.org featureList are actually rendered", () => {
     ["target-margin price", /targetMarginPrice/],
     ["current vs October 2026 fee schedule", /compareFeeSchedules/],
     ["monthly P&L", /result\.monthlyProfit/],
+    ["charge vs free shipping leftover", /compareFreeShipping/],
   ];
   for (const [claim, rendered] of claims) {
     assert.ok(
@@ -112,8 +113,23 @@ test("null figures are rendered defensively", () => {
 test("the landing copy names the affiliate-return problem in the first screen", () => {
   assert.match(markup, /The 6% is not what you keep/);
   assert.match(markup, /affiliate-commission-on-returns\.html/);
+  assert.match(markup, /should-i-offer-free-shipping-on-tiktok-shop\.html/);
+  assert.match(markup, /id="freeShipTable"/);
+  assert.match(scriptSource, /compareFreeShipping/);
+  assert.match(scriptSource, /freeShippingNote/);
+  assert.match(scriptSource, /free_shipping_compared/);
   assert.match(markup, /No warranty/);
   assert.match(markup, /Nothing leaves your browser/);
+});
+
+test("the calculator's free-shipping table renders one cell per column", () => {
+  const table = markup.match(/<table id="freeShipTable">[\s\S]*?<\/table>/);
+  assert.ok(table, "index.html is missing the free-shipping table");
+  const columns = table[0].match(/<th\b/g).length;
+  const row = scriptSource.match(/shipping\.paths\.map\([\s\S]*?<\/tr>`\)/);
+  assert.ok(row, "free-shipping row template not found");
+  const cells = row[0].match(/<t[hd]\b/g).length;
+  assert.equal(cells, columns, "free-shipping row emits a different cell count than the header");
 });
 
 test("scenario sharing is local and restores entered assumptions", () => {

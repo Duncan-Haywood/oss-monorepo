@@ -11,6 +11,8 @@ publishing under the portfolio's name is owner-gated per
 [`portfolio/DIRECTION.md`](../../portfolio/DIRECTION.md) — but it is ready to
 deploy as-is.
 
+Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
+
 ```bash
 # Serve it locally
 npx http-server ventures/water-heater-bid-calculator -p 8080

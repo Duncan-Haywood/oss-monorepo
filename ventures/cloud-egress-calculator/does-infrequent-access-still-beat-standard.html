@@ -60,7 +60,10 @@
     .note { font-size: .9rem; color: #445064; }
     footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
     @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Cloud egress cost calculator</a></p>
@@ -118,6 +121,12 @@
     claim a restore will stay at the volume you typed, and it does not
     model minimum storage duration.
   </p>
+  <h2>Common questions</h2>
+  <h3>Does S3 infrequent access still save money after restore fees?</h3>
+  <p>Not always. The infrequent class bills less to store a gigabyte and more to read it back. On the default 500 GB stored and 150 GB retrieved — $0.023 standard, $0.0125 infrequent, $0.04 per retrieved GB — standard is $11.50. Infrequent is $6.25 storage plus $6.00 retrieve, $12.25. Standard is $0.75 cheaper. Infrequent matches standard at 131.3 GB retrieved. Paste your quoted rates; this page does not fetch provider prices.</p>
+  <h3>How much can I restore each month before infrequent access costs more than standard?</h3>
+  <p>The restore-GB ceiling is the monthly retrieve volume where both classes bill the same. Above that volume, standard is cheaper on these rates. The page solves that volume from the rates you enter. It does not recommend changing a storage class.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial or technical advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

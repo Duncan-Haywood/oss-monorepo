@@ -22,10 +22,48 @@ def _number(value: str) -> int | float:
     return int(number) if number == number.to_integral_value() else float(number)
 
 
+def _nested_text(element: ElementTree.Element, container: str, field: str) -> str:
+    """Text of ``<container><field>``, scoped to that container.
+
+    ``_children`` walks every descendant, so an unscoped lookup for ``ID`` on a
+    party answers with whatever ``ID`` comes first in document order -- which on
+    a party carrying ``cac:PartyTaxScheme`` is ``cac:TaxScheme/cbc:ID``, the
+    name of the tax scheme ("VAT"). Scoping the search to the container first
+    keeps a party identifier from being read out of an unrelated element.
+    """
+    for child in _children(element, container):
+        value = _text(child, field, required=False)
+        if value:
+            return value
+    return ""
+
+
+def _party_identifier(party: ElementTree.Element) -> str:
+    """The party's own identifier, in the order a receiver would resolve it.
+
+    EN 16931 makes the seller and buyer identifiers (BT-29/BT-46) optional --
+    plenty of real Peppol invoices identify a party by its electronic address
+    and name alone. Treating the identifier as mandatory made those invoices
+    unreadable rather than reporting a finding, so this returns "" and lets the
+    checks decide what a missing identifier means.
+    """
+    return (
+        _nested_text(party, "PartyIdentification", "ID")
+        or _text(party, "EndpointID", required=False)
+        or _nested_text(party, "PartyLegalEntity", "CompanyID")
+        or _nested_text(party, "PartyTaxScheme", "CompanyID")
+    )
+
+
 def _party(element: ElementTree.Element) -> dict[str, Any]:
     party = next(iter(_children(element, "Party")), element)
-    identifier = _text(party, "ID")
-    name = _text(party, "Name")
+    identifier = _party_identifier(party)
+    # XRechnung carries the legal name in PartyLegalEntity/RegistrationName and
+    # may omit PartyName entirely, so that is a source for the name, not a
+    # reason to refuse the document.
+    name = _nested_text(party, "PartyName", "Name") or _nested_text(
+        party, "PartyLegalEntity", "RegistrationName"
+    ) or _text(party, "Name")
     mapped: dict[str, Any] = {"id": identifier, "name": name}
     vat_id = ""
     for scheme in _children(party, "PartyTaxScheme"):
@@ -126,6 +164,11 @@ def parse_ubl_invoice(source: bytes | str) -> dict[str, Any]:
         },
     }
     payment = _payee_payment(root)
+    terms_days = _payment_terms_days(root)
+    if terms_days:
+        if not payment:
+            payment = {}
+        payment["terms_days"] = terms_days
     if payment:
         invoice["payment"] = payment
     exemption = _document_exemption(root)
@@ -287,6 +330,22 @@ def _optional_monetary_totals(total: ElementTree.Element) -> dict[str, int | flo
     if payable:
         extras["due"] = _number(payable)
     return extras
+
+
+def _payment_terms_days(root: ElementTree.Element) -> str:
+    """Map invoice-level PaymentTerms/SettlementPeriod/DurationMeasure in days."""
+    for child in list(root):
+        if child.tag.rsplit("}", 1)[-1] != "PaymentTerms":
+            continue
+        for period in _children(child, "SettlementPeriod"):
+            for measure in list(period):
+                if measure.tag.rsplit("}", 1)[-1] != "DurationMeasure":
+                    continue
+                unit = (measure.get("unitCode") or "").strip().upper()
+                value = (measure.text or "").strip()
+                if value and unit in {"DAY", "D"}:
+                    return value
+    return ""
 
 
 def _payee_payment(root: ElementTree.Element) -> dict[str, str]:

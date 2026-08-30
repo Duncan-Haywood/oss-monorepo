@@ -10,7 +10,15 @@ const FIELDS = [
   "overhead",
   "subcontractor_cost",
   "target_hourly_rate",
+  "time_buffer_percent",
 ];
+
+// Editable starting points, not pricing recommendations.
+export const QUOTE_PRESETS = {
+  website: { label: "Website project", price: 2400, delivery_hours: 24, admin_hours: 5, revision_hours: 6, overhead: 180, subcontractor_cost: 300, target_hourly_rate: 75 },
+  brand: { label: "Brand identity", price: 1800, delivery_hours: 18, admin_hours: 4, revision_hours: 5, overhead: 90, subcontractor_cost: 0, target_hourly_rate: 80 },
+  consulting: { label: "Consulting engagement", price: 1500, delivery_hours: 12, admin_hours: 3, revision_hours: 2, overhead: 40, subcontractor_cost: 0, target_hourly_rate: 100 },
+};
 
 /**
  * Validates and normalizes raw quote input, matching src/quote_margin.py's
@@ -44,15 +52,49 @@ export function calculate(quote) {
   const directCosts = quote.overhead + quote.subcontractor_cost;
   const effectiveHourlyRate = (quote.price - directCosts) / totalHours;
   const targetPrice = totalHours * quote.target_hourly_rate + directCosts;
+  const bufferedHours = totalHours * (1 + quote.time_buffer_percent / 100);
+  const bufferedTargetPrice = bufferedHours * quote.target_hourly_rate + directCosts;
+  const hiddenHours = quote.admin_hours + quote.revision_hours;
+  const targetRateHours = (quote.price - directCosts) / quote.target_hourly_rate;
   return {
     total_hours: totalHours,
     direct_costs: directCosts,
     effective_hourly_rate: effectiveHourlyRate,
     target_price: targetPrice,
+    break_even_price: directCosts,
+    buffered_hours: bufferedHours,
+    buffered_target_price: bufferedTargetPrice,
     gap_to_target: quote.price - targetPrice,
     cost_coverage: quote.price - directCosts,
     discount_room: Math.max(0, quote.price - targetPrice),
+    minimum_price_adjustment: Math.max(0, targetPrice - quote.price),
+    delivery_hours: quote.delivery_hours,
+    hidden_hours: hiddenHours,
+    hidden_time_percent: (hiddenHours / totalHours) * 100,
+    target_rate_hours: targetRateHours,
+    hours_cushion: targetRateHours - totalHours,
   };
+}
+
+/** Encodes validated inputs for a serverless, shareable URL. */
+export function encodeQuote(quote) {
+  const params = new URLSearchParams();
+  params.set("currency", quote.currency);
+  for (const field of FIELDS) params.set(field, String(quote[field]));
+  return params.toString();
+}
+
+/** Reads a URL query string or fragment and validates it through the same input boundary. */
+export function decodeQuote(search) {
+  const params = new URLSearchParams(search.replace(/^[?#]/, ""));
+  if (!params.has("price") || !params.has("delivery_hours") || !params.has("target_hourly_rate")) {
+    return null;
+  }
+  const data = { currency: params.get("currency") ?? undefined };
+  for (const field of FIELDS) {
+    if (params.has(field)) data[field] = Number(params.get(field));
+  }
+  return loadQuote(data);
 }
 
 /** Breaks the target price into the inputs that produced it. */
@@ -78,6 +120,20 @@ export function overrunScenarios(quote, report, percentages = [10, 25, 50]) {
       gap_to_target: quote.price - (hours * quote.target_hourly_rate + report.direct_costs),
     };
   });
+}
+
+/** Maximum total hours that still reaches the supplied target rate. */
+export function targetHoursBudget(quote, report) {
+  return report.target_rate_hours ?? (quote.price - report.direct_costs) / quote.target_hourly_rate;
+}
+
+/** Compares the quote price needed at nearby hourly targets. */
+export function targetRateLadder(quote, report, rates = [50, 75, 100, 125]) {
+  return rates.map((rate) => ({
+    hourly_rate: rate,
+    target_price: report.total_hours * rate + report.direct_costs,
+    difference_from_quote: report.total_hours * rate + report.direct_costs - quote.price,
+  }));
 }
 
 /**

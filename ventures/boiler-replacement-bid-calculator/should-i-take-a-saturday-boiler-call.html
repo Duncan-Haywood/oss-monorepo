@@ -21,7 +21,10 @@
     th:first-child, td:first-child { text-align: left; }
     .cta { display: inline-block; margin: 18px 0; padding: 12px 16px; background: #2a2018; color: #f4eee6; border-radius: 8px; text-decoration: none; font-weight: 700; }
     footer { margin-top: 36px; font-size: .85rem; color: #5a616b; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="index.html">← Boiler replacement bid calculator</a></p>
@@ -55,6 +58,14 @@
   <h2>How to use the comparison</h2>
   <p>Open the <a href="index.html">boiler replacement bid calculator</a>, pick the cheap-special or losing-job preset, and put their Saturday number in “price you’re considering.” The access table scores that number against a weekday slot, same-day with no heat, and after-hours / Saturday. Nothing is uploaded.</p>
   <p>This is the same arithmetic as <a href="how-much-to-charge-to-replace-a-boiler.html">how much to charge to replace a boiler</a>. It is not a labor-law determination, a union scale, or a reason to refuse a customer — it is the walk-away number on each access window.</p>
+
+  <h2>Common questions</h2>
+  <h3>Should I take a Saturday or after-hours boiler replacement call?</h3>
+  <p>Only after you price time-and-a-half plus a second emergency dispatch. A Friday-night no-heat call is not a stop you combine with a weekday route. A $4,500 Saturday special on an 80 MBH gas like-for-like sits under that walk-away number even on a weekday slot.</p>
+  <h3>Does a same-day no-heat call change the bid?</h3>
+  <p>Yes. Same wage, slower plant hang and punch-list. On a typical 80 MBH two-zone gas hot-water swap the same-day bid is $6,899.46 versus $6,740.98 when they can wait for a weekday slot.</p>
+  <h3>Can I take the weekday $5,800 number on Saturday?</h3>
+  <p>Usually not on the job they actually want. On a cheap gas like-for-like the after-hours walk-away is $6,107.22. $5,800 covers a weekday slot and loses $307.22 after hours. On a steam-to-hot-water conversion, $4,500 still loses money even on the weekday.</p>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not heat-loss, fuel-gas-code, chimney-design, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

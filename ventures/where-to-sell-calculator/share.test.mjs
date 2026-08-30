@@ -79,6 +79,25 @@ test("ignores unknown fields and malformed links", () => {
   assert.equal(decodeComparison("not-json"), null);
 });
 
+test("carries the holding period, so a shared link answers the same question", () => {
+  // Regression: days-to-sell and the ranking mode landed after share links did,
+  // and were silently dropped from the payload — the recipient saw a different
+  // ranking from the sender with no sign anything was missing.
+  const encoded = encodeComparison(
+    { price: 48, rankBy: "profitPerDay" },
+    [{ id: "ebay", daysToSell: 3 }, { id: "local", daysToSell: 90 }],
+  );
+  const decoded = decodeComparison(encoded);
+  assert.equal(decoded.rankBy, "profitPerDay");
+  assert.equal(decoded.channels.find((channel) => channel.id === "ebay").daysToSell, 3);
+  assert.equal(decoded.channels.find((channel) => channel.id === "local").daysToSell, 90);
+});
+
+test("an unknown or absent ranking mode decodes to the default", () => {
+  assert.equal(decodeComparison(encodeComparison({}, [])).rankBy, "profit");
+  assert.equal(decodeComparison(encodeComparison({ rankBy: "sideways" }, [])).rankBy, "profit");
+});
+
 test("a channel value that is not a usable number is dropped, not passed on", () => {
   // Salvaged from cursor/where-to-sell-share-hardening-20260825. A link is
   // untrusted input: a non-numeric or negative value used to survive the
@@ -115,4 +134,34 @@ test("a link cannot smuggle a channel field the calculator never asked for", () 
     }],
   })));
   assert.deepEqual(restored.channels, [{ id: "etsy", enabled: true, price: 62 }]);
+});
+
+test("drops hostile and invalid channel values before they reach the page", () => {
+  const restored = decodeComparison(encodeURIComponent(JSON.stringify({
+    channels: [{
+      id: "etsy",
+      values: {
+        price: '"><img src=x onerror=alert(1)>',
+        commissionRate: "6.5",
+        paymentRate: -1,
+        paymentFixed: "not-a-number",
+      },
+    }],
+  })));
+
+  assert.deepEqual(restored.channels[0], {
+    id: "etsy",
+    enabled: true,
+    commissionRate: 6.5,
+  });
+});
+
+test("does not turn null, empty, or boolean values into zero", () => {
+  const restored = decodeComparison(encodeURIComponent(JSON.stringify({
+    shared: { price: null, itemCost: "", monthlyOrders: false },
+    channels: [{ id: "other", values: { price: null, commissionRate: true } }],
+  })));
+
+  assert.deepEqual(restored.shared, {});
+  assert.deepEqual(restored.channels[0], { id: "other", enabled: true });
 });

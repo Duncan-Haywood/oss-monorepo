@@ -24,7 +24,10 @@
     th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #d8d8d8; }
     th:first-child, td:first-child { text-align: left; }
     footer { margin-top: 2rem; font-size: .85rem; color: #5a5a5a; }
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
   <p><a href="./">← Quote Margin Check</a></p>
@@ -80,6 +83,14 @@
     accepting or refusing a discount, write a reply, or claim a quote is
     profitable.
   </p>
+  <h2>Common questions</h2>
+  <h3>What happens to my effective hourly rate if a client asks for 10% off?</h3>
+  <p>Hours and direct costs stay the same. Only the quoted price falls. On the calculator example ($2,400, 35 hours, $480 of direct costs, $75 target), 10% off is $2,160 and $48.00/hour. Holding $75/hour would take cutting 12.60 hours of scope (22.40 hours of work left).</p>
+  <h3>Is 10% off a 10% hit to my hourly rate?</h3>
+  <p>No. The discount applies to the whole price, but your overhead and subcontractor cost do not shrink with it. On the example the rate falls from $54.86 to $48.00 — more than 10% — because the $480 of direct costs is unchanged.</p>
+  <h3>Does this tell me whether to accept the discount?</h3>
+  <p>No. The table is arithmetic on the figures you typed. It does not recommend a price, write a negotiation script, or claim a quote is profitable. You decide what rate and scope are acceptable.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>

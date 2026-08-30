@@ -61,6 +61,9 @@ workflows:
 - workflow: appliance-repair-quote-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: appointment-deposit-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: artificial-turf-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -86,6 +89,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: boiler-replacement-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: booth-rent-vs-commission-ci.yml
   classification: none
   publishes: []
 - workflow: branch-cleanup.yml
@@ -265,6 +271,9 @@ workflows:
 - workflow: grant-deadline-tracker-ci.yml
   classification: none
   publishes: []
+- workflow: grant-reporting-tracker-ci.yml
+  classification: none
+  publishes: []
 - workflow: gravel-driveway-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -328,10 +337,16 @@ workflows:
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: link-contrast-ci.yml
+  classification: none
+  publishes: []
 - workflow: local-site-studio-ci.yml
   classification: none
   publishes: []
 - workflow: ltl-freight-class-estimator-ci.yml
+  classification: none
+  publishes: []
+- workflow: marketplace-fee-compare-ci.yml
   classification: none
   publishes: []
 - workflow: mcp-drift-watch-ci.yml
@@ -510,6 +525,9 @@ workflows:
 - workflow: screened-porch-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: security-camera-bid-calculator-ci.yml
+  classification: none
+  publishes: []
 - workflow: seller-net-sheet-ci.yml
   classification: none
   publishes: []
@@ -523,6 +541,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: shed-install-bid-calculator-ci.yml
+  classification: none
+  publishes: []
+- workflow: shop-rate-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: shopify-a11y-evidence-ci.yml
@@ -553,6 +574,12 @@ workflows:
   classification: none
   publishes: []
 - workflow: source-silence-detector-ci.yml
+  classification: none
+  publishes: []
+- workflow: sponsor-ready-ci.yml
+  classification: none
+  publishes: []
+- workflow: spray-foam-bid-calculator-ci.yml
   classification: none
   publishes: []
 - workflow: stair-lift-bid-calculator-ci.yml
@@ -607,6 +634,15 @@ workflows:
   classification: none
   publishes: []
 - workflow: vendor-change-evidence-ci.yml
+  classification: none
+  publishes: []
+- workflow: vendor-change-watch-ci.yml
+  classification: none
+  publishes: []
+- workflow: vendor-rate-break-even-ci.yml
+  classification: none
+  publishes: []
+- workflow: vendor-watch-ci.yml
   classification: none
   publishes: []
 - workflow: vinyl-liner-bid-calculator-ci.yml

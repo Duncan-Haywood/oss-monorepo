@@ -11,12 +11,11 @@ export function displayAreaName(presetLabel, customName, index) {
   return `Area ${index + 1}`;
 }
 
-// The page only asks for a name on Other space. A leftover value in a hidden
-// field after switching back to a catalog type must not rename that type —
-// draft restore matches space type by the catalog label.
+// Optional proposal names work on every row, including catalog types, so two
+// restrooms can be told apart. Draft restore keeps space type in its own
+// field; the typed name is only a label.
 export function nameForRow(presetLabel, customName, index) {
-  if (presetLabel) return presetLabel;
-  return displayAreaName('', customName, index);
+  return displayAreaName(presetLabel, customName, index);
 }
 
 // Area names are written into the labor-split HTML. Escape so a name like
