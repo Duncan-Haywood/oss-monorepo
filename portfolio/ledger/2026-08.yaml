@@ -178,6 +178,13 @@ entries:
         opt-out local usage counter, MIT license, SEO metadata, sitemap, and
         robots.txt. Public publishing remains owner-gated; first usage reading
         is recorded as zero.
+      - >-
+        Added a browser-local plain-text cash-flow record download so a
+        contractor can carry a reviewed snapshot into their own records. The
+        record includes a generation date, labeled modeled amounts, and an
+        explicit no-entitlement limitation; download counts are opt-out local
+        usage events. Node behavior tests pass and public publishing remains
+        owner-gated.
     mrr_end: null
   - venture: public-record-watch
     agent_spend_usd: null
