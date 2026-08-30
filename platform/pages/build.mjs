@@ -298,6 +298,100 @@ export function categoryFor(slug) {
 }
 
 /**
+ * Where a category's own landing page is served.
+ *
+ * Under `c/` rather than at the root because the root is the product
+ * namespace: a directory there is a published tool, and `check.mjs` reads it
+ * that way (it requires an `index.html`, a hub link, and a disclaimer for each
+ * one). A single reserved prefix keeps the two namespaces from colliding the
+ * first time someone ships a venture called `logistics`.
+ */
+export const CATEGORY_PATH_PREFIX = 'c';
+
+export function categoryPagePath(categoryId) {
+  return `${CATEGORY_PATH_PREFIX}/${categoryId}/`;
+}
+
+/**
+ * The copy each category page is published with.
+ *
+ * Separate from `CATEGORY_RULES` because these are different jobs. The rules
+ * decide which tools a section holds and are edited every time a venture
+ * lands; this is the page's search-facing copy — the phrase a visitor actually
+ * types — and changes only when the category's audience does.
+ *
+ * The hub cannot do this job itself. It is one URL carrying 164 tools across
+ * six trades, so its title and description have to stay generic enough to
+ * cover all of them, and it competes for "free contractor bid calculator"
+ * against pages that are about nothing else. A category page is about one
+ * thing, which is the whole reason it can rank for one thing.
+ *
+ * `title` deliberately omits the site name: the build appends it, and a title
+ * that carries it twice is what search engines truncate.
+ */
+const CATEGORY_PAGE_COPY = {
+  marketplace: {
+    title: 'Free marketplace seller fee calculators',
+    description:
+      'Free fee and profit calculators for eBay, Etsy, Amazon, Shopify, Walmart, TikTok Shop, Faire, Reverb and delivery apps. Enter your own cost of goods and see what an order actually nets. Runs in your browser.',
+    intro:
+      'Every marketplace publishes a fee schedule and none of them publish what you keep. These calculators put your own cost of goods, shipping and return rate into the arithmetic, so the number you get is the one that lands in your account — not a percentage off the sale price.',
+    audience: 'people selling on marketplaces',
+  },
+  trades: {
+    title: 'Free contractor bid calculators and estimating tools',
+    description:
+      'Free bid calculators for roofing, HVAC, plumbing, electrical, concrete, painting, cleaning and more. Price materials, crew hours, payroll burden and overhead, then print a customer proposal with the scope and deposit split.',
+    intro:
+      'A bid that only counts materials and an hourly rate loses money on burden, overhead and the extras nobody wrote down. These calculators price a job the way the trade does, then print the customer a proposal with the scope, the deposit split and a line to sign.',
+    audience: 'trade contractors',
+  },
+  logistics: {
+    title: 'Free freight, 3PL and cloud cost calculators',
+    description:
+      'Free tools to normalise a 3PL quote, audit an LTL freight bill, price owner-operator miles, cost a cut list, and size a cloud egress transfer before you sign for it.',
+    intro:
+      'Freight and cloud quotes are priced to be hard to compare: different accessorial lists, different fuel bases, different units. These tools put competing quotes on one basis so the cheapest headline rate and the cheapest total stop being different answers.',
+    audience: 'logistics and infrastructure buyers',
+  },
+  evidence: {
+    title: 'Free compliance check and evidence record tools',
+    description:
+      'Free tools that produce a dated record of what you checked — e-invoicing readiness, backup verification, DNS evidence, accessibility and permission drift, chargeback packets. Observations you act on, never a determination made on your behalf.',
+    intro:
+      'The hard part of a compliance obligation is usually not the check — it is proving later that you did it, on the day you say you did. These tools produce a dated, exportable record of an observation you made, in a form you can hand to whoever asks.',
+    audience: 'small teams preparing compliance evidence',
+  },
+  backoffice: {
+    title: 'Free small-business cash flow and pricing tools',
+    description:
+      'Free calculators for cash runway, invoice payment terms, CAM reconciliation, SaaS seat true-ups, subscription price changes and break-even on a price move — the arithmetic after the job is won.',
+    intro:
+      'Winning the work and getting paid for it are two different problems. These tools cover the second one: when the cash actually arrives, what a payment term costs you, and what a price change has to earn before it breaks even.',
+    audience: 'small-business owners and operators',
+  },
+  more: {
+    title: 'More free small-business calculators',
+    description:
+      'The rest of the free, browser-only calculators on this site — everything that does not sit in the marketplace, trade, logistics, compliance or back-office sections.',
+    intro:
+      'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
+    audience: 'small businesses',
+  },
+};
+
+export function categoryPageCopy(category) {
+  return (
+    CATEGORY_PAGE_COPY[category.id] ?? {
+      title: category.title,
+      description: category.blurb,
+      intro: category.blurb,
+      audience: 'small businesses',
+    }
+  );
+}
+
+/**
  * Sub-groups inside a category, so a section that has grown past a screenful is
  * still scannable.
  *
@@ -966,6 +1060,226 @@ export function groupByCategory(surfaces) {
     .filter((group) => group.items.length > 0);
 }
 
+/**
+ * The shared look for a category page. Kept as one string rather than a file so
+ * a category page is a single request with nothing to 404: the hub already
+ * inlines its own, for the same reason.
+ *
+ * Deliberately a subset of the hub's sheet — the same tokens, the same card,
+ * none of the search-box or contents-index rules a category page has no markup
+ * for. Two sheets that share a palette drift; two sheets that share *names*
+ * drift visibly, which is the point.
+ */
+const CATEGORY_STYLE = `
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+`;
+
+/**
+ * One category's landing page.
+ *
+ * Why these exist at all: the hub is a single URL carrying 164 tools across six
+ * unrelated trades. That is the right front door for someone who already knows
+ * the site, and the wrong page for organic search, which matches a query
+ * against one page's whole subject. A contractor searching "free roofing bid
+ * calculator" is competing for the hub's attention with eleven marketplace fee
+ * tools and nine compliance checks, and the hub cannot describe itself as a
+ * roofing page without lying to the other 153.
+ *
+ * A category page is about one thing, links only that thing's tools, and says
+ * so in its title, its description, its H1 and its JSON-LD. It also gives the
+ * catalogue an internal-linking layer it did not have: every tool was one click
+ * from a page about everything, and is now one click from a page about its own
+ * trade.
+ *
+ * Not a copy of the hub with a filter applied. No search box (the hub's is
+ * better and this page is already the filtered view), and the cards carry no
+ * `data-search` payload, which is a meaningful weight saving on the 112-tool
+ * trades page.
+ */
+export function renderCategoryPage({ category, items, groups, baseUrl }) {
+  const copy = categoryPageCopy(category);
+  const url = `${baseUrl}${categoryPagePath(category.id)}`;
+  // Every asset lives at the site root and this page is served two levels down.
+  const toRoot = '../../';
+  const subgroups = groupBySubcategory(category.id, items);
+  const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
+
+  const renderCard = (surface) => `          <li class="card">
+            <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-tool="${escapeHtml(surface.slug)}" data-pf-to="${escapeHtml(surface.slug)}">
+              <h3>${escapeHtml(surface.title)}</h3>
+            </a>
+            <p>${escapeHtml(surface.description)}</p>
+            ${
+              surface.pageCount > 1
+                ? `<p class="meta">${surface.pageCount} question${surface.pageCount === 1 ? '' : 's'} answered</p>`
+                : ''
+            }
+          </li>`;
+
+  const body = flat
+    ? `      <ul class="cards">
+${items.map(renderCard).join('\n')}
+      </ul>`
+    : subgroups
+        .map(
+          ({ subcategory, items: subItems }) => `      <section class="subgroup" id="${escapeHtml(subcategory.id)}">
+        <h2>${escapeHtml(subcategory.title)} <span class="subgroup-count">${subItems.length}</span></h2>
+        <ul class="cards">
+${subItems.map(renderCard).join('\n')}
+        </ul>
+      </section>`,
+        )
+        .join('\n');
+
+  // Sibling links matter more here than they look. Without them each category
+  // page is a leaf: a crawler that lands on one from search reaches the hub and
+  // nothing else, and a visitor whose tool is one section over has to go back
+  // to a page of 164 to find it.
+  const siblings = groups
+    .filter((group) => group.category.id !== category.id)
+    .map(
+      ({ category: other, items: otherItems }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(other.id)}`)}">${escapeHtml(
+          categoryPageCopy(other).title,
+        )}</a> <span>(${otherItems.length})</span></li>`,
+    )
+    .join('\n');
+
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: copy.title,
+    url,
+    description: copy.description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: category.title, item: url },
+      ],
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.map((surface, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${baseUrl}${surface.slug}/`,
+        name: surface.title,
+      })),
+    },
+  };
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${copy.title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(copy.description)}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(copy.title)}">
+  <meta property="og:description" content="${escapeHtml(copy.description)}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <style>${CATEGORY_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} free tools</a> › ${escapeHtml(category.title)}</p>
+    <header>
+      <p class="eyebrow">${escapeHtml(category.title)}</p>
+      <h1>${escapeHtml(copy.title)}</h1>
+      <p class="lede">${escapeHtml(copy.intro)}</p>
+      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded</p>
+    </header>
+
+    <main>
+${body}
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+${siblings}
+      </ul>
+    </section>
+
+    <footer>${DISCLAIMER_HTML}
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a></p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`${CATEGORY_PATH_PREFIX}/${category.id}`)}" defer></script>
+</body>
+</html>
+`;
+}
+
 export function renderHub(surfaces, baseUrl) {
   const groups = groupByCategory(surfaces);
 
@@ -1063,9 +1377,14 @@ ${subItems.map((surface) => renderCard(surface, 4)).join('\n')}
             )
             .join('\n');
 
+      // The heading links its own category page. This is the only path a
+      // crawler has to those pages from the hub, and it is also the honest
+      // affordance for a visitor who wants one trade rather than all six —
+      // without it the section heading is the one thing on this page that
+      // names a subject and cannot be opened.
       return `
       <section class="group" id="${category.id}" data-group="${category.id}">
-        <h2>${escapeHtml(category.title)}</h2>
+        <h2><a class="group-link" href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a></h2>
         <p class="group-blurb">${escapeHtml(category.blurb)}</p>
 ${body}
       </section>`;
@@ -1184,6 +1503,8 @@ ${subgroups
     .group, .subgroup { scroll-margin-top: 14px; }
     .group { margin-top: 38px; }
     .group h2 { font-size: 1.3rem; margin: 0 0 4px; letter-spacing: -.02em; }
+    .group h2 a { color: inherit; text-decoration: none; }
+    .group h2 a:hover, .group h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
     .group-blurb { color: var(--muted); margin: 0 0 16px; font-size: .95rem; line-height: 1.5; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
@@ -3082,10 +3403,20 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(baseUrl) {
+/**
+ * The site's own pages, as opposed to the ventures': the hub, and one entry per
+ * category landing page. Both belong here rather than in a sitemap of their
+ * own — they are the same kind of page (this build's, not a venture's) and a
+ * crawler following `robots.txt` reaches them through the same index.
+ */
+export function renderHubSitemap(baseUrl, categoryIds = []) {
+  const urls = [`  <url><loc>${baseUrl}</loc></url>`].concat(
+    categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`),
+  );
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${baseUrl}</loc></url>
+${urls.join('\n')}
 </urlset>
 `;
 }
@@ -3152,6 +3483,16 @@ export function renderCatalog(surfaces, baseUrl) {
       privacy: 'client-side-only',
       source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
       generated_by: 'platform/pages/build.mjs',
+      // The catalogue's own index. `tools[].category` names a category but
+      // gives no way to reach one, so a client that wanted "everything in this
+      // category" had to scan all 164 rows and rebuild the grouping itself.
+      categories: groupByCategory(surfaces).map(({ category, items }) => ({
+        id: category.id,
+        name: category.title,
+        url: `${baseUrl}${categoryPagePath(category.id)}`,
+        description: categoryPageCopy(category).description,
+        tool_count: items.length,
+      })),
       tools: surfaces.map((surface) => ({
         slug: surface.slug,
         name: surface.title,
@@ -3216,7 +3557,12 @@ export function renderLlmsTxt(surfaces, baseUrl) {
                 `### ${subcategory.title}\n\n${subItems.map(bullet).join('\n')}`,
             )
             .join('\n\n');
-    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${body}\n`;
+    // The category's own page, named on the line under its heading. An
+    // assistant that has been asked for "a roofing bid calculator" can cite a
+    // page that is about roofing bid calculators rather than the hub, which is
+    // about 164 unrelated things and reads that way in a citation.
+    const landing = `Category page: ${baseUrl}${categoryPagePath(category.id)}`;
+    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${landing}\n\n${body}\n`;
   });
 
   // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
@@ -3467,8 +3813,25 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
+  // One landing page per category, under the reserved `c/` prefix. Written
+  // before the sitemaps because `renderHubSitemap` has to list exactly the
+  // pages this loop produced — a category page in no sitemap is the quiet
+  // failure `check.mjs` exists to catch.
+  const categoryGroups = groupByCategory(surfaces);
+  for (const { category, items } of categoryGroups) {
+    const dir = path.join(outDir, CATEGORY_PATH_PREFIX, category.id);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, 'index.html'),
+      renderCategoryPage({ category, items, groups: categoryGroups, baseUrl: base }),
+    );
+  }
+
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
+  await fs.writeFile(
+    path.join(outDir, 'sitemap-hub.xml'),
+    renderHubSitemap(base, categoryGroups.map(({ category }) => category.id)),
+  );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
   await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base));
 

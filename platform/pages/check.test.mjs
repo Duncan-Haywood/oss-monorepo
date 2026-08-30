@@ -458,3 +458,102 @@ test('one control of either kind is fine, and a non-button id is not a control',
   };
   assert.deepEqual(mentioning(await problemsFor(section), 'two hash formats'), []);
 });
+
+// ---------------------------------------------------------------------------
+// Category landing pages
+//
+// `c/` is the one root directory that is not a product, so the product checks
+// have to skip it and a second set has to hold it to its own contract. Both
+// halves are tested: skipping it must not make it unchecked.
+// ---------------------------------------------------------------------------
+
+const CATEGORY_SITE = {
+  'index.html':
+    '<a href="tool/" data-tool="tool">Tool</a>'
+    + '<h2><a href="c/trades/" data-category="trades">Trades</a></h2>'
+    + '<footer>No warranty.</footer>',
+  'sitemap-hub.xml': urlset('', 'c/trades/'),
+  'c/trades/index.html':
+    '<a href="../../tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
+};
+
+test('a healthy artifact with category pages passes', async () => {
+  const dir = await siteWith(CATEGORY_SITE);
+  assert.deepEqual(await checkSite(dir), []);
+});
+
+test('c/ is not held to the product contract', async () => {
+  // Before the exclusion, `c/` was read as a product: no `c/index.html`, no hub
+  // link named `c`, no `c` row in llms.txt — three problems for a directory
+  // that is working correctly.
+  const dir = await siteWith(CATEGORY_SITE);
+  const problems = await checkSite(dir);
+  assert.ok(!problems.some((p) => /^c\//.test(p) && !/^c\/trades/.test(p)), problems.join('\n'));
+});
+
+test('a category page the hub does not link is reported', async () => {
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'index.html': '<a href="tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
+  });
+  const problems = await checkSite(dir);
+  assert.ok(
+    problems.some((p) => p.includes('c/trades/: shipped but the hub does not link it')),
+    problems.join('\n'),
+  );
+});
+
+test('a hub link to a category that did not ship is reported', async () => {
+  const dir = await siteWith({ ...CATEGORY_SITE, 'c/trades/index.html': null });
+  const problems = await checkSite(dir);
+  assert.ok(
+    problems.some((p) => p.includes('links category "trades" but c/trades/ did not ship')),
+    problems.join('\n'),
+  );
+});
+
+test('a category page without a disclaimer must not ship', async () => {
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'c/trades/index.html': '<a href="../../tool/" data-tool="tool">Tool</a>',
+  });
+  const problems = await checkSite(dir);
+  assert.ok(
+    problems.some((p) => p.includes('c/trades/index.html: carries no disclaimer')),
+    problems.join('\n'),
+  );
+});
+
+test('a category page listing a tool that did not ship is reported', async () => {
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'c/trades/index.html':
+      '<a href="../../gone/" data-tool="gone">Gone</a><footer>No warranty.</footer>',
+  });
+  const problems = await checkSite(dir);
+  assert.ok(
+    problems.some((p) => p.includes('c/trades/index.html: links "gone"')),
+    problems.join('\n'),
+  );
+});
+
+test('an empty category page is reported', async () => {
+  const dir = await siteWith({
+    ...CATEGORY_SITE,
+    'c/trades/index.html': '<p>Nothing here yet.</p><footer>No warranty.</footer>',
+  });
+  const problems = await checkSite(dir);
+  assert.ok(
+    problems.some((p) => p.includes('c/trades/index.html: lists no tools')),
+    problems.join('\n'),
+  );
+});
+
+test('a category page in no sitemap is reported', async () => {
+  const dir = await siteWith({ ...CATEGORY_SITE, 'sitemap-hub.xml': urlset('') });
+  const problems = await checkSite(dir);
+  assert.ok(
+    problems.some((p) => p.includes('c/trades/index.html: served but absent from every sitemap')),
+    problems.join('\n'),
+  );
+});
