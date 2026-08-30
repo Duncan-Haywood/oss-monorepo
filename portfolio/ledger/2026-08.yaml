@@ -34496,3 +34496,39 @@ entries:
         variable remain the owner's, unchanged. What changed is that the code
         those seals switch on has now been run.
     mrr_end: null
+  - venture: vendor-rate-break-even
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed `compare()` in calc.mjs: a scenario with a *lower* fixed cost
+        but a *higher* per-job cost than the baseline (e.g. a no-minimum
+        pay-per-job vendor vs. a leased/subscription one) was hard-coded to
+        `breakEvenJobs: null`, which the UI renders as "Not cheaper" -- flatly
+        wrong when the scenario is genuinely cheaper below some job volume
+        (verified: $1,000/mo baseline @ $10/job vs. a $0-fixed $15/job
+        scenario is $975/mo cheaper at 5 jobs/mo, yet showed "Not cheaper"
+        next to a positive savings figure and a "best" row highlight -- a
+        direct on-page contradiction). Root cause: the gate checked only the
+        sign of the per-job saving, ignoring the sign of the fixed-cost delta,
+        so it silently assumed a scenario only ever trades a *higher* fixed
+        fee for a *lower* per-job cost.
+      - >-
+        Added a `cheaperUpToJobs` field alongside the existing `breakEvenJobs`
+        (a single number/null pair cannot represent both "cheaper starting at
+        N jobs" and "cheaper only below N jobs" without conflating them),
+        wired the new state into the results table ("Below N jobs/mo") and the
+        two FAQ answers that documented the old, wrong semantics of "Not
+        cheaper". Also fixed the degenerate case of an equal per-job cost with
+        a lower fixed cost, previously `null`/"Not cheaper" despite being
+        cheaper at every volume -- now `breakEvenJobs: 0`.
+      - >-
+        Verified: `node --test` on the venture (13/13, including 2 new tests
+        plus an assertion added to the existing "never cheaper" test) and a
+        full portfolio rebuild (`platform/pages/build.mjs` + `check.mjs`,
+        168 products / 490 pages, no dead links) confirming the FAQ edits
+        don't regress FAQPage schema coverage (168/168 unchanged). Found via
+        a targeted search across ventures not touched in the last 7 days for
+        the same "hard-coded 0/null ceiling" bug shape the fleet has been
+        fixing elsewhere; 12 other ventures checked and found clean.
+    mrr_end: null

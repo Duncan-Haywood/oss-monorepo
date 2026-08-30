@@ -26,7 +26,10 @@
 <p>Break-even only exists when a scenario charges a fixed fee the baseline does not. In the built-in example, the bulk supplier adds a $100/month fee but drops the per-job cost from $120 to $90 &mdash; a $30/job saving, so it takes ceil($100 &divide; $30) = 4 jobs before that fee is paid back. The subcontractor scenario has no fixed fee at all, only a $5/job saving, so there is nothing to recoup and it shows as cheaper starting from job one.</p>
 
 <h3>What does &ldquo;Not cheaper&rdquo; mean in the break-even column?</h3>
-<p>It means the scenario's per-job cost is higher than your current variable cost, so no volume of jobs ever pays back its fixed fee &mdash; there is no break-even point to reach, not just a distant one. Compare the &ldquo;Cost / job&rdquo; and &ldquo;Savings / job&rdquo; columns for that row: a negative savings figure is why.</p>
+<p>It means the scenario loses on both numbers: its per-job cost is higher than your current variable cost <em>and</em> its fixed cost is the same or higher, so no volume of jobs ever makes it win &mdash; there is no break-even point to reach, not just a distant one. Compare the &ldquo;Cost / job&rdquo; and &ldquo;Savings / job&rdquo; columns for that row: a negative savings figure is why.</p>
+
+<h3>What does &ldquo;Below N jobs/mo&rdquo; mean?</h3>
+<p>The opposite trade from a fixed-fee break-even: this scenario has a <em>lower</em> fixed cost than your baseline but a <em>higher</em> per-job cost, so it wins at low volume on the fixed-cost saving alone and loses that lead once enough jobs push the higher per-job rate past it. It is cheaper only while your monthly job count stays below the number shown &mdash; run more jobs than that and the current operation (or a scenario with a lower per-job cost) wins instead. A no-minimum, pay-per-job vendor compared against a leased or subscription-priced one is the usual shape of this case.</p>
 
 <h3>Why enter fixed cost and per-job cost separately instead of one blended rate?</h3>
 <p>Because they behave differently as volume changes. A monthly minimum or lease payment (fixed) gets cheaper per job the more jobs you run; a per-unit supplier price or mileage rate (variable) does not move with volume at all. Blending them into one number hides which lever actually changes if your job count changes next quarter.</p>
@@ -79,11 +82,11 @@ function update() {
       baseVariablePerJob: +$('baseVariable').value,
       scenarios: scenarios.map((row) => ({ name: row[0], fixedMonthly: row[1], variablePerJob: row[2] })),
     });
-    const rows = [{ name: 'Current operation', ...result.baseline, savingsPerJob: 0, breakEvenJobs: null }, ...result.scenarios];
+    const rows = [{ name: 'Current operation', ...result.baseline, savingsPerJob: 0, breakEvenJobs: null, cheaperUpToJobs: null }, ...result.scenarios];
     const best = rows.reduce((a, b) => (b.costPerJob < a.costPerJob ? b : a));
     $('best').textContent = best.name;
     $('bestNote').textContent = `${money(best.costPerJob)} per job at ${result.jobs} jobs/month`;
-    $('results').innerHTML = rows.map((row) => `<tr class="${row === best ? 'best' : ''}"><th>${escapeHtml(row.name)}</th><td>${money(row.monthlyCost)}</td><td>${money(row.costPerJob)}</td><td class="${row.savingsPerJob < 0 ? 'danger' : ''}">${money(row.savingsPerJob)}</td><td>${row.breakEvenJobs === null ? 'Not cheaper' : row.breakEvenJobs === 0 ? 'Already cheaper' : `${row.breakEvenJobs} jobs/mo`}</td></tr>`).join('');
+    $('results').innerHTML = rows.map((row) => `<tr class="${row === best ? 'best' : ''}"><th>${escapeHtml(row.name)}</th><td>${money(row.monthlyCost)}</td><td>${money(row.costPerJob)}</td><td class="${row.savingsPerJob < 0 ? 'danger' : ''}">${money(row.savingsPerJob)}</td><td>${row.breakEvenJobs === 0 ? 'Already cheaper' : row.breakEvenJobs !== null ? `${row.breakEvenJobs} jobs/mo` : row.cheaperUpToJobs !== null ? `Below ${row.cheaperUpToJobs} jobs/mo` : 'Not cheaper'}</td></tr>`).join('');
   } catch (error) {
     $('best').textContent = error.message;
     $('bestNote').textContent = '';
