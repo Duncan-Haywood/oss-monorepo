@@ -35062,3 +35062,67 @@ entries:
         pushing; only this venture's 4 files were staged. Merged as
         #2288.
     mrr_end: null
+  - venture: einvoice-preflight
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped what-does-this-e-invoice-error-code-mean.html, the venture's
+        first docs page: all 55 INV rules the checker can emit, grouped by
+        structure, parties, arithmetic, tax, dates, payment, references,
+        header adjustments, and read failures, each with what it means and
+        the concrete fix. Descriptions derive from the message and fix
+        strings in the modules rather than being written independently.
+      - >-
+        The page leads with what the codes are NOT -- this tool's own
+        identifiers, not EN 16931 BR- rules, not Peppol artefact codes, not
+        any network's rejection codes -- because that is the claim that
+        would actually cost a reader something, and a test pins the denial.
+      - >-
+        rule-reference-page.test.mjs scans the shipped modules for rule ids
+        and fails if the page omits one or invents one, plus a floor of 50
+        ids so a refactor hiding them behind a constant cannot make the
+        check pass vacuously. Verified in both directions before pushing.
+      - >-
+        faq-visible.test.mjs caught the first draft's paraphrased FAQ
+        answers diverging from the JSON-LD it ships -- the same
+        derived-schema drift class the prior page hit with entities. The
+        visible copy is now the string the schema carries. Merged as #2290.
+    mrr_end: null
+  - venture: payment-reconciliation-workbench
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a latent defect worth recording as a class, not just a bug:
+        explainExceptions() used the same date window as the matcher, so an
+        exact-amount pair could never produce a hint -- any deposit near
+        enough to be hinted had already matched in pass one, and one that
+        had not was by definition too far to look at. explanation()'s
+        "same amount" branch was therefore unreachable through reconcile(),
+        dead code describing the case users hit most.
+      - >-
+        User-visible consequence: the most ordinary exception in a real
+        reconciliation -- a deposit for exactly the right amount that the
+        bank posted a few days later than the operator's tolerance --
+        arrived as two unexplained halves with an empty "What to check"
+        column. The row a human most wants a word about said least.
+      - >-
+        Hint window is now tolerance + 7 days (a lead the operator verifies
+        can look further than a match the tool asserts), and the message
+        names the gap in whole days because widening the tolerance and
+        re-running is the operator's actual next action. Amount-first
+        ranking unchanged and pinned; outer bound pinned too, so the
+        existing 41-day tolerance test still guards rather than relaxes.
+      - >-
+        Found by reading the matching rules while grounding a docs page in
+        them. Worth generalising: a branch whose guard duplicates an
+        earlier, stricter filter is unreachable by construction, and
+        coverage that only exercises the module directly will not show it.
+      - >-
+        Verified locally (Actions down, runner_id 0 / runner_name ""
+        signature, reconfirmed on both of this session's own PRs): venture
+        suite 25/25 (4 new), full venture sweep 12528/12528, platform/pages
+        770/770, build.mjs 168 tools / 494 pages + check.mjs no dead links,
+        faq-coverage 168/168, faq-duplicate clean. Merged as #2291.
+    mrr_end: null
