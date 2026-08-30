@@ -31688,6 +31688,44 @@ entries:
         (403). That is an environment limit and says nothing about the
         site, which is still fail-closed on the missing secret.
     mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        A prior session's blanket read -- "the branches that read as ahead
+        of main are stale heads from squash-merged PRs, whose commits by
+        construction never appear in main's history" -- turned out to have
+        one exception. Checked 17 of the highest-commit-count unmerged
+        branches by hand (git merge --no-commit dry runs plus
+        supersede_check.py where it finished inside its own timeout): 16
+        were genuinely superseded, several by a materially more developed
+        independent implementation of the same feature already on main
+        (where-to-sell-calculator's profit-per-day ranking and
+        print-atelier's preflight checker both have this shape -- main's
+        version is a strict superset, not a rename). One,
+        cursor/amazon-fba-sourcing-check-20260824, was not: calc.mjs
+        already exported buyCostCheck and usage.mjs already fired
+        sourcing_check_used on the costOfGoods field, but the index.html
+        stat row and import that would have made the checkpoint visible
+        were never wired in, and a leftover buyCostStatus/buyCheck id
+        mismatch meant the error-reset path silently did nothing. Likely
+        cause: buyCostCheck landed on main through a different PR than the
+        one that wrote the UI for it, and the UI half fell through.
+      - >-
+        Resolved the conflicts (kept both the pre-existing "Max buy at
+        target margin" row and the new "Buy-cost check" row, rewired the
+        import and the update() function onto current main's
+        listingInput() instead of the branch's older bare readInput(),
+        fixed the dangling id), ran node --test (298/298 passing), and
+        manually exercised buyCostCheck(calculateListing(input),
+        input.costOfGoods) at the REPL. Shipped and merged #2161.
+      - >-
+        Net effect for future sweeps: "ahead-of-main branches are squash
+        artifacts" is true often enough to be the right prior, not true
+        often enough to skip checking. A dry-run merge (cheap) before
+        assuming supersession is what caught this one.
+    mrr_end: null
   - venture: cloud-egress-calculator
     agent_spend_usd: null
     human_hours: 0
