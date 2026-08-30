@@ -33340,3 +33340,42 @@ entries:
         an environment limit, not a code issue, since this tool needs no
         network access; direct unit coverage stood in for it.
     mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real calculation bug in `nextCheaperWeightLb()`
+        (`ventures/amazon-fba-calculator/calc.mjs`), used by
+        `compareSizeTierPackaging` to recommend a repack weight for
+        cheaper FBA fulfillment fees. For any `large_standard` item
+        heavier than the last entry in `STANDARD_WEIGHT_BAND_OZ` (80 oz /
+        5 lb -- a normal weight, since `classifySizeTier` allows this
+        tier up to 20 lb), the old `bands.find(...) ?? bands[bands.length
+        - 1]` fallback silently treated the item as already sitting at
+        the heaviest band, then stepped one band further down than
+        correct. A 10 lb item got a repack target of 3 lb instead of the
+        correct 5 lb (where `defaultFulfillmentFee`'s per-pound-above-80oz
+        pricing actually flattens back to the $6.44 tier), understating
+        the fee savings shown to sellers. Fixed with `findIndex` and an
+        explicit heavier-than-every-band case; added a regression test
+        (confirmed failing pre-fix, passing post-fix); full venture suite
+        299/299 pass. Merged as #2212.
+      - >-
+        Re-confirmed rather than re-derived the standing CI/CD/Hetzner/
+        Codex finding from this same month's prior entries: the
+        self-directed Codex CLI loop on the Hetzner agent box
+        (`ventures/ubuntu-agent-server/config/repos.yml`) already carries
+        a `self_directed_prompt` widened to cover CI/CD, deployment
+        manifests, and SEO/marketing content (per #1995/#1999), PR-only
+        and excluding money/legal/secrets. The Hetzner k3s deploy path
+        (`gitops/prod/portfolio-site.yaml`) and GitHub Pages flip both
+        remain fully built and gated on the same owner-only steps already
+        queued in `asks.yaml` (items 8 and 13). Did not duplicate either
+        ask or re-run the full local pipeline verification already done
+        this month (#2205/#2206) since nothing in this run's diff touched
+        `gitops/` or the agent-runner role. 0 open PRs at session start;
+        21 stale `session/agent_*`/cleanup branches sampled and confirmed
+        superseded (each branch's added feature already exists, more
+        completely, on current `main`) -- none opened as new PRs.
+    mrr_end: null
