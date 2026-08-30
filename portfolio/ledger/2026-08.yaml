@@ -31110,3 +31110,103 @@ entries:
         (runner_id 0, runner_name empty, ~3s duration 07:14:00-07:14:03 on
         the validate job) rather than treating it as a real failure.
     mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session responding to a brief prioritizing
+        Hetzner CI/CD, marketing-materials deployment, and Codex CLI on the
+        Hetzner box. Confirmed 0 open PRs (merge quota trivially satisfied)
+        and, per this same-day file's `platform` entry above, did not
+        re-run the 176-branch audit or re-confirm the four owner-blocked
+        infra asks (actions-runners-unavailable, codex-governor-enable,
+        agent-runner-subscription-login, portfolio-site-hetzner-deploy) --
+        a session earlier today already did both exhaustively and already
+        notified the owner with the exact remaining steps; nothing had
+        changed to justify duplicating either. A background agent
+        independently re-ran the branch scan before receiving the
+        stop-early message and reached the identical zero-mergeable
+        conclusion, so no time was lost either way.
+      - >-
+        Found a real, user-visible bug in a venture untouched by any
+        session today: tender-radar's shortlist table flagged a row
+        "urgent" (red/bold) when `row.deadline < today` -- i.e. once the
+        deadline had *already passed* -- so a tender closing tomorrow (the
+        one needing action) got no emphasis while one that closed weeks ago
+        did. Fixed by adding `isUrgent(deadline, today, windowDays=7)` to
+        calc.mjs (UTC-safe day math, avoiding `new Date(string)`
+        timezone/DST bugs) and wiring index.html's render loop to it.
+      - >-
+        The fix branch was cut from a slightly stale main and conflicted
+        with #2122 (merged minutes earlier, multi-term trade filtering in
+        the same file) -- an ordinary concurrent-edit collision, not
+        overlapping work to discard. Merged main into the branch, resolved
+        the one real conflict (an import-line union in calc.test.mjs; the
+        two test suites themselves did not collide), and verified both
+        features still work together. Verified locally: `node --test
+        ventures/tender-radar/site/*.test.mjs` (9/9 pass -- 4 new cases
+        pinning the exact regression and the 7/8-day window boundary, plus
+        the 5 pre-existing/#2122 cases unchanged), `node
+        platform/pages/build.mjs` + `check.mjs` against a fresh dist (164
+        products, 479 pages, no dead links, tender-radar included). Shipped
+        and merged #2127.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled session's brief asked to prioritize Hetzner CI/CD,
+        marketing-materials deployment, and Codex CLI on the Hetzner box.
+        Checked current state before acting: 0 open PRs (merge quota
+        vacuous) and the exact three asks were already fully built, verified
+        locally, and escalated to the owner by sessions within the last few
+        hours (`decision_queue.py` rows `portfolio-site-hetzner-deploy`,
+        `agent-runner-subscription-login`, `codex-governor-enable`,
+        `actions-runners-unavailable` -- all four owner-only credential/
+        account steps, nothing left for an agent to build). Did not re-run
+        that verification a further time this run to avoid duplicating the
+        several concurrent sessions already doing exactly that this hour.
+    mrr_end: null
+  - venture: cash-runway-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        With the infra asks already re-confirmed elsewhere today and no
+        open-PR backlog to drain, read core calculation logic (not FAQ/
+        usage-tracking, both already portfolio-wide) across cut-list-
+        optimizer, booth-rent-vs-commission, freight-accessorial-auditor,
+        cloud-egress-calculator, delivery-app-margin-calculator, and
+        epoxy-garage-floor-bid-calculator looking for a genuine wrong-output
+        bug -- all six checked out against their own derivation comments.
+        Found one in `shortfallPlan()`: the function reports its deficit as
+        the run's trough (deepest negative week; the code's own comment
+        explains why -- "covering only the first week leaves the owner
+        short again a fortnight later"), but the candidate filter for which
+        dated payment to recommend delaying only accepted items landing at
+        or before the run's *first* negative week, not at or before the
+        trough where the deficit is actually measured.
+      - >-
+        Repro: cash=$100, weeklyCosts=$90/wk, no income, 5-week forecast,
+        a $500 "Tax bill" in week 3. Recurring costs alone go negative at
+        week 2; the tax bill deepens the trough to -$850 by week 5. Since
+        week 3 > week 2, the old filter excluded the tax bill entirely, so
+        the tool told the owner "Nothing dated is available to move" while
+        a $500 dated bill sat squarely inside the shortfall window and would
+        have measurably cut the deficit -- the one recommendation this tool
+        exists to make, silently withheld. Fixed by comparing against
+        `trough.week` instead of `rows[start].week`, the same reference
+        point the reported deficit already uses; verified by hand that
+        delaying any item at or before the trough raises the cumulative
+        balance at the trough by its amount, so the fix is not just "makes
+        the test pass" but mathematically the right window.
+      - >-
+        Two existing tests had encoded the old, incorrect exclusion as
+        intended behavior; updated both plus added a new regression test
+        for the repro above. Verified `node --test` in the venture (37/37
+        passing) and `platform/pages/build.mjs` + `check.mjs` (164 products,
+        479 pages, no dead links -- this venture's index.html was untouched).
+        Shipped and merged #2128.
+    mrr_end: null
