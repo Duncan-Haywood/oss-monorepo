@@ -32410,6 +32410,64 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Scheduled routine run. Opening task (drain the PR queue) was a
+        no-op for the third run running: zero open PRs. Checked the three
+        freshest branches -- `pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/appointment-deposit-calculator`, all cut ~9h earlier and all
+        without PRs -- by diffing each venture directory against `main`'s
+        tip rather than against the merge base, which is what makes a
+        stale branch look like new work. All three are earlier states of
+        ventures `main` has since developed far past: `main` carries 3190
+        lines the invoice branch lacks, 2772 the where-to-sell branch
+        lacks, 280 the appointment branch lacks. Opening PRs for them
+        would have proposed a regression, so none was opened.
+      - >-
+        Learned (new): the in-cluster deploy artifact has never actually
+        been built and served-checked under the pod's own constraints --
+        `gitops/tests/` validates the manifest text, not the thing it
+        produces. Ran `gitops/prod/portfolio-site.yaml`'s build container
+        verbatim: `build.mjs --out=` then `check.mjs --dist=`. Result is
+        green with large headroom, and the numbers are now recorded in the
+        manifest beside the limits they justify. 165 tools, 482 pages,
+        1596 files, 32Mi of the `site` emptyDir's 512Mi. build.mjs 25s /
+        134Mi peak RSS, check.mjs 11s / 99Mi, against a 512Mi request and
+        1536Mi limit -- ~4x and ~11x the observed peak. check.mjs exits 0:
+        "165 products, 7 category pages, 482 pages, no dead links".
+      - >-
+        Also confirmed the serving layer's promises against the artifact
+        rather than against the manifest: every nginx `location` in that
+        file resolves to something the build really emits (`/404.html` for
+        `error_page`, `/sw.js`, `manifest.webmanifest` for the
+        `rel="manifest"` on every page, 552 `.mjs` files for the
+        `text/javascript` block). Then resolved all internal `href`/`src`
+        on all 482 pages under nginx's `try_files $uri $uri/ $uri.html`
+        instead of the GitHub Pages semantics `check.mjs` assumes, since
+        production is nginx now: 0 unresolvable. (Two apparent misses were
+        template literals inside `<script>` bodies -- runtime JS, not
+        emitted hrefs -- so the probe was corrected to strip script/style
+        before a verdict rather than reported as bugs.) No nginx-specific
+        gate was added: for this site try_files is a superset of the Pages
+        rules `check.mjs` already covers, so it would have been a
+        near-duplicate of an existing gate.
+      - >-
+        Net: the Hetzner path is not merely engineered, it is now measured
+        end-to-end and green. What stands between 165 built products and a
+        public site is one owner action already queued -- sealing the
+        read-only clone token in
+        `gitops/prod/secrets/portfolio-repo-token.template.yaml`. Did not
+        add a decision-queue row; `asks.yaml` carries it. GitHub Actions
+        outage independently reconfirmed live today on run 33313735530:
+        `runner_id: 0`, `runner_name: ""`, 3s, 0 steps, labels
+        `[ubuntu-latest]` -- account-side, so the in-cluster build routing
+        around Actions is still the right call. `publish_surface.py`:
+        still nothing publishes on a push to `main`.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Separate scheduled run, same brief (drain PRs first, then
         prioritize CI/CD, Hetzner deployment, and Codex-on-Hetzner). Zero
         open PRs at session start (`list_pull_requests` and
