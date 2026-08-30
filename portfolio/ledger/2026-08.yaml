@@ -33862,6 +33862,44 @@ entries:
         concurrent walmart-marketplace-calculator PR, confirmed before
         merging. GitHub Actions still down (runner outage, unrelated).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs and no unblocked repairable branches at session start;
+        the CI-runner, Codex-on-Hetzner, and portfolio-site-Hetzner-deploy
+        asks were already queued, current (dated 2026-08-29/30), and matched
+        the session's own deployment/CI-CD/Codex brief exactly, so nothing
+        new was added to the decision queue. Instead posted one update to
+        issue #1925 (the owner's own tracking issue for this): #2156, merged
+        since the last status comment there, dropped the placeholder-ACME-
+        mailbox requirement, so `portfolio-site-hetzner-deploy` is down from
+        two owner-only steps to one (sealing a read-only repo clone token).
+      - >-
+        Shipped a discoverability/marketing-content pair per
+        `PRODUCT_PLAYBOOK.md` 5e ("one docs page per specific question"):
+        `appointment-deposit-calculator/deposit-vs-no-show-fee.html`, a new
+        FAQPage answering "deposit or no-show fee, which should I charge"
+        with worked numbers pulled from that calculator's own tested
+        defaults ($150 @ 25% -> $37.50 deposit, $21,762/yr secured at a 93%
+        booking rate), cross-linked both directions with the sibling
+        `no-show-fee-calculator` (which already models the same trade-off
+        quantitatively in its "Deposit or chase the fee?" section) so a
+        searcher landing on either tool gets routed to whichever fits.
+        Added to the venture's sitemap.xml and linked from both index.html
+        headers.
+      - >-
+        Verified before merge, all locally (GitHub Actions still down,
+        runner_id 0): the venture's own suite 15/15 (3 new, asserting the
+        no-warranty clause, both cross-links, and that the page's numbers
+        match `calc.mjs`'s `plan()` output rather than being hand-typed);
+        `no-show-fee-calculator`'s suite 92/92 unaffected by its one-line
+        edit; `platform/pages/clauses.mjs` 475/475 published pages carry the
+        disclaimer (up from 474); `platform/pages/build.mjs` +
+        `check.mjs` -- 168 products, 486 pages, no dead links; full
+        `platform/pages/build.test.mjs` 237/237.
+    mrr_end: null
   - venture: amazon-fba-calculator
     agent_spend_usd: null
     human_hours: 0
