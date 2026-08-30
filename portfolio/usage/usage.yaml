@@ -3078,6 +3078,27 @@ products:
           onto current main. Local CLI only; --usage-file is opt-in and
           stores an aggregate count. Public URL remains owner-gated.
 
+  - slug: public-record-watch
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js/usage.js/
+          style.css): paste before/after register exports, get the identical
+          added/removed/changed report the CLI produces, parsed and rendered
+          client-side. Nothing is uploaded; register names and record fields
+          are never sent anywhere. This venture had a CLI but no way for a
+          stranger to try it without a clone and a Python install, same shape
+          as npm-deployment-evidence and vendor-change-evidence before their
+          own browser front ends. Public URL remains owner-gated on the same
+          two blockers as every other tool here; usage is opt-out and honors
+          DNT/GPC.
+
   - slug: contractor-bid-readiness
     surface: static-page-in-repo
     readings:
