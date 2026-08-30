@@ -32014,3 +32014,40 @@ entries:
         links), faq-visible/faq-coverage/faq-duplicate/clauses all clean.
         Shipped and merged #2174.
     mrr_end: null
+  - venture: ebay-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Sitewide guards (FAQ visibility/coverage/duplicate, links,
+        contrast, clauses — 746/746 platform/pages tests) were already
+        clean, so instead of re-sweeping those, checked for feature
+        parity across ventures: 137 of 158 product pages wrap their live
+        result panel in aria-live="polite"; 21 do not.
+        ebay-fee-calculator — the portfolio's largest single calculator,
+        25 sub-tools on one page — was one of them. Its "Order result"
+        panel and all 25 "If you..." sensitivity panels recompute on
+        every keystroke with no live-region announcement, so a
+        screen-reader user got no signal the numbers changed without
+        manually re-navigating to the panel after each edit.
+      - >-
+        Added aria-live="polite" to the result section and all 25
+        sensitivity sections, matching the pattern already used on 137
+        sibling pages (deck-bid-calculator, roofing-bid-calculator, etc).
+        Pure attribute addition — no JS or computed values touched.
+      - >-
+        Verified locally (runner outage unchanged, not attempted on CI):
+        venture suite 448/448; full platform/pages suite 746/746;
+        run_workflow_locally.py --for-changes selected 7 workflows, 4
+        passed clean (ebay-fee-calculator-ci.yml, link-contrast-ci.yml,
+        page-integrity-ci.yml, conflict-markers-ci.yml all 2/2);
+        portfolio-pages.yml/deploy correctly held for write permission.
+        The two "build the site" checks failed locally only because
+        their own build step needs a ${{ }} expression the local runner
+        skips — ran build_pages_site.py+check_pages_links.py (164
+        products, 470 pages, no dead links) and platform/pages'
+        build.mjs+check.mjs (164 products, 480 pages, no dead links) by
+        hand instead. portfolio-validate.yml's 4 failures are a missing
+        pytest module in this sandbox, unrelated to this venture.
+        Shipped and merged #2176.
+    mrr_end: null
