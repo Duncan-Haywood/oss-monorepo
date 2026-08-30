@@ -34143,3 +34143,34 @@ entries:
         this session found and closed was discoverability of existing good
         copy, not missing copy.
     mrr_end: null
+  - venture: appointment-deposit-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed the same finding as the prior entry (build.mjs already
+        auto-injects meta/OG/FAQPage for every venture's index.html; 15
+        ventures were single-page with no secondary docs page, which is
+        PRODUCT_PLAYBOOK.md 5e's real remaining gap) and closed one instance
+        of it: added what-percentage-deposit-should-i-charge.html, a worked
+        table of deposit/balance/secured-cash at five deposit percentages
+        (15-40%) on the calculator's own defaults, with an authored FAQPage
+        block checked against the visible copy by faq-visible.test.mjs.
+        Merged as #2244 (squash), after resolving a real merge conflict
+        with #2240 -- a different session shipped a second, differently-
+        angled docs page (deposit-vs-no-show-fee.html) to the same venture
+        concurrently; both now coexist and cross-link from index.html,
+        matching the freelance-retainer-calculator precedent of several
+        docs pages per venture. Verified post-merge: venture suite 18/18,
+        clauses.mjs (3 pages carry the no-warranty clause), build.mjs (168
+        tools) + check.mjs (488 pages, no dead links) clean.
+      - >-
+        Found, did not fix (out of scope for this task -- different
+        venture, already merged by another session): booth-rent-vs-
+        commission/how-many-clients-does-booth-rent-need.html (#2241) fails
+        platform/pages/faq-visible.test.mjs -- its authored FAQPage JSON-LD
+        uses "--" where the visible on-page prose uses "—", the same
+        class of mismatch this session's own new page hit and fixed before
+        merging. A one-line-per-answer fix, trivial for the next session
+        that touches that venture.
+    mrr_end: null
