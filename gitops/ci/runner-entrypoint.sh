@@ -46,7 +46,9 @@ if [ -z "${reg_token}" ]; then
   exit 1
 fi
 
-cd /home/runner
+# Overridable only so the entrypoint can be exercised outside the runner image;
+# the Deployment never sets it.
+cd "${RUNNER_DIR:-/home/runner}"
 
 ./config.sh \
   --url "https://github.com/${GITHUB_REPOSITORY}" \
@@ -65,12 +67,38 @@ cd /home/runner
 # removal, and a stale reg_token silently no-ops here, leaving the orphaned
 # runner listed (offline) in the repo's runner settings until someone prunes it
 # by hand.
+# shellcheck disable=SC2329  # invoked indirectly, by the EXIT trap below.
 cleanup() {
   local remove_token
   remove_token="$(fetch_token remove 2>/dev/null || true)"
   [ -n "${remove_token}" ] && ./config.sh remove --token "${remove_token}" >/dev/null 2>&1
   true
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
 
-exec ./run.sh
+# `run.sh` runs as a child, not via `exec`. `exec` replaces this shell, and a
+# replaced shell takes its traps with it -- the EXIT trap above would never have
+# fired, so the deregistration it exists to perform never happened and an
+# evicted pod left a runner listed (offline) that GitHub keeps dispatching jobs
+# to. Those jobs hang until someone prunes the runner by hand, which is the
+# exact failure this cleanup was written to prevent.
+./run.sh &
+RUNNER_PID=$!
+
+# Kubernetes sends SIGTERM on eviction, rollout or node drain. Forward it so the
+# runner stops between jobs on its own terms, then fall through to the EXIT trap.
+trap 'kill -TERM "${RUNNER_PID}" 2>/dev/null || true' INT TERM
+
+# `wait` returns early with 128+n when a trapped signal arrives, which is not
+# the child exiting -- keep waiting until it is actually gone. `kill -0` on a
+# reaped pid fails, so this always terminates.
+status=0
+while :; do
+  set +e
+  wait "${RUNNER_PID}"
+  status=$?
+  set -e
+  kill -0 "${RUNNER_PID}" 2>/dev/null || break
+done
+
+exit "${status}"
