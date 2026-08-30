@@ -29483,3 +29483,45 @@ entries:
         superseded branch here costs one `git grep`, not a merge attempt.
         No venture-scale gap was found to flag as unbuilt.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped dedicated FAQ/SEO landing pages to 5 more ventures that had
+        zero FAQ, Q&A, or "common questions" content anywhere in their
+        directory (#2048): `music-lesson-break-even`,
+        `translator-project-quote`, `medical-courier-route-margin`,
+        `grant-reporting-tracker`, and `cleaning-dilution-calculator`.
+        Measured first: a portfolio-wide grep for
+        `faq|frequently asked|common questions` across every venture's HTML
+        found 14 ventures with none at all (the earlier #2039 gap of 25 was
+        a shallower index.html-only check). 9 remain, an explicit
+        follow-up.
+      - >-
+        Each page follows the `how-much-to-charge.html` convention: authored
+        `FAQPage` JSON-LD, a worked example computed with `node` from that
+        venture's own `calc.mjs` at its form's default inputs (not
+        estimated), a "Common questions" section repeating the same text as
+        the JSON-LD, and that venture's own disclaimer reused. Running
+        `platform/pages/faq-visible.test.mjs` before merge caught a real
+        "below" vs. "above" wording mismatch between the JSON-LD and the
+        visible answer on the music-lesson page -- the exact class of defect
+        #2043 fixed at scale -- and it was fixed before push, not after.
+      - >-
+        Verified locally (runner outage unchanged): each of the 5 touched
+        ventures' own suites (7/3/5/10/3, all pass), the whole-portfolio
+        `platform/pages` suite (656/656, including faq-visible.test.mjs),
+        and a full `build.mjs` + `check.mjs` run (164 products / 472 pages,
+        up from 469, no dead links).
+      - >-
+        Session context: 0 open PRs at start (three-PR quota met by an
+        empty queue). Independently re-confirmed, rather than re-auditing,
+        that CI/CD (self-hosted runner, decision-queue row 10) and Codex CLI
+        on a subscription's included quota (`ventures/ubuntu-agent-server`
+        / `gitops/agents/`, rows 11-12) are both fully engineered and PR'd
+        already, blocked only on owner-only account actions named in
+        `infra/OWNER_CHECKLIST.md` -- this was asked about directly in this
+        session's trigger prompt. No new ask queued; this entry exists so a
+        session does not re-run that audit a fifth time today.
+    mrr_end: null
