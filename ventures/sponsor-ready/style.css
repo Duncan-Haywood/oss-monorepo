@@ -277,3 +277,39 @@ body {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
+
+/* Docs pages (e.g. github-sponsors-readiness-checklist.html) add a worked
+   table. `.table-wrap` gives it its own horizontal scroll on a narrow phone
+   screen instead of pushing the whole page sideways. */
+.table-wrap {
+  overflow-x: auto;
+}
+
+.checklist-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 8px 0 0;
+}
+
+.checklist-table caption {
+  caption-side: bottom;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: left;
+  padding-top: 8px;
+}
+
+.checklist-table th,
+.checklist-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.checklist-table th:first-child,
+.checklist-table td:first-child {
+  text-align: right;
+  white-space: nowrap;
+}
