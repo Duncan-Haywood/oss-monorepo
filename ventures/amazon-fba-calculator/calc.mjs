@@ -1076,12 +1076,18 @@ export function compareSubscribeSave(input) {
   const mixedDelta = mixedMonthlyProfit - listMonthlyProfit;
 
   // New S&S-only units that restore the all-list month after enrolled
-  // buyers convert. Infinity when the S&S unit itself does not pay.
+  // buyers convert. Infinity when the S&S unit itself does not pay — every
+  // extra S&S sale then contributes zero or negative profit, so it can
+  // never close a positive conversion loss, whatever the list row's own
+  // sign. Gating that on noneRow.profit > 0 (as this used to) silently
+  // reported "no offset needed" whenever the list price was itself
+  // unprofitable, even though the real gap (enrolled buyers converting to
+  // an even-less-profitable S&S price) was just as unrecoverable.
   let offsetUnits = 0;
   if (snsPercent === 0 || enrolledUnits === 0 || typedRow.profit >= noneRow.profit) {
     offsetUnits = 0;
   } else if (typedRow.profit <= 0) {
-    offsetUnits = noneRow.profit > 0 ? Infinity : 0;
+    offsetUnits = Infinity;
   } else {
     offsetUnits = (enrolledUnits * (noneRow.profit - typedRow.profit)) / typedRow.profit;
   }
