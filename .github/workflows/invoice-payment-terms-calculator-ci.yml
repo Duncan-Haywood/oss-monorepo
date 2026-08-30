@@ -1,0 +1,37 @@
+name: invoice-payment-terms-calculator CI
+
+# This is a dependency-free browser calculator. Keep its user-visible
+# arithmetic covered independently of the portfolio-wide validation workflow.
+on:
+  pull_request:
+    paths:
+      - "ventures/invoice-payment-terms-calculator/**"
+      - ".github/workflows/invoice-payment-terms-calculator-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/invoice-payment-terms-calculator/**"
+      - ".github/workflows/invoice-payment-terms-calculator-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: invoice-payment-terms-calculator-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/invoice-payment-terms-calculator
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run calculator tests
+        run: node --test calc.test.mjs

@@ -16,6 +16,14 @@ products:
           payment_draft_copies: 0
         note: Shipped browser-local retainage and payment-delay worksheet; public URL remains owner-gated.
 
+  - slug: invoice-payment-terms-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped browser-local invoice due-date and cash-flow scenario calculator; public URL is not deployed.
   - slug: 3pl-quote-normalizer
     surface: static-page-in-repo
     readings:
