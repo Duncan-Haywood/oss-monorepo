@@ -137,7 +137,11 @@
         document.getElementById('at12').textContent = at12 ? money(at12.profit) : '—';
         document.getElementById('at15').textContent = at15 ? money(at15.profit) : '—';
         document.getElementById('cash').textContent = money(organic.cashInvested);
-        document.getElementById('cap').textContent = `${cap.toFixed(1)}%`;
+        // null: the order is already below break-even at 0% ads, so there is
+        // no ceiling. "0.0%" would read as a real, if tight, headroom figure.
+        document.getElementById('cap').textContent = cap === null
+          ? 'none — already below at 0%'
+          : Number.isFinite(cap) ? `${cap.toFixed(1)}%` : 'any rate';
         document.getElementById('offsiteNote').textContent = offsiteAdsNote(rows, cap);
         if (at15 && !at15.stillProfitable && organic.stillProfitable) {
           insight.hidden = false;

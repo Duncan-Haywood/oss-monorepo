@@ -156,12 +156,51 @@ test('max affordable offsite rate is where organic profit is consumed', () => {
   assert.ok(cap > 12, 'it can still afford the 12% over-$10k rate');
 });
 
-test('max affordable offsite rate is zero when the order already loses money', () => {
-  const cap = maxAffordableOffsiteRate({
+test('max affordable offsite rate is null when the order already loses money', () => {
+  // Previously this asserted 0. That was wrong on its own terms: 0% is not an
+  // affordable rate here either, because the order is already below break-even
+  // before any ad fee. offsiteAdsNote then printed "stays at or above $0.00
+  // until Offsite Ads reach about 0.0%" directly beneath a row showing the
+  // organic order at a loss.
+  const losing = {
     price: 8, shippingCharged: 0, listingFee: 0.2, transactionRate: 6.5,
     paymentRate: 3, paymentFixed: 0.25, shippingCost: 6, materialCost: 5,
-  });
-  assert.equal(cap, 0);
+  };
+  // Premise straight from calculateOrder, not from the function under test.
+  const organic = calculateOrder({ ...losing, offsiteAdRate: 0 });
+  assert.ok(organic.profit < 0, 'premise: already losing at 0% offsite ads');
+
+  assert.equal(maxAffordableOffsiteRate(losing), null);
+});
+
+test('offsite-ads note does not claim a 0% ceiling on an already-losing order', () => {
+  const losing = {
+    price: 12, shippingCharged: 0, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, shippingCost: 8, materialCost: 6,
+    otherCost: 1,
+  };
+  const rows = compareOffsiteAdRates(losing);
+  const text = offsiteAdsNote(rows, maxAffordableOffsiteRate(losing));
+  assert.doesNotMatch(text, /about 0\.0%/, 'must not quote a 0.0% ceiling');
+  assert.match(text, /No Offsite Ads rate keeps this order at or above \$0\.00/);
+});
+
+test('a genuinely tiny offsite ceiling is still reported, not treated as none', () => {
+  // Guard against over-correcting: an order that clears by a hair has a real,
+  // very small ceiling and must keep reporting it.
+  const base = {
+    price: 20, shippingCharged: 0, listingFee: 0.2, transactionRate: 6.5,
+    paymentRate: 3, paymentFixed: 0.25, shippingCost: 5, materialCost: 5,
+  };
+  const organic = calculateOrder({ ...base, offsiteAdRate: 0 });
+  // Add cost so only a sliver of profit is left.
+  const thin = { ...base, otherCost: organic.profit - 0.01 };
+  const thinOrganic = calculateOrder({ ...thin, offsiteAdRate: 0 });
+  assert.ok(thinOrganic.profit > 0, 'premise: still clears, barely');
+
+  const cap = maxAffordableOffsiteRate(thin);
+  assert.notEqual(cap, null, 'a real sliver of headroom is not "no rate qualifies"');
+  assert.ok(cap > 0 && cap < 1, `expected a sub-1% ceiling, got ${cap}`);
 });
 
 test('rejects a non-numeric minimum profit for the offsite-ads cap', () => {
