@@ -200,6 +200,31 @@ export function computeRecovery({ feeAmount, annualLostRevenue, annualFeeRevenue
 }
 
 /**
+ * Models how much of the appointment value represented by no-shows is
+ * recovered by the fee policy, and the annual dollar exposure still
+ * unrecovered at that rate. This is intentionally an estimate based on
+ * the user's enforcement assumption, not a claim about actual collections.
+ *
+ * `recoveredPct` is the same ratio as `computeRecovery`'s `recoveryRatePct`
+ * (kept as a separate export because both shipped independently and other
+ * call sites already depend on each name); `remainingAnnualExposure` is the
+ * one figure `computeRecovery` does not already surface at annual
+ * cadence — it clamps at zero so an enforcement rate that overshoots the
+ * modeled exposure never reads as negative "recovered more than possible".
+ *
+ * @param {{ annualFeeRevenue: number, annualLostRevenue: number }} args
+ */
+export function computeRecoveryEstimate({ annualFeeRevenue, annualLostRevenue }) {
+  const recoveredPct = annualLostRevenue > 0
+    ? round2((annualFeeRevenue / annualLostRevenue) * 100)
+    : 0;
+  return {
+    recoveredPct,
+    remainingAnnualExposure: round2(Math.max(0, annualLostRevenue - annualFeeRevenue)),
+  };
+}
+
+/**
  * Runs every calculation from a single validated input set.
  * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, noticeHours: number, feePercent: number, enforcementRatePct: number, depositPercent?: number }} values
  */
@@ -222,6 +247,7 @@ export function computeAll(values) {
     annualLostRevenue,
     annualFeeRevenue,
   });
+  const { recoveredPct, remainingAnnualExposure } = computeRecoveryEstimate({ annualFeeRevenue, annualLostRevenue });
   return {
     feeAmount,
     noShowsPerYear,
@@ -232,6 +258,8 @@ export function computeAll(values) {
     monthlyExposure,
     monthlyFeeRevenue,
     monthlyUnrecovered,
+    recoveredPct,
+    remainingAnnualExposure,
     inputs: values,
   };
 }

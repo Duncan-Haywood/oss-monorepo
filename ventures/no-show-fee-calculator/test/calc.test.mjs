@@ -10,6 +10,7 @@ import {
   computeAnnualExposure,
   computeAnnualFeeRevenue,
   computeRecovery,
+  computeRecoveryEstimate,
   computeAll,
   compareFeeScenarios,
   compareCollectionPolicies,
@@ -184,6 +185,17 @@ test("computeRecovery handles zero exposure and zero fee without infinity", () =
   });
 });
 
+test("computeRecoveryEstimate compares modeled collections with lost value", () => {
+  assert.deepEqual(computeRecoveryEstimate({ annualFeeRevenue: 4368, annualLostRevenue: 6240 }), {
+    recoveredPct: 70,
+    remainingAnnualExposure: 1872,
+  });
+  assert.deepEqual(computeRecoveryEstimate({ annualFeeRevenue: 10, annualLostRevenue: 0 }), {
+    recoveredPct: 0,
+    remainingAnnualExposure: 0,
+  });
+});
+
 test("computeAll composes the individual calculations consistently", () => {
   const values = {
     price: 75,
@@ -198,6 +210,8 @@ test("computeAll composes the individual calculations consistently", () => {
   const exposure = computeAnnualExposure(values);
   assert.equal(result.noShowsPerYear, exposure.noShowsPerYear);
   assert.equal(result.annualLostRevenue, exposure.annualLostRevenue);
+  assert.equal(result.recoveredPct, 70);
+  assert.equal(result.remainingAnnualExposure, 1872);
   assert.equal(
     result.annualFeeRevenue,
     computeAnnualFeeRevenue({
