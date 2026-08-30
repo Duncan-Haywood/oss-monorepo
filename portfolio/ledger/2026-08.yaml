@@ -34937,3 +34937,55 @@ entries:
         repair in progress, so re-read PR state immediately before pushing
         a repair, not just before starting one.
     mrr_end: null
+  - venture: commercial-photo-license-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped a discoverability/marketing-content page per
+        PRODUCT_PLAYBOOK.md 5e ("one docs page per specific question"),
+        following the pattern already shipped for cam-reconciliation-check
+        (#2261), sponsor-ready (#2258), booth-rent-vs-commission (#2256),
+        subcontractor-cashflow-planner (#2254/#2255), and
+        appointment-deposit-calculator (#2244). Ran
+        `node platform/pages/faq-coverage.mjs` first per the queue item's
+        instructions -- it reports 168/168 entry pages already shipping
+        derived FAQ schema, so that specific backlog is now fully closed
+        portfolio-wide and the next real 5e gap is this one: single-page
+        ventures with no separate deep landing page. 12 remained (down
+        from the 15 the 2026-08-30 branch-triage entry flagged); picked
+        this one for its clean numeric calc.mjs-equivalent (app.mjs).
+      - >-
+        how-much-more-does-a-national-or-worldwide-license-cost.html
+        answers "how much more does a national/worldwide photo license
+        cost than local" with a worked table across the calculator's
+        three territory multipliers (1x/1.25x/1.6x) at its own defaults
+        ($1,200 creative fee, 6-month web-only non-exclusive license, 5
+        images): $420.00/$1,620.00 total local, $525.00/$1,725.00
+        national (+25%), $672.00/$1,872.00 worldwide (+60%). Every figure
+        comes from calculate() in app.mjs, not hand-typed. Linked from
+        index.html's FAQ section and added to sitemap.xml. First local
+        run failed platform/pages/faq-visible.test.mjs -- the JSON-LD used
+        a literal "×" while the visible HTML used the "&times;" entity,
+        which the test's decoder does not expand -- fixed by using the
+        literal character in both, the same drift class CLAUDE.md already
+        documents for dashes and quotes.
+      - >-
+        Verified: venture suite 7/7 (4 new), faq-visible.test.mjs 4/4,
+        build.mjs (168 tools, 481 pages) + check.mjs (492 pages, no dead
+        links) clean, faq-coverage.mjs unchanged at 168/168,
+        faq-duplicate.mjs clean. Full platform/pages suite 762/762 on a
+        second run -- the first run's one failure
+        ("an identical build produces an identical cache name" in
+        build.test.mjs, comparing two builds 51s apart within one test)
+        was isolated by re-running build.test.mjs alone (237/237 clean)
+        and traced to a concurrent agent's uncommitted edits to a
+        different venture (delivery-app-margin-calculator) landing
+        mid-build in the shared working tree -- not a regression from this
+        change. Checked open PRs first (zero open); staged and committed
+        only this venture's 4 files, confirmed via `git show --stat` before
+        pushing, per the coordinator's note about the shared working
+        directory. Merged as #2281; checks came back red in 4s with
+        runner_id 0 (the documented repo-wide outage), verified locally
+        instead per CLAUDE.md.
+    mrr_end: null
