@@ -78,12 +78,38 @@ schedule — those vary by category, country, plan, and account, and they change
 Replace the defaults with the numbers on your own statements; that is what
 makes the comparison yours rather than a generic estimate.
 
+## How fast it sells is part of the answer
+
+The highest net per sale is not the same as the most money per month. A channel
+that nets $6 less but sells in three days instead of ninety returns your cash
+thirty times more often, and a reseller with finite cash feels that far more
+than the six dollars.
+
+So each channel has an optional **days to sell**, and the table shows what it
+keeps *per day of waiting* alongside what it keeps per sale. Ranking can be
+switched between the two. When they disagree — the usual case once real
+turnaround numbers go in — the page says so in words above the table, because
+that disagreement is the whole reason to look.
+
+Speed is stated as a **turnover count** ("the same cash goes round 122 times a
+year") rather than an annualised percentage. Annualising a three-day flip is
+arithmetically true and reads as a promise; the count says the same thing
+without implying it compounds.
+
+The holding period ships **identical on every channel** (21 days), so out of
+the box it changes nothing. How fast a channel moves *your* category is an
+observation only you have; inventing per-marketplace figures here would be
+exactly the stale published-schedule claim the rest of this tool refuses to
+make. Enter what you have actually seen, and leave it at zero for a channel you
+have not timed — that reads as unknown, and the channel simply sits out the
+speed ranking rather than winning on a blank.
+
 ## What it deliberately does not model
 
-Fees are the part that is easy to calculate, not the whole decision. This has
-no way to know how many buyers each channel puts in front of you, how fast an
-item sells there, or what returns cost. A marketplace fee is partly a payment
-for demand you would otherwise have to create. Read the fee gap as one input.
+Fees and speed are the parts that can be calculated, not the whole decision.
+This still has no way to know how many buyers each channel puts in front of
+you, or what returns cost. A marketplace fee is partly a payment for demand you
+would otherwise have to create. Read the gap as one input.
 
 ## Tests
 
@@ -105,6 +131,13 @@ template emits cells (a mismatch silently renders every value under the wrong
 heading), that every figure named in the page's schema.org `featureList` is
 actually rendered, and that the fields which can be `null` are rendered
 defensively.
+
+The holding-period tests cover the same ground: that the shipped default
+changes no ranking until it is edited, that profit-per-day and turnover divide
+by the period, that a blank period reads as unknown rather than instant and
+sorts last on speed rather than winning, that a faster channel can outrank a
+more profitable one, and that no speed upset is claimed against a channel the
+seller never timed.
 
 ## Privacy
 

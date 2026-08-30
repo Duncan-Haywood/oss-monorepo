@@ -233,6 +233,18 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added per-channel time-to-sale: what each channel keeps per day of
+          waiting, a ranking toggle between profit-per-sale and profit-per-day,
+          and a callout when the two disagree. New opt-in event
+          `ranked_by_speed` is the one that answers whether sellers value the
+          speed view — the second hypothesis in VENTURE.yaml. Still no public
+          URL, so still no traffic signal; 34 unit tests pass and the primary
+          journey was verified in Chromium.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:

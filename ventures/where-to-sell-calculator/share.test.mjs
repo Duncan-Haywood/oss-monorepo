@@ -22,3 +22,22 @@ test("ignores unknown fields and malformed links", () => {
   assert.deepEqual(restored.channels[0], { id: "ebay", enabled: true, commissionRate: 13 });
   assert.equal(decodeComparison("not-json"), null);
 });
+
+test("carries the holding period, so a shared link answers the same question", () => {
+  // Regression: days-to-sell and the ranking mode landed after share links did,
+  // and were silently dropped from the payload — the recipient saw a different
+  // ranking from the sender with no sign anything was missing.
+  const encoded = encodeComparison(
+    { price: 48, rankBy: "profitPerDay" },
+    [{ id: "ebay", daysToSell: 3 }, { id: "local", daysToSell: 90 }],
+  );
+  const decoded = decodeComparison(encoded);
+  assert.equal(decoded.rankBy, "profitPerDay");
+  assert.equal(decoded.channels.find((channel) => channel.id === "ebay").daysToSell, 3);
+  assert.equal(decoded.channels.find((channel) => channel.id === "local").daysToSell, 90);
+});
+
+test("an unknown or absent ranking mode decodes to the default", () => {
+  assert.equal(decodeComparison(encodeComparison({}, [])).rankBy, "profit");
+  assert.equal(decodeComparison(encodeComparison({ rankBy: "sideways" }, [])).rankBy, "profit");
+});
