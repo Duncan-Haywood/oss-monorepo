@@ -24,6 +24,7 @@ configMapGenerator:
     files:
       - example.item.yaml=queue/example.item.yaml
       - branch-pr-drain.yaml=queue/branch-pr-drain.yaml
+      - deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml
       - seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml
       - product-feature-improvement.yaml=queue/product-feature-improvement.yaml
 generatorOptions:

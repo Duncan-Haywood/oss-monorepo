@@ -30075,3 +30075,46 @@ entries:
         documented runner outage (`runner_id: 0`, ~3-4s jobs on that head
         SHA), confirmed via the check-runs endpoint rather than assumed.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start (confirmed twice -- `list_pull_requests`
+        and a `is:open` search both returned empty), so the merge-first phase
+        was satisfied vacuously and the branch overlap check was already on
+        record from the previous session's 171-branch survey. Went straight to
+        product work rather than re-deriving that survey.
+      - >-
+        Sixth FAQ batch in the #2069-#2075 series: electrical-panel-upgrade,
+        french-drain, gravel-driveway, gutter-guard, gutter-install and
+        hardwood-refinishing. Coverage 87 -> 93 of 164; 43 new question/answer
+        pairs, every figure quoted from the venture's own `calc.mjs` starting
+        rates rather than invented. Verified: 491 venture tests green across
+        the six, 269 platform/pages tests green, build+check 164 products /
+        479 pages / no dead links, conflict-markers, money-sign and
+        form-defaults all clean, and `FAQPage` schema confirmed present in the
+        built artifact for all six (7-8 questions each).
+      - >-
+        Acted on an owner instruction attached to this run's brief -- make
+        deployment/CI-CD and marketing standing priorities for the hel1 Codex
+        worker. `workers/mandate.md` gained two sections: deployment and CI/CD
+        as first-class product work (GitOps is the deploy path; owner-blocked
+        is not agent-blocked; never seal or work around a secret, never relax
+        a fail-closed manifest) and organic-distribution work with two
+        absolute limits (no invented traction, no outward publishing). Added
+        one queue item, `deploy-cicd-readiness` at priority 4 -- below
+        branch-pr-drain, above the content items -- scoped strictly to the
+        code half of the delivery path. Extended `seo-discoverability-audit`
+        to name the FAQ-coverage backlog and `faq-coverage.mjs` instead of
+        adding a fourth overlapping item. 67 gitops tests green; verified
+        `pick_item` orders the queue 5/4/3/2 as intended.
+      - >-
+        Standing finding, unchanged and not re-litigated: all three of the
+        owner's stated priorities are already built and blocked only on owner
+        credentials -- portfolio-site-hetzner-deploy (#1999, clone token +
+        ACME contact), actions-runners-unavailable (#1842/#2021/#2022, PAT +
+        `CI_RUNNER`), codex-governor-enable (#1996) and
+        agent-runner-subscription-login (#2000). No duplicate asks added; the
+        decision queue already carries all four with exact unblock steps.
+    mrr_end: null
