@@ -69,6 +69,12 @@
       <pre id="report">Your inventory summary will appear here.</pre>
     </section>
   </main>
+  <h2>Common questions</h2>
+  <h3>How do I create a Shopify app permission inventory without the Admin API?</h3>
+  <p>Export only app metadata from a store you are authorized to administer — typically an Admin GraphQL appInstallations response with granted accessScopes and webhook topics. Paste it here, add the API version if the dump omitted it, and download the inventory JSON. The page does not connect to Shopify.</p>
+  <h3>Does this treat requested scopes as granted?</h3>
+  <p>No. Requested or declared scopes are stored separately. If an export has only declared scopes, capture refuses instead of inventing a granted list.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may move or disappear. Hosted URLs have no uptime commitment.</p>

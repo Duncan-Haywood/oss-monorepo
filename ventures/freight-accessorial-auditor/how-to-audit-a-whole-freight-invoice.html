@@ -195,6 +195,16 @@ SORT 1.25/piece</pre>
     only about getting a whole invoice into the queue.
   </p>
 
+  <h2>Common questions</h2>
+  <h3>How do I check a whole carrier invoice at once?</h3>
+  <p>Export the invoice from the carrier portal or your TMS as CSV, load it into the auditor, confirm the guessed columns, and type your accessorial contract rates once as CODE, amount lines. Every imported line is then compared against your rate card. On a six-line example invoice, skipping line haul and fuel leaves four accessorial lines totalling $595.00, of which $325.00 is above the rate card — including a $125.00 liftgate billed twice.</p>
+  <h3>Is my invoice uploaded anywhere?</h3>
+  <p>No. The file is read inside your browser with the standard local file reader. There is no server, no account, no cookie, and no analytics vendor. Closing the tab discards everything you loaded.</p>
+  <h3>What if my export does not say what I expected to pay?</h3>
+  <p>It will not — a carrier invoice states what it billed, never what you expected. That is what the rate card is for: type each accessorial code and its contracted amount once and the importer applies it to every matching line. Lines whose code is not in your rate card still import and are still checked for duplicates, missing codes, and unreadable amounts.</p>
+  <h3>How do I find a duplicate freight charge?</h3>
+  <p>Import the whole invoice rather than the lines you already suspect. A line repeating the same invoice, reference, code, and amount is flagged as a possible duplicate, with no rate card needed. Double-billed accessorials are the finding a partial review misses, because nobody retypes the lines they are not already suspicious of.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

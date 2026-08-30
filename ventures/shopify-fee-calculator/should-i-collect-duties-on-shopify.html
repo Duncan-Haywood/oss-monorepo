@@ -214,6 +214,14 @@
       Shopify Payments with PayPal.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I collect duties on Shopify?</h3>
+  <p>Collecting duties at checkout (DDP) adds the duty to the card swipe — Shopify Payments charges its percentage on that extra amount — and usually lowers conversion. Letting the buyer pay at the door (DAP) keeps checkout cheaper and raises door-refuses. On the calculator defaults ($48 item + $6 shipping, 15% duty, 2.9%+$0.30, $14 cost, $5 outbound, $8 return, 55% DAP take / 18% refuse, 42% DDP take / 6% refuse) DAP expects $12.59 per international-interested visitor and DDP expects $12.00. That is arithmetic on your inputs, not advice to turn Shopify Markets duties on or off.</p>
+  <h3>Does Shopify charge fees on duties I collect?</h3>
+  <p>Card fees sit on the checkout total. If you collect $8.10 of duty on a $54 ticket, Shopify Payments at 2.9% + $0.30 charges $2.10 instead of $1.87 — $0.23 extra on the duty. You then remit the $8.10. A delivered DDP order on the defaults keeps $31.51 versus $31.74 on DAP.</p>
+  <h3>When does DAP lose to DDP on Shopify?</h3>
+  <p>When enough DAP buyers refuse the package at the door. A refuse refunds the checkout, leaves the leftover $0.30 fixed fee, and eats outbound plus the return label. On the defaults DAP refuses have to reach about 20.2% before DDP matches, or DDP take has to reach about 44.1%. At a 25% DAP refuse rate DDP keeps more ($12.00 vs $10.69).</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, customs, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
