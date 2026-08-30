@@ -30075,3 +30075,39 @@ entries:
         documented runner outage (`runner_id: 0`, ~3-4s jobs on that head
         SHA), confirmed via the check-runs endpoint rather than assumed.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped FAQ sections (#2078: carpet-install-bid-calculator,
+        countertop-bid-calculator) continuing the #2069-#2075 series, then
+        found and fixed a self-caused bug from that same PR (#2079):
+        carpet-install-bid-calculator ended up with two `<section
+        id="faq">` blocks. A concurrent session's #2073 added its own FAQ
+        section to the same venture around the same time; when #2078
+        merged `main` in to resolve conflicts, git's line-based 3-way merge
+        did not flag it, because the two insertions landed far enough apart
+        in the file (mine after the cost breakdown, #2073's after the
+        proposal-generator block) to both apply cleanly. The same collision
+        on countertop-bid-calculator *did* surface as a real conflict
+        marker and was resolved correctly during #2078's merge -- only the
+        silent one on carpet-install-bid-calculator needed a follow-up
+        pass. #2079 kept #2073's section (more specific: exact
+        hours-per-yard and waste-percent figures from the calc.mjs
+        presets) and folded in the one question #2078's version had that
+        #2073's didn't (margin vs. markup), rather than discarding either
+        session's content. Lesson for the next session merging into a page
+        multiple concurrent sessions are actively editing: a clean `git
+        merge` is not proof of no duplication -- grep the result for the
+        section id or heading text you just added before pushing.
+      - >-
+        Re-checked rather than re-derived: 0 open PRs at session start (a
+        separate branch-survey entry above already covers the 171-branch
+        audit finding nothing repairable); CI/CD runner outage, Hetzner
+        GitOps deploy, and the Codex-governor/agent-runner pipeline on the
+        Hetzner boxes were all raised again by this session's brief and are
+        all still exactly as recorded in the three preceding entries --
+        code-complete, owner-gated on credential/login/DNS steps no session
+        can perform. No new decision-queue row added.
+    mrr_end: null
