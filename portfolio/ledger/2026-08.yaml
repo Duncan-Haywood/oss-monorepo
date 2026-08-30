@@ -34417,3 +34417,29 @@ entries:
         against. Zero open PRs existed at session start, so no queue to
         clear either.
     mrr_end: null
+  - venture: sponsor-ready
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added the SEO/AI-discovery docs page this venture was missing --
+        one of the 15 single-page ventures the 2026-08-30 branch-triage
+        entry flagged against PRODUCT_PLAYBOOK.md 5e, following the same
+        pattern already shipped for appointment-deposit-calculator (#2244)
+        and subcontractor-cashflow-planner (#2255). Merged as #2258.
+      - >-
+        github-sponsors-readiness-checklist.html tables all 10 signals
+        scoring.js checks, ranked by weight, with the one-line fix for
+        each. Generated to match CHECKS verbatim rather than paraphrased,
+        with a test asserting every label/weight pair appears on the page
+        -- so the docs page cannot silently drift out of sync if scoring.js
+        changes. Plus an authored FAQPage block matched to the visible
+        copy (platform/pages/faq-visible.test.mjs), linked from index.html's
+        existing FAQ answer, and added to sitemap.xml.
+      - >-
+        Verified: venture suite 40/40 (4 new), full platform/pages suite
+        762/762 (clean after the owner's #2256 dash fix landed underneath
+        this branch), build.mjs (168 tools) + check.mjs (489 pages, no
+        dead links) clean. No product logic touched -- scoring.js, app.js,
+        usage.js unchanged.
+    mrr_end: null
