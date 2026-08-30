@@ -14,6 +14,12 @@ site. The expected CSV columns are `title, buyer, deadline, category, value,
 url`. Dates use `YYYY-MM-DD`; value is a plain number in the currency shown by
 the source portal.
 
+The trade/category filter accepts a comma-separated list of terms
+(`roofing, roof repair, reroof`) so a portal that spells the same trade three
+different ways across rows only needs one pass — a row matches if any term
+appears in its category or its title. It is still a plain substring match, not
+a synonym dictionary, so a spelling you did not list is still missed.
+
 The worked example (roofing, minimum 20,000) keeps the school roof and the
 clinic reroof and drops the $12,000 painting hall.
 

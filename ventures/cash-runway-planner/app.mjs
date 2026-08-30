@@ -153,9 +153,13 @@ export function shortfallPlan(rows, { items = [], weeklyIncome = 0, weeklyCosts 
   const structural = recurringGap > 0;
 
   // Delaying a payment lifts every week from its own week onward, so it can
-  // only help a shortfall that starts at or after it.
+  // only help the deficit this plan reports -- the trough, not the first
+  // negative week -- when it lands at or before that trough. A payment that
+  // lands after the run starts but still inside the window (say, a tax bill
+  // in week 3 of a run that first went negative in week 2) still deepens the
+  // trough and is still a lever to name, not a payment to ignore.
   const outflow = items
-    .filter((item) => item.kind === 'out' && Number(item.week) <= rows[start].week)
+    .filter((item) => item.kind === 'out' && Number(item.week) <= trough.week)
     .sort((a, b) => Number(b.amount) - Number(a.amount))[0] ?? null;
   // Pulling money in only helps if it is not already inside the gap.
   const inflow = items

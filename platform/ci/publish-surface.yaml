@@ -337,6 +337,9 @@ workflows:
 - workflow: lawn-care-bid-calculator-ci.yml
   classification: none
   publishes: []
+- workflow: link-contrast-ci.yml
+  classification: none
+  publishes: []
 - workflow: local-site-studio-ci.yml
   classification: none
   publishes: []
