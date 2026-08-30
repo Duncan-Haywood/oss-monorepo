@@ -34443,3 +34443,56 @@ entries:
         dead links) clean. No product logic touched -- scoring.js, app.js,
         usage.js unchanged.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start, so the three-PR merge quota was
+        satisfied vacuously (queue empty, nothing to repair). Went to the
+        brief's stated priorities -- deploy/CI-CD and the Codex-on-Hetzner
+        worker -- and found the same owner-blocked activation path prior
+        sessions recorded, so did not re-litigate it or add a duplicate ask.
+      - >-
+        Found the untested surface instead: `gitops/agents/workers/worker.sh`
+        (294 lines) and `gitops/ci/runner-entrypoint.sh` (76 lines) are the
+        two scripts the whole activation path runs, and every assertion about
+        them in `gitops/tests/` was `read_text()` plus a substring check.
+        Neither had ever been executed. Built harnesses that run both for
+        real against a local bare repo and stubbed `codex`/`gh`/`curl`
+        binaries -- no network, no token, no cluster -- and they found two
+        bugs that would each have fired on the owner's first activation.
+      - >-
+        Bug 1 (worker.sh): `hit_limit` scanned the output of a *successful*
+        `codex exec --json` run, which echoes the entire agent transcript. Any
+        run that read, wrote or reasoned about rate-limiting code printed
+        "429"/"rate limit"/"exceeded ... quota" and exited 42 -- discarding
+        the work it had just finished (no commit, no push, no PR) and putting
+        the fleet to sleep for `cooldownOnLimitSeconds` (1h) on a substring in
+        someone's diff. Gated it on a non-zero exit status, which is how the
+        neighbouring `hit_auth_failure` check was already written.
+      - >-
+        Bug 2 (runner-entrypoint.sh): `trap cleanup EXIT INT TERM` followed by
+        `exec ./run.sh`. `exec` replaces the shell and takes its traps with
+        it, so the cleanup never ran -- not once, in any exit path. Its whole
+        purpose was deregistering a runner whose pod is evicted before a job
+        arrives; without it every such pod leaves an offline runner listed on
+        the repo that GitHub keeps dispatching jobs to, and those jobs hang
+        until someone prunes it by hand. Now runs `run.sh` as a child, with
+        SIGTERM forwarded so the runner stops between jobs, and preserves its
+        exit status.
+      - >-
+        Verified by execution, not assertion: 14 new tests (9 worker, 5
+        entrypoint); 5 of them fail against `origin/main`'s scripts and pass
+        against the fixed ones. Full `gitops/tests` 112/112. shellcheck clean
+        on both files at CI's default severity (`main` was clean too, so the
+        one SC2329 the restructure introduced is suppressed with its reason
+        rather than left to break `hetzner-gitops CI` when runners return).
+        The commit-fold path -- the riskiest untested logic, where an agent's
+        own commits are squashed with `git reset --soft` -- turned out to be
+        correct, and is now pinned.
+      - >-
+        Nothing here unblocks activation: the three seals and the `CI_RUNNER`
+        variable remain the owner's, unchanged. What changed is that the code
+        those seals switch on has now been run.
+    mrr_end: null

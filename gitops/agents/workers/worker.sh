@@ -26,6 +26,15 @@ mkdir -p "$CODEX_HOME"
 chmod 700 "$CODEX_STATE_DIR" "$CODEX_HOME" 2>/dev/null || true
 
 # Detect typical limit language from a command's combined output.
+#
+# Only ever consult this on a *failed* command. `codex exec --json` echoes the
+# whole agent transcript, so a run that reads, writes or reasons about
+# rate-limiting code prints every phrase below without anything having gone
+# wrong. Scanning a successful run for them exits 42, which discards the work
+# the run just finished (no commit, no push, no PR) and puts the whole fleet to
+# sleep for `cooldownOnLimitSeconds` — an hour of the queue lost to a substring
+# in someone's diff. `hit_auth_failure` was already gated this way; this is the
+# same rule applied to the signal that costs more when it misfires.
 hit_limit() {
   local text="$1"
   grep -Eiq '429|rate.?limit|usage.?limit|exceeded.*quota|hit your (usage )?limit|limit reached|insufficient_quota|spend_limit_exceeded|organization_spend_limit_exceeded|project_spend_limit_exceeded' <<<"$text"
@@ -229,7 +238,7 @@ set -e
 
 echo "$OUTPUT"
 
-if hit_limit "$OUTPUT"; then
+if [[ "$STATUS" -ne 0 ]] && hit_limit "$OUTPUT"; then
   echo "governor: Codex limit signal — exiting $LIMIT_EXIT so the next tick backs off"
   exit "$LIMIT_EXIT"
 fi

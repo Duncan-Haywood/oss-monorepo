@@ -78,6 +78,19 @@ Two replicas: a PR here typically triggers `Portfolio validate`, `Page
 integrity`, `Conflict markers` and the touched venture's own CI. One runner
 would serialise them.
 
+An ephemeral runner deregisters itself after its one job. The entrypoint's
+`cleanup` trap covers the other exit — the pod evicted, drained or rolled
+before a job ever arrives — because a runner left registered stays listed
+(offline) on the repository and GitHub keeps dispatching jobs to it, which then
+hang until someone prunes it by hand.
+
+**That trap did not work until 2026-08-30.** The entrypoint ended in
+`exec ./run.sh`, and `exec` replaces the shell, traps included — so the cleanup
+never ran on any exit path. `run.sh` is now a child process with SIGTERM
+forwarded to it, and `gitops/tests/test_runner_entrypoint.py` runs the
+entrypoint for real against a stubbed API to prove the deregistration happens,
+including in the eviction case. Those tests fail against the `exec` version.
+
 ## What it can and cannot reach
 
 CI runs whatever a workflow file says to run, on the same node as
