@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>3PL Inbound Calculator | Pallet vs Carton vs Loose Receiving</title>
+  <meta name="description" content="Compare pallet inbound, carton inbound, and loose per-unit receiving on the same 3PL quote. See which rate-card line actually costs less at your inbound volume.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="inbound.html">
+  <meta property="og:title" content="Compare 3PL pallet vs carton vs loose inbound">
+  <meta property="og:description" content="The same warehouse often quotes three inbound methods. This calculator shows which one is cheaper at your volume.">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"3PL Inbound Method Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare pallet, carton, and loose inbound receiving on one 3PL quote."}
+  </script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17212b; background: #f4f1ea; }
+    body { max-width: 980px; margin: auto; padding: 28px; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.05; margin: 0 0 14px; color: #123b36; }
+    p { line-height: 1.5; }
+    .layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 20px; }
+    .card { background: #fff; border: 1px solid #d8d3c9; border-radius: 14px; padding: 22px; }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { font-weight: 650; font-size: .86rem; }
+    input { display: block; width: 100%; box-sizing: border-box; margin-top: 5px; padding: 10px; border: 1px solid #a9b4af; border-radius: 7px; font: inherit; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #c05430; color: #fff; font-weight: 700; cursor: pointer; }
+    button.secondary { background: #e8eee9; color: #123b36; }
+    .full { grid-column: 1 / -1; }
+    .hero { font-size: 1.45rem; color: #123b36; font-weight: 800; margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+    th, td { text-align: right; padding: 10px 8px; border-bottom: 1px solid #e6e2da; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner { background: #e8f3ee; }
+    .note, footer { font-size: .86rem; color: #52605d; }
+    a { color: #123b36; font-weight: 700; }
+    footer { margin-top: 25px; border-top: 1px solid #d8d3c9; padding-top: 16px; }
+    @media (max-width: 800px) { body { padding: 16px; } .layout, form { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="note">FULFILLMENT DECISION TOOL</p>
+    <h1>Which inbound method is the warehouse actually cheaper on?</h1>
+    <p>
+      Most 3PL rate cards list pallet inbound, carton inbound, and loose /
+      piece-in as if they were interchangeable. They are not. The same 480
+      units can cost a pallet fee, a carton fee, or a per-unit fee — and the
+      cheapest line is the one you should ask the warehouse to receive against.
+    </p>
+    <p class="note">
+      <a href="./index.html">Full quote normalizer</a> ·
+      <a href="./compare.html">Compare two quotes</a> ·
+      <a href="./sensitivity.html">Volume sensitivity</a> ·
+      <a href="./returns-sensitivity.html">Return-fee flip</a> ·
+      <a href="./does-long-term-storage-flip-a-3pl-quote.html">Long-term storage</a> ·
+      <a href="./should-i-restock-or-let-the-customer-keep-a-3pl-return.html">Restock vs keep</a> ·
+      <a href="./should-i-pay-the-3pl-to-kit.html">Kitting</a> ·
+      <a href="./pallet-vs-carton-inbound.html">Why pallet inbound is usually cheaper</a>
+    </p>
+  </header>
+  <main class="layout">
+    <section class="card">
+      <h2>Your inbound rate card</h2>
+      <form id="inbound" novalidate>
+        <label>Inbound units / month<input name="inboundUnits" type="number" value="480" min="0"></label>
+        <label>Orders / month<input name="orders" type="number" value="100" min="0"></label>
+        <label>Pallet inbound fee ($)<input name="palletInboundFee" type="number" value="10" min="0" step=".01"></label>
+        <label>Units per pallet<input name="unitsPerPallet" type="number" value="60" min="0"></label>
+        <label>Carton inbound fee ($)<input name="cartonInboundFee" type="number" value="1.50" min="0" step=".01"></label>
+        <label>Units per carton<input name="unitsPerCarton" type="number" value="6" min="0"></label>
+        <label>Loose receiving / unit ($)<input name="receivingPerUnit" type="number" value="0.40" min="0" step=".01"></label>
+        <label>Minimum monthly spend ($)<input name="minimumMonthly" type="number" value="0" min="0" step=".01"></label>
+        <label>In-house cost / order ($)<input name="inHousePerOrder" type="number" value="13" min="0" step=".01"></label>
+        <label>Storage / pallet ($)<input name="storagePerPallet" type="number" value="18" min="0" step=".01"></label>
+        <button class="full" type="submit">Compare inbound methods</button>
+      </form>
+    </section>
+    <section class="card" aria-live="polite">
+      <h2>Which method wins</h2>
+      <p id="headline" class="hero"></p>
+      <div class="table-wrap">
+        <table>
+          <caption class="note">Same quote, only the receiving line changes.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Method</th>
+              <th scope="col">Containers</th>
+              <th scope="col">Receiving / unit</th>
+              <th scope="col">Monthly receiving</th>
+              <th scope="col">3PL total</th>
+              <th scope="col">Cost / order</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p id="status" class="note"></p>
+      <button class="secondary" id="copy" type="button">Copy inbound comparison</button>
+      <button class="secondary" id="optout" type="button">Turn usage counting off</button>
+      <p class="note">Arithmetic from your rate card, not a warehouse quote or a recommendation to change how you ship.</p>
+    </section>
+  </main>
+  <footer>
+    <p>
+      <strong>No warranty.</strong> This tool is provided free and as-is, without
+      warranty of any kind, express or implied. It is not financial, tax, legal,
+      or engineering advice, and it does not replace a qualified professional.
+      <strong>You are responsible for reviewing and verifying its output before
+      relying on it</strong>, and for meeting any obligation it helps prepare for.
+      To the maximum extent permitted by law, the authors accept no liability
+      for any loss or damage arising from its use.
+    </p>
+    <p>
+      <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+      experimental, and may be slow, broken, moved, or taken offline without
+      notice. We do not promise uptime, backups of anything you type, or that a
+      URL will keep working. Do not use this as a system of record.
+    </p>
+    <p>
+      Everything runs in your browser. Your data is never uploaded; there are
+      no accounts, cookies, or analytics vendors. Anonymous feature events are
+      counted only in local storage and can be deleted with the button above.
+    </p>
+    <p>
+      Free to use.
+      <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a>
+      if you want — refusing does not change the calculator.
+    </p>
+  </footer>
+  <script type="module">
+    import { compareInboundMethods, inboundComparisonSummary, money } from "./calc.mjs";
+    import { record, setUsageOptOut } from "./usage.mjs";
+
+    const form = document.querySelector("#inbound");
+    const rows = document.querySelector("#rows");
+    const headline = document.querySelector("#headline");
+    const status = document.querySelector("#status");
+    const copy = document.querySelector("#copy");
+    const saveKey = "3pl-quote-normalizer-inbound";
+    let latest = "";
+
+    function values() {
+      return Object.fromEntries(new FormData(form));
+    }
+
+    function formatCount(value) {
+      if (!Number.isFinite(value)) return "—";
+      return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
+    }
+
+    function render(track = false) {
+      const comparison = compareInboundMethods(values());
+      const summary = inboundComparisonSummary(comparison);
+      headline.textContent = summary;
+      rows.innerHTML = comparison.rows.map((row) => {
+        const selected = comparison.cheapestIds.includes(row.id);
+        return `<tr class="${selected ? "winner" : ""}">
+          <th scope="row">${row.label}${selected && comparison.cheapestId === row.id ? " (lower)" : ""}</th>
+          <td>${formatCount(row.inboundCount)}</td>
+          <td>${Number.isFinite(row.receivingPerUnit) ? money(row.receivingPerUnit) : "—"}</td>
+          <td>${Number.isFinite(row.receiving) ? money(row.receiving) : "—"}</td>
+          <td>${Number.isFinite(row.total) ? money(row.total) : "—"}</td>
+          <td>${Number.isFinite(row.perOrder) ? money(row.perOrder) : "—"}</td>
+        </tr>`;
+      }).join("");
+      status.textContent = comparison.receivingSpread
+        ? `Receiving spread: ${money(comparison.receivingSpread)} / month. Storage, pick, and shipping stay the same across rows.`
+        : "Receiving is the same on every method at these rates.";
+      latest = ["3PL inbound method comparison", summary, ...comparison.rows.map((row) =>
+        `${row.label}: receiving ${Number.isFinite(row.receiving) ? money(row.receiving) : "n/a"}, total ${Number.isFinite(row.total) ? money(row.total) : "n/a"}`
+      )].join("\n");
+      if (track) record("inbound_methods_compared");
+    }
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(saveKey) || "null");
+      if (saved && typeof saved === "object") {
+        for (const [name, value] of Object.entries(saved)) {
+          const input = form.elements.namedItem(name);
+          if (input && typeof value === "string") input.value = value;
+        }
+      }
+    } catch {
+      status.textContent = "Local saving is unavailable in this browser.";
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      render(true);
+    });
+    form.addEventListener("input", () => {
+      try { localStorage.setItem(saveKey, JSON.stringify(values())); } catch { /* optional */ }
+      render();
+    });
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(latest);
+        copy.textContent = "Copied";
+        record("inbound_comparison_copied");
+      } catch {
+        copy.textContent = "Copy unavailable";
+      }
+    });
+    document.querySelector("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      document.querySelector("#optout").textContent = "Usage counting is off";
+    });
+    render();
+  </script>
+</body>
+</html>

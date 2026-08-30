@@ -57,9 +57,9 @@
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
         }
       },
-      {
-        "@type": "ListItem",
-        "position": 4,
+       {
+         "@type": "ListItem",
+         "position": 4,
         "item": {
           "@type": "SoftwareApplication",
           "name": "555 Timer Calculator",
@@ -69,7 +69,17 @@
           "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
         }
       }
-    ]
+      ,{
+         "@type": "ListItem",
+         "position": 5,
+         "item": {"@type":"SoftwareApplication","name":"RC Charge and Discharge Time Calculator","url":"rc-time-calculator/","applicationCategory":"EducationalApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+       }
+       ,{
+         "@type": "ListItem",
+         "position": 6,
+         "item": {"@type":"SoftwareApplication","name":"RC / RL Filter Calculator","url":"rc-filter-calculator/","applicationCategory":"EducationalApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+        }
+     ]
   }
 }
 </script>
@@ -164,7 +174,46 @@
       </p>
       <p class="answers">"1 kHz low-pass with a 100nF cap?" → 1.59 kΩ, nearest E24 1.6 kΩ.</p>
     </li>
+    <li>
+      <h2><a href="rc-time-calculator/">RC charge and discharge time calculator</a></h2>
+      <p>Find the time to reach a real capacitor voltage threshold, or design a buyable resistor or capacitor for a target delay.</p>
+      <p class="answers">"How long to charge 100 nF through 10 kΩ to 3.16 V from 5 V?" → about 1 ms.</p>
+    </li>
   </ul>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>Why did the voltage divider calculator give a different answer than Vout = Vin &times; R2 / (R1 + R2)?</h3>
+    <p>
+      Because that textbook formula assumes nothing is drawing current from the
+      output. Add a real load and the divider sags &mdash; the calculator's
+      loading correction accounts for the load resistor pulling R2 down, which
+      is why &ldquo;12V, two 10k resistors, 1k load&rdquo; does not come out to
+      6V.
+    </p>
+    <h3>Are the resistor and capacitor values these tools suggest ones I can actually buy?</h3>
+    <p>
+      Where a tool has a design mode &mdash; the LED, voltage-divider,
+      555-timer, RC-filter, and RC-time calculators &mdash; it snaps the
+      computed value to the nearest standard E24 part and shows you the exact
+      pair, instead of leaving you to source an odd value like 8,342 &Omega;.
+    </p>
+    <h3>Can I use these for a safety-critical or production design?</h3>
+    <p>
+      No. They are educational calculators for getting the arithmetic right,
+      not a substitute for reading a datasheet, checking a component's real
+      tolerances, or measuring the circuit you actually built. Treat any
+      output as a starting point to verify, especially anything touching
+      mains voltage or driving real current.
+    </p>
+    <h3>Does anything I type get uploaded anywhere?</h3>
+    <p>
+      No &mdash; there is no server for it to go to. Every calculation runs in
+      your browser, and the only thing stored is an anonymous local count of
+      which features get used, kept in your own browser's storage and easy to
+      turn off on each tool's page.
+    </p>
+  </section>
 
   <footer>
     <h2>Disclaimer</h2>
@@ -177,6 +226,7 @@
       anything safety-critical. To the maximum extent permitted by law, the
       authors accept no liability for any loss or damage arising from their use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
 
     <h2>Privacy</h2>
     <p>

@@ -1,0 +1,41 @@
+name: portable-restroom-event-quote CI
+
+# Test runner for the browser-local porta potty event quote calculator. The
+# product is static ES modules with no build step and no dependencies, so this
+# does no more than a contributor runs locally: `node --test`. It publishes
+# nothing, registers nothing, and spends no API budget — it is not the
+# unattended-automation kind of workflow CLAUDE.md gates.
+#
+# Same shape as janitorial-bid-calculator-ci.yml.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/portable-restroom-event-quote/**"
+      - ".github/workflows/portable-restroom-event-quote-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/portable-restroom-event-quote/**"
+      - ".github/workflows/portable-restroom-event-quote-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portable-restroom-event-quote-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: ventures/portable-restroom-event-quote
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test

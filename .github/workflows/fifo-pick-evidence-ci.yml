@@ -1,0 +1,39 @@
+name: fifo-pick-evidence CI
+
+# Standard-library Python CLI. Keep FIFO exception arithmetic covered
+# independently of the portfolio-wide validation workflow.
+on:
+  pull_request:
+    paths:
+      - "ventures/fifo-pick-evidence/**"
+      - ".github/workflows/fifo-pick-evidence-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/fifo-pick-evidence/**"
+      - ".github/workflows/fifo-pick-evidence-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fifo-pick-evidence-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/fifo-pick-evidence
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run FIFO checker tests
+        run: python3 -m unittest -v
+      - name: Example CSV produces a report
+        run: python3 fifo_pick_evidence.py examples/picks.csv --format json

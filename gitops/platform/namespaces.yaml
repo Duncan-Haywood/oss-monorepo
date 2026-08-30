@@ -28,3 +28,11 @@ metadata:
   labels:
     app.kubernetes.io/part-of: hel1-gitops
     env: agents
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ci
+  labels:
+    app.kubernetes.io/part-of: hel1-gitops
+    env: ci

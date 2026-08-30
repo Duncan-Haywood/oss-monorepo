@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I take bank transfer on Shopify? | Card vs manual payment</title>
+  <meta name="description" content="Compare Shopify Payments with a bank transfer or Mark as paid invoice. See the fee you skip, the leftover if invoices actually pay, and the collection rate that wipes the 2.9% save.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-take-bank-transfer-on-shopify.html">
+  <meta property="og:title" content="Should I take bank transfer on Shopify?">
+  <meta property="og:description" content="See the Shopify card fee you skip on a bank transfer, whether holding the order still beats the card at your collection rate, and the unpaid percent that wipes the save.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify bank transfer vs card fees",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "card fee skipped on bank transfer, leftover if they pay, collection rate that wipes the save, hold-until-paid vs ship-first leftover"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Does Shopify charge fees on bank transfer or Mark as paid?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A Shopify manual payment method (bank deposit, money order, or Mark as paid) does not take a Shopify Payments percentage or the extra Shopify third-party transaction fee. You skip those processor fees. You still have the monthly plan, cost of goods, and postage. This page compares that zero-fee path with taking a card on the same order. It is arithmetic on your rates, not Shopify's live schedule."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When does a Shopify bank transfer still beat Shopify Payments?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It beats the card when enough invoices actually pay. On a $54 ticket the 2.9% + $0.30 card fee is $1.87. Hold the order until the transfer clears and a 95% collection rate still keeps a few cents more than the card. Ship first and the same 5% unpaid slice loses, because you already spent cash. The calculator shows the collection floor for both paths."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <p><a href="./">← Shopify fee calculator</a></p>
+    <h1>See whether a bank transfer still beats the Shopify card fee.</h1>
+    <p>
+      Manual payment, bank deposit, and Mark as paid skip Shopify Payments
+      and the extra third-party transaction fee. The usual pitch is
+      “save 2.9%.” The missing piece is collection. The table keeps the
+      same SKU, then compares taking the card, holding the order until
+      the transfer clears, and shipping first at your unpaid rate.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order, fees and collection</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US card defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="48"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Invoices that actually pay (%) <input id="collectionPct" type="number" min="0" max="100" step="0.1" value="95"></label>
+        <label>Pay-by-transfer discount (%) <input id="manualDiscountPct" type="number" min="0" max="100" step="0.1" value="0"></label>
+        <label>Chase / matching cost per invoice <input id="chaseCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="14"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100"></label>
+        <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.99" step="0.1" value="40"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Card vs bank transfer</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">fee you skip if the invoice pays</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Card leftover</dt><dd id="cardKept"></dd>
+        <dt>Leftover if they pay</dt><dd id="paidProfit"></dd>
+        <dt>Collection rate that wipes the save</dt><dd id="breakEvenHold"></dd>
+        <dt>Ship-first collection floor</dt><dd id="breakEvenShipped"></dd>
+        <dt>Monthly save if they all pay</dt><dd id="monthlyIfPaid"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, three ways the cash arrives</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Fees</th>
+            <th scope="col">Cash at risk</th>
+            <th scope="col">Leftover</th>
+            <th scope="col">Vs card</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Hold-until-paid assumes you do not spend COGS or postage on invoices that never clear. Ship-first still spends that cash on the unpaid slice. Transparent arithmetic from your rates — not Shopify’s current fee schedule or a collection forecast.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Wholesale and high-ticket Shopify merchants search “Shopify bank
+      transfer fees” and “Mark as paid Shopify fees” because a manual
+      payment method looks free. On the defaults — $48 item, $6 shipping,
+      Basic 2.9% + $0.30, $20.39 cash in the order, 95% collected — the
+      card keeps $31.74. Bank transfer, if they pay, keeps $33.61
+      ($1.87 more, $186.60 / month). Hold until paid still keeps $31.93.
+      Ship first and the 5% that ghost leaves $30.91. The fee save
+      survives down to about 94.4% collected if you wait, and about
+      96.5% if you already shipped.
+    </p>
+    <p>
+      It does not recommend turning card checkout off, and it is not tax
+      or financial advice. You remain responsible for matching the
+      transfer and for your own unpaid-invoice rate. Compare
+      <a href="why-paypal-costs-more.html">PayPal vs Shopify Payments</a>,
+      <a href="shopify-pos-vs-online-fees.html">POS vs online fees</a>,
+      <a href="should-i-offer-shop-pay-installments.html">Shop Pay Installments vs a regular card</a>,
+      or
+      <a href="should-i-take-shopify-capital.html">Shopify Capital vs waiting</a>
+      on the main <a href="./">Shopify fee calculator</a> when the question
+      is processor, counter, installments, or merchant funding — not
+      whether the invoice will clear.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Does Shopify charge fees on bank transfer or Mark as paid?</h3>
+  <p>A Shopify manual payment method (bank deposit, money order, or Mark as paid) does not take a Shopify Payments percentage or the extra Shopify third-party transaction fee. You skip those processor fees. You still have the monthly plan, cost of goods, and postage. This page compares that zero-fee path with taking a card on the same order. It is arithmetic on your rates, not Shopify's live schedule.</p>
+  <h3>When does a Shopify bank transfer still beat Shopify Payments?</h3>
+  <p>It beats the card when enough invoices actually pay. On a $54 ticket the 2.9% + $0.30 card fee is $1.87. Hold the order until the transfer clears and a 95% collection rate still keeps a few cents more than the card. Ship first and the same 5% unpaid slice loses, because you already spent cash. The calculator shows the collection floor for both paths.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, costs, and collection rate are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from skipping card fees on invoices that never pay, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, compareManualPayment } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "price", "shippingCharged", "paymentsRate", "paymentsFixed",
+      "collectionPct", "manualDiscountPct", "chaseCost", "costOfGoods",
+      "shippingCost", "packagingCost", "otherCost", "monthlyPlan",
+      "monthlyOrders", "targetMargin",
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function pctText(value) {
+      if (value == null || !Number.isFinite(value)) return "n/a";
+      return `${value.toFixed(1)}%`;
+    }
+
+    function update() {
+      try {
+        const result = compareManualPayment(readInput());
+        const save = result.extraIfPaid;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(save);
+        profitEl.className = `hero-number ${save < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          save < 0 ? "bank transfer keeps less even if they pay" : "fee you skip if the invoice pays";
+        document.getElementById("summary").textContent = result.summary;
+        document.getElementById("cardKept").textContent = money(result.card.kept);
+        document.getElementById("paidProfit").textContent = money(result.paidProfit);
+        document.getElementById("breakEvenHold").textContent = pctText(result.breakEvenHoldPct);
+        document.getElementById("breakEvenShipped").textContent = pctText(result.breakEvenShippedPct);
+        document.getElementById("monthlyIfPaid").textContent = `${money(result.monthlyExtraIfPaid)} / month`;
+        const bestKept = Math.max(...result.rows.map((row) => row.kept));
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.kept === bestKept ? "best" : ""}"><td>${row.label}</td><td>${money(row.fees)}</td><td>${money(row.cashAtRisk)}</td><td>${money(row.kept)}</td><td>${money(row.vsCard)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["cardKept", "paidProfit", "breakEvenHold", "breakEvenShipped", "monthlyIfPaid"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function applyPlan() {
+      const filled = applyPlanPreset({}, document.getElementById("plan").value);
+      document.getElementById("paymentsRate").value = filled.paymentsRate;
+      document.getElementById("paymentsFixed").value = filled.paymentsFixed;
+      document.getElementById("monthlyPlan").value = filled.monthlyPlan;
+      update();
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "plan_preset_applied");
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "manual_payment_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", applyPlan);
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

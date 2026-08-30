@@ -11,7 +11,18 @@ identities. Nothing here applies itself.
 - `duncanhaywood.dev` zone exists (4 records, not imported here).
 - Placement group `placement-group-1`.
 - 100 GB volume on the cpx52.
-- SSH key is already in GitHub Actions secrets.
+
+Actions secrets that exist (Settings → Secrets and variables → Actions).
+Names are exact; values never go in git.
+
+| Name | What | Used by |
+|---|---|---|
+| `HETZNERSSHKEY` | SSH private key for `root@89.167.29.39` and `root@157.180.80.188` | `hetzner-gitops-ci.yml` preflight (`workflow_dispatch`, `preflight: true`) |
+| `HETZNERREADAPIKEY` | Hetzner Cloud API token, **Read** only | `hetzner-gitops-ci.yml` `hcloud-scope` (maps to env `HCLOUD_TOKEN` for `hcloud` / Tofu plan). Laptop: `export HCLOUD_TOKEN=` the same value |
+| `CLAUDETRIGGERAPIKEY` | Claude Code routine API trigger bearer | `claude-routine-trigger.yml` only. Not this stack |
+
+Do not add a Hetzner **Write** token, an OpenAI Admin key, an age
+private key, or a kubeconfig as an Actions secret.
 
 Do not create a third VM. The next `tofu apply` must import / attach, not replace.
 
@@ -34,29 +45,23 @@ Hold the PAT until the cluster can seal it. Do not put it in the `agents`
 namespace as plaintext, and do not mount it into a workflow that does not
 need it.
 
-**SSH — already in Actions secrets.** Dispatch `hetzner-gitops CI` with
-`preflight: true`. The job looks for `HETZNER_SSH_PRIVATE_KEY`, then
-`SSH_PRIVATE_KEY`. If the existing secret uses another name, add one of
-those aliases (same key material). Preflight is read-only: it never
+**SSH — `HETZNERSSHKEY` is already in Actions.** Dispatch
+`hetzner-gitops CI` with `preflight: true`. Read-only: it never
 installs k3s or runs tofu.
 
-**Hetzner write token — no, not yet.** Hetzner Cloud has **no hard euro
-spend cap**. Console "Usage" alerts email you and keep billing
-([billing FAQ](https://docs.hetzner.com/cloud/billing/faq/)). A
+**Hetzner Read token — `HETZNERREADAPIKEY` is already in Actions.** CI
+probes `POST /servers` with an empty body (cannot create a server).
+**403 = keep it. Anything else = rotate, it can write.**
+`infra/scripts/assert_hcloud_read_only.sh` is that probe. On a laptop,
+`export HCLOUD_TOKEN=` the same value for `make discover` / `tofu plan`.
+
+**Hetzner write token — still no, not in Actions.** Hetzner Cloud has
+**no hard euro spend cap**. Console "Usage" alerts email you and keep
+billing ([billing FAQ](https://docs.hetzner.com/cloud/billing/faq/)). A
 Read+Write token can create servers, resize the cpx52, and attach
 volumes until the account resource limits (hundreds of servers). Tofu
 locks and `prevent_destroy` are not a spend limit — a leaked token talks
 to the API directly.
-
-The only Hetzner control with no API workaround is a **Read** token:
-
-1. Console → the project that owns these two servers → Security → API tokens
-2. New token, permission **Read**
-3. Optional: store it as repo secret `HCLOUD_TOKEN`
-
-CI will probe `POST /servers` with an empty body (cannot create a
-server). **403 = keep it. Anything else = rotate, it can write.**
-`infra/scripts/assert_hcloud_read_only.sh` is that probe.
 
 Keep the Read+Write token on the laptop for the one `tofu apply`. Never
 in Actions, never in `agents`.
@@ -72,19 +77,32 @@ right split.
 - Mint a **project API key**. Put `OPENAI_API_KEY` in the sealed secret.
 - Do **not** put an Admin API key in the cluster. The Admin API can raise
   the spend limit — that is the workaround. A normal project key cannot.
-- Do **not** `codex login` with your main ChatGPT/Plus/Pro account. That
-  burns the personal 5-hour / weekly quota and has no euro hard stop.
 
-Governor stays `suspend: true` / `enabled: false` until that key is
-sealed. The worker already accepts `OPENAI_API_KEY` and treats those 429
-codes as exit 42.
+**Or the plan quota, if you would rather not spend money.** Since
+2026-08-29 the worker also accepts `CODEX_AUTH_JSON` — the contents of
+`~/.codex/auth.json` after a `codex login` — and a tick on that credential
+costs nothing extra. It is a genuine alternative, not a shortcut, and the
+old warning here is the reason it is not simply the better one:
+
+- A plan has **no euro hard stop**. The ceiling is the plan's 5-hour and
+  weekly windows, which is a different kind of limit from a spend cap.
+- Those windows are shared with whoever is signed into that account. Do
+  **not** use your main ChatGPT/Plus/Pro login unless you are content for
+  the fleet to compete with your own interactive use; a separate plan seat
+  avoids the trade entirely.
+
+Seal one or the other (or both — the non-billing one wins, and the worker
+logs which it used). Either way the governor stays `suspend: true` /
+`enabled: false` until you flip it, and the worker treats the 429 spend
+codes as exit 42 and a rejected credential as exit 43.
 
 ## You do once (laptop)
 
-1. Optional Read `HCLOUD_TOKEN` as above, then `make discover` and paste
-   `firewall_id` / `volume_id` into `infra/terraform.tfvars` (gitignored).
-2. Confirm SSH: Actions preflight, or `bootstrap/preflight.sh` from a
-   machine that has the key.
+1. Laptop: `export HCLOUD_TOKEN=` the `HETZNERREADAPIKEY` value, then
+   `make discover` and paste `firewall_id` / `volume_id` into
+   `infra/terraform.tfvars` (gitignored).
+2. Confirm SSH: Actions preflight (`HETZNERSSHKEY`), or
+   `bootstrap/preflight.sh` from a machine that has the key.
 3. If k3s is already on the cpx52, `bootstrap/label-existing.sh` instead
    of `install-k3s-server.sh`.
 4. Fine-grained GH token (agents) + read-only deploy key (Argo).
@@ -99,6 +117,76 @@ codes as exit 42.
    `codex-secrets` (`OPENAI_API_KEY`, `GH_TOKEN`) in a follow-up PR.
    Only then flip `gitops/agents/governor/cronjob.yaml` `suspend: false`
    and `policy.json` `"enabled": true`.
+9. **Restore CI.** Every workflow has been red since 2026-08-26 with
+   `runner_id: 0` and zero steps — jobs that were never assigned a
+   runner, because metered Actions minutes on this private repo ran out.
+   Two steps bring it back on hardware you already pay for:
+   seal `actions-runner-secrets` from
+   `gitops/ci/secrets/actions-runner-token.template.yaml` (a
+   fine-grained PAT for this repo with **Administration: Read and
+   write**), then set the repository variable `CI_RUNNER` =
+   `self-hosted`. Clearing that variable moves all 217 workflows back to
+   GitHub-hosted runners when your minutes reset. Details and the
+   security posture: `gitops/ci/README.md`.
+
+## Publish `tools.marisstella.dev` (the whole product portfolio)
+
+This is the shortest path from "164 finished tools nobody can reach" to a
+public URL, and every step in it is yours — none of it is waiting on an
+agent. `gitops/README.md` explains *why* each one exists; this is the
+order to type them in and how to tell each worked.
+
+The build half is done and was rehearsed on 2026-08-29 with the exact
+commands the pod runs (`PAGES_BASE_URL=https://tools.marisstella.dev/
+node platform/pages/build.mjs --out=… && node platform/pages/check.mjs
+--dist=…`): 164 products, 446 pages, no dead links, and no
+`duncan-haywood.github.io` URL surviving anywhere in the output. Nothing
+about it depends on GitHub Actions (no runner since 2026-08-26) or on
+GitHub Pages (not enabled, and a private repo's Pages site is not public
+on the free tier anyway).
+
+**DNS — already done, no action needed.** `tools.marisstella.dev`
+already resolves to `89.167.29.39` (verified 2026-08-29:
+`getent hosts tools.marisstella.dev`) — `marisstella.dev`'s existing
+wildcard `A/*` record already covers the subdomain, so the A record this
+checklist used to list as step 1 does not need adding.
+
+1. **The clone token.** The repo is private, so the pod's `fetch` init
+   container cannot clone anonymously. Mint a **fine-grained** PAT — this
+   repository only, **Contents: Read-only**, nothing else — then seal it
+   exactly as `gitops/prod/secrets/portfolio-repo-token.template.yaml`
+   says, commit `portfolio-repo-token.sealed.yaml` beside the template,
+   and add that filename to `gitops/prod/kustomization.yaml`. Verify:
+   `kubectl -n prod get pods -l app=portfolio-site` goes from
+   `Init:CrashLoopBackOff` to `Running`, and
+   `kubectl -n prod logs deploy/portfolio-site -c build` ends in
+   `built … files`.
+
+2. **A real ACME contact.** Replace `replace-me@duncanhaywood.dev` in
+   `gitops/platform/cert-manager/issuer.yaml` with a mailbox that
+   exists — Let's Encrypt refuses to register the placeholder, so no
+   certificate can issue until this changes. (Same address as item 6
+   above; do it once.) Verify:
+   `kubectl -n prod get certificate` reports `READY=True`.
+
+Steps 1–2 are all that stand between the portfolio and a live site. Once
+they land the site is reachable, on a Let's Encrypt **staging**
+certificate — browsers will warn, because staging is not a trusted root.
+
+3. **The issuer flip, last.** Only after a staging certificate has
+   issued, change the Ingress annotation
+   `cert-manager.io/cluster-issuer` in `gitops/prod/portfolio-site.yaml`
+   from `letsencrypt-staging` to `letsencrypt-prod`, and update
+   `gitops/tests/test_manifests.py::test_portfolio_site_starts_on_the_staging_certificate_issuer`
+   which pins it. Unlike 1–2 this one is not owner-only — it is an
+   ordinary code change an agent can open as a PR once you confirm the
+   staging certificate issued, and asking for it that way is less work
+   than editing two files by hand.
+
+Deliberately **not** on this list: enabling GitHub Pages. That is a
+separate queued ask (`deploy-settings`) and, on its own, would not put
+these tools in front of anyone — see `portfolio/hosting/README.md`'s
+2026-08-29 amendment.
 
 ## You do not hand to an agent
 

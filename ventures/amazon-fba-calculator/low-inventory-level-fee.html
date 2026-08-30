@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amazon low-inventory-level fee: restock or stay thin?</title>
+  <meta name="description" content="Amazon FBA low-inventory-level fee: when both 30-day and 90-day days of supply sit below 28, compare the per-unit surcharge against inbound and storage to restock.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="low-inventory-level-fee.html">
+  <meta property="og:title" content="Amazon low-inventory-level fee: restock or stay thin?">
+  <meta property="og:description" content="The decision is not only days of supply. It is the surcharge on each FBA shipment versus storage on the extra units that would get you to 28 days.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Amazon FBA low-inventory-level restock vs stay thin",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "30-day and 90-day days of supply, low-inventory-level surcharge band, stay-thin monthly fee, extra units to 28 days, extra storage vs inbound, restock payback months"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "When does Amazon charge the low-inventory-level fee?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This model adds a per-unit surcharge only when both the 30-day and the 90-day historical days of supply sit below 28. Days of supply is on-hand units divided by average daily units shipped in that window. If either window is 28 days or more, the page adds nothing. Merchant-fulfilled, grocery, and new-FNSKU listings can be marked exempt — that is a switch you turn on, not a claim your account qualifies."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does restocking to 28 days beat paying the surcharge?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On the calculator defaults (10 units on hand, 30 sold in 30 days and 90 in 90 days, small standard, 8×6×2 in, $0.87 storage, $1.20 inbound, 30 shipments a month) both windows are 10 days. The illustrative 0–13 day band is $0.89 / unit, or $26.70 / month. Restocking 18 units to 28 days adds $0.87 / month of storage and $21.60 inbound now, so restocking avoids $25.83 / month after extra storage. Peak storage on a bulky cube can flip that: extra storage can exceed the surcharge, so staying thin leaves more monthly cash."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this Amazon's live low-inventory-level schedule?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Size-tier bands are illustrative defaults you overwrite from your current Amazon fee preview. The page does not recommend a restock quantity and does not claim a listing is profitable after you send more inventory."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #1b2433; background: #eef2f8; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #1f4f8a; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: .87rem; }
+    .check input { width: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #c5d0e0; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #445064; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #445064; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+  <p><a href="./">← Amazon FBA vs FBM calculator</a></p>
+  <h1>Low-inventory-level fee: is restocking to 28 days cheaper than staying thin?</h1>
+  <p>
+    Amazon sellers search for the low-inventory-level fee because running
+    FBA stock close to demand is no longer free. When
+    <strong>both</strong> the 30-day and the 90-day historical days of
+    supply sit below 28, FBA shipments can pick up a per-unit surcharge.
+    If either window is 28 days or more, this model adds nothing.
+  </p>
+  <p>
+    Days of supply is average on-hand inventory divided by average daily
+    units shipped. The surcharge band then depends on how thin the thinner
+    window is, plus size tier and weight. Merchant-fulfilled orders do not
+    pay it. Grocery and new-FNSKU exemptions are switches you can turn
+    on — they are not a claim that your account qualifies.
+  </p>
+  <p>
+    Restocking is not free either. Sending enough units to cover 28 days
+    at the faster of those two sales windows adds inbound now and monthly
+    storage on the extra cube. On the default small, fast SKU the
+    surcharge is $26.70 / month and extra storage is $0.87, so restocking
+    18 units avoids $25.83 / month after storage. On a bulky SKU in peak
+    season, paying the fee and staying thin can leave more cash.
+  </p>
+  <form id="lilForm" class="fields">
+    <label>On-hand units <input id="onHandUnits" type="number" min="0" step="1" value="10"></label>
+    <label>Sold last 30 days <input id="soldLast30Days" type="number" min="0" step="1" value="30"></label>
+    <label>Sold last 90 days <input id="soldLast90Days" type="number" min="0" step="1" value="90"></label>
+    <label>Units shipped per month <input id="monthlyUnits" type="number" min="0" step="1" value="30"></label>
+    <label>Size tier
+      <select id="sizeTier">
+        <option value="small_standard" selected>Small standard</option>
+        <option value="large_standard">Large standard</option>
+        <option value="large_bulky">Large bulky</option>
+        <option value="extra_large">Extra-large</option>
+      </select>
+    </label>
+    <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.5"></label>
+    <label>Length (in) <input id="length" type="number" min="0" step="0.01" value="8"></label>
+    <label>Width (in) <input id="width" type="number" min="0" step="0.01" value="6"></label>
+    <label>Height (in) <input id="height" type="number" min="0" step="0.01" value="2"></label>
+    <label>Storage rate ($ / cu ft / mo) <input id="storageRate" type="number" min="0" step="0.01" value="0.87"></label>
+    <label>Inbound / unit ($) <input id="inboundPerUnit" type="number" min="0" step="0.01" value="1.20"></label>
+    <label>Low-inventory fee override ($ / unit) <input id="lowInventoryFee" type="number" min="0" step="0.01" placeholder="leave blank for band"></label>
+    <label>Fulfillment
+      <select id="fulfillmentMethod">
+        <option value="fba" selected>FBA</option>
+        <option value="fbm">Merchant fulfilled</option>
+      </select>
+    </label>
+    <label class="check"><input id="groceryExempt" type="checkbox"> Grocery / gourmet exemption (you confirm)</label>
+    <label class="check"><input id="newFnskuExempt" type="checkbox"> New FNSKU exemption (you confirm)</label>
+  </form>
+  <p id="summary" class="note"></p>
+  <p id="verdict"></p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Policy</th>
+        <th scope="col">Days of supply</th>
+        <th scope="col">Monthly LIL</th>
+        <th scope="col">Extra storage</th>
+        <th scope="col">Monthly gap</th>
+      </tr>
+    </thead>
+    <tbody id="compare"></tbody>
+  </table>
+  <p class="note">
+    Rates change by size, season, category, and account. This page does
+    not publish Amazon’s live schedule. Paste the low-inventory-level
+    fee from your current fee preview. Complementary to
+    <a href="should-i-remove-aged-amazon-inventory.html">aged-inventory removal</a>
+    (units that already sit) and to
+    <a href="peak-vs-off-peak-storage.html">Q4 peak storage</a>
+    (when the cube sits). The same listing lives on the
+    <a href="./">Amazon FBA calculator</a>.
+  </p>
+  <p class="note">
+    The calculator is arithmetic, not advice. It does not recommend a
+    restock quantity, and it does not claim a listing is profitable
+    after you send more inventory.
+  </p>
+  <h2>Common questions</h2>
+  <h3>When does Amazon charge the low-inventory-level fee?</h3>
+  <p>This model adds a per-unit surcharge only when both the 30-day and the 90-day historical days of supply sit below 28. Days of supply is on-hand units divided by average daily units shipped in that window. If either window is 28 days or more, the page adds nothing. Merchant-fulfilled, grocery, and new-FNSKU listings can be marked exempt — that is a switch you turn on, not a claim your account qualifies.</p>
+  <h3>Does restocking to 28 days beat paying the surcharge?</h3>
+  <p>On the calculator defaults (10 units on hand, 30 sold in 30 days and 90 in 90 days, small standard, 8×6×2 in, $0.87 storage, $1.20 inbound, 30 shipments a month) both windows are 10 days. The illustrative 0–13 day band is $0.89 / unit, or $26.70 / month. Restocking 18 units to 28 days adds $0.87 / month of storage and $21.60 inbound now, so restocking avoids $25.83 / month after extra storage. Peak storage on a bulky cube can flip that: extra storage can exceed the surcharge, so staying thin leaves more monthly cash.</p>
+  <h3>Is this Amazon's live low-inventory-level schedule?</h3>
+  <p>No. Size-tier bands are illustrative defaults you overwrite from your current Amazon fee preview. The page does not recommend a restock quantity and does not claim a listing is profitable after you send more inventory.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareLowInventory, lowInventoryNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "onHandUnits", "soldLast30Days", "soldLast90Days", "monthlyUnits",
+      "sizeTier", "weightLb", "length", "width", "height", "storageRate",
+      "inboundPerUnit", "lowInventoryFee", "fulfillmentMethod",
+    ];
+    const flags = ["groceryExempt", "newFnskuExempt"];
+    const money = (value) => {
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        raw.groceryExempt = document.getElementById("groceryExempt").checked;
+        raw.newFnskuExempt = document.getElementById("newFnskuExempt").checked;
+        const result = compareLowInventory(raw);
+        document.getElementById("summary").textContent = lowInventoryNote(result);
+        document.getElementById("verdict").textContent = !result.applies
+          ? "No low-inventory-level surcharge on these windows"
+          : result.cheaperPolicy === "restock"
+            ? `Restocking to 28 days avoids ${money(result.restockSavesPerMonth)} more per month`
+            : result.cheaperPolicy === "stay_thin"
+              ? `Staying thin leaves ${money(-result.restockSavesPerMonth)} more per month`
+              : "Both policies leave the same monthly cash";
+        const stayDays = Number.isFinite(result.bandDays) ? result.bandDays.toFixed(1) : "—";
+        const rows = [
+          {
+            id: "stay_thin",
+            label: "Stay thin",
+            days: stayDays,
+            lil: result.monthlyFee,
+            storage: 0,
+            gap: 0,
+          },
+          {
+            id: "restock",
+            label: `Restock ${result.extraUnitsTo28.toFixed(1)} to 28 days`,
+            days: "28.0",
+            lil: 0,
+            storage: result.extraStoragePerMonth,
+            gap: result.restockSavesPerMonth,
+          },
+        ];
+        document.getElementById("compare").innerHTML = rows.map((row) => {
+          const winner = result.cheaperPolicy === row.id || (result.cheaperPolicy === "tie" && result.applies);
+          return `<tr class="${winner ? "winner-row" : ""}"><td>${row.label}</td><td>${row.days}</td><td>${money(row.lil)}</td><td>${money(row.storage)}</td><td>${row.id === "stay_thin" ? "Current" : money(row.gap)}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("verdict").textContent = "";
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    [...ids, ...flags].forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "low_inventory_compared");
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+name: Notary trip quote CI
+on:
+  push:
+    paths: ['ventures/notary-trip-quote/**']
+  pull_request:
+    paths: ['ventures/notary-trip-quote/**']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: ventures/notary-trip-quote
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs notary-trip-quote

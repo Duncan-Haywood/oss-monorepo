@@ -1,0 +1,40 @@
+name: equipment-rental-break-even CI
+
+# Dependency-free browser calculator. Keep user-visible arithmetic covered
+# independently of the portfolio-wide validation workflow.
+on:
+  pull_request:
+    paths:
+      - "ventures/equipment-rental-break-even/**"
+      - ".github/workflows/equipment-rental-break-even-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/equipment-rental-break-even/**"
+      - ".github/workflows/equipment-rental-break-even-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: equipment-rental-break-even-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/equipment-rental-break-even
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run calculator tests
+        run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs equipment-rental-break-even

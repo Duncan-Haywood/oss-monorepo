@@ -194,6 +194,54 @@ def test_job_manifest_has_no_kube_token_and_pins_agent_node() -> None:
     assert json.loads(env["QUEUE_ITEM_JSON"])["id"] == "task-a"
 
 
+def test_job_mounts_the_persistent_codex_home() -> None:
+    # Codex rotates the plan credential on use. Without a volume the refreshed
+    # auth.json dies with the pod and every later Job re-presents a spent
+    # refresh token, which looks like "the login broke" and is not recoverable
+    # from inside the cluster.
+    manifest = g.build_job_manifest(_item(), "gpt-5-mini", now=NOW)
+    spec = manifest["spec"]["template"]["spec"]
+    volume = [v for v in spec["volumes"] if v["name"] == "codex-home"][0]
+    assert volume["persistentVolumeClaim"]["claimName"] == "codex-home"
+    mount = [
+        m for m in spec["containers"][0]["volumeMounts"] if m["name"] == "codex-home"
+    ][0]
+    assert mount["mountPath"] == "/var/lib/codex"
+    assert mount.get("readOnly") is not True
+
+
+def test_delivery_defaults_to_the_harness_and_rejects_anything_else() -> None:
+    assert g.queue_item_from_dict(
+        {"id": "a", "repo": "o/r", "prompt": "p"}
+    ).delivery == "harness"
+    assert g.queue_item_from_dict(
+        {"id": "a", "repo": "o/r", "prompt": "p", "delivery": "agent"}
+    ).delivery == "agent"
+    with pytest.raises(ValueError):
+        g.queue_item_from_dict(
+            {"id": "a", "repo": "o/r", "prompt": "p", "delivery": "whatever"}
+        )
+
+
+def test_delivery_reaches_the_worker_and_the_real_items_own_theirs() -> None:
+    item = g.queue_item_from_dict(
+        {"id": "a", "repo": "o/r", "prompt": "p", "delivery": "agent"}
+    )
+    manifest = g.build_job_manifest(item, "gpt-5-mini", now=NOW)
+    env = {e["name"]: e["value"] for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]}
+    assert json.loads(env["QUEUE_ITEM_JSON"])["delivery"] == "agent"
+
+    # All three real items tell the agent to open its own PR and merge it, so
+    # the harness must not also fold and open one.
+    for name in (
+        "branch-pr-drain.yaml",
+        "seo-discoverability-audit.yaml",
+        "product-feature-improvement.yaml",
+    ):
+        raw = g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text())
+        assert g.queue_item_from_dict(raw).delivery == "agent", name
+
+
 def test_minimal_yaml_reads_prompt_block() -> None:
     text = (AGENTS / "queue" / "example.item.yaml").read_text()
     raw = g._minimal_yaml_mapping(text)
@@ -201,6 +249,55 @@ def test_minimal_yaml_reads_prompt_block() -> None:
     assert item.enabled is False
     assert item.id == "example-do-not-run"
     assert "Do not run" in item.prompt
+
+
+def test_product_feature_improvement_queue_item_is_real_and_enabled() -> None:
+    # This is the third real queue item the Hetzner Codex worker can run
+    # once an owner seals codex-secrets and flips policy.enabled /
+    # cronjob.suspend (decision-queue item agent-runner-subscription-login,
+    # #2000). It must stay a valid, enabled item so that flip has real work
+    # waiting once branch-pr-drain and seo-discoverability-audit are caught
+    # up or disabled.
+    text = (AGENTS / "queue" / "product-feature-improvement.yaml").read_text()
+    raw = g._minimal_yaml_mapping(text)
+    item = g.queue_item_from_dict(raw)
+    assert item.id == "product-feature-improvement"
+    assert item.enabled is True
+    assert item.repo == "Duncan-Haywood/monorepo-projects"
+    assert "gh pr create" not in item.prompt  # worker.sh itself runs `gh pr create`, not the prompt
+    assert "merge it yourself" in item.prompt.lower()
+
+
+def test_governor_queue_configmap_includes_all_real_items() -> None:
+    kustomization = (AGENTS / "kustomization.yaml").read_text()
+    for entry in (
+        "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
+        "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
+        "product-feature-improvement.yaml=queue/product-feature-improvement.yaml",
+    ):
+        assert entry in kustomization
+
+
+def test_real_queue_items_are_priority_ordered_pr_drain_then_seo_then_features() -> None:
+    # pick_item always starts the single highest-priority enabled item and
+    # never round-robins (see governor.py::pick_item), so with three
+    # permanently-enabled items only the top one ever actually runs until a
+    # human reprioritizes or disables it in git. Landing existing branch/PR
+    # work and fixing discoverability metadata are cheaper and more bounded
+    # than open-ended feature work, so they must stay ahead of it -- this
+    # pins that ordering against an accidental priority edit.
+    items = {
+        raw["id"]: raw["priority"]
+        for raw in (
+            g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text())
+            for name in (
+                "branch-pr-drain.yaml",
+                "seo-discoverability-audit.yaml",
+                "product-feature-improvement.yaml",
+            )
+        )
+    }
+    assert items["branch-pr-drain"] > items["seo-discoverability-audit"] > items["product-feature-improvement"]
 
 
 def test_effective_window_budget_leaves_interactive_slack() -> None:

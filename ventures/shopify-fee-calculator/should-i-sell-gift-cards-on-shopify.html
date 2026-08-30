@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I sell gift cards on Shopify? | Face vs later fulfillment</title>
+  <meta name="description" content="Compare selling a Shopify SKU now with selling a gift card they redeem later. See sale-day card fees, the second swipe on a leftover ticket, a promo discount, and the mix that only looks better because of breakage.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-sell-gift-cards-on-shopify.html">
+  <meta property="og:title" content="Should I sell gift cards on Shopify?">
+  <meta property="og:description" content="See whether a $50 Shopify gift card still pays after the card fee and later fulfillment — and why a 20% unredeemed slice is not a forecast.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify gift card vs selling the SKU now",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "gift card vs selling the SKU now, second swipe after the face is applied, promo discount on face value, expected leftover at a typed redemption rate"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Should I sell gift cards on Shopify?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A gift card is cash today and fulfillment later. Card fees hit what they pay for the card. When they redeem, leftover ticket after the face is a second card swipe — another fixed fee. On the calculator defaults ($50 face they pay $50, $48 item + $6 shipping, 2.9%+$0.30, $14 cost, $5 label, $1 pack) selling the SKU now keeps $31.74 and a later redeem keeps $31.44. The $0.30 gap is the second $0.30 swipe on the $4 leftover. That is arithmetic on your inputs, not advice to turn gift cards on or off."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does discounting a Shopify gift card still pay?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Usually not on the same SKU. Selling a $50 card for $45 and redeeming it on the default $54 ticket keeps $26.59 — $5.16 less than selling the item now. The $5.00 discount plus the second swipe is the gap."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do unredeemed Shopify gift cards count as profit?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Unredeemed cards leave cash after the sale-day fee, which is why an 80% redemption mix on the defaults shows $34.73. That extra is breakage — leftover liability that never shipped — not a forecast you should plan on. This page shows the mix so you can see the temptation; the winner is sell-now versus they-redeem."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1040px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .span2 { grid-column: 1 / -1; }
+    .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff22; }
+    .note { font-size: .82rem; opacity: .82; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.best { font-weight: 700; }
+    footer { margin-top: 25px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    .faq { margin-top: 18px; }
+    .error { color: #ffb0a2; }
+    @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+    <p><a href="./">← Shopify fee calculator</a></p>
+    <h1>See whether a gift card still pays after they redeem it.</h1>
+    <p>
+      Shopify gift cards look like free cash. Fees hit the card today.
+      Fulfillment hits later. If the face does not cover the ticket, they
+      swipe again — another fixed fee. The table keeps the same SKU, then
+      compares selling it now with selling a card they later spend on it.
+    </p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Typical order and the card</h2>
+      <div class="fields">
+        <label class="span2">Shopify plan (fills illustrative US card defaults — edit them)
+          <select id="plan">
+            <option value="basic" selected>Basic</option>
+            <option value="grow">Grow</option>
+            <option value="advanced">Advanced</option>
+            <option value="plus">Plus</option>
+          </select>
+        </label>
+        <label>Gift card face <input id="giftCardFace" type="number" min="0.01" step="0.01" value="50"></label>
+        <label>They pay for the card <input id="giftCardPrice" type="number" min="0" step="0.01" value="50"></label>
+        <label>Redemption rate (%) <input id="giftCardRedemptionPct" type="number" min="0" max="100" step="0.1" value="80"></label>
+        <label>Gift cards per month <input id="monthlyGiftCards" type="number" min="0" step="1" value="20"></label>
+        <label>Item price <input id="price" type="number" min="0" step="0.01" value="48"></label>
+        <label>Shipping charged <input id="shippingCharged" type="number" min="0" step="0.01" value="6"></label>
+        <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
+        <label>Shopify Payments (%) <input id="paymentsRate" type="number" min="0" step="0.01" value="2.9"></label>
+        <label>Shopify Payments fixed fee <input id="paymentsFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>You paid for the item <input id="costOfGoods" type="number" min="0" step="0.01" value="14"></label>
+        <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
+        <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+        <label>Monthly Shopify plan <input id="monthlyPlan" type="number" min="0" step="0.01" value="39"></label>
+        <label>Orders per month <input id="monthlyOrders" type="number" min="0" step="1" value="100"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>Sell now vs gift card</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">selling the SKU now keeps this much more</div>
+      <p id="summary" class="note"></p>
+      <dl>
+        <dt>Sell-now leftover</dt><dd id="sellKept"></dd>
+        <dt>Redeem-cycle leftover</dt><dd id="redeemKept"></dd>
+        <dt>Expected mix leftover</dt><dd id="expectedKept"></dd>
+        <dt>Cash after sale-day fees</dt><dd id="cashToday"></dd>
+        <dt>Sale-day card fees</dt><dd id="saleFees"></dd>
+        <dt>Second swipe on the leftover</dt><dd id="remainderFees"></dd>
+        <dt>Monthly gap vs selling now</dt><dd id="monthlyExtra"></dd>
+      </dl>
+      <hr>
+      <h2>Same SKU, three ways the cash lands</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Path</th>
+            <th scope="col">Charged</th>
+            <th scope="col">Fees</th>
+            <th scope="col">Fulfillment</th>
+            <th scope="col">Leftover</th>
+            <th scope="col">vs sell now</th>
+          </tr>
+        </thead>
+        <tbody id="compare"></tbody>
+      </table>
+      <p class="note">Card fees sit on what they pay for the card today, then again on any leftover after the face. Unused face is still a liability. The expected mix includes unredeemed cards — that is breakage, not a plan. Transparent arithmetic from your inputs — not Shopify gift-card policy or a published breakage schedule.</p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Merchants search “should I sell gift cards on Shopify” because a
+      $50 card looks like $50 in the bank. Sale-day fees on $50 are
+      $1.75. When they spend it on a $54 ticket they swipe $4 more —
+      another $0.30 plus 2.9%. You still ship the item.
+    </p>
+    <p>
+      On the defaults — $50 face they pay $50, $48 item, $6 shipping
+      charged, $5.00 label, Basic 2.9% + $0.30, $14 cost, $1 pack,
+      $39 / 100 plan, 80% redeem, 20 cards — selling the SKU now keeps
+      $31.74. A later redeem keeps $31.44 ($0.30 less, $6.00 / month).
+      Cash after sale-day fees is $47.86; that is still a $50 liability.
+      Cut the card to $45 and a later redeem keeps $26.59 ($5.16 less).
+      An 80% mix shows $34.73 only because 20% never come back.
+    </p>
+    <p>
+      It does not tell you to turn gift cards on or off, and it is not
+      tax or financial advice. A requested return that you close with
+      store credit is a different question —
+      <a href="should-i-offer-store-credit-instead-of-a-refund.html">store credit vs a cash refund</a>.
+      Charging a card in installments is on
+      <a href="should-i-offer-shop-pay-installments.html">Shop Pay Installments</a>.
+      Collecting duties at checkout is a different question —
+      <a href="should-i-collect-duties-on-shopify.html">DDP vs DAP vs skipping international</a>.
+      The main <a href="./">Shopify fee calculator</a> still compares
+      Shopify Payments with PayPal.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>Should I sell gift cards on Shopify?</h3>
+  <p>A gift card is cash today and fulfillment later. Card fees hit what they pay for the card. When they redeem, leftover ticket after the face is a second card swipe — another fixed fee. On the calculator defaults ($50 face they pay $50, $48 item + $6 shipping, 2.9%+$0.30, $14 cost, $5 label, $1 pack) selling the SKU now keeps $31.74 and a later redeem keeps $31.44. The $0.30 gap is the second $0.30 swipe on the $4 leftover. That is arithmetic on your inputs, not advice to turn gift cards on or off.</p>
+  <h3>Does discounting a Shopify gift card still pay?</h3>
+  <p>Usually not on the same SKU. Selling a $50 card for $45 and redeeming it on the default $54 ticket keeps $26.59 — $5.16 less than selling the item now. The $5.00 discount plus the second swipe is the gap.</p>
+  <h3>Do unredeemed Shopify gift cards count as profit?</h3>
+  <p>Unredeemed cards leave cash after the sale-day fee, which is why an 80% redemption mix on the defaults shows $34.73. That extra is breakage — leftover liability that never shipped — not a forecast you should plan on. This page shows the mix so you can see the temptation; the winner is sell-now versus they-redeem.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices, card face, and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it saved you from discounting a $50 card that a later redeem would have eaten, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { applyPlanPreset, compareGiftCard } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "giftCardFace", "giftCardPrice", "giftCardRedemptionPct", "monthlyGiftCards",
+      "price", "shippingCharged", "shippingCost",
+      "paymentsRate", "paymentsFixed", "costOfGoods", "packagingCost",
+      "otherCost", "monthlyPlan", "monthlyOrders",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "-" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function readInput() {
+      return Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+    }
+
+    function update() {
+      try {
+        const result = compareGiftCard(readInput());
+        const extra = result.extraOnRedeem;
+        const profitEl = document.getElementById("profit");
+        profitEl.textContent = money(Math.abs(extra));
+        profitEl.className = `hero-number ${extra < 0 ? "negative" : "positive"}`;
+        document.getElementById("label").textContent =
+          extra > 0 ? "extra kept by a later redeem versus selling now" :
+          extra < 0 ? "selling the SKU now keeps this much more" :
+          "gift card redeem and selling now keep the same";
+        document.getElementById("summary").textContent = result.summary;
+        document.getElementById("sellKept").textContent = money(result.sell.kept);
+        document.getElementById("redeemKept").textContent = money(result.redeem.kept);
+        document.getElementById("expectedKept").textContent = money(result.expected.kept);
+        document.getElementById("cashToday").textContent = money(result.cashToday);
+        document.getElementById("saleFees").textContent = money(result.saleFees);
+        document.getElementById("remainderFees").textContent = money(result.remainderFees);
+        document.getElementById("monthlyExtra").textContent =
+          result.monthlyExtraOnRedeem >= 0
+            ? `${money(result.monthlyExtraOnRedeem)} more`
+            : `${money(-result.monthlyExtraOnRedeem)} less`;
+        const best = Math.max(result.sell.kept, result.redeem.kept);
+        document.getElementById("compare").innerHTML = result.rows.map((row) =>
+          `<tr class="${row.id !== "expected" && row.kept === best ? "best" : ""}"><td>${row.label}</td><td>${money(row.charged)}</td><td>${money(row.fees)}</td><td>${money(row.fulfillment)}</td><td>${money(row.kept)}</td><td>${money(row.vsSell)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("profit").textContent = error.message;
+        document.getElementById("profit").className = "hero-number error";
+        document.getElementById("label").textContent = "fix the inputs to see a result";
+        document.getElementById("summary").textContent = "";
+        ["sellKept", "redeemKept", "expectedKept", "cashToday", "saleFees", "remainderFees", "monthlyExtra"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("compare").innerHTML = "";
+      }
+    }
+
+    function recordCompare() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "gift_card_compared");
+    }
+
+    document.getElementById("plan").addEventListener("change", () => {
+      const filled = applyPlanPreset(readInput(), document.getElementById("plan").value);
+      ["paymentsRate", "paymentsFixed", "monthlyPlan"].forEach((id) => {
+        document.getElementById(id).value = filled[id];
+      });
+      update();
+      recordCompare();
+    });
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    document.getElementById("usageOptOut").addEventListener("change", update);
+    update();
+  </script>
+</body>
+</html>

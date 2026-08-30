@@ -1,0 +1,32 @@
+name: crawl-space-encapsulation-bid-calculator
+description: A private browser calculator for waterproofing contractors that prices crawl space encapsulation from floor area, liner-only versus sealed encapsulate, hatch versus belly-crawl versus wet access, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent waterproofing contractors will use a liner-and-access bid calculator because the generic "$4 / sq ft encapsulation special" they are shopped on cannot see that a dry 36-inch ranch with 6-mil liner-only is a different job from an 18-inch wet belly crawl with 20-mil wall liner, a commercial dehumidifier, a dedicated circuit, and a debris clean-out.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published liner dump) are the two figures a contractor actually decides on when an owner asks them to match a cheaper liner-only quote on a sealed encapsulate-and-dehumidifier job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing liner-only, sealed encapsulate, and encapsulate-plus-dehumidifier on the same floor, with access hours and a dehumidifier invoice, changes the bid enough that contractors notice which scope keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified waterproofing contractors use the calculator twice within 90 days.
+  - Contractors report that splitting liner, access, and extras is more work than their existing per-foot method without changing the price they would have bid.
+  - The starting hours and liner rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

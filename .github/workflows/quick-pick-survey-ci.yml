@@ -26,7 +26,7 @@ defaults:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     env:
       # The build only needs these to be present and well-formed — nothing is
       # queried at build time. Real credentials live in the deploy environment.

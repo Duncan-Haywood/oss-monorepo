@@ -41,10 +41,44 @@ def test_ledger_figures_match_the_ledger_file(report):
 
 
 def test_spend_and_revenue_are_still_entirely_unmeasured(report):
-    """cost-signal.md's premise. If this ever fails, the analysis is obsolete."""
+    """cost-signal.md's premise. If this ever fails, the analysis is obsolete.
+
+    Spend and revenue are asserted differently on purpose, because the premise
+    is different for each. Spend is *unmeasured*: cost-signal.md's whole point
+    is that no session can see its own token cost, so a non-null figure would
+    mean someone found a way and the analysis needs rewriting.
+
+    Revenue is not unmeasured, it is *zero*. The claim break-even.md rests on
+    is that nothing has been earned — and a row written `mrr_end: 0`, which is
+    the spelling the ledger README's own example uses, says exactly that. This
+    asserted `null_mrr == entries` until 2026-08-27, when two rows recorded the
+    measured zero and turned a supported premise into a red `Portfolio
+    validate` on `main`. Counting what was booked instead says what is meant,
+    and matches `session_gate.py`'s long-standing "0 of N entries book any".
+    """
     led = report["ledger"]
     assert led["null_spend"] == led["entries"]
-    assert led["null_mrr"] == led["entries"]
+    assert led["booked_mrr"] == 0
+
+
+def test_a_measured_zero_is_not_an_unmeasured_row(report):
+    """`mrr_end: 0` books nothing, and is not the same fact as `mrr_end: null`.
+
+    Pins the distinction the test above now rests on, in both directions, so a
+    later change cannot quietly fold one count back into the other: every row
+    is either unmeasured or a measured figure, and none of the measured ones
+    is above zero.
+    """
+    import yaml
+
+    entries = yaml.safe_load(be.LEDGER.read_text())["entries"]
+    led = report["ledger"]
+
+    measured = [e for e in entries if e.get("mrr_end") is not None]
+    assert led["null_mrr"] + len(measured) == led["entries"]
+    assert led["booked_mrr"] == sum(1 for e in measured if e["mrr_end"] > 0)
+    # The rows that exercise this: measured, and measured at zero.
+    assert all(e["mrr_end"] == 0 for e in measured)
 
 
 def test_ceilings_come_from_the_economics_results_file(report):

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { calculate } from "./calc.mjs";
-import { exportComparisonCsv, exportCsv } from "./export.mjs";
+import { exportComparisonCsv, exportCsv, exportJson } from "./export.mjs";
 
 test("exports the calculated quote and review safeguard as CSV", () => {
   const result = calculate({
@@ -29,6 +29,24 @@ test("quotes CSV values and preserves input warnings", () => {
 
 test("rejects an incomplete result instead of creating a misleading file", () => {
   assert.throws(() => exportCsv(null), { name: "TypeError" });
+});
+
+test("exports a portable JSON review record without raw rate-card inputs", () => {
+  const result = calculate({ orders: "10", shipping: "5", minimumMonthly: "500" });
+  const record = JSON.parse(exportJson(result));
+
+  assert.equal(record.schema_version, 1);
+  assert.equal(record.monthly_orders, 10);
+  assert.equal(record.total_estimated_3pl_cost, 500);
+  assert.equal(record.minimum_charge_applied, true);
+  assert.equal(record.line_items.Shipping, 50);
+  assert.equal(record.break_even_orders_per_month, Math.ceil(result.breakEvenOrders));
+  assert.ok(!("shipping" in record));
+  assert.match(record.review_note, /Verify every rate/);
+});
+
+test("rejects an incomplete JSON export result", () => {
+  assert.throws(() => exportJson({ quote: {}, components: [] }), { name: "TypeError" });
 });
 
 test("exports a named comparison and optional target as CSV", () => {

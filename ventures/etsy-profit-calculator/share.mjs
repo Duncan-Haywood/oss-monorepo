@@ -9,6 +9,18 @@
 // The calculator's fields, in the order they appear in the form. Anything not
 // on this list is ignored on the way in and never emitted on the way out, so a
 // crafted or stale link can only ever set known numeric fields.
+//
+// `targetMargin` and `targetProfit` are on the list, and were not until
+// 2026-08-29. They sit in the repricing panel rather than the order form, and a
+// comment in `index.html` called them "not one of the ten shared/persisted
+// fields" — written when there were ten. They are not incidental: they are the
+// goal the seller typed, the thing the panel exists to answer, and they feed
+// the copied order summary. Leaving them out meant a seller who set a 65%
+// target came back next visit to 50% and a "charge $X" sentence for a goal they
+// never set, and a partner opening their link read the same wrong number. This
+// is the defect `where-to-sell-calculator` shipped in the other direction (it
+// dropped `quantity` and `targetMargin` from a hand-kept allowlist) — a second
+// list beside the form is how a field goes missing without anything going red.
 export const FIELD_IDS = [
   'price',
   'shippingCharged',
@@ -20,6 +32,45 @@ export const FIELD_IDS = [
   'shippingCost',
   'materialCost',
   'otherCost',
+  'targetMargin',
+  'targetProfit',
+  'listingsPerMonth',
+  'monthlyPlusFee',
+  'listingCredits',
+  'adsCredit',
+  'monthlyAdSpend',
+  'otherPlusValue',
+  'personalizationUpcharge',
+  'extraMaterialCost',
+  'extraTimeCost',
+  'monthlyCustomOrders',
+  'etsyAdsAcosPct',
+  'yourTimeCost',
+  'partnerUnitCost',
+  'partnerHandlingCost',
+  'yourMonthlyCapacity',
+  'monthlyDemand',
+  'partnerRejectRatePercent',
+  'starSellerShippingCost',
+  'starSellerMessageMinutes',
+  'starSellerHourlyWage',
+  'unsignedSellThroughPct',
+  'starSellerSellThroughPct',
+  'starSellerListings',
+  'salePercent',
+  'saleDollar',
+  'listedSellThroughPct',
+  'saleSellThroughPct',
+  'saleListings',
+  'freeShipPrice',
+  'monthlyOrders',
+  'etsyLabelCost',
+  'thirdPartyLabelCost',
+  'etsyLabelClaimRatePercent',
+  'thirdPartyClaimRatePercent',
+  'labelUploadMinutes',
+  'labelUploadWage',
+  'monthlyLabelShipments',
 ];
 
 // A field value is only carried if it is a finite, non-negative number — the

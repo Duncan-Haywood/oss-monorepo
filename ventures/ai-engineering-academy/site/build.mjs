@@ -1,14 +1,36 @@
 // Renders the constitution's markdown source into a static, styled HTML
 // site. Markdown stays the edited source of truth (see docs/00-overview.md
 // for why) — this script is a one-way render step, not a two-way sync.
-import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from "node:fs";
+import {
+  readFileSync,
+  writeFileSync,
+  mkdirSync,
+  copyFileSync,
+  readdirSync,
+  existsSync,
+  statSync,
+} from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { marked } from "marked";
+import {
+  TOOLS_DIR,
+  SITE_FAVICON,
+  extractToolMetadata,
+  rewriteToolPage,
+  renderToolsHub,
+  renderSitemap,
+  renderRobots,
+} from "./tools.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const DIST = join(__dirname, "dist");
+
+// Absolute URLs (sitemap, canonical links) are only correct once the site
+// has a home. Set SITE_BASE_URL at deploy time; unset, the build simply
+// omits them rather than baking in a hostname that doesn't serve the site.
+const BASE_URL = process.env.SITE_BASE_URL || "";
 
 marked.use({ gfm: true, breaks: false });
 
@@ -45,14 +67,77 @@ function extractTitle(markdown) {
   return match ? match[1].trim() : "AI Engineering Academy";
 }
 
+// Nav destinations that aren't rendered from markdown. The calculators are
+// the only part of this venture a stranger can actually use today, so they
+// get a permanent slot in the sidebar rather than living unlinked in dist/.
+const navExtras = [{ href: `${TOOLS_DIR}/`, nav: "Free Calculators" }];
+
 function renderNav(activeOut) {
-  const items = pages
-    .map((p) => {
-      const cls = p.out === activeOut ? ' class="active"' : "";
-      return `<li><a href="${p.out}"${cls}>${p.nav}</a></li>`;
+  const items = [
+    ...pages.map((p) => ({ href: p.out, nav: p.nav, active: p.out === activeOut })),
+    ...navExtras.map((e) => ({ ...e, active: false })),
+  ]
+    .map(({ href, nav, active }) => {
+      const cls = active ? ' class="active"' : "";
+      return `<li><a href="${href}"${cls}>${nav}</a></li>`;
     })
     .join("\n      ");
   return `<ul>\n      ${items}\n    </ul>`;
+}
+
+/**
+ * Copies each standalone tool into the built site and generates the hub
+ * page that lists them. Tool sources are never modified — the site chrome
+ * is injected into the dist copies only, so every calculator keeps working
+ * when opened straight off disk.
+ */
+function buildTools() {
+  const toolsRoot = join(ROOT, TOOLS_DIR);
+  if (!existsSync(toolsRoot)) return [];
+
+  const slugs = readdirSync(toolsRoot)
+    .filter((name) => statSync(join(toolsRoot, name)).isDirectory())
+    .filter((name) => existsSync(join(toolsRoot, name, "index.html")))
+    .sort();
+
+  const tools = slugs.map((slug) =>
+    extractToolMetadata(
+      readFileSync(join(toolsRoot, slug, "index.html"), "utf8"),
+      slug
+    )
+  );
+
+  for (const slug of slugs) {
+    const srcDir = join(toolsRoot, slug);
+    const outDir = join(DIST, TOOLS_DIR, slug);
+    mkdirSync(outDir, { recursive: true });
+
+    for (const entry of readdirSync(srcDir)) {
+      const srcPath = join(srcDir, entry);
+      if (!statSync(srcPath).isFile()) continue;
+      // Tests never ship: they double the payload a visitor downloads and
+      // describe the tool's internals rather than helping anyone use it.
+      if (entry.endsWith(".test.mjs")) continue;
+      // Each tool carries its own robots.txt for the case where it is
+      // served alone. Nested under the site it is dead weight — crawlers
+      // only read the one at the origin root, which the build emits.
+      if (entry === "robots.txt") continue;
+
+      if (entry === "index.html") {
+        const html = readFileSync(srcPath, "utf8");
+        writeFileSync(join(outDir, entry), rewriteToolPage(html, tools, slug), "utf8");
+      } else {
+        copyFileSync(srcPath, join(outDir, entry));
+      }
+    }
+    console.log(`built ${TOOLS_DIR}/${slug}/`);
+  }
+
+  mkdirSync(join(DIST, TOOLS_DIR), { recursive: true });
+  writeFileSync(join(DIST, TOOLS_DIR, "index.html"), renderToolsHub(tools), "utf8");
+  console.log(`built ${TOOLS_DIR}/index.html (${tools.length} calculator(s))`);
+
+  return tools;
 }
 
 function template({ title, activeOut, bodyHtml, sourcePath }) {
@@ -62,6 +147,7 @@ function template({ title, activeOut, bodyHtml, sourcePath }) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title} — AI Engineering Academy</title>
+<link rel="icon" href="${SITE_FAVICON}">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -108,4 +194,27 @@ for (const page of pages) {
 }
 
 copyFileSync(join(__dirname, "style.css"), join(DIST, "style.css"));
+
+const tools = buildTools();
+
+writeFileSync(join(DIST, "robots.txt"), renderRobots(BASE_URL), "utf8");
+console.log("built robots.txt");
+
+const sitemap = renderSitemap(
+  [
+    "",
+    ...pages.filter((p) => p.out !== "index.html").map((p) => p.out),
+    `${TOOLS_DIR}/`,
+    ...tools.map((t) => `${TOOLS_DIR}/${t.slug}/`),
+  ],
+  BASE_URL
+);
+if (sitemap) {
+  writeFileSync(join(DIST, "sitemap.xml"), sitemap, "utf8");
+  console.log("built sitemap.xml");
+} else {
+  console.log("skipped sitemap.xml (set SITE_BASE_URL to generate it)");
+}
+
 console.log(`\nDone. Open ${join(DIST, "index.html")}`);
+console.log(`Calculators: ${join(DIST, TOOLS_DIR, "index.html")}`);

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retainer vs hourly: when unused hours or overage flip the deal</title>
+  <meta name="description" content="A $1,725 / 20-hour freelance retainer looks like $86/hr at full use. At 10 hours the client paid for unused time. At 25 hours with no overage you are below your hourly floor.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/retainer-vs-hourly.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Retainer vs hourly at real usage">
+  <meta property="og:description" content="See when a monthly retainer still beats hourly — and when unpaid extras drop you below your floor.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/retainer-vs-hourly.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a retainer better than hourly for a freelancer?","acceptedAnswer":{"@type":"Answer","text":"It depends on how many hours the client actually uses. A retainer pays you more when usage is light and less when they exceed the unpaid break-even without billed overage. On a $1,725 / 20-hour block with a $75 floor, 10 hours of use is $172.50/hr for you and 25 hours with no overage is $69/hr."}},{"@type":"Question","name":"How do I know when a retainer stops covering my hourly rate?","acceptedAnswer":{"@type":"Answer","text":"Divide the monthly price by your hourly floor. That many hours is the unpaid-overage break-even. Put billed overage at the floor rate in the agreement so months above that number still cover."}}]}</script>
+</head>
+<body>
+  <main class="shell">
+    <p class="eyebrow"><a href="./">← Freelance retainer calculator</a></p>
+    <header>
+      <h1>Retainer vs hourly: unused hours pay you; unpaid extras do not.</h1>
+      <p class="lede">Freelancers search this because a 20-hour block looks clean on a proposal and messy three months later. The question is not “is a retainer better.” It is “better at what usage.”</p>
+    </header>
+    <section class="copy card">
+      <p>On the calculator’s default plan — $6,000 take-home, $1,800 costs, 160 available hours, 65% utilization, 20 included hours, 15% buffer — the floor is $75/hr and the retainer is $1,725. Full use is $86.25/hr. That is the buffer working.</p>
+      <table class="usage-table">
+        <caption>Same $1,725 retainer against the $75 floor at four usage levels. Arithmetic only.</caption>
+        <thead>
+          <tr>
+            <th scope="col">If they use</th>
+            <th scope="col">Hours</th>
+            <th scope="col">You collect</th>
+            <th scope="col">Hourly would collect</th>
+            <th scope="col">Effective $/hr</th>
+            <th scope="col">Covers floor?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>50% of the block</td><td>10 h</td><td>$1,725</td><td>$750</td><td>$172.50</td><td>Yes</td></tr>
+          <tr><td>75% of the block</td><td>15 h</td><td>$1,725</td><td>$1,125</td><td>$115.00</td><td>Yes</td></tr>
+          <tr><td>100% of the block</td><td>20 h</td><td>$1,725</td><td>$1,500</td><td>$86.25</td><td>Yes</td></tr>
+          <tr class="warn-row"><td>125% of the block</td><td>25 h</td><td>$1,725</td><td>$1,875</td><td>$69.00</td><td>No</td></tr>
+        </tbody>
+      </table>
+      <p>The unpaid-overage break-even is $1,725 ÷ $75 = <strong>23 hours</strong>. Past that, every extra hour without a billed overage line is a gift. Bill those 5 extra hours at the floor and 25 hours still pays $84/hr — the buffer, restored.</p>
+      <p>The 10-hour month is the other failure mode. You collected $975 more than hourly. The client paid for access they did not use. That is the usual reason a light-use retainer does not renew. Shorten the block or stay hourly if that is the real pattern.</p>
+      <p><a href="./">Open the calculator</a>, enter your own income goal and included hours, and read the table before you send the proposal. After the price looks right, <a href="unused-hour-rollover.html">check whether unused hours that roll over still cover the floor</a>, then <a href="retainer-payment-terms.html">check whether Net 30 still leaves you able to float first cash</a>. Nothing is uploaded.</p>
+      <p class="note">This page is arithmetic, not financial or legal advice. It does not tell you to accept, reject, or rewrite a contract. Hosted URLs, when they exist, carry no availability SLA.</p>
+    </section>
+  <h2>Common questions</h2>
+  <h3>Is a retainer better than hourly for a freelancer?</h3>
+  <p>It depends on how many hours the client actually uses. A retainer pays you more when usage is light and less when they exceed the unpaid break-even without billed overage. On a $1,725 / 20-hour block with a $75 floor, 10 hours of use is $172.50/hr for you and 25 hours with no overage is $69/hr.</p>
+  <h3>How do I know when a retainer stops covering my hourly rate?</h3>
+  <p>Divide the monthly price by your hourly floor. That many hours is the unpaid-overage break-even. Put billed overage at the floor rate in the agreement so months above that number still cover.</p>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>.</p>
+      <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    </footer>
+  </main>
+</body>
+</html>

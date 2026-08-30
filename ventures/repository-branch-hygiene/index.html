@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Git branch cleanup report and recovery manifest</title>
+  <meta name="description" content="Create a read-only Git branch cleanup report and recovery manifest before deleting stale GitHub branches.">
+  <meta property="og:title" content="Safe Git branch cleanup reports">
+  <meta property="og:description" content="Find stale, shared, moved, and uncertain branches without turning a report into a delete command.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://example.invalid/repository-branch-hygiene/">
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"Repository Branch Hygiene",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Linux, macOS, Windows",
+    "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+    "description":"Read-only Git branch cleanup reports and recovery manifests for GitHub-heavy teams."
+  }
+  </script>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #10151b; color: #e8edf2; }
+    body { margin: 0; }
+    main { max-width: 880px; margin: 0 auto; padding: 7rem 1.25rem 4rem; }
+    .eyebrow { color: #78d6b1; letter-spacing: .12em; text-transform: uppercase; font-size: .78rem; font-weight: 700; }
+    h1 { max-width: 720px; font-size: clamp(2.6rem, 8vw, 5.6rem); line-height: .98; margin: 1rem 0 1.5rem; letter-spacing: -.06em; }
+    .lead { max-width: 650px; color: #b9c7d2; font-size: 1.25rem; line-height: 1.6; }
+    .command { overflow-x: auto; margin: 2rem 0; padding: 1.2rem; border: 1px solid #30414d; border-radius: 10px; background: #17212a; color: #d9f6e9; }
+    code { font-family: ui-monospace, SFMono-Regular, monospace; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: 3rem 0; }
+    article { border-top: 2px solid #78d6b1; padding-top: 1rem; color: #b9c7d2; line-height: 1.55; }
+    article strong { display: block; color: #e8edf2; margin-bottom: .4rem; }
+    a { color: #78d6b1; }
+    footer { border-top: 1px solid #30414d; padding-top: 1.5rem; color: #93a3af; font-size: .9rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">Read-only Git branch hygiene</div>
+    <h1>Know what can be cleaned up before you delete it.</h1>
+    <p class="lead">Generate a Git branch cleanup report and recovery manifest for stale GitHub refs. Merged, active, shared, moved-tip, protected, and uncertain branches stay visibly different, so a tidy repository never comes at the cost of lost work.</p>
+    <pre class="command"><code>python3 src/branch_hygiene.py --repo /path/to/checkout \
+  --pr-json prs.json --report branch-report.txt \
+  --manifest recovery-manifest.json --fail-on-risk</code></pre>
+    <p><a href="README.md">Read the workflow and snapshot format</a>. The scanner has no dependencies, account, API key, network call, or delete operation.</p>
+    <section class="grid">
+      <article><strong>Review, never guess</strong>Every finding carries a non-executable review action. Ambiguity exits non-zero for CI without pretending that zero means safe deletion.</article>
+      <article><strong>Recoverable by design</strong>The manifest preserves tips and commit IDs so a reviewer can keep unique work before operating Git elsewhere.</article>
+      <article><strong>Runs where data lives</strong>Use a local checkout or customer-controlled CI. Repository names, branch names, messages, and file contents never enter an analytics service.</article>
+    </section>
+    <section class="grid">
+      <h2>Common questions</h2>
+      <h3>Does exit status 0 mean every listed branch is cleared for deletion?</h3>
+      <p>No. A zero exit status only means the snapshot contained no unresolved <code>shared</code>, <code>moved-tip</code>, or <code>uncertain</code> finding under <code>--fail-on-risk</code>. Every finding still carries a <code>review_action</code> such as <code>review-delete-candidate</code>, which is a routing label for a human review queue, not permission to delete a ref.</p>
+      <h3>What does exit status 2 mean?</h3>
+      <p>A human must review at least one finding classified <code>shared</code>, <code>moved-tip</code>, or <code>uncertain</code> before any cleanup proceeds. It never means a branch is confirmed clear for deletion — it flags exactly the cases the scanner cannot resolve on its own.</p>
+      <h3>Why does a branch with no open pull request show as "uncertain" instead of safe?</h3>
+      <p>In local mode there is no pull-request metadata by default, so a branch that is not merged and not explicitly marked protected is reported as <code>uncertain</code> rather than assumed abandoned. Pass <code>--pr-json</code> (exported once with the team's own <code>gh</code> CLI credentials) to resolve branches against their actual pull-request history instead of guessing from ref state alone.</p>
+      <h3>Does this tool delete branches or run any Git write operation?</h3>
+      <p>No. It only reads refs, commit ancestry, and the JSON files you pass it. It never fetches, pushes, or deletes, and the recovery manifest it writes explicitly marks itself read-only and approval-required.</p>
+      <h3>Does repository data leave the machine it runs on?</h3>
+      <p>No. The scanner makes no network requests and uploads nothing. The optional <code>--usage-log</code> records only an aggregate event name, a timestamp, and a finding count — never branch names, commit messages, repository names, or file contents.</p>
+    </section>
+    <footer><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.<br><br><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.<br><br>Usage counting is optional and aggregate-only. See the <a href="README.md#privacy-and-usage">privacy and usage notes</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Support on GitHub Sponsors</a> if this saved a unique branch — entirely optional, the tool stays free either way.</footer>
+  </main>
+</body>
+</html>
