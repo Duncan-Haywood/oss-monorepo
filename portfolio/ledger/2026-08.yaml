@@ -34242,3 +34242,60 @@ entries:
         integrity 489/489, site build 168 products / 488 pages no dead links.
         Merged as #2251.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Triaged the 15 highest-commit-count PR-less remote branches (from
+        the 171 sitting ahead of `main` with no open PR), each fetched
+        fresh: `cursor/3pl-quote-normalizer-compare-20260825`,
+        `-compare-20260824`, `-ship-20260824`, `vendor-change-watch-fix-20260824`,
+        `chargeback-evidence-packet-main`, `print-preflight-value-20260824`,
+        `faire-wholesale-calculator-e3de`, `amazon-fba-sourcing-check-20260824`,
+        `invoice-payment-terms-ci-fix-20260825`,
+        `appointment-deposit-calculator-20260824`,
+        `payment-reconciliation-workbench-20260824`,
+        `fifo-pick-evidence-repair-20260825`,
+        `window-replacement-bid-calculator-20260825`,
+        `saas-seat-true-up-20260824`, `no-show-fee-scenarios-20260824`.
+        All 15 were superseded -- zero PRs opened, zero merges. This
+        extends the prior session's sampled finding (`rematch-1564` etc.)
+        to a full, deliberately-prioritized batch: the PR-less branch
+        backlog is not an unmined vein.
+      - >-
+        Went past `supersede_check.py`'s identical-merge proof (which
+        returned exit 0 for the four it was run against before its ~2-3min
+        runtime made running it on all 15 impractical) and did a
+        function/feature-level comparison for the rest, per the coordinator's
+        instruction not to trust `git diff --stat` uniqueness at face value.
+        Every case checked out: `compareFeeScenarios` (no-show-fee),
+        `buyCostCheck`/zero-profit-ceiling (amazon-fba), the CSV
+        quoted-field/incomplete-row parser (payment-reconciliation,
+        verbatim match), the `tzinfo`-required timestamp fix
+        (fifo-pick-evidence, verbatim match), draft-save + deadline-status +
+        export (chargeback-evidence-packet), and the numeric-validation
+        guards (appointment-deposit, same checks, relocated into `calc.mjs`)
+        all already live on `main`, usually with substantially more built
+        on top (e.g. `faire-wholesale-calculator` main has 12 more exported
+        scenario functions than the branch; `window-replacement-bid-calculator`
+        main additionally has `proposal.mjs`/`share.mjs`).
+      - >-
+        Concerning, not urgent: `cursor/saas-seat-true-up-20260824`'s
+        second commit (`121b1fd0a`) changes 2,262 files / +297k lines in a
+        single non-merge commit -- far more than the venture it claims to
+        touch, and it lands content (e.g. `wheelchair-ramp-bid-calculator`)
+        that didn't exist at the commit's own parent. Reads like a bot
+        commit created against the wrong working tree rather than a real
+        squash-merge. Left alone (branch not touched, nothing force-pushed);
+        flagging in case the same tooling produced other stale branches
+        with the same defect.
+      - >-
+        Two branches carried non-superseded content that was still not
+        worth a PR: `cursor/faire-wholesale-calculator-e3de` also added
+        `portfolio/inspiration/{ADAPTATION,accelerator-niches,portfolio-ideas}.md`
+        and edited `PRODUCT_PLAYBOOK.md`/`portfolio/DIRECTION.md` --
+        exactly the "another candidate list" `CLAUDE.md`'s pipeline section
+        says not to produce, so left un-PR'd along with the calculator
+        code it was bundled with.
+    mrr_end: null
