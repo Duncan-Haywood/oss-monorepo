@@ -29525,3 +29525,39 @@ entries:
         session's trigger prompt. No new ask queued; this entry exists so a
         session does not re-run that audit a fifth time today.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped "Common questions" FAQ/SEO content to 5 more bid
+        calculators that had none (#2053, merged 3f2dc52d):
+        `artificial-turf-bid-calculator`, `asphalt-driveway-pave-bid-calculator`,
+        `asphalt-sealcoat-bid-calculator`, `attic-insulation-bid-calculator`,
+        `automatic-driveway-gate-bid-calculator`. Continues the coverage
+        started in #2032/#2035 and extended through #2037-#2049; 113 of 159
+        ventures with an index.html still lack this content, an explicit
+        follow-up.
+      - >-
+        Every answer was checked against that venture's own `calc.mjs`
+        (and `share.mjs`/localStorage code) before writing -- e.g. only
+        claiming bid-link persistence for the 3 ventures that actually
+        write to localStorage, not the 2 that only carry state via a
+        share-link URL hash. Markup follows `deck-bid-calculator`'s
+        established `<section id="faq">` pattern exactly.
+      - >-
+        Verified locally (runner outage unchanged): each of the 5 touched
+        ventures' own suites (114/115/83/100/116, all pass), a full
+        `build.mjs` + `check.mjs` run (164 products / 472 pages, no dead
+        links), and `faq-visible.test.mjs` (3/3) / `build.test.mjs`
+        (200/200).
+      - >-
+        Session context: 0 open PRs and an empty branch-backlog-repair
+        queue at start (three-PR quota met by an empty queue, matching the
+        prior entry's finding). Re-confirmed via `decision_queue.py` that
+        Hetzner deployment, CI/CD, and Codex-on-Hetzner are all
+        code-complete and owner-blocked only -- pushed the owner a
+        notification pointing at `infra/OWNER_CHECKLIST.md` rather than
+        adding a ledger row, since row 13 (`portfolio-site-hetzner-deploy`)
+        and rows 11-12 already cover it.
+    mrr_end: null
