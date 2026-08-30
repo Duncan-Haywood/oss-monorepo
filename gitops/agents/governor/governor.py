@@ -601,9 +601,15 @@ def _save_state(
     }
     if existing and (existing.get("metadata") or {}).get("resourceVersion"):
         body["metadata"]["resourceVersion"] = existing["metadata"]["resourceVersion"]
-        _k8s("PUT", f"/api/v1/namespaces/{namespace}/configmaps/{cm_name}", body)
-        return
-    _k8s("POST", f"/api/v1/namespaces/{namespace}/configmaps/{cm_name}", body)
+        code, payload = _k8s("PUT", f"/api/v1/namespaces/{namespace}/configmaps/{cm_name}", body)
+    else:
+        # Create goes to the collection endpoint, not the per-name one: the API
+        # server has no route for POST .../configmaps/{cm_name} (that 404s) and
+        # would otherwise leave the very first tick's budget state unpersisted,
+        # silently, forever, since the code below never checked the response.
+        code, payload = _k8s("POST", f"/api/v1/namespaces/{namespace}/configmaps", body)
+    if code not in (200, 201):
+        print(f"save state failed: {code} {payload}", file=sys.stderr)
 
 
 def main(argv: list[str] | None = None) -> int:

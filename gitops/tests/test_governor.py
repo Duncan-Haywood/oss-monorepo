@@ -5,6 +5,8 @@ from __future__ import annotations
 import importlib.util
 import json
 import sys
+import threading
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
 import pytest
@@ -231,10 +233,11 @@ def test_delivery_reaches_the_worker_and_the_real_items_own_theirs() -> None:
     env = {e["name"]: e["value"] for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]}
     assert json.loads(env["QUEUE_ITEM_JSON"])["delivery"] == "agent"
 
-    # All three real items tell the agent to open its own PR and merge it, so
+    # All four real items tell the agent to open its own PR and merge it, so
     # the harness must not also fold and open one.
     for name in (
         "branch-pr-drain.yaml",
+        "deploy-cicd-readiness.yaml",
         "seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml",
     ):
@@ -272,32 +275,43 @@ def test_governor_queue_configmap_includes_all_real_items() -> None:
     kustomization = (AGENTS / "kustomization.yaml").read_text()
     for entry in (
         "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
+        "deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml",
         "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml=queue/product-feature-improvement.yaml",
     ):
         assert entry in kustomization
 
 
-def test_real_queue_items_are_priority_ordered_pr_drain_then_seo_then_features() -> None:
+def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_then_features() -> None:
     # pick_item always starts the single highest-priority enabled item and
-    # never round-robins (see governor.py::pick_item), so with three
+    # never round-robins (see governor.py::pick_item), so with four
     # permanently-enabled items only the top one ever actually runs until a
     # human reprioritizes or disables it in git. Landing existing branch/PR
-    # work and fixing discoverability metadata are cheaper and more bounded
-    # than open-ended feature work, so they must stay ahead of it -- this
-    # pins that ordering against an accidental priority edit.
+    # work comes first; deploy-cicd-readiness.yaml's own header comment
+    # puts it "below branch-pr-drain (5), because landing work that already
+    # exists still comes first, and above the two content items" -- fixing
+    # discoverability metadata and open-ended feature work are cheaper and
+    # more bounded than keeping the delivery path code-complete, so they
+    # must stay behind it. This pins that four-way ordering against an
+    # accidental priority edit to any one item.
     items = {
         raw["id"]: raw["priority"]
         for raw in (
             g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text())
             for name in (
                 "branch-pr-drain.yaml",
+                "deploy-cicd-readiness.yaml",
                 "seo-discoverability-audit.yaml",
                 "product-feature-improvement.yaml",
             )
         )
     }
-    assert items["branch-pr-drain"] > items["seo-discoverability-audit"] > items["product-feature-improvement"]
+    assert (
+        items["branch-pr-drain"]
+        > items["deploy-cicd-readiness"]
+        > items["seo-discoverability-audit"]
+        > items["product-feature-improvement"]
+    )
 
 
 def test_effective_window_budget_leaves_interactive_slack() -> None:
@@ -368,3 +382,124 @@ def test_tick_starts_then_holds_while_active() -> None:
     active = [g.JobView(uid="running", active=1)]
     decision, _ = g.tick(policy, state, active, [_item(id="other")], NOW)
     assert decision.action == "hold"
+
+
+class _FakeApiServer:
+    """Records every request `_k8s` makes and answers like the parts of the
+    Kubernetes API that `_load_state`/`_save_state` touch: GET on a named
+    ConfigMap, and PUT/POST for saving one.
+
+    The real API server has no route for POST on a per-name resource path
+    (creation only exists on the collection URL) -- unlike a naive stub that
+    would happily 200 on any path, this one 404s exactly the way the cluster
+    would, so a regression here fails the test instead of passing silently.
+    """
+
+    def __init__(self) -> None:
+        self.requests: list[tuple[str, str]] = []
+        self._configmap: dict | None = None
+        server = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def _body(self) -> dict:
+                length = int(self.headers.get("Content-Length", 0))
+                raw = self.rfile.read(length) if length else b""
+                return json.loads(raw) if raw else {}
+
+            def _reply(self, code: int, payload: dict) -> None:
+                self.send_response(code)
+                self.send_header("Content-Type", "application/json")
+                self.end_headers()
+                self.wfile.write(json.dumps(payload).encode())
+
+            def do_GET(self) -> None:  # noqa: N802 (BaseHTTPRequestHandler API)
+                server.requests.append(("GET", self.path))
+                if server._configmap is None:
+                    self._reply(404, {"message": "not found"})
+                else:
+                    self._reply(200, server._configmap)
+
+            def do_POST(self) -> None:  # noqa: N802
+                server.requests.append(("POST", self.path))
+                collection = self.path.rsplit("/configmaps", 1)
+                if len(collection) != 2 or collection[1] not in ("", "/"):
+                    # Named-resource path: no such route on the real API server.
+                    self._reply(404, {"message": "the server could not find the requested resource"})
+                    return
+                body = self._body()
+                body.setdefault("metadata", {})["resourceVersion"] = "1"
+                server._configmap = body
+                self._reply(201, body)
+
+            def do_PUT(self) -> None:  # noqa: N802
+                server.requests.append(("PUT", self.path))
+                if server._configmap is None:
+                    self._reply(404, {"message": "not found"})
+                    return
+                body = self._body()
+                body.setdefault("metadata", {})["resourceVersion"] = "2"
+                server._configmap = body
+                self._reply(200, body)
+
+            def log_message(self, *args) -> None:  # silence test output
+                pass
+
+        self._httpd = HTTPServer(("127.0.0.1", 0), Handler)
+        self.port = self._httpd.server_address[1]
+        self._thread = threading.Thread(target=self._httpd.serve_forever, daemon=True)
+        self._thread.start()
+
+    def close(self) -> None:
+        self._httpd.shutdown()
+        self._thread.join(timeout=5)
+
+
+@pytest.fixture
+def fake_api_server(monkeypatch):
+    server = _FakeApiServer()
+    monkeypatch.setattr(
+        g, "_incluster", lambda: (f"http://127.0.0.1:{server.port}", {}, None)
+    )
+    # `_load_state`/`_save_state` only touch the network when this looks like
+    # an in-cluster run; the value itself is never read once `_incluster` is
+    # replaced above.
+    monkeypatch.setenv("KUBERNETES_SERVICE_HOST", "fake")
+    try:
+        yield server
+    finally:
+        server.close()
+
+
+def test_save_state_creates_against_the_collection_endpoint(fake_api_server, tmp_path) -> None:
+    # Regression: this used to POST to `.../configmaps/{name}`, a path the real
+    # API server has no route for. It 404d silently -- `_save_state` never
+    # looked at the response -- so the very first tick's budget state was
+    # never actually persisted, and every later tick "created" again from a
+    # blank state because the GET that would have found it also 404d.
+    state = _state(jobs_started_this_window=3)
+    g._save_state(state, "agents", "governor-state", tmp_path / "state.json", existing=None)
+
+    posts = [(m, p) for m, p in fake_api_server.requests if m == "POST"]
+    assert posts == [("POST", "/api/v1/namespaces/agents/configmaps")]
+
+    loaded, _ = g._load_state("agents", "governor-state", tmp_path / "other.json", NOW)
+    assert loaded.jobs_started_this_window == 3
+
+
+def test_save_state_updates_the_named_resource_when_it_already_exists(fake_api_server, tmp_path) -> None:
+    g._save_state(_state(jobs_started_this_window=1), "agents", "governor-state", tmp_path / "s.json", existing=None)
+    existing = fake_api_server._configmap
+
+    g._save_state(
+        _state(jobs_started_this_window=5),
+        "agents",
+        "governor-state",
+        tmp_path / "s.json",
+        existing=existing,
+    )
+
+    puts = [(m, p) for m, p in fake_api_server.requests if m == "PUT"]
+    assert puts == [("PUT", "/api/v1/namespaces/agents/configmaps/governor-state")]
+
+    loaded, _ = g._load_state("agents", "governor-state", tmp_path / "other.json", NOW)
+    assert loaded.jobs_started_this_window == 5
