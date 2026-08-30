@@ -33862,3 +33862,148 @@ entries:
         concurrent walmart-marketplace-calculator PR, confirmed before
         merging. GitHub Actions still down (runner outage, unrelated).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs and no unblocked repairable branches at session start;
+        the CI-runner, Codex-on-Hetzner, and portfolio-site-Hetzner-deploy
+        asks were already queued, current (dated 2026-08-29/30), and matched
+        the session's own deployment/CI-CD/Codex brief exactly, so nothing
+        new was added to the decision queue. Instead posted one update to
+        issue #1925 (the owner's own tracking issue for this): #2156, merged
+        since the last status comment there, dropped the placeholder-ACME-
+        mailbox requirement, so `portfolio-site-hetzner-deploy` is down from
+        two owner-only steps to one (sealing a read-only repo clone token).
+      - >-
+        Shipped a discoverability/marketing-content pair per
+        `PRODUCT_PLAYBOOK.md` 5e ("one docs page per specific question"):
+        `appointment-deposit-calculator/deposit-vs-no-show-fee.html`, a new
+        FAQPage answering "deposit or no-show fee, which should I charge"
+        with worked numbers pulled from that calculator's own tested
+        defaults ($150 @ 25% -> $37.50 deposit, $21,762/yr secured at a 93%
+        booking rate), cross-linked both directions with the sibling
+        `no-show-fee-calculator` (which already models the same trade-off
+        quantitatively in its "Deposit or chase the fee?" section) so a
+        searcher landing on either tool gets routed to whichever fits.
+        Added to the venture's sitemap.xml and linked from both index.html
+        headers.
+      - >-
+        Verified before merge, all locally (GitHub Actions still down,
+        runner_id 0): the venture's own suite 15/15 (3 new, asserting the
+        no-warranty clause, both cross-links, and that the page's numbers
+        match `calc.mjs`'s `plan()` output rather than being hand-typed);
+        `no-show-fee-calculator`'s suite 92/92 unaffected by its one-line
+        edit; `platform/pages/clauses.mjs` 475/475 published pages carry the
+        disclaimer (up from 474); `platform/pages/build.mjs` +
+        `check.mjs` -- 168 products, 486 pages, no dead links; full
+        `platform/pages/build.test.mjs` 237/237.
+    mrr_end: null
+  - venture: amazon-fba-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled autonomous session: checked open PRs (zero open) and the
+        owner decision queue before any new work, per the mandate's
+        three-PR quota gate. Both the Hetzner portfolio-site deploy and the
+        Codex-CLI-on-Hetzner-agent-box asks the session was specifically
+        given are already fully built and queued (`portfolio-site-hetzner-deploy`
+        #1999, `codex-governor-enable` #1996, `agent-runner-subscription-login`
+        #2000) -- each needs only an owner-held secret or interactive login,
+        confirmed via `decision_queue.py` and `infra/OWNER_CHECKLIST.md`
+        rather than re-derived, so nothing new was queued.
+      - >-
+        Followed the shopify-fee-calculator break-even-solver defect class
+        (#2233/#2234) into `amazon-fba-calculator`, the one sibling
+        marketplace/fee calculator not yet swept. Found the mirror-image
+        bug: `compareSubscribeSave`'s `offsetUnits` gated its `Infinity`
+        case ("no volume of extra S&S sales can offset the loss") on
+        `noneRow.profit > 0` -- the list-price row's sign, not whether a
+        real gap needs closing -- so it silently returned `0` ("no offset
+        needed") whenever list price was itself already unprofitable, even
+        though the S&S row was strictly worse and, being <= 0 profit per
+        unit itself, mathematically could never close that gap. Reviewed
+        `compareCoupons`' analogous `breakEvenUnits` for the mirror-image
+        display bug (negative units shown when list is unprofitable but the
+        discounted row is profitable); confirmed unreachable in practice,
+        since both functions only ever discount price, so the discounted
+        row's profit can never exceed the list row's -- no change needed
+        there.
+      - >-
+        Regression test reconstructs both rows' profit straight from
+        `calculateListing`/`subscribeSaveListing` (the primary pipeline,
+        not the function under test), with a fixture where list price is
+        already negative and S&S is worse, and confirms both the
+        `Infinity` result and the summary text's "cannot recover" warning.
+        `node --test calc.test.mjs`: 159/159 (158 pre-existing + 1 new).
+        Full venture suite `node --test *.test.mjs`: 301/301.
+        `run_workflow_locally.py --for-changes`: `amazon-fba-calculator-ci.yml`
+        2/2 and `conflict-markers-ci.yml` 2/2 pass; `pages.yml`/
+        `portfolio-pages.yml` showed the same known local-runner artifact
+        (confirmed via the job API: `runner_id: 0`, 3s duration, matching
+        the documented outage signature exactly) -- no regression, diff
+        touches no build/HTML file. `build.mjs` + `check.mjs` with the
+        change included: 168 products, 485 pages, no dead links. Merged as
+        #2238 (squash).
+    mrr_end: null
+  - venture: ebay-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same defect class as #2233/#2225/#2220, found by widening the audit
+        (per an explicit brief) to sibling marketplace/fee calculators:
+        tiktok-shop-fee-calculator, reverb-fee-calculator,
+        marketplace-fee-compare, subscription-price-impact,
+        str-host-payout-calculator, delivery-app-margin-calculator, and
+        vendor-rate-break-even were also read in full. Six were clean --
+        their solvers either compute unconditionally on the target's actual
+        sign, or correctly return null/Infinity for a value that genuinely
+        cannot be recovered by more volume at a losing per-unit rate.
+        ebay-fee-calculator, the largest file in the family (~5,400 lines,
+        dozens of comparison functions), was the one with the bug --
+        repeated nine times.
+      - >-
+        breakEvenReturnRate (in calculateOrder, rendered on the page as
+        "Return rate that zeros expected profit"): `profit <= 0 ? 0` claimed
+        a sale already a $16.625 loss was "already break-even" at 0%
+        returns. Since a return's outcome is always <= 0 in this model
+        (non-negative sunk costs and unrefunded fees, negated), the honest
+        default once profit is negative is "no return rate reaches
+        break-even" (Infinity) -- reachable only at the 100% edge when the
+        return itself sinks nothing. Eight more solvers repeated the
+        identical wrong-branch shape (`X <= 1e-12 ? (Y <= 1e-12 ? 0 :
+        Infinity) : (Y / X) * 100`) across compareSellerInitiatedOffer,
+        compareQuantityDiscount, compareSellerCoupon (x2),
+        compareImmediatePayment, compareGlobalShipping, compareBestOffer,
+        and compareFreeShipping. Extracted a shared breakEvenScaledRate
+        helper (same shape as etsy-profit-calculator's
+        breakEvenSellThroughRate) and replaced all eight call sites. Seven
+        of the eight solve to a real, nonzero, in-range rate instead of 0
+        on a high-cost-of-goods fixture (e.g. breakEvenAcceptPct: 34.06%
+        instead of 0%); compareBestOffer's waitChanceCeiling is the one
+        case where the true crossing is provably never inside (0, 100)
+        once list price already loses money (profit is monotonic in price,
+        so an offer below list can never be a smaller loss than list) --
+        there the fix is 0% -> Infinity, not 0% -> a nonzero rate.
+      - >-
+        vendor-rate-break-even's breakEvenJobs turned up a related but
+        structurally different issue -- a job-count crossover whose
+        *direction* flips (cheaper only below N jobs/mo, not the existing
+        "cheaper once you reach N jobs/mo" framing) rather than a
+        bounded-percentage crossover -- left unfixed pending a UI-copy
+        decision, noted in the PR rather than forced.
+      - >-
+        Added ten regression tests, each independently reconstructing the
+        crossing via the primary calculateOrder-backed pipeline fields (not
+        by calling the fixed helper) and confirming the reported rate
+        actually ties the two paths. Confirmed all ten fail against the
+        pre-fix calc.mjs via `git stash` (9 failures) and pass after.
+        `node --test ventures/ebay-fee-calculator/*.test.mjs`: 456/456
+        (446 pre-existing + 10 new). Rebased onto origin/main before
+        pushing; `git merge-tree` against main showed a clean apply, no
+        conflicts. GitHub Actions still down (runner outage, unrelated).
+        Merged as #2242 (squash).
+    mrr_end: null
