@@ -577,3 +577,139 @@ test("wfsBoxNote returns the summary and refuses a comparison without rows", () 
   assert.throws(() => wfsBoxNote({}), /missing rows/);
   assert.throws(() => wfsBoxNote(null), /missing rows/);
 });
+
+// Two loss-making paths still cross at a real take rate.
+//
+// Expected profit on a take path is `take% × completed profit`. When the
+// completed sale loses money that product is negative, so a HIGHER take rate
+// books more of the loss and the path is better BELOW the crossing rather than
+// above it. The old guard (`completed > 1e-12`) refused to compute a crossing
+// at all in that regime and the page said "an unreachable take rate" — for a
+// rate that is both reachable and the one the seller would act on.
+//
+// The rates below are derived from `calculateListing` output by plain
+// division, never by calling the formula under test.
+test("a loss-making standard path reports the take rate it stops beating WFS at", () => {
+  const input = { ...base, costOfGoods: 30, twoDayShippingCost: 3 };
+  const r = compareTwoDay(input);
+
+  const listing = calculateListing(input);
+  assert.ok(listing.wfs.profit < 0, "WFS loses money on a $30 cost at $24.99");
+  assert.ok(listing.seller.profit < 0, "seller fulfilment loses money too");
+
+  // Independent derivation: take% where standard's expected ties WFS's.
+  const wfsExpected = (TWO_DAY_DEFAULTS.wfsTakePct / 100) * listing.wfs.profit;
+  const expectedCrossing = (wfsExpected / listing.seller.profit) * 100;
+  assert.ok(
+    expectedCrossing > 0 && expectedCrossing <= 100,
+    `crossing should be reachable, got ${expectedCrossing}`,
+  );
+  near(r.breakEvenStandardTakePct, expectedCrossing, "standard take crossing");
+  assert.equal(r.standardTakeIsCeiling, true, "a losing path is better below the rate");
+
+  // And the two paths really do tie there — re-run the comparison at the
+  // reported rate rather than trusting the algebra.
+  const atCrossing = compareTwoDay({ ...input, standardTakePct: r.breakEvenStandardTakePct });
+  near(
+    atCrossing.standard.expectedProfit,
+    atCrossing.wfs.expectedProfit,
+    "standard ties WFS at the reported take",
+  );
+
+  // Just below it standard is ahead; just above it WFS is.
+  const below = compareTwoDay({ ...input, standardTakePct: r.breakEvenStandardTakePct - 5 });
+  const above = compareTwoDay({ ...input, standardTakePct: r.breakEvenStandardTakePct + 5 });
+  assert.ok(below.standard.expectedProfit > below.wfs.expectedProfit, "ahead below the rate");
+  assert.ok(above.standard.expectedProfit < above.wfs.expectedProfit, "behind above it");
+});
+
+test("the summary calls a losing path's crossing a ceiling, not a floor", () => {
+  const r = compareTwoDay({ ...base, costOfGoods: 30, twoDayShippingCost: 3 });
+  assert.equal(r.winner, "standard");
+  const note = twoDayNote(r);
+  assert.match(note, /stays ahead of WFS until take rises to about/);
+  assert.doesNotMatch(note, /unreachable take rate/);
+  assert.doesNotMatch(note, /still needs about/);
+});
+
+test("a profitable path keeps the floor wording and an out-of-range crossing stays unreachable", () => {
+  // Regression guard on the other side of the fix: nothing about the ordinary
+  // profitable case changes, and a crossing above 100% is still unreachable
+  // because take cannot exceed every session.
+  const r = compareTwoDay(base);
+  assert.equal(r.standardTakeIsCeiling, false, "a profitable path is better above the rate");
+  assert.ok(Number.isFinite(r.breakEvenStandardTakePct));
+  assert.match(twoDayNote(r), /take rises to about|still needs about/);
+
+  const listing = calculateListing(base);
+  const wfsExpected = (TWO_DAY_DEFAULTS.wfsTakePct / 100) * listing.wfs.profit;
+  const twoDayCompleted = r.twoDay.completedProfit;
+  assert.ok(
+    (wfsExpected / twoDayCompleted) * 100 > 100,
+    "this fixture's 2-day crossing is genuinely out of range",
+  );
+  assert.equal(r.breakEvenTwoDayTakePct, Infinity);
+});
+
+test("a loss-making matched sale reports the take rate matching stops winning at", () => {
+  const input = { ...base, costOfGoods: 30 };
+  let r;
+  try {
+    r = compareMatchTake(input);
+  } catch (error) {
+    // compareMatchTake rejects some negative-cash fixtures outright; if this
+    // one is rejected the regime is unreachable here and there is nothing to
+    // assert, but say so rather than passing silently.
+    assert.fail(`fixture rejected: ${error.message}`);
+  }
+  if (r.match.completedProfit >= 0) {
+    assert.fail("fixture no longer produces a loss-making matched sale");
+  }
+  const expectedCrossing = (r.hold.expectedProfit / r.match.completedProfit) * 100;
+  if (expectedCrossing > 0 && expectedCrossing <= 100) {
+    near(r.breakEvenMatchTakePct, expectedCrossing, "match take crossing");
+    assert.equal(r.matchTakeIsCeiling, true);
+    const atCrossing = compareMatchTake({ ...input, matchTakePct: r.breakEvenMatchTakePct });
+    near(
+      atCrossing.match.expectedProfit,
+      atCrossing.hold.expectedProfit,
+      "match ties hold at the reported take",
+    );
+  } else {
+    assert.equal(r.breakEvenMatchTakePct, Infinity);
+  }
+});
+
+test("free clicks have no attribution rate that ties skipping ads", () => {
+  // At 0% ACOS the gap is `extra units × organic leftover` no matter what
+  // share of organic the ads claim, so the paths never cross. This used to
+  // report exactly 100%, which reads as a real answer.
+  const r = compareWalmartAds({ ...base, acosPct: 0, extraAdUnits: 12 });
+  assert.equal(r.breakEvenAttributedOrganicPct, Infinity);
+  const gapAtFullAttribution =
+    compareWalmartAds({ ...base, acosPct: 0, extraAdUnits: 12, attributedOrganicPct: 100 })
+      .sponsored.cash -
+    compareWalmartAds({ ...base, acosPct: 0, extraAdUnits: 12, attributedOrganicPct: 100 })
+      .skip.cash;
+  assert.ok(
+    Math.abs(gapAtFullAttribution) > 1e-9,
+    "there is no tie at 100% attribution, so 100% was never the answer",
+  );
+});
+
+test("an attribution crossing above full attribution is unreachable, not 100%", () => {
+  const input = { ...base, acosPct: 5, extraAdUnits: 40 };
+  const r = compareWalmartAds(input);
+  const raw =
+    (r.extraAdUnits * (r.organicProfit - r.salePrice * (r.acosPct / 100)) * 100) /
+    (r.organicUnits * r.salePrice * (r.acosPct / 100));
+  if (raw <= 100) {
+    assert.fail(`fixture no longer exceeds 100% attribution (raw ${raw})`);
+  }
+  assert.equal(r.breakEvenAttributedOrganicPct, Infinity);
+  const at100 = compareWalmartAds({ ...input, attributedOrganicPct: 100 });
+  assert.ok(
+    at100.sponsored.cash - at100.skip.cash > 1e-9,
+    "ads still win at full attribution, so 100% was not a tie",
+  );
+});
