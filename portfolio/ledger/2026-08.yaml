@@ -33222,3 +33222,63 @@ entries:
         showed the standing runner-outage CI signature (repo-wide since
         2026-08-26); merged on local verification per policy.
     mrr_end: null
+  - venture: payment-reconciliation-workbench
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, explicitly prioritizing CI/CD/deployment and Hetzner
+        marketing work. Re-confirmed rather than re-derived the standing
+        finding: 0 open PRs at session start (quota trivially met), and the
+        Hetzner site deploy / self-hosted-runner / Codex-governor asks
+        (`decision_queue.py` items 12-13) are still fully built and gated on
+        owner-only secrets -- did not duplicate any of them. This sandboxed
+        session has no SSH/kubectl/kubeconfig access to the Hetzner boxes at
+        all, confirmed by checking for those tools and credentials directly.
+        Spot-checked three stale `pr/`-named branches
+        (`where-to-sell-rank-by-profit-per-day`, `invoice-payment-terms-calculator`,
+        `appointment-deposit-calculator`); all three ventures on `main` have
+        since grown substantially past what those branches contain (e.g.
+        `where-to-sell-calculator` on `main` has `share.mjs`/`handoff.mjs`/
+        `export.mjs` the branch lacks), so opening PRs for them would be pure
+        admin noise -- did not open them.
+      - >-
+        Found and fixed a real correctness bug via a targeted sweep of ~20
+        ventures' test suites and calc logic (deck-bid-calculator,
+        cut-list-optimizer, freight-accessorial-auditor,
+        invoice-payment-terms-calculator, job-margin-variance,
+        equipment-rental-break-even, fifo-pick-evidence,
+        cleaning-dilution-calculator, cash-runway-planner,
+        booth-rent-vs-commission, no-show-fee-calculator,
+        commercial-photo-license-calculator, cra-evidence-desk,
+        dns-configuration-evidence, grant-deadline-tracker,
+        appointment-deposit-calculator, hvac-maintenance-contract-calculator,
+        amazon-fba-calculator, chargeback-evidence-packet, plus all 59
+        `share.mjs` modules and all ~50 bid-calculator margin formulas --
+        no other defects found in that set). In
+        `payment-reconciliation-workbench/src/reconcile.mjs`, `cents()`
+        strips currency symbols/commas/whitespace then calls `Number()`;
+        `Number('')` is `0`, not `NaN`, so a blank amount cell, a bare `$`,
+        or a whitespace-only cell all silently became a real $0.00 payout or
+        deposit record instead of the "invalid date or amount" error the
+        tool promises for malformed rows -- polluting the exception queue or,
+        via the fee-hint matcher, spuriously pairing against a genuine
+        near-zero row and producing a silently wrong reconciliation. Fixed
+        by rejecting a cleaned value with no digit before calling `Number()`.
+        Merged as #2211.
+      - >-
+        Verified: a new regression test (blank / `$`-only / whitespace-only
+        amount cells) confirmed to fail on the pre-fix code (11/12, one
+        failure) and pass on the fix; full venture suite 21/21 green. Ran
+        `python3 platform/ci/run_workflow_locally.py --for-changes` (4
+        workflows selected; all runnable `run:` steps passed) and closed its
+        one gap by hand -- the local runner cannot evaluate the `${{ }}`
+        `Build the site` step, so built the artifact directly with both
+        pipelines: `platform/pages/build.mjs` (167 tools, `check.mjs`:
+        publishable, no dead links) and `platform/ci/build_pages_site.py`
+        (167 products/1766 files, `check_pages_links.py`: every local
+        reference resolves). PR #2211's checks were the outage signature
+        (`runner_id: 0`, ~2s, empty `runner_name`, confirmed via
+        `get_workflow_job`) -- merged on local verification per the
+        standing outage guidance.
+    mrr_end: null
