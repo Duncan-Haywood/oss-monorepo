@@ -2764,8 +2764,14 @@ export function nextCheaperWeightLb(tier, weightLb) {
   const bands = STANDARD_WEIGHT_BAND_OZ[tier];
   if (bands) {
     const oz = weight * 16;
-    const current = bands.find((band) => oz <= band) ?? bands[bands.length - 1];
-    const index = bands.indexOf(current);
+    const index = bands.findIndex((band) => oz <= band);
+    // Heavier than every listed band: those weights price by the pound past
+    // this point (see defaultFulfillmentFee's extraBands math), so the next
+    // cheaper stop is the top of the heaviest listed band, not one band
+    // further down — treating it as already sitting in that band (as a
+    // `?? bands[bands.length - 1]` fallback used to) skipped straight past
+    // the real next-cheaper weight to the band below it.
+    if (index === -1) return bands[bands.length - 1] / 16;
     if (index <= 0) return null;
     return bands[index - 1] / 16;
   }
