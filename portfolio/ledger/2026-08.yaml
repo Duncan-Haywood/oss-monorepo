@@ -33053,3 +33053,70 @@ entries:
         alone, which `CLAUDE.md` warns is only a proxy. Merged on local
         verification per the outage guidance.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, explicitly prioritizing CI/CD/deployment and
+        Hetzner marketing work. 0 open PRs at session start. Re-confirmed
+        rather than re-derived the standing finding: `publish_surface.py`
+        still reports 0 live workflows, and the Hetzner site deploy /
+        self-hosted-runner / Codex-governor asks are all fully built and
+        gated on owner-only secrets already queued in `asks.yaml` items
+        10-13 -- did not duplicate any of them. Verified the
+        `hetzner-gitops-ci.yml` pipeline end-to-end by installing its
+        tools locally (kustomize v5.6.0, kubeconform v0.6.7, OpenTofu
+        1.10.6, shellcheck) and running every step it defines: 88/88
+        `gitops/tests`, both infra-layout suites, 6/6 kustomize builds
+        clean, kubeconform 43/43 resources valid across all 6 kustomizations,
+        `tofu fmt -check` clean (`tofu validate` itself blocked --
+        `registry.opentofu.org` is outside this container's egress
+        allowlist -- an environment limit, not a code issue), shellcheck
+        clean on all 11 scripts the workflow lints. No drift found.
+      - >-
+        Found and fixed a real bug in the tool `AGENTS.md` tells every
+        session to run for a `ventures/**` or `platform/pages/` change:
+        `platform/ci/browser_checks.py` builds (or is pointed at) a
+        `dist` directory and serves it, but only ever passed `BASE_URL`
+        to each check's child process -- never `DIST`. `sideways.mjs`,
+        `presets.mjs`, `roundtrip.mjs`, `contrast.mjs` and `highlight.mjs`
+        each also walk the built tree on disk directly and fall back to
+        `DIST`'s own default (`<script-dir>/dist`) when unset, so a
+        default run (no `--dist`, built fresh under a tempdir -- the
+        orchestrator's whole reason to exist) had those four reporting
+        FAILED/ENOENT regardless of whether the site had a problem.
+        `sweep.mjs` and `journey.mjs` never read `DIST`, which is why they
+        kept passing and the gap went unnoticed since the tool was added
+        on 2026-08-29. Fixed by setting `env["DIST"] = dist` once `dist`
+        is known, alongside `BASE_URL`. Merged as #2205.
+      - >-
+        Verified: a new regression test (`DistPropagation`) confirmed to
+        fail against the pre-fix code and pass against the fix;
+        256/256 `platform/ci` unit tests. Reproduced the bug and the fix
+        against a real browser (Playwright/Chromium, `axe-core` installed
+        for `contrast`) on current `main`'s 166-tool build -- before:
+        sideways/presets/roundtrip ENOENT, contrast separately blocked on
+        missing axe-core; after: all 6 checks pass (sideways 482 pages
+        none scroll sideways, presets 65/65 pickers, roundtrip 128/128
+        share links, contrast 481 pages x 2 viewports no WCAG A/AA
+        violations, sweep 166/166 tools, journey 0 failed checks/0
+        page-console errors). Also ran `run_workflow_locally.py
+        portfolio-validate.yml` (42/42 `run:` steps) and
+        `platform/pages`'s full `node --test` suite (746/746) as a
+        broader CI/CD health check while at it -- both fully green. PR
+        #2205's 3 checks were the outage signature (`runner_id: 0`, ~3s,
+        `ubuntu-latest`, confirmed via `get_workflow_job` before merging
+        on local verification.
+      - >-
+        Did not find any Hetzner product-box deploy path that is built,
+        wired to an already-sealed secret, and just needs a manifest fix
+        to go live -- `gitops/prod/` has exactly one product surface
+        (`portfolio-site.yaml`) and it is the same owner-gated clone-token
+        ask already queued. No new marketing/SEO gaps found either:
+        `faq-coverage.mjs` and `faq-duplicate.mjs` both report full
+        coverage (166/166, 0 duplicates) and `llms.txt`/JSON-LD/OG/sitemap
+        generation in `build.mjs` already cover every venture uniformly,
+        so there was no per-product presentation backlog left to work by
+        hand this run.
+    mrr_end: null
