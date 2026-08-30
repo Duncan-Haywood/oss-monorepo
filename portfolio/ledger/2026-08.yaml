@@ -31795,3 +31795,232 @@ entries:
         (no-warranty clause on all 469 pages); full platform/pages suite
         (745/745). Shipped and merged #2162.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Triaged the 15 highest-commit-count PR-less remote branches (from
+        the 171 sitting ahead of `main` with no open PR), each fetched
+        fresh: `cursor/3pl-quote-normalizer-compare-20260825`,
+        `-compare-20260824`, `-ship-20260824`, `vendor-change-watch-fix-20260824`,
+        `chargeback-evidence-packet-main`, `print-preflight-value-20260824`,
+        `faire-wholesale-calculator-e3de`, `amazon-fba-sourcing-check-20260824`,
+        `invoice-payment-terms-ci-fix-20260825`,
+        `appointment-deposit-calculator-20260824`,
+        `payment-reconciliation-workbench-20260824`,
+        `fifo-pick-evidence-repair-20260825`,
+        `window-replacement-bid-calculator-20260825`,
+        `saas-seat-true-up-20260824`, `no-show-fee-scenarios-20260824`.
+        All 15 were superseded -- zero PRs opened, zero merges. This
+        extends the prior session's sampled finding (`rematch-1564` etc.)
+        to a full, deliberately-prioritized batch: the PR-less branch
+        backlog is not an unmined vein.
+      - >-
+        Went past `supersede_check.py`'s identical-merge proof (which
+        returned exit 0 for the four it was run against before its ~2-3min
+        runtime made running it on all 15 impractical) and did a
+        function/feature-level comparison for the rest, per the coordinator's
+        instruction not to trust `git diff --stat` uniqueness at face value.
+        Every case checked out: `compareFeeScenarios` (no-show-fee),
+        `buyCostCheck`/zero-profit-ceiling (amazon-fba), the CSV
+        quoted-field/incomplete-row parser (payment-reconciliation,
+        verbatim match), the `tzinfo`-required timestamp fix
+        (fifo-pick-evidence, verbatim match), draft-save + deadline-status +
+        export (chargeback-evidence-packet), and the numeric-validation
+        guards (appointment-deposit, same checks, relocated into `calc.mjs`)
+        all already live on `main`, usually with substantially more built
+        on top (e.g. `faire-wholesale-calculator` main has 12 more exported
+        scenario functions than the branch; `window-replacement-bid-calculator`
+        main additionally has `proposal.mjs`/`share.mjs`).
+      - >-
+        Concerning, not urgent: `cursor/saas-seat-true-up-20260824`'s
+        second commit (`121b1fd0a`) changes 2,262 files / +297k lines in a
+        single non-merge commit -- far more than the venture it claims to
+        touch, and it lands content (e.g. `wheelchair-ramp-bid-calculator`)
+        that didn't exist at the commit's own parent. Reads like a bot
+        commit created against the wrong working tree rather than a real
+        squash-merge. Left alone (branch not touched, nothing force-pushed);
+        flagging in case the same tooling produced other stale branches
+        with the same defect.
+      - >-
+        Two branches carried non-superseded content that was still not
+        worth a PR: `cursor/faire-wholesale-calculator-e3de` also added
+        `portfolio/inspiration/{ADAPTATION,accelerator-niches,portfolio-ideas}.md`
+        and edited `PRODUCT_PLAYBOOK.md`/`portfolio/DIRECTION.md` --
+        exactly the "another candidate list" `CLAUDE.md`'s pipeline section
+        says not to produce, so left un-PR'd along with the calculator
+        code it was bundled with.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Queue-drain pass found the queue already empty.** A 2026-08-29
+        scheduled session was briefed to merge at least three open PRs
+        before any new work. `list_pull_requests` and `search_pull_requests`
+        both returned zero open PRs against `Duncan-Haywood/monorepo-
+        projects`. Checked 275 remote branches for unmerged unique commits
+        (`git rev-list --count origin/main..<branch>`): 169 had at least
+        one. Direct-compared the top nine by ahead-count against current
+        `main` (`appointment-deposit-calculator`, `payment-reconciliation-
+        workbench`, `window-replacement-bid-calculator`, `no-show-fee-
+        calculator`, `tender-bid-readiness`, `chargeback-evidence-packet`
+        x2, `rematch-spray-foam`, `saas-seat-true-up`) and every one was
+        strictly behind what is already on `main` -- each diff against the
+        live tree was pure deletions of code, tests, or scoring/publish-
+        surface entries `main` already carries. This is the swarm-cadence
+        pattern the ledger already has a name for: `main` absorbs shipped
+        work within hours, so an orphaned local branch is evidence of an
+        abandoned session, not of unmerged value. No PR was opened for any
+        of the nine; opening one to then close it as superseded would have
+        been the exact "supersede_check first" workflow with an extra,
+        pointless round trip. Did not exhaustively check the remaining 160
+        (mostly 1-2-commit branches, many already-`Merge main into ...`
+        rebasing loops or ledger/decision-queue bookkeeping) -- flagging
+        here rather than claiming a full sweep.
+      - >-
+        `session_gate.py` verdict: PROCEED (meta-work share 4% of last 25
+        entries, well under the 70% threshold; break-even $0.12/session).
+      - >-
+        Checked the two things the scheduling brief asked to prioritize,
+        CI/CD and deployment, before doing anything else. Both are already
+        fully diagnosed and queued, not new findings: the GitHub Actions
+        runner outage (`decision_queue` row `actions-runners-unavailable`,
+        #1842) is still live as of 2026-08-29T18:07Z -- the "Claude routine
+        trigger" and "Conflict markers" runs sampled from `list_workflow_runs`
+        both completed in 5 seconds, the outage's own signature -- and the
+        GitHub Pages publish flip (`deploy-settings` row) is still the same
+        single owner action from Settings -> Pages. Neither got a duplicate
+        ask; see `asks.yaml`, which already carried both.
+      - >-
+        Investigated the brief's third ask -- "set up the codex cli ... on
+        the hetzner vm" -- rather than implementing it directly, because
+        `.github/workflows/hetzner-gitops-ci.yml`'s own header says "Never
+        start a Codex Job" and `gitops/agents/governor/` turned out to be a
+        complete, already-built, already-tested Codex budget governor
+        (CronJob + policy ConfigMap + per-item work queue) sitting at
+        `enabled: false` / `suspend: true` specifically because
+        `infra/OWNER_CHECKLIST.md` gates it to the owner: a separate OpenAI
+        org with a hard spend limit, a sealed project API key, and only then
+        the two flips. That checklist also explicitly warns against the
+        literal reading of "use up the built-in quota" -- logging the
+        governor in with a personal ChatGPT Plus/Pro account -- as the one
+        wrong way to do this (no spend cap, competes with interactive use).
+        Added `codex-governor-enable` to `asks.yaml` (not there before) with
+        that correction spelled out, rather than building the unsafe version
+        or silently doing nothing.
+    mrr_end: null
+  - venture: tiktok-shop-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    mrr_end: null
+    outcomes:
+      - >-
+        **`compareFeeSchedules`, `priceForTargetMargin` and `maxBuyCost` were
+        shipped, tested engine logic that no page on the site could reach.**
+        Fixed in #1942 with a fee-change decision page, five weeks before the
+        announced 1 Oct 2026 US schedule starts. Worth generalising: a venture
+        can look finished at the `calc.mjs` layer and still be missing the
+        surface that makes the arithmetic usable. Grepping exported functions
+        against the identifiers the HTML actually imports is a cheap way to
+        find the next one.
+      - >-
+        **Depth across the marketplace-seller tools is very uneven, and the
+        gap was the selection signal.** Decision pages per tool: eBay 20,
+        Shopify 20, Amazon FBA 15, Etsy 9, Reverb 6, Walmart 5, TikTok Shop
+        **2**. The thinnest tool in the portfolio's highest-search category,
+        holding a time-boxed question its own engine already answered. Walmart
+        at 5 and Reverb at 6 are the same shape and are the next two.
+      - >-
+        **The announced 1.5% creator facilitation lands on affiliate-sourced
+        orders only, so one blended number misprices two different shops.** On
+        the worked example that is $0.45/order organic against $0.78/order
+        affiliate. `feeChangeImpact()` returns both splits rather than an
+        average. This is the same lesson as the affiliate-clawback trap the
+        venture was founded on: the headline referral percentage is never the
+        number that decides the SKU.
+      - >-
+        **Three honesty cases a money tool gets wrong by default, each now
+        tested.** A SKU already under water was being told the change "stops
+        it clearing" — `clearedBefore` separates a loss the new schedule
+        causes from one the old one was already making. A schedule that costs
+        nothing was still offering "relist at $19.99 (up $0.00)". And the
+        page tests assert the shipped FAQ figures against the real engine, so
+        published numbers cannot drift from the arithmetic. All three were
+        found by driving the page in Chromium, not by the unit suite.
+      - >-
+        **Queue state: zero open PRs at session start** (both
+        `list_pull_requests` and `search_pull_requests`), so the three-PR
+        merge quota had nothing to draw on for the third session running; one
+        opened and merged here. Re-ran the identical-merge proof over all ~250
+        remote branches after `--unshallow`: still landed. The largest
+        apparent survivor, `cursor/vendor-change-watch-fix-20260824`, adds a
+        `vendor-change-watch` CLI duplicating **two** products already on
+        `main` (`vendor-watch`, `vendor-change-evidence`) — the rename
+        supersession case, left closed rather than reopened as a third
+        implementation.
+      - >-
+        **CI red is still the runner outage, now confirmed against `main`'s
+        own head rather than by signature alone.** Every `portfolio-validate`
+        run on `main` fails in 4-6 seconds, `f3156fb3` included; the PR's six
+        checks matched on all three markers (3-4s runtime, empty
+        `output.title/summary/text`, 404 on log download). Checking the base
+        branch's recent runs is one call and settles it faster than reading
+        the signature off a single job. Verified locally instead: 65 venture
+        tests, 453 platform tests, four repo validators, a 443-page build with
+        every local reference resolving, and a Chromium journey at desktop and
+        360px.
+      - >-
+        Deploy remains the binding constraint and this session did not move
+        it. `publish_surface.py` still reports nothing live behind
+        `GITHUB_PAGES_ENABLED`, every usage reading is still a zero baseline,
+        and no second owner ask was added.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped dedicated SEO/FAQ landing pages to 5 ventures that had zero
+        FAQ or Q&A content anywhere in their HTML (#2039, merged):
+        `cash-runway-planner`, `subscription-price-impact`,
+        `vendor-rate-break-even`, `job-margin-variance`, and
+        `saas-seat-true-up`. Measured the gap first -- a grep for
+        `faq|frequently asked` across all 184 ventures found 25 with none
+        at all, a different and lower-severity list than #2032/#2035's
+        "no `FAQPage` schema" measurement, since these 5 had no visible
+        Q&A copy for the build-time `faqEntries()` capability to derive
+        schema from either. Picked the 5 as clear, well-scoped
+        "how do I decide X" calculators rather than doing all 25 in one
+        PR; the remaining 20 are an explicit follow-up.
+      - >-
+        Each page follows the portfolio's established
+        `how-much-to-charge.html` convention: authored `FAQPage` JSON-LD,
+        a worked example grounded in that venture's own `calc.mjs`/
+        `app.mjs` logic and default inputs (traced through the source, not
+        invented), and that venture's own no-warranty disclaimer text
+        reused rather than rewritten. One link added from each venture's
+        `index.html` to its new page, matching the existing link-placement
+        convention.
+      - >-
+        Verified locally (runner outage unchanged: all 11 checks on this
+        PR's head commit completed in ~3-4 seconds with the `ubuntu-latest`
+        + zero-real-steps signature): each of the 5 ventures' own test
+        suites (36/3/5/4/9, all pass), a full `platform/pages/build.mjs`
+        run (164 products / 462 pages, up from 457), and `check.mjs`
+        reporting the artifact publishable with no dead links.
+      - >-
+        Session context: independently confirmed 0 open PRs at session
+        start (three-PR quota trivially met) and, before writing any new
+        code, independently re-derived the same finding two other sessions
+        recorded today -- CI/CD (`gitops/ci`), the Hetzner portfolio-site
+        deploy (`gitops/prod/portfolio-site.yaml`), and Codex CLI on a
+        subscription's included quota (`ventures/ubuntu-agent-server`,
+        PR #2000) are all already fully engineered and PR'd, blocked only
+        on owner-only account actions (sealing tokens, an interactive
+        `codex login`, a real ACME contact email) already named in
+        `infra/OWNER_CHECKLIST.md` and decision-queue rows 10-12. No new
+        ask was added; this entry exists so a fourth session doesn't
+        re-run the same audit.
+    mrr_end: null
