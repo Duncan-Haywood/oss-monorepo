@@ -112,6 +112,11 @@ read_secret() {
 
 b64() { printf '%s' "$1" | base64 | tr -d '\n'; }
 
+# The raw values the current seal is handling, so seal_to's guard can check the
+# ciphertext for both the encoded and the unencoded form. Each seal_* function
+# sets this immediately before calling seal_to, and seal_to clears it after.
+SEAL_PLAINTEXT=()
+
 # Ask GitHub whether the token can actually do the one thing its pod needs.
 # This is the difference between finding out now and finding out from a
 # CrashLoopBackOff after the next Argo sync.
@@ -160,10 +165,23 @@ data:"
       return 1
     }
 
-  # Belt and braces: a SealedSecret that still contains the plaintext would
-  # mean kubeseal did not encrypt, and committing it would leak the token.
+  # Belt and braces: a SealedSecret that still contains the secret would mean
+  # kubeseal did not encrypt, and committing it would leak the token.
+  #
+  # Both forms are checked. The base64 is what the manifest actually carries,
+  # so a kubeseal that echoed its input leaks that; but "did not encrypt" is
+  # not the only shape this can take -- a wrapper that decoded the manifest,
+  # or a future --raw mode, would leak the token itself and sail past a check
+  # that only knew the encoded form. The guard is here for the case nobody
+  # predicted, so it should not assume which one it is looking at.
   for pair in "$@"; do
     if printf '%s' "$sealed" | grep -qF -- "${pair#*=}"; then
+      warn "sealed output still contains the encoded value — refusing to write $out"
+      return 1
+    fi
+  done
+  for secret in ${SEAL_PLAINTEXT[@]+"${SEAL_PLAINTEXT[@]}"}; do
+    if printf '%s' "$sealed" | grep -qF -- "$secret"; then
       warn "sealed output still contains the plaintext value — refusing to write $out"
       return 1
     fi
@@ -171,6 +189,7 @@ data:"
 
   mkdir -p "$(dirname "$out")"
   printf '%s\n' "$sealed" > "$out"
+  SEAL_PLAINTEXT=()
   ok "wrote $(realpath --relative-to="$ROOT" "$out")"
 }
 
@@ -239,6 +258,7 @@ seal_site() {
     fi
   fi
 
+  SEAL_PLAINTEXT=("$token")
   seal_to portfolio-site-repo prod \
     "$ROOT/gitops/prod/secrets/portfolio-repo-token.sealed.yaml" \
     "token=$(b64 "$token")" || return 1
@@ -270,6 +290,7 @@ seal_ci() {
     fi
   fi
 
+  SEAL_PLAINTEXT=("$token")
   seal_to actions-runner-secrets ci \
     "$ROOT/gitops/ci/secrets/actions-runner-token.sealed.yaml" \
     "RUNNER_TOKEN=$(b64 "$token")" || return 1
@@ -339,6 +360,7 @@ seal_agents() {
     fi
   fi
 
+  SEAL_PLAINTEXT=("$gh" "$codex_val")
   seal_to codex-secrets agents \
     "$ROOT/gitops/agents/secrets/codex-token.sealed.yaml" \
     "GH_TOKEN=$(b64 "$gh")" "$codex_key=$(b64 "$codex_val")" || return 1
