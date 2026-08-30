@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseTenders, filterTenders, escapeHtml, safeUrl, toCsv } from "./calc.mjs";
+import { parseTenders, filterTenders, parseTradeTerms, escapeHtml, safeUrl, toCsv } from "./calc.mjs";
 
 const SAMPLE = `title,buyer,deadline,category,value,url
 School roof repairs,City Council,2026-09-18,roofing,85000,https://example.test/tender
@@ -13,6 +13,42 @@ test("parses a portal CSV and filters by trade and minimum", () => {
   assert.equal(shortlist.length, 2);
   assert.equal(shortlist[0].title, "Unsafe javascript");
   assert.equal(shortlist[1].title, "School roof repairs");
+});
+
+test("parseTradeTerms splits on commas and newlines, trims, lowercases, drops blanks", () => {
+  assert.deepEqual(parseTradeTerms("Roofing, roof repair,\nreroof, ,"), [
+    "roofing",
+    "roof repair",
+    "reroof",
+  ]);
+  assert.deepEqual(parseTradeTerms(""), []);
+  assert.deepEqual(parseTradeTerms("   "), []);
+});
+
+test("comma-separated trade terms match any spelling, category or title, without re-running the filter", () => {
+  const rows = parseTenders(`title,buyer,deadline,category,value,url
+Clinic reroof,County,2026-09-04,reroofing,140000,https://example.test/clinic
+School roof repairs,City Council,2026-09-18,roofing,85000,https://example.test/tender
+Gutter replacement,City,2026-09-20,roof repair,30000,https://example.test/gutter
+Hall painting,City Council,2026-10-02,painting,12000,https://example.test/paint`);
+  const shortlist = filterTenders(rows, { category: "roofing, roof repair, reroof" });
+  assert.equal(shortlist.length, 3);
+  assert.ok(shortlist.every((row) => row.title !== "Hall painting"));
+});
+
+test("a term with no comma still matches title text, not only category", () => {
+  const rows = parseTenders(`title,buyer,deadline,category,value,url
+General building maintenance covering roof and gutters,County,2026-09-04,facilities,20000,https://example.test/1
+Interior repainting,County,2026-09-05,facilities,20000,https://example.test/2`);
+  const shortlist = filterTenders(rows, { category: "roof" });
+  assert.equal(shortlist.length, 1);
+  assert.match(shortlist[0].title, /roof/);
+});
+
+test("an empty trade filter keeps every row, same as before", () => {
+  const rows = parseTenders(SAMPLE);
+  assert.equal(filterTenders(rows, { category: "" }).length, 3);
+  assert.equal(filterTenders(rows, {}).length, 3);
 });
 
 test("rejects a header-only paste", () => {
