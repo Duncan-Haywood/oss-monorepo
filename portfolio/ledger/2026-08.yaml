@@ -31534,3 +31534,36 @@ entries:
         outage signature (all-red/absent checks); merged on local
         verification per CLAUDE.md.
     mrr_end: null
+  - venture: cut-list-optimizer
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Sheet-goods (2D panel nesting) planner previously ignored on-hand
+        offcuts entirely, even though the linear-stock (1D board) planner
+        already drew required cuts from a rack of them before buying new
+        stock -- the page's own FAQ only ever claimed the feature for the
+        linear tab. Added the same behavior to `optimizeSheets()`: a new
+        `onHand` list of offcut panels is seeded as free rectangles ahead
+        of any purchased sheet, so the existing best-area-fit packer
+        places a piece there whenever one fits before opening a new
+        sheet. Untouched offcuts stay off the plan; cost, utilization,
+        and the sheet-size comparison now split cleanly between
+        purchased and on-hand sheets (`sheetsPurchased`, `onHandUsed`,
+        `purchasesAvoided`, `purchasedUtilization`); a piece too big for
+        the configured sheet size is no longer wrongly marked oversize
+        when a larger on-hand offcut is on the rack.
+      - >-
+        Wired into index.html as a new "Offcuts you already have" field
+        on the sheet-goods tab, included in the saved draft, sheet
+        diagrams now tag which card is an on-hand offcut vs. a new
+        sheet, and the FAQ answer was corrected to cover both tabs
+        instead of only linear.
+      - >-
+        Added 19 new tests to sheet.test.mjs (parsing, placement
+        precedence onto an offcut, oversize-vs-on-hand sizing,
+        cost/utilization accounting, comparison ranking with on-hand
+        stock) and 2 structural checks to page.test.mjs. Verified
+        `node --test *.test.mjs` in the venture directory: 105/105
+        passing, no regressions. Shipped and merged #2152.
+    mrr_end: null
