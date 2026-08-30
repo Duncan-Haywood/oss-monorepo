@@ -34007,3 +34007,90 @@ entries:
         conflicts. GitHub Actions still down (runner outage, unrelated).
         Merged as #2242 (squash).
     mrr_end: null
+  - venture: tiktok-shop-fee-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same defect-class family as #2220/#2225/#2231/#2233/#2238/#2242, but
+        found in a function shape those audits did not cover. #2242 read
+        tiktok-shop-fee-calculator in full and recorded it "clean"; that pass
+        covered the *comparison* solvers (compareBundleDiscount and
+        siblings), which compute a crossing rate between two paths. The bug
+        was in `maxBuyCost`, a *probe-based ceiling*: it re-runs
+        calculateOrder with cogs forced to 0 and bisects for the COGS that
+        zeroes profit. Worth generalising -- the audit shape so far has been
+        "find solvers that divide two path profits"; a probe/bisection
+        search that returns a trivial sentinel on an out-of-range baseline is
+        the same error wearing different clothes, and no comparison-solver
+        grep finds it.
+      - >-
+        `maxBuyCost` returned 0 when the SKU loses money even at zero COGS.
+        That reads as "you can pay up to $0.00 for the unit and still break
+        even" -- false, since at $0.00 it is still under water -- and is
+        indistinguishable from the legitimate answer for a SKU that breaks
+        even exactly at zero COGS. Reproduced on main with an $8.00 item at
+        $6.50 fulfilment and $3.00 ad spend: free goods lose $4.49, and the
+        function reported a $0.00 ceiling. Not a cosmetic number:
+        `what-will-the-tiktok-shop-fee-change-cost-me.html` renders it as
+        "the number to take to a supplier if the price cannot move", so a
+        seller whose listing can never clear at any purchase price was being
+        sent into a supplier negotiation that could not fix the listing, when
+        the real answer is that the listing price (or fulfilment/ad cost) has
+        to move.
+      - >-
+        Returns null instead -- already this module's convention for "no
+        input reaches the target" (breakEvenPrice, priceForTargetMargin), and
+        both pages' money() helpers already map null to "n/a", so index.html
+        needed no change. The fee-change page got an explicit branch: without
+        it the sentence would have read "n/a before, n/a after -- the number
+        to take to a supplier", pointing at the same dead end more quietly.
+      - >-
+        Two regression tests. The first establishes the premise from
+        calculateOrder directly (free goods already lose money) before
+        asserting null, so it cannot pass by agreeing with a broken
+        implementation; confirmed to fail against the pre-fix code (not ok
+        25) and pass after. The second pins that a genuine $0.00 ceiling
+        still returns 0 rather than null, so the fix cannot over-correct a
+        real boundary answer into "unreachable".
+      - >-
+        Verified locally during the ongoing Actions runner outage -- confirmed
+        on this PR's own `validate` check (job 99294762745, runner_id 0, empty
+        runner_name, 3s), so it is the outage signature and not this change:
+        venture suite 80/80; conflict-markers, duplicate-symbols, money-sign,
+        form-defaults and no-warranty clauses all clean; page integrity
+        486/486; site build 168 products / 485 pages, no dead links. Both
+        rendered variants of the supplier line checked by hand. Merged as
+        #2245 (squash).
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR queue empty at session start (0 open). #2235/#2236/#2237 had been
+        closed unmerged ~an hour earlier; re-checked rather than trusted,
+        and both reasoned closes hold -- main genuinely carries
+        invoice-payment-terms-calculator as a superset, and where-to-sell's
+        profitPerDay/rankBy/share.mjs fields are present and more developed
+        than #2237 would have added. No reopen warranted.
+      - >-
+        Swept all remote branches with commits not on main (~75 after
+        excluding those an identical-merge proof clears) and found no
+        recoverable product work: the surviving lineages are stale parallels
+        already absorbed, with main strictly ahead. e.g.
+        claude/festive-mccarthy-qb5q6b's sponsor-ready is +82/-469 against
+        main's, which additionally carries usage.js/usage.test.js/sitemap.xml.
+        Opening PRs for these would manufacture the duplicate backlog
+        CLAUDE.md's "Duplicate PRs" section exists to prevent.
+      - >-
+        Re-confirmed the three owner-blocked asks rather than re-deriving
+        them, and reported them to the owner directly (push notification)
+        instead of adding decision-queue rows -- rows 10, 11 and 12 already
+        cover them and duplicating asks is explicitly disallowed. Actions
+        runner outage still live (runner_id 0 on runs today). Hetzner site
+        manifest verified correct on the point most likely to be wrong: it
+        sets PAGES_BASE_URL=https://tools.marisstella.dev/, so canonical and
+        og:url tags will not point at the dead GitHub Pages origin. Site
+        build reproduced locally, 168 tools in 22s.
+    mrr_end: null
