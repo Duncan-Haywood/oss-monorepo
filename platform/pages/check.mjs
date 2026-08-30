@@ -88,7 +88,13 @@ const LOC_RE = /<loc>([^<]+)<\/loc>/g;
 // Kept as a set rather than a prefix test so a venture named `c-something` is
 // still checked as a product.
 export const CATEGORY_DIR = 'c';
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR]);
+export const ABOUT_DIR = 'about';
+
+// Directories the site builds for itself. They are not products, so the
+// reachability check below must not demand a `data-tool` card on the hub for
+// them — the hub links these from its footer, which is the right weight for a
+// page about the site rather than a tool.
+export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -498,6 +504,29 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     }
   }
 
+  // ---- About page ----------------------------------------------------------
+  //
+  // Exempted from the product sweep above (it is not a tool), so it needs its
+  // own reachability check or it has none at all. It is the page that answers
+  // "is this thing going to email my numbers to someone" and the one a linker
+  // is pointed at for boilerplate — a build that silently stopped emitting it,
+  // or emitted it with nothing linking it, would look completely healthy
+  // everywhere else in this file.
+  {
+    const relative = path.join(ABOUT_DIR, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) {
+      problems.push(`${ABOUT_DIR}/: did not ship, so the site has no privacy or press page`);
+    } else {
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+      }
+      if (hubHtml !== null && !/href="about\/"/.test(hubHtml)) {
+        problems.push(`${ABOUT_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      }
+    }
+  }
+
   // Same reachability argument as the hub, for the machine-readable door. A
   // tool missing from llms.txt is invisible to an assistant recommending one,
   // and nothing else in the artifact would show it: every page still resolves.
@@ -512,7 +541,12 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       }
     }
     for (const slug of listed) {
-      if (!productDirs.includes(slug)) {
+      // `SITE_OWN_DIRS` are legitimately listed here — llms.txt names the About
+      // page and the category pages under "Optional" so an assistant can cite
+      // the page about the site, or about a trade, instead of a tool. They are
+      // not products, so the "no such product shipped" reading is wrong for
+      // them; that they shipped is checked in their own blocks above.
+      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
         problems.push(`llms.txt: lists "${slug}" but no such product shipped`);
       }
     }

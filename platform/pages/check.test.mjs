@@ -36,13 +36,19 @@ async function siteWith(files = {}) {
   // The hub and every product page carry the disclaimer marker, because a
   // real artifact does: the check treats a page without one as unpublishable.
   const defaults = {
-    'index.html': '<a href="tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
+    // The hub links About from its footer rather than as a tool card, which is
+    // how the real hub does it — `data-tool` is for products.
+    'index.html':
+      '<a href="tool/" data-tool="tool">Tool</a><footer><a href="about/">About</a> No warranty.</footer>',
+    'about/index.html': '<p>About</p><footer>No warranty.</footer>',
     'robots.txt': `User-agent: *\nAllow: /\n\nSitemap: ${url('sitemap.xml')}\n`,
     '404.html': '<p>gone</p>',
     '.nojekyll': '',
     'favicon.ico': '',
     'sitemap.xml': sitemapIndex('sitemap-hub.xml', 'tool/sitemap.xml'),
-    'sitemap-hub.xml': urlset(''),
+    // About is a hub-level page, so the hub sitemap is the only one that can
+    // carry it — the real `renderHubSitemap` lists it here for the same reason.
+    'sitemap-hub.xml': urlset('', 'about/'),
     'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
     'tool/index.html': '<p>Tool</p><footer>No warranty.</footer>',
     'tool/sitemap.xml': urlset('tool/'),
@@ -239,7 +245,7 @@ test('a data-tool literal inside a script is not read as a hub link', async () =
     'index.html':
       '<a href="tool/" data-tool="tool">Tool</a>' +
       '<script>const card = (slug) => `<a data-tool="` + slug + `">x</a>`;</script>' +
-      '<footer>No warranty.</footer>',
+      '<footer><a href="about/">About</a> No warranty.</footer>',
   });
   assert.deepEqual(problems, [], `unexpected: ${JSON.stringify(problems)}`);
 });
@@ -471,8 +477,8 @@ const CATEGORY_SITE = {
   'index.html':
     '<a href="tool/" data-tool="tool">Tool</a>'
     + '<h2><a href="c/trades/" data-category="trades">Trades</a></h2>'
-    + '<footer>No warranty.</footer>',
-  'sitemap-hub.xml': urlset('', 'c/trades/'),
+    + '<footer><a href="about/">About</a> No warranty.</footer>',
+  'sitemap-hub.xml': urlset('', 'c/trades/', 'about/'),
   'c/trades/index.html':
     '<a href="../../tool/" data-tool="tool">Tool</a><footer>No warranty.</footer>',
 };
