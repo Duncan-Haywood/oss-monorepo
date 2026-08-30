@@ -11,8 +11,10 @@ from __future__ import annotations
 import io
 import contextlib
 import os
+import shutil
 import tempfile
 import unittest
+from unittest import mock
 
 import browser_checks as bc
 
@@ -105,6 +107,41 @@ class Arguments(unittest.TestCase):
         rc, text = self.run_main(["--dist", "/nonexistent-browser-checks-dir"])
         self.assertIn(rc, (1, 2))
         self.assertIn("nonexistent-browser-checks-dir", text)
+
+
+class DistPropagation(unittest.TestCase):
+    """The DIST env var `main()` forgot to pass to each check (2026-08-30).
+
+    sideways.mjs, presets.mjs, roundtrip.mjs, contrast.mjs and highlight.mjs
+    each walk the built tree on disk directly, in addition to fetching over
+    BASE_URL. Before this test existed, `run_check`'s child env carried only
+    BASE_URL, so any of those five ran against `<script-dir>/dist` instead
+    of the tree this orchestrator actually built or was pointed at --
+    empty in the common case, or a previous run's stale leftovers in the
+    dangerous one. sweep.mjs and journey.mjs never read DIST, so they
+    passed either way and the gap went unnoticed until a real run
+    exercised the other four (see 2026-08-30's ledger entry).
+    """
+
+    def test_run_check_receives_the_dist_it_is_serving(self):
+        dist = tempfile.mkdtemp(prefix="bc-distprop-")
+        try:
+            with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            calls = []
+
+            def fake_run_check(name, base, env, timeout):
+                calls.append((name, env.get("DIST")))
+                return 0, ""
+
+            with mock.patch.object(bc, "run_check", fake_run_check), \
+                 mock.patch.object(bc, "playwright_available", lambda env: True):
+                rc = bc.main(["--dist", dist, "--checks", "sideways"])
+
+            self.assertEqual(rc, 0)
+            self.assertEqual(calls, [("sideways", dist)])
+        finally:
+            shutil.rmtree(dist, ignore_errors=True)
 
 
 class Registry(unittest.TestCase):
