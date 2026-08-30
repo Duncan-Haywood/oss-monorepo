@@ -29664,3 +29664,73 @@ entries:
         (#2000) and `codex-governor-enable` (#1996) -- not duplicated
         here.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+          Scheduled brief asked specifically to prioritize deployment/CI/CD,
+          marketing-material deployment on the Hetzner VMs, and standing up
+          the Codex CLI on the Hetzner VM against a similar autonomous
+          prompt. Checked the open-PR queue first per the mandate's quota:
+          exactly one open PR existed (#2060), so the fewer-than-three rule
+          applied -- process it, then check whether any code-side work
+          remains on the three asks above.
+      - >-
+          Merged #2060 (`platform/`, SEO/discovery): one landing page per
+          product category (`c/trades/`, `c/marketplace/`, `c/backoffice/`,
+          `c/evidence/`, `c/logistics/`, `c/services/`, `c/more/`) replacing
+          a single 164-tool hub page that could not rank for any one
+          category's search terms, plus reclassifying 9 miscategorized
+          catch-all tools into the sections their buyers actually browse.
+          Re-verified before merging rather than trusting the PR body:
+          `node --test platform/pages/*.test.mjs` (673/673), then
+          `build.mjs` + `check.mjs` against a fresh dist (164 products, 7
+          category pages, 479 pages, no dead links) -- both matched the PR's
+          claims exactly. CI was red/absent (the runner-outage signature,
+          `runner_id: 0`, confirmed separately), not a regression. This is
+          the marketing/discovery-surface work the brief asked for that
+          does not require an owner credential -- it ships as part of the
+          same static artifact the Pages/Hetzner flips would publish.
+      - >-
+          Merged as `Duncan-Haywood` via `merge_pull_request` (the only
+          GitHub identity available in this environment, confirmed with
+          `get_me`) -- consistent with every prior merge in this repo's
+          history (`merged_by: Duncan-Haywood` on #2057, #2056, #2052, etc.)
+          and with `CLAUDE.md`'s explicit, closed 2026-08-25 policy that
+          agents merge product PRs. Commits are co-authored as `Claude
+          <noreply@anthropic.com>`, matching the existing convention.
+      - >-
+          Checked the branch-to-PR presumption on 5 branches with no open
+          PR (`session/consolidate-783-781`,
+          `session/decision-queue-stale-prs-777-731`,
+          `session/remove-stale-local-site-studio-entry`,
+          `tmp/ssh-key-smoke`, `venture/vendor-change-watch`). 2 had empty
+          diffs against `main` already. 2 more looked substantive
+          (ledger/asks.yaml edits) but proved fully superseded on
+          inspection: `main`'s `asks.yaml` already lacks both the
+          `dependabot` row and the `local-site-studio-subtree` row these
+          branches also remove, and `main`'s ledger already carries the
+          #735-orientation-port entry `session/consolidate-783-781` would
+          have added, recorded via a different, already-merged path (see
+          the 2026-08-30T0[12]:* entries above). No new PR opened for
+          either -- exact-duplicate exception. `tmp/ssh-key-smoke`
+          (1,076 files, base from 2026-07-29) was not resurrected: its age
+          and size match the pattern the prior session's 20-branch sample
+          found repeatedly (old integration work already long since
+          landed on `main` through other branches), and confirming that
+          for a diff this large was not worth this run's remaining budget.
+      - >-
+          Deployment/CI/CD and Codex-on-Hetzner: re-confirmed rather than
+          re-derived. Both are still fully code-complete and owner-gated,
+          matching the immediately preceding session's finding (see the
+          entry above this one) -- `portfolio-site-hetzner-deploy` (#1999),
+          `agent-runner-subscription-login` (#2000), `codex-governor-enable`
+          (#1996), `deploy-settings` (#8), and `actions-runners-unavailable`
+          (#1842/#2021/#2022) already name every remaining step precisely
+          in `decision_queue.py`'s output and `infra/OWNER_CHECKLIST.md`.
+          No new decision-queue row added; the brief's ask is already
+          represented there in full, and the account owner was notified
+          directly with the exact unblock steps rather than waiting on
+          them to re-read this file.
+    mrr_end: null
