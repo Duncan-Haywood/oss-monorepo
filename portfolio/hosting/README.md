@@ -41,9 +41,12 @@ It is not:
 The Hetzner path shares none of those three blockers: Argo syncs the
 manifest from `main` and the site is built inside the cluster, so it needs
 neither Actions nor Pages. The box is already paid for and already runs
-ingress-nginx and cert-manager. Its own remaining steps — one DNS record, a
-sealed read-only clone token, and a real ACME contact address — are listed
-in `gitops/README.md`.
+ingress-nginx and cert-manager. Its own remaining step is now **one**: a
+sealed read-only clone token, listed in `gitops/README.md`. The DNS record
+turned out to already exist (the wildcard `A/*` on `marisstella.dev` covers
+the subdomain, verified 2026-08-29), and the ACME contact stopped being a
+step on 2026-08-30 — an ACME account contact is optional, so the issuers
+ship without one rather than with a placeholder nobody could act on.
 
 This is an addition, not a replacement. If Pages is later enabled and the
 runners come back, the same `build.mjs` output serves both; `PAGES_BASE_URL`

@@ -108,8 +108,10 @@ codes as exit 42 and a rejected credential as exit 43.
 4. Fine-grained GH token (agents) + read-only deploy key (Argo).
 5. Age keypair — `bootstrap/scripts/gen-age-key.sh`. Private key stays
    offline. Public key goes in `.sops.yaml`.
-6. ACME email — replace `replace-me@duncanhaywood.dev` in
-   `gitops/platform/cert-manager/issuer.yaml`.
+6. ~~ACME email~~ — **no longer required (2026-08-30).** An ACME account
+   contact is optional, so `gitops/platform/cert-manager/issuer.yaml`
+   ships without one instead of with a placeholder. Add a real address
+   later if you want Let's Encrypt's expiry warnings; nothing waits on it.
 7. Merge this PR, then from the laptop with the **write** token:
    `tofu plan` (must not replace either server) → `tofu apply` → the
    three bootstrap scripts.
@@ -162,16 +164,22 @@ checklist used to list as step 1 does not need adding.
    `kubectl -n prod logs deploy/portfolio-site -c build` ends in
    `built … files`.
 
-2. **A real ACME contact.** Replace `replace-me@duncanhaywood.dev` in
-   `gitops/platform/cert-manager/issuer.yaml` with a mailbox that
-   exists — Let's Encrypt refuses to register the placeholder, so no
-   certificate can issue until this changes. (Same address as item 6
-   above; do it once.) Verify:
+2. ~~A real ACME contact.~~ **Removed 2026-08-30 — this is no longer an
+   owner action.** The issuers used to carry
+   `replace-me@duncanhaywood.dev` and this list said no certificate could
+   issue until it became a real mailbox. An ACME account contact is
+   optional, so `gitops/platform/cert-manager/issuer.yaml` now omits
+   `email` entirely and registers normally. Verify alongside step 1:
    `kubectl -n prod get certificate` reports `READY=True`.
 
-Steps 1–2 are all that stand between the portfolio and a live site. Once
-they land the site is reachable, on a Let's Encrypt **staging**
-certificate — browsers will warn, because staging is not a trusted root.
+   Optional, any time: add a real address back to both issuers to receive
+   Let's Encrypt expiry warnings. cert-manager updates the existing
+   account registration in place — no reissue, no downtime.
+
+**Step 1 is now the only thing standing between the portfolio and a live
+site.** Once it lands the site is reachable, on a Let's Encrypt
+**staging** certificate — browsers will warn, because staging is not a
+trusted root.
 
 3. **The issuer flip, last.** Only after a staging certificate has
    issued, change the Ingress annotation
