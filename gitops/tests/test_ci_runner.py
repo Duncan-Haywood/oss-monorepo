@@ -63,6 +63,20 @@ def test_runner_is_ephemeral() -> None:
     assert "--unattended" in script
 
 
+def test_runner_uses_a_separate_token_to_deregister() -> None:
+    # GitHub's registration-token and remove-token endpoints are distinct and
+    # not interchangeable: config.sh accepts only a registration token, and
+    # config.sh remove accepts only a remove token. Reusing the registration
+    # token for removal used to silently no-op on the abnormal-exit path
+    # (pod evicted before a job ever arrives), leaving an orphaned runner
+    # listed in the repo's runner settings.
+    script = (CI / "runner-entrypoint.sh").read_text()
+    assert "runners/${kind}-token" in script
+    assert 'fetch_token registration' in script
+    assert 'fetch_token remove' in script
+    assert 'config.sh remove --token "${reg_token}"' not in script
+
+
 def test_runner_never_logs_the_api_response() -> None:
     # A failed registration call can echo the request back, and that request
     # carries the PAT. The error path must not print the response body.
