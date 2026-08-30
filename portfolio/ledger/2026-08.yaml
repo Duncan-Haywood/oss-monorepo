@@ -33752,3 +33752,61 @@ entries:
         `python3 -m unittest` (7): all pass. GitHub Actions still down
         (runner outage, unrelated).
     mrr_end: null
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same session as the `platform` entry above (#2228, the site usage
+        signal). With the delivery path's one agent-fixable gap closed, spent
+        the rest of the run on product correctness, picking this venture for
+        having the lowest test-to-code ratio of the candidates surveyed (1970
+        lines of `calc.mjs` against 1495 of tests).
+      - >-
+        Found it by sweep rather than by reading: for every reported
+        break-even, vary the parameter it solves for, bisect the actual sign
+        change, and compare to what the code reports. That turned 2000 lines
+        of formulas into a list of disagreements in one run, and is worth
+        reusing -- the same harness applies to any calculator here that
+        reports a crossing rate.
+      - >-
+        Real bug, same class as #2220 and #2225 (a formula silently wrong
+        outside the range the existing tests happened to cover). Three
+        break-evens solving for a take rate were guarded by
+        `completed > 1e-12`, so whenever the compared path's completed sale
+        lost money they returned Infinity and the page told the seller "an
+        unreachable take rate". Two loss-making paths cross at a real rate:
+        on a $39.99 listing the true standard-vs-WFS crossing is 99.2% at $55
+        landed cost, 95.5% at $60, 93.0% at $65, 91.2% at $70 -- every one
+        printed as unreachable, and every one a rate the seller could act on.
+      - >-
+        The part worth remembering is that deleting the guard would not have
+        been the fix. The direction flips in that regime: with a negative
+        completed profit a higher take rate books more of the loss, so the
+        path is better BELOW the crossing. Reporting the number under the
+        existing "matches if take rises to" wording would have handed the
+        seller the right figure attached to backwards advice -- worse than
+        the Infinity it replaced. Shipped as a shared `takeRateCrossing()`
+        returning the rate plus a `betterBelow` flag, with the summaries
+        phrasing each regime correctly.
+      - >-
+        Also fixed two smaller wrong numbers the same sweep surfaced in
+        `compareWalmartAds`: `breakEvenAttributedOrganicPct` reported exactly
+        100% at 0% ACOS (no crossing exists there -- 120 user-visible cases),
+        and clamped an above-100% crossing down to 100, reporting a tie at
+        full attribution when ads still win there. Both now Infinity, which
+        renders as "an unreachable attribution rate".
+      - >-
+        Merged as #2231 (squash). Verified locally: venture suite 117 pass /
+        0 fail (111 before, 6 new), and -- the check that matters -- all six
+        new tests fail against the pre-fix `calc.mjs`. Each derives its
+        expected rate from `calculateListing` output by plain division rather
+        than by calling the formula under test, re-runs the comparison at the
+        reported rate to confirm the paths actually tie, and checks the sign
+        on each side to pin the direction. `build.mjs` + `check.mjs`: 168
+        products, 485 pages, no dead links. Actions still down (this PR's own
+        jobs ran 3s with `runner_id: 0`).
+      - >-
+        Left for a follow-up: `compareReturns`, `compareAgedWfs` and
+        `compareWfsBox` were swept less thoroughly than the three fixed here.
+    mrr_end: null
