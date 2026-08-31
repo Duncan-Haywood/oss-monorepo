@@ -93,6 +93,22 @@ and internal links between related tools. `platform/pages/build.mjs` derives
 most of that from each venture's own visible copy, so improve the copy and the
 metadata follows; do not hand-write a schema block beside it.
 
+One exception, because it is the only surface not derived from the tree: if
+you land a new tool, give it a launch date so it enters the Atom feed at
+`/feed.xml` —
+
+```
+node platform/pages/launched.mjs --write     # then commit launched.json
+```
+
+The feed answers "what is new" where everything else answers "what exists",
+which is what lets a reader, an aggregator, or a community's own moderators
+pick a tool up without us publishing outward. The dates are a committed file
+because the in-cluster build clones `--depth 1` and has no history to read.
+Forgetting is caught — `check.mjs` and `platform/pages/launched.test.mjs` both
+fail on an undated tool — but the failure arrives after a 23-second build, so
+run it while you are still in the venture.
+
 Two limits are absolute. Marketing claims must be true — never invent traction,
 testimonials, benchmarks, endorsements, or user counts. And never publish
 outward: no posting to communities, no submitting listings, no registering
