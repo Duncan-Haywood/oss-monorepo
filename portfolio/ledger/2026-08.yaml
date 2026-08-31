@@ -40803,3 +40803,37 @@ entries:
         session's work. Next time: pass isolation: "worktree" to the Agent
         tool for any parallel dispatch that writes to the filesystem.
     mrr_end: null
+  - venture: pressure-washing-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2565 (merged as 6b09ace61): a shareable bid link, the one
+        feature ~40 sibling itemised bid calculators (flooring, janitorial,
+        junk-removal, concrete, painting, and others) already had that this
+        venture never got. Added share.mjs (modeled on
+        flooring-bid-calculator's, surfaces travel by preset label) and
+        vendored the byte-identical proposal-terms.mjs already used by 17
+        other ventures on this path, so a copied link carries the deposit
+        percent and valid-days terms instead of silently reverting to this
+        page's defaults on the recipient's screen -- the exact bug that
+        module's own header documents from 2026-08-29 (a $2,734.07 sender
+        quote reopening as $1,640.44 for the recipient with a matching
+        headline price and nothing on either page saying so). Wired a "Copy
+        share link" button next to the existing "Copy bid summary" button;
+        a share link now wins over the starting sample surfaces on load.
+      - >-
+        Verified locally: node --test in the venture (88/88, including two
+        new files); node --test platform/proposal/term-ids.test.mjs (3/3,
+        confirms the terms module and the page wiring match what
+        adopt.mjs's panel offers); node platform/pages/clauses.mjs clean;
+        node platform/pages/build.mjs then check.mjs -- 169 products, no
+        dead links; node platform/pages/roundtrip.mjs against the built
+        dist in real headless Chromium -- "40 fields, headline $437.31"
+        round-tripped clean; a second ad-hoc Playwright pass editing the
+        wage and deposit %, copying the link, and reopening it fresh --
+        wage, headline price ($543.59 both sides), and deposit/valid-days
+        all matched, no console errors. window-cleaning-bid-calculator and
+        tree-service-bid-calculator have the same gap and were left alone
+        (one venture per session, per the working agreement).
+    mrr_end: null
