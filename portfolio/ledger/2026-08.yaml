@@ -37590,3 +37590,46 @@ entries:
         catches, and it is worth a session's caution before trusting a NOT
         SUPERSEDED verdict on a branch older than the feature it touches.
     mrr_end: null
+  - venture: platform-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2412: 168 of 184 ventures had a visible "Common questions"
+        section, but only 28 carried matching schema.org FAQPage JSON-LD, so
+        search engines and AI assistants had no structured way to surface
+        that Q&A -- the AI-discovery gap PRODUCT_PLAYBOOK.md #5e names.
+        Extracted the existing on-page Q&A text with an HTML-tree-walking
+        parser (matches the id="faq"/class="faq" container, pairs
+        heading+paragraph children in document order; falls back to a
+        heading-text search only when no such container exists) and added a
+        FAQPage block next to each page's existing SoftwareApplication
+        block, in the format the 28 already-tagged ventures use. No new
+        copy written -- every question and answer already existed on the
+        page. 135 ventures updated, 727 Q&A pairs added, 5 ventures with
+        FAQ-shaped content too thin to extract with confidence were left
+        alone rather than guessed at. Verified locally: all 135 new JSON-LD
+        blocks parse as valid JSON; all 727 extracted pairs spot-checked for
+        leftover markup / truncation / implausible length (0 anomalies);
+        build.mjs builds all 169 tools; check.mjs reports publishable, no
+        dead links; build.test.mjs 238/238; clauses.mjs confirms the
+        no-warranty clause survived on all 497 pages; check_form_defaults.py
+        and check_money_sign.py both pass. PR's own CI came back red at 3-5s
+        on every check; confirmed `runner_id: 0` starvation via
+        platform/ci/ci_starvation.py before merging on local verification.
+      - >-
+        Re-verified this session, fresh, that CI/CD, the Hetzner site
+        deploy, and the Codex-CLI-on-Hetzner worker pipeline are all still
+        exactly where prior sessions left them: fully built on main, each
+        blocked on a specific owner-only credential action documented in
+        infra/OWNER_CHECKLIST.md (seal a PAT for self-hosted Actions
+        runners + set CI_RUNNER=self-hosted; seal a read-only token for
+        gitops/prod/kustomization.yaml; create an OpenAI org with a spend
+        limit, or supply CODEX_AUTH_JSON, then flip the governor's
+        suspend:false). Confirmed live: tools.marisstella.dev unreachable,
+        latest main CI run still runner_id: 0, publish_surface.py still
+        reports nothing publishes on push to main. Nothing here had
+        changed, so no new decision-queue row was added -- reported the
+        state to the owner via the run's own notification rather than
+        re-deriving it a second time in the ledger.
+    mrr_end: null
