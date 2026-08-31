@@ -36287,3 +36287,57 @@ entries:
         reporting). No new decision-queue row added; the asks are already
         there.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Definition-of-done audit of the N-Z half of ventures/ (the A-M half
+        covered by a parallel session): found the same live discoverability
+        bug repeated across five deployed calculators.
+        where-to-sell-calculator (3 of 4 pages), reverb-fee-calculator (3 of
+        8), tiktok-shop-fee-calculator (1 of 5), shop-rate-calculator and
+        tree-service-bid-calculator (1 of 2 each) all had SEO/worked-example
+        sub-pages that were linked from the calculator, listed in
+        sitemap.xml, and carried title/meta-description/schema.org JSON-LD --
+        but shipped with zero Open Graph tags, so PRODUCT_PLAYBOOK.md 5e's
+        "Open Graph tags so a shared link renders" silently failed on every
+        one: a link to any of those nine pages posted to Slack, X, or
+        Facebook Messenger rendered as a bare URL with no title, description,
+        or preview. Added matching og:title/og:description (og:type where
+        the venture's own convention used it) to all nine pages.
+      - >-
+        Two adjacent gaps surfaced while fixing the same pages.
+        reverb-fee-calculator's should-i-take-this-reverb-offer.html --
+        linked, sitemapped, otherwise identical to its five siblings -- was
+        also missing the robots meta tag and canonical link every sibling
+        had; added both. Its should-i-take-the-return-or-refund-on-reverb.html
+        had no test at all (five of its six SEO siblings were checked against
+        calc.mjs in page.test.mjs, this one was not); verified its worked
+        example numbers ($284.33 stands / $35.03 return / $249.29 cost /
+        $261.20 break-even partial refund) against a live
+        compareReturnResolution(REVERB_DEFAULTS) call before writing the
+        regression test, so the fix records a check that was already true
+        rather than a claim.
+      - >-
+        Every fix has a regression test: an og:title/og:description assertion
+        over every *.html file in the venture (four ventures already had a
+        page.test.mjs to extend; tree-service-bid-calculator had none, so
+        page.test.mjs is new there, alongside a disclaimer/schema/sitemap
+        sanity check for the same file it was already missing).
+      - >-
+        Verified per venture, `node --test` in each directory: where-to-sell-
+        calculator 120/120 (was 119), reverb-fee-calculator 64/64 (was 61),
+        tiktok-shop-fee-calculator 81/81 (was 80), shop-rate-calculator 71/71
+        (was 70), tree-service-bid-calculator 62/62 (was 59, page.test.mjs
+        new). `node platform/pages/clauses.mjs <slug>` exit 0 on all five
+        (no-warranty clause intact on every page, before and after).
+        `python3 portfolio/router/validate.py`: all 182 VENTURE.yaml valid.
+        No calc.mjs logic changed in any venture -- these were markup/test
+        additions only, chosen after reading each calc.mjs for correctness
+        bugs and finding the arithmetic already sound and already covered.
+      - >-
+        PR CI will show red or absent (account-wide runner starvation since
+        2026-08-26, `runner_id: 0`, unrelated to this change) -- local
+        verification above is authoritative per CLAUDE.md.
+    mrr_end: null

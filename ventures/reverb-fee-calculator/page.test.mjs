@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { readdirSync } from 'node:fs';
 import {
   REVERB_DEFAULTS,
   compareOfferToList,
@@ -11,6 +12,7 @@ import {
   compareSafeShipping,
   compareConsignment,
   compareBump,
+  compareReturnResolution,
 } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -20,6 +22,7 @@ const absorbSeo = readFileSync(new URL('./should-i-eat-the-shipping-on-reverb.ht
 const safeShippingSeo = readFileSync(new URL('./should-i-buy-reverb-safe-shipping.html', import.meta.url), 'utf8');
 const consignmentSeo = readFileSync(new URL('./should-i-consign-this-reverb-listing.html', import.meta.url), 'utf8');
 const bumpSeo = readFileSync(new URL('./should-i-bump-this-reverb-listing.html', import.meta.url), 'utf8');
+const returnSeo = readFileSync(new URL('./should-i-take-the-return-or-refund-on-reverb.html', import.meta.url), 'utf8');
 
 function money(value) {
   return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
@@ -160,4 +163,51 @@ test('the bump SEO page uses the same worked example the calculator defaults pro
   assert.ok(bumpSeo.includes(money(bump.offerThatCoversBump)), `missing cover offer ${money(bump.offerThatCoversBump)}`);
   assert.ok(bumpSeo.includes(money(bump.extraSaleToCoverBump)), `missing extra sale ${money(bump.extraSaleToCoverBump)}`);
   assert.ok(bumpSeo.includes(money(bump.cashBumpSavesVsOfferIfYouReachList)), `missing list save ${money(bump.cashBumpSavesVsOfferIfYouReachList)}`);
+});
+
+// This page had no test at all until now: five of its six SEO siblings were
+// checked against calc.mjs above and this one was not, so a rate change could
+// silently leave it quoting stale numbers with nothing to notice.
+test('the return/refund SEO page uses the same worked example the calculator defaults produce', () => {
+  const comparison = compareReturnResolution(REVERB_DEFAULTS);
+  assert.match(returnSeo, /Should I take the return or refund part of it on Reverb/i);
+  assert.match(returnSeo, /href="\.\/#return-compare"|href="\.\/"/, 'the page should link back to the calculator');
+  assert.match(returnSeo, /No warranty/);
+  assert.match(returnSeo, /no SLA/i);
+  assert.ok(returnSeo.includes(money(comparison.saleStandsPosition)), `missing sale-stands profit ${money(comparison.saleStandsPosition)}`);
+  assert.ok(returnSeo.includes(money(comparison.returnPosition)), `missing return position ${money(comparison.returnPosition)}`);
+  assert.ok(returnSeo.includes(money(comparison.costOfTakingTheReturn)), `missing cost of the return ${money(comparison.costOfTakingTheReturn)}`);
+  assert.ok(returnSeo.includes(money(comparison.freightOnReturnPath)), `missing freight total ${money(comparison.freightOnReturnPath)}`);
+  assert.ok(returnSeo.includes(money(comparison.unrefundedFees)), `missing unrefunded fees ${money(comparison.unrefundedFees)}`);
+  assert.ok(returnSeo.includes(money(comparison.relistHaircut)), `missing relist haircut ${money(comparison.relistHaircut)}`);
+  assert.ok(returnSeo.includes(money(comparison.breakEvenPartialRefund)), `missing break-even partial refund ${money(comparison.breakEvenPartialRefund)}`);
+});
+
+// A page missing og:* renders as a bare link with no preview when shared —
+// PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
+// should-i-eat-the-shipping-on-reverb.html, should-i-take-the-return-or-
+// refund-on-reverb.html, and should-i-take-this-reverb-offer.html shipped
+// without them; the last of those was also missing robots/canonical entirely.
+test('every published page carries Open Graph tags', () => {
+  const dir = new URL('./', import.meta.url);
+  const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  assert.ok(pages.length >= 8, 'expected at least the 8 known pages in this venture');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
+    assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
+  }
+});
+
+test('every worked-example sub-page carries a robots meta and a matching canonical link', () => {
+  // index.html is the app shell and does not follow this convention; every
+  // "should-i-..." doc page does, and should-i-take-this-reverb-offer.html
+  // shipped without either while its five siblings had both.
+  const dir = new URL('./', import.meta.url);
+  const pages = readdirSync(dir).filter((name) => name.endsWith('.html') && name !== 'index.html');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.match(source, /<meta name="robots" content="index, follow">/, `${page} is missing a robots meta tag`);
+    assert.match(source, new RegExp(`<link rel="canonical" href="${page.replace('.', '\\.')}"`), `${page} is missing (or has a mismatched) canonical link`);
+  }
 });

@@ -19,7 +19,7 @@
 // `node --test`, matching cut-list-optimizer/page.test.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { CHANNEL_PRESETS, calculateChannel, compareChannels } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -348,6 +348,22 @@ test('a saved channel that says nothing about `enabled` is not switched on', () 
     'an absent `enabled` must be distinguished from an explicit one');
   assert.match(merge, /channel\.enabled !== false/,
     'and must fall back to the preset default');
+});
+
+// A page missing og:* renders as a bare link with no preview when shared —
+// PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
+// does-it-actually-sell-there.html, etsy-vs-ebay-fees.html, and
+// returns-change-the-ranking.html were all indexed, linked from index.html,
+// and shipped without any og:* tags at all.
+test('every published, indexable page carries Open Graph tags', () => {
+  const dir = new URL('./', import.meta.url);
+  const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  assert.ok(pages.length >= 4, 'expected at least the 4 known pages in this venture');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
+    assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
+  }
 });
 
 test('share-link copy falls back when the Clipboard API is unavailable', () => {
