@@ -459,11 +459,13 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 5 today (.mjs, .webmanifest, .csv, /sw.js, /). Bumping the
-    # number is the reminder to restate the headers in the block being added,
-    # which is the whole point of the loop below.
+    # reading this: 6 today (.mjs, .webmanifest, .csv, /sw.js, /buildinfo.txt,
+    # /). Bumping the number is the reminder to restate the headers in the
+    # block being added, which is the whole point of the loop below — and it
+    # worked: /buildinfo.txt was written with its three headers because this
+    # test refused the block without them.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 5, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 6, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 
