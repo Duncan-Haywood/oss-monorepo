@@ -414,8 +414,9 @@ cat <<EOF
             kubectl -n prod logs deploy/portfolio-site -c build | tail -1
             # ends in "built ... files"
             kubectl -n prod get certificate
-            # READY=True (on the STAGING issuer — browsers warn until the
-            # issuer flip, which is an ordinary PR, not an owner action)
+            # READY=True on letsencrypt-prod (the issuer flip landed
+            # 2026-08-31 -- this is a publicly trusted cert from the start,
+            # no browser warning and no follow-up PR to wait on)
 
     ci      kubectl -n ci get pods
             # then set CI_RUNNER=self-hosted and re-run any workflow
