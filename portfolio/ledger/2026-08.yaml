@@ -37937,3 +37937,43 @@ entries:
         `dry_run: false`) -- reported to the owner directly rather than
         re-diagnosed; no new queue rows added.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Closed out the open question from this run's earlier portfolio entry
+        above ("contrast ... was still running when this session ended ...
+        its result is unknown rather than clean"): let the axe-core WCAG 2.1
+        A/AA contrast sweep run to full completion against a fresh
+        `build.mjs` artifact -- 506 built pages (508 minus 404/offline) x 2
+        viewports (desktop 1280px, phone 390px) = 1012 checks, every one of
+        them, not a sample. `browser_checks.py --checks=contrast` alone ran
+        long enough to risk this tool's per-call ceiling, so it was split
+        into three sequential foreground chunks (each starting its own
+        `http.server` + Playwright/Chromium against a page-index slice,
+        results appended to one findings file) rather than backgrounded --
+        a backgrounded process here does not survive past the end of a
+        turn, unlike a locally-run CI job.
+      - >-
+        First pass (before pulling this run's own branch up to date) found
+        the same single violation an earlier, independent run of the full
+        `browser_checks.py` suite found: `repository-branch-hygiene`'s
+        primary button, `#2f8f6d` background under white text, 3.98:1
+        against the 4.5:1 WCAG 1.4.3 threshold (16px bold does not qualify
+        as WCAG "large text"), 2 nodes (both viewports) on 1 of 506 pages.
+        Before writing a fix, `git fetch origin main` + merge turned up that
+        this exact defect had already been fixed and merged as #2427
+        (`#2f8f6d` -> `#2a8063`, 4.81:1) by another session earlier the same
+        day -- this session's local branch was 6 commits behind. Discarded
+        the redundant local edit, merged origin/main, rebuilt from the
+        current tree, and reran the full 1012-check sweep: 0 violations.
+      - >-
+        Net: portfolio-wide WCAG 2.1 A/AA contrast is confirmed clean, for
+        real this time, across all 506 pages x 2 viewports, on the tree at
+        `ed0c83419` (main after #2427/#2440). No PR opened -- the one real
+        defect the sweep would have surfaced was already shipped by #2427
+        before this session's build ran. `check.mjs` clean throughout (169
+        products, 508 pages, no dead links); `repository-branch-hygiene`'s
+        own `page.test.mjs` (5/5) and `platform/pages` build/check unaffected.
+    mrr_end: null
