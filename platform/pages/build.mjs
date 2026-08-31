@@ -71,7 +71,9 @@ import {
   renderBidLinkModule,
 } from './link.mjs';
 import {
+  DEFAULT_EMBED_HEIGHT,
   EMBED_MODULE_FILE,
+  EMBED_QUERY_PARAM,
   EMBED_STYLE_FILE,
   injectEmbedWidget,
   renderEmbedModule,
@@ -1543,6 +1545,12 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
   const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, no upload, and no third-party analytics — the numbers a user types never leave their device, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
 
+  // A stand-in slug, not a real one: naming an actual tool here would go stale
+  // the day that tool is renamed, and every real snippet is already generated,
+  // correctly, on that tool's own page (`injectEmbedWidget` in embed.mjs) — this
+  // is illustrating the one shape that snippet always takes, not replacing it.
+  const embedSample = `<iframe src="${baseUrl}<tool-slug>/?${EMBED_QUERY_PARAM}=1" style="width:100%;max-width:820px;border:0;min-height:${DEFAULT_EMBED_HEIGHT}px" loading="lazy"></iframe>`;
+
   const aboutLd = {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
@@ -1692,6 +1700,25 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         Please do not describe these as certified, audited, guaranteed, or as
         professional advice — they are none of those things, and saying so
         would mislead the person you are recommending them to.
+      </p>
+
+      <h2>Embedding a tool on your own page</h2>
+      <p>
+        Every one of the ${total} tools here can be framed on someone else's
+        page — a trade association's resource page, a supplier's blog post, a
+        forum's sidebar. Open any tool and scroll to the bottom for a
+        ready-made, copyable snippet built from that page's own address and
+        title; there is nothing to write by hand. It always takes this shape:
+      </p>
+      <p class="boiler">${escapeHtml(embedSample)}</p>
+      <ul>
+        <li><strong>Same arithmetic, same disclaimer.</strong> The framed page is the calculator's own page, not a stripped-down copy, so it keeps the tool's full working and its liability notice.</li>
+        <li><strong>Links back.</strong> A framed tool swaps its own site-wide navigation for one line linking back to the full page here, so a visitor can always reach the rest of the site.</li>
+        <li><strong>Adds nothing.</strong> No script, cookie, or request is added by embedding — the framed page runs the same client-side arithmetic described above, on the host's page instead of this one.</li>
+        <li><strong>${DEFAULT_EMBED_HEIGHT}px is a starting height</strong>, not a fit for every form; most hosts adjust it once the embed is on the page.</li>
+      </ul>
+      <p>
+        This needs no permission and no message to us first.
       </p>
 
       <h2>For crawlers and assistants</h2>
