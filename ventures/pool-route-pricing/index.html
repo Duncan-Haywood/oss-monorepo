@@ -68,7 +68,14 @@ function update(count=false){try{
   }
   saveDraft(inputs);
   if(count&&!counted){recordEvent('estimate');counted=true}
-}catch(e){el('price').textContent=e.message}}
+}catch(e){
+  // A rejected input (a negative number, non-numeric text) must not leave the
+  // last valid route price on screen next to a silent failure -- a visitor
+  // who misses the one-line message in #price could read the stale figures
+  // as the answer for the inputs now in the form. Clear every derived field,
+  // including the optional "at your current price" box.
+  el('price').textContent=e.message;el('revenue').textContent='';el('hours').textContent='';el('labor').textContent='';el('chemicals').textContent='';el('overheadResult').textContent='';el('cost').textContent='';el('currentBox').hidden=true;el('currentRevenue').textContent='';el('currentProfit').textContent='';el('currentMargin').textContent='';el('currentVerdict').textContent='';
+}}
 FIELD_IDS.forEach(id=>el(id).addEventListener('input',()=>update(true)));
 el('usage').addEventListener('click',()=>{toggleUsage(false);el('usageStatus').textContent=' Counting is off in this browser.'});
 if(!usageAllowed())el('usageStatus').textContent=' Counting is off in this browser.';
