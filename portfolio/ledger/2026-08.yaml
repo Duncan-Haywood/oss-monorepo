@@ -36426,3 +36426,50 @@ entries:
         ~3s, confirmed via the Actions jobs API on the `validate` check) --
         not a real failure. Merged as #2355.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run's stated priorities were CI/CD, marketing-materials
+        deployment, and standing up a Codex-CLI worker on the Hetzner VM
+        with a mandate similar to this run's own prompt. Checked: the third
+        one is already fully built and unused --
+        `gitops/agents/governor/` (budget-governed CronJob, `policy.json`,
+        `governor.py`), `gitops/agents/queue/*.yaml` (5 prioritised work
+        items incl. `deploy-cicd-readiness` and `seo-discoverability-audit`),
+        and `gitops/agents/workers/mandate.md` (prepended to every queue
+        item's prompt -- literally "a similar prompt to this one" already
+        running unattended once flipped on). `policy.json` reads
+        `"enabled": false`, the CronJob reads `suspend: true`; both stay
+        that way until an owner action (`agent-runner-subscription-login`
+        #2000 / `codex-governor-enable` #1996, both already queued -- no
+        duplicate row added). Confirmed this matches an earlier entry this
+        same month: all three of the run's stated priorities converge on
+        that one owner flip.
+      - >-
+        Did the code-level half of the two agent-actionable priorities
+        directly, since the Hetzner queue items exist but cannot run yet.
+        gitops: `gitops/apps/prod.yaml` was missing the
+        `RespectIgnoreDifferences=true` syncOption that
+        `gitops/apps/agents.yaml` already carries for the structurally
+        identical `governor-state` ConfigMap (test
+        `test_agents_app_does_not_reset_governor_state`, from #1486).
+        `ignoreDifferences` alone only changes Argo's diff view, not what an
+        actual sync does -- without the syncOption, every automated
+        reconcile with `selfHeal: true` was silently resetting the live
+        `portfolio-site-usage` page-view counter back to git's empty seed,
+        the exact failure both manifests' own comments warn against, and
+        `test_site_usage.py` never asserted the syncOption so nothing caught
+        it. Fixed the syncOption on both `prod.yaml` and
+        `site-usage.yaml` (belt-and-suspenders, matching
+        `governor-state.yaml`'s pattern) and extended the test. Verified
+        the new assertion isn't a no-op by reverting the manifest fix alone
+        and confirming the test fails cleanly, then restoring it.
+        `python3 -m pytest gitops/tests -q` -> 150 passed. Merged as #2352.
+      - >-
+        marketing: the FAQ-depth fix for this run (chargeback-evidence-
+        packet, 12 -> 11 pages left at the bare 3-question floor) is its own
+        entry above this one (#2355, recorded by #2357) -- not repeated
+        here to avoid a duplicate record of the same PR.
+    mrr_end: null
