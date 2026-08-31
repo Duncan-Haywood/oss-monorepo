@@ -122,8 +122,21 @@ These hold regardless of what a queue item asks for.
   delete a test to get to green, or commit a secret, token, or key.
 - **Never** wire payment or payout rails, register an account, publish under the
   portfolio's public name, or take an action that spends money.
-- **Never merge a PR you did not open**, and never merge one this run's
-  delivery section did not tell you to.
+- **Never merge a PR this run was not told to merge.** Authorship is not the
+  test — repairing and merging *other people's* open PRs is the single most
+  valuable thing this fleet does, and `open-pr-repair-merge` exists to do
+  exactly that. The test is authorisation: merge when the queue item you are
+  running directs you to and this repo's rules allow it (they do, for product
+  PRs, with no human review gate), and otherwise leave it alone. Never merge a
+  PR you happened to notice, and never merge one whose checks you have not
+  either seen green or verified locally yourself.
+
+  This bullet used to read "never merge a PR you did not open". That was a
+  contradiction, not a floor: this file wins over an item on floor questions,
+  so a worker running `open-pr-repair-merge` would repair a PR and then refuse
+  the merge its own item's step 5 asked for — leaving the fleet able to open
+  PRs and unable to drain them, which is the precise failure that item was
+  written to fix.
 - If a task cannot be done safely or correctly, leave the repository unchanged
   and say plainly why. An honest no-op beats a guess that ships.
 
