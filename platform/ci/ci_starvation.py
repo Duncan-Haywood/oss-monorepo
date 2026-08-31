@@ -36,6 +36,28 @@ distinction lives on the owner's billing page.
 The fix does not depend on knowing which one it is: self-hosted runners are not
 metered and restore CI either way. See `gitops/ci/README.md`.
 
+## How it reaches the Actions API
+
+Three routes, tried in that order, because the sessions that most need this
+tool are the ones least likely to have the first one:
+
+  1. **The `gh` CLI**, if it is on PATH. What a laptop has.
+  2. **Direct HTTPS** to `api.github.com` with `GH_TOKEN` or `GITHUB_TOKEN`.
+     This is the route that matters. Claude-on-the-web sessions — where the
+     scheduled routines that read this repository's CI actually run — have no
+     `gh` CLI at all, so until 2026-08-31 the tool `CLAUDE.md` names as *the*
+     way to tell starvation from a real failure exited 2 with "the gh CLI is
+     not installed" in exactly that environment. It has a token and a route to
+     the API; it only lacked the twelve lines below.
+  3. **`--from-json`**, a saved API payload (or `-` for stdin), for a session
+     with neither: read the jobs with whatever GitHub access it does have (the
+     MCP `list_workflow_jobs` tool, say) and hand the JSON over. The verdict is
+     computed from the payload, so this route needs no credential of its own.
+
+Route 2 needs to know which repository to ask about, which route 1 got for
+free from the local git remote. `--repo owner/name`, `GITHUB_REPOSITORY`, and
+that same git remote are tried in order.
+
 Exit status: 0 if every job examined ran on a real runner, 1 if any was
 starved, 2 on a usage or API error. So `if ci_starvation.py --run $ID; then`
 reads as "these results are worth believing".
@@ -43,12 +65,23 @@ reads as "these results are worth believing".
 
 import argparse
 import json
+import os
+import re
+import shutil
 import subprocess
 import sys
+import urllib.error
+import urllib.request
 from datetime import datetime
 
 STARVED = "starved"
 RAN = "ran"
+
+API_ROOT = "https://api.github.com/"
+
+# `gh api` expands this from the local git remote. The HTTPS route has no such
+# context, so it substitutes the resolved repository itself.
+REPO_PLACEHOLDER = "{owner}/{repo}"
 
 # A job GitHub never scheduled reports this runner id. The field is absent on
 # some job shapes (very old runs), which is not the same as zero, so a missing
@@ -154,34 +187,177 @@ def gh_api(path):
     return json.loads(proc.stdout)
 
 
+def git_remote_repo():
+    """`owner/name` from the origin remote, or None if it cannot be read.
+
+    Handles both remote spellings git uses here: `https://github.com/o/n.git`
+    and `git@github.com:o/n.git`.
+    """
+    try:
+        proc = subprocess.run(
+            ["git", "remote", "get-url", "origin"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    except OSError:
+        return None
+    if proc.returncode != 0:
+        return None
+
+    match = re.search(r"github\.com[/:]([^/]+/[^/]+?)(?:\.git)?/*$", proc.stdout.strip())
+    return match.group(1) if match else None
+
+
+def resolve_repo(explicit=None, env=None):
+    """Which repository the HTTPS route should ask about.
+
+    Explicit flag, then `GITHUB_REPOSITORY` (set inside Actions), then the git
+    remote. Raises rather than guessing: asking the wrong repository would
+    return a clean 404 that reads like a deleted run.
+    """
+    env = os.environ if env is None else env
+    repo = explicit or env.get("GITHUB_REPOSITORY") or git_remote_repo()
+    if not repo:
+        raise RuntimeError(
+            "cannot tell which repository to ask about; pass --repo owner/name "
+            "or set GITHUB_REPOSITORY"
+        )
+    if repo.count("/") != 1:
+        raise RuntimeError(f"--repo must be owner/name, got {repo!r}")
+    return repo
+
+
+def api_token(env=None):
+    """The first usable token, or None. `GH_TOKEN` wins, as it does for gh."""
+    env = os.environ if env is None else env
+    for name in ("GH_TOKEN", "GITHUB_TOKEN"):
+        value = (env.get(name) or "").strip()
+        if value:
+            return value
+    return None
+
+
+def http_api_for(repo, token, opener=urllib.request.urlopen):
+    """An api(path) callable that talks to api.github.com directly.
+
+    Bound to one repository and one token so the returned callable has the same
+    one-argument shape as `gh_api` and stays substitutable in tests.
+    """
+
+    def call(path):
+        url = API_ROOT + path.replace(REPO_PLACEHOLDER, repo).lstrip("/")
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/vnd.github+json",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "User-Agent": "ci-starvation",
+            },
+        )
+        try:
+            with opener(request) as response:
+                return json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            # 404 here usually means the token cannot see this repository
+            # rather than that the run is gone, so say both.
+            detail = f"HTTP {exc.code}"
+            if exc.code == 404:
+                detail += " (run not found, or the token cannot read this repo)"
+            elif exc.code in (401, 403):
+                detail += " (token rejected or lacking Actions: read)"
+            raise RuntimeError(f"GET {url} failed: {detail}") from exc
+        except urllib.error.URLError as exc:
+            raise RuntimeError(f"GET {url} failed: {exc.reason}") from exc
+
+    return call
+
+
+def jobs_from_payload(payload):
+    """Normalise whatever shape a saved Actions payload arrived in.
+
+    `/actions/runs/<id>/jobs` returns `{"jobs": [...]}`; `/actions/jobs/<id>`
+    returns one job object; some tools hand over a bare list. All three are the
+    same question, so accept all three rather than making the caller reshape.
+    """
+    if isinstance(payload, dict):
+        if "jobs" in payload:
+            return payload["jobs"]
+        return [payload]
+    if isinstance(payload, list):
+        return payload
+    raise ValueError("expected a job object, a list of jobs, or {'jobs': [...]}")
+
+
+def read_json_file(path):
+    if path == "-":
+        return json.load(sys.stdin)
+    with open(path, encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def choose_api(args, env=None, has_gh=None):
+    """Pick the API route, or explain why none is available.
+
+    Order is gh, then HTTPS, because `gh` needs no repository resolution and is
+    already authenticated wherever it is installed.
+    """
+    env = os.environ if env is None else env
+    if has_gh is None:
+        has_gh = shutil.which("gh") is not None
+    if has_gh:
+        return gh_api
+
+    token = api_token(env)
+    if token:
+        return http_api_for(resolve_repo(args.repo, env=env), token)
+
+    raise RuntimeError(
+        "no route to the Actions API: the gh CLI is not installed and neither "
+        "GH_TOKEN nor GITHUB_TOKEN is set. Either install gh, export a token "
+        "with Actions: read, or fetch the jobs with whatever GitHub access you "
+        "do have and pass the payload to --from-json (see the module docstring)"
+    )
+
+
 def fetch(args, api=gh_api):
-    repo = "repos/{owner}/{repo}"
+    repo = f"repos/{REPO_PLACEHOLDER}"
     if args.run:
         return api(f"{repo}/actions/runs/{args.run}/jobs").get("jobs", [])
     return [api(f"{repo}/actions/jobs/{args.job}")]
 
 
-def main(argv=None, api=gh_api):
+def main(argv=None, api=None):
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("job", nargs="?", help="a job id")
     parser.add_argument("--run", help="a run id; classifies every job in it")
     parser.add_argument("--json", action="store_true", help="machine-readable")
+    parser.add_argument(
+        "--repo",
+        help="owner/name for the HTTPS route (default: GITHUB_REPOSITORY, "
+        "then the origin remote)",
+    )
+    parser.add_argument(
+        "--from-json",
+        dest="from_json",
+        metavar="PATH",
+        help="classify a saved Actions jobs payload instead of calling the API "
+        "('-' reads stdin)",
+    )
     args = parser.parse_args(argv)
 
-    if not args.job and not args.run:
-        parser.error("give a job id, or --run with a run id")
+    if not args.from_json and not args.job and not args.run:
+        parser.error("give a job id, --run with a run id, or --from-json")
 
     try:
-        rows = report(fetch(args, api=api))
-    except (RuntimeError, ValueError, json.JSONDecodeError) as exc:
+        if args.from_json:
+            jobs = jobs_from_payload(read_json_file(args.from_json))
+        else:
+            jobs = fetch(args, api=api or choose_api(args))
+        rows = report(jobs)
+    except (RuntimeError, ValueError, OSError, json.JSONDecodeError) as exc:
         print(f"error: {exc}", file=sys.stderr)
-        return 2
-    except FileNotFoundError:
-        print(
-            "error: the gh CLI is not installed; this needs it to reach the "
-            "Actions API",
-            file=sys.stderr,
-        )
         return 2
 
     print(json.dumps(rows, indent=2) if args.json else render(rows))
