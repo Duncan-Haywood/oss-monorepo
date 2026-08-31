@@ -36652,3 +36652,32 @@ entries:
         cleanly with install links for the two missing tools. Nothing here
         needed a code change; the unblock is unchanged and owner-only.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        A second, differently-shaped run of the same owner ask (prioritise
+        CI/CD, Hetzner deployment, marketing/discoverability, and
+        Codex-on-included-quota) landed minutes after the entry above, so
+        rather than re-deriving the same conclusion this pass looked for a
+        check nobody had actually run yet. Found one: `platform/pages/sweep.mjs`
+        loads every published tool in a real headless browser and exercises
+        its primary action, which is a materially different test from the
+        direct-function fuzzing the previous entry recorded -- it also
+        catches markup that swallows its own `<script>`, a JS error on load,
+        or a compute button wired to nothing. It had never been run against
+        the current tree (not referenced by any workflow, and the repo has
+        no root `package.json` pulling in `playwright` for it to import).
+        Ran it anyway against a fresh `build.mjs --out=` build served over
+        `python3 -m http.server`, using this environment's pre-installed
+        Chromium (`CHROME_PATH=/opt/pw-browsers/chromium`, no download):
+        169/169 tools answered with no page or console errors on a 390x844
+        viewport. Re-confirmed the three owner asks unchanged from the entry
+        above: CI still 5+ days runner-starved (`runner_id: 0`), the
+        Hetzner site and the Codex worker both fully built and waiting on
+        the same sealed secrets in `infra/OWNER_CHECKLIST.md`. Zero open
+        PRs and no unmerged branch with unique work existed at the start of
+        this run, so the mandatory PR-drain quota was met trivially. Nothing
+        here needed a code change.
+    mrr_end: null
