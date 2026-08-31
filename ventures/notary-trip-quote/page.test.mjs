@@ -25,3 +25,21 @@ test('the page imports the non-throwing wrapper, not the raw calculator', () => 
 test('an error slot exists for a rejected figure to render into', () => {
   assert.match(html, /id="quoteError"/);
 });
+
+test('a rejected figure hides the stale total and clears the breakdown instead of leaving them next to a silent error', () => {
+  // Before this fix, update() only toggled #quoteError on a rejected input --
+  // #total, #breakdown, and #minimumNote kept showing the *last valid* quote
+  // right next to the error text. A visitor could easily miss the one-line
+  // error and mistake the still-displayed total for the answer to the
+  // invalid inputs now on screen.
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const script = scriptMatch[1];
+  const errorBranch = script.match(/if\(!q\.ok\)\{([\s\S]*?)return null\}/);
+  assert.ok(errorBranch, 'update() error branch not found');
+  const body = errorBranch[1];
+  assert.match(body, /errorNode\.hidden\s*=\s*false/, 'the error message is never shown');
+  assert.match(body, /totalEl\.hidden\s*=\s*true/, 'the stale total is not hidden on a rejected input');
+  assert.match(body, /getElementById\('breakdown'\)\.innerHTML\s*=\s*''/, '#breakdown keeps its stale value instead of being cleared');
+  assert.match(body, /getElementById\('minimumNote'\)\.textContent\s*=\s*''/, '#minimumNote keeps its stale value instead of being cleared');
+});
