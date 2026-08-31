@@ -37977,3 +37977,50 @@ entries:
         products, 508 pages, no dead links); `repository-branch-hygiene`'s
         own `page.test.mjs` (5/5) and `platform/pages` build/check unaffected.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled product-first run. PR queue was empty (0 open, confirmed via
+        both `list_pull_requests` and `search_pull_requests`), so the
+        mandatory merge-3-PRs gate was met vacuously; the 5 non-`main` remote
+        branches with no open PR were checked and none carried unmerged
+        value (`tmp/ssh-key-smoke` is a divergent one-shot CI probe branch,
+        `venture/vendor-change-watch`'s single commit is an empty no-op, and
+        the other three are week-old ledger/decision-queue bookkeeping
+        commits already superseded by later entries in this same file and
+        by the current `decision_queue.py` output) -- no new PRs opened for
+        them.
+      - >-
+        Checked the specific ask this run was given: get Codex CLI running
+        unattended on the Hetzner box against its included subscription
+        quota, plus prioritize deployment/CI/CD and shipped marketing
+        material. All three are already fully built and correctly queued,
+        not missing: `gitops/agents/` (a budget-governed governor CronJob,
+        RBAC, and worker) and `ventures/ubuntu-agent-server` (an ansible
+        agent-runner using a `codex login` subscription credential -- the
+        literal "spend the built-in quota" shape) both exist, are tested,
+        and are gated behind owner-only credential steps already recorded
+        as `codex-governor-enable` (#1996) and `agent-runner-subscription-login`
+        (#2000) in `decision_queue.py`. The Hetzner portfolio-site deploy is
+        similarly one sealed read-only clone token away
+        (`portfolio-site-hetzner-deploy` / #1999, `infra/OWNER_CHECKLIST.md`).
+        `python3 -m pytest gitops/tests/ -q`: 160 passed. No duplicate asks
+        added -- the queue was already accurate.
+      - >-
+        Shipped the marketing/product slice: delegated a survey of all 184
+        ventures' on-page H1 vs. tagline (this repo's SEO/structured-data
+        pipeline -- JSON-LD, FAQ schema, related-tool links, no-SLA clause --
+        is already mature and mostly complete elsewhere) and picked
+        `npm-deployment-evidence`, a real working tool with a flat,
+        value-free headline. Rewrote the H1 and added one honest FAQ entry
+        (yarn/pnpm lockfiles are not supported) to both the visible FAQ and
+        its matching JSON-LD block. Verified: venture's own 21/21 tests,
+        `faq-coverage.mjs`/`faq-duplicate.mjs`/`clauses.mjs` clean, both
+        JSON-LD blocks re-parsed valid, `platform/pages/build.mjs` (169
+        products, 508 pages) and `check.mjs` (no dead links) clean, and the
+        one pre-existing unrelated `faq-visible.test.mjs` failure
+        (`translator-project-quote`) confirmed already on `main` before this
+        change via `git stash`. Merged as PR #2442 (squash, `e063790`).
+    mrr_end: null
