@@ -35654,3 +35654,58 @@ entries:
         before pushing. Merged squash after local verification, no
         reviewer available (Actions still down).
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start, so the three-PR merge quota was
+        vacuous rather than skipped. Shipped #2317 instead, which retires a
+        word that had been costing every session real time: `CLAUDE.md`
+        called the since-2026-08-26 red-CI condition "the runner outage".
+        An outage is something you wait out, so roughly thirty ledger
+        entries -- including the three immediately preceding this one --
+        record a session re-deriving the same `runner_id: 0` signature and
+        moving on. It is an account-level Actions ceiling and it will not
+        pass on its own: clean cliff at the last green run
+        (2026-08-26T22:41:49Z), all 218 workflows including ones touching no
+        code, private repo under a user account.
+      - >-
+        New and worth not repeating: the run-timing API cannot measure this.
+        `/actions/runs/<id>/timing` reports a billable `total_ms` of 0 for
+        this repository *even on a pre-cliff run that genuinely held a
+        runner for 99 seconds*, so it cannot attribute burn per workflow,
+        and any minute or dollar figure derived from it is fiction. That
+        includes the "~37,000 min / ~$300 per month" cost note inside
+        `.github/workflows/claude-routine-trigger.yml`, which is an estimate
+        its author wrote rather than a reading -- now labelled as one, so
+        nobody disables that workflow on the strength of it. Which ceiling
+        was hit (included minutes, spending limit, payment, Actions off) is
+        only visible on the owner's billing page.
+      - >-
+        Shipped `platform/ci/ci_starvation.py`, replacing the two hand-run
+        `gh api` JSON one-liners `CLAUDE.md` carried. Hand-running them is
+        where it goes wrong in both directions: reading a starved job as a
+        real failure and "fixing" green code (four PRs on 2026-08-27), or
+        reading a real fast failure as starvation and merging something
+        broken. It decides on `runner_id` alone -- duration and an empty
+        output body are reported but never vote, since a real job can fail
+        in three seconds. Verified against both live cases: today's starved
+        `validate` job (`runner_id: 0`, 4s, no steps) exits 1; the last
+        green job before the cliff (`runner_id: 1000027517`, 95s, 38 steps)
+        exits 0. Local verification, Actions being unable to run any of it:
+        `platform/ci` 138 tests pass (16 new), all 218 workflow files valid,
+        both CLI error paths exit 2. Merged squash after local verification,
+        no reviewer available.
+      - >-
+        The docs now tell a session to report the unblock rather than
+        re-diagnose: `gitops/ci/` already holds the self-hosted runner
+        stack, all 218 workflows already read `vars.CI_RUNNER`, and
+        self-hosted minutes are not metered, so it restores CI whichever
+        ceiling was hit. Still two owner actions no agent can take -- seal
+        the runner PAT via `./bootstrap/scripts/seal-owner-secrets.sh` and
+        set `CI_RUNNER` = `self-hosted`. Zero `*.sealed.yaml` files exist in
+        `gitops/`, so the site, CI, and the Codex worker are all still dark
+        behind that one command. Pushed to the owner by notification rather
+        than only recorded here, since no prior ledger entry has moved it.
+    mrr_end: null
