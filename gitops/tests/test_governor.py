@@ -255,13 +255,14 @@ def test_delivery_reaches_the_worker_and_the_real_items_own_theirs() -> None:
     env = {e["name"]: e["value"] for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]}
     assert json.loads(env["QUEUE_ITEM_JSON"])["delivery"] == "agent"
 
-    # All five real items own delivery themselves -- four open their own PR
+    # All six real items own delivery themselves -- five open their own PR
     # and merge it, and open-pr-repair-merge pushes to a branch it did not
     # create -- so the harness must not also fold and open one.
     for name in (
         "open-pr-repair-merge.yaml",
         "branch-pr-drain.yaml",
         "deploy-cicd-readiness.yaml",
+        "marketing-distribution.yaml",
         "seo-discoverability-audit.yaml",
         "product-feature-improvement.yaml",
     ):
@@ -276,6 +277,35 @@ def test_minimal_yaml_reads_prompt_block() -> None:
     assert item.enabled is False
     assert item.id == "example-do-not-run"
     assert "Do not run" in item.prompt
+
+
+def test_marketing_distribution_queue_item_is_real_and_bounded() -> None:
+    # The queue's only item about how anyone *finds* the site.
+    # seo-discoverability-audit improves how a page reads to a crawler that
+    # already found it; nothing before this worked on reach, and for a
+    # brand-new domain those run on different clocks.
+    #
+    # The assertions below are the safety boundary, not style. The mandate's
+    # two absolute limits for this kind of work are that claims must be true
+    # and that an agent never publishes outward -- putting the portfolio's
+    # name on a public forum, directory or account is the owner's call and is
+    # already in the decision queue. A marketing item is the one most likely
+    # to drift across that line, and the drift would be discovered by
+    # somebody seeing the post, so pin it here instead.
+    text = (AGENTS / "queue" / "marketing-distribution.yaml").read_text()
+    raw = g._minimal_yaml_mapping(text)
+    item = g.queue_item_from_dict(raw)
+    assert item.id == "marketing-distribution"
+    assert item.enabled is True
+    assert item.repo == "Duncan-Haywood/monorepo-projects"
+    assert item.delivery == "agent"
+    prompt = item.prompt.lower()
+    assert "never publish" in prompt
+    assert "must be true" in prompt
+    # An asset that deploys, not a campaign document -- the failure mode this
+    # item shares with every "do marketing" brief ever written.
+    assert "do not produce a marketing plan" in prompt
+    assert "merge it yourself" in prompt
 
 
 def test_product_feature_improvement_queue_item_is_real_and_enabled() -> None:
@@ -332,6 +362,7 @@ def test_no_real_queue_item_leaves_open_prs_to_nobody() -> None:
             "open-pr-repair-merge.yaml",
             "branch-pr-drain.yaml",
             "deploy-cicd-readiness.yaml",
+            "marketing-distribution.yaml",
             "seo-discoverability-audit.yaml",
             "product-feature-improvement.yaml",
         )
@@ -389,16 +420,21 @@ def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_the
     # every tick, so only `branch-pr-drain` could ever run and the other three
     # were unreachable. Landing existing branch/PR work still comes first --
     # it opens every window; deploy-cicd-readiness.yaml's own header comment
-    # puts it "below branch-pr-drain (5), because landing work that already
-    # exists still comes first, and above the two content items" -- fixing
-    # discoverability metadata and open-ended feature work are cheaper and
-    # more bounded than keeping the delivery path code-complete, so they
-    # must stay behind it. `open-pr-repair-merge` then sits above even
-    # branch-pr-drain: a branch that already has an open PR is further along
-    # than one without, so it is the cheaper thing to finish, and it is the
-    # only kind of work that gets more expensive by being left alone. This
-    # pins that five-way ordering against an accidental priority edit to any
-    # one item.
+    # puts it "below branch-pr-drain (6), because landing work that already
+    # exists still comes first, and above the three content and distribution
+    # items" -- fixing discoverability metadata, shipping a distribution
+    # asset, and open-ended feature work are all cheaper and more bounded
+    # than keeping the delivery path code-complete, so they must stay behind
+    # it. `open-pr-repair-merge` then sits above even branch-pr-drain: a
+    # branch that already has an open PR is further along than one without,
+    # so it is the cheaper thing to finish, and it is the only kind of work
+    # that gets more expensive by being left alone.
+    #
+    # `marketing-distribution` slots between delivery and SEO: a distribution
+    # asset for a site nobody can reach yet is worth less than the path that
+    # makes it reachable, but worth more than another metadata pass over
+    # backlogs that both report full coverage. This pins that six-way
+    # ordering against an accidental priority edit to any one item.
     items = {
         raw["id"]: raw["priority"]
         for raw in (
@@ -407,6 +443,7 @@ def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_the
                 "open-pr-repair-merge.yaml",
                 "branch-pr-drain.yaml",
                 "deploy-cicd-readiness.yaml",
+                "marketing-distribution.yaml",
                 "seo-discoverability-audit.yaml",
                 "product-feature-improvement.yaml",
             )
@@ -416,6 +453,7 @@ def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_the
         items["open-pr-repair-merge"]
         > items["branch-pr-drain"]
         > items["deploy-cicd-readiness"]
+        > items["marketing-distribution"]
         > items["seo-discoverability-audit"]
         > items["product-feature-improvement"]
     )

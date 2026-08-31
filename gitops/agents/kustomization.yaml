@@ -26,6 +26,7 @@ configMapGenerator:
       - open-pr-repair-merge.yaml=queue/open-pr-repair-merge.yaml
       - branch-pr-drain.yaml=queue/branch-pr-drain.yaml
       - deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml
+      - marketing-distribution.yaml=queue/marketing-distribution.yaml
       - seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml
       - product-feature-improvement.yaml=queue/product-feature-improvement.yaml
 generatorOptions:
