@@ -40652,3 +40652,45 @@ entries:
         JSON after the copy edit. `build_pages_site.py --check`: no
         problems portfolio-wide.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Worked the deploy-cicd-readiness queue item. Audited the delivery
+        path against its four candidate categories: `kustomize build` (all
+        six gitops/ namespaces) plus `kubeconform -strict` came back clean
+        (51 valid, 0 invalid); `python3 -m pytest gitops/tests -q` passed
+        185/185; the workflow-runner-switch test already confirms all 220
+        workflows route through `vars.CI_RUNNER` except the two documented
+        Docker-dependent exceptions; and `decision_queue.py` shows the
+        remaining blockers (clone-token seal, `CI_RUNNER`, governor flip)
+        are already correctly flagged owner-only. Several concurrent
+        sessions today (#2551, #2541, #2532, #2545, #2473) had already
+        picked the delivery path clean of behavior-affecting defects in
+        those four categories -- found none myself either.
+      - >-
+        What I did find, cross-checking `portfolio-site.yaml`'s own header
+        comments against `infra/OWNER_CHECKLIST.md`: six gitops/ files
+        still said the site serves 164 or 168 tools, while
+        `OWNER_CHECKLIST.md`, `portfolio-apex.yaml` and
+        `deploy-cicd-readiness.yaml`'s own prompt already correctly said
+        169 (OWNER_CHECKLIST.md records this was re-verified 2026-08-31 by
+        actually running the build). Re-ran `platform/pages/build.mjs`
+        myself against that day's `main` (bef8b3376) and got 169 tools /
+        508 HTML pages, confirming "169" is current and "164"/"168" were
+        stale by several ventures shipped since those comments were
+        written. Fixed all six (gitops/README.md,
+        gitops/agents/queue/README.md, gitops/prod/portfolio-site.yaml
+        twice, gitops/prod/site-usage.yaml, gitops/prod/usage/aggregate.py,
+        a test comment in test_seal_owner_secrets.py) -- comment-only,
+        no manifest field or test assertion changed. Merged as #2558.
+        A concurrent session found and fixed the same class of stale-comment
+        drift in landing.yaml the same run (#2557) -- independent
+        confirmation this was the right category to be looking in once the
+        four behavior-affecting categories came up empty.
+      - >-
+        Verified: `pytest gitops/tests -q` 185 passed (before and after);
+        `kustomize build` + `kubeconform -strict` clean on the edited tree
+        too; `pyflakes` on the one touched .py file clean.
+    mrr_end: null
