@@ -215,6 +215,13 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_run_workflow_locally
 
+      # And the tool that says whether a red check ran at all. Same reason:
+      # it is what a session reaches for when CI comes back red, so it must
+      # not be the thing that is broken.
+      - name: CI-starvation classifier unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_ci_starvation
+
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
       # the page's own handler never runs and the button silently does nothing.
