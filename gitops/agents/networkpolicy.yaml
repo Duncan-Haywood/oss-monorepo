@@ -5,6 +5,18 @@
 # github.com + api.openai.com + npm + Debian; the enforceable control
 # here is "443 and DNS, no kube-api for workers". FQDN lock-down needs
 # Cilium and is a follow-up PR.
+#
+# Both DNS rules below are scoped `to: kube-system` (where CoreDNS actually
+# runs), the same way gitops/ci/networkpolicy.yaml already scopes the
+# actions-runner's DNS egress. Until this file matched that, the rule read
+# `ports: [{53, UDP}, {53, TCP}]` with no `to:` at all — which in
+# NetworkPolicy semantics means "port 53 to any destination", not "DNS
+# lookups", the same gap #2562 closed for this file's port-443 rule (see
+# `test_worker_egress_cannot_reach_the_kube_apiserver` below). A pod that can
+# reach the internet on 443 anyway does not gain a new destination from this
+# — DNS resolution still only needs CoreDNS — but an unscoped port-53 egress
+# is a live exfiltration channel in its own right (DNS tunneling), which the
+# 443 restriction does nothing to close.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -26,7 +38,11 @@ spec:
   policyTypes:
     - Egress
   egress:
-    - ports:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
@@ -52,7 +68,11 @@ spec:
     - Ingress
   ingress: []
   egress:
-    - ports:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
         - protocol: UDP
           port: 53
         - protocol: TCP
