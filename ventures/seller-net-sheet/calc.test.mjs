@@ -143,3 +143,34 @@ test("formats an offer comparison that names the cash gap, not a recommendation"
   assert.match(text, /higher offer is not always more cash/i);
   assert.doesNotMatch(text, /accept offer/i);
 });
+
+test("does not claim a winning offer has 'extra concessions' it does not have", () => {
+  // Offer A: higher price AND lower costs than B (0% commission vs. 6%).
+  // The old price-direction heuristic said "the extra price more than
+  // covers its extra concessions" here, inventing concessions A never made.
+  const comparison = compareOffers(
+    { loanPayoff: 0 },
+    { salePrice: 300000, listingRate: 0, buyerBrokerRate: 0 },
+    { salePrice: 250000, listingRate: 6, buyerBrokerRate: 0 },
+  );
+  assert.equal(comparison.better, "a");
+  const text = formatOfferComparison(comparison);
+  assert.doesNotMatch(text, /extra concessions/i);
+  assert.match(text, /Offer A nets \$65,000\.00 more, with a \$50,000\.00 higher price and \$15,000\.00 lower payoff and selling costs than Offer B\./);
+});
+
+test("offer comparison narrative matches net exactly: price gap minus cost gap", () => {
+  const comparison = compareOffers(
+    shared,
+    { salePrice: 425000, buyerBrokerRate: 2.5, concessionFlat: 8000 },
+    { salePrice: 417000, buyerBrokerRate: 0, concessionFlat: 0 },
+  );
+  const winner = comparison.better === "a" ? comparison.a : comparison.b;
+  const loser = comparison.better === "a" ? comparison.b : comparison.a;
+  const priceDiff = winner.salePrice - loser.salePrice;
+  const deductionDiff = (winner.loanPayoff + winner.sellingCosts) - (loser.loanPayoff + loser.sellingCosts);
+  near(winner.net - loser.net, priceDiff - deductionDiff, "net gap equals price gap minus cost gap");
+  const text = formatOfferComparison(comparison);
+  assert.match(text, /lower price/);
+  assert.match(text, /lower payoff and selling costs/);
+});
