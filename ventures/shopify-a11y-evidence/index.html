@@ -20,7 +20,17 @@
   <script type="module">
     import { buildReport, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
     let latest = null; const input = document.querySelector('#input'); const reportEl = document.querySelector('#report');
-    document.querySelector('#generate').addEventListener('click', () => { try { latest = buildReport(JSON.parse(input.value)); reportEl.textContent = reportAsText(latest); document.querySelector('#stats').textContent = `${latest.counts.violations} violation rules, ${latest.counts.nodes} affected nodes, ${latest.counts.passes} passing rules, ${latest.counts.incomplete} needing review`; document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) { document.querySelector('#error').textContent = error.message; } });
+    document.querySelector('#generate').addEventListener('click', () => { try { latest = buildReport(JSON.parse(input.value)); reportEl.textContent = reportAsText(latest); document.querySelector('#stats').textContent = `${latest.counts.violations} violation rules, ${latest.counts.nodes} affected nodes, ${latest.counts.passes} passing rules, ${latest.counts.incomplete} needing review`; document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) {
+      // Invalid or non-axe JSON must not leave the last valid evidence
+      // record on screen next to a silent failure -- a visitor who misses
+      // the error line could read the stale report as the record for the
+      // JSON just pasted in, and Download/Copy would hand out that same
+      // stale record if `latest` were left set.
+      latest = null;
+      reportEl.textContent = 'Your report will appear here.';
+      document.querySelector('#stats').textContent = 'No report generated yet.';
+      document.querySelector('#error').textContent = error.message;
+    } });
     document.querySelector('#download').addEventListener('click', () => { if (!latest) return; const blob = new Blob([reportAsText(latest)], { type: 'text/plain' }); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `accessibility-evidence-${latest.date}.txt`; link.click(); URL.revokeObjectURL(link.href); });
     document.querySelector('#copy').addEventListener('click', async () => { if (!latest) return; try { await navigator.clipboard.writeText(reportAsText(latest)); document.querySelector('#copy').textContent = 'Copied'; setTimeout(() => { document.querySelector('#copy').textContent = 'Copy record'; }, 1500); recordUsage(localStorage, document.querySelector('#optout').checked, 'report_copied'); } catch { document.querySelector('#error').textContent = 'Copy is unavailable. Use Download .txt instead.'; } });
   </script>
