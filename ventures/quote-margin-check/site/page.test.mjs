@@ -152,6 +152,14 @@ test("sitemap and robots advertise the cost-rise page", async () => {
   assert.match(robots, /Sitemap: sitemap\.xml/);
 });
 
+test("calculator page declares a canonical URL in both link and Open Graph form", async () => {
+  // A share card built only from og:title/og:description has no URL of its
+  // own, so the two must agree rather than only the <link> carrying it.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(page, /<link rel="canonical" href="\." \/>/);
+  assert.match(page, /<meta property="og:url" content="\." \/>/);
+});
+
 test("effective-rate guide matches calculator defaults and carries disclaimers", async () => {
   const page = await readFile(new URL("./effective-hourly-rate.html", import.meta.url), "utf8");
   const index = await readFile(new URL("./index.html", import.meta.url), "utf8");

@@ -70,6 +70,12 @@ export function quoteCsv(quote, report, extras = {}) {
     ["break_even_price", money(report.break_even_price), currency],
     ["effective_hourly_rate", money(report.effective_hourly_rate), perHour],
     ["target_price", money(report.target_price), currency],
+    // The buffered target price is meaningless to whoever opens the file
+    // without the buffer that produced it, so the input and the buffered hours
+    // travel with it. Every other row's inputs are already recoverable from
+    // the rows above.
+    ["time_buffer_percent", money(quote.time_buffer_percent), "percent"],
+    ["buffered_hours", hours(report.buffered_hours), "hours"],
     ["buffered_target_price", money(report.buffered_target_price), currency],
     ["gap_to_target", money(report.gap_to_target), currency],
     ["cost_coverage", money(report.cost_coverage), currency],
