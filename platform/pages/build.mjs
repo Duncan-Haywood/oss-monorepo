@@ -90,7 +90,7 @@ const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
 
 // Ventures whose public surface is not at one of the standard paths.
 const ENTRY_OVERRIDES = {
-  // Five electronics calculators behind their own hub page.
+  // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
 };
 
