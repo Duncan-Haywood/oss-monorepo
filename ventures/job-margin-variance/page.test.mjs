@@ -63,6 +63,32 @@ test('robots and sitemap let crawlers find both pages', () => {
   assert.match(sitemap, /why-did-my-job-cost-more-than-i-estimated\.html/);
 });
 
+test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
+  const html = page('index.html');
+  // Before this fix, a rejected input (a negative number, non-numeric text)
+  // overwrote only the currency headline with the error sentence and left
+  // every other figure -- estimated/actual costs, cost variance, labor
+  // variance, largest movement -- showing the last valid calculation. A
+  // visitor could easily miss the one-line error and read those stale
+  // numbers as the answer for what is now on screen.
+  assert.match(html, /id="errors"[^>]*role="alert"/, 'a dedicated, announced error region is missing');
+  const scriptMatch = html.match(/<script type="module">([\s\S]*)<\/script>/);
+  assert.ok(scriptMatch, 'app script not found');
+  const script = scriptMatch[1];
+  const catchBlock = script.match(/}catch\(e\)\{([\s\S]*?)\n}}ids\.forEach/);
+  assert.ok(catchBlock, 'update() catch block not found');
+  const body = catchBlock[1];
+  assert.match(body, /headline\.hidden\s*=\s*true/, 'the headline is not hidden on a rejected input');
+  for (const id of ['headlineLabel', 'estimated', 'actual', 'costVariance', 'laborVariance', 'largest']) {
+    assert.match(
+      body,
+      new RegExp(`getElementById\\('${id}'\\)\\.textContent\\s*=\\s*''`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+  assert.match(body, /errorsEl\.hidden\s*=\s*false/, 'the error message is never shown');
+});
+
 test('the worked example the page ships with actually computes', async () => {
   const { calculate } = await import('./calc.mjs');
   const markup = page('index.html');
