@@ -37141,3 +37141,49 @@ entries:
         (`runner_id: 0`, no steps) rather than treating red as a real
         failure. Merged as #2385 on local verification.
     mrr_end: null
+  - venture: einvoice-preflight
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Audited einvoice-preflight's VAT-checksum logic (vat.mjs) for a
+        real correctness bug per the standing pattern, checking several
+        other ventures first (foundation-repair-bid-calculator,
+        change-order-margin-calculator, cam-reconciliation-check,
+        freight-accessorial-auditor, booth-rent-vs-commission,
+        delivery-app-margin-calculator, epoxy-garage-floor-bid-calculator,
+        retaining-wall-bid-calculator, solar-pv-bid-calculator,
+        fence-bid-calculator) and finding their arithmetic already correct
+        and well-tested.
+      - >-
+        Found and fixed #2387: the Dutch VAT elfproef (11-proof) checksum
+        weighed the ninth (check) digit at +1 instead of -1. Confirmed the
+        real algorithm (weights 9..2 on the first eight digits, -1 on the
+        ninth, sum divisible by 11) against an external source
+        (github.com/MrLuit/elfproef) before touching the code. The bug
+        meant the tool -- whose one job is catching a typo'd VAT number
+        before an invoice goes out -- rejected genuinely valid Dutch VAT
+        numbers outright (e.g. the standard NL123456782B01 example: real
+        sum 154, divisible by 11 and valid; buggy sum 158, read as
+        invalid) while mis-scoring typo'd ones by the same wrong formula.
+        The existing "valid" NL test fixture (NL010000003B01) turned out
+        not to be checksum-valid under the real elfproef either -- it only
+        passed because the +1 bug happened to accept it.
+      - >-
+        This repo ships two parallel implementations of the same checks --
+        vat.mjs (browser) and src/einvoice_preflight/vat.py (a pip
+        package) -- both carried the identical bug and both were fixed,
+        with the fixture swapped to a genuinely valid number
+        (NL123456782B01) and a dedicated valid/invalid pin test added to
+        both suites.
+      - >-
+        Verified: `node --test *.test.mjs` in the venture, 227/227 passing.
+        `PYTHONPATH=src python3 -m pytest tests/`, 333 passed / 48
+        subtests passed. Disclaimer text and usage tracking in index.html
+        untouched.
+      - >-
+        CI came back red on all 7 jobs (~2-3s each); confirmed starvation
+        via `platform/ci/ci_starvation.py --run 33368512296`
+        (`runner_id: 0`, no steps) rather than treating red as a real
+        failure. Merged as #2387 on local verification.
+    mrr_end: null
