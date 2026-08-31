@@ -38204,3 +38204,52 @@ entries:
         bug class in `subscription-price-impact`, #2452, no file overlap)
         before merging. Merged (squash) as #2453, `34bec5b1d`.
     mrr_end: null
+  - venture: subscription-price-impact
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged #2452: same class of bug already fixed this month in
+        job-margin-variance (#2446) and notary-trip-quote (#2450) -- render()'s
+        catch branch overwrote only the percentage headline with the error
+        sentence and left the subhead, both revenue figures, revenue change,
+        break-even subscribers, and the whole churn-scenario table showing the
+        last valid calculation next to an easy-to-miss error. Added a
+        dedicated `role="alert"` error region; the catch branch now hides the
+        headline and clears every derived field, and the success path restores
+        them. Verified: `node --test` 18/18 in
+        ventures/subscription-price-impact (10 new). CI showed all-red checks;
+        confirmed starvation rather than a real failure via
+        `platform/ci/ci_starvation.py --run 33396563648` (`runner_id: 0`, 3s,
+        no steps) before merging. Squash-merged as #2452, `f921482a9`.
+      - >-
+        Only one open PR existed at session start; merging it satisfied the
+        three-PR quota (fewer than three open -> process all of them). Checked
+        the five non-`claude/*`-prefixed remote branches for unopened work:
+        `session/decision-queue-stale-prs-777-731` has no commits beyond
+        `main`; `session/cleanup-2026-08-24` and
+        `session/remove-stale-local-site-studio-entry` are single ledger-only
+        commits, out of scope under this repo's product-first/anti-admin-queue
+        rule; `tmp/ssh-key-smoke` and `venture/vendor-change-watch` both branch
+        from a `main` snapshot many hundreds of files behind current `main` --
+        diffing either against current `main` reverts unrelated work across
+        the whole portfolio (workflow files, platform/pages/*, more), so
+        opening a PR from either as-is would not be a safe merge candidate.
+        Did not attempt to triage the ~150 auto-named `claude/*` session
+        branches; that volume of individual branch review is disproportionate
+        admin work under this repo's product-first direction and was not
+        the highest-value use of the session.
+      - >-
+        Re-confirmed, per an explicit ask this session for CI/CD, Hetzner
+        deployment, marketing-material deployment, and an autonomous Codex CLI
+        setup on the Hetzner box: all of this is already built and code-complete
+        (`gitops/ci/`, `gitops/agents/governor/`, `gitops/agents/queue/*.yaml`,
+        `ventures/ubuntu-agent-server/`), and blocked purely on four owner-only
+        actions already queued in `portfolio/ledger/decision_queue.py`
+        (`actions-runners-unavailable` #10, `agent-runner-subscription-login`
+        #11, `codex-governor-enable` #12, `portfolio-site-hetzner-deploy` #13)
+        -- an interactive `codex login`, sealing two Kubernetes secrets, and a
+        repo variable/Settings toggle, none of which a session can perform.
+        Matches the prior session's #2307/portfolio-entry finding above;
+        added nothing new to the queue per the no-duplicate-asks rule.
+    mrr_end: null
