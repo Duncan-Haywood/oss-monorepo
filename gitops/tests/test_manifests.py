@@ -314,6 +314,34 @@ def test_governor_save_state_create_path_has_the_rbac_verb_it_needs() -> None:
     assert grants_create, role["rules"]
 
 
+def test_worker_egress_cannot_reach_the_kube_apiserver() -> None:
+    # Regression: worker-egress's HTTPS rule used to be `ports: [{443}]` with
+    # no `to:`, which in NetworkPolicy semantics means "port 443 to any
+    # destination" -- not the "no kube-api for workers" this file's top
+    # comment, and a line inside this same policy, both claimed. 10.43.0.1
+    # (the k3s default `kubernetes` Service, i.e. the API server) listens on
+    # :443 and sat inside that unrestricted range the whole time -- a worker
+    # pod could open a TCP connection to it.
+    # automountServiceAccountToken: false on the codex-worker ServiceAccount
+    # meant nothing could be *done* with a connection that reached it, but the
+    # network route existed anyway: the wall was half-built and half-described.
+    # Same `except` list gitops/ci/networkpolicy.yaml already uses for the
+    # identical problem on the actions-runner pods -- see test_ci_runner.py's
+    # test_runner_cannot_reach_the_cluster.
+    docs = list(yaml.safe_load_all((AGENTS / "networkpolicy.yaml").read_text()))
+    policy = next(
+        d for d in docs if d and d["kind"] == "NetworkPolicy" and d["metadata"]["name"] == "worker-egress"
+    )
+    https_rules = [r for r in policy["spec"]["egress"] if r.get("ports") == [{"protocol": "TCP", "port": 443}]]
+    assert len(https_rules) == 1, https_rules
+    to = https_rules[0].get("to")
+    assert to, "the 443 egress rule has no `to:` -- it allows any destination"
+    internet = to[0]["ipBlock"]
+    assert internet["cidr"] == "0.0.0.0/0"
+    for blocked in ("10.42.0.0/16", "10.43.0.0/16", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16"):
+        assert blocked in internet["except"], blocked
+
+
 def test_root_tracks_main_of_this_repo() -> None:
     root = yaml.safe_load((ROOT / "root.yaml").read_text())
     assert root["spec"]["source"]["repoURL"].endswith("Duncan-Haywood/monorepo-projects.git")
