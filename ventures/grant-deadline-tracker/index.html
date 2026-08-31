@@ -387,18 +387,18 @@
       $("lateReport").dataset.note = lateReportNote(comparison);
       if (count) countUsage("late_report_compared");
     } catch (error) {
-      // A rejected input (spent over award, a clawback over 100%) must not
-      // leave the last valid comparison on screen next to a silent failure
-      // -- a visitor who misses the message could read the stale cash-at-risk,
-      // writer cost, kept amount, comparison rows, or board note as the
-      // answer for the invalid inputs now in the form.
+      // A rejected input (a negative number, non-numeric text) must not leave
+      // the last valid comparison on screen next to a small error line -- that
+      // reads as if the stale cash-at-risk figures and path table still answer
+      // the inputs now in the form. Clear every derived field and show the
+      // message only in its own region.
+      $("riskMessage").textContent = error.message;
       $("riskAtRisk").textContent = "";
       $("riskWriterCost").textContent = "";
       $("riskKept").textContent = "";
-      $("riskRows").innerHTML = "";
+      $("riskRows").innerHTML = '<tr><td colspan="4" class="empty">Compare the three paths to see whether a writer still pays.</td></tr>';
       $("riskNote").textContent = "";
       $("lateReport").dataset.note = "";
-      $("riskMessage").textContent = error.message;
     }
   }
 

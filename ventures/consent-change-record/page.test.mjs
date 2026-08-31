@@ -5,16 +5,23 @@ import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const scriptSource = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
 
-test('a rejected trace clears the stale review record instead of leaving it next to the error', () => {
-  // Before this fix, the compare click handler's catch block nulled `latest`
-  // (so Download could not hand out stale data) and set #error, but left the
-  // #report <pre> showing the previous comparison's review record. A
-  // visitor who missed the one-line error could read that stale report as
-  // the record for the traces now pasted into the form.
-  const catchMatch = scriptSource.match(/catch \(error\) \{([\s\S]*?)\n\s*\} \}\);/);
-  assert.ok(catchMatch, 'the compare click handler catch block was not found');
-  const body = catchMatch[1];
-  assert.match(body, /latest = null/, 'latest is not invalidated, so Download could still hand out a stale record');
-  assert.match(body, /report\.textContent = /, '#report keeps its stale review record instead of being reset');
-  assert.match(body, /document\.querySelector\('#error'\)\.textContent = error\.message/, 'the error message is never shown');
+test('an invalid input clears the stale report instead of leaving it next to a silent error', () => {
+  // Before this fix, invalid JSON (or a cross-site before/after pair) set the
+  // #error text but left the previous comparison's report showing in #report,
+  // and `latest` still pointed at that stale comparison -- so Download report
+  // would ship a report for traces that no longer match the textareas.
+  const clickHandler = scriptSource.match(/addEventListener\('click', \(\) => \{ try \{([\s\S]*?)\n {4}\} \}\);/);
+  assert.ok(clickHandler, 'the #compare click handler was not found');
+  const body = clickHandler[1];
+  const catchBlock = body.match(/\} catch \(error\) \{([\s\S]*)$/);
+  assert.ok(catchBlock, 'catch block not found inside the click handler');
+  const catchBody = catchBlock[1];
+  assert.match(catchBody, /latest\s*=\s*null/, '`latest` is not reset, so Download could still ship a stale report');
+  assert.match(catchBody, /report\.textContent\s*=\s*''/, '#report keeps its stale value instead of being cleared on a rejected input');
+  assert.match(catchBody, /error\.message/, 'the error message is never shown');
+});
+
+test('the page still ships its disclaimer and no-warranty text', () => {
+  assert.match(html, /No warranty\./);
+  assert.match(html, /id="error" class="error" role="alert"/);
 });

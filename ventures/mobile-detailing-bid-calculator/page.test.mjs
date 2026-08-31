@@ -156,6 +156,29 @@ test('the page handles an unreachable target instead of printing a negative pric
   assert.match(scriptSource, /unreachable/, 'no unreachable-target message found in the page script');
 });
 
+test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
+  // Before this fix, a rejected input (a negative number, non-numeric text)
+  // overwrote only the dollar hero (#contribution) with the error sentence
+  // and left every other figure -- caption, travel cost, direct costs,
+  // payment fee, break-even, effective hourly, whole-stop hours, loaded
+  // labor, effective rate, claim hint, and the target-quote line -- showing
+  // the last valid calculation. A visitor could easily miss the message and
+  // read those stale figures as the answer for what is now on screen.
+  assert.match(markup, /id="errors"[^>]*role="alert"/, 'a dedicated, announced error region is missing');
+  const catchBlock = scriptSource.match(/catch\(error\) \{([\s\S]*?)\n {4}\} \}/);
+  assert.ok(catchBlock, 'update() catch block not found');
+  const body = catchBlock[1];
+  assert.match(body, /el\('contribution'\)\.hidden\s*=\s*true/, 'the hero is not hidden on a rejected input');
+  for (const id of ['caption', 'travelCost', 'directCosts', 'paymentFee', 'breakEven', 'effectiveHourly', 'totalHours', 'loadedLaborRate', 'laborCost', 'effectiveRate', 'claimHint', 'targetQuote']) {
+    assert.match(
+      body,
+      new RegExp(`el\\('${id}'\\)\\.textContent\\s*=\\s*''`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+  assert.match(body, /el\('errors'\)\.hidden\s*=\s*false/, 'the error message is never shown');
+});
+
 test('the form names the fee-plus-margin claim as the user types', () => {
   assert.match(scriptSource, /claimNote/, 'the page does not render the live claim hint');
   assert.match(scriptSource, /claim_conflict_shown/, 'the first conflict should be counted once');

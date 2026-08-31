@@ -26,12 +26,12 @@
     import { compareTraces, reportAsText } from './calc.mjs'; import { recordUsage } from './usage.mjs';
     let latest = null; const report = document.querySelector('#report');
     document.querySelector('#compare').addEventListener('click', () => { try { latest = compareTraces(JSON.parse(document.querySelector('#before').value), JSON.parse(document.querySelector('#after').value)); report.textContent = reportAsText(latest); document.querySelector('#error').textContent = ''; recordUsage(localStorage, document.querySelector('#optout').checked); } catch (error) {
-      // A rejected trace (invalid JSON, a cross-site pair) must not leave the
-      // last valid review record on screen next to a silent failure -- a
-      // visitor who misses the error line could read the stale report as the
-      // record for the traces now pasted in. `latest` is already nulled so
-      // Download cannot hand out the stale record either.
-      latest = null; report.textContent = 'Your report will appear here.'; document.querySelector('#error').textContent = error.message;
+      // A rejected input (invalid JSON, a cross-site trace pair) must not leave
+      // the last valid report on screen next to a small error line -- that
+      // reads as if the stale diff still answers the traces now pasted in.
+      // Clear the report and null out `latest` so Download can't ship a
+      // report for traces that no longer match what is in the textareas.
+      latest = null; report.textContent = ''; document.querySelector('#error').textContent = error.message;
     } });
     document.querySelector('#download').addEventListener('click', () => { if (!latest) return; const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([reportAsText(latest)], {type:'text/plain'})); link.download = 'consent-change-record.txt'; link.click(); URL.revokeObjectURL(link.href); });
   </script>

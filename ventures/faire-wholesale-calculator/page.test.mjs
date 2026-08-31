@@ -201,3 +201,27 @@ test("retailer page renders landed cost, unsold units, and target retail price",
   assert.match(script, /result\.roi/);
   assert.match(script, /retailPriceForMargin/);
 });
+
+test("a rejected input clears the order-summary figures, not just the compare/lifetime sections", () => {
+  // Before this fix, update()'s catch block wrote the error message into
+  // #profit/#label and cleared the comparison table, lifetime table, and
+  // every scenario section below -- but never touched the seven <dd> lines
+  // (order subtotal, commission, processing, payout, cash out, margin, ROI)
+  // right above them. A negative unit price, a discount at or above 100%, or
+  // any other rejected input left those seven figures showing the *last
+  // valid* order next to the error message, easy to misread as the answer
+  // for what is now in the form. Same bug class fixed in job-margin-variance
+  // (#2446), notary-trip-quote (#2450), subscription-price-impact (#2452),
+  // and retainage-cashflow-calculator (#2453).
+  const script = brandParsed.scripts.join("\n");
+  const catchBlock = script.match(/}\s*catch \(error\) \{([\s\S]*?)\n {6}\}\n {4}\}/);
+  assert.ok(catchBlock, "update() catch block not found");
+  const body = catchBlock[1];
+  for (const id of ["subtotal", "commission", "processing", "payoutAmount", "cash", "margin", "roi"]) {
+    assert.match(
+      body,
+      new RegExp(`field\\("${id}"\\)\\.textContent = ""`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+});

@@ -38314,3 +38314,193 @@ entries:
         present on `main` with full content, so no unique unshipped work.
         Opened no branch-recovery PRs.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Zero open PRs at session start.** Per the branch-to-PR presumption,
+        spent the quota-drain phase sampling ~35 of the ~170 PR-less remote
+        branches sitting ahead of `main` (this repo squash-merges, so
+        `git branch --no-merged` never clears on its own) rather than the
+        handful prior sessions sampled. Checked each with
+        `supersede_check.py` plus a targeted grep for the branch's core
+        function/field name in `main`'s current file before investing in a
+        conflict resolution. Result: all but one were already superseded,
+        several by same-named functions on `main`
+        (`compareFeeScenarios` in no-show-fee-calculator,
+        `stockCost`/`totalCost` in cut-list-optimizer, `encodeQuote`/
+        `decodeQuote` in quote-margin-check, `downloadReport` in
+        real-estate-agent-photo-app) that a pure line-diff scan reads as
+        unique content because the wording differs. This corroborates, with
+        a larger sample, what `claude/clever-bohr-rcp8ih` (15 branches),
+        `claude/codex-governor-ask-and-queue-drain-report` (9 branches) and
+        the branch-cleanup-automation decision-queue row (608 branches vs 6
+        open PRs, "~99% landed-or-abandoned noise") already found — and,
+        checking those three ledger branches themselves before writing this
+        entry, all three were themselves already superseded (byte-identical
+        tree to a merge of each), meaning their findings already reached
+        `main` by some other route. This portfolio's PR-less-branch backlog
+        is a well-mined, not an unmined, vein; a session hitting the 3-PR
+        quota from this source alone should expect roughly 1 real find per
+        30-40 branches checked, not budget for exhaustive triage.
+      - >-
+        The one genuine find, `cursor/janitorial-draft-persistence-20260825`,
+        was merged as #2459 after resolving 5 additive conflicts (main had
+        grown project/shift/periodic-service rows since the branch was cut).
+        It should not have been: closer reading after merge found this
+        venture already had a more complete save/restore/share-link system
+        (`share.mjs`'s `saveBid`/`restoreBid` keyed by `BID_SPEC`, extended
+        to cover every row type on 2026-08-27, two days after the branch was
+        written but before this session merged it). The two persistence
+        layers collided on page load -- the newly-merged code unconditionally
+        re-added every area row `restoreBid()` had already restored,
+        duplicating rows for any returning visitor, and a shared bid link
+        opened on a browser with its own prior draft would have the sender's
+        numbers silently overwritten by the recipient's stale local draft.
+        Caught before this session ended and fixed in #2461 (removed the
+        redundant layer entirely; its scope was a strict subset of what
+        `BID_SPEC` already persisted, so nothing of value was lost).
+        Generalizes the "branch predates a `main` feature under a different
+        name" trap this entry's supersession notes already describe, to a
+        form `supersede_check.py` and a same-function-name grep both miss:
+        a *differently-shaped* duplicate mechanism solving the same job.
+        Lesson for future sessions merging a "let me persist/restore X"
+        branch: grep the target file for existing save/restore/share
+        infrastructure before merging, not just for a same-named function.
+      - >-
+        Re-verified, per an explicit owner ask this session for CI/CD,
+        Hetzner deployment, deployed marketing materials, and an autonomous
+        Codex CLI setup using the ChatGPT-plan built-in quota: unchanged from
+        every prior session's finding back to at least 2026-08-29 -- all of
+        it is code-complete and blocked purely on owner-only actions already
+        named in `portfolio/ledger/decision_queue.py` rows 10-13
+        (`actions-runners-unavailable`, `agent-runner-subscription-login`,
+        `codex-governor-enable`, `portfolio-site-hetzner-deploy`) and row 8
+        (`deploy-settings`, GitHub Pages). Added nothing new to the queue per
+        the no-duplicate-asks rule; the precise unblock steps for each are
+        already typed out there and in `infra/OWNER_CHECKLIST.md`.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Full census, not another sample.** Briefed to review every PR-less
+        branch and open/merge PRs for at least three with unique work. Zero
+        open PRs at session start. `git fetch --unshallow`, then classified
+        all 296 remote branches: 175 carry commits `main` lacks
+        (`git rev-list --count origin/main..<branch>`). Rather than sampling
+        another 15-35 as the three prior drain sessions did (`claude/clever-
+        bohr-rcp8ih`, `claude/codex-governor-ask-and-queue-drain-report`, and
+        #2462's same-day pass), checked all 175: triple-dot diff against
+        `main` per branch, a same-feature grep in `main`'s current files for
+        anything that read as new, and a portfolio-wide scan for any
+        `ventures/<slug>` directory in any of the 175 that does not exist on
+        `main` at all (the strongest signal a branch could hold a genuinely
+        unmerged product). Result: zero. Every branch's unique content is
+        already on `main`, generally with substantially more built on top
+        (e.g. a branch's `priceToMatchProfit` on eBay-fee or `loadedLaborRate`
+        on mobile-detailing, verbatim, plus features the branch never had).
+        The two directories the venture-scan did flag (`mat-470-real-
+        analysis`, `range-coach`) belong to `tmp/ssh-key-smoke` and `cursor/
+        saas-seat-true-up-20260824`, both already named by prior sessions as
+        unsafe bases (unrelated-history snapshot; bot commit against the
+        wrong working tree) rather than product candidates. Opened no
+        branch-recovery PRs; merging any would have deleted newer `main`
+        content, not added to it.
+      - >-
+        This closes the loop #2462 left open ("expect ~1 real find per 30-40
+        branches, do not budget for exhaustive triage") by actually running
+        the exhaustive pass and reporting what it costs: a full census over
+        175 branches, using diffstat plus a directory-existence scan rather
+        than per-branch supersede_check.py runs, found nothing beyond what
+        four independent partial samples already found. Worth recording so a
+        future session does not re-open this same "maybe the untouched 120
+        hide something" question -- they do not, as of this commit. The
+        stale-branch count itself is unchanged by this session (no branch was
+        deleted or merged); `branch-cleanup.yml` already exists on `main` to
+        do that but is capability-gated, per its own test suite.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed 0 open PRs and no branches with unique unshipped work this
+        run (checked `origin/claude/optimistic-heisenberg-iaisd4` itself too:
+        0 commits ahead of `main`). PR-drain quota met vacuously.
+      - >-
+        Re-confirmed, per an explicit ask this session for CI/CD, Hetzner
+        deployment, marketing-material deployment, and an autonomous Codex CLI
+        setup on the Hetzner box: unchanged from the prior same-day finding
+        (recorded just above) -- all of it is already built and code-complete,
+        blocked purely on the same four owner-only actions already queued in
+        `decision_queue.py` (#10 actions-runners-unavailable, #12
+        codex-governor-enable, #13 portfolio-site-hetzner-deploy). Actions API
+        spot-check (`Portfolio validate` on `main`) still shows every run
+        failing in ~4s -- unchanged. Added nothing new to the queue.
+      - >-
+        Shipped and merged #2464: swept all 163 ventures for the
+        stale-results-on-rejected-input bug class that 5+ prior sessions had
+        each found and fixed one instance of at a time (job-margin-variance
+        #2446, notary-trip-quote #2450, subscription-price-impact #2452,
+        retainage-cashflow-calculator #2453) without anyone sweeping the rest
+        of the fleet. A throwaway scanner (try block writes >=2 result
+        targets, catch block clears <=1) found exactly 8 remaining genuine
+        instances -- no false positives -- across
+        hvac-maintenance-contract-calculator, consent-change-record,
+        grant-deadline-tracker, mobile-detailing-bid-calculator,
+        music-lesson-break-even, pool-route-pricing, saas-seat-true-up, and
+        shopify-a11y-evidence. Two of the eight (consent-change-record,
+        shopify-a11y-evidence) had the sharper variant where a stale `latest`
+        variable let Download/Copy hand out a report for input no longer in
+        the textareas, not just a stale on-screen number. Fixed all 8 with the
+        established pattern (dedicated announced error region, clear every
+        derived field on catch, restore on success) and a regression test per
+        venture. Re-ran the scan afterward: 0 remaining candidates in the
+        fleet.
+      - >-
+        Verified before merge (Actions still runner-starved account-wide,
+        confirmed via a live API check this session, not just cited from a
+        prior one): `node --test` independently re-run in all 8 fixed
+        ventures (37+24+12+63+14+33+18+54 = 255 tests, 0 failures);
+        portfolio-wide `node platform/pages/build.mjs` + `check.mjs` run
+        twice (once pre-rebase, once post-rebase onto a `main` that had moved
+        3 commits in the interim) -- both times 169 products, 508 pages, no
+        dead links; full `platform/pages/*.test.mjs` suite, 790 pass.
+    mrr_end: null
+  - venture: faire-wholesale-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged #2465: same stale-output bug class fixed one venture at a
+        time this month (job-margin-variance #2446, notary-trip-quote
+        #2450, subscription-price-impact #2452,
+        retainage-cashflow-calculator #2453, and a same-day 8-venture fleet
+        sweep #2464 that did not happen to include this one).
+        `update()`'s catch block wrote the error message into
+        `#profit`/`#label` and cleared the comparison table, lifetime
+        table, and every scenario section below (Open House, Promoted
+        Listings, Faire return, Pay Now, payout speeds) -- but never
+        touched the seven `<dd>` lines directly above them: order
+        subtotal, commission + first-order fee, payment processing, Faire
+        payout, cash out, net margin, and ROI. A rejected input (a
+        negative unit price, a brand-funded discount at or above 100%,
+        percentage fees summing to 100% or more) left those seven figures
+        showing the *last valid* order right next to the error message.
+        Added a page.test.mjs regression test that inspects the catch
+        block for each field's clear statement; confirmed it fails
+        against the pre-fix code and passes after. Verified: `node --test`
+        107/107 in ventures/faire-wholesale-calculator (was 106), a live
+        Chromium pass (Playwright against /opt/pw-browsers) confirming the
+        default worksheet still matches the README's worked example
+        ($75.90 profit, 38.0% margin, 79.9% ROI) and that a 150% commission
+        rate now clears all seven fields instead of leaving them stale,
+        and the portfolio-wide `build.mjs`/`check.mjs` pair clean (169
+        products, 508 pages, no dead links). CI showed the account-wide
+        runner-starvation signature (`runner_id: 0`, confirmed via
+        `ci_starvation.py`), not a real failure. Merged (squash) as
+        #2465, `20e2cc1ff`.
+    mrr_end: null
