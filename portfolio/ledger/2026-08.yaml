@@ -38571,3 +38571,65 @@ entries:
         still worth doing if reliability work continues on this bug class,
         rather than trusting either scanner's exit code alone.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start, so the three-PR quota was satisfied by
+        an empty queue. Rather than re-confirm the owner-gated deploy/CI-CD/
+        Codex asks a fourth session running (the last entry already says they
+        are unchanged), ran the browser suite for evidence and found two
+        defects in the suite itself. Both are the same shape and both are now
+        fixed: a gate that does not open is a gate nobody uses.
+      - >-
+        **#2470 — exit 2 was being reported as a failure.** All seven checks in
+        `platform/pages/` already exit 1 for a defect found and 2 for "nothing
+        was verified"; `browser_checks.py` collapsed both into
+        `FAILED (exit N)` and returned 1. The dependency that is not Playwright
+        is `axe-core`, which belongs to `contrast` — the WCAG check — so on any
+        machine without it the run said `1 of 6 checks failed: contrast`. That
+        is a missing npm package dressed as an accessibility regression, and it
+        is exactly the "absent CI is not failed CI" conflation CLAUDE.md spends
+        three paragraphs on, living in this repo's own tooling. It cost this
+        session a wrong first read before the cause was found. The runner now
+        classifies ok/skip/fail, exits 2 when something did not run, says so
+        explicitly rather than under "all checks passed", and keeps a timeout
+        (124, invented by `run_check`) a failure. It also now discovers
+        `axe-core` and Playwright in `NODE_PATH`, the repo, `platform/pages/`
+        and the global npm root — mirroring `discover_chrome` — so the
+        `PLAYWRIGHT=$(npm root -g)/...` prefix is no longer needed here.
+      - >-
+        **#2471 — `highlight.mjs` was never in `CHECKS`.** Written 2026-08-29,
+        referenced in the runner's own comments and the pages README, and
+        invoked by nothing: a session running "the browser checks" ran six of
+        the seven and was not told which it had missed. It is the only check
+        that asks whether a rejected input gets pointed at — the promise
+        #2464/#2465/#2468 have been changing across fifteen ventures this week.
+        Registered, plus a test that fails for *any* `platform/pages/*.mjs`
+        reading BASE_URL and launching a browser while absent from `CHECKS`
+        (confirmed non-vacuous: it fails and names the file when `highlight` is
+        removed). `highlight` was the only one missing.
+      - >-
+        Evidence recorded because this suite is what a session normally skips,
+        and every one of these had to be run to reach the two findings above.
+        Against a fresh 169-tool build: sweep 169/169 tools answer, contrast
+        506 pages x 2 viewports (1012 checks) with no WCAG A/AA violations,
+        sideways 507 pages clean, presets 65/65, roundtrip 128/128, highlight
+        103/103, journey clean; `check.mjs` 169 products / 508 pages / no dead
+        links; sitemap coverage 506/508 with only `404.html` and
+        `offline.html` outside it, which is correct. platform/ci 356 python
+        tests, platform/pages 790 node tests. Actions runner-starved throughout
+        (`ci_starvation.py --run 33406624400` and `33407312898`: `runner_id: 0`,
+        4s, no steps), so both merges were on local verification.
+      - >-
+        Note for the next session hunting product work here: the surface is
+        feature-saturated, not merely deployed-blocked. Checked before picking
+        anything — proposals exist in 103/103 bid calculators, shop rates carry
+        across all of them with a contract test, share cards and llms.txt and
+        per-venture sitemaps are all generated, and four "white space" niches
+        picked by hand (snow seasonal-vs-per-push, roll-off haul margin,
+        load accept/decline, shop rate derivation) each already had a venture.
+        Budget accordingly: the cheap finds are in the tooling and the
+        cross-cutting layers now, not in another niche.
+    mrr_end: null
