@@ -36717,3 +36717,66 @@ entries:
         treating red as a real failure, per the documented account-level
         Actions outage.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Two unattended-delivery defects fixed and merged as #2368, both of
+        which failed only in the environment they were written for.
+        (1) `platform/ci/ci_starvation.py` shelled out to the `gh` CLI, which
+        Claude-on-the-web sessions do not have -- so the tool `CLAUDE.md`
+        names as THE way to tell a starved check from a real failure exited 2
+        with "the gh CLI is not installed" in exactly the sessions that run
+        these routines and cannot check by hand. Those sessions already hold a
+        token and a route to the API. It now tries `gh`, then direct HTTPS with
+        `GH_TOKEN`/`GITHUB_TOKEN` (resolving owner/repo from `--repo`,
+        `GITHUB_REPOSITORY`, or the git remote, raising rather than guessing),
+        then `--from-json` for a payload fetched some other way with no
+        credential at all. Verified live in both directions over the new route:
+        run 33358620493 (today's `validate`) -> starved, `runner_id: 0`, 4s,
+        exit 1; run 33020485885 (the last pre-cliff green) -> ran on runner
+        1000027522, 15s, exit 0.
+      - >-
+        (2) The hel1 Codex worker orphaned any branch the agent pushed itself.
+        In harness-delivery mode it folded the agent's commits (`git reset
+        --soft $REF && git commit`) and pushed -- a non-fast-forward against
+        what was already published. git rejected it, `set -e` failed the Job,
+        and the branch sat on the remote carrying real work with no pull
+        request, which nothing would ever have opened. The guard written to
+        prevent this could not fire: it sat *below* the fold and compared a SHA
+        the fold had just minted. It now asks before folding, matches on the
+        SHA rather than a branch name, and either defers to the agent's own PR
+        or opens the missing one. A regression this nearly shipped with is
+        worth recording: the same-SHA test must also require HEAD to be ahead
+        of $REF, or the ordinary run (agent commits nothing, HEAD is still
+        main's tip, which is itself a remote head) matches `main` and commits
+        the run's work straight onto the base branch. The suite as it stood
+        passed that version; `test_the_ordinary_run_never_moves_the_base_branch`
+        now pins the floor's first rule directly.
+      - >-
+        Documented how to run the whole-site browser sweep from a
+        Claude-on-the-web session, which is currently the only place it can run
+        at all. Chromium is at `/opt/pw-browsers` but `npm i playwright` pins a
+        build number that does not match it, and `npx playwright install` is
+        refused there -- so the launch fails with "Executable doesn't exist at
+        .../chromium_headless_shell-1234", which reads as a missing browser
+        rather than a version mismatch. Pointing `CHROME_PATH` at the build
+        that is present resolves it; the recipe is now in `sweep.mjs`'s header.
+        Ran it that way to confirm: 169/169 tools answered with no errors. That
+        result matches the sweep an earlier session recorded today, so it is a
+        re-verification and not a new finding -- the reusable recipe is the
+        deliverable here.
+      - >-
+        Also added `ci_starvation.py` to the Codex fleet's standing mandate
+        (`gitops/agents/workers/mandate.md`), which warned about the outage
+        signature but never named the tool that decides it, and told it to read
+        check runs rather than the commit-status API.
+      - >-
+        The three owner asks are unchanged and remain the only thing between
+        this portfolio and a live product: the read-only clone token for
+        `tools.marisstella.dev`, the runner PAT plus `CI_RUNNER=self-hosted`,
+        and the Codex credential. Zero open PRs existed at the start of this
+        run, so the PR-drain quota was met trivially; #2368 was opened and
+        merged within it.
+    mrr_end: null

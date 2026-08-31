@@ -108,6 +108,21 @@ CI in this repository is unreliable and you must not read it naively:
 - No checks at all is not failed checks — PRs opened with `GITHUB_TOKEN` do not
   trigger Actions here.
 
+Do not re-derive that by hand; there is a tool, and hand-derivation is where it
+goes wrong in both directions — "fixing" green code, or merging something
+broken because it also failed fast:
+
+```
+python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
+```
+
+Exit 0 means every job got a real runner, so a failure there is yours to fix.
+Exit 1 means at least one never did. It uses `gh` when present and falls back
+to `api.github.com` with `GH_TOKEN`; `--from-json` classifies a payload you
+fetched some other way. And read *check runs*, not the commit-status API — the
+latter reports `total_count: 0` on a PR whose checks are red, which reads as
+"absent CI" and is handled differently.
+
 Either way, run the repository's own checks locally and record exactly what you
 ran and what it said. Do not claim something is tested, working, secure, or
 deployed unless you checked it.
