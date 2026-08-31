@@ -168,6 +168,38 @@ def test_governor_starts_disabled() -> None:
     assert '"maxConcurrent": 1' in policy
 
 
+def test_governor_runs_unprivileged_and_read_only() -> None:
+    # Every other workload in this repo (portfolio-site's three containers,
+    # its refresh and usage CronJobs, the CI runner) drops all capabilities,
+    # refuses privilege escalation and runs a read-only root filesystem.
+    # governor was the one exception -- despite being the single workload in
+    # `agents` that holds a live ServiceAccount token with RBAC to create Jobs
+    # and patch a ConfigMap, which makes it the workload most worth narrowing,
+    # not the one to skip.
+    cron = yaml.safe_load((AGENTS / "governor" / "cronjob.yaml").read_text())
+    pod = cron["spec"]["jobTemplate"]["spec"]["template"]["spec"]
+    assert pod["securityContext"]["runAsNonRoot"] is True
+
+    container = pod["containers"][0]
+    sec = container["securityContext"]
+    assert sec["readOnlyRootFilesystem"] is True
+    assert sec["allowPrivilegeEscalation"] is False
+    assert sec["capabilities"]["drop"] == ["ALL"]
+
+    # governor.py's _save_state() unconditionally writes a local copy to
+    # GOVERNOR_STATE (default /var/run/governor/state.json) before it ever
+    # touches the ConfigMap -- _load_state()'s in-cluster fallback reads that
+    # file back if the ConfigMap GET fails. A read-only root filesystem with
+    # nowhere writable at that path would make every tick crash on the first
+    # save, so the default path must resolve inside a mounted, writable volume.
+    state_env = [e for e in container.get("env", []) if e["name"] == "GOVERNOR_STATE"]
+    state_path = state_env[0]["value"] if state_env else "/var/run/governor/state.json"
+    mount_paths = [v["mountPath"] for v in container["volumeMounts"]]
+    assert any(
+        state_path == mp or state_path.startswith(mp.rstrip("/") + "/") for mp in mount_paths
+    ), f"GOVERNOR_STATE ({state_path}) is not under any writable mount: {mount_paths}"
+
+
 def test_worker_script_never_merges() -> None:
     text = (AGENTS / "workers" / "worker.sh").read_text()
     assert "gh pr merge" not in text
