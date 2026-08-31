@@ -39944,3 +39944,60 @@ entries:
         2026-08-24/25 are now close to fully swept across today's several
         concurrent sessions, not just this one.
     mrr_end: null
+  - venture: notary-trip-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2518. The calculator built a quote from the bottom
+        up and stopped, which answers the right question only when the notary
+        sets the price. Most of what fills a loan signing agent's calendar
+        arrives the other way round -- a signing service emails a flat fee
+        already attached -- so added printing and an offer test. Printing was a
+        live correctness gap, not a nicety: a loan package is printed twice, so
+        138 pages is 276 sheets, $55.20 billed at $0.20/page and $11.04 of
+        paper and toner, plus 20-40 unpaid minutes at the machine. It had
+        nowhere to go, so every quote the tool produced for a signing agent was
+        below cost.
+      - >-
+        The generalisable part is the charge/cost pairing. There are now two
+        per-mile figures and two per-page figures, and in each pair one is
+        billed and one is spent (mileageRate/vehicleCostPerMile,
+        printChargePerPage/printCostPerPage). Collapsing either pair would make
+        the quote and the offer test the same arithmetic, and they are not: the
+        quote asks what to charge, the offer test asks what is left. A notary
+        billing $0.70/mile and spending $0.30 needs both halves to see that a
+        long trip is priced fine and still barely worth taking. The headline
+        the tool can now produce: an $85 signing 45 miles away pays $24.18/hr,
+        not $85, against a $24.54 walk-away fee and a $174.54 fee that pays the
+        entered rates.
+      - >-
+        Print time is counted in engagedMinutes but never billed at the hourly
+        rate on top of the per-page charge -- that would bill the same work
+        twice, and it is precisely the readout trap #2508 recorded. It also
+        turns into a feature: when the per-page fee does not cover the printer
+        time, feeForTargetHourly lands above the quote, which is the signal
+        that the print line, not the travel line, is underpriced. Both
+        break-even figures are tested by solving back rather than re-deriving
+        the formula -- feeding walkAwayFee in must land on exactly $0/hr and
+        feeForTargetHourly on exactly the entered hourly rate.
+      - >-
+        Verified: 26 venture tests (18 in calc.test.mjs, up from 9), 790
+        platform/pages tests, the four repo checks, build + check (169
+        products, 508 pages, no dead links), faq/guide coverage 169/169,
+        browser journey/sweep/highlight/sideways, and a Chromium pass of the
+        defaults, the $85 signing, a $300 offer and a rejected input with no
+        console errors. All nine GitHub checks were red at runner_id 0 --
+        ci_starvation.py exit 0 -- so verified locally and said so once on the
+        PR. Every new field defaults neutral so the guide page's $129 worked
+        example holds, asserted by a test; a second new page test walks every
+        number input in the markup and fails if it is missing from the script's
+        ids list, the silent failure mode this change made four times more
+        likely.
+      - >-
+        Queue note for the next session: the open-PR queue was empty after
+        #2510 (its only member, conflicted on a ledger append; resolved keeping
+        both sides and merged). Three concurrent sessions merged #2511-#2517 in
+        the same window. Deploy/CI-CD/Codex remain owner-gated on the same
+        three seals -- reported to the owner directly, not re-queued.
+    mrr_end: null
