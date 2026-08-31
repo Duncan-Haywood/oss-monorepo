@@ -231,10 +231,22 @@ export function restoreListedSubtotal(oldSubtotal, oldHostRate, newHostRate) {
 /**
  * Bookings a direct channel needs, after its own per-stay processing, to
  * match another channel's annual payout once the site/PMS cost is paid.
+ *
+ * The target can itself be negative — a marketplace channel with a large
+ * fixed fee (an annual subscription, say) and few bookings can lose money
+ * for the year, and a host can toggle every other channel off, leaving that
+ * loser as "the best" comparison. Solving the raw ratio in that case can
+ * return a negative booking count: direct's payout at zero bookings is
+ * already -siteCostAnnual, which can already beat a negative target without
+ * a single stay. A negative "bookings needed" is not a real answer, so that
+ * case is zero bookings, not the unclamped ratio.
  */
 export function directBreakEvenBookings(targetAnnual, payoutPerStay, siteCostAnnual) {
   if (payoutPerStay <= 0) return null;
-  return (num(targetAnnual) + num(siteCostAnnual)) / payoutPerStay;
+  const target = num(targetAnnual);
+  const cost = num(siteCostAnnual);
+  if (-cost >= target) return 0;
+  return (target + cost) / payoutPerStay;
 }
 
 export function compareChannels(input = {}, channels = CHANNEL_PRESETS) {

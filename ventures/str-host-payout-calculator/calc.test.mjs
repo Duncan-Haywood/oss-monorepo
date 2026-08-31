@@ -104,6 +104,36 @@ test("direct break-even bookings pay the site cost and match the target annual",
   assert.equal(directBreakEvenBookings(20000, 0, 348), null);
 });
 
+test("direct break-even floors at zero when the target is already a loss direct beats at zero bookings", () => {
+  // A marketplace channel with a large fixed fee and few bookings can lose
+  // money for the year. Direct's own payout at zero bookings is already
+  // -siteCostAnnual; if that already beats the (negative) target, the
+  // honest break-even is 0 stays, not a negative count.
+  assert.equal(directBreakEvenBookings(-2000, 500, 348), 0);
+  // -cost (-348) does not beat a milder target (-300): direct still needs a
+  // small positive number of bookings, not zero.
+  close(directBreakEvenBookings(-300, 500, 348), (-300 + 348) / 500, "still positive break-even");
+});
+
+test("comparison never reports a negative break-even booking count or occupancy share", () => {
+  // Disable every channel except a fixed-fee subscription plan and direct,
+  // at a low enough booking volume that the subscription channel's own
+  // annual payout is negative — a host can reach this by toggling channels
+  // off in the UI.
+  const state = CHANNEL_PRESETS.map((channel) => ({
+    ...channel,
+    enabled: channel.id === "vrbo-subscription" || channel.id === "direct",
+  }));
+  const comparison = compareChannels(
+    { nightlyRate: 50, nights: 2, cleaningFee: 0, extraFees: 0, taxRate: 0, securityDeposit: 0, bookingsPerYear: 2 },
+    state,
+  );
+  const vrboSub = comparison.channels.find((channel) => channel.id === "vrbo-subscription");
+  assert.ok(vrboSub.annualPayout < 0, "fixture should exercise a losing marketplace channel");
+  assert.ok(comparison.directBreakEven.bookings >= 0, `bookings should not be negative: ${comparison.directBreakEven.bookings}`);
+  assert.ok(comparison.directBreakEven.occupancyKeep >= 0, `occupancy share should not be negative: ${comparison.directBreakEven.occupancyKeep}`);
+});
+
 test("after the 2026 host-only cut, Vrbo pay-per-booking beats Airbnb at the same list price", () => {
   const comparison = compareChannels(stay);
   const airbnb = comparison.channels.find((channel) => channel.id === "airbnb-host-only");
