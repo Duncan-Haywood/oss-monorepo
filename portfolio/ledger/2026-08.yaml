@@ -37418,3 +37418,49 @@ entries:
         are already recorded in decision_queue -- did not re-derive or duplicate;
         reported the unblocks to the owner directly.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs and no unmerged branch carrying unique work at session
+        start (confirmed independently via list/search_pull_requests and by
+        deep-checking the two most plausible stale branches with
+        supersede_check.py -- both turned out already superseded on read,
+        one via a RENAME SUSPECTED match), so the three-PR quota was moot.
+        Deployment, the portfolio-site Hetzner flip, and the already-built
+        Codex-CLI worker fleet on the Hetzner agent box all remain owner-
+        gated on sealed secrets / an interactive `codex login` / repo
+        variable flips already recorded in decision_queue.py -- did not
+        re-derive or duplicate; reported the unblocks directly.
+      - >-
+        Shipped #2406: `roofing-bid-calculator` FAQ gained a "metal vs.
+        asphalt shingle cost" answer grounded in `calc.mjs`'s own
+        MATERIAL_PRESETS figures -- a real buyer question the page's other
+        six FAQ entries didn't cover. FAQ/guide coverage were already
+        169/169 before this run; this was the depth phase, not a presence
+        gap. Verified: 69/69 venture tests, faq/guide-coverage unchanged,
+        build+check clean (169 products, 508 pages, no dead links).
+      - >-
+        Shipped #2407: fixed a real correctness bug in
+        `str-host-payout-calculator` -- `directBreakEvenBookings()` had no
+        floor, so a toggled-off-then-back-on channel with a fixed annual
+        fee and low volume could post a negative payout target and render
+        nonsensical output like "-3.3 direct stays needed (-29% of your
+        bookings)" to a host comparing channels. Floored at zero with two
+        new regression tests; 33/33 tests pass.
+      - >-
+        Shipped #2408: `gitops/prod/landing.yaml` had run with no
+        securityContext at all since the namespace was adopted (#1486) --
+        root, writable root filesystem, full capabilities, the one
+        workload in the repo not hardened the way portfolio-site/governor/
+        CI-runner already are, and nothing tested it either. Switched to
+        `nginxinc/nginx-unprivileged`, added pod+container securityContext,
+        updated probes/Service port, and added a regression test mirroring
+        the existing portfolio-site one. Also investigated and closed out
+        the stale `fix/governor-rbac-configmap-scope` branch as genuinely
+        superseded (main's fail-closed handling already covers what it
+        proposed, confirmed by reading governor.py and its existing test)
+        rather than resurrecting it. `pytest gitops/tests` 158/158 (was
+        156); kubeconform clean across all six kustomize targets (49/49).
+    mrr_end: null
