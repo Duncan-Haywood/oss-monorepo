@@ -39263,14 +39263,10 @@ entries:
         platform/proposal/terms.mjs as proposal-terms.mjs + test, wired
         withTerms/splitTerms/decodeTerms/readTerms/applyTerms/
         overlongTermsNote into copyShare()/loadDraft(), matching the 12
-        other ventures on the shared bid spec. Same PR also fixed a second,
-        more severe bug found while re-verifying the first: on
-        fence-bid-calculator, addRunRow's applyPreset() call unconditionally
-        overwrote 10 of 11 per-run cost/hours fields with the matched
-        preset's stock figures on restore, so a shared link with an edited
-        $9/ft infill reopened at the preset's $5.50 rate -- a ~70% headline
-        price difference with no indication on either page. Fixed with a
-        post-preset override loop for the remaining fields.
+        other ventures on the shared bid spec. Same PR also included a fix
+        for fence-bid-calculator's addRunRow()/applyPreset() bug (see the
+        `portfolio` entry below and #2500's own entry for the fuller,
+        independently-verified account of that fix's effect).
       - >-
         Verified: node --test security-camera-bid-calculator 113/113,
         fence-bid-calculator 94/94; portfolio-wide
@@ -39278,12 +39274,105 @@ entries:
         node platform/pages/build.mjs + check.mjs, 169 products/508 pages,
         no dead links; live-Chromium platform/ci/browser_checks.py
         --checks roundtrip across all 169 tools, clean both before/after.
-        Reverted fence-bid-calculator/index.html alone to confirm the new
-        regression test actually fails without the fix, then restored it.
         All 10 GitHub checks were red on this PR; confirmed via
         platform/ci/ci_starvation.py that every one was runner_id:0
         (account-level Actions starvation, not a real failure) before
         merging. Merged (squash) as #2495.
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        seo-discoverability-audit queue item: `faq-coverage.mjs` and
+        `guide-coverage.mjs` both reported full coverage (169/169), so the
+        presence/absence phase was done -- checked open PRs first, none
+        touching this venture. Went to depth instead: of the ventures at
+        the bare 3-question FAQ floor, this one's `calc.mjs` ships nine
+        `PANE_PRESETS` (ground-floor exterior at 1.5 min/pane up through
+        hard-water/restoration and skylights at 8 min/pane) that the FAQ
+        never explained the spread of -- a real buyer question ("how much
+        more for second-story or hard-water windows?") the existing three
+        Q&A and the `how-much-to-charge-per-window.html` guide both leave
+        unanswered (the guide only contrasts residential vs. commercial).
+        Added one `<h3>/<p>` pair to `index.html`'s Common-questions
+        section stating the preset ratios plainly (2x for a second-story
+        ladder, 4x for lift/bosun work, 5x+ for hard-water/skylights vs.
+        ground-floor), sourced directly from `PANE_PRESETS`'
+        `minutesPerPane` values -- no hand-authored JSON-LD, per
+        `build.mjs`'s derived-schema rule.
+      - >-
+        Verified: venture's own 14-test `calc.test.mjs` suite green;
+        `node --test platform/pages/{faq-visible,faq-coverage,faq-
+        duplicate,secondary-schema}.test.mjs` 18/18; `build.mjs --out=dist
+        && check.mjs dist` -- 169 products, 508 pages, no dead links; the
+        built page's derived `FAQPage` JSON-LD contains the new question
+        text verbatim, confirming schema and visible copy stayed in sync.
+    mrr_end: null
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Follow-up correction to the #2496 merge above, same session: the
+        `grep`-for-substring check used to verify the new FAQ question
+        reached the built page's JSON-LD was too weak -- it matched the
+        substring anywhere in the file, including the plain `<h3>` text,
+        not specifically inside a `FAQPage` block. This venture turned out
+        to be one of the ~37 that carries its own hand-authored `FAQPage`
+        `<script>` in `<head>` (`build.mjs` only derives one "where the
+        venture wrote none of its own" -- see its comment at the
+        `!html...includes('FAQPage')` check), so the merge landed a 4th
+        visible question with the JSON-LD still listing only the original
+        3: exactly the schema/visible-copy drift class AGENTS.md documents
+        from 2026-08-30. Caught it re-reading the source file after the
+        merge, before moving on. Fix: removed the stale hand-authored
+        `FAQPage` block entirely (same remedy `owner-operator-cpm-
+        calculator`'s FAQ-depth PR used, #2324) so `build.mjs`'s
+        `faqEntries()` now derives the schema fresh from visible copy on
+        every build -- 4 questions, byte-identical wording, and it cannot
+        drift again the way a hand-authored block can.
+      - >-
+        Verified this time by parsing the actual built JSON-LD (`json.
+        loads` on the `FAQPage` script block, not a substring grep) and
+        confirming all 4 question names appear, in order, matching the
+        page's `<h3>` text. Also re-ran: venture's calc.test.mjs 14/14;
+        platform/pages/{faq-visible,faq-coverage,faq-duplicate,secondary-
+        schema}.test.mjs 18/18; build.mjs --out=dist && check.mjs dist --
+        169 products, 508 pages, no dead links;
+        `faq-coverage.mjs window-cleaning-bid-calculator` -- 1/1 covered.
+    mrr_end: null
+  - venture: flooring-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2498: share.mjs, a "Copy share link" button, and
+        vendored proposal-terms.mjs, following the same pattern as
+        concrete-bid-calculator (#2483), fence-bid-calculator (#2484), and
+        junk-removal-bid-calculator (#2493) earlier in this session.
+        flooring-bid-calculator's rooms are a list the visitor grows at
+        runtime, so platform/pages/link.mjs's generic build-time share
+        injector deliberately skips it (pageBuildsFieldsAtRuntime). This
+        venture's proposal panel is generated by
+        platform/proposal/adopt.mjs (proposal:begin/proposal:end markers),
+        so the new imports and wiring were placed outside those markers on
+        purpose -- inside them would be silently discarded by a future
+        adopt.mjs regenerate. Before starting: git fetch origin, zero open
+        PRs repo-wide, no recent commits/branches touching this venture or
+        the other four remaining itemised-row candidates (carpet-cleaning,
+        gutter-cleaning, hood-cleaning, moving) -- no in-flight overlap.
+      - >-
+        Verified: node --test in the venture, 90/90, including the new
+        share.test.mjs and vendored proposal-terms.test.mjs. Portfolio-wide
+        node --test platform/proposal/{sync,term-ids,discoverability}.test.mjs
+        and platform/pages/link.test.mjs: 61/61. node
+        platform/pages/build.mjs + check.mjs: 169 products, 508 pages, no
+        dead links; "Added a shareable bid link to 154 page(s)" unchanged
+        before/after, confirming the generic injector still correctly
+        excludes this venture. Live Chromium round trip via the repo's own
+        platform/pages/roundtrip.mjs probe against a local http:// server:
+        57 fields, headline $2,702.41, sender and a fresh recipient page
+        agree exactly, no skip. Merged (squash) as #2498.
     mrr_end: null
   - venture: portfolio
     agent_spend_usd: null
@@ -39366,4 +39455,99 @@ entries:
         already shipped (previous outcome). DIRECTION.md is explicit that
         cloning another undeployed calculator is not the answer while
         deploy is pending, so no new venture was started this session.
+      - >-
+        One open PR at session start (#2495, security-camera-bid-calculator
+        proposal-terms wiring). Reviewed, verified locally (113 venture
+        tests + 13 platform/proposal tests, node platform/pages/build.mjs +
+        check.mjs: 169 products/508 pages/no dead links), confirmed CI red
+        was runner starvation via platform/ci/ci_starvation.py
+        (runner_id: 0), and merged as #2495. Queue was then empty, so per
+        CLAUDE.md's fewer-than-three rule that satisfied the merge phase
+        without opening a new build.
+      - >-
+        Re-confirmed the deploy/CI-CD/Codex asks are fully built and
+        owner-gated on exactly three sealed secrets, all handled by
+        ./bootstrap/scripts/seal-owner-secrets.sh (restore CI:
+        actions-runner-secrets + CI_RUNNER=self-hosted; publish
+        tools.marisstella.dev: portfolio-site-repo; Codex-on-Hetzner
+        spending the plan's built-in quota rather than metered API $:
+        CODEX_AUTH_JSON). Nothing new to add to the decision queue --
+        infra/OWNER_CHECKLIST.md items 8-9 and the "Publish
+        tools.marisstella.dev" section already carry the exact steps.
+        Reported to the owner directly since this run was explicitly asked
+        about deployment/CI-CD/Codex priority.
+      - >-
+        Ran the live-Chromium platform/pages/roundtrip.mjs sweep across all
+        169 tools (not run end-to-end in a single session before, per its
+        own log this covers ventures individual sessions had already
+        checked one at a time). Found and fixed a second share-link bug in
+        fence-bid-calculator, distinct from the proposal-terms class:
+        addRunRow() matched a run's material name against MATERIAL_PRESETS
+        and reapplied that preset's *default* cost/labor figures over
+        whatever the run itself carried, so a setter's hand-edited material
+        or labor cost silently reverted to the venture default every time a
+        run was rebuilt from a share link. 10 fields dropped, headline
+        price $3,359.27 -> $5,710.23 for the recipient. Fixed by overlaying
+        the run's own defined cost fields onto the matched preset; added a
+        regression test (94/94 passing); re-ran the live roundtrip probe
+        clean after the fix. Merged (squash) as #2500.
+    mrr_end: null
+  - venture: subcontractor-cashflow-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2504. Open-PR queue was empty repo-wide at the
+        start of the run (list_pull_requests and search_pull_requests both
+        zero), so per CLAUDE.md's fewer-than-three rule the merge phase was
+        satisfied without a repair and the run went to product depth. Picked
+        this venture because calc.mjs was the thinnest in the portfolio at 22
+        lines, and because session_gate.py flagged 3 distinct sessions inside
+        a 15-minute window all working bid-calculator share links -- this
+        sits outside that collision surface. Nothing had touched
+        ventures/subcontractor-cashflow-planner/ on main.
+      - >-
+        The tool reported that a funding gap existed and stopped at its size,
+        which is not yet a decision. Added the three levers a subcontractor
+        actually pulls: supplier terms on materials (previously priced as
+        cash out on day 0), a deposit or mobilisation payment, and the rate
+        they would borrow at. New outputs: the day the balance goes negative,
+        the cost to carry the shortfall, and how many further days of late
+        payment a covered scenario survives. The supplier-terms result is the
+        non-obvious one -- what matters is not the length of the terms but
+        whether they outlast the client. Paid day 44, a net-30 supply account
+        still puts the $2,500 out first and only shortens the borrowing
+        window; net-45 falls due after the money lands and erases the gap.
+        The absorbable-delay figure surfaces the matching cliff: it reads 0 on
+        a $600 surplus when the materials invoice is due the day after
+        payment was expected.
+      - >-
+        Interest accrues on the daily shortfall, which ramps across the
+        window, not on the peak gap for every day of it -- charging the peak
+        roughly doubles the answer, and a cost that overstates is as useless
+        for the decision as one that understates. All three new fields default
+        to the neutral value, so the net-30 guide page's worked figures
+        ($6,900, $1,900, $12,900, $7,900) are unchanged and a test asserts
+        that neutrality. Also removed the CSV export's second hand-maintained
+        copy of the column-name list (both sides now read CSV_FIELDS from
+        calc.mjs -- the drift shape that exports an added column under the
+        previous column's label), and corrected the README's now-false claim
+        that supplier credit is not modelled.
+      - >-
+        Verified: node --test in the venture, 21/21 (10 new calc cases, 4 new
+        page cases covering input bounds, the shared field list, and
+        visible-FAQ/JSON-LD sync -- this page hand-authors its own FAQPage so
+        build.mjs does not derive one, and nothing else kept the two in step
+        after #2497). check_form_defaults, check_input_bounds,
+        check_money_sign, check_conflict_markers, check_duplicate_symbols all
+        clean. node platform/pages/build.mjs + check.mjs: 169 products, 508
+        pages, no dead links; faq-coverage and guide-coverage still 169/169.
+        platform/ci/browser_checks.py --checks journey,sweep,highlight,sideways
+        all pass. Manual Chromium pass of the three new scenarios plus a
+        save/reload draft round-trip, no console or page errors. CI red was
+        runner starvation: page-integrity fails in 4-6s on the last six
+        commits to main (03fc60fa, 5852b4d0, 4440a1b3, 3b37d5dc, 96acaa35,
+        0bbbfb25), i.e. red on the base branch too, and the job carries
+        labels ["ubuntu-latest"] so CI_RUNNER is still unset. Said so once on
+        the PR and merged (squash).
     mrr_end: null
