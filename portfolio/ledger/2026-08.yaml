@@ -37018,3 +37018,37 @@ entries:
         red as a real failure, per the documented account-level Actions
         outage. Merged as #2378 on local verification.
     mrr_end: null
+  - venture: pole-barn-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2381: `roofAreaSqFt` in `calc.mjs` extended only the
+        `length` edge for roof overhang, leaving `width` unchanged, despite
+        its own docstring claiming overhang applies to "the eave and rake"
+        edges (both dimensions). `roofSqFt` feeds `roofMaterial` and
+        `hoursRoof` in `calculateBid`, so every bid on a job with a nonzero
+        overhang -- including the calculator's own shipped default of
+        1.5 ft -- undercounted roof steel and roof labor. Verified by hand
+        at the default job (length=40, width=30, pitch=4, overhang=1.5):
+        old formula gave 1359.78 sq ft, correct (both edges extended) gives
+        1495.76 sq ft -- a 9.1% undercount on every default-overhang bid.
+        `shed-install-bid-calculator`'s equivalent function already extends
+        both edges correctly, confirming this was the outlier rather than
+        a deliberate convention. The existing test only re-derived the same
+        buggy formula instead of checking real geometry, so it never caught
+        this. One-line fix; replaced that test's self-referential assertion
+        with the correct geometric expectation and added a dedicated
+        regression test pinning both the corrected figure and the
+        zero-overhang fallback.
+      - >-
+        Verified: `node --test *.test.mjs` in the venture, 111/111 passing.
+        CI checks came back red (`build`/`check`/`site-test`, ~3s each);
+        confirmed starvation via `platform/ci/ci_starvation.py --run
+        33365779090` (`runner_id: 0`, no steps) rather than treating red as
+        a real failure. Merged as #2381 on local verification. Second bug
+        found and fixed this session after #2378 (555-timer-calculator
+        discharge-current formula) -- both were formula-transcription
+        errors in calculators whose own docstring/comment described the
+        correct behavior that the code did not actually implement.
+    mrr_end: null
