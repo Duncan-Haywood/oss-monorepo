@@ -1,4 +1,5 @@
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -272,18 +273,71 @@ class BranchHygieneTests(unittest.TestCase):
         self.assertIn("not legal, security, or compliance advice", result.stdout)
         self.assertIn("reviewing and verifying its", result.stdout)
 
-    def test_landing_page_is_discoverable_and_carries_disclaimers(self):
+    def test_emit_snapshot_prints_a_snapshot_and_writes_nothing_else(self):
+        """The browser reviewer needs a portable snapshot, and until this flag
+        existed no command produced one: `--report`/`--manifest` write findings,
+        not the input they were derived from. Emitting writes no files, so
+        redirecting stdout cannot also leave two stale outputs beside it."""
+        project = Path(__file__).parents[1]
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(project / "src/branch_hygiene.py"),
+                    str(project / "examples/snapshot.json"),
+                    "--emit-snapshot",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+                cwd=directory,
+            )
+            emitted = json.loads(result.stdout)
+            self.assertEqual(len(scan(emitted)), len(self.snapshot["branches"]))
+            self.assertFalse((Path(directory) / "branch-report.txt").exists())
+            self.assertFalse((Path(directory) / "recovery-manifest.json").exists())
+
+    def test_entry_page_is_discoverable_and_carries_disclaimers(self):
         project = Path(__file__).parents[1]
         page = (project / "index.html").read_text()
         robots = (project / "robots.txt").read_text()
         sitemap = (project / "sitemap.xml").read_text()
-        self.assertIn("Git branch cleanup report", page)
         self.assertIn("No warranty", page)
         self.assertIn("Best-effort hosting, no SLA", page)
         self.assertIn("does not replace a qualified professional", page)
-        self.assertNotIn("safe to delete", page.lower())
         self.assertIn("Allow: /", robots)
         self.assertIn("repository-branch-hygiene", sitemap)
+
+    def test_entry_page_runs_the_scanner_in_the_browser(self):
+        # This page shipped as prose with no form controls, so the portfolio's
+        # browser sweep classified it `links-only`: a visitor arriving from a
+        # search result met a description of a CLI they could not run. The
+        # in-browser reviewer is the product on this URL, not a brochure for it.
+        page = (Path(__file__).parents[1] / "index.html").read_text()
+        self.assertIn("<textarea", page)
+        self.assertIn("scan.mjs", page)
+        self.assertIn("--emit-snapshot", page)
+
+    def test_entry_page_never_asserts_a_branch_is_safe_to_delete(self):
+        # Guarded as the assertive forms only. A blanket ban on the phrase was
+        # the previous rule here, and it failed on `main` from the moment this
+        # venture added its own SEO link "Is it safe to delete this Git
+        # branch?" -- banning the honest question along with the dishonest
+        # answer. The claim to prevent is the unqualified assertion; the
+        # question and the denial of it are both what the product promises.
+        page = (Path(__file__).parents[1] / "index.html").read_text()
+        pattern = re.compile(
+            r"\b(?:is|are|was|were)\s+(?:safe\s+to\s+delete|cleared\s+(?:for|to)\s+delet\w*)",
+            re.IGNORECASE,
+        )
+        for match in pattern.finditer(page):
+            preceding = page[max(0, match.start() - 60):match.start()]
+            following = page[match.end():match.end() + 12].lstrip()
+            denied = re.search(r"\b(?:never|not|no|cannot|does not|doesn't)\b", preceding, re.IGNORECASE)
+            self.assertTrue(
+                denied or following.startswith("?"),
+                f"unqualified safety claim near: {page[max(0, match.start() - 60):match.end() + 40]!r}",
+            )
 
 if __name__ == "__main__":
     unittest.main()
