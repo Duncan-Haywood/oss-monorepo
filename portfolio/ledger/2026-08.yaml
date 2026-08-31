@@ -37633,3 +37633,57 @@ entries:
         state to the owner via the run's own notification rather than
         re-deriving it a second time in the ledger.
     mrr_end: null
+  - venture: owner-operator-cpm-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Added an FAQ entry answering a real, previously-unanswered buyer
+        question -- "what loaded rate do I need to hit a weekly take-home
+        goal" -- backed by the venture's own rateForTarget() formula in
+        calc.mjs, not invented copy. Confirmed the gap first (grep across
+        the page, its two guide pages, and the README found zero mentions
+        of the existing "target weekly take-home" input outside a passing
+        README line), then verified the quoted number ($2.35/mi loaded for
+        an $800/week target, at the page's own starting inputs) by running
+        calculateWeek()/rateForTarget() directly and round-tripping the
+        solved rate back through calculateWeek() to confirm it reproduces
+        the target take-home. Verified: node --test 31/31; platform/pages
+        build.mjs + check.mjs (169 products, 508 pages, no dead links);
+        clauses.mjs confirms the no-warranty clause is unchanged. Filed
+        under this venture rather than `portfolio` because the outcome is
+        product copy, not a survey.
+      - >-
+        Same PR (#2416) also closed a real security gap in the delivery
+        path shared by every venture: gitops/agents/networkpolicy.yaml's
+        worker-egress NetworkPolicy had a `ports: [443]` egress rule with
+        no `to:` selector, which in Kubernetes NetworkPolicy semantics
+        matches every destination -- including the kube-apiserver Service
+        IP and any other in-cluster pod on 443 -- despite the file's own
+        comment claiming that path was already closed. codex-worker runs
+        arbitrary AI-generated commands against an untrusted prompt on the
+        one agents-tainted node, so this was the one NetworkPolicy in the
+        repo actually guarding a hostile workload rather than a merely
+        buggy one. Scoped it to the same 0.0.0.0/0-except-cluster-CIDRs
+        pattern gitops/ci/networkpolicy.yaml already proved, and added
+        test_worker_egress_cannot_reach_the_cluster_on_443 (confirmed it
+        fails pre-fix, passes post-fix). Verified: pytest gitops/tests
+        159/159; kustomize build + kubeconform -strict on all six gitops
+        trees (64 resources, 49 valid, 0 invalid); pyflakes/shellcheck
+        clean. All CI checks on the PR were red at 3-4s; confirmed
+        runner_id: 0 starvation via platform/ci/ci_starvation.py for the
+        check job, so merged on local verification per repo convention.
+      - >-
+        Separately this session: 0 open PRs existed, so the branch/PR
+        drain phase was a no-op by count. Surveyed ~140 of 292 stale
+        remote branches for unique unmerged work anyway (sampling the
+        highest-commit-count, most-recently-touched ones) and found zero
+        candidates -- every one checked with supersede_check.py or a
+        manual diff was already superseded by `main`, matching this
+        ledger's and CLAUDE.md's running description of that failure
+        mode. Also confirmed (read-only, no changes) that the self-hosted
+        CI runner stack, the Hetzner k3s portfolio-site deploy, and the
+        Codex worker fleet in gitops/agents/ are each fully built and
+        already queued as distinct owner-only asks (decision_queue.py
+        items already cover all three) -- no duplicate asks added.
+    mrr_end: null
