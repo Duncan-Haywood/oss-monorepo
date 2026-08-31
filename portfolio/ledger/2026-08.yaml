@@ -40215,3 +40215,49 @@ entries:
         close -- out of scope per the task). No product code changed;
         `portfolio/ledger/supersede_check.py` was the only tool run.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `deploy-cicd-readiness`'s own task: read every `gitops/` manifest,
+        the CI runner stack and its entrypoint, all `gitops/tests/`, and
+        `.github/workflows/*.yml` looking for the four candidate gap classes
+        the item names. Almost everything came back clean -- `kustomize build`
+        on all six overlays, `kubeconform -strict` on the output (51/51
+        valid), `pytest gitops/tests -q` (183 passed) before touching
+        anything, current action pins throughout, and no ledger/checklist
+        record of a staging TLS certificate for `tools.marisstella.dev`
+        having issued (so the staging->prod issuer flip was correctly left
+        alone). Consistent with the many prior sessions on this exact item
+        (most recently #2473 on 2026-08-31) that found the same.
+      - >-
+        Found one real gap, in category 3 (tests vs. what triggers them):
+        `gitops/tests/test_manifests.py`'s
+        `test_portfolio_site_build_uses_flags_the_build_scripts_accept` reads
+        `platform/pages/check.mjs`'s own text to confirm it still parses the
+        `--dist=` flag `portfolio-site.yaml`'s build init container passes it
+        -- guarding against exactly the failure mode its own comment names:
+        a renamed flag crash-looping the public site the moment the owner
+        seals the clone token. That check only runs when
+        `.github/workflows/hetzner-gitops-ci.yml` does, and the workflow's
+        `paths:` filter named `platform/pages/build.mjs` (with a comment
+        explaining why) but not `check.mjs` -- so a PR touching only
+        `check.mjs` would never trigger `gitops/tests`, and the one guard
+        written for that exact regression would never fire on the PR that
+        caused it. Same bug class `AGENTS.md` already documents for
+        `portfolio-validate.yml` vs `portfolio-pages.yml`.
+      - >-
+        Shipped and merged #2532: added `platform/pages/check.mjs` to both
+        `push` and `pull_request` paths, plus a regression test in
+        `infra/tests/test_infra_layout.py`
+        (`test_ci_triggers_on_every_pages_script_gitops_tests_reads`)
+        confirmed non-vacuous by reverting the workflow change alone and
+        watching it fail. Verified: `pytest gitops/tests -q` 183 passed,
+        `pytest infra/tests -q` 16 passed, `validate_workflows.py` clean on
+        all 220 workflows, `kustomize build` + `kubeconform -strict` on all
+        six `gitops/` overlays still 51/51 valid. CI on the PR showed the
+        account-wide runner-starvation signature (`runner_id: 0`), confirmed
+        job-by-job with `ci_starvation.py --run 33436328936` (4 of 5 jobs
+        starved) rather than assumed; merged on the local verification above.
+    mrr_end: null
