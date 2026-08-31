@@ -254,3 +254,32 @@ test('the same input renders byte-identically, so a rebuild is not a feed update
   const launched = { a: '2026-08-01', b: '2026-08-01' };
   assert.equal(renderFeed(surfaces, BASE, launched), renderFeed(surfaces, BASE, launched));
 });
+
+// ---------------------------------------------------------------------------
+// The CLI
+// ---------------------------------------------------------------------------
+
+test('the refresh CLI runs — build.mjs imports this module, so the cycle must not deadlock', async () => {
+  // Regression: the CLI branch awaited `import('./build.mjs')` at the top
+  // level. Once build.mjs started importing this module that deadlocked, and
+  // Node's failure mode is quiet — "Detected unsettled top-level await" on
+  // stderr, exit 13, nothing done. The documented way to add a new tool's
+  // launch date would have silently stopped working.
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [path.join(import.meta.dirname, 'launched.mjs')],
+    { cwd: REPO_ROOT, timeout: 120_000 },
+  );
+  assert.match(stdout, /^\d+ tools, \d+ would be added:/);
+  assert.doesNotMatch(stdout, /unsettled top-level await/);
+});
+
+test('a bare run does not write — only --write does', async () => {
+  const file = path.join(import.meta.dirname, 'launched.json');
+  const before = await fs.readFile(file, 'utf8');
+  await execFileAsync(process.execPath, [path.join(import.meta.dirname, 'launched.mjs')], {
+    cwd: REPO_ROOT,
+    timeout: 120_000,
+  });
+  assert.equal(await fs.readFile(file, 'utf8'), before);
+});

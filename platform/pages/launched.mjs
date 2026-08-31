@@ -143,8 +143,18 @@ export function feedUpdatedAt(surfaces, launched) {
   return dates.length ? `${dates[dates.length - 1]}T00:00:00Z` : null;
 }
 
-// `node platform/pages/launched.mjs --write`
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+/**
+ * `node platform/pages/launched.mjs [--write]`
+ *
+ * Deliberately *not* a top-level await. `build.mjs` imports this module, so
+ * awaiting `import('./build.mjs')` at the top level deadlocks: this module's
+ * evaluation blocks on build.mjs, which blocks on this module finishing
+ * evaluating. Node reports it as "Detected unsettled top-level await" and the
+ * process exits having done nothing — silently, with status 13. Starting the
+ * work in a function instead lets this module finish evaluating first, which
+ * is all the cycle needs to resolve.
+ */
+async function main(argv) {
   const { discoverSurfaces } = await import('./build.mjs');
   const surfaces = await discoverSurfaces(path.join(REPO_ROOT, 'ventures'));
   const existing = await loadLaunchDates();
@@ -152,14 +162,19 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToP
     surfaces.map((s) => s.slug),
     { existing },
   );
-  if (process.argv.includes('--write')) {
-    await fs.writeFile(
-      LAUNCHED_FILE,
-      `${JSON.stringify({ launched }, null, 2)}\n`,
-    );
+  if (argv.includes('--write')) {
+    await fs.writeFile(LAUNCHED_FILE, `${JSON.stringify({ launched }, null, 2)}\n`);
     console.log(`launched.json: ${Object.keys(launched).length} tools, ${added.length} added`);
   } else {
     console.log(`${Object.keys(launched).length} tools, ${added.length} would be added:`);
     for (const slug of added) console.log(`  ${slug}  ${launched[slug]}`);
   }
+  return added;
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+  main(process.argv.slice(2)).catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 }
