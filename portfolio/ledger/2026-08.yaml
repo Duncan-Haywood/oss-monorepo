@@ -38714,3 +38714,51 @@ entries:
         `runner_id: 0`, exit 1), not a real failure. Merged (squash) as
         #2476, `d63403fb5`.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Concurrent session: found #2473 and #2474 both open at session start
+        (both authored by the owner in a prior session, #2473 already
+        covered by the entry directly above from a session racing this one).
+        Reviewed both diffs directly, confirmed CI redness on both was the
+        known account-wide runner-starvation signature (`ci_starvation.py
+        --run 33408193175`: 4 of 5 jobs `runner_id: 0`), and merged both —
+        satisfying the "process all" rule for a queue under three. #2474
+        added a real FAQ answer for seller-net-sheet's tax-proration field
+        and removed a hand-authored `FAQPage` block that had drifted out of
+        sync with the visible copy (3 vs. 4 questions); merged (squash) as
+        `418ee7c24`.
+      - >-
+        Branch-to-PR presumption: sampled the 6 highest-signal remaining
+        branches by commits-ahead and name specificity (`tmp/ssh-key-smoke`,
+        `pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/appointment-deposit-calculator`,
+        `cursor/3pl-quote-normalizer-compare-20260825`,
+        `cursor/vendor-change-watch-fix-20260824`) rather than repeating
+        #2463's already-completed full 175-branch census. All six carried no
+        unique value: each venture the branch built already exists on `main`
+        under the same name with the same or more content, and
+        `tmp/ssh-key-smoke` is a 936-commit-stale ephemeral probe with 1.19M
+        deleted lines relative to current `main`. Opened no new PRs from
+        branches.
+      - >-
+        Checked the owner's explicit ask this run (deploy/CI-CD priority,
+        marketing-material deployment, Codex CLI running on the built-in
+        subscription quota on a Hetzner box) against `decision_queue.py`.
+        All three are already fully built and queued, not missing: Pages
+        publish is `deploy-settings` (item 8), the Hetzner cluster path is
+        `portfolio-site-hetzner-deploy` (#1999, item 13), the runner fix is
+        `actions-runners-unavailable` (#1842/#2021/#2022, item 10), and the
+        "Codex spends the plan's included quota unattended on the cpx22
+        cluster" ask is exactly `codex-governor-enable` (#1996, item 12) --
+        governor code, RBAC, and tests already merged and idle
+        (`policy.json` `enabled: false`, CronJob `suspend: true`). All four
+        need one or more owner-only actions (sealing a secret, a billing
+        check, or a GitHub Pages toggle) that no session can perform. Did
+        not duplicate any of these asks. Marketing-material work is real
+        agent-doable scope once a public URL exists, but nothing is live
+        yet to launch, so no launch assets were built this run.
+    mrr_end: null
