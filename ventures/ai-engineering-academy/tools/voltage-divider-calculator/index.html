@@ -48,7 +48,7 @@
       "name": "Why shouldn't I use a plain resistive divider to power something?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Because its output voltage changes the moment real current is drawn — it is a voltage reference, not a regulator. It's a reasonable choice for feeding a high-impedance point such as an ADC input, which draws very little current; for a load that draws real current, use a proper linear or switching regulator instead. It also wastes power on its own: at the page's default 12 V, 10 kΩ / 10 kΩ, the divider dissipates 3.6 mW in R1 and 3.6 mW in R2 even before anything is connected to Vout."
+        "text": "Because, as the first question shows, its output voltage changes the moment real current is drawn — it is a voltage reference, not a regulator. It's a reasonable choice for feeding a high-impedance point such as an ADC input, which draws very little current; for a load that draws real current, use a proper linear or switching regulator instead. It also wastes power on its own: at the page's default 12 V, 10 kΩ / 10 kΩ, the divider dissipates 3.6 mW in R1 and 3.6 mW in R2 even before anything is connected to Vout."
       }
     }
   ]

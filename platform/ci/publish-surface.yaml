@@ -178,6 +178,9 @@ workflows:
 - workflow: demand-signal-reachability-ci.yml
   classification: none
   publishes: []
+- workflow: dns-configuration-evidence-ci.yml
+  classification: none
+  publishes: []
 - workflow: dryer-vent-bid-calculator-ci.yml
   classification: none
   publishes: []
@@ -380,6 +383,9 @@ workflows:
   classification: none
   publishes: []
 - workflow: notary-trip-quote-ci.yml
+  classification: none
+  publishes: []
+- workflow: npm-deployment-evidence-ci.yml
   classification: none
   publishes: []
 - workflow: npm-reachability-triage-ci.yml
