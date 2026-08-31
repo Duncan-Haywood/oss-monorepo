@@ -139,7 +139,16 @@
         render(quote);
         recordQuoteUsage(localStorage, optout.checked, 'quote_generated');
       } catch (err) {
+        // Invalid or non-axe JSON must not leave the last valid quote on
+        // screen next to a silent failure -- a visitor who misses the error
+        // line could read the stale headline, stats, rows, and report as the
+        // quote for the JSON just pasted in. `latest` is already nulled so
+        // Copy cannot hand out the stale quote either.
         latest = null;
+        headline.textContent = '';
+        stats.textContent = 'No quote generated yet. The sample scan is a typical three-rule Shopify export.';
+        rows.innerHTML = '';
+        report.textContent = 'Your copyable quote will appear here.';
         error.textContent = err instanceof Error ? err.message : 'Could not build a quote from that input.';
       }
     }

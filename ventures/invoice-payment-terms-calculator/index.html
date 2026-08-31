@@ -273,6 +273,16 @@
         }
       } catch (error) {
         $('due').textContent = error.message;
+        // Blank the headline dependents too -- exposure, runway, the fee
+        // scenario table, the copyable terms note, and the early-pay
+        // comparison all kept showing the last valid calculation before
+        // this fix, next to the error message in #due.
+        $('exposure').textContent = '';
+        $('runway').textContent = '';
+        $('scenarios').replaceChildren();
+        $('copyText').textContent = '';
+        ['earlyCash', 'earlyAfter', 'waitCash', 'waitAfter'].forEach(id => { $(id).textContent = ''; });
+        $('earlyPayText').textContent = '';
         // Blank the cash-landing panel rather than leaving the previous
         // invoice's date sitting under an error message.
         $('cashDate').textContent = '—';

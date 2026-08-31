@@ -707,6 +707,7 @@
        result.classList.add("error");
        review.querySelector(".checks").textContent = "Fix the inputs above to review this quote.";
        decision.hidden = true;
+       sensitivity.querySelector("tbody").innerHTML = "";
        if (ladder) ladder.querySelector("tbody").innerHTML = "";
        costSpike.querySelector("#cost-spike-summary").textContent = "Fix the inputs above to compare a cost rise.";
        costSpike.querySelector("tbody").innerHTML = "";

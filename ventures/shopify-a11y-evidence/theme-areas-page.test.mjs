@@ -87,6 +87,23 @@ test('user-facing rule text is escaped before it reaches innerHTML', () => {
   }
 });
 
+test('invalid input clears the stale punch list and disarms Copy instead of leaving it next to a silent error', () => {
+  // Before this fix, the Route click handler's catch block only set #error.
+  // `latest` stayed pointed at the previous grouping, and #headline,
+  // #stats, #rows, and #report kept showing the previous punch list. A
+  // visitor who missed the one-line error could read that stale routing as
+  // the answer for the invalid JSON just pasted in, and Copy could still
+  // export the stale punch list.
+  const catchMatch = scriptSource.match(/\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}\);/);
+  assert.ok(catchMatch, "the Route click handler's catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /latest = null/, 'latest is not invalidated, so Copy could still export a stale punch list');
+  assert.match(body, /headlineEl\.textContent = /, '#headline keeps its stale routing instead of being cleared');
+  assert.match(body, /statsEl\.textContent = /, '#stats keeps its stale figures instead of being reset');
+  assert.match(body, /rowsEl\.innerHTML = /, '#rows keeps its stale table instead of being cleared');
+  assert.match(body, /reportEl\.textContent = /, '#report keeps its stale copyable list instead of being reset');
+});
+
 test('every module the page imports exists and exports what it names', async () => {
   const imports = [...scriptSource.matchAll(/import\s*\{([^}]+)\}\s*from\s*'([^']+)'/g)];
   assert.ok(imports.length >= 1);

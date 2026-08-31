@@ -119,8 +119,21 @@
         );
         if (count) recordUsage(storage(), $('optOut').checked);
       } catch (error) {
+        // A rejected input (a negative number, non-numeric text) must not
+        // leave the last valid quote on screen next to a silent failure --
+        // a visitor who misses the message could read the stale figures as
+        // the answer for the invalid inputs now in the form. Clear every
+        // derived field in both panels, not just the two headlines.
         $('target').textContent = error.message;
+        $('floor').textContent = '';
+        $('cost').textContent = '';
+        $('hours').textContent = '';
+        $('rate').textContent = '';
+        $('parts').textContent = '';
+        $('callback').textContent = '';
+        $('scenarios').replaceChildren();
         $('replaceVerdict').textContent = error.message;
+        $('replaceRows').replaceChildren();
       }
     }
     ids.forEach((id) => $(id).addEventListener('input', () => {

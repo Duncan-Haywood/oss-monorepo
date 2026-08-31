@@ -198,6 +198,16 @@
         copyStatus.textContent = '';
         recordUsage(localStorage, optOut(), 'comparison_generated');
       } catch (error) {
+        // Invalid JSON on either side must not leave the last valid
+        // comparison on screen next to a silent failure -- a visitor who
+        // misses the error line could read the stale headline, stats, rows,
+        // and report as the diff for the exports just pasted in. Null
+        // `latest` too, so Copy cannot hand out the stale comparison.
+        latest = null;
+        headlineEl.textContent = 'No comparison yet.';
+        statsEl.textContent = 'Paste both exports and choose Compare scans.';
+        rowsEl.innerHTML = '';
+        reportEl.textContent = 'Your before → after comparison will appear here.';
         errorEl.textContent = error.message;
       }
     });

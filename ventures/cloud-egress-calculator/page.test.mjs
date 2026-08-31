@@ -111,6 +111,25 @@ test("break-even FAQ example matches the arithmetic", () => {
   assert.match(html, /95\.33 GB/);
 });
 
+test("an invalid input clears the stale per-option totals, not just the verdict line", () => {
+  // Before this fix, calculate()'s catch block overwrote #verdict,
+  // #annualImpact, and #breakEven, but left #aTotal, #bTotal, and
+  // #difference showing the last valid comparison. A visitor who missed
+  // the one-line message in #verdict could read those stale totals as the
+  // answer for the invalid inputs now in the form.
+  const catchMatch = scriptSource.match(/\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}/);
+  assert.ok(catchMatch, "calculate()'s catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /\$\("verdict"\)\.textContent = error\.message/, "the error message is never shown");
+  for (const id of ["aTotal", "bTotal", "difference"]) {
+    assert.match(
+      body,
+      new RegExp(`\\$\\("${id}"\\)\\.textContent = ""`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+});
+
 test("the two new FAQ questions are present in both the visible copy and the FAQPage schema", () => {
   const questions = [
     "What outbound volume is the break-even point?",

@@ -267,6 +267,28 @@ test("the calculator page links the overdue sibling so it is reachable from the 
   assert.match(html, /chasing-a-late-invoice\.html/);
 });
 
+test("an invalid input clears every stale field in the main panel, not just the cash-landing and factoring panels", () => {
+  // A prior fix (#1729) taught update()'s catch block to blank the
+  // cash-landing and factoring panels, but left #exposure, #runway, the fee
+  // #scenarios table, #copyText, and the early-pay comparison
+  // (#earlyCash/#earlyAfter/#waitCash/#waitAfter/#earlyPayText) showing the
+  // last valid calculation next to the error message in #due. A visitor who
+  // missed that one line could read the stale figures as the answer for the
+  // invalid inputs now on screen.
+  const catchMatch = html.match(/\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}\n\s*const moneyGrouped/);
+  assert.ok(catchMatch, "update()'s catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /\$\('due'\)\.textContent = error\.message/, "the error message is never shown");
+  assert.match(body, /\$\('exposure'\)\.textContent = ''/, "#exposure keeps its stale value instead of being cleared");
+  assert.match(body, /\$\('runway'\)\.textContent = ''/, "#runway keeps its stale value instead of being cleared");
+  assert.match(body, /\$\('scenarios'\)\.replaceChildren\(\)/, "the stale fee-scenario rows are not cleared");
+  assert.match(body, /\$\('copyText'\)\.textContent = ''/, "#copyText keeps its stale note instead of being cleared");
+  for (const id of ["earlyCash", "earlyAfter", "waitCash", "waitAfter"]) {
+    assert.match(body, new RegExp(`'${id}'`), `#${id} is not cleared in the catch block`);
+  }
+  assert.match(body, /\$\('earlyPayText'\)\.textContent = ''/, "#earlyPayText keeps its stale note instead of being cleared");
+});
+
 test("wide money tables scroll inside their own box, not the phone viewport", () => {
   // Verified at 390px in a real browser: page overflow 0 on both siblings.
   // A grid item defaults to min-width:auto, so without the min-width:0 rule a

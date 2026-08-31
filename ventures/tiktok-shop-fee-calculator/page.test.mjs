@@ -140,6 +140,30 @@ test("scenario sharing is local and restores entered assumptions", () => {
   assert.match(scriptSource, /scenario_shared/);
 });
 
+test("an invalid input clears the stale order economics, comparison tables, and verdict, not just the headline", () => {
+  // Before this fix, paint()'s catch block only overwrote #expectedProfit
+  // and #profitLabel with the error sentence (plus the free-shipping
+  // sub-panel). Referral/facilitation/affiliate fees, kept/returned profit,
+  // margin, break-even and target-margin prices, max buy cost, monthly
+  // profit, the organic-vs-affiliate table, the fee-schedule table, and the
+  // verdict banner all kept showing the last valid order. A visitor who
+  // missed the one-line message could easily read those stale figures as
+  // the answer for the invalid inputs now on screen.
+  const catchMatch = scriptSource.match(/\} catch \(error\) \{([\s\S]*?)\n\s*return;\n\s*\}/);
+  assert.ok(catchMatch, "paint()'s catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /el\("expectedProfit"\)\.textContent = error\.message/, "the error message is never shown");
+  const clearedListMatch = body.match(/\[([^\]]+)\]\.forEach\(\(id\) => \{\s*el\(id\)\.textContent = "";\s*\}\)/);
+  assert.ok(clearedListMatch, "no batch-cleared id list found in the catch block");
+  const clearedIds = [...clearedListMatch[1].matchAll(/"([\w-]+)"/g)].map((m) => m[1]);
+  for (const id of ["referralFee", "facilitationFee", "affiliateFee", "keptProfit", "returnedProfit", "expectedMargin", "breakEvenPrice", "targetMarginPrice", "maxBuy", "monthlyProfit", "affiliateNote"]) {
+    assert.ok(clearedIds.includes(id), `#${id} is not cleared in the catch block`);
+  }
+  assert.match(body, /el\("affiliateCompare"\)\.innerHTML = ""/, "the stale organic-vs-affiliate table is not cleared");
+  assert.match(body, /el\("scheduleCompare"\)\.innerHTML = ""/, "the stale fee-schedule table is not cleared");
+  assert.match(body, /el\("verdict"\)\.hidden = true/, "the stale verdict banner is not hidden");
+});
+
 // A page missing og:* renders as a bare link with no preview when shared —
 // PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
 // affiliate-commission-on-returns.html was linked from index.html and in the
