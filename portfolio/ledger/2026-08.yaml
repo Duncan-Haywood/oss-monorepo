@@ -39710,3 +39710,100 @@ entries:
         PR. No further action needed on this branch; a future session should
         not re-attempt it without also re-checking share.mjs's BID_SPEC first.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, same explicit ask as the two entries just above
+        (prioritize Hetzner deployment/CI-CD, marketing-material
+        deployment, and an unattended Codex CLI on the Hetzner box).
+        Independently re-derived the same conclusion rather than trusting
+        those entries alone: `gitops/agents/` (governor, worker.sh,
+        mandate.md, queue, codex-home PVC, secrets templates) is fully
+        built and idle (`policy.json` "enabled": false,
+        `governor/cronjob.yaml` suspend: true), and
+        `infra/OWNER_CHECKLIST.md` already spells out the exact unblock:
+        `codex login` + seal `CODEX_AUTH_JSON` (the "built-in quota"
+        route, no OpenAI org or billing change) or `OPENAI_API_KEY`, plus
+        `GH_TOKEN`, into `codex-secrets`, then flip both switches. Same for
+        the site (`portfolio-site-hetzner-deploy`, #1999: one read-only
+        clone token) and CI (`actions-runners-unavailable`: seal the
+        runner PAT, set `CI_RUNNER=self-hosted`). All three are
+        `decision_queue.py` items #10/#12/#13, none new. Reported the
+        three exact unblock steps to the owner directly, since this run's
+        brief asked specifically about them.
+      - >-
+        Branch-to-PR drain: launched 5 parallel review agents against the
+        5 remaining `pr/`-prefixed and long-lived branches with the most
+        commits ahead of main that neither this month's 175-branch census
+        (#2463) nor the two sessions just above had individually re-verified
+        this run (`pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/appointment-deposit-calculator`,
+        `cursor/chargeback-evidence-packet-main`,
+        `claude/sweet-archimedes-6nrsur`). All 5 independently confirmed
+        SUPERSEDED with main strictly superior in every case (extra fields,
+        extracted/testable modules, more complete tests, or a documented
+        self-reset commit) -- three of the five had in fact already been
+        opened and closed as PRs (#2433, #2437, #2438) roughly 6 hours
+        earlier the same day by other sessions, which these agents found
+        and correctly declined to duplicate rather than opening a fourth
+        round of the same close. No PR opened, nothing merged. Zero open
+        PRs existed at session start (`list_pull_requests` and
+        `search_pull_requests` both empty), so per CLAUDE.md's
+        fewer-than-three rule the merge-quota phase was satisfied by an
+        empty repairable queue before this drain even started; the 5-branch
+        check was extra diligence, not required to clear the gate.
+      - >-
+        Before picking new work, confirmed the portfolio's own generic
+        build-time share-link injector (`platform/pages/link.mjs`, merged
+        2026-08-29) already covers 153-154 pages automatically -- this
+        made a planned "add share.mjs to the ~39 remaining bid-calculator
+        ventures lacking one" task obsolete before any code was written
+        (verified by building the site and grepping the output for
+        `dryer-vent-bid-calculator`, a candidate that already had the
+        injected control). Avoided shipping a duplicate/weaker
+        reimplementation of a live feature.
+      - >-
+        Shipped and merged #2513 instead: `vendor-rate-break-even` had two
+        real, unclaimed gaps the generic injector cannot reach because its
+        scenario rows are built at runtime
+        (`pageBuildsFieldsAtRuntime`/`pageTakesBidLink` correctly exclude
+        it). First, "Save draft" wrote to localStorage on every click but
+        nothing ever read it back on load -- a returning operator always
+        saw the hardcoded demo scenarios instead of their own comparison,
+        the same bug class change-order-margin-calculator hit in #2209.
+        Second, there was no way to hand the comparison to anyone else.
+        Added `restoreDraft()` (draft read once before first render) and
+        `share.mjs` (URL-hash link carrying the base fields and up to 3
+        scenario rows, link wins over draft on load, same convention as
+        this month's other array-based share modules), plus a "Copy share
+        link" button and matching README/FAQ updates (both the visible FAQ
+        and its hand-authored JSON-LD twin, which this page keeps in sync
+        by hand since build.mjs does not derive one for it).
+      - >-
+        Picked this venture the same way the immediately preceding
+        subcontractor-cashflow-planner session did: scanned for the
+        thinnest `calc.mjs` files in the portfolio and checked each for a
+        genuine gap rather than padding. `vendor-rate-break-even` (39
+        lines) was untouched by today's `#2209`-class fixes and sits
+        outside the bid-calculator share-link collision surface
+        `session_gate.py` flagged.
+      - >-
+        Verified: `node --test` in the venture, 22/22 (was 2 -- 7 new
+        `share.test.mjs`, 3 new `page.test.mjs`, existing tests untouched).
+        Full `platform/pages/*.test.mjs` suite 790/790.
+        `check_form_defaults`, `check_input_bounds`, `check_money_sign`,
+        `check_conflict_markers`, `check_duplicate_symbols` all clean.
+        `node platform/pages/build.mjs` + `check.mjs`: 169 products, 508
+        pages, no dead links (injected-share-link count correctly dropped
+        154 -> 153 as this venture's own control took over). Live Chromium
+        pass: filled the form, saved, reloaded -- draft restored correctly;
+        copied a share link, opened it in a fresh page -- the recipient's
+        page reproduced the sender's exact comparison including an edited
+        scenario row, no console or page errors in either page. CI showed
+        the known account-wide runner-starvation signature, not a real
+        failure; verified entirely locally per the above. Merged (squash)
+        as #2513.
+    mrr_end: null
