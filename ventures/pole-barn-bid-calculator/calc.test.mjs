@@ -85,13 +85,28 @@ test('area, walls, roof, bays, posts, and yards stack in that order', () => {
   assert.equal(wallAreaSqFt(40, 30, 10), 1400);
   const roof = roofAreaSqFt(40, 30, 4, 1.5);
   assert.ok(roof > 40 * 30);
-  assert.ok(Math.abs(roof - 43 * 30 * Math.sqrt(1 + (4 / 12) ** 2)) < 1e-9);
+  // Overhang extends the roof past the building on all four sides: both the
+  // rake edges (length) and the eave edges (width) grow by 2x overhang
+  // before the pitch factor projects the footprint onto the sloped surface.
+  assert.ok(Math.abs(roof - 43 * 33 * Math.sqrt(1 + (4 / 12) ** 2)) < 1e-9);
   assert.equal(bayCount(40, 8), 5);
   assert.equal(postCount(40, 8, 2), 14);
   assert.equal(trussCount(40, 8), 6);
   assert.ok(Math.abs(cubicYards(1200, 4) - 1200 * (4 / 12) / 27) < 1e-9);
   assert.equal(leanToAreaSqFt(60, 12), 720);
   assert.throws(() => bayCount(40, 0), /greater than zero/);
+});
+
+test('roof overhang extends both the rake and eave edges, not just one', () => {
+  // A version of roofAreaSqFt that only extended `length` reported 1359.78
+  // sq ft here (43 * 30 * 1.054093...) instead of the correct 1495.76 sq ft
+  // (43 * 33 * 1.054093...) -- a 9% undercount on roof steel and roof labor
+  // that would have hit every job at the calculator's own default overhang.
+  const factor = Math.sqrt(1 + (4 / 12) ** 2);
+  assert.ok(Math.abs(roofAreaSqFt(40, 30, 4, 1.5) - 43 * 33 * factor) < 1e-9);
+  // Zero overhang must fall back to the plain footprint times the pitch
+  // factor, with no extension on either edge.
+  assert.ok(Math.abs(roofAreaSqFt(40, 30, 4, 0) - 40 * 30 * factor) < 1e-9);
 });
 
 test('height factor is 8% per foot above the included eave', () => {
