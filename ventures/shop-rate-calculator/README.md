@@ -125,7 +125,7 @@ Because this page produces the four rather than consuming them, it is listed in
 injected bar. Its own panel is the fuller control: the bar could only have
 offered a partial save of the two fields that happen to be inputs here.
 
-## Privacy and disclaimers
+## Privacy
 
 The page holds more of a business's cost structure than any other tool on the
 site — wages, workers' comp, benefits, owner pay. None of it leaves the device.
@@ -140,9 +140,18 @@ silent under Do Not Track, Global Privacy Control, and the page's own opt-out.
 `rates_carried / rate_calculated` is the reading that matters: whether working
 out a rate actually changes how the next bid is priced.
 
-The disclaimer covers what this tool looks like it is doing beyond arithmetic —
-it is not tax, accounting, insurance, or legal advice, and it makes no
-determination about how anybody should be classified or paid.
+## Disclaimer
+
+This free tool is not legal, tax, accounting, insurance, or financial advice,
+and it does not tell you what to charge, what your workers' comp
+classification is, or how anyone should be classified or paid. It is
+arithmetic on the numbers you type. Verify every figure against your own
+payroll records, insurance declarations, and accounts, and against a
+qualified professional, before relying on it or pricing work with it. To the
+maximum extent permitted by law, the authors accept no liability for loss or
+damage from its use.
+
+MIT licensed — see [`LICENSE`](LICENSE).
 
 ## Files
 
