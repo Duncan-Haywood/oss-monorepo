@@ -37331,3 +37331,51 @@ entries:
         either, on top of not being one for the already-shipped-elsewhere
         features the two triages above covered.
     mrr_end: null
+  - venture: freight-accessorial-auditor
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2395: `auditTotals()` in `audit.mjs` summed the full
+        variance of every audited line into `recoverable` (the page's
+        headline "Above expected" dollar figure) except rows priced from
+        unreadable input -- but not rows whose evidence status is
+        "supports", which `priorityFor()` already excludes from
+        `actionable`. A $300 detention line billed against a $75
+        rate-card figure, with a scale ticket attached that supports the
+        $300 as correct, still added $225.00 to the headline overage
+        total shown to the AP user, right beside an `actionable` count
+        that correctly read 0 -- the exact overclaim attaching supporting
+        evidence exists to rule out. Excluded "supported" rows from
+        `recoverable` the same way unpriced rows already were, added a
+        `supported` count to the totals object, and extended the page's
+        `recoverableNote` to say when supported lines are excluded
+        (mirroring the existing unpriced-line note).
+      - >-
+        Verified: `node --test *.test.mjs` in the venture, 112/112 passing
+        (added one regression test isolating this exact case; updated two
+        pre-existing assertions pinned to the old totals shape and note
+        wording). `node platform/pages/build.mjs && check.mjs` across the
+        full portfolio: 169 products / 508 pages, no dead links, no
+        regressions. CI came back red on all 7 checks in ~3-5s each;
+        confirmed starvation via `platform/ci/ci_starvation.py --run
+        33372765399` (`runner_id: 0`, no steps ran) rather than treating
+        red as a real failure. Merged as #2395 on local verification.
+      - >-
+        Also checked this run: zero open PRs existed, so the "merge three
+        existing PRs first" pass resolved to "none exist." Spot-checked
+        ~10 of the most recently touched remote branches for genuine
+        unmerged value; all but one (`fix/governor-rbac-configmap-scope`)
+        were already fully landed on `main` with zero diff, and that one's
+        added RBAC tests were superseded by #2269's already-merged
+        equivalent coverage -- consistent with #2396's concurrent,
+        independent full-backlog triage landing the same run. The
+        account-owner's own explicit ask this run (Codex CLI on the
+        Hetzner box spending its subscription quota, deployment/CI-CD and
+        marketing-material priority) turned out to already be fully built
+        and merged (#1995, #1996, #1998, #1999, #2000) -- purely blocked on
+        four owner-only secret/credential/interactive-login steps already
+        named in `decision_queue.py` items 10-13. Reported that to the
+        owner directly rather than duplicating the asks or re-deriving the
+        diagnosis.
+    mrr_end: null
