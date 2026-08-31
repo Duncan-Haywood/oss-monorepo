@@ -57,6 +57,11 @@ const REQUIRED_ROOT_FILES = [
   // so a build that drops it drops the site's machine-readable front door
   // without any page 404ing to show it.
   'llms.txt',
+  // The "what's new" door. Unlike the pages, nothing 404s when this is
+  // missing -- a subscriber's reader just quietly stops seeing new tools, and
+  // nothing on the site says so. That silence is why it is a required file
+  // rather than a nice-to-have.
+  'feed.xml',
   // Browsers request /favicon.ico on their own for every page, so if it is
   // missing every page load logs a 404 and opens an anonymous blank tab.
   'favicon.ico',
@@ -674,6 +679,53 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
       if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
         problems.push(`llms.txt: lists "${slug}" but no such product shipped`);
       }
+    }
+  }
+
+  // The feed is the only surface built from a *committed* data file
+  // (`launched.mjs`) rather than derived from the tree, so it is the only one
+  // that can silently fall behind: a tool lands, nobody re-runs the refresh,
+  // and it never appears in the feed. Nothing else in the artifact shows that
+  // — the tool's own pages, sitemap entry and llms.txt line are all fine.
+  //
+  // The dates are read back out of `catalog.json` rather than from the repo,
+  // so this check is a statement about the artifact and holds when the check
+  // runs against a downloaded one. `catalog.json` carries every tool's date;
+  // the feed carries only the newest few dozen by design, so an older tool
+  // being absent from the feed is correct and cannot be the test.
+  const catalog = await fs
+    .readFile(path.join(site, 'catalog.json'), 'utf8')
+    .then(JSON.parse)
+    .catch(() => null);
+  if (catalog !== null) {
+    const dated = new Map((catalog.tools ?? []).map((t) => [t.slug, t.launched]));
+    for (const product of productDirs) {
+      const date = dated.get(product);
+      if (!date) {
+        problems.push(
+          `${product}/: shipped with no launch date, so it can never enter the feed — run \`node platform/pages/launched.mjs --write\``,
+        );
+      } else if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        problems.push(`${product}/: launch date "${date}" is not YYYY-MM-DD`);
+      }
+    }
+  }
+
+  const feed = await fs.readFile(path.join(site, 'feed.xml'), 'utf8').catch(() => null);
+  if (feed !== null) {
+    for (const slug of new Set(
+      [...feed.matchAll(/<id>tag:[^<]*?:tool\/([^<]+)<\/id>/g)].map((m) => m[1]),
+    )) {
+      if (!productDirs.includes(slug)) {
+        problems.push(`feed.xml: lists "${slug}" but no such product shipped`);
+      }
+    }
+    // A reader that cannot parse the document sees no entries at all, and the
+    // likeliest cause is an unescaped `&` or `<` from a tool's own description
+    // reaching the XML. One raw ampersand takes the whole feed down for every
+    // subscriber at once, which is why this is a check and not a test.
+    if (/&(?!amp;|lt;|gt;|quot;|#39;|apos;)/.test(feed)) {
+      problems.push('feed.xml: contains a raw `&`, which makes the whole feed unparseable');
     }
   }
 

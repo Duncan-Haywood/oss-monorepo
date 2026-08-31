@@ -521,6 +521,20 @@ def test_portfolio_site_types_es_modules_as_javascript() -> None:
         assert block in conf, f"missing or reordered: {suffix} -> {mime}"
 
 
+def test_portfolio_site_types_the_feed_as_atom() -> None:
+    # nginx's mime.types has an `xml` entry, so without this the feed serves
+    # as text/xml -- readable, but not the registered type (RFC 4287), and the
+    # aggregators that take a site URL and go looking for a feed match on
+    # application/atom+xml rather than parsing every text/xml document.
+    #
+    # Scoped `=` rather than `~ \.xml$` on purpose: the site ships one Atom
+    # document and 170 sitemaps, which are not Atom and must keep their own
+    # type.
+    conf = _portfolio_site()["ConfigMap"]["data"]["default.conf"]
+    assert "location = /feed.xml {\n    types { }\n    default_type application/atom+xml;" in conf
+    assert "location ~ \\.xml$" not in conf, "a broad .xml rule would retype every sitemap"
+
+
 def _location_blocks(conf: str) -> list[str]:
     """Split on locations at their real indentation, so prose mentioning the
     word 'location' in a comment does not read as a block."""
@@ -535,13 +549,14 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
     # hole while closing one.
     #
     # The count is pinned so a *new* location cannot be added without someone
-    # reading this: 6 today (.mjs, .webmanifest, .csv, /sw.js, /buildinfo.txt,
-    # /). Bumping the number is the reminder to restate the headers in the
-    # block being added, which is the whole point of the loop below — and it
-    # worked: /buildinfo.txt was written with its three headers because this
-    # test refused the block without them.
+    # reading this: 7 today (.mjs, .webmanifest, .csv, /feed.xml, /sw.js,
+    # /buildinfo.txt, /). Bumping the number is the reminder to restate the
+    # headers in the block being added, which is the whole point of the loop
+    # below — and it has worked twice now: /buildinfo.txt and /feed.xml were
+    # both written with their three headers because this test refused the
+    # block without them.
     blocks = [b for b in _location_blocks(_portfolio_site()["ConfigMap"]["data"]["default.conf"]) if "add_header" in b]
-    assert len(blocks) == 6, [b.splitlines()[0] for b in blocks]
+    assert len(blocks) == 7, [b.splitlines()[0] for b in blocks]
     for block in blocks:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 

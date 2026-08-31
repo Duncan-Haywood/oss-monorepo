@@ -50,6 +50,13 @@ async function siteWith(files = {}) {
     // carry it — the real `renderHubSitemap` lists it here for the same reason.
     'sitemap-hub.xml': urlset('', 'about/'),
     'llms.txt': `# Tools\n\n> One tool.\n\n## Section\n\n- [Tool](${url('tool/')}): does a thing.\n`,
+    // The feed and the catalogue are a pair: the feed is the "what's new"
+    // door, and the catalogue is where the check reads every tool's launch
+    // date back out of the artifact.
+    'feed.xml':
+      '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">'
+      + '<entry><id>tag:marisstella.dev,2026:tool/tool</id></entry></feed>',
+    'catalog.json': JSON.stringify({ tools: [{ slug: 'tool', launched: '2026-08-01' }] }),
     'tool/index.html': '<p>Tool</p><footer>No warranty.</footer>',
     'tool/sitemap.xml': urlset('tool/'),
   };
@@ -695,4 +702,63 @@ test('a file the leak check already condemns is not also reported as untyped', (
   // the actual fix, which is to delete it.
   assert.deepEqual(checkServedExtensions(['tool/VENTURE.yaml', 'tool/README.md'], ''), []);
   assert.deepEqual(checkServedExtensions(['tool/node_modules/left-pad/x.ts'], ''), []);
+});
+
+// ---------------------------------------------------------------------------
+// The feed and its launch dates
+// ---------------------------------------------------------------------------
+
+test('a tool that shipped with no launch date is refused', async () => {
+  // The failure this exists for: a tool lands, nobody re-runs
+  // `launched.mjs --write`, and it never appears in the feed. Every other
+  // surface for that tool is correct, so nothing else in the artifact is red.
+  const problems = await problemsFor({
+    'catalog.json': JSON.stringify({ tools: [{ slug: 'tool' }] }),
+  });
+  assert.equal(mentioning(problems, 'no launch date').length, 1);
+  assert.match(problems.find((p) => p.includes('no launch date')), /launched\.mjs --write/);
+});
+
+test('a launch date that is not a date is refused rather than published', async () => {
+  const problems = await problemsFor({
+    'catalog.json': JSON.stringify({ tools: [{ slug: 'tool', launched: 'last tuesday' }] }),
+  });
+  assert.equal(mentioning(problems, 'is not YYYY-MM-DD').length, 1);
+});
+
+test('a missing feed is a problem, because nothing else in the artifact shows it', async () => {
+  // Unlike a page, a missing feed 404s for nobody: subscribers just stop
+  // seeing new tools and the site looks fine.
+  assert.deepEqual(await problemsFor({ 'feed.xml': null }), ['missing required file: feed.xml']);
+});
+
+test('a feed naming a tool that did not ship is refused', async () => {
+  const problems = await problemsFor({
+    'feed.xml':
+      '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">'
+      + '<entry><id>tag:marisstella.dev,2026:tool/deleted-tool</id></entry></feed>',
+  });
+  assert.equal(mentioning(problems, 'deleted-tool').length, 1);
+});
+
+test('a raw ampersand in the feed is refused', async () => {
+  // One unescaped `&` makes the document unparseable, so every subscriber
+  // sees zero entries — a total outage of the surface with no other symptom.
+  const problems = await problemsFor({
+    'feed.xml':
+      '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">'
+      + '<entry><id>tag:marisstella.dev,2026:tool/tool</id>'
+      + '<title>Fees & margins</title></entry></feed>',
+  });
+  assert.equal(mentioning(problems, 'unparseable').length, 1);
+});
+
+test('correctly escaped entities in the feed are not mistaken for a raw ampersand', async () => {
+  const problems = await problemsFor({
+    'feed.xml':
+      '<?xml version="1.0" encoding="UTF-8"?><feed xmlns="http://www.w3.org/2005/Atom">'
+      + '<entry><id>tag:marisstella.dev,2026:tool/tool</id>'
+      + '<title>Fees &amp; &quot;margins&quot; &lt;b&gt; &#39;x&#39;</title></entry></feed>',
+  });
+  assert.deepEqual(mentioning(problems, 'unparseable'), []);
 });

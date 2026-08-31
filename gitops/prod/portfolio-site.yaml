@@ -115,7 +115,7 @@ data:
       access_log /dev/stdout privacy;
 
       gzip on;
-      gzip_types text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml;
+      gzip_types text/css text/javascript application/javascript application/json application/manifest+json image/svg+xml application/atom+xml text/xml;
       gzip_min_length 1024;
 
       error_page 404 /404.html;
@@ -168,6 +168,26 @@ data:
         add_header X-Content-Type-Options nosniff always;
         add_header X-Frame-Options DENY always;
         add_header Referrer-Policy strict-origin-when-cross-origin always;
+        add_header Cache-Control "public, max-age=300, must-revalidate" always;
+      }
+
+      # Not the same class as the three above: nginx's mime.types *does* have
+      # an `xml` entry, so the feed already serves as text/xml and every reader
+      # accepts it. This is the narrower correctness fix — `application/
+      # atom+xml` is the registered type (RFC 4287), and the aggregators that
+      # take a site URL and go looking for a feed match on it rather than
+      # parsing every text/xml document they find. Scoped with `=` to the one
+      # file, because `~ \.xml$` would also catch the 170 sitemaps, which are
+      # not Atom.
+      location = /feed.xml {
+        types { }
+        default_type application/atom+xml;
+        add_header X-Content-Type-Options nosniff always;
+        add_header X-Frame-Options DENY always;
+        add_header Referrer-Policy strict-origin-when-cross-origin always;
+        # Shorter than the pages: a reader polls this on its own schedule and a
+        # new tool sitting behind a stale cache is the one thing the surface
+        # exists to prevent.
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
 
