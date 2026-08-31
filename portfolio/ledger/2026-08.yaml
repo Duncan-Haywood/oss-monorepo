@@ -40744,3 +40744,62 @@ entries:
         directly in this session (the code half neither is blocked on),
         since the governor itself is still owner-disabled.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start; reached the same conclusion as
+        #2307/the concurrent session recorded above -- deploy/CI-CD and the
+        Codex-on-Hetzner worker are fully built and owner-gated only, so
+        skipped re-deriving it and dispatched three parallel background
+        agents at the queue's own priority order instead:
+        deploy-cicd-readiness, marketing-distribution, and
+        product-feature-improvement.
+      - >-
+        deploy-cicd-readiness: audited gitops/ manifests (kustomize build +
+        kubeconform -strict, 51/51 valid), workflow CI_RUNNER routing, and
+        gitops/tests/ drift -- clean, already picked over by concurrent
+        sessions today. Found and fixed a real stale-data drift instead: six
+        gitops/ files still claimed the site serves 164 or 168 tools against
+        an actual, re-verified 169. Merged as #2558 (ledger #2559).
+      - >-
+        marketing-distribution: shipped the queue's top-ranked candidate, an
+        embeddable-widget offer nothing under platform/pages/ provided
+        before -- a copyable <iframe> snippet plus a framing-aware nav swap
+        (pf-embed.js/pf-embed.css) on all 169 tool entry pages, same
+        arithmetic and disclaimer as the full page, zero new third-party
+        script/font/CDN/network call, usage-tracked via the site's existing
+        anonymous local-only convention. node --test 836/836,
+        build.mjs + check.mjs clean (169 products, 508 pages, no dead
+        links). Merged as #2561. Will go live automatically once the
+        portfolio-repo-token seal (already owner-queued) unblocks the site.
+      - >-
+        product-feature-improvement: found and fixed a real pricing bug in
+        translator-project-quote -- the headline "quote floor" figure
+        compared a job's direct cost only against the flat dollar minimum,
+        never against the margin-adjusted target price the page itself
+        computed, so a job whose direct cost cleared the minimum could quote
+        the user out from under their own stated target margin with no
+        warning. Added a recommended_price = max(minimum_price,
+        target_price) field and made it the page's headline number.
+        node --test 16/16 on the venture, faq-visible 4/4. Merged as #2556.
+      - >-
+        All three PRs' CI came back red in 2-6s with runner_id: 0 on every
+        check -- confirmed via ci_starvation.py as the known account-level
+        Actions outage, not a regression; verified locally in each case
+        instead and merged per the no-review-gate rule for product PRs.
+      - >-
+        Confirmed the fleet-scale hazard CLAUDE.md's "high-paced concurrent
+        development" section warns about is real, not theoretical: all three
+        background agents shared this session's single working-directory
+        checkout with no worktree isolation, so at one point mid-run the tree
+        held one agent's already-merged leftover branch checkout plus a
+        second agent's uncommitted in-progress files at once. Two agents
+        (the gitops one explicitly, the ledger-writing pattern generally)
+        self-recovered by cloning fresh into scratchpad rather than touching
+        the shared tree; this session's own turns declined a stop-hook's
+        repeated request to commit those files, since they were not this
+        session's work. Next time: pass isolation: "worktree" to the Agent
+        tool for any parallel dispatch that writes to the filesystem.
+    mrr_end: null
