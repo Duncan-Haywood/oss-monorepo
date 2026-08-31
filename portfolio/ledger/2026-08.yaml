@@ -38253,3 +38253,64 @@ entries:
         Matches the prior session's #2307/portfolio-entry finding above;
         added nothing new to the queue per the no-duplicate-asks rule.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged the whole open-PR queue (#2452, one PR) and then shipped two
+        more: #2456 and #2457. Quota met with three merges.
+      - >-
+        Shipped #2456: `platform/pages/faq-visible.test.mjs` had been red on
+        `main` and waved through as "a pre-existing failure, unrelated" by at
+        least three PRs (#2446, #2450, #2452). It was a real defect --
+        translator-project-quote's FAQPage JSON-LD carried ASCII `--` and
+        straight quotes where the visible answer has an em dash and curly
+        quotes, and dropped the "(after the #)" clause the page shows. Google
+        validates FAQPage markup against rendered copy, so that risks the FAQ
+        rich result on a tool whose only distribution is organic search and AI
+        answers. With it fixed the entire platform/pages suite is green: 18
+        files, 790 tests, 0 failures.
+      - >-
+        NEW FINDING, not the same as the standing "everything is owner-gated"
+        row above. The owner-facing text had drifted from the code in a way
+        that actively mis-routes the built-in-quota ask. `worker.sh` has
+        accepted `CODEX_AUTH_JSON` since 2026-08-29 and prefers it over
+        `OPENAI_API_KEY`, so the k3s path already spends the plan quota and
+        costs nothing -- but OWNER_CHECKLIST.md step 8 (the numbered list an
+        owner works through, as opposed to the prose 30 lines above it) and
+        asks.yaml's `codex-governor-enable` action both still described the
+        metered API-key route only. An owner asking for the built-in quota was
+        therefore told to open a paid OpenAI org they do not need, and then
+        sent to `agent-runner-subscription-login`, which read as the only free
+        route and opened with "provision the Hetzner agent box (`make
+        provision`)" -- ansible, aimed at the cpx22 that k3s already owns,
+        which `ventures/ubuntu-agent-server/README.md` forbids in its first
+        paragraph ("Do not dual-drive the same host with both").
+      - >-
+        Root cause: rows 11 and 12 were told apart by *which budget they
+        spend*, which was true when written and expired the day the k3s worker
+        gained the plan credential. What separates them now is *which
+        machine*. #2457 corrects all three surfaces and records why the old
+        distinction lapsed. No manifest, secret, default or switch was
+        touched -- governor stays `suspend: true` / `enabled: false`, both
+        credentials stay unsealed -- and no ask was added or removed (still 14
+        rows), per the no-duplicate-asks rule.
+      - >-
+        Verified green before each merge, Actions being runner-starved
+        account-wide (`ci_starvation.py --run 33396563648`: `runner_id: 0`):
+        platform/pages 790 tests, portfolio/ledger 164, gitops/tests 176,
+        infra/tests 15, ubuntu-agent-server 38; build.mjs + check.mjs at 169
+        products / 508 pages / no dead links; faq-coverage, faq-duplicate,
+        clauses and guide-coverage all at 169/169; six portfolio validators
+        clean.
+      - >-
+        Branch check: ~40 remote branches sit ahead of `main`, but this repo
+        squash-merges, so that is expected of already-merged work.
+        Spot-checked `pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/appointment-deposit-calculator` and
+        `cursor/3pl-quote-normalizer-compare-20260825`: all four ventures are
+        present on `main` with full content, so no unique unshipped work.
+        Opened no branch-recovery PRs.
+    mrr_end: null
