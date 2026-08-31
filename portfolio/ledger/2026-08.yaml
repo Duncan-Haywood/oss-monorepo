@@ -40652,3 +40652,95 @@ entries:
         JSON after the copy edit. `build_pages_site.py --check`: no
         problems portfolio-wide.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Worked the deploy-cicd-readiness queue item. Audited the delivery
+        path against its four candidate categories: `kustomize build` (all
+        six gitops/ namespaces) plus `kubeconform -strict` came back clean
+        (51 valid, 0 invalid); `python3 -m pytest gitops/tests -q` passed
+        185/185; the workflow-runner-switch test already confirms all 220
+        workflows route through `vars.CI_RUNNER` except the two documented
+        Docker-dependent exceptions; and `decision_queue.py` shows the
+        remaining blockers (clone-token seal, `CI_RUNNER`, governor flip)
+        are already correctly flagged owner-only. Several concurrent
+        sessions today (#2551, #2541, #2532, #2545, #2473) had already
+        picked the delivery path clean of behavior-affecting defects in
+        those four categories -- found none myself either.
+      - >-
+        What I did find, cross-checking `portfolio-site.yaml`'s own header
+        comments against `infra/OWNER_CHECKLIST.md`: six gitops/ files
+        still said the site serves 164 or 168 tools, while
+        `OWNER_CHECKLIST.md`, `portfolio-apex.yaml` and
+        `deploy-cicd-readiness.yaml`'s own prompt already correctly said
+        169 (OWNER_CHECKLIST.md records this was re-verified 2026-08-31 by
+        actually running the build). Re-ran `platform/pages/build.mjs`
+        myself against that day's `main` (bef8b3376) and got 169 tools /
+        508 HTML pages, confirming "169" is current and "164"/"168" were
+        stale by several ventures shipped since those comments were
+        written. Fixed all six (gitops/README.md,
+        gitops/agents/queue/README.md, gitops/prod/portfolio-site.yaml
+        twice, gitops/prod/site-usage.yaml, gitops/prod/usage/aggregate.py,
+        a test comment in test_seal_owner_secrets.py) -- comment-only,
+        no manifest field or test assertion changed. Merged as #2558.
+        A concurrent session found and fixed the same class of stale-comment
+        drift in landing.yaml the same run (#2557) -- independent
+        confirmation this was the right category to be looking in once the
+        four behavior-affecting categories came up empty.
+      - >-
+        Verified: `pytest gitops/tests -q` 185 passed (before and after);
+        `kustomize build` + `kubeconform -strict` clean on the edited tree
+        too; `pyflakes` on the one touched .py file clean.
+    mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR-queue drain: 0 open PRs at session start, so surveyed the ~180
+        stale unmerged branches for the branch-to-PR presumption instead.
+        Sampled ~20 of the largest; all but two were already fully
+        superseded by more advanced work independently landed on main
+        (identical-merge or rename-suspected cases per CLAUDE.md) --
+        confirms the backlog this repo's fast merge cadence leaves behind
+        is genuinely near-empty, not under-triaged.
+      - >-
+        Merged the two real survivors: #2551 restored the governor
+        ServiceAccount's `configmaps: create` verb (gitops/agents/governor/
+        rbac.yaml) -- `_save_state`'s POST-to-collection fallback in
+        governor.py had been left with no RBAC for it, so a missing
+        governor-state ConfigMap would 403 instead of self-healing; and
+        #2552 salvaged the eBay fee calculator's `priceToMatchProfit` /
+        `targetProfitPrice` feature (price that holds a typed dollar
+        leftover after the fee stack) from a 717-commits-stale branch,
+        re-merged onto current main. `node --test` 456/456 on the venture,
+        `pytest gitops/tests` 45/45.
+      - >-
+        Found and fixed a real bug this same drain caused: #2551 and a
+        concurrent session's PR landed the identical governor-RBAC test
+        (same fix, different PR, different insertion point in the same
+        file) close enough in time that neither merge conflicted -- both
+        landed, leaving `test_governor_role_reads_no_configmap_it_cannot_name`
+        defined twice. Python module loading silently drops the first
+        definition, so 1 of 46 written tests never actually ran; the
+        dropped copy carried real PR history (#2269/#2273/#2276) the
+        surviving one didn't have. Deduped and folded that provenance into
+        the surviving test in #2555, verified no duplicate test names
+        remain (`grep -oP '(?<=^def )test_\w+' | sort | uniq -c`) and
+        pytest still 45/45.
+      - >-
+        Investigated the owner's standing asks for CI/CD priority, marketing
+        materials, and a Hetzner-hosted Codex worker: all three are already
+        fully built and queued (gitops/ci/ self-hosted-runner stack;
+        gitops/agents/ governor + workers/mandate.md + queue/
+        deploy-cicd-readiness.yaml + marketing-distribution.yaml), gated
+        only on owner-only credential sealing already tracked in
+        `portfolio/ledger/asks.yaml` (decision-queue items covering
+        CI_RUNNER and codex-governor-enable/#1996) -- did not duplicate
+        those rows. Dispatched two background agent runs to execute the
+        deploy-cicd-readiness and marketing-distribution queue items
+        directly in this session (the code half neither is blocked on),
+        since the governor itself is still owner-disabled.
+    mrr_end: null

@@ -71,6 +71,13 @@ import {
   renderBidLinkModule,
 } from './link.mjs';
 import {
+  EMBED_MODULE_FILE,
+  EMBED_STYLE_FILE,
+  injectEmbedWidget,
+  renderEmbedModule,
+  renderEmbedStyle,
+} from './embed.mjs';
+import {
   INVALID_MODULE_FILE,
   INVALID_STYLE_FILE,
   injectInvalidField,
@@ -3809,6 +3816,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const described = [];
   const highlighted = [];
   const narrowed = [];
+  const embedded = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -3851,10 +3859,21 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         cardFile: toolCardFileFor(surface.slug),
       });
       if (withCard !== chromed) described.push(relative);
+      // The embed offer rides in the footer chrome `injectChrome` already
+      // wrote, so it needs to run after that and can run independently of
+      // the bars below — it touches neither's markup and neither touches its.
+      const withEmbed = injectEmbedWidget(withCard, {
+        slug: surface.slug,
+        toRoot,
+        canonical,
+        title: surface.title,
+        isEntry: url === `${surface.slug}/index.html`,
+      });
+      if (withEmbed !== withCard) embedded.push(relative);
       // Last: the bar anchors under the site nav, so the chrome has to be there
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
-      const withRates = injectShopRates(withCard, surface.slug, toRoot);
+      const withRates = injectShopRates(withEmbed, surface.slug, toRoot);
       if (withRates !== withCard) rated.push(relative);
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
@@ -3892,7 +3911,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
     }
   }
 
-  return { wrapped, rated, saved, shared, described, highlighted, narrowed };
+  return { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded };
 }
 
 export function renderRobots(baseUrl) {
@@ -4268,7 +4287,7 @@ export async function collectOfflineBundle(outDir, surfaces) {
     './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
     BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
-    INVALID_MODULE_FILE, INVALID_STYLE_FILE,
+    INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -4438,6 +4457,9 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
   await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
   await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
+  // The embed-widget runtime and its stylesheet, on the same terms.
+  await fs.writeFile(path.join(outDir, EMBED_MODULE_FILE), renderEmbedModule());
+  await fs.writeFile(path.join(outDir, EMBED_STYLE_FILE), renderEmbedStyle());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
@@ -4522,7 +4544,7 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
   const {
-    wrapped, rated, saved, shared, described, highlighted, narrowed,
+    wrapped, rated, saved, shared, described, highlighted, narrowed, embedded,
   } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
@@ -4532,7 +4554,7 @@ export async function buildSite({
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, offline,
+    highlighted, narrowed, embedded, offline,
   };
 }
 
@@ -4691,4 +4713,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Corrected canonical and share-card tags on ${result.described.length} page(s).`);
   console.log(`Highlighted the rejected input on ${result.highlighted.length} page(s).`);
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
+  console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
 }
