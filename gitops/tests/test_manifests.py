@@ -320,6 +320,26 @@ def test_root_tracks_main_of_this_repo() -> None:
     assert root["spec"]["source"]["path"] == "gitops/apps"
 
 
+def test_root_mirrors_the_bootstrap_application_it_claims_to() -> None:
+    # gitops/root.yaml's own header says it is a "Mirror of
+    # bootstrap/root-application.yaml so the snowflake is also visible in the
+    # GitOps tree" -- two files, one meant to track the other by hand, and
+    # nothing checked that claim. A future edit to either copy alone (a
+    # syncPolicy tweak, a changed destination) would silently split them: the
+    # live cluster is bootstrapped from bootstrap/root-application.yaml
+    # (applied once, out of band), while a disaster-recovery rebuild reaching
+    # for "the copy under bootstrap/" -- this file's own words -- or anyone
+    # reading gitops/root.yaml as the source of truth would trust it to still
+    # match. Comments are allowed to differ; each file explains its own role
+    # from where it sits. The Application spec is the part that must not.
+    root = yaml.safe_load((ROOT / "root.yaml").read_text())
+    bootstrap_root = yaml.safe_load((REPO / "bootstrap" / "root-application.yaml").read_text())
+    assert root == bootstrap_root, (
+        "gitops/root.yaml has drifted from bootstrap/root-application.yaml -- "
+        "update whichever one is stale so the two stay identical"
+    )
+
+
 def test_prod_landing_has_no_marisstella_ingress() -> None:
     landing = Path(ROOT / "prod" / "landing.yaml").read_text()
     assert "kind: Ingress" not in landing
