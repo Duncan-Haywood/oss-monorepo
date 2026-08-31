@@ -343,6 +343,52 @@ test("55% monthly sell-through flips the leftover pile back to WFS", () => {
   assert.match(agedWfsNote(r), /41\.3%/);
 });
 
+test("reports the real aged-storage crossing instead of always 0", () => {
+  // `breakEvenAgedRateVsRemove`'s bisection built its own `keepArgs` object
+  // without `sellThroughPct`, so every point it sampled sold NaN units and
+  // its `cash` came back NaN. `NaN < x` and `NaN >= x` are both false, which
+  // drove the bisection's `hi` straight to 0 on every run -- the page always
+  // told the seller the crossing was "$0.00/cu ft" (i.e. unreachable)
+  // regardless of the real number, even when keeping clearly wins at low
+  // storage rates.
+  const scenario = {
+    salePrice: 34.99,
+    referralRate: 15,
+    referralMinimum: 0.3,
+    length: 12,
+    width: 9,
+    height: 5,
+    weightLb: 2.2,
+    costOfGoods: 9,
+    inboundPerUnit: 1.2,
+    monthsInStorage: 1,
+    storageRate: 0.75,
+    sellerShippingCost: 6.5,
+    packagingCost: 1,
+    otherCost: 0,
+    adsPerUnit: 0,
+    leftoverUnits: 150,
+    monthlySellThroughPct: 25,
+    horizonMonths: 8,
+    removalFee: 2,
+    disposalFee: 3,
+    agedStorageRate: 6.518497919457394,
+  };
+  const r = compareAgedWfs(scenario);
+  assert.equal(r.winner, "remove");
+
+  // Ground truth from the same formula the page reports, sampled on both
+  // sides of the reported crossing -- independent of the bisection under
+  // test, which only ever touches its own internal `keepArgs`.
+  const below = compareAgedWfs({ ...scenario, agedStorageRate: r.breakEvenAgedRateVsRemove - 0.05 });
+  const above = compareAgedWfs({ ...scenario, agedStorageRate: r.breakEvenAgedRateVsRemove + 0.05 });
+  assert.ok(below.keep.cash > below.remove.cash, "keeping still wins just below the reported crossing");
+  assert.ok(above.keep.cash < above.remove.cash, "removing already wins just above the reported crossing");
+
+  near(r.breakEvenAgedRateVsRemove, 1.5184979194573884, "locked aged-storage crossing");
+  assert.match(agedWfsNote(r), /Aged storage can fall to about \$1\.52\/cu ft before keeping matches\./);
+});
+
 test("rejects invalid leftover, horizon, and sell-through inputs", () => {
   assert.throws(() => compareAgedWfs({ ...base, leftoverUnits: 0 }), /greater than zero/);
   assert.throws(() => compareAgedWfs({ ...base, horizonMonths: 0 }), /greater than zero/);

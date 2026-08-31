@@ -1081,6 +1081,7 @@ export function compareAgedWfs(input = {}) {
 
   const keepArgs = {
     units: leftoverUnits,
+    sellThroughPct: monthlySellThroughPct,
     horizonMonths,
     storagePerUnitMonth,
     contribution: keepContribution,
