@@ -162,6 +162,18 @@ def test_usage_counts_survive_an_argo_sync() -> None:
         and "/data" in d["jsonPointers"]
         for d in ignored
     )
+    # ignoreDifferences on its own only changes what counts as OutOfSync in
+    # the diff view — it does nothing during an actual sync. With selfHeal
+    # on, every automated reconcile would still overwrite /data back to the
+    # empty seed unless RespectIgnoreDifferences=true is also set, the same
+    # requirement `test_agents_app_does_not_reset_governor_state` pins for
+    # governor-state. This entry existed without its syncOption counterpart
+    # from the day it was added (#2228) until this test caught it.
+    assert "RespectIgnoreDifferences=true" in app["spec"]["syncPolicy"]["syncOptions"]
+    # Defense in depth, matching governor-state.yaml's own annotations.
+    docs = [d for d in yaml.safe_load_all((ROOT / "prod" / "site-usage.yaml").read_text()) if d]
+    configmap = next(d for d in docs if d["kind"] == "ConfigMap" and d["metadata"]["name"] == "portfolio-site-usage")
+    assert configmap["metadata"]["annotations"]["argocd.argoproj.io/sync-options"] == "RespectIgnoreDifferences=true"
 
 
 def test_usage_job_is_synced_and_mounts_the_script_from_git() -> None:

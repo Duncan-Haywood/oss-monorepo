@@ -45,6 +45,16 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: portfolio-site-usage
+  # Belt and suspenders with the Application-level ignoreDifferences +
+  # RespectIgnoreDifferences=true in gitops/apps/prod.yaml (same pattern as
+  # governor-state.yaml). ignoreDifferences alone only changes what counts as
+  # OutOfSync in the diff view; it does nothing during an actual sync, so
+  # without RespectIgnoreDifferences=true set *somewhere* an automated
+  # reconcile (selfHeal: true is on for this Application) still overwrites
+  # /data back to git's empty seed on every sync.
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    argocd.argoproj.io/sync-options: RespectIgnoreDifferences=true
 data:
   usage.json: |
     {
