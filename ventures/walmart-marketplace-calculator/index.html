@@ -472,7 +472,9 @@
         document.getElementById("roi").textContent = result.selected.roi === null ? "n/a" : `${result.selected.roi.toFixed(1)}%`;
         document.getElementById("breakEven").textContent = Number.isFinite(result.selected.breakEvenPrice)
           ? money(result.selected.breakEvenPrice) : "never";
-        document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
+        document.getElementById("maxBuy").textContent = result.selected.breakEvenBuyCostRaw < 0
+          ? `${money(0)} — loses money even at $0 cost`
+          : money(result.selected.breakEvenBuyCost);
         document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
           ? money(result.selected.targetMarginPrice) : "unreachable";
         const extra = result.wfsAdvantage;

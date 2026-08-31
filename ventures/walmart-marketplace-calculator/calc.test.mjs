@@ -141,6 +141,21 @@ test("reports max buy cost that drives profit to zero", () => {
   near(rebuilt.wfs.profit, 0, "buying at max buy cost zeros WFS profit");
 });
 
+test("a listing that already loses money at $0 cost reports a negative raw ceiling, not a bare $0", () => {
+  // Fees and non-COGS cash costs alone exceed a $3 sale price, so no sourcing
+  // cost -- not even free -- reaches break-even. The clamped display value
+  // (breakEvenBuyCost) floors at $0.00, which reads as "buy at up to $0 and
+  // still break even" -- indistinguishable from a listing that genuinely
+  // breaks even on a free unit. breakEvenBuyCostRaw keeps the signed figure
+  // so a $0.00 ceiling and an already-underwater listing can be told apart.
+  // Same bug class already fixed for amazon-fba-calculator's maxBuyCost.
+  const losing = calculateListing({ ...base, salePrice: 3, costOfGoods: 0 });
+  near(losing.wfs.profit, -3.0416666666666665, "loses money on this listing even at $0 cost of goods");
+  assert.equal(losing.wfs.breakEvenBuyCost, 0, "display value floors at $0");
+  assert.ok(losing.wfs.breakEvenBuyCostRaw < 0, "the true ceiling is negative, not a genuine $0 break-even");
+  near(losing.wfs.breakEvenBuyCostRaw, -3.0416666666666665, "raw ceiling matches the real deficit");
+});
+
 test("uses the referral floor when the break-even price is cheap", () => {
   const cheap = breakEvenSalePrice({
     fixedCash: 1.2,

@@ -243,7 +243,17 @@ function listingAtPrice(input, salePrice) {
   const targetMarginRate = targetMargin / 100;
 
   function finish(path, cogsInCash) {
-    path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
+    // The raw ceiling can be negative: fees and non-COGS cash costs alone
+    // already exceed the sale price, so no sourcing cost -- not even $0 --
+    // reaches break-even. Clamping that to 0 for display would read as "pay
+    // at most $0.00" -- a real, if tight, break-even point -- when the truth
+    // is that this listing loses money before a unit is even bought.
+    // `breakEvenBuyCostRaw` keeps the signed figure so callers can tell the
+    // two apart instead of reading a bare $0.00 as a genuine break-even.
+    // Same bug class already fixed for amazon-fba-calculator's maxBuyCost.
+    const rawBreakEvenBuyCost = salePrice - path.feeTotal - (path.cashInvested - cogsInCash);
+    path.breakEvenBuyCostRaw = rawBreakEvenBuyCost;
+    path.breakEvenBuyCost = Math.max(0, rawBreakEvenBuyCost);
     return path;
   }
 
