@@ -153,11 +153,47 @@ class Registry(unittest.TestCase):
                 f"platform/pages/{name}.mjs is missing",
             )
 
-    def test_the_six_documented_checks_are_all_registered(self):
+    def test_the_seven_documented_checks_are_all_registered(self):
         self.assertEqual(
             set(bc.CHECKS),
-            {"journey", "sweep", "contrast", "roundtrip", "presets", "sideways"},
+            {"journey", "sweep", "contrast", "roundtrip", "presets", "highlight",
+             "sideways"},
         )
+
+    def test_highlight_is_registered(self):
+        """It was written on 2026-08-29 and left out of CHECKS.
+
+        A session running "the browser checks" then ran six of the seven and
+        was not told which one it had missed. `highlight.mjs` is the only
+        check that asks whether a rejected input gets pointed at -- it found
+        0 of 103 tools drawing any highlight at all when it was written, on
+        forms whose own message said "check the highlighted input".
+        """
+        self.assertIn("highlight", bc.CHECKS)
+
+    def test_no_check_module_in_pages_is_left_out_of_the_registry(self):
+        """The gap that let `highlight` sit unregistered, closed generally.
+
+        Every `platform/pages/*.mjs` that runs as a standalone browser check
+        reads `BASE_URL` and drives Playwright. Anything matching that shape
+        and missing from CHECKS is a check nobody runs.
+        """
+        registered = set(bc.CHECKS)
+        for path in sorted(os.listdir(bc.PAGES)):
+            if not path.endswith(".mjs") or path.endswith(".test.mjs"):
+                continue
+            name = path[: -len(".mjs")]
+            if name in registered:
+                continue
+            with open(os.path.join(bc.PAGES, path), encoding="utf-8") as fh:
+                source = fh.read()
+            looks_like_a_check = "BASE_URL" in source and "chromium" in source
+            self.assertFalse(
+                looks_like_a_check,
+                f"platform/pages/{path} reads BASE_URL and launches a browser but "
+                f"is not in CHECKS, so nothing runs it. Register it, or give it a "
+                f"name this test does not mistake for a check.",
+            )
 
     def test_free_port_is_actually_free(self):
         port = bc.free_port()
