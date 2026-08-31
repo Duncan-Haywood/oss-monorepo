@@ -7,7 +7,7 @@
 // with .toFixed.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 
@@ -138,4 +138,19 @@ test("scenario sharing is local and restores entered assumptions", () => {
   assert.match(scriptSource, /restoreScenario/);
   assert.match(scriptSource, /navigator\.clipboard\.writeText/);
   assert.match(scriptSource, /scenario_shared/);
+});
+
+// A page missing og:* renders as a bare link with no preview when shared —
+// PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
+// affiliate-commission-on-returns.html was linked from index.html and in the
+// sitemap, but shipped with no og:* tags at all.
+test("every published page carries Open Graph tags", () => {
+  const dir = new URL("./", import.meta.url);
+  const pages = readdirSync(dir).filter((name) => name.endsWith(".html"));
+  assert.ok(pages.length >= 5, "expected at least the 5 known pages in this venture");
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), "utf8");
+    assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
+    assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
+  }
 });

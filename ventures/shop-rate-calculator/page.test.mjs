@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { NUMERIC_IDS, OPTIONAL_NUMERIC_IDS, ALL_INPUT_IDS } from './calc.mjs';
 
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
@@ -234,4 +234,19 @@ test('opening the page counts nothing and arms nothing', () => {
   // And a real calculation clears the example state, so the note and the
   // guard message stop applying once the figures are the visitor's own.
   assert.match(script, /render\(result\);\s*\n\s*showingExample = false;/);
+});
+
+// A page missing og:* renders as a bare link with no preview when shared —
+// PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
+// what-should-i-charge-per-hour.html was linked from index.html but shipped
+// with no og:* tags at all.
+test('every published page carries Open Graph tags', () => {
+  const dir = new URL('./', import.meta.url);
+  const pages = readdirSync(dir).filter(name => name.endsWith('.html'));
+  assert.ok(pages.length >= 2, 'expected at least the 2 known pages in this venture');
+  for (const name of pages) {
+    const source = page(name);
+    assert.match(source, /<meta property="og:title" content="[^"]+">/, `${name} is missing og:title`);
+    assert.match(source, /<meta property="og:description" content="[^"]+">/, `${name} is missing og:description`);
+  }
 });
