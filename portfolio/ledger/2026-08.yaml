@@ -40975,3 +40975,58 @@ entries:
         merged PRs) before starting build work would have caught this before
         any code was written, not after two merges and a revert.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Full branch-to-PR presumption sweep, prompted by a scheduled session
+        that started with zero open PRs. Of 305 remote branches, 177 carry
+        commits not reachable from main. Checked the ~35 largest/newest via
+        three-dot diff against the merge-base; all but one were confirmed
+        superseded -- the touched venture/file already has equal-or-greater
+        content on main, in several cases with the branch's own commit
+        message admitting it (fix/governor-rbac-configmap-scope's merge
+        commit says the RBAC fix it describes already landed as #2269). The
+        one candidate that looked genuinely new and tested
+        (pr/fence-bid-share-preset-fix, a real share-link bug: a run's
+        customized rates were silently overwritten by matched-preset
+        defaults, $3,359.27 -> $5,710.23 on the recipient's screen) was
+        opened as PR #2553, then closed after
+        portfolio/ledger/supersede_check.py 2553 returned SUPERSEDED
+        (identical-merge proof) -- a concurrent session had independently
+        shipped the same fix on main, more thoroughly (ownCosts merged
+        directly into applyPreset's preset argument, plus an hoursEdited
+        flag path this branch lacked). Confirms CLAUDE.md's ~99%-noise
+        figure for this repo's branch backlog holds at 305 branches, not
+        just the 608 it was measured against on 2026-08-24; no further
+        branch-drain work is currently outstanding.
+      - >-
+        gitops readiness fix: gitops/prod/landing.yaml (the cluster-internal
+        placeholder status page for the prod namespace) still carried a
+        #1486-era comment and HTML body saying marisstella.dev was unclaimed
+        and warning future PRs not to bind an Ingress there. That stopped
+        being true when gitops/prod/portfolio-apex.yaml started binding
+        marisstella.dev/www (301 to tools.marisstella.dev) on #2481;
+        landing.yaml was never updated, so it read as an open invitation to
+        bind a second, conflicting Ingress to a host that already has one.
+        Fixed in #2557, merged. Verified: python3 -m pytest gitops/tests -q
+        (185 passed, before and after), kustomize build | kubeconform -strict
+        clean on all six kustomize roots (apps/platform/prod/staging/agents/ci).
+        No behavior change -- comment and status-page copy only.
+      - >-
+        Confirmed, not re-queued (per CLAUDE.md's no-duplicate-ask rule):
+        gitops/agents/governor/ already fully implements the "Codex CLI
+        spends its own built-in plan quota on unattended dev work, following
+        this repo's own product-first mandate" request made in this
+        session's brief -- CODEX_AUTH_JSON support, a budget-governed
+        CronJob, and queue items (deploy-cicd-readiness, marketing-distribution,
+        branch-pr-drain, open-pr-repair-merge, product-feature-improvement,
+        seo-discoverability-audit) that are near-verbatim this same mandate.
+        It, the self-hosted CI runner stack, and the tools.marisstella.dev
+        live-site deploy are each one sealed secret away
+        (infra/OWNER_CHECKLIST.md's "three seals, one command":
+        ./bootstrap/scripts/seal-owner-secrets.sh) and already tracked as
+        decision-queue rows 10-13. Nothing new to add; this entry exists so
+        the next session does not re-derive the same confirmation.
+    mrr_end: null
