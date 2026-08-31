@@ -149,17 +149,39 @@ registration — no reissue, no downtime, and it can happen long after the
 site is live. `gitops/tests/test_manifests.py` pins the property that
 matters: an address here may be real or absent, never a placeholder.
 
-Then, once a staging certificate has issued: **flip the issuer.** The
-Ingress ships pointed at `letsencrypt-staging` deliberately — Argo syncs
-this namespace, so the Ingress exists before a certificate can issue,
-and challenges that cannot resolve would count against Let's Encrypt
-limits for a name nobody can reach yet. Change the
-`cert-manager.io/cluster-issuer` annotation to `letsencrypt-prod` (and
-update the test that pins it) once a staging certificate has actually
-issued. Browsers will warn until you do — staging is not a trusted
-root. Unlike 1–2 this is an ordinary code change, not an owner action —
-ask a session to open that PR once you confirm the staging certificate
-issued.
+**The issuer flip is done (2026-08-31).** Both Ingresses — the site's and
+the apex redirect's — now carry
+`cert-manager.io/cluster-issuer: letsencrypt-prod`, and
+`gitops/tests/test_manifests.py` pins prod on the site and pins the apex
+equal to it.
+
+This used to be listed here as the last step, to be done "once a staging
+certificate has issued". The staging default was right while it held: Argo
+syncs this namespace, so the Ingress existed before DNS for its host did,
+and prod-issuer challenges that cannot resolve count against Let's Encrypt
+limits for a name nobody can reach. DNS resolved on 2026-08-29, which
+retired that reason.
+
+Leaving it as a follow-up was the actual risk. Staging is not a trusted
+root, so sealing `portfolio-site-repo` — the one action left — would have
+published all 508 pages behind a full-page browser interstitial, live and
+reaching nobody. The flip had to precede the seal, not follow it.
+
+It is also non-worsening if issuance fails: cert-manager reissues into the
+same `secretName` and leaves the existing contents alone until a new
+certificate is ready, so a failed order keeps serving whatever is already
+there. Failed validations cap per hour and recover on their own, and do not
+consume the weekly duplicate-certificate limit, which counts only
+successful issuances.
+
+**Still unverified against the cluster:** no session has yet confirmed a
+certificate actually issued for either host, because the sandboxes these
+runs execute in cannot reach `89.167.29.39`. Confirm with
+`kubectl -n prod get certificate` (want `READY=True` on
+`portfolio-site-tls` and `portfolio-apex-tls`) or, from anywhere that can
+reach the box, `curl -sSI https://tools.marisstella.dev/` without `-k`. If
+prod issuance turns out to fail, the revert is `letsencrypt-staging` in
+both Ingresses **and** the test — never one without the others.
 
 ### Keeping it current
 

@@ -654,19 +654,34 @@ kind: Ingress
 metadata:
   name: portfolio-site
   annotations:
-    # Staging on purpose, and it must stay staging until DNS resolves.
+    # Prod since 2026-08-31. This was `letsencrypt-staging`, and the reason
+    # it was is gone: the manifest landed before the A record existed, so
+    # cert-manager would have started HTTP-01 challenges that could not
+    # resolve, and against the prod issuer those failures count towards
+    # Let's Encrypt's per-account limits for a name nobody can reach.
     #
-    # Argo auto-syncs this namespace, so this Ingress exists the moment the
-    # manifest lands — before the A record for the host below. cert-manager
-    # will then start HTTP-01 challenges that cannot succeed, and against
-    # the prod issuer those failures count towards Let's Encrypt's
-    # per-account limits for a name nobody can reach yet.
+    # `tools.marisstella.dev` has resolved to this box since 2026-08-29 (the
+    # zone's wildcard `A/*` already covered the subdomain — no new record was
+    # ever needed), so challenges reach the solver now and the precondition
+    # the staging default was protecting is satisfied.
     #
-    # Staging issues an untrusted certificate, which is exactly right for a
-    # host that is not serving anyone. Flip to `letsencrypt-prod` as the
-    # last step, once `tools.marisstella.dev` resolves to this box and a
-    # staging certificate has actually issued — see gitops/README.md.
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    # Staging had to go before the site serves anyone, not after. It issues an
+    # untrusted certificate, so the moment Secret `portfolio-site-repo` is
+    # sealed and the pods come up, every visitor would meet a full-page
+    # browser interstitial and every crawler a handshake it rejects — a launch
+    # that is technically live and reaches nobody. Leaving the flip as a
+    # follow-up meant the owner's one remaining action produced that.
+    #
+    # Flipping is non-worsening even if issuance fails: cert-manager reissues
+    # into the same `secretName` and leaves the existing contents in place
+    # until a new certificate is ready, so a failed prod order keeps serving
+    # whatever is already there rather than blanking it. Failed validations
+    # cap per hour and recover on their own; they do not consume the weekly
+    # duplicate-certificate limit, which counts only successful issuances.
+    #
+    # Reverting is one word here and one in portfolio-apex.yaml — the two
+    # move together, which `gitops/tests/test_manifests.py` pins.
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: nginx
   tls:
