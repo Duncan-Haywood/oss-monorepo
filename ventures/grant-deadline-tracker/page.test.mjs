@@ -73,6 +73,29 @@ test("the grant-writer landing page uses the same worked example the tests lock"
   assert.match(sitemap, /should-i-hire-a-grant-writer-to-file-this-report\.html/);
 });
 
+test("an invalid risk input clears every stale field in the late-report comparison, not just the message", () => {
+  // Before this fix, renderRisk()'s catch block only overwrote #riskMessage
+  // with the error sentence. Cash at risk, writer cost, kept-after-hiring,
+  // the miss/file-yourself/hire-writer comparison rows, and the copyable
+  // board note all kept showing the last valid comparison. A visitor who
+  // missed the one-line message could easily read those stale figures as
+  // the answer for the invalid inputs (spent over award, a clawback over
+  // 100%) now in the form.
+  const catchMatch = html.match(/if \(count\) countUsage\("late_report_compared"\);\s*\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}/);
+  assert.ok(catchMatch, "renderRisk()'s catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /\$\("riskMessage"\)\.textContent = error\.message/, "the error message is never shown");
+  for (const id of ["riskAtRisk", "riskWriterCost", "riskKept", "riskNote"]) {
+    assert.match(
+      body,
+      new RegExp(`\\$\\("${id}"\\)\\.textContent = ""`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+  assert.match(body, /\$\("riskRows"\)\.innerHTML = ""/, "the stale comparison rows are not cleared");
+  assert.match(body, /\$\("lateReport"\)\.dataset\.note = ""/, "the stale board note dataset survives for Copy to hand out");
+});
+
 test("the entry page's FAQ derivation is not suppressed by its own explanatory comment", () => {
   // The source carries only a *comment* explaining that FAQPage schema is
   // derived by build.mjs, not an authored block. build.mjs used to check for

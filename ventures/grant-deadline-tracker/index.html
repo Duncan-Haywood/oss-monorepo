@@ -387,6 +387,17 @@
       $("lateReport").dataset.note = lateReportNote(comparison);
       if (count) countUsage("late_report_compared");
     } catch (error) {
+      // A rejected input (spent over award, a clawback over 100%) must not
+      // leave the last valid comparison on screen next to a silent failure
+      // -- a visitor who misses the message could read the stale cash-at-risk,
+      // writer cost, kept amount, comparison rows, or board note as the
+      // answer for the invalid inputs now in the form.
+      $("riskAtRisk").textContent = "";
+      $("riskWriterCost").textContent = "";
+      $("riskKept").textContent = "";
+      $("riskRows").innerHTML = "";
+      $("riskNote").textContent = "";
+      $("lateReport").dataset.note = "";
       $("riskMessage").textContent = error.message;
     }
   }
