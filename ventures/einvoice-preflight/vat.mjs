@@ -101,9 +101,20 @@ function beOk(body) {
   return (Number(digits.slice(0, 8)) % 97 + Number(digits.slice(8))) % 97 === 0;
 }
 
+// Elfproef (11-proof): the same mod-11 checksum the Dutch government uses
+// for a BSN/RSIN, which is where the 9 digits of a legacy company VAT
+// number come from. Weights 9..2 on the first eight digits, then the ninth
+// (check) digit at weight -1 — not +1. The prior version added the check
+// digit instead of subtracting it, which is off by 2x the check digit from
+// the real elfproef: it fails real valid Dutch VAT numbers (e.g. the
+// standard NL123456782B01 test number) and, just as quietly, calls some
+// typo'd numbers valid. A preflight tool whose one job is catching a typo'd
+// VAT number before the invoice goes out cannot get its own arithmetic
+// backwards on the most common EU country in this list.
 function nlOk(body) {
   let total = 0;
-  for (let i = 0; i < 9; i += 1) total += Number(body[i]) * (9 - i);
+  for (let i = 0; i < 8; i += 1) total += Number(body[i]) * (9 - i);
+  total -= Number(body[8]);
   return total % 11 === 0;
 }
 

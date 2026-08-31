@@ -229,7 +229,13 @@ def _be(body: str) -> bool:
 
 
 def _nl(body: str) -> bool:
-    total = sum(int(digit) * weight for digit, weight in zip(body[:9], range(9, 0, -1)))
+    # Elfproef (11-proof): weights 9..2 on the first eight digits, then the
+    # ninth (check) digit at weight -1, not +1. range(9, 0, -1) gave every
+    # digit including the last a positive weight, which fails real valid
+    # Dutch VAT numbers (NL123456782B01, the standard example) and mis-scores
+    # typo'd ones the same way.
+    total = sum(int(digit) * weight for digit, weight in zip(body[:8], range(9, 1, -1)))
+    total -= int(body[8])
     return total % 11 == 0
 
 
