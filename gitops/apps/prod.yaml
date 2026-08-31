@@ -18,7 +18,11 @@ spec:
     # The nightly usage CronJob writes the site's page counts into this
     # ConfigMap's `/data`. Git holds an empty seed, so without this a sync
     # would erase the history on every reconcile — the same reason the agents
-    # Application ignores `governor-state`.
+    # Application ignores `governor-state`. ignoreDifferences by itself only
+    # changes what Argo calls OutOfSync in the diff view; the
+    # RespectIgnoreDifferences=true syncOption below is what actually stops
+    # an automated sync (selfHeal is on) from overwriting /data — the entry
+    # here did nothing on its own until that option was added.
     - group: ""
       kind: ConfigMap
       name: portfolio-site-usage
@@ -30,3 +34,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - RespectIgnoreDifferences=true
