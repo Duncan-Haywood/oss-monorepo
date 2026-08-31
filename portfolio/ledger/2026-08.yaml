@@ -40347,3 +40347,32 @@ entries:
         re-recorded here per the "skip if the latest entry already covers
         it" rule.
     mrr_end: null
+  - venture: tender-radar
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a correctness gap: filterTenders() had no concept of "today"
+        and kept every row regardless of deadline, so a tender whose
+        deadline had already passed sat in the shortlist indistinguishable
+        from a live one -- a portal CSV export routinely still contains last
+        week's notices. Merged as #2538.
+      - >-
+        filterTenders() now takes `today` and `hideClosed` (default true)
+        and drops passed-deadline rows unless the caller opts out; new
+        isClosed() helper; UI checkbox "Hide tenders that already closed"
+        (checked by default), with shown-but-closed rows marked and muted so
+        they can't be mistaken for live ones, and the status line reporting
+        how many were hidden.
+      - >-
+        `cd ventures/tender-radar/site && node --test`: 13/13 pass (4 new
+        tests for the default-hide behavior, the opt-out, the
+        no-`today`-supplied no-op case, and isClosed() itself). Manual
+        walkthrough via `node -e` against a 4-row sample (one closed, three
+        open) confirmed correct filtering and labeling.
+      - >-
+        Zero open PRs existed at session start (quota trivially met). No new
+        deploy/CI/codex-governor findings this run -- unchanged from the
+        entries above; not re-recorded per the "skip if already covered"
+        rule.
+    mrr_end: null
