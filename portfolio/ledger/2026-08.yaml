@@ -35709,3 +35709,42 @@ entries:
         behind that one command. Pushed to the owner by notification rather
         than only recorded here, since no prior ledger entry has moved it.
     mrr_end: null
+  - venture: home-elevator-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed the customer-proposal "Print proposal / Save as PDF" button
+        being unclickable: `platform/proposal/verify.mjs`, a real-browser
+        (Playwright) check most of this session's text-based tests cannot
+        replace, timed out clicking it because a `<span>Cab</span>` inside
+        the sticky `.result` sidebar intercepted the pointer event.
+        `#proposalSection` had been generated as a sibling of the left-column
+        `<div>` instead of nested inside it, so CSS grid auto-placement put
+        it in `.result`'s own column one row down, and `.result`'s sticky
+        box was tall enough to graze that row and paint over the button.
+        Fixed with a 10-line CSS-only change (`grid-column: 1 / -1` on the
+        FAQ and proposal sections) that spans them full-width instead of
+        restructuring the generated HTML, so `adopt.mjs`'s regeneration
+        markers stay intact. Verified: `node --test
+        ventures/home-elevator-bid-calculator/*.test.mjs` (139/139, was
+        already green -- this defect was invisible to it, which is the
+        reason `verify.mjs` exists); `node platform/pages/build.mjs && node
+        platform/proposal/verify.mjs home-elevator-bid-calculator` went from
+        `page.click: Timeout 30000ms exceeded` to "1/1 calculators hand the
+        customer a sound proposal"; `platform/pages/check.mjs` on a full
+        rebuild found no dead links across 506 pages; guide-coverage stayed
+        168/168. Merged as #2319 (squash) after local verification -- CI
+        showed the runner-starvation signature (every check run 3-4s across
+        all 8 check types simultaneously) rather than a real failure.
+      - >-
+        `platform/proposal/verify.mjs` (no arguments) currently reports
+        roughly 20 other bid calculators with this identical
+        click-interception failure. The pattern -- a generated
+        `#proposalSection` landing outside the left-column `<div>` instead
+        of inside it -- looks systemic to where `platform/proposal/adopt.mjs`
+        inserts the section, not unique to this one venture. Left as a
+        scoped follow-up rather than expanded here: either the same one-line
+        CSS rule applied portfolio-wide, or a fix to the generator's
+        insertion point so future regenerations land correctly on their own.
+    mrr_end: null
