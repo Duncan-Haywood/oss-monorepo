@@ -21,11 +21,29 @@ test('the landing page names the search phrase and refuses an engineering opinio
   assert.match(html, /Do not keep anonymous local usage counts/);
 });
 
-test('the page wires the calculator and usage modules', () => {
+test('the page wires the calculator, usage, and share modules', () => {
   assert.match(script, /from '\.\/calc\.mjs'/);
   assert.match(script, /from '\.\/usage\.mjs'/);
+  assert.match(script, /from '\.\/share\.mjs'/);
   assert.match(script, /recordUsage\(/);
   assert.match(script, /calculateBid\(/);
+  assert.match(html, /Copy share link/);
+});
+
+test('a share link is decoded before the local draft, and never fakes a clipboard success', () => {
+  // The order matters: a colleague opening a link they were sent should see
+  // that job, not whatever was last typed on their own device.
+  assert.match(script, /decodeInputs\(location\.hash \|\| location\.search\)/);
+  assert.match(script, /encodeInputs\(readInputs\(\)\)/);
+  // Regression: `navigator.clipboard?.writeText(...)` awaited bare resolves
+  // to undefined (no throw) when the Clipboard API is absent, so a bare
+  // optional-chaining call would report success without copying anything.
+  assert.ok(
+    !/navigator\.clipboard\?\.writeText\([^)]*\);/.test(script.replace(/\s+/g, ' ')),
+    'the copy handler must not await an unguarded optional-chaining clipboard call',
+  );
+  assert.match(script, /window\.prompt\('Copy this link:', url\)/);
+  assert.match(script, /Clipboard unavailable/);
 });
 
 test('every input field the calculator declares exists on the form', () => {
