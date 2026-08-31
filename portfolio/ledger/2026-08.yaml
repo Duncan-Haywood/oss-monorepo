@@ -40614,3 +40614,41 @@ entries:
         Did not change the links or add a decision-queue row -- the row
         exists and the question is already the owner's.
     mrr_end: null
+  - venture: commercial-photo-license-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real pricing-economics bug: calculate()'s channelFactor
+        averaged the selected usage channels' factors, which is not
+        monotonic -- starting from a high-value channel (outdoor, 1.6) and
+        adding a lower-value one (web, 1) pulled the average down, so a
+        licence covering *more* places to use the image could quote *less*
+        than a narrower one. Reproduced: outdoor-only quoted $2,040 on the
+        $1,200/6-month/national baseline; adding web (strictly more usage
+        rights) dropped that to $1,882.50. A photographer using this tool
+        for a real quote would have systematically undercharged for
+        bundled channel rights. Merged as #2549.
+      - >-
+        channelFactor is now `0.85 * max(selected factors) + 0.15 *
+        sum(selected factors)` -- identical to the old single-channel
+        result (so the existing $525/$1,725 golden test is untouched) and
+        provably monotonic for any combination added. The site's FAQ had
+        explicitly documented and justified the old average-based formula
+        with a worked example ($689.06 for all four channels); that example
+        only ever added higher-value channels to the cheapest one, which is
+        why it never exposed the non-monotonic case. Updated both FAQ copy
+        blocks (visible <p> and the FAQPage JSON-LD) with the corrected
+        explanation and worked numbers (channel factor 2.1475, $1,127.44
+        rights, $2,327.44 total for all four channels) rather than leaving
+        stale numbers next to a fixed calculator.
+      - >-
+        Verified locally (no CI runner assigned to this repo currently):
+        `node --test` in the venture directory, 10/10 pass (3 new tests --
+        the exact non-monotonic repro, single-channel-unchanged, and the
+        pinned four-channel figure -- plus 7 existing, including the
+        territory-page test that cross-checks its own worked table against
+        calculate()). Confirmed both JSON-LD blocks still parse as valid
+        JSON after the copy edit. `build_pages_site.py --check`: no
+        problems portfolio-wide.
+    mrr_end: null
