@@ -119,6 +119,24 @@ test('the primary journey, disclaimer, and privacy note are rendered markup', ()
   assert.match(markup, /never uploaded/i);
 });
 
+test('a rejected worksheet hides every result section instead of leaving the last valid worksheet on screen', () => {
+  // Before this fix, calculate() only wrote #errors when showErrors was true
+  // (submit only, never live typing) and never touched #output,
+  // #scenarioSection, #releaseSection, #rateSection, or #draftSection on an
+  // invalid worksheet -- so clearing a required field while typing left the
+  // *last valid* cash snapshot, delay scenarios, release schedule, rate
+  // comparison, and downloadable report all showing, with no indication any
+  // of it was stale and download/copy buttons still handing out the old
+  // figures.
+  const calcMatch = scriptSource.match(/function calculate\([\s\S]*?\{([\s\S]*?)\n {6}\$\('errors'\)\.textContent='';/);
+  assert.ok(calcMatch, 'calculate() error branch not found');
+  const body = calcMatch[1];
+  assert.match(body, /classList\.add\('hidden'\)/, 'invalid worksheet does not hide the stale result sections');
+  for (const id of ['output', 'scenarioSection', 'releaseSection', 'rateSection', 'draftSection']) {
+    assert.match(body, new RegExp(`'${id}'`), `#${id} is not among the sections hidden on a rejected worksheet`);
+  }
+});
+
 test('the structural guards actually fail on a swallowed document', () => {
   const broken = page.replace('</style>', '');
   assert.notEqual(broken, page, 'index.html no longer contains </style>');

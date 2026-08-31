@@ -88,6 +88,15 @@
       const parsed=parseInputs(Object.fromEntries(new FormData($('form'))));
       if(!parsed.ok){
         if(showErrors)$('errors').textContent=parsed.errors.join('\n');
+        // A rejected figure used to leave every section -- the cash snapshot,
+        // delay scenarios, release schedule, rate comparison, and the
+        // downloadable report/draft -- showing the *last valid* worksheet.
+        // Nothing marked those numbers as stale, and the download/copy
+        // buttons in #draftSection would still hand out that stale figure.
+        // Hide them here regardless of showErrors so a currently-invalid
+        // worksheet never displays or exports numbers that don't match what
+        // is now in the form.
+        ['output','scenarioSection','releaseSection','rateSection','draftSection'].forEach(id=>$(id).classList.add('hidden'));
         return false;
       }
       $('errors').textContent='';
