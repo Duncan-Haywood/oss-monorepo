@@ -322,6 +322,31 @@ def test_no_real_queue_item_leaves_open_prs_to_nobody() -> None:
     assert drains, "no enabled queue item repairs and merges an already-open PR"
 
 
+def test_seo_item_measures_its_backlog_instead_of_naming_one() -> None:
+    # This item used to open with "the largest measured gap is FAQ content"
+    # and send the run to faq-coverage.mjs as its default pick. That was true
+    # when it was written and stopped being true once the backlog closed:
+    # both coverage tools now report 169 of 169, so the pointer aimed at an
+    # empty list and the run's choice was to flounder or invent a gap.
+    #
+    # The fix is the same one faq-coverage.mjs itself uses against drift --
+    # read the current measurement rather than restate a past one -- so the
+    # property to hold is that the prompt names both commands and asserts
+    # neither is the larger backlog. A future revision that hard-codes the
+    # ranking again fails here rather than silently a month later.
+    text = (AGENTS / "queue" / "seo-discoverability-audit.yaml").read_text()
+    item = g.queue_item_from_dict(g._minimal_yaml_mapping(text))
+    assert item.id == "seo-discoverability-audit"
+    assert item.enabled is True
+    assert "faq-coverage.mjs" in item.prompt
+    assert "guide-coverage.mjs" in item.prompt
+    assert "Do not assume which\nbacklog is larger" in item.prompt
+    # An item with nothing to do must be allowed to finish empty; the
+    # governor's noop damping is what moves the budget off it. A prompt that
+    # requires a change every run is how filler gets written.
+    assert "change nothing" in item.prompt
+
+
 def test_governor_queue_configmap_includes_all_real_items() -> None:
     kustomization = (AGENTS / "kustomization.yaml").read_text()
     for entry in (
