@@ -162,14 +162,26 @@ public URL, and every step in it is yours — none of it is waiting on an
 agent. `gitops/README.md` explains *why* each one exists; this is the
 order to type them in and how to tell each worked.
 
-The build half is done and was rehearsed on 2026-08-29 with the exact
-commands the pod runs (`PAGES_BASE_URL=https://tools.marisstella.dev/
-node platform/pages/build.mjs --out=… && node platform/pages/check.mjs
---dist=…`): 164 products, 446 pages, no dead links, and no
-`duncan-haywood.github.io` URL surviving anywhere in the output. Nothing
+The build half is done and was rehearsed with the exact commands the pod
+runs (`PAGES_BASE_URL=https://tools.marisstella.dev/ node
+platform/pages/build.mjs --out=… && node platform/pages/check.mjs
+--dist=…`). Re-run on 2026-08-31 against that day's `main`: **169
+products, 508 pages, no dead links**, and no `duncan-haywood.github.io`
+URL surviving anywhere in the output. (The 2026-08-29 run said 164 and
+446; the difference is ventures merged since, not a regression.) Nothing
 about it depends on GitHub Actions (no runner since 2026-08-26) or on
 GitHub Pages (not enabled, and a private repo's Pages site is not public
 on the free tier anyway).
+
+The 2026-08-31 run also served that artifact and drove it in Chromium,
+which the earlier rehearsal did not do — `build.mjs` and `check.mjs`
+passing proves the *files* are right, not that a visitor can use them.
+The hub, the MCP manifest-compare tool (fixture loads, comparison renders
+a verdict) and the FBA calculator (one input change propagated through
+15+ derived tables) all worked, with zero console or page errors, and the
+no-warranty clause and Sponsors link present on the product page. So what
+is waiting on step 1 below is a site already known to work, not one that
+will need debugging once it is reachable.
 
 **DNS — already done, no action needed.** `tools.marisstella.dev`
 already resolves to `89.167.29.39` (verified 2026-08-29:

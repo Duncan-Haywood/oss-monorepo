@@ -36038,3 +36038,49 @@ entries:
         derivation-count script rather than trust this number, since other
         sessions may already be closing the gap in parallel.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged the entire open-PR queue (it was one PR): #2331, the
+        mcp-supply-chain-watch browser tool, docs page and SEO metadata.
+        Verified locally first -- 19/19 venture tests, and the full
+        `platform/pages` build + check with the page included (169 products,
+        508 pages, no dead links). Its site/index.html is auto-discovered by
+        `discoverSurfaces`, so the tool now ships with the assembled site.
+      - >-
+        Closed the `faq-visible` follow-up the #2337 entry above left
+        scoped. It was not "entity-encoding drift" in the pages -- it was two
+        bugs in the checker. `visibleText()` decoded six named HTML entities
+        and passed the rest through, so pages rendering `&tau;`/`&micro;`/
+        `&ldquo;` read as missing the JSON-LD's real characters; and
+        stripping every tag to a space turned `V<sub>out</sub>` into "V out".
+        Both fail in the dangerous direction -- they report *missing copy*,
+        which invites the next session to rewrite prose already on the page.
+        Added `platform/pages/entities.mjs` (one shared single-pass decoder;
+        `build.mjs`'s own five-entity version now imports it) plus a
+        portfolio-wide guard test that names any entity the table lacks, so
+        the next occurrence is a one-line fix rather than a fresh
+        investigation. Merged as #2339.
+      - >-
+        That took 33 reported divergences down to 10 real ones -- JSON-LD
+        genuinely not matching its page on 4 pages, which is a structured-data
+        policy violation. Fixed by making the markup mirror the visible copy.
+        `platform/pages` is now 784/784, up from 776 pass / 1 fail; the Page
+        integrity gate is green for the first time since the electronics FAQ
+        content landed. Also recorded two test-only workflows in
+        `publish-surface.yaml` that were already failing `--check` on `main`
+        (snapshot still reports 0 live).
+      - >-
+        Re-rehearsed the Hetzner deploy with the pod's exact commands and
+        today's `main`: 169 products, 508 pages, no dead links, and zero
+        surviving `duncan-haywood.github.io` URLs. New this time -- a
+        Chromium pass over the served artifact, which the 2026-08-29
+        rehearsal did not do: hub, the newly merged MCP tool (fixture loads,
+        comparison renders a verdict) and the FBA calculator (an input change
+        propagated through 15+ derived tables) all work, with zero console or
+        page errors, and the no-warranty clause and Sponsors link present.
+        The artifact is deploy-ready; the one remaining step is still the
+        owner's sealed read-only clone token.
+    mrr_end: null
