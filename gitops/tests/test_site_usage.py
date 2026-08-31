@@ -38,6 +38,57 @@ def _nginx_conf() -> str:
     return configmap["data"]["default.conf"]
 
 
+def _cron_minute_of_day(schedule: str) -> int:
+    """Minutes past midnight for a `M H * * *` schedule. Daily crons only."""
+    minute, hour, dom, month, dow = schedule.split()
+    assert (dom, month, dow) == ("*", "*", "*"), f"not a plain daily schedule: {schedule}"
+    return int(hour) * 60 + int(minute)
+
+
+# --- the ordering the usage signal depends on ------------------------------
+
+
+def test_the_site_refresh_restarts_only_after_usage_has_been_counted() -> None:
+    # `portfolio-site-refresh` does a rollout restart, which replaces both
+    # pods and deletes the nginx access log this job reads out of them --
+    # `?previous=true` cannot recover it, because a rollout does not reuse a
+    # pod. So the aggregator must run first on any given day, or it counts a
+    # day whose log has already been thrown away.
+    #
+    # This inverted for real: until 2026-08-31 the refresh ran at 04:17 and
+    # the aggregator at 00:31 counting *yesterday*, so the only pods alive at
+    # 00:31 had started at 04:17 the previous morning and every daily row
+    # silently dropped 00:00-04:17 -- 18% of every day, always the same hours.
+    # Caught before the site was public, so no real reading was affected.
+    refresh_docs = yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text())
+    refresh = next(
+        d for d in refresh_docs if d and d["kind"] == "CronJob" and d["metadata"]["name"] == "portfolio-site-refresh"
+    )
+    aggregate = _docs()["CronJob"]
+
+    agg_at = _cron_minute_of_day(aggregate["spec"]["schedule"])
+    refresh_at = _cron_minute_of_day(refresh["spec"]["schedule"])
+    assert agg_at < refresh_at, (
+        f"the refresh ({refresh['spec']['schedule']}) must not restart the pods before "
+        f"the aggregator ({aggregate['spec']['schedule']}) has read them"
+    )
+
+    # The aggregator's own late-start window has to fit inside that gap, or a
+    # delayed run could still begin after the restart and record a near-empty
+    # day as a real one.
+    latest_start = agg_at + aggregate["spec"]["startingDeadlineSeconds"] // 60
+    assert latest_start < refresh_at, (
+        f"a maximally delayed aggregation could start at minute {latest_start}, "
+        f"after the {refresh_at} restart"
+    )
+
+    # Everything between midnight and the restart is the part of the new day
+    # the log will not survive to report. It cannot be zero -- a day can only
+    # be counted once it has closed -- but it should stay small, and it is a
+    # deliberate number rather than a leftover.
+    assert refresh_at <= 90, f"the refresh at minute {refresh_at} discards that much of every day"
+
+
 # --- the privacy property, asserted where it is actually enforced ----------
 
 
