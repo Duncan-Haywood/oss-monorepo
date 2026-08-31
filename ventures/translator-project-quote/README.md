@@ -20,6 +20,11 @@ target margin, which used to take a spreadsheet and several hidden assumptions.
 - Add-on costs include QA hours at the same hourly rate, DTP/file handling, and rush fees.
 - Target-margin price grosses up direct labor and add-ons by the supplied margin.
 - The quote floor is the larger of the supplied minimum and direct project costs.
+- The recommended quote is the larger of the quote floor and the target-margin
+  price. On a small job the floor still wins; on any job whose margin math
+  outpaces the floor, the margin price is what gets recommended instead of
+  quietly dropping back to cost-plus-nothing once the flat minimum stops
+  binding.
 
 These are arithmetic comparisons, not a recommended rate, a translation
 quality judgment, or a profitability determination. The user owns the rate,
