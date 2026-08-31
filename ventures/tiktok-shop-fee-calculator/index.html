@@ -386,12 +386,24 @@
         targetPrice = priceForTargetMargin(input);
         buy = maxBuyCost(input);
       } catch (error) {
+        // A rejected input (a negative number, non-numeric text) must not
+        // leave the last valid order economics on screen next to a silent
+        // failure -- a visitor who misses the message in #expectedProfit
+        // could read the stale fees, margin, break-even price, comparison
+        // tables, or verdict as the answer for the invalid inputs now on
+        // screen.
         el("expectedProfit").textContent = error.message;
         el("expectedProfit").className = "hero-number error";
         el("profitLabel").textContent = "check the highlighted input";
+        ["referralFee", "facilitationFee", "affiliateFee", "keptProfit", "returnedProfit", "expectedMargin", "breakEvenPrice", "targetMarginPrice", "maxBuy", "monthlyProfit", "affiliateNote"].forEach((id) => {
+          el(id).textContent = "";
+        });
+        el("affiliateCompare").innerHTML = "";
+        el("scheduleCompare").innerHTML = "";
         el("freeShipVerdict").textContent = "";
         el("freeShipNote").textContent = "";
         el("freeShipRows").replaceChildren();
+        el("verdict").hidden = true;
         return;
       }
 
