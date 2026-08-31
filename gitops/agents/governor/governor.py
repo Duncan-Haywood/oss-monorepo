@@ -567,6 +567,35 @@ def build_job_manifest(
                             "effect": "NoSchedule",
                         }
                     ],
+                    # Every other workload in this repo (portfolio-site's three
+                    # containers, its refresh and usage CronJobs, the governor
+                    # CronJob itself, the CI runner) sets a securityContext. This
+                    # Job -- the one actually holding the Codex/GitHub credentials
+                    # from `codex-secrets` -- never did; nothing here narrowed it.
+                    #
+                    # `allowPrivilegeEscalation: false` and a RuntimeDefault
+                    # seccomp profile cost nothing and close the same class of
+                    # hole every sibling workload already closes: they only stop
+                    # this container from gaining *more* than it starts with, and
+                    # worker.sh never execs a setuid binary to escalate through.
+                    #
+                    # `capabilities.drop: ["ALL"]`, `runAsNonRoot` and
+                    # `readOnlyRootFilesystem` are deliberately NOT set, unlike
+                    # every sibling above. `worker.sh`'s `install_tools()` runs
+                    # `apt-get install` against the base `node:22-bookworm` image
+                    # (root, not started as a fixed non-root UID) to add `gh` and
+                    # `git`, and dpkg's maintainer scripts for a fresh install can
+                    # need capabilities beyond the ones a dropped-to-ALL root
+                    # process retains (CAP_CHOWN, CAP_SETUID/CAP_SETGID for the
+                    # packages that provision a system user). `npm install -g` and
+                    # the clone into `mktemp -d` both write outside the two
+                    # read-only mounts below, so the root filesystem cannot be
+                    # read-only either. Narrowing those three needs a prebuilt
+                    # image with `gh`/`git`/`codex` baked in and a fixed non-root
+                    # user -- a bigger change than this fix.
+                    "securityContext": {
+                        "seccompProfile": {"type": "RuntimeDefault"},
+                    },
                     "containers": [
                         {
                             "name": "codex",
@@ -588,6 +617,9 @@ def build_job_manifest(
                                 # Job and every later run fails to authenticate.
                                 {"name": "codex-home", "mountPath": "/var/lib/codex"},
                             ],
+                            "securityContext": {
+                                "allowPrivilegeEscalation": False,
+                            },
                             "resources": {
                                 "requests": {"cpu": "500m", "memory": "1Gi"},
                                 "limits": {"cpu": "1500m", "memory": "3Gi"},
