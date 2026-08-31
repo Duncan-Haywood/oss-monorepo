@@ -35934,3 +35934,55 @@ entries:
         confirmed runner-starvation signature (`runner_id: 0`), not a real
         failure.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled routine asked to prioritize CI/CD, deployment, and
+        marketing materials on Hetzner, and to get the Codex CLI running
+        unattended on the Hetzner box against a mandate similar to this
+        one. Checked the actual state before building anything new: all
+        three are already fully implemented in code --
+        `ventures/ubuntu-agent-server/config/repos.yml` configures
+        `tool: codex` with a self-directed prompt explicitly scoped to
+        CI/CD and marketing work, `gitops/agents/` (governor, queue,
+        worker.sh) implements the cluster-side equivalent, and
+        `gitops/agents/queue/deploy-cicd-readiness.yaml` /
+        `seo-discoverability-audit.yaml` are enabled queue items. All of
+        it is blocked only on the same three owner-only sealed secrets
+        prior entries (including the one two commits before this one)
+        already recorded, now consolidated into one script:
+        `./bootstrap/scripts/seal-owner-secrets.sh` per
+        `infra/OWNER_CHECKLIST.md`. Added nothing new to the decision
+        queue -- nothing had changed since the last confirmation.
+      - >-
+        Shipped #2335 instead: `ventures/dns-configuration-evidence` (28
+        `unittest` cases) and `ventures/npm-deployment-evidence` (21
+        `node --test` cases + 2 `unittest` cases, published as product
+        165/168) each had a real test suite that no workflow ever
+        referenced -- found via a portfolio-wide sweep confirming every
+        venture with test files has some workflow mentioning its path;
+        these two were the only misses. `npm-deployment-evidence`'s own
+        `VENTURE.yaml` claims its browser port and CLI "cannot silently
+        diverge" because their tests pin the same verdicts -- true only
+        if both suites actually run, which until now neither did. Added
+        `dns-configuration-evidence-ci.yml` and
+        `npm-deployment-evidence-ci.yml`, mirroring the existing
+        per-venture pattern (`fifo-pick-evidence-ci.yml`,
+        `backup-verification-evidence-ci.yml`) including the shared
+        `vars.CI_RUNNER` switch.
+      - >-
+        Verified locally: `python3 -m unittest discover -s tests -v` in
+        each venture (28/28, then 2/2) and `node --test` in
+        npm-deployment-evidence (21/21); `python3 -m pytest gitops/tests
+        -q` 134/134 both before and after, including
+        `test_ci_runner.py`'s check that every workflow reads the runner
+        switch. Confirmed via `decision_queue.py` this gap wasn't already
+        an owner-blocked item and via `list_pull_requests`/`git log` that
+        no open PR or recent merge had already added it. CI on the PR
+        failed in 4-5s across all five triggered workflows, including
+        `Conflict markers` which touches nothing this change touches --
+        the confirmed runner-starvation signature, not a real failure.
+        Merged (squash) as #2335.
+    mrr_end: null
