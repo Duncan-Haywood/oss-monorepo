@@ -31,7 +31,7 @@
     <section>
       <h2>Invoice and cash-flow assumptions</h2>
       <div class="fields">
-        <label>Invoice amount <input id="amount" type="number" min="0" step="0.01" value="1200"></label>
+        <label>Invoice amount <input id="amount" type="number" min="0.01" step="0.01" value="1200"></label>
         <label>Invoice date <input id="invoiceDate" type="date"></label>
         <label>Payment terms (days) <input id="termsDays" type="number" min="0" step="1" value="30"></label>
         <label>Client pays on <select id="payRun">
@@ -51,10 +51,10 @@
         <label>Monthly operating burn <input id="monthlyBurn" type="number" min="0" step="0.01" value="3000"></label>
         <label>Similar invoices outstanding <input id="outstanding" type="number" min="0" step="1" value="3"></label>
         <label>Early-pay days <input id="earlyPayDays" type="number" min="0" step="1" value="10"></label>
-        <label>Early-pay discount (%) <input id="earlyPayDiscountPct" type="number" min="0" step="0.1" value="2"></label>
-        <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
+        <label>Early-pay discount (%) <input id="earlyPayDiscountPct" type="number" min="0" step="0.1" max="99.9" value="2"></label>
+        <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
         <label>Share who take the discount (%) <input id="takeRatePct" type="number" min="0" max="100" step="1" value="100"></label>
-        <label>Factor fee (%) <input id="factorFeePct" type="number" min="0" step="0.01" value="3"></label>
+        <label>Factor fee (%) <input id="factorFeePct" type="number" min="0" step="0.01" max="99.99" value="3"></label>
         <label>Factor advance (%) <input id="advancePct" type="number" min="0.01" max="100" step="0.1" value="90"></label>
         <label>Reserve days <input id="reserveDays" type="number" min="0" step="1" value="35"></label>
       </div>
@@ -128,7 +128,7 @@
       you set above.
     </p>
     <div class="fields four">
-      <label>Project value <input id="projectValue" type="number" min="0" step="0.01" value="6000"></label>
+      <label>Project value <input id="projectValue" type="number" min="0.01" step="0.01" value="6000"></label>
       <label>Project length (days) <input id="projectDays" type="number" min="1" step="1" value="30"></label>
       <label>Average days paid late <input id="avgDaysLate" type="number" min="0" step="1" value="12"></label>
       <label>Days to collect the deposit <input id="depositCollectionDays" type="number" min="0" step="1" value="5"></label>
