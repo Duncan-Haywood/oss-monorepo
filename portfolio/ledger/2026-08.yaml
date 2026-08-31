@@ -36681,3 +36681,39 @@ entries:
         this run, so the mandatory PR-drain quota was met trivially. Nothing
         here needed a code change.
     mrr_end: null
+  - venture: backup-verification-evidence
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real ordering bug in the trend page's core logic, not a
+        metadata/FAQ pass. `buildTrend`'s `orderedRecords` sorted nightly
+        run records by their raw `finished_at` string. Two timestamps at
+        different UTC offsets an hour apart -- e.g. `2026-08-24T01:00:00+03:00`
+        (=22:00Z) and `2026-08-23T23:00:00Z` (=23:00Z, genuinely later) --
+        compare backwards as strings, since `"24" > "23"` in the date
+        portion even though the first instant is earlier. That flips which
+        run counts as "previous" for every shrink-vs-previous,
+        shrink-vs-median, and status-regression comparison the tool exists
+        to make, so a real overnight size collapse could go undetected (or
+        a healthy run misflagged) whenever a backup tool logs local time
+        with an offset instead of normalizing to `Z` -- an ordinary case for
+        cron-driven backup tools. Same flaw independently present in the
+        Python CLI port's `sort_key` (`src/backup_evidence/report.py`,
+        which also sorts by the raw string), left unchanged since the
+        browser trend page in `index.html` is the live path and is what
+        this fix targets; the CLI is a separate, unshipped-here surface.
+        Fixed by sorting on the parsed instant (`Date#getTime()`) when both
+        sides parse, falling back to string order only when one or both
+        don't (matching the existing unparseable-sorts-last behavior).
+        Added a regression test with mismatched offsets; confirmed it fails
+        against the pre-fix code (12/13) and passes after (13/13) by
+        stashing the fix and rerunning. `node --test
+        ventures/backup-verification-evidence/*.test.mjs`: 20/20 pass.
+        `node platform/pages/build.mjs` + `check.mjs`: 169 products, no dead
+        links. Merged as #2366. CI checks came back red
+        (`build`/`lint`/`check`/`test`, ~3s each); confirmed starvation via
+        `get_workflow_job` (`runner_id: 0`, `runner_name: ""`) rather than
+        treating red as a real failure, per the documented account-level
+        Actions outage.
+    mrr_end: null
