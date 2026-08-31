@@ -36084,3 +36084,42 @@ entries:
         The artifact is deploy-ready; the one remaining step is still the
         owner's sealed read-only clone token.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `portfolio/pipeline/probes/eaa-wcag-triage` (the portfolio's own
+        static WCAG 2.2 A/AA engine) against all 163 `ventures/*/index.html`
+        files -- a corpus `portfolio/research/a11y-own-sites/` never covered
+        (that pass audited only the 7 Next.js apps' built output) and that
+        `platform/pages/ink.mjs`'s own CI contrast gate does not cover either
+        (it deliberately scopes itself to link text, `subject(selector) ===
+        'a'`; buttons are counted as `outOfScope` and never flagged). Found a
+        real, live bug on 99 near-identical bid-calculator pages: the base
+        `button { background: <light>; }` rule never set its own `color`, so
+        a button inside the dark `.result` summary card inherited that
+        card's light text colour -- landing on the same light tone as the
+        button's own background (measured ratios 1.0-1.14:1). Not a
+        screen-reader-only defect: "Copy bid link" / "Start a fresh bid" /
+        "Copy bid summary" were literally invisible to a sighted user too.
+        Fixed by setting each button's own `color` to that page's `:root`
+        ink colour, the same pattern these same files already use for the
+        identical bug on `.result a` and `.result .note`/`.hint`. Also added
+        `aria-label` to two unlabelled paste `<textarea>` controls
+        (fifo-pick-evidence, npm-deployment-evidence). 101 files, one line
+        each. Findings dropped from 205 across 102 pages to 19 across 3
+        files; hand-checked all 19 as the engine failing to resolve an
+        already-correct descendant override already present in those files
+        (e.g. `pool-route-pricing`'s `.result .note{color:#d5eef1}`, which
+        passes 6.5:1) -- a known false-positive class for this engine, not a
+        live defect, so left untouched. Verified: `node --test` across every
+        venture (12655 tests, 0 failures, before and after); `node
+        platform/pages/clauses.mjs` unaffected (497 pages / 169 surfaces);
+        `node --test platform/pages/ink.test.mjs` 18/18. Merged as #2342
+        after local verification -- CI showed the account-level
+        runner-starvation signature, not a real failure. Extending
+        `ink.mjs` to also audit button text is a real follow-up (it needs
+        the same box-background/ancestor-color machinery the link checks
+        already use) but out of scope here.
+    mrr_end: null
