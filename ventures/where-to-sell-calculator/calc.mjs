@@ -504,6 +504,12 @@ export function compareChannels(channels, shared = {}) {
   const active = channels.filter((channel) => channel?.enabled !== false);
   if (active.length === 0) throw new Error("Switch on at least one channel to compare");
   const results = active.map((channel) => calculateChannel(channel, shared));
+  // A seller-entered profit goal, shared across every channel: "what would
+  // each one have to charge to leave me exactly this much?" Blank, null or
+  // absent means the question was not asked, so the field on every result
+  // stays null rather than solving for a target nobody gave.
+  const hasTargetProfit = shared.targetProfit !== undefined && shared.targetProfit !== null && shared.targetProfit !== "";
+  const targetProfit = hasTargetProfit ? number(shared.targetProfit, "Target profit") : null;
   // Rank on expected keep after returns unless the seller has turned that
   // overlay off. Sold-sale profit is still on every row so the table can
   // show the flip: a channel can win on a completed sale and lose once
@@ -597,6 +603,12 @@ export function compareChannels(channels, shared = {}) {
         : includeReturns
           ? result.priceForExpectedProfit(best.expectedProfit)
           : result.priceForProfit(best.profit),
+      // Item price this channel needs to keep the seller's own target,
+      // holding shipping charged constant. Solved on the sold-sale price
+      // equation (not the after-returns one) so the number answers "if it
+      // sells here, what would I have to charge" — the same question the
+      // seller is asking, independent of the returns overlay.
+      priceForTargetProfit: targetProfit === null ? null : result.priceForProfit(targetProfit),
     })),
     ranked: ranked.map((result) => result.label),
     rankBy,

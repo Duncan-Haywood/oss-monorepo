@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, orders needed to cover a monthly plan, expected monthly profit, break-even price, price needed to match the best channel, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
+    "featureList": "Cross-marketplace fee comparison, net profit per channel, expected profit after returns, margin and ROI, monthly-plan amortisation, orders needed to cover a monthly plan, expected monthly profit, break-even price, price needed to match the best channel, price needed to reach a target profit, profit per day from expected days to sell, listing value per month of shelf time, sell-through needed to match the fastest channel"
   }
   </script>
   <script type="application/ld+json">
@@ -263,6 +263,9 @@
         <label class="span2">Orders you expect per month
           <input id="monthlyOrders" type="number" min="0" step="1" value="100">
         </label>
+        <label class="span2">Target profit per item
+          <input id="targetProfit" type="number" min="0" step="0.01" value="" placeholder="Leave blank to skip this column">
+        </label>
         <label class="span2">Typical days to sell if a channel has no pace of its own
           <input id="daysToSell" type="number" min="0" step="1" value="" placeholder="Leave blank to use each channel’s own days">
         </label>
@@ -339,6 +342,7 @@
               <th scope="col" title="List below this and the sale loses money on this channel.">Break-even price</th>
               <th scope="col" title="Minimum whole orders needed to recover a monthly plan.">Orders to cover plan</th>
               <th scope="col">Price to match best</th>
+              <th scope="col" title="Item price needed to keep the target profit entered above. Blank until you enter one.">Price for target profit</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
@@ -529,7 +533,7 @@
     const SHARED_FIELDS = [
       "price", "shippingCharged", "shippingCost", "itemCost",
       "packagingCost", "otherCost", "monthlyOrders", "daysToSell",
-      "horizonDays", "capitalCostPct", "unsoldRecoveryPct",
+      "horizonDays", "capitalCostPct", "unsoldRecoveryPct", "targetProfit",
     ];
     // Per-channel fields, in the order they appear in each channel's panel.
     const CHANNEL_FIELDS = [
@@ -785,6 +789,7 @@
         ["Break-even price", money(result.breakEvenPrice), result.price < result.breakEvenPrice ? " negative" : ""],
         ["Orders to cover plan", result.ordersToCoverPlan === null ? "—" : String(result.ordersToCoverPlan), ""],
         ["Price to match best", result.priceToMatchBest === null ? "—" : money(result.priceToMatchBest), ""],
+        ["Price for target profit", result.priceForTargetProfit === null ? "—" : money(result.priceForTargetProfit), ""],
       ];
     }
 
@@ -1006,6 +1011,7 @@
         price: 48, shippingCharged: 6, shippingCost: 5, itemCost: 14,
         packagingCost: 1, otherCost: 0, monthlyOrders: 100, daysToSell: "",
         horizonDays: 90, capitalCostPct: 12, unsoldRecoveryPct: 100,
+        targetProfit: "",
       };
       for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
       document.getElementById("includeSubscription").checked = true;
