@@ -25,6 +25,13 @@ import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
 import { decodeEntities } from './entities.mjs';
+import {
+  FEED_MAX_ENTRIES,
+  feedUpdatedAt,
+  isIsoDate,
+  loadLaunchDates,
+  orderForFeed,
+} from './launched.mjs';
 
 import {
   ICONS,
@@ -1414,6 +1421,7 @@ ${subItems.map(renderCard).join('\n')}
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(copy.title)}">
   <meta property="og:description" content="${escapeHtml(snippetize(copy.description))}">
@@ -1449,7 +1457,7 @@ ${siblings}
     </section>
 
     <footer>${DISCLAIMER_HTML}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
     </footer>
   </div>
   <!-- The same anonymous, local-only counter every tool page loads, with the
@@ -1563,6 +1571,7 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   <link rel="canonical" href="${escapeHtml(url)}">
   <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
   <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
@@ -1688,7 +1697,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
         catalogue as prose, and
         <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">sitemap.xml</a> indexes
         every published page. Every tool page carries
-        <code>SoftwareApplication</code> structured data.
+        <code>SoftwareApplication</code> structured data. To follow new tools
+        rather than re-read the catalogue, subscribe to the
+        <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Atom feed</a>.
       </p>
     </main>
 
@@ -1700,7 +1711,7 @@ ${categoryLinks}
     </section>
 
     <footer>${DISCLAIMER_HTML}
-      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a></p>
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
     </footer>
   </div>
   <!-- The same local-only counter every other page loads. An About page that
@@ -1869,6 +1880,9 @@ ${subgroups
   <link rel="canonical" href="${escapeHtml(baseUrl)}">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="alternate icon" href="favicon.ico" sizes="16x16">
+  <!-- Feed autodiscovery. This is how a reader, and every aggregator that
+       accepts a site URL rather than a feed URL, finds the feed at all. -->
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Free small-business calculators">
   <meta property="og:description" content="Price a listing, bid a job, audit a freight bill, or produce a compliance record — free, and entirely in your browser.">
@@ -2203,7 +2217,8 @@ ${DISCLAIMER_HTML}
         <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
-        <a href="sitemap.xml">Sitemap</a>
+        <a href="sitemap.xml">Sitemap</a> ·
+        <a href="${FEED_FILE}" type="application/atom+xml">New tools feed</a>
       </p>
     </footer>
   </div>
@@ -3338,6 +3353,9 @@ export function relatedTools(surfaces, slug, limit = 4) {
 // whatever it scrapes off the page — usually nothing, since these pages carry
 // no content images either.
 export const SOCIAL_CARD_FILE = 'social-card.png';
+
+/** The Atom feed's path. See `renderFeed`. */
+export const FEED_FILE = 'feed.xml';
 export const SITE_NAME = 'Free small-business calculators';
 
 /**
@@ -3881,6 +3899,98 @@ export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
 }
 
+/**
+ * `/feed.xml` — an Atom feed of tools as they are published, newest first.
+ *
+ * ## Why a feed, on a site with no news
+ *
+ * Every other machine surface here answers "what exists" — `sitemap.xml` for
+ * crawlers, `catalog.json` and `llms.txt` for models. None of them answers
+ * "what changed", and that is the question every organic distribution channel
+ * this portfolio is allowed to use actually asks. `portfolio/DIRECTION.md`
+ * rules out ad spend and `mandate.md` rules out posting into communities
+ * ourselves, which leaves channels people opt into: readers, aggregators that
+ * poll for new entries, and the IFTTT/Zapier-shaped glue a niche community's
+ * own moderators run. A feed is the one asset that lets someone else do the
+ * distributing, and it costs one static file.
+ *
+ * It is also the only surface that gives a *returning* visitor a reason to
+ * come back. The tools themselves are single-use by design: a contractor who
+ * has priced their job is done with us until the next job.
+ *
+ * ## Atom rather than RSS 2.0
+ *
+ * Atom requires a stable `<id>` per entry that is distinct from the link, and
+ * requires dates be RFC 3339. Both matter here: the link for a tool is its
+ * directory URL, which would change if the site ever moved off
+ * `tools.marisstella.dev`, and a reader keyed on the link would then re-notify
+ * every subscriber about all 169 tools. `tag:` URIs keyed on the slug survive
+ * that move. RSS 2.0's `<guid isPermaLink="false">` can do the same thing but
+ * nothing in the format makes it the default, and its `pubDate` is RFC 822,
+ * which is where hand-rolled feeds usually break.
+ *
+ * ## What the dates mean, and what they do not
+ *
+ * `<published>` and `<updated>` are both the day the tool first appeared in
+ * `ventures/` — see `launched.mjs` for where that comes from and why it is a
+ * committed file. They are equal on purpose. These pages are edited constantly
+ * (copy, FAQ entries, a new worked example), and republishing an entry on
+ * every edit would make the feed a changelog of our own commits rather than a
+ * list of tools, which is not what anyone subscribed for.
+ *
+ * Entries are capped at `FEED_MAX_ENTRIES`. A tool that scrolls off is still
+ * in `sitemap.xml`, `catalog.json` and `llms.txt`; the feed is the "new" list,
+ * not another catalogue.
+ */
+export function renderFeed(surfaces, baseUrl, launched = {}) {
+  const ordered = orderForFeed(surfaces, launched).filter((surface) => isIsoDate(launched[surface.slug]));
+  const entries = ordered.slice(0, FEED_MAX_ENTRIES);
+
+  // No dated surface at all means the feed would claim the site is empty.
+  // Fall back to the build's own instant so the document stays valid Atom;
+  // `check.mjs` is what refuses to publish a site in that state.
+  const updated = feedUpdatedAt(ordered, launched) ?? new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+
+  // Domain-based tag URI (RFC 4151). The authority is fixed rather than taken
+  // from `baseUrl` so that serving the same build from GitHub Pages and from
+  // the Hetzner ingress — which `portfolio/hosting/README.md` says may both
+  // happen — does not mint two different ids for one tool and double every
+  // subscriber's feed.
+  const tagId = (slug) => `tag:marisstella.dev,2026:tool/${slug}`;
+
+  const entryXml = (surface) => {
+    const url = `${baseUrl}${surface.slug}/`;
+    const date = `${launched[surface.slug]}T00:00:00Z`;
+    return `  <entry>
+    <title>${escapeHtml(surface.title)}</title>
+    <link rel="alternate" type="text/html" href="${escapeHtml(url)}"/>
+    <id>${escapeHtml(tagId(surface.slug))}</id>
+    <published>${date}</published>
+    <updated>${date}</updated>
+    <category term="${escapeHtml(categoryFor(surface.slug).title)}"/>
+    <summary type="text">${escapeHtml(oneLineText(surface.fullDescription || surface.description))}</summary>
+  </entry>`;
+  };
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${escapeHtml(SITE_NAME)}</title>
+  <subtitle>New free, browser-only calculators and checks for people who run a small business. No account, no upload: every number stays on the visitor's own device.</subtitle>
+  <link rel="self" type="application/atom+xml" href="${escapeHtml(`${baseUrl}${FEED_FILE}`)}"/>
+  <link rel="alternate" type="text/html" href="${escapeHtml(baseUrl)}"/>
+  <id>${escapeHtml(`tag:marisstella.dev,2026:${SITE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)}</id>
+  <updated>${updated}</updated>
+  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+${entries.map(entryXml).join('\n')}
+</feed>
+`;
+}
+
+/** Collapse to a single line: a newline inside an Atom `<summary>` is legal but reads badly in every reader. */
+function oneLineText(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
+}
+
 
 /**
  * The sitemap `robots.txt` names. A `<sitemapindex>` cannot hold `<url>`
@@ -3978,7 +4088,7 @@ ${urls.join('\n')}
  * in the decision queue), and a machine-readable file is the wrong place to
  * pre-answer it.
  */
-export function renderCatalog(surfaces, baseUrl) {
+export function renderCatalog(surfaces, baseUrl, launched = {}) {
   return `${JSON.stringify(
     {
       name: 'Free calculators for sellers, contractors, and small back offices',
@@ -3988,6 +4098,12 @@ export function renderCatalog(surfaces, baseUrl) {
       privacy: 'client-side-only',
       source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
       generated_by: 'platform/pages/build.mjs',
+      // The feed carries the newest FEED_MAX_ENTRIES tools; this file carries
+      // every tool with the same dates, which is what lets `check.mjs` prove
+      // no tool is undated using only the artifact. It is also the answer to
+      // "what did they add recently" for a client that would otherwise have to
+      // poll the feed and remember what it saw.
+      feed: `${baseUrl}${FEED_FILE}`,
       // The catalogue's own index. `tools[].category` names a category but
       // gives no way to reach one, so a client that wanted "everything in this
       // category" had to scan all 164 rows and rebuild the grouping itself.
@@ -4009,6 +4125,10 @@ export function renderCatalog(surfaces, baseUrl) {
         ...(subcategoryFor(surface.slug) ? { subcategory: subcategoryFor(surface.slug).title } : {}),
         description: surface.description,
         pages: surface.pageCount,
+        // Omitted rather than null when unknown, so a consumer that reads the
+        // key at all can trust it. `check.mjs` refuses to publish an artifact
+        // where any tool is missing it.
+        ...(launched[surface.slug] ? { launched: launched[surface.slug] } : {}),
       })),
     },
     null,
@@ -4079,6 +4199,7 @@ export function renderLlmsTxt(surfaces, baseUrl) {
     `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
+    `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
     `- [Source](${SOURCE_URL_PREFIX.replace('/blob/main/', '')}): MIT-licensed source for every tool on this site.`,
     '',
   ].join('\n');
@@ -4255,6 +4376,7 @@ export async function buildSite({
   await fs.mkdir(outDir, { recursive: true });
 
   const discovered = await discoverSurfaces(venturesDir);
+  const launched = await loadLaunchDates();
   const surfaces = [];
   const repairs = [];
 
@@ -4347,8 +4469,11 @@ export async function buildSite({
     path.join(outDir, 'sitemap-hub.xml'),
     renderHubSitemap(base, categoryGroups.map(({ category }) => category.id)),
   );
-  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
   await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base));
+  // Read from the committed file, not from `git log`: the in-cluster build
+  // clones `--depth 1` and has no history. See `launched.mjs`.
+  await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());

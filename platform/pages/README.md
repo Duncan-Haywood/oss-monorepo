@@ -215,6 +215,57 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   themselves. `check.mjs` fails the build if a published tool is missing from
   it, or if it names one that did not ship.
 
+- **`feed.xml`.** An Atom feed of tools as they are published, newest first,
+  capped at the 40 most recent. Every other surface here answers *what exists*;
+  this is the only one that answers *what changed*, which is the question every
+  distribution channel the portfolio is allowed to use actually asks. Ad spend
+  is ruled out by `portfolio/DIRECTION.md` and posting into communities
+  ourselves is ruled out by `gitops/agents/workers/mandate.md`, which leaves
+  channels people opt into — readers, aggregators that poll, and the glue a
+  niche community's own moderators run. A feed is the one asset that lets
+  someone else do the distributing. It is also the only surface that gives a
+  *returning* visitor a reason to come back, since the tools themselves are
+  single-use by design.
+
+  Entry ids are `tag:` URIs keyed on the slug, not on the URL, so serving the
+  same build from GitHub Pages and from the Hetzner ingress — which
+  `portfolio/hosting/README.md` says may both happen — does not mint two ids
+  per tool and double every subscriber's feed. `<published>` and `<updated>`
+  are equal and never move: these pages are edited constantly, and republishing
+  an entry on every edit would make the feed a changelog of our commits rather
+  than a list of tools.
+
+### Where the launch dates come from
+
+`feed.xml` needs a date per tool, and the obvious source — `git log
+--diff-filter=A -- ventures/<slug>` — is unavailable where it matters. The
+in-cluster build clones `--depth 1` (`gitops/prod/portfolio-site.yaml`), so the
+build container has one commit and no history.
+
+So the dates are derived once on a machine that has the history and committed
+to `platform/pages/launched.json`. After landing a new tool:
+
+```
+node platform/pages/launched.mjs --write     # or without --write to preview
+```
+
+The refresh only *adds*. A slug that already has a date keeps it even if
+history now says otherwise (a rename, a move, a squash) — a feed whose entries
+change date retroactively re-notifies every subscriber about tools they have
+already seen, and being quiet when nothing is new is the whole value of
+publishing one.
+
+Two things stop the file going stale, because a tool missing from the feed is
+invisible in a way nothing else in the artifact shows — its pages, sitemap
+entry and `llms.txt` line are all fine:
+
+- `launched.test.mjs` fails if any discovered surface has no date, so the gap
+  surfaces in a unit run rather than after a 23-second build.
+- `check.mjs` refuses to publish an artifact whose `catalog.json` has a tool
+  with no `launched` date. It reads the dates back out of the artifact rather
+  than out of the repo, so the check still means something when run against a
+  downloaded build.
+
 ## Everything this build injects is a file
 
 The passes above add the same navigation, the same two bands and the same

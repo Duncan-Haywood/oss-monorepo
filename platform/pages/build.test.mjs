@@ -642,10 +642,10 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Four trailing bullets under "Optional" describe the site's own surfaces
-  // rather than a tool — About, catalog.json, the sitemap and the source repo —
-  // so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 4);
+  // Five trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, catalog.json, the sitemap, the Atom feed and
+  // the source repo — so the count is tools plus those.
+  assert.equal(bullets.length, surfaces.length + 5);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
