@@ -40033,3 +40033,95 @@ entries:
         since 2026-08-26T22:41:49Z -- noted on the PR rather than
         re-diagnosed, and merged on the local verification above.
     mrr_end: null
+  - venture: portfolio-site
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2523: `/feed.xml`, an Atom feed of tools as they
+        publish. Every machine surface this site had answers *what exists* --
+        `sitemap.xml` for crawlers, `catalog.json` and `llms.txt` for models.
+        None answered *what changed*, and that is the question every
+        distribution channel this portfolio is allowed to use actually asks.
+        Ad spend is out per DIRECTION.md and posting outward is out per
+        `mandate.md`, which leaves channels people opt into -- readers,
+        aggregators that poll, and the glue a niche community's own
+        moderators run. A feed is the one asset that lets someone else do
+        the distributing, and it costs one static file. It is also the only
+        surface giving a *returning* visitor a reason to come back: the tools
+        are single-use by design.
+      - >-
+        Newest 40, autodiscovery from the hub, all seven category pages and
+        About, named in `llms.txt` under Optional. Atom rather than RSS 2.0
+        for the stable per-entry `<id>`: ids are `tag:` URIs keyed on the
+        slug rather than the URL, so serving the same build from Pages and
+        from the Hetzner ingress -- which `hosting/README.md` says may both
+        happen -- does not mint two ids per tool and double every
+        subscriber's feed. `<published>` equals `<updated>` and never moves,
+        so the constant copy edits these pages get do not republish entries.
+      - >-
+        The dates are a committed file, `platform/pages/launched.json`, and
+        that is the part worth remembering. The obvious source -- `git log
+        --diff-filter=A -- ventures/<slug>` -- is unavailable exactly where
+        it matters: `gitops/prod/portfolio-site.yaml` clones `--depth 1`, so
+        the in-cluster build container has one commit and no history. So the
+        dates were derived once here (169 tools, every one a real first-add
+        commit) and committed; `node platform/pages/launched.mjs --write`
+        refreshes it and only ever *adds*, because a feed whose entries
+        change date retroactively re-notifies every subscriber about tools
+        they have already seen.
+      - >-
+        Guarded fail-closed, because a tool missing from the feed is
+        invisible in a way nothing else in the artifact shows -- its pages,
+        sitemap entry and `llms.txt` line are all correct and no URL 404s.
+        `launched.test.mjs` fails on any undated surface; `check.mjs` refuses
+        to publish when `catalog.json` carries an undated tool, when the feed
+        names a tool that did not ship, or when it contains a raw `&` (one
+        unescaped ampersand takes the document down for every subscriber at
+        once). Both confirmed to fire by removing a date and by feeding an
+        ampersand. `check.mjs` reads the dates back out of the *artifact*,
+        not the repo, so it still means something run against a downloaded
+        build -- which is why `catalog.json` gained a per-tool `launched`.
+      - >-
+        Also #2524: `PRODUCT_PLAYBOOK.md` §5e and
+        `gitops/agents/workers/mandate.md` now name the launch-date step.
+        Without it the first agent to land a tool after #2523 meets the guard
+        as a surprise 23 seconds into a build rather than as a checklist line.
+      - >-
+        nginx types `/feed.xml` as `application/atom+xml` -- it was already
+        readable as `text/xml`, but the registered type (RFC 4287) is what
+        aggregators taking a site URL match on. Scoped `=`, not `~ \.xml$`,
+        which would retype all 170 sitemaps. The security-header tripwire in
+        `test_manifests.py` refused the block until it restated all three
+        headers, which is what it is for; its pinned count goes 6 -> 7.
+      - >-
+        Verified: `node --test 'platform/pages/*.test.mjs'` (817 pass, 23
+        new), `python3 -m pytest gitops/tests -q` (183 pass, 1 new),
+        `build.mjs` (169 tools, 508 pages), `check.mjs` (publishable, no dead
+        links), and the feed parsed with ElementTree -- valid Atom, 40
+        entries, ids unique. Checks on both PRs were the same runner
+        starvation, confirmed with `platform/ci/ci_starvation.py --run`
+        (`runner_id: 0`) rather than assumed, and merged on local
+        verification.
+      - >-
+        Queue state for the next session, so it is not re-derived: **zero
+        open PRs** at start. Of the ~60 remote branches carrying unique
+        commits, the recent candidates all check out as already on `main`
+        under the same names -- `supersede_check.py` returns an
+        identical-merge proof for `pr/invoice-payment-terms-calculator`, and
+        for `pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/appointment-deposit-calculator` and
+        `fix/governor-rbac-configmap-scope` `main` is a strict superset (it
+        already has `profitPerDay`/`rankBy`, a 443-line deposit venture
+        against the branch's 150, and both governor RBAC guards). Merging any
+        of them would *remove* live code. Nothing closed; no PRs opened for
+        them, since opening PRs for work `main` already carries under the
+        same names is how a duplicate becomes a triplicate.
+      - >-
+        Still dark, and none of it agent-fixable: `publish_surface.py
+        --check` reports 0 hostnames serving. Same three seals as every
+        recent session -- `portfolio-site-repo` for the site, the runner PAT
+        plus `CI_RUNNER=self-hosted` for CI, `codex-secrets` plus
+        `enabled: true` for the Codex fleet. Reported to the owner directly;
+        not re-queued.
+    mrr_end: null
