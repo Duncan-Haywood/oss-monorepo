@@ -118,7 +118,13 @@ test("the explainer's published figures are recomputed from the code", () => {
 test("the headline recoverable figure says which lines it excludes", () => {
   assert.match(index, /id="recoverableNote"/);
   assert.match(source, /totals\.unpriced/);
-  assert.match(source, /no expected amount and/);
+  assert.match(source, /no expected amount/);
+  // A line whose evidence supports the billed condition is excluded from the
+  // same headline figure, not only an unpriced one — see audit.mjs's
+  // `recoverable` fix: evidence that supports a charge already reconciles
+  // it, so it must not still read as an outstanding overage.
+  assert.match(source, /totals\.supported/);
+  assert.match(source, /supported by evidence/);
 });
 
 test("the demo the page ships and the figures it quotes for it agree", () => {

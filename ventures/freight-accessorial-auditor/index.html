@@ -289,10 +289,18 @@ RESI, 45</textarea>
     const totals = auditTotals(results);
     document.getElementById("recoverable").textContent = money(totals.recoverable);
     // Say which lines the figure leaves out. A line with no expected amount is
-    // not a $0.00 expectation, and quietly folding its whole billed value into
+    // not a $0.00 expectation, and a line whose evidence supports the billed
+    // condition is not an outstanding overage — quietly folding either into
     // "above expected" would overstate what there is to ask about.
-    document.getElementById("recoverableNote").textContent = totals.unpriced
-      ? `across priced lines — ${totals.unpriced} line${totals.unpriced === 1 ? " has" : "s have"} no expected amount and ${totals.unpriced === 1 ? "is" : "are"} excluded`
+    const excluded = [];
+    if (totals.unpriced) {
+      excluded.push(`${totals.unpriced} line${totals.unpriced === 1 ? " has" : "s have"} no expected amount`);
+    }
+    if (totals.supported) {
+      excluded.push(`${totals.supported} line${totals.supported === 1 ? " is" : "s are"} supported by evidence`);
+    }
+    document.getElementById("recoverableNote").textContent = excluded.length
+      ? `across priced lines — ${excluded.join(" and ")} and ${excluded.length === 1 ? "is" : "are"} excluded`
       : "across entered lines";
     document.getElementById("flagged").textContent = String(totals.flagged);
     document.getElementById("flaggedOf").textContent = `of ${results.length} lines`;
