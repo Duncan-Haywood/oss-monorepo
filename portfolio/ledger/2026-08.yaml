@@ -39250,3 +39250,33 @@ entries:
         or commit first and rebase instead, which is what the rest of
         this session's realignments used without incident.
     mrr_end: null
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        seo-discoverability-audit queue item: `faq-coverage.mjs` and
+        `guide-coverage.mjs` both reported full coverage (169/169), so the
+        presence/absence phase was done -- checked open PRs first, none
+        touching this venture. Went to depth instead: of the ventures at
+        the bare 3-question FAQ floor, this one's `calc.mjs` ships nine
+        `PANE_PRESETS` (ground-floor exterior at 1.5 min/pane up through
+        hard-water/restoration and skylights at 8 min/pane) that the FAQ
+        never explained the spread of -- a real buyer question ("how much
+        more for second-story or hard-water windows?") the existing three
+        Q&A and the `how-much-to-charge-per-window.html` guide both leave
+        unanswered (the guide only contrasts residential vs. commercial).
+        Added one `<h3>/<p>` pair to `index.html`'s Common-questions
+        section stating the preset ratios plainly (2x for a second-story
+        ladder, 4x for lift/bosun work, 5x+ for hard-water/skylights vs.
+        ground-floor), sourced directly from `PANE_PRESETS`'
+        `minutesPerPane` values -- no hand-authored JSON-LD, per
+        `build.mjs`'s derived-schema rule.
+      - >-
+        Verified: venture's own 14-test `calc.test.mjs` suite green;
+        `node --test platform/pages/{faq-visible,faq-coverage,faq-
+        duplicate,secondary-schema}.test.mjs` 18/18; `build.mjs --out=dist
+        && check.mjs dist` -- 169 products, 508 pages, no dead links; the
+        built page's derived `FAQPage` JSON-LD contains the new question
+        text verbatim, confirming schema and visible copy stayed in sync.
+    mrr_end: null
