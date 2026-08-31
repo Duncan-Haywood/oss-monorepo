@@ -36391,3 +36391,38 @@ entries:
         2026-08-26, `runner_id: 0`, unrelated to this change) -- local
         verification above is authoritative per CLAUDE.md.
     mrr_end: null
+  - venture: chargeback-evidence-packet
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `node platform/pages/faq-coverage.mjs` and `guide-coverage.mjs` both
+        report 169/169 -- the presence backlog earlier sessions worked
+        through (#2324/#2337/#2346) is done. Went one level deeper (the
+        derived-entry count `faqEntries()` per page, same method those
+        sessions used) to find pages still sitting at the bare 3-question
+        floor: 12 remained, chargeback-evidence-packet among them and not
+        otherwise recently touched for FAQ work. Added 3 grounded Q&A pairs
+        to its existing "Chargeback response FAQ" section, each read from
+        `packet.mjs`'s own logic, not invented: the fraud-vs-not-received
+        required-evidence contrast (`DISPUTE_REASONS`), the deadline
+        urgency thresholds (`deadlineStatus()`'s <=3-day/same-day/past-due
+        cases), and the fallback rule for a dispute reason outside the four
+        modeled ones. No hand-authored `FAQPage` block touched --
+        `build.mjs` derives the schema from the visible copy. Net 3 -> 6
+        real derived entries.
+      - >-
+        Verified: `node --test ventures/chargeback-evidence-packet/packet.test.mjs`
+        16/16; `node platform/pages/faq-coverage.mjs chargeback-evidence-packet`
+        -> "1 of 1 entry page(s) will ship derived FAQ schema"; full `node
+        --test platform/pages/*.test.mjs` 784/784; `faq-duplicate.mjs` -> no
+        duplicated FAQ questions; `build.mjs --out=dist` + `check.mjs dist`
+        -> 169 products, 508 pages, no dead links; hand-parsed the built
+        page's `FAQPage` script block, all 6 questions match the visible
+        copy verbatim. `browser_checks.py` exited 2 (Playwright not
+        installed here) -- a documented skip, not a pass; acceptable since
+        this change is text-only. CI showed the account-level
+        runner-starvation signature (`runner_id: 0`, `runner_name: ""`,
+        ~3s, confirmed via the Actions jobs API on the `validate` check) --
+        not a real failure. Merged as #2355.
+    mrr_end: null
