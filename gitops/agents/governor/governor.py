@@ -185,10 +185,10 @@ def pick_item(
 
     This used to be `sorted(key=(-priority, id))[0]` -- the single
     highest-priority enabled item, every tick, forever. That starves every
-    other item: with the four real items (branch-pr-drain 5,
+    other item: with the real items (open-pr-repair-merge 6, branch-pr-drain 5,
     deploy-cicd-readiness 4, seo-discoverability-audit 3,
-    product-feature-improvement 2) only `branch-pr-drain` could ever run, and
-    the other three were unreachable until someone edited priorities in git.
+    product-feature-improvement 2) only the top one could ever run, and the
+    rest were unreachable until someone edited priorities in git.
 
     That was tolerable while the PR/branch backlog was the bottleneck. It
     stopped being tolerable once the backlog drained: on 2026-08-30 the repo
@@ -200,7 +200,7 @@ def pick_item(
     priority-0 item from being weightless (score 0 can never win), so no
     enabled item starves. Within a window the first pick is still the
     highest-priority item, and over many picks the items run in roughly their
-    weight ratio -- 6:5:4:3 for the four above. Ties break toward higher
+    weight ratio -- 7:6:5:4:3 for the five above. Ties break toward higher
     priority, then by id, so the choice stays deterministic.
     """
     enabled = [item for item in queue if item.enabled]
