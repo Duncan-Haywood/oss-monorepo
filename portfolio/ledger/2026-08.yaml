@@ -37187,3 +37187,57 @@ entries:
         (`runner_id: 0`, no steps) rather than treating red as a real
         failure. Merged as #2387 on local verification.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed and merged as #2389: the `seo-discoverability-audit` queue
+        item -- one of the five real jobs the Hetzner Codex worker runs
+        once the governor is flipped on -- opened with "the largest
+        measured gap is FAQ content" and told the run to pick from
+        `faq-coverage.mjs`'s missing list as its default choice. That
+        pointer is now aimed at an empty list: both coverage tools report
+        full coverage (`faq-coverage.mjs` 169/169 entry pages ship derived
+        FAQPage schema; `guide-coverage.mjs` 169/169 published tools carry
+        a secondary guide page). At priority 3 of 5 the item takes roughly
+        4/25 of the plan quota, and the hazard is not the wasted tick but
+        the second-order one `guide-coverage.mjs`'s own header names -- a
+        run told to find a gap that does not exist can invent one, and a
+        thin page written to clear a check competes with the tool's own
+        page for the same query. The prompt now runs both coverage tools
+        and acts on their current output instead of restating a past
+        measurement (the same anti-drift move `faq-coverage.mjs` makes by
+        importing `faqEntries` from `build.mjs` rather than
+        reimplementing it), and it now has a branch for today's state:
+        with both backlogs clear the work is depth, and a run that cannot
+        name a real unanswered buyer question should change nothing and
+        finish empty so the governor's noop damping moves the budget. No
+        priority was edited -- `queue/README.md` argues correctly that
+        hand-editing priorities is the failure the runs/noops weighting
+        replaced.
+      - >-
+        New this session, and the reason the entry is worth keeping: both
+        SEO coverage backlogs are closed. The presence-or-absence phase of
+        discoverability is done, so a future session looking for
+        "the FAQ backlog" will not find one. Remaining discoverability
+        work is per-page depth, not another surface.
+      - >-
+        Verified locally: `python3 -m pytest gitops/tests -q` 156 passed
+        (155 before, plus one new regression test pinning that the prompt
+        names both coverage commands, does not hard-code which backlog is
+        larger, and permits an empty run -- confirmed failing before the
+        prompt change and passing after). `node --test
+        platform/pages/*.test.mjs` 790/790. `node --test $(find ventures
+        -name '*.test.mjs')` 12633/12633. `node platform/pages/build.mjs`
+        169 tools / 497 pages, and `check.mjs` "looks publishable: 169
+        products, 7 category pages, 508 pages, no dead links". CI came
+        back red on all seven checks; confirmed starvation via
+        `platform/ci/ci_starvation.py --run 33369079646` (4 of 5 jobs
+        `runner_id: 0`, no steps) rather than treating red as a real
+        failure. Merged on local verification.
+      - >-
+        Queue state at session start: zero open PRs, so the three-PR merge
+        quota in the brief was moot rather than met. No branch carried
+        unique unmerged work touching `gitops/agents/`.
+    mrr_end: null
