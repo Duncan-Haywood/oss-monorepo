@@ -150,6 +150,14 @@
       clearTimeout(usageTimer);
       if (track) usageTimer = setTimeout(() => countUsage("calculation"), 800);
     } catch (error) {
+      // A rejected input (a negative rate, non-numeric text) must not leave
+      // the last valid comparison on screen next to a silent failure -- a
+      // visitor who misses the message in #verdict could read the stale
+      // per-option totals and difference as the answer for the invalid
+      // inputs now in the form.
+      $("aTotal").textContent = "";
+      $("bTotal").textContent = "";
+      $("difference").textContent = "";
       $("verdict").textContent = error.message;
       $("verdict").className = "small";
       $("annualImpact").textContent = "";
