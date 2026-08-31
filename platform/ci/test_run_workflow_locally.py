@@ -158,6 +158,66 @@ class Collect(unittest.TestCase):
         """)
         self.assertEqual(steps[0].status, "pending")
 
+    def test_an_unset_repository_variable_resolves_to_empty_rather_than_skipping(self):
+        """`portfolio-pages.yml`'s "Build the site": the command is plain, and
+        `PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}` is an optional override
+        that `build.mjs` reads as `process.env.X || DEFAULT_BASE_URL`. Skipping
+        it did not just lose one step -- "Check the built artifact" then ran
+        against a `dist` nothing had created and was reported FAIL, so the
+        deploy-critical workflow read red while it was green."""
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: build
+                    env:
+                      PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
+                    run: node build.mjs --out=dist
+        """)
+        self.assertEqual(steps[0].status, "pending")
+        self.assertEqual(steps[0].env, {"PAGES_BASE_URL": ""})
+        self.assertEqual(steps[0].unset_vars, ["PAGES_BASE_URL"])
+
+    def test_a_secret_in_env_still_skips(self):
+        """Blanking a secret would run the step without the credential it
+        exists to use, which is a confusing failure, not a verification."""
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: publish
+                    env:
+                      TOKEN: ${{ secrets.NPM_TOKEN }}
+                    run: echo hi
+        """)
+        self.assertEqual(steps[0].status, "skipped")
+
+    def test_a_vars_expression_in_the_command_still_skips(self):
+        """Only `env:` is resolved. A `vars.` reference inline in the command
+        would have to be substituted into shell text, which is the literal-text
+        hazard the skip exists for."""
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: inline
+                    run: echo ${{ vars.CI_RUNNER }}
+        """)
+        self.assertEqual(steps[0].status, "skipped")
+
+    def test_a_partially_templated_env_value_keeps_its_literal_half(self):
+        steps, _ = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - name: mixed
+                    env:
+                      BASE: https://${{ vars.HOST }}/tools
+                    run: echo 1
+        """)
+        self.assertEqual(steps[0].status, "pending")
+        self.assertEqual(steps[0].env, {"BASE": "https:///tools"})
+
     def test_multiline_run_blocks_are_collected(self):
         """The ad-hoc runs that missed a red `main` skipped these."""
         steps, _ = self.collect("""
@@ -219,6 +279,30 @@ class Execute(unittest.TestCase):
     def test_output_is_captured_for_the_report(self):
         step = self.run_one("echo diagnostic; exit 1")
         self.assertIn("diagnostic", step.tail)
+
+    def test_a_resolved_variable_reaches_the_step_as_empty(self):
+        step = runner.Step("j", "n", 'test -z "${BASE_URL-unset}"', ".")
+        step.env = {"BASE_URL": ""}
+        runner.execute(step, timeout=60)
+        self.assertEqual(step.status, "ok", step.tail)
+
+    def test_a_resolved_variable_beats_one_already_in_the_environment(self):
+        """The point is to reproduce CI's unset state. A developer's stray
+        export would otherwise verify a configuration CI does not have."""
+        os.environ["PF_TEST_STRAY"] = "leaked"
+        self.addCleanup(os.environ.pop, "PF_TEST_STRAY", None)
+        step = runner.Step("j", "n", 'test -z "$PF_TEST_STRAY"', ".")
+        step.env = {"PF_TEST_STRAY": ""}
+        runner.execute(step, timeout=60)
+        self.assertEqual(step.status, "ok", step.tail)
+
+    def test_the_rest_of_the_environment_survives_a_resolved_variable(self):
+        os.environ["PF_TEST_KEEP"] = "kept"
+        self.addCleanup(os.environ.pop, "PF_TEST_KEEP", None)
+        step = runner.Step("j", "n", 'test "$PF_TEST_KEEP" = kept', ".")
+        step.env = {"OTHER": ""}
+        runner.execute(step, timeout=60)
+        self.assertEqual(step.status, "ok", step.tail)
 
     def test_a_missing_working_directory_fails_rather_than_runs_in_the_repo(self):
         step = self.run_one("true", workdir="no/such/dir")
@@ -312,6 +396,247 @@ class AgainstThisRepository(unittest.TestCase):
 
     def test_a_missing_workflow_is_reported(self):
         self.assertEqual(runner.main(["no-such-workflow.yml"]), 2)
+
+
+class GlobToRegex(unittest.TestCase):
+    def match(self, pattern, path):
+        return bool(runner.glob_to_regex(pattern).match(path))
+
+    def test_double_star_crosses_directories(self):
+        self.assertTrue(self.match("ventures/**", "ventures/a/index.html"))
+        self.assertTrue(self.match("ventures/**", "ventures/a"))
+
+    def test_single_star_does_not_cross_directories(self):
+        self.assertTrue(self.match("ventures/*", "ventures/a"))
+        self.assertFalse(self.match("ventures/*", "ventures/a/index.html"))
+
+    def test_a_suffix_glob_matches_at_any_depth(self):
+        self.assertTrue(self.match("**.md", "portfolio/ledger/README.md"))
+        self.assertFalse(self.match("**.md", "platform/ci/runner.py"))
+
+    def test_the_pattern_must_match_the_whole_path(self):
+        # A prefix match would make `platform/ci` select every platform
+        # workflow, which is the failure mode that makes the tool useless.
+        self.assertFalse(self.match("platform/ci", "platform/ci/runner.py"))
+
+    def test_a_literal_dot_is_not_a_wildcard(self):
+        self.assertFalse(self.match("a.yml", "axyml"))
+
+
+class Selects(unittest.TestCase):
+    def selects(self, body, changed):
+        return runner.selects(workflow(body), changed)
+
+    def test_a_bare_on_key_is_read_despite_yaml_resolving_it_to_true(self):
+        # YAML 1.1 turns `on:` into the boolean True. Reading only "on" would
+        # find no triggers and select nothing at all, silently.
+        parsed = workflow("""
+            on:
+              push:
+                paths: ["ventures/**"]
+        """)
+        self.assertNotIn("on", parsed, "expected PyYAML to resolve `on` to True")
+        self.assertTrue(runner.selects(parsed, ["ventures/a/index.html"]))
+
+    def test_a_path_filter_selects_only_matching_changes(self):
+        body = """
+            on:
+              push:
+                paths: ["ventures/**"]
+        """
+        self.assertTrue(self.selects(body, ["ventures/a/index.html"]))
+        self.assertFalse(self.selects(body, ["platform/ci/runner.py"]))
+
+    def test_no_path_filter_means_every_change_selects_it(self):
+        self.assertTrue(self.selects("on:\n  push: {}\n", ["anything"]))
+
+    def test_paths_ignore_holds_only_when_it_covers_every_change(self):
+        body = """
+            on:
+              push:
+                paths-ignore: ["**.md"]
+        """
+        self.assertFalse(self.selects(body, ["README.md"]))
+        # One non-doc file is enough to start it, exactly as Actions does.
+        self.assertTrue(self.selects(body, ["README.md", "platform/ci/x.py"]))
+
+    def test_a_pull_request_filter_counts_too(self):
+        body = """
+            on:
+              pull_request:
+                paths: ["gitops/**"]
+        """
+        self.assertTrue(self.selects(body, ["gitops/prod/site.yaml"]))
+
+    def test_a_schedule_only_workflow_is_never_selected(self):
+        self.assertFalse(self.selects("on:\n  schedule:\n    - cron: '0 4 * * *'\n",
+                                      ["ventures/a/index.html"]))
+
+    def test_a_list_form_trigger_has_no_path_filter(self):
+        self.assertTrue(self.selects("on: [push, pull_request]\n", ["anything"]))
+
+
+class ReadOnlyJobs(unittest.TestCase):
+    def read_only(self, body):
+        """True when every job in the workflow is safe to run here."""
+        allowed, held = runner.read_only_jobs(workflow(body))
+        return bool(allowed) and not held
+
+    def test_a_workflow_of_assertions_is_read_only(self):
+        self.assertTrue(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - run: node --test
+        """))
+
+    def test_one_mutating_step_holds_the_whole_workflow(self):
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - run: node --test
+                  - run: git push origin main
+        """))
+
+    def test_a_workflow_with_no_run_steps_is_not_treated_as_verified(self):
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - uses: actions/checkout@v4
+        """))
+
+    def test_an_absent_permissions_block_is_held_back(self):
+        """Absent means the repository default, which may be read/write."""
+        self.assertFalse(self.read_only("""
+            jobs:
+              a:
+                steps:
+                  - run: node --test
+        """))
+
+    def test_a_job_may_not_widen_a_read_only_workflow(self):
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                permissions:
+                  contents: write
+                steps:
+                  - run: node --test
+        """))
+
+    def test_a_secret_reference_holds_the_workflow(self):
+        self.assertFalse(self.read_only("""
+            permissions:
+              contents: read
+            jobs:
+              a:
+                steps:
+                  - run: echo "${{ secrets.TOKEN }}"
+        """))
+
+    def test_a_writing_job_is_held_without_holding_its_read_only_sibling(self):
+        allowed, held = runner.read_only_jobs(workflow("""
+            permissions:
+              contents: read
+            jobs:
+              build:
+                steps:
+                  - run: node --test
+              deploy:
+                permissions:
+                  pages: write
+                steps:
+                  - run: ./publish.sh
+        """))
+        self.assertEqual(allowed, {"build"})
+        self.assertEqual([job for job, _ in held], ["deploy"])
+
+    def test_branch_cleanup_is_held_back_by_capability_not_by_the_list(self):
+        """The regression that shaped this check.
+
+        `branch-cleanup.yml` deletes refs from inside `branch_cleanup.py`, so
+        every shell command in it is an innocent `python3 ...` and the mutation
+        screen passes it. Only the declared capability gives it away.
+        """
+        parsed = runner.load_workflow(
+            os.path.join(runner.WORKFLOWS, "branch-cleanup.yml"))
+        steps, _ = runner.collect(parsed)
+        self.assertFalse(any(runner.screen(s) for s in steps),
+                         "expected the pattern screen alone to miss this")
+        allowed, held = runner.read_only_jobs(parsed)
+        self.assertEqual(allowed, set(), f"held: {held}")
+
+    def test_portfolio_pages_runs_its_build_job_and_holds_its_deploy_job(self):
+        """The motivating case: the FAQ guard lives in `build`."""
+        parsed = runner.load_workflow(
+            os.path.join(runner.WORKFLOWS, "portfolio-pages.yml"))
+        allowed, held = runner.read_only_jobs(parsed)
+        self.assertIn("build", allowed)
+        self.assertIn("deploy", [job for job, _ in held])
+        steps, _ = runner.collect(parsed, only=allowed)
+        self.assertTrue(any("--test" in s.run for s in steps),
+                        "the build job must still carry the test step")
+
+    def test_no_auto_run_job_in_the_repo_can_write_or_read_a_secret(self):
+        """Whole-repository sweep: the gate must hold across all 218 files."""
+        for name in sorted(os.listdir(runner.WORKFLOWS)):
+            if not name.endswith((".yml", ".yaml")):
+                continue
+            parsed = runner.load_workflow(os.path.join(runner.WORKFLOWS, name))
+            if not isinstance(parsed, dict):
+                continue
+            allowed, _ = runner.read_only_jobs(parsed)
+            for job_id in allowed:
+                job = parsed["jobs"][job_id]
+                self.assertFalse(runner._grants_write(parsed),
+                                 f"{name} auto-runs {job_id} but grants write")
+                self.assertFalse(
+                    job.get("permissions") is not None and runner._grants_write(job),
+                    f"{name}/{job_id} auto-runs but grants write")
+                self.assertFalse(runner._mentions_secret(job),
+                                 f"{name}/{job_id} auto-runs but reads a secret")
+
+
+class ForChanges(unittest.TestCase):
+    """The end the tool exists for: a change selects the workflows CI would run."""
+
+    def selected(self, changed):
+        names = []
+        for name in sorted(os.listdir(runner.WORKFLOWS)):
+            if not name.endswith((".yml", ".yaml")):
+                continue
+            parsed = runner.load_workflow(os.path.join(runner.WORKFLOWS, name))
+            if isinstance(parsed, dict) and runner.selects(parsed, changed):
+                names.append(name)
+        return names
+
+    def test_a_venture_page_selects_the_workflow_that_runs_the_faq_guard(self):
+        # The regression this mode exists for. `portfolio-pages.yml` runs
+        # `platform/pages/*.test.mjs`, which includes the FAQPage visibility
+        # guard that a session verifying only `portfolio-validate.yml` misses.
+        names = self.selected(["ventures/cloud-egress-calculator/index.html"])
+        self.assertIn("portfolio-pages.yml", names)
+        self.assertIn("cloud-egress-calculator-ci.yml", names)
+
+    def test_a_venture_change_does_not_select_an_unrelated_venture(self):
+        names = self.selected(["ventures/cloud-egress-calculator/index.html"])
+        self.assertNotIn("amazon-fba-calculator-ci.yml", names)
+
+    def test_naming_a_workflow_and_for_changes_together_is_refused(self):
+        self.assertEqual(runner.main(["portfolio-validate.yml", "--for-changes"]), 2)
+
+    def test_naming_nothing_at_all_is_refused(self):
+        self.assertEqual(runner.main([]), 2)
 
 
 if __name__ == "__main__":

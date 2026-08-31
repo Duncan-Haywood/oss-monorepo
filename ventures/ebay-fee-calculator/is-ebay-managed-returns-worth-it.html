@@ -113,7 +113,7 @@
         <label>Outbound shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="5"></label>
         <label>Packaging cost <input id="packagingCost" type="number" min="0" step="0.01" value="1"></label>
         <label>Your return label <input id="returnShippingCost" type="number" min="0" step="0.01" value="8"></label>
-        <label>Self-return rate (%) <input id="returnRatePercent" type="number" min="0" step="0.1" value="10"></label>
+        <label>Self-return rate (%) <input id="returnRatePercent" type="number" min="0" step="0.1" max="100" value="10"></label>
         <label>Managed Returns fee <input id="managedReturnFee" type="number" min="0" step="0.01" value="5.50"></label>
         <label>Managed Returns rate (%) <input id="managedReturnRatePercent" type="number" min="0" step="0.1" value="14"></label>
         <label>Buyer-pays return rate (%) <input id="buyerPaysReturnRatePercent" type="number" min="0" step="0.1" value="6"></label>
@@ -177,6 +177,14 @@
       profit and auction vs Buy It Now.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Is eBay Managed Returns worth it?</h3>
+  <p>Managed Returns replaces your return label with a per-return program fee. The path is easier for buyers, so the return rate often rises. On the calculator defaults ($40 item, $6 shipping, 13.25%+$0.30, $8 self-label at 10%, $5.50 Managed Returns at 14%) your own label keeps $18.04 expected and Managed Returns keeps $16.97. The program still ties if the Managed Returns rate stays near 10.8%. Buyer-paid return shipping at 6% keeps $19.95. That is arithmetic on your inputs, not advice to enroll.</p>
+  <h3>Does Managed Returns save money if the return rate stays the same?</h3>
+  <p>Yes on these defaults. At a matched 10% rate the $5.50 program fee keeps $0.25 more than an $8 label. The trap is the extra returns, not the fee line.</p>
+  <h3>Is this the same as a return-rate mix or Top Rated Plus?</h3>
+  <p>No. The return-rate page holds one postage and one rate. A partial refund closes one case. Top Rated Plus trades a fee discount for free returns. This page compares who buys the label and how the rate moves.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

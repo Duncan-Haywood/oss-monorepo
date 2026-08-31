@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EV Charger Installation Bid Calculator | How Much to Charge to Install a Level 2 EVSE</title>
+  <title>EV Charger Installation Bid Calculator — Level 2 EVSE Cost</title>
   <meta name="description" content="Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.">
   <meta property="og:title" content="EV Charger Installation Bid Calculator">
   <meta property="og:description" content="Bid the run and the panel, not the charger. Size the circuit at 125%, hold a 3% voltage drop, and see the walk-away number before you send the price.">
@@ -11,44 +11,11 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "EV Charger Installation Bid Calculator",
-        "applicationCategory": "BusinessApplication",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "featureList": "125% continuous-load breaker sizing, copper voltage-drop check, trench and panel-work labor, walk-away price, proposed-price margin check, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How much should I charge to install an EV charger?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "There is no flat hang fee. A 20–25 foot indoor Level 2 install on a panel with a spare slot often lands near a thousand dollars of contractor price once wage burden, permit, and margin are in. The same 48 A charger on a 70-foot trench to a detached garage that also needs a service upgrade is several times that. Price the circuit, the run, the trench, and the panel work."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What size breaker does a Level 2 EV charger need?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "EVSE is a continuous load. Size the overcurrent device at 125% of the charger’s continuous current and round up to a standard breaker: 32 A → 40 A, 40 A → 50 A, 48 A → 60 A, 80 A → 100 A. Confirm against the charger nameplate and the adopted code in the jurisdiction."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "When does an EV charger install need a service upgrade?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "When the existing service does not have enough unused capacity for the new breaker. Subtract a realistic existing load from the service rating. If the remainder is smaller than the EVSE breaker, the bid should include a service upgrade or a load-management device — not a hope that the panel will be fine."
-            }
-          }
-        ]
-      }
-    ]
+    "@type": "SoftwareApplication",
+    "name": "EV Charger Installation Bid Calculator",
+    "applicationCategory": "BusinessApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "125% continuous-load breaker sizing, copper voltage-drop check, trench and panel-work labor, walk-away price, proposed-price margin check, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"
   }
   </script>
   <style>
@@ -62,6 +29,7 @@
     section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
@@ -179,6 +147,7 @@
     <p class="eyebrow">FOR ELECTRICAL CONTRACTORS</p>
     <h1>Bid the run and the panel, not the charger.</h1>
     <p>A Level 2 EVSE is a continuous load. Size the breaker at 125%, pick copper that holds a 3% voltage drop for the actual run, then add trench hours and panel work. A 25-foot indoor hang on a spare slot is one job. The same 48&nbsp;A charger on a 70-foot trench to a detached garage that also needs a service upgrade is several times that price — and a flat “EV charger install” quote cannot see the difference.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge to install an EV charger?</a></p>
   </header>
 
   <main class="layout">
@@ -252,7 +221,19 @@
         </details>
         <details>
           <summary>Do I have to include a service upgrade?</summary>
-          <p>Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation.</p>
+          <p>Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation. A 200&nbsp;A service already estimated at 190&nbsp;A of existing load has only 10&nbsp;A of headroom; a 48&nbsp;A charger needs a 60&nbsp;A breaker, so that job gets flagged even though the panel itself has a free slot.</p>
+        </details>
+        <details>
+          <summary>Why does a long run sometimes need thicker wire than the breaker alone requires?</summary>
+          <p>Ampacity and voltage drop are two different limits. A 48&nbsp;A charger's 60&nbsp;A breaker is carried by #6 copper on ampacity alone, but at 160 feet that #6 run would sit past the 3% voltage-drop budget at 240&nbsp;V. The calculator checks both and upsizes to #4 (1.98% drop at 160 ft) whenever the shorter-run wire would fail the drop check — the wire size shown is whichever limit binds for the feet you entered, not just the breaker size.</p>
+        </details>
+        <details>
+          <summary>How much can a detached garage and a service upgrade add to the price?</summary>
+          <p>At the default rates, a 48&nbsp;A indoor hang on a spare slot with a 25-foot run prices near $1,263. Move the same charger to a detached garage with a 70-foot run, a 60-foot trench, and a service upgrade, and it prices near $4,587 — largely trench labor and restoration, the extra outdoor labor rate, and the 8 hours a service upgrade adds to the panel line. Same charger, almost 3.6&times; the price, because the job is not the charger.</p>
+        </details>
+        <details>
+          <summary>What does the baseline comparison number mean?</summary>
+          <p>The result panel prices your entered job against a fixed reference — the same wage, burden, overhead, and margin, but a 48&nbsp;A indoor hang, 20-foot run, spare panel slot, no trench, no hardware. At the defaults that baseline prices near $1,189, so a $1,263 quote reads as about 6% over it. That reference is the "easy garage" number a customer often has in mind from a flat-fee ad; the ratio shows how far your actual job's numbers move it, not whether either price is right.</p>
         </details>
       </section>
 

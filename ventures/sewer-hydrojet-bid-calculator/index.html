@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hydro-Jet and Sewer Camera Bid Calculator | Price the Footage, the Access, and the Camera — Not Just the Drain Special</title>
+  <title>Hydro-Jet and Sewer Camera Bid Calculator — Footage, Access</title>
   <meta name="description" content="Price a sewer camera inspection or hydro-jet from extra footage past the included run, cleanout versus toilet pull, roots and grease, hose distance from the truck, and a camera warranty pass — not a published $149 drain special. See the walk-away number before you match a cheaper cable quote.">
   <meta property="og:title" content="Hydro-Jet and Sewer Camera Bid Calculator">
   <meta property="og:description" content="A 50-foot cable from an existing cleanout is not the same job as a 140-foot main with a toilet pull, roots, and a camera pass. Bid the footage and the access.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hydro-Jet and Sewer Camera Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Camera versus cable versus hydro-jet versus combo hours, extra footage past the included run, existing cleanout versus toilet pull versus new cleanout versus roof vent, roots and grease, hose distance from the truck, second line, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a toilet pull or new cleanout cost more than an existing cleanout job?","acceptedAnswer":{"@type":"Answer","text":"Access is priced as its own line because getting into the line changes the labor before the machine ever starts running: pulling and resetting a toilet, or cutting in a new cleanout, adds real hours a job that already has a cleanout doesn't need. Match the access option to what's actually on site rather than assuming every job starts the same way."}},{"@type":"Question","name":"Why does a “$149 drain special” price so much lower than this tool's number?","acceptedAnswer":{"@type":"Answer","text":"A flat brochure price usually covers a short run from an existing cleanout with no roots, no grease, and no camera pass — extra footage past the included run, roots, grease, hose distance from the truck, and a camera warranty pass all add hours the flat price never counted. Enter your actual line feet and conditions to see what the special would need to charge to still be profitable."}},{"@type":"Question","name":"Does the camera pass replace a real sewer inspection or a home-sale scope report?","acceptedAnswer":{"@type":"Answer","text":"No. This prices your labor and equipment time for running a camera, not a certified inspection report, a real-estate condition disclosure, or a code determination about the line's condition. Whatever the camera finds is still something you (or a licensed inspector) has to interpret and document separately."}},{"@type":"Question","name":"Is the footage-included assumption accurate for my trucks?","acceptedAnswer":{"@type":"Answer","text":"The included footage and hose-run figures are common ballpark starting points, not a manufacturer spec for your specific jet unit or cable machine. Replace them with what your actual equipment carries so the “extra footage” charge kicks in at the right point."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2a32; background: #e6eef1; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,7 +25,7 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa0a8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0a8; background: #eef5f6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0a8; background: #eef5f6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1a2a32; }
     button:hover { background: #dcecee; }
     .result { position: sticky; top: 15px; background: #0f3d42; color: #eef7f7; border-color: #0f3d42; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -88,6 +89,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -225,6 +238,8 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a plumbing specification, or a code determination &mdash; replace them with your own takeoff.</p>
     </section>
+
+    <section><h2>Common questions</h2><h3>Why does a toilet pull or new cleanout cost more than an existing cleanout job?</h3><p>Access is priced as its own line because getting into the line changes the labor before the machine ever starts running: pulling and resetting a toilet, or cutting in a new cleanout, adds real hours a job that already has a cleanout doesn't need. Match the access option to what's actually on site rather than assuming every job starts the same way.</p><h3>Why does a &ldquo;$149 drain special&rdquo; price so much lower than this tool's number?</h3><p>A flat brochure price usually covers a short run from an existing cleanout with no roots, no grease, and no camera pass &mdash; extra footage past the included run, roots, grease, hose distance from the truck, and a camera warranty pass all add hours the flat price never counted. Enter your actual line feet and conditions to see what the special would need to charge to still be profitable.</p><h3>Does the camera pass replace a real sewer inspection or a home-sale scope report?</h3><p>No. This prices your labor and equipment time for running a camera, not a certified inspection report, a real-estate condition disclosure, or a code determination about the line's condition. Whatever the camera finds is still something you (or a licensed inspector) has to interpret and document separately.</p><h3>Is the footage-included assumption accurate for my trucks?</h3><p>The included footage and hose-run figures are common ballpark starting points, not a manufacturer spec for your specific jet unit or cable machine. Replace them with what your actual equipment carries so the &ldquo;extra footage&rdquo; charge kicks in at the right point.</p></section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">
         <h2>Hand the customer a proposal</h2>

@@ -14,30 +14,41 @@ set -euo pipefail
 : "${RUNNER_TOKEN:?RUNNER_TOKEN (a PAT with repo scope) must be set}"
 
 RUNNER_LABELS="${RUNNER_LABELS:-self-hosted,linux,x64,hetzner}"
-API="https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runners/registration-token"
 
-# A registration token is minted per registration and expires in an hour, so it
-# is fetched here rather than sealed. The long-lived PAT never leaves the pod.
-echo "Requesting a registration token for ${GITHUB_REPOSITORY}..."
-response="$(curl -fsSL -X POST \
-  -H "Authorization: Bearer ${RUNNER_TOKEN}" \
-  -H "Accept: application/vnd.github+json" \
-  -H "X-GitHub-Api-Version: 2022-11-28" \
-  "${API}")"
-
+# GitHub has two distinct endpoints for self-hosted runner tokens, and they are
+# not interchangeable: a registration-token is only accepted by `config.sh`,
+# and a remove-token is only accepted by `config.sh remove`. Each expires in an
+# hour, so both are fetched fresh from the API rather than sealed; the
+# long-lived PAT never leaves the pod.
+#
 # grep/sed rather than jq: the official runner image does not ship jq, and
 # adding a package install to every pod start is a slower, more fragile way to
 # read one string.
-reg_token="$(printf '%s' "${response}" | grep -o '"token"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"$/\1/')"
+fetch_token() {
+  local kind="$1"
+  local response token
+  response="$(curl -fsSL -X POST \
+    -H "Authorization: Bearer ${RUNNER_TOKEN}" \
+    -H "Accept: application/vnd.github+json" \
+    -H "X-GitHub-Api-Version: 2022-11-28" \
+    "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runners/${kind}-token")"
+  token="$(printf '%s' "${response}" | grep -o '"token"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"$/\1/')"
+  printf '%s' "${token}"
+}
+
+echo "Requesting a registration token for ${GITHUB_REPOSITORY}..."
+reg_token="$(fetch_token registration)"
 if [ -z "${reg_token}" ]; then
-  # Deliberately does not echo ${response}: on some failures GitHub returns the
-  # request back, and this log is the one place a token could leak.
+  # Deliberately does not echo the API response: on some failures GitHub
+  # returns the request back, and this log is the one place a token could leak.
   echo "Could not read a registration token from the API response." >&2
   echo "Check that RUNNER_TOKEN is a PAT with 'repo' scope on ${GITHUB_REPOSITORY}." >&2
   exit 1
 fi
 
-cd /home/runner
+# Overridable only so the entrypoint can be exercised outside the runner image;
+# the Deployment never sets it.
+cd "${RUNNER_DIR:-/home/runner}"
 
 ./config.sh \
   --url "https://github.com/${GITHUB_REPOSITORY}" \
@@ -52,9 +63,42 @@ cd /home/runner
 # An ephemeral runner deregisters itself after its one job. The trap covers the
 # other exit: the pod is evicted or rescheduled before a job ever arrives, which
 # would otherwise leave a registered runner GitHub keeps trying to dispatch to.
+# This needs its own token: the registration-token above is not valid for
+# removal, and a stale reg_token silently no-ops here, leaving the orphaned
+# runner listed (offline) in the repo's runner settings until someone prunes it
+# by hand.
+# shellcheck disable=SC2329  # invoked indirectly, by the EXIT trap below.
 cleanup() {
-  ./config.sh remove --token "${reg_token}" >/dev/null 2>&1 || true
+  local remove_token
+  remove_token="$(fetch_token remove 2>/dev/null || true)"
+  [ -n "${remove_token}" ] && ./config.sh remove --token "${remove_token}" >/dev/null 2>&1
+  true
 }
-trap cleanup EXIT INT TERM
+trap cleanup EXIT
 
-exec ./run.sh
+# `run.sh` runs as a child, not via `exec`. `exec` replaces this shell, and a
+# replaced shell takes its traps with it -- the EXIT trap above would never have
+# fired, so the deregistration it exists to perform never happened and an
+# evicted pod left a runner listed (offline) that GitHub keeps dispatching jobs
+# to. Those jobs hang until someone prunes the runner by hand, which is the
+# exact failure this cleanup was written to prevent.
+./run.sh &
+RUNNER_PID=$!
+
+# Kubernetes sends SIGTERM on eviction, rollout or node drain. Forward it so the
+# runner stops between jobs on its own terms, then fall through to the EXIT trap.
+trap 'kill -TERM "${RUNNER_PID}" 2>/dev/null || true' INT TERM
+
+# `wait` returns early with 128+n when a trapped signal arrives, which is not
+# the child exiting -- keep waiting until it is actually gone. `kill -0` on a
+# reaped pid fails, so this always terminates.
+status=0
+while :; do
+  set +e
+  wait "${RUNNER_PID}"
+  status=$?
+  set -e
+  kill -0 "${RUNNER_PID}" 2>/dev/null || break
+done
+
+exit "${status}"

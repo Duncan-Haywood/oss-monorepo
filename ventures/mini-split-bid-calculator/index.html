@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mini-Split Install Bid Calculator | Price Per Head With Line-Set and Circuit Extras</title>
+  <title>Mini-Split Install Bid Calculator — Price Per Head</title>
   <meta name="description" content="Price a ductless mini-split install from indoor heads, line-set extras, story height, electrical extras, and margin — then see price per head, crew hours, and the walk-away number a cheaper per-head quote hides.">
   <meta property="og:title" content="Mini-Split Install Bid Calculator">
   <meta property="og:description" content="Bid a mini-split the way the job actually costs — heads, line-set, height, and the circuit — before you match a cheaper per-head quote.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mini-Split Install Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Head-count system size, head-type and story labor factors, extra line-set feet, electrical extras, condensate pump adder, price per head, walk-away price, proposed-price margin check, copyable bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is equipment nearly two-thirds of the cost?","acceptedAnswer":{"@type":"Answer","text":"Because a mini-split is an equipment job with an install attached. On the defaults — one 12,000 BTU head — the outdoor unit is $1,400 and the indoor head $550, which is 64.1% of direct cost against 14.4% for the eight hours of labor. Your margin is far more sensitive to what you pay for equipment than to how fast the crew works, which is the opposite of most trades on this site."}},{"@type":"Question","name":"Why is the line set $0 when the job clearly needs one?","acceptedAnswer":{"@type":"Answer","text":"Because the first 15 feet per head is in the base equipment price, and the default run is exactly 15 feet. Only footage past the allowance bills, and it bills in labor as well as material — roughly an hour per extra ten feet, since a longer run means more penetration, hanging, and evacuation time. A second-floor head on a long run is where this number moves."}},{"@type":"Question","name":"Is $325 per thousand BTU a rate I can quote from?","acceptedAnswer":{"@type":"Answer","text":"Not across sizes. It is $3,902.33 divided by 12 kBTU, and it drops as capacity rises because the permit, travel, commissioning hour, and trip are the same for a bigger head. A 24,000 BTU single-head system does not cost twice as much. The figure is for checking one quote against another at the same capacity, not for scaling."}},{"@type":"Question","name":"Why doesn’t a 22% target margin mean adding 22% to cost?","acceptedAnswer":{"@type":"Answer","text":"Because margin is a fraction of the price. The default system costs $3,043.82, and holding 22% of the price as profit is $3,043.82 ÷ 0.78 = $3,902.33. Adding 22% to cost gives $3,713.46, an 18% margin — and on an equipment-heavy job like this one, where the cost base is large, that gap is $189 on a single head and scales with every head you add."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13202c; background: #e8f0f4; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -23,7 +24,7 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8ea3af; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8ea3af; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8ea3af; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #13202c; }
     button:hover { background: #dce8ed; }
     .result { position: sticky; top: 15px; background: #14384a; color: #f2f8f8; border-color: #14384a; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -233,6 +234,34 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Head-type factors, story factors, and extras are common ballpark starting points, not an industry standard, a benchmark, or a guarantee. Time your own crews and replace them.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+      <h3>Why is equipment nearly two-thirds of the cost?</h3>
+      <p>Because a mini-split is an equipment job with an install attached. On the defaults &mdash; one
+        12,000 BTU head &mdash; the outdoor unit is $1,400 and the indoor head $550, which is 64.1% of
+        direct cost against 14.4% for the eight hours of labor. Your margin is far more sensitive to what
+        you pay for equipment than to how fast the crew works, which is the opposite of most trades on
+        this site.</p>
+
+      <h3>Why is the line set $0 when the job clearly needs one?</h3>
+      <p>Because the first 15 feet per head is in the base equipment price, and the default run is
+        exactly 15 feet. Only footage past the allowance bills, and it bills in labor as well as material
+        &mdash; roughly an hour per extra ten feet, since a longer run means more penetration, hanging,
+        and evacuation time. A second-floor head on a long run is where this number moves.</p>
+
+      <h3>Is $325 per thousand BTU a rate I can quote from?</h3>
+      <p>Not across sizes. It is $3,902.33 divided by 12 kBTU, and it drops as capacity rises because the
+        permit, travel, commissioning hour, and trip are the same for a bigger head. A 24,000 BTU
+        single-head system does not cost twice as much. The figure is for checking one quote against
+        another at the same capacity, not for scaling.</p>
+
+      <h3>Why doesn&rsquo;t a 22% target margin mean adding 22% to cost?</h3>
+      <p>Because margin is a fraction of the price. The default system costs $3,043.82, and holding 22%
+        of the price as profit is $3,043.82 &divide; 0.78 = $3,902.33. Adding 22% to cost gives
+        $3,713.46, an 18% margin &mdash; and on an equipment-heavy job like this one, where the cost base
+        is large, that gap is $189 on a single head and scales with every head you add.</p>
     </section>
   </main>
 

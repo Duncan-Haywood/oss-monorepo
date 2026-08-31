@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Furnace Bid Calculator | Price the Attic, the Coil, and the Gas — Not Just the $2,495 Special</title>
+  <title>Furnace Bid Calculator — Attic, Coil, and Gas Line</title>
   <meta name="description" content="Price a furnace or heat-pump replacement from extra duct past the included run, attic versus basement, a matching coil, a gas upsize, haul-away of the old unit, and a thermostat — not a published $2,495 installed special. See the walk-away number before you match a cheaper quote.">
   <meta property="og:title" content="Furnace Bid Calculator">
   <meta property="og:description" content="A 60k 80% AFUE basement swap is not the same job as a 100k 96% attic set with a matching coil, a gas upsize, and haul-away. Bid the attic and the coil.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Furnace Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"BTU capacity, 80% versus 96% versus heat pump, extra duct past the included run, attic versus basement, matching coil, gas upsize, haul-away, thermostat, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How can a competitor advertise a furnace replacement for $2,495?","acceptedAnswer":{"@type":"Answer","text":"Usually because the special is written around one specific job: a 60,000 BTU 80% AFUE unit dropped into an open basement, with the first 15 ft of duct included, no coil, no gas work, no haul-away, and no thermostat. That job is one of the presets here, and it does price low. What does not scale with a trip charge is everything the coupon leaves out. Price your actual job beside it and the gap stops being a mystery and starts being a list of line items you can show the homeowner."}},{"@type":"Question","name":"Why is \"included duct\" its own field?","acceptedAnswer":{"@type":"Answer","text":"Because that is where the coupon and the real job diverge. Only footage past the included run is charged — extra feet = max(0, duct run − included) — and those feet cost both material per foot and hours per foot. A 40 ft run against a 15 ft allowance is 25 ft of chargeable duct; a 12 ft basement run against the same allowance is zero, not a credit. That asymmetry is exactly what makes the brochure price honest on the small job and catastrophic on the big one."}},{"@type":"Question","name":"Why does the attic cost more than the basement for the same furnace?","acceptedAnswer":{"@type":"Answer","text":"Access hours. A basement or open utility set is the baseline at zero extra hours, an interior closet adds about 1, and an attic adds about 2 — the carry, the platform, the working room, and the condensate run you cannot reach standing up. That is separate from the equipment premium: a 96% condensing furnace starts around 5.25 h to hang against 4 for an 80%, plus roughly $400 of material, and a heat pump around 6 h plus roughly $1,600. Attic + condensing stacks both."}},{"@type":"Question","name":"What does the calculator not include?","acceptedAnswer":{"@type":"Answer","text":"It is not a Manual J, a load calculation, or an HVAC design, and picking 100,000 BTU here is not a finding that the house needs it — sizing is your load calc, not this page's. It also does not price recurring maintenance contracts, ductless mini-split installs, water-heater replacement, or standby generators; those are different jobs with their own tools. This prices a furnace or heat-pump changeout: the unit, where it sits, the coil, the gas, and the duct that is not in the coupon."}},{"@type":"Question","name":"Why isn't a 20% margin the same as adding 20% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = total cost ÷ (1 − margin) — which is how the homeowner's number reads and how your books read it. Overhead is a separate markup on direct cost (labor + material + travel and equipment), applied before margin and never to itself or to profit. Marking a $6,000 cost up 20% gives $7,200, which is only a 16.7% margin; a 20% target margin gives $7,500. Across a heating season that gap is several installs."}},{"@type":"Question","name":"Is my pricing data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. No account and no network requests — every wage, material cost, and price stays in this browser. The business details saved for the printed proposal live in this browser's local storage, and \"Forget my business details\" clears them. The optional local usage counter records only which features were used and the day, never your costs or prices, and the footer checkbox turns it off."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a241c; background: #efe6d8; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,7 +25,7 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a68a6e; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a68a6e; background: #f7eee2; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a68a6e; background: #f7eee2; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a241c; }
     button:hover { background: #eedfcb; }
     .result { position: sticky; top: 15px; background: #3a2414; color: #f7eee2; border-color: #3a2414; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -253,6 +254,54 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a Manual J, or an HVAC design &mdash; replace them with your own takeoff.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How can a competitor advertise a furnace replacement for $2,495?</h3>
+      <p>Usually because the special is written around one specific job: a 60,000&nbsp;BTU 80% AFUE unit
+        dropped into an open basement, with the first 15&nbsp;ft of duct included, no coil, no gas work, no
+        haul-away, and no thermostat. That job is one of the presets here, and it does price low. What does
+        not scale with a trip charge is everything the coupon leaves out. Price your actual job beside it and
+        the gap stops being a mystery and starts being a list of line items you can show the homeowner.</p>
+
+      <h3>Why is "included duct" its own field?</h3>
+      <p>Because that is where the coupon and the real job diverge. Only footage <em>past</em> the included
+        run is charged &mdash; extra feet = max(0, duct run &minus; included) &mdash; and those feet cost
+        both material per foot and hours per foot. A 40&nbsp;ft run against a 15&nbsp;ft allowance is
+        25&nbsp;ft of chargeable duct; a 12&nbsp;ft basement run against the same allowance is zero, not a
+        credit. That asymmetry is exactly what makes the brochure price honest on the small job and
+        catastrophic on the big one.</p>
+
+      <h3>Why does the attic cost more than the basement for the same furnace?</h3>
+      <p>Access hours. A basement or open utility set is the baseline at zero extra hours, an interior closet
+        adds about 1, and an attic adds about 2 &mdash; the carry, the platform, the working room, and the
+        condensate run you cannot reach standing up. That is separate from the equipment premium: a 96%
+        condensing furnace starts around 5.25&nbsp;h to hang against 4 for an 80%, plus roughly $400 of
+        material, and a heat pump around 6&nbsp;h plus roughly $1,600. Attic + condensing stacks both.</p>
+
+      <h3>What does the calculator not include?</h3>
+      <p>It is not a Manual J, a load calculation, or an HVAC design, and picking 100,000&nbsp;BTU here is
+        not a finding that the house needs it &mdash; sizing is your load calc, not this page's. It also
+        does not price recurring maintenance contracts, ductless mini-split installs, water-heater
+        replacement, or standby generators; those are different jobs with their own tools. This prices a
+        furnace or heat-pump changeout: the unit, where it sits, the coil, the gas, and the duct that is not
+        in the coupon.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = total cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the homeowner's number reads and how your books
+        read it. Overhead is a separate markup on direct cost (labor + material + travel and equipment),
+        applied before margin and never to itself or to profit. Marking a $6,000 cost up 20% gives $7,200,
+        which is only a 16.7% margin; a 20% target margin gives $7,500. Across a heating season that gap is
+        several installs.</p>
+
+      <h3>Is my pricing data uploaded anywhere?</h3>
+      <p>No. No account and no network requests &mdash; every wage, material cost, and price stays in this
+        browser. The business details saved for the printed proposal live in this browser's local storage,
+        and "Forget my business details" clears them. The optional local usage counter records only which
+        features were used and the day, never your costs or prices, and the footer checkbox turns it off.</p>
     </section>
   </main>
 

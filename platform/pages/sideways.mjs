@@ -57,6 +57,16 @@ if (!playwright || !playwright.chromium) {
 const BASE = (process.env.BASE_URL || 'http://localhost:8793').replace(/\/$/, '');
 const DIST = process.env.DIST || path.join(HERE, 'dist');
 
+// The other five checks all honour this and this one did not, which made it
+// the only check that could not run wherever the override is needed at all --
+// a global Playwright install, or a machine whose browsers live at a fixed
+// path. Playwright pins a browser build number and refuses to launch a
+// different one, so without `executablePath` it dies telling you to run
+// `npx playwright install`, which is not always something you can do.
+// `CHROMIUM_PATH` is `sweep.mjs`'s older spelling for the same knob.
+const chromePath = process.env.CHROME_PATH || process.env.CHROMIUM_PATH;
+const LAUNCH = chromePath ? { executablePath: chromePath } : {};
+
 /**
  * 360 rather than 320: it is the width of the phones this audience actually
  * carries, and the width `sweep.mjs`'s 390 rounds down to. 320 is the width
@@ -86,7 +96,7 @@ if (!fs.existsSync(DIST)) {
 // own to ask for; everything else is reachable.
 const pages = publishedPages(DIST).filter((rel) => !rel.startsWith('404'));
 
-const browser = await playwright.chromium.launch();
+const browser = await playwright.chromium.launch(LAUNCH);
 const page = await browser.newPage({ viewport: { width: WIDTH, height: HEIGHT } });
 const failures = [];
 

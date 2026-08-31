@@ -3,7 +3,19 @@ const money = (value, currency) => new Intl.NumberFormat(undefined, { style: 'cu
 const labels = { web: 'website, email, and organic social', paid: 'paid social or display advertising', print: 'print, packaging, or point-of-sale', outdoor: 'outdoor, signage, or broadcast' };
 const read = () => ({ currency: $('currency').value, creative: Number($('creativeFee').value), images: Number($('images').value), term: Number($('term').value), territory: Number($('territory').value), exclusivity: Number($('exclusivity').value), rush: Number($('rush').value) || 0, client: $('client').value.trim(), photographer: $('photographer').value.trim(), channels: [...document.querySelectorAll('[name=channel]:checked')].map((input) => ({ name: input.value, factor: Number(input.dataset.factor) })) });
 export function calculate(input) {
-  const channelFactor = input.channels.length ? input.channels.reduce((sum, channel) => sum + channel.factor, 0) / input.channels.length : 0.5;
+  // A plain average of the selected channels' factors is not monotonic: starting from
+  // a high-value channel (outdoor, 1.6) and adding a lower-value one (web, 1) pulls the
+  // average down, so a licence covering *more* places to use the image could quote
+  // *less* than the narrower one -- the opposite of what broader usage rights are worth.
+  // `0.85 * max + 0.15 * sum` keeps the single-channel case identical to the highest
+  // selected factor (so "web only" still prices the same as it always did) while
+  // guaranteeing the factor strictly increases with every channel added, for any
+  // combination: the max term never falls and the sum term strictly grows by that
+  // channel's own factor.
+  const factors = input.channels.map((channel) => channel.factor);
+  const channelFactor = factors.length
+    ? 0.85 * Math.max(...factors) + 0.15 * factors.reduce((sum, factor) => sum + factor, 0)
+    : 0.5;
   const termFactor = Math.sqrt(input.term / 6);
   const rights = input.creative * 0.35 * channelFactor * termFactor * input.territory * input.exclusivity * (1 + input.rush / 100);
   return { rights, total: input.creative + rights, perImage: rights / input.images, channelFactor, termFactor };

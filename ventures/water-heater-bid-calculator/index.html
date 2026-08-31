@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Water Heater Replacement Bid Calculator | How Much to Charge to Replace a Water Heater</title>
+  <title>Water Heater Replacement Bid Calculator — Tank vs Tankless</title>
   <meta name="description" content="Price a residential water heater replacement from the tank or tankless type, the location, the vent, and the gas or electrical path — plus walk-away price, dollars per gallon, and how many times a typical 50-gallon electric garage swap this house really is.">
   <meta property="og:title" content="Water Heater Replacement Bid Calculator">
   <meta property="og:description" content="Bid the vent, the 3/4-inch gas upsize, and the attic carry — not a flat $1,200 installed guess — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Water Heater Replacement Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Tank vs tankless vs heat-pump takeoff, attic and crawl access hours, B-vent vs concentric sidewall, 3/4-inch gas upsize, 240 V and panel work, expansion tank and drip pan, walk-away price, dollars per gallon, typical-swap comparison, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to replace a water heater?","acceptedAnswer":{"@type":"Answer","text":"There is no flat installed price. A same-day 50-gallon electric tank in a garage is a different job from a condensing tankless on a 3/4-inch gas upsize with a sidewall vent and an attic carry. This calculator prices the heater type, the location, the vent, and the gas or electrical path from your own wage and material inputs."}},{"@type":"Question","name":"Is this a plumbing-code ruling or a first-hour-rating calculation?","acceptedAnswer":{"@type":"Answer","text":"No. Outputs are arithmetic on the numbers you enter. Capacity hints are starting points, not a first-hour rating, fuel-gas table, or manufacturer clearance you can stamp or submit."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to replace a water heater?","acceptedAnswer":{"@type":"Answer","text":"There is no flat installed price. A same-day 50-gallon electric tank in a garage is a different job from a condensing tankless on a 3/4-inch gas upsize with a sidewall vent and an attic carry. This calculator prices the heater type, the location, the vent, and the gas or electrical path from your own wage and material inputs."}},{"@type":"Question","name":"Is this a plumbing-code ruling or a first-hour-rating calculation?","acceptedAnswer":{"@type":"Answer","text":"No. Outputs are arithmetic on the numbers you enter. Capacity hints are starting points, not a first-hour rating, fuel-gas table, or manufacturer clearance you can stamp or submit."}},{"@type":"Question","name":"How much does upsizing the gas line add to a tankless bid?","acceptedAnswer":{"@type":"Answer","text":"On a 10-foot run at this calculator's default wage, burden, overhead, and margin, moving a gas tankless from \"existing line looks adequate\" to a 3/4-inch upsize adds 4 labor hours and $270 in materials — about $804 more on the bid ($1,525.94 to $2,329.59). Most 1/2-inch lines that fed the old atmospheric tank cannot flow enough gas for a condensing tankless, so pricing the existing line as reusable is how a competitive-looking bid loses money on the first callback."}},{"@type":"Question","name":"What does panel work add to an electric tankless bid?","acceptedAnswer":{"@type":"Answer","text":"At this calculator's defaults, a 7 GPM electric tankless priced on \"existing circuit looks adequate\" comes to $1,433.20. The same job priced on the panel work an electric tankless usually needs — two or three dedicated 40 A 240 V circuits, not the single 30 A breaker the old tank used — comes to $2,700.97: 3.2 more labor hours and $620 more in electrical materials, about $1,267.77 higher. Pricing the old circuit as reusable on an electric tankless is the electrical-side version of the gas-line mistake above."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #f3eee8; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -20,6 +20,7 @@
     section { background: #fff; border: 1px solid #d8cfc3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #5a4e42; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b8aa98; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
@@ -140,6 +141,7 @@
     <p class="eyebrow">FOR PLUMBERS AND WATER-HEATER INSTALLERS</p>
     <h1>Price the vent, the gas upsize, and the attic — not a flat $1,200 swap.</h1>
     <p>Homeowners search “how much to replace a water heater” and come back with one number. A 50-gallon electric tank in a garage is not a condensing tankless on a 3/4-inch gas upsize with a sidewall vent and an attic carry. Enter the machine, the location, and the path. You get the installed price, dollars per gallon, and how many times a typical garage swap this house really is.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge to replace a water heater?</a></p>
   </header>
 
   <main class="layout">
@@ -296,6 +298,16 @@
   <!-- The proposal the customer receives. Hidden on screen until previewed, and
        the only thing on the page when the customer's sheet goes to the printer. -->
   <div id="proposalDoc" class="pr-shell" hidden></div>
+
+  <h2>Common questions</h2>
+  <h3>How much should I charge to replace a water heater?</h3>
+  <p>There is no flat installed price. A same-day 50-gallon electric tank in a garage is a different job from a condensing tankless on a 3/4-inch gas upsize with a sidewall vent and an attic carry. This calculator prices the heater type, the location, the vent, and the gas or electrical path from your own wage and material inputs.</p>
+  <h3>Is this a plumbing-code ruling or a first-hour-rating calculation?</h3>
+  <p>No. Outputs are arithmetic on the numbers you enter. Capacity hints are starting points, not a first-hour rating, fuel-gas table, or manufacturer clearance you can stamp or submit.</p>
+  <h3>How much does upsizing the gas line add to a tankless bid?</h3>
+  <p>On a 10-foot run at this calculator's default wage, burden, overhead, and margin, moving a gas tankless from "existing line looks adequate" to a 3/4-inch upsize adds 4 labor hours and $270 in materials — about $804 more on the bid ($1,525.94 to $2,329.59). Most 1/2-inch lines that fed the old atmospheric tank cannot flow enough gas for a condensing tankless, so pricing the existing line as reusable is how a competitive-looking bid loses money on the first callback.</p>
+  <h3>What does panel work add to an electric tankless bid?</h3>
+  <p>At this calculator's defaults, a 7 GPM electric tankless priced on "existing circuit looks adequate" comes to $1,433.20. The same job priced on the panel work an electric tankless usually needs — two or three dedicated 40 A 240 V circuits, not the single 30 A breaker the old tank used — comes to $2,700.97: 3.2 more labor hours and $620 more in electrical materials, about $1,267.77 higher. Pricing the old circuit as reusable on an electric tankless is the electrical-side version of the gas-line mistake above.</p>
 
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not plumbing, electrical, engineering, code, legal, tax, financial, or contracting advice, and it does not replace a licensed plumber, electrician, or the authority having jurisdiction. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any permit, inspection, fuel-gas, or manufacturer obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

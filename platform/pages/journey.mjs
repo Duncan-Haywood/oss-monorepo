@@ -1570,8 +1570,27 @@ check('sitemap index lists a child per venture', children.length >= 30, `${child
 // Sitemap <loc>s are absolute production URLs even when serving locally, so
 // rewrite the origin before fetching — otherwise the sample silently fetches
 // nothing and the check passes over zero URLs.
-const PRODUCTION = 'https://duncan-haywood.github.io/monorepo-projects';
-const local = (url) => (url.startsWith(PRODUCTION) ? BASE + url.slice(PRODUCTION.length) : url);
+//
+// Which origin that is depends on where the artifact is going, and there are
+// now two: GitHub Pages serves it under `/monorepo-projects/`, and
+// `gitops/prod/portfolio-site.yaml` serves it at the root of
+// `tools.marisstella.dev` from the Hetzner box. This constant was hardcoded to
+// the Pages one, so against a Hetzner-stamped build — the artifact that
+// deployment actually publishes — every rewrite missed, every fetch went
+// off-origin to a name that does not resolve, `checked` stayed 0, and the
+// resolve check below passed over nothing. Exactly the failure the comment
+// above warns about, reintroduced by a second deploy target.
+//
+// So read the prefix off the artifact rather than naming it: the index always
+// lists the hub sitemap at the site root, which pins the origin *and* the base
+// path in one entry.
+const HUB_SITEMAP = '/sitemap-hub.xml';
+const stampedRoot = children.find((loc) => loc.endsWith(HUB_SITEMAP));
+check('the sitemap index names the hub sitemap, which pins the stamped origin',
+  Boolean(stampedRoot), stampedRoot || 'no child ends in sitemap-hub.xml');
+const PRODUCTION = stampedRoot ? stampedRoot.slice(0, -HUB_SITEMAP.length) : null;
+const local = (url) =>
+  (PRODUCTION && url.startsWith(PRODUCTION) ? BASE + url.slice(PRODUCTION.length) : url);
 
 // Every sitemap, not a sample -- and every URL fetched rather than
 // pattern-matched. A loc can be absolute, free of repo paths, and still 404,
@@ -1590,7 +1609,11 @@ for (const child of children) {
 }
 check('every sitemap URL is absolute and repo-path-free',
   badLocs === 0 && checked > 0, `${badLocs} bad of ${checked}`);
-check(`all ${checked} sitemap URLs resolve`, dead.length === 0, dead.slice(0, 5).join(' | '));
+// `checked > 0` here as well as above: with nothing fetched this line reads
+// "all 0 sitemap URLs resolve — PASS", which is how a run that verified none of
+// them still looks half-green.
+check(`all ${checked} sitemap URLs resolve`,
+  dead.length === 0 && checked > 0, dead.slice(0, 5).join(' | '));
 
 // 8. 404.
 //    This step deliberately provokes errors -- the 404 itself, and on a plain

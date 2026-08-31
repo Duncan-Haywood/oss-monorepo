@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pole Barn Bid Calculator | How Much to Charge to Build a Pole Barn</title>
+  <title>Pole Barn Bid Calculator — Price to Build a Pole Barn</title>
   <meta name="description" content="Price a post-frame pole barn from bays, eave height, overhead doors, lean-to, and gravel vs slab — plus the walk-away price a $45-a-foot ag special cannot see.">
   <meta property="og:title" content="Pole Barn Bid Calculator">
   <meta property="og:description" content="Bid pole barns the way the trade does — bays, eave, doors, and floor, not a published per-foot dump — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pole Barn Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Bay and post count from eave spacing, extra eave height on frame hours, gravel vs 4-inch vs 6-inch slab comparison, overhead and walk doors, lean-to and wainscot extras, insulation and shop-panel packages, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is my price so different from a $45-a-square-foot special?","acceptedAnswer":{"@type":"Answer","text":"A flat per-square-foot number treats a bare gravel ag shell as the same job as a shop with extra eave height, overhead doors, a slab, and a lean-to. This calculator prices those separately — bays and posts from the spacing, extra hours for eave height, doors, lean-to, and floor type — so two buildings with the same footprint but different specs come out at different prices, the way real material and labor tickets do."}},{"@type":"Question","name":"Does switching from gravel to a slab only change the floor cost?","acceptedAnswer":{"@type":"Answer","text":"No. Picking a floor preset also fills in that floor's own hours-per-square-foot, concrete or gravel rate, and rebar rate, because pouring and finishing a 6-inch reinforced slab takes real crew time a gravel floor does not. Once you have hand-edited a rate it stops auto-filling on preset changes, so your own numbers are never silently overwritten."}},{"@type":"Question","name":"Does the walk-away price include any profit for me?","acceptedAnswer":{"@type":"Answer","text":"No. The walk-away price is your total cost with zero margin — labor, shell material, floor, doors, and overhead, but no profit. The price above it is the one built from your target net margin; quoting at the walk-away number means the job cannot lose money, but it also cannot pay you."}},{"@type":"Question","name":"Does my bid data leave my browser?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs locally, and a copied bid link carries your own rates in the URL rather than on a server — send it to yourself or your crew, not the customer. Your saved bid lives in this browser only; “Start a fresh bid” deletes it."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,7 +26,7 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .result { position: sticky; top: 15px; background: #143b31; color: #f2f8f5; border-color: #143b31; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -97,6 +98,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -247,6 +260,18 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
     </section>
+
+      <section>
+        <h2>Common questions</h2>
+        <h3>Why is my price so different from a $45-a-square-foot special?</h3>
+        <p>A flat per-square-foot number treats a bare gravel ag shell as the same job as a shop with extra eave height, overhead doors, a slab, and a lean-to. This calculator prices those separately — bays and posts from the spacing, extra hours for eave height, doors, lean-to, and floor type — so two buildings with the same footprint but different specs come out at different prices, the way real material and labor tickets do.</p>
+        <h3>Does switching from gravel to a slab only change the floor cost?</h3>
+        <p>No. Picking a floor preset also fills in that floor's own hours-per-square-foot, concrete or gravel rate, and rebar rate, because pouring and finishing a 6-inch reinforced slab takes real crew time a gravel floor does not. Once you have hand-edited a rate it stops auto-filling on preset changes, so your own numbers are never silently overwritten.</p>
+        <h3>Does the walk-away price include any profit for me?</h3>
+        <p>No. The walk-away price is your total cost with zero margin — labor, shell material, floor, doors, and overhead, but no profit. The price above it is the one built from your target net margin; quoting at the walk-away number means the job cannot lose money, but it also cannot pay you.</p>
+        <h3>Does my bid data leave my browser?</h3>
+        <p>No. Every calculation runs locally, and a copied bid link carries your own rates in the URL rather than on a server — send it to yourself or your crew, not the customer. Your saved bid lives in this browser only; &ldquo;Start a fresh bid&rdquo; deletes it.</p>
+      </section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">
         <h2>Hand the customer a proposal</h2>

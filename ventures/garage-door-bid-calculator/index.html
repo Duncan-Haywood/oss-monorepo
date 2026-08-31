@@ -3,13 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Garage Door Bid Calculator | Price the Spring, the Door, and the Drive</title>
+  <title>Garage Door Bid Calculator — Spring, Door, and Drive</title>
   <meta name="description" content="Price a garage door replacement or broken-spring service from parts, shop labor, and travel — not a lump-sum guess. See when a $189 spring special loses money on the drive.">
   <link rel="canonical" href="https://example.invalid/garage-door-bid-calculator/">
   <meta property="og:title" content="Garage Door Bid Calculator">
   <meta property="og:description" content="Bid the door, the springs, and the miles. See the walk-away price before you quote the $189 special.">
   <meta property="og:type" content="website">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Garage Door Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Spring-only vs replacement vs opener tickets, single vs double door sizing, travel labor from miles, after-hours premium, walk-away price, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this garage door estimate include?","acceptedAnswer":{"@type":"Answer","text":"The ticket price adds up parts — door/slab, spring kit, opener unit, hardware, disposal, and permit — plus shop labor on site, travel (both the drive-time labor and vehicle cost per mile), overhead, and your target margin. Job type decides which parts lines actually apply: a spring-only ticket zeroes out the door and opener cost unless you enter one anyway."}},{"@type":"Question","name":"Why does travel get its own line instead of being folded into overhead?","acceptedAnswer":{"@type":"Answer","text":"A short shop job forty minutes each way is a different ticket from the same job around the corner, and a flat overhead percentage hides that. Travel is priced as loaded wage for the drive time plus a per-mile vehicle cost, and the tool flags “travel eats job” when travel is at least 35% of a spring-only ticket, or exceeds shop labor on any job — the exact trap a $189 special forty minutes out falls into."}},{"@type":"Question","name":"Why is a double door not just two single doors?","acceptedAnswer":{"@type":"Answer","text":"Job type sets separate suggested labor hours for single versus double openings (the split is at 10 ft of width), because a double door’s extra track, larger panel, and heavier spring kit take more shop time per opening than doubling a single-door job would suggest — suggested hours, spring cost, and door cost all key off which class the width falls into."}},{"@type":"Question","name":"Why do suggested parts and hours change when I pick a different job type or door?","acceptedAnswer":{"@type":"Answer","text":"Changing job type, door size, construction, or opener re-applies each preset's suggested figure to every field you haven't hand-edited yet — so switching from “door + new opener” to “broken-spring service” zeroes the door and opener cost automatically. Once you edit a field yourself, later preset changes leave it alone."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. This calculator does not save your ticket inputs between visits and has no shareable bid link; only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this cover wind load, permits, or spring safety?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and part costs are ballpark shop figures you can edit, not a building-code or engineering determination, a wind-load calculation, or a permit approval. High-cycle springs and wind-load hardware are cost lines you choose to add, not something the tool checks your opening needs — and spring and opener work carries real injury risk that belongs to a qualified installer, not this arithmetic."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,7 +25,7 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .result { position: sticky; top: 15px; background: #3b2414; color: #f8f3ee; border-color: #3b2414; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -231,6 +232,48 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting part and hour figures are common ballpark numbers, not a manufacturer list, a code requirement, or a guarantee — replace them with your supplier invoice and a timed job.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this garage door estimate include?</h3>
+      <p>The ticket price adds up parts &mdash; door/slab, spring kit, opener unit, hardware, disposal, and
+        permit &mdash; plus shop labor on site, travel (both the drive-time labor and vehicle cost per
+        mile), overhead, and your target margin. Job type decides which parts lines actually apply: a
+        spring-only ticket zeroes out the door and opener cost unless you enter one anyway.</p>
+
+      <h3>Why does travel get its own line instead of being folded into overhead?</h3>
+      <p>A short shop job forty minutes each way is a different ticket from the same job around the corner,
+        and a flat overhead percentage hides that. Travel is priced as loaded wage for the drive time plus
+        a per-mile vehicle cost, and the tool flags &ldquo;travel eats job&rdquo; when travel is at least
+        35% of a spring-only ticket, or exceeds shop labor on any job &mdash; the exact trap a $189 special
+        forty minutes out falls into.</p>
+
+      <h3>Why is a double door not just two single doors?</h3>
+      <p>Job type sets separate suggested labor hours for single versus double openings (the split is at
+        10 ft of width), because a double door&rsquo;s extra track, larger panel, and heavier spring kit
+        take more shop time per opening than doubling a single-door job would suggest &mdash; suggested
+        hours, spring cost, and door cost all key off which class the width falls into.</p>
+
+      <h3>Why do suggested parts and hours change when I pick a different job type or door?</h3>
+      <p>Changing job type, door size, construction, or opener re-applies each preset's suggested figure
+        to every field you haven't hand-edited yet &mdash; so switching from &ldquo;door + new opener&rdquo;
+        to &ldquo;broken-spring service&rdquo; zeroes the door and opener cost automatically. Once you edit
+        a field yourself, later preset changes leave it alone.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. This
+        calculator does not save your ticket inputs between visits and has no shareable bid link; only
+        your business name and contact details for the printed proposal are kept in this browser's local
+        storage, and &ldquo;Forget my business details&rdquo; clears them.</p>
+
+      <h3>Does this cover wind load, permits, or spring safety?</h3>
+      <p>No. Hours and part costs are ballpark shop figures you can edit, not a building-code or
+        engineering determination, a wind-load calculation, or a permit approval. High-cycle springs and
+        wind-load hardware are cost lines you choose to add, not something the tool checks your opening
+        needs &mdash; and spring and opener work carries real injury risk that belongs to a qualified
+        installer, not this arithmetic.</p>
     </section>
   </main>
 

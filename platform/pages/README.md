@@ -10,18 +10,86 @@ node platform/pages/check.mjs dist                # check the artifact
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
-Then, in a browser, the six checks CI cannot run — `journey.mjs` (the customer
+Then, in a browser, the seven checks CI cannot run — `journey.mjs` (the customer
 journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
 every page be read and reached), `roundtrip.mjs` (does a shared bid arrive as
 the bid that was sent), `presets.mjs` (does picking "no preset" leave the
-takeoff alone), and `sideways.mjs` (does any page scroll sideways on a phone).
+takeoff alone), `highlight.mjs` (does a rejected input get pointed at), and
+`sideways.mjs` (does any page scroll sideways on a phone).
 See [Driving the customer journey](#driving-the-customer-journey).
+
+Run all seven with one command, which builds, serves and tears down for you:
+
+```
+python3 platform/ci/browser_checks.py            # all seven, fresh build
+python3 platform/ci/browser_checks.py --checks sweep,sideways --dist platform/pages/dist
+```
+
+Prefer it over starting a server by hand. It removes both traps the checks
+below document: it **refuses to run** unless the origin echoes a sentinel token
+it just wrote into the tree under test (so a leftover server answering for an
+older build is an error, not a false pass), and it serves through a *threading*
+server, so the single-threaded `http.server` drops that produce phantom
+`requestfailed` findings do not happen. Every check still runs standalone
+exactly as documented — this only orchestrates them.
+
+It finds Playwright and axe-core rather than asking you to name them, so the
+`PLAYWRIGHT=$(npm root -g)/playwright/index.js` prefix these commands used to
+carry is only needed where a global, `NODE_PATH`, or in-repo install is not
+what you have. `PLAYWRIGHT` and `AXE` still win when set.
+
+**Read its exit code as three outcomes, not two.** Each check exits `1` for a
+defect it found and `2` for "nothing was verified" — a missing dependency, an
+empty page list, a `DIST` that is not there — and the runner keeps them apart:
+
+| exit | meaning |
+|---|---|
+| 0 | every requested check ran and passed |
+| 1 | a check found a real defect — this is the one to fix |
+| 2 | everything that ran passed, but something did not run |
+
+A `2` names what skipped and why. It matters most for `contrast`, the WCAG
+check, whose `axe-core` is the one dependency Playwright does not bring: on a
+machine without it that check skips, and until 2026-08-31 the run reported
+`1 of 6 checks failed: contrast` instead — a missing npm package dressed as an
+accessibility regression, which is the same "absent CI is not failed CI"
+conflation `CLAUDE.md` warns about, in this repo's own tooling.
 
 Then serve it and click around:
 
 ```
 cd platform/pages/dist && python3 -m http.server 8899
 ```
+
+## Grounding the numbers a page quotes
+
+FAQ and landing copy has to quote the figure the calculator actually shows on
+first load — and because that copy becomes the `FAQPage` schema search engines
+and assistants read back, a wrong number there is wrong in two places. Two tools
+answer "what does this tool compute on first load?", and the split between them
+is about fidelity:
+
+```
+node platform/pages/venture-defaults.mjs <slug> [...]         # headless, exact where it works
+node platform/pages/price-oracle.mjs --dist=dist <slug> [...] # the rendered page, faithful for all
+```
+
+`venture-defaults.mjs` reproduces first load without a browser and is exact for
+the tools whose inputs live in the markup. It **cannot** be for a tool that
+builds its inputs in the DOM — a `STARTING_*` repeater whose rows carry their own
+`<select>` defaults, or a kit tool that fills a rate from JS on load — so it
+reports it cannot ground those and points here rather than inventing a number.
+Verified 2026-08-31: a headless seed reproduction diverged from the rendered
+price on `painting`, `siding`, `flooring`, `junk-removal`, `lawn-care` and
+`window-cleaning` while matching to the cent on `roofing`, `deck`, `concrete`,
+`janitorial` and `moving`. `price-oracle.mjs` sidesteps that by *being* the page:
+it loads the built site in a real browser and reads the headline figures back, so
+what it reports is what the visitor sees. Use it for a row- or kit-based tool, and
+as a check on `venture-defaults.mjs` for the rest. Like the coverage tools it is
+report-only — a default that legitimately changes moves these figures, and
+pinning them would fail on honest edits. It needs Playwright (not a repo
+dependency); the [Driving the customer journey](#driving-the-customer-journey)
+notes cover running it from a Claude-on-the-web session.
 
 ## Why this exists
 
@@ -146,6 +214,57 @@ merely contains the word (`latest.mjs`, `testimonials.html`) still ships.
   trimmed version drops most of what the longer-described tools say about
   themselves. `check.mjs` fails the build if a published tool is missing from
   it, or if it names one that did not ship.
+
+- **`feed.xml`.** An Atom feed of tools as they are published, newest first,
+  capped at the 40 most recent. Every other surface here answers *what exists*;
+  this is the only one that answers *what changed*, which is the question every
+  distribution channel the portfolio is allowed to use actually asks. Ad spend
+  is ruled out by `portfolio/DIRECTION.md` and posting into communities
+  ourselves is ruled out by `gitops/agents/workers/mandate.md`, which leaves
+  channels people opt into — readers, aggregators that poll, and the glue a
+  niche community's own moderators run. A feed is the one asset that lets
+  someone else do the distributing. It is also the only surface that gives a
+  *returning* visitor a reason to come back, since the tools themselves are
+  single-use by design.
+
+  Entry ids are `tag:` URIs keyed on the slug, not on the URL, so serving the
+  same build from GitHub Pages and from the Hetzner ingress — which
+  `portfolio/hosting/README.md` says may both happen — does not mint two ids
+  per tool and double every subscriber's feed. `<published>` and `<updated>`
+  are equal and never move: these pages are edited constantly, and republishing
+  an entry on every edit would make the feed a changelog of our commits rather
+  than a list of tools.
+
+### Where the launch dates come from
+
+`feed.xml` needs a date per tool, and the obvious source — `git log
+--diff-filter=A -- ventures/<slug>` — is unavailable where it matters. The
+in-cluster build clones `--depth 1` (`gitops/prod/portfolio-site.yaml`), so the
+build container has one commit and no history.
+
+So the dates are derived once on a machine that has the history and committed
+to `platform/pages/launched.json`. After landing a new tool:
+
+```
+node platform/pages/launched.mjs --write     # or without --write to preview
+```
+
+The refresh only *adds*. A slug that already has a date keeps it even if
+history now says otherwise (a rename, a move, a squash) — a feed whose entries
+change date retroactively re-notifies every subscriber about tools they have
+already seen, and being quiet when nothing is new is the whole value of
+publishing one.
+
+Two things stop the file going stale, because a tool missing from the feed is
+invisible in a way nothing else in the artifact shows — its pages, sitemap
+entry and `llms.txt` line are all fine:
+
+- `launched.test.mjs` fails if any discovered surface has no date, so the gap
+  surfaces in a unit run rather than after a 23-second build.
+- `check.mjs` refuses to publish an artifact whose `catalog.json` has a tool
+  with no `launched` date. It reads the dates back out of the artifact rather
+  than out of the repo, so the check still means something when run against a
+  downloaded build.
 
 ## Everything this build injects is a file
 
@@ -1388,6 +1507,46 @@ result panel with no link rule, a `tabindex` added without measuring. Opacity is
 the one worth naming: it is invisible to review, it multiplies a colour the
 chrome never chose, and there is no value of it that is safe on a host already
 at the AA floor.
+
+#### The browser-free half of that check
+
+`contrast.mjs` not being in CI is what let the same defect class come back. A
+browser run on **2026-08-30**, two days after the sweep above, found 20 fresh
+serious 1.4.3 violations on four pages that had been live in `main` since. All
+20 were on links, and three of the four are the accent-as-text shape the earlier
+run had already fixed 104 instances of.
+
+`ink.mjs` closes that gap for the part of it that needs no browser:
+
+```bash
+node platform/pages/ink.mjs            # report
+node platform/pages/ink.mjs --strict   # non-zero exit on a violation
+```
+
+It reads each venture's inline `<style>` and decides **link text only** —
+resolving `var()` against `:root`, honouring declaration order, judging
+`.verdict a` against `.verdict`'s own fill, and compositing a container's
+`opacity` the way the browser does. On the four pages above it reproduces all
+five findings exactly, axe's blended `#bc754c` at 3.31:1 included, from the
+stylesheet alone. `.github/workflows/link-contrast-ci.yml` runs it on every
+change to `ventures/**/*.html`.
+
+Links only, deliberately. Without a DOM there is no way to know which box a bare
+class sits in: `.positive{color:#a9e8b5}` reads as a 1.16:1 failure against the
+page and is in fact fine, because it only ever renders inside a dark `.result`
+panel. A first cut decided those anyway and produced **510 findings against
+axe-core's zero**. Links are the element whose colour is routinely set
+independent of its container, which is why they carry every violation both runs
+actually found.
+
+Every run also prints what it *declined* — an unresolvable `var()`, a page with
+no inline stylesheet — and the count of non-link colours it never looked at
+(3273 of them). That is not decoration:
+`portfolio/research/a11y-delivered-contrast/` exists because an engine handed no
+stylesheet decided nothing, emitted no 1.4.3 finding, and was byte-identical in
+its output to a page that had been checked and passed. A clean `ink.mjs` run is
+a floor, not a ceiling; run `contrast.mjs` over a build before believing it is
+the whole story.
 
 ### Checking a shared bid arrives as the bid that was sent
 

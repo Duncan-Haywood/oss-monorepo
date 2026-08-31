@@ -43,7 +43,7 @@
       <div class="fields">
         <label>Amount still owed <input id="amount" type="number" min="0.01" step="0.01" value="1200"></label>
         <label>Days overdue <input id="daysOverdue" type="number" min="0" max="1095" step="1" value="15"></label>
-        <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
+        <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
         <label>Your hourly rate <input id="hourlyRate" type="number" min="0" step="1" value="85"></label>
       </div>
 
@@ -144,6 +144,14 @@
       answer them, and it does not tell you to settle, escalate, or walk away.
     </p>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>Is it worth chasing a late invoice yourself?</h3>
+  <p>It depends on how many of your own hours it takes, because those hours are spent whether or not you get paid. On the calculator defaults — a $1,200 invoice 15 days overdue, 85% odds of recovery, $85 an hour — chasing recovers the most cash of any path if it works, but three hours of your time costs $255 and drops it to $755.61. It only gets ahead of a 10% settlement if you can close it in under about 1.8 hours.</p>
+  <h3>How much do collection agencies take?</h3>
+  <p>Commissions on small commercial invoices are commonly quoted in the 25-50% range, and the calculator defaults to 30% over 90 days at 45% odds. On a $1,200 invoice that is worth $355.63 — behind every other path. It gets more interesting on a large invoice from a payer unlikely to settle: at $20,000 with 55% odds, collections leads and stays ahead up to about a 65% commission. Enter the commission you were actually quoted.</p>
+  <h3>Should I offer a discount to settle an overdue invoice?</h3>
+  <p>The calculator prices it rather than recommending it. On the defaults a 10% settlement paid in 5 days at 80% odds is worth $861.16, which is $37.73 more than waiting. The break-even is about 13.9% — past that, waiting is worth more on these odds. This is arithmetic from numbers you type, not a recommendation to settle.</p>
 
   <footer>
     <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>

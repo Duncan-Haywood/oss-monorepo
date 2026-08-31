@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Irrigation Winterization Bid Calculator | Sprinkler Blowout Price</title>
+  <title>Irrigation Winterization Bid Calculator — Blowout Price</title>
   <meta name="description" content="Price a sprinkler blowout from spray, rotor, and drip zones, backflow drain-and-insulate time, and the drive — not a $75 neighborhood special. See hours, walk-away price, and margin before you quote.">
   <meta property="og:title" content="Irrigation Winterization Bid Calculator">
   <meta property="og:description" content="Bid the zones and the backflow — not the $75 blowout special. Free, private, runs in your browser.">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Irrigation Winterization Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-system hours by spray, rotor, and drip zone, backflow drain-and-insulate time, freeze-warning labor premium, travel and minimum hours, loaded wage, compressor cost, overhead and margin, price per zone, walk-away price, proposed-price check, shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the same zone count cost more or less depending on head type?","acceptedAnswer":{"@type":"Answer","text":"Because spray, rotor, and drip zones each get their own minutes-per-zone rate, not one flat per-zone number. Drip laterals need a longer, lower-pressure purge than a spray zone, so a system with the same zone count but more drip runs takes longer to blow out and should cost more — a flat “$8 a zone” rate cannot see that difference."}},{"@type":"Question","name":"Is a backflow drain-and-insulate included in the per-zone price?","acceptedAnswer":{"@type":"Answer","text":"No. Backflow work is priced separately, from the number of backflows and the minutes you set per backflow. Treating it as bundled into the zone count is exactly the shortfall this tool exists to catch."}},{"@type":"Question","name":"What does the freeze-warning toggle actually change?","acceptedAnswer":{"@type":"Answer","text":"Turning it on applies your after-hours labor premium percentage on top of the loaded labor cost for the whole stop, because a freeze call is a wage problem, not a compressor problem — the same compressor and fittings cost either way. Leave it off for a normal daytime route."}},{"@type":"Question","name":"Does a low price here mean the system is actually winterized?","acceptedAnswer":{"@type":"Answer","text":"No. This is a price calculation from the minutes and rates you enter, not a finding that any system was correctly drained or insulated. Confirm your drain method and local freeze-risk timing yourself; the tool has no way to check either."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #16303a; background: #e4eef1; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -27,7 +28,7 @@
     .system-row select, .system-row input { padding: 10px 7px; }
     .system-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a7078; }
     .system-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #9bb0b8; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9bb0b8; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #16303a; }
     button:hover { background: #dceaf0; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .result { position: sticky; top: 15px; background: #16303a; color: #eef5f7; border-color: #16303a; }
@@ -100,6 +101,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -209,6 +222,18 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting minutes-per-zone are common ballpark figures, not a winterization specification, a manufacturer procedure, or a guarantee. Time your own crew and replace them. Confirm backflow drain method and local freeze rules yourself — this is not a finding that any system is winterized.</p>
+    </section>
+
+    <section>
+      <h2>Common questions</h2>
+      <h3>Why does the same zone count cost more or less depending on head type?</h3>
+      <p>Because spray, rotor, and drip zones each get their own minutes-per-zone rate, not one flat per-zone number. Drip laterals need a longer, lower-pressure purge than a spray zone, so a system with the same zone count but more drip runs takes longer to blow out and should cost more &mdash; a flat &ldquo;$8 a zone&rdquo; rate cannot see that difference.</p>
+      <h3>Is a backflow drain-and-insulate included in the per-zone price?</h3>
+      <p>No. Backflow work is priced separately, from the number of backflows and the minutes you set per backflow. Treating it as bundled into the zone count is exactly the shortfall this tool exists to catch.</p>
+      <h3>What does the freeze-warning toggle actually change?</h3>
+      <p>Turning it on applies your after-hours labor premium percentage on top of the loaded labor cost for the whole stop, because a freeze call is a wage problem, not a compressor problem &mdash; the same compressor and fittings cost either way. Leave it off for a normal daytime route.</p>
+      <h3>Does a low price here mean the system is actually winterized?</h3>
+      <p>No. This is a price calculation from the minutes and rates you enter, not a finding that any system was correctly drained or insulated. Confirm your drain method and local freeze-risk timing yourself; the tool has no way to check either.</p>
     </section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">

@@ -7,6 +7,8 @@ bid goes out.
 
 Open `index.html`. There is no build step, no account, and no server.
 
+Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
+
 ## Why this exists
 
 Per-camera pricing hides the job. Eight cameras through an accessible attic is

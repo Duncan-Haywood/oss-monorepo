@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Retaining Wall Bid Calculator | Price Height, Drainage, and Geogrid — Not Just Linear Feet</title>
+  <title>Retaining Wall Bid Calculator — Height and Drainage</title>
   <meta name="description" content="Price a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a per-linear-foot quote hides — then see price per foot, crew hours, and the walk-away number.">
   <meta property="og:title" content="Retaining Wall Bid Calculator">
   <meta property="og:description" content="Bid a retaining wall the way the job actually costs — height, drainage, and geogrid — before you match a cheaper per-foot quote.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Retaining Wall Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Face-area material takeoff, drain-stone cubic yards, geogrid layers, corner adders, engineer and permit step, price per linear foot, walk-away price, proposed-price margin check, copyable bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does a per-linear-foot price for a retaining wall go wrong?","acceptedAnswer":{"@type":"Answer","text":"Because almost nothing in a wall is priced by the foot. Face material is bought by the square foot of face, which is length × (exposed height + embedment). Drain stone is a volume behind the wall. Geogrid is square yards per layer, and taller walls need more layers. An engineer stamp and a permit arrive as a step, not a foot. A 40 ft wall at 3 ft and a 40 ft wall at 6 ft are the same linear feet and roughly double the face, more than double the stone, and two geogrid layers apart."}},{"@type":"Question","name":"Why is buried height counted when the customer only sees the exposed part?","acceptedAnswer":{"@type":"Answer","text":"Because you still build it. Embedment — the course or so below grade that keeps the wall from kicking out — is block you buy, set, and backfill, and it is invisible in the height the homeowner quotes back at you. Face area here is length × (exposed + embedment) for exactly that reason. The cap, by contrast, really is per foot of length, so it is priced that way."}},{"@type":"Question","name":"How many geogrid layers does a wall need?","acceptedAnswer":{"@type":"Answer","text":"The starting count here is: none under 4 ft exposed, one layer at 4 ft, and one more for every additional 2 ft. So a 6 ft wall starts at two layers and an 8 ft wall at three. That is a starting count for pricing, not a design — actual reinforcement depends on the soil, the surcharge, the block, and the manufacturer's tables, and above about 4 ft that is an engineer's determination, not a calculator's. Each layer costs square yards of grid across the wall length at the depth it runs back, plus the labor to place it."}},{"@type":"Question","name":"When does an engineer or a permit enter the price?","acceptedAnswer":{"@type":"Answer","text":"Many US jurisdictions treat roughly 4 ft of exposed height as the line, which is why the options here are none, permit only (starting around $250), and engineer stamp plus permit (starting around $1,800). Those are starting figures to replace with your own, and the threshold is a common pattern rather than a rule — confirm it with your building department for the specific site before you quote. Getting this wrong is the single most expensive omission in a wall bid, because it is thousands of dollars that no per-foot number contains."}},{"@type":"Question","name":"How does the wall type change the labor?","acceptedAnswer":{"@type":"Answer","text":"It multiplies face hours: segmental block is the 1.0 baseline, timber or sleeper 0.9, boulder or natural stone 1.3, and poured formed concrete 1.4. Height multiplies face hours again — 1.0 for a garden wall under 3 ft, 1.1 for 3–4 ft, 1.25 for 4–6 ft, and 1.45 above that — because taller walls mean more lifts, more compaction, and often a machine at the face. Excavation, drainage, and corners stay separate: the excavator shows up once whatever the wall's height, and the drain pipe still runs the length."}},{"@type":"Question","name":"Why isn't a 25% margin the same as adding 25% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = job cost ÷ (1 − margin) — which is how the quote reads to the customer and how your books read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or to profit. A $9,000 cost marked up 25% is $11,250, a 20% margin; a 25% target margin is $12,000. Everything stays in this browser: no account, no upload, and the optional local counter records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c1914; background: #efe8dc; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -23,7 +24,7 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b09a78; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b09a78; background: #f4eee4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b09a78; background: #f4eee4; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c1914; }
     button:hover { background: #e8dcc8; }
     .result { position: sticky; top: 15px; background: #3a2c1c; color: #f7f1e6; border-color: #3a2c1c; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -232,6 +233,56 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Wall-type factors, height factors, and extras are common ballpark starting points, not an industry standard, a benchmark, an engineered design, or a guarantee. Time your own crews and replace them.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does a per-linear-foot price for a retaining wall go wrong?</h3>
+      <p>Because almost nothing in a wall is priced by the foot. Face material is bought by the square foot
+        of face, which is length &times; (exposed height + embedment). Drain stone is a volume behind the
+        wall. Geogrid is square yards per layer, and taller walls need more layers. An engineer stamp and a
+        permit arrive as a step, not a foot. A 40&nbsp;ft wall at 3&nbsp;ft and a 40&nbsp;ft wall at
+        6&nbsp;ft are the same linear feet and roughly double the face, more than double the stone, and two
+        geogrid layers apart.</p>
+
+      <h3>Why is buried height counted when the customer only sees the exposed part?</h3>
+      <p>Because you still build it. Embedment &mdash; the course or so below grade that keeps the wall from
+        kicking out &mdash; is block you buy, set, and backfill, and it is invisible in the height the
+        homeowner quotes back at you. Face area here is length &times; (exposed&nbsp;+&nbsp;embedment) for
+        exactly that reason. The cap, by contrast, really is per foot of length, so it is priced that way.</p>
+
+      <h3>How many geogrid layers does a wall need?</h3>
+      <p>The starting count here is: none under 4&nbsp;ft exposed, one layer at 4&nbsp;ft, and one more for
+        every additional 2&nbsp;ft. So a 6&nbsp;ft wall starts at two layers and an 8&nbsp;ft wall at three.
+        That is a <em>starting count for pricing</em>, not a design &mdash; actual reinforcement depends on
+        the soil, the surcharge, the block, and the manufacturer's tables, and above about 4&nbsp;ft that is
+        an engineer's determination, not a calculator's. Each layer costs square yards of grid across the
+        wall length at the depth it runs back, plus the labor to place it.</p>
+
+      <h3>When does an engineer or a permit enter the price?</h3>
+      <p>Many US jurisdictions treat roughly 4&nbsp;ft of exposed height as the line, which is why the
+        options here are none, permit only (starting around $250), and engineer stamp plus permit (starting
+        around $1,800). Those are starting figures to replace with your own, and the threshold is a common
+        pattern rather than a rule &mdash; confirm it with your building department for the specific site
+        before you quote. Getting this wrong is the single most expensive omission in a wall bid, because
+        it is thousands of dollars that no per-foot number contains.</p>
+
+      <h3>How does the wall type change the labor?</h3>
+      <p>It multiplies face hours: segmental block is the 1.0 baseline, timber or sleeper 0.9, boulder or
+        natural stone 1.3, and poured formed concrete 1.4. Height multiplies face hours again &mdash; 1.0
+        for a garden wall under 3&nbsp;ft, 1.1 for 3&ndash;4&nbsp;ft, 1.25 for 4&ndash;6&nbsp;ft, and 1.45
+        above that &mdash; because taller walls mean more lifts, more compaction, and often a machine at the
+        face. Excavation, drainage, and corners stay separate: the excavator shows up once whatever the
+        wall's height, and the drain pipe still runs the length.</p>
+
+      <h3>Why isn't a 25% margin the same as adding 25% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = job cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the quote reads to the customer and how your books
+        read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or
+        to profit. A $9,000 cost marked up 25% is $11,250, a 20% margin; a 25% target margin is $12,000.
+        Everything stays in this browser: no account, no upload, and the optional local counter records only
+        which features were used and the day.</p>
     </section>
   </main>
 

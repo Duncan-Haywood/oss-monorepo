@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>TikTok Shop Fee Calculator | Affiliate, Returns, and Oct 2026 Rates</title>
+  <title>TikTok Shop Fee Calculator — Affiliate and Returns</title>
   <meta name="description" content="Free TikTok Shop profit calculator. See referral fees, creator commission, returns that keep the affiliate payout, and the announced 1 Oct 2026 8% + 1.5% schedule on the same SKU.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -287,7 +287,18 @@
     <p>
       <a href="what-will-the-tiktok-shop-fee-change-cost-me.html">What will the 1 Oct 2026 fee change cost me? Per order, per month, and the price that holds your margin.</a>
     </p>
+    <p>
+      <a href="should-i-bundle-tiktok-shop-orders.html">Should I bundle orders into a multi-buy discount? The discount ceiling that still matches selling separately.</a>
+    </p>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>How much does TikTok Shop take per sale?</h3>
+  <p>US shops usually pay a unified referral fee of about 6% of the fee base (customer payment plus platform discount minus tax). That rate already covers payment processing on domestic orders. Creator commissions you set, Fulfilled by TikTok or your own postage, ads, and returns stack on top. This page does the arithmetic from the rates you enter; it does not publish TikTok's live schedule.</p>
+  <h3>Do I still pay affiliate commission if the buyer returns the order?</h3>
+  <p>Often yes. Many sellers report the creator keeps the commission on a returned order. This calculator defaults to that. Tick 'affiliate commission is clawed back on a return' if your own statements show otherwise. Combined with a double-digit return rate, that is how a listing that looks fine at 6% loses money.</p>
+  <h3>What changes on 1 October 2026?</h3>
+  <p>TikTok has announced a move from a 6% standard US referral to 8% on most categories, plus a 1.5% creator facilitation fee on affiliate-sourced orders. This page compares your SKU under the mid-2026 defaults and under that announced schedule. Verify the live numbers in Seller Center before you reprice.</p>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400">
@@ -375,12 +386,24 @@
         targetPrice = priceForTargetMargin(input);
         buy = maxBuyCost(input);
       } catch (error) {
+        // A rejected input (a negative number, non-numeric text) must not
+        // leave the last valid order economics on screen next to a silent
+        // failure -- a visitor who misses the message in #expectedProfit
+        // could read the stale fees, margin, break-even price, comparison
+        // tables, or verdict as the answer for the invalid inputs now on
+        // screen.
         el("expectedProfit").textContent = error.message;
         el("expectedProfit").className = "hero-number error";
         el("profitLabel").textContent = "check the highlighted input";
+        ["referralFee", "facilitationFee", "affiliateFee", "keptProfit", "returnedProfit", "expectedMargin", "breakEvenPrice", "targetMarginPrice", "maxBuy", "monthlyProfit", "affiliateNote"].forEach((id) => {
+          el(id).textContent = "";
+        });
+        el("affiliateCompare").innerHTML = "";
+        el("scheduleCompare").innerHTML = "";
         el("freeShipVerdict").textContent = "";
         el("freeShipNote").textContent = "";
         el("freeShipRows").replaceChildren();
+        el("verdict").hidden = true;
         return;
       }
 

@@ -2,12 +2,19 @@
 # switch (gitops/agents/governor/policy.json "enabled") is also true and
 # the CronJob is unsuspended -- both still owner-only. See
 # infra/OWNER_CHECKLIST.md.
+#
+# Scope note: this item deliberately skips any branch that already has an
+# open PR. That used to be a hole -- nothing else picked those up either --
+# and is now a division of labour: `open-pr-repair-merge` (priority 6) owns
+# every branch that has a PR, this one owns every branch that does not.
+# Neither should widen into the other's half; two items racing on the same
+# PR is how duplicate work gets opened here.
 id: branch-pr-drain
 repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: chore
-priority: 5
+priority: 6
 enabled: true
 # This item's prompt opens its own PR and merges it, so worker.sh must not
 # fold the tree into one commit and open a second one.

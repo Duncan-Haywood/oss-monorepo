@@ -68,6 +68,27 @@ def test_checklist_refuses_write_hcloud_in_ci() -> None:
     assert "CLAUDETRIGGERAPIKEY" in checklist
 
 
+def test_ci_triggers_on_every_pages_script_gitops_tests_reads() -> None:
+    # gitops/tests reads two files under platform/pages/, not one:
+    # test_site_usage.py builds a real site with build.mjs, and
+    # test_manifests.py's test_portfolio_site_build_uses_flags_the_build_
+    # scripts_accept separately reads check.mjs's own text to confirm it
+    # still parses the `--dist=` flag portfolio-site.yaml's init container
+    # passes it. Both checks only run when this workflow does, and this
+    # workflow only runs on main/gitops paths plus whatever is named here —
+    # build.mjs was added for the first reason and check.mjs went missing:
+    # a PR touching only check.mjs (a renamed flag, say) would not trigger
+    # this workflow, so gitops/tests would not run, so the one check written
+    # for exactly that regression would never fire on the PR that caused it.
+    wf = (ROOT.parent / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
+    for script in ("platform/pages/build.mjs", "platform/pages/check.mjs"):
+        assert wf.count(f'"{script}"') >= 2, (
+            f"{script} must be a push AND pull_request path trigger on "
+            "hetzner-gitops-ci.yml, or a change to it alone never runs "
+            "gitops/tests"
+        )
+
+
 def test_ci_never_applies_tofu() -> None:
     wf = (ROOT.parent / ".github" / "workflows" / "hetzner-gitops-ci.yml").read_text()
     assert not re.search(r"(?m)^\s+tofu apply\b", wf)

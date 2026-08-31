@@ -8,6 +8,7 @@
   <meta property="og:title" content="eBay Fee &amp; Profit Calculator">
   <meta property="og:description" content="See what an eBay sale really leaves after fees, cost of goods, returns, a partial refund versus taking the return, Authenticity Guarantee versus skip-AG, local pickup versus the label, a lot versus individual listings, Standard Envelope versus a tracked label, combined shipping versus two labels, a seller-initiated offer versus waiting, Promoted Offsite versus skip after a bill that is charged either way, Promoted Listings Standard versus skip after extra sales, Promoted Listings Advanced versus skip after a click bill that is charged either way, a quantity discount versus selling separately, a seller coupon versus staying listed or dropping the list, immediate payment versus unpaid checkouts, Top Rated Plus versus staying standard after free returns, Managed Returns versus buying the label yourself, domestic versus worldwide at this list, Global Shipping Program versus you-ship after claims, a store subscription versus the no-store rate, an incoming Best Offer versus waiting for list, free shipping versus charging the buyer after sell-through, skip versus insurance versus signature after item-not-received claims, an eBay shipping label versus Pirate Ship after claims and upload time, and auction versus Buy It Now sell-through.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"eBay Fee & Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"eBay fee breakdown, net profit, margin, return on investment, invested-cash recovery checkpoint, break-even resale price, target-margin price, batch profit, expected profit after returns, partial refund vs take the return, Authenticity Guarantee vs skip-AG after sell-through, local pickup vs ship after no-shows, lot vs individual listings after sell-through, Standard Envelope vs tracked label after item-not-received claims, combined shipping vs separate labels after returns, seller-initiated offer vs waiting after sell-through, Promoted Offsite vs skip after a bill charged either way, Promoted Listings Standard vs skip after extra sales, Promoted Listings Advanced vs skip after a click bill charged either way, quantity discount vs selling separately after sell-through, seller coupon vs stay listed vs drop the list after sell-through, immediate payment vs unpaid checkouts after sell-through, Top Rated Plus vs stay standard after free returns, Managed Returns vs your own label after extra returns, domestic vs worldwide at this list, Global Shipping Program vs you-ship after claims, store subscription vs no-store rate after monthly volume, incoming Best Offer vs waiting for list, free shipping vs buyer-pays after sell-through, skip vs insurance vs signature after item-not-received claims, eBay label vs Pirate Ship after claims and upload time, auction vs Buy It Now after sell-through, repricing sensitivity table"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I work out what an eBay sale actually leaves?","acceptedAnswer":{"@type":"Answer","text":"Enter the sale price, the fee rates your own account is charged, what you paid for the item, and what shipping costs you. The order result gives net profit, margin, return on the cash you had tied up in the item, and the lowest resale price that still breaks even. The rates come from the boxes you fill in rather than a stored fee table, so the arithmetic stays right when eBay changes a category rate, or when your store tier changes what you pay."}},{"@type":"Question","name":"Why does a sale that looked profitable still leave me short?","acceptedAnswer":{"@type":"Answer","text":"Because most of what erodes an eBay sale lands after checkout, not in the list price: the outbound label, return postage on the ones that come back, promoted-listing bills that are charged whether or not the click was the reason it sold, and the time spent packing. The “If some come back” section applies a return rate you type — the outbound label and the return postage usually stay with you even when the item resells, which is why a few returns move net profit more than sellers expect."}},{"@type":"Question","name":"Should I offer a partial refund or take the return?","acceptedAnswer":{"@type":"Answer","text":"It depends on what the item is worth back in your stock against what it costs to get it there. “Partial refund vs taking the return” puts both against each other on the order you already entered, so the comparison uses your real postage and cost of goods instead of a rule of thumb."}},{"@type":"Question","name":"Does offering free shipping cost me money?","acceptedAnswer":{"@type":"Answer","text":"Only if it does not sell more. Free shipping is postage you absorb into the item price, and it pays when the extra sell-through covers that. “Free shipping vs charging the buyer” asks you for the sell-through lift you actually see rather than assuming one, and shows whether it covers the postage at this list price."}},{"@type":"Question","name":"Do I need an account, and does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No account, and nothing is uploaded. The whole calculator runs in your browser: it makes no network requests at all, your inputs are kept only in your own browser’s local storage so the page remembers them next time, and “Reset saved inputs” clears them. A shareable link carries the numbers in the URL itself, so a scenario is only shared with whoever you send that link to."}},{"@type":"Question","name":"Is this eBay’s official fee schedule?","acceptedAnswer":{"@type":"Answer","text":"No. It is an estimate built from the numbers you supply, not a published rate card, and it is not tax, financial, or business advice. Check the fee rates against your own eBay account before you rely on a result — category rates, store tiers, and promotions all change what a given sale is charged."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -214,7 +215,7 @@
           <label>Label shipments per month <input id="monthlyLabelShipments" type="number" min="0" step="1" value="40"></label>
         </div>
       </section>
-      <section class="result">
+      <section class="result" aria-live="polite">
         <h2>Order result</h2>
         <div id="profit" class="hero-number">$—</div>
         <div id="label">estimated batch profit</div>
@@ -244,7 +245,7 @@
         <p class="note">Transparent arithmetic from your inputs. The fixed fee is charged once per batch order; other listed costs are per unit. This is not a statement of eBay's current fee schedule. Fees vary by category, store subscription, and seller status. The sourcing ceiling is the modeled buy cost at your target ROI. The batch buy budget is that ceiling times the unit count. Max item cost at target margin is the same sale solved for cost instead of ROI. Neither is a recommendation to buy or pass.</p>
       </section>
     </div>
-    <section class="sensitivity">
+    <section class="sensitivity" aria-live="polite">
       <h2>If you repriced</h2>
       <p id="sensitivityNote" class="note">The same order listed a little higher or lower, with your costs, fees, and unit count unchanged. Percentage fees move with the price, so profit does not change one-for-one with it.</p>
       <div class="table-scroll">
@@ -257,11 +258,11 @@
       </div>
       <p id="scenariosEmpty" class="note" hidden>Enter a valid item price to compare repricing options.</p>
     </section>
-    <section class="sensitivity" id="returns">
+    <section class="sensitivity" aria-live="polite" id="returns">
       <h2>If some come back</h2>
       <p class="note">A completed sale can look fine and still lose money once returns start. This assumes the item comes back into inventory — so you do not lose the sourcing cost again — and that you refund the buyer. The outbound label, packaging, other cash, return postage, and any fees you do not get back stay with you. It is arithmetic from the rate you type, not a forecast of your category or a statement of eBay’s refund rules. <a href="do-ebay-returns-wipe-the-profit.html">Why a 10% return rate can erase a thin listing</a>.</p>
     </section>
-    <section class="sensitivity" id="listingFormat">
+    <section class="sensitivity" aria-live="polite" id="listingFormat">
       <h2>Auction vs Buy It Now</h2>
       <p id="listingFormatNote" class="note">A completed auction sale is often cheaper than Buy It Now. Auctions still win when they actually sell. Expected listing profit is the sale you already calculated — including the typed return rate — times sell-through, minus the insertion fee that is sunk either way. Promoted Listings Standard stays on Buy It Now; set an auction promoted rate only if that listing uses one. <a href="should-i-list-ebay-auction-or-buy-it-now.html">Should I list this as an auction or Buy It Now?</a></p>
       <p id="listingFormatVerdict" class="note"></p>
@@ -283,7 +284,7 @@
       </div>
       <p id="listingFormatEmpty" class="note" hidden>Enter a valid item price to compare auction and Buy It Now.</p>
     </section>
-    <section class="sensitivity" id="partialRefund">
+    <section class="sensitivity" aria-live="polite" id="partialRefund">
       <h2>Partial refund vs taking the return</h2>
       <p id="partialRefundNote" class="note">A buyer case is not the same decision as a return rate. Once they open it you can send a concession and let them keep the item, take the return, or refund the whole order without getting the item back. Percentage fees usually come back on the refunded amount; the outbound label does not. <a href="should-i-offer-a-partial-refund-on-ebay.html">Should I offer a partial refund instead of taking the return?</a></p>
       <p id="partialRefundVerdict" class="note"></p>
@@ -304,7 +305,7 @@
       </div>
       <p id="partialRefundEmpty" class="note" hidden>Enter a valid item price to compare a partial refund with taking the return.</p>
     </section>
-    <section class="sensitivity" id="authenticity">
+    <section class="sensitivity" aria-live="polite" id="authenticity">
       <h2>Authenticity Guarantee vs skip-AG</h2>
       <p id="authenticityNote" class="note">Authenticity Guarantee is not the same decision as a return rate or a partial refund. You pay an authenticity fee and often an extra label to the hub; you usually sell more of the listing and see fewer “not authentic” returns. The fee is treated like a percentage marketplace fee and comes back on a return; the extra hub label does not. Rates are inputs, not eBay’s live Authenticity Guarantee schedule. <a href="is-ebay-authenticity-guarantee-worth-it.html">Is eBay Authenticity Guarantee worth it?</a></p>
       <p id="authenticityVerdict" class="note"></p>
@@ -326,7 +327,7 @@
       </div>
       <p id="authenticityEmpty" class="note" hidden>Enter a valid item price to compare Authenticity Guarantee with skip-AG.</p>
     </section>
-    <section class="sensitivity" id="localPickup">
+    <section class="sensitivity" aria-live="polite" id="localPickup">
       <h2>Local pickup vs the label</h2>
       <p id="localPickupNote" class="note">Local pickup is not the same decision as a return rate or Authenticity Guarantee. You skip the outbound label and return postage, then pay meetup time and take a lower sell-through because only local buyers can collect. A committed buyer still ghosts. The table keeps the original sale, then drops postage and multiplies by sell-through and the no-show rate. Rates and the wage are inputs, not eBay’s pickup policy. <a href="should-i-offer-ebay-local-pickup.html">Should I offer local pickup on eBay?</a></p>
       <p id="localPickupVerdict" class="note"></p>
@@ -348,7 +349,7 @@
       </div>
       <p id="localPickupEmpty" class="note" hidden>Enter a valid item price to compare local pickup with shipping.</p>
     </section>
-    <section class="sensitivity" id="lotVsSingles">
+    <section class="sensitivity" aria-live="polite" id="lotVsSingles">
       <h2>Lot vs individual listings</h2>
       <p id="lotVsSinglesNote" class="note">A pile you could list as one lot is not the same decision as a return rate or a meetup. You keep one label, one insertion, and one listing session — or you split the pieces, pay a label and insertion on each, and take the time to write five titles. The table keeps the original lot sale, then prices each piece on its own postage and multiplies by sell-through. Rates, insertion, and the wage are inputs, not eBay’s listing policy. <a href="should-i-break-an-ebay-lot-into-individual-listings.html">Should I break an eBay lot into individual listings?</a></p>
       <p id="lotVsSinglesVerdict" class="note"></p>
@@ -370,7 +371,7 @@
       </div>
       <p id="lotVsSinglesEmpty" class="note" hidden>Enter a valid item price and at least two pieces to compare a lot with individual listings.</p>
     </section>
-    <section class="sensitivity" id="standardEnvelope">
+    <section class="sensitivity" aria-live="polite" id="standardEnvelope">
       <h2>Standard Envelope vs a tracked label</h2>
       <p id="standardEnvelopeNote" class="note">A Standard Envelope is not the same decision as a return rate or a meetup. You save most of the outbound label, then take an item-not-received claim rate because there is no tracking. A claim is not a return: the buyer is refunded and the item is gone, so cost of goods is lost. The table keeps the original tracked sale — including the typed return rate — then prices the envelope postage and multiplies by sell-through. Postage and the claim rate are inputs, not eBay’s envelope eligibility or seller-protection policy. <a href="is-ebay-standard-envelope-worth-it.html">Is eBay Standard Envelope worth it?</a></p>
       <p id="standardEnvelopeVerdict" class="note"></p>
@@ -392,7 +393,7 @@
       </div>
       <p id="standardEnvelopeEmpty" class="note" hidden>Enter a valid item price to compare Standard Envelope with a tracked label.</p>
     </section>
-    <section class="sensitivity" id="combinedShipping">
+    <section class="sensitivity" aria-live="polite" id="combinedShipping">
       <h2>Combined shipping vs two labels</h2>
       <p id="combinedShippingNote" class="note">Combined shipping is not the same decision as a lot listing or a Standard Envelope. The sales already closed. You ship each item on its own label, or you invoice one combined postage and pay one box. A cheap “I’ll combine them” discount can give away more shipping revenue than the second label costs. A return of the box restocks every item and eats the one outbound plus the one return label. Postage is an input, not eBay’s invoice policy. <a href="should-i-offer-ebay-combined-shipping.html">Should I offer combined shipping on eBay?</a></p>
       <p id="combinedShippingVerdict" class="note"></p>
@@ -414,7 +415,7 @@
       </div>
       <p id="combinedShippingEmpty" class="note" hidden>Enter a valid item price and at least two sold items to compare combined shipping with separate labels.</p>
     </section>
-    <section class="sensitivity" id="sellerInitiatedOffer">
+    <section class="sensitivity" aria-live="polite" id="sellerInitiatedOffer">
       <h2>Seller-initiated offer vs waiting</h2>
       <p id="sellerInitiatedOfferNote" class="note">Sending an offer to watchers is not the same decision as taking an incoming Best Offer. You are naming the discount. Waiting keeps the listed price and a lower sell-through; the offer drops the ticket and uses a typed accept rate. Insertion is already sunk — the listing exists. Accept rate is an input, not eBay’s watcher-conversion policy. <a href="should-i-send-an-ebay-offer-to-watchers.html">Should I send an offer to eBay watchers?</a></p>
       <p id="sellerInitiatedOfferVerdict" class="note"></p>
@@ -435,7 +436,7 @@
       </div>
       <p id="sellerInitiatedOfferEmpty" class="note" hidden>Enter a valid item price to compare a seller-initiated offer with waiting.</p>
     </section>
-    <section class="sensitivity" id="promotedOffsite">
+    <section class="sensitivity" aria-live="polite" id="promotedOffsite">
       <h2>Promoted Offsite vs skip</h2>
       <p id="promotedOffsiteNote" class="note">Promoted Offsite is not the same decision as Promoted Listings Standard. Standard is a percent of a completed sale. Offsite is a bill either way — you pay the campaign even if they bounce. The extra sales still pay final value fee and, unless you zero the Offsite sale promoted rate, the same Standard percent as the listing. Spend and extra-sale counts are inputs, not eBay’s Offsite bid. <a href="is-ebay-promoted-offsite-worth-it.html">Is eBay Promoted Offsite worth it?</a> Compare <a href="are-ebay-promoted-listings-worth-it.html">Standard versus skip</a> when the question is a percent of a completed sale.</p>
       <p id="promotedOffsiteVerdict" class="note"></p>
@@ -457,7 +458,7 @@
       </div>
       <p id="promotedOffsiteEmpty" class="note" hidden>Enter a valid item price to compare Promoted Offsite with skipping the campaign.</p>
     </section>
-    <section class="sensitivity" id="promotedStandard">
+    <section class="sensitivity" aria-live="polite" id="promotedStandard">
       <h2>Promoted Listings Standard vs skip</h2>
       <p id="promotedStandardNote" class="note">Promoted Listings Standard is not the same decision as Promoted Offsite. Offsite is a bill either way. Standard is a percent of a completed sale — including the one you already would have made. Zero extra sales is the conservative test: the campaign only takes a cut of a sale you already had. Extra-sale counts and the rate are inputs, not eBay’s Promoted Listings attribution. <a href="are-ebay-promoted-listings-worth-it.html">Are eBay Promoted Listings worth it?</a></p>
       <p id="promotedStandardVerdict" class="note"></p>
@@ -494,7 +495,7 @@
         </table>
       </div>
     </section>
-    <section class="sensitivity" id="promotedAdvanced">
+    <section class="sensitivity" aria-live="polite" id="promotedAdvanced">
       <h2>Promoted Listings Advanced vs skip</h2>
       <p id="promotedAdvancedNote" class="note">Promoted Listings Advanced is not the same decision as Standard or Offsite. Standard is a percent of a completed sale. Offsite is a Google or Facebook bill. Advanced is a cost-per-click on eBay search — billed even if they bounce. Zero extra sales is the conservative test: you paid for traffic and kept the sale you already had. CPC, clicks, and extra-sale counts are inputs, not eBay’s Promoted Listings attribution. <a href="are-ebay-promoted-listings-advanced-worth-it.html">Are eBay Promoted Listings Advanced worth it?</a></p>
       <p id="promotedAdvancedVerdict" class="note"></p>
@@ -516,7 +517,7 @@
       </div>
       <p id="promotedAdvancedEmpty" class="note" hidden>Enter a valid item price to compare Promoted Listings Advanced with skipping the campaign.</p>
     </section>
-    <section class="sensitivity" id="quantityDiscount">
+    <section class="sensitivity" aria-live="polite" id="quantityDiscount">
       <h2>Quantity discount vs selling separately</h2>
       <p id="quantityDiscountNote" class="note">A quantity discount is not the same decision as combined shipping or a seller-initiated offer. Combined shipping is already-sold different items and no price cut. An offer to watchers is one unit. Promoted Offsite is a campaign billed either way. Here you cut the item price so one buyer takes N of the same SKU, pays shipping once, and gets one box. If they would have bought N anyway, the leftover usually shrinks. The table also multiplies by a typed singles sell-through versus multi-buy take rate. Rates are inputs, not eBay’s volume-pricing policy. <a href="should-i-offer-an-ebay-quantity-discount.html">Should I offer an eBay quantity discount?</a></p>
       <p id="quantityDiscountVerdict" class="note"></p>
@@ -538,7 +539,7 @@
       </div>
       <p id="quantityDiscountEmpty" class="note" hidden>Enter a valid item price and at least two units to compare a quantity discount with selling separately.</p>
     </section>
-    <section class="sensitivity" id="sellerCoupon">
+    <section class="sensitivity" aria-live="polite" id="sellerCoupon">
       <h2>Seller coupon vs stay listed vs drop the list</h2>
       <p id="sellerCouponNote" class="note">A seller coupon is not the same decision as a seller-initiated offer or a quantity discount. An offer to watchers is a private sent price. A quantity discount cuts N units into one box. Promoted Offsite is a campaign billed either way. Here the listing stays at Buy It Now; only the redeem share pays less. Dropping the list writes the cheaper price into search and sold comps. Rates are inputs, not eBay’s coupon policy. <a href="should-i-offer-an-ebay-coupon.html">Should I offer an eBay coupon?</a></p>
       <p id="sellerCouponVerdict" class="note"></p>
@@ -560,7 +561,7 @@
       </div>
       <p id="sellerCouponEmpty" class="note" hidden>Enter a valid item price to compare a seller coupon with staying listed or dropping the price.</p>
     </section>
-    <section class="sensitivity" id="immediatePayment">
+    <section class="sensitivity" aria-live="polite" id="immediatePayment">
       <h2>Immediate payment vs unpaid checkouts</h2>
       <p id="immediatePaymentNote" class="note">Requiring immediate payment is not the same decision as a seller-initiated offer, a coupon, or local pickup. An offer and a coupon change the price. Pickup is a no-show after they committed to a meetup. Here the listing price stays put. Allowing later checkout starts more sales and then eats a typed unpaid-item rate — the item never ships, so leftover on that case is relist insertion plus case time. Requiring immediate payment treats unpaid as zero and takes a typed sell-through hit from buyers who will not pay now. Rates are inputs, not eBay’s unpaid-item policy. <a href="should-i-require-immediate-payment-on-ebay.html">Should I require immediate payment on eBay?</a></p>
       <p id="immediatePaymentVerdict" class="note"></p>
@@ -582,7 +583,7 @@
       </div>
       <p id="immediatePaymentEmpty" class="note" hidden>Enter a valid item price to compare immediate payment with unpaid checkouts.</p>
     </section>
-    <section class="sensitivity" id="topRatedPlus">
+    <section class="sensitivity" aria-live="polite" id="topRatedPlus">
       <h2>Top Rated Plus vs stay standard</h2>
       <p id="topRatedPlusNote" class="note">Top Rated Plus is not the same decision as a return-rate mix, a one-case concession, or requiring immediate payment. You take a typed final-value discount and a badge sell-through lift, then pay seller-paid return labels, a higher return rate, and 1-day handling time on every sale. Discount and rates are inputs, not eBay’s Top Rated policy. <a href="is-ebay-top-rated-plus-worth-it.html">Is eBay Top Rated Plus worth it?</a></p>
       <p id="topRatedPlusVerdict" class="note"></p>
@@ -604,7 +605,7 @@
       </div>
       <p id="topRatedPlusEmpty" class="note" hidden>Enter a valid item price to compare Top Rated Plus with staying standard.</p>
     </section>
-    <section class="sensitivity" id="managedReturns">
+    <section class="sensitivity" aria-live="polite" id="managedReturns">
       <h2>Managed Returns vs your own label</h2>
       <p id="managedReturnsNote" class="note">Managed Returns is not the same decision as a return-rate mix, a one-case concession, or Top Rated Plus. You replace the label you buy with a typed program fee, then usually take a higher return rate because the buyer path is easier. Buyer-paid return shipping is the friction path: no label cost, lower return rate. Fee and rates are inputs, not eBay’s Managed Returns schedule. <a href="is-ebay-managed-returns-worth-it.html">Is eBay Managed Returns worth it?</a></p>
       <p id="managedReturnsVerdict" class="note"></p>
@@ -624,7 +625,7 @@
       </div>
       <p id="managedReturnsEmpty" class="note" hidden>Enter a valid item price to compare Managed Returns with buying the label yourself.</p>
     </section>
-    <section class="sensitivity" id="globalShipping">
+    <section class="sensitivity" aria-live="polite" id="globalShipping">
       <h2>Global Shipping Program vs you-ship</h2>
       <p id="globalShippingNote" class="note">Global Shipping Program is not the same decision as offering international at all, Standard Envelope, Authenticity Guarantee, Top Rated Plus, or Managed Returns. Envelope is cheap domestic postage versus a claim. Authenticity Guarantee is a hub label for authentication. Here an international buyer already wants the item. GSP ships to the US hub on your domestic label; the buyer pays eBay the international bill. You-ship collects that postage, buys the international label, takes the extra international fee, and eats a typed item-not-received claim rate. Rates are inputs, not eBay’s GSP schedule. <a href="should-i-use-ebay-global-shipping-program.html">Should I use eBay Global Shipping Program?</a></p>
       <p id="globalShippingVerdict" class="note"></p>
@@ -646,7 +647,7 @@
       </div>
       <p id="globalShippingEmpty" class="note" hidden>Enter a valid item price to compare Global Shipping Program with buying the international label.</p>
     </section>
-    <section class="sensitivity" id="storeTiers">
+    <section class="sensitivity" aria-live="polite" id="storeTiers">
       <h2>Store subscription vs no-store rate</h2>
       <p id="storeTiersNote" class="note">A store is not the same decision as Promoted Listings, Top Rated Plus, or Global Shipping. Promoted Listings is a percent of a completed sale. Top Rated Plus trades a fee discount for free returns. Global Shipping is who buys the international label. Here you keep the same SKU, then compare the final-value rate you type with example Starter, Basic, and Premium mixes after the monthly subscription. Fees are inputs, not eBay’s store schedule. <a href="is-an-ebay-store-worth-it.html">Is an eBay store worth it?</a></p>
       <p id="storeTiersVerdict" class="note"></p>
@@ -666,7 +667,7 @@
       </div>
       <p id="storeTiersEmpty" class="note" hidden>Enter a valid item price to compare a store subscription with the no-store rate.</p>
     </section>
-    <section class="sensitivity" id="bestOffer">
+    <section class="sensitivity" aria-live="polite" id="bestOffer">
       <h2>Incoming Best Offer vs waiting</h2>
       <p id="bestOfferNote" class="note">An incoming Best Offer is not the same decision as sending an offer to watchers. The buyer named a price. Waiting keeps the list profit times your guessed chance it still sells at list; a miss this cycle leaves the cash sitting in the item. A seller-initiated offer is you naming the discount. The repricing table moves the list without a typed wait chance. The offer and the chance are inputs, not eBay’s Best Offer policy. <a href="should-i-accept-this-ebay-offer.html">Should I accept this eBay offer?</a></p>
       <p id="bestOfferVerdict" class="note"></p>
@@ -686,7 +687,7 @@
       </div>
       <p id="bestOfferEmpty" class="note" hidden>Enter a valid item price to compare this Best Offer with waiting for list.</p>
     </section>
-    <section class="sensitivity" id="freeShipping">
+    <section class="sensitivity" aria-live="polite" id="freeShipping">
       <h2>Free shipping vs charging the buyer</h2>
       <p id="freeShippingNote" class="note">Free shipping is not the same decision as Global Shipping, combined shipping, a store subscription, incoming Best Offer, worldwide at this list, or a Standard Envelope. On eBay the final value fee sits on item plus shipping, so baking the exact shipping charge into the list is leftover-identical on a completed sale — the leftover difference is only the extra fee on any amount you add above that. The real question is whether a higher close rate on a free-shipping list still covers that extra fee after unsold listings. Rates are inputs, not eBay’s fee schedule. <a href="should-i-offer-free-shipping-on-ebay.html">Should I offer free shipping on eBay?</a></p>
       <p id="freeShippingVerdict" class="note"></p>
@@ -707,7 +708,7 @@
       </div>
       <p id="freeShippingEmpty" class="note" hidden>Enter a valid item price to compare offering free shipping with charging the buyer for shipping.</p>
     </section>
-    <section class="sensitivity" id="internationalShipping">
+    <section class="sensitivity" aria-live="polite" id="internationalShipping">
       <h2>Domestic vs worldwide at this list</h2>
       <p id="internationalShippingNote" class="note">Offering international is not the same decision as Global Shipping Program. Worldwide at this list adds the international fee, and a free-shipping listing pays the extra label too. Global Shipping assumes an international buyer already wants the item and asks who buys the postage. Standard Envelope is cheap domestic postage versus a claim. The fee and extra postage are inputs, not eBay’s live international schedule. <a href="should-i-offer-international-shipping-on-ebay.html">Should I offer international shipping on eBay?</a></p>
       <p id="internationalShippingVerdict" class="note"></p>
@@ -728,7 +729,7 @@
       </div>
       <p id="internationalShippingEmpty" class="note" hidden>Enter a valid item price to compare domestic-only with worldwide shipping.</p>
     </section>
-    <section class="sensitivity" id="packageProtection">
+    <section class="sensitivity" aria-live="polite" id="packageProtection">
       <h2>Skip vs insurance vs signature</h2>
       <p id="packageProtectionNote" class="note">Package protection is not the same decision as a Standard Envelope or Authenticity Guarantee. Envelope is cheap untracked mail versus a tracked label. Authenticity Guarantee sends the item through a hub. Here the label is already tracked. Skip pays nothing extra and eats the typed item-not-received rate as a full loss. Insurance pays a typed premium on every box and a typed replacement-value payout on leftover claims. Signature confirmation lowers claims but does not reimburse. Premium, payout, and rates are inputs, not a carrier table. <a href="should-i-add-shipping-insurance-on-ebay.html">Should I add shipping insurance on eBay?</a></p>
       <p id="packageProtectionVerdict" class="note"></p>
@@ -750,7 +751,7 @@
       </div>
       <p id="packageProtectionEmpty" class="note" hidden>Enter a valid item price to compare skip, insurance, and signature confirmation.</p>
     </section>
-    <section class="sensitivity" id="ebayLabels">
+    <section class="sensitivity" aria-live="polite" id="ebayLabels">
       <h2>eBay label vs Pirate Ship</h2>
       <p id="ebayLabelsNote" class="note">Buying the label is not the same decision as package protection or a Standard Envelope. Protection is an add-on on a tracked label you already bought. Envelope is cheap untracked mail. Here the shipment is already sold. The eBay quote auto-uploads tracking and usually keeps a lower item-not-received rate. A Pirate Ship, Shippo, or carrier-account quote is often cheaper and usually loses that protection, plus the minutes you spend uploading tracking. Quotes, claim rates, and time are inputs, not a carrier table. <a href="should-i-buy-ebay-shipping-labels.html">Should I buy eBay shipping labels or use Pirate Ship?</a></p>
       <p id="ebayLabelsVerdict" class="note"></p>
@@ -771,6 +772,50 @@
         </table>
       </div>
       <p id="ebayLabelsEmpty" class="note" hidden>Enter a valid item price to compare an eBay label with a third-party quote.</p>
+    </section>
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How do I work out what an eBay sale actually leaves?</h3>
+      <p>Enter the sale price, the fee rates your own account is charged, what you paid for the
+        item, and what shipping costs you. The order result gives net profit, margin, return on the
+        cash you had tied up in the item, and the lowest resale price that still breaks even. The
+        rates come from the boxes you fill in rather than a stored fee table, so the arithmetic
+        stays right when eBay changes a category rate, or when your store tier changes what you
+        pay.</p>
+
+      <h3>Why does a sale that looked profitable still leave me short?</h3>
+      <p>Because most of what erodes an eBay sale lands after checkout, not in the list price: the
+        outbound label, return postage on the ones that come back, promoted-listing bills that are
+        charged whether or not the click was the reason it sold, and the time spent packing. The
+        &ldquo;If some come back&rdquo; section applies a return rate you type &mdash; the outbound
+        label and the return postage usually stay with you even when the item resells, which is why
+        a few returns move net profit more than sellers expect.</p>
+
+      <h3>Should I offer a partial refund or take the return?</h3>
+      <p>It depends on what the item is worth back in your stock against what it costs to get it
+        there. &ldquo;Partial refund vs taking the return&rdquo; puts both against each other on the
+        order you already entered, so the comparison uses your real postage and cost of goods
+        instead of a rule of thumb.</p>
+
+      <h3>Does offering free shipping cost me money?</h3>
+      <p>Only if it does not sell more. Free shipping is postage you absorb into the item price, and
+        it pays when the extra sell-through covers that. &ldquo;Free shipping vs charging the
+        buyer&rdquo; asks you for the sell-through lift you actually see rather than assuming one,
+        and shows whether it covers the postage at this list price.</p>
+
+      <h3>Do I need an account, and does anything I type get uploaded?</h3>
+      <p>No account, and nothing is uploaded. The whole calculator runs in your browser: it makes no
+        network requests at all, your inputs are kept only in your own browser&rsquo;s local storage
+        so the page remembers them next time, and &ldquo;Reset saved inputs&rdquo; clears them. A
+        shareable link carries the numbers in the URL itself, so a scenario is only shared with
+        whoever you send that link to.</p>
+
+      <h3>Is this eBay&rsquo;s official fee schedule?</h3>
+      <p>No. It is an estimate built from the numbers you supply, not a published rate card, and it
+        is not tax, financial, or business advice. Check the fee rates against your own eBay account
+        before you rely on a result &mdash; category rates, store tiers, and promotions all change
+        what a given sale is charged.</p>
     </section>
   </main>
   <footer>

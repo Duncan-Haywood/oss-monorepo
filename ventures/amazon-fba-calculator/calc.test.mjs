@@ -4,8 +4,8 @@ import {
   applyCategoryPreset,
   applyPlacementPreset,
   applyStoragePreset,
-  calculateListing,
   buyCostCheck,
+  calculateListing,
   PLACEMENT_PRESETS,
   CATEGORY_PRESETS,
   classifySizeTier,
@@ -181,6 +181,23 @@ test("turns max buy cost into a sourcing checkpoint", () => {
   assert.equal(above.headroom, -1);
   const at = buyCostCheck(result, result.selected.breakEvenBuyCost);
   assert.equal(at.status, "at_ceiling");
+});
+
+test("a listing that already loses money at $0 cost reports above the ceiling, not at it", () => {
+  // Fees and non-COGS cash costs alone exceed a $3 sale price, so no sourcing
+  // cost -- not even free -- reaches break-even. The clamped display value
+  // (breakEvenBuyCost) floors at $0.00, which used to make a typed cost of $0
+  // read as "at the zero-profit ceiling": the same status a listing that
+  // genuinely breaks even on a free unit gets. That is the wrong message --
+  // this listing loses money before a unit is ever bought.
+  const losing = calculateListing({ ...base, salePrice: 3, costOfGoods: 0 });
+  assert.equal(losing.selected.breakEvenBuyCost, 0, "display value floors at $0");
+  assert.ok(losing.selected.breakEvenBuyCostRaw < 0, "the true ceiling is negative");
+
+  const atZeroCost = buyCostCheck(losing, 0);
+  assert.equal(atZeroCost.status, "above_ceiling");
+  assert.ok(atZeroCost.headroom < 0, "headroom reflects the real deficit, not 0");
+  assert.equal(atZeroCost.headroom, losing.selected.breakEvenBuyCostRaw);
 });
 
 test("FBM drops fulfillment and storage/inbound, and uses the seller's own label", () => {
@@ -531,6 +548,21 @@ test("an unprofitable coupon cannot recover the month with more volume", () => {
   assert.match(couponSummary(comparison), /cannot recover/i);
 });
 
+test("a coupon cannot be recovered when list price is already unprofitable too", () => {
+  // Same reasoning error compareSubscribeSave's offsetUnits was fixed for:
+  // a $12 listing with $8 COGS already loses money at list price, and a
+  // coupon can only lose more per unit (typed.profit < none.profit < 0).
+  // breakEvenUnits used to fall through to `null` ("not defined") here
+  // because its gate required none.profit > 0 before ever reporting
+  // Infinity -- silently hiding that no volume of couponed sales helps.
+  const lowMarginBase = { ...base, salePrice: 12 };
+  const comparison = compareCoupons({ ...lowMarginBase, couponPercent: 15, couponFee: 0.6 });
+  assert.ok(comparison.none.profit < 0, "list price already loses money");
+  assert.ok(comparison.typed.profit < comparison.none.profit, "coupon loses even more per unit");
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(couponSummary(comparison), /cannot recover/i);
+});
+
 test("expected lift is compared to the list-price month, not to itself", () => {
   const comparison = compareCoupons({
     ...base,
@@ -852,6 +884,31 @@ test("an unprofitable Subscribe & Save discount cannot be offset with more volum
   assert.ok(comparison.none.profit > 0, "list still pays");
   assert.ok(comparison.typed.profit < 0, "80% S&S does not");
   assert.equal(comparison.offsetUnits, Infinity);
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
+});
+
+test("Subscribe & Save cannot be offset when list price is already unprofitable too", () => {
+  // A $12 listing with $8 COGS and this fee structure loses money at list
+  // price already, and S&S loses more per unit (typed.profit < none.profit
+  // < 0) -- confirmed by both being negative below, reconstructed straight
+  // from calculateListing/subscribeSaveListing, not by calling
+  // compareSubscribeSave's own offsetUnits. No amount of additional
+  // S&S-only volume can close that gap, since each such sale itself loses
+  // money; offsetUnits must be Infinity regardless of the list row's sign.
+  const lowMarginBase = { ...base, salePrice: 12 };
+  const comparison = compareSubscribeSave({ ...lowMarginBase, snsPercent: 5, snsEnrollPct: 40 });
+  const listProfit = calculateListing(lowMarginBase).fba.profit;
+  const snsProfit = subscribeSaveListing(lowMarginBase, { snsPercent: 5 }).profit;
+  assert.ok(listProfit < 0, "list price already loses money");
+  assert.ok(snsProfit < listProfit, "S&S loses even more per unit");
+  near(comparison.none.profit, listProfit, "list row matches primary calc");
+  near(comparison.typed.profit, snsProfit, "S&S row matches primary calc");
+  assert.equal(comparison.offsetUnits, Infinity);
+  // breakEvenUnits shares the same gate as offsetUnits (both flag "the
+  // discounted unit itself does not pay") and used to fall through to
+  // `null` ("not defined") whenever the list row was unprofitable, exactly
+  // the reasoning error the comment above describes for offsetUnits.
   assert.equal(comparison.breakEvenUnits, Infinity);
   assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
 });
@@ -1652,6 +1709,18 @@ test("nextCheaperWeightLb steps into the previous fulfillment band", () => {
   assert.equal(nextCheaperWeightLb("large_bulky", 12), 2);
   assert.equal(nextCheaperWeightLb("large_bulky", 2), null);
   assert.throws(() => nextCheaperWeightLb("envelope", 1), /Unknown size tier/);
+});
+
+test("nextCheaperWeightLb heavier than every listed band still steps only one band down", () => {
+  // 10 lb (160 oz) is priced by defaultFulfillmentFee's per-pound formula,
+  // above every entry in STANDARD_WEIGHT_BAND_OZ (top entry is 80 oz / 5 lb).
+  // The next cheaper stop is 5 lb (the top of that heaviest listed band,
+  // where the fee flattens back to $6.44) — not 3 lb, which would silently
+  // skip the 5 lb band a shipper could reach with a much smaller trim.
+  assert.equal(nextCheaperWeightLb("large_standard", 10), 5);
+  assert.equal(nextCheaperWeightLb("large_standard", 20), 5);
+  // Exactly at the heaviest listed band still steps down one band, as before.
+  assert.equal(nextCheaperWeightLb("large_standard", 5), 3);
 });
 
 test("compareSizeTierPackaging: default 8×6×2 box drops a tier by flattening to 0.75 in", () => {

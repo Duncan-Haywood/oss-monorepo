@@ -218,6 +218,14 @@
       Shopify Payments with PayPal.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I recover abandoned checkouts on Shopify?</h3>
+  <p>Recovery emails convert some of the checkouts that already left. A coupon converts more of them on a cheaper ticket. On the calculator defaults ($48 item, $6 shipping, 2.9%+$0.30, $14 cost, $5 outbound, $1 pack, 6% organic bounce-back, 12% email recover, 18% coupon recover, 10% off the item, $0.08 allocated send cost) leaving it expects $1.90, emails expect $3.73, and emails plus the coupon expect $4.79. That is arithmetic on your inputs, not advice to turn Shopify Email on or send a code.</p>
+  <h3>When do recovery emails lose to leaving a Shopify checkout?</h3>
+  <p>When the allocated send cost eats the extra recoveries. Emails have to recover about 6.3% before they match a 6% organic bounce-back on the defaults, and send cost can rise to about $1.90 before emails match leaving it. At a $3 SMS-adjacent cost, leaving it expects $1.90 against $0.81 for emails and $1.87 for the coupon.</p>
+  <h3>When does a recovery coupon lose on Shopify?</h3>
+  <p>When it does not lift recoveries enough to cover the cheaper ticket. A recovered list order keeps $31.74; the 10% item coupon keeps $27.08. The coupon has to recover about 14.1% before it matches emails alone. At a matched 12% recover rate emails keep $3.73 against $3.17 for the coupon.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

@@ -10,7 +10,7 @@ Open `index.html` in a browser. Add one row per award, enter the award date and 
 
 ## Privacy and usage
 
-Everything runs in your browser. Grant data is never uploaded, and there are no accounts, cookies, or analytics vendors. The optional usage switch counts only local feature events (`reviewed` and `exported`) in this browser; it stores no grant names, amounts, dates, IPs, or identifiers. Turn it off at any time.
+Everything runs in your browser. Grant data is never uploaded, and there are no accounts, cookies, or analytics vendors. The optional usage switch counts only local feature events (`grant_added`, `reviewed`, `sample_loaded`, `exported`) in this browser; it stores no grant names, amounts, dates, IPs, or identifiers. It is off by default, and counting stops automatically when the browser sends Do Not Track or Global Privacy Control.
 
 ## Safety boundary
 

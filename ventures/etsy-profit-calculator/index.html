@@ -8,6 +8,7 @@
   <meta property="og:title" content="Etsy Profit Calculator">
   <meta property="og:description" content="See what an Etsy order leaves after the complete fee stack, whether Plus credits still beat staying off Plus, whether a personalization covers extra time, whether Etsy Ads still pay after ACOS, whether Offsite Ads still leave a profit at 12% or 15%, whether a production partner still pays this month, whether Star Seller still beats staying unsigned, whether a shop sale still beats staying full price, whether free shipping still beats charging the buyer, whether an Etsy label still beats Pirate Ship, and whether auto-renew still covers a slow listing.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Etsy Profit Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Etsy fee breakdown, break-even price, net profit margin, return on cash invested, Etsy Plus credit comparison, personalization upcharge comparison, Etsy Ads ACOS comparison, Offsite Ads 12%/15% comparison, production partner vs handmade comparison, Star Seller vs unsigned comparison, shop sale vs full price comparison, free shipping vs charged shipping comparison, Etsy shipping labels vs Pirate Ship comparison, listing auto-renew allocation"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does \"Return on cash\" measure, and why does it sometimes show \"—\"?","acceptedAnswer":{"@type":"Answer","text":"Return on cash is profit divided by the money you laid out before the sale — shipping cost, materials, and other per-order cost — not divided by revenue or the price you charged. Etsy's fees come out of the proceeds rather than out of your pocket up front, so they stay out of that denominator on purpose. If those three inputs are all zero, there is nothing invested to divide by, so the field reads \"—\" instead of a divide-by-zero result."}},{"@type":"Question","name":"Does the break-even item price include Offsite Ads or on-site Etsy Ads?","acceptedAnswer":{"@type":"Answer","text":"It includes whatever offsite ad rate is set on the order form above, spread across the price the same way transaction and payment fees are — raise that rate and the break-even price moves with it. It does not include the separate on-site Etsy Ads section further down the page, because that is a per-click cost you set as an ACOS percentage, not a fee charged on every order."}},{"@type":"Question","name":"How does the production partner's reject rate change the comparison?","acceptedAnswer":{"@type":"Answer","text":"It reduces how many good units the partner path actually delivers, not the price you pay per unit. At a 5% reject rate, sending 40 orders' worth of demand to the partner yields only 38 sellable units, so the expected cash-out and expected keep per finished sale rise to cover the units that never arrive sellable, on top of the unit cost and handling fee you typed in. Your own handmade capacity and cost are unaffected."}},{"@type":"Question","name":"Why is there a separate Offsite Ads table when the order form already has an offsite ad rate field?","acceptedAnswer":{"@type":"Answer","text":"The order form's rate is your current best guess and feeds every other number on the page — the hero result, break-even price, and every comparison table. The Offsite Ads section further down re-runs that same order at organic (0%), 12%, and 15% side by side, because Etsy sets the rate by a shop's trailing 12-month sales rather than letting a seller choose it, so seeing all three shows what changes if a shop crosses that threshold."}},{"@type":"Question","name":"Does anything typed into this calculator leave the browser?","acceptedAnswer":{"@type":"Answer","text":"No. Every figure is computed locally; nothing is sent to a server. Inputs are saved to this browser's local storage so the form survives a reload, and \"Copy shareable link\" puts them in the URL instead so a specific scenario can be sent to someone else. Anonymous local feature-usage counts are recorded unless \"Do not keep anonymous local usage counts\" below is checked."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f8f3eb; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -190,6 +191,19 @@
     </table>
     <p id="labelsNote" class="note"></p>
   </section>
+  <section id="faq">
+    <h2>Common questions</h2>
+    <h3>What does "Return on cash" measure, and why does it sometimes show "—"?</h3>
+    <p>Return on cash is profit divided by the money you laid out before the sale — shipping cost, materials, and other per-order cost — not divided by revenue or the price you charged. Etsy's fees come out of the proceeds rather than out of your pocket up front, so they stay out of that denominator on purpose. If those three inputs are all zero, there is nothing invested to divide by, so the field reads "—" instead of a divide-by-zero result.</p>
+    <h3>Does the break-even item price include Offsite Ads or on-site Etsy Ads?</h3>
+    <p>It includes whatever offsite ad rate is set on the order form above, spread across the price the same way transaction and payment fees are — raise that rate and the break-even price moves with it. It does not include the separate on-site Etsy Ads section further down the page, because that is a per-click cost you set as an ACOS percentage, not a fee charged on every order.</p>
+    <h3>How does the production partner's reject rate change the comparison?</h3>
+    <p>It reduces how many good units the partner path actually delivers, not the price you pay per unit. At a 5% reject rate, sending 40 orders' worth of demand to the partner yields only 38 sellable units, so the expected cash-out and expected keep per finished sale rise to cover the units that never arrive sellable, on top of the unit cost and handling fee you typed in. Your own handmade capacity and cost are unaffected.</p>
+    <h3>Why is there a separate Offsite Ads table when the order form already has an offsite ad rate field?</h3>
+    <p>The order form's rate is your current best guess and feeds every other number on the page — the hero result, break-even price, and every comparison table. The Offsite Ads section further down re-runs that same order at organic (0%), 12%, and 15% side by side, because Etsy sets the rate by a shop's trailing 12-month sales rather than letting a seller choose it, so seeing all three shows what changes if a shop crosses that threshold.</p>
+    <h3>Does anything typed into this calculator leave the browser?</h3>
+    <p>No. Every figure is computed locally; nothing is sent to a server. Inputs are saved to this browser's local storage so the form survives a reload, and "Copy shareable link" puts them in the URL instead so a specific scenario can be sent to someone else. Anonymous local feature-usage counts are recorded unless "Do not keep anonymous local usage counts" below is checked.</p>
+  </section>
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -324,12 +338,20 @@
       const organic = rows.find((row) => row.offsiteAdRate === 0);
       const at15 = rows.find((row) => row.offsiteAdRate === 15);
       const verdict = document.getElementById('offsiteVerdict');
+      // A null cap means the order is already below $0.00 before any ad fee,
+      // so there is no ceiling to quote — saying "stays at or above $0.00
+      // until about 0.0%" would contradict the organic row printed beside it.
+      const ceiling = cap === null
+        ? ' No Offsite Ads rate keeps it at or above $0.00 — it is already below that at 0%.'
+        : Number.isFinite(cap)
+          ? ` The order stays at or above $0.00 leftover until about ${cap.toFixed(1)}%.`
+          : '';
       if (at15 && at15.stillProfitable) {
-        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads still leave ${money(at15.profit)}. The order stays profitable until about ${cap.toFixed(1)}%.`;
+        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads still leave ${money(at15.profit)}.${cap === null ? ceiling : ` The order stays profitable until about ${cap.toFixed(1)}%.`}`;
       } else if (at15 && !at15.stillProfitable) {
-        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads leave ${money(at15.profit)}. The order stays at or above $0.00 leftover until about ${cap.toFixed(1)}%.`;
+        verdict.textContent = `Organic keeps ${money(organic.profit)}. 15% Offsite Ads leave ${money(at15.profit)}.${ceiling}`;
       } else {
-        verdict.textContent = `Organic keeps ${money(organic.profit)}. The order stays at or above $0.00 leftover until about ${cap.toFixed(1)}%.`;
+        verdict.textContent = `Organic keeps ${money(organic.profit)}.${ceiling}`;
       }
       const best = Math.max(...rows.map((r) => r.profit));
       document.getElementById('offsiteRows').replaceChildren(...rows.map((item) => {

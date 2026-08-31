@@ -47,6 +47,19 @@ and others) and **none of them have a public URL**. Every usage reading is
 still a zero baseline. `python3 platform/ci/publish_surface.py` still
 reports nothing live on a push to `main`.
 
+That tool reads `gitops/` as well as the workflows since 2026-08-31, so
+"nothing live" is now a statement about both delivery paths rather than
+only the one this paragraph was written about. On the Hetzner path it
+reports, per hostname: `marisstella.dev` and `www.marisstella.dev` answer
+on merge already (annotation-only 301s, no workload, no Secret), and
+`tools.marisstella.dev` — the one that serves the 169 tools — fails closed
+on the unsealed Secret `portfolio-site-repo`. Since both redirects point
+at that host, no stranger reaches content, and the tool says so rather
+than letting "two hosts live" stand.
+
+One seal, not one build, is what stands between this paragraph and being
+obsolete: `./bootstrap/scripts/seal-owner-secrets.sh site`.
+
 Until at least one already-built user-facing surface is reachable by a
 stranger, **deploy beats another build**:
 

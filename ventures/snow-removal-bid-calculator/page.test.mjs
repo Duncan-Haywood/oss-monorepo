@@ -7,7 +7,7 @@ const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('landing page names the problem in the contractor\'s words', () => {
   assert.match(html, /Price the winter, not the driveway/);
-  assert.match(html, /<title>Snow Removal Bid Calculator \| Per-Push vs Seasonal Contract Price<\/title>/);
+  assert.match(html, /<title>Snow Removal Bid Calculator — Per-Push vs Seasonal<\/title>/);
   assert.match(html, /meta name="description"/);
   assert.match(html, /SoftwareApplication/);
   assert.match(html, /FAQPage/);
@@ -49,4 +49,15 @@ test('the shipped starting route matches the documented eight-driveway winter', 
   assert.match(html, /length: 8/);
   assert.match(html, /value="10"/);
   assert.match(html, /value="6"/);
+});
+
+test('the "how much to charge" SEO page exists, is linked from the calculator, and is in the sitemap', () => {
+  assert.match(html, /how-much-to-charge\.html/, 'index.html does not link to the companion SEO page');
+  const doc = readFileSync(new URL('./how-much-to-charge.html', import.meta.url), 'utf8');
+  assert.match(doc, /How much should I charge for snow removal/i);
+  assert.match(doc, /FAQPage/);
+  assert.match(doc, /No warranty/);
+  assert.match(doc, /href="\.\/"/, 'the SEO page has no link back to the calculator');
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /how-much-to-charge\.html/);
 });

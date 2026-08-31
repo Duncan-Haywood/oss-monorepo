@@ -20,6 +20,7 @@ import {
   collectPageTitles,
   injectFavicon,
   discoverSurfaces,
+  faqEntries,
   injectChrome,
   isPublishable,
   NO_SLA_PATTERN,
@@ -46,12 +47,23 @@ import {
   groupByCategory,
   groupBySubcategory,
   truncate,
+  snippetize,
+  SNIPPET_MAX,
   injectDiscoveryTags,
   SOCIAL_CARD_FILE,
+  socialCardFileFor,
+  toolCardFileFor,
+  ALL_CATEGORIES,
   SITE_NAME,
   REPO_ROOT,
   SOURCE_URL_PREFIX,
   pageHasOwnShareControl,
+  categoryPagePath,
+  CATEGORY_PATH_PREFIX,
+  CHROME_MODULE_FILE,
+  renderHubSitemap,
+  renderLlmsTxt,
+  renderCatalog,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
@@ -630,9 +642,10 @@ test('llms.txt keeps each tool on one line, so no description leaks into prose',
   const { surfaces } = await site();
   const bullets = (await read('llms.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Three trailing bullets under "Optional" describe the machine surfaces
-  // rather than a tool, so the count is tools plus those.
-  assert.equal(bullets.length, surfaces.length + 3);
+  // Five trailing bullets under "Optional" describe the site's own surfaces
+  // rather than a tool — About, catalog.json, the sitemap, the Atom feed and
+  // the source repo — so the count is tools plus those.
+  assert.equal(bullets.length, surfaces.length + 5);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -854,8 +867,12 @@ test('aliases give a tool the words its own copy never uses', () => {
 
   // Keyed by slug so an alias cannot wander onto an unrelated tool: the
   // well-pump calculator talks about pressure and must not become a
-  // power-washing result.
-  assert.equal(aliasesFor('well-pump-bid-calculator'), '');
+  // power-washing result. It does carry its own alias now — the pump type
+  // most residential wells use, and a word its own copy never says — which
+  // is the same fix as every other entry above, not the collision this
+  // guards against.
+  assert.match(aliasesFor('well-pump-bid-calculator'), /submersible/);
+  assert.doesNotMatch(aliasesFor('well-pump-bid-calculator'), /power washing/);
   assert.equal(aliasesFor('ebay-fee-calculator'), '');
 
   // The trade's word and the material's word for the same roof.
@@ -1198,6 +1215,23 @@ test('categories route each slug shape somewhere sensible', () => {
   assert.equal(categoryFor('freight-accessorial-auditor').id, 'logistics');
   assert.equal(categoryFor('einvoice-preflight').id, 'evidence');
   assert.equal(categoryFor('something-brand-new').id, 'more');
+});
+
+test('every category names a distinct share-card file and accent colour', () => {
+  assert.equal(ALL_CATEGORIES.length, 7, 'the six named sections plus the catch-all');
+  const files = ALL_CATEGORIES.map((category) => socialCardFileFor(category.id));
+  assert.equal(new Set(files).size, files.length, 'no two categories share a card file');
+  const accents = ALL_CATEGORIES.map((category) => category.accent);
+  assert.ok(accents.every((hex) => /^#[0-9a-f]{6}$/i.test(hex)), 'every accent is a real hex colour');
+  assert.equal(new Set(accents).size, accents.length, 'no two categories share an accent');
+});
+
+test("socialCardFileFor names a file under the category's own id, not its title", () => {
+  // The id is what stays stable across a rename; the title is prose that gets
+  // rewritten. Filing the card under the title would break the link the first
+  // time someone edited a heading.
+  assert.equal(socialCardFileFor('trades'), 'social-card-trades.png');
+  assert.equal(socialCardFileFor('more'), 'social-card-more.png');
 });
 
 // These four sat in "More free tools" — the section a visitor reads last, if at
@@ -1556,6 +1590,124 @@ test('a fragment with no head is left alone rather than corrupted', () => {
   assert.equal(injectDiscoveryTags(fragment, { canonical: CANONICAL, baseUrl: BASE }), fragment);
 });
 
+// ---- Snippet budget -------------------------------------------------------
+//
+// The defect: descriptions accrete a clause per feature and nothing trims them,
+// so the copy a search result and a share card show ran off the end. The eBay
+// calculator reached 1,862 characters of one sentence.
+
+test('a description already inside the budget is returned untouched', () => {
+  const short = 'Bid the membrane, not the coupon.';
+  assert.equal(snippetize(short), short);
+});
+
+test('a snippet never exceeds the budget', () => {
+  const clauses = Array.from({ length: 40 }, (_, i) => `whether option ${i} still beats the last`);
+  for (const text of [clauses.join(', '), clauses.join('. '), 'x'.repeat(400), clauses.join(' ')]) {
+    assert.ok(snippetize(text).length <= SNIPPET_MAX, `too long for: ${text.slice(0, 30)}…`);
+  }
+});
+
+test('a sentence ending inside the budget is the cut, with no ellipsis added', () => {
+  const text =
+    'Free Faire wholesale fee calculator for brands: net payout after 15% commission and the ' +
+    '$10 new-customer fee. Compare first orders, Faire Direct, Open House, and Promoted Listings.';
+  const out = snippetize(text);
+  assert.ok(out.endsWith('new-customer fee.'), out);
+  assert.ok(!out.includes('…'), 'a whole sentence is not a truncation and must not be marked as one');
+});
+
+test('one long sentence of clauses is cut at a clause, not mid-thought', () => {
+  // The shape the eBay description actually had: no full stop for 1,862
+  // characters, so a word-boundary trim lands on a dangling "whether a".
+  const text =
+    'Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, ' +
+    'and cost of goods, then see what a return rate still leaves, whether a partial refund beats ' +
+    'taking the return, whether local pickup still beats the label after no-shows.';
+  const out = snippetize(text);
+  assert.ok(out.length <= SNIPPET_MAX);
+  assert.ok(out.endsWith('…'), out);
+  // The point of the clause rule: the snippet stops on a complete clause.
+  assert.ok(!/\b(whether|and|the|a)…$/.test(out), `cut mid-thought: ${out}`);
+  assert.ok(out.startsWith('Calculate eBay order profit'), out);
+});
+
+test('text with no boundary at all still falls back to a whole word', () => {
+  const out = snippetize(`${'alpha '.repeat(60)}omega`);
+  assert.ok(out.length <= SNIPPET_MAX);
+  assert.ok(!/\s\S*[a-z]…$/.test(out.replace(/alpha…$/, '')), out);
+  assert.ok(out.endsWith('…'));
+});
+
+test('an over-long page description is cut where it is published', () => {
+  const long =
+    'Calculate eBay order profit, margin, ROI, and break-even resale price after fees, shipping, ' +
+    'and cost of goods, then see what a return rate still leaves, whether a partial refund beats ' +
+    'taking the return, whether local pickup still beats the label after no-shows.';
+  const page = `<html><head><title>eBay</title><meta name="description" content="${long}"></head><body>x</body></html>`;
+  const out = injectDiscoveryTags(page, {
+    canonical: CANONICAL,
+    baseUrl: BASE,
+    title: 'eBay Fee Calculator',
+    description: long,
+  });
+
+  const shipped = /<meta name="description" content="([^"]*)">/.exec(out)[1];
+  assert.ok(shipped.length <= SNIPPET_MAX, `shipped ${shipped.length} characters`);
+  assert.equal(shipped, snippetize(long));
+  // The share card gets the same cut, not the caller's 180-character card copy.
+  const og = /<meta property="og:description" content="([^"]*)">/.exec(out)[1];
+  assert.ok(og.length <= SNIPPET_MAX, `og:description shipped ${og.length} characters`);
+});
+
+test("a description inside the budget keeps the venture's exact words", () => {
+  const own = 'Price a septic pump-out before you quote it, with your own truck and disposal cost.';
+  const page = `<html><head><meta name="description" content="${own}"></head><body>x</body></html>`;
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  assert.ok(out.includes(`<meta name="description" content="${own}">`), out);
+});
+
+test("a venture's own over-long og:description is cut too", () => {
+  const long = `Some pitch, ${'and another clause, '.repeat(20)}and the end.`;
+  const page =
+    '<html><head><meta property="og:description" content="' + long + '"></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  const og = /<meta property="og:description" content="([^"]*)">/.exec(out)[1];
+  assert.ok(og.length <= SNIPPET_MAX, `${og.length} characters`);
+  assert.equal(out.match(/og:description/g).length, 1, 'cut in place, not duplicated');
+});
+
+test('a description containing a bare > is still found and cut', () => {
+  // `[^>]*` tag matching stops at the first `>` inside the attribute, which
+  // would leave exactly the longest descriptions unmatched by both this pass
+  // and the check that guards it.
+  const long = `Shows when net > 0, ${'and when it is not, '.repeat(15)}and what to charge.`;
+  const page = `<html><head><meta name="description" content="${long}"></head><body>x</body></html>`;
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'T' });
+  const shipped = /<meta name="description" content="([^"]*)">/.exec(out)[1];
+  // Measured decoded: `&gt;` is four characters in the attribute and one to a
+  // reader, and the reader's count is the one the budget is about. This is the
+  // same count `check.mjs` makes.
+  const decoded = shipped.replace(/&(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);/gi, ' ');
+  assert.ok(decoded.length <= SNIPPET_MAX, `${decoded.length} characters`);
+  assert.ok(shipped.includes('&gt;'), 'the tag was found and rewritten, not skipped');
+});
+
+test('cutting a description is idempotent', () => {
+  const long = `Some pitch, ${'and another clause, '.repeat(20)}and the end.`;
+  const page = `<html><head><meta name="description" content="${long}"></head><body>x</body></html>`;
+  const opts = { canonical: CANONICAL, baseUrl: BASE, title: 'T' };
+  const once = injectDiscoveryTags(page, opts);
+  assert.equal(injectDiscoveryTags(once, opts), once);
+});
+
+test("check.mjs guards the same budget the builder cuts to", async () => {
+  // Restated in `check.mjs` on purpose — it must not be built out of the module
+  // it checks — so the number is the one thing that can silently drift.
+  const { SNIPPET_MAX: guarded } = await import('./check.mjs');
+  assert.equal(guarded, SNIPPET_MAX);
+});
+
 test('the share card is a PNG at the size a wide card is cropped to', () => {
   const png = renderSocialCard();
   assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
@@ -1564,6 +1716,46 @@ test('the share card is a PNG at the size a wide card is cropped to', () => {
   assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
   // Under 600x315 Facebook drops the image entirely.
   assert.ok(SOCIAL_CARD_WIDTH >= 600 && SOCIAL_CARD_HEIGHT >= 315);
+});
+
+test('a colour argument changes the field the card is drawn on', () => {
+  // Two categories, two visibly different cards -- this is the whole point of
+  // giving `renderSocialCard` a colour: a scraper that renders both should not
+  // produce the same image.
+  const teal = renderSocialCard('#12594a');
+  const amber = renderSocialCard('#5c4412');
+  assert.notDeepEqual(teal, amber);
+  // Both are still well-formed PNGs at the same fixed size -- only the field
+  // colour was asked to change, not the geometry a scraper crops to.
+  for (const png of [teal, amber]) {
+    assert.deepEqual([...png.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    assert.equal(png.readUInt32BE(16), SOCIAL_CARD_WIDTH);
+    assert.equal(png.readUInt32BE(20), SOCIAL_CARD_HEIGHT);
+  }
+});
+
+test('omitting the colour argument reproduces the original site-wide card', () => {
+  // Every existing caller of `renderSocialCard()` -- the hub, the About page --
+  // must keep getting exactly what they got before this parameter existed.
+  assert.deepEqual(renderSocialCard(), renderSocialCard('#12594a'));
+});
+
+test('injectDiscoveryTags points a page at its own card when one is given', () => {
+  const page = '<html><head><title>Flat Roof</title></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, {
+    canonical: CANONICAL,
+    baseUrl: BASE,
+    title: 'Flat Roof Bid Calculator',
+    cardFile: 'social-card-trades.png',
+  });
+  assert.ok(out.includes(`<meta property="og:image" content="${BASE}social-card-trades.png">`));
+  assert.ok(!out.includes(`content="${BASE}${SOCIAL_CARD_FILE}"`));
+});
+
+test('injectDiscoveryTags falls back to the site-wide card with no cardFile', () => {
+  const page = '<html><head><title>About</title></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'About' });
+  assert.ok(out.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
 });
 
 test('every published page names a canonical that resolves to its own URL', async () => {
@@ -1678,6 +1870,144 @@ test('a page that writes its own availability clause is not given a second', () 
   });
   assert.ok(!html.includes('pf-sla'), 'the venture already says it');
   assert.ok(html.includes(own), 'and its own wording survives');
+});
+
+// FAQ schema is read off the rendered copy rather than authored beside it,
+// because Google requires the question and answer to be visible on the page.
+// These tests pin the two halves of that: what counts as a visible Q&A pair,
+// and that nothing is emitted for a page that shows none.
+
+test('a visible question heading becomes FAQ schema', () => {
+  const page = `<html><head></head><body>
+    <h2>Should unused hours roll over?</h2>
+    <p>Rolling hours forward turns a retainer into a bank the client draws down in a slow month.</p>
+    <h2>Your rates</h2>
+    <p>Not a question, so not an answer.</p>
+  </body></html>`;
+  const entries = faqEntries(page);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].question, 'Should unused hours roll over?');
+  assert.match(entries[0].answer, /^Rolling hours forward/);
+  assert.ok(!entries[0].answer.includes('Not a question'), 'the answer stops at the next heading');
+});
+
+test('a labelled question drops the label but keeps the question', () => {
+  const entries = faqEntries(`<html><body>
+    <h2>Common question: should I accept Net 30?</h2>
+    <p>Net 30 is a loan to the customer, priced at whatever your own cash costs you to replace.</p>
+  </body></html>`);
+  assert.equal(entries[0].question, 'should I accept Net 30?');
+});
+
+test('a details/summary FAQ is read too, and its widget copy is not', () => {
+  const entries = faqEntries(`<html><body>
+    <details><summary>Is a deposit a cancellation fee?</summary>
+      <p>A deposit is applied to the balance; a cancellation fee is charged when nobody arrives.</p>
+      <button>Calculate</button><output>$0.00</output>
+    </details>
+  </body></html>`);
+  assert.equal(entries.length, 1);
+  assert.ok(!entries[0].answer.includes('Calculate'), 'buttons are not part of the answer');
+  assert.ok(!entries[0].answer.includes('$0.00'));
+});
+
+test('a page with no visible Q&A gets no schema rather than an invented one', () => {
+  assert.deepEqual(faqEntries('<html><body><h2>The heater and the house</h2><p>Prose.</p></body></html>'), []);
+  const html = injectChrome('<html><head></head><body><h2>Rates</h2><p>Prose.</p></body></html>', {
+    slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true,
+  });
+  assert.ok(!html.includes('FAQPage'));
+});
+
+test('typographic entities are decoded, not carried into the answer', () => {
+  // `&ldquo;` reaching JSON-LD intact is rendered literally by a search engine
+  // inside the answer it shows.
+  const entries = faqEntries(`<html><body><main>
+    <h3>Should I take the &ldquo;partial refund&rdquo; instead?</h3>
+    <p>It depends on the item&rsquo;s value back in stock &mdash; postage&nbsp;included &#8212; against the return label.</p>
+  </main></body></html>`);
+  assert.equal(entries[0].question, 'Should I take the “partial refund” instead?');
+  assert.ok(!entries[0].answer.includes('&'), `no raw entity survived: ${entries[0].answer}`);
+  assert.match(entries[0].answer, /item’s value back in stock — postage included —/);
+});
+
+test('the last answer on a page stops at the end of its block', () => {
+  // Without a boundary this answer runs past </main> and picks up the footer
+  // disclaimer every tool here carries, on every page with a trailing question.
+  const entries = faqEntries(`<html><body><main>
+    <section>
+      <h3>Does free shipping actually cost me money?</h3>
+      <p>Free shipping is priced into the item, so it pays only when the sell-through lift covers the postage.</p>
+    </section>
+  </main>
+  <footer><p><strong>No warranty.</strong> This free tool is not tax, financial, or business advice.</p></footer>
+  </body></html>`);
+  assert.equal(entries.length, 1);
+  assert.ok(!entries[0].answer.includes('No warranty'), 'the disclaimer is not part of the answer');
+  assert.ok(entries[0].answer.endsWith('postage.'));
+});
+
+test('a maintainer note is not mistaken for an answer', () => {
+  const entries = faqEntries(`<html><body>
+    <h2>Should I pay the 3PL to kit, or skip the bundle?</h2>
+    <p>The dedicated kitting calculator already has the full math. This block uses the same
+       compareKitting on the quote you just typed, so you do not leave the page.</p>
+  </body></html>`);
+  assert.deepEqual(entries, [], 'an answer naming a function is a note about the page, not an answer');
+});
+
+test('a brand that looks like camelCase still answers', () => {
+  // eBay, iPhone and PayPal must not be read as identifiers; only a long
+  // lowercase-initial run is.
+  const entries = faqEntries(`<html><body>
+    <h2>Does an eBay label still beat PayPal shipping on an iPhone sale?</h2>
+    <p>Compare the label price against the claim rate you actually see; eBay and PayPal both
+       price the same parcel differently once tracking is included.</p>
+  </body></html>`);
+  assert.equal(entries.length, 1);
+});
+
+test('a thin pair is left out', () => {
+  // A caption under a question heading is not an answer; quoting it as one
+  // would put a fragment in a search result.
+  assert.deepEqual(faqEntries('<html><body><h2>Why?</h2><p>Because.</p></body></html>'), []);
+});
+
+test('a venture that authors its own FAQ schema is not given a second', () => {
+  const own = '<script type="application/ld+json">{"@type":"FAQPage"}</script>';
+  const html = injectChrome(
+    `<html><head>${own}</head><body><h2>Does this reach your income goal?</h2>` +
+      '<p>It compares the retainer against the floor your own costs set, month by month.</p></body></html>',
+    { slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true },
+  );
+  assert.equal(html.match(/FAQPage/g).length, 1, 'only the venture’s own block');
+});
+
+test('a comment mentioning FAQPage does not suppress derivation', () => {
+  // grant-deadline-tracker/index.html carried a comment explaining that its
+  // FAQPage schema is derived at build time rather than authored -- and the
+  // literal substring check this guards against read that explanation as an
+  // authored block, so the page shipped none. 2026-08-31.
+  const html = injectChrome(
+    '<html><head><!-- FAQPage schema is derived by build.mjs, not authored here --></head>' +
+      '<body><h2>Is this covered?</h2><p>Yes, once the comment is not mistaken for a schema block.</p></body></html>',
+    { slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true },
+  );
+  assert.ok(html.includes('"@type":"FAQPage"'), 'derivation still ran despite the comment');
+});
+
+test('the FAQ schema is injected on an entry page and escapes its copy', () => {
+  const html = injectChrome(
+    '<html><head></head><body><h2>Is a quote with &lt;/script&gt; in it safe?</h2>' +
+      '<p>Yes: the value is escaped as JSON unicode before it reaches the document.</p></body></html>',
+    { slug: 'x', toRoot: '../', total: 2, related: [], canonical: 'https://e.test/x/', isEntry: true },
+  );
+  assert.ok(html.includes('"FAQPage"'));
+  // The block must not be able to close itself early and spill into markup.
+  const block = html.slice(html.indexOf('"FAQPage"'));
+  const json = block.slice(0, block.indexOf('</script>'));
+  assert.ok(!json.includes('<'), 'no raw angle bracket inside the JSON-LD');
+  assert.match(json, /\\u003c/, 'it is carried as a unicode escape instead');
 });
 
 test('the chrome escapes venture copy', () => {
@@ -2949,4 +3279,371 @@ test('a missing script is an answer, not a crash', async () => {
   const html = '<button id="share"></button><script src="gone.js"></script>';
   assert.equal(await pageHasOwnShareControl(dir, html, new Map()), false);
   assert.equal(await pageHasOwnShareControl(dir, null, new Map()), false);
+});
+
+// ---------------------------------------------------------------------------
+// Category landing pages
+//
+// The hub is one URL carrying 164 tools across six trades, which is the wrong
+// shape for organic search: it cannot describe itself as a roofing page without
+// lying to the other 153. These pages are the fix, and the ways they fail are
+// quiet — a category with no page, a page nothing links, a page listing a tool
+// that did not ship. Each is checked below.
+// ---------------------------------------------------------------------------
+
+test('every category gets a landing page at its own URL', async () => {
+  const { outDir, surfaces } = await site();
+  const groups = groupByCategory(surfaces);
+
+  assert.ok(groups.length >= 5, 'the taxonomy still has several categories');
+
+  for (const { category, items } of groups) {
+    const file = path.join(outDir, categoryPagePath(category.id), 'index.html');
+    assert.ok(await exists(file), `${category.id} has no landing page`);
+
+    const html = await fs.readFile(file, 'utf8');
+    // Every tool in the category, and only tools in the category.
+    const linked = new Set([...html.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
+    assert.deepEqual(
+      [...linked].sort(),
+      items.map((s) => s.slug).sort(),
+      `${category.id} does not link exactly its own tools`,
+    );
+  }
+});
+
+test('a category page carries the tags that make it findable', async () => {
+  const { outDir, surfaces } = await site();
+  const { category, items } = groupByCategory(surfaces).find((g) => g.category.id === 'trades');
+  const html = await fs.readFile(
+    path.join(outDir, categoryPagePath(category.id), 'index.html'),
+    'utf8',
+  );
+  const url = `${BASE}${categoryPagePath(category.id)}`;
+
+  // The canonical is the whole point: without it these pages and the hub
+  // compete for the same queries with the hub's copy winning, which is the
+  // situation they exist to end.
+  assert.ok(html.includes(`<link rel="canonical" href="${url}">`));
+  assert.ok(html.includes(`<meta property="og:url" content="${url}">`));
+  assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
+
+  // The title is the category's own phrase, not the hub's.
+  assert.ok(/<title>Free contractor bid calculators[^<]*<\/title>/.test(html));
+
+  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.+?)<\/script>/s)[1]);
+  assert.equal(ld['@type'], 'CollectionPage');
+  assert.equal(ld.url, url);
+  assert.equal(ld.mainEntity.numberOfItems, items.length);
+  // A breadcrumb is how a search result shows "site › category" rather than a
+  // bare URL, and it is the only structured signal that these pages are one
+  // level down rather than six sibling front pages.
+  assert.equal(ld.breadcrumb.itemListElement.length, 2);
+  assert.equal(ld.breadcrumb.itemListElement[1].item, url);
+});
+
+test('every category page points at its own tinted share card, and the file exists', async () => {
+  const { outDir, surfaces } = await site();
+  for (const { category } of groupByCategory(surfaces)) {
+    const html = await fs.readFile(
+      path.join(outDir, categoryPagePath(category.id), 'index.html'),
+      'utf8',
+    );
+    const expected = `${BASE}${socialCardFileFor(category.id)}`;
+    assert.ok(
+      html.includes(`<meta property="og:image" content="${expected}">`),
+      `${category.id} page does not point at its own card`,
+    );
+    assert.ok(
+      await exists(path.join(outDir, socialCardFileFor(category.id))),
+      `${socialCardFileFor(category.id)} was never written`,
+    );
+  }
+  // Distinct categories must not collapse onto the same bytes on disk --
+  // that would defeat the whole point of tinting per category.
+  const cardBuffers = await Promise.all(
+    ALL_CATEGORIES.map((category) => fs.readFile(path.join(outDir, socialCardFileFor(category.id)))),
+  );
+  const hexes = cardBuffers.map((buf) => buf.toString('hex'));
+  assert.equal(new Set(hexes).size, hexes.length, 'two categories rendered an identical card');
+});
+
+test('every tool points at a share card of its own, and that card exists', async () => {
+  const { outDir, surfaces } = await site();
+  for (const surface of surfaces) {
+    const entry = path.join(outDir, surface.slug, 'index.html');
+    if (!(await exists(entry))) continue;
+    const html = await fs.readFile(entry, 'utf8');
+    const expected = `${BASE}${toolCardFileFor(surface.slug)}`;
+    assert.ok(
+      html.includes(`<meta property="og:image" content="${expected}">`),
+      `${surface.slug} does not point at ${expected}`,
+    );
+    assert.ok(
+      await exists(path.join(outDir, toolCardFileFor(surface.slug))),
+      `${toolCardFileFor(surface.slug)} was never written`,
+    );
+  }
+});
+
+test('two tools never render the same share card', async () => {
+  const { outDir, surfaces } = await site();
+  // The whole point of drawing a headline is that a share of one tool does not
+  // look like a share of another. Byte-identical cards would mean the headline
+  // silently stopped being drawn -- which is exactly the regression that would
+  // otherwise pass every other test here, because the file still exists and
+  // every link still resolves.
+  const seen = new Map();
+  for (const surface of surfaces) {
+    const file = path.join(outDir, toolCardFileFor(surface.slug));
+    if (!(await exists(file))) continue;
+    const hex = (await fs.readFile(file)).toString('hex');
+    assert.ok(
+      !seen.has(hex),
+      `${surface.slug} and ${seen.get(hex)} rendered an identical card`,
+    );
+    seen.set(hex, surface.slug);
+  }
+  assert.ok(seen.size > 1, 'no tool cards were written at all');
+});
+
+test("a tool page's share card is tinted with the category it is filed under", async () => {
+  // Cross-checked against `categoryFor` itself rather than hard-coded, so a
+  // future re-filing cannot make this test lie.
+  const samples = ['ebay-fee-calculator', 'flat-roof-bid-calculator', 'cash-runway-planner'];
+  for (const slug of samples) {
+    const accent = categoryFor(slug).accent;
+    assert.ok(accent, `${slug}'s category carries no accent colour`);
+    const card = renderSocialCard({ color: accent, headline: 'Sample', kicker: 'Kicker' });
+    const plain = renderSocialCard({ color: '#000000', headline: 'Sample', kicker: 'Kicker' });
+    assert.ok(!card.equals(plain), `${slug}'s accent had no effect on its card`);
+  }
+});
+
+test("a deep page inside a tool shares the tool's card, not the site's", async () => {
+  const { outDir, surfaces } = await site();
+  // Deep SEO pages are shared as "that calculator's page about X", so the
+  // picture should name the calculator. Before per-tool cards they fell back
+  // to the site-wide default along with everything else.
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    const deep = (await listFiles(dir)).find(
+      (f) => f.endsWith('.html') && path.relative(outDir, f) !== path.join(surface.slug, 'index.html'),
+    );
+    if (!deep) continue;
+    const html = await fs.readFile(deep, 'utf8');
+    assert.ok(
+      html.includes(`<meta property="og:image" content="${BASE}${toolCardFileFor(surface.slug)}">`),
+      `${path.relative(outDir, deep)} does not point at its tool's card`,
+    );
+    return;
+  }
+  assert.fail('no tool in this build has a page below its entry point');
+});
+
+test("a tool page's card alt text names the tool, not just the site", async () => {
+  const { outDir, surfaces } = await site();
+  const surface = surfaces.find((s) => s.slug === 'ebay-fee-calculator') ?? surfaces[0];
+  const html = await fs.readFile(path.join(outDir, surface.slug, 'index.html'), 'utf8');
+  const alt = html.match(/<meta property="og:image:alt" content="([^"]+)">/);
+  assert.ok(alt, `${surface.slug} has no og:image:alt`);
+  // The card really does carry these words now, so the alt describing them is
+  // a description rather than a claim about a picture that says nothing.
+  assert.match(alt[1], /Free small-business calculators$/);
+  assert.notEqual(alt[1], 'Free small-business calculators — free, private, in your browser');
+});
+
+test('the hub and About page keep the generic site-wide card, not a category one', async () => {
+  const { outDir } = await site();
+  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  const about = await fs.readFile(path.join(outDir, 'about', 'index.html'), 'utf8');
+  for (const html of [hub, about]) {
+    assert.ok(html.includes(`<meta property="og:image" content="${BASE}${SOCIAL_CARD_FILE}">`));
+  }
+});
+
+test('a category page carries the disclaimer and a route back', async () => {
+  const { outDir, surfaces } = await site();
+  for (const { category } of groupByCategory(surfaces)) {
+    const html = await fs.readFile(
+      path.join(outDir, categoryPagePath(category.id), 'index.html'),
+      'utf8',
+    );
+    assert.match(html, /no warranty/i, `${category.id} ships without a disclaimer`);
+    assert.ok(html.includes('data-pf-to="hub"'), `${category.id} has no route back to the hub`);
+    // Sibling links, so a page reached from search is not a leaf.
+    assert.ok(
+      html.includes(`href="../../${CATEGORY_PATH_PREFIX}/`),
+      `${category.id} links no sibling category`,
+    );
+  }
+});
+
+test('a category page counts its own visits without identifying anyone', async () => {
+  const { outDir, surfaces } = await site();
+  const { category } = groupByCategory(surfaces)[0];
+  const html = await fs.readFile(
+    path.join(outDir, categoryPagePath(category.id), 'index.html'),
+    'utf8',
+  );
+
+  // The same shared counter every tool page loads, named with the category so
+  // arrivals here are distinguishable from arrivals at a tool.
+  assert.ok(html.includes(`src="../../${CHROME_MODULE_FILE}"`));
+  assert.ok(html.includes(`data-pf-slug="${CATEGORY_PATH_PREFIX}/${category.id}"`));
+  // Cards are counted as cross-tool clicks, which is what says whether the page
+  // converts. Without this an arrival and a bounce look identical.
+  assert.ok(/data-tool="[^"]+" data-pf-to="[^"]+"/.test(html));
+});
+
+test('the hub links every category page, and the sitemap lists them', async () => {
+  const { outDir, surfaces } = await site();
+  const ids = groupByCategory(surfaces).map(({ category }) => category.id);
+
+  const hub = await fs.readFile(path.join(outDir, 'index.html'), 'utf8');
+  for (const id of ids) {
+    assert.ok(hub.includes(`data-category="${id}"`), `the hub does not link ${id}`);
+  }
+
+  const listed = await sitemapUrlPaths();
+  for (const id of ids) {
+    assert.ok(
+      listed.has(`${pathOf(BASE)}${categoryPagePath(id)}`),
+      `${id} is in no sitemap, so it is built and never found`,
+    );
+  }
+});
+
+test('llms.txt and catalog.json name the category pages', async () => {
+  const { surfaces } = await site();
+  const llms = renderLlmsTxt(surfaces, BASE);
+  const catalog = JSON.parse(renderCatalog(surfaces, BASE));
+
+  for (const { category, items } of groupByCategory(surfaces)) {
+    assert.ok(
+      llms.includes(`Category page: ${BASE}${categoryPagePath(category.id)}`),
+      `llms.txt does not name the ${category.id} page`,
+    );
+    const row = catalog.categories.find((c) => c.id === category.id);
+    assert.ok(row, `catalog.json has no ${category.id} row`);
+    assert.equal(row.url, `${BASE}${categoryPagePath(category.id)}`);
+    assert.equal(row.tool_count, items.length);
+  }
+
+  // The bare-URL form matters: `check.mjs` reads markdown links in llms.txt as
+  // product slugs, so a `[…](…/c/trades/)` link would be reported as a product
+  // that did not ship.
+  assert.ok(!/\]\([^)]*\/c\/[^)]+\/\)/.test(llms));
+});
+
+// ---- About / press page ---------------------------------------------------
+//
+// The page carries two claims nothing else on the site makes in one place: the
+// privacy statement a visitor reads before typing their costs into a stranger's
+// calculator, and the boilerplate somebody copies when they link to it. Both
+// fail silently — a wrong tool count in the press blurb is a claim that is
+// simply untrue, and a page nothing links is a page nobody reads.
+
+test('the About page ships, carries the disclaimer, and states the real catalogue size', async () => {
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+
+  assert.match(about, /no warranty/i, 'About must carry the liability disclaimer like every page');
+  assert.match(about, new RegExp(`${surfaces.length} free calculators`));
+  // The copy-paste boilerplate: its numbers come from `surfaces`, so they
+  // cannot drift from the catalogue the way hand-written blurbs do.
+  assert.match(about, new RegExp(`${surfaces.length} free, private calculators`));
+  assert.ok(
+    about.includes(`<link rel="canonical" href="${BASE}about/">`),
+    'About needs its own canonical, not the hub\'s',
+  );
+});
+
+test('the About page is reachable from the hub, the categories and every tool page', async () => {
+  const { outDir, surfaces } = await site();
+
+  assert.match(await read('index.html'), /href="about\/"/, 'the hub footer links About');
+  assert.match(
+    await read(CATEGORY_PATH_PREFIX, 'trades', 'index.html'),
+    /href="\.\.\/\.\.\/about\/"/,
+    'a category page links About at the right depth',
+  );
+
+  // The shared chrome is what puts the link on all 164 tool pages; without it
+  // the privacy statement is unreachable from the pages that collect input.
+  const tool = surfaces[0].slug;
+  const toolHtml = await fs.readFile(path.join(outDir, tool, 'index.html'), 'utf8');
+  assert.match(toolHtml, /href="\.\.\/about\/"/, `${tool} links About from its chrome footer`);
+});
+
+test('every link the About page makes resolves', async () => {
+  const { outDir } = await site();
+  const file = path.join(outDir, 'about', 'index.html');
+  const html = await fs.readFile(file, 'utf8');
+  const hrefs = [...html.matchAll(/href="([^"#]+)"/g)]
+    .map((m) => m[1])
+    .filter((href) => !/^(https?:|mailto:|data:)/.test(href));
+
+  for (const href of hrefs) {
+    assert.ok(await exists(hrefTarget(href, file, outDir)), `About links ${href}, which is not there`);
+  }
+});
+
+test('the About page makes no off-origin request, which is the claim it makes', async () => {
+  // The page tells the reader there is no third-party script on this site. A
+  // page that itself pulled a font or an analytics tag would make that a lie,
+  // and it is the one page where the lie would be load-bearing.
+  assert.deepEqual(offOriginResources(await read('about', 'index.html')), []);
+});
+
+test('the hub sitemap holds the hub, the categories and About, and nothing else', () => {
+  const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  // About is a hub-level page and belongs to no venture, so this sitemap is the
+  // only one that can carry it.
+  assert.deepEqual(locs, [BASE, `${BASE}c/marketplace/`, `${BASE}c/trades/`, `${BASE}about/`]);
+
+  // Called with no categories it still emits a valid urlset naming the hub —
+  // the shape every caller before this change relied on.
+  assert.ok(renderHubSitemap(BASE).includes(`<loc>${BASE}</loc>`));
+});
+
+test('tools whose audience browses a section are filed in it', async () => {
+  // Each of these sat in the catch-all while the section its buyer reads was
+  // right there. The tool existed, the visitor was browsing the correct
+  // heading, and it was not under it — the quietest way a catalogue loses a
+  // product, because nothing 404s and every check still passes.
+  const placements = {
+    'cleaning-dilution-calculator': ['trades', 'trades-cleaning'],
+    'hvac-maintenance-contract-calculator': ['trades', 'trades-mep'],
+    'appliance-repair-quote-calculator': ['trades', 'trades-mep'],
+    // Airbnb vs Vrbo is two marketplaces' fee schedules on one booking, which
+    // is the marketplace section's job, not a service quote.
+    'str-host-payout-calculator': ['marketplace', null],
+    'notary-trip-quote': ['services', null],
+    'booth-rent-vs-commission': ['services', null],
+    'translator-project-quote': ['services', null],
+  };
+
+  for (const [slug, [category, subcategory]] of Object.entries(placements)) {
+    assert.equal(categoryFor(slug).id, category, `${slug} is not in ${category}`);
+    const sub = subcategoryFor(slug);
+    assert.equal(sub ? sub.id : null, subcategory, `${slug} is in the wrong sub-group`);
+  }
+});
+
+test('the catch-all holds only what no section claims', async () => {
+  const { surfaces } = await site();
+  const more = groupByCategory(surfaces).find((g) => g.category.id === 'more');
+
+  // Not a fixed list — new ventures land here until a rule claims them, which
+  // is the fallback working. The bound is what matters: a catch-all that grows
+  // back past a screenful means the taxonomy has stopped keeping up, which is
+  // exactly the state this change found it in (14 tools, six of them one
+  // coherent category).
+  assert.ok(
+    more.items.length <= 8,
+    `the catch-all has grown to ${more.items.length} tools — time for another category`,
+  );
 });

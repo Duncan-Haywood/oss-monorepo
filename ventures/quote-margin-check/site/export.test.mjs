@@ -106,6 +106,29 @@ test("includes discount, cost-rise, overrun, and kill-fee rows when supplied", (
   assert.match(csv, /kill_refill_adjusted,2955\.00,USD/);
 });
 
+test("the buffered target price travels with the buffer that produced it", () => {
+  // Allowlist drift guard. quoteCsv names each row by hand, so an input added
+  // to loadQuote can reach the export only through its derived figures --
+  // buffered_target_price landed here while time_buffer_percent did not, so
+  // whoever opened the file saw a target they could not reproduce.
+  const quote = loadQuote({
+    currency: "USD",
+    price: 2400,
+    delivery_hours: 24,
+    admin_hours: 5,
+    revision_hours: 6,
+    overhead: 180,
+    subcontractor_cost: 300,
+    target_hourly_rate: 75,
+    time_buffer_percent: 20,
+  });
+  const report = calculate(quote);
+  const csv = quoteCsv(quote, report);
+  assert.match(csv, /\ntime_buffer_percent,20\.00,percent/);
+  assert.match(csv, /\nbuffered_hours,42\.00,hours/);
+  assert.match(csv, /\nbuffered_target_price,3630\.00,USD/);
+});
+
 test("emits an empty hours-to-cut cell when a discount no longer covers costs", () => {
   const quote = loadQuote({
     currency: "USD",

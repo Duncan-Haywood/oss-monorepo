@@ -153,6 +153,16 @@ jobs:
         working-directory: portfolio/pipeline/probes
         run: python3 -m unittest test_validate_probe_index
 
+      # The evidence-boundary probes assert the rule their candidate write-ups
+      # each name as the failure mode that would mislead a customer: a fetch or
+      # resolver failure must never render as "nothing changed". Nothing ran
+      # them until now, so that rule could regress silently.
+      - name: Evidence-boundary probe tests
+        run: |
+          python3 -m pytest -q \
+            portfolio/pipeline/probes/vendor-change-evidence/test_vendor_diff.py \
+            portfolio/pipeline/probes/dns-configuration-evidence/test_dns_diff.py
+
       # The index above checks a probe's *figures*; it does not run the probe.
       # A probe whose tests never execute in CI can rot while its row still
       # reads "built, tested".
@@ -215,6 +225,13 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_run_workflow_locally
 
+      # And the tool that says whether a red check ran at all. Same reason:
+      # it is what a session reaches for when CI comes back red, so it must
+      # not be the thing that is broken.
+      - name: CI-starvation classifier unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_ci_starvation
+
       # A calculator whose shipped defaults fail constraint validation cannot be
       # submitted at all: the browser refuses before dispatching the event, so
       # the page's own handler never runs and the button silently does nothing.
@@ -225,6 +242,21 @@ jobs:
       - name: Form-default checker unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_check_form_defaults
+
+      # The other direction of the same question. `check_form_defaults.py` asks
+      # whether the values a page ships with satisfy the constraints it
+      # declares; this asks whether those constraints are wide enough to let a
+      # visitor type something `calc.mjs` will throw on. When they are, the
+      # page prints "fix the highlighted input" and highlights nothing, because
+      # `invalid.mjs` finds the field by asking `checkValidity()` and a field
+      # with no declared bound reports valid whatever is in it. 23 inputs
+      # across four ventures were in that state on 2026-08-31.
+      - name: Check no input accepts a value its own calculator throws on
+        run: python3 platform/ci/check_input_bounds.py
+
+      - name: Input-bounds checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_input_bounds
 
       # Every venture vendors its own money() -- 322 copies of one function --
       # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
@@ -256,6 +288,21 @@ jobs:
 
       - name: Clause-checker unit tests
         run: node --test platform/pages/clauses.test.mjs
+
+      # The FAQ backlog was drained by six concurrent sessions on 2026-08-30,
+      # each appending a "Common questions" section to whichever ventures its
+      # own snapshot reported as missing. Two snapshots overlapped by five
+      # ventures, and the merge auto-resolved one file into two complete FAQ
+      # sections with no conflict and no failing test. `no-show-fee-calculator`
+      # reached main in the same shape from an older route.
+      #
+      # Checked centrally because the defect is created by a *merge*: no
+      # per-venture workflow fires on a file its own branch never edited.
+      - name: No page carries a duplicated FAQ section or question
+        run: node platform/pages/faq-duplicate.mjs
+
+      - name: Duplicate-FAQ checker unit tests
+        run: node --test platform/pages/faq-duplicate.test.mjs
 
       # Every venture footer offers the local usage counter's opt-out "with Do
       # Not Track / Global Privacy Control", and Global Privacy Control is a

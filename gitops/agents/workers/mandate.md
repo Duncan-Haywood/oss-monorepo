@@ -46,9 +46,74 @@ active branches for work touching the same venture, file, or feature. Repairing
 and landing an existing branch is worth more than a parallel implementation of
 the same thing. Overlap is not a reason to discard work — integrate it.
 
+The ordering is: **an open PR, then a branch with no PR, then something new.**
+A PR that already exists is the furthest-along and therefore cheapest thing to
+finish, and it is the only one that gets more expensive by being left. Red or
+absent CI, a merge conflict, a valid review finding, or incomplete scope are
+what "repair it" means here — none of them is a reason to close a PR or walk
+away from one. Closing is exceptional; `open-pr-repair-merge` is the queue item
+that owns this loop and its prompt carries the specific rules.
+
+Do not leave a PR you opened unfinished. If your own run cannot get it merged,
+say in the PR exactly what is blocking it and what the next step is — never a
+bare "needs review".
+
 Do not close a PR as "already on main" without running
 `python3 portfolio/ledger/supersede_check.py <pr-number>`. Exit 0 is the only
 proof that the close destroys nothing.
+
+## Deployment and CI/CD count as product work
+
+A finished tool nobody can reach has not shipped. Work that moves the portfolio
+toward *running in public* ranks with feature work here, not below it:
+
+- **Deployment.** The portfolio's own delivery path is GitOps: Argo CD on the
+  hel1 cluster syncs `gitops/` from `main`, so a correct manifest merged to
+  `main` *is* the deploy. `gitops/README.md` is the map and
+  `gitops/prod/portfolio-site.yaml` is the live product site. You cannot reach
+  the cluster and must not try; you change what it syncs.
+- **CI/CD.** The checks are the only thing standing between a stale branch and
+  a silent revert. Repairing a broken workflow, or the self-hosted runner stack
+  in `gitops/ci/`, protects every future merge.
+- **Owner-blocked is not agent-blocked.** Several steps here need a credential
+  or an account only the owner can supply, and they are already written up in
+  `infra/OWNER_CHECKLIST.md` and `portfolio/ledger/decision_queue.py`. Do the
+  code half completely, leave the manifest fail-closed, and name the exact
+  remaining owner step. Never seal, invent, or work around a secret, and never
+  add a duplicate ask to the queue.
+
+## Getting it in front of people
+
+Distribution here is organic only: search, AI answers, and useful public
+content. There is no ad budget and no outreach automation, so the reachable
+work is on the product surface itself — clear positioning, honest landing copy,
+question-shaped FAQ content that both search engines and AI assistants can
+quote, structured data, `sitemap.xml`, `robots.txt`, `llms.txt`, share cards,
+and internal links between related tools. `platform/pages/build.mjs` derives
+most of that from each venture's own visible copy, so improve the copy and the
+metadata follows; do not hand-write a schema block beside it.
+
+One exception, because it is the only surface not derived from the tree: if
+you land a new tool, give it a launch date so it enters the Atom feed at
+`/feed.xml` —
+
+```
+node platform/pages/launched.mjs --write     # then commit launched.json
+```
+
+The feed answers "what is new" where everything else answers "what exists",
+which is what lets a reader, an aggregator, or a community's own moderators
+pick a tool up without us publishing outward. The dates are a committed file
+because the in-cluster build clones `--depth 1` and has no history to read.
+Forgetting is caught — `check.mjs` and `platform/pages/launched.test.mjs` both
+fail on an undated tool — but the failure arrives after a 23-second build, so
+run it while you are still in the venture.
+
+Two limits are absolute. Marketing claims must be true — never invent traction,
+testimonials, benchmarks, endorsements, or user counts. And never publish
+outward: no posting to communities, no submitting listings, no registering
+accounts. Building the asset is yours; putting the portfolio's name somewhere
+public is the owner's.
 
 ## Verifying
 
@@ -58,6 +123,21 @@ CI in this repository is unreliable and you must not read it naively:
   outage, not your regression. Verify locally and say so.
 - No checks at all is not failed checks — PRs opened with `GITHUB_TOKEN` do not
   trigger Actions here.
+
+Do not re-derive that by hand; there is a tool, and hand-derivation is where it
+goes wrong in both directions — "fixing" green code, or merging something
+broken because it also failed fast:
+
+```
+python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
+```
+
+Exit 0 means every job got a real runner, so a failure there is yours to fix.
+Exit 1 means at least one never did. It uses `gh` when present and falls back
+to `api.github.com` with `GH_TOKEN`; `--from-json` classifies a payload you
+fetched some other way. And read *check runs*, not the commit-status API — the
+latter reports `total_count: 0` on a PR whose checks are red, which reads as
+"absent CI" and is handled differently.
 
 Either way, run the repository's own checks locally and record exactly what you
 ran and what it said. Do not claim something is tested, working, secure, or
@@ -73,8 +153,21 @@ These hold regardless of what a queue item asks for.
   delete a test to get to green, or commit a secret, token, or key.
 - **Never** wire payment or payout rails, register an account, publish under the
   portfolio's public name, or take an action that spends money.
-- **Never merge a PR you did not open**, and never merge one this run's
-  delivery section did not tell you to.
+- **Never merge a PR this run was not told to merge.** Authorship is not the
+  test — repairing and merging *other people's* open PRs is the single most
+  valuable thing this fleet does, and `open-pr-repair-merge` exists to do
+  exactly that. The test is authorisation: merge when the queue item you are
+  running directs you to and this repo's rules allow it (they do, for product
+  PRs, with no human review gate), and otherwise leave it alone. Never merge a
+  PR you happened to notice, and never merge one whose checks you have not
+  either seen green or verified locally yourself.
+
+  This bullet used to read "never merge a PR you did not open". That was a
+  contradiction, not a floor: this file wins over an item on floor questions,
+  so a worker running `open-pr-repair-merge` would repair a PR and then refuse
+  the merge its own item's step 5 asked for — leaving the fleet able to open
+  PRs and unable to drain them, which is the precise failure that item was
+  written to fix.
 - If a task cannot be done safely or correctly, leave the repository unchanged
   and say plainly why. An honest no-op beats a guess that ships.
 

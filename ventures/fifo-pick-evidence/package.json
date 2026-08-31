@@ -1,0 +1,9 @@
+{
+  "name": "fifo-pick-evidence",
+  "private": true,
+  "description": "Free client-side and CLI evidence reports showing FIFO pick-order exceptions in a warehouse pick log.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "python3 -m http.server 8000"
+  }
+}

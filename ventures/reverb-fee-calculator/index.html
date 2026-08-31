@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Reverb Fee Calculator | Offer vs List, Shop Consignment vs Cash</title>
+  <title>Reverb Fee Calculator — Offer vs List, Cash vs Consign</title>
   <meta name="description" content="See what a Reverb sale leaves after marketplace, payment, shipping, and gear cost — whether a buyer offer still beats eBay, whether free shipping still beats charging postage, whether Reverb Safe Shipping still beats your own label, whether consigning or taking a shop cash offer still beats listing it yourself, and how big a partial refund still beats taking a return.">
   <meta property="og:title" content="Reverb Fee Calculator">
   <meta property="og:description" content="Net cash on a Reverb list price, on the offer in your inbox, versus eBay, versus baking shipping into the item price, versus absorbing the label, versus buying Reverb's insured label, versus a shop consignment cut or cash offer, and versus taking a return instead of refunding part of it.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reverb Fee Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reverb fee breakdown, offer versus list cash, Reverb versus eBay compare, offer that matches eBay list cash, shipping included versus buyer-pays, local pickup versus ship, absorb the label versus include shipping, bump versus take the offer, Reverb Safe Shipping versus own label, shop consignment versus self-list, shop cash offer versus Reverb, take the return versus a partial refund, break-even concession that ties a return"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why doesn’t this know Reverb’s current fees?","acceptedAnswer":{"@type":"Answer","text":"On purpose. Every rate here is an input rather than a stored fee schedule, so the result is something you can check line by line against your own Reverb payout statement instead of a claim about what Reverb charges this month. Marketplace rates change, sellers land on different plans, and a stored table that has drifted is worse than no table — it looks authoritative and is quietly wrong. Type what your statement says and the arithmetic is yours."}},{"@type":"Question","name":"Why is the marketplace fee on the item price but the payment fee on the total?","acceptedAnswer":{"@type":"Answer","text":"Because that is the usual shape: the marketplace cut (and Reverb Gives, if you have it on) applies to what the item sold for, while card processing applies to everything the buyer paid, shipping included. It matters more than it sounds. On the worked example — $800 plus $75 shipping — processing is charged on all $875, so shipping you charge is not fee-free revenue. If your own statement folds shipping into the marketplace line instead, raise the marketplace rate or put the difference in the other-cost field."}},{"@type":"Question","name":"Does an $80 discount cost me $80?","acceptedAnswer":{"@type":"Answer","text":"No, and that is the useful part of the offer comparison. Dropping the worked example from $800 to $720 takes profit from $284.33 to $210.64 — $73.68, not $80 — because the marketplace and processing fees fall with the price too. It cuts both ways: a low offer still costs you most of the discount, so the tool shows what is left rather than whether the offer “feels” fair."}},{"@type":"Question","name":"Am I better off on Reverb or eBay?","acceptedAnswer":{"@type":"Answer","text":"On the same sale it depends almost entirely on the fee rates you type. With the worked example’s defaults Reverb’s fees come to $65.67 against eBay’s $116.24 at a 13.25% final value rate, so Reverb keeps about $50 more of the same $875. Put your actual rates in before you trust the direction — the point of the comparison is that a category rate and a promoted-listing rate can flip it."}},{"@type":"Question","name":"Is Reverb Safe Shipping worth the extra label cost?","acceptedAnswer":{"@type":"Answer","text":"That is an expected-value question, not a preference, and the tool answers it that way. The worked example pays $15 more for the protected label against a $450 claim exposure, so the break-even is a 3.33% loss rate: below that, self-insuring wins on average; above it, the protected label does. At the default 2% the expected claim is $9 and own-label comes out $6 ahead. Two honest caveats the arithmetic cannot carry: your real loss rate on vintage or fragile pieces may be well above your average, and expected value says nothing about whether you could absorb one $450 hit this month."}},{"@type":"Question","name":"How should I think about a return?","acceptedAnswer":{"@type":"Answer","text":"As three legs of freight, not one. The piece ships out, comes back, and ships out again on the relist; it is one of one, so what you recover is whatever the relist actually fetches; and the card processor generally keeps its cut even where the selling fee is credited. That last part is the 61% default — the selling fee’s share of total fees on the worked example, which you should overwrite from your own payout statement. Set the relist price to $0 for something that comes back unsellable. None of this is advice to refuse a return, and it does not change what Reverb’s policies or your local law require of you."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. The shareable link carries your numbers in the URL itself rather than sending them to a server, so whoever you send it to sees the same scenario without anything being stored. The optional usage counter records only which features were used and the day, never your prices, costs, or margins."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2320; background: #f3f1ea; }
     body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
@@ -199,6 +200,65 @@
     <p id="returnMatch" class="note"></p>
     <p class="note">A returned guitar is not a returned phone case. The freight runs three legs — out, back, and out again on the relist — the piece is one of one, so the cash you recover is whatever the relist fetches, and the card processor generally keeps its cut even when Reverb credits the selling fee. The 61% default is the selling fee's share of total fees on the worked example; read your own payout statement and overwrite it. Set the relist price to $0 for a piece that comes back unsellable. This is not a recommendation to refuse a return, and nothing here changes what Reverb's policies or your local law require of you. <a href="should-i-take-the-return-or-refund-on-reverb.html">Worked example</a>.</p>
   </section>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+
+    <h3>Why doesn&rsquo;t this know Reverb&rsquo;s current fees?</h3>
+    <p>On purpose. Every rate here is an input rather than a stored fee schedule, so the result is
+      something you can check line by line against your own Reverb payout statement instead of a claim
+      about what Reverb charges this month. Marketplace rates change, sellers land on different plans,
+      and a stored table that has drifted is worse than no table &mdash; it looks authoritative and is
+      quietly wrong. Type what your statement says and the arithmetic is yours.</p>
+
+    <h3>Why is the marketplace fee on the item price but the payment fee on the total?</h3>
+    <p>Because that is the usual shape: the marketplace cut (and Reverb Gives, if you have it on)
+      applies to what the item sold for, while card processing applies to everything the buyer paid,
+      shipping included. It matters more than it sounds. On the worked example &mdash; $800 plus $75
+      shipping &mdash; processing is charged on all $875, so shipping you charge is not fee-free
+      revenue. If your own statement folds shipping into the marketplace line instead, raise the
+      marketplace rate or put the difference in the other-cost field.</p>
+
+    <h3>Does an $80 discount cost me $80?</h3>
+    <p>No, and that is the useful part of the offer comparison. Dropping the worked example from $800
+      to $720 takes profit from $284.33 to $210.64 &mdash; $73.68, not $80 &mdash; because the
+      marketplace and processing fees fall with the price too. It cuts both ways: a low offer still
+      costs you most of the discount, so the tool shows what is left rather than whether the offer
+      &ldquo;feels&rdquo; fair.</p>
+
+    <h3>Am I better off on Reverb or eBay?</h3>
+    <p>On the same sale it depends almost entirely on the fee rates you type. With the worked example&rsquo;s
+      defaults Reverb&rsquo;s fees come to $65.67 against eBay&rsquo;s $116.24 at a 13.25% final value
+      rate, so Reverb keeps about $50 more of the same $875. Put your actual rates in before you trust
+      the direction &mdash; the point of the comparison is that a category rate and a promoted-listing
+      rate can flip it.</p>
+
+    <h3>Is Reverb Safe Shipping worth the extra label cost?</h3>
+    <p>That is an expected-value question, not a preference, and the tool answers it that way. The
+      worked example pays $15 more for the protected label against a $450 claim exposure, so the
+      break-even is a 3.33% loss rate: below that, self-insuring wins on average; above it, the
+      protected label does. At the default 2% the expected claim is $9 and own-label comes out $6
+      ahead. Two honest caveats the arithmetic cannot carry: your real loss rate on vintage or fragile
+      pieces may be well above your average, and expected value says nothing about whether you could
+      absorb one $450 hit this month.</p>
+
+    <h3>How should I think about a return?</h3>
+    <p>As three legs of freight, not one. The piece ships out, comes back, and ships out again on the
+      relist; it is one of one, so what you recover is whatever the relist actually fetches; and the
+      card processor generally keeps its cut even where the selling fee is credited. That last part is
+      the 61% default &mdash; the selling fee&rsquo;s share of total fees on the worked example, which
+      you should overwrite from your own payout statement. Set the relist price to $0 for something
+      that comes back unsellable. None of this is advice to refuse a return, and it does not change what
+      Reverb&rsquo;s policies or your local law require of you.</p>
+
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No account and no network requests &mdash; the calculator runs entirely in your browser. The
+      shareable link carries your numbers in the URL itself rather than sending them to a server, so
+      whoever you send it to sees the same scenario without anything being stored. The optional usage
+      counter records only which features were used and the day, never your prices, costs, or
+      margins.</p>
+  </section>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

@@ -6,6 +6,8 @@ Once the number is right, **Print proposal** turns it into the one-page sheet yo
 
 Open `index.html` in a browser. It runs without an account, network request, API key, or paid dependency. Numbers are saved only in the browser and can be shared as a URL when you choose to copy one. If you have saved your shop rates on another calculator on the site, this one opens with your wage, payroll burden, and target margin already filled; its overhead is dollars for the job rather than a percentage, so a saved overhead rate is left alone here.
 
+Search page: [`how-much-to-charge.html`](how-much-to-charge.html).
+
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not business, tax, financial, or professional advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
 ## Privacy and usage

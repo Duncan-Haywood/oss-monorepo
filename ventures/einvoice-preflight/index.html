@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>E-invoice Preflight | Check JSON, UBL, CII, or Factur-X PDF before submission</title>
+  <title>E-invoice Preflight — Check JSON, UBL, CII, or Factur-X</title>
   <meta name="description" content="Free local e-invoice preflight: drop a JSON, UBL, CII, or Factur-X / ZUGFeRD PDF invoice or credit note to catch missing fields, arithmetic mistakes, a header discount that does not match its percent, a purchase-order field that repeats the invoice number, payment terms days that do not match the due date, a SEPA payment means without an IBAN, an invoice period that ends before it starts, mixed VAT rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as an invoice, a missing original-invoice reference, a 0% line without an exemption reason, prepaid vs amount-due mismatches, VAT typos, IBAN/BIC mismatches, and a missing remittance before submission. Nothing is uploaded.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -174,6 +174,16 @@
       <code>python3 -m einvoice_preflight invoice.json</code> in this directory.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Does this submit an e-invoice?</h3>
+  <p>No. The page only reads files or pasted JSON in your browser and reports observations. It never contacts a tax authority or submission network.</p>
+  <h3>How do I check an e-invoice before submission?</h3>
+  <p>Drop a JSON, UBL, or CII (XRechnung / Factur-X) XML invoice or credit note, a Factur-X / ZUGFeRD / XRechnung PDF with an embedded invoice, or paste the JSON shape. The checker unwraps the PDF in the browser when needed and reports missing fields, date-shape mistakes, a header allowance or charge whose amount does not match its percentage, a purchase-order reference that repeats the invoice number or is a placeholder, payment terms days that do not match the due date, a SEPA or credit-transfer payment means without an IBAN, an invoice period that is incomplete or ends before it starts, totals that do not match the line items, mixed tax rates without a per-rate breakdown, a buyer electronic address that fails its GLN or EAS scheme, a credit sent as a commercial invoice, a missing original-invoice reference, a 0% or exempt line without a tax reason, prepaid versus amount-due mismatches, a missing remittance on an IBAN invoice, and optional VAT, IBAN, BIC, and RF typo catches, with a rule ID and a suggested fix. It does not decide tax treatment or legal validity.</p>
+  <h3>How do you calculate a mixed-VAT-rate tax breakdown?</h3>
+  <p>Group the lines by rate, sum each rate's net, multiply by that rate, and round to the cent — see the <a href="how-do-you-calculate-a-mixed-vat-rate-tax-breakdown.html">worked example</a> the INV-037/INV-038 checks are built from.</p>
+  <h3>What does this e-invoice error code mean?</h3>
+  <p>Every rule this checker reports has an <code>INV-</code> code naming one specific defect and the field it was found in — <a href="what-does-this-e-invoice-error-code-mean.html">the rule reference</a> lists all of them with a fix for each. They are this tool's own identifiers, not EN 16931 <code>BR-</code> rules or a submission network's rejection codes.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

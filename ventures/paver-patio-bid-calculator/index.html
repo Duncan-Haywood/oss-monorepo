@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Paver Patio Bid Calculator | Price Base, Waste, and Edge — Not Just Square Feet</title>
+  <title>Paver Patio Bid Calculator — Base, Waste, and Edge</title>
   <meta name="description" content="Price a paver patio from pattern waste, base depth, excavation, edge restraint, and haul-away — then see price per square foot, crew hours, and the walk-away number.">
   <meta property="og:title" content="Paver Patio Bid Calculator">
   <meta property="og:description" content="Bid interlocking pavers the way the trade does — pattern waste, compacted base, and edge restraint — and see the margin before you send the price.">
   <link rel="canonical" href="https://example.invalid/paver-patio-bid-calculator/">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Paver Patio Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Pattern-waste paver takeoff, compacted-base cubic yards, edge-restraint labor, spoil haul-away, loaded wage, overhead, target-margin price, price per square foot, walk-away price, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can't I just quote a paver patio per square foot?","acceptedAnswer":{"@type":"Answer","text":"Because the square footage the homeowner measures is the finished face, and three of the biggest costs do not follow it. Pattern waste and cut labor follow the layout. Excavation and haul-away follow the volume under the patio, which is area × base depth. Edge restraint follows the perimeter. A 12 × 16 running-bond patio and 192 sq ft of 45° herringbone on a driveway section have the same face and are not the same job."}},{"@type":"Question","name":"How much does the laying pattern actually change the price?","acceptedAnswer":{"@type":"Answer","text":"Two ways at once, which is why patterns are worth pricing rather than eyeballing. Waste: running bond starts at 7%, 90° herringbone 10%, 45° herringbone 15%, circular or random 18%. Labor: the same patterns carry factors of 1.0, 1.15, 1.25, and 1.35 on install hours. So moving from running bond to a 45° herringbone buys about 8 points more material and a quarter more labor — and both come out of the same per-foot number a competitor quoted."}},{"@type":"Question","name":"Why is a driveway priced differently from a patio of the same size?","acceptedAnswer":{"@type":"Answer","text":"Base depth. A patio or walkway starts at 6 in of base; a driveway or parking pad at 10 in. That is not a small adjustment: excavation volume, stone tonnage, and haul-away all scale with depth, so the same face area digs out and hauls off roughly two-thirds more material. These are common starting depths you can change, not a pavement design — soil, frost depth, and load are your call and your jurisdiction's, not this page's."}},{"@type":"Question","name":"Does haul-away make much difference?","acceptedAnswer":{"@type":"Answer","text":"Enough to decide a bid. Excavated volume comes out as cubic yards from area and base depth, and hauling it costs both trucking and dump fees on top of the excavation hours themselves. Turning haul-away off — spreading spoil on site, when the site allows it — is one of the few levers that moves a paver bid materially without changing what the customer receives. The tool shows the gap rather than assuming either way."}},{"@type":"Question","name":"Why is edge restraint priced separately from the pavers?","acceptedAnswer":{"@type":"Answer","text":"Because it is bought by the linear foot of perimeter, and perimeter does not track area. A long narrow walkway has far more edge per square foot than a square patio of the same size — a 4 × 40 walkway is 160 sq ft with 88 ft of edge, while a 12 × 16 patio is 192 sq ft with 56. Polymeric sand is counted the same careful way: whole bags, rounded up from your own coverage figure."}},{"@type":"Question","name":"Why isn't a 25% margin the same as adding 25% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = job cost ÷ (1 − margin) — which is how the quote reads to the homeowner and how your books read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or to profit. A $6,000 cost marked up 25% is $7,500, a 20% margin; a 25% target margin is $8,000. Nothing leaves your browser — no account, no upload, and the optional local counter records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a241c; background: #f3eee6; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -26,7 +27,7 @@
     .check { display: flex; align-items: center; gap: 8px; font-weight: 650; }
     .check input { width: auto; }
     .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b7aa98; background: #f7f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7aa98; background: #f7f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a241c; }
     button:hover { background: #efe6d6; }
     .result { position: sticky; top: 15px; background: #3d2a1c; color: #f7f1e8; border-color: #3d2a1c; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -241,6 +242,54 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Pattern waste and base depths are common ballpark figures, not an industry standard, a benchmark, or a pavement design &mdash; replace them with your own takeoff.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why can't I just quote a paver patio per square foot?</h3>
+      <p>Because the square footage the homeowner measures is the finished face, and three of the biggest
+        costs do not follow it. Pattern waste and cut labor follow the <em>layout</em>. Excavation and
+        haul-away follow the <em>volume</em> under the patio, which is area &times; base depth. Edge
+        restraint follows the <em>perimeter</em>. A 12&nbsp;&times;&nbsp;16 running-bond patio and
+        192&nbsp;sq&nbsp;ft of 45&deg; herringbone on a driveway section have the same face and are not the
+        same job.</p>
+
+      <h3>How much does the laying pattern actually change the price?</h3>
+      <p>Two ways at once, which is why patterns are worth pricing rather than eyeballing. Waste: running
+        bond starts at 7%, 90&deg; herringbone 10%, 45&deg; herringbone 15%, circular or random 18%. Labor:
+        the same patterns carry factors of 1.0, 1.15, 1.25, and 1.35 on install hours. So moving from
+        running bond to a 45&deg; herringbone buys about 8 points more material and a quarter more labor
+        &mdash; and both come out of the same per-foot number a competitor quoted.</p>
+
+      <h3>Why is a driveway priced differently from a patio of the same size?</h3>
+      <p>Base depth. A patio or walkway starts at 6&nbsp;in of base; a driveway or parking pad at
+        10&nbsp;in. That is not a small adjustment: excavation volume, stone tonnage, and haul-away all scale
+        with depth, so the same face area digs out and hauls off roughly two-thirds more material. These are
+        common starting depths you can change, not a pavement design &mdash; soil, frost depth, and load
+        are your call and your jurisdiction's, not this page's.</p>
+
+      <h3>Does haul-away make much difference?</h3>
+      <p>Enough to decide a bid. Excavated volume comes out as cubic yards from area and base depth, and
+        hauling it costs both trucking and dump fees on top of the excavation hours themselves. Turning
+        haul-away off &mdash; spreading spoil on site, when the site allows it &mdash; is one of the few
+        levers that moves a paver bid materially without changing what the customer receives. The tool shows
+        the gap rather than assuming either way.</p>
+
+      <h3>Why is edge restraint priced separately from the pavers?</h3>
+      <p>Because it is bought by the linear foot of perimeter, and perimeter does not track area. A long
+        narrow walkway has far more edge per square foot than a square patio of the same size &mdash; a
+        4&nbsp;&times;&nbsp;40 walkway is 160&nbsp;sq&nbsp;ft with 88&nbsp;ft of edge, while a
+        12&nbsp;&times;&nbsp;16 patio is 192&nbsp;sq&nbsp;ft with 56. Polymeric sand is counted the same
+        careful way: whole bags, rounded up from your own coverage figure.</p>
+
+      <h3>Why isn't a 25% margin the same as adding 25% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = job cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the quote reads to the homeowner and how your books
+        read it. Overhead is a separate markup on direct cost, applied before margin and never to itself or
+        to profit. A $6,000 cost marked up 25% is $7,500, a 20% margin; a 25% target margin is $8,000.
+        Nothing leaves your browser &mdash; no account, no upload, and the optional local counter records
+        only which features were used and the day.</p>
     </section>
   </main>
 

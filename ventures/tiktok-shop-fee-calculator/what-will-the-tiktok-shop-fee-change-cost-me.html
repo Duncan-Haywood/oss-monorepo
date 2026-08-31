@@ -206,6 +206,16 @@
     </section>
   </main>
 
+  <h2>Common questions</h2>
+  <h3>What will the 1 October 2026 TikTok Shop fee change cost me?</h3>
+  <p>It depends on the SKU and on where the order came from. On the worked example — a $19.99 item, $4.99 shipping charged, 15% creator commission on item price only, 12% returns — the announced 8% referral plus 1.5% creator facilitation costs about $0.78 more on an affiliate-sourced order and about $0.45 more on an organic one. At 8 orders a day that is roughly $190 a month. Put your own numbers in the form to get your figure.</p>
+  <h3>Does the announced facilitation fee hit every TikTok Shop order?</h3>
+  <p>No. In this model the 1.5% creator facilitation applies to affiliate-sourced orders only, so a shop selling mostly organic is hit less hard than the headline suggests. The page splits the two so you can weight them by your own affiliate share instead of assuming one number covers the catalogue.</p>
+  <h3>How much do I have to raise my price to hold my margin?</h3>
+  <p>The page solves for it. It takes the expected margin your SKU earns under today's schedule, then finds the list price under the announced schedule that lands on that same margin after returns, creator commission, fulfillment, and ads. On the worked example a $19.99 listing needs about $21.94 to hold a 27.7% margin.</p>
+  <h3>Is raising the price the only option?</h3>
+  <p>No. The other lever is unit cost, so the page also shows the most the unit can cost and still clear, before and after. On the worked example that ceiling falls from about $11.73 to about $10.93 — which is the number to take to a supplier if the listing price cannot move.</p>
+
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400">
       <input id="usageOptOut" type="checkbox" style="width:auto">
@@ -297,7 +307,17 @@
             ? `This SKU stops clearing. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new rates.`
             : `This SKU already loses money at today's rates. It needs <strong>${money(impact.breakEvenPriceAfter)}</strong> to break even under the new ones.`);
         }
-        actions.push(`Most the unit can cost and still clear: ${money(impact.maxBuyCostBefore)} before, <strong>${money(impact.maxBuyCostAfter)}</strong> after — the number to take to a supplier if the price cannot move.`);
+        // A null ceiling means the SKU loses money even on free goods, so
+        // there is no supplier price to go and ask for. Saying "n/a before,
+        // n/a after — the number to take to a supplier" would point a seller
+        // at a negotiation that cannot fix this listing.
+        if (impact.maxBuyCostAfter === null) {
+          actions.push(impact.maxBuyCostBefore === null
+            ? `No unit cost clears this SKU under either schedule — even free goods lose money on it. Only the listing price (or the fulfilment and ad costs) can fix that.`
+            : `Under the new schedule no unit cost clears this SKU — even free goods lose money on it. It cleared at up to ${money(impact.maxBuyCostBefore)} before, so a supplier conversation alone will not recover it; the listing price has to move.`);
+        } else {
+          actions.push(`Most the unit can cost and still clear: ${money(impact.maxBuyCostBefore)} before, <strong>${money(impact.maxBuyCostAfter)}</strong> after — the number to take to a supplier if the price cannot move.`);
+        }
         if (impact.extraCostPerMonth > 0) {
           actions.push(`Doing nothing costs about ${money(impact.extraCostPerMonth)} a month at ${impact.before.monthlyOrders.toFixed(0)} orders.`);
         }

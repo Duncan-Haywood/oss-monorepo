@@ -89,6 +89,39 @@ candidate list. Either:
 
 (1) comes first while `publish_surface.py` reports nothing live.
 
+**That tool now reads `gitops/` as well as `.github/workflows/`** (changed
+2026-08-31). It used to answer "what does a merge to `main` publish?" from the
+workflow files alone, which stopped being the whole answer when the site moved
+to Argo CD — a manifest merged to `main` *is* the deploy there, and no workflow
+runs. So it reported "nothing publishes" while `gitops/prod` carried three
+public hostnames, and would have gone on saying so on the day the site went up.
+It now prints the Argo surface too, per hostname, and for the portfolio site
+that reads:
+
+```
+    prod  (gitops/prod)
+      + https://marisstella.dev/            (301 redirect at the ingress)
+      - https://tools.marisstella.dev/      (serves content, waiting on Secret
+                                             portfolio-site-repo)
+      + https://www.marisstella.dev/        (301 redirect at the ingress)
+
+  No stranger can reach content yet, despite the hosts marked + above:
+    - prod: https://marisstella.dev/ answers on merge but 301s to
+      https://tools.marisstella.dev/, which is waiting on Secret
+      portfolio-site-repo.
+```
+
+Two of the three hostnames *do* answer on a merge today — the apex and `www`
+are annotation-only redirects needing no workload and no Secret. Both 301 to
+the one host that serves nothing, so the portfolio still has no reachable
+content. `--check` prints that dead-end as a note rather than leaving the
+"+" marks to be misread.
+
+So "nothing live" still holds, but it now means **one seal away**, not
+"nothing is built": `portfolio-site-repo`, via
+`./bootstrap/scripts/seal-owner-secrets.sh site`. Do not read it as a reason
+to build a twelfth calculator.
+
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture.
 
@@ -199,39 +232,76 @@ run on it. If a PR shows no checks, verify locally (`node --test`, the
 venture's suite, a browser pass) and record what you ran; do not read the
 blank as a failure.
 
-**And while the runner outage lasts, red CI is not failed CI either.** Since
-2026-08-26 every workflow in the repo fails without a runner, so checks now
-arrive *red* rather than absent — which reads very differently and is the
+**And while no runner is being assigned, red CI is not failed CI either.**
+Since 2026-08-26 every workflow in the repo fails without a runner, so checks
+now arrive *red* rather than absent — which reads very differently and is the
 easier mistake. On 2026-08-27 four PRs verified green locally each came back
 with `validate`, `check`, `test`, `build`, `site-test` and `page-integrity`
-failing; so did the merge of #1849, the commit that queued the outage itself,
-and every other session's merge that hour.
+failing; so did the merge of #1849, and every other session's merge that hour.
+
+**This is not an outage and it will not pass on its own.** Earlier revisions of
+this file called it one, and that word cost real time: an outage is something
+you wait out, so session after session re-derived the same signature, wrote it
+into the ledger, and moved on. The last green run was
+**2026-08-26T22:41:49Z** — a clean cliff, not a degradation. It affects all 218
+workflows at once, including ones that touch no code, which places it at the
+account level rather than anywhere in this repo. The repository is private and
+owned by a user account, so Actions minutes here are metered; the ceiling that
+was hit is some account-level Actions condition (exhausted included minutes, a
+spending limit, a payment problem, or Actions switched off).
+
+**Which one it is, is not knowable from a session.** Do not try to measure it:
+the run-timing API (`/actions/runs/<id>/timing`) reports a billable
+`total_ms` of 0 for this repo even on a *pre-cliff run that genuinely occupied
+a runner for 99 seconds*, so it cannot attribute burn per workflow, and any
+minute or dollar figure derived from it is fiction. The cost note inside
+`.github/workflows/claude-routine-trigger.yml` is likewise an estimate its
+author wrote, not a reading. Only the owner's billing page settles the
+sub-cause.
+
+**What a session should do about it is report the unblock, not re-diagnose.**
+The fix does not depend on which sub-cause it is — self-hosted runners are not
+metered, so they restore CI either way — and it is already built and waiting in
+[`gitops/ci/`](gitops/ci/README.md). All 218 workflows already read
+`runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}`, so one repository variable
+moves every one of them at once. It needs two owner actions nobody else can
+take: seal the runner PAT (`./bootstrap/scripts/seal-owner-secrets.sh`, which
+seals this and the two other secrets the portfolio is dark behind) and set
+`CI_RUNNER` = `self-hosted`. If you are writing this up, write *that* — a
+ledger entry re-confirming the signature adds nothing the next session did not
+already know.
 
 Tell them apart in one call, before you debug anything:
 
 ```
-python3 -c "import json,subprocess;                                        \
-  j=json.loads(subprocess.run(['gh','api','repos/{owner}/{repo}/actions/jobs/<job_id>'], \
-  capture_output=True,text=True).stdout); print(j['started_at'], j['completed_at'])"
+python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
 ```
 
-An outage job runs **3-6 seconds**, has empty `output.title/summary/text`, and
-404s on log download. A real `Portfolio validate` installs Python and Node and
-runs 36 steps; it cannot finish in five seconds. If you see that signature,
-the failure is not yours: verify locally and say so, do not "fix" green code.
+Exit 0 means every job ran on a real runner, so a failure there is a real
+result and yours to fix. Exit 1 means at least one job never got one.
 
-**The one field that settles it outright is `runner_id`.** An outage job carries
-`"runner_id": 0` and `"runner_name": ""` — no runner was ever assigned, so no
-step ever ran. Duration is a proxy for that and can mislead (a real job *can*
-fail fast); an unassigned runner cannot be anything else. Print it alongside
-the timestamps:
+**It no longer needs the `gh` CLI** (changed 2026-08-31). It did until then,
+which meant it exited 2 with "the gh CLI is not installed" in the web sessions
+that run these routines — the one environment where a session is most likely to
+reach for it and least able to check by hand. It now falls back to
+`api.github.com` with `GH_TOKEN`/`GITHUB_TOKEN`, and `--from-json <file>` will
+classify a jobs payload you fetched some other way (the MCP
+`list_workflow_jobs` tool, say) with no credential of its own.
 
-```
-python3 -c "import json,subprocess;                                        \
-  j=json.loads(subprocess.run(['gh','api','repos/{owner}/{repo}/actions/jobs/<job_id>'], \
-  capture_output=True,text=True).stdout);                                  \
-  print(j['started_at'], j['completed_at'], 'runner_id=%s' % j['runner_id'])"
-```
+**The one field that settles it is `runner_id`**, and that is the only thing
+the tool votes on. A starved job carries `"runner_id": 0` and
+`"runner_name": ""` — no runner was ever assigned, so no step ever ran. It also
+runs 3-6 seconds, has empty `output.title/summary/text`, and 404s on log
+download, but each of those has a benign explanation on its own: a real job
+*can* fail in three seconds, which is how a genuine failure gets waved through
+as "the outage". An unassigned runner cannot be anything else. Verified against
+both live cases on 2026-08-31 — today's `validate` job (`runner_id: 0`, 4s,
+no steps) and the last green one before the cliff (`runner_id: 1000027517`,
+95s, 38 steps).
+
+If it reports starvation, the failure is not yours: verify locally, say what
+you ran, and give the unblock above — do not "fix" green code, and do not
+spend the session re-establishing the signature.
 
 **And check for `check_runs`, not just statuses.** The commit-status API
 (`/commits/<sha>/status`, and the `get_status` method of the GitHub MCP tools)

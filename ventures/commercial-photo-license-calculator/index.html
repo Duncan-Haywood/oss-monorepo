@@ -13,6 +13,78 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Commercial Photography Licensing Quote Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A free browser-local worksheet for photographers pricing commercial image usage rights."}
   </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How is the usage-rights fee calculated?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Usage rights are 35% of the creative fee, scaled by four multipliers: the average factor of the channels you selected, the square root of the license term in months divided by six, the territory multiplier, and the exclusivity multiplier, then increased by the rush percentage. The creative/production fee itself is not scaled — only the usage-rights portion moves with scope. On a $1,200 creative fee with a 6-month national web license and non-exclusive rights, that is $525 in rights and a $1,725 total."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why does checking more channels not just add their prices together?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The channel factor blends the highest-priced selected channel with a smaller share of the rest — 0.85× the highest factor plus 0.15× the sum of every selected channel's factor — rather than a plain average or a sum. That keeps a single channel priced exactly as it always was: checking web only (factor 1) still prices at factor 1. It also guarantees adding any channel can only raise the price, never lower it, whichever channel you already had selected — a plain average failed this, because an outdoor-only licence (factor 1.6) got cheaper once web was added, since 1.6 and 1 average to 1.3. On the $1,200/6-month/national/non-exclusive example, adding paid, print, and outdoor to web moves the factor from 1 to 2.1475, for $1,127.44 in rights and a $2,327.44 total — well short of four separate licenses, but never less than pricing the priciest channel on its own."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why doesn't doubling the license term double the price?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Term uses a square-root scale — the multiplier is the square root of (months ÷ 6) — so it grows slower than the term itself. A 1-month license prices at about 0.41× the 6-month baseline, not 1/6th, and a 24-month license prices at 2× the baseline, not 4×. On the default $1,200/national/web/non-exclusive example, with only the term changed, rights are $214.33 at 1 month, $525 at 6 months, $742.46 at 12 months, and $1,050 at 24 months."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between category-exclusive and fully exclusive?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Category-exclusive (1.35×) means no other business in the client's specific category can license these images for the selected channels and term — a competing brand in the same category is locked out, but an unrelated business is not. Fully exclusive (1.75×) locks out everyone, including the photographer's own future resale or stock licensing of the same images for that scope. Non-exclusive (1×) means you can license the same images to other clients. This tool applies the multiplier; the actual exclusivity terms belong in the signed contract."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does the rush premium apply to the whole quote or just the usage-rights portion?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Only the usage-rights portion. The creative/production fee is unaffected by the rush percentage; it is the licensing calculation — channel, term, territory, and exclusivity — that gets multiplied by (1 + rush% ÷ 100). A 50% rush premium on the $1,200/national/web/6-month/non-exclusive baseline raises rights from $525 to $787.50, and the total from $1,725 to $1,987.50."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this replace a licensing contract?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. It produces a quote draft and records your assumptions so you and the client start the conversation from the same numbers. You remain responsible for the signed agreement — defining the specific images, permitted uses, credit, renewal, payment terms, model releases, and termination. Ask a qualified lawyer about contract and copyright questions specific to your situation."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is my quote and draft stored?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I use this for stock or per-image licensing instead of a project quote?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It is built for a commissioned project: one creative fee plus a usage-rights calculation, with a per-image figure shown only as an allocation of that total. Stock and microstock licensing is usually priced per download against a published rate card rather than derived from a shoot's creative fee, so this worksheet is a starting point to adapt, not a stock pricing tool."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <header class="hero">
@@ -51,7 +123,7 @@
     </form>
 
     <div id="errors" class="error" role="alert" hidden></div>
-    <section id="results" class="panel result" aria-labelledby="results-title" hidden>
+    <section id="results" class="panel result" aria-labelledby="results-title" aria-live="polite" hidden>
       <div class="section-heading"><span>02</span><h2 id="results-title">Review the starting point</h2></div>
       <div class="total"><span>Suggested total quote</span><strong id="total"></strong></div>
       <dl class="breakdown"><div><dt>Creative / production</dt><dd id="out-creative"></dd></div><div><dt>Usage rights</dt><dd id="out-license"></dd></div><div><dt>Per-image rights allocation</dt><dd id="out-per-image"></dd></div></dl>
@@ -62,7 +134,27 @@
       <p class="small">This is a negotiation starting point, not a contract. Define deliverables, permitted uses, credit, renewal, payment, and termination in your signed agreement.</p>
     </section>
 
-    <section class="plain" aria-labelledby="faq-title"><h2 id="faq-title">How should photographers price usage rights?</h2><p>Start with the business value and scope of the license, not only the hours spent shooting. A paid advertising campaign, national territory, long term, or exclusivity gives the client more commercial reach and restricts how you can reuse the work. This worksheet makes those assumptions visible so you can adjust them to your market and relationship.</p><h3>Does this replace a licensing contract?</h3><p>No. It creates a quote draft and records assumptions. You remain responsible for agreeing to and reviewing the final terms. Ask a qualified lawyer about contracts, copyright, model releases, and local requirements.</p></section>
+    <section class="plain" aria-labelledby="faq-title">
+      <h2 id="faq-title">Common questions</h2>
+      <p>Start with the business value and scope of the license, not only the hours spent shooting. A paid advertising campaign, national territory, long term, or exclusivity gives the client more commercial reach and restricts how you can reuse the work. This worksheet makes those assumptions visible so you can adjust them to your market and relationship.</p>
+      <h3>How is the usage-rights fee calculated?</h3>
+      <p>Usage rights are 35% of the creative fee, scaled by four multipliers: the average factor of the channels you selected, the square root of the license term in months divided by six, the territory multiplier, and the exclusivity multiplier, then increased by the rush percentage. The creative/production fee itself is not scaled — only the usage-rights portion moves with scope. On a $1,200 creative fee with a 6-month national web license and non-exclusive rights, that is $525 in rights and a $1,725 total.</p>
+      <h3>Why does checking more channels not just add their prices together?</h3>
+      <p>The channel factor blends the highest-priced selected channel with a smaller share of the rest — 0.85× the highest factor plus 0.15× the sum of every selected channel's factor — rather than a plain average or a sum. That keeps a single channel priced exactly as it always was: checking web only (factor 1) still prices at factor 1. It also guarantees adding any channel can only raise the price, never lower it, whichever channel you already had selected — a plain average failed this, because an outdoor-only licence (factor 1.6) got cheaper once web was added, since 1.6 and 1 average to 1.3. On the $1,200/6-month/national/non-exclusive example, adding paid, print, and outdoor to web moves the factor from 1 to 2.1475, for $1,127.44 in rights and a $2,327.44 total — well short of four separate licenses, but never less than pricing the priciest channel on its own.</p>
+      <h3>Why doesn't doubling the license term double the price?</h3>
+      <p>Term uses a square-root scale — the multiplier is the square root of (months ÷ 6) — so it grows slower than the term itself. A 1-month license prices at about 0.41× the 6-month baseline, not 1/6th, and a 24-month license prices at 2× the baseline, not 4×. On the default $1,200/national/web/non-exclusive example, with only the term changed, rights are $214.33 at 1 month, $525 at 6 months, $742.46 at 12 months, and $1,050 at 24 months.</p>
+      <h3>What is the difference between category-exclusive and fully exclusive?</h3>
+      <p>Category-exclusive (1.35×) means no other business in the client's specific category can license these images for the selected channels and term — a competing brand in the same category is locked out, but an unrelated business is not. Fully exclusive (1.75×) locks out everyone, including the photographer's own future resale or stock licensing of the same images for that scope. Non-exclusive (1×) means you can license the same images to other clients. This tool applies the multiplier; the actual exclusivity terms belong in the signed contract.</p>
+      <h3>Does the rush premium apply to the whole quote or just the usage-rights portion?</h3>
+      <p>Only the usage-rights portion. The creative/production fee is unaffected by the rush percentage; it is the licensing calculation — channel, term, territory, and exclusivity — that gets multiplied by (1 + rush% ÷ 100). A 50% rush premium on the $1,200/national/web/6-month/non-exclusive baseline raises rights from $525 to $787.50, and the total from $1,725 to $1,987.50.</p>
+      <h3>Does this replace a licensing contract?</h3>
+      <p>No. It produces a quote draft and records your assumptions so you and the client start the conversation from the same numbers. You remain responsible for the signed agreement — defining the specific images, permitted uses, credit, renewal, payment terms, model releases, and termination. Ask a qualified lawyer about contract and copyright questions specific to your situation.</p>
+      <h3>Where is my quote and draft stored?</h3>
+      <p>In this browser's local storage only, when you click Save draft locally. Nothing is uploaded to a server — there is no account and no backend. Closing the tab does not lose a saved draft; it reloads the next time you open this page in the same browser. Clearing your browser's site data removes it.</p>
+      <h3>Can I use this for stock or per-image licensing instead of a project quote?</h3>
+      <p>It is built for a commissioned project: one creative fee plus a usage-rights calculation, with a per-image figure shown only as an allocation of that total. Stock and microstock licensing is usually priced per download against a published rate card rather than derived from a shoot's creative fee, so this worksheet is a starting point to adapt, not a stock pricing tool.</p>
+      <p>See the territory multiplier worked into a full table: <a href="how-much-more-does-a-national-or-worldwide-license-cost.html">how much more does a national or worldwide license cost than local?</a></p>
+    </section>
     <section class="plain" aria-labelledby="privacy-title"><h2 id="privacy-title">Privacy and usage</h2><p>Everything runs in your browser. Your numbers and draft are never uploaded; there are no accounts, cookies, or analytics vendors. We count only anonymous feature events in local storage, never people or quote content. The counter is off-switchable:</p><label class="check"><input type="checkbox" id="usage-opt-out"> Don't count feature usage in this browser</label> <button type="button" class="link-button" id="clear-usage">Clear local usage</button><p id="usage-summary" class="small"></p></section>
     <section class="disclaimer"><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or copyright advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p></section>
   </main>

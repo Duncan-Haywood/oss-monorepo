@@ -77,6 +77,34 @@ _FALLBACK_FILENAMES = {
     "distribution-first.md", "re-verification.md",
 }
 
+# A final label IANA has never delegated cannot be a hostname, whatever else
+# the token looks like.
+#
+# The rule above catches a filename by asking whether this repository tracks a
+# file by that name, which misses any file that lives somewhere else. On
+# 2026-08-29 `agent-runner-subscription-login` described the Codex credential
+# as a bare `auth.json` — host-shaped, alphabetic last label, and a file on the
+# owner's laptop rather than in this tree, so every test above accepted it as a
+# host. `Portfolio validate` went red on `main` and stayed red unseen, because
+# no Actions runner has picked up a job here since 2026-08-26.
+#
+# The comment above explains why a blocklist of *file extensions* was rejected:
+# `.md` and `.sh` are real ccTLDs, so blocking them silently drops
+# `obsidian.md` and `formulae.brew.sh` — the exact failure this checker exists
+# to catch, one level up. That objection is about extensions that are also
+# TLDs, and it does not reach the entries below, none of which is a TLD at all.
+# Keeping it that way is the one rule for editing this set.
+#
+# The general form would be an IANA allowlist, and it fails the wrong way: a
+# host on a newly delegated TLD would be dropped silently, which is the failure
+# mode this file is written to avoid. A suffix missing from the set below fails
+# loudly instead — the check stays red and prints the token — so incompleteness
+# here costs a session a minute, not a wasted owner decision.
+_NOT_TLDS = frozenset({
+    "cjs", "conf", "csv", "html", "ini", "json", "lock", "log", "mjs",
+    "png", "sql", "svg", "toml", "tsv", "txt", "xml", "yaml", "yml",
+})
+
 # Hosts this portfolio *publishes to*, which are not egress at all.
 #
 # This checker asks one question: has every host the owner is being asked to
@@ -135,6 +163,8 @@ def hostnames_in(text: str, filenames: set[str] | None = None) -> set[str]:
         tld = token.rsplit(".", 1)[1]
         if not tld.isalpha() or len(tld) < 2:
             continue
+        if tld in _NOT_TLDS:
+            continue  # a file extension IANA has never delegated, not a host
         if token in filenames:
             continue  # a file in this repository, not a host
         if token in PUBLICATION_HOSTS:

@@ -8,13 +8,27 @@ const readme = readFileSync(new URL('./README.md', import.meta.url), 'utf8');
 
 test('the landing page names the search phrase and refuses a code opinion', () => {
   assert.match(html, /Water Heater Replacement Bid Calculator/);
-  assert.match(html, /How Much to Charge to Replace a Water Heater/);
+  assert.match(html, /Tank vs Tankless/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /FAQPage/);
   assert.match(html, /not plumbing, electrical, engineering, code/);
   assert.match(html, /Nothing leaves your browser/);
   assert.match(html, /usageOptOut/);
   assert.match(html, /Do not keep anonymous local usage counts/);
+});
+
+test('the gas-upsize FAQ question appears in both the visible copy and the FAQPage JSON-LD', () => {
+  const question = 'How much does upsizing the gas line add to a tankless bid?';
+  assert.match(html, new RegExp(`<h3>${question.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</h3>`));
+  const jsonLdBlocks = [...html.matchAll(/<script type="application\/ld\+json">(.+?)<\/script>/g)].map((m) =>
+    JSON.parse(m[1]),
+  );
+  const faqSchema = jsonLdBlocks.find((doc) => doc['@type'] === 'FAQPage');
+  assert.ok(faqSchema, 'no FAQPage JSON-LD block found');
+  const entry = faqSchema.mainEntity.find((q) => q.name === question);
+  assert.ok(entry, 'FAQPage JSON-LD is missing the gas-upsize question');
+  assert.match(entry.acceptedAnswer.text, /\$804 more/);
+  assert.match(entry.acceptedAnswer.text, /\$1,525\.94 to \$2,329\.59/);
 });
 
 test('every calculator input has a control so a share link cannot drop a field', () => {
@@ -140,4 +154,15 @@ test('the local "Save draft" carries the deposit, valid-until, and customer/prop
   assert.match(saveDraftFn[0], /CLIENT_IDS/, 'saveDraft() does not save the customer name/address fields');
   assert.match(saveDraftFn[0], /TERM_IDS/, 'saveDraft() does not save the deposit/valid-days/terms fields');
   assert.match(html, /restoredDraft\.proposal/, 'nothing restores the saved proposal-terms fields on load');
+});
+
+test('the "how much to charge" SEO page exists, is linked from the calculator, and is in the sitemap', () => {
+  assert.match(html, /how-much-to-charge\.html/, 'index.html does not link to the companion SEO page');
+  const doc = readFileSync(new URL('./how-much-to-charge.html', import.meta.url), 'utf8');
+  assert.match(doc, /How much should I charge to replace a water heater/i);
+  assert.match(doc, /FAQPage/);
+  assert.match(doc, /No warranty/);
+  assert.match(doc, /href="\.\/"/, 'the SEO page has no link back to the calculator');
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /how-much-to-charge\.html/);
 });

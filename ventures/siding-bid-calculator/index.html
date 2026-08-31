@@ -9,6 +9,7 @@
   <meta property="og:description" content="Bid siding the way the trade does — net squares plus waste, then height, tear-off, wrap, and linear trim — and see the walk-away number before you send the quote.">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Siding Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-elevation wall squares, waste factor, story multiplier, tear-off and housewrap, opening labor, linear trim, dumpster, travel, payroll burden, walk-away price, proposed-price margin check, private share link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I work out how many squares of siding a house needs?","acceptedAnswer":{"@type":"Answer","text":"Enter each elevation as a length × height row. The calculator adds them into gross wall area, subtracts the window and door area you enter, divides the remainder by 100 to get net squares, then adds waste to get the billable squares that material and install hours are priced from. Waste starts at 10% for vinyl and aluminum and 12% for fiber cement and engineered wood — those are common starting points, not a manufacturer allowance, and a cut-up elevation with lots of gables needs more."}},{"@type":"Question","name":"If I subtract the windows, why is there still a charge per opening?","acceptedAnswer":{"@type":"Answer","text":"Because the two are different costs. Subtracting opening square footage stops you buying siding for glass. Cutting and fitting around that opening is a labor line of its own — about 0.35 h per opening here — and the J-channel or window wrap around it is priced separately by the linear foot. A wall with fourteen windows and a wall with two can have the same net square footage and are nowhere near the same day's work; a per-square-foot quote cannot tell them apart."}},{"@type":"Question","name":"How much does a second or third storey add?","acceptedAnswer":{"@type":"Answer","text":"Install hours are multiplied by 1.0 for one storey, 1.35 for two, and 1.7 for three or more. That multiplier is height and staging — carrying material up, moving pump jacks, working off a plank — not \"a bigger house\", so it applies to install hours only and not to tear-off, housewrap, trim, or the flat add-ons. Scaffold or pump jacks are their own add-on line with hours and rental cost, because that is a job-level decision rather than something that scales with area."}},{"@type":"Question","name":"Does tear-off cost the same as installing?","acceptedAnswer":{"@type":"Answer","text":"No, it is its own hours-per-square figure, and the presets put it at roughly a third to a half of install: about 2.0 h/square against 4.5 for vinyl, 2.5 against 7.0 for fiber cement. Tear-off also brings the dumpster, which is a separate flat cost, and it is optional — a siding-over job turns tear-off hours off entirely while keeping housewrap, which is priced from net squares rather than billable squares because wrap does not need the cut waste."}},{"@type":"Question","name":"Why does a small siding repair still price at more than the material?","acceptedAnswer":{"@type":"Answer","text":"Round-trip drive time comes from the miles and speed you enter, setup is its own line, and a minimum on-site hours floor applies when the takeoff comes in under it — a crew that mobilizes has those hours gone whether the wall is four squares or forty. The trip or truck fee sits on top as a flat line. Making the floor visible is the point: it is what a \"just a couple of panels\" call actually costs you."}},{"@type":"Question","name":"Why isn't a 20% margin the same as adding 20% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = job cost ÷ (1 − margin) — which is how the quote reads to the homeowner and how your books read it. Overhead is a separate markup on the job's direct cost, applied before margin and never to itself or to profit. A $14,000 cost marked up 20% is $16,800, a 16.7% margin; a 20% target margin is $17,500. Everything stays in your browser: no account, no upload, the shareable link carries your inputs in the URL, and the optional local counter records only which features were used and the day."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #e8eef4; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -26,7 +27,7 @@
     .wall-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .wall-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5c6b7c; }
     .wall-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1b2430; }
     button:hover { background: #e2eaf2; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .remove[disabled] { opacity: .4; cursor: not-allowed; }
@@ -273,6 +274,54 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting hours and material figures are common ballpark numbers, not a manufacturer price list, a code table, or a guarantee &mdash; time your own crews and replace them. This is not a finding that any wall is weathertight, permitted, or due for replacement.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How do I work out how many squares of siding a house needs?</h3>
+      <p>Enter each elevation as a length &times; height row. The calculator adds them into gross wall area,
+        subtracts the window and door area you enter, divides the remainder by 100 to get net squares, then
+        adds waste to get the billable squares that material and install hours are priced from. Waste starts
+        at 10% for vinyl and aluminum and 12% for fiber cement and engineered wood &mdash; those are common
+        starting points, not a manufacturer allowance, and a cut-up elevation with lots of gables needs
+        more.</p>
+
+      <h3>If I subtract the windows, why is there still a charge per opening?</h3>
+      <p>Because the two are different costs. Subtracting opening square footage stops you buying siding for
+        glass. Cutting and fitting <em>around</em> that opening is a labor line of its own &mdash; about
+        0.35&nbsp;h per opening here &mdash; and the J-channel or window wrap around it is priced separately
+        by the linear foot. A wall with fourteen windows and a wall with two can have the same net square
+        footage and are nowhere near the same day's work; a per-square-foot quote cannot tell them apart.</p>
+
+      <h3>How much does a second or third storey add?</h3>
+      <p>Install hours are multiplied by 1.0 for one storey, 1.35 for two, and 1.7 for three or more. That
+        multiplier is height and staging &mdash; carrying material up, moving pump jacks, working off a
+        plank &mdash; not "a bigger house", so it applies to install hours only and not to tear-off,
+        housewrap, trim, or the flat add-ons. Scaffold or pump jacks are their own add-on line with hours
+        and rental cost, because that is a job-level decision rather than something that scales with area.</p>
+
+      <h3>Does tear-off cost the same as installing?</h3>
+      <p>No, it is its own hours-per-square figure, and the presets put it at roughly a third to a half of
+        install: about 2.0&nbsp;h/square against 4.5 for vinyl, 2.5 against 7.0 for fiber cement. Tear-off
+        also brings the dumpster, which is a separate flat cost, and it is optional &mdash; a siding-over
+        job turns tear-off hours off entirely while keeping housewrap, which is priced from net squares
+        rather than billable squares because wrap does not need the cut waste.</p>
+
+      <h3>Why does a small siding repair still price at more than the material?</h3>
+      <p>Round-trip drive time comes from the miles and speed you enter, setup is its own line, and a minimum
+        on-site hours floor applies when the takeoff comes in under it &mdash; a crew that mobilizes has
+        those hours gone whether the wall is four squares or forty. The trip or truck fee sits on top as a
+        flat line. Making the floor visible is the point: it is what a "just a couple of panels" call
+        actually costs you.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = job cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the quote reads to the homeowner and how your books
+        read it. Overhead is a separate markup on the job's direct cost, applied before margin and never to
+        itself or to profit. A $14,000 cost marked up 20% is $16,800, a 16.7% margin; a 20% target margin is
+        $17,500. Everything stays in your browser: no account, no upload, the shareable link carries your
+        inputs in the URL, and the optional local counter records only which features were used and the day.</p>
     </section>
   </main>
 

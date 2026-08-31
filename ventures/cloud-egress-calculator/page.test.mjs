@@ -88,3 +88,55 @@ test("default demo totals match the FAQ copy", () => {
   assert.equal(result.first.total, 21.3);
   assert.equal(result.second.total, 3.72);
 });
+
+test("break-even FAQ example matches the arithmetic", () => {
+  const below = compareScenarios({
+    first: { storageGb: 500, requestsMillion: 2, egressGb: 60, storageRate: 0.006, requestRate: 0.36, egressRate: 0.09 },
+    second: { storageGb: 500, requestsMillion: 2, egressGb: 60, storageRate: 0.023, requestRate: 0.4, egressRate: 0 },
+  });
+  const above = compareScenarios({
+    first: { storageGb: 500, requestsMillion: 2, egressGb: 150, storageRate: 0.006, requestRate: 0.36, egressRate: 0.09 },
+    second: { storageGb: 500, requestsMillion: 2, egressGb: 150, storageRate: 0.023, requestRate: 0.4, egressRate: 0 },
+  });
+  assert.equal(below.first.total, 9.12);
+  assert.equal(below.second.total, 12.3);
+  assert.equal(below.cheaper, "first");
+  assert.equal(above.first.total, 17.22);
+  assert.equal(above.second.total, 12.3);
+  assert.equal(above.cheaper, "second");
+  assert.equal(Math.round(below.breakEvenEgressGb * 100) / 100, 95.33);
+  assert.match(html, /\$9\.12/);
+  assert.match(html, /\$12\.30/);
+  assert.match(html, /\$17\.22/);
+  assert.match(html, /95\.33 GB/);
+});
+
+test("an invalid input clears the stale per-option totals, not just the verdict line", () => {
+  // Before this fix, calculate()'s catch block overwrote #verdict,
+  // #annualImpact, and #breakEven, but left #aTotal, #bTotal, and
+  // #difference showing the last valid comparison. A visitor who missed
+  // the one-line message in #verdict could read those stale totals as the
+  // answer for the invalid inputs now in the form.
+  const catchMatch = scriptSource.match(/\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}/);
+  assert.ok(catchMatch, "calculate()'s catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /\$\("verdict"\)\.textContent = error\.message/, "the error message is never shown");
+  for (const id of ["aTotal", "bTotal", "difference"]) {
+    assert.match(
+      body,
+      new RegExp(`\\$\\("${id}"\\)\\.textContent = ""`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+});
+
+test("the two new FAQ questions are present in both the visible copy and the FAQPage schema", () => {
+  const questions = [
+    "What outbound volume is the break-even point?",
+    "Does this include migration cost or contract minimums?",
+  ];
+  for (const q of questions) {
+    assert.match(html, new RegExp(`<h3>${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>`));
+    assert.match(scriptSource, new RegExp(`"name":"${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`));
+  }
+});

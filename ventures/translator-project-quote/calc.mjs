@@ -49,7 +49,19 @@ export function calculate(q) {
   const addons = q.qa_hours * q.hourly_rate + q.dtp_cost + q.rush_fee;
   const directCost = laborCost + addons;
   const targetPrice = directCost / (1 - q.target_margin / 100);
+  // The floor beneath direct cost, before margin: a very small job's real
+  // cost can sit under the flat minimum, so the minimum wins.
   const minimumPrice = Math.max(q.minimum_price, directCost);
+  // What to actually quote: never below the stated minimum, and never below
+  // what the stated target margin requires either. `minimumPrice` alone
+  // stops short of that second guarantee -- once a job's direct cost clears
+  // the flat minimum, `minimumPrice` tracks cost with zero margin, so a job
+  // whose target-margin price is *above* both the minimum and the raw cost
+  // (a normal outcome any time target_margin > 0) never had that margin
+  // enforced anywhere. This venture's own guide already tells a reader to
+  // "quote $435 or the target-margin price above it" by hand; this is that
+  // same comparison, done once, for every quote.
+  const recommendedPrice = Math.max(minimumPrice, targetPrice);
   return {
     weighted_words: weightedWords,
     translation_hours: translationHours,
@@ -58,5 +70,6 @@ export function calculate(q) {
     direct_cost: directCost,
     target_price: targetPrice,
     minimum_price: minimumPrice,
+    recommended_price: recommendedPrice,
   };
 }

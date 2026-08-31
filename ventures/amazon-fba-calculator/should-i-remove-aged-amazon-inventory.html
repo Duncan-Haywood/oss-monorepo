@@ -134,7 +134,7 @@
         <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75"></label>
         <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
         <label>Aged units <input id="agedUnits" type="number" min="1" step="1" value="80"></label>
-        <label>Monthly sell-through (%) <input id="monthlySellThroughPct" type="number" min="0" step="0.1" value="5"></label>
+        <label>Monthly sell-through (%) <input id="monthlySellThroughPct" type="number" min="0" step="0.1" max="100" value="5"></label>
         <label>Months to compare <input id="horizonMonths" type="number" min="1" step="1" value="3"></label>
         <label>Aged-inventory surcharge / unit / month <input id="aisPerUnit" type="number" min="0" step="0.01" value="1.50"></label>
         <label>Return removal / unit <input id="removalFee" type="number" min="0" step="0.01" value="1.04"></label>
@@ -258,6 +258,14 @@
       fulfillment paths and seller plans.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I remove aged Amazon FBA inventory?</h3>
+  <p>On the calculator defaults ($29.99, 15% referral, $4.15 pick, 80 leftover units, 5% monthly sell-through, $1.50 aged-inventory surcharge) keeping over 3 months is −$109.82. A return removal is −$83.20. Disposing is −$25.60. Keeping loses $84.22 more than disposing. Keeping needs about 6.7% monthly sell-through to match dispose. That is arithmetic on your inputs, not advice to create a removal order.</p>
+  <h3>Does Amazon charge aged inventory surcharge on leftover FBA units?</h3>
+  <p>Amazon can add an aged-inventory surcharge on units that have sat past an age band. The amount is a line on your fee preview, not a published live schedule this page fetches. Type the per-unit monthly surcharge from that preview. Storage still sits on top.</p>
+  <h3>Is disposing leftover FBA cheaper than a return removal?</h3>
+  <p>A dispose order is usually a cheaper per-unit fee because the units do not come back. Cost of goods is already sunk — both paths spend a fee, and only a return gives you the units. Q4 storage is a different question: that is a seasonal rate, not an age surcharge.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

@@ -25,3 +25,32 @@ test('page does not recommend a deposit percent', () => {
   assert.match(page, /does not decide for you/);
   assert.doesNotMatch(page, /you should charge|must take a deposit|recommended deposit/i);
 });
+
+test('index links to the deposit-percentage SEO/AI-discovery page', () => {
+  assert.match(page, /what-percentage-deposit-should-i-charge\.html/);
+});
+
+const docsPage = (name) => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
+
+test('the deposit-percentage page answers the search question with a worked table', () => {
+  const html = docsPage('what-percentage-deposit-should-i-charge.html');
+  assert.match(html, /What percentage deposit should you charge/i);
+  assert.match(html, /FAQPage/);
+  assert.match(html, /"@type":"Question"/);
+  assert.match(html, /href="\.\/"/);
+  assert.match(html, /No warranty/);
+  assert.match(html, /Best-effort hosting, no SLA/);
+  // Table figures match calc.mjs's plan() at price=150, so a reader who runs
+  // the numbers themselves gets the same answer this page states.
+  assert.match(html, /\$37\.50/);
+  assert.match(html, /\$112\.50/);
+  assert.match(html, /\$21,762\.00/);
+});
+
+test('robots and sitemap let crawlers find the new page', () => {
+  const robots = docsPage('robots.txt');
+  const sitemap = docsPage('sitemap.xml');
+  assert.match(robots, /Allow: \//);
+  assert.match(sitemap, /appointment-deposit-calculator\/<\/loc>/);
+  assert.match(sitemap, /what-percentage-deposit-should-i-charge\.html/);
+});

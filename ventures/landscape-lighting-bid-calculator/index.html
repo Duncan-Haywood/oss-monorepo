@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Landscape Lighting Bid Calculator | How Much to Charge to Install Landscape Lighting</title>
+  <title>Landscape Lighting Bid Calculator — Price to Install It</title>
   <meta name="description" content="Price low-voltage landscape lighting from fixture mix, fixtures-only versus new-system versus existing-add-on, trench and soil, transformer size, and extras — plus the walk-away price a $150 / light special cannot see.">
   <meta property="og:title" content="Landscape Lighting Bid Calculator">
   <meta property="og:description" content="Bid landscape lighting the way the trade does — fixtures, trench, and extras, not a published per-light dump — and see the margin before you send the price.">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Landscape Lighting Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Fixture mix, fixtures-only vs new-system vs existing-add-on comparison, trench and soil, transformer size, photocell saw-cut extra transformer extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is my price so much higher than a $150-a-light quote I saw?","acceptedAnswer":{"@type":"Answer","text":"A flat per-light number usually assumes the cheapest scenario in this tool: fixtures-only on an existing transformer, easy soil, no trench. Switching to a new-system job adds trench footage, wire, and a transformer that a per-fixture rate cannot see. Use the “Same yard, three scopes” comparison to see exactly how much of the gap is trench and transformer."}},{"@type":"Question","name":"What is the difference between the fixtures-only, new-system, and existing-add-on presets?","acceptedAnswer":{"@type":"Answer","text":"Fixtures-only assumes you are hanging lights on a transformer that is already there — no trench, no wire run. New-system assumes you are trenching, running wire, and installing a transformer from scratch. Existing-add-on assumes a shorter home-run trench back into a system already on the house. Picking the wrong one under- or over-fills your starting trench and transformer hours."}},{"@type":"Question","name":"Does the walk-away price include any profit for me?","acceptedAnswer":{"@type":"Answer","text":"No. The walk-away price is your total cost with zero margin built in — labor, fixtures, wire, transformer, and overhead, but no profit. The price above it is the one that includes your target net margin; quoting at or below the walk-away number means the job cannot lose money, but it also cannot pay you."}},{"@type":"Question","name":"Do irrigated turf and rocky soil actually change the price, or just the hours?","acceptedAnswer":{"@type":"Answer","text":"Both. Harder soil adds trenching hours at your loaded wage, and irrigated turf also adds a turf-repair material cost per lineal foot for the sod you disturb. Picking “easy” soil on a yard with an irrigation system underprices the trench twice — once in time, once in material."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #24362c; background: #e8efe8; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,7 +26,7 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #9aaf9e; background: #eef6f0; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9aaf9e; background: #eef6f0; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #24362c; }
     button:hover { background: #dceae0; }
     .result { position: sticky; top: 15px; background: #1e3528; color: #eef6f0; border-color: #1e3528; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -97,6 +98,18 @@
       .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
       .pr-meta { text-align: left; }
     }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
@@ -239,6 +252,18 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+
+    <section>
+      <h2>Common questions</h2>
+      <h3>Why is my price so much higher than a $150-a-light quote I saw?</h3>
+      <p>A flat per-light number usually assumes the cheapest scenario in this tool: fixtures-only on an existing transformer, easy soil, no trench. Switching to a new-system job adds trench footage, wire, and a transformer that a per-fixture rate cannot see. Use the &ldquo;Same yard, three scopes&rdquo; comparison to see exactly how much of the gap is trench and transformer.</p>
+      <h3>What is the difference between the fixtures-only, new-system, and existing-add-on presets?</h3>
+      <p>Fixtures-only assumes you are hanging lights on a transformer that is already there &mdash; no trench, no wire run. New-system assumes you are trenching, running wire, and installing a transformer from scratch. Existing-add-on assumes a shorter home-run trench back into a system already on the house. Picking the wrong one under- or over-fills your starting trench and transformer hours.</p>
+      <h3>Does the walk-away price include any profit for me?</h3>
+      <p>No. The walk-away price is your total cost with zero margin built in &mdash; labor, fixtures, wire, transformer, and overhead, but no profit. The price above it is the one that includes your target net margin; quoting at or below the walk-away number means the job cannot lose money, but it also cannot pay you.</p>
+      <h3>Do irrigated turf and rocky soil actually change the price, or just the hours?</h3>
+      <p>Both. Harder soil adds trenching hours at your loaded wage, and irrigated turf also adds a turf-repair material cost per lineal foot for the sod you disturb. Picking &ldquo;easy&rdquo; soil on a yard with an irrigation system underprices the trench twice &mdash; once in time, once in material.</p>
     </section>
   <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
       <section id="proposalSection">

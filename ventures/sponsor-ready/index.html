@@ -9,6 +9,7 @@
   <meta property="og:description" content="Paste a public repo. Get a ranked list of sponsorship signals to fix first. Runs in your browser." />
   <link rel="stylesheet" href="style.css" />
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sponsor Ready","applicationCategory":"DeveloperApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"operatingSystem":"Any"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a high score mean GitHub will approve me for Sponsors?","acceptedAnswer":{"@type":"Answer","text":"No. This checklist has nothing to do with GitHub's own Sponsors program eligibility review — it scores publicly documented signals (a FUNDING.yml, a substantial README, recent activity, a license, and similar) that tend to correlate with a repo looking sponsor-ready to a human visitor. It never tells you to enable Sponsors and is not affiliated with GitHub. See all 10 signals ranked by weight, with the one-line fix for each."}},{"@type":"Question","name":"Why did my scan fail with a rate-limit error?","acceptedAnswer":{"@type":"Answer","text":"Every check calls GitHub's public API directly from your browser, unauthenticated, which GitHub caps at 60 requests per hour per visitor IP. If you or others on the same network have scanned several repos recently, wait a few minutes and try again — there is no server-side proxy here to work around the limit."}},{"@type":"Question","name":"Can I check a private repository?","acceptedAnswer":{"@type":"Answer","text":"No. The tool only calls GitHub's public, unauthenticated API, so it can only see what an anonymous visitor to your repo page could see. A private repo returns a 404 and the checklist has no way to read it."}},{"@type":"Question","name":"Does it store or send the name of the repo I scanned anywhere?","acceptedAnswer":{"@type":"Answer","text":"Your repo target is sent only to api.github.com, the same request your own browser would make visiting the repo page. This site has no server and stores nothing about which repos you check; only anonymous, aggregate usage counts like \"a scan happened\" may be recorded locally, with an opt-out below."}}]}</script>
 </head>
 <body>
   <main class="page">
@@ -43,7 +44,7 @@
 
     <p id="loading" class="loading" hidden>Checking…</p>
     <p id="error" class="error" role="alert" hidden></p>
-    <div id="results" class="results"></div>
+    <div id="results" class="results" aria-live="polite"></div>
 
     <section class="disclaimer">
       <h2>What this is and isn't</h2>
@@ -64,6 +65,18 @@
           happened") may be recorded locally — never which repo you scanned.
         </li>
       </ul>
+    </section>
+
+    <section class="disclaimer">
+      <h2>Common questions</h2>
+      <h3>Does a high score mean GitHub will approve me for Sponsors?</h3>
+      <p>No. This checklist has nothing to do with GitHub's own Sponsors program eligibility review — it scores publicly documented signals (a FUNDING.yml, a substantial README, recent activity, a license, and similar) that tend to correlate with a repo looking sponsor-ready to a human visitor. It never tells you to enable Sponsors and is not affiliated with GitHub. <a href="github-sponsors-readiness-checklist.html">See all 10 signals ranked by weight</a>, with the one-line fix for each.</p>
+      <h3>Why did my scan fail with a rate-limit error?</h3>
+      <p>Every check calls GitHub's public API directly from your browser, unauthenticated, which GitHub caps at 60 requests per hour per visitor IP. If you or others on the same network have scanned several repos recently, wait a few minutes and try again — there is no server-side proxy here to work around the limit.</p>
+      <h3>Can I check a private repository?</h3>
+      <p>No. The tool only calls GitHub's public, unauthenticated API, so it can only see what an anonymous visitor to your repo page could see. A private repo returns a 404 and the checklist has no way to read it.</p>
+      <h3>Does it store or send the name of the repo I scanned anywhere?</h3>
+      <p>Your repo target is sent only to api.github.com, the same request your own browser would make visiting the repo page. This site has no server and stores nothing about which repos you check; only anonymous, aggregate usage counts like "a scan happened" may be recorded locally, with an opt-out below.</p>
     </section>
 
     <footer class="footer">

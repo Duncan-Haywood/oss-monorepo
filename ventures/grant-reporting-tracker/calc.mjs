@@ -3,6 +3,24 @@ export function parseDate(value) {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
+// The visitor's own calendar date, not UTC's. `new Date().toISOString()`
+// reads the UTC date, which is a different day from the visitor's local date
+// for several hours every day everywhere except right on the meridian — ahead
+// of local for negative UTC offsets in the evening, behind it for positive
+// offsets overnight. `reviewGrant` and `sampleGrants` call this only when the
+// page omits `today` (the only way either is ever actually invoked, since
+// index.html never passes one), so that mismatch reached every visitor: a
+// report due today could show "Overdue" a day early, or "On track" a day
+// past what a filed-late letter says, depending only on the visitor's clock.
+function localToday() {
+  const now = new Date();
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-');
+}
+
 // Month arithmetic in UTC, clamping to the last day of a shorter target month
 // so 31 January plus one month is 28 February rather than 3 March. Accepts a
 // negative shift, which `sampleGrants` needs to work backwards from a report
@@ -37,7 +55,7 @@ export function addMonths(value, months) {
  * day status boundaries that the drift cannot change which status each row
  * lands in.
  */
-export function sampleGrants(today = new Date().toISOString().slice(0, 10)) {
+export function sampleGrants(today = localToday()) {
   const awardDateFor = (reportInDays, intervalMonths) => {
     const base = parseDate(today);
     if (!base) return null;
@@ -51,7 +69,7 @@ export function sampleGrants(today = new Date().toISOString().slice(0, 10)) {
   ];
 }
 
-export function reviewGrant(grant, today = new Date().toISOString().slice(0, 10)) {
+export function reviewGrant(grant, today = localToday()) {
   const nextReport = addMonths(grant.awardDate, Number(grant.intervalMonths));
   const days = nextReport ? Math.ceil((parseDate(nextReport) - parseDate(today)) / 86400000) : null;
   const restrictedBalance = Number(grant.awardAmount) - Number(grant.spentAmount);
@@ -68,8 +86,24 @@ export function reviewAll(grants, today) {
   return grants.map((grant) => reviewGrant(grant, today)).sort((a, b) => (a.daysUntilReport ?? Infinity) - (b.daysUntilReport ?? Infinity));
 }
 
+// Every field the queue reads, not just the ones the table renders. A CSV
+// exported to a board member, a co-signer, or a funder's file is often the
+// only copy of an award that leaves this browser -- so a recipient with only
+// the five displayed columns can see that a report is "Overdue" but cannot
+// check *why* (no awardDate or intervalMonths to recompute nextReport from),
+// cannot tell an approximate deadline from an urgent one (status buckets
+// "Due soon" into one label whether it is due tomorrow or in three weeks,
+// with no daysUntilReport), and cannot verify restrictedBalance without the
+// awardAmount and spentAmount it is derived from. Dropping any of those from
+// the export is the same defect `where-to-sell-calculator` shipped by
+// hand-keeping an allowlist beside the form instead of deriving it: a field
+// the page collects and computes quietly missing from the copy a second
+// person reads.
 export function toCsv(rows) {
-  const fields = ['name', 'funder', 'nextReport', 'status', 'restrictedBalance'];
+  const fields = [
+    'name', 'funder', 'awardDate', 'intervalMonths', 'nextReport',
+    'daysUntilReport', 'status', 'awardAmount', 'spentAmount', 'restrictedBalance',
+  ];
   const quote = (value) => `"${String(value ?? '').replaceAll('"', '""')}"`;
   return [fields.join(','), ...rows.map((row) => fields.map((field) => quote(row[field])).join(','))].join('\n');
 }

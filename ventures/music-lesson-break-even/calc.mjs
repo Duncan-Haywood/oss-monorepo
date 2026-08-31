@@ -52,6 +52,7 @@ export function comparePolicyLevers(input) {
   const cancelRate = Number(baseInput.cancelRate ?? 8);
   const travelMinutes = Number(baseInput.travelMinutes ?? 0);
   const lessonsPerWeek = Number(baseInput.lessonsPerWeek);
+  const lessonPrice = Number(baseInput.lessonPrice);
   const rows = [
     { id: 'current', label: 'As entered', result: current },
     {
@@ -76,6 +77,14 @@ export function comparePolicyLevers(input) {
       id: 'house_call_30',
       label: '30 minutes of travel per lesson',
       result: calculateLesson({ ...baseInput, travelMinutes: 30 }),
+    });
+  }
+  if (Number.isFinite(current.targetPrice) && current.targetPrice > lessonPrice) {
+    const roundedPrice = Math.ceil(current.targetPrice / 5) * 5;
+    rows.push({
+      id: 'raise_to_target',
+      label: `Raise price to $${roundedPrice.toFixed(2)} (nearest $5 at or above target)`,
+      result: calculateLesson({ ...baseInput, lessonPrice: roundedPrice }),
     });
   }
   return rows.map((row) => ({

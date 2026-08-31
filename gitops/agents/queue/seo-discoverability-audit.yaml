@@ -25,6 +25,41 @@ prompt: |
   one already being worked by another agent this run -- check for an
   open PR on that venture first and skip it if one exists.
 
+  Measure before you pick. Two tools report the coverage backlogs, and
+  each one names its own missing rows:
+
+    node platform/pages/faq-coverage.mjs     # entry pages with no derived FAQPage schema
+    node platform/pages/guide-coverage.mjs   # published tools with no secondary guide page
+
+  Run both and take a named row if either has one. Do not assume which
+  backlog is larger -- read the output. An earlier revision of this item
+  hard-coded "the largest measured gap is FAQ content" and sent runs to
+  `faq-coverage.mjs` as the default choice; both tools now report full
+  coverage (169 of 169 on 2026-08-31), so that pointer aimed at an empty
+  list. A run that follows a stale pointer either flounders or invents a
+  gap to fill, and inventing one is the worse outcome.
+
+  If a row exists, fix that one. For a missing FAQ, write a "Common
+  questions" section of `<h3>`-and-`<p>` pairs answering what a real
+  buyer in that niche would actually ask, with the answers derived from
+  what that venture's own `calc.mjs` does -- the real starting rates,
+  hours, and thresholds, quoted accurately. Do not hand-write a
+  `FAQPage` JSON-LD block beside it: `build.mjs` derives the schema from
+  the visible copy, and that is what keeps the two from drifting apart.
+
+  If both tools report full coverage, the presence-or-absence phase is
+  done and the remaining work is depth, not another surface. Pick one
+  venture and make its existing copy answer more of what its buyer
+  actually searches: a question its FAQ does not cover yet, a guide page
+  that answers its title thinly, a title or meta description carrying a
+  phrase nobody types. Depth means a question a real buyer has and this
+  page does not answer -- not a longer version of an answer already
+  there. If you cannot name that question, change nothing and let the
+  run finish empty; the governor counts an empty run and moves the
+  budget to an item that has work. Filler is worse than a clean no-op:
+  a thin second answer competes with the tool's own page for the same
+  query and dilutes it.
+
   Fix the gaps for that one venture: real search phrases a niche user
   would type, accurate JSON-LD, working Open Graph tags. Do not fabricate
   traction, testimonials, or benchmarks. Verify the change with

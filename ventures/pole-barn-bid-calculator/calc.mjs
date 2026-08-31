@@ -155,7 +155,13 @@ export function roofAreaSqFt(lengthFt, widthFt, pitchRise, overhangFt) {
   const rise = number(pitchRise, 'Roof pitch rise');
   const overhang = number(overhangFt, 'Overhang');
   const factor = Math.sqrt(1 + (rise / 12) ** 2);
-  return (length + 2 * overhang) * width * factor;
+  // Overhang extends the roof past the building on all four sides, so both
+  // the rake edges (length) and the eave edges (width) grow by 2x overhang
+  // before the pitch factor projects the flat footprint onto the sloped
+  // surface. An earlier version only extended length, undercounting roof
+  // steel and roof labor by roughly the overhang-to-width ratio on every
+  // job with a nonzero overhang -- the shipped default.
+  return (length + 2 * overhang) * (width + 2 * overhang) * factor;
 }
 
 /**

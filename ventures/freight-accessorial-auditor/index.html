@@ -143,6 +143,20 @@ RESI, 45</textarea>
     <p>Usage is optional, stays in this browser, and counts only audits, invoice imports, CSV downloads, and draft copies. Imported files are read locally and never uploaded — no invoice content, identifiers, cookies, or analytics service are used. Uncheck to turn it off. Do Not Track and Global Privacy Control disable counting automatically.</p>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>Can I check a whole carrier invoice at once?</h3>
+  <p>Yes. Load the CSV your carrier portal or TMS exports, or paste the rows out of a spreadsheet. The columns are guessed from their headings and shown for you to correct. Type your accessorial contract rates once — one CODE, amount per line — and every imported line gets an expected amount to be checked against. On a six-line example invoice with line haul and fuel skipped, four accessorial lines totalling $595.00 import and $325.00 is above the rate card, including a liftgate billed twice. The file is read in your browser and never uploaded.</p>
+  <h3>How do I check detention or storage billed by the hour or day?</h3>
+  <p>Write the rule the way your confirmation states it — DET 65/hr after 2 hours, max 325 — and map the column holding hours or days. A line billed $300.00 with 5 hours on dock expects $195.00, so $105.00 is above the rate card, and the queue, CSV, and dispute draft all say why: 3 hours past 2 free at $65.00/hour. A per-unit code with no quantity imports with a blank expected amount and the reason shown, never a zero. Units understood are hour, minute, day, cwt, pallet, piece, mile, stop, and unit.</p>
+  <h3>How do I audit freight accessorial charges?</h3>
+  <p>Paste each billed line with the amount you expected from the rate confirmation, or leave the expected amount blank and let your rate card price it. The default demo is two $125 liftgate lines on INV-1 (expected $75, evidence missing), a $20 uncoded line that matches, and a $300 detention line with 5 hours on dock and no expected amount typed — the card rates it at $195.00, being 3 hours past 2 free at $65.00/hour. That is $205.00 above expected across 4 flagged of 4 lines, 3 actionable. The page flags duplicates, overages, missing codes, and invalid amounts. It does not decide whether to pay or dispute.</p>
+  <h3>Should I dispute this detention charge?</h3>
+  <p>Compare the billed detention line to the dock clock after free time. On 180 minutes on dock, 120 free, and $75/hour, 1.00 hour is billable — $75.00 expected. A $300.00 billed line is $225.00 above the clock, as if 4.00 hours. That is a review of the line, not a determination that the charge is wrong.</p>
+  <h3>Should I bill this accessorial to the customer?</h3>
+  <p>On a prepaid collect shipment that already paid $180, a $300 detention against $75 supported leaves a $225.00 gap. Eating the line keeps −$120.00. Billing the customer $300.00 keeps $180.00. Paying first and getting that $225.00 credit after 1.5 hours at $42/hr ($63.00 labor) keeps $42.00. The same review with no credit keeps −$183.00. That is cash on these inputs, not a reason to invoice a customer or to file a claim.</p>
+  <h3>Does this fuel surcharge match the contract?</h3>
+  <p>Multiply linehaul by the contract fuel percent and compare that to the billed FSC line. On a $1,200.00 linehaul at 28%, the contract expects $336.00. A $412.00 billed line is 34.33% of linehaul — $76.00 above the contract. A typed bulletin of 26% plus 2 points is the same 28%. That is a review of the line, not a determination that the charge is wrong.</p>
+
   <footer class="small">
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal, or freight-audit advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
@@ -275,10 +289,18 @@ RESI, 45</textarea>
     const totals = auditTotals(results);
     document.getElementById("recoverable").textContent = money(totals.recoverable);
     // Say which lines the figure leaves out. A line with no expected amount is
-    // not a $0.00 expectation, and quietly folding its whole billed value into
+    // not a $0.00 expectation, and a line whose evidence supports the billed
+    // condition is not an outstanding overage — quietly folding either into
     // "above expected" would overstate what there is to ask about.
-    document.getElementById("recoverableNote").textContent = totals.unpriced
-      ? `across priced lines — ${totals.unpriced} line${totals.unpriced === 1 ? " has" : "s have"} no expected amount and ${totals.unpriced === 1 ? "is" : "are"} excluded`
+    const excluded = [];
+    if (totals.unpriced) {
+      excluded.push(`${totals.unpriced} line${totals.unpriced === 1 ? " has" : "s have"} no expected amount`);
+    }
+    if (totals.supported) {
+      excluded.push(`${totals.supported} line${totals.supported === 1 ? " is" : "s are"} supported by evidence`);
+    }
+    document.getElementById("recoverableNote").textContent = excluded.length
+      ? `across priced lines — ${excluded.join(" and ")} and ${excluded.length === 1 ? "is" : "are"} excluded`
       : "across entered lines";
     document.getElementById("flagged").textContent = String(totals.flagged);
     document.getElementById("flaggedOf").textContent = `of ${results.length} lines`;

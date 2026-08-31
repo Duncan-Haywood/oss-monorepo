@@ -241,6 +241,14 @@
     <div class="result" id="result" role="status" aria-live="polite"></div>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>How do I calculate the cutoff frequency of an RC filter?</h3>
+  <p>For a first-order RC filter the -3 dB cutoff frequency is f_c = 1 / (2·π·R·C), where R is in ohms and C is in farads. The time constant is τ = R·C. Whether the filter is low-pass or high-pass only changes where the output is taken, not the cutoff frequency.</p>
+  <h3>What is the cutoff frequency of an RL filter?</h3>
+  <p>For a first-order RL filter the -3 dB cutoff frequency is f_c = R / (2·π·L), with R in ohms and L in henries. The time constant is τ = L / R.</p>
+  <h3>What does the -3 dB cutoff frequency mean?</h3>
+  <p>It is the frequency at which the filter's output power has fallen to half of the input (voltage down to about 70.7%). Beyond it, a first-order filter rolls off at -20 dB per decade (-6 dB per octave).</p>
+
   <footer>
     <h2>What this is (and isn't)</h2>
     <p>
@@ -443,8 +451,7 @@
   }
   for (const el of document.querySelectorAll("input, select")) {
     if (el.name === "mode" || el === typeEl || el === solveForEl) continue;
-    el.addEventListener("input", () => update(true));
-    if (el.tagName === "SELECT") el.addEventListener("change", () => update(true));
+    el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => update(true));
   }
 
   // Initial paint.

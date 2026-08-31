@@ -66,10 +66,10 @@
   <form id="factorForm" class="fields">
     <label>Invoice amount <input id="amount" type="number" min="0.01" step="0.01" value="1200"></label>
     <label>Payment terms (days) <input id="termsDays" type="number" min="0" step="1" value="30"></label>
-    <label>Factor fee (%) <input id="factorFeePct" type="number" min="0" step="0.01" value="3"></label>
+    <label>Factor fee (%) <input id="factorFeePct" type="number" min="0" step="0.01" max="99.99" value="3"></label>
     <label>Advance (%) <input id="advancePct" type="number" min="0.01" max="100" step="any" value="90"></label>
     <label>Reserve days <input id="reserveDays" type="number" min="0" step="1" value="35"></label>
-    <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
+    <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
   </form>
   <p id="summary" class="note"></p>
   <table>
@@ -94,6 +94,14 @@
     <a href="./#factorFeePct">invoice payment terms calculator</a>
     to change the amount.
   </p>
+  <h2>Common questions</h2>
+  <h3>Should I factor this invoice or wait for Net 30?</h3>
+  <p>On the calculator defaults — a $1,200 invoice, a 3% factor fee, a 90% advance, a 35-day reserve, and a 24% annual carrying-cost assumption — factoring leaves $1,161.24 after the $36.00 fee. Waiting 30 days for $1,200 leaves $1,176.33. The fee is larger than the float you skip. This is not a recommendation to factor or to wait.</p>
+  <h3>When does invoice factoring still beat waiting?</h3>
+  <p>When your money is expensive or the fee is cheap. At a 50% annual carrying-cost assumption the same invoice leaves $1,158.25 after factoring and $1,150.68 after waiting. Factoring and waiting match at a 1.74% fee or about 41.3% money. A 1.5% fee at 24% flips ahead by $2.91.</p>
+  <h3>Is factoring the same as offering 2/10 Net 30?</h3>
+  <p>No. 2/10 is a discount you give the client to pay faster. Factoring is a fee you pay a third party while the client still has Net 30. The 2/10 page prices the discount. This page prices the factor fee, the advance, and the reserve.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. It does not tell you to factor or to wait. Verify the output before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

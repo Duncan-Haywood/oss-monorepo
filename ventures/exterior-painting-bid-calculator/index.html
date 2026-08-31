@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Exterior Painting Bid Calculator | Price the Elevation, the Stories, and the Scrape — Not Just a $3,999 House Special</title>
+  <title>Exterior Painting Bid Calculator — Elevation and Scrape</title>
   <meta name="description" content="Price an exterior house-painting job from extra stories, extra elevation square footage, scrape and prime, trim, shutters, and hard access — not a published $3,999 house special. See the walk-away number before you match a cheaper ranch quote.">
   <meta property="og:title" content="Exterior Painting Bid Calculator">
   <meta property="og:description" content="A one-story ranch with 1,800 sf of sound paint is not the same job as a two-story colonial with peeling latex, 240 feet of trim, and hard second-story access. Bid the elevation and the stories.">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Exterior Painting Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Two-coat repaint versus scrape-and-prime versus bare-wood versus elastomeric masonry, extra stories over the included first floor, extra elevation square footage over the included ranch, extra trim, shutters, scrape of failing paint, primer coat, occupied-home protection, hard second-story access, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this exterior paint estimate include?","acceptedAnswer":{"@type":"Answer","text":"Base setup, extra hours for elevation and stories beyond your included allowance, a scrape and prime pass if you flag them, trim beyond the included footage, shutters, occupied-home protection, hard-access time, paint, primer, and caulk from your coverage and coat count, travel and equipment, and overhead and margin on top."}},{"@type":"Question","name":"What’s the difference between this and a flat house-special price?","acceptedAnswer":{"@type":"Answer","text":"A flat price treats every house as the same job. This tool splits out a base allowance for elevation, stories, and trim from what goes beyond it, so a two-story colonial with extra trim, a scrape-and-prime pass, and hard second-story access prices differently than a one-story ranch with sound existing paint, instead of both landing on one number."}},{"@type":"Question","name":"Does changing the job type overwrite my own hourly rates?","acceptedAnswer":{"@type":"Answer","text":"No. Picking a job type only suggests a starting setup time, paint cost per gallon, and coat count, and it will not replace a rate you have already typed over that suggestion. Every hour and dollar figure stays something you can edit."}},{"@type":"Question","name":"Does this cover interior painting or cabinet refinishing?","acceptedAnswer":{"@type":"Answer","text":"No, this prices an exterior paint job specifically: elevation, stories, scrape and prime, and trim. Interior rooms and cabinet doors are a different scope with their own labor and material patterns and are not part of this calculation."}},{"@type":"Question","name":"Does it check for lead paint or the condition of the existing paint?","acceptedAnswer":{"@type":"Answer","text":"No. Scrape and prime are flags you set from your own inspection, and the tool does not test for lead paint, assess paint condition, or perform any building-code check. Confirm those separately before starting work, especially on an older home."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Only your business and contact details for the printed proposal are saved locally on this device; job numbers are not kept between visits."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2418; background: #efe6d4; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,7 +25,7 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8a7a5c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8a7a5c; background: #f4ead4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8a7a5c; background: #f4ead4; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a2418; }
     button:hover { background: #ead8b0; }
     .result { position: sticky; top: 15px; background: #2c2113; color: #f8f1e4; border-color: #2c2113; }
     /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
@@ -243,6 +244,42 @@
       <ul class="split" id="split"></ul>
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and paint rates are common ballpark figures, not an industry standard, a lead-paint determination, or a building-code inspection &mdash; replace them with your own takeoff.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this exterior paint estimate include?</h3>
+      <p>Base setup, extra hours for elevation and stories beyond your included allowance, a scrape
+        and prime pass if you flag them, trim beyond the included footage, shutters, occupied-home
+        protection, hard-access time, paint, primer, and caulk from your coverage and coat count,
+        travel and equipment, and overhead and margin on top.</p>
+
+      <h3>What&rsquo;s the difference between this and a flat house-special price?</h3>
+      <p>A flat price treats every house as the same job. This tool splits out a base allowance for
+        elevation, stories, and trim from what goes beyond it, so a two-story colonial with extra trim,
+        a scrape-and-prime pass, and hard second-story access prices differently than a one-story ranch
+        with sound existing paint, instead of both landing on one number.</p>
+
+      <h3>Does changing the job type overwrite my own hourly rates?</h3>
+      <p>No. Picking a job type only suggests a starting setup time, paint cost per gallon, and coat
+        count, and it will not replace a rate you have already typed over that suggestion. Every hour
+        and dollar figure stays something you can edit.</p>
+
+      <h3>Does this cover interior painting or cabinet refinishing?</h3>
+      <p>No, this prices an exterior paint job specifically: elevation, stories, scrape and prime, and
+        trim. Interior rooms and cabinet doors are a different scope with their own labor and material
+        patterns and are not part of this calculation.</p>
+
+      <h3>Does it check for lead paint or the condition of the existing paint?</h3>
+      <p>No. Scrape and prime are flags you set from your own inspection, and the tool does not test
+        for lead paint, assess paint condition, or perform any building-code check. Confirm those
+        separately before starting work, especially on an older home.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Only
+        your business and contact details for the printed proposal are saved locally on this device;
+        job numbers are not kept between visits.</p>
     </section>
   </main>
 

@@ -323,7 +323,12 @@ function openHouseOrder(input, discountRate, commissionRate, firstOrderExtraRate
  */
 function openHouseDiscountCeiling(input, everydayProfit, commissionRate, firstOrderExtraRate, firstOrderFlat) {
   const atZero = openHouseOrder(input, 0, commissionRate, firstOrderExtraRate, firstOrderFlat);
-  if (atZero.profit + 1e-9 < everydayProfit) return 0;
+  // Behind everyday even with no event discount at all, so the waived
+  // commission funds nothing. Returning 0 here read as a real (if zero)
+  // headroom and could not be told apart from the legitimate case where the
+  // ceiling genuinely is 0% — the event ties everyday at no discount and any
+  // markdown loses. null is "no discount keeps up".
+  if (atZero.profit + 1e-9 < everydayProfit) return null;
   const atTop = openHouseOrder(input, 99.9, commissionRate, firstOrderExtraRate, firstOrderFlat);
   if (atTop.profit + 1e-9 >= everydayProfit) return 99.9;
   let lo = 0;
@@ -486,7 +491,9 @@ export function openHouseNote(comparison) {
     `Everyday first order keeps ${moneyLabel(everyday.profit)} after ${everyday.commissionRate}% + ${moneyLabel(everyday.fees.firstOrder)}.`
     + ` Open House at ${event.commissionRate}% commission and a ${(event.merchandise === 0 ? 0 : event.brandFundedDiscount / event.merchandise * 100).toFixed(0)}% retailer discount keeps ${moneyLabel(event.profit)}`
     + ` (${extra >= 0 ? "+" : ""}${moneyLabel(extra)}).`
-    + ` The waived commission still funds about ${ceiling.toFixed(1)}% off before leftover matches everyday.`
+    + (ceiling === null
+      ? ` The waived commission does not fund any extra discount here — the event is behind everyday even at no markdown.`
+      : ` The waived commission still funds about ${ceiling.toFixed(1)}% off before leftover matches everyday.`)
     + ` Open House at your everyday discount keeps ${moneyLabel(same.profit)} (${comparison.sameListVsEveryday >= 0 ? "+" : ""}${moneyLabel(comparison.sameListVsEveryday)}) — the leak is the deeper discount, not the event.`
     + matchBit
     + pileBit
@@ -737,8 +744,8 @@ export function compareFairePromoted(input = {}) {
   const winner = leaders.length === 1 ? leaders[0].id : "tie";
 
   let breakEvenCampaignRate = Infinity;
-  if (campaignBilled > 1e-12 && merchandise > 1e-12) {
-    breakEvenCampaignRate = (extraOrders * organicProfit * 100) / (campaignBilled * merchandise);
+  if (campaignBilled > 1e-12 && organic.orderSubtotal > 1e-12) {
+    breakEvenCampaignRate = (extraOrders * organicProfit * 100) / (campaignBilled * organic.orderSubtotal);
     if (breakEvenCampaignRate < -1e-9) breakEvenCampaignRate = Infinity;
   } else if (extraOrders === 0 && billedOrganicOrders === 0) {
     breakEvenCampaignRate = Infinity;
@@ -837,7 +844,14 @@ function payNowAfterFloat(order, annualCarryRate, days) {
 
 function payNowRateCeiling(input, skipNet, annualCarryRate, payNowWaitDays) {
   const skipAtZero = payNowAfterFloat(payNowBrandOrder(input, 0), annualCarryRate, payNowWaitDays).net;
-  if (skipAtZero + 1e-9 < skipNet) return 0;
+  // Offering Pay Now is already behind skipping at a 0% discount — which
+  // happens when Pay Now's remittance wait is longer than the normal payout,
+  // so the early-payment benefit is negative before any discount. No rate
+  // recovers that. Returning 0 was indistinguishable from the real case where
+  // offering at 0% exactly ties skipping and any positive rate loses, and the
+  // summary then told a brand the paths "match if the rate falls to about
+  // 0.0%" when at 0.0% offering was still behind.
+  if (skipAtZero + 1e-9 < skipNet) return null;
   let low = 0;
   let high = 99.9;
   for (let i = 0; i < 40; i += 1) {
@@ -870,12 +884,27 @@ function payNowSummaryText(comparison) {
   const rateCeil = Number.isFinite(comparison.breakEvenPayNowRate)
     ? `${comparison.breakEvenPayNowRate.toFixed(1)}%`
     : "an unreachable Pay Now rate";
-  const waitCeil = comparison.breakEvenPayNowWaitDays == null
-    ? "an unreachable remittance wait"
-    : `${comparison.breakEvenPayNowWaitDays.toFixed(1)} days`;
-  const extraFloor = Number.isFinite(comparison.breakEvenExtraOrders)
-    ? comparison.breakEvenExtraOrders.toFixed(2)
-    : "an unreachable extra-order count";
+
+  // The "skip" sentence offers three levers that could close the gap, and any
+  // of them can be out of reach on its own. Splicing a fallback noun into
+  // "falls to about ___" produced "falls to about an unreachable Pay Now
+  // rate", so build only the levers that have a number and say plainly when
+  // none of them does.
+  const levers = [];
+  if (Number.isFinite(comparison.breakEvenPayNowRate)) {
+    levers.push(`the rate falls to about ${comparison.breakEvenPayNowRate.toFixed(1)}%`);
+  }
+  if (comparison.breakEvenPayNowWaitDays != null) {
+    levers.push(`remittance on Pay Now falls to about ${comparison.breakEvenPayNowWaitDays.toFixed(1)} days`);
+  }
+  if (Number.isFinite(comparison.breakEvenExtraOrders)) {
+    levers.push(`extra first orders rise to about ${comparison.breakEvenExtraOrders.toFixed(2)}`);
+  }
+  const leverBit = levers.length === 0
+    ? "Nothing on these numbers brings offering level with skipping."
+    : `The discount matches if ${levers.length === 1
+        ? levers[0]
+        : `${levers.slice(0, -1).join(", ")}, or ${levers[levers.length - 1]}`}.`;
 
   if (comparison.winner === "offer") {
     return (
@@ -896,8 +925,7 @@ function payNowSummaryText(comparison) {
     return (
       `Skipping Pay Now keeps ${gap} more than offering it `
       + `(${skipKeep} vs ${offerKeep}) when remittance stays on your payout schedule. `
-      + `The discount matches if the rate falls to about ${rateCeil}, remittance on Pay Now `
-      + `falls to about ${waitCeil}, or extra first orders rise to about ${extraFloor}. `
+      + `${leverBit} `
       + `Everyone taking it is ${takeKeep}.`
     );
   }

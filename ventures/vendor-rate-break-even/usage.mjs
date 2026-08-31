@@ -22,13 +22,35 @@ function honorsBrowserSignal() {
 
 export function recordUsage(event) {
   const store = storage();
-  if (!store || honorsBrowserSignal() || store.getItem(optOutKey) === 'true') return;
-  const counts = JSON.parse(store.getItem(countsKey) || '{}');
-  counts[event] = (counts[event] || 0) + 1;
-  store.setItem(countsKey, JSON.stringify(counts));
+  if (!store || honorsBrowserSignal()) return;
+  // Usage is optional telemetry called straight out of click handlers (and
+  // once at page load) in index.html, with no surrounding try/catch there.
+  // Blocked storage (private browsing, quota) or corrupted JSON must never
+  // throw out of this call -- an uncaught error here would break the click
+  // handler after the real work (adding a scenario, saving a draft) already
+  // happened, silently dropping the "Saved" feedback the user is waiting on.
+  try {
+    if (store.getItem(optOutKey) === 'true') return;
+    let counts = {};
+    try {
+      counts = JSON.parse(store.getItem(countsKey) || '{}');
+      if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};
+    } catch {
+      counts = {};
+    }
+    counts[event] = (Number.isFinite(counts[event]) ? counts[event] : 0) + 1;
+    store.setItem(countsKey, JSON.stringify(counts));
+  } catch {
+    // Private browsing and storage quotas are normal browser conditions.
+  }
 }
 
 export function setUsageOptOut(value) {
   const store = storage();
-  if (store) store.setItem(optOutKey, String(Boolean(value)));
+  if (!store) return;
+  try {
+    store.setItem(optOutKey, String(Boolean(value)));
+  } catch {
+    // Optional persistence; opting out should never throw.
+  }
 }

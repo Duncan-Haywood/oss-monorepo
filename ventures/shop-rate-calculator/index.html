@@ -9,6 +9,7 @@
   <meta property="og:description" content="Most contractors guess 20% burden and 10% overhead. Enter your own payroll, vehicles, office and billable hours and see the two numbers your bids should actually carry.">
   <link rel="canonical" href="./">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shop Rate Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"True labor burden per billable hour, billable-hour utilization from paid time off and non-billable work, overhead rate as a percentage of direct cost, break-even crew hour, target-margin bill rate, annual revenue and profit at that margin, a comparison of the rate you charge today against the rate your own year requires (the net margin it actually earns, the annual size of the gap, and the billable hours it would take to make it work), and one-click carry of crew wage, burden, overhead and target margin into every trade bid calculator on this site"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does it say my payroll burden is 92% when everyone quotes 20–30%?","acceptedAnswer":{"@type":"Answer","text":"Because the usual figure answers a different question. “Taxes plus insurance as a percentage of wages” is the textbook definition, and on the worked example that really is about 20%. But you pay wages on every paid hour and you invoice only some of them — 15 paid days off, and a fifth of the hours you do work going to drive time, estimating, shop time and warranty callbacks. The example pays 2,080 hours and bills 1,568. Burden here is the percentage that recovers the whole annual cost of employing someone across only the hours that get sold, which is what every bid calculator on this site multiplies by job hours. Use 20% there and the unbilled hours are never recovered on any job."}},{"@type":"Question","name":"Isn’t overhead a percentage of revenue?","acceptedAnswer":{"@type":"Answer","text":"On a profit-and-loss statement, yes. Here it is deliberately a percentage of direct cost, because that is what the bid calculators do with it: they take a job’s labor plus materials and add the overhead rate on top. The denominator is annual direct cost — loaded field labor plus materials and subcontractors — so the number transfers cleanly. Mixing the two up is a quiet, consistent under-recovery on every job you price, because overhead-over-revenue is always the smaller number."}},{"@type":"Question","name":"What is the difference between the bill rate and the break-even rate?","acceptedAnswer":{"@type":"Answer","text":"The break-even rate is what an hour costs you once burden and overhead are both covered — $65.18 on the worked example. Bill at exactly that and you finish the year with zero profit, having worked all of it. The bill rate adds your target net margin on top: at 12% that is $74.07. The gap between the two is the entire profit of the business, which is why a “small” discount off the bill rate is a large fraction of the margin rather than a large fraction of the price."}},{"@type":"Question","name":"Why does the non-billable percentage move the rate so much?","acceptedAnswer":{"@type":"Answer","text":"Because it shrinks the denominator that everything else is divided by. It is the single most sensitive input on this page: the annual cost of employing someone does not change when utilization drops, so every unbilled hour has to be recovered by the hours that remain. The worked example bills 75% of its paid hours. If your crew is at 60% because of drive time or a long quoting cycle, the same wage and the same overheads need a materially higher rate to come out level. Be honest with this number rather than optimistic — it is the one most shops guess high on."}},{"@type":"Question","name":"What do I do with the burden and overhead numbers once I have them?","acceptedAnswer":{"@type":"Answer","text":"Carry them. Every trade bid calculator on this site asks for crew wage, payroll burden %, overhead on direct cost %, and target margin, and those four are exactly what this page computes. Saving them here fills them in on the other tools so you type them once and price every job from the same business figures, instead of reaching for “about 20%” from memory on each one. If a computed rate is too large for the receiving forms to accept, the result says so rather than silently carrying a number that would be dropped."}},{"@type":"Question","name":"Do I count the owner’s pay as overhead or as crew?","acceptedAnswer":{"@type":"Answer","text":"If the owner is working in the field on the jobs being priced, that time belongs in the crew wage and the crew count. If the owner is estimating, selling, and running the office, that pay is overhead — and leaving it out entirely, which is the common habit in an owner-operated shop, makes the overhead rate too low and the bill rate too low with it. Someone has to pay for the hours spent quoting the jobs you did not win, and this is the line where that happens."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your rates are saved in this browser’s local storage so the other tools on this site can use them and so they are still here next visit. The optional usage counter records only which features were used and the day, never your wages, overheads, or the rate it works out."}},{"@type":"Question","name":"Is this an accounting or tax opinion?","acceptedAnswer":{"@type":"Answer","text":"No. It is your own numbers, divided. It makes no determination about tax treatment, workers’ comp classification, or whether anyone is an employee or a contractor, and it does not tell you what to charge — the market and your own judgement do that. Check the figures against your payroll records, your insurance declarations, and a qualified professional before you price work with them."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -188,6 +189,73 @@
       </div>
       <p class="empty" id="empty">The form opens on a worked example for a three-person crew. Change what is different about your shop and press the button.</p>
       <p class="empty" id="exampleNote" hidden>These are the worked example&rsquo;s figures, not yours yet. Change what is different about your shop and press the button.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does it say my payroll burden is 92% when everyone quotes 20&ndash;30%?</h3>
+      <p>Because the usual figure answers a different question. &ldquo;Taxes plus insurance as a
+        percentage of wages&rdquo; is the textbook definition, and on the worked example that really is
+        about 20%. But you pay wages on every paid hour and you invoice only some of them &mdash; 15 paid
+        days off, and a fifth of the hours you do work going to drive time, estimating, shop time and
+        warranty callbacks. The example pays 2,080 hours and bills 1,568. Burden here is the percentage
+        that recovers the <em>whole</em> annual cost of employing someone across only the hours that get
+        sold, which is what every bid calculator on this site multiplies by job hours. Use 20% there and
+        the unbilled hours are never recovered on any job.</p>
+
+      <h3>Isn&rsquo;t overhead a percentage of revenue?</h3>
+      <p>On a profit-and-loss statement, yes. Here it is deliberately a percentage of <em>direct
+        cost</em>, because that is what the bid calculators do with it: they take a job&rsquo;s labor
+        plus materials and add the overhead rate on top. The denominator is annual direct cost &mdash;
+        loaded field labor plus materials and subcontractors &mdash; so the number transfers cleanly.
+        Mixing the two up is a quiet, consistent under-recovery on every job you price, because
+        overhead-over-revenue is always the smaller number.</p>
+
+      <h3>What is the difference between the bill rate and the break-even rate?</h3>
+      <p>The break-even rate is what an hour costs you once burden and overhead are both covered
+        &mdash; $65.18 on the worked example. Bill at exactly that and you finish the year with zero
+        profit, having worked all of it. The bill rate adds your target net margin on top: at 12% that
+        is $74.07. The gap between the two is the entire profit of the business, which is why a
+        &ldquo;small&rdquo; discount off the bill rate is a large fraction of the margin rather than a
+        large fraction of the price.</p>
+
+      <h3>Why does the non-billable percentage move the rate so much?</h3>
+      <p>Because it shrinks the denominator that everything else is divided by. It is the single most
+        sensitive input on this page: the annual cost of employing someone does not change when
+        utilization drops, so every unbilled hour has to be recovered by the hours that remain. The
+        worked example bills 75% of its paid hours. If your crew is at 60% because of drive time or a
+        long quoting cycle, the same wage and the same overheads need a materially higher rate to come
+        out level. Be honest with this number rather than optimistic &mdash; it is the one most shops
+        guess high on.</p>
+
+      <h3>What do I do with the burden and overhead numbers once I have them?</h3>
+      <p>Carry them. Every trade bid calculator on this site asks for crew wage, payroll burden %,
+        overhead on direct cost %, and target margin, and those four are exactly what this page
+        computes. Saving them here fills them in on the other tools so you type them once and price
+        every job from the same business figures, instead of reaching for &ldquo;about 20%&rdquo; from
+        memory on each one. If a computed rate is too large for the receiving forms to accept, the
+        result says so rather than silently carrying a number that would be dropped.</p>
+
+      <h3>Do I count the owner&rsquo;s pay as overhead or as crew?</h3>
+      <p>If the owner is working in the field on the jobs being priced, that time belongs in the crew
+        wage and the crew count. If the owner is estimating, selling, and running the office, that pay
+        is overhead &mdash; and leaving it out entirely, which is the common habit in an owner-operated
+        shop, makes the overhead rate too low and the bill rate too low with it. Someone has to pay for
+        the hours spent quoting the jobs you did not win, and this is the line where that happens.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your
+        rates are saved in this browser&rsquo;s local storage so the other tools on this site can use
+        them and so they are still here next visit. The optional usage counter records only which
+        features were used and the day, never your wages, overheads, or the rate it works out.</p>
+
+      <h3>Is this an accounting or tax opinion?</h3>
+      <p>No. It is your own numbers, divided. It makes no determination about tax treatment, workers&rsquo;
+        comp classification, or whether anyone is an employee or a contractor, and it does not tell you
+        what to charge &mdash; the market and your own judgement do that. Check the figures against your
+        payroll records, your insurance declarations, and a qualified professional before you price work
+        with them.</p>
     </section>
   </main>
 

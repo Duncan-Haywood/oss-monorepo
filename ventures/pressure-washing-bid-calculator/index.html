@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pressure Washing Bid Calculator | Price the Drive, Not Just the Driveway</title>
+  <title>Pressure Washing Bid Calculator — Price the Drive</title>
   <meta name="description" content="Price a pressure washing or soft-wash job from each surface's production rate, plus drive time, setup, chemicals, and a minimum job. See the after-travel hourly and the walk-away number before you send the quote.">
   <meta property="og:title" content="Pressure Washing Bid Calculator">
   <meta property="og:description" content="Bid the surfaces and the drive — not a flat price per square foot — and see what you actually keep per hour after you get there.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pressure Washing Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-surface production rates, travel and setup hours, chemical cost, minimum job, after-travel hourly rate, on-site vs after-travel comparison, walk-away price, proposed-price margin check, maintenance package, copyable bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Pressure Washing Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-surface production rates, travel and setup hours, chemical cost, minimum job, after-travel hourly rate, on-site vs after-travel comparison, walk-away price, proposed-price margin check, maintenance package, copyable bid summary, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a pressure washing job?","acceptedAnswer":{"@type":"Answer","text":"Split the job by surface (driveway, house siding, deck, fence), divide each by a production rate in square feet per hour, add drive time and setup, then load wage, chemicals, overhead, and margin. A flat price per square foot cannot see that house siding washes much slower than a driveway, or that a 40-minute drive each way can cut the after-travel hourly in half."}},{"@type":"Question","name":"Why is my pressure washing bid unprofitable even when the per-foot price looks fine?","acceptedAnswer":{"@type":"Answer","text":"Travel and setup are billed hours. A $200 driveway with 80 minutes of driving is a different job from a $200 driveway around the corner. This calculator reports the after-travel hourly so the drive is visible before the quote goes out."}},{"@type":"Question","name":"What is a typical pressure washing production rate?","acceptedAnswer":{"@type":"Answer","text":"Ballpark starting points only: about 1,000 sq ft/hour for a clean concrete driveway, 500 for a house soft wash, 350 for a wood deck, 250 for a roof. Real rates depend on equipment, soil, storey height, and hand work. Time your own crew and replace the starting figures."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13202c; background: #e8f1f8; }
@@ -20,6 +20,7 @@
     section { background: #fff; border: 1px solid #c5d4e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #10243a0d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #4a5b6c; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #9aafc0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
@@ -133,6 +134,7 @@
     <p class="eyebrow">FOR PRESSURE WASHING &amp; SOFT-WASH CONTRACTORS</p>
     <h1>Price the drive, not just the driveway.</h1>
     <p>Bid a wash the way the job actually runs: each surface divided by the production rate your crew really hits, plus the drive, the setup, the chemical, and the minimum that covers showing up. You get the bid, what it works out to per square foot, and the after-travel hourly &mdash; the number a flat per-foot quote hides.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for pressure washing?</a></p>
   </header>
 
   <main class="layout">
@@ -207,6 +209,8 @@
       <div id="verdict" class="verdict" hidden></div>
       <button type="button" class="copy" id="copySummary">Copy bid summary</button>
       <p id="copyStatus" class="note" hidden></p>
+      <button type="button" class="copy" id="copyShare">Copy share link</button>
+      <p id="shareStatus" class="note" hidden></p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the wash time goes</strong></p>
       <ul class="split" id="split"></ul>
@@ -261,16 +265,28 @@
   <div id="proposalDoc" class="pr-shell" hidden></div>
 <!-- proposal:end -->
 
+  <h2>Common questions</h2>
+  <h3>How do I price a pressure washing job?</h3>
+  <p>Split the job by surface (driveway, house siding, deck, fence), divide each by a production rate in square feet per hour, add drive time and setup, then load wage, chemicals, overhead, and margin. A flat price per square foot cannot see that house siding washes much slower than a driveway, or that a 40-minute drive each way can cut the after-travel hourly in half.</p>
+  <h3>Why is my pressure washing bid unprofitable even when the per-foot price looks fine?</h3>
+  <p>Travel and setup are billed hours. A $200 driveway with 80 minutes of driving is a different job from a $200 driveway around the corner. This calculator reports the after-travel hourly so the drive is visible before the quote goes out.</p>
+  <h3>What is a typical pressure washing production rate?</h3>
+  <p>Ballpark starting points only: about 1,000 sq ft/hour for a clean concrete driveway, 500 for a house soft wash, 350 for a wood deck, 250 for a roof. Real rates depend on equipment, soil, storey height, and hand work. Time your own crew and replace the starting figures.</p>
+
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, chemical, and travel costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, surfaces, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, surfaces, wages, costs, or prices. A share link encodes only the job details you see on screen into the web address itself, so copying one and sending it does not upload anything either.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, formatBidSummary, SURFACE_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -401,6 +417,32 @@
       };
     }
 
+    // The rows readSurfaces() returns are already what a share link needs:
+    // `name` already carries the matched preset's own label (or '' for a
+    // hand-edited "Other surface"), so — unlike a venture with a free-text
+    // room name — no separate reconstruction is required to restore the
+    // exact preset the sender picked.
+    function shareInput() {
+      return {
+        surfaces: readSurfaces(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+      };
+    }
+
+    function applyShare(payload) {
+      if (!payload) return false;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (Array.isArray(payload.surfaces) && payload.surfaces.length > 0) {
+        surfacesHost.replaceChildren();
+        rowSeq = 0;
+        payload.surfaces.forEach(addSurfaceRow);
+        return true;
+      }
+      return false;
+    }
+
     function update() {
       const surfaces = readSurfaces();
       if (surfaces.length === 0) {
@@ -504,13 +546,51 @@
       }
     });
 
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(shareInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      const status = el('shareStatus');
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          const area = document.createElement('textarea');
+          area.value = url;
+          document.body.append(area);
+          area.select();
+          document.execCommand('copy');
+          area.remove();
+        }
+        history.replaceState(null, '', `#${hash}`);
+        status.hidden = false;
+        const leftBehind = overlongTermsNote(terms);
+        status.textContent = leftBehind ? `Share link copied — ${leftBehind}` : 'Share link copied — paste it into a text or email.';
+        count('share_link_copied');
+      } catch {
+        status.hidden = false;
+        status.textContent = 'Could not copy automatically. Select the address bar and copy it yourself.';
+      }
+    }
+
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('shareStatus').hidden = false; el('shareStatus').textContent = 'Copy failed.'; });
+    });
+
     COST_IDS.forEach(id => {
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
     });
     el('usageOptOut').addEventListener('change', update);
 
-    STARTING_SURFACES.forEach(addSurfaceRow);
+    // A share link wins over the starting sample surfaces, the same way it
+    // wins over a local draft on the calculators that have one — someone who
+    // opens a link a contractor sent them should see that contractor's job,
+    // not the three generic starting surfaces.
+    const incomingHash = splitTerms(location.hash);
+    const sharedInputs = decodeShare(incomingHash.payload);
+    applyTerms(decodeTerms(incomingHash.terms), el);
+    if (!applyShare(sharedInputs)) STARTING_SURFACES.forEach(addSurfaceRow);
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------

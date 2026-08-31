@@ -10,7 +10,7 @@ const script = /<script type="module">([\s\S]*?)<\/script>/.exec(html)[1];
 
 test('the landing page names the search phrase and refuses an engineering opinion', () => {
   assert.match(html, /Security Camera Installation Bid Calculator/);
-  assert.match(html, /How Much to Charge to Install CCTV/);
+  assert.match(html, /<title>[^<]*CCTV Storage/);
   assert.match(html, /application\/ld\+json/);
   assert.match(html, /FAQPage/);
   assert.match(html, /SoftwareApplication/);
@@ -21,11 +21,52 @@ test('the landing page names the search phrase and refuses an engineering opinio
   assert.match(html, /Do not keep anonymous local usage counts/);
 });
 
-test('the page wires the calculator and usage modules', () => {
+test('the page wires the calculator, usage, and share modules', () => {
   assert.match(script, /from '\.\/calc\.mjs'/);
   assert.match(script, /from '\.\/usage\.mjs'/);
+  assert.match(script, /from '\.\/share\.mjs'/);
   assert.match(script, /recordUsage\(/);
   assert.match(script, /calculateBid\(/);
+  assert.match(html, /Copy share link/);
+});
+
+test('a share link is decoded before the local draft, and never fakes a clipboard success', () => {
+  // The order matters: a colleague opening a link they were sent should see
+  // that job, not whatever was last typed on their own device.
+  //
+  // The hash is split into this venture's own payload and the proposal's
+  // pfterms segment (see proposal-terms.mjs) before either decoder sees it,
+  // so a deposit or payment-terms clause typed into the panel does not fail
+  // `decodeInputs`'s own parsing and does not get silently dropped from the
+  // link either.
+  assert.match(script, /splitTerms\(location\.hash \|\| location\.search\)/);
+  assert.match(script, /decodeInputs\(incoming\.payload\)/);
+  assert.match(script, /encodeInputs\(readInputs\(\)\)/);
+  // Regression: `navigator.clipboard?.writeText(...)` awaited bare resolves
+  // to undefined (no throw) when the Clipboard API is absent, so a bare
+  // optional-chaining call would report success without copying anything.
+  assert.ok(
+    !/navigator\.clipboard\?\.writeText\([^)]*\);/.test(script.replace(/\s+/g, ' ')),
+    'the copy handler must not await an unguarded optional-chaining clipboard call',
+  );
+  assert.match(script, /window\.prompt\('Copy this link:', url\)/);
+  assert.match(script, /Clipboard unavailable/);
+});
+
+test('the proposal terms ride in the share link, not just the calculator’s own fields', () => {
+  // The recorded defect: this venture's proposal panel offers a deposit
+  // percent, a valid-days figure, and three prose terms, but `share.mjs`'s
+  // encoder is generated from `calc.mjs`'s `INPUT_FIELDS` and never learned
+  // about them — a link carried the priced job but reopened the deposit and
+  // payment terms at the venture's defaults, with the headline price still
+  // matching to the cent.
+  assert.match(script, /from '\.\/proposal-terms\.mjs'/,
+    'proposal-terms.mjs is not imported; a deposit or payment-terms clause would silently drop from every shared link');
+  assert.match(script, /withTerms\(encodeInputs\(readInputs\(\)\), terms\)/);
+  assert.match(script, /decodeTerms\(incoming\.terms\)/);
+  assert.match(script, /applyTerms\(sharedTerms, el\)/);
+  assert.match(script, /overlongTermsNote\(/,
+    'a term that does not fit in the link must be named to the sender, not silently dropped');
 });
 
 test('every input field the calculator declares exists on the form', () => {
@@ -135,4 +176,15 @@ test('the disclaimer in the README and the one on the page are the same clause',
 test('the page is responsive rather than a desktop-only grid', () => {
   assert.match(html, /@media \(max-width: 820px\)/);
   assert.match(html, /width=device-width/);
+});
+
+test('the "how much to charge" SEO page exists, is linked from the calculator, and is in the sitemap', () => {
+  assert.match(html, /how-much-to-charge\.html/, 'index.html does not link to the companion SEO page');
+  const doc = readFileSync(new URL('./how-much-to-charge.html', import.meta.url), 'utf8');
+  assert.match(doc, /How much should I charge to install security cameras/i);
+  assert.match(doc, /FAQPage/);
+  assert.match(doc, /No warranty/);
+  assert.match(doc, /href="\.\/"/, 'the SEO page has no link back to the calculator');
+  const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(sitemap, /how-much-to-charge\.html/);
 });

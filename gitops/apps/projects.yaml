@@ -57,6 +57,26 @@ spec:
       kind: "*"
     - group: policy
       kind: "*"
+    # prod/secrets/portfolio-repo-token.template.yaml is sealed and added to
+    # prod/kustomization.yaml as the site's read-only clone token -- without
+    # this, Argo refuses to sync that SealedSecret the moment it lands,
+    # blocking the launch on a rule mismatch instead of the actual owner
+    # steps. agents and ci already whitelist this kind for the same reason.
+    - group: bitnami.com
+      kind: SealedSecret
+    # prod/portfolio-site.yaml's nightly refresh CronJob and its narrowly
+    # scoped Role/RoleBinding (restart this one Deployment, nothing else)
+    # ship in this venture too. Without these two entries Argo refuses to
+    # sync all three the same way it refused the SealedSecret above -- named
+    # by kind rather than "*" for this group, since rbac.authorization.k8s.io
+    # is the one whitelist that should not be wider than the resources it
+    # actually needs to admit.
+    - group: batch
+      kind: CronJob
+    - group: rbac.authorization.k8s.io
+      kind: Role
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject

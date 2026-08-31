@@ -24,6 +24,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
+import { decodeEntities } from './entities.mjs';
+import {
+  FEED_MAX_ENTRIES,
+  feedUpdatedAt,
+  isIsoDate,
+  loadLaunchDates,
+  orderForFeed,
+} from './launched.mjs';
+
 import {
   ICONS,
   OFFLINE_WIDGET_HTML,
@@ -62,6 +71,13 @@ import {
   renderBidLinkModule,
 } from './link.mjs';
 import {
+  EMBED_MODULE_FILE,
+  EMBED_STYLE_FILE,
+  injectEmbedWidget,
+  renderEmbedModule,
+  renderEmbedStyle,
+} from './embed.mjs';
+import {
   INVALID_MODULE_FILE,
   INVALID_STYLE_FILE,
   injectInvalidField,
@@ -88,7 +104,7 @@ const ENTRY_CANDIDATES = ['index.html', path.join('site', 'index.html')];
 
 // Ventures whose public surface is not at one of the standard paths.
 const ENTRY_OVERRIDES = {
-  // Five electronics calculators behind their own hub page.
+  // Six electronics calculators behind their own hub page.
   'ai-engineering-academy': 'tools',
 };
 
@@ -171,6 +187,32 @@ export const SEARCH_ALIASES = [
   // across words — "ac" alone would still have found nothing.
   { slug: 'mini-split', add: 'ac unit units' },
   { slug: 'hvac-maintenance', add: 'ac unit units' },
+  // "Tuckpointing" and "repointing" name the same job; a homeowner or GC
+  // typing either word, or the material ("mortar", "brick", "masonry"),
+  // found nothing, because the tool's own copy only ever says
+  // "tuckpointing" and "wall".
+  { slug: 'tuckpointing', add: 'brick masonry mortar repointing brickwork' },
+  // The trade word for what this tool prices is "hardscape" or
+  // "hardscaping"; the tool's own copy says "paver" and "patio" but never
+  // the word the industry and the customer both search first.
+  { slug: 'paver-patio', add: 'hardscape hardscaping' },
+  // The regulation that drives most of this tool's demand is never named in
+  // its own copy, so a search for the term that actually motivates the
+  // purchase ("ADA ramp", "wheelchair accessibility") found nothing.
+  { slug: 'wheelchair-ramp', add: 'ada accessibility accessible' },
+  // "Sheetrock" is the genericized brand name half the trade uses instead
+  // of "drywall".
+  { slug: 'drywall', add: 'sheetrock' },
+  // The professional a homeowner searches for tree work by title.
+  { slug: 'tree-service', add: 'arborist' },
+  // The pump type most residential wells actually use, and the word a
+  // customer researching a quote is as likely to type as "well pump".
+  { slug: 'well-pump', add: 'submersible' },
+  // "Replacement" does not stem down to "replace" under the suffix list
+  // above (no `-ment` rule), so a query built around the word a customer
+  // actually uses — "pool liner replacement" — matched nothing even though
+  // the tool's own copy says "replace" throughout.
+  { slug: 'vinyl-liner', add: 'replacement replacing' },
 ];
 
 /**
@@ -237,6 +279,10 @@ const CATEGORY_RULES = [
     id: 'marketplace',
     title: 'Marketplace seller tools',
     blurb: 'Price a listing, a fee change, or a program before you opt in — with your own cost of goods in the arithmetic.',
+    // The share-card field colour for every tool in this section — see
+    // `socialCardFileFor` and `SOCIAL_CARD_ACCENTS` below for why each
+    // category gets its own tint. This one is the site's own brand teal.
+    accent: '#12594a',
     // `tiktok-shop` and `delivery-app` sell through someone else's storefront and
     // pay someone else's fee schedule, which is what this section is: they sat in
     // the catch-all, where a seller looking for their marketplace never scrolled.
@@ -245,11 +291,16 @@ const CATEGORY_RULES = [
     // section feeds into, so it belongs here for the same reason — landing in
     // the catch-all would hide the one page that answers "which of these?" from
     // the readers of all the pages that answer "how much on this one?".
-    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare)/.test(slug),
+    // `str-host` is an Airbnb-vs-Vrbo payout calculator: a host comparing two
+    // marketplaces' fee schedules on one booking, which is this section's exact
+    // job. It sat in the catch-all because the slug does not start with a
+    // storefront's name.
+    test: (slug) => /^(amazon|ebay|etsy|shopify-fee|faire|reverb|walmart|where-to-sell|tiktok-shop|delivery-app|marketplace-fee-compare|str-host)/.test(slug),
   },
   {
     id: 'trades',
     title: 'Trade & contractor bids',
+    accent: '#5c4412',
     // Names the proposal because it is the half a visitor is searching for.
     // The bid arithmetic is what the contractor needs; the printed quote is
     // what wins them the job, and it was invisible on the one page most
@@ -259,11 +310,32 @@ const CATEGORY_RULES = [
     // payroll burden and overhead rate that every bid calculator below asks for.
     // Landing in the catch-all would have hidden it from exactly the readers who
     // meet those two fields.
-    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate)/.test(slug),
+    // `cleaning-dilution`, `hvac-maintenance` and `appliance-repair` are trade
+    // work whose slugs end in something other than `bid-calculator`, so they
+    // landed in the catch-all — where a cleaning contractor reading "Cleaning,
+    // restoration & insulation" and an HVAC contractor reading "HVAC, plumbing
+    // & electrical" never saw them. The tool existed, its audience was browsing
+    // the right section, and it was not in it.
+    test: (slug) => /bid-calculator$/.test(slug) || /^(janitorial|retainage|quote-margin|no-show-fee|freelance-retainer|change-order|job-margin|subcontractor-cashflow|contractor-bid-readiness|construction-evidence|shop-rate|cleaning-dilution|hvac-maintenance|appliance-repair)/.test(slug),
+  },
+  {
+    id: 'services',
+    title: 'Service business pricing & quotes',
+    accent: '#1d4a5c',
+    blurb: 'Price a visit, a route, a booking, or a licence — for the service businesses that quote work without bidding a construction job.',
+    // These six were the coherent half of the catch-all: one-person and small
+    // service businesses (salon, photographer, mobile notary, pool route, event
+    // rental, translator) that all do the same job — turn time, travel and
+    // materials into a price for a customer — and none of which is a trade bid,
+    // a marketplace fee, or a back-office reconciliation. Grouped by an explicit
+    // slug list rather than a keyword, because what unites them is the buyer,
+    // and no substring names that.
+    test: (slug) => /^(booth-rent|commercial-photo-license|notary-trip|pool-route|portable-restroom|translator-project)/.test(slug),
   },
   {
     id: 'logistics',
     title: 'Logistics, freight & cloud cost',
+    accent: '#3d2f5c',
     blurb: 'Normalise a quote, audit a bill, or size a transfer window before you sign for it.',
     // `ltl-`, `owner-operator-` and `medical-courier-` are freight arithmetic that
     // was landing in the catch-all only because the slug did not start with "3pl".
@@ -272,6 +344,7 @@ const CATEGORY_RULES = [
   {
     id: 'evidence',
     title: 'Compliance checks & evidence records',
+    accent: '#5c2a1f',
     blurb: 'Produce a dated record of what you checked. Observations you act on — never a determination made on your behalf.',
     test: (slug) =>
       /(evidence|evidence-packet|preflight|drift|tracker|record|watch|desk)$/.test(slug)
@@ -280,6 +353,7 @@ const CATEGORY_RULES = [
   {
     id: 'backoffice',
     title: 'Back-office money & contracts',
+    accent: '#1f5c35',
     blurb: 'Cash timing, contract terms, and the break-even behind a price change — the arithmetic that happens after the job is won.',
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
@@ -291,10 +365,157 @@ const FALLBACK_CATEGORY = {
   id: 'more',
   title: 'More free tools',
   blurb: 'Everything else that runs entirely in your browser.',
+  accent: '#3a4552',
 };
 
 export function categoryFor(slug) {
   return CATEGORY_RULES.find((rule) => rule.test(slug)) ?? FALLBACK_CATEGORY;
+}
+
+/**
+ * The share-card image a page in this category points at. One file per
+ * category (7 total, named by a stable id) rather than one per tool (164,
+ * named by a title that renames): a rebrand or a retitled tool never breaks
+ * this filename, and a share into the roofing group and a share into the
+ * marketplace-fee thread render as visibly different cards without anyone
+ * drawing 164 of them. See `renderSocialCard`'s `color` parameter in
+ * `offline.mjs` for why a colour field is the whole difference — there is no
+ * font rasteriser in this build to draw a per-category headline with.
+ */
+export function socialCardFileFor(categoryId) {
+  return `social-card-${categoryId}.png`;
+}
+
+/**
+ * The share card for one tool, served from inside that tool's own directory.
+ *
+ * Named by slug, not by title: a slug is the URL and therefore already the
+ * thing that cannot change without a redirect, whereas titles here are edited
+ * for search wording several times a year. Under `<slug>/` rather than at the
+ * root so 164 files do not land beside `robots.txt`, and so deleting a venture
+ * takes its card with it.
+ *
+ * Categories keep their own tinted card (`socialCardFileFor`) because a
+ * category page is not a tool and has no slug of this kind.
+ */
+export function toolCardFileFor(slug) {
+  return `${slug}/share-card.png`;
+}
+
+// The two lines every tool and category card carries besides its headline.
+// Both are claims the site already makes on its manifest and its About page —
+// a card is the wrong place to introduce a new one.
+export const CARD_FOOTER = 'Runs in your browser · nothing you type is uploaded';
+
+export const ALL_CATEGORIES = [...CATEGORY_RULES, FALLBACK_CATEGORY];
+
+/**
+ * Where a category's own landing page is served.
+ *
+ * Under `c/` rather than at the root because the root is the product
+ * namespace: a directory there is a published tool, and `check.mjs` reads it
+ * that way (it requires an `index.html`, a hub link, and a disclaimer for each
+ * one). A single reserved prefix keeps the two namespaces from colliding the
+ * first time someone ships a venture called `logistics`.
+ */
+export const CATEGORY_PATH_PREFIX = 'c';
+
+export function categoryPagePath(categoryId) {
+  return `${CATEGORY_PATH_PREFIX}/${categoryId}/`;
+}
+
+/**
+ * The one page on this site that is about the site rather than about a job to
+ * be done. Served as a directory so the URL a person types, links, or reads
+ * aloud is `/about` with no extension.
+ */
+export const ABOUT_PATH = 'about/';
+
+/**
+ * The copy each category page is published with.
+ *
+ * Separate from `CATEGORY_RULES` because these are different jobs. The rules
+ * decide which tools a section holds and are edited every time a venture
+ * lands; this is the page's search-facing copy — the phrase a visitor actually
+ * types — and changes only when the category's audience does.
+ *
+ * The hub cannot do this job itself. It is one URL carrying 164 tools across
+ * six trades, so its title and description have to stay generic enough to
+ * cover all of them, and it competes for "free contractor bid calculator"
+ * against pages that are about nothing else. A category page is about one
+ * thing, which is the whole reason it can rank for one thing.
+ *
+ * `title` deliberately omits the site name: the build appends it, and a title
+ * that carries it twice is what search engines truncate.
+ */
+const CATEGORY_PAGE_COPY = {
+  marketplace: {
+    title: 'Free marketplace seller fee calculators',
+    description:
+      'Free fee and profit calculators for eBay, Etsy, Amazon, Shopify, Walmart, TikTok Shop, Faire and Reverb. Enter your cost of goods, see what an order nets.',
+    intro:
+      'Every marketplace publishes a fee schedule and none of them publish what you keep. These calculators put your own cost of goods, shipping and return rate into the arithmetic, so the number you get is the one that lands in your account — not a percentage off the sale price.',
+    audience: 'people selling on marketplaces',
+  },
+  trades: {
+    title: 'Free contractor bid calculators and estimating tools',
+    description:
+      'Free bid calculators for roofing, HVAC, plumbing, electrical, concrete, painting and cleaning. Price materials, crew hours and overhead, then print a proposal.',
+    intro:
+      'A bid that only counts materials and an hourly rate loses money on burden, overhead and the extras nobody wrote down. These calculators price a job the way the trade does, then print the customer a proposal with the scope, the deposit split and a line to sign.',
+    audience: 'trade contractors',
+  },
+  logistics: {
+    title: 'Free freight, 3PL and cloud cost calculators',
+    description:
+      'Free tools to normalise a 3PL quote, audit an LTL freight bill, price owner-operator miles, cost a cut list and size a cloud egress transfer before you sign.',
+    intro:
+      'Freight and cloud quotes are priced to be hard to compare: different accessorial lists, different fuel bases, different units. These tools put competing quotes on one basis so the cheapest headline rate and the cheapest total stop being different answers.',
+    audience: 'logistics and infrastructure buyers',
+  },
+  evidence: {
+    title: 'Free compliance check and evidence record tools',
+    description:
+      'Free tools that produce a dated record of what you checked: e-invoicing readiness, backup verification, DNS evidence, accessibility, chargeback packets.',
+    intro:
+      'The hard part of a compliance obligation is usually not the check — it is proving later that you did it, on the day you say you did. These tools produce a dated, exportable record of an observation you made, in a form you can hand to whoever asks.',
+    audience: 'small teams preparing compliance evidence',
+  },
+  backoffice: {
+    title: 'Free small-business cash flow and pricing tools',
+    description:
+      'Free calculators for cash runway, invoice payment terms, CAM reconciliation, SaaS seat true-ups and break-even on a price move — the arithmetic after the win.',
+    intro:
+      'Winning the work and getting paid for it are two different problems. These tools cover the second one: when the cash actually arrives, what a payment term costs you, and what a price change has to earn before it breaks even.',
+    audience: 'small-business owners and operators',
+  },
+  services: {
+    title: 'Free pricing calculators for service businesses',
+    description:
+      'Free quoting tools for salons, photographers, mobile notaries, pool routes, event rentals and translators. Turn travel, time and materials into a price.',
+    intro:
+      'A service business quotes work without bidding a construction job, and the arithmetic is its own: travel time nobody bills, a route that has to cover the truck, a licence term that changes what the work is worth. These tools price that, one trade at a time.',
+    audience: 'small service businesses',
+  },
+  more: {
+    title: 'More free small-business calculators',
+    description:
+      'The rest of the free, browser-only calculators here — everything outside the marketplace, trade, logistics, compliance and back-office sections.',
+    intro:
+      'Tools that did not fit the other sections. Same terms as the rest of the site: free, no account, and every calculation runs in your own browser.',
+    audience: 'small businesses',
+  },
+};
+
+export function categoryPageCopy(category) {
+  return (
+    CATEGORY_PAGE_COPY[category.id] ?? {
+      title: category.title,
+      description: category.blurb,
+      intro: category.blurb,
+      audience: 'small businesses',
+    }
+  );
 }
 
 /**
@@ -328,7 +549,7 @@ const SUBCATEGORY_RULES = {
     {
       id: 'trades-cleaning',
       title: 'Cleaning, restoration & insulation',
-      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam)/.test(slug),
+      test: (slug) => /^(janitorial|window-cleaning|pressure-washing|carpet-cleaning|cleaning-dilution|hood-cleaning|duct-cleaning|dryer-vent|gutter-cleaning|chimney-sweep|mobile-detailing|junk-removal|moving|pest-control|mold-remediation|radon-mitigation|crawl-space|basement-waterproofing|attic-insulation|spray-foam)/.test(slug),
     },
     {
       id: 'trades-roof',
@@ -346,7 +567,7 @@ const SUBCATEGORY_RULES = {
       // `security-camera` sits here as low-voltage electrical work: the people
       // who bid it are the electrical and structured-cabling trades, and it is
       // closer to a panel or EV-charger job than to anything in the other groups.
-      test: (slug) => /^(furnace|boiler|mini-split|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera)/.test(slug),
+      test: (slug) => /^(furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -453,13 +674,11 @@ export async function discoverSurfaces(venturesDir) {
 // Metadata
 // ---------------------------------------------------------------------------
 
-const decodeEntities = (value) =>
-  value
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'");
+// `decodeEntities` is imported at the top of this file, shared with the page
+// checks so that a `<meta>` description and the visible copy it is compared
+// against decode the same way. The local five-entity version that used to sit
+// here read `&mdash;` back out verbatim, and 1,324 of those ship in this
+// repo's HTML.
 
 /**
  * Every `<meta>` tag in `html`, as raw source.
@@ -523,6 +742,80 @@ export function truncate(text, limit = 180) {
   const cut = text.slice(0, limit);
   const lastSpace = cut.lastIndexOf(' ');
   return `${cut.slice(0, lastSpace > 40 ? lastSpace : limit).replace(/[,;:.\s]+$/, '')}…`;
+}
+
+/**
+ * How long a published page's own description may be.
+ *
+ * 160 is where a search result stops showing one: Google renders roughly that
+ * many characters of a snippet on a desktop result and fewer on a phone. It is
+ * also the budget that matters for the other half of this site's acquisition —
+ * a link pasted into a trade group or a Discord — where the preview card gives
+ * the description two or three lines and drops the rest.
+ */
+export const SNIPPET_MAX = 160;
+
+/**
+ * A boundary is only worth cutting at if it leaves most of the budget used —
+ * otherwise an early full stop turns a 160-character budget into a 20-character
+ * snippet, which is a worse result than the truncation being avoided.
+ */
+const snippetFloor = (limit) => Math.floor(limit * 0.6);
+
+const lastIndexMatching = (text, pattern) => {
+  let at = -1;
+  for (const match of text.matchAll(pattern)) at = match.index;
+  return at;
+};
+
+/**
+ * A page description cut to something a search result and a share card can
+ * actually show, ending where the prose does rather than mid-thought.
+ *
+ * WHY THIS EXISTS
+ *
+ * These descriptions accrete. Every session that adds a feature to a tool adds
+ * a clause to its description saying so, nothing ever trims one, and the result
+ * is copy no reader will ever see the end of: 138 of 168 published pages were
+ * over the snippet budget, 11 of them past 300 characters, and the eBay
+ * calculator had reached 1,862 — a single sentence of twenty-five "whether X
+ * still beats Y" clauses, of which a search result showed the first 160 and
+ * stopped in the middle of the word "whether".
+ *
+ * The long copy is not waste and is not deleted here: `readMeta` keeps it as
+ * `fullDescription`, which is what the hub's search indexes and what `llms.txt`
+ * hands a model. It is only wrong in the two places a human reads a fixed
+ * number of characters. So the budget is applied where it is published, not to
+ * the venture's own source, and a session can keep writing as much as the tool
+ * deserves without having to think about a limit.
+ *
+ * `truncate` is the wrong instrument for this: it cuts at a whole word, which
+ * for a description made of clauses lands on "...whether a…". Prefer a sentence
+ * end inside the budget (nothing is added and no truncation is visible), then a
+ * clause boundary with an ellipsis, and only fall back to a word.
+ */
+export function snippetize(text, limit = SNIPPET_MAX) {
+  const clean = String(text ?? '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= limit) return clean;
+
+  const floor = snippetFloor(limit);
+  const window = clean.slice(0, limit);
+
+  // A sentence that ends inside the budget is the best possible cut: the
+  // snippet is a whole thought and nothing marks it as shortened.
+  const sentence = lastIndexMatching(window, /[.!?](?=["')\]]?(?:\s|$))/g);
+  if (sentence >= floor) return clean.slice(0, sentence + 1);
+
+  // Otherwise end at the last clause. The ellipsis is honest — the sentence
+  // does go on — and it is where a reader would have stopped anyway.
+  const clause = lastIndexMatching(window, /[,;:](?=\s)|\s[—–-](?=\s)/g);
+  if (clause >= floor) return `${clean.slice(0, clause).replace(/[\s,;:—–-]+$/, '')}…`;
+
+  // `truncate` overshoots by the ellipsis on text with no space to fall back to
+  // (a single unbroken token), which is the one input that would ship a snippet
+  // over the budget this function exists to hold.
+  const word = truncate(clean, limit);
+  return word.length <= limit ? word : `${clean.slice(0, limit - 1)}…`;
 }
 
 /**
@@ -966,6 +1259,478 @@ export function groupByCategory(surfaces) {
     .filter((group) => group.items.length > 0);
 }
 
+/**
+ * The shared look for a category page. Kept as one string rather than a file so
+ * a category page is a single request with nothing to 404: the hub already
+ * inlines its own, for the same reason.
+ *
+ * Deliberately a subset of the hub's sheet — the same tokens, the same card,
+ * none of the search-box or contents-index rules a category page has no markup
+ * for. Two sheets that share a palette drift; two sheets that share *names*
+ * drift visibly, which is the point.
+ */
+const CATEGORY_STYLE = `
+    :root {
+      color-scheme: light dark;
+      --bg: #eef2f7; --panel: #ffffff; --ink: #1d2530; --muted: #4a5666;
+      --line: #d3dce6; --accent: #12594a; --soft: #656e78;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #10151c; --panel: #171e27; --ink: #e8eef5; --muted: #a2b0c0;
+              --line: #2a343f; --accent: #7fd8c0; --soft: #8d9aab; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 26px 18px 60px; }
+    .crumbs { font-size: .87rem; color: var(--muted); margin: 0 0 22px; }
+    .crumbs a { color: var(--accent); }
+    header { max-width: 760px; margin-bottom: 8px; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .09em;
+               text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05;
+         letter-spacing: -.04em; margin: 0 0 14px; }
+    .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
+    .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
+    .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
+                   color: var(--muted); font-weight: 700; margin: 0 0 12px;
+                   padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+    .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
+    .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
+             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+            padding: 17px 18px; }
+    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card a { color: inherit; text-decoration: none; }
+    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+    .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
+    .siblings { margin-top: 44px; padding: 18px; background: var(--panel);
+                border: 1px solid var(--line); border-radius: 13px; }
+    .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
+                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
+    .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
+    .siblings span { color: var(--soft); font-weight: 500; }
+    footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+             color: var(--muted); font-size: .9rem; line-height: 1.55; max-width: 760px; }
+    footer h2 { font-size: .95rem; color: var(--ink); margin: 18px 0 6px; }
+    footer p { margin: 0; }
+    footer a { color: var(--accent); }
+`;
+
+/**
+ * One category's landing page.
+ *
+ * Why these exist at all: the hub is a single URL carrying 164 tools across six
+ * unrelated trades. That is the right front door for someone who already knows
+ * the site, and the wrong page for organic search, which matches a query
+ * against one page's whole subject. A contractor searching "free roofing bid
+ * calculator" is competing for the hub's attention with eleven marketplace fee
+ * tools and nine compliance checks, and the hub cannot describe itself as a
+ * roofing page without lying to the other 153.
+ *
+ * A category page is about one thing, links only that thing's tools, and says
+ * so in its title, its description, its H1 and its JSON-LD. It also gives the
+ * catalogue an internal-linking layer it did not have: every tool was one click
+ * from a page about everything, and is now one click from a page about its own
+ * trade.
+ *
+ * Not a copy of the hub with a filter applied. No search box (the hub's is
+ * better and this page is already the filtered view), and the cards carry no
+ * `data-search` payload, which is a meaningful weight saving on the 112-tool
+ * trades page.
+ */
+export function renderCategoryPage({ category, items, groups, baseUrl }) {
+  const copy = categoryPageCopy(category);
+  const url = `${baseUrl}${categoryPagePath(category.id)}`;
+  // Every asset lives at the site root and this page is served two levels down.
+  const toRoot = '../../';
+  const subgroups = groupBySubcategory(category.id, items);
+  const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
+
+  const renderCard = (surface) => `          <li class="card">
+            <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-tool="${escapeHtml(surface.slug)}" data-pf-to="${escapeHtml(surface.slug)}">
+              <h3>${escapeHtml(surface.title)}</h3>
+            </a>
+            <p>${escapeHtml(surface.description)}</p>
+            ${
+              surface.pageCount > 1
+                ? `<p class="meta">${surface.pageCount} question${surface.pageCount === 1 ? '' : 's'} answered</p>`
+                : ''
+            }
+          </li>`;
+
+  const body = flat
+    ? `      <ul class="cards">
+${items.map(renderCard).join('\n')}
+      </ul>`
+    : subgroups
+        .map(
+          ({ subcategory, items: subItems }) => `      <section class="subgroup" id="${escapeHtml(subcategory.id)}">
+        <h2>${escapeHtml(subcategory.title)} <span class="subgroup-count">${subItems.length}</span></h2>
+        <ul class="cards">
+${subItems.map(renderCard).join('\n')}
+        </ul>
+      </section>`,
+        )
+        .join('\n');
+
+  // Sibling links matter more here than they look. Without them each category
+  // page is a leaf: a crawler that lands on one from search reaches the hub and
+  // nothing else, and a visitor whose tool is one section over has to go back
+  // to a page of 164 to find it.
+  const siblings = groups
+    .filter((group) => group.category.id !== category.id)
+    .map(
+      ({ category: other, items: otherItems }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(other.id)}`)}">${escapeHtml(
+          categoryPageCopy(other).title,
+        )}</a> <span>(${otherItems.length})</span></li>`,
+    )
+    .join('\n');
+
+  const itemList = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: copy.title,
+    url,
+    description: copy.description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: category.title, item: url },
+      ],
+    },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: items.length,
+      itemListElement: items.map((surface, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${baseUrl}${surface.slug}/`,
+        name: surface.title,
+      })),
+    },
+  };
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${copy.title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(copy.description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(copy.title)}">
+  <meta property="og:description" content="${escapeHtml(snippetize(copy.description))}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${socialCardFileFor(category.id)}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${copy.title} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(itemList)}</script>
+  <style>${CATEGORY_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} free tools</a> › ${escapeHtml(category.title)}</p>
+    <header>
+      <p class="eyebrow">${escapeHtml(category.title)}</p>
+      <h1>${escapeHtml(copy.title)}</h1>
+      <p class="lede">${escapeHtml(copy.intro)}</p>
+      <p class="count">${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded</p>
+    </header>
+
+    <main>
+${body}
+    </main>
+
+    <section class="siblings">
+      <h2>Other tools on this site</h2>
+      <ul>
+${siblings}
+      </ul>
+    </section>
+
+    <footer>${DISCLAIMER_HTML}
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${escapeHtml(String(groups.reduce((n, g) => n + g.items.length, 0)))} tools</a> · <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+    </footer>
+  </div>
+  <!-- The same anonymous, local-only counter every tool page loads, with the
+       category as its slug. Without it a category page is unmeasurable: we
+       would not know whether search sends anyone to one, nor whether the people
+       it does send go on to open a tool — which is the only evidence that would
+       justify keeping these pages or writing more of them. The cross_tool_click
+       count on each card is the second half of that: arrivals without opens
+       means the copy is wrong, not that the page is unwanted. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(`${CATEGORY_PATH_PREFIX}/${category.id}`)}" defer></script>
+</body>
+</html>
+`;
+}
+
+/**
+ * Prose rules the card-and-grid sheet has no need for. Appended to
+ * `CATEGORY_STYLE` rather than replacing it so the About page inherits the same
+ * palette, the same `.wrap`, the same footer treatment — a visitor arriving
+ * from a tool page should not feel they have left the site.
+ */
+const ABOUT_STYLE = `
+    .prose { max-width: 720px; }
+    .prose h2 { font-size: 1.25rem; letter-spacing: -.02em; margin: 38px 0 12px; }
+    .prose h3 { font-size: 1rem; margin: 24px 0 6px; }
+    .prose p { color: var(--muted); line-height: 1.62; margin: 0 0 14px; }
+    .prose ul { color: var(--muted); line-height: 1.62; padding-left: 22px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 7px; }
+    .prose a { color: var(--accent); }
+    .prose strong { color: var(--ink); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
+             padding: 18px 20px; margin: 0 0 16px; }
+    .panel h3 { margin-top: 0; }
+    .panel p:last-child, .panel ul:last-child { margin-bottom: 0; }
+    .boiler { font-size: .93rem; line-height: 1.6; color: var(--ink);
+              background: var(--bg); border: 1px solid var(--line); border-radius: 9px;
+              padding: 13px 15px; margin: 0 0 12px; white-space: pre-wrap;
+              font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+`;
+
+/**
+ * The site's About page — and, in its second half, its press kit.
+ *
+ * Why a static catalogue of calculators needs one at all:
+ *
+ * 1. **Trust.** Every one of these tools asks a stranger to type their costs,
+ *    their margins, or their client's numbers into a page they found through
+ *    search. The single most common reason not to is the reasonable suspicion
+ *    that a free calculator is a lead magnet and the numbers are the product.
+ *    Here they are not, and that is checkable — no form, no account, no
+ *    beacon, no third-party script. Nowhere on the site said so in one place a
+ *    person could read before deciding.
+ *
+ * 2. **Distribution.** Organic linking is the whole acquisition plan. Somebody
+ *    writing a forum answer or a trade-association newsletter needs a sentence
+ *    to describe this, a URL to point at, and permission to do it. Making them
+ *    invent all three is why good tools go unlinked. The press-kit section
+ *    hands over exactly that, pre-written and copy-pasteable.
+ *
+ * Every claim here is one the build itself keeps true: the counts come from
+ * `surfaces`, and the privacy claims are properties of the generated output
+ * (no `fetch`, no `sendBeacon`, no third-party origin) rather than promises
+ * written by hand and left to rot.
+ */
+export function renderAboutPage({ surfaces, groups, baseUrl }) {
+  const url = `${baseUrl}${ABOUT_PATH}`;
+  // Served one level down, like a category page is served two.
+  const toRoot = '../';
+  const total = surfaces.length;
+  const categoryCount = groups.length;
+  const title = 'About these tools';
+  const description = `Who makes these ${total} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
+
+  // The boilerplate a linker copies. Kept as data, not prose, so the numbers in
+  // it cannot drift from the catalogue the way hand-written marketing copy does.
+  const shortBoiler = `${total} free, private calculators for small businesses — bid pricing, marketplace fees, cashflow and compliance checks. No account, everything runs in your browser.`;
+  const longBoiler = `${SITE_NAME} is a collection of ${total} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, no upload, and no third-party analytics — the numbers a user types never leave their device, and each tool keeps working offline once it has been opened. All ${total} are free with no gated features and no paid tier.`;
+
+  const aboutLd = {
+    '@context': 'https://schema.org',
+    '@type': 'AboutPage',
+    name: title,
+    url,
+    description,
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: SITE_NAME, item: baseUrl },
+        { '@type': 'ListItem', position: 2, name: title, item: url },
+      ],
+    },
+  };
+
+  const categoryLinks = groups
+    .map(
+      ({ category, items }) =>
+        `        <li><a href="${escapeHtml(`${toRoot}${categoryPagePath(category.id)}`)}">${escapeHtml(
+          categoryPageCopy(category).title,
+        )}</a> <span>(${items.length})</span></li>`,
+    )
+    .join('\n');
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(`${title} | ${SITE_NAME}`)}</title>
+  <meta name="description" content="${escapeHtml(snippetize(description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(title)}">
+  <meta property="og:description" content="${escapeHtml(description)}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">${jsonLd(aboutLd)}</script>
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="crumbs"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">All ${total} free tools</a> › About</p>
+    <header>
+      <p class="eyebrow">About</p>
+      <h1>${escapeHtml(title)}</h1>
+      <p class="lede">${total} free calculators and checks for people who run a small business. They run in your browser, they cost nothing, and nothing you type into them is uploaded anywhere.</p>
+    </header>
+
+    <main class="prose">
+      <h2>What this is</h2>
+      <p>
+        A working set of ${total} small, single-purpose web tools across
+        ${categoryCount} areas — pricing a job, checking what a marketplace sale
+        actually nets, planning cashflow, normalising freight quotes, and
+        assembling the evidence a compliance obligation asks for. Each one
+        exists because the arithmetic behind it is easy to get wrong under time
+        pressure and expensive to get wrong in front of a customer.
+      </p>
+      <p>
+        They are deliberately narrow. A tool here answers one question for one
+        kind of business, rather than being a spreadsheet template that answers
+        none of them well.
+      </p>
+
+      <h2>What happens to what you type</h2>
+      <div class="panel">
+        <h3>Nothing. There is no server that could receive it.</h3>
+        <p>
+          Every tool on this site is a static page. The calculation happens in
+          your browser, in JavaScript you can read — use <em>View Source</em>,
+          or read the same file
+          <a href="https://github.com/Duncan-Haywood/monorepo-projects">in the
+          public source repository</a>. Specifically:
+        </p>
+        <ul>
+          <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
+          <li><strong>Nothing you enter is transmitted.</strong> These pages make no network request with your input — no form post, no background beacon.</li>
+          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. The only outside addresses on this site are links you can choose to click.</li>
+          <li><strong>No cookies and no cross-site identifiers.</strong></li>
+          <li><strong>It works offline.</strong> Once a tool has loaded, it keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are.</li>
+        </ul>
+      </div>
+      <p>
+        The one thing that is counted is which tools get opened, as a plain
+        tally that is written to your own browser's local storage and is never
+        sent anywhere. It exists so the next tool built is one people actually
+        opened. Browsers sending <em>Do&nbsp;Not&nbsp;Track</em> or
+        <em>Global&nbsp;Privacy&nbsp;Control</em> are not counted at all, and
+        there is an opt-out checkbox at the foot of
+        <a href="${escapeHtml(toRoot)}" data-pf-to="hub">the tool list</a>.
+      </p>
+
+      <h2>Why it is free</h2>
+      <p>
+        Because keeping it free costs almost nothing. A static page has no
+        per-user cost, so there is no usage to meter and no reason to build a
+        paywall around arithmetic. There is no paid tier, no trial, and no
+        feature held back — the version you are using is the whole product.
+      </p>
+      <p>
+        If one of these has saved you money,
+        <a href="https://github.com/sponsors/Duncan-Haywood">sponsoring on
+        GitHub</a> is welcome and entirely optional. Declining changes nothing
+        about what any tool does, and nothing here is gated behind it.
+      </p>
+
+      <h2>What these tools are not</h2>
+      <p>
+        They are estimates and working records, not professional advice and not
+        a determination made on anyone's behalf. They do not replace a
+        quantity surveyor, an accountant, a lawyer, or an engineer, and the
+        output of any of them is a starting figure to check against your own
+        numbers before you quote it to a customer or file it anywhere. The full
+        terms are in the footer of this and every other page.
+      </p>
+
+      <h2>Linking to these tools</h2>
+      <p>
+        You do not need permission to link to anything here, quote a page, or
+        screenshot a result — for a forum answer, a trade newsletter, a course
+        handout, or a write-up. Linking straight to the individual tool is more
+        use to a reader than linking to the front page. If it helps, here is
+        the description, already written:
+      </p>
+      <h3>One line</h3>
+      <p class="boiler">${escapeHtml(shortBoiler)}</p>
+      <h3>A paragraph</h3>
+      <p class="boiler">${escapeHtml(longBoiler)}</p>
+      <h3>The facts, if you would rather write your own</h3>
+      <ul>
+        <li><strong>${total} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
+        <li><strong>Runs client-side.</strong> Static pages; no account, no upload, no third-party analytics; works offline once opened.</li>
+        <li><strong>Open source</strong> under the MIT licence — <a href="https://github.com/Duncan-Haywood/monorepo-projects">github.com/Duncan-Haywood/monorepo-projects</a>.</li>
+        <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
+      </ul>
+      <p>
+        Please do not describe these as certified, audited, guaranteed, or as
+        professional advice — they are none of those things, and saying so
+        would mislead the person you are recommending them to.
+      </p>
+
+      <h2>For crawlers and assistants</h2>
+      <p>
+        The catalogue is published in machine-readable form so an assistant can
+        cite the right tool rather than guess at one:
+        <a href="${escapeHtml(`${toRoot}catalog.json`)}">catalog.json</a> lists
+        every tool with its category and description,
+        <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> is the same
+        catalogue as prose, and
+        <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">sitemap.xml</a> indexes
+        every published page. Every tool page carries
+        <code>SoftwareApplication</code> structured data. To follow new tools
+        rather than re-read the catalogue, subscribe to the
+        <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Atom feed</a>.
+      </p>
+    </main>
+
+    <section class="siblings">
+      <h2>Browse by trade</h2>
+      <ul>
+${categoryLinks}
+      </ul>
+    </section>
+
+    <footer>${DISCLAIMER_HTML}
+      <p style="margin-top:18px"><a href="${escapeHtml(toRoot)}" data-pf-to="hub">Back to all ${total} tools</a> · <a href="${escapeHtml(`${toRoot}llms.txt`)}">llms.txt</a> · <a href="${escapeHtml(`${toRoot}sitemap.xml`)}">Sitemap</a> · <a href="${escapeHtml(`${toRoot}${FEED_FILE}`)}">Feed</a></p>
+    </footer>
+  </div>
+  <!-- The same local-only counter every other page loads. An About page that
+       nobody reaches is a different problem from one that is reached and does
+       not send anyone on to a tool, and only the cross_tool_click half of this
+       tells them apart. -->
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="about" defer></script>
+</body>
+</html>
+`;
+}
+
 export function renderHub(surfaces, baseUrl) {
   const groups = groupByCategory(surfaces);
 
@@ -1063,9 +1828,14 @@ ${subItems.map((surface) => renderCard(surface, 4)).join('\n')}
             )
             .join('\n');
 
+      // The heading links its own category page. This is the only path a
+      // crawler has to those pages from the hub, and it is also the honest
+      // affordance for a visitor who wants one trade rather than all six —
+      // without it the section heading is the one thing on this page that
+      // names a subject and cannot be opened.
       return `
       <section class="group" id="${category.id}" data-group="${category.id}">
-        <h2>${escapeHtml(category.title)}</h2>
+        <h2><a class="group-link" href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a></h2>
         <p class="group-blurb">${escapeHtml(category.blurb)}</p>
 ${body}
       </section>`;
@@ -1110,11 +1880,16 @@ ${subgroups
   <link rel="icon" href="./favicon.ico" sizes="16x16">
   <title>Free Small-Business Calculators | Marketplace Fees, Trade Bids, Freight &amp; Compliance</title>
   <meta name="description" content="${escapeHtml(
-    `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers, and small teams. Everything runs in your browser — nothing you type is uploaded.`,
+    snippetize(
+      `${surfaces.length} free, private calculators for marketplace sellers, trade contractors, logistics buyers and small teams. Everything runs in your browser, nothing uploaded.`,
+    ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="alternate icon" href="favicon.ico" sizes="16x16">
+  <!-- Feed autodiscovery. This is how a reader, and every aggregator that
+       accepts a site URL rather than a feed URL, finds the feed at all. -->
+  <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Free small-business calculators">
   <meta property="og:description" content="Price a listing, bid a job, audit a freight bill, or produce a compliance record — free, and entirely in your browser.">
@@ -1184,6 +1959,8 @@ ${subgroups
     .group, .subgroup { scroll-margin-top: 14px; }
     .group { margin-top: 38px; }
     .group h2 { font-size: 1.3rem; margin: 0 0 4px; letter-spacing: -.02em; }
+    .group h2 a { color: inherit; text-decoration: none; }
+    .group h2 a:hover, .group h2 a:focus-visible { color: var(--accent); text-decoration: underline; }
     .group-blurb { color: var(--muted); margin: 0 0 16px; font-size: .95rem; line-height: 1.5; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
              grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
@@ -1444,9 +2221,11 @@ ${DISCLAIMER_HTML}
       <p>
         Open source — every tool is a static page, and one you have opened keeps
         working with no connection.
+        <a href="${ABOUT_PATH}">About &amp; press kit</a> ·
         <a href="catalog.json">Machine-readable catalog</a> ·
         <a href="llms.txt">llms.txt</a> ·
-        <a href="sitemap.xml">Sitemap</a>
+        <a href="sitemap.xml">Sitemap</a> ·
+        <a href="${FEED_FILE}" type="application/atom+xml">New tools feed</a>
       </p>
     </footer>
   </div>
@@ -2581,6 +3360,9 @@ export function relatedTools(surfaces, slug, limit = 4) {
 // whatever it scrapes off the page — usually nothing, since these pages carry
 // no content images either.
 export const SOCIAL_CARD_FILE = 'social-card.png';
+
+/** The Atom feed's path. See `renderFeed`. */
+export const FEED_FILE = 'feed.xml';
 export const SITE_NAME = 'Free small-business calculators';
 
 /**
@@ -2610,8 +3392,13 @@ export const SITE_NAME = 'Free small-business calculators';
  *
  * Everything is added only where the page does not already say it: a venture's
  * own card copy is written for its audience and beats anything derived here.
+ *
+ * The one exception is a description longer than a search result or a share
+ * card will show — see `snippetize`. That copy is still the venture's own, so
+ * it is cut rather than replaced, and a description already inside the budget
+ * is never touched.
  */
-export function injectDiscoveryTags(html, { canonical, baseUrl, title, description } = {}) {
+export function injectDiscoveryTags(html, { canonical, baseUrl, title, description, cardFile } = {}) {
   if (!canonical) return html;
   if (!/<\/head>/i.test(html)) return html;
 
@@ -2623,6 +3410,45 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
     /<link\b[^>]*\brel=["']canonical["'][^>]*>/i,
     () => `<link rel="canonical" href="${escapeHtml(canonical)}">`,
   );
+
+  // Whole-tag matcher rather than `[^>]*`: a hand-written description may
+  // contain a bare `>` ("net > 0"), and stopping at it would silently leave the
+  // longest descriptions — the ones this pass exists to cut — unmatched.
+  const metaTags = () => [...next.matchAll(/<meta\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi)];
+  const tagFor = (attr, value) =>
+    metaTags().find((m) => new RegExp(`\\b${attr}=["']${value}["']`, 'i').test(m[0])) ?? null;
+  const contentOf = (tag) => decodeEntities(/\bcontent=(["'])([\s\S]*?)\1/i.exec(tag)?.[2] ?? '');
+
+  /** Rewrite one existing meta tag's content in place; a no-op if it has none. */
+  const rewrite = (match, content) => {
+    const replaced = match[0].replace(
+      /\bcontent=(["'])([\s\S]*?)\1/i,
+      () => `content="${escapeHtml(content)}"`,
+    );
+    if (replaced === match[0]) return;
+    next = next.slice(0, match.index) + replaced + next.slice(match.index + match[0].length);
+  };
+
+  // The page's own description is the truest source for its snippet — a deep
+  // SEO page inside a tool describes itself, not the tool — and `description`
+  // is the caller's fallback for the pages that carry none.
+  const descriptionTag = tagFor('name', 'description');
+  const ownDescription = descriptionTag ? contentOf(descriptionTag[0]) : '';
+  const snippet = snippetize(ownDescription || description || '');
+  if (descriptionTag && ownDescription.length > SNIPPET_MAX && snippet) {
+    rewrite(descriptionTag, snippet);
+  }
+
+  // The same budget on the social side, where the page may carry its own
+  // `og:description` copied from the over-long meta description it shipped with.
+  const ogTag = tagFor('property', 'og:description');
+  if (ogTag && contentOf(ogTag[0]).length > SNIPPET_MAX) {
+    rewrite(ogTag, snippetize(contentOf(ogTag[0])));
+  }
+  const twitterTag = tagFor('name', 'twitter:description');
+  if (twitterTag && contentOf(twitterTag[0]).length > SNIPPET_MAX) {
+    rewrite(twitterTag, snippetize(contentOf(twitterTag[0])));
+  }
 
   const has = (attr, value) =>
     new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/:/g, ':')}["']`, 'i').test(next);
@@ -2636,13 +3462,26 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   add('property', 'og:type', 'website');
   add('property', 'og:site_name', SITE_NAME);
   add('property', 'og:title', title);
-  add('property', 'og:description', description);
+  // `snippet`, not `description`: the caller's copy is trimmed to a hub card
+  // (180) rather than to a share card, so adding it raw would ship the very
+  // over-long description this pass just cut out of the page beside it.
+  add('property', 'og:description', snippet);
   if (baseUrl) {
-    const image = `${baseUrl}${SOCIAL_CARD_FILE}`;
+    // `cardFile` lets a page point at the card drawn for its own tool — see
+    // `toolCardFileFor`. Falls back to the site-wide default for callers (the
+    // hub, the About page) that are not a tool.
+    const image = `${baseUrl}${cardFile || SOCIAL_CARD_FILE}`;
     add('property', 'og:image', image);
     add('property', 'og:image:width', '1200');
     add('property', 'og:image:height', '630');
-    add('property', 'og:image:alt', `${SITE_NAME} — free, private, in your browser`);
+    // The alt text describes the card that was actually drawn, which now
+    // carries the tool's name. A screen reader announcing the site name on a
+    // card that says "Deck bid calculator" is describing a different picture.
+    add(
+      'property',
+      'og:image:alt',
+      cardFile && title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — free, private, in your browser`,
+    );
     // Without a card type X renders a link as plain text. `summary_large_image`
     // is the wide form, which is what a 1200×630 card is drawn for.
     add('name', 'twitter:card', 'summary_large_image');
@@ -2650,6 +3489,164 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
 
   if (!tags.length) return next;
   return next.replace(/<\/head>/i, `${tags.map((tag) => `\n${tag}`).join('')}\n</head>`);
+}
+
+// `decodeEntities` covers the five that matter for markup safety. Prose needs
+// the typographic ones too: an answer written with `&ldquo;` reaches JSON-LD as
+// the literal characters `&ldquo;`, and a search engine renders exactly that
+// inside the answer it shows. Numeric forms are decoded generically; the named
+// map is the punctuation these pages actually use.
+const TEXT_ENTITIES = {
+  nbsp: ' ', ldquo: '“', rdquo: '”', lsquo: '‘', rsquo: '’', mdash: '—', ndash: '–',
+  hellip: '…', times: '×', minus: '−', deg: '°', plusmn: '±', frac12: '½', frac14: '¼',
+  euro: '€', pound: '£', cent: '¢', trade: '™', reg: '®', copy: '©', apos: "'",
+};
+
+const decodeTextEntities = (value) =>
+  decodeEntities(value)
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCodePoint(parseInt(code, 16)))
+    .replace(/&([a-z][a-z0-9]*);/gi, (whole, name) => TEXT_ENTITIES[name.toLowerCase()] ?? whole);
+
+/** Visible text of an HTML fragment, with script/style content dropped. */
+const stripTags = (fragment) =>
+  decodeTextEntities(
+    fragment
+      .replace(/<(script|style|template)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' '),
+  )
+    .replace(/\s+/g, ' ')
+    .trim();
+
+/**
+ * The prose of a fragment: its paragraphs, or all its text if it has none.
+ *
+ * Paragraphs first because the slice after a question heading is usually a
+ * short answer followed by the widget that answers it — inputs, buttons, a
+ * results table. Taking every text node would put "Calculate Reset $0.00" in
+ * an answer a search engine may quote verbatim.
+ */
+const answerProse = (fragment) => {
+  const paragraphs = [...fragment.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map(([, inner]) => stripTags(inner))
+    .filter(Boolean);
+  return paragraphs.length ? paragraphs.slice(0, 2).join(' ') : stripTags(fragment);
+};
+
+// A heading that labels its question ("Common question: should I accept Net
+// 30?") reads as a label plus a question. The label is page furniture, not
+// part of what anyone asks, so it is dropped from the structured copy.
+const FAQ_LABEL = /^(?:common questions?|faq|q)\s*[:.–—-]\s*/i;
+
+/**
+ * A function name appearing in prose, which marks the paragraph as a note about
+ * how the page works rather than an answer to the question above it.
+ *
+ * `3pl-quote-normalizer` answers four of its questions with "This block uses
+ * the same compareInboundMethods on the quote you just typed" — true, useful to
+ * a maintainer, and no kind of answer to quote back to someone who searched
+ * "should I pay the 3PL to kit". The rule is narrow on purpose: a
+ * lowercase-initial camelCase run of ten or more characters is an identifier,
+ * while the brand names that share that shape are all far shorter (`eBay`,
+ * `iPhone`, `iOS`) and every other brand here starts with a capital
+ * (`PayPal`, `DoorDash`, `TikTok`), so none of them trip it.
+ */
+const CODE_IDENTIFIER = /\b[a-z][a-z0-9]*[A-Z][a-zA-Z0-9]*\b/g;
+
+const readsAsCode = (text) =>
+  [...text.matchAll(CODE_IDENTIFIER)].some(([token]) => token.length >= 10);
+
+/**
+ * The end of the block an answer lives in.
+ *
+ * The last question on a page has no heading after it, so its answer would
+ * otherwise run to the end of the document — straight through `</main>` and
+ * into the footer, where every tool here carries the same "No warranty. This
+ * free tool is not tax, financial, or business advice" paragraph. That would
+ * be picked up as the answer's second paragraph and quoted, on every page, as
+ * part of the answer to whatever its last question happened to be.
+ */
+const toBlockEnd = (fragment) => {
+  const boundary = fragment.search(/<\/(?:section|main|article|aside)\b|<footer\b|<hr\b/i);
+  return boundary === -1 ? fragment : fragment.slice(0, boundary);
+};
+
+const FAQ_MAX_ENTRIES = 8;
+const FAQ_MIN_ANSWER = 40;
+const FAQ_MAX_QUESTION = 200;
+const FAQ_MAX_ANSWER = 600;
+
+/**
+ * Question/answer pairs a page already shows a visitor, as data.
+ *
+ * These pages answer real questions in prose — "Should unused hours roll
+ * over?", "Does leftover long-term storage flip the quote?" — and an answer
+ * engine cannot tell that prose apart from the rest of the page. `FAQPage`
+ * JSON-LD is how that is said in machine-readable form, and 129 of the 164
+ * tools ship none.
+ *
+ * It is *derived* rather than authored for a reason. Google's structured-data
+ * policy requires the question and answer to be visible on the page, and an
+ * authored block maintained beside the copy drifts from it — the schema then
+ * describes a page that no longer exists, which is worse than having none.
+ * Reading the rendered copy makes the two the same text by construction.
+ *
+ * Nothing is invented: a page with no visible Q&A gets no schema.
+ */
+export function faqEntries(html) {
+  const headings = [...html.matchAll(/<h([1-6])\b[^>]*>([\s\S]*?)<\/h\1>/gi)].map((match) => ({
+    level: Number(match[1]),
+    text: stripTags(match[2]),
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+
+  const found = [];
+
+  headings.forEach((heading, index) => {
+    if (heading.level !== 2 && heading.level !== 3) return;
+    if (!heading.text.endsWith('?')) return;
+    // The answer runs to the next heading of any level: a sibling question, or
+    // the section that follows. Anything past it belongs to another topic.
+    const next = headings[index + 1];
+    found.push({
+      at: heading.start,
+      question: heading.text,
+      answer: answerProse(
+        toBlockEnd(html.slice(heading.end, next ? next.start : html.length)),
+      ),
+    });
+  });
+
+  for (const match of html.matchAll(/<details\b[^>]*>([\s\S]*?)<\/details>/gi)) {
+    const summary = match[1].match(/<summary\b[^>]*>([\s\S]*?)<\/summary>/i);
+    if (!summary) continue;
+    const question = stripTags(summary[1]);
+    if (!question.endsWith('?')) continue;
+    found.push({
+      at: match.index,
+      question,
+      answer: answerProse(match[1].slice(summary.index + summary[0].length)),
+    });
+  }
+
+  const seen = new Set();
+  return found
+    .sort((a, b) => a.at - b.at)
+    .map(({ question, answer }) => ({ question: question.replace(FAQ_LABEL, '').trim(), answer }))
+    .filter(({ question, answer }) => {
+      // A one-line answer is usually a caption, not an answer. Requiring real
+      // prose keeps thin pairs out rather than padding the page with them.
+      if (question.length < 2 || question.length > FAQ_MAX_QUESTION) return false;
+      if (answer.length < FAQ_MIN_ANSWER) return false;
+      if (readsAsCode(answer)) return false;
+      const key = question.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, FAQ_MAX_ENTRIES)
+    .map(({ question, answer }) => ({ question, answer: truncate(answer, FAQ_MAX_ANSWER) }));
 }
 
 export function injectChrome(html, { slug, toRoot, total, related = [], canonical, isEntry, title }) {
@@ -2689,6 +3686,27 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       ],
     })}</script>`;
   }
+  if (isEntry && !html.replace(/<!--[\s\S]*?-->/g, '').includes('FAQPage')) {
+    // Only where the venture wrote none of its own: two FAQPage blocks on one
+    // page describe the same page twice, and a crawler is free to believe
+    // whichever it reads first. 37 ventures author their own — those are left
+    // exactly as they are. Comments are stripped before the check: a page
+    // whose only mention of "FAQPage" is a comment *documenting* that the
+    // schema is derived (not authoring one) was reading as already-covered
+    // and silently shipping none (grant-deadline-tracker, 2026-08-31).
+    const faq = faqEntries(html);
+    if (faq.length) {
+      headExtras += `\n<script type="application/ld+json">${jsonLd({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faq.map(({ question, answer }) => ({
+          '@type': 'Question',
+          name: question,
+          acceptedAnswer: { '@type': 'Answer', text: answer },
+        })),
+      })}</script>`;
+    }
+  }
   if (headExtras) {
     html = /<\/head>/i.test(html)
       ? html.replace(/<\/head>/i, `${headExtras}\n</head>`)
@@ -2718,6 +3736,8 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
     <p>Free and private, like this one — everything runs in your browser, and nothing you type is uploaded.</p>
 ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${total} free tools →</a>
+      &nbsp;·&nbsp;
+      <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
       &nbsp;·&nbsp;
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
       is optional and changes nothing about what these tools do.
@@ -2796,6 +3816,7 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
   const described = [];
   const highlighted = [];
   const narrowed = [];
+  const embedded = [];
 
   for (const surface of surfaces) {
     const dir = path.join(outDir, surface.slug);
@@ -2832,12 +3853,27 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         baseUrl,
         title: pageMeta.title,
         description: pageMeta.description,
+        // Every page inside a tool points at that tool's card, deep SEO pages
+        // included: they are shared as "the deck bid calculator's page about
+        // labour rates", so the tool's name is the right thing on the picture.
+        cardFile: toolCardFileFor(surface.slug),
       });
       if (withCard !== chromed) described.push(relative);
+      // The embed offer rides in the footer chrome `injectChrome` already
+      // wrote, so it needs to run after that and can run independently of
+      // the bars below — it touches neither's markup and neither touches its.
+      const withEmbed = injectEmbedWidget(withCard, {
+        slug: surface.slug,
+        toRoot,
+        canonical,
+        title: surface.title,
+        isEntry: url === `${surface.slug}/index.html`,
+      });
+      if (withEmbed !== withCard) embedded.push(relative);
       // Last: the bar anchors under the site nav, so the chrome has to be there
       // already, and it carries no numeric input for the attribute pass to
       // annotate.
-      const withRates = injectShopRates(withCard, surface.slug, toRoot);
+      const withRates = injectShopRates(withEmbed, surface.slug, toRoot);
       if (withRates !== withCard) rated.push(relative);
       // After the rates bar, which it anchors beneath, and after the attribute
       // pass, which must see the venture's own inputs and not the name box this
@@ -2875,11 +3911,103 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
     }
   }
 
-  return { wrapped, rated, saved, shared, described, highlighted, narrowed };
+  return { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded };
 }
 
 export function renderRobots(baseUrl) {
   return `User-agent: *\nAllow: /\n\nSitemap: ${baseUrl}sitemap.xml\n`;
+}
+
+/**
+ * `/feed.xml` — an Atom feed of tools as they are published, newest first.
+ *
+ * ## Why a feed, on a site with no news
+ *
+ * Every other machine surface here answers "what exists" — `sitemap.xml` for
+ * crawlers, `catalog.json` and `llms.txt` for models. None of them answers
+ * "what changed", and that is the question every organic distribution channel
+ * this portfolio is allowed to use actually asks. `portfolio/DIRECTION.md`
+ * rules out ad spend and `mandate.md` rules out posting into communities
+ * ourselves, which leaves channels people opt into: readers, aggregators that
+ * poll for new entries, and the IFTTT/Zapier-shaped glue a niche community's
+ * own moderators run. A feed is the one asset that lets someone else do the
+ * distributing, and it costs one static file.
+ *
+ * It is also the only surface that gives a *returning* visitor a reason to
+ * come back. The tools themselves are single-use by design: a contractor who
+ * has priced their job is done with us until the next job.
+ *
+ * ## Atom rather than RSS 2.0
+ *
+ * Atom requires a stable `<id>` per entry that is distinct from the link, and
+ * requires dates be RFC 3339. Both matter here: the link for a tool is its
+ * directory URL, which would change if the site ever moved off
+ * `tools.marisstella.dev`, and a reader keyed on the link would then re-notify
+ * every subscriber about all 169 tools. `tag:` URIs keyed on the slug survive
+ * that move. RSS 2.0's `<guid isPermaLink="false">` can do the same thing but
+ * nothing in the format makes it the default, and its `pubDate` is RFC 822,
+ * which is where hand-rolled feeds usually break.
+ *
+ * ## What the dates mean, and what they do not
+ *
+ * `<published>` and `<updated>` are both the day the tool first appeared in
+ * `ventures/` — see `launched.mjs` for where that comes from and why it is a
+ * committed file. They are equal on purpose. These pages are edited constantly
+ * (copy, FAQ entries, a new worked example), and republishing an entry on
+ * every edit would make the feed a changelog of our own commits rather than a
+ * list of tools, which is not what anyone subscribed for.
+ *
+ * Entries are capped at `FEED_MAX_ENTRIES`. A tool that scrolls off is still
+ * in `sitemap.xml`, `catalog.json` and `llms.txt`; the feed is the "new" list,
+ * not another catalogue.
+ */
+export function renderFeed(surfaces, baseUrl, launched = {}) {
+  const ordered = orderForFeed(surfaces, launched).filter((surface) => isIsoDate(launched[surface.slug]));
+  const entries = ordered.slice(0, FEED_MAX_ENTRIES);
+
+  // No dated surface at all means the feed would claim the site is empty.
+  // Fall back to the build's own instant so the document stays valid Atom;
+  // `check.mjs` is what refuses to publish a site in that state.
+  const updated = feedUpdatedAt(ordered, launched) ?? new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+
+  // Domain-based tag URI (RFC 4151). The authority is fixed rather than taken
+  // from `baseUrl` so that serving the same build from GitHub Pages and from
+  // the Hetzner ingress — which `portfolio/hosting/README.md` says may both
+  // happen — does not mint two different ids for one tool and double every
+  // subscriber's feed.
+  const tagId = (slug) => `tag:marisstella.dev,2026:tool/${slug}`;
+
+  const entryXml = (surface) => {
+    const url = `${baseUrl}${surface.slug}/`;
+    const date = `${launched[surface.slug]}T00:00:00Z`;
+    return `  <entry>
+    <title>${escapeHtml(surface.title)}</title>
+    <link rel="alternate" type="text/html" href="${escapeHtml(url)}"/>
+    <id>${escapeHtml(tagId(surface.slug))}</id>
+    <published>${date}</published>
+    <updated>${date}</updated>
+    <category term="${escapeHtml(categoryFor(surface.slug).title)}"/>
+    <summary type="text">${escapeHtml(oneLineText(surface.fullDescription || surface.description))}</summary>
+  </entry>`;
+  };
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${escapeHtml(SITE_NAME)}</title>
+  <subtitle>New free, browser-only calculators and checks for people who run a small business. No account, no upload: every number stays on the visitor's own device.</subtitle>
+  <link rel="self" type="application/atom+xml" href="${escapeHtml(`${baseUrl}${FEED_FILE}`)}"/>
+  <link rel="alternate" type="text/html" href="${escapeHtml(baseUrl)}"/>
+  <id>${escapeHtml(`tag:marisstella.dev,2026:${SITE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)}</id>
+  <updated>${updated}</updated>
+  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+${entries.map(entryXml).join('\n')}
+</feed>
+`;
+}
+
+/** Collapse to a single line: a newline inside an Atom `<summary>` is legal but reads badly in every reader. */
+function oneLineText(value) {
+  return String(value ?? '').replace(/\s+/g, ' ').trim();
 }
 
 
@@ -2906,10 +4034,23 @@ ${entries.join('\n')}
 `;
 }
 
-export function renderHubSitemap(baseUrl) {
+/**
+ * The site's own pages, as opposed to the ventures': the hub, and one entry per
+ * category landing page. Both belong here rather than in a sitemap of their
+ * own — they are the same kind of page (this build's, not a venture's) and a
+ * crawler following `robots.txt` reaches them through the same index.
+ */
+export function renderHubSitemap(baseUrl, categoryIds = []) {
+  const urls = [`  <url><loc>${baseUrl}</loc></url>`]
+    .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
+    // The About page is a hub-level surface, not a venture's, so it is listed
+    // here or in no sitemap at all — and an unlisted page is one a crawler
+    // reaches only by following a footer link on a page it happened to find.
+    .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`]);
+
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>${baseUrl}</loc></url>
+${urls.join('\n')}
 </urlset>
 `;
 }
@@ -2966,7 +4107,7 @@ ${urls.join('\n')}
  * in the decision queue), and a machine-readable file is the wrong place to
  * pre-answer it.
  */
-export function renderCatalog(surfaces, baseUrl) {
+export function renderCatalog(surfaces, baseUrl, launched = {}) {
   return `${JSON.stringify(
     {
       name: 'Free calculators for sellers, contractors, and small back offices',
@@ -2976,6 +4117,22 @@ export function renderCatalog(surfaces, baseUrl) {
       privacy: 'client-side-only',
       source: SOURCE_URL_PREFIX.replace('/blob/main/', ''),
       generated_by: 'platform/pages/build.mjs',
+      // The feed carries the newest FEED_MAX_ENTRIES tools; this file carries
+      // every tool with the same dates, which is what lets `check.mjs` prove
+      // no tool is undated using only the artifact. It is also the answer to
+      // "what did they add recently" for a client that would otherwise have to
+      // poll the feed and remember what it saw.
+      feed: `${baseUrl}${FEED_FILE}`,
+      // The catalogue's own index. `tools[].category` names a category but
+      // gives no way to reach one, so a client that wanted "everything in this
+      // category" had to scan all 164 rows and rebuild the grouping itself.
+      categories: groupByCategory(surfaces).map(({ category, items }) => ({
+        id: category.id,
+        name: category.title,
+        url: `${baseUrl}${categoryPagePath(category.id)}`,
+        description: categoryPageCopy(category).description,
+        tool_count: items.length,
+      })),
       tools: surfaces.map((surface) => ({
         slug: surface.slug,
         name: surface.title,
@@ -2987,6 +4144,10 @@ export function renderCatalog(surfaces, baseUrl) {
         ...(subcategoryFor(surface.slug) ? { subcategory: subcategoryFor(surface.slug).title } : {}),
         description: surface.description,
         pages: surface.pageCount,
+        // Omitted rather than null when unknown, so a consumer that reads the
+        // key at all can trust it. `check.mjs` refuses to publish an artifact
+        // where any tool is missing it.
+        ...(launched[surface.slug] ? { launched: launched[surface.slug] } : {}),
       })),
     },
     null,
@@ -3040,7 +4201,12 @@ export function renderLlmsTxt(surfaces, baseUrl) {
                 `### ${subcategory.title}\n\n${subItems.map(bullet).join('\n')}`,
             )
             .join('\n\n');
-    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${body}\n`;
+    // The category's own page, named on the line under its heading. An
+    // assistant that has been asked for "a roofing bid calculator" can cite a
+    // page that is about roofing bid calculators rather than the hub, which is
+    // about 164 unrelated things and reads that way in a citation.
+    const landing = `Category page: ${baseUrl}${categoryPagePath(category.id)}`;
+    return `## ${category.title}\n\n${oneLine(category.blurb)}\n\n${landing}\n\n${body}\n`;
   });
 
   // Per llmstxt.org, "Optional" marks material an assistant may skip when it is
@@ -3049,8 +4215,10 @@ export function renderLlmsTxt(surfaces, baseUrl) {
   const optional = [
     '## Optional',
     '',
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (it never leaves the browser), the licence, and pre-written boilerplate for citing or linking to these tools.`,
     `- [Machine-readable catalog](${baseUrl}catalog.json): the same tool list as JSON, with categories and page counts.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
+    `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
     `- [Source](${SOURCE_URL_PREFIX.replace('/blob/main/', '')}): MIT-licensed source for every tool on this site.`,
     '',
   ].join('\n');
@@ -3119,7 +4287,7 @@ export async function collectOfflineBundle(outDir, surfaces) {
     './', 'index.html', 'offline.html', 'manifest.webmanifest', SAVED_BIDS_MODULE_FILE,
     BID_LINK_MODULE_FILE, SHOP_RATES_MODULE_FILE, CHROME_MODULE_FILE,
     CHROME_STYLE_FILE, SHOP_RATES_STYLE_FILE, SAVED_BIDS_STYLE_FILE,
-    INVALID_MODULE_FILE, INVALID_STYLE_FILE,
+    INVALID_MODULE_FILE, INVALID_STYLE_FILE, EMBED_MODULE_FILE, EMBED_STYLE_FILE,
   ]);
 
   for (const surface of surfaces) {
@@ -3227,6 +4395,7 @@ export async function buildSite({
   await fs.mkdir(outDir, { recursive: true });
 
   const discovered = await discoverSurfaces(venturesDir);
+  const launched = await loadLaunchDates();
   const surfaces = [];
   const repairs = [];
 
@@ -3288,25 +4457,94 @@ export async function buildSite({
   await fs.writeFile(path.join(outDir, INVALID_MODULE_FILE), renderInvalidModule());
   await fs.writeFile(path.join(outDir, INVALID_STYLE_FILE), renderInvalidStyle());
   await fs.writeFile(path.join(outDir, SAVED_BIDS_STYLE_FILE), renderSavedBidsStyle());
+  // The embed-widget runtime and its stylesheet, on the same terms.
+  await fs.writeFile(path.join(outDir, EMBED_MODULE_FILE), renderEmbedModule());
+  await fs.writeFile(path.join(outDir, EMBED_STYLE_FILE), renderEmbedStyle());
   await fs.writeFile(path.join(outDir, 'robots.txt'), renderRobots(base));
   await fs.writeFile(path.join(outDir, '404.html'), renderNotFound(base));
 
+  // One landing page per category, under the reserved `c/` prefix. Written
+  // before the sitemaps because `renderHubSitemap` has to list exactly the
+  // pages this loop produced — a category page in no sitemap is the quiet
+  // failure `check.mjs` exists to catch.
+  const categoryGroups = groupByCategory(surfaces);
+  for (const { category, items } of categoryGroups) {
+    const dir = path.join(outDir, CATEGORY_PATH_PREFIX, category.id);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(
+      path.join(dir, 'index.html'),
+      renderCategoryPage({ category, items, groups: categoryGroups, baseUrl: base }),
+    );
+  }
+
+  // After the categories because the About page links every one of them, and
+  // before the sitemaps for the same reason they are.
+  const aboutDir = path.join(outDir, ABOUT_PATH);
+  await fs.mkdir(aboutDir, { recursive: true });
+  await fs.writeFile(
+    path.join(aboutDir, 'index.html'),
+    renderAboutPage({ surfaces, groups: categoryGroups, baseUrl: base }),
+  );
+
   await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
-  await fs.writeFile(path.join(outDir, 'sitemap-hub.xml'), renderHubSitemap(base));
-  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base));
+  await fs.writeFile(
+    path.join(outDir, 'sitemap-hub.xml'),
+    renderHubSitemap(base, categoryGroups.map(({ category }) => category.id)),
+  );
+  await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
   await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base));
+  // Read from the committed file, not from `git log`: the in-cluster build
+  // clones `--depth 1` and has no history. See `launched.mjs`.
+  await fs.writeFile(path.join(outDir, FEED_FILE), renderFeed(surfaces, base, launched));
 
   await fs.writeFile(path.join(outDir, 'favicon.ico'), renderFavicon());
   await fs.writeFile(path.join(outDir, 'favicon.svg'), renderFaviconSvg());
-  // One card for the whole site, named by every page's og:image.
+  // The site-wide card: what the hub and the About page point at, since
+  // neither belongs to one category.
   await fs.writeFile(path.join(outDir, SOCIAL_CARD_FILE), renderSocialCard());
+  // One card per category, tinted and headlined with the section's own name.
+  await Promise.all(
+    ALL_CATEGORIES.map((category) =>
+      fs.writeFile(
+        path.join(outDir, socialCardFileFor(category.id)),
+        renderSocialCard({
+          color: category.accent,
+          headline: category.title,
+          kicker: SITE_NAME,
+          footer: CARD_FOOTER,
+        }),
+      )),
+  );
+  // And one per tool, headlined with the tool's own name on its category's
+  // tint. This is the difference between 164 shares of the same anonymous
+  // picture and 164 shares that each say what they link to — the single
+  // highest-leverage change available to a portfolio whose only distribution
+  // is organic. `cardtext.mjs` is what makes it possible without a font
+  // dependency; before it existed there was nothing to draw a headline with.
+  //
+  // Sequential, not `Promise.all`: each card is a 1200x630 CPU-bound raster
+  // and the in-cluster build runs under a 2-core limit, so firing 164 at once
+  // buys no wall-clock and peaks memory at 164 frame buffers.
+  for (const surface of surfaces) {
+    const dir = path.join(outDir, surface.slug);
+    if (!(await exists(dir))) continue;
+    await fs.writeFile(
+      path.join(outDir, toolCardFileFor(surface.slug)),
+      renderSocialCard({
+        color: categoryFor(surface.slug).accent,
+        headline: surface.title,
+        kicker: SITE_NAME,
+        footer: CARD_FOOTER,
+      }),
+    );
+  }
 
   // Tell Jekyll (which GitHub Pages runs by default) to leave the tree alone;
   // without this, any directory starting with `_` is silently dropped.
   await fs.writeFile(path.join(outDir, '.nojekyll'), '');
 
   const {
-    wrapped, rated, saved, shared, described, highlighted, narrowed,
+    wrapped, rated, saved, shared, described, highlighted, narrowed, embedded,
   } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
   // After the chrome pass, not before: the offline layer hashes the finished
@@ -3316,7 +4554,7 @@ export async function buildSite({
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, offline,
+    highlighted, narrowed, embedded, offline,
   };
 }
 
@@ -3475,4 +4713,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Corrected canonical and share-card tags on ${result.described.length} page(s).`);
   console.log(`Highlighted the rejected input on ${result.highlighted.length} page(s).`);
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
+  console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
 }

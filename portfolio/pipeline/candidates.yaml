@@ -811,7 +811,13 @@ candidates:
     name: DNS configuration evidence monitor
     doc: candidates/dns-configuration-evidence.md
     verdict: probe
-    probe_status: "fixture-recorder-built; demand and distribution unmeasured"
+    probe_status: >-
+      step 1 partially run: local multi-resolver snapshot-diff tool built and
+      tested (12 tests) against fixtures, not live resolvers. Step 1's mutation
+      set (changed TXT, changed delegation, resolver disagreement, timeout,
+      unchanged) is covered, plus refusal, servfail and DNSSEC failure. The
+      scheduled resolver-poll loop and step 3 (10 practitioner conversations,
+      one paid pilot) are unstarted.
     graduate_as: venture
     host_venture: null
     scores:

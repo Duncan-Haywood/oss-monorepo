@@ -224,3 +224,17 @@ test('a nameless-ratio job with no feeder still has a price from the call-out', 
   assert.ok(result.price > result.materials.permit);
   assert.ok(result.wire.voltageDropPercent === 0);
 });
+
+test('the propane-vs-natural-gas FAQ\'s worked numbers stay locked to the arithmetic they describe', () => {
+  // index.html's FAQ (and its FAQPage JSON-LD) quotes an exact dollar and
+  // hour delta between fuels on the default 15-foot gas run. If calc.mjs's
+  // rates ever change, this test breaks before the page quietly starts
+  // lying to a reader.
+  const ng = calculateBid({ ...typical(), fuel: 'natural_gas' });
+  const lp = calculateBid({ ...typical(), fuel: 'propane' });
+  assert.equal(ng.price.toFixed(2), '6106.00');
+  assert.equal(lp.price.toFixed(2), '7080.12');
+  assert.ok(Math.abs(lp.laborHours - ng.laborHours - 2.1) < 1e-9);
+  assert.equal((lp.materialsCost - ng.materialsCost).toFixed(2), '475.00');
+  assert.equal(Math.round(lp.price - ng.price), 974);
+});

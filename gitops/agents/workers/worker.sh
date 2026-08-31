@@ -7,6 +7,32 @@ LIMIT_EXIT="${CODEX_LIMIT_EXIT:-42}"
 AUTH_EXIT="${CODEX_AUTH_EXIT:-43}"
 : "${QUEUE_ITEM_JSON:?QUEUE_ITEM_JSON is required}"
 
+# A run can finish perfectly and still change nothing: the item's work has run
+# out, so the agent looked, found no open PR to repair or no branch to drain,
+# and stopped. That is a correct outcome, not a failure, and this script keeps
+# exiting 0 for it.
+#
+# But the governor could not previously tell that run apart from one that
+# shipped a feature, so an item whose work had run out kept its full share of
+# the queue's weight forever. On 2026-08-31 the two highest-weighted items were
+# both in exactly that state, between them 13/25ths of the Codex budget spent
+# cloning the repo to confirm there was nothing to do.
+#
+# Report it instead. The marker goes to /dev/termination-log, which Kubernetes
+# copies into the container's terminated.message where the governor already
+# reads for limit errors — so the Job still shows as Succeeded and an operator
+# reading `kubectl get jobs` is not told a clean run failed.
+NOOP_MARKER="codex-noop"
+# Overridable so the test suite can run this script outside a container and
+# still assert the marker was written; in the Job it is the real path.
+NOOP_LOG="${CODEX_TERMINATION_LOG:-/dev/termination-log}"
+report_noop() {
+  echo "worker: $1"
+  # Absent (a plain `bash worker.sh`) or unwritable — the marker is best-effort
+  # and never worth failing a good run over.
+  printf '%s: %s\n' "$NOOP_MARKER" "$1" > "$NOOP_LOG" 2>/dev/null || true
+}
+
 export PATH="/usr/local/bin:$HOME/.npm-global/bin:$PATH"
 export npm_config_prefix="$HOME/.npm-global"
 mkdir -p "$HOME/.npm-global"
@@ -26,6 +52,15 @@ mkdir -p "$CODEX_HOME"
 chmod 700 "$CODEX_STATE_DIR" "$CODEX_HOME" 2>/dev/null || true
 
 # Detect typical limit language from a command's combined output.
+#
+# Only ever consult this on a *failed* command. `codex exec --json` echoes the
+# whole agent transcript, so a run that reads, writes or reasons about
+# rate-limiting code prints every phrase below without anything having gone
+# wrong. Scanning a successful run for them exits 42, which discards the work
+# the run just finished (no commit, no push, no PR) and puts the whole fleet to
+# sleep for `cooldownOnLimitSeconds` — an hour of the queue lost to a substring
+# in someone's diff. `hit_auth_failure` was already gated this way; this is the
+# same rule applied to the signal that costs more when it misfires.
 hit_limit() {
   local text="$1"
   grep -Eiq '429|rate.?limit|usage.?limit|exceeded.*quota|hit your (usage )?limit|limit reached|insufficient_quota|spend_limit_exceeded|organization_spend_limit_exceeded|project_spend_limit_exceeded' <<<"$text"
@@ -161,7 +196,31 @@ trap 'rm -rf "$WORKDIR_ROOT"' EXIT
 cd "$WORKDIR_ROOT"
 
 BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
-gh repo clone "$REPO" repo -- --depth 50 --branch "$REF"
+# Full history, every branch. Deliberately NOT `--depth`, which this line
+# carried until it was measured.
+#
+# `--depth` implies `--single-branch`, so the clone came back with its refspec
+# pinned to `+refs/heads/$REF:refs/remotes/origin/$REF` and no merge base for
+# anything else. That breaks the queue's two highest-priority items outright:
+#
+#   open-pr-repair-merge (6)  resolves a conflict by merging $REF into a PR
+#                             branch. In a depth-50 clone that fetch comes back
+#                             shallow and the merge aborts with
+#                             `fatal: refusing to merge unrelated histories`.
+#   branch-pr-drain (5)       enumerates branches with unique commits. Under the
+#                             pinned refspec `git branch -r` knows only $REF, so
+#                             there is nothing to enumerate.
+#
+# It also disarms the one check CLAUDE.md and mandate.md both make mandatory
+# before closing a PR — `supersede_check.py` needs a merge base with `main`, and
+# CLAUDE.md's own note ("Your clone is shallow. `git fetch --unshallow` before
+# any of this") is written for exactly this failure. Nothing in the prompt told
+# the agent to unshallow, so between them those items are 11/25ths of the
+# governor's weight aimed at work the checkout cannot do.
+#
+# The pack is ~64 MiB. A few seconds and that much disk on the cpx22, once per
+# Job, is the whole cost of the fix.
+gh repo clone "$REPO" repo -- --branch "$REF"
 cd repo
 if [[ -n "$WORKDIR" ]]; then
   cd "$WORKDIR"
@@ -229,7 +288,7 @@ set -e
 
 echo "$OUTPUT"
 
-if hit_limit "$OUTPUT"; then
+if [[ "$STATUS" -ne 0 ]] && hit_limit "$OUTPUT"; then
   echo "governor: Codex limit signal — exiting $LIMIT_EXIT so the next tick backs off"
   exit "$LIMIT_EXIT"
 fi
@@ -265,7 +324,64 @@ fi
 
 git add -A
 if git diff --cached --quiet && [[ -z "$(git log --oneline "$REF"..HEAD 2>/dev/null || true)" ]]; then
-  echo "no changes; not opening a PR"
+  report_noop "no changes; not opening a PR"
+  exit 0
+fi
+
+open_pr() {
+  gh pr create --base "$REF" --head "$1" \
+    --title "agent: ${ITEM_ID}" \
+    --body "Opened by the hel1 Codex governor from queue item \`${ITEM_ID}\`. Merge follows this repository's normal rules for product PRs; the worker itself never merges."
+}
+
+# Did the agent push this work itself, despite being told delivery is the
+# harness's? Ask before folding, not after.
+#
+# This check used to sit *below* `git reset --soft "$REF" && git commit`, which
+# mints a commit with a new message and a new timestamp — so its SHA could
+# never match a remote head and the check could not fire at all. What happened
+# instead, every time: the fold rewrote what the agent had already pushed, the
+# push came back `! [rejected] ... (non-fast-forward)`, `set -e` failed the Job,
+# and the agent's branch was left sitting on the remote with no pull request —
+# the one state this repository's rules say a branch with real work must never
+# be left in. `gitops/tests/test_worker_run.py` reproduces it.
+#
+# `ls-remote` rather than a remote-tracking ref: the clone is shallow and
+# single-branch, so `git branch -r` only ever knows about $REF. Match on the
+# SHA rather than the branch name, because an agent that pushed
+# `HEAD:refs/heads/something-else` delivered the same commit under a name this
+# script never chose.
+#
+# Only ask when HEAD is actually ahead of $REF. In the ordinary run the agent
+# commits nothing, so HEAD *is* $REF's tip — which is a remote head, matches on
+# SHA, and would send this whole branch down the already-pushed path and commit
+# the run's work straight onto the base branch. `$REF` is excluded a second
+# time by name for the same reason: never let this block name the base branch.
+PUSHED_REF=""
+if [[ -n "$(git log --oneline "$REF"..HEAD 2>/dev/null || true)" ]]; then
+  PUSHED_REF="$(git ls-remote --heads origin 2>/dev/null \
+    | awk -v sha="$(git rev-parse HEAD)" -v base="refs/heads/$REF" \
+        '$1 == sha && $2 != base { sub("refs/heads/", "", $2); print $2; exit }')"
+fi
+
+if [[ -n "$PUSHED_REF" ]]; then
+  # Never fold on top of a published branch. Anything the agent left
+  # uncommitted goes on as an ordinary commit, so nothing it wrote is lost and
+  # no history that is already on the remote gets rewritten.
+  if ! git diff --cached --quiet; then
+    git commit -m "agent: ${ITEM_ID} (uncommitted work the agent left behind)"
+    git push origin "HEAD:refs/heads/${PUSHED_REF}"
+  fi
+
+  # A second PR carrying the same diff is worse than no PR at all — but so is
+  # an orphaned branch. Open one only if the agent did not.
+  if gh pr list --head "$PUSHED_REF" --state open --json number --jq '.[].number' \
+    2>/dev/null | grep -q '[0-9]'; then
+    echo "worker: the agent pushed '$PUSHED_REF' and opened its own PR — nothing to add"
+  else
+    echo "worker: the agent pushed '$PUSHED_REF' itself but opened no PR — opening one rather than orphaning the branch"
+    open_pr "$PUSHED_REF"
+  fi
   exit 0
 fi
 
@@ -273,22 +389,11 @@ fi
 git reset --soft "$REF"
 git add -A
 if git diff --cached --quiet; then
-  echo "no changes after fold; not opening a PR"
+  report_noop "no changes after fold; not opening a PR"
   exit 0
 fi
 
 git commit -m "agent: ${ITEM_ID}"
 
-# If the agent pushed this work itself despite the delivery instruction, a
-# second PR carrying the same diff is worse than no PR at all. `ls-remote`
-# rather than a remote-tracking ref: the clone is shallow and single-branch,
-# so `git branch -r` only ever knows about $REF.
-if git ls-remote --heads origin 2>/dev/null | grep -q "^$(git rev-parse HEAD)[[:space:]]"; then
-  echo "worker: this commit is already the tip of a remote branch — not opening a second PR"
-  exit 0
-fi
-
 git push -u origin "$BRANCH"
-gh pr create --base "$REF" --head "$BRANCH" \
-  --title "agent: ${ITEM_ID}" \
-  --body "Opened by the hel1 Codex governor from queue item \`${ITEM_ID}\`. Merge follows this repository's normal rules for product PRs; the worker itself never merges."
+open_pr "$BRANCH"

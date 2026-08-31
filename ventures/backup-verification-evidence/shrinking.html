@@ -32,6 +32,12 @@
   </ol>
   <h2>When a shrink is normal</h2>
   <p>Retention pruning, a restic/borg rewrite, and a dataset that actually got smaller will drop bytes on purpose. The checker reports the drop. You decide whether it matches the work you did.</p>
+  <h2>Common questions</h2>
+  <h3>Why is my backup file smaller than yesterday?</h3>
+  <p>A scheduled backup can exit 0 while writing a truncated or incomplete artifact that still clears a minimum-size check. Compare consecutive nights' sizes. A drop of 20% or more versus the previous night or the prior-night median is a reason to inspect the job, even if the latest run is marked verified.</p>
+  <h3>Does a smaller backup mean data was lost?</h3>
+  <p>No. Retention pruning, incremental repositories, and a genuinely smaller dataset can shrink an artifact on purpose. A size drop is an observation. Test a restore before treating any night as safe.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This page is provided free and as-is. It is not engineering advice and it does not replace a test restore. <strong>Best-effort hosting, no SLA.</strong> These tools may move or go offline without notice. Everything in the checker runs in your browser.</p>
   </footer>

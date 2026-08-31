@@ -37,12 +37,30 @@ spec:
       # burst must never be the reason the public site loses a pod.
       priorityClassName: ci-low
       # The cpx22 is tainted for Codex Jobs and has 4 GB; a node --test sweep
-      # across 217 workflows does not fit beside a Codex worker there.
+      # across 220 workflows does not fit beside a Codex worker there.
       nodeSelector:
         hcloud/node-role: control-plane
       # Nothing in CI talks to the Kubernetes API, so it gets no token to talk
       # with. This is the same posture the governor's Job template takes.
       automountServiceAccountToken: false
+      # Every other workload in this repo (portfolio-site's three containers,
+      # its refresh and usage CronJobs, the governor, prod's landing page) sets
+      # runAsNonRoot -- this Deployment was the one exception, carrying no pod
+      # securityContext at all. `ghcr.io/actions/actions-runner` already runs
+      # as its baked-in unprivileged `runner` user by default (the entrypoint
+      # above never chowns, sudos or su's into another account, and it `cd`s
+      # straight into /home/runner, that user's own home), so this asserts
+      # what the image already does rather than changing it -- and fails the
+      # pod closed instead of silently running as root if a future image
+      # revision ever changed that default.
+      #
+      # readOnlyRootFilesystem stays off here, unlike every sibling above, and
+      # not by oversight: a workflow step can `npm ci`, `pip install`, or run
+      # `actions/setup-node`, all of which write into $RUNNER_TOOL_CACHE and
+      # other paths outside the one `work` emptyDir this pod mounts. That is
+      # inherent to running arbitrary job code, not something to narrow away.
+      securityContext:
+        runAsNonRoot: true
       restartPolicy: Always
       containers:
         - name: runner

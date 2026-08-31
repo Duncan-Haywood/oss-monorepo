@@ -66,7 +66,24 @@ AI-wrap by default.
   ran, and do not "fix" code the check never executed. See `CLAUDE.md`. The
   single field that settles it is `runner_id: 0` with an empty `runner_name` —
   no runner was ever assigned, so no step ran.
-- **Verify with the workflow's own step list, not a subset you chose.**
+- **Verify with the workflow's own step list, not a subset you chose — and
+  with every workflow your change would start, not just the one you know.**
+
+  ```
+  python3 platform/ci/run_workflow_locally.py --for-changes
+  ```
+
+  That reads the `paths:` filter on every workflow, works out which ones your
+  current diff against `origin/main` would trigger, and runs the jobs among
+  them that cannot write anything (holding, and naming, any job that grants a
+  write permission or reads a secret). Prefer it to naming a single workflow.
+  Naming `portfolio-validate.yml` alone is how a `FAQPage` whose JSON-LD did
+  not match its own visible copy reached `main` on 2026-08-30: the guard that
+  catches it lives in `portfolio-pages.yml`, which runs on any `ventures/**`
+  change, and the session that merged verified the wrong workflow. Add
+  `--list` to see the selection without running it.
+
+  To run one workflow by name:
 
   ```
   python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
@@ -81,6 +98,22 @@ AI-wrap by default.
   their subsets happened to include `check_ask_hosts.py`. Paste the summary
   line into the pull request — including the count it says did not run, which
   is the part that keeps "verified locally" honest.
+- **No workflow covers the browser.** `run_workflow_locally.py` runs what CI
+  would run, and CI never ran the six checks in `platform/pages/` — they need
+  Playwright, which is not a dependency of this repo. They are the only thing
+  that catches a page which renders perfectly and computes nothing. When your
+  change touches a `ventures/**` surface or `platform/pages/`, run them:
+
+  ```
+  PLAYWRIGHT=$(npm root -g)/playwright/index.js python3 platform/ci/browser_checks.py
+  ```
+
+  It builds into a temporary directory (so nothing stale can be verified by
+  accident), serves it, and refuses to start unless the origin echoes a
+  sentinel token it just wrote — the leftover-server false pass that cost a
+  clean report on 2026-08-28 is an error here rather than a green run. Add
+  `--checks sweep,sideways` for a subset, or `--dist <dir>` to reuse a build.
+  A missing Playwright exits 2 and says so; it is a skip, not a pass.
 - **`git fetch --unshallow` first.** A scheduled session's clone is shallow, so
   every branch reads as an unrelated history: no merge base, `git merge` refuses,
   and a normal PR looks like a 2,800-file catastrophe. That is the clone, not the

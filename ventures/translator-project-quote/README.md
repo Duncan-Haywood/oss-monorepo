@@ -20,6 +20,11 @@ target margin, which used to take a spreadsheet and several hidden assumptions.
 - Add-on costs include QA hours at the same hourly rate, DTP/file handling, and rush fees.
 - Target-margin price grosses up direct labor and add-ons by the supplied margin.
 - The quote floor is the larger of the supplied minimum and direct project costs.
+- The recommended quote is the larger of the quote floor and the target-margin
+  price. On a small job the floor still wins; on any job whose margin math
+  outpaces the floor, the margin price is what gets recommended instead of
+  quietly dropping back to cost-plus-nothing once the flat minimum stops
+  binding.
 
 These are arithmetic comparisons, not a recommended rate, a translation
 quality judgment, or a profitability determination. The user owns the rate,
@@ -42,10 +47,14 @@ inputs and run it yourself.
 
 Everything runs in your browser. Your word counts, rates, and costs are never
 uploaded. There are no accounts, cookies, or analytics vendors. The optional
-`page_viewed` and `quote_summary_copied` counters store only an aggregate event
-and date in local storage, honor Do Not Track and Global Privacy Control, and
-have a visible off-switch. No project text, client name, or identifier is
-recorded.
+`page_viewed`, `quote_summary_copied`, and `share_link_copied` counters store
+only an aggregate event and date in local storage, honor Do Not Track and
+Global Privacy Control, and have a visible off-switch. No project text,
+client name, or identifier is recorded.
+
+Your last entry is saved to local storage so a refresh doesn't lose it, and
+"Copy shareable link" puts the same inputs in the page's URL fragment (never
+sent to a server) so you can hand a client or colleague the exact quote.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 does not change what the calculator does.
