@@ -35986,3 +35986,55 @@ entries:
         the confirmed runner-starvation signature, not a real failure.
         Merged (squash) as #2335.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start (quota satisfied by an empty queue).
+        Bounded overlap check across ~15 of the most-recently-updated
+        remote branches found nothing to revive: most were already merged
+        (empty diff against `main`), one (`fix/governor-rbac-configmap-scope`)
+        touches the owner-gated governor area, one was a ledger-only commit,
+        and three (`pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`, `pr/appointment-deposit-calculator`)
+        were confirmed superseded by reading the actual diffs rather than
+        trusting names -- `main`'s `share.mjs`, `calc.mjs`, and `app.mjs` for
+        those three ventures are strictly larger supersets of what the
+        branches add.
+      - >-
+        Shipped #2337: `faq-coverage.mjs` reports 168/168 entry pages
+        "covered," but that only checks for 1+ derived FAQ question -- 17
+        pages sat at exactly the bare 3-question floor, the same shape
+        #2324 fixed once already. Picked 4
+        (booth-rent-vs-commission, ev-charger-bid-calculator,
+        grant-deadline-tracker, hood-cleaning-bid-calculator) and added 3-4
+        new Q&A pairs each, every number computed by actually running the
+        venture's own `calc.mjs` against its page's own default inputs
+        (break-even points, a voltage-drop-forced wire upsize, a detached-
+        garage price multiple, clawback stacking, a case where hiring a
+        grant writer costs more than what's at risk, grease-load's
+        cleaning-frequency effect on annual revenue, access-multiplier cost
+        on identical duct footage). Also removed two ventures' stale
+        hand-authored `FAQPage` JSON-LD blocks (and one page.test.mjs
+        assertion pinned to the literal string) so `build.mjs` derives
+        schema from the visible copy instead, matching #2324's fix for the
+        same schema/page-drift risk.
+      - >-
+        Verified: each venture's own suite green (192 combined assertions);
+        a full `platform/pages/build.mjs` + `check.mjs` came back clean
+        (168 products, 506 pages, no dead links); confirmed all 4 built
+        pages now ship derived `FAQPage` JSON-LD matching their visible
+        copy. `faq-visible.test.mjs` has one pre-existing failure in
+        `ai-engineering-academy` (entity-encoding drift), confirmed present
+        on unmodified `main` via `git stash` -- untouched by this change,
+        left as a scoped follow-up. `platform/ci/ci_starvation.py`'s field
+        (`runner_id: 0`, 3s, no steps) confirmed the red PR checks were the
+        known starvation signature, not a real failure. Merged (squash) as
+        #2337.
+      - >-
+        17 minus the 4 fixed here leaves 13 ventures still at the bare
+        FAQ floor -- the next session doing this should re-run the
+        derivation-count script rather than trust this number, since other
+        sessions may already be closing the gap in parallel.
+    mrr_end: null
