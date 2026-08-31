@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compareLateReport } from "./calc.mjs";
+import { faqEntries, injectChrome } from "../../platform/pages/build.mjs";
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const dueSeo = readFileSync(new URL("./when-is-my-next-grant-report-due.html", import.meta.url), "utf8");
@@ -70,4 +71,30 @@ test("the grant-writer landing page uses the same worked example the tests lock"
   assert.equal(comparison.yourself.net, 20912);
   assert.equal(comparison.writer.net, 20820);
   assert.match(sitemap, /should-i-hire-a-grant-writer-to-file-this-report\.html/);
+});
+
+test("the entry page's FAQ derivation is not suppressed by its own explanatory comment", () => {
+  // The source carries only a *comment* explaining that FAQPage schema is
+  // derived by build.mjs, not an authored block. build.mjs used to check for
+  // the literal substring "FAQPage" anywhere in the page -- including inside
+  // that comment -- so it read the explanation as "this venture already
+  // wrote its own" and skipped derivation, shipping no FAQPage schema at all
+  // despite six real question headings below. faqEntries() alone can't catch
+  // this: it derives correctly from the source; the loss only appears in
+  // injectChrome's output. 2026-08-31.
+  const entries = faqEntries(html);
+  assert.ok(entries.length >= 6, `expected at least 6 derived FAQ entries, got ${entries.length}`);
+  const questions = entries.map((e) => e.question);
+  assert.ok(questions.some((q) => /next grant report due/i.test(q)));
+  assert.ok(questions.some((q) => /hire a grant writer/i.test(q)));
+
+  const built = injectChrome(html, {
+    slug: "grant-deadline-tracker",
+    toRoot: "../",
+    total: 169,
+    related: [],
+    canonical: "https://e.test/grant-deadline-tracker/",
+    isEntry: true,
+  });
+  assert.match(built, /"@type":"FAQPage"/, "the derived schema must actually be injected, not suppressed by the comment");
 });
