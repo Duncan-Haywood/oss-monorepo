@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Run the six browser checks against a build, and prove what answered.
+"""Run the seven browser checks against a build, and prove what answered.
 
-Why this exists. `platform/pages/` carries six checks CI cannot run --
+Why this exists. `platform/pages/` carries seven checks CI cannot run --
 `journey.mjs` (the customer journey), `sweep.mjs` (does every tool still
 compute), `contrast.mjs` (can every page be read and reached),
 `roundtrip.mjs` (does a shared bid arrive as the bid that was sent),
-`presets.mjs` (does picking "no preset" leave the takeoff alone) and
+`presets.mjs` (does picking "no preset" leave the takeoff alone),
+`highlight.mjs` (does a rejected input get pointed at) and
 `sideways.mjs` (does any page scroll sideways on a phone). They need
 Playwright, which is not a dependency of this repo, so no workflow runs
 them. Since 2026-08-26 no workflow runs at all, which makes them the only
@@ -13,7 +14,7 @@ thing standing between a merge and a page that renders perfectly and does
 nothing -- the failure `sweep.mjs`'s own header says this repo has shipped
 before.
 
-Nothing orchestrates them. `platform/pages/README.md` hands you six
+Nothing orchestrates them. `platform/pages/README.md` hands you seven
 commands plus a server you start yourself, and both `journey.mjs` and
 `sweep.mjs` spend a paragraph each on the same trap:
 
@@ -28,7 +29,7 @@ the checks against a **sentinel** instead: a random token written into the
 tree under test and read back over HTTP before any browser starts. If the
 port is answering an older build, the token is absent or stale and this
 refuses to run rather than reporting a pass. That is the whole reason to
-prefer it over six hand-typed commands.
+prefer it over seven hand-typed commands.
 
     python3 platform/ci/browser_checks.py
     python3 platform/ci/browser_checks.py --dist platform/pages/dist
@@ -44,13 +45,13 @@ deployment, or a server you started yourself). There is no sentinel in
 that mode -- this cannot write into a tree it does not own -- so the
 report says the origin was taken on trust.
 
-**A check that could not run is not a check that failed.** All six exit
+**A check that could not run is not a check that failed.** All seven exit
 `1` for a real defect and `2` for "nothing was verified" -- no Playwright,
 no axe-core, an empty page list, a `DIST` that is not there. This
 distinguishes the two everywhere it reports: a `2` prints as `skip`, never
 as `FAILED`, and the run's own exit code is `1` only when something
 actually failed, `2` when everything that ran passed but something did not
-run, and `0` when all six answered.
+run, and `0` when all seven answered.
 
 That mattered because the one dependency that is not Playwright is
 `axe-core`, and it belongs to `contrast` -- the WCAG check, the only thing
@@ -84,10 +85,10 @@ go in a scratch directory rather than this repo, which has no
     python3 platform/ci/browser_checks.py --dist=path/to/site
 
 `axe-core` is `contrast`'s dependency alone; without it that one check
-skips and the other five still run and still report. Do not run
+skips and the other six still run and still report. Do not run
 `npx playwright install`
 -- see the paragraph below on why the version pin does not matter here.
-Verified on 2026-08-31: all six checks ran this way against a
+Verified on 2026-08-31: all seven checks ran this way against a
 `tools.marisstella.dev`-stamped artifact, and `journey`'s sitemap step
 found a real bug in itself doing so.
 
@@ -125,16 +126,24 @@ PAGES = os.path.join(REPO_ROOT, "platform", "pages")
 
 # Ordered cheapest-first so a broken build fails the fast check before
 # `journey.mjs` spends several minutes proving the same thing.
-CHECKS = ("sideways", "presets", "roundtrip", "contrast", "sweep", "journey")
+#
+# `highlight` was written on 2026-08-29 and left out of this list, so a
+# session running "the browser checks" ran six of the seven and was not told.
+# It is the only one that asks whether a rejected input gets pointed at --
+# the check that found 0 of 103 tools drawing any highlight at all, on forms
+# with twenty to forty numeric fields where the message said "check the
+# highlighted input" and nothing was highlighted. A check nobody runs is the
+# same gate-that-never-opens this file's exit-code handling exists to stop.
+CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "sweep", "journey")
 
 SENTINEL_NAME = ".browser-checks-sentinel"
 
 # The exit-code contract every check in `platform/pages/` already follows:
 # 0 answered and passed, 1 found a real defect, 2 could not verify anything
 # (no Playwright, no axe-core, an empty page list, a DIST that is not there).
-# `journey.mjs`, `sweep.mjs`, `contrast.mjs`, `roundtrip.mjs`, `presets.mjs`
-# and `sideways.mjs` all reserve 2 for that; this is the reader that acts on
-# it rather than collapsing 1 and 2 into "non-zero".
+# `journey.mjs`, `sweep.mjs`, `contrast.mjs`, `roundtrip.mjs`, `presets.mjs`,
+# `highlight.mjs` and `sideways.mjs` all reserve 2 for that; this is the
+# reader that acts on it rather than collapsing 1 and 2 into "non-zero".
 SKIP_EXIT = 2
 
 # A timeout is not the check's own verdict -- `run_check` invents 124 for it,

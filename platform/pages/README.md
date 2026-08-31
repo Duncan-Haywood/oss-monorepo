@@ -10,17 +10,18 @@ node platform/pages/check.mjs dist                # check the artifact
 cd platform/pages && node --test "*.test.mjs"   # what CI runs
 ```
 
-Then, in a browser, the six checks CI cannot run — `journey.mjs` (the customer
+Then, in a browser, the seven checks CI cannot run — `journey.mjs` (the customer
 journey), `sweep.mjs` (does every tool still compute), `contrast.mjs` (can
 every page be read and reached), `roundtrip.mjs` (does a shared bid arrive as
 the bid that was sent), `presets.mjs` (does picking "no preset" leave the
-takeoff alone), and `sideways.mjs` (does any page scroll sideways on a phone).
+takeoff alone), `highlight.mjs` (does a rejected input get pointed at), and
+`sideways.mjs` (does any page scroll sideways on a phone).
 See [Driving the customer journey](#driving-the-customer-journey).
 
-Run all six with one command, which builds, serves and tears down for you:
+Run all seven with one command, which builds, serves and tears down for you:
 
 ```
-python3 platform/ci/browser_checks.py            # all six, fresh build
+python3 platform/ci/browser_checks.py            # all seven, fresh build
 python3 platform/ci/browser_checks.py --checks sweep,sideways --dist platform/pages/dist
 ```
 
