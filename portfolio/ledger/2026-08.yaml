@@ -36221,3 +36221,69 @@ entries:
         confirmed on the `validate` job before merging -- not a real failure.
         Merged as #2346.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Two defects in the hel1 Codex fleet, both latent only because the
+        governor is still `enabled: false`, and both of which bite on the
+        first tick after the owner flips it. (1) `pick_item` weighted items
+        by priority against how often they had run, which assumes every
+        enabled item always has work -- two of the five provably do not.
+        Verified today: zero open PRs repo-wide, and every remote branch
+        with unique commits already merged (spot-checked four; squash merges
+        keep `rev-list origin/main..branch` non-zero, which makes merged
+        branches look unshipped). So `open-pr-repair-merge` (priority 6) and
+        `branch-pr-drain` (5) -- 13/25ths of the weight -- would spend over
+        half a ChatGPT plan's included quota cloning the repo to confirm
+        there is nothing to do. A clean run that changes nothing now reports
+        it: `worker.sh` writes a `codex-noop` marker to
+        /dev/termination-log, surfaced as `terminated.message`, the field
+        the governor already reads for limit errors, and still exits 0 so an
+        empty run is not dressed up as a Job failure. The governor counts
+        consecutive empty runs per item and divides the score by `noops + 1`.
+        Simulated over 100 ticks: 54 wasted before, 13 after; items with real
+        work go 46 -> 87. First productive run clears the damping, the fade
+        caps at 10 so an item can still discover its work came back, and the
+        counter survives the window rollover (an item being empty is a fact
+        about the repository, not the window). Quota-limited and
+        `delivery: agent` runs are never counted as empty. Merged as #2348.
+      - >-
+        (2) `mandate.md` is prepended to every queue item's prompt and
+        declares itself the winner over an item on floor questions. Its floor
+        read "Never merge a PR you did not open, and never merge one this
+        run's delivery section did not tell you to" -- two halves that
+        contradict each other, where the first overrides the step 5 of
+        `open-pr-repair-merge`, the highest-priority item, whose entire
+        purpose is taking someone else's open PR to merged. A worker
+        following the stated precedence would review, repair, resolve
+        conflicts, run the tests and then decline to land it, leaving the
+        fleet able to open PRs and unable to drain them -- the exact failure
+        that item was written to close, reintroduced one level up in the file
+        that is meant to be the floor. Authorship was never the right test;
+        authorisation is. Rewrote the bullet to forbid merging a PR this run
+        was not told to merge, and one whose checks were neither seen green
+        nor verified locally; no other floor rule relaxed. Merged as #2349.
+      - >-
+        Verified: `python3 -m pytest gitops/tests/` 134 -> 150 (13 new for
+        the no-op damping incl. 3 end-to-end runs of `worker.sh` against a
+        local bare repo and stubbed codex/gh, 2 pinning the mandate/queue
+        pair); full `node --test platform/pages/*.test.mjs` green;
+        `build.mjs` + `check.mjs dist` -> 169 products, 508 pages, no dead
+        links. CI showed the account-level starvation signature on both PRs
+        (`runner_id: 0`, `runner_name: ""`, ~3s, no steps -- confirmed on the
+        `gitops` job of each, which is the check that would have exercised
+        this change); `platform/ci/ci_starvation.py` needs the `gh` CLI,
+        absent here, so the runner_id was read via the Actions jobs API
+        directly. Not a real failure.
+      - >-
+        Unchanged and still the portfolio's whole bottleneck: 169 built
+        tools, zero public URLs. All three of the run's stated priorities
+        (CI/CD, marketing deploy, Codex-on-Hetzner) converge on the same
+        owner action -- `./bootstrap/scripts/seal-owner-secrets.sh` seals all
+        three secrets, then `CI_RUNNER` = `self-hosted` and the governor
+        flip. Its preflight is correct (collects every missing tool before
+        reporting). No new decision-queue row added; the asks are already
+        there.
+    mrr_end: null
