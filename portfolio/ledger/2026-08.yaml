@@ -40837,3 +40837,49 @@ entries:
         tree-service-bid-calculator have the same gap and were left alone
         (one venture per session, per the working agreement).
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution: measured before picking, per the queue
+        item's own instruction, and found candidate 1 (an embeddable
+        widget) already shipped as #2561 -- moments before this session
+        fetched. Reading the merged code instead of re-implementing it
+        turned up a real gap #2561 could not have caught: nginx
+        (gitops/prod/portfolio-site.yaml) ships `X-Frame-Options: DENY`
+        on every page, including the plain URL the shipped <iframe>
+        snippet points at (?pfEmbed=1). A response header enforced
+        before any page script runs makes the widget a blank rectangle
+        wherever embedded -- correct HTML, correct JS, a passing test
+        suite, and no way for check.mjs or build.test.mjs to see it,
+        since neither reads response headers.
+      - >-
+        Fixed with two `map $arg_pfEmbed` blocks feeding `location /`'s
+        X-Frame-Options and a new Content-Security-Policy: frame-ancestors
+        header (add_header cannot itself branch on a query string). The
+        default row reproduces today's DENY exactly, so the change is
+        scoped to the one query string the shipped snippet actually
+        sends -- confirmed against the real built output
+        (.../ebay-fee-calculator/?pfEmbed=1). Shipped no change to
+        platform/pages/embed.mjs, pf-embed.js, or their tests; all
+        correct as merged. Merged as #2567 (2e7128343).
+      - >-
+        Verified: node --test platform/pages/*.test.mjs (836/836,
+        unaffected -- this touches nothing under platform/pages/);
+        PAGES_BASE_URL=... node platform/pages/build.mjs then
+        check.mjs (169 products, 508 pages, no dead links); python3 -m
+        pytest gitops/tests -q (188/188, incl. two new tests pinning
+        the maps' default/1 values and that every other location keeps
+        an unconditional DENY). run_workflow_locally.py --for-changes:
+        conflict-markers-ci and duplicate-symbols-ci both green;
+        hetzner-gitops-ci's kustomize build/kubeconform/pyflakes all
+        pass, its literal `pytest` step fails on ModuleNotFoundError:
+        yaml reproduced identically against unmodified origin/main (a
+        PATH mismatch between the pytest binary and the interpreter
+        carrying PyYAML, not a regression); tofu is not installed in
+        this environment. All three GitHub checks on #2567 came back
+        red in 3-4s with runner_id: 0 -- confirmed via ci_starvation.py
+        as the known account-level Actions outage, merged per the
+        no-review-gate rule for product/platform PRs.
+    mrr_end: null
