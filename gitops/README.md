@@ -86,6 +86,36 @@ which is the intended fail-closed state.
    add it to `prod/kustomization.yaml` — full instructions in
    `prod/secrets/portfolio-repo-token.template.yaml`.
 
+### After it is live: what happens when that token expires
+
+A fine-grained PAT expires — 90 days is the recommended setting in
+`infra/OWNER_CHECKLIST.md`. The pods build the whole site from GitHub on
+every start, so an expired token used to mean no pod could start.
+`maxUnavailable: 0` hid that: the running pods kept serving, the rollout
+stalled, and nothing anywhere said so. The site would sit un-restartable
+until the next node reboot took it to zero.
+
+Two things now stop that, both in `prod/portfolio-site.yaml`:
+
+- **A cache volume** (`portfolio-site-cache`) holds the last site that
+  built *and* passed `check.mjs`. A pod that cannot clone, or that clones
+  a commit failing `check.mjs`, restores that copy and serves it. The
+  site goes stale rather than dark. Only a first-ever start with no cache
+  still fails.
+- **The nightly refresh CronJob waits for the rollout it triggers** and
+  fails if it does not complete, or if it completes onto the cache. A
+  failed `portfolio-site-refresh` Job is the signal that the site is no
+  longer tracking `main`.
+
+The live check is `https://tools.marisstella.dev/buildinfo.txt`:
+`status=fresh` means the pods serving you built from `main`,
+`status=stale` means they came up on the cache. It carries no commit SHA
+— the repository is private and that file is not.
+
+The fix in every stale case is the same as making it live in the first
+place: re-mint the token, re-seal it, commit. Nothing else has to be
+touched.
+
 **The ACME contact is no longer on this list (changed 2026-08-30.)** It
 used to be item 2: both ClusterIssuers carried
 `replace-me@duncanhaywood.dev`, and replacing it was described here as an
