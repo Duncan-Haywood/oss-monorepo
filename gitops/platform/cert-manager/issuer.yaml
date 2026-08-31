@@ -1,5 +1,21 @@
 # Staging issuer first so we do not burn Let's Encrypt prod rate limits
-# while DNS for cluster.duncanhaywood.dev is still missing.
+# against a host nobody has confirmed can reach it yet.
+#
+# The one Ingress these issuers serve today is `tools.marisstella.dev`
+# (gitops/prod/portfolio-site.yaml) -- not `cluster.duncanhaywood.dev`, which
+# this comment named until 2026-08-31 and which nothing in this repo binds an
+# Ingress to. `tools.marisstella.dev`'s DNS already resolves (verified
+# 2026-08-29, see gitops/README.md), so the stale reason above was also
+# wrong on its own terms: staging stays the default because Argo auto-syncs
+# `prod`, so the Ingress exists (and cert-manager starts HTTP-01 challenges
+# against the prod issuer, were it wired here) before anyone has confirmed a
+# certificate actually issues -- not because DNS is missing.
+#
+# Flip the Ingress's `cert-manager.io/cluster-issuer` annotation in
+# gitops/prod/portfolio-site.yaml to `letsencrypt-prod` (and update the test
+# that pins it) once a staging certificate has actually issued -- see
+# gitops/README.md and infra/OWNER_CHECKLIST.md, "The issuer flip, last."
+#
 # HTTP-01 uses ingress-nginx on the control-plane node.
 #
 # NO `email:` CONTACT, ON PURPOSE.
