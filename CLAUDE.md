@@ -247,6 +247,14 @@ python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
 Exit 0 means every job ran on a real runner, so a failure there is a real
 result and yours to fix. Exit 1 means at least one job never got one.
 
+**It no longer needs the `gh` CLI** (changed 2026-08-31). It did until then,
+which meant it exited 2 with "the gh CLI is not installed" in the web sessions
+that run these routines — the one environment where a session is most likely to
+reach for it and least able to check by hand. It now falls back to
+`api.github.com` with `GH_TOKEN`/`GITHUB_TOKEN`, and `--from-json <file>` will
+classify a jobs payload you fetched some other way (the MCP
+`list_workflow_jobs` tool, say) with no credential of its own.
+
 **The one field that settles it is `runner_id`**, and that is the only thing
 the tool votes on. A starved job carries `"runner_id": 0` and
 `"runner_name": ""` — no runner was ever assigned, so no step ever ran. It also
