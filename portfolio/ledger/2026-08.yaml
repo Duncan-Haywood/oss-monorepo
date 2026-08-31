@@ -38314,3 +38314,70 @@ entries:
         present on `main` with full content, so no unique unshipped work.
         Opened no branch-recovery PRs.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Zero open PRs at session start.** Per the branch-to-PR presumption,
+        spent the quota-drain phase sampling ~35 of the ~170 PR-less remote
+        branches sitting ahead of `main` (this repo squash-merges, so
+        `git branch --no-merged` never clears on its own) rather than the
+        handful prior sessions sampled. Checked each with
+        `supersede_check.py` plus a targeted grep for the branch's core
+        function/field name in `main`'s current file before investing in a
+        conflict resolution. Result: all but one were already superseded,
+        several by same-named functions on `main`
+        (`compareFeeScenarios` in no-show-fee-calculator,
+        `stockCost`/`totalCost` in cut-list-optimizer, `encodeQuote`/
+        `decodeQuote` in quote-margin-check, `downloadReport` in
+        real-estate-agent-photo-app) that a pure line-diff scan reads as
+        unique content because the wording differs. This corroborates, with
+        a larger sample, what `claude/clever-bohr-rcp8ih` (15 branches),
+        `claude/codex-governor-ask-and-queue-drain-report` (9 branches) and
+        the branch-cleanup-automation decision-queue row (608 branches vs 6
+        open PRs, "~99% landed-or-abandoned noise") already found — and,
+        checking those three ledger branches themselves before writing this
+        entry, all three were themselves already superseded (byte-identical
+        tree to a merge of each), meaning their findings already reached
+        `main` by some other route. This portfolio's PR-less-branch backlog
+        is a well-mined, not an unmined, vein; a session hitting the 3-PR
+        quota from this source alone should expect roughly 1 real find per
+        30-40 branches checked, not budget for exhaustive triage.
+      - >-
+        The one genuine find, `cursor/janitorial-draft-persistence-20260825`,
+        was merged as #2459 after resolving 5 additive conflicts (main had
+        grown project/shift/periodic-service rows since the branch was cut).
+        It should not have been: closer reading after merge found this
+        venture already had a more complete save/restore/share-link system
+        (`share.mjs`'s `saveBid`/`restoreBid` keyed by `BID_SPEC`, extended
+        to cover every row type on 2026-08-27, two days after the branch was
+        written but before this session merged it). The two persistence
+        layers collided on page load -- the newly-merged code unconditionally
+        re-added every area row `restoreBid()` had already restored,
+        duplicating rows for any returning visitor, and a shared bid link
+        opened on a browser with its own prior draft would have the sender's
+        numbers silently overwritten by the recipient's stale local draft.
+        Caught before this session ended and fixed in #2461 (removed the
+        redundant layer entirely; its scope was a strict subset of what
+        `BID_SPEC` already persisted, so nothing of value was lost).
+        Generalizes the "branch predates a `main` feature under a different
+        name" trap this entry's supersession notes already describe, to a
+        form `supersede_check.py` and a same-function-name grep both miss:
+        a *differently-shaped* duplicate mechanism solving the same job.
+        Lesson for future sessions merging a "let me persist/restore X"
+        branch: grep the target file for existing save/restore/share
+        infrastructure before merging, not just for a same-named function.
+      - >-
+        Re-verified, per an explicit owner ask this session for CI/CD,
+        Hetzner deployment, deployed marketing materials, and an autonomous
+        Codex CLI setup using the ChatGPT-plan built-in quota: unchanged from
+        every prior session's finding back to at least 2026-08-29 -- all of
+        it is code-complete and blocked purely on owner-only actions already
+        named in `portfolio/ledger/decision_queue.py` rows 10-13
+        (`actions-runners-unavailable`, `agent-runner-subscription-login`,
+        `codex-governor-enable`, `portfolio-site-hetzner-deploy`) and row 8
+        (`deploy-settings`, GitHub Pages). Added nothing new to the queue per
+        the no-duplicate-asks rule; the precise unblock steps for each are
+        already typed out there and in `infra/OWNER_CHECKLIST.md`.
+    mrr_end: null
