@@ -27,7 +27,7 @@
   <main class="grid">
     <section><h2>Your freight</h2><p class="hint">Use the packed outside dimensions. Weight is per piece; pieces can be pallets, crates, or cartons.</p><div class="fields">
       <label>Length (inches)<input id="length" type="number" min="0.01" step="0.01" value="48"></label><label>Width (inches)<input id="width" type="number" min="0.01" step="0.01" value="40"></label><label>Height (inches)<input id="height" type="number" min="0.01" step="0.01" value="36"></label><label>Weight per piece (lb)<input id="weight" type="number" min="0.01" step="0.01" value="500"></label><label>Identical pieces<input id="pieces" type="number" min="1" step="1" value="1"></label>
-    </div><div class="actions"><button id="copy" type="button">Copy estimate</button><button class="secondary" id="reset" type="button">Reset example</button></div><p id="status" class="hint" role="status"></p></section>
+    </div><div class="actions"><button id="copy" type="button">Copy estimate</button><button id="share" type="button">Copy shareable link</button><button class="secondary" id="reset" type="button">Reset example</button></div><p id="status" class="hint" role="status"></p></section>
      <section class="result"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><p class="threshold" id="threshold"></p><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
     <section id="faq">
       <h2>Common questions</h2>
@@ -74,15 +74,35 @@
       <p>No account and no network requests &mdash; the estimate runs entirely in your browser. Nothing
         about your freight is sent anywhere. The usage counter is a local, opt-out tally of which
         features were used, never your dimensions or weights.</p>
+
+      <h3>Are my numbers saved, and can I share them?</h3>
+      <p>Your last entry is saved in this browser's local storage, so refreshing the page or coming
+        back later restores it &mdash; nothing is uploaded. &ldquo;Copy shareable link&rdquo; puts the
+        same dimensions, weight, and piece count in the page's URL fragment (after the
+        <code>#</code>) instead, so sending that link to a broker or coworker opens this page with the
+        exact same freight estimated, without either of you retyping anything. A link takes priority
+        over a saved draft when you open one.</p>
     </section>
   </main>
-  <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
+  <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
   <script type="module">
     import { estimateFreightClass } from './calc.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
-    const ids = ['length', 'width', 'height', 'weight', 'pieces'];
+    import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS as ids } from './share.mjs';
     const value = id => document.getElementById(id).value;
+    const storageKey = 'ltl-freight-class-draft';
     let countedSignature = '';
+    function currentInputs() { return Object.fromEntries(ids.map(id => [id, value(id)])); }
+    // A link wins over a saved draft: opening a link someone sent means seeing
+    // their numbers, not the last shipment estimated on this device.
+    const fromLink = decodeInputs(location.hash);
+    let restored = fromLink;
+    if (Object.keys(fromLink).length === 0) {
+      try { restored = JSON.parse(localStorage.getItem(storageKey) || 'null') || {}; } catch { restored = {}; }
+    }
+    for (const id of ids) {
+      if (Object.prototype.hasOwnProperty.call(restored, id)) document.getElementById(id).value = restored[id];
+    }
     function update(count = true) {
       try {
         const result = estimateFreightClass(Object.fromEntries(ids.map(id => [id, value(id)])));
@@ -95,6 +115,8 @@
         document.getElementById('cube').textContent = `${result.totalCube.toFixed(2)} ft³`;
         document.getElementById('totalWeight').textContent = `${result.totalWeight.toFixed(0)} lb`;
         document.getElementById('density').textContent = `${result.density.toFixed(2)} lb/ft³`;
+        try { localStorage.setItem(storageKey, JSON.stringify(currentInputs())); } catch {}
+        if (location.hash) history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
         const signature = ids.map(value).join('|');
         if (count && signature !== countedSignature) { recordUsage('estimate_completed'); countedSignature = signature; }
       } catch {
@@ -113,6 +135,11 @@
      document.getElementById('copy').addEventListener('click', async () => { if (!update(false)) return; const text = `Estimated LTL freight class: ${document.getElementById('freightClass').textContent}\nDensity: ${document.getElementById('density').textContent}\nTotal cube: ${document.getElementById('cube').textContent}\nTotal weight: ${document.getElementById('totalWeight').textContent}\n${document.getElementById('threshold').textContent}\nPlanning estimate only; verify with the carrier.`; try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); } catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; } });
     document.getElementById('reset').addEventListener('click', () => { [['length',48],['width',40],['height',36],['weight',500],['pieces',1]].forEach(([id, val]) => { document.getElementById(id).value = val; }); countedSignature = ''; update(false); });
     document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; });
+    document.getElementById('share').addEventListener('click', async () => {
+      history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
+      try { await navigator.clipboard.writeText(location.href); document.getElementById('status').textContent = 'Link copied — it reopens this page with the same numbers.'; }
+      catch { document.getElementById('status').textContent = 'Link is in your address bar — copy it to share these numbers.'; }
+    });
     update(false);
   </script>
 </body>
