@@ -16,21 +16,46 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { collectPages } from './clauses.mjs';
+import { decodeEntities } from './entities.mjs';
 
 const LD = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/g;
 
-/** Page text as a visitor sees it: no script, no style, no tags. */
+/**
+ * Tags that mark up part of a word rather than ending one.
+ *
+ * Phrasing content only. A block tag stays a separator, because sibling cells
+ * and list items can abut in the source with no whitespace between them
+ * (`</td><td>`), and running those together would invent words.
+ */
+const INLINE = [
+  'a', 'abbr', 'b', 'bdi', 'bdo', 'cite', 'code', 'data', 'dfn', 'em', 'i',
+  'kbd', 'mark', 'q', 'rp', 'rt', 'ruby', 's', 'samp', 'small', 'span',
+  'strong', 'sub', 'sup', 'time', 'u', 'var', 'wbr',
+];
+
+/**
+ * Page text as a visitor sees it: no script, no style, no tags.
+ *
+ * Entities are decoded through the shared table rather than a short local
+ * list. The JSON-LD carries real characters (`τ`, `µ`, `“`) while the page
+ * spells them `&tau;`, `&micro;`, `&ldquo;`, so a decoder that stops at six
+ * names reports visible copy as missing -- which is exactly how this check
+ * spent its time red on `rc-time-calculator`.
+ */
 function visibleText(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&nbsp;/g, ' ')
+  return decodeEntities(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      // Inline tags close up rather than separating, because they mark up a
+      // word rather than ending one: `V<sub>out</sub>` reads "Vout" to a
+      // visitor, and replacing the tags with spaces made it "V out" -- a
+      // divergence report against copy that is on the page and correct. Any
+      // real gap between two inline runs is a space in the source, which
+      // survives this.
+      .replace(new RegExp(`</?(?:${INLINE.join('|')})\\b(?:[^>"']|"[^"]*"|'[^']*')*>`, 'gi'), '')
+      .replace(/<[^>]+>/g, ' '),
+  )
     .replace(/\s+/g, ' ')
     .trim()
     .toLowerCase();

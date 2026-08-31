@@ -24,6 +24,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import zlib from 'node:zlib';
 
+import { decodeEntities } from './entities.mjs';
+
 import {
   ICONS,
   OFFLINE_WIDGET_HTML,
@@ -658,13 +660,11 @@ export async function discoverSurfaces(venturesDir) {
 // Metadata
 // ---------------------------------------------------------------------------
 
-const decodeEntities = (value) =>
-  value
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'");
+// `decodeEntities` is imported at the top of this file, shared with the page
+// checks so that a `<meta>` description and the visible copy it is compared
+// against decode the same way. The local five-entity version that used to sit
+// here read `&mdash;` back out verbatim, and 1,324 of those ship in this
+// repo's HTML.
 
 /**
  * Every `<meta>` tag in `html`, as raw source.

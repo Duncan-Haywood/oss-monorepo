@@ -21,7 +21,7 @@
         "name": "What is an MCP tool poisoning attack?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "An MCP tool poisoning (or rug-pull) attack is when a connected Model Context Protocol server changes a tool's description or input schema after an agent team has already reviewed and approved it. The new text is written for the calling model, not the human who approved the tool -- phrasing like an instruction to ignore prior guidance, or to send a result somewhere the human never authorized. Because the server was already trusted, the change can take effect immediately, on the next call, with no new approval step in between."
+          "text": "An MCP tool poisoning attack (sometimes called a rug-pull) is when a connected Model Context Protocol server changes a tool's description or inputSchema after an agent team has already reviewed and approved it. The new text targets the calling model, not the human who approved the tool — phrasing like an instruction to ignore prior guidance, or to send a result somewhere the human never authorized. Because the server was already trusted, the change can take effect on the very next call, with no fresh approval step in between."
         }
       },
       {
@@ -29,7 +29,7 @@
         "name": "Why does this target the description field specifically?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "A tool's name and inputSchema are what a human usually scans when approving a server. The description is longer, more often skimmed than read closely, and -- critically -- it is also text the calling model reads as part of deciding how to use the tool. A server that wants to influence the model rather than the reviewer has a direct incentive to put that influence in a field the human is least likely to re-read on every call."
+          "text": "A tool's name and inputSchema are usually what a human reviewer scans when approving a server. The description is longer, more often skimmed than re-read on every call — and it is also text the calling model reads as part of deciding how to use the tool. A server that wants to influence the model rather than the reviewer has a direct incentive to put that influence where a human is least likely to notice it change."
         }
       },
       {
@@ -37,7 +37,7 @@
         "name": "How would I actually catch this?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Capture the full tool manifest (every tool's name, description, and inputSchema) at approval time and keep it. Before trusting the server again -- or on a schedule -- capture it again and diff the two. A description that changed and now contains model-directed language is the signal to review first; a changed inputSchema is the second-most sensitive signal; everything else is lower-priority drift. This is exactly what a before/after manifest compare does, and it needs no connection to the server itself once both captures exist."
+          "text": "Capture the full tool manifest — every tool's name, description, and inputSchema — at approval time and keep it. Before trusting the server again, or on a schedule, capture it a second time and diff the two. A description that changed and now reads like an instruction to the model is the signal to review first; a changed inputSchema is the next most sensitive; everything else is lower-priority drift. That diff needs no live connection to the server once both captures exist."
         }
       },
       {
@@ -45,7 +45,7 @@
         "name": "Does catching a description change mean the server is malicious?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No. A legitimate server can rewrite a description for clarity, and the rewritten text can coincidentally match a phrase this kind of check flags. The comparison reports what changed and applies a small set of pattern-based signals -- it does not certify intent. Review the specific change yourself before deciding whether to re-approve, roll back, or contact the server's maintainer."
+          "text": "A legitimate server can rewrite a description for clarity, and the rewritten text can coincidentally match a phrase a pattern-based check flags. Treat a flagged change as something to review, not a verdict — look at the specific wording yourself before deciding whether to re-approve, roll back, or contact the server's maintainer."
         }
       }
     ]
@@ -78,7 +78,7 @@
     step in between.
   </p>
 
-  <h2>Why the description field specifically</h2>
+  <h2>Why does this target the description field specifically?</h2>
   <p>
     A tool's name and <code>inputSchema</code> are usually what a human
     reviewer scans when approving a server. The description is longer, more
@@ -89,7 +89,7 @@
     it change.
   </p>
 
-  <h2>How to actually catch it</h2>
+  <h2>How would I actually catch this?</h2>
   <p>
     Capture the full tool manifest — every tool's name, description, and
     <code>inputSchema</code> — at approval time and keep it. Before trusting
@@ -100,7 +100,7 @@
     diff needs no live connection to the server once both captures exist.
   </p>
 
-  <h2>A changed description isn't proof of malice</h2>
+  <h2>Does catching a description change mean the server is malicious?</h2>
   <p>
     A legitimate server can rewrite a description for clarity, and the
     rewritten text can coincidentally match a phrase a pattern-based check
