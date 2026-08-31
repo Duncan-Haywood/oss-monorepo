@@ -172,6 +172,34 @@ class AskHostExtraction(unittest.TestCase):
     def test_a_repo_file_ending_in_md_is_still_a_file(self):
         self.assertEqual(self.extract("per `channel-inventory.md`"), set())
 
+    def test_a_file_outside_this_repo_is_not_a_host(self):
+        """The regression that put `Portfolio validate` red on `main`.
+
+        `auth.json` lives on the owner's laptop, so `_tracked_basenames()`
+        cannot recognise it and every other rule accepts it as a host.
+        """
+        self.assertEqual(
+            self.extract("worker.sh learned to seed `auth.json` from a Secret"),
+            set(),
+        )
+
+    def test_non_tld_suffixes_cover_the_shapes_this_repo_writes(self):
+        for token in ("policy.json", "group_vars.yml", "build.mjs",
+                      "config.toml", "robots.txt"):
+            with self.subTest(token=token):
+                self.assertEqual(self.extract(f"see `{token}` for it"), set())
+
+    def test_the_non_tld_set_never_swallows_a_real_cctld(self):
+        """The trap the extension blocklist fell into the first time.
+
+        `.md` and `.sh` are Moldova and St Helena, so an entry for either
+        would silently drop `obsidian.md` and `formulae.brew.sh` — the
+        failure this checker exists to catch.
+        """
+        delegated = {"md", "sh", "py", "io", "ai", "co", "so", "is", "it",
+                     "me", "tv", "cc", "ws", "to", "gg", "dev", "app", "org"}
+        self.assertEqual(check_ask_hosts._NOT_TLDS & delegated, set())
+
     def test_versions_and_criteria_are_not_hosts(self):
         self.assertEqual(self.extract("`next@16.3.1` fixes `1.4.3`"), set())
 
