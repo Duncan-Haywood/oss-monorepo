@@ -38121,3 +38121,30 @@ entries:
         empty" entries; forcing a merge of any of them would have added a
         weaker duplicate of a live feature.
     mrr_end: null
+  - venture: medical-courier-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2448: the "Copy route summary" button ran
+        `await navigator.clipboard?.writeText(...)` with no try/catch. Two
+        silent failure modes -- when the Clipboard API is absent (insecure
+        context, older browser, some webviews) optional chaining resolved
+        to `undefined` without throwing, so the button falsely claimed
+        "Copied" while copying nothing; when the API exists but the write
+        is rejected, the unhandled rejection aborted the handler before any
+        status update ran, so the button appeared to do nothing with zero
+        feedback. Every other clipboard-copy button in the portfolio
+        (freelance-retainer-calculator, grant-deadline-tracker,
+        translator-project-quote, seller-net-sheet,
+        delivery-app-margin-calculator, ltl-freight-class-estimator)
+        already wraps this in try/catch with a `window.prompt` fallback --
+        this venture was the outlier. Now throws explicitly when
+        `navigator.clipboard` is missing and falls back to `window.prompt`
+        with an accurate status message on any failure, matching house
+        convention. Verified: `node --test` 6/6 (added a regression test
+        asserting the unguarded pattern is gone), manual trace of the
+        default inputs through `calc.mjs` matching displayed values exactly
+        (margin $151.80, 50.6%), and the portfolio-wide build+check still
+        clean (169 products, 508 pages, no dead links). Merged (squash)
+        into main.
