@@ -38876,3 +38876,58 @@ entries:
         merges land with no new owner action: the apex redirect goes live on
         the same sealed clone token the site itself already waits on.
     mrr_end: null
+  - venture: fence-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed 0 open PRs at session start; session_gate.py read PROCEED.
+        Picked up the known `*-bid-calculator` share-link gap this month's
+        earlier sessions have been working through one venture at a time
+        (security-camera #2478, marketplace-fee-compare #2476,
+        concrete-bid-calculator #2483, which landed on `main` minutes before
+        this PR merged, same feature class, a different venture, no
+        collision). fence-bid-calculator was still on the ~50-of-103 list
+        lacking `share.mjs`; no open branch or PR touched it.
+      - >-
+        Shipped and merged #2484: added `share.mjs` (allowlisted JSON
+        payload, covering every top-level cost field and every per-run
+        field) and a "Copy share link" button, following the
+        `deck-bid-calculator` convention (JSON-in-hash, since fence's runs
+        are an array like deck's sections rather than the flat fields
+        security-camera's INPUT_FIELDS pattern assumes).
+      - >-
+        Caught a real bug before it shipped, in the same class this month's
+        share-link work keeps finding: `addRunRow`'s `applyPreset` treats
+        the page-level `hoursPerTearOutLf` field as run-owned. A run that
+        matches a material preset silently re-copies that preset's own
+        tear-out-hours figure over it; a custom run (no matching preset, so
+        `applyPreset` falls back to the run object itself, which has no
+        `hoursPerTearOutLf`) blanks the field to `undefined` outright. Either
+        way, opening a shared link silently changed tear-out labor cost --
+        caught by a live Playwright round-trip, not the unit tests alone
+        ($11,664.73 -> $11,165.53 for the identical job). Fixed by marking
+        `hoursPerTearOutLf` user-edited before the shared runs are added,
+        reusing the `dataset.edited` guard the existing code already honors
+        for "the user set this on purpose." Added a structural regression
+        test in `page.test.mjs` and confirmed it fails without the fix.
+      - >-
+        Verified before merge: `node --test` in the venture, 71/71 (was 62).
+        A live Chromium pass (Playwright served over `http://`, since
+        `file://` throws CORS on the page's ES module imports) added a
+        second custom-material run, copied the share link, opened it in a
+        fresh tab, and confirmed the price, run count, and every field
+        matched exactly, and that a blank proposed price stayed blank
+        rather than becoming an encoded 0. Portfolio-wide `node
+        platform/pages/build.mjs` + `check.mjs`: 169 products, 508 pages, no
+        dead links. Full `node --test platform/pages/*.test.mjs`: 790/790.
+        CI on the PR was not checked against real failure -- verified
+        entirely locally per this month's standing account-wide
+        runner-starvation finding. Merged (squash) as #2484, `55d5f5d44`.
+      - >-
+        The `*-bid-calculator` share-link gap keeps shrinking one venture
+        per session (roughly 48 of 103 remain lacking it as of this
+        commit); per this repo's own collision history, one venture with a
+        real local verification stays safer than a wide sweep landing
+        mid-flight under other sessions' branches.
+    mrr_end: null
