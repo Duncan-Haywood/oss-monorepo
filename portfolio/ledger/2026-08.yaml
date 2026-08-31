@@ -40001,3 +40001,35 @@ entries:
         the same window. Deploy/CI-CD/Codex remain owner-gated on the same
         three seals -- reported to the owner directly, not re-queued.
     mrr_end: null
+  - venture: grant-reporting-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2520: another instance of this month's
+        field-allowlist-drift bug class, this time in a CSV export rather
+        than a share link. `toCsv()` matched the on-page review table
+        exactly -- name, funder, nextReport, status, restrictedBalance --
+        and silently dropped `awardDate`, `intervalMonths`, `awardAmount`,
+        `spentAmount`, and `daysUntilReport`, all of which the queue already
+        computes per row. A small nonprofit's exported CSV is often the only
+        copy of an award that leaves the browser, handed to a board member,
+        a co-signer, or filed for a funder -- without the date and interval a
+        recipient cannot check why `nextReport` lands where it does or
+        recompute it if questioned, without the award/spent amounts they
+        cannot verify `restrictedBalance`, and the bucketed `status` alone
+        cannot distinguish a report due tomorrow from one due in three
+        weeks. `toCsv()` now emits all ten fields; no other file needed to
+        change since `reviewGrant` already spreads the saved award onto its
+        result, so `index.html`'s existing `toCsv(reviewAll(grants))` call
+        picked the new columns up for free.
+      - >-
+        Verified: `node --test calc.test.mjs` (11/11, one new test asserting
+        the full CSV header and that the underlying date/amount figures
+        survive the export), `node platform/pages/build.mjs` (169 products,
+        508 pages) and `node platform/pages/check.mjs` (no dead links,
+        publishable). GitHub Actions checks on #2520 were the same
+        account-level runner starvation (`runner_id: 0`) every PR has shown
+        since 2026-08-26T22:41:49Z -- noted on the PR rather than
+        re-diagnosed, and merged on the local verification above.
+    mrr_end: null
