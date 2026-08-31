@@ -41081,3 +41081,35 @@ entries:
         running before trusting a lone NOT SUPERSEDED verdict on a branch this
         old.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item. Measured before picking, per the
+        item's own instruction: ran a real build.mjs + check.mjs and read the
+        output rather than trusting the candidate list, since #2580 had
+        already corrected it to note all four candidates (embed widget #2561,
+        venture compare pages, /c/ hub copy, /about/ press kit) had a baseline
+        shipped by 2026-08-31. Confirmed that directly -- 169/169 entry pages
+        carry an embed offer, no dead links, all 8 share-card PNGs present,
+        169+7-category counts on /about/ still sum correctly.
+      - >-
+        Found the real remaining gap: the embed feature works but is only
+        discoverable per-tool (the snippet lives in a <details> box on each
+        of 169 tool footers) -- nothing site-level ever told a stranger it
+        exists. Shipped #2585: an "Embedding a tool on your own page" section
+        on /about/, built from the real EMBED_QUERY_PARAM/DEFAULT_EMBED_HEIGHT
+        constants (now exported from embed.mjs) so the illustrated snippet
+        cannot drift from the shipped feature. Verified: build.mjs (169 tools,
+        embed offer unchanged) + check.mjs (508 pages, no dead links) +
+        node --test platform/pages (837/837, including a new About-page test)
+        all clean. Merged after confirming red CI (validate/check/build/etc.,
+        all ~2-4s) was the known runner starvation via
+        platform/ci/ci_starvation.py (runner_id: 0, exit 1), not a regression.
+      - >-
+        Did not attempt a venture "vs a named incumbent" comparison page
+        (candidate 2): WebFetch is allowlisted and blocked the one competitor
+        domain tried (sell.amazon.com), so a competitor's numbers could not be
+        verified from this session -- left it rather than guess or go stale.
+    mrr_end: null
