@@ -37540,3 +37540,53 @@ entries:
         rather than resurrecting it. `pytest gitops/tests` 158/158 (was
         156); kubeconform clean across all six kustomize targets (49/49).
     mrr_end: null
+  - venture: ltl-freight-class-estimator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2410: the estimator told a shipper they were "1.00 lb/ft³
+        from the 77.5 band" -- true, and unusable, because nobody ships a
+        lb/ft³. The page's own FAQ already claimed the gap sometimes closes
+        "by taking four inches off a pallet" without ever computing it.
+        Density is `weight * 1728 / (L * W * H)`, and of those four terms the
+        footprint is the pallet and the weight is the goods, so height and
+        load are the only two a shipper can move on the day. The result now
+        states the gap in both, in both directions: the packed height and
+        per-piece weight that reach the next class down, and the height at
+        which a carrier's dimensioner re-rates the freight into the class
+        above. The second is the one that costs money unannounced -- class
+        follows the dimensions the carrier measures, not the bill of lading.
+        Two honesty guards: a target height under a bare pallet's own deck
+        (~6") is withheld with its reason rather than printed, and clearance
+        under half an inch reads as "on the band line" rather than "0.0" of
+        headroom", which looks like a rounding artefact instead of the
+        warning it is. New `repack_target_copied` event is deliberately an
+        outcome measure, not another view count: it separates a shipper who
+        took the instruction to a dock from one who read the class and left.
+        Verified locally: 28 unit tests (from 22), including a property test
+        that the displayed target height never rounds across the band edge;
+        platform/pages 790/790; build+check clean (169 products, 508 pages,
+        no dead links); and the built page driven in Chromium at desktop and
+        phone widths through five journeys with no console errors --
+        including confirming that packing to the suggested 33.3" does land
+        in class 77.5. All 9 CI check runs red at 3-5s; every run id
+        confirmed `runner_id: 0` starvation via
+        `platform/ci/ci_starvation.py`, so merged on local verification.
+      - >-
+        Independently re-confirmed this session what
+        `gitops/agents/queue/README.md` records for 2026-08-31, by a
+        different method: replayed all 174 remote branches carrying unique
+        commits onto `main` with `main` winning every conflict. 102 produce
+        `main`'s tree exactly; of the 72 that add lines, every one sampled
+        adds only files `main` already carries. Notably
+        `pr/where-to-sell-rank-by-profit-per-day` is NOT SUPERSEDED by
+        supersede_check.py and is nonetheless spent -- it is a thinner
+        earlier draft of a feature `main` now carries in fuller form
+        (`profitPerDay`, `daysToSell`, `cashTurnsPerYear` and the rank modes
+        are all on `main`; only the constant name `DEFAULT_DAYS_TO_SELL` is
+        not). Merging it would have regressed live code. This is the
+        rework-not-rename case neither of supersede_check's two proofs
+        catches, and it is worth a session's caution before trusting a NOT
+        SUPERSEDED verdict on a branch older than the feature it touches.
+    mrr_end: null
