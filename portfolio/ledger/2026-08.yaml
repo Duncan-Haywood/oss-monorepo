@@ -39861,3 +39861,86 @@ entries:
         `runner_id: 0` on every job, so not a real result. Merged (squash)
         as #2515.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run, same explicit ask as the entries just above
+        (prioritize Hetzner deployment/CI-CD and marketing-material work,
+        set up unattended Codex CLI dev work on the Hetzner box spending a
+        ChatGPT plan's included quota). Zero open PRs at session start
+        (`list_pull_requests` and `search_pull_requests` both confirmed
+        empty), so the merge-quota phase was already satisfied by an empty
+        repairable queue; independently re-verified `codex-governor-enable`
+        (#1996) and `portfolio-site-hetzner-deploy` (#1999) are the correct,
+        already-queued rows before reporting rather than re-deriving them
+        from scratch -- not repeating that finding here since two entries
+        immediately above already record it in full.
+      - >-
+        Branch-to-PR drain: dispatched one review agent per remaining
+        `session/agent_*` branch this month's earlier sweeps had not yet
+        individually re-verified (7 single-venture branches plus one group
+        of 6 branches all touching `quote-margin-check`, which had to be
+        integrated sequentially rather than reviewed in parallel since they
+        overlap on `index.html`/`README.md` and two of them added a file of
+        the same name). Also confirmed two other branches were pure no-ops
+        before spending an agent on them: `session/cleanup-2026-08-24` and
+        `session/remove-stale-local-site-studio-entry` (both ledger/asks.yaml
+        edits whose content is already superseded by later entries on
+        `main`), `session/agent_863bbfa5` and `session/agent_ec90f1e6` (same
+        shape, also superseded), and `venture/vendor-change-watch` (its one
+        commit has an empty diff against its own parent -- the branch is
+        simply stale, not a revert, despite `git diff main` showing large
+        changes that are really main's later, unrelated CI_RUNNER-variable
+        work the branch predates).
+      - >-
+        Five of the eight dispatched branches were superseded outright
+        (verified via `supersede_check.py`'s identical-merge or
+        rename-suspected proof, not the line-scan alone, then read by hand):
+        `session/agent_872b1ce4` (equipment-rental-break-even ship + pricing
+        isolation -- venture already on `main` since #1395, ahead by three
+        more merged follow-ups including a utilization-percentage bug fix
+        the branch predates), `session/agent_ccdb5df3` (ebay-fee-calculator
+        target-ROI-sourcing-ceiling -- `main` ships the same idea as a fuller
+        `calculateSourcingCeiling()` with its own usage event and share-link
+        support), `session/agent_42792081` (retainage-cashflow-calculator
+        draft-recovery + CI workflow -- both already on `main`, the CI file
+        using the repo's `CI_RUNNER` variable convention where the branch's
+        version hardcoded `ubuntu-latest`), `session/agent_8a29846d`
+        (3pl-quote-normalizer minimum-clearing-volume -- `main`'s
+        `minimumOrders` field is the same feature with a zero-minimum guard
+        and two more tests the branch lacked), and `session/agent_de3143d3`
+        (no-show-fee-calculator recovery-percentage -- `main` already ships
+        the identical formula twice over, as `recoveryRatePct` and
+        `recoveredPct`). None needed a PR; none were opened.
+      - >-
+        The other three shipped real, previously-unmerged work.
+        `session/agent_991c9f23` (where-to-sell-calculator target-profit
+        price) needed reimplementing rather than merging -- its merge-base
+        predates the venture's returns overlay and shelf-time ranking work --
+        and turned up that this venture keeps its shared-field allowlist in
+        two places (`share.mjs` and a second copy inside `index.html` that
+        `readShared()` builds from), both now updated; merged as #2512.
+        `session/agent_ae7b0e41` (janitorial-bid-calculator local save) was
+        itself superseded -- `main`'s `share.mjs`/`BID_SPEC` autosave already
+        covers the same ground and a near-identical shape was tried and
+        reverted once already (#2459/#2461) for fighting the share-link
+        state on load -- recorded as a ledger-only PR (#2511) so a future
+        session does not re-attempt it without checking `BID_SPEC` first.
+        The `quote-margin-check` group kept one real line from six branches
+        (an `og:url` meta tag) and, while auditing the group's export
+        payloads for the field-allowlist-drift bug class, found a live one:
+        `quoteCsv()` exported `buffered_target_price` without the
+        `time_buffer_percent`/`buffered_hours` inputs it depends on, so a
+        recipient could not reproduce the number; fixed, merged as #2515,
+        recorded as #2516.
+      - >-
+        No new venture started: the branch/PR drain was the first-class
+        work this run, and by the time all eight agents finished, two other
+        sessions had independently shipped #2507, #2508, #2513 and their own
+        drain findings in the same window -- confirms the portfolio's
+        `session/agent_*` and `pr/`-prefixed branch backlogs from
+        2026-08-24/25 are now close to fully swept across today's several
+        concurrent sessions, not just this one.
+    mrr_end: null
