@@ -21,38 +21,6 @@
     "featureList": "All-in cost per mile, deadhead-adjusted break-even loaded rate, factoring on an offered rate, weekly and annual profit, target take-home rate, detention layover and lumper comparison, copyable load summary"
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How do owner operators calculate cost per mile?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Add every mile the truck moves that week — loaded and empty. Divide fuel, per-mile reserves, and the weekly share of the truck note, insurance, and permits by those total miles. That is all-in cost per mile. Then divide the same weekly cost by loaded miles only to get the loaded rate that covers the empty ones."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How does deadhead affect a trucking rate?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Revenue is paid only on loaded miles. Cost is incurred on every mile. A 20% empty week means the loaded rate must cover 25% more cost than the all-in CPM. A $2.00 loaded offer on that week is $1.60 of revenue per total mile before factoring."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What loaded rate should I accept?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "This page does not tell you what to accept. It reports the loaded rate that covers the costs you entered, after deadhead and after any factoring percent you set. Compare an offer to that number. Verify every figure against your own fuel receipts and notes before you book a load."
-        }
-      }
-    ]
-  }
-  </script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2320; background: #eef2ee; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -202,6 +170,14 @@
   <p>Revenue is paid only on loaded miles. Cost is incurred on every mile. A 20% empty week means the loaded rate must cover 25% more cost than the all-in CPM. A $2.00 loaded offer on that week is $1.60 of revenue per total mile before factoring.</p>
   <h3>What loaded rate should I accept?</h3>
   <p>This page does not tell you what to accept. It reports the loaded rate that covers the costs you entered, after deadhead and after any factoring percent you set. Compare an offer to that number. Verify every figure against your own fuel receipts and notes before you book a load.</p>
+  <h3>How much does factoring actually cost on a load?</h3>
+  <p>Factoring takes its percent off gross revenue before the money settles, not off profit. On the starting figures &mdash; 1,800 loaded miles at a $2.00 offer, $3,600 gross &mdash; 3% factoring is a $108 fee, leaving $3,492 net from the miles. The offered rate itself doesn&rsquo;t change; the calculator&rsquo;s &ldquo;effective loaded rate&rdquo; ($1.94/mi at those figures) is what you actually settle for, and that&rsquo;s the number to compare against break-even, not the rate on the rate confirmation.</p>
+  <h3>Does an unreimbursed lumper fee change the cost per mile?</h3>
+  <p>No &mdash; it&rsquo;s added to the week&rsquo;s cost as a flat dollar amount, not spread across miles. &ldquo;Lumper you paid&rdquo; minus &ldquo;Lumper reimbursed&rdquo; becomes a straight addition to weekly cost regardless of how many miles were run that week. At the starting figures, a $75 lumper the broker never reimburses is $75 straight off the week, on top of fuel, reserves, and fixed cost.</p>
+  <h3>How much does a short week raise cost per mile?</h3>
+  <p>Fixed costs &mdash; the truck note, insurance, permits &mdash; are billed monthly and this calculator converts them to a weekly figure by dividing by 52&divide;12 weeks, then spreads that over total miles run. Fewer miles in the week means the same dollar figure divides over less distance. At the starting figures ($5,550/month fixed, about $1,281/week) run over 2,250 total miles, fixed cost alone is about $0.57/mi; the same $1,281 spread over a 1,500-mile week would be about $0.85/mi &mdash; the truck note doesn&rsquo;t get cheaper because the week was slow.</p>
+  <h3>How many loaded miles does it take to break even at an offered rate?</h3>
+  <p>&ldquo;Loaded miles to cover this week at offer&rdquo; divides the week&rsquo;s cost, minus any detention/layover that&rsquo;s already been factored in, by the settled effective rate &mdash; the offered rate after factoring. At the starting figures, a $2.00/mi offer settles to $1.94/mi after 3% factoring, and it takes roughly 1,706 loaded miles against the week&rsquo;s cost (after the $291 of factored accessorials) to break even. The starting 1,800 loaded miles clears that, leaving around $183 for the week.</p>
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
