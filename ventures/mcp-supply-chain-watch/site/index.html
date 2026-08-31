@@ -23,46 +23,9 @@
     "featureList": "Before-and-after manifest compare, tool add/remove detection, inputSchema diff, instruction-bearing description signal, portable JSON report, ticket-ready summary"
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How do I compare two MCP tool manifests for drift?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Capture a server's tool manifest (its declared name, description, and inputSchema for every tool) at approval time, and again later. Paste the earlier capture as Before and the later one as After. The page lists which tools were added, removed, or changed, without contacting the server itself."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Does this tool connect to my MCP servers?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "No. Comparison runs entirely in your browser from the two JSON manifests you paste or load from a file. There are no accounts, no server connections, and no upload."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What is MCP tool poisoning?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "It is when a connected MCP server changes a tool's description or schema after an agent team has already approved it, adding text meant to influence the calling model rather than the human reviewer — for example instructions to exfiltrate data or ignore prior guidance. This page flags a changed description that newly contains model-directed language as its own severity bucket, separate from an ordinary wording change."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Why is a metadata-only change reported separately from a description or schema change?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "A field like an annotation or version tag can change without the description text or inputSchema changing at all. Reporting it as its own category keeps the more sensitive description and schema signals from being diluted by routine metadata churn."
-        }
-      }
-    ]
-  }
-  </script>
+  <!-- Structured FAQ data is derived by platform/pages/build.mjs from the
+       visible "Common questions" section below at build time, not authored
+       here -- a hand-written block would drift from the copy it describes. -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -210,13 +173,19 @@
   </section>
   <h2>Common questions</h2>
   <h3>How do I compare two MCP tool manifests for drift?</h3>
-  <p>Capture a server's tool manifest (its declared name, description, and inputSchema for every tool) at approval time, and again later. Paste the earlier capture as Before and the later one as After. The page lists which tools were added, removed, or changed, without contacting the server itself.</p>
+  <p>Capture a server's tool manifest (its declared name, description, and input schema for every tool) at approval time, and again later. Paste the earlier capture as Before and the later one as After. The page lists which tools were added, removed, or changed, without contacting the server itself.</p>
   <h3>Does this tool connect to my MCP servers?</h3>
   <p>No. Comparison runs entirely in your browser from the two JSON manifests you paste or load from a file. There are no accounts, no server connections, and no upload.</p>
   <h3>What is MCP tool poisoning?</h3>
   <p>It is when a connected MCP server changes a tool's description or schema after an agent team has already approved it, adding text meant to influence the calling model rather than the human reviewer — for example instructions to exfiltrate data or ignore prior guidance. This page flags a changed description that newly contains model-directed language as its own severity bucket, separate from an ordinary wording change.</p>
   <h3>Why is a metadata-only change reported separately from a description or schema change?</h3>
-  <p>A field like an annotation or version tag can change without the description text or inputSchema changing at all. Reporting it as its own category keeps the more sensitive description and schema signals from being diluted by routine metadata churn.</p>
+  <p>A field like an annotation or version tag can change without the description text or input schema changing at all. Reporting it as its own category keeps the more sensitive description and schema signals from being diluted by routine metadata churn.</p>
+  <h3>Which changes get flagged as alert severity versus review?</h3>
+  <p>Alert severity is reserved for a removed tool and for a description change that newly reads like an instruction aimed at the calling model. A newly added tool, a changed input schema on an existing tool, and an ordinary description change are all listed at review severity instead — one level down, because they are still worth a look but are not on their own evidence of tampering.</p>
+  <h3>What wording trips the instruction-bearing flag?</h3>
+  <p>A changed description is flagged instruction-bearing when the new text contains language such as "ignore," "disregard," "override," "system message," "you must," "do not tell," "send ... to," or "reveal," and the earlier description did not already contain that same wording. Requiring the wording to be new, not just present, keeps a tool whose description always mentioned one of those words from being flagged every time something unrelated about it changes.</p>
+  <h3>What counts as a tool being added or removed?</h3>
+  <p>Every tool name present in the After manifest but missing from the Before manifest is listed as added, at review severity. Every name present in Before but missing from After is listed as removed, at alert severity — the same severity as an instruction-bearing description change, because a tool quietly disappearing deserves the same scrutiny as one that quietly changed.</p>
   <p class="seo-link"><a href="./what-is-mcp-tool-poisoning.html">What is an MCP tool poisoning attack, and how would I catch one?</a></p>
 
   <footer>
