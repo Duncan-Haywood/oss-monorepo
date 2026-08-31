@@ -193,6 +193,16 @@
         copyStatus.textContent = '';
         recordThemeAreaUsage(localStorage, optOut(), 'theme_areas_generated');
       } catch (error) {
+        // Invalid or non-axe JSON must not leave the last valid punch list
+        // on screen next to a silent failure -- a visitor who misses the
+        // error line could read the stale headline, stats, rows, and report
+        // as the routing for the JSON just pasted in. Null `latest` too, so
+        // Copy cannot hand out the stale punch list.
+        latest = null;
+        headlineEl.textContent = 'No scan routed yet.';
+        statsEl.textContent = 'Paste a scan and choose Route to theme areas.';
+        rowsEl.innerHTML = '';
+        reportEl.textContent = 'Your theme-area punch list will appear here.';
         errorEl.textContent = error.message;
       }
     });
