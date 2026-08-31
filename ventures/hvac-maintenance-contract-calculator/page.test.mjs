@@ -33,6 +33,28 @@ test('the Enter handler is attached to every id the calculation reads, not a har
   assert.match(scriptSource, /ids\.forEach\(id => \$\(id\)\.addEventListener\('keydown'/);
 });
 
+test('an invalid input hides stale results instead of leaving them next to a silent error', () => {
+  // Before this fix, a rejected input (a negative number, non-numeric text)
+  // overwrote only the break-even warning banner with the error sentence and
+  // left every metric -- monthly price, floor, annual price, technician
+  // hours, annual cost, effective revenue, and the copyable summary -- showing
+  // the last valid calculation. A visitor could easily miss the message and
+  // read those stale figures as the answer for what is now on screen.
+  assert.match(html, /id="errors"[^>]*role="alert"/, 'a dedicated, announced error region is missing');
+  const catchBlock = scriptSource.match(/\} catch\(error\)\{([\s\S]*?)\n {4}\} \}/);
+  assert.ok(catchBlock, 'calculate() catch block not found');
+  const body = catchBlock[1];
+  for (const id of ['monthly', 'floor', 'annual', 'techHours', 'cost', 'effective', 'summary']) {
+    assert.match(
+      body,
+      new RegExp(`\\$\\("${id}"\\)\\.textContent\\s*=\\s*''`),
+      `#${id} keeps its stale value instead of being cleared on a rejected input`,
+    );
+  }
+  assert.match(body, /warning\.hidden\s*=\s*true/, 'the break-even warning is not hidden on a rejected input');
+  assert.match(body, /errorsEl\.hidden\s*=\s*false/, 'the error message is never shown');
+});
+
 test('disclaimer and usage tracking are still present', () => {
   assert.match(html, /No warranty\./);
   assert.match(scriptSource, /recordUsage\(localStorage,false,'plan_calculated'\)/);
