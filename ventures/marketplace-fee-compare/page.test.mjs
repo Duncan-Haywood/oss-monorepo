@@ -175,3 +175,52 @@ test("an input error hides the stale table instead of leaving a wrong answer up"
   assert.match(scriptSource, /el\("resultSection"\)\.classList\.add\("hidden"\)/);
   assert.match(scriptSource, /lastRun = null/);
 });
+
+test("a shared link is applied before the first paint, not after", () => {
+  const applyIndex = scriptSource.indexOf("applyShare(decodeShare(location.hash))");
+  const firstPaintIndex = scriptSource.indexOf("\n  paint();");
+  assert.ok(applyIndex > 0, "the page must decode a shared link on load");
+  assert.ok(
+    applyIndex < firstPaintIndex,
+    "a shared link must be applied before the uncounted first paint, or the recipient sees the default flash before their shared comparison",
+  );
+});
+
+test("the share link button copies a URL, updates the address bar, and counts the action", () => {
+  assert.match(markup, /id="copyShare"/);
+  assert.match(scriptSource, /encodeShare\(readItem\(\), readOverrides\(\)\)/);
+  assert.match(scriptSource, /history\.replaceState\(null, "", `#\$\{hash\}`\)/);
+  assert.match(scriptSource, /count\("share_link_copied"\)/);
+});
+
+test("the share button reports clipboard failure instead of silently doing nothing", () => {
+  const shareHandler = scriptSource.slice(scriptSource.indexOf('el("copyShare")'));
+  assert.match(shareHandler, /Couldn't access the clipboard/);
+});
+
+test("the privacy section explains where a share link travels", () => {
+  assert.match(prose, /share link.*URL fragment|URL fragment.*share link|share link.*never sends|never sends.*share link/i);
+});
+
+test("the sharing FAQ answer matches between JSON-LD and the visible section", () => {
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
+  let answer = null;
+  for (const block of blocks) {
+    let parsed;
+    try {
+      parsed = JSON.parse(block[1]);
+    } catch {
+      continue;
+    }
+    if (parsed?.["@type"] !== "FAQPage") continue;
+    const entry = (parsed.mainEntity ?? []).find(
+      (q) => q.name === "Can I share this comparison with someone else?",
+    );
+    if (entry) answer = entry.acceptedAnswer?.text;
+  }
+  assert.ok(answer, "the sharing question must be in the FAQPage JSON-LD");
+  assert.ok(
+    prose.includes(answer.replace(/\s+/g, " ")),
+    "the JSON-LD answer text must also be visible on the page",
+  );
+});
