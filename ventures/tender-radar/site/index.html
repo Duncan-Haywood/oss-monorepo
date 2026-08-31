@@ -33,6 +33,11 @@
     th,td{text-align:left;padding:.7rem;border-bottom:1px solid var(--line)}
     th{font-size:.8rem;color:var(--muted)}
     .urgent{color:#a22;font-weight:700}
+    .closed{color:var(--muted)}
+    .closed .status-badge{font-weight:400;font-style:italic}
+    label.checkbox{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--muted);margin-top:1rem}
+    label.checkbox input{width:auto;padding:0}
+    label.checkbox .hint{margin:0}
     footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem}
     @media(max-width:650px){.controls{grid-template-columns:1fr}main{padding-top:2rem}}
   </style>
@@ -55,6 +60,7 @@ Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</text
       <label for="minimum">Minimum value<input id="minimum" type="number" min="0" value="20000"></label>
       <label for="through">Deadline on or before<input id="through" type="date"></label>
     </div>
+    <label class="checkbox"><input id="hide-closed" type="checkbox" checked> Hide tenders that already closed<span class="hint">A deadline in the past can't be acted on. Uncheck to see them anyway, marked Closed.</span></label>
     <div class="actions">
       <button id="filter" type="button">Create shortlist</button>
       <button class="secondary" id="download" type="button" disabled>Download CSV</button>
@@ -91,33 +97,44 @@ Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</text
   </footer>
 </main>
 <script type="module">
-import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv, isUrgent} from "./calc.mjs";
+import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv, isUrgent, isClosed} from "./calc.mjs";
 import {record, enabled, setEnabled} from "./usage.mjs";
 
 const $ = (id) => document.getElementById(id);
 let rows = [];
 const today = new Date().toISOString().slice(0, 10);
 
-function render(list) {
+function render(list, hiddenClosedCount) {
   $("results").innerHTML = list.map((row) => {
     const href = safeUrl(row.url);
     const source = href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">Open source</a>` : "-";
-    return `<tr><td class="${isUrgent(row.deadline, today) ? "urgent" : ""}">${escapeHtml(row.deadline)}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.buyer)}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.value)}</td><td>${source}</td></tr>`;
+    const closed = isClosed(row.deadline, today);
+    const cls = closed ? "closed" : isUrgent(row.deadline, today) ? "urgent" : "";
+    const badge = closed ? ` <span class="status-badge">(closed)</span>` : "";
+    return `<tr><td class="${cls}">${escapeHtml(row.deadline)}${badge}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.buyer)}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.value)}</td><td>${source}</td></tr>`;
   }).join("");
   $("status").className = "summary";
-  $("status").textContent = `${list.length} tender${list.length === 1 ? "" : "s"} shortlisted. Verify each against the original source.`;
+  const hiddenNote = hiddenClosedCount ? ` (${hiddenClosedCount} closed tender${hiddenClosedCount === 1 ? "" : "s"} hidden)` : "";
+  $("status").textContent = `${list.length} tender${list.length === 1 ? "" : "s"} shortlisted${hiddenNote}. Verify each against the original source.`;
   $("download").disabled = !list.length;
 }
 
 $("filter").onclick = () => {
   try {
     const parsed = parseTenders($("csv").value);
-    rows = filterTenders(parsed, {
+    const hideClosed = $("hide-closed").checked;
+    const options = {
       category: $("category").value,
       minimum: $("minimum").value,
       through: $("through").value,
-    });
-    render(rows);
+      today,
+      hideClosed,
+    };
+    rows = filterTenders(parsed, options);
+    const hiddenClosedCount = hideClosed
+      ? filterTenders(parsed, { ...options, hideClosed: false }).length - rows.length
+      : 0;
+    render(rows, hiddenClosedCount);
     record("shortlist_created");
   } catch (error) {
     rows = [];
