@@ -243,6 +243,21 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_form_defaults
 
+      # The other direction of the same question. `check_form_defaults.py` asks
+      # whether the values a page ships with satisfy the constraints it
+      # declares; this asks whether those constraints are wide enough to let a
+      # visitor type something `calc.mjs` will throw on. When they are, the
+      # page prints "fix the highlighted input" and highlights nothing, because
+      # `invalid.mjs` finds the field by asking `checkValidity()` and a field
+      # with no declared bound reports valid whatever is in it. 23 inputs
+      # across four ventures were in that state on 2026-08-31.
+      - name: Check no input accepts a value its own calculator throws on
+        run: python3 platform/ci/check_input_bounds.py
+
+      - name: Input-bounds checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_input_bounds
+
       # Every venture vendors its own money() -- 322 copies of one function --
       # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
       # -0 as "$-0.00". 11,172 unit tests went green over both, because not one

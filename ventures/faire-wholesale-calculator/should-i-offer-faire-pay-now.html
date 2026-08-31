@@ -112,7 +112,7 @@
     <label>Wholesale unit price ($) <input id="unitWholesale" type="number" min="0" step="0.01" value="20"></label>
     <label>Units <input id="quantity" type="number" min="1" step="1" value="10"></label>
     <label>Unit cost of goods ($) <input id="unitCogs" type="number" min="0" step="0.01" value="8"></label>
-    <label>Everyday opening discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" value="0"></label>
+    <label>Everyday opening discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" max="99.9" value="0"></label>
     <label>Shipping reimbursement ($) <input id="shippingReimbursement" type="number" min="0" step="0.01" value="15"></label>
     <label>Shipping you pay ($) <input id="shippingCost" type="number" min="0" step="0.01" value="15"></label>
     <label>Everyday commission (%) <input id="commissionRate" type="number" min="0" step="0.1" value="15"></label>
@@ -120,8 +120,8 @@
     <label>First-order extra rate (%) <input id="firstOrderExtraRate" type="number" min="0" step="0.1" value="0"></label>
     <label>Processing rate (%) <input id="paymentRate" type="number" min="0" step="0.1" value="1.9"></label>
     <label>Processing fixed fee ($) <input id="paymentFixed" type="number" min="0" step="0.01" value="0.30"></label>
-    <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
-    <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" value="2"></label>
+    <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
+    <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" max="99.9" value="2"></label>
     <label>Pay Now take-rate (%) <input id="payNowTakePct" type="number" min="0" max="100" step="0.1" value="40"></label>
     <label>Extra first orders from Pay Now <input id="extraPayNowOrders" type="number" min="0" step="1" value="0"></label>
     <label>Net remittance wait (days) <input id="netWaitDays" type="number" min="0" step="1" value="60"></label>

@@ -182,7 +182,7 @@
         <label>Wholesale unit price <input id="unitWholesale" type="number" min="0" step="0.01" value="20"></label>
         <label>Units <input id="quantity" type="number" min="1" step="1" value="10"></label>
         <label>Unit cost of goods <input id="unitCogs" type="number" min="0" step="0.01" value="8"></label>
-        <label>Brand-funded discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" value="0"></label>
+        <label>Brand-funded discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" max="99.9" value="0"></label>
         <label>Shipping reimbursement <input id="shippingReimbursement" type="number" min="0" step="0.01" value="15"></label>
         <label>Shipping you pay <input id="shippingCost" type="number" min="0" step="0.01" value="15"></label>
         <label>Commission rate (%) <input id="commissionRate" type="number" min="0" step="0.1" value="15"></label>
@@ -193,8 +193,8 @@
         <label>Promoted listings (%) <input id="promotedRate" type="number" min="0" step="0.1" value="0"></label>
         <label>Other per-order cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
         <label>Expected reorders from this retailer <input id="expectedReorders" type="number" min="0" step="1" value="2"></label>
-        <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
-        <label>Open House discount (%) <input id="openHouseDiscountRate" type="number" min="0" step="0.1" value="20"></label>
+        <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
+        <label>Open House discount (%) <input id="openHouseDiscountRate" type="number" min="0" step="0.1" max="99.9" value="20"></label>
         <label>Open House commission (%) <input id="openHouseCommissionRate" type="number" min="0" step="0.1" value="0"></label>
         <label class="span2">Extra new retailers during Open House <input id="openHouseExtraRetailers" type="number" min="0" step="1" value="2"></label>
         <label>Organic first orders / window <input id="organicFirstOrders" type="number" min="1" step="1" value="4"></label>
@@ -204,9 +204,9 @@
         <label>Units they want back <input id="returnUnits" type="number" min="1" step="1" value="10"></label>
         <label>Return label you pay <input id="returnLabel" type="number" min="0" step="0.01" value="18"></label>
         <label>Restockable (%) <input id="restockablePct" type="number" min="0" max="100" step="1" value="80"></label>
-        <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" value="20"></label>
+        <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" max="99.9" value="20"></label>
         <label>They'll-drop-it if you deny (%) <input id="denyKeepPct" type="number" min="0" max="100" step="1" value="50"></label>
-        <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" value="2"></label>
+        <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" max="99.9" value="2"></label>
         <label>Pay Now take-rate (%) <input id="payNowTakePct" type="number" min="0" max="100" step="0.1" value="40"></label>
         <label>Extra first orders from Pay Now <input id="extraPayNowOrders" type="number" min="0" step="1" value="0"></label>
         <label>Net remittance wait (days) <input id="netWaitDays" type="number" min="0" step="1" value="60"></label>
