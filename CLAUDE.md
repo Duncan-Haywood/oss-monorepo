@@ -89,6 +89,39 @@ candidate list. Either:
 
 (1) comes first while `publish_surface.py` reports nothing live.
 
+**That tool now reads `gitops/` as well as `.github/workflows/`** (changed
+2026-08-31). It used to answer "what does a merge to `main` publish?" from the
+workflow files alone, which stopped being the whole answer when the site moved
+to Argo CD — a manifest merged to `main` *is* the deploy there, and no workflow
+runs. So it reported "nothing publishes" while `gitops/prod` carried three
+public hostnames, and would have gone on saying so on the day the site went up.
+It now prints the Argo surface too, per hostname, and for the portfolio site
+that reads:
+
+```
+    prod  (gitops/prod)
+      + https://marisstella.dev/            (301 redirect at the ingress)
+      - https://tools.marisstella.dev/      (serves content, waiting on Secret
+                                             portfolio-site-repo)
+      + https://www.marisstella.dev/        (301 redirect at the ingress)
+
+  No stranger can reach content yet, despite the hosts marked + above:
+    - prod: https://marisstella.dev/ answers on merge but 301s to
+      https://tools.marisstella.dev/, which is waiting on Secret
+      portfolio-site-repo.
+```
+
+Two of the three hostnames *do* answer on a merge today — the apex and `www`
+are annotation-only redirects needing no workload and no Secret. Both 301 to
+the one host that serves nothing, so the portfolio still has no reachable
+content. `--check` prints that dead-end as a note rather than leaving the
+"+" marks to be misread.
+
+So "nothing live" still holds, but it now means **one seal away**, not
+"nothing is built": `portfolio-site-repo`, via
+`./bootstrap/scripts/seal-owner-secrets.sh site`. Do not read it as a reason
+to build a twelfth calculator.
+
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture.
 
