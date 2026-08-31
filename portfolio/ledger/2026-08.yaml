@@ -36292,6 +36292,56 @@ entries:
     human_hours: 0
     outcomes:
       - >-
+        Zero open PRs at session start (confirmed via GitHub search, not a
+        stale list). Spot-checked the three cleanest-looking unmerged
+        branches -- `pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`,
+        `pr/appointment-deposit-calculator` -- all three already merged into
+        `main` under different commit messages (`#2155`'s "Recovers unmerged
+        work from origin/pr/where-to-sell-rank-by-profit-per-day..." and two
+        `cursor[bot]` "Salvage ... onto current main" commits), consistent
+        with the prior entry's finding that the ~290-branch backlog has no
+        recoverable value. Did not re-audit further; re-verification share
+        was already high this month and this confirms rather than adds to
+        that finding. Three-PR quota satisfied by an empty, audited queue.
+      - >-
+        Re-confirmed CI/CD, Hetzner site deploy, and Codex-on-Hetzner (the
+        three priorities named in this run's brief) are fully built and
+        100% owner-gated -- decision-queue rows 8, 10-13 already carry exact
+        unblock commands (`seal-owner-secrets.sh`, then `CI_RUNNER=
+        self-hosted`, a Pages settings flip, and `codex login` + governor
+        enable). Nothing agent-actionable remains there. Notified the owner
+        once, since this run's brief asked about these specifically.
+    mrr_end: null
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real off-by-one boundary bug in `nextDueFromInterval()`
+        (`calc.mjs`): `return prev < today ? prev : due` is effectively
+        always true once at least one interval has elapsed (`prev` is
+        always strictly earlier than `today` after the loop runs), including
+        the one day it should not be -- when `today` itself lands exactly on
+        a due-date boundary. A nonprofit adding a recurring grant with no
+        `nextDate` on the exact day a report became due got a due date a
+        full interval in the past (e.g. 6 months "overdue" for a 6-month
+        cadence), self-correcting only the following day. Added the missing
+        `due === today` check and a day-before/boundary/day-after regression
+        test.
+      - >-
+        Verified: `node --test ventures/grant-deadline-tracker/*.test.mjs`
+        22/22 (new test fails on pre-fix code); full repo suite `node --test
+        ventures/*/*.test.mjs` 12095/12095, zero regressions. PR CI showed
+        red/absent per the account-wide runner starvation (see `CLAUDE.md`),
+        not a real failure -- merged on local verification. Shipped and
+        merged as #2354.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
         Definition-of-done audit of the N-Z half of ventures/ (the A-M half
         covered by a parallel session): found the same live discoverability
         bug repeated across five deployed calculators.
