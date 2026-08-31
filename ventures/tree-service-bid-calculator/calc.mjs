@@ -67,10 +67,16 @@ export function heightFactor(heightFeet) {
 export function stumpGrindHours(stumpDiameterInches) {
   const diameter = number(stumpDiameterInches ?? 0, 'Stump diameter');
   if (diameter === 0) return 0;
-  // Setup plus a grind that grows with stump area, not just diameter. A 12"
-  // stump is about 0.6 h; a 36" stump is about 1.4 h — in the range a
-  // two-person grind crew actually spends, including repositioning.
-  return 0.2 + (diameter / REFERENCE_DBH_INCHES) * 0.4;
+  // Setup plus a grind that grows with stump *area*, not just diameter — the
+  // same (diameter / reference)^2 shape used for removal hours above, because
+  // a grinder wheel has to sweep the whole cross-section, not just cross it
+  // once. A stump twice the diameter is four times the face to clear, not
+  // twice, which a linear "per inch" grind estimate (as this used to be)
+  // understates on exactly the large stumps that eat a Saturday. A 12" stump
+  // is about 0.6 h; a 36" stump (3x the diameter, 9x the face) is about 3.8 h
+  // — in the range a two-person grind crew actually spends, including
+  // repositioning, on a stump that size.
+  return 0.2 + (diameter / REFERENCE_DBH_INCHES) ** 2 * 0.4;
 }
 
 /**

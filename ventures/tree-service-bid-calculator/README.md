@@ -43,7 +43,9 @@ compensation in this trade is expensive. A climber paid $35 is not a $35 hour.
    × (1 + hazard premiums)`. Height is relative to a 50-foot reference and
    clamped so a 10-foot ornamental is not free and a 120-foot pine is not
    unbounded.
-2. **Stump and haul.** Stump grind hours grow with stump diameter. Haul is a
+2. **Stump and haul.** Stump grind hours grow with the stump's cross-sectional
+   area — diameter squared, the same shape as removal hours above — because a
+   grinder wheel sweeps the whole face, not just a line across it. Haul is a
    share of the wood-volume hours plus a dump ticket when you actually leave
    the site with wood or chips.
 3. **Travel once.** Round-trip minutes become hours for the whole crew, billed

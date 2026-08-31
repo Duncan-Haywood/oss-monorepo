@@ -239,6 +239,19 @@ test('stump grind hours grow with diameter and are zero when there is no stump',
   assert.ok(stumpGrindHours(36) > stumpGrindHours(12));
 });
 
+test('stump grind hours scale with stump area (diameter squared), not linearly with diameter', () => {
+  // Doubling the diameter quadruples the cross-sectional face a grinder wheel
+  // has to sweep, so the *growth* term (hours minus the fixed setup) should
+  // roughly quadruple too, not double. A linear model would only double it.
+  const growth = (diameter) => stumpGrindHours(diameter) - stumpGrindHours(0.0001);
+  const at12 = growth(12);
+  const at24 = growth(24);
+  const at36 = growth(36);
+  assert.ok(Math.abs(at24 / at12 - 4) < 0.05, `expected ~4x growth at double the diameter, got ${at24 / at12}`);
+  assert.ok(Math.abs(at36 / at12 - 9) < 0.05, `expected ~9x growth at triple the diameter, got ${at36 / at12}`);
+  assert.ok(Math.abs(stumpGrindHours(36) - 3.8) < 1e-9);
+});
+
 test('presets are usable positive numbers', () => {
   assert.equal(REFERENCE_DBH_INCHES, 12);
   for (const preset of SPECIES_PRESETS) {
