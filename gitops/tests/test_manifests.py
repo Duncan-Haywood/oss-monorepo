@@ -351,14 +351,44 @@ def test_prod_landing_has_probes_and_no_service_account_token() -> None:
     # neither probe -- the one workload in prod without them, unlike
     # portfolio-site.yaml and site-usage.yaml which both declare both.
     # Without a liveness probe a hung nginx master is never restarted; the
-    # kubelet has nothing telling it to.
+    # kubelet has nothing telling it to. Port 8080, not 80: see
+    # test_prod_landing_serves_unprivileged_and_read_only.
     docs = list(yaml.safe_load_all((ROOT / "prod" / "landing.yaml").read_text()))
     deployment = next(d for d in docs if d and d["kind"] == "Deployment")
     pod = deployment["spec"]["template"]["spec"]
     assert pod["automountServiceAccountToken"] is False
     container = pod["containers"][0]
-    assert container["readinessProbe"]["httpGet"] == {"path": "/", "port": 80}
-    assert container["livenessProbe"]["httpGet"] == {"path": "/", "port": 80}
+    assert container["readinessProbe"]["httpGet"] == {"path": "/", "port": 8080}
+    assert container["livenessProbe"]["httpGet"] == {"path": "/", "port": 8080}
+
+
+def test_prod_landing_serves_unprivileged_and_read_only() -> None:
+    # Every other workload in this repo (portfolio-site's three containers,
+    # its refresh and usage CronJobs, the governor, the CI runner) runs
+    # unprivileged with a read-only root filesystem -- this Deployment was the
+    # one exception, carrying no securityContext at all since the namespace
+    # was first adopted (#1486) and so running its one container as root.
+    # Mirrors test_portfolio_site_serves_unprivileged_and_read_only, which
+    # pins the same shape on the sibling Deployment this one now matches.
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "landing.yaml").read_text()))
+    deployment = next(d for d in docs if d and d["kind"] == "Deployment")
+    pod = deployment["spec"]["template"]["spec"]
+    assert pod["securityContext"]["runAsNonRoot"] is True
+
+    container = pod["containers"][0]
+    sec = container["securityContext"]
+    assert sec["readOnlyRootFilesystem"] is True
+    assert sec["allowPrivilegeEscalation"] is False
+    assert sec["capabilities"]["drop"] == ["ALL"]
+
+    # nginx:1.27-alpine's master process needs root to bind port 80; running
+    # unprivileged means the same unprivileged image and high port
+    # portfolio-site.yaml already uses.
+    assert "nginx-unprivileged" in container["image"]
+    assert container["ports"][0]["containerPort"] == 8080
+
+    service = next(d for d in docs if d and d["kind"] == "Service")
+    assert service["spec"]["ports"][0]["targetPort"] == 8080
 
 
 def _portfolio_site() -> dict[str, dict]:
