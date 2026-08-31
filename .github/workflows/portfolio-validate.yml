@@ -153,6 +153,16 @@ jobs:
         working-directory: portfolio/pipeline/probes
         run: python3 -m unittest test_validate_probe_index
 
+      # The evidence-boundary probes assert the rule their candidate write-ups
+      # each name as the failure mode that would mislead a customer: a fetch or
+      # resolver failure must never render as "nothing changed". Nothing ran
+      # them until now, so that rule could regress silently.
+      - name: Evidence-boundary probe tests
+        run: |
+          python3 -m pytest -q \
+            portfolio/pipeline/probes/vendor-change-evidence/test_vendor_diff.py \
+            portfolio/pipeline/probes/dns-configuration-evidence/test_dns_diff.py
+
       # The index above checks a probe's *figures*; it does not run the probe.
       # A probe whose tests never execute in CI can rot while its row still
       # reads "built, tested".

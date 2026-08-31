@@ -183,9 +183,18 @@ function orderedRecords(records) {
   return [...records].sort((left, right) => {
     const leftStamp = String(left?.finished_at ?? "");
     const rightStamp = String(right?.finished_at ?? "");
-    const leftOk = !Number.isNaN(new Date(leftStamp).getTime());
-    const rightOk = !Number.isNaN(new Date(rightStamp).getTime());
+    const leftTime = new Date(leftStamp).getTime();
+    const rightTime = new Date(rightStamp).getTime();
+    const leftOk = !Number.isNaN(leftTime);
+    const rightOk = !Number.isNaN(rightTime);
     if (leftOk !== rightOk) return leftOk ? -1 : 1;
+    // Sort by the actual instant, not the raw string: two timestamps at
+    // different UTC offsets (e.g. "...T01:00:00+03:00" and "...T23:00:00Z",
+    // an hour apart) can compare backwards as strings even though one is
+    // unambiguously earlier. Falls back to string order only when neither
+    // side parses, so unparseable timestamps still sort deterministically
+    // (classifyRun reports them inconclusive regardless of position).
+    if (leftOk && rightOk) return leftTime - rightTime;
     return leftStamp < rightStamp ? -1 : leftStamp > rightStamp ? 1 : 0;
   });
 }

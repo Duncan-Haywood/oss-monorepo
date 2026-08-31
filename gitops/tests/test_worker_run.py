@@ -63,6 +63,13 @@ def world(tmp_path: Path):
         f'  printf \'%s\\n\' "$*" > "{tmp_path / "pr.txt"}"\n'
         "  exit 0\n"
         "fi\n"
+        # `gh pr list` reports an existing PR only when a test says one exists,
+        # by touching this file. Empty output otherwise, which is what gh
+        # prints when a head branch has no open PR.
+        'if [[ "$1" == "pr" && "$2" == "list" ]]; then\n'
+        f'  [[ -f "{tmp_path / "existing-pr"}" ]] && echo 7\n'
+        "  exit 0\n"
+        "fi\n"
         "exit 0\n"
     )
     (bin_dir / "gh").chmod(0o755)
@@ -73,6 +80,7 @@ def world(tmp_path: Path):
         "bin": bin_dir,
         "log": log,
         "pr": tmp_path / "pr.txt",
+        "existing_pr": tmp_path / "existing-pr",
     }
 
 
@@ -340,6 +348,99 @@ def test_delivery_agent_is_never_reported_as_empty(world) -> None:
 
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert not marker.exists(), "a delivery:agent run was reported as empty"
+
+
+# --- The agent pushed the branch itself ------------------------------------
+#
+# In harness-delivery mode the agent is told not to push. When it pushes
+# anyway, the worker used to fold its commits (`git reset --soft $REF && git
+# commit`) and push the result, which is a non-fast-forward against what the
+# agent already published. git rejected it, `set -e` failed the Job, and the
+# agent's branch was left on the remote with real work and no pull request --
+# the state this repository's rules say a branch must never be left in. The
+# guard written to prevent exactly this sat *after* the fold, comparing a SHA
+# the fold had just minted, so it could never match a remote head and never
+# fired.
+
+
+def _agent_pushes_its_own_branch(world, *, extra: str = "") -> None:
+    _codex_stub(
+        world["bin"],
+        script=(
+            "printf 'hello\\n' > NEW.md\n"
+            "git add -A\n"
+            "git commit -q -m 'agent did the delivery itself'\n"
+            "git push -q -u origin HEAD\n" + extra
+        ),
+    )
+
+
+def _sha(origin: Path, ref: str) -> str:
+    return subprocess.run(
+        ["git", "rev-parse", ref], cwd=origin,
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+
+
+def test_the_ordinary_run_never_moves_the_base_branch(world) -> None:
+    """The floor's first rule, and the trap the check above sets.
+
+    An ordinary run commits nothing, so HEAD is still `main`'s tip -- which is
+    itself a remote head. A same-SHA test that does not first require HEAD to
+    be *ahead* of $REF matches `main`, takes the already-pushed path, and
+    commits the run's work straight onto the base branch. Nothing in this file
+    caught that until it nearly shipped.
+    """
+    before = _sha(world["origin"], "main")
+    _codex_stub(world["bin"], script="printf 'hello\\n' > NEW.md")
+
+    proc = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "base-1"})
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert _sha(world["origin"], "main") == before, "the worker moved the base branch"
+
+
+def test_a_branch_the_agent_pushed_still_gets_a_pull_request(world) -> None:
+    _agent_pushes_its_own_branch(world)
+
+    proc = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "pushed-1"})
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert "non-fast-forward" not in proc.stderr
+    assert world["pr"].exists(), (
+        "the agent's pushed branch was orphaned -- no PR:\n" + proc.stdout + proc.stderr
+    )
+    head = [b for b in _remote_branches(world["origin"]) if b.startswith("agent/codex/")]
+    assert head, "the agent's branch vanished from the remote"
+    assert f"--head {head[0]}" in world["pr"].read_text()
+
+
+def test_no_second_pr_when_the_agent_opened_one(world) -> None:
+    """The case the original guard was written for, now able to fire."""
+    _agent_pushes_its_own_branch(world)
+    world["existing_pr"].touch()
+
+    proc = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "pushed-2"})
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert not world["pr"].exists(), "opened a second PR over the agent's own"
+
+
+def test_work_left_uncommitted_beside_a_pushed_branch_is_not_lost(world) -> None:
+    """Folding would rewrite the published branch, so add a commit instead."""
+    _agent_pushes_its_own_branch(world, extra="printf 'late\\n' > LATE.md\n")
+
+    proc = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "pushed-3"})
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    head = [b for b in _remote_branches(world["origin"]) if b.startswith("agent/codex/")]
+    assert head, "the agent's branch vanished from the remote"
+    for path, want in (("NEW.md", "hello\n"), ("LATE.md", "late\n")):
+        blob = subprocess.run(
+            ["git", "show", f"{head[0]}:{path}"],
+            cwd=world["origin"], capture_output=True, text=True, check=True,
+        ).stdout
+        assert blob == want, f"{path} did not reach the remote"
 
 
 # --- The mandate must not forbid what the queue asks for -------------------

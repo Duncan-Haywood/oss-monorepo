@@ -304,6 +304,63 @@ if git diff --cached --quiet && [[ -z "$(git log --oneline "$REF"..HEAD 2>/dev/n
   exit 0
 fi
 
+open_pr() {
+  gh pr create --base "$REF" --head "$1" \
+    --title "agent: ${ITEM_ID}" \
+    --body "Opened by the hel1 Codex governor from queue item \`${ITEM_ID}\`. Merge follows this repository's normal rules for product PRs; the worker itself never merges."
+}
+
+# Did the agent push this work itself, despite being told delivery is the
+# harness's? Ask before folding, not after.
+#
+# This check used to sit *below* `git reset --soft "$REF" && git commit`, which
+# mints a commit with a new message and a new timestamp — so its SHA could
+# never match a remote head and the check could not fire at all. What happened
+# instead, every time: the fold rewrote what the agent had already pushed, the
+# push came back `! [rejected] ... (non-fast-forward)`, `set -e` failed the Job,
+# and the agent's branch was left sitting on the remote with no pull request —
+# the one state this repository's rules say a branch with real work must never
+# be left in. `gitops/tests/test_worker_run.py` reproduces it.
+#
+# `ls-remote` rather than a remote-tracking ref: the clone is shallow and
+# single-branch, so `git branch -r` only ever knows about $REF. Match on the
+# SHA rather than the branch name, because an agent that pushed
+# `HEAD:refs/heads/something-else` delivered the same commit under a name this
+# script never chose.
+#
+# Only ask when HEAD is actually ahead of $REF. In the ordinary run the agent
+# commits nothing, so HEAD *is* $REF's tip — which is a remote head, matches on
+# SHA, and would send this whole branch down the already-pushed path and commit
+# the run's work straight onto the base branch. `$REF` is excluded a second
+# time by name for the same reason: never let this block name the base branch.
+PUSHED_REF=""
+if [[ -n "$(git log --oneline "$REF"..HEAD 2>/dev/null || true)" ]]; then
+  PUSHED_REF="$(git ls-remote --heads origin 2>/dev/null \
+    | awk -v sha="$(git rev-parse HEAD)" -v base="refs/heads/$REF" \
+        '$1 == sha && $2 != base { sub("refs/heads/", "", $2); print $2; exit }')"
+fi
+
+if [[ -n "$PUSHED_REF" ]]; then
+  # Never fold on top of a published branch. Anything the agent left
+  # uncommitted goes on as an ordinary commit, so nothing it wrote is lost and
+  # no history that is already on the remote gets rewritten.
+  if ! git diff --cached --quiet; then
+    git commit -m "agent: ${ITEM_ID} (uncommitted work the agent left behind)"
+    git push origin "HEAD:refs/heads/${PUSHED_REF}"
+  fi
+
+  # A second PR carrying the same diff is worse than no PR at all — but so is
+  # an orphaned branch. Open one only if the agent did not.
+  if gh pr list --head "$PUSHED_REF" --state open --json number --jq '.[].number' \
+    2>/dev/null | grep -q '[0-9]'; then
+    echo "worker: the agent pushed '$PUSHED_REF' and opened its own PR — nothing to add"
+  else
+    echo "worker: the agent pushed '$PUSHED_REF' itself but opened no PR — opening one rather than orphaning the branch"
+    open_pr "$PUSHED_REF"
+  fi
+  exit 0
+fi
+
 # Fold any commits the tool made itself so we can scan one staged diff.
 git reset --soft "$REF"
 git add -A
@@ -314,16 +371,5 @@ fi
 
 git commit -m "agent: ${ITEM_ID}"
 
-# If the agent pushed this work itself despite the delivery instruction, a
-# second PR carrying the same diff is worse than no PR at all. `ls-remote`
-# rather than a remote-tracking ref: the clone is shallow and single-branch,
-# so `git branch -r` only ever knows about $REF.
-if git ls-remote --heads origin 2>/dev/null | grep -q "^$(git rev-parse HEAD)[[:space:]]"; then
-  echo "worker: this commit is already the tip of a remote branch — not opening a second PR"
-  exit 0
-fi
-
 git push -u origin "$BRANCH"
-gh pr create --base "$REF" --head "$BRANCH" \
-  --title "agent: ${ITEM_ID}" \
-  --body "Opened by the hel1 Codex governor from queue item \`${ITEM_ID}\`. Merge follows this repository's normal rules for product PRs; the worker itself never merges."
+open_pr "$BRANCH"
