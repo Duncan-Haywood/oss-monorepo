@@ -37379,3 +37379,42 @@ entries:
         owner directly rather than duplicating the asks or re-deriving the
         diagnosis.
     mrr_end: null
+  - venture: platform-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2399: `platform/pages/price-oracle.mjs`, a browser tool that
+        reads each tool's real first-load headline figures out of the rendered
+        page. It exists because `venture-defaults.mjs` -- which grounds the
+        numbers FAQ/landing copy (and the `FAQPage` schema) must quote -- cannot
+        reproduce a tool that builds its inputs in the DOM: a `STARTING_*`
+        repeater whose rows carry their own `<select>` defaults, or a kit tool
+        that fills a rate from JS on load. Verified against a real browser that a
+        headless seed reproduction diverges from the rendered price on painting,
+        siding, flooring, junk-removal, lawn-care and window-cleaning while
+        matching to the cent on roofing, deck, concrete, janitorial and moving;
+        and that 27 of 100 `calculateBid` tools (the largest ones) `throw` in the
+        headless tool entirely. The oracle handles every class -- those 27 plus
+        multi-price tools (pest-control initial+recurring) -- ~32 tools in 34s
+        with a small page pool. Report-only, like the other coverage tools.
+      - >-
+        Also hardened `venture-defaults.mjs`'s CLI: a page it cannot ground
+        headlessly used to throw an unhandled exception that aborted the whole
+        batch. It now catches per-slug, prints the exact price-oracle command to
+        ground that page, and exits non-zero if any slug needed the browser. The
+        exported functions are unchanged.
+      - >-
+        Verified: `node --test platform/pages/*.test.mjs` 790/790.
+        `build.mjs`+`check.mjs` 169 products / 508 pages / no dead links, and the
+        new tooling file does not leak into the published site. CI came back red
+        (build/check/validate ~3s); confirmed starvation via
+        `platform/ci/ci_starvation.py --run 33374754483` (`runner_id: 0`, no
+        steps) and merged on local verification per DIRECTION's ship-on-green-or-
+        locally-verified rule for platform tooling.
+      - >-
+        Queue state at start: zero open PRs, so the three-PR quota was moot.
+        Deploy/CI-CD/Codex-on-Hetzner remain owner-gated on sealed secrets and
+        are already recorded in decision_queue -- did not re-derive or duplicate;
+        reported the unblocks to the owner directly.
+    mrr_end: null
