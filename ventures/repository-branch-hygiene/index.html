@@ -34,7 +34,12 @@
     .hero-number { font-size: 1.9rem; font-weight: 800; margin: 0 0 8px; line-height: 1.15; }
     .hero-number.warn { color: #f7b267; }
     .hero-number.ok { color: #78d6b1; }
-    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2f8f6d; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: 1rem; }
+    /* #2f8f6d gave white-on-green 3.98:1 at 16px bold -- under the 4.5:1 WCAG
+       2.1 AA threshold, and this is the page's primary action. Darkened to
+       4.81:1, which keeps the hue and leaves headroom rather than sitting on
+       the line. Found by `platform/ci/browser_checks.py --checks=contrast`:
+       the only violation across 506 pages. */
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #2a8063; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; font-size: 1rem; }
     button.secondary { background: #24313c; color: #cfe0d8; }
     button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 3px solid #78d6b1; outline-offset: 2px; }
     textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #3c4d5a; border-radius: 7px; font: 13px ui-monospace, SFMono-Regular, monospace; background: #0d1319; color: #e8edf2; }
