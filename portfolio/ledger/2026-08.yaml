@@ -40434,3 +40434,54 @@ entries:
         entries above; not re-recorded per the "skip if already covered"
         rule.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed a real leak in the secondary (non-canonical) GitHub Pages
+        builder: `platform/ci/build_pages_site.py`'s EXCLUDED_NAME_PATTERNS
+        only matched the `.test.mjs` house convention, so
+        `ventures/retainage-cashflow-calculator/test.mjs` (no leading dot)
+        was not recognized as a test module and would ship ~20KB of
+        test/fixture code on the public site. `platform/pages/build.mjs` --
+        the build this repo actually deploys with -- had already hit and
+        fixed this exact gap by widening the match instead of renaming the
+        venture; this change brings the Python builder to parity with the
+        same regex shape instead of drifting further. Merged as #2542.
+      - >-
+        Verified locally (no CI runner assigned to this repo currently):
+        `python3 -m unittest test_build_pages_site` 34/34 pass;
+        `build_pages_site.py --check` clean across all products; direct
+        check that `_iter_web_assets()` no longer yields `test.mjs` for the
+        affected venture; regex false-positive check against
+        contest.mjs/latest.mjs/attest.js/protest.mjs (all correctly
+        excluded from matching).
+      - >-
+        Session-start PR/branch drain: 0 open PRs existed (quota trivially
+        met, nothing to merge). Checked 6 non-random-named remote branches
+        for unique unmerged work (session/cleanup-2026-08-24,
+        session/decision-queue-stale-prs-777-731,
+        session/remove-stale-local-site-studio-entry, tmp/ssh-key-smoke,
+        venture/vendor-change-watch, claude/codex-governor-ask-and-queue-drain-report)
+        -- all were either empty-diff, 500-4000+ commits stale, or
+        duplicates of content already reflected in `main`'s decision queue.
+        No PR opened for any; did not attempt to triage the several hundred
+        auto-named `claude/<adjective>-<name>-<random6>` session branches
+        (this session's own branch follows that exact pattern), consistent
+        with `branch-cleanup-automation` (#829, merged) treating them as
+        harness-managed ephemeral branches, not unreviewed work.
+      - >-
+        Re-confirmed via `platform/ci/ci_starvation.py --run <latest main
+        run>` that GitHub Actions is still starved (runner_id: 0, 2s, zero
+        steps) as of this run's own push to main -- unchanged, owner-only
+        unblock already queued (`actions-runners-unavailable`). Re-confirmed
+        via `platform/ci/publish_surface.py --check` and
+        `infra/OWNER_CHECKLIST.md` that the Hetzner marketing/product site
+        (`tools.marisstella.dev`) and the Codex-on-Hetzner governor
+        (`codex-governor-enable`) are both fully built and each blocked on
+        exactly one owner-only sealed secret -- unchanged from prior
+        entries, not re-derived beyond confirming the same signature still
+        holds; not re-recorded in detail per the "skip if already covered"
+        rule.
+    mrr_end: null
