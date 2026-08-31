@@ -311,6 +311,12 @@
     const runsHost = el('runs');
     let rowSeq = 0;
 
+    // Every rate/hours figure a run row can carry, restored in `addRunRow`
+    // over whatever `applyPreset` just put there. See the comment at that
+    // call site for why this exists.
+    const RUN_RATE_KEYS = ['materialPerLf', 'linePostCost', 'terminalPostCost', 'walkGateCost',
+      'driveGateCost', 'concretePerPost', 'hoursPerLf', 'hoursPerPost', 'hoursPerWalkGate', 'hoursPerDriveGate'];
+
     function applyPreset(row, preset, overwriteHours) {
       if (!preset) return;
       row.querySelector('.r-space').value = preset.postSpacingFt;
@@ -361,6 +367,22 @@
       row.querySelector('.r-drive').value = run.driveGates;
       applyPreset(row, MATERIAL_PRESETS[presetIndex] ?? run, true);
       if (run.postSpacingFt) row.querySelector('.r-space').value = run.postSpacingFt;
+      // A run restored from a share link or a saved bid carries its own rate
+      // and hours figures even when its material matches a preset -- the
+      // `applyPreset` call above just overwrote them with that preset's
+      // stock numbers on the assumption this is a brand-new row. A
+      // customer's price is computed from these fields, so putting the
+      // sender's own numbers back is not cosmetic: without this, a run whose
+      // material happens to match a preset silently reprices at the
+      // preset's defaults on the recipient's screen. (`addRun`'s own default
+      // object never sets these keys, so a genuinely new row is unaffected.)
+      let restoredHours = false;
+      RUN_RATE_KEYS.forEach(key => {
+        if (run[key] === undefined || run[key] === '') return;
+        row.querySelector(`.r-${key}`).value = run[key];
+        if (key.startsWith('hoursPer')) restoredHours = true;
+      });
+      if (restoredHours) row.dataset.hoursEdited = '1';
 
       typeField.addEventListener('change', () => {
         const preset = MATERIAL_PRESETS[Number(typeField.value)];

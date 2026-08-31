@@ -97,3 +97,31 @@ test('decoding a share link marks hoursPerTearOutLf edited before any run is add
   assert.ok(addsRuns !== -1, 'applyShare never adds the shared runs');
   assert.ok(markEdited < addsRuns, 'hoursPerTearOutLf must be marked edited before runs are added, not after');
 });
+
+test('a run’s own rate and hours figures survive a share link even when its material matches a preset', () => {
+  // Regression, the sibling of the hoursPerTearOutLf bug above: `addRunRow`
+  // calls `applyPreset(row, MATERIAL_PRESETS[presetIndex] ?? run, true)`,
+  // which -- whenever the run's material happens to match a preset by label
+  // -- overwrites every one of the run's own materialPerLf, linePostCost,
+  // terminalPostCost, walkGateCost, driveGateCost, concretePerPost,
+  // hoursPerLf, hoursPerPost, hoursPerWalkGate and hoursPerDriveGate figures
+  // with that preset's stock numbers. A sender who picked a preset and then
+  // customized its rates (an ordinary edit; every one of those fields is a
+  // plain number input) has a share link that reprices at the portfolio
+  // preset's defaults on the recipient's screen instead. Caught live:
+  // $3,359.27 became $5,710.23 with the restore below removed.
+  const addRun = /function addRunRow\(run\) \{([\s\S]*?)\n    \}\n\n {4}function readRuns/.exec(proposalScript);
+  assert.ok(addRun, 'no addRunRow function');
+  const appliesPreset = addRun[1].indexOf('applyPreset(row, MATERIAL_PRESETS[presetIndex]');
+  const restoresRates = addRun[1].indexOf('RUN_RATE_KEYS.forEach');
+  assert.ok(appliesPreset !== -1, 'addRunRow no longer applies a matched preset the way this test expects');
+  assert.ok(restoresRates !== -1,
+    'addRunRow never restores the run’s own rate/hours figures after applyPreset overwrites them');
+  assert.ok(appliesPreset < restoresRates,
+    'the run’s own figures must be restored after applyPreset runs, not before');
+  for (const key of ['materialPerLf', 'linePostCost', 'terminalPostCost', 'walkGateCost',
+    'driveGateCost', 'concretePerPost', 'hoursPerLf', 'hoursPerPost', 'hoursPerWalkGate', 'hoursPerDriveGate']) {
+    assert.match(proposalScript, new RegExp(`RUN_RATE_KEYS = \\[[^\\]]*'${key}'`),
+      `${key} is missing from RUN_RATE_KEYS, so a shared run would still lose it to the matched preset`);
+  }
+});
