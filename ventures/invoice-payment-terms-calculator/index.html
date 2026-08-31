@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice Payment Terms Calculator — Net 30 Late Fee</title>
+  <meta name="description" content="Calculate invoice due dates, when cash actually lands on your client's payment run, late-fee scenarios, cash-flow exposure, whether a 2/10 Net 30 discount still beats waiting, and whether factoring still beats waiting after your carrying cost.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Invoice Payment Terms Calculator">
+  <meta property="og:description" content="See when the cash actually lands on your client's pay run, what slow invoices cost, and whether 2/10 Net 30 or factoring still beats waiting — before you send the next one.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Invoice Payment Terms Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Invoice due date calculator, payment-run settlement date, late payment fee scenarios, cash flow exposure, 2/10 Net 30 vs waiting, invoice factoring vs waiting, deposit and milestone billing schedule comparison, payment terms comparison"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When is a Net 30 invoice due?","acceptedAnswer":{"@type":"Answer","text":"On the calculator defaults a $1,200 invoice dated today with 30-day terms is due 30 days later. Three similar invoices outstanding are $3,600 of exposure — 36 operating days at a $3,000 monthly burn."}},{"@type":"Question","name":"Should I offer 2/10 Net 30?","acceptedAnswer":{"@type":"Answer","text":"On a $1,200 invoice, 2% for payment in 10 days leaves $1,168.27 after 24% carrying cost. Waiting 30 days for the full $1,200 leaves $1,176.33 — $8.06 ahead. They match at about 36.1%. This is not a recommendation to offer or withhold the discount."}},{"@type":"Question","name":"Should I factor this invoice?","acceptedAnswer":{"@type":"Answer","text":"On a $1,200 invoice, a 3% factor fee with a 90% advance leaves $1,161.24 after 24% carrying cost. Waiting 30 days leaves $1,176.33 — $15.09 ahead. They match at a 1.74% fee. This is not a recommendation to factor or to wait."}},{"@type":"Question","name":"Should I ask for a deposit?","acceptedAnswer":{"@type":"Answer","text":"On a $6,000 project delivered over 30 days with Net 30 paid 12 days late, billing once at the end leaves $6,000 of finished work unpaid on handover day and costs $224.88 to finance at 24%. A 50% deposit that clears in 5 days leaves $3,000 unpaid and costs $99.29. A deposit collected on the same 42-day cycle leaves all $6,000 unpaid — the collection time protects you, not the percentage. This is not a recommendation to ask for a deposit."}},{"@type":"Question","name":"Does this make a late fee enforceable?","acceptedAnswer":{"@type":"Answer","text":"No. Late-fee rows are arithmetic scenarios from the annual rate and grace period you type. They are not legal advice and do not determine whether a fee is permitted."}},{"@type":"Question","name":"Why does my invoice get paid after the due date even when the client is not late?","acceptedAnswer":{"@type":"Answer","text":"Most accounts-payable departments pay in runs rather than on the day each invoice falls due — weekdays only, the 1st and 15th, once a month, or one weekday a week. An invoice dated 2026-08-24 on Net 30 is due 2026-09-23, but at a client who pays on the 1st and 15th the cash lands 2026-10-01: eight days of drift the due date never shows, costing about $6.31 on $1,200 at a 24% carrying rate."}},{"@type":"Question","name":"Is Net 45 more expensive than Net 30?","acceptedAnswer":{"@type":"Answer","text":"Not always. Because payment runs are batched, a longer term often lands on the very same run. At a client paying once a month on the 1st, an invoice dated 2026-08-24 lands 2026-10-01 under both Net 15 and Net 30 — fifteen extra days of terms at no cost in cash timing. The calculator compares Net 7, 15, 30, 45, and 60 side by side so you can see where that happens."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #202b2b; background: #e8f0ed; } * { box-sizing: border-box; }
+    body { max-width: 980px; margin: 0 auto; padding: 30px 18px; } header { max-width: 700px; margin-bottom: 24px; } h1 { font-size: clamp(2.2rem, 7vw, 4.6rem); line-height: .94; letter-spacing: -.07em; margin: 8px 0 15px; } p { line-height: 1.5; } .eyebrow { letter-spacing: .15em; font-weight: 750; font-size: .75rem; }
+    .layout { display: grid; grid-template-columns: 1fr .85fr; gap: 18px; align-items: start; } section { background: #fff; border: 1px solid #cbd8d3; border-radius: 16px; padding: 21px; box-shadow: 0 10px 30px #20352d12; } h2 { margin-top: 0; font-size: 1.15rem; } .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } label { display: grid; gap: 5px; font-size: .85rem; font-weight: 700; } input, select { width: 100%; padding: 10px; border: 1px solid #9aada6; border-radius: 8px; font: inherit; background: #fff; } [hidden] { display: none; } .result { background: #173f3d; color: #f4fbf8; border-color: #173f3d; position: sticky; top: 14px; }.result a{color:inherit;text-decoration:underline} .big { font-size: 2.7rem; letter-spacing: -.05em; font-weight: 800; margin: 6px 0; } dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin: 20px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; } hr { border: 0; border-top: 1px solid #ffffff33; margin: 20px 0; } table { width: 100%; border-collapse: collapse; } th, td { padding: 9px 3px; text-align: right; border-bottom: 1px solid #ffffff2e; } th:first-child, td:first-child { text-align: left; } button { cursor: pointer; border: 0; border-radius: 8px; padding: 10px 13px; font: inherit; font-weight: 750; background: #b8f28e; color: #17322d; } .actions { display: flex; gap: 8px; flex-wrap: wrap; } .note, footer { font-size: .82rem; opacity: .82; } footer { margin-top: 22px; color: #344640; } footer label { display: inline-flex; align-items: center; gap: 7px; margin-bottom: 8px; } footer input { width: auto; } .fine a { color: inherit; }
+    .wide { background: #fff; border: 1px solid #cbd8d3; border-radius: 16px; padding: 21px; box-shadow: 0 10px 30px #20352d12; margin-top: 18px; } .wide h2 { margin-top: 0; font-size: 1.15rem; } .fields.four { grid-template-columns: repeat(3, 1fr); margin-bottom: 16px; }
+    /* The schedule table is too wide for a phone, so it scrolls inside its own
+       box. Without the min-width the cells would squeeze instead, and without
+       overflow-x the page itself would scroll sideways. */
+    .scroller { overflow-x: auto; } .wide table { min-width: 560px; } .wide th, .wide td { border-bottom: 1px solid #cbd8d3; padding: 9px 6px; } .wide tbody tr[data-best="true"] { background: #eefadf; font-weight: 650; }
+    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields, .fields.four { grid-template-columns: 1fr; } }  </style>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">FOR FREELANCERS AND SMALL SERVICE FIRMS</div>
+    <h1>Price the wait, not just the work.</h1>
+    <p>Calculate an invoice due date, see when the cash actually lands once your client's payment run is taken into account, what 30, 60, or 90 days of delay costs, whether a 2/10 Net 30 discount still beats waiting, and whether factoring still beats waiting after your carrying cost. Before the first invoice, it also prices the billing schedule.</p>
+    <p class="fine"><a href="should-i-offer-2-10-net-30.html">Should I offer 2/10 Net 30?</a> · <a href="should-i-factor-this-invoice.html">Should I factor this invoice?</a> · <a href="chasing-a-late-invoice.html">Already overdue? Wait, chase, settle, or collections</a> &middot; <a href="should-i-ask-for-a-deposit.html">Should I ask for a deposit?</a></p>
+  </header>  <main class="layout">
+    <section>
+      <h2>Invoice and cash-flow assumptions</h2>
+      <div class="fields">
+        <label>Invoice amount <input id="amount" type="number" min="0.01" step="0.01" value="1200"></label>
+        <label>Invoice date <input id="invoiceDate" type="date"></label>
+        <label>Payment terms (days) <input id="termsDays" type="number" min="0" step="1" value="30"></label>
+        <label>Client pays on <select id="payRun">
+          <option value="weekdays" selected>Weekdays only (skips weekends)</option>
+          <option value="semimonthly">Twice a month (1st and 15th)</option>
+          <option value="monthly">Once a month, on a set day</option>
+          <option value="weekly">Once a week, on a set weekday</option>
+          <option value="on-due">Exactly on the due date</option>
+        </select></label>
+        <label id="payRunDayField" hidden>Pay-run day of month <input id="payRunDay" type="number" min="1" max="31" step="1" value="1"></label>
+        <label id="payRunWeekdayField" hidden>Pay-run weekday <select id="payRunWeekday">
+          <option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option>
+          <option value="4">Thursday</option><option value="5" selected>Friday</option>
+        </select></label>
+        <label>Annual late rate (%) <input id="annualLateRate" type="number" min="0" step="0.1" value="18"></label>
+        <label>Grace period (days) <input id="graceDays" type="number" min="0" step="1" value="10"></label>
+        <label>Monthly operating burn <input id="monthlyBurn" type="number" min="0" step="0.01" value="3000"></label>
+        <label>Similar invoices outstanding <input id="outstanding" type="number" min="0" step="1" value="3"></label>
+        <label>Early-pay days <input id="earlyPayDays" type="number" min="0" step="1" value="10"></label>
+        <label>Early-pay discount (%) <input id="earlyPayDiscountPct" type="number" min="0" step="0.1" max="99.9" value="2"></label>
+        <label>Annual carrying-cost rate (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
+        <label>Share who take the discount (%) <input id="takeRatePct" type="number" min="0" max="100" step="1" value="100"></label>
+        <label>Factor fee (%) <input id="factorFeePct" type="number" min="0" step="0.01" max="99.99" value="3"></label>
+        <label>Factor advance (%) <input id="advancePct" type="number" min="0.01" max="100" step="0.1" value="90"></label>
+        <label>Reserve days <input id="reserveDays" type="number" min="0" step="1" value="35"></label>
+      </div>
+      <div class="actions" style="margin-top:14px">
+        <button id="save" type="button">Save draft in this browser</button>
+        <button id="load" type="button">Load saved draft</button>
+      </div>
+      <p id="draftStatus" class="note" role="status" aria-live="polite"></p>
+    </section>
+    <section class="result">
+      <h2>Cash-flow readout</h2>
+      <div id="due" class="big">Due 2026-09-23</div>
+      <div>based on your terms</div>
+      <dl>
+        <dt>Outstanding exposure</dt><dd id="exposure"></dd>
+        <dt>Exposure as operating days</dt><dd id="runway"></dd>
+      </dl>
+      <hr>
+      <h2>When the cash actually lands</h2>
+      <div id="cashDate" class="big">—</div>
+      <div id="cashSub">on your client's pay run</div>
+      <dl>
+        <dt>Days after the due date</dt><dd id="drift"></dd>
+        <dt>Total wait from invoicing</dt><dd id="totalWait"></dd>
+        <dt>Cost of the drift</dt><dd id="driftCost"></dd>
+      </dl>
+      <p id="settlementText"></p>
+      <table>
+        <thead><tr><th>Terms</th><th>Due</th><th>Cash lands</th><th>Wait</th></tr></thead>
+        <tbody id="landings"></tbody>
+      </table>
+      <p id="freeTermsNote" class="note"></p>
+      <hr>
+      <h2>Late-payment scenarios</h2>
+      <table><thead><tr><th>Days late</th><th>Estimated fee</th><th>Total owed</th></tr></thead><tbody id="scenarios"></tbody></table>
+      <hr>
+      <h2>2/10 vs waiting</h2>
+      <table>
+        <thead><tr><th>Path</th><th>Cash</th><th>After float</th></tr></thead>
+        <tbody>
+          <tr><td>Early-pay discount</td><td id="earlyCash"></td><td id="earlyAfter"></td></tr>
+          <tr><td>Wait for full invoice</td><td id="waitCash"></td><td id="waitAfter"></td></tr>
+        </tbody>
+      </table>
+      <p id="earlyPayText"></p>
+      <hr>
+      <h2>Factor vs waiting</h2>
+      <table>
+        <thead><tr><th>Path</th><th>Cash now</th><th>After float</th></tr></thead>
+        <tbody>
+          <tr><td>Factor (advance + reserve)</td><td id="factorNow"></td><td id="factorAfter"></td></tr>
+          <tr><td>Wait for the client</td><td id="factorWaitNow"></td><td id="factorWaitAfter"></td></tr>
+        </tbody>
+      </table>
+      <p id="factorText"></p>
+      <hr>
+      <p id="copyText"></p>
+      <div class="actions">
+        <button id="copy" type="button">Copy payment terms</button>
+        <button id="reset" type="button">Reset</button>
+      </div>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <section class="wide">
+    <h2>Before you send the first invoice: how should the project be split?</h2>
+    <p class="note">
+      Everything above prices one invoice. This prices the <em>schedule</em> — how much of your
+      finished work is sitting unpaid on the day you hand it over, and how much of the client's
+      project you are financing until they pay. It uses the payment terms and carrying-cost rate
+      you set above.
+    </p>
+    <div class="fields four">
+      <label>Project value <input id="projectValue" type="number" min="0.01" step="0.01" value="6000"></label>
+      <label>Project length (days) <input id="projectDays" type="number" min="1" step="1" value="30"></label>
+      <label>Average days paid late <input id="avgDaysLate" type="number" min="0" step="1" value="12"></label>
+      <label>Days to collect the deposit <input id="depositCollectionDays" type="number" min="0" step="1" value="5"></label>
+      <label>Your deposit (%) <input id="depositPct" type="number" min="0" max="100" step="1" value="30"></label>
+      <label>Most you will leave unpaid <input id="exposureCeiling" type="number" min="0" step="0.01" value="2000"></label>
+    </div>
+    <div class="scroller">
+      <table id="scheduleTable">
+        <thead>
+          <tr>
+            <th>Schedule</th>
+            <th>Unpaid at handover</th>
+            <th>Peak unpaid</th>
+            <th>Paid in full (day)</th>
+            <th>Financing cost</th>
+          </tr>
+        </thead>
+        <tbody id="scheduleRows"></tbody>
+      </table>
+    </div>
+    <p class="note">
+      “Unpaid at handover” is the finished work still outstanding the day you deliver — what you
+      lose if the client never pays. Only money that has cleared <em>before</em> that day counts,
+      so an invoice sent at completion never protects you, however large.
+    </p>
+    <p id="scheduleText"></p>
+    <p id="ceilingText" class="note"></p>
+    <p id="scheduleCopyText" style="white-space: pre-line"></p>
+    <div class="actions">
+      <button id="copySchedule" type="button">Copy payment schedule</button>
+    </div>
+    <p id="scheduleStatus" class="note" role="status" aria-live="polite"></p>
+    <p class="note">
+      Delivered value is assumed to spread evenly across the project's days; front-loaded work is
+      exposed more than this shows. These are arithmetic scenarios from the numbers you enter, not
+      a recommendation to ask for a deposit and not a prediction about any client.
+    </p>
+  </section>
+  <h2>Common questions</h2>
+  <h3>When is a Net 30 invoice due?</h3>
+  <p>On the calculator defaults a $1,200 invoice dated today with 30-day terms is due 30 days later. Three similar invoices outstanding are $3,600 of exposure — 36 operating days at a $3,000 monthly burn.</p>
+  <h3>Should I offer 2/10 Net 30?</h3>
+  <p>On a $1,200 invoice, 2% for payment in 10 days leaves $1,168.27 after 24% carrying cost. Waiting 30 days for the full $1,200 leaves $1,176.33 — $8.06 ahead. They match at about 36.1%. This is not a recommendation to offer or withhold the discount.</p>
+  <h3>Should I factor this invoice?</h3>
+  <p>On a $1,200 invoice, a 3% factor fee with a 90% advance leaves $1,161.24 after 24% carrying cost. Waiting 30 days leaves $1,176.33 — $15.09 ahead. They match at a 1.74% fee. This is not a recommendation to factor or to wait.</p>
+  <h3>Should I ask for a deposit?</h3>
+  <p>On a $6,000 project delivered over 30 days with Net 30 paid 12 days late, billing once at the end leaves $6,000 of finished work unpaid on handover day and costs $224.88 to finance at 24%. A 50% deposit that clears in 5 days leaves $3,000 unpaid and costs $99.29. A deposit collected on the same 42-day cycle leaves all $6,000 unpaid — the collection time protects you, not the percentage. This is not a recommendation to ask for a deposit.</p>
+  <h3>Does this make a late fee enforceable?</h3>
+  <p>No. Late-fee rows are arithmetic scenarios from the annual rate and grace period you type. They are not legal advice and do not determine whether a fee is permitted.</p>
+  <h3>Why does my invoice get paid after the due date even when the client is not late?</h3>
+  <p>Most accounts-payable departments pay in runs rather than on the day each invoice falls due — weekdays only, the 1st and 15th, once a month, or one weekday a week. An invoice dated 2026-08-24 on Net 30 is due 2026-09-23, but at a client who pays on the 1st and 15th the cash lands 2026-10-01: eight days of drift the due date never shows, costing about $6.31 on $1,200 at a 24% carrying rate.</p>
+  <h3>Is Net 45 more expensive than Net 30?</h3>
+  <p>Not always. Because payment runs are batched, a longer term often lands on the very same run. At a client paying once a month on the 1st, an invoice dated 2026-08-24 lands 2026-10-01 under both Net 15 and Net 30 — fifteen extra days of terms at no cost in cash timing. The calculator compares Net 7, 15, 30, 45, and 60 side by side so you can see where that happens.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice. It does not determine whether a late-fee term is permitted or enforceable, and it does not tell you to offer or withhold an early-pay discount or to factor an invoice. Verify the output and applicable rules with a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your numbers are not uploaded. Anonymous feature counts stay local and can be disabled above. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { calculateTerms, compareEarlyPay, compareFactor, compareTermsLandings, earlyPayNote, factorNote, projectSettlement, settlementNote, termsCopy } from './calc.mjs';
+    import {
+      SCHEDULE_PRESETS, compareSchedules, depositForPeakExposure,
+      depositSchedule, scheduleCopy, scheduleNote,
+    } from './schedule.mjs';
+    import { recordUsage } from './usage.mjs';
+    const ids = ['amount','invoiceDate','termsDays','annualLateRate','graceDays','monthlyBurn','outstanding','earlyPayDays','earlyPayDiscountPct','annualCarryRate','takeRatePct','factorFeePct','advancePct','reserveDays','payRun','payRunDay','payRunWeekday'];
+    // Schedule inputs are collected separately so a change here never re-counts
+    // the single-invoice calculation as a use of the early-pay comparison.
+    const scheduleIds = ['projectValue','projectDays','avgDaysLate','depositCollectionDays','depositPct','exposureCeiling'];    const $ = id => document.getElementById(id);
+    const money = (n) => {
+      const format = (n) => `$${n.toFixed(2)}`;
+      const text = format(Math.abs(n));
+      return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    let usageTimer;
+    const safe = fn => { try { return fn(); } catch { return undefined; } };
+    function update(count = true) {
+      try {
+        const input = Object.fromEntries(ids.map(id => [id, $(id).value]));
+        const result = calculateTerms(input);
+        $('due').textContent = `Due ${result.dueDate}`;
+        $('exposure').textContent = money(result.exposure);
+        $('runway').textContent = result.monthlyBurn ? `${result.runwayDays.toFixed(1)} days` : 'not set';
+        $('scenarios').replaceChildren(...result.fees.map(row => {
+          const tr = document.createElement('tr');
+          [row.days, money(row.fee), money(row.total)].forEach(value => {
+            const td = tr.insertCell();
+            td.textContent = value;
+          });
+          return tr;
+        }));
+        $('copyText').textContent = termsCopy(result);
+        const early = compareEarlyPay(input);
+        $('earlyCash').textContent = money(early.earlyCash);
+        $('earlyAfter').textContent = money(early.earlyAfterFloat);
+        $('waitCash').textContent = money(early.waitCash);
+        $('waitAfter').textContent = money(early.waitAfterFloat);
+        $('earlyPayText').textContent = earlyPayNote(early);
+
+        // Only the schedule actually in use needs its extra field on screen.
+        $('payRunDayField').hidden = input.payRun !== 'monthly';
+        $('payRunWeekdayField').hidden = input.payRun !== 'weekly';
+
+        const landing = projectSettlement(input);
+        $('cashDate').textContent = landing.settlementDate;
+        $('cashSub').textContent = landing.schedule === 'on-due'
+          ? 'assuming payment exactly on the due date'
+          : `on a client who pays ${landing.scheduleLabel.toLowerCase().replace(/\s*\(.*\)$/, '')}`;
+        $('drift').textContent = landing.driftDays === 0 ? 'lands on the due date' : `${landing.driftDays} day${landing.driftDays === 1 ? '' : 's'}`;
+        $('totalWait').textContent = `${landing.totalWaitDays} days`;
+        $('driftCost').textContent = landing.driftDays === 0 ? '—' : money(landing.driftCarryCost);
+        $('settlementText').textContent = settlementNote(landing);
+
+        const rows = compareTermsLandings(input);
+        $('landings').replaceChildren(...rows.map(row => {
+          const tr = document.createElement('tr');
+          [`Net ${row.termsDays}`, row.dueDate, row.settlementDate, `${row.totalWaitDays}d`].forEach(value => {
+            tr.insertCell().textContent = value;
+          });
+          if (row.isCurrent) tr.style.fontWeight = '800';
+          return tr;
+        }));
+        const free = rows.filter(row => row.landsWith !== null);
+        $('freeTermsNote').textContent = free.length
+          ? `${free.map(row => `Net ${row.termsDays} lands the same day as Net ${row.landsWith}`).join('; ')} — on this schedule those extra days cost you nothing in cash timing.`
+          : 'On this schedule every term lands on a different pay run.';
+
+        const factor = compareFactor(input);
+        $('factorNow').textContent = money(factor.advanceNow);
+        $('factorAfter').textContent = money(factor.factorAfterFloat);
+        $('factorWaitNow').textContent = money(0);
+        $('factorWaitAfter').textContent = money(factor.waitAfterFloat);
+        $('factorText').textContent = factorNote(factor);
+
+        if (count) {
+          recordUsage(safe(() => localStorage), $('usageOptOut').checked);
+          recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'early_pay_compared');
+          recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'factor_compared');
+          recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'settlement_projected');
+        }
+      } catch (error) {
+        $('due').textContent = error.message;
+        // Blank the headline dependents too -- exposure, runway, the fee
+        // scenario table, the copyable terms note, and the early-pay
+        // comparison all kept showing the last valid calculation before
+        // this fix, next to the error message in #due.
+        $('exposure').textContent = '';
+        $('runway').textContent = '';
+        $('scenarios').replaceChildren();
+        $('copyText').textContent = '';
+        ['earlyCash', 'earlyAfter', 'waitCash', 'waitAfter'].forEach(id => { $(id).textContent = ''; });
+        $('earlyPayText').textContent = '';
+        // Blank the cash-landing panel rather than leaving the previous
+        // invoice's date sitting under an error message.
+        $('cashDate').textContent = '—';
+        $('cashSub').textContent = 'fix the highlighted input to see this';
+        ['drift', 'totalWait', 'driftCost'].forEach(id => { $(id).textContent = '—'; });
+        $('settlementText').textContent = '';
+        $('landings').replaceChildren();
+        $('freeTermsNote').textContent = '';
+        // Same for the factoring panel merged in from #1729 — a stale
+        // comparison under an error message reads as a live answer.
+        ['factorNow', 'factorAfter', 'factorWaitNow', 'factorWaitAfter'].forEach(id => { $(id).textContent = '—'; });
+        $('factorText').textContent = '';
+      }
+    }
+    const moneyGrouped = n => {
+      const sign = n < 0 ? '-' : '';
+      const [whole, frac] = Math.abs(n).toFixed(2).split('.');
+      return `${sign}$${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${frac}`;
+    };
+    function updateSchedules(count = true) {
+      try {
+        const shared = {
+          ...Object.fromEntries(scheduleIds.map(id => [id, $(id).value])),
+          termsDays: $('termsDays').value,
+          annualCarryRate: $('annualCarryRate').value,
+        };
+        const comparison = compareSchedules(
+          [...SCHEDULE_PRESETS, depositSchedule($('depositPct').value)],
+          shared,
+        );
+        $('scheduleRows').replaceChildren(...comparison.ranked.map(outcome => {
+          const tr = document.createElement('tr');
+          if (outcome === comparison.safest) tr.dataset.best = 'true';
+          [
+            outcome.label,
+            moneyGrouped(outcome.unpaidAtHandover),
+            moneyGrouped(outcome.peakExposure),
+            String(outcome.fullyPaidDay),
+            moneyGrouped(outcome.fundingCost),
+          ].forEach(value => { tr.insertCell().textContent = value; });
+          return tr;
+        }));
+        $('scheduleText').textContent = scheduleNote(comparison, 'your-deposit');
+        const ceiling = Number($('exposureCeiling').value);
+        const needed = depositForPeakExposure(ceiling, shared);
+        $('ceilingText').textContent = needed === null
+          ? `No deposit percentage holds your unpaid work at or below ${moneyGrouped(ceiling)}: `
+            + `you deliver more than that before the deposit itself clears. A shorter collection `
+            + `cycle or an earlier progress bill is the only thing that reaches it.`
+          : `A ${needed}% deposit holds your peak unpaid work at or below ${moneyGrouped(ceiling)}.`;
+        const chosen = comparison.outcomes.find(o => o.id === 'your-deposit');
+        $('scheduleCopyText').textContent = scheduleCopy(chosen);
+        if (count) recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'schedule_compared');
+      } catch (error) {
+        $('scheduleRows').replaceChildren();
+        $('scheduleText').textContent = error.message;
+        $('ceilingText').textContent = '';
+        $('scheduleCopyText').textContent = '';
+      }
+    }
+    ids.forEach(id => {
+      $(id).addEventListener('input', () => {
+        update(false);
+        clearTimeout(usageTimer);
+        usageTimer = setTimeout(() => update(), 800);
+      });
+      $(id).addEventListener('change', () => update(false));
+    });
+    // Terms and the carrying rate feed both halves of the page, so editing
+    // either has to redraw the schedule table as well.
+    let scheduleTimer;
+    ['termsDays', 'annualCarryRate', ...scheduleIds].forEach(id => {
+      $(id).addEventListener('input', () => {
+        updateSchedules(false);
+        clearTimeout(scheduleTimer);
+        scheduleTimer = setTimeout(() => updateSchedules(), 800);
+      });
+      $(id).addEventListener('change', () => updateSchedules(false));
+    });
+    $('copySchedule').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText($('scheduleCopyText').textContent);
+        $('scheduleStatus').textContent = 'Payment schedule copied.';
+      } catch { $('scheduleStatus').textContent = 'Select and copy the schedule shown above.'; }
+      recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'schedule_copied');
+    });
+    $('usageOptOut').addEventListener('change', () => update(false));
+    // A draft saved before the schedule section existed simply lacks these
+    // keys; the per-field type guard on load leaves those inputs untouched.
+    const draftIds = [...ids, ...scheduleIds];
+    const draftStorage = () => safe(() => localStorage);
+    $('save').addEventListener('click', () => {
+      const storage = draftStorage();
+      if (!storage) { $('draftStatus').textContent = 'Saved drafts are unavailable in this browser.'; return; }
+      storage.setItem('invoice-terms-draft-v1', JSON.stringify(Object.fromEntries(draftIds.map(id => [id, $(id).value]))));
+      $('draftStatus').textContent = 'Draft saved only in this browser.';
+      recordUsage(storage, $('usageOptOut').checked, 'draft_saved');
+    });
+    $('load').addEventListener('click', () => {
+      const storage = draftStorage();
+      if (!storage) { $('draftStatus').textContent = 'Saved drafts are unavailable in this browser.'; return; }
+      try {
+        const draft = JSON.parse(storage.getItem('invoice-terms-draft-v1') || 'null');
+        if (!draft || typeof draft !== 'object') throw new Error();
+        draftIds.forEach(id => { if (typeof draft[id] === 'string') $(id).value = draft[id]; });
+        update(false);
+        updateSchedules(false);
+        $('draftStatus').textContent = 'Saved draft loaded.';
+        recordUsage(storage, $('usageOptOut').checked, 'draft_loaded');
+      } catch { $('draftStatus').textContent = 'No valid saved draft found.'; }
+    });
+    $('copy').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText($('copyText').textContent);
+        $('status').textContent = 'Payment terms copied.';
+      } catch { $('status').textContent = 'Select and copy the terms shown above.'; }
+      recordUsage(safe(() => localStorage), $('usageOptOut').checked, 'terms_copied');
+    });
+    $('reset').addEventListener('click', () => {
+      const defaults = { amount: '1200', termsDays: '30', annualLateRate: '18', graceDays: '10', monthlyBurn: '3000', outstanding: '3', earlyPayDays: '10', earlyPayDiscountPct: '2', annualCarryRate: '24', takeRatePct: '100', factorFeePct: '3', advancePct: '90', reserveDays: '35', payRun: 'weekdays', payRunDay: '1', payRunWeekday: '5', projectValue: '6000', projectDays: '30', avgDaysLate: '12', depositCollectionDays: '5', depositPct: '30', exposureCeiling: '2000' };      Object.entries(defaults).forEach(([id, value]) => $(id).value = value);
+      $('invoiceDate').value = new Date().toISOString().slice(0, 10);
+      update();
+      updateSchedules(false);
+    });
+    $('invoiceDate').value = new Date().toISOString().slice(0, 10);
+    update(false);
+    updateSchedules(false);
+  </script>
+</body>
+</html>

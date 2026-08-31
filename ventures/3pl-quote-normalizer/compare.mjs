@@ -25,6 +25,20 @@ export function comparisonMessage(result, firstName = "Quote A", secondName = "Q
   return `${cheaperName} is lower by ${money(result.difference)} per month at this volume (${money(result.annualDifference)} per year).`;
 }
 
+export function negotiationBrief(result, firstName = "Quote A", secondName = "Quote B") {
+  if (result.error) return result.error;
+  if (result.equal) {
+    return "The normalized monthly totals are equal. Ask both providers to itemize minimums, implementation fees, and any volume assumptions before choosing.";
+  }
+  const cheaperName = result.cheaper === "first" ? firstName : secondName;
+  const otherName = result.cheaper === "first" ? secondName : firstName;
+  return [
+    "Negotiation brief",
+    `${cheaperName} is lower by ${money(result.difference)} per month (${money(result.annualDifference)} per year) at this volume.`,
+    `Ask ${otherName}: Can you match or explain the ${money(result.difference)} monthly gap, including every minimum, return fee, and volume assumption? Please confirm the final all-in monthly total in writing.`,
+  ].join("\n");
+}
+
 export function savingsPercent(result) {
   if (!result || result.error || result.equal) return 0;
   const higher = Math.max(result.first, result.second);

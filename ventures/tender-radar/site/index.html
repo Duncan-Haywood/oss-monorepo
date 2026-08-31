@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tender Radar | Free public tender shortlist tool for small contractors</title>
+  <meta name="description" content="Filter a public tender CSV by trade, minimum value, and deadline. Free, private browser tool for small contractors. Nothing is uploaded.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:title" content="Tender Radar | Public tender shortlist tool">
+  <meta property="og:description" content="Turn a tender portal CSV into a focused shortlist in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tender Radar","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A local browser tool for filtering public tender CSV exports by trade, deadline, and minimum value."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What CSV format does it expect?","acceptedAnswer":{"@type":"Answer","text":"Columns named title, buyer, deadline, category, value, url, with deadline as a sortable date string like 2026-09-18 and value as a plain number. Most tender portals export something close to this; if a column is named differently, rename the header row in your CSV before pasting it in, since the parser matches on those exact names."}},{"@type":"Question","name":"Does the category filter understand synonyms, like “roofing” matching “roof repair”?","acceptedAnswer":{"@type":"Answer","text":"Type a comma-separated list — roofing, roof repair, reroof — and a row matches if any term appears in its category or title. It is still a plain text match, not a trade taxonomy or a fuzzy search, so a spelling you did not list (“re-roofing” with a hyphen, say) still needs adding by hand. This replaced an earlier version that only took one term and made you re-run the filter per spelling."}},{"@type":"Question","name":"Does this tell me if I'm eligible to bid or improve my odds of winning?","acceptedAnswer":{"@type":"Answer","text":"No — as the section above states, it does not decide eligibility, verify a notice, predict your chance of winning, or submit a bid. It only sorts and filters a CSV you already have to a deadline-ordered shortlist; treat every row as something to confirm against the original portal."}},{"@type":"Question","name":"Is my tender list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Parsing and filtering happen entirely in your browser; listings are never uploaded, and there are no accounts, cookies, or analytics vendors. Only anonymous local usage counts are kept, and you can turn that off with the button in the footer."}}]}</script>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#646e76;--line:#d9d2c5;--accent:#b4482f;--panel:#fffdf8}
+    *{box-sizing:border-box}body{margin:0;color:var(--ink)}
+    main{max-width:980px;margin:auto;padding:3rem 1.25rem}
+    h1{font-size:clamp(2rem,6vw,4.5rem);line-height:1;margin:0;max-width:700px}
+    h2{margin-top:0}p.lede{font-size:1.15rem;max-width:680px;color:var(--muted)}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.5rem 0}
+    .controls{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+    label{display:block;font-size:.85rem;color:var(--muted)}
+    input,textarea,button{font:inherit;width:100%;padding:.65rem;border:1px solid var(--line);border-radius:8px;background:#fff}
+    textarea{min-height:150px;font-family:ui-monospace,monospace;font-size:.85rem}
+    button{cursor:pointer;background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+    button.secondary{background:transparent;color:var(--accent)}
+    .actions{display:flex;gap:.75rem;margin-top:1rem;flex-wrap:wrap}
+    .actions button{width:auto}
+    .notice,.privacy{color:var(--muted);font-size:.9rem}
+    .hint{display:block;font-size:.75rem;color:var(--muted);margin-top:.3rem;font-weight:400}
+    .error{color:#a22}
+    .summary{font-weight:700}
+    .table-wrap{overflow:auto}
+    table{border-collapse:collapse;width:100%;min-width:680px}
+    th,td{text-align:left;padding:.7rem;border-bottom:1px solid var(--line)}
+    th{font-size:.8rem;color:var(--muted)}
+    .urgent{color:#a22;font-weight:700}
+    .closed{color:var(--muted)}
+    .closed .status-badge{font-weight:400;font-style:italic}
+    label.checkbox{display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--muted);margin-top:1rem}
+    label.checkbox input{width:auto;padding:0}
+    label.checkbox .hint{margin:0}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem}
+    @media(max-width:650px){.controls{grid-template-columns:1fr}main{padding-top:2rem}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="notice">PRIVATE BY DEFAULT / NO SIGN-UP</p>
+  <h1>Find the tenders worth your time.</h1>
+  <p class="lede">Paste a public tender CSV, filter it to your trade and minimum contract value, and get a deadline-ordered shortlist. Your listings stay in this browser.</p>
+  <section>
+    <h2>Build a shortlist</h2>
+    <label for="csv">Tender CSV
+      <textarea id="csv">title,buyer,deadline,category,value,url
+School roof repairs,City Council,2026-09-18,roofing,85000,https://example.test/tender
+Hall painting,City Council,2026-10-02,painting,12000,https://example.test/paint
+Clinic reroof,County,2026-09-04,roofing,140000,https://example.test/clinic</textarea>
+    </label>
+    <div class="controls">
+      <label for="category">Trade or category<input id="category" value="roofing" placeholder="roofing, roof repair, reroof"><span class="hint">Comma-separate synonyms; matches category or title.</span></label>
+      <label for="minimum">Minimum value<input id="minimum" type="number" min="0" value="20000"></label>
+      <label for="through">Deadline on or before<input id="through" type="date"></label>
+    </div>
+    <label class="checkbox"><input id="hide-closed" type="checkbox" checked> Hide tenders that already closed<span class="hint">A deadline in the past can't be acted on. Uncheck to see them anyway, marked Closed.</span></label>
+    <div class="actions">
+      <button id="filter" type="button">Create shortlist</button>
+      <button class="secondary" id="download" type="button" disabled>Download CSV</button>
+    </div>
+    <p id="status" class="summary" role="status" aria-live="polite">Add a CSV export to begin.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Deadline</th><th>Title</th><th>Buyer</th><th>Category</th><th>Value</th><th>Source</th></tr></thead>
+        <tbody id="results"></tbody>
+      </table>
+    </div>
+  </section>
+  <section>
+    <h2>What this does not do</h2>
+    <p>It does not decide whether you are eligible, verify a notice, predict your chance of winning, or submit a bid. Use the shortlist as a review aid and check the original portal before relying on any detail.</p>
+  </section>
+  <section>
+    <h2>Common questions</h2>
+    <h3>What CSV format does it expect?</h3>
+    <p>Columns named <code>title, buyer, deadline, category, value, url</code>, with <code>deadline</code> as a sortable date string like <code>2026-09-18</code> and <code>value</code> as a plain number. Most tender portals export something close to this; if a column is named differently, rename the header row in your CSV before pasting it in, since the parser matches on those exact names.</p>
+    <h3>Does the category filter understand synonyms, like &ldquo;roofing&rdquo; matching &ldquo;roof repair&rdquo;?</h3>
+    <p>Type a comma-separated list &mdash; <code>roofing, roof repair, reroof</code> &mdash; and a row matches if any term appears in its category or title. It is still a plain text match, not a trade taxonomy or a fuzzy search, so a spelling you did not list (&ldquo;re-roofing&rdquo; with a hyphen, say) still needs adding by hand. This replaced an earlier version that only took one term and made you re-run the filter per spelling.</p>
+    <h3>Does this tell me if I'm eligible to bid or improve my odds of winning?</h3>
+    <p>No &mdash; as the section above states, it does not decide eligibility, verify a notice, predict your chance of winning, or submit a bid. It only sorts and filters a CSV you already have to a deadline-ordered shortlist; treat every row as something to confirm against the original portal.</p>
+    <h3>Is my tender list uploaded anywhere?</h3>
+    <p>No. Parsing and filtering happen entirely in your browser; listings are never uploaded, and there are no accounts, cookies, or analytics vendors. Only anonymous local usage counts are kept, and you can turn that off with the button in the footer.</p>
+  </section>
+  <p class="seo-link"><a href="./which-tenders-are-worth-bidding-on.html">Which public tenders are worth bidding on?</a></p>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or procurement advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Listings are never uploaded; there are no accounts, cookies, or analytics vendors. <button class="secondary" id="usage" type="button" style="width:auto">Turn off local usage counting</button> <span id="usage-status" class="privacy"></span></p>
+    <p>Optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> support does not change what the tool does.</p>
+  </footer>
+</main>
+<script type="module">
+import {parseTenders, filterTenders, escapeHtml, safeUrl, toCsv, isUrgent, isClosed} from "./calc.mjs";
+import {record, enabled, setEnabled} from "./usage.mjs";
+
+const $ = (id) => document.getElementById(id);
+let rows = [];
+const today = new Date().toISOString().slice(0, 10);
+
+function render(list, hiddenClosedCount) {
+  $("results").innerHTML = list.map((row) => {
+    const href = safeUrl(row.url);
+    const source = href ? `<a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">Open source</a>` : "-";
+    const closed = isClosed(row.deadline, today);
+    const cls = closed ? "closed" : isUrgent(row.deadline, today) ? "urgent" : "";
+    const badge = closed ? ` <span class="status-badge">(closed)</span>` : "";
+    return `<tr><td class="${cls}">${escapeHtml(row.deadline)}${badge}</td><td>${escapeHtml(row.title)}</td><td>${escapeHtml(row.buyer)}</td><td>${escapeHtml(row.category)}</td><td>${escapeHtml(row.value)}</td><td>${source}</td></tr>`;
+  }).join("");
+  $("status").className = "summary";
+  const hiddenNote = hiddenClosedCount ? ` (${hiddenClosedCount} closed tender${hiddenClosedCount === 1 ? "" : "s"} hidden)` : "";
+  $("status").textContent = `${list.length} tender${list.length === 1 ? "" : "s"} shortlisted${hiddenNote}. Verify each against the original source.`;
+  $("download").disabled = !list.length;
+}
+
+$("filter").onclick = () => {
+  try {
+    const parsed = parseTenders($("csv").value);
+    const hideClosed = $("hide-closed").checked;
+    const options = {
+      category: $("category").value,
+      minimum: $("minimum").value,
+      through: $("through").value,
+      today,
+      hideClosed,
+    };
+    rows = filterTenders(parsed, options);
+    const hiddenClosedCount = hideClosed
+      ? filterTenders(parsed, { ...options, hideClosed: false }).length - rows.length
+      : 0;
+    render(rows, hiddenClosedCount);
+    record("shortlist_created");
+  } catch (error) {
+    rows = [];
+    $("results").innerHTML = "";
+    $("download").disabled = true;
+    $("status").className = "error";
+    $("status").textContent = error.message;
+  }
+};
+
+$("download").onclick = () => {
+  if (!rows.length) return;
+  const blob = new Blob([toCsv(rows)], {type: "text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "tender-shortlist.csv";
+  a.click();
+  record("shortlist_exported");
+};
+
+$("usage").onclick = () => {
+  setEnabled(!enabled());
+  $("usage").textContent = enabled() ? "Turn off local usage counting" : "Turn on local usage counting";
+  $("usage-status").textContent = enabled() ? "" : " Local counting is off.";
+};
+record("page_viewed");
+</script>
+</body>
+</html>

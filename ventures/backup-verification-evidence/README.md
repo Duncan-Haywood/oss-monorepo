@@ -1,8 +1,9 @@
 # Backup Verification Evidence
 
-A free, local CLI that answers the question a backup exit code alone cannot:
-**did last night's backup actually produce a usable artifact, or did it just
-exit cleanly?**
+A free, local CLI — and a browser page — that answers the question a backup
+exit code alone cannot: **did last night's backup actually produce a usable
+artifact, or did it just exit cleanly?** A second question the per-run check
+cannot see: **is last night's archive quietly smaller than Tuesday's?**
 
 Scheduled backups (`restic`, `borg`, `pg_dump`, `rsync`, `tar`, cron/systemd
 jobs of any kind) fail silently more often than they fail loudly: the disk
@@ -21,6 +22,14 @@ point it at backups you already have:
 
 ```bash
 PYTHONPATH=src python3 -m backup_evidence.cli verify /backups/*.tar.gz
+
+# Also require each artifact to have been modified within the last 26 hours:
+PYTHONPATH=src python3 -m backup_evidence.cli verify \
+  --max-age-hours 26 /backups/*.tar.gz
+
+# Write a portable JSON handoff for a ticket (paths and findings only):
+PYTHONPATH=src python3 -m backup_evidence.cli verify \
+  --format json --output evidence.json /backups/*.tar.gz
 ```
 
 ```
@@ -35,7 +44,32 @@ CORRUPT  /backups/2026-08-24.tar.gz  [tar.gz]
 on purpose, so an alerting rule can treat "broken" and "couldn't tell"
 differently: `0` every artifact intact, `1` at least one **provably corrupt**,
 `2` none corrupt but at least one could not be checked. `--format json` gives
-the same findings machine-readably.
+the same findings machine-readably. With `--max-age-hours`, a structurally
+intact but old artifact is reported as `stale` and exits `2`; a corrupt artifact
+still exits `1`.
+
+## Did last night shrink?
+
+A run can be `verified` (exit 0, size floor met) and still be half the bytes
+it wrote the night before. Open [index.html](./index.html) and drop the JSON
+run records from `record`, or ask the CLI to compare nights:
+
+```bash
+PYTHONPATH=src python3 -m backup_evidence.cli check \
+  runs/*.json --trend --format markdown
+```
+
+A drop of 20% or more versus the previous night or the prior-night median is
+flagged. That is an observation, not a determination that data was lost —
+retention pruning and a genuinely smaller dataset shrink artifacts too. See
+[Why is my backup smaller than yesterday?](./shrinking.html).
+
+If your records were made with `--verify-integrity`, the page's "Require an
+end-to-end integrity read" checkbox mirrors `check --require-integrity`: any
+night without a conclusive `intact` read shows as `inconclusive` instead of
+`verified`, even when its exit code and size were fine. Leave it off and the
+page reports exactly what it did before — verified from exit code and stat
+alone.
 
 ### Why reading the file matters
 
@@ -93,6 +127,10 @@ PYTHONPATH=src python3 -m backup_evidence.cli record \
 # Check one or more recorded runs:
 PYTHONPATH=src python3 -m backup_evidence.cli check \
   runs/*.json --format markdown
+
+# Require a conclusive end-to-end artifact read before reporting success:
+PYTHONPATH=src python3 -m backup_evidence.cli check \
+  runs/*.json --require-integrity --format markdown
 ```
 
 `--verify-integrity` is opt-in: it reads the whole artifact, which costs I/O
@@ -107,6 +145,11 @@ not match, so it is not softened to `suspicious`. When no integrity check ran,
 `verified` says so in its own reason text — the two grades of `verified` are
 different claims and the report never blurs them.
 
+Command output is not saved in a record by default because backup logs can
+contain paths, hostnames, or application data. Add `--include-log-tail` to
+`record` only when the operator has reviewed that local retention is appropriate;
+the option saves at most the final `--log-lines` lines.
+
 `check` exits `0` when the most recent run is `verified`, and non-zero
 otherwise — wire it into your own monitoring/alerting as the pass/fail signal
 without depending on this tool for the alerting itself. See
@@ -114,8 +157,13 @@ without depending on this tool for the alerting itself. See
 `examples/run-failed.json`, and `examples/run-corrupt-artifact.json` for the
 run-record format and what triggers each state.
 
+By default, a stat-only run can be `verified` when its command, artifact
+existence, and configured size/age checks agree. Pass `--require-integrity` to
+make `check` exit non-zero unless the latest artifact was actually read to its
+end and reported `intact`; unsupported and capped reads remain inconclusive.
+
 The `--usage-file` flag on any subcommand appends one local, anonymized
-event-count file — see "Privacy" below.
+event-count file — see "Privacy" below. `--trend` also counts `trend_viewed`.
 
 ## What this is not
 
@@ -147,16 +195,25 @@ verifying that your backups are actually restorable** — this tool reports what
 an exit code, a file stat, and (when asked) a structural read of the artifact
 show, which is strictly less than a successful restore. To the maximum extent
 permitted by law, the authors accept no liability for any loss or damage
-arising from its use, including reliance on a `verified` or `intact` result.
-See [`LICENSE`](LICENSE) for the full terms.
+arising from its use, including reliance on a `verified` or `intact` result
+or on a missing trend alert.
+
+**Best-effort hosting, no SLA.** These tools are free, experimental, and may
+be slow, broken, moved, or taken offline without notice. We do not promise
+uptime, backups of anything you type, or that a URL will keep working. Do not
+use this as a system of record. If a tool needs to survive, export your
+inputs and run it yourself. See [`LICENSE`](LICENSE) for the full terms.
 
 ## Privacy
 
 Everything here runs locally. `verify`, `record`, and `check` make no network
-calls and send no data anywhere. Integrity checks read artifact bytes into
-memory in chunks and discard them; nothing is written, copied, or retained,
-and archive member names are never used for a filesystem operation. The
-optional `--usage-file` writes one local JSON file with event names and counts
-only (`run_recorded`, `artifact_verified`, `report_generated`) — never backup
-tool names, file paths, sizes, timestamps, archive contents, or log content.
-Omit the flag and nothing is written.
+calls and send no data anywhere. The [browser trend page](./index.html) never
+uploads run records. Integrity checks read artifact bytes into memory in
+chunks and discard them; nothing is written, copied, or retained, and archive
+member names are never used for a filesystem operation. The optional
+`--usage-file` writes one local JSON file with event names and counts only
+(`run_recorded`, `artifact_verified`, `report_generated`, `trend_viewed`) —
+never backup tool names, file paths, sizes, timestamps, archive contents, or
+log content. The browser counts the same kind of event in `localStorage` and
+offers an off switch; Do Not Track and Global Privacy Control are honoured.
+Omit the flag (or turn the switch off) and nothing is written.

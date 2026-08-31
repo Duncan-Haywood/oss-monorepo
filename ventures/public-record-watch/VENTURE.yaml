@@ -1,0 +1,27 @@
+name: public-record-watch
+description: A free local comparer for customer-supplied public-register snapshots that surfaces source-linked record changes without ranking people or claiming compliance.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Credentialing teams and specialist recruiters need a portable change record for public registers that do not offer useful notifications.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Source-linked change alerts are valuable enough to support a paid scheduled feed after a vertical and channel are validated.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified credentialing or staffing practitioners identify a recurring missed-change problem after ten conversations.
+  - No pilot user returns to compare a second snapshot.
+links:
+  production: null
+  analytics: null

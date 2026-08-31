@@ -47,6 +47,19 @@ and others) and **none of them have a public URL**. Every usage reading is
 still a zero baseline. `python3 platform/ci/publish_surface.py` still
 reports nothing live on a push to `main`.
 
+That tool reads `gitops/` as well as the workflows since 2026-08-31, so
+"nothing live" is now a statement about both delivery paths rather than
+only the one this paragraph was written about. On the Hetzner path it
+reports, per hostname: `marisstella.dev` and `www.marisstella.dev` answer
+on merge already (annotation-only 301s, no workload, no Secret), and
+`tools.marisstella.dev` — the one that serves the 169 tools — fails closed
+on the unsealed Secret `portfolio-site-repo`. Since both redirects point
+at that host, no stranger reaches content, and the tool says so rather
+than letting "two hosts live" stand.
+
+One seal, not one build, is what stands between this paragraph and being
+obsolete: `./bootstrap/scripts/seal-owner-secrets.sh site`.
+
 Until at least one already-built user-facing surface is reachable by a
 stranger, **deploy beats another build**:
 
@@ -62,6 +75,25 @@ the way a product goes live. Agents prepare the deploy artifact; they
 do not register a domain, store listing, or npm publish. Building
 privately remains allowed. Cloning a twelfth undeployed calculator is
 not.
+
+**The artifact is prepared** (2026-08-26).
+[`platform/pages/`](../platform/pages/README.md) assembles every static venture
+surface — 33 tools at the time of writing — into the one Pages site this
+repository gets, and `.github/workflows/portfolio-pages.yml` builds and tests it
+on every push to `main`. Until then, the flip would have published only
+`retail-pilot-intel`'s passcode-gated docs and left every calculator dark, so it
+was worth far less than the queue implied; that workflow now reads its own
+variable rather than racing for the origin. Two consequences for a session
+picking work:
+
+- **Nothing further is needed to publish.** A new calculator is discovered
+  automatically on the next push — no manifest to update, no per-venture deploy
+  workflow to write. If a venture must stay private, add its slug to
+  `EXCLUDED_SLUGS` with a reason.
+- **The deploy half of deploy-first is done.** What is still missing is the
+  owner flip, and nothing an agent builds changes that. So the next unit of
+  work is making the tools that will go live better — depth, correctness,
+  onboarding, discoverability — not a thirty-fourth front page.
 
 ## What a good product looks like here
 
@@ -86,6 +118,11 @@ usage tracking, bug fixes, performance, SEO content, integrations behind
 env vars. Every session should leave a venture closer to something a stranger
 could use and benefit from.
 
+**Rely on the owner as little as possible.** Merge product PRs. Do not
+ask whether product code may land. Flag only when the session cannot
+finish without a secret, a legal-person account, taking money, publishing
+under the public name, or turning on unattended paid spend.
+
 **Not the default job:**
 
 - Re-verifying pull requests another session already verified
@@ -93,6 +130,7 @@ could use and benefit from.
 - Debating whether a prior rule was followed
 - Opening analysis documents when code could ship instead
 - Expanding the owner decision queue with items that do not block product work
+- Asking whether a green product PR may merge — that is yes
 
 Run `python3 portfolio/ledger/session_gate.py` on a generic brief ("continue
 work", "improve the process", etc.). If it says **BUILD**, build — and if
@@ -120,15 +158,20 @@ when product work is actually blocked):
 - **Publishing** under the portfolio's public name (store listing, npm publish,
   production domain cutover) — building privately is always allowed
 - Enabling unattended automation that spends paid API budget
-- Breaking changes to deployable `ventures/*` code
+- Pasting a secret they hold (Pages enable, deploy tokens, a GitHub PAT)
 
-Internal surfaces (`platform/`, `portfolio/`, docs, tests, CI) are
-**agent-decidable**: verify, merge, ship. Nothing live on `main` does not
-make `ventures/*` app code agent-decidable on its own — breaking changes
-to deployable venture code stay owner-gated until Ask 9
-(`venture-gate-premise`) is answered.
+Internal surfaces and `ventures/*` product code are **agent-decidable**:
+verify, merge, ship. Answered 2026-08-25: yes, merge product PRs. Do not
+re-ask. `python3 platform/ci/publish_surface.py` still tells you whether a
+merge publishes anything live; it does not block the merge.
 
 ## Graduating new products
+
+The portfolio may expand beyond its current venture list when a candidate is
+genuinely new, addresses a narrow painful problem, and can ship a useful free
+slice with the safeguards below. Existing ventures remain the default home for
+adjacent features, but historical limits on the number of ventures are not a
+reason to defer a strong, non-duplicative product.
 
 1. Pick a niche from `portfolio/pipeline/` or invent one that is **not** in
    `screened-out.md`.

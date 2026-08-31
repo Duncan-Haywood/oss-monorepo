@@ -5,6 +5,7 @@ resources:
   - rbac.yaml
   - networkpolicy.yaml
   - quota.yaml
+  - codex-home.yaml
   - governor/rbac.yaml
   - governor/cronjob.yaml
   - governor/state.yaml
@@ -18,8 +19,15 @@ configMapGenerator:
   - name: codex-worker-script
     files:
       - worker.sh=workers/worker.sh
+      - mandate.md=workers/mandate.md
   - name: governor-queue
     files:
       - example.item.yaml=queue/example.item.yaml
+      - open-pr-repair-merge.yaml=queue/open-pr-repair-merge.yaml
+      - branch-pr-drain.yaml=queue/branch-pr-drain.yaml
+      - deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml
+      - marketing-distribution.yaml=queue/marketing-distribution.yaml
+      - seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml
+      - product-feature-improvement.yaml=queue/product-feature-improvement.yaml
 generatorOptions:
   disableNameSuffixHash: true

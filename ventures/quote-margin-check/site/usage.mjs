@@ -83,6 +83,7 @@ export function createReportCounter({
   setTimer = (fn, ms) => setTimeout(fn, ms),
   clearTimer = (id) => clearTimeout(id),
   delayMs = 1200,
+  eventName = "report_generated",
 } = {}) {
   let pending = null;
   let lastCounted = null;
@@ -109,7 +110,7 @@ export function createReportCounter({
         pending = null;
         if (signature === lastCounted) return;
         lastCounted = signature;
-        record("report_generated");
+        record(eventName);
       }, delayMs);
     },
   };

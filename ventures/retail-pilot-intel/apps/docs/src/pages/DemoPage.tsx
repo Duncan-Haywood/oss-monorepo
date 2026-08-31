@@ -67,9 +67,13 @@ export function DemoPage() {
       <pre>{`# Terminal 1 — documentation (this site)
 pnpm docs:dev          # http://localhost:5173/demo
 
-# Terminal 2 — sales portal
-pnpm portal:dev        # http://localhost:5174
-# passcode: atelier-demo`}</pre>
+# Terminal 2 — optional live KPI API (after pnpm bootstrap)
+pnpm exec tsx packages/analytics/src/cli.ts serve-kpis --port 8787
+
+# Terminal 3 — sales portal
+VITE_PILOT_API_URL=http://127.0.0.1:8787 pnpm portal:dev
+# http://localhost:5174  passcode: atelier-demo
+# omit VITE_PILOT_API_URL to keep illustrative demoStore numbers`}</pre>
 
       <h2>Demo script (~20 min total)</h2>
       {demoScript.map((section) => (

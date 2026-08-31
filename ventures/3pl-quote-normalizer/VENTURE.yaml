@@ -11,6 +11,22 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Showing leftover pallets at the long-term storage rate changes a quote that looked cheap at the fresh-storage line.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing restock vs destroy vs customer-keeps on a just-arrived return changes a policy that priced every return as inbound plus restock.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing 3PL assembly plus extra picks against pre-kitting and skipping the bundle changes a kit that looked profitable on AOV lift alone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing pallet, carton, and loose inbound on the same quote changes a rate card that looked interchangeable on three receiving lines.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

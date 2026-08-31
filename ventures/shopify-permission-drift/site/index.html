@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shopify Permission Drift Record | Compare app scopes and webhooks</title>
+  <meta name="description" content="Free Shopify permission drift checker: paste two customer-authorized app inventory exports and see which scopes, webhooks, or authorization states changed. Runs in your browser — nothing is uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230d6b45'/%3E%3Cpath d='M8 16h16M16 8v16' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <meta property="og:title" content="Shopify Permission Drift Record — compare app scopes and webhooks">
+  <meta property="og:description" content="See exactly which Shopify app scopes, webhook topics, or authorization states changed between two exports. Free, private, runs in your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Shopify Permission Drift Record",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Compare two customer-authorized Shopify app inventory exports and list scope, webhook, and authorization changes. Evidence only; nothing is uploaded.",
+    "featureList": "Before-and-after inventory compare, scope and webhook diffs, reversed-capture detection, portable JSON report, ticket-ready summary"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I compare Shopify app permissions before and after a change?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Export only app metadata (ids, granted scopes, webhook topics, authorization state, API version, source, and capture time) from a store you are authorized to administer. Paste the earlier export as Before and the later export as After. The page lists added and removed apps, scopes, and webhooks. It does not connect to Shopify or decide whether a change is allowed."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this tool connect to my Shopify store?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Comparison runs entirely in your browser from the two JSON exports you paste. There are no accounts, no Shopify API calls, and no upload."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What if the after export is older than the before export?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The record is marked inconclusive. A reversed capture order is never treated as an unchanged result."
+        }
+      }
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Compare two Shopify app permission exports",
+    "step": [
+      { "@type": "HowToStep", "name": "Export before", "text": "Save a JSON inventory of app ids, scopes, webhooks, authorization state, API version, source, and capture time." },
+      { "@type": "HowToStep", "name": "Export after", "text": "After the change you want to review, save a second inventory the same way." },
+      { "@type": "HowToStep", "name": "Compare", "text": "Paste both exports here, or load the files, and review the listed changes with the merchant." }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #17382a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: grid; gap: 6px; font-size: .87rem; font-weight: 650; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 8px; padding: 10px; font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: #f7fbf8; resize: vertical; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    button, .file-btn { border: 0; border-radius: 8px; padding: 10px 14px; font: inherit; font-weight: 650; cursor: pointer; background: #0d6b45; color: #fff; }
+    button.secondary, .file-btn { background: #e8f3ec; color: #0d6b45; border: 1px solid #8eae9a; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .file-btn input { display: none; }
+    .result { position: sticky; top: 14px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero { font-size: 2.2rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0 4px; }
+    .hero.changed { color: #ffd39a; }
+    .hero.unchanged { color: #b6efc0; }
+    .hero.inconclusive, .hero.invalid { color: #ffb0a2; }
+    .note { font-size: .82rem; opacity: .85; }
+    .example-note { margin: 0 0 12px; padding: 8px 10px; border: 1px dashed #7aa48c; border-radius: 8px; font-size: .85rem; color: #3d5649; background: #f3faf6; }
+    .example-note[hidden] { display: none; }
+    ul.changes { margin: 12px 0 0; padding-left: 1.1rem; }
+    ul.changes li { margin: 0 0 8px; }
+    .error { color: #ffb0a2; }
+    .copy-status { font-size: .85rem; min-height: 1.2em; }
+    .faq, .schema { margin-top: 18px; }
+    footer { margin-top: 22px; font-size: .82rem; color: #3d5649; }
+    footer a { color: #0d6b45; }
+    pre.schema { overflow: auto; background: #12241c; color: #e8f3ec; padding: 12px; border-radius: 8px; font-size: .78rem; }
+    @media (max-width: 860px) {
+      .layout, .editors { grid-template-columns: 1fr; }
+      .result { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SHOPIFY AGENCIES AND MERCHANTS</p>
+    <h1>See which app scopes and webhooks changed — before you approve the next install.</h1>
+    <p>
+      Paste two customer-authorized app inventories. This page lists added or
+      removed apps, scopes, webhook topics, and authorization-state changes.
+      It does not connect to Shopify, request credentials, or say an app is
+      safe. Everything runs here; nothing is uploaded.
+    </p>
+    <p class="eyebrow">Have a GraphQL <code>appInstallations</code> dump instead of inventory JSON? <a href="./capture.html">Capture → inventory</a>, then compare here.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Before and after inventories</h2>
+      <p id="exampleNote" class="example-note">Showing the shipped fixture. Replace either side with your own export, then compare.</p>
+      <div class="editors">
+        <label>Before (earlier capture)
+          <textarea id="before" spellcheck="false" aria-describedby="exampleNote"></textarea>
+        </label>
+        <label>After (later capture)
+          <textarea id="after" spellcheck="false"></textarea>
+        </label>
+      </div>
+      <div class="actions">
+        <button id="compareBtn" type="button">Compare inventories</button>
+        <button id="exampleBtn" class="secondary" type="button">Load fixture example</button>
+        <label class="file-btn">Load before file<input id="beforeFile" type="file" accept="application/json,.json"></label>
+        <label class="file-btn">Load after file<input id="afterFile" type="file" accept="application/json,.json"></label>
+        <button id="clearBtn" class="secondary" type="button">Clear</button>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Drift record</h2>
+      <div id="status" class="hero">—</div>
+      <p id="review" class="note">Paste two exports, or load the fixture, to see a record.</p>
+      <ul id="changes" class="changes"></ul>
+      <p id="meta" class="note"></p>
+      <div class="actions">
+        <button id="downloadBtn" class="secondary" type="button" disabled>Download JSON report</button>
+        <button id="copyBtn" class="secondary" type="button" disabled>Copy ticket summary</button>
+      </div>
+      <p id="copyStatus" class="copy-status" role="status"></p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      Shopify agencies reviewing an install often get a verbal “we added a
+      reporting app.” The useful question is which <strong>granted scopes</strong>
+      and <strong>webhook topics</strong> actually changed. This record answers
+      that from two exports you already have — it does not pull live Shopify
+      data and does not interpret Shopify policy.
+    </p>
+    <p>
+      Shopify distinguishes scopes an app <em>declares</em> from scopes a
+      merchant <em>granted</em>. Put the granted values in the export. A future
+      API adapter should keep that distinction; this page never infers a scope
+      from an app’s name.
+    </p>
+  </section>
+  <section class="schema" aria-labelledby="schema-heading">
+    <h2 id="schema-heading">Export shape</h2>
+    <p>
+      Each inventory is JSON you control. Required fields: <code>captured_at</code>
+      (ISO 8601), <code>api_version</code>, <code>source</code>,
+      <code>authorization_state</code>, and <code>apps</code> (each with a
+      unique <code>id</code> and string lists for <code>scopes</code> and
+      <code>webhooks</code>). Incomplete exports are rejected. If a source
+      cannot provide a field, leave the capture out rather than inventing a
+      value.
+    </p>
+    <pre class="schema">{
+  "captured_at": "2026-08-24T10:00:00Z",
+  "api_version": "2026-07",
+  "source": "merchant-export",
+  "authorization_state": "active",
+  "apps": [
+    { "id": "app-analytics", "scopes": ["read_analytics"], "webhooks": ["app/uninstalled"] }
+  ]
+}</pre>
+  </section>
+  <h2>Common questions</h2>
+  <h3>How do I compare Shopify app permissions before and after a change?</h3>
+  <p>Export only app metadata (ids, granted scopes, webhook topics, authorization state, API version, source, and capture time) from a store you are authorized to administer. Paste the earlier export as Before and the later export as After. The page lists added and removed apps, scopes, and webhooks. It does not connect to Shopify or decide whether a change is allowed.</p>
+  <h3>Does this tool connect to my Shopify store?</h3>
+  <p>No. Comparison runs entirely in your browser from the two JSON exports you paste. There are no accounts, no Shopify API calls, and no upload.</p>
+  <h3>What if the after export is older than the before export?</h3>
+  <p>The record is marked inconclusive. A reversed capture order is never treated as an unchanged result.</p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Inventory JSON never leaves this page. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day — never store names, app names, scopes, or webhooks. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>The same comparison is available as a local CLI in this repository if you need a CI artifact. Optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does. MIT licensed. <a href="https://github.com/Duncan-Haywood/monorepo-projects">Source on GitHub</a>.</p>
+  </footer>
+  <script type="module">
+    import {
+      EXAMPLE_AFTER,
+      EXAMPLE_BEFORE,
+      compare,
+      formatChange,
+      parseInventory,
+      ticketSummary,
+    } from "./compare.mjs";
+    import { recordEvent, setUsageCountingEnabled } from "./usage.mjs";
+
+    const DRAFT_KEY = "shopify-permission-drift:drafts";
+    const beforeEl = document.getElementById("before");
+    const afterEl = document.getElementById("after");
+    const exampleNote = document.getElementById("exampleNote");
+    const statusEl = document.getElementById("status");
+    const reviewEl = document.getElementById("review");
+    const changesEl = document.getElementById("changes");
+    const metaEl = document.getElementById("meta");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyStatus = document.getElementById("copyStatus");
+    const usageOptOut = document.getElementById("usageOptOut");
+
+    let lastReport = null;
+    let showingExample = false;
+
+    function pretty(value) {
+      return JSON.stringify(value, null, 2);
+    }
+
+    function saveDrafts() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          before: beforeEl.value,
+          after: afterEl.value,
+        }));
+      } catch {
+        // private mode / quota
+      }
+    }
+
+    function loadDrafts() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function setExampleFlag() {
+      const isExample =
+        beforeEl.value.trim() === pretty(EXAMPLE_BEFORE) &&
+        afterEl.value.trim() === pretty(EXAMPLE_AFTER);
+      showingExample = isExample;
+      exampleNote.hidden = !isExample;
+    }
+
+    function renderError(message) {
+      lastReport = null;
+      statusEl.textContent = "Invalid";
+      statusEl.className = "hero invalid";
+      reviewEl.textContent = message;
+      changesEl.replaceChildren();
+      metaEl.textContent = "";
+      downloadBtn.disabled = true;
+      copyBtn.disabled = true;
+    }
+
+    function renderReport(report) {
+      lastReport = report;
+      const label = report.status === "changed"
+        ? "Changed"
+        : report.status === "unchanged"
+          ? "Unchanged"
+          : "Inconclusive";
+      statusEl.textContent = label;
+      statusEl.className = `hero ${report.status}`;
+      reviewEl.textContent = report.review_required
+        ? "Review required: yes. Evidence only — the merchant decides what each change means."
+        : "Review required: no. The two inventories match on apps, scopes, webhooks, and store fields.";
+      changesEl.replaceChildren();
+      if (!report.changes.length) {
+        const item = document.createElement("li");
+        item.textContent = "No differences listed.";
+        changesEl.append(item);
+      } else {
+        for (const change of report.changes) {
+          const item = document.createElement("li");
+          item.textContent = formatChange(change);
+          changesEl.append(item);
+        }
+      }
+      metaEl.textContent =
+        `${report.metadata.before_source} at ${report.metadata.before_captured_at} → ${report.metadata.after_source} at ${report.metadata.after_captured_at}`;
+      downloadBtn.disabled = false;
+      copyBtn.disabled = false;
+    }
+
+    function runCompare({ count } = { count: false }) {
+      copyStatus.textContent = "";
+      setExampleFlag();
+      try {
+        const report = compare(parseInventory(beforeEl.value), parseInventory(afterEl.value));
+        renderReport(report);
+        if (count) recordEvent("inventory_compared");
+      } catch (error) {
+        renderError(error.message);
+      }
+    }
+
+    function loadExample({ count } = { count: false }) {
+      beforeEl.value = pretty(EXAMPLE_BEFORE);
+      afterEl.value = pretty(EXAMPLE_AFTER);
+      saveDrafts();
+      runCompare({ count: false });
+      if (count) recordEvent("example_loaded");
+    }
+
+    function readFileInto(input, target) {
+      const file = input.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        target.value = String(reader.result || "");
+        saveDrafts();
+        runCompare({ count: false });
+        recordEvent("inventory_file_loaded");
+      };
+      reader.readAsText(file);
+      input.value = "";
+    }
+
+    document.getElementById("compareBtn").addEventListener("click", () => {
+      runCompare({ count: true });
+    });
+    document.getElementById("exampleBtn").addEventListener("click", () => loadExample({ count: true }));
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      beforeEl.value = "";
+      afterEl.value = "";
+      lastReport = null;
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+      statusEl.textContent = "—";
+      statusEl.className = "hero";
+      reviewEl.textContent = "Paste two exports, or load the fixture, to see a record.";
+      changesEl.replaceChildren();
+      metaEl.textContent = "";
+      downloadBtn.disabled = true;
+      copyBtn.disabled = true;
+      exampleNote.hidden = true;
+    });
+    document.getElementById("beforeFile").addEventListener("change", (event) => {
+      readFileInto(event.target, beforeEl);
+    });
+    document.getElementById("afterFile").addEventListener("change", (event) => {
+      readFileInto(event.target, afterEl);
+    });
+    beforeEl.addEventListener("input", saveDrafts);
+    afterEl.addEventListener("input", saveDrafts);
+    downloadBtn.addEventListener("click", () => {
+      if (!lastReport) return;
+      const blob = new Blob([JSON.stringify(lastReport, null, 2) + "\n"], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "permission-drift-report.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      recordEvent("report_exported");
+      copyStatus.textContent = "Downloaded permission-drift-report.json. The file is the comparison result only.";
+    });
+    copyBtn.addEventListener("click", async () => {
+      if (!lastReport) return;
+      const text = ticketSummary(lastReport);
+      try {
+        await navigator.clipboard.writeText(text);
+        copyStatus.textContent = "Ticket summary copied. It contains status and change kinds, not customer order data.";
+      } catch {
+        copyStatus.textContent = "Clipboard unavailable. Select and copy the summary from a downloaded report instead.";
+      }
+      recordEvent("summary_copied");
+    });
+    usageOptOut.addEventListener("change", () => {
+      setUsageCountingEnabled(!usageOptOut.checked);
+    });
+
+    const drafts = loadDrafts();
+    if (drafts?.before || drafts?.after) {
+      beforeEl.value = drafts.before || "";
+      afterEl.value = drafts.after || "";
+      if (drafts.before && drafts.after) runCompare({ count: false });
+      else setExampleFlag();
+    } else {
+      loadExample({ count: false });
+    }
+    recordEvent("page_viewed");
+  </script>
+</body>
+</html>

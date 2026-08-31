@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://example.invalid/seller-net-sheet/sitemap.xml

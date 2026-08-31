@@ -1,0 +1,27 @@
+name: cloud-egress-calculator
+description: A private browser calculator for comparing monthly object-storage, request, and outbound-transfer costs before moving a workload.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small SaaS teams and agencies will use a storage egress calculator when an export, media, or backup workload makes provider pricing hard to compare.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent scenario comparison is useful enough to revisit before storage migrations and pricing changes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three operators run two scenarios twice within 90 days.
+  - No user reports finding a material difference between advertised storage price and workload cost.
+links:
+  production: null
+  analytics: null

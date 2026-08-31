@@ -17,6 +17,13 @@ from xml.sax.saxutils import escape, quoteattr
 import fcntl
 
 from .checks import check_invoice
+from .facturx import (
+    EmbeddedInvoiceError,
+    envelope_note,
+    extract_embedded_invoice,
+    looks_like_pdf,
+)
+from .formats import DocumentError, detect_syntax, parse_cii_invoice
 from .ubl import parse_ubl_invoice
 
 VERSION = "0.1.0"
@@ -198,6 +205,11 @@ def _github_report(reports: list[tuple[Path, list[dict[str, str]]]], read_errors
             f"::error file={_github_property(error['file'])},line=1,title=Unreadable invoice::"
             f"{_github_message(error['error'])}"
         )
+    if not lines:
+        lines.append(
+            f"::notice title=E-invoice preflight::Passed: {len(reports)} invoice(s), "
+            "no defects found in the supported checks."
+        )
     return "\n".join(lines) + ("\n" if lines else "")
 
 
@@ -220,6 +232,33 @@ def _positive_int(value: str) -> int:
     if parsed < 1:
         raise argparse.ArgumentTypeError("must be a positive integer")
     return parsed
+
+
+def _collect_invoice_paths(root: Path, max_depth: int | None) -> list[Path]:
+    """List JSON/XML/PDF invoices under root without following directory links.
+
+    ``--max-depth`` matches ``find -maxdepth``: 1 is files in the scan root,
+    2 includes one subdirectory, and so on. Deeper directories are not walked
+    so a nested export dump cannot expand a CI job.
+    """
+    paths: list[Path] = []
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        current = Path(dirpath)
+        try:
+            relative_dir = current.relative_to(root)
+        except ValueError:
+            dirnames.clear()
+            continue
+        depth = 0 if relative_dir == Path(".") else len(relative_dir.parts)
+        if max_depth is not None and depth + 1 >= max_depth:
+            dirnames.clear()
+        for name in filenames:
+            path = current / name
+            if path.suffix.lower() not in {".json", ".xml", ".pdf"}:
+                continue
+            if path.is_symlink() or path.is_file():
+                paths.append(path)
+    return sorted(paths)
 
 
 def _read_limited(stream: Any, limit: int | None) -> bytes:
@@ -332,6 +371,7 @@ def _jsonl_report(
 def _summary_report(
     reports: list[tuple[Path, list[dict[str, str]]]],
     read_errors: list[dict[str, str]],
+    envelopes: dict[str, str] | None = None,
 ) -> str:
     """Build a compact, privacy-safe batch summary for CI logs."""
     findings = [error for _, errors in reports for error in errors]
@@ -348,6 +388,8 @@ def _summary_report(
     ]
     if rule_counts:
         lines.append("Rules: " + ", ".join(f"{rule}={count}" for rule, count in sorted(rule_counts.items())))
+    for path, note in (envelopes or {}).items():
+        lines.append(f"{path}: {note}")
     return "\n".join(lines) + "\n"
 
 
@@ -384,6 +426,43 @@ def _remediation_report(
         "items": items,
         "read_errors": read_errors,
     }
+
+
+def _remediation_csv_report(
+    reports: list[tuple[Path, list[dict[str, str]]]],
+    read_errors: list[dict[str, str]],
+) -> str:
+    """Build one spreadsheet row per rule across the batch for triage queues."""
+    grouped: dict[str, dict[str, str | int]] = {}
+    for _, findings in reports:
+        for finding in findings:
+            detail = grouped.setdefault(
+                finding["rule"],
+                {
+                    "rule": finding["rule"],
+                    "occurrences": 0,
+                    "message": finding["message"],
+                    "fix": finding["fix"],
+                },
+            )
+            detail["occurrences"] = int(detail["occurrences"]) + 1
+    rows = [grouped[rule] for rule in sorted(grouped)]
+    if read_errors:
+        rows.append({
+            "rule": "INV-READ",
+            "occurrences": len(read_errors),
+            "message": "Invoice could not be read.",
+            "fix": "Resolve the read error and run the preflight again.",
+        })
+    output = io.StringIO()
+    writer = csv.DictWriter(
+        output,
+        fieldnames=("rule", "occurrences", "message", "fix"),
+        lineterminator="\n",
+    )
+    writer.writeheader()
+    writer.writerows(rows)
+    return output.getvalue()
 
 
 def _checklist_report(
@@ -535,7 +614,7 @@ def _html_report(
             f'<td>{text(rule_fixes[rule])}</td></tr>'
             for rule, count in sorted(rule_counts.items())
         )
-        summary = f'<section id="finding-summary"><h2>Finding summary</h2><table><caption>Findings grouped by validation rule</caption><thead><tr><th scope="col">Rule</th><th scope="col">Occurrences</th><th scope="col">Check</th><th scope="col">Recommended fix</th></tr></thead><tbody>{rows}</tbody></table></section>'
+        summary = f'<section id="finding-summary" aria-labelledby="finding-summary-heading"><h2 id="finding-summary-heading">Finding summary</h2><table><caption>Findings grouped by validation rule</caption><thead><tr><th scope="col">Rule</th><th scope="col">Occurrences</th><th scope="col">Check</th><th scope="col">Recommended fix</th></tr></thead><tbody>{rows}</tbody></table></section>'
 
     sections = []
     for index, (path, errors) in enumerate(reports):
@@ -545,14 +624,15 @@ def _html_report(
                 f'<li><strong>{text(error["rule"])}</strong> at <code>{text(error["path"] or "/")}</code><br>{text(error["message"])}<br><span class="fix">Fix: {text(error["fix"])}</span></li>'
                 for error in errors
             )
-            body = f'<p class="status fail">FAIL</p><ul>{findings}</ul>'
+            body = f'<p class="status fail" role="status">FAIL</p><ul>{findings}</ul>'
         else:
-            body = '<p class="status pass">PASS</p><p>No defects found in the supported checks.</p>'
-        sections.append(f'<article id="{section_id}"><h2><code>{text(path.as_posix())}</code></h2>{body}</article>')
+            body = '<p class="status pass" role="status">PASS</p><p>No defects found in the supported checks.</p>'
+        heading_id = f"{section_id}-heading"
+        sections.append(f'<article id="{section_id}" aria-labelledby="{heading_id}"><h2 id="{heading_id}"><code>{text(path.as_posix())}</code></h2>{body}</article>')
     read_section = ""
     if read_errors:
         items = "".join(f'<li><code>{text(error["file"])}</code>: {text(error["error"])}</li>' for error in read_errors)
-        read_section = f'<section id="read-errors"><h2>Read errors</h2><ul>{items}</ul></section>'
+        read_section = f'<section id="read-errors" aria-labelledby="read-errors-heading"><h2 id="read-errors-heading">Read errors</h2><ul>{items}</ul></section>'
     accent = "#a61b1b" if overall == "FAIL" else "#116329"
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -565,10 +645,10 @@ h1 {{ margin-top: 0; }} h2 {{ font-size: 1.05rem; }} .overall {{ color: {accent}
 .metrics {{ display: flex; flex-wrap: wrap; gap: .75rem; }} .metric {{ min-width: 7rem; background: #eef2f6; border-radius: 8px; padding: .75rem; }}
 .metric strong, .metric span {{ display: block; }} .metric strong {{ font-size: 1.5rem; }} .metric span {{ color: #52606d; font-size: .85rem; }}
  table {{ border-collapse: collapse; width: 100%; }} th, td {{ border-bottom: 1px solid #e4e7eb; padding: .6rem; text-align: left; vertical-align: top; }}
- a {{ color: #075985; }} .skip-link {{ position: absolute; left: -9999px; }} .skip-link:focus {{ left: 1rem; top: 1rem; background: white; padding: .5rem; z-index: 1; }}
+ a {{ color: #075985; }} .skip-link {{ position: absolute; left: -9999px; top: auto; }} .skip-link:focus {{ left: 1rem; top: 1rem; background: white; padding: .5rem; z-index: 1; }}
 .status {{ font-weight: 700; }} .pass {{ color: #116329; }} .fail {{ color: #a61b1b; }} .fix, footer {{ color: #52606d; }} li {{ margin: .7rem 0; }} code {{ overflow-wrap: anywhere; }} footer {{ font-size: .85rem; margin-top: 1.5rem; }}
- </style></head><body><a class="skip-link" href="#report-content">Skip to report content</a><header><h1>E-invoice preflight</h1><p class="overall" role="status">Overall: {text(overall)}</p><div class="metrics">{metrics}</div></header>
- <main id="report-content"><nav aria-label="Report sections">{'<a href="#finding-summary">Finding summary</a>' if rule_counts else ''}{' | ' if rule_counts and read_errors else ''}{'<a href="#read-errors">Read errors</a>' if read_errors else ''}</nav>{summary}{''.join(sections)}{read_section}</main><footer>This local report is an observation, not a declaration that an invoice is valid or compliant. It contains no invoice values or line contents. Review and verify output before relying on it; this tool is not tax or legal advice.</footer>
+ </style></head><body><a class="skip-link" href="#report-content">Skip to report content</a><header aria-labelledby="report-title"><h1 id="report-title">E-invoice preflight</h1><p class="overall" role="status">Overall: {text(overall)}</p><div class="metrics" aria-label="Report metrics">{metrics}</div></header>
+ <main id="report-content" aria-label="Preflight report"><nav aria-label="Report sections">{'<a href="#finding-summary">Finding summary</a>' if rule_counts else ''}{' | ' if rule_counts and read_errors else ''}{'<a href="#read-errors">Read errors</a>' if read_errors else ''}</nav>{summary}{''.join(sections)}{read_section}</main><footer>This local report is an observation, not a declaration that an invoice is valid or compliant. It contains no invoice values or line contents. Review and verify output before relying on it; this tool is not tax or legal advice.</footer>
 </body></html>
 '''
 
@@ -601,10 +681,10 @@ def _markdown_text(value: str) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="Check a local JSON or UBL XML e-invoice before submission. No tax advice or submission.")
+    parser = argparse.ArgumentParser(description="Check a local JSON, UBL XML, UN/CEFACT CII, or Factur-X PDF e-invoice before submission. No tax advice or submission.")
     parser.add_argument("--version", action="version", version=f"einvoice-preflight {VERSION}")
-    parser.add_argument("invoice", type=Path, help="JSON/XML file, directory of JSON/XML files, or '-' for stdin")
-    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
+    parser.add_argument("invoice", type=Path, help="JSON/XML/PDF file, directory of those files, or '-' for stdin")
+    parser.add_argument("--format", choices=("text", "summary", "json", "jsonl", "remediation", "remediation-csv", "checklist", "markdown", "html", "csv", "junit", "sarif", "github"), default="text")
     parser.add_argument("--usage-file", help="opt-in local aggregate event counter")
     parser.add_argument("--output", help="write the report to this local file atomically instead of stdout")
     parser.add_argument(
@@ -617,6 +697,11 @@ def main(argv: list[str] | None = None) -> int:
         type=_positive_int,
         help="refuse an input invoice larger than this many bytes",
     )
+    parser.add_argument(
+        "--max-depth",
+        type=_positive_int,
+        help="refuse to walk more than this many path components below a directory (1 is the scan root only)",
+    )
     args = parser.parse_args(argv)
     if args.usage_file:
         # Count attempted invocations separately from successfully parsed files.
@@ -624,6 +709,7 @@ def main(argv: list[str] | None = None) -> int:
     reports: list[tuple[Path, list[dict[str, str]]]] = []
     invoices: list[tuple[Path, Any]] = []
     read_errors: list[dict[str, str]] = []
+    envelopes: dict[str, str] = {}
     if str(args.invoice) == "-":
         stdin = getattr(sys.stdin, "buffer", sys.stdin)
         try:
@@ -634,20 +720,17 @@ def main(argv: list[str] | None = None) -> int:
         sources = [] if source is None else [(Path("stdin.json"), source)]
     elif args.invoice.is_dir():
         # Keep a directory scan inside its selected root instead of following
-        # symlinks into an unrelated location.
-        paths = sorted(
-            path for pattern in ("*.json", "*.xml")
-            for path in args.invoice.rglob(pattern)
-            if path.is_file() or path.is_symlink()
-        )
+        # symlinks into an unrelated location, and stop descending when
+        # --max-depth is set so a nested dump cannot expand the walk.
+        paths = _collect_invoice_paths(args.invoice, args.max_depth)
         if not paths:
-            read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON or XML invoices found."})
+            read_errors.append({"file": args.invoice.as_posix(), "error": "No JSON, XML, or PDF invoices found."})
             sources = []
         elif args.max_files is not None and len(paths) > args.max_files:
             read_errors.append({
                 "file": args.invoice.as_posix(),
                 "error": (
-                    f"Directory contains {len(paths)} JSON/XML invoices, exceeding "
+                    f"Directory contains {len(paths)} JSON/XML/PDF invoices, exceeding "
                     f"--max-files {args.max_files}. Refusing to scan."
                 ),
             })
@@ -673,9 +756,23 @@ def main(argv: list[str] | None = None) -> int:
         report_path = invoice_path if args.invoice.is_dir() or str(args.invoice) == "-" else Path(invoice_path.name)
         try:
             raw = source if source is not None else _read_file_limited(invoice_path, args.max_bytes)
-            is_xml = report_path.suffix.lower() == ".xml" or raw.lstrip().startswith(b"<")
-            invoice = parse_ubl_invoice(raw) if is_xml else json.loads(raw)
-        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError) as exc:
+            if looks_like_pdf(raw):
+                raw, label = extract_embedded_invoice(raw)
+                try:
+                    syntax = detect_syntax(raw)
+                except DocumentError:
+                    syntax = "ubl"
+                envelopes[report_path.as_posix()] = envelope_note(label, syntax)
+            is_xml = report_path.suffix.lower() in {".xml", ".pdf"} or raw.lstrip().startswith(b"<")
+            if is_xml:
+                try:
+                    syntax = detect_syntax(raw)
+                except DocumentError:
+                    syntax = "ubl"
+                invoice = parse_cii_invoice(raw) if syntax == "cii" else parse_ubl_invoice(raw)
+            else:
+                invoice = json.loads(raw)
+        except (OSError, UnicodeDecodeError, ValueError, json.JSONDecodeError, DocumentError, EmbeddedInvoiceError) as exc:
             read_errors.append({"file": report_path.as_posix(), "error": str(exc)})
             continue
         reports.append((report_path, check_invoice(invoice)))
@@ -692,11 +789,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.format == "json":
         report = json.dumps(_json_report(reports, read_errors), indent=2) + "\n"
     elif args.format == "summary":
-        report = _summary_report(reports, read_errors)
+        report = _summary_report(reports, read_errors, envelopes)
     elif args.format == "jsonl":
         report = _jsonl_report(reports, read_errors)
     elif args.format == "remediation":
         report = json.dumps(_remediation_report(reports, read_errors), indent=2) + "\n"
+    elif args.format == "remediation-csv":
+        report = _remediation_csv_report(reports, read_errors)
     elif args.format == "checklist":
         report = _checklist_report(reports, read_errors)
     elif args.format == "markdown":
@@ -734,4 +833,6 @@ def main(argv: list[str] | None = None) -> int:
             return 2
     else:
         print(report, end="")
+    if args.usage_file and args.format == "github":
+        _record_usage(args.usage_file, "invoice_preflight_github_report")
     return 2 if has_read_errors else (0 if not errors else 1)

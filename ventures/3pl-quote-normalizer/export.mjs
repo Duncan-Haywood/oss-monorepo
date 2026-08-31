@@ -32,6 +32,29 @@ export function exportCsv(result) {
   return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
 }
 
+export function exportJson(result) {
+  if (!result || !result.quote || !Array.isArray(result.components) || !Array.isArray(result.warnings)) {
+    throw new TypeError("A calculated quote result is required");
+  }
+  const lineItems = Object.fromEntries(result.components.map((component) => [labels[component] || component, Number(result.quote[component].toFixed(2))]));
+  return JSON.stringify({
+    schema_version: 1,
+    product: "3PL Quote Normalizer",
+    status: "calculated",
+    monthly_orders: result.orders,
+    line_items: lineItems,
+    subtotal_before_minimum: Number(result.quote.subtotal.toFixed(2)),
+    minimum_charge_applied: result.minimumApplied,
+    total_estimated_3pl_cost: Number(result.quote.total.toFixed(2)),
+    true_3pl_cost_per_order: Number(result.perOrder.toFixed(2)),
+    in_house_estimate: Number(result.inHouse.toFixed(2)),
+    difference_in_house_minus_3pl: Number(result.delta.toFixed(2)),
+    break_even_orders_per_month: Math.ceil(result.breakEvenOrders),
+    warnings: result.warnings,
+    review_note: "Verify every rate, assumption, contract term, and operational requirement before relying on this record.",
+  }, null, 2) + "\n";
+}
+
 export function exportComparisonCsv(result, firstName = "Quote A", secondName = "Quote B") {
   if (!result || result.error) throw new TypeError("A valid comparison result is required");
   const rows = [["3PL quote comparison", "Value"],

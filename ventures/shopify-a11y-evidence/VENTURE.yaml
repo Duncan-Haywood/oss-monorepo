@@ -11,6 +11,14 @@ hypotheses:
     status: untested
     checked: null
     evidence: customer-contact
+  - claim: Agencies will reuse a local hour-and-quote estimate from one axe export instead of pricing each rule by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Merchants and agencies will reuse a local before/after axe diff instead of reading two dashboards to see what a fix changed.
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

@@ -1,0 +1,32 @@
+name: asphalt-driveway-pave-bid-calculator
+description: A private browser calculator for paving contractors that prices an asphalt driveway from overlay, mill-and-overlay, or full-depth replacement — square footage, thickness, street apron, failed base, and sawcut — and shows the mix tons, the extra-work share, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent paving shops will use a method-and-thickness bid calculator because the generic "$3.50 a square foot" or published overlay price they are shopped on cannot see that 800 sq ft of sound asphalt is a different job from 1,000 sq ft with a failed base and a 4-inch street apron.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-square-foot special) are the two figures a shop actually decides on when a homeowner asks them to match a cheaper overlay quote on a full-depth driveway.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing overlay, mill-and-overlay, and full-depth on the same driveway, with mix tons from thickness, changes the bid enough that shops notice which method keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified paving shops use the calculator twice within 90 days.
+  - Shops report that splitting method, thickness, apron, and failed base is more work than their existing per-square-foot method without changing the price they would have bid.
+  - The starting hours and mix rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

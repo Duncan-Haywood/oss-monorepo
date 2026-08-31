@@ -17,12 +17,12 @@ Status: `ready` | `in_progress` | `done`
 
 - [ ] **ready** — Edge CLI: periodic `--sample` batch mode simulating a day of entries/exits/bounces
 - [ ] **ready** — Funnel join module in `packages/analytics` (shared by CLI + future LAN API)
-- [ ] **ready** — Small read-only LAN API (Node HTTP) serving latest KPIs from SQLite for portal
+- [x] **done** — Small read-only LAN API (Node HTTP) serving latest KPIs from SQLite for portal (`serve-kpis`)
 
 ### [portal] Operator truth
 
-- [ ] **ready** — Portal env flag `VITE_PILOT_API_URL` → fetch KPIs when set; fallback to `demoStore.ts`
-- [ ] **ready** — Overview page: show data source badge (`live` vs `illustrative`)
+- [x] **done** — Portal env flag `VITE_PILOT_API_URL` → fetch KPIs when set; fallback to `demoStore.ts`
+- [x] **done** — Overview page: show data source badge (`live` vs `illustrative`)
 
 ### [gtm] Sales enablement
 

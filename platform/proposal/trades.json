@@ -1,0 +1,3483 @@
+{
+  "artificial-turf-bid-calculator": {
+    "jobTitle": "Artificial turf installation — {lawnSqFt~0} sq ft",
+    "fields": {
+      "turfLabel": {
+        "select": "turfType"
+      }
+    },
+    "scope": [
+      "Remove {sodDepthIn} in of existing sod and haul it away",
+      "Supply and install {lawnSqFt~0} sq ft of {turfLabel}",
+      "Compacted crushed-stone base, {baseDepthIn} in deep ({crushedTons~2} tons)",
+      {
+        "line": "Weed barrier fabric over the prepared base",
+        "when": "geotextile"
+      },
+      {
+        "line": "{seamLf~0} lf of seamed joints, glued and nailed",
+        "when": "seamLf"
+      },
+      {
+        "line": "{perimeterLf~0} lf of secured perimeter edge",
+        "when": "perimeterLf"
+      },
+      {
+        "line": "Cut and finish {treeWells} tree well{treeWells+s}",
+        "when": "treeWells"
+      },
+      "Brush in {infillBags~0} bags of infill and power-broom the pile upright",
+      "Site left clean and swept on completion"
+    ],
+    "placeholders": {
+      "companyName": "Evergreen Turf & Hardscape LLC",
+      "scope": "Install 900 sq ft of pet turf over 4 in of compacted base",
+      "exclusions": "Irrigation removal or capping\nDrainage beyond the base layer",
+      "notes": "Turf brushed and infilled on completion. Offcuts removed the same day."
+    },
+    "disclaimerTail": "It is not a drainage design or a determination that the existing grade will shed water."
+  },
+  "asphalt-driveway-pave-bid-calculator": {
+    "jobTitle": "Asphalt driveway — {drivewaySqFt~0} sq ft",
+    "fields": {
+      "methodLabel": {
+        "select": "method"
+      }
+    },
+    "scope": [
+      "{methodLabel} across {drivewaySqFt~0} sq ft of driveway",
+      "Place {newMixTons~2} tons of hot-mix asphalt at {thicknessIn} in compacted",
+      {
+        "line": "Mill {millDepthIn} in and haul off {millTons~2} tons of grindings",
+        "when": "millTons"
+      },
+      {
+        "line": "Remove and dispose of {demoTons~2} tons of existing pavement",
+        "when": "demoTons"
+      },
+      {
+        "line": "Place {baseTons~2} tons of compacted stone base",
+        "when": "baseTons"
+      },
+      {
+        "line": "Repair {failedBaseSqFt~0} sq ft of failed base",
+        "when": "failedBaseSqFt"
+      },
+      {
+        "line": "Saw-cut {sawcutLf} lf of clean edge",
+        "when": "sawcutLf"
+      },
+      {
+        "line": "Pave {apronSqFt~0} sq ft of apron at {apronThicknessIn} in",
+        "when": "apronSqFt"
+      },
+      {
+        "line": "Geotextile fabric under the new base",
+        "when": "fabric"
+      },
+      "Roll to grade, seal the joints, and leave the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Kestrel Paving LLC",
+      "scope": "Mill and overlay 1,200 sq ft at 2 in compacted\nNew apron at the street",
+      "exclusions": "Drainage structures or catch basins\nSealcoating (recommended after one season)",
+      "notes": "Keep vehicles off for 72 hours in warm weather."
+    },
+    "disclaimerTail": "It is not a pavement design, a subgrade evaluation, or a drainage determination."
+  },
+  "asphalt-sealcoat-bid-calculator": {
+    "jobTitle": "Asphalt sealcoating — {totalSquareFeet~0} sq ft",
+    "fields": {
+      "conditionLabel": {
+        "select": "condition"
+      },
+      "methodLabel": {
+        "select": "method"
+      }
+    },
+    "scope": [
+      "Sealcoat {totalSquareFeet~0} sq ft — {coatPasses} coat pass{coatPasses+es}, applied by {methodLabel}",
+      "Surface condition allowed for: {conditionLabel}",
+      "Blow, sweep and clean the surface before application",
+      {
+        "line": "Fill and seal cracks before coating",
+        "when": "crackCost"
+      },
+      {
+        "line": "Sand added to the mix for traction ({sandBags~0} bags)",
+        "when": "sandBags"
+      },
+      {
+        "line": "Prime {primerGallons~2} gal of oil-spotted areas",
+        "when": "primerGallons"
+      },
+      "Barricade the surface and leave it to cure"
+    ],
+    "placeholders": {
+      "companyName": "Blackline Sealcoating LLC",
+      "scope": "Sealcoat 6,000 sq ft, two passes\nCrack-fill before coating",
+      "exclusions": "Line striping\nPatching or pothole repair",
+      "notes": "Keep off for 24 hours; 48 in cool weather."
+    },
+    "disclaimerTail": "Sealer protects the surface; it is not a structural repair and does not extend a failing base."
+  },
+  "automatic-driveway-gate-bid-calculator": {
+    "jobTitle": "Automatic driveway gate — {openingWidthFt} ft opening",
+    "fields": {
+      "styleLabel": {
+        "select": "style"
+      },
+      "materialLabel": {
+        "select": "material"
+      },
+      "columnLabel": {
+        "select": "columnType"
+      },
+      "powerLabel": {
+        "select": "power"
+      }
+    },
+    "scope": [
+      "Supply and install a {materialLabel} {styleLabel} gate, {openingWidthFt} ft opening × {leafHeightFt} ft leaf",
+      "Fit {operators} gate operator{operators+s} with safety photo-eyes",
+      "Posts and columns: {columnLabel}",
+      "Power: {powerLabel}",
+      {
+        "line": "Install {loops} vehicle detection loop{loops+s}",
+        "when": "loops"
+      },
+      {
+        "line": "Fit a keypad entry",
+        "when": "keypad"
+      },
+      {
+        "line": "Battery backup for power outages",
+        "when": "batteryBackup"
+      },
+      {
+        "line": "Fit {edgeSensors} safety edge sensor{edgeSensors+s}",
+        "when": "edgeSensors"
+      },
+      {
+        "line": "Supply {extraRemotes} additional remote{extraRemotes+s}",
+        "when": "extraRemotes"
+      },
+      "Set travel limits, test the reversing safeties, and hand over the operating instructions"
+    ],
+    "placeholders": {
+      "companyName": "Ironline Gate Systems LLC",
+      "scope": "16 ft dual-swing aluminum gate on new steel posts\nAC power, keypad and two remotes",
+      "exclusions": "Trenching across a finished driveway\nIntercom or camera integration",
+      "notes": "Safety edges and photo-eyes tested on handover."
+    },
+    "disclaimerTail": "Automated gates carry entrapment risk; installation is quoted to the manufacturer’s instructions and applicable safety standards, and this is not a safety certification."
+  },
+  "boiler-replacement-bid-calculator": {
+    "jobTitle": "Boiler replacement — {inputMbh} MBH",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "like-for-like": "Like-for-like boiler swap",
+          "condensing-upgrade": "Condensing boiler upgrade with new venting and condensate",
+          "steam-to-hw": "Steam-to-hot-water conversion"
+        }
+      },
+      "systemLabel": {
+        "select": "system"
+      },
+      "fuelLabel": {
+        "select": "fuel"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {systemLabel}, {fuelLabel}",
+      "Supply and install a {inputMbh} MBH boiler serving {zones} zone{zones+s}",
+      {
+        "line": "New venting to {flueHeight} ft",
+        "when": "flueHeight"
+      },
+      {
+        "line": "Fit an indirect domestic hot-water tank",
+        "when": "includeIndirect"
+      },
+      {
+        "line": "Line the existing chimney",
+        "when": "includeLiner"
+      },
+      {
+        "line": "Convert the plant from oil to gas",
+        "when": "includeOilToGas"
+      },
+      {
+        "line": "Primary/secondary piping with a low-loss header",
+        "when": "includePrimarySecondary"
+      },
+      "Fill, purge and balance the system, commission the boiler, and leave the controls set"
+    ],
+    "placeholders": {
+      "companyName": "Northgate Hydronics LLC",
+      "companyLicense": "MA-PL-21877",
+      "scope": "Replace the 100 MBH boiler, 3 zones\nNew venting and condensate",
+      "exclusions": "Radiator or baseboard replacement\nAsbestos abatement of existing pipe insulation",
+      "notes": "Old boiler removed the same day. Combustion analysis recorded on commissioning."
+    },
+    "disclaimerTail": "It is not a heat-loss calculation, a combustion-air assessment, or a gas-supply sizing determination."
+  },
+  "cabinet-refinishing-bid-calculator": {
+    "jobTitle": "Cabinet refinishing — {pieceCount} pieces",
+    "fields": {
+      "finishLabel": {
+        "select": "finishId"
+      },
+      "colorLabel": {
+        "select": "colorId"
+      }
+    },
+    "scope": [
+      "Refinish {doors} door{doors+s} and {drawers} drawer front{drawers+s}",
+      {
+        "line": "Finish {openings} cabinet opening{openings+s} in place",
+        "when": "openings"
+      },
+      "Method: {finishLabel}",
+      "Colour change: {colorLabel}",
+      "Degrease, scuff-sand, and prime every surface before finish coats",
+      "{totalCoats} finish coat{totalCoats+s} applied",
+      {
+        "line": "Fit {hardwarePieces} piece{hardwarePieces+s} of new hardware",
+        "when": "replaceHardware"
+      },
+      "Re-hang, align and adjust every door and drawer on completion"
+    ],
+    "placeholders": {
+      "companyName": "Fair Grain Finishing LLC",
+      "scope": "Refinish 24 doors and 8 drawer fronts\nSpray finish, doors off-site",
+      "exclusions": "Replacing cabinet boxes or door slabs\nCountertop or backsplash work",
+      "notes": "Doors numbered and returned to the same openings."
+    },
+    "disclaimerTail": "Finish adhesion depends on the existing coating; areas of failed or contaminated finish may need extra preparation."
+  },
+  "carpet-cleaning-bid-calculator": {
+    "jobTitle": "Carpet cleaning — {roomCount} rooms",
+    "priceField": "quotedPrice",
+    "scope": [
+      "Hot-water extraction of {roomCount} room{roomCount+s}, {totalSquareFeet~0} sq ft",
+      {
+        "line": "Pet treatment in {petRoomCount} room{petRoomCount+s}",
+        "when": "petRoomCount"
+      },
+      {
+        "line": "Clean {stairFlights} flight{stairFlights+s} of stairs",
+        "when": "stairFlights"
+      },
+      {
+        "line": "Clean {upholstery.length} upholstery piece{upholstery.length+s}",
+        "when": "upholstery.length"
+      },
+      "Pre-spray, agitate, extract and groom the pile",
+      "Move and replace light furniture; corner blocks under damp legs"
+    ],
+    "placeholders": {
+      "companyName": "Cleanstep Carpet Care LLC",
+      "scope": "Clean 4 rooms and a hall, 900 sq ft\nPet treatment in the back bedroom",
+      "exclusions": "Moving beds, pianos or full bookcases\nRepair of delamination or seam failure",
+      "notes": "Allow 4–6 hours drying with air movement."
+    },
+    "disclaimerTail": "Cleaning cannot guarantee removal of every stain, and pre-existing wear, bleaching or dye loss may become more visible once soil is removed."
+  },
+  "carpet-install-bid-calculator": {
+    "jobTitle": "Carpet installation — {floorSqft~0} sq ft",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "stretch-in": "Stretch-in over new pad",
+          "glue-down": "Glue-down to the subfloor",
+          "double-stick": "Double-stick — pad and carpet both bonded",
+          "carpet-tile": "Modular carpet tile"
+        }
+      },
+      "patternLabel": {
+        "select": "pattern",
+        "map": {
+          "solid": "Solid colour, no pattern match",
+          "textured": "Textured",
+          "patterned": "Patterned, matched across seams",
+          "berber": "Berber / loop"
+        }
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {floorSqft~0} sq ft, {billYards~2} yd² ordered including waste",
+      "Carpet: {patternLabel}",
+      "New pad, tack strip and seam-sealed joints",
+      {
+        "line": "Carpet {stairCount} stair tread{stairCount+s}",
+        "when": "stairCount"
+      },
+      {
+        "line": "Fit {transitionCount} transition strip{transitionCount+s}",
+        "when": "transitionCount"
+      },
+      {
+        "line": "Tear out and dispose of the existing floor covering",
+        "when": "includeTearOut"
+      },
+      {
+        "line": "Move and replace furniture",
+        "when": "includeFurniture"
+      },
+      {
+        "line": "Haul away all debris",
+        "when": "includeHaul"
+      },
+      "Power-stretch, trim and vacuum on completion"
+    ],
+    "placeholders": {
+      "companyName": "Broadloom & Co LLC",
+      "scope": "Install 850 sq ft of carpet and pad\nTear out and haul away the old carpet",
+      "exclusions": "Subfloor repair or levelling\nDoor undercutting beyond 1/2 in",
+      "notes": "Furniture moved and replaced the same day."
+    },
+    "disclaimerTail": "Pattern match and seam placement depend on the goods supplied; visible seams are normal in broadloom carpet."
+  },
+  "chimney-sweep-bid-calculator": {
+    "jobTitle": "Chimney sweep — {totalFlues} flue{totalFlues+s}",
+    "fields": {
+      "creosoteLabel": {
+        "select": "creosote"
+      },
+      "workLabel": {
+        "select": "workType"
+      },
+      "accessLabel": {
+        "select": "roofAccess"
+      }
+    },
+    "scope": [
+      "{workLabel} of {totalFlues} flue{totalFlues+s} on a {stories}-storey chimney",
+      "Deposit level allowed for: {creosoteLabel}",
+      "Roof access: {accessLabel}",
+      {
+        "line": "Remove animals or nesting material from the flue",
+        "when": "animalRemoval"
+      },
+      "Sheet and seal the hearth, sweep under negative pressure, and vacuum the firebox",
+      "Written condition report on completion"
+    ],
+    "placeholders": {
+      "companyName": "Hearth & Flue Services LLC",
+      "scope": "Sweep one flue and carry out a Level 2 inspection\nCamera pass of the full liner",
+      "exclusions": "Masonry repair, relining or crown rebuild\nAppliance repair",
+      "notes": "Drop cloths and HEPA vacuum used throughout."
+    },
+    "disclaimerTail": "A sweep and visual inspection is not a guarantee that the chimney is free of defects; concealed damage may require further investigation."
+  },
+  "concrete-lifting-bid-calculator": {
+    "jobTitle": "Concrete lifting — {slabSqFt~0} sq ft",
+    "fields": {
+      "methodLabel": {
+        "select": "method"
+      },
+      "accessLabel": {
+        "select": "access"
+      }
+    },
+    "scope": [
+      "Lift and level {slabSqFt~0} sq ft of settled slab by {methodLabel}",
+      "Raise an average of {voidInches} in to close the void beneath",
+      "Site access: {accessLabel}",
+      {
+        "line": "Drill {extraHoles} additional injection hole{extraHoles+s}",
+        "when": "extraHoles"
+      },
+      {
+        "line": "Seal the joints and cracks after lifting",
+        "when": "addSeal"
+      },
+      "Patch every injection hole and clean the surface on completion"
+    ],
+    "placeholders": {
+      "companyName": "Levelline Concrete Lifting LLC",
+      "scope": "Lift 80 sq ft of settled walkway by an average of 1 in\nSeal joints after lifting",
+      "exclusions": "Replacing cracked or spalled slabs\nDrainage or downspout re-routing",
+      "notes": "Walkable within an hour of polyurethane injection."
+    },
+    "disclaimerTail": "Lifting corrects elevation; it does not repair cracked concrete, and settlement can recur where the cause of the void remains."
+  },
+  "crawl-space-encapsulation-bid-calculator": {
+    "jobTitle": "Crawl space encapsulation — {floorSqFt~0} sq ft",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "liner": "6-mil vapour barrier over the crawl floor",
+          "encapsulate": "Sealed encapsulation — floor and wall liner",
+          "encapsulate-dehu": "Sealed encapsulation with a commercial dehumidifier"
+        }
+      },
+      "accessLabel": {
+        "select": "access"
+      },
+      "insulationLabel": {
+        "select": "insulation",
+        "map": {
+          "none": "",
+          "belly": "Faced belly batts between the joists",
+          "closed-cell": "Closed-cell foam on the rim and stem wall"
+        }
+      }
+    },
+    "scope": [
+      "{scopeLabel} of a {lengthFt} ft × {widthFt} ft crawl space",
+      "Install {linerSqFt~0} sq ft of reinforced vapour barrier, seams taped and sealed",
+      "Line and seal the walls to {wallHeightIn} in",
+      "Access: {accessLabel}",
+      {
+        "line": "Insulation: {insulationLabel}",
+        "when": "insulationLabel"
+      },
+      {
+        "line": "Remove and dispose of {cleanoutYards} cubic yards of debris",
+        "when": "cleanoutYards"
+      },
+      {
+        "line": "Fit {supportPiers} support pier{supportPiers+s}",
+        "when": "supportPiers"
+      },
+      {
+        "line": "Run a dedicated circuit for the equipment",
+        "when": "dedicatedCircuit"
+      },
+      {
+        "line": "Regrade the exterior at the foundation",
+        "when": "exteriorGrade"
+      },
+      "Seal the vents and hand over the humidity set-points"
+    ],
+    "placeholders": {
+      "companyName": "Dryspan Crawl Space LLC",
+      "scope": "Encapsulate a 900 sq ft crawl space in 12-mil liner\nDehumidifier and sealed vents",
+      "exclusions": "Structural repair of joists or beams\nMould remediation",
+      "notes": "Dehumidifier drains to the sump. Filter change annually."
+    },
+    "disclaimerTail": "It is not a structural assessment, a mould survey, or a radon determination."
+  },
+  "crown-molding-bid-calculator": {
+    "jobTitle": "Crown moulding — {billedFeet~0} lf",
+    "fields": {
+      "gradeLabel": {
+        "select": "grade"
+      },
+      "profileLabel": {
+        "select": "profile",
+        "map": {
+          "simple-cove": "Simple cove profile",
+          "colonial": "Colonial / dentil profile",
+          "built-up": "Built-up profile, stacked pieces"
+        }
+      },
+      "ceilingLabel": {
+        "select": "ceiling",
+        "map": {
+          "flat": "Flat ceiling",
+          "cathedral": "Cathedral / vaulted ceiling",
+          "tray": "Tray / coffered ceiling"
+        }
+      },
+      "heightLabel": {
+        "select": "height"
+      }
+    },
+    "scope": [
+      "Install {linearFeet~0} lf of {profileLabel} crown moulding in {rooms} room{rooms+s}",
+      "Material: {gradeLabel}",
+      "Ceiling: {ceilingLabel}, {heightLabel}",
+      "Cut and fit {insideCorners} inside and {outsideCorners} outside corner{outsideCorners+s}",
+      {
+        "line": "Remove the existing moulding and dispose of it",
+        "when": "includeDemo"
+      },
+      {
+        "line": "Install backing/blocking where the framing does not land",
+        "when": "includeBlocking"
+      },
+      {
+        "line": "Build an LED cove detail",
+        "when": "includeLedCove"
+      },
+      {
+        "line": "Match the existing casing profile",
+        "when": "includeCasingMatch"
+      },
+      "Fill, caulk and sand every joint ready for paint"
+    ],
+    "placeholders": {
+      "companyName": "Cornice & Case Carpentry LLC",
+      "scope": "Install 180 lf of primed MDF crown in four rooms\nCaulk and fill ready for paint",
+      "exclusions": "Painting the installed moulding\nCeiling or drywall repair",
+      "notes": "Corners coped rather than mitred where the walls are out of square."
+    },
+    "disclaimerTail": "Out-of-level ceilings and out-of-square corners are normal in existing houses and are scribed to, not corrected."
+  },
+  "deck-staining-bid-calculator": {
+    "jobTitle": "Deck staining — {stainableSf~0} sq ft",
+    "fields": {
+      "prepLabel": {
+        "select": "prep"
+      },
+      "finishLabel": {
+        "select": "finish"
+      },
+      "accessLabel": {
+        "select": "access"
+      }
+    },
+    "scope": [
+      "Preparation: {prepLabel}",
+      "Apply {finishLabel} — {coats} coat{coats+s} to {stainableSf~0} sq ft",
+      "Deck surface: {deckSqFt~0} sq ft",
+      {
+        "line": "Rails and balusters: {railSf~0} sq ft",
+        "when": "railSf"
+      },
+      {
+        "line": "Stairs: {stairSfTotal~0} sq ft across {stairRuns} run{stairRuns+s}",
+        "when": "stairSfTotal"
+      },
+      "Access: {accessLabel}",
+      {
+        "line": "Move and replace deck furniture",
+        "when": "moveFurniture"
+      },
+      "Mask adjacent siding and plantings; leave the deck swept and the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Cedar & Coat Exteriors LLC",
+      "scope": "Wash, brighten and apply two coats of oil stain to 320 sq ft\nRails and one stair run",
+      "exclusions": "Board or fastener replacement\nStructural repair of framing or posts",
+      "notes": "Keep off for 24 hours; furniture back after 48."
+    },
+    "disclaimerTail": "Stain appearance varies with the age, species and moisture of the boards, and previously failed coatings may not lift completely."
+  },
+  "dryer-vent-bid-calculator": {
+    "jobTitle": "Dryer vent service — {dryerCount} dryer{dryerCount+s}",
+    "fields": {
+      "jobLabel": {
+        "select": "jobType",
+        "map": {
+          "wall": "Single-storey wall-cap termination",
+          "two-story": "Two-storey wall or soffit termination",
+          "roof": "Roof-cap / rooftop termination",
+          "multi": "Multi-dryer / duplex laundry"
+        }
+      }
+    },
+    "scope": [
+      "{jobLabel} — clean {runFeet~0} ft of duct serving {dryerCount} dryer{dryerCount+s}",
+      "Rotary-brush the full run and vacuum the lint at both ends",
+      {
+        "line": "Camera inspection of the duct run",
+        "when": "camera"
+      },
+      {
+        "line": "Replace the flexible transition hose",
+        "when": "flexReplace"
+      },
+      {
+        "line": "Remove a bird nest or blockage from the termination",
+        "when": "nestBlockage"
+      },
+      "Confirm airflow at the termination and reseat the dryer"
+    ],
+    "placeholders": {
+      "companyName": "Clearvent Services LLC",
+      "scope": "Clean a 12 ft wall-cap dryer duct\nReplace the flexible transition hose",
+      "exclusions": "Dryer appliance repair\nRerouting or replacing rigid duct in a wall",
+      "notes": "Airflow checked at the cap before and after."
+    },
+    "disclaimerTail": "Cleaning restores airflow through the existing duct; it is not an assessment that the duct routing or material meets current code."
+  },
+  "drywall-bid-calculator": {
+    "jobTitle": "Drywall — {netHungSqFt~0} sq ft, {finishLabel}",
+    "fields": {
+      "textureLabel": {
+        "select": "textureType"
+      }
+    },
+    "scope": [
+      "Hang {estimatedSheets~0} sheets — {netHungSqFt~0} sq ft of wall and ceiling",
+      "Tape and finish to {finishLabel}",
+      "{tapeLf~0} lf of taped joints and corners",
+      {
+        "line": "Texture: {textureLabel}",
+        "when": "textureLabel"
+      },
+      {
+        "line": "Cut and trim {openingCount} opening{openingCount+s}",
+        "when": "openingCount"
+      },
+      {
+        "line": "Tear out and dispose of the existing board",
+        "when": "tearOff"
+      },
+      "Sand, clean up the dust, and leave the surfaces ready for primer"
+    ],
+    "placeholders": {
+      "companyName": "Plumbline Drywall LLC",
+      "scope": "Hang and finish 1,200 sq ft to Level 4\nKnockdown texture on the ceilings",
+      "exclusions": "Priming and painting\nElectrical or plumbing rough-in",
+      "notes": "Dust contained with plastic and a negative-air machine."
+    },
+    "disclaimerTail": "Finish level is judged under normal lighting; critical or raking light may show variation that a higher finish level is required to avoid."
+  },
+  "duct-cleaning-bid-calculator": {
+    "jobTitle": "Air duct cleaning — {vents} supply vents",
+    "fields": {
+      "jobLabel": {
+        "select": "jobType",
+        "map": {
+          "residential": "Residential whole-house system clean",
+          "two_system": "Two-system / split-level house",
+          "heavy": "Heavy debris / pet hair",
+          "commercial": "Light commercial / multi-zone"
+        }
+      }
+    },
+    "scope": [
+      "{jobLabel} — {systems} system{systems+s}, {vents} supply vent{vents+s}, {returns} return{returns+s}",
+      "Negative-air source removal with brush agitation at every register",
+      {
+        "line": "Clean the evaporator coil",
+        "when": "coil"
+      },
+      {
+        "line": "Apply an EPA-registered sanitiser to the ductwork",
+        "when": "sanitizer"
+      },
+      {
+        "line": "Additional time for heavy debris",
+        "when": "heavyDebris"
+      },
+      "Fit a new filter and confirm the system runs on completion"
+    ],
+    "placeholders": {
+      "companyName": "Clearflow Duct Services LLC",
+      "scope": "Clean one system, 10 supply vents and 2 returns\nNew filter fitted",
+      "exclusions": "Duct sealing, repair or replacement\nMould remediation or air-quality testing",
+      "notes": "Registers removed, cleaned and refitted."
+    },
+    "disclaimerTail": "Duct cleaning removes accumulated debris; it is not an air-quality test, a mould assessment, or a duct-integrity survey."
+  },
+  "egress-window-bid-calculator": {
+    "jobTitle": "Egress window — {windowCount} opening{windowCount+s}",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "retrofit-existing": "Retrofit the existing opening — new sash and well",
+          "new-cut-wood": "New opening cut in a wood-framed wall, with header and flashing",
+          "new-cut-masonry": "New opening cut in block, with a lintel",
+          "new-cut-poured": "New opening cut and cored in poured concrete, with a lintel"
+        }
+      },
+      "windowLabel": {
+        "select": "window",
+        "map": {
+          "vinyl-hopper": "vinyl hopper / awning window",
+          "vinyl-slider": "vinyl slider window",
+          "vinyl-casement": "vinyl casement window",
+          "fiberglass": "fiberglass window"
+        }
+      },
+      "wellLabel": {
+        "select": "well",
+        "map": {
+          "plastic": "moulded composite window well",
+          "steel": "steel window well",
+          "stone": "stone / masonry window well, built in place"
+        }
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {windowCount} egress opening{windowCount+s}",
+      "Supply and fit a {windowLabel}",
+      "Excavate and set a {wellLabel}",
+      "Cut and shore the foundation opening, then set and flash the unit",
+      {
+        "line": "Fit a well cover",
+        "when": "includeCover"
+      },
+      {
+        "line": "Fit an egress ladder or step",
+        "when": "includeLadder"
+      },
+      {
+        "line": "Connect the well drain to the drainage system",
+        "when": "includeDrain"
+      },
+      {
+        "line": "Haul away all spoil and debris",
+        "when": "includeHaul"
+      },
+      {
+        "line": "Finish the interior opening ready for paint",
+        "when": "includeInteriorFinish"
+      },
+      "Backfill, compact and restore the grade around the well"
+    ],
+    "placeholders": {
+      "companyName": "Daylight Egress LLC",
+      "scope": "Cut one basement egress opening and set a casement unit\nComposite well with cover and ladder",
+      "exclusions": "Permit fees paid to the authority\nLandscaping restoration beyond backfill",
+      "notes": "Opening sized to the egress requirement in force locally."
+    },
+    "disclaimerTail": "Egress dimensions and well sizing are set by the authority having jurisdiction; this quote is not a code determination or a permit."
+  },
+  "entry-door-bid-calculator": {
+    "jobTitle": "Entry door replacement",
+    "fields": {
+      "configLabel": {
+        "select": "config"
+      },
+      "materialLabel": {
+        "select": "material"
+      },
+      "hangLabel": {
+        "select": "hangStyle"
+      },
+      "storyLabel": {
+        "select": "stories"
+      }
+    },
+    "scope": [
+      "Supply and install a {materialLabel} {configLabel} — {hangLabel}",
+      "Access: {storyLabel}",
+      {
+        "line": "Remove and dispose of the existing door",
+        "when": "tearOut"
+      },
+      {
+        "line": "Repair {rotFeet} ft of rotted framing or trim",
+        "when": "rotFeet"
+      },
+      {
+        "line": "Shim and adjust for an out-of-square opening",
+        "when": "outOfSquare"
+      },
+      {
+        "line": "Fit a transom above the unit",
+        "when": "addTransom"
+      },
+      {
+        "line": "Fit new exterior brickmould",
+        "when": "addBrickmold"
+      },
+      {
+        "line": "Fit a storm door",
+        "when": "addStormDoor"
+      },
+      {
+        "line": "Fit a smart lock",
+        "when": "addSmartLock"
+      },
+      {
+        "line": "Paint the new unit",
+        "when": "addPaint"
+      },
+      "Flash, insulate and seal the opening; adjust the lock and weatherstrip on completion"
+    ],
+    "placeholders": {
+      "companyName": "Threshold Door & Trim LLC",
+      "scope": "Replace the front door with a 36 in fiberglass prehung unit\nNew brickmould and hardware",
+      "exclusions": "Structural header changes\nInterior trim or drywall repair",
+      "notes": "Opening flashed and sealed before the unit is set."
+    },
+    "disclaimerTail": "It is not a structural assessment of the opening or a determination that concealed framing is sound."
+  },
+  "epoxy-garage-floor-bid-calculator": {
+    "jobTitle": "Garage floor coating",
+    "fields": {
+      "garageLabel": {
+        "select": "garageId"
+      },
+      "systemLabel": {
+        "select": "systemId"
+      },
+      "prepLabel": {
+        "select": "prepId"
+      }
+    },
+    "scope": [
+      "Coat a {garageLabel} with a {systemLabel}",
+      "Surface preparation: {prepLabel}",
+      {
+        "line": "Broadcast {flakePounds~0} lb of decorative flake",
+        "when": "flakePounds"
+      },
+      {
+        "line": "Moisture-mitigation primer under the system",
+        "when": "moistureBarrier"
+      },
+      "Grind, vacuum and repair open cracks and spalls before coating",
+      "Mask the walls and door track; leave the floor cured and the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Hardline Floor Coatings LLC",
+      "scope": "Diamond-grind and coat a two-car garage in flaked polyaspartic",
+      "exclusions": "Slab replacement or levelling\nStorage removal from the garage",
+      "notes": "Foot traffic after 24 hours, vehicles after 72."
+    },
+    "disclaimerTail": "Coating adhesion depends on slab moisture and contamination; a slab with hydrostatic pressure or unresolved moisture can delaminate."
+  },
+  "fireplace-insert-bid-calculator": {
+    "jobTitle": "Fireplace insert installation",
+    "fields": {
+      "fuelLabel": {
+        "select": "fuel"
+      },
+      "sizeLabel": {
+        "select": "size"
+      },
+      "chimneyLabel": {
+        "select": "chimney",
+        "map": {
+          "none": "",
+          "liner": "New stainless liner",
+          "rebuild": "Masonry rebuild and reline"
+        }
+      },
+      "accessLabel": {
+        "select": "access"
+      }
+    },
+    "scope": [
+      "Supply and install a {sizeLabel} {fuelLabel} insert",
+      "Chimney work: {chimneyLabel}",
+      {
+        "line": "Install {linerFeet} ft of stainless liner",
+        "when": "linerFeet"
+      },
+      "Roof access: {accessLabel}",
+      {
+        "line": "Remove and dispose of the existing appliance",
+        "when": "tearOut"
+      },
+      {
+        "line": "Build or extend the hearth to the required clearance",
+        "when": "addHearth"
+      },
+      {
+        "line": "Run a new gas line to the appliance",
+        "when": "addGasLine"
+      },
+      {
+        "line": "Run a dedicated electrical circuit",
+        "when": "addCircuit"
+      },
+      {
+        "line": "Fit a new surround and trim kit",
+        "when": "addSurround"
+      },
+      {
+        "line": "Fit or seal the damper",
+        "when": "addDamper"
+      },
+      "Commission the appliance, test the draft, and hand over the operating instructions"
+    ],
+    "placeholders": {
+      "companyName": "Ember & Stone Hearth LLC",
+      "scope": "Install a medium gas insert with a new stainless liner\nNew surround and trim kit",
+      "exclusions": "Masonry rebuild of the chimney crown or stack\nGas meter or service upgrade",
+      "notes": "Installed to the manufacturer's clearances and commissioned on handover."
+    },
+    "disclaimerTail": "It is not a chimney condition report, a clearance-to-combustibles determination, or a gas-supply sizing assessment."
+  },
+  "flat-roof-bid-calculator": {
+    "jobTitle": "Flat roof — {squares~2} squares",
+    "fields": {
+      "membraneLabel": {
+        "select": "membrane"
+      },
+      "scopeLabel": {
+        "select": "scope"
+      },
+      "storyLabel": {
+        "select": "stories"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {membraneSquares~2} squares of {membraneLabel} over a {lengthFeet} ft × {widthFeet} ft roof",
+      {
+        "line": "Tear off and dispose of {tearOffSquares~2} squares of existing roof",
+        "when": "tearOffSquares"
+      },
+      {
+        "line": "Install {insulationSquares~2} squares of insulation in {insulationLayers} layer{insulationLayers+s}",
+        "when": "insulationSquares"
+      },
+      {
+        "line": "Cover board over the insulation",
+        "when": "includeCoverBoard"
+      },
+      {
+        "line": "Flash {parapetLf~0} lf of parapet wall",
+        "when": "parapetLf"
+      },
+      {
+        "line": "Flash {drainCount} roof drain{drainCount+s}",
+        "when": "drainCount"
+      },
+      {
+        "line": "Flash {curbCount} curb or penetration{curbCount+s}",
+        "when": "curbCount"
+      },
+      {
+        "line": "Install {walkPadSquares~2} squares of walk pad",
+        "when": "walkPadSquares"
+      },
+      "Access: {storyLabel}",
+      "Weld and probe every seam, then leave the roof and grounds clean"
+    ],
+    "placeholders": {
+      "companyName": "Levelseam Roofing LLC",
+      "scope": "Recover 12.5 squares of TPO over a 40×30 garage roof\nFlash two drains and 60 lf of parapet",
+      "exclusions": "Structural deck repair found after tear-off\nInterior ceiling repair",
+      "notes": "Seams probe-tested before handover."
+    },
+    "disclaimerTail": "It is not a roof design, a deck-condition determination, or a drainage calculation; concealed deck damage is priced separately once exposed."
+  },
+  "flooring-bid-calculator": {
+    "jobTitle": "Flooring installation — {installedSqFt~0} sq ft",
+    "scope": [
+      "Supply and install new flooring in the areas listed below",
+      {
+        "each": "rooms",
+        "when": "squareFeet",
+        "line": "{name} — {squareFeet~0} sq ft"
+      },
+      {
+        "line": "Take up and dispose of the existing floor covering",
+        "when": "roomTearoutHours"
+      },
+      {
+        "line": "Level and patch {extras.leveling.count~0} sq ft of subfloor",
+        "when": "extras.leveling.count"
+      },
+      {
+        "line": "Finish {extras.stairs.count~0} stair tread{extras.stairs.count+s}",
+        "when": "extras.stairs.count"
+      },
+      {
+        "line": "Fit {extras.transitions.count~0} transition{extras.transitions.count+s} at doorways and floor changes",
+        "when": "extras.transitions.count"
+      },
+      {
+        "line": "Install {extras.baseboard.count~0} linear ft of baseboard",
+        "when": "extras.baseboard.count"
+      },
+      {
+        "line": "Move and replace furniture in {extras.furniture.count~0} room{extras.furniture.count+s}",
+        "when": "extras.furniture.count"
+      },
+      "Material ordered at {purchasedSqFt~0} sq ft so there is enough for cuts and waste",
+      "Vacuum the work area and remove all installation debris on completion"
+    ],
+    "placeholders": {
+      "companyName": "Rivergate Flooring LLC",
+      "scope": "Living room, kitchen and hallway in luxury vinyl plank\nTake up the existing carpet and pad",
+      "exclusions": "Subfloor replacement or structural repair found once the old floor is up\nAsbestos or lead testing and abatement",
+      "notes": "Acclimate the material on site for 48 hours before install. Please clear breakables from the rooms."
+    },
+    "disclaimerTail": "It is not a subfloor, moisture, or structural assessment; conditions found once the existing floor is up may change the scope."
+  },
+  "french-drain-bid-calculator": {
+    "jobTitle": "French drain — {linearFeet~0} lf",
+    "fields": {
+      "depthLabel": {
+        "select": "depth"
+      },
+      "pipeLabel": {
+        "select": "pipe"
+      },
+      "soilLabel": {
+        "select": "soil"
+      },
+      "outletLabel": {
+        "select": "outlet"
+      }
+    },
+    "scope": [
+      "Excavate and install {linearFeet~0} lf of {depthLabel} french drain",
+      "{pipeLabel} pipe bedded in washed stone and wrapped in filter fabric",
+      "Ground conditions: {soilLabel}",
+      "Outlet: {outletLabel}",
+      {
+        "line": "Run {extraSolidFeet} lf of solid discharge pipe",
+        "when": "extraSolidFeet"
+      },
+      {
+        "line": "Set {catchBasins} catch basin{catchBasins+s}",
+        "when": "addCatchBasins"
+      },
+      {
+        "line": "Tie in {downspoutTies} downspout{downspoutTies+s}",
+        "when": "addDownspouts"
+      },
+      {
+        "line": "Bore or cut {drivewayFeet} ft under the driveway",
+        "when": "addDriveway"
+      },
+      {
+        "line": "Restore the lawn over the trench",
+        "when": "addLawnRestore"
+      },
+      "Backfill, compact and leave the site graded to drain"
+    ],
+    "placeholders": {
+      "companyName": "Watershed Drainage LLC",
+      "scope": "Install 60 lf of 4 in perforated drain at 24 in\nDaylight the outlet at the grade break",
+      "exclusions": "Utility relocation\nRestoration of hardscape crossed by the trench",
+      "notes": "Utility locates called before excavation."
+    },
+    "disclaimerTail": "It is not a hydrological study or a guarantee that the property will not take water in an extreme event."
+  },
+  "gravel-driveway-bid-calculator": {
+    "jobTitle": "Gravel driveway — {areaSqFt~0} sq ft",
+    "fields": {
+      "stoneLabel": {
+        "select": "stone"
+      },
+      "prepLabel": {
+        "select": "prep"
+      },
+      "deliveryLabel": {
+        "select": "delivery"
+      }
+    },
+    "scope": [
+      "Place {paidTons~2} tons of {stoneLabel} over {areaSqFt~0} sq ft at {depthIn} in compacted",
+      "Preparation: {prepLabel}",
+      "Delivery: {deliveryLabel} — {loads~0} load{loads+s}",
+      {
+        "line": "Install {fabricYards~2} yd² of stabilisation fabric under the stone",
+        "when": "fabric"
+      },
+      {
+        "line": "Build a stone apron at the road edge",
+        "when": "apron"
+      },
+      {
+        "line": "Set a driveway culvert",
+        "when": "culvert"
+      },
+      "Grade, crown and roll the surface to shed water"
+    ],
+    "placeholders": {
+      "companyName": "Ridgeway Site Works LLC",
+      "scope": "Regrade and stone a 12 ft × 120 ft drive, 4 in of #57\nCrown and roll to shed water",
+      "exclusions": "Ditching or culvert work beyond the apron\nRemoval of existing pavement",
+      "notes": "Expect the surface to settle; a top-up after one season is normal."
+    },
+    "disclaimerTail": "It is not a drainage design or a determination that the subgrade will carry heavy vehicles."
+  },
+  "gutter-cleaning-bid-calculator": {
+    "jobTitle": "Gutter cleaning — {totalLinearFeet~0} linear ft",
+    "priceField": "visitPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Hand-clear the gutters and flush the downspouts on the runs listed below",
+      {
+        "each": "runs",
+        "when": "linearFeet",
+        "line": "{name} — {linearFeet~0} ft, {storyLabel}"
+      },
+      {
+        "line": "Clear and flush {totalDownspouts~0} downspout{totalDownspouts+s}",
+        "when": "totalDownspouts"
+      },
+      "Bag the debris and remove it from the property",
+      "Leave the downspouts running clear at the outlets"
+    ],
+    "placeholders": {
+      "companyName": "Eaveline Exterior Care LLC",
+      "scope": "Clear all gutters and downspouts\nFlush and check for flow",
+      "exclusions": "Gutter repair, resealing, or re-hanging\nRoof or fascia repair",
+      "notes": "Someone does not need to be home. We will leave a note when the work is done."
+    },
+    "disclaimerTail": "Cleaning clears debris; it is not a roof, gutter, fascia, or drainage inspection, and it is not a warranty against future clogs or overflow."
+  },
+  "gutter-guard-bid-calculator": {
+    "jobTitle": "Gutter guards — {linealFeet} lf",
+    "fields": {
+      "typeLabel": {
+        "select": "jobType",
+        "map": {
+          "screen": "Perforated screen guard",
+          "foam": "Foam insert guard",
+          "reverse": "Reverse-curve / helmet guard",
+          "mesh": "Micromesh / leaf-filter guard"
+        }
+      }
+    },
+    "scope": [
+      "Install {linealFeet} lf of {typeLabel} on a {stories}-storey house",
+      {
+        "line": "Fit guards across {miters} miter{miters+s}",
+        "when": "miters"
+      },
+      {
+        "line": "Fit guards at {downspoutCount} downspout{downspoutCount+s}",
+        "when": "downspoutCount"
+      },
+      {
+        "line": "Clean and flush the gutters before fitting",
+        "when": "cleanFirst"
+      },
+      {
+        "line": "Repair {fasciaRepairFeet} ft of fascia",
+        "when": "fasciaRepairFeet"
+      },
+      "Reseat and refasten loose hangers, then flush-test the runs"
+    ],
+    "placeholders": {
+      "companyName": "Leafline Gutter Protection LLC",
+      "scope": "Fit 140 lf of micromesh guard on a single-storey ranch\nClean and flush before fitting",
+      "exclusions": "Gutter or downspout replacement\nRoof repair",
+      "notes": "Gutters flushed and tested after the guards go on."
+    },
+    "disclaimerTail": "No guard eliminates maintenance; heavy pollen, shingle grit and pine needles still require periodic cleaning."
+  },
+  "gutter-install-bid-calculator": {
+    "jobTitle": "Gutter installation — {gutterFeet~0} lf",
+    "fields": {
+      "profileLabel": {
+        "select": "profile"
+      },
+      "storyLabel": {
+        "select": "stories"
+      }
+    },
+    "scope": [
+      "Install {gutterFeet~0} lf of {profileLabel} seamless gutter",
+      "Fit {downspouts} downspout{downspouts+s} — {downspoutFeet~0} ft of leader",
+      "Form {insideMiters} inside and {outsideMiters} outside miter{outsideMiters+s}",
+      "Access: {storyLabel}",
+      {
+        "line": "Tear off and dispose of the existing gutters",
+        "when": "tearOff"
+      },
+      {
+        "line": "Repair or wrap {fasciaFeet} ft of fascia",
+        "when": "fasciaFeet"
+      },
+      {
+        "line": "Fit hidden hangers throughout",
+        "when": "addHiddenHangers"
+      },
+      "Pitch every run to the outlet, seal the joints, and flush-test on completion"
+    ],
+    "placeholders": {
+      "companyName": "Trueline Gutters LLC",
+      "scope": "Install 140 lf of 6 in K-style aluminium gutter\nFour downspouts to grade",
+      "exclusions": "Underground drainage or dry wells\nFascia replacement beyond the quoted footage",
+      "notes": "Runs flush-tested with a hose before handover."
+    },
+    "disclaimerTail": "Gutter sizing is quoted to the roof area described; it is not a stormwater calculation."
+  },
+  "hardwood-refinishing-bid-calculator": {
+    "jobTitle": "Hardwood refinishing — {finishArea~0} sq ft",
+    "fields": {
+      "methodLabel": {
+        "select": "methodId"
+      },
+      "stainLabel": {
+        "select": "stainId"
+      }
+    },
+    "scope": [
+      "{methodLabel} across {floorSqFt~0} sq ft of floor",
+      "Finish: {stainLabel} — {totalCoats} coat{totalCoats+s}",
+      {
+        "line": "Refinish {treads} stair tread{treads+s}",
+        "when": "treads"
+      },
+      {
+        "line": "Refinish {closets} closet{closets+s}",
+        "when": "closets"
+      },
+      "Dust-contained sanding, edge and corner work by hand",
+      "Vacuum and tack between coats; leave the floor cured and the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Grainwright Floors LLC",
+      "scope": "Full sand and three coats of waterborne finish, 900 sq ft\nStain to a medium walnut",
+      "exclusions": "Board replacement or repair of deep damage\nMoving appliances or a piano",
+      "notes": "Socks-only after 24 hours; rugs back after 10 days."
+    },
+    "disclaimerTail": "Existing boards may reveal colour variation, filled damage, or previous repairs once sanded; a stain sample is the only reliable guide to final colour."
+  },
+  "holiday-light-bid-calculator": {
+    "jobTitle": "Holiday lighting — {eaveLf} lf of roofline",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "hang-only": "Hang your own lights",
+          "hang-and-takedown": "Hang now, take down in January",
+          "full-service": "Full service — hang, take down, and store"
+        }
+      },
+      "storyLabel": {
+        "select": "stories"
+      },
+      "typeLabel": {
+        "select": "lightType",
+        "map": {
+          "c9": "C9 / C7 bulbs on clips",
+          "icicle": "Icicle / mini-curtain along the eave",
+          "commercial-c9": "Commercial-grade LED C9"
+        }
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {eaveLf} lf of {typeLabel} along the roofline",
+      "Access: {storyLabel}",
+      {
+        "line": "Light {peaks} peak{peaks+s}",
+        "when": "peaks"
+      },
+      {
+        "line": "Wrap {trees} tree{trees+s}",
+        "when": "trees"
+      },
+      {
+        "line": "Light {bushes} bush{bushes+es}",
+        "when": "bushes"
+      },
+      {
+        "line": "Wrap {columns} column{columns+s}",
+        "when": "columns"
+      },
+      {
+        "line": "Fit a timer",
+        "when": "includeTimer"
+      },
+      "Install, maintain through the season, then take down and store the product"
+    ],
+    "placeholders": {
+      "companyName": "Northlight Seasonal LLC",
+      "scope": "Install 120 lf of warm-white C9 along the front roofline\nTwo wrapped trees and a timer",
+      "exclusions": "Electrical work beyond the existing exterior outlet\nRoof or gutter repair",
+      "notes": "Takedown and storage included in the season price."
+    },
+    "disclaimerTail": "Clips are fitted to gutters and shingles in the normal way; it is not a roof condition report."
+  },
+  "home-elevator-bid-calculator": {
+    "jobTitle": "Home elevator — {stops} stops",
+    "fields": {
+      "driveLabel": {
+        "select": "drive",
+        "map": {
+          "pneumatic": "Pneumatic vacuum — through-floor, no shaft",
+          "winding-drum": "Winding drum / cable — compact, no machine room",
+          "hydraulic": "Hydraulic — pit and machine closet",
+          "traction-mrl": "Traction, machine-room-less"
+        }
+      },
+      "hoistwayLabel": {
+        "select": "hoistway",
+        "map": {
+          "through-floor": "Through-floor cut, no hoistway",
+          "existing-shaft": "Reuse the existing shaft",
+          "new-wood": "New wood shaft",
+          "new-masonry": "New masonry shaft",
+          "glass": "Glass hoistway"
+        }
+      },
+      "cabLabel": {
+        "select": "cab",
+        "map": {
+          "acrylic": "Acrylic vacuum-tube cab",
+          "standard": "Standard enclosed cab",
+          "wood-panel": "Wood-panel cab",
+          "glass-cab": "Glass cab"
+        }
+      }
+    },
+    "scope": [
+      "Supply and install a {driveLabel} home elevator — {stops} stop{stops+s}, {travelFeet~0} ft of travel",
+      "Rated capacity {capacityLbs} lb",
+      "Hoistway: {hoistwayLabel}",
+      "Cab: {cabLabel}",
+      {
+        "line": "Form the pit",
+        "when": "includePit"
+      },
+      {
+        "line": "Build the machine room",
+        "when": "includeMachineRoom"
+      },
+      {
+        "line": "Fit automatic doors or gates",
+        "when": "includeAutoDoors"
+      },
+      {
+        "line": "Battery lowering on power failure",
+        "when": "includeBattery"
+      },
+      {
+        "line": "Run a dedicated feeder circuit",
+        "when": "includeFeeder"
+      },
+      {
+        "line": "Permit and inspection coordination",
+        "when": "includePermit"
+      },
+      "Commission the unit, test the safeties, and hand over the operating instructions"
+    ],
+    "placeholders": {
+      "companyName": "Vertical Access Elevators LLC",
+      "scope": "Install a two-stop hydraulic home elevator\nBattery lowering and automatic gate",
+      "exclusions": "Framing the hoistway shaft\nFinish carpentry at the landings",
+      "notes": "Third-party inspection scheduled before handover."
+    },
+    "disclaimerTail": "Residential elevators are governed by the elevator code and inspection regime in force locally; this is a price, not a code determination or an inspection."
+  },
+  "hood-cleaning-bid-calculator": {
+    "jobTitle": "Kitchen exhaust cleaning — {hoodCount~0} hood system{hoodCount+s}",
+    "priceField": "jobPrice",
+    "depositPercent": 0,
+    "fields": {
+      "greaseLabel": {
+        "select": "greaseLoad",
+        "map": {
+          "light": "light grease load",
+          "moderate": "moderate grease load",
+          "heavy": "heavy grease load",
+          "extra_heavy": "extra-heavy grease load"
+        }
+      }
+    },
+    "rowFields": {
+      "components": {
+        "name": {
+          "map": {
+            "Canopy hood (listed sq ft)": "sq ft of canopy hood",
+            "Hood filters (each)": "hood filters",
+            "Horizontal duct (linear ft)": "linear ft of horizontal duct",
+            "Vertical duct (linear ft)": "linear ft of vertical duct",
+            "Rooftop exhaust fan (each)": "rooftop exhaust fan",
+            "Wall exhaust fan (each)": "wall exhaust fan",
+            "Makeup-air unit (each)": "makeup-air unit",
+            "Clean-out door work (each)": "clean-out door"
+          }
+        }
+      }
+    },
+    "scope": [
+      "Clean the kitchen exhaust system components listed below",
+      {
+        "each": "components",
+        "when": "quantity",
+        "line": "{quantity~0} {name}"
+      },
+      {
+        "line": "Scheduled for a {greaseLabel}",
+        "when": "greaseLabel"
+      },
+      {
+        "line": "Scrape accessible duct and plenum surfaces to bare metal",
+        "when": "hoursByKind.duct"
+      },
+      {
+        "line": "Clean the fan housing and blade and re-seat the fan on its hinge",
+        "when": "hoursByKind.fan"
+      },
+      "Mask and protect the cooking line, then wash down and degrease the surrounding surfaces",
+      "Leave a dated service record and affix the service sticker",
+      {
+        "line": "Return {cleansPerYear~0} time{cleansPerYear+s} a year on the agreed schedule",
+        "when": "cleansPerYear"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Ashgate Hood & Duct LLC",
+      "scope": "Canopy, filters, horizontal and vertical duct, rooftop fan\nQuarterly service schedule",
+      "exclusions": "Fan motor, bearing, or belt replacement\nAccess panel or clean-out door fabrication",
+      "notes": "Work performed after close. Please leave the roof hatch key and clear the cooking line."
+    },
+    "disclaimerTail": "Cleaning is performed to the accessible surfaces of the system; it is not a fire-code determination, a fire-suppression inspection, or a statement that any required cleaning interval has been met."
+  },
+  "hot-tub-bid-calculator": {
+    "jobTitle": "Hot tub installation",
+    "fields": {
+      "sizeLabel": {
+        "select": "size"
+      },
+      "accessLabel": {
+        "select": "access"
+      },
+      "powerLabel": {
+        "select": "power"
+      }
+    },
+    "scope": [
+      "Deliver, place and commission a {sizeLabel} spa",
+      "Site access: {accessLabel}",
+      "Electrical: {powerLabel}",
+      {
+        "line": "Run {circuitFeet~0} ft of new circuit to the spa disconnect",
+        "when": "circuitFeet"
+      },
+      {
+        "line": "Build the pad the spa sits on",
+        "when": "addPad"
+      },
+      {
+        "line": "Remove and dispose of the existing spa",
+        "when": "addHaul"
+      },
+      {
+        "line": "Fit a cover lift",
+        "when": "addCoverLift"
+      },
+      {
+        "line": "Fit steps",
+        "when": "addSteps"
+      },
+      {
+        "line": "Run a gas line to the heater",
+        "when": "addGas"
+      },
+      "Fill, start up, balance the water, and hand over the operating instructions"
+    ],
+    "placeholders": {
+      "companyName": "Stillwater Spas LLC",
+      "scope": "Deliver and set a six-person spa on the existing pad\nNew 50A GFCI circuit and disconnect",
+      "exclusions": "Crane hire if the path is blocked on the day\nDecking or landscaping repair",
+      "notes": "Water balanced at start-up; first filter clean at four weeks."
+    },
+    "disclaimerTail": "It is not a structural determination that the deck, pad or slab will carry the filled weight of the spa."
+  },
+  "interior-door-bid-calculator": {
+    "jobTitle": "Interior doors — {doorCount} door{doorCount+s}",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "hang-only": "Hang new slabs on the existing jambs",
+          "prehung-swap": "Remove the existing units and set new prehung doors",
+          "new-opening": "Frame a new doorway, hang and case both sides",
+          "pocket-conversion": "Frame a pocket and hang the leaf"
+        }
+      },
+      "doorLabel": {
+        "select": "door",
+        "map": {
+          "hollow-slab": "hollow-core slab",
+          "hollow-prehung": "hollow-core prehung unit",
+          "solid-core": "solid-core prehung unit",
+          "french-or-barn": "French pair or barn door"
+        }
+      },
+      "sizeLabel": {
+        "select": "size"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {doorCount} {sizeLabel} {doorLabel}",
+      "Hang, shim and adjust each unit; fit and mitre the casing",
+      {
+        "line": "Paint the new doors and casing",
+        "when": "includePaint"
+      },
+      {
+        "line": "Fit new door hardware",
+        "when": "includeHardware"
+      },
+      {
+        "line": "Haul away the doors removed",
+        "when": "includeHaul"
+      },
+      "Set the reveals, adjust the latches, and leave every door swinging true"
+    ],
+    "placeholders": {
+      "companyName": "Casing & Jamb Carpentry LLC",
+      "scope": "Replace 8 interior doors with two-panel prehung units\nNew casing and hardware",
+      "exclusions": "Painting walls or trim beyond the casing\nFlooring adjustment under the doors",
+      "notes": "Old doors removed the same day."
+    },
+    "disclaimerTail": "Out-of-square openings and settled framing are normal in existing houses and are shimmed to, not corrected."
+  },
+  "irrigation-install-bid-calculator": {
+    "jobTitle": "Irrigation system — {zones} zones",
+    "fields": {
+      "controllerLabel": {
+        "select": "controller"
+      },
+      "backflowLabel": {
+        "select": "backflow"
+      },
+      "soilLabel": {
+        "select": "soil"
+      }
+    },
+    "scope": [
+      "Install a {zones}-zone irrigation system — {headCount~0} heads",
+      "Fit a {controllerLabel} and a {backflowLabel} backflow preventer",
+      "Pull {trenchFeet~0} ft of pipe; ground conditions: {soilLabel}",
+      {
+        "line": "Add a drip zone for beds",
+        "when": "addDrip"
+      },
+      {
+        "line": "Fit a rain sensor",
+        "when": "addRain"
+      },
+      {
+        "line": "Fit a master valve",
+        "when": "addMaster"
+      },
+      "Flush the lines, set the heads to grade, program the controller, and walk the zones with you"
+    ],
+    "placeholders": {
+      "companyName": "Greenline Irrigation LLC",
+      "scope": "Install a 6-zone system with 36 spray heads\n3/4 in PVB backflow and Wi-Fi controller",
+      "exclusions": "Water meter or service upgrade\nBackflow certification fees paid to the authority",
+      "notes": "Locates called before trenching. Zones walked with you on handover."
+    },
+    "disclaimerTail": "It is not a hydraulic design, a water-pressure guarantee, or a backflow certification."
+  },
+  "irrigation-winterization-bid-calculator": {
+    "jobTitle": "Irrigation winterisation — {totalZones} zones",
+    "fields": {
+      "urgencyLabel": {
+        "select": "freezeWarning",
+        "map": {
+          "no": "",
+          "yes": "Freeze-warning call — scheduled ahead of the forecast freeze"
+        }
+      }
+    },
+    "scope": [
+      "Blow out {totalZones} zone{totalZones+s} across {systems.length} system{systems.length+s}",
+      "Isolate and drain the backflow preventer",
+      "Shut the supply, drain the mainline, and leave the controller in its off season setting",
+      {
+        "line": "{urgencyLabel}",
+        "when": "urgencyLabel"
+      },
+      "Every zone cycled until it runs dry"
+    ],
+    "placeholders": {
+      "companyName": "Greenline Irrigation LLC",
+      "scope": "Blow out an 8-zone system\nDrain and insulate the backflow",
+      "exclusions": "Repair of heads or valves found broken\nSpring start-up (quoted separately)",
+      "notes": "Controller left off. Spring start-up scheduled on request."
+    },
+    "disclaimerTail": "Blow-out reduces freeze risk; it cannot guarantee that components already cracked or holding water will survive the winter."
+  },
+  "janitorial-bid-calculator": {
+    "jobTitle": "Janitorial service — {totalSquareFeet~0} sq ft",
+    "priceField": "monthlyPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Recurring janitorial service for the areas listed below",
+      {
+        "each": "areas",
+        "when": "squareFeet",
+        "line": "{name} — {squareFeet~0} sq ft, {cleaningsPerWeek~1} time{cleaningsPerWeek+s} a week"
+      },
+      {
+        "each": "shifts",
+        "when": "hoursPerShift",
+        "line": "{name} — {people~0} on site {hoursPerShift~1} h, {shiftsPerWeek~1} shift{shiftsPerWeek+s} a week"
+      },
+      {
+        "each": "periodicServices",
+        "when": "occurrencesPerYear",
+        "line": "{name} — {occurrencesPerYear~0} time{occurrencesPerYear+s} a year"
+      },
+      {
+        "each": "projects",
+        "when": "squareFeet",
+        "line": "One-time: {name} — {squareFeet~0} sq ft"
+      },
+      "Supply the labour, equipment, and consumables needed for the scope above",
+      "Secure the premises on leaving and report anything found damaged or unsafe"
+    ],
+    "placeholders": {
+      "companyName": "Meridian Facility Services LLC",
+      "scope": "Nightly service Monday to Friday\nRestrooms serviced and restocked each visit",
+      "exclusions": "Carpet extraction and floor refinishing beyond the periodic schedule\nBiohazard, construction, or post-flood cleanup",
+      "notes": "Crew badged and background-checked. Access and alarm codes to be issued before the start date."
+    },
+    "disclaimerTail": "It is a cleaning service specification, not a disinfection, indoor-air-quality, or infection-control certification."
+  },
+  "junk-removal-bid-calculator": {
+    "jobTitle": "Junk removal — {totalCubicYards~1} cu yd",
+    "priceField": "bidPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Load and haul away the material listed below",
+      {
+        "each": "piles",
+        "when": "quantity",
+        "line": "{quantity~2} × {name}"
+      },
+      {
+        "line": "Estimated at {estimatedTons~2} ton{estimatedTons+s} across {dumpRuns~0} disposal run{dumpRuns+s}",
+        "when": "estimatedTons"
+      },
+      {
+        "line": "Carry the load down stairs from the pickup point",
+        "when": "stairsHours"
+      },
+      {
+        "line": "Long carry between the pickup point and the truck",
+        "when": "longCarryHours"
+      },
+      "Sweep the area once the load is out",
+      "Dispose of everything at a licensed transfer station or recycler"
+    ],
+    "placeholders": {
+      "companyName": "Clearhaul Removal LLC",
+      "scope": "Clear the garage and haul away\nOne mattress and one appliance included",
+      "exclusions": "Hazardous waste, paint, solvents, and chemicals\nItems requiring demolition or disassembly beyond hand tools",
+      "notes": "Volume is estimated from the walkthrough; the final figure is confirmed on the truck before we leave."
+    },
+    "disclaimerTail": "Volumes and weights are estimates made before loading; regulated, hazardous, or over-weight material may require separate handling and is not included."
+  },
+  "kitchen-tile-backsplash-bid-calculator": {
+    "jobTitle": "Tile backsplash — {wallSf~0} sq ft",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "tile-only": "Tile the prepared wall",
+          "new-prep": "Cement board or membrane, then tile",
+          "demo-and-replace": "Remove the existing splash, then tile"
+        }
+      },
+      "patternLabel": {
+        "select": "pattern",
+        "map": {
+          "subway-running": "subway running-bond",
+          "herringbone": "herringbone",
+          "mosaic": "mosaic sheet",
+          "large-format": "large-format tile"
+        }
+      },
+      "wallLabel": {
+        "select": "wall"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {wallSf~0} sq ft of backsplash, {patternLabel}",
+      "Substrate: {wallLabel}",
+      "Set, grout and seal the tile; {edgeLf~0} lf of finished edge",
+      {
+        "line": "Cut around {outlets} outlet{outlets+s} and switch{outlets+es}",
+        "when": "outlets"
+      },
+      {
+        "line": "Cut and fit around the cooktop or range hood",
+        "when": "includeCooktop"
+      },
+      {
+        "line": "Fit Schluter metal edge profile",
+        "when": "includeSchluter"
+      },
+      {
+        "line": "Set an accent band or feature area",
+        "when": "includeAccent"
+      },
+      "Mask the counters and cabinets; leave the kitchen clean and the tile wiped down"
+    ],
+    "placeholders": {
+      "companyName": "Setline Tile LLC",
+      "scope": "Install 32 sq ft of subway tile backsplash\nSchluter edge and sealed grout",
+      "exclusions": "Electrical work to relocate outlets\nCountertop or cabinet modification",
+      "notes": "Grout sealed 48 hours after setting."
+    },
+    "disclaimerTail": "Natural stone and handmade tile vary in colour and size between production runs; layout is set to the walls as found."
+  },
+  "landscape-lighting-bid-calculator": {
+    "jobTitle": "Landscape lighting — {fixtureCount} fixtures",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "fixtures-only": "New fixtures on the existing transformer",
+          "new-system": "New system — trench, wire and transformer",
+          "existing-add-on": "Add-on to the existing system"
+        }
+      },
+      "soilLabel": {
+        "select": "soil"
+      },
+      "transformerLabel": {
+        "select": "transformer"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {fixtureCount} low-voltage fixture{fixtureCount+s}",
+      {
+        "line": "{pathLights} path light{pathLights+s}",
+        "when": "pathLights"
+      },
+      {
+        "line": "{uplights} uplight{uplights+s}",
+        "when": "uplights"
+      },
+      {
+        "line": "{wellLights} well light{wellLights+s}",
+        "when": "wellLights"
+      },
+      {
+        "line": "{hardscapeLights} hardscape light{hardscapeLights+s}",
+        "when": "hardscapeLights"
+      },
+      "Fit a {transformerLabel} and bury {trenchLf~0} lf of cable",
+      "Ground conditions: {soilLabel}",
+      {
+        "line": "Fit a photocell",
+        "when": "includePhotocell"
+      },
+      {
+        "line": "Saw-cut and restore hardscape for the cable run",
+        "when": "includeSawCut"
+      },
+      {
+        "line": "Fit an additional transformer",
+        "when": "includeExtraXfmr"
+      },
+      "Aim every fixture after dark and set the timer with you"
+    ],
+    "placeholders": {
+      "companyName": "Nightform Landscape Lighting LLC",
+      "scope": "Install 14 low-voltage fixtures with a 300 W transformer\nBury 180 lf of cable",
+      "exclusions": "Electrical work to add an exterior outlet\nPlant or bed restoration beyond the trench",
+      "notes": "Fixtures aimed after dark on a return visit."
+    },
+    "disclaimerTail": "It is not an electrical design or a determination that the existing exterior circuit has capacity."
+  },
+  "lawn-care-bid-calculator": {
+    "jobTitle": "Lawn maintenance — {visitsPerWeek~0} visit{visitsPerWeek+s} a week",
+    "priceField": "monthlyPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Recurring grounds maintenance covering the services listed below",
+      {
+        "each": "services",
+        "when": "hoursPerVisit",
+        "line": "{name}"
+      },
+      {
+        "line": "Turf area of about {turfAcres~2} acres",
+        "when": "turfAcres"
+      },
+      {
+        "line": "{visitsPerWeek~0} visit{visitsPerWeek+s} a week across a {serviceWeeksPerYear~0}-week season",
+        "when": "serviceWeeksPerYear"
+      },
+      "Billed as a monthly amount, the same through the season",
+      "Blow clippings off drives, walks, and patios before leaving",
+      "Bag or remove clippings and debris as agreed for the property"
+    ],
+    "placeholders": {
+      "companyName": "Grovepoint Lawn & Landscape LLC",
+      "scope": "Weekly mow, edge, and blow through the season\nBed weeding twice a month",
+      "exclusions": "Fertilisation, weed control, and pest applications\nIrrigation repair and seasonal shutdown",
+      "notes": "Billed monthly at the same amount through the season. Please keep gates unlocked and pets in on service day."
+    },
+    "disclaimerTail": "It is a maintenance schedule, not a turf health, agronomic, or irrigation assessment, and it does not guarantee the condition or appearance of the lawn.",
+    "screenPriceSelector": "#monthly"
+  },
+  "mobile-detailing-bid-calculator": {
+    "jobTitle": "Mobile detailing — {laborHours~1} hour{laborHours+s} on site",
+    "jobTitleFallback": "Mobile detailing",
+    "priceField": "proposedPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Mobile detailing carried out at your location on the date we agree",
+      {
+        "line": "{laborHours~1} hour{laborHours+s} of hands-on detailing on the vehicle",
+        "when": "laborHours"
+      },
+      {
+        "line": "Setup and breakdown of our equipment at your location",
+        "when": "setupHours"
+      },
+      {
+        "line": "Round trip of {travelMiles~0} miles to reach you",
+        "when": "travelMiles"
+      },
+      "Cleaning chemicals, pads, brushes, and towels supplied by us"
+    ],
+    "placeholders": {
+      "companyName": "Curbside Shine Mobile Detailing LLC",
+      "scope": "Full interior and exterior detail on one mid-size vehicle\nHand wash, chemical decontamination, and a single-stage machine polish",
+      "exclusions": "Multi-stage paint correction, ceramic coating, and engine bay detailing\nBiohazard, mold, and pet-damage remediation\nRemoval of etching, deep scratches, and permanent staining",
+      "notes": "Please leave a parking space with room to open every door and work around the vehicle. We need access to an outside tap and a standard outlet unless we have agreed to bring our own water and power."
+    },
+    "disclaimerTail": "Detailing improves appearance but cannot reverse every defect; it is not a paint-condition, rust, or mechanical inspection, and some etching, staining, and swirl marks are permanent."
+  },
+  "mold-remediation-bid-calculator": {
+    "jobTitle": "Mould remediation — {affectedSqFt~0} sq ft",
+    "fields": {
+      "jobLabel": {
+        "select": "jobType",
+        "map": {
+          "closet": "Small contained area — closet or bathroom",
+          "bedroom": "Single bedroom",
+          "basement": "Finished basement",
+          "sewage": "Category-3 / sewage-affected area"
+        }
+      }
+    },
+    "scope": [
+      "{jobLabel} — remediate {affectedSqFt~0} sq ft across {containmentZones} containment zone{containmentZones+s}",
+      "Build containment under negative pressure with HEPA filtration",
+      {
+        "line": "Remove and dispose of {demoSqFt~0} sq ft of affected material",
+        "when": "demoSqFt"
+      },
+      {
+        "line": "HEPA air scrubbing for {hepaDays} day{hepaDays+s}",
+        "when": "hepaDays"
+      },
+      {
+        "line": "Dehumidification for {dehumidifierDays} day{dehumidifierDays+s}",
+        "when": "dehumidifierDays"
+      },
+      "HEPA-vacuum, damp-wipe and apply an antimicrobial to the remaining surfaces",
+      {
+        "line": "Clean the HVAC system serving the area",
+        "when": "hvacClean"
+      },
+      {
+        "line": "Third-party post-remediation clearance testing",
+        "when": "clearanceTest"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Baseline Restoration LLC",
+      "scope": "Remediate 80 sq ft in one containment zone\nHEPA scrubbing and antimicrobial treatment",
+      "exclusions": "Rebuilding or refinishing removed materials\nFixing the moisture source",
+      "notes": "Clearance testing arranged with an independent hygienist."
+    },
+    "disclaimerTail": "Remediation addresses the affected area described; it does not identify or correct the moisture source, and it is not an air-quality or health assessment."
+  },
+  "moving-bid-calculator": {
+    "jobTitle": "Local move — {totalCubicFeet~0} cu ft",
+    "scope": [
+      "Load, transport, and unload the inventory listed below",
+      {
+        "each": "inventory",
+        "when": "cubicFeet",
+        "line": "{name} — {cubicFeet~0} cu ft"
+      },
+      "Blanket-wrap the furniture and protect floors and doorways at both addresses",
+      {
+        "line": "Stair carry at the addresses noted",
+        "when": "stairHours"
+      },
+      {
+        "line": "Long carry between the door and the truck",
+        "when": "carryHours"
+      },
+      {
+        "line": "Elevator use at the addresses noted",
+        "when": "elevatorHours"
+      },
+      {
+        "line": "Packing service as agreed",
+        "when": "packingHours"
+      },
+      "Disassemble and reassemble the items the crew takes apart",
+      "Place the furniture in the rooms you direct at the destination"
+    ],
+    "placeholders": {
+      "companyName": "Kestrel Moving Co. LLC",
+      "scope": "Three bedroom house, load and unload\nBlanket wrap and floor protection at both ends",
+      "exclusions": "Packing of boxes unless listed above\nDisconnection of appliances, gas, or electrical",
+      "notes": "Please have boxes sealed and labelled by the room they go to. Reserve the elevator and loading zone if the building requires it."
+    },
+    "disclaimerTail": "It is an estimate from the inventory described; it is not an inventory certification or a valuation of your goods."
+  },
+  "painting-bid-calculator": {
+    "jobTitle": "Painting — {paintableSqFt~0} sq ft of surface",
+    "scope": [
+      "Prepare and paint the surfaces listed below",
+      {
+        "each": "surfaces",
+        "when": "quantity",
+        "line": "{name} — {quantity~0} {unitLabel}, {coats~0} coat{coats+s}"
+      },
+      {
+        "line": "Fill, caulk, and sand the surfaces before painting",
+        "when": "prepHours"
+      },
+      "Mask and protect floors, fixtures, and anything not being painted",
+      {
+        "line": "Apply {paintGallons~1} gallons of the agreed product",
+        "when": "paintGallons"
+      },
+      "Remove and refit switch and outlet plates",
+      "Clean up daily and leave the rooms usable"
+    ],
+    "placeholders": {
+      "companyName": "Halden Painting LLC",
+      "scope": "Walls, ceilings and trim through the main floor\nTwo coats over a spot-primed surface",
+      "exclusions": "Wallpaper removal and plaster repair beyond routine filling\nLead-safe work practices unless separately quoted",
+      "notes": "Colours to be confirmed in writing before we start. Please clear small furniture from the rooms."
+    },
+    "disclaimerTail": "Coverage and finish depend on the condition of the existing surface; it is not a substrate, moisture, or lead assessment."
+  },
+  "parking-lot-striping-bid-calculator": {
+    "jobTitle": "Parking lot striping — {totalStalls} stalls",
+    "fields": {
+      "layoutLabel": {
+        "select": "layout"
+      },
+      "coatLabel": {
+        "select": "coats"
+      }
+    },
+    "scope": [
+      "{layoutLabel} — {totalStalls} stall{totalStalls+s}, {coatLabel}",
+      {
+        "line": "{adaStalls} accessible stall{adaStalls+s} with hatched access aisles",
+        "when": "adaStalls"
+      },
+      {
+        "line": "{handicapSymbols} accessibility symbol{handicapSymbols+s}",
+        "when": "handicapSymbols"
+      },
+      {
+        "line": "{arrows} directional arrow{arrows+s}",
+        "when": "arrows"
+      },
+      {
+        "line": "{stopBars} stop bar{stopBars+s}",
+        "when": "stopBars"
+      },
+      {
+        "line": "{crosswalks} crosswalk{crosswalks+s}",
+        "when": "crosswalks"
+      },
+      {
+        "line": "{fireLaneFeet} lf of fire lane marking",
+        "when": "fireLaneFeet"
+      },
+      {
+        "line": "{curbPaintFeet} lf of painted curb",
+        "when": "curbPaintFeet"
+      },
+      {
+        "line": "Work carried out after hours to keep the lot open",
+        "when": "nightWork"
+      },
+      "Blow and clean the surface, lay out the lines, and barricade until dry"
+    ],
+    "placeholders": {
+      "companyName": "Straightline Striping LLC",
+      "scope": "Restripe 48 stalls, two coats\nTwo accessible stalls with hatched aisles",
+      "exclusions": "Sealcoating or crack filling\nSign posts and hardware",
+      "notes": "Lot barricaded until the paint is dry to touch."
+    },
+    "disclaimerTail": "Accessible stall count, dimensions and signage are set by the ADA and by local ordinance; this quote follows the layout you specify and is not a compliance determination."
+  },
+  "patio-door-bid-calculator": {
+    "jobTitle": "Patio door replacement",
+    "fields": {
+      "configLabel": {
+        "select": "config"
+      },
+      "frameLabel": {
+        "select": "frame"
+      },
+      "glazingLabel": {
+        "select": "glazing"
+      },
+      "installLabel": {
+        "select": "install"
+      },
+      "accessLabel": {
+        "select": "access"
+      }
+    },
+    "scope": [
+      "Supply and install a {configLabel} {frameLabel} patio door with {glazingLabel} glazing",
+      "Installation method: {installLabel}",
+      "Access: {accessLabel}",
+      {
+        "line": "Remove and dispose of the existing door",
+        "when": "tearOut"
+      },
+      {
+        "line": "Fit an insect screen",
+        "when": "addScreen"
+      },
+      {
+        "line": "Fit a transom above the unit",
+        "when": "addTransom"
+      },
+      {
+        "line": "Fit new interior trim",
+        "when": "addInteriorTrim"
+      },
+      {
+        "line": "Fit a sill pan under the unit",
+        "when": "addSillPan"
+      },
+      {
+        "line": "Fit a new threshold",
+        "when": "addThreshold"
+      },
+      "Flash, insulate and seal the opening; adjust the rollers and locks on completion"
+    ],
+    "placeholders": {
+      "companyName": "Sightline Doors LLC",
+      "scope": "Replace an 8 ft two-panel patio door, fiberglass frame\nSill pan and new interior trim",
+      "exclusions": "Structural header changes\nExterior siding or stucco repair beyond the opening",
+      "notes": "Opening flashed and pan-sealed before the unit is set."
+    },
+    "disclaimerTail": "It is not a structural assessment of the opening or a determination that concealed framing is sound."
+  },
+  "pergola-bid-calculator": {
+    "jobTitle": "Pergola — {widthFeet} ft × {depthFeet} ft",
+    "fields": {
+      "attachmentLabel": {
+        "select": "attachment"
+      },
+      "shadeLabel": {
+        "select": "shade"
+      },
+      "heightLabel": {
+        "select": "height"
+      }
+    },
+    "scope": [
+      "Build a {widthFeet} ft × {depthFeet} ft pergola — {footprintSf~0} sq ft, {heightLabel}",
+      "Structure: {attachmentLabel}",
+      "Set {postCount} post{postCount+s} on {footingCount} footing{footingCount+s}",
+      "{beamLf~0} lf of beam and {rafterCount} rafter{rafterCount+s} at {rafterSpacingInches} in on centre",
+      {
+        "line": "{ledgerLf~0} lf of ledger fixed and flashed to the house",
+        "when": "ledgerLf"
+      },
+      "Shade: {shadeLabel}",
+      {
+        "line": "Fit {kneeBraceCount} knee brace{kneeBraceCount+s}",
+        "when": "includeKneeBraces"
+      },
+      {
+        "line": "Run a circuit for a ceiling fan",
+        "when": "includeFanCircuit"
+      },
+      {
+        "line": "Remove and dispose of the existing structure",
+        "when": "demoExisting"
+      },
+      "Set, plumb and brace the frame; leave the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Beam & Rafter Outdoor LLC",
+      "scope": "Build a 12 ft × 16 ft attached cedar pergola\nLouvered shade and two knee braces",
+      "exclusions": "Permit fees paid to the authority\nPatio or decking below the structure",
+      "notes": "Footings sized to the local frost depth."
+    },
+    "disclaimerTail": "It is not an engineered design; span, footing and uplift requirements are set by the authority having jurisdiction."
+  },
+  "pest-control-bid-calculator": {
+    "jobTitle": "Pest control service — {frequencyLabel}",
+    "priceField": "recurringPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Recurring pest service, {frequencyLabel}, {visitsPerYear~0} visit{visitsPerYear+s} a year",
+      {
+        "each": "services",
+        "when": "everyVisit",
+        "line": "{name} at every scheduled visit"
+      },
+      {
+        "line": "Initial service included as the first visit at no additional charge",
+        "when": "waiveInitial"
+      },
+      "Apply products according to their label directions",
+      "Leave a service record after each visit noting what was treated and what was found"
+    ],
+    "placeholders": {
+      "companyName": "Bellweather Pest Solutions LLC",
+      "scope": "Quarterly exterior perimeter and interior service\nRodent stations checked each visit",
+      "exclusions": "Termite and wood-destroying-organism treatment\nExclusion carpentry and structural repair",
+      "notes": "We will call the day before each visit. Interior service only needs access if there is activity inside."
+    },
+    "disclaimerTail": "Results vary with conditions and access; it is not a guarantee of elimination, a wood-destroying-organism report, or a health or structural inspection."
+  },
+  "plantation-shutter-bid-calculator": {
+    "jobTitle": "Plantation shutters — {openings} opening{openings+s}",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "product-install": "Hang shutters supplied to site",
+          "measure-install": "Measure, order and install",
+          "template-custom": "Template and custom-mill to the openings"
+        }
+      },
+      "mountLabel": {
+        "select": "mount"
+      },
+      "gradeLabel": {
+        "select": "grade"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {openings} opening{openings+s}, {sqFt~0} sq ft of {gradeLabel} shutter",
+      "Mount: {mountLabel}",
+      "{panelsPerOpening} panel{panelsPerOpening+s} per opening, {widthIn} in × {heightIn} in typical",
+      {
+        "line": "Remove and dispose of the existing window coverings",
+        "when": "includeRemoval"
+      },
+      {
+        "line": "Template and fit specialty-shaped openings",
+        "when": "includeSpecialty"
+      },
+      {
+        "line": "Fit a bypass or bi-fold track",
+        "when": "includeBypass"
+      },
+      {
+        "line": "Fit café-style shutters",
+        "when": "includeCafe"
+      },
+      "Measure to the openings as found, then hang, align and adjust every panel"
+    ],
+    "placeholders": {
+      "companyName": "Louvre & Frame Shutters LLC",
+      "scope": "Fit interior shutters to 8 openings, inside mount\nHardwood, painted white",
+      "exclusions": "Window repair or replacement\nPainting the surrounding trim",
+      "notes": "Openings templated on site before the order is placed."
+    },
+    "disclaimerTail": "Out-of-square openings are normal in existing houses; panels are built to the measured opening and light gaps at the frame are expected."
+  },
+  "pole-barn-bid-calculator": {
+    "jobTitle": "Pole barn — {lengthFt} ft × {widthFt} ft",
+    "fields": {
+      "floorLabel": {
+        "select": "floor"
+      },
+      "insulationLabel": {
+        "select": "insulation",
+        "map": {
+          "none": "",
+          "walls": "Insulate the walls",
+          "full": "Insulate the walls and ceiling"
+        }
+      },
+      "electricalLabel": {
+        "select": "electrical",
+        "map": {
+          "none": "",
+          "lights": "Lights and outlets throughout",
+          "shop": "Shop panel, 100 A or larger"
+        }
+      }
+    },
+    "scope": [
+      "Build a {lengthFt} ft × {widthFt} ft post-frame building — {areaSqFt~0} sq ft, {eaveHeightFt} ft eave",
+      "Set {posts} post{posts+s} and {trusses} truss{trusses+es} across {bays} bay{bays+s}",
+      "{roofSqFt~0} sq ft of roof panel and {wallsSqFt~0} sq ft of wall panel",
+      "Floor: {floorLabel}",
+      {
+        "line": "Fit {overheadDoors} overhead door{overheadDoors+s}",
+        "when": "overheadDoors"
+      },
+      {
+        "line": "Fit {walkDoors} walk door{walkDoors+s}",
+        "when": "walkDoors"
+      },
+      {
+        "line": "Build a {leanToWidthFt} ft lean-to — {leanToSqFt~0} sq ft",
+        "when": "leanToWidthFt"
+      },
+      {
+        "line": "{wainscotLf~0} lf of wainscot panel",
+        "when": "wainscot"
+      },
+      {
+        "line": "Insulation: {insulationLabel}",
+        "when": "insulationLabel"
+      },
+      {
+        "line": "Electrical: {electricalLabel}",
+        "when": "electricalLabel"
+      },
+      "Set to grade, square and brace the frame, and leave the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Postline Structures LLC",
+      "scope": "Build a 30 ft × 40 ft post-frame shop, 12 ft eave\nOne 10×10 overhead door and a walk door",
+      "exclusions": "Site clearing, fill or excavation beyond the pad\nPermit fees paid to the authority",
+      "notes": "Posts set below the local frost line."
+    },
+    "disclaimerTail": "It is not an engineered design; post embedment, truss spacing and wind or snow loading are set by the authority having jurisdiction."
+  },
+  "pool-plaster-bid-calculator": {
+    "jobTitle": "Pool resurfacing — {plasterSf~0} sq ft",
+    "fields": {
+      "shapeLabel": {
+        "select": "shape"
+      },
+      "finishLabel": {
+        "select": "finish"
+      },
+      "chipoutLabel": {
+        "select": "chipout",
+        "map": {
+          "none": "Drain and plaster over the bonded existing finish",
+          "partial": "Partial chip-out of the failed areas",
+          "full": "Full chip-out to gunite"
+        }
+      }
+    },
+    "scope": [
+      "Resurface {plasterSf~0} sq ft of pool interior in {finishLabel} — a {shapeLabel} pool with {floorSf~0} sq ft of water surface",
+      "Preparation: {chipoutLabel}",
+      {
+        "line": "Chip out {billedChipoutSf~0} sq ft to gunite",
+        "when": "billedChipoutSf"
+      },
+      {
+        "line": "Refinish {spaSf~0} sq ft of attached spa",
+        "when": "spaSf"
+      },
+      {
+        "line": "Refinish {stepSf~0} sq ft of steps and benches",
+        "when": "stepSf"
+      },
+      {
+        "line": "Replace {waterlineTileLf} lf of waterline tile",
+        "when": "waterlineTileLf"
+      },
+      {
+        "line": "Replace {copingLf} lf of coping",
+        "when": "copingLf"
+      },
+      {
+        "line": "Drain and refill the pool",
+        "when": "drainRefill"
+      },
+      {
+        "line": "Acid-wash the shell before finishing",
+        "when": "acidWash"
+      },
+      "Bond-coat, apply and trowel the finish, then start up and balance the water"
+    ],
+    "placeholders": {
+      "companyName": "Bluecoat Pool Finishes LLC",
+      "scope": "Full chip-out and quartz resurfacing\nNew waterline tile",
+      "exclusions": "Structural shell repair found after chip-out\nEquipment or plumbing replacement",
+      "notes": "Brush the new finish twice daily for the first two weeks; start-up schedule provided."
+    },
+    "disclaimerTail": "Plaster and aggregate finishes cure with natural colour and mottling variation; it is not a structural assessment of the shell."
+  },
+  "popcorn-ceiling-bid-calculator": {
+    "jobTitle": "Ceiling texture removal — {ceilingSqFt~0} sq ft",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "scrape-prime": "Scrape and prime",
+          "scrape-skim": "Scrape, skim to Level 4, and prime",
+          "scrape-skim-paint": "Scrape, skim to Level 5, prime and paint"
+        }
+      },
+      "heightLabel": {
+        "select": "height"
+      },
+      "textureLabel": {
+        "select": "texture"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {ceilingSqFt~0} sq ft of ceiling in a {lengthFt} ft × {widthFt} ft area",
+      "Ceiling height: {heightLabel}",
+      "Skim, sand and finish to a {textureLabel} finish",
+      {
+        "line": "Include {closetCeilings} closet ceiling{closetCeilings+s}",
+        "when": "closetCeilings"
+      },
+      {
+        "line": "Repair {stainRepairs} stained area{stainRepairs+s} and seal before finishing",
+        "when": "stainRepairs"
+      },
+      {
+        "line": "Take an asbestos test sample before any scraping begins",
+        "when": "asbestosTest"
+      },
+      {
+        "line": "Build plastic containment over the work area",
+        "when": "containment"
+      },
+      {
+        "line": "Move and replace furniture",
+        "when": "furnitureMove"
+      },
+      "Mask the walls and floors; leave the ceilings ready for paint and the room clean"
+    ],
+    "placeholders": {
+      "companyName": "Smoothline Ceilings LLC",
+      "scope": "Scrape and skim 600 sq ft of ceiling to a smooth finish\nContainment and furniture moved",
+      "exclusions": "Asbestos abatement if the sample returns positive\nPainting the finished ceiling",
+      "notes": "Ceilings installed before 1980 are sampled before any scraping starts."
+    },
+    "disclaimerTail": "Textured ceilings applied before the 1980s may contain asbestos; scraping does not begin until a sample has been tested, and abatement is a separately licensed activity that is not included."
+  },
+  "portable-restroom-event-quote": {
+    "jobTitle": "Portable restrooms — {totalUnits~0} unit{totalUnits+s} for {daysOnSite~0} day{daysOnSite+s}",
+    "jobTitleFallback": "Portable restroom hire for your event",
+    "depositPercent": 25,
+    "scope": [
+      "Delivery, placement, and pickup of the units listed below",
+      {
+        "each": "units",
+        "when": "quantity",
+        "line": "{quantity~0} × {name}"
+      },
+      {
+        "line": "On site for {daysOnSite~0} day{daysOnSite+s}",
+        "when": "daysOnSite"
+      },
+      {
+        "line": "{serviceVisits~0} scheduled service visit{serviceVisits+s} during the hire",
+        "when": "serviceVisits"
+      },
+      "Consumables stocked at delivery — paper, hand soap, and sanitiser"
+    ],
+    "placeholders": {
+      "companyName": "Fieldside Event Sanitation LLC",
+      "scope": "Standard units and one accessible unit for a one-day outdoor event\nPlacement on level ground within hose and truck reach",
+      "exclusions": "Overnight security, fencing, and lighting of the unit area\nExtra service visits beyond those listed, and pump-outs caused by use above the quoted attendance\nDamage, loss, or relocation of units after placement",
+      "notes": "We need level ground and clear truck access within 25 feet of each placement on both the delivery and the pickup date. Please confirm the site contact and the gate or access code before the delivery window."
+    },
+    "disclaimerTail": "Unit counts are guidance based on the attendance and hours you gave us, not a health, safety, or permit determination; event sanitation requirements are set by your local authority and the venue."
+  },
+  "pressure-washing-bid-calculator": {
+    "jobTitle": "Pressure washing — {totalSquareFeet~0} sq ft",
+    "priceField": "bidPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Clean the surfaces listed below",
+      {
+        "each": "surfaces",
+        "when": "squareFeet",
+        "line": "{name} — {squareFeet~0} sq ft"
+      },
+      "Pre-treat, dwell, and rinse using the method suited to each surface",
+      "Protect plantings and rinse them down before and after the wash",
+      {
+        "line": "Return for {packageVisits~0} scheduled wash{packageVisits+es} in the agreed package",
+        "when": "packageDiscount"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Bright Face Exterior Wash LLC",
+      "scope": "Driveway, walkway and house siding\nSoft wash on the siding, surface cleaner on the concrete",
+      "exclusions": "Oxidation removal, sealing, and staining\nRepair of loose siding, mortar, or wood found during the wash",
+      "notes": "We need access to an outside tap and a standard outlet. Please close windows before the visit."
+    },
+    "disclaimerTail": "Cleaning improves appearance but cannot remove every stain; it is not a sealing, restoration, or surface-condition assessment, and some staining is permanent."
+  },
+  "radon-mitigation-bid-calculator": {
+    "jobTitle": "Radon mitigation — {suctionPoints} suction point{suctionPoints+s}",
+    "fields": {
+      "foundationLabel": {
+        "select": "foundation"
+      },
+      "fanLabel": {
+        "select": "fan"
+      },
+      "dischargeLabel": {
+        "select": "discharge"
+      }
+    },
+    "scope": [
+      "{foundationLabel} — {suctionPoints} suction point{suctionPoints+s} under {footprintSqFt~0} sq ft",
+      "Fit a {fanLabel} with a system monitor",
+      "Discharge: {dischargeLabel}",
+      {
+        "line": "Seal and lay {membraneSqFt~0} sq ft of crawl-space membrane",
+        "when": "crawlMembrane"
+      },
+      {
+        "line": "Run a dedicated circuit for the fan",
+        "when": "newCircuit"
+      },
+      {
+        "line": "Firestop {firestopCount} floor or wall penetration{firestopCount+s}",
+        "when": "firestopCount"
+      },
+      "Seal the sump, floor cracks and slab penetrations",
+      {
+        "line": "Post-mitigation radon test 24 hours after start-up",
+        "when": "postTest"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Subslab Radon Services LLC",
+      "companyLicense": "Radon mitigation cert. #",
+      "scope": "Single-point sub-slab depressurisation with sidewall discharge\nSeal the sump and slab cracks",
+      "exclusions": "Foundation or drainage repair\nRe-testing beyond the first post-mitigation test",
+      "notes": "System monitor fitted; a post-mitigation test follows 24 hours after start-up."
+    },
+    "disclaimerTail": "Mitigation aims to reduce radon below the action level; the only measure of the result is a post-mitigation test, and no reduction can be guaranteed in advance."
+  },
+  "screened-porch-bid-calculator": {
+    "jobTitle": "Screened porch — {widthFeet} ft × {depthFeet} ft",
+    "fields": {
+      "attachmentLabel": {
+        "select": "attachment"
+      },
+      "roofLabel": {
+        "select": "roof"
+      },
+      "ceilingLabel": {
+        "select": "ceiling",
+        "map": {
+          "none": "",
+          "vinyl": "Vinyl porch ceiling",
+          "beadboard": "Beadboard / wood ceiling"
+        }
+      },
+      "meshLabel": {
+        "select": "mesh"
+      }
+    },
+    "scope": [
+      "Build a {widthFeet} ft × {depthFeet} ft screened porch — {footprintSf~0} sq ft",
+      "Structure: {attachmentLabel}",
+      "Roof: {roofLabel} — {roofSf~0} sq ft",
+      {
+        "line": "Ceiling: {ceilingLabel} — {ceilingSf~0} sq ft",
+        "when": "ceilingSf"
+      },
+      "Screen {totalScreenSf~0} sq ft in {meshLabel} across {panelCount} panel{panelCount+s}",
+      {
+        "line": "{kneeWallLf~0} lf of {kneeWallInches} in knee wall",
+        "when": "kneeWallLf"
+      },
+      {
+        "line": "Hang {doorCount} screen door{doorCount+s}",
+        "when": "doorCount"
+      },
+      {
+        "line": "Run a circuit for a ceiling fan",
+        "when": "includeFan"
+      },
+      {
+        "line": "Remove and dispose of the existing structure",
+        "when": "demoExisting"
+      },
+      "Frame, screen and trim the enclosure; leave the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Porchline Builders LLC",
+      "scope": "Screen an existing 12 ft × 16 ft porch\nCharcoal fiberglass mesh and one screen door",
+      "exclusions": "Deck or slab construction below the porch\nPermit fees paid to the authority",
+      "notes": "Panels built removable for seasonal cleaning."
+    },
+    "disclaimerTail": "It is not an engineered design; roof loading and attachment requirements are set by the authority having jurisdiction."
+  },
+  "security-camera-bid-calculator": {
+    "jobTitle": "Security camera installation — {cameraCount} camera{cameraCount+s}",
+    "jobTitleFallback": "Security camera installation",
+    "priceField": "bidPrice",
+    "fields": {
+      "resolutionLabel": {
+        "select": "resolution"
+      },
+      "codecLabel": {
+        "select": "codec"
+      },
+      "routingLabel": {
+        "select": "construction",
+        "map": {
+          "open": "Cable run through open ceiling before it is closed in",
+          "attic": "Cable fished from the attic into finished walls",
+          "no-attic": "Cable fished through finished walls with no attic access, wall openings patched",
+          "masonry": "Cable run on masonry, surface raceway or cored penetrations as needed",
+          "soffit": "Cable run to exterior soffit at second-storey height"
+        }
+      },
+      "recordingLabel": {
+        "select": "recordingMode",
+        "map": {
+          "continuous": "continuously",
+          "motion": "on motion"
+        }
+      },
+      "liftLabel": {
+        "select": "liftRequired",
+        "map": {
+          "no": "",
+          "yes": "Boom or scissor lift on site for the high mounts"
+        }
+      }
+    },
+    "scope": [
+      "Supply and install {cameraCount} × {resolutionLabel} camera{cameraCount+s}",
+      {
+        "line": "{routingLabel}",
+        "when": "routingLabel"
+      },
+      "Pull and terminate approximately {cabling.totalCableFeet~0} ft of Cat6, the longest single run {cabling.longestRunFeet~0} ft",
+      {
+        "line": "{liftLabel}",
+        "when": "liftLabel"
+      },
+      "Supply and configure the recorder with {storage.driveCount} × {storage.driveSizeTb} TB drive{storage.driveCount+s}, {storage.purchasedTb~0} TB fitted",
+      "Record {recordingLabel} in {codecLabel} at approximately {storage.bitrateMbpsPerCamera} Mbps per camera",
+      "Retention quoted {storage.retentionDaysQuoted~0} days; at this configuration the drives fitted hold approximately {storage.actualRetentionDays~0} days",
+      "PoE load approximately {poe.loadWatts~0} W against the {poe.budgetWatts~0} W switch budget",
+      "Commission every camera, confirm recording and retention, and hand over with a walkthrough"
+    ],
+    "placeholders": {
+      "companyName": "Northgate Low Voltage LLC",
+      "companyLicense": "TX-LV-ACR-118204",
+      "scope": "Install 8 x 4 MP cameras with an 8-channel recorder\n30 days retention on 2 x 8 TB drives",
+      "exclusions": "Electrical work beyond the existing recorder outlet\nNetwork changes outside the camera VLAN\nPainting or finish carpentry after wall patching",
+      "notes": "Cameras aimed and focused with the customer present. Recorder credentials handed over in writing and the default password changed."
+    },
+    "disclaimerTail": "It is not an electrical or structural design, a determination that the existing supply, network or mounting surfaces are adequate, or advice on where cameras may lawfully point, whether audio may be recorded, or how long footage may be kept."
+  },
+  "septic-pumping-bid-calculator": {
+    "jobTitle": "Septic tank pumping — {totalGallons~2} gal",
+    "fields": {
+      "accessLabel": {
+        "select": "access"
+      }
+    },
+    "scope": [
+      "Pump {tankGallons} gal from the septic tank",
+      {
+        "line": "Pump {extraTankCount} additional tank or compartment{extraTankCount+s} — {extraTankGallons} gal",
+        "when": "extraTankCount"
+      },
+      "Access: {accessLabel}",
+      {
+        "line": "Locate and dig to the buried lid",
+        "when": "buriedLid"
+      },
+      {
+        "line": "{hoseFeet} ft of hose run from the truck",
+        "when": "hoseFeet"
+      },
+      {
+        "line": "Replace the inlet and outlet baffles",
+        "when": "replaceBaffles"
+      },
+      {
+        "line": "Fit {riserCount} lid riser{riserCount+s} for future access",
+        "when": "riserCount"
+      },
+      "Back-flush and inspect the tank interior, then backfill and reseat the lid",
+      {
+        "line": "Written inspection report on completion",
+        "when": "inspectionReport"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Fieldline Septic LLC",
+      "scope": "Pump a 1,000 gal tank\nLocate and dig to the buried lid",
+      "exclusions": "Drain field repair or replacement\nPermit fees for tank or baffle work",
+      "notes": "Waste disposed at a licensed facility; manifest available on request."
+    },
+    "disclaimerTail": "Pumping empties the tank; it is not a septic system inspection, a drain field evaluation, or a determination that the system is functioning."
+  },
+  "sewer-hydrojet-bid-calculator": {
+    "jobTitle": "Sewer line service — {lineFeet~0} ft",
+    "fields": {
+      "workLabel": {
+        "select": "work",
+        "map": {
+          "camera": "Camera inspection",
+          "cable": "Cable / auger clearing",
+          "jet": "Hydro-jetting",
+          "combo": "Hydro-jetting with a camera verification pass"
+        }
+      },
+      "accessLabel": {
+        "select": "access"
+      },
+      "lineLabel": {
+        "select": "line"
+      }
+    },
+    "scope": [
+      "{workLabel} of the {lineLabel} — {lineFeet~0} ft",
+      "Access: {accessLabel}",
+      {
+        "line": "{hoseRunFeet~0} ft of hose run from the truck",
+        "when": "hoseRunFeet"
+      },
+      {
+        "line": "Cut roots from the line",
+        "when": "hasRoots"
+      },
+      {
+        "line": "Clear grease from the line",
+        "when": "hasGrease"
+      },
+      {
+        "line": "Service a second line",
+        "when": "extraLine"
+      },
+      {
+        "line": "Camera the line and record the condition",
+        "when": "includesCamera"
+      },
+      "Flow-test the line and leave the access point resealed"
+    ],
+    "placeholders": {
+      "companyName": "Mainline Drain Services LLC",
+      "companyLicense": "State plumbing lic. #",
+      "scope": "Hydro-jet 80 ft of main sewer through the cleanout\nCamera verification pass",
+      "exclusions": "Excavation, pipe repair or lining\nRestoration of landscaping or hardscape",
+      "notes": "Camera footage available on request."
+    },
+    "disclaimerTail": "Clearing restores flow through the line as found; it is not a repair, and a line with structural damage, offsets or a collapsed section may re-block."
+  },
+  "shed-install-bid-calculator": {
+    "jobTitle": "Shed installation — {lengthFt} ft × {widthFt} ft",
+    "fields": {
+      "fulfillmentLabel": {
+        "select": "fulfillment"
+      },
+      "padLabel": {
+        "select": "pad"
+      },
+      "accessLabel": {
+        "select": "access"
+      },
+      "electricalLabel": {
+        "select": "electrical",
+        "map": {
+          "none": "",
+          "lights": "Lights and outlets",
+          "workshop": "Workshop circuit"
+        }
+      }
+    },
+    "scope": [
+      "{fulfillmentLabel} — a {lengthFt} ft × {widthFt} ft shed, {areaSqFt~0} sq ft",
+      "Base: {padLabel} — {padSqFt} sq ft",
+      "Site access: {accessLabel}",
+      {
+        "line": "Fit {extraWindows} additional window{extraWindows+s}",
+        "when": "extraWindows"
+      },
+      {
+        "line": "Fit {extraDoors} additional door{extraDoors+s}",
+        "when": "extraDoors"
+      },
+      {
+        "line": "Build a ramp at the door",
+        "when": "ramp"
+      },
+      {
+        "line": "Build a storage loft",
+        "when": "loft"
+      },
+      {
+        "line": "Electrical: {electricalLabel}",
+        "when": "electricalLabel"
+      },
+      {
+        "line": "Remove and haul away the existing shed",
+        "when": "haulAway"
+      },
+      "Level, block and anchor the building; leave the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Backlot Structures LLC",
+      "scope": "Deliver and set a 10 ft × 12 ft shed on a new gravel pad\nRamp at the door",
+      "exclusions": "Permit or HOA application fees\nTree or fence removal for access",
+      "notes": "Building levelled and anchored on the day of delivery."
+    },
+    "disclaimerTail": "It is not a determination of setback, permit or HOA requirements, which vary by parcel."
+  },
+  "skylight-install-bid-calculator": {
+    "jobTitle": "Skylight installation — {units} unit{units+s}",
+    "fields": {
+      "typeLabel": {
+        "select": "type",
+        "map": {
+          "tubular": "tubular sun tunnel",
+          "fixed": "fixed glass skylight",
+          "venting-solar": "solar / electric venting skylight with rain sensor"
+        }
+      },
+      "scopeLabel": {
+        "select": "scope"
+      },
+      "roofLabel": {
+        "select": "roof"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {units} {typeLabel}",
+      "Roof covering: {roofLabel}",
+      "Cut, frame, set and flash each opening to the manufacturer's kit",
+      {
+        "line": "Build {shafts} light shaft{shafts+s} through the attic",
+        "when": "shafts"
+      },
+      {
+        "line": "Ice-and-water membrane around each opening",
+        "when": "includeIceWater"
+      },
+      {
+        "line": "Laminated safety glazing",
+        "when": "includeLaminated"
+      },
+      {
+        "line": "Paint the finished interior openings",
+        "when": "includePaint"
+      },
+      "Weather the roof each night, then leave the roof and grounds clean"
+    ],
+    "placeholders": {
+      "companyName": "Daylight Roof Systems LLC",
+      "scope": "Install two fixed deck-mount skylights with flashing kits\nDrywall and finish both shafts",
+      "exclusions": "Structural changes to rafters or trusses\nPainting beyond the shaft opening",
+      "notes": "Openings flashed to the manufacturer's kit; roof weathered nightly."
+    },
+    "disclaimerTail": "It is not a structural assessment of the roof framing or a determination that the existing roof covering has remaining service life."
+  },
+  "snow-removal-bid-calculator": {
+    "jobTitle": "Seasonal snow removal — {siteCount} site{siteCount+s}",
+    "priceField": "seasonalPrice",
+    "depositPercent": 0,
+    "scope": [
+      "Seasonal snow and ice management for {siteCount} site{siteCount+s}",
+      "Plowing triggered per the agreed trigger depth, {passesPerSnowEvent} pass{passesPerSnowEvent+es} per event",
+      "Season priced on {expectedSnowEvents} expected snow event{expectedSnowEvents+s}",
+      {
+        "line": "Ice control on {expectedIceEvents} expected event{expectedIceEvents+s}",
+        "when": "expectedIceEvents"
+      },
+      {
+        "line": "{saltBagsPerPass} bags of ice melt applied per pass",
+        "when": "saltBagsPerPass"
+      },
+      "Stack snow in the agreed areas and keep entrances and accessible routes cleared"
+    ],
+    "placeholders": {
+      "companyName": "Northrun Property Services LLC",
+      "scope": "Seasonal plowing for one commercial lot\nIce control at each event",
+      "exclusions": "Roof or sidewalk snow beyond the marked routes\nDamage to items not staked before the season",
+      "notes": "Stake the lot before the first event. Trigger depth agreed in writing."
+    },
+    "disclaimerTail": "Snow and ice services reduce but do not eliminate slip and vehicle hazards; conditions can change between visits, and this is not a guarantee of a clear or ice-free surface."
+  },
+  "sod-install-bid-calculator": {
+    "jobTitle": "Sod installation — {areaSqFt~0} sq ft",
+    "fields": {
+      "grassLabel": {
+        "select": "grass"
+      },
+      "prepLabel": {
+        "select": "prep"
+      },
+      "deliveryLabel": {
+        "select": "delivery"
+      }
+    },
+    "scope": [
+      "Lay {neededSqFt~0} sq ft of {grassLabel} sod — {pallets~0} pallet{pallets+s}",
+      "Site preparation: {prepLabel}",
+      "Delivery: {deliveryLabel} — {trips~0} trip{trips+s}",
+      {
+        "line": "Apply starter fertiliser",
+        "when": "fertilizer"
+      },
+      {
+        "line": "Roll the sod after laying",
+        "when": "roller"
+      },
+      {
+        "line": "{wateringVisits} follow-up watering visit{wateringVisits+s}",
+        "when": "wateringVisits"
+      },
+      {
+        "line": "Adjust {extraIrrigationHeads} irrigation head{extraIrrigationHeads+s} to the new grade",
+        "when": "extraIrrigationHeads"
+      },
+      "Grade, rake and lay tight seams; leave the watering schedule with you"
+    ],
+    "placeholders": {
+      "companyName": "Freshcut Landscapes LLC",
+      "scope": "Strip, grade and lay 3,000 sq ft of fescue sod\nStarter fertiliser and rolling",
+      "exclusions": "Irrigation installation or repair\nTree root or drainage correction",
+      "notes": "Water daily for the first two weeks; the schedule is on the handover sheet."
+    },
+    "disclaimerTail": "Sod establishment depends on watering, weather and soil; it is not a warranty that the lawn will take."
+  },
+  "soffit-fascia-bid-calculator": {
+    "jobTitle": "Soffit and fascia — {eaveLf} lf",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "wrap": "Aluminium wrap over the existing wood",
+          "vinyl-replace": "Tear off and fit new vinyl soffit with aluminium fascia",
+          "wood-replace": "New wood fascia and soffit, then wrapped"
+        }
+      },
+      "storyLabel": {
+        "select": "stories"
+      },
+      "soffitLabel": {
+        "select": "soffitType"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {eaveLf} lf of eave in {soffitLabel}",
+      "Access: {storyLabel}",
+      {
+        "line": "Replace {rotLf} lf of rotted wood before wrapping",
+        "when": "rotLf"
+      },
+      {
+        "line": "Wrap {porchBeams} porch beam{porchBeams+s}",
+        "when": "porchBeams"
+      },
+      {
+        "line": "Form {extraCorners} additional corner{extraCorners+s}",
+        "when": "extraCorners"
+      },
+      {
+        "line": "Detach and reset the gutters to work behind them",
+        "when": "gutterDetach"
+      },
+      {
+        "line": "Clean out nesting and pest debris before closing the eave",
+        "when": "pestCleanup"
+      },
+      "Maintain the ventilation opening, seal the terminations, and leave the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Eaveline Exteriors LLC",
+      "scope": "Wrap 180 lf of fascia and install vented aluminium soffit\nReplace 12 ft of rotted fascia board",
+      "exclusions": "Roof or shingle repair\nGutter replacement",
+      "notes": "Vented soffit maintains the existing intake ventilation."
+    },
+    "disclaimerTail": "Concealed rot is only visible once the existing material is removed; additional repair is quoted separately when it is found."
+  },
+  "spray-foam-bid-calculator": {
+    "jobTitle": "Spray foam insulation — {areaSf~0} sq ft",
+    "fields": {
+      "areaLabel": {
+        "select": "area"
+      },
+      "cellLabel": {
+        "select": "cell"
+      },
+      "barrierLabel": {
+        "select": "barrier",
+        "map": {
+          "none": "",
+          "intumescent": "intumescent ignition barrier over the exposed foam",
+          "thermal-already": ""
+        }
+      },
+      "accessLabel": {
+        "select": "access"
+      }
+    },
+    "scope": [
+      "Spray {areaSf~0} sq ft of {areaLabel} in {cellLabel} at {thicknessInches} in — nominal R-{nominalR~0}",
+      {
+        "line": "Seal {rimLf~0} lf of rim joist at {rimThicknessInches} in",
+        "when": "includeRim"
+      },
+      {
+        "line": "Install a {barrierLabel} over the foam",
+        "when": "barrierLabel"
+      },
+      "Access: {accessLabel}",
+      "Mask and protect adjacent surfaces; trim the foam flush where it is left exposed",
+      "Ventilate the space and observe the manufacturer's re-entry time before handover"
+    ],
+    "placeholders": {
+      "companyName": "Sealtight Insulation LLC",
+      "scope": "Spray 1,100 sq ft of roof deck in 5.5 in open-cell foam\nSeal 120 lf of rim joist",
+      "exclusions": "Removing existing insulation\nThermal or ignition barrier beyond the quoted area",
+      "notes": "Re-entry time per the manufacturer's data sheet; the space is ventilated before handover."
+    },
+    "disclaimerTail": "Where foam is left exposed, an ignition or thermal barrier may be required by code; nominal R-value is the manufacturer's figure and not a whole-assembly performance guarantee."
+  },
+  "stair-lift-bid-calculator": {
+    "jobTitle": "Stair lift installation — {liftCount} lift{liftCount+s}",
+    "fields": {
+      "railLabel": {
+        "select": "rail",
+        "map": {
+          "straight-one": "straight single-flight",
+          "straight-landing": "straight with a mid-landing, two-piece rail",
+          "outdoor-straight": "outdoor weatherised straight",
+          "curved": "custom-bent curved rail"
+        }
+      },
+      "chairLabel": {
+        "select": "chair",
+        "map": {
+          "perch": "Perch / standing seat",
+          "standard": "Standard seated",
+          "power-swivel": "Power swivel seat",
+          "power-pack": "Power swivel seat with powered footrest",
+          "heavy-duty": "Heavy-duty seat, 350–400 lb capacity"
+        }
+      },
+      "attachLabel": {
+        "select": "attach",
+        "map": {
+          "wood": "Fixed to wood treads",
+          "concrete": "Fixed to concrete or masonry stairs",
+          "open-riser": "Fixed to open-riser or metal stairs"
+        }
+      }
+    },
+    "scope": [
+      "Supply and install {liftCount} {railLabel} stair lift{liftCount+s}",
+      "Chair: {chairLabel}",
+      "Rail fixing: {attachLabel}",
+      {
+        "line": "Fit a folding rail at the bottom landing",
+        "when": "includeFoldingRail"
+      },
+      {
+        "line": "Fit an additional charge point",
+        "when": "includeExtraCharge"
+      },
+      {
+        "line": "Run a dedicated circuit for the lift",
+        "when": "includeCircuit"
+      },
+      {
+        "line": "Remove and dispose of the existing lift",
+        "when": "includeRemoveExisting"
+      },
+      {
+        "line": "Weather kit for an outdoor installation",
+        "when": "includeWeatherKit"
+      },
+      {
+        "line": "Permit and inspection coordination",
+        "when": "includePermit"
+      },
+      "Set the travel limits, test the safety sensors, and train the user before handover"
+    ],
+    "placeholders": {
+      "companyName": "Riseway Mobility LLC",
+      "scope": "Install a straight-rail stair lift with a powered swivel seat\nDedicated circuit at the top landing",
+      "exclusions": "Stair or handrail modification\nMedical assessment or insurance paperwork",
+      "notes": "User training given on handover; safety sensors tested in both directions."
+    },
+    "disclaimerTail": "It is not a mobility or medical assessment, and it is not a determination that the stair meets the lift manufacturer's requirements without the site survey."
+  },
+  "stucco-repair-bid-calculator": {
+    "jobTitle": "Stucco repair — {repairSf~0} sq ft",
+    "fields": {
+      "systemLabel": {
+        "select": "system"
+      },
+      "storyLabel": {
+        "select": "stories"
+      }
+    },
+    "scope": [
+      "Repair {repairSf~0} sq ft of {systemLabel} stucco",
+      "Access: {storyLabel}",
+      {
+        "line": "Rout, fill and finish {crackLf} lf of cracking",
+        "when": "crackLf"
+      },
+      {
+        "line": "Cut out and rebuild {delamSf~0} sq ft of delaminated stucco",
+        "when": "delamSf"
+      },
+      {
+        "line": "Tear off {tearoffSf~0} sq ft to the sheathing and re-lath",
+        "when": "tearoffSf"
+      },
+      {
+        "line": "Reflash {windowFlashes} window or door opening{windowFlashes+s}",
+        "when": "windowFlashes"
+      },
+      {
+        "line": "{caulkLf} lf of joint sealant",
+        "when": "caulkLf"
+      },
+      {
+        "line": "Colour-match the finish coat to the existing wall",
+        "when": "colorMatch"
+      },
+      {
+        "line": "Moisture probe investigation before repair",
+        "when": "moistureInvestigation"
+      },
+      "Cure the repair, clean the wall and leave the site clear"
+    ],
+    "placeholders": {
+      "companyName": "Trowelwork Stucco LLC",
+      "scope": "Cut out and rebuild 60 sq ft of delaminated stucco\nReflash two window openings",
+      "exclusions": "Framing or sheathing repair found behind the stucco\nFull-wall repainting",
+      "notes": "Repairs cured before the finish coat; colour match sampled on the wall."
+    },
+    "disclaimerTail": "Patch repairs rarely match aged stucco exactly in colour or texture, and concealed moisture damage is only visible once the wall is opened."
+  },
+  "sump-pump-bid-calculator": {
+    "jobTitle": "Sump pump replacement — {pumpLabel}",
+    "jobTitleFallback": "Sump pump installation",
+    "priceField": "price",
+    "fields": {
+      "pumpLabel": {
+        "select": "pump"
+      },
+      "pitLabel": {
+        "select": "pit",
+        "map": {
+          "existing": "Reuse the existing basin",
+          "new-dirt": "Dig and set a new basin in the dirt/crawl floor",
+          "new-slab": "Cut the concrete slab and set a new basin"
+        }
+      },
+      "backupLabel": {
+        "select": "backup",
+        "map": {
+          "none": "",
+          "battery": "Battery backup system",
+          "water-powered": "Water-powered backup system"
+        }
+      }
+    },
+    "scope": [
+      "Supply and install a {pumpLabel}",
+      {
+        "line": "{pitLabel}",
+        "when": "pitLabel"
+      },
+      {
+        "line": "Fit a {backupLabel}",
+        "when": "backupLabel"
+      },
+      {
+        "line": "{extraDischargeFeet} ft of discharge line beyond the first {includedDischargeFeet} ft",
+        "when": "extraDischargeFeet"
+      },
+      {
+        "line": "Fit a high-water alarm",
+        "when": "addAlarm"
+      },
+      {
+        "line": "Fit a new check valve",
+        "when": "addCheckValve"
+      },
+      {
+        "line": "Freeze-protect the discharge outlet",
+        "when": "freezeProtect"
+      },
+      "Test the pump under water, confirm the float swings clear, and leave the basin clean"
+    ],
+    "placeholders": {
+      "companyName": "Basin & Line Plumbing LLC",
+      "companyLicense": "OH-PL-44120",
+      "scope": "Install a 1/2 HP cast-iron sump pump\nNew check valve and 20 ft of discharge",
+      "exclusions": "Interior drain tile or perimeter waterproofing\nElectrical work beyond the existing outlet",
+      "notes": "Old pump hauled away the same day. Discharge routed to the existing outlet."
+    },
+    "disclaimerTail": "It is not a drainage design, a foundation assessment, or a determination that the existing electrical supply is adequate."
+  },
+  "toilet-replacement-bid-calculator": {
+    "jobTitle": "Toilet replacement — {toiletCount} unit{toiletCount+s}",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "swap-only": "Swap the fixture and reconnect the existing supply",
+          "new-supply": "Swap the fixture with a new shut-off and supply line",
+          "flange-repair": "Swap the fixture and repair the flange",
+          "full-reset": "Full reset — new flange, new supply, set and haul away"
+        }
+      },
+      "toiletLabel": {
+        "select": "toilet",
+        "map": {
+          "two-piece-standard": "two-piece standard toilet",
+          "comfort-height": "comfort-height toilet",
+          "one-piece": "one-piece toilet",
+          "bidet-combo": "toilet with a bidet seat"
+        }
+      },
+      "roughInLabel": {
+        "select": "roughIn"
+      }
+    },
+    "scope": [
+      "{scopeLabel} — {toiletCount} {toiletLabel}",
+      "Rough-in: {roughInLabel}",
+      "Set on a new wax or wax-free seal with a new supply line and shut-off as needed",
+      {
+        "line": "Wax-free seal instead of a wax ring",
+        "when": "includeWaxFree"
+      },
+      {
+        "line": "Fit a bidet seat",
+        "when": "includeBidetSeat"
+      },
+      {
+        "line": "Haul away the removed fixture{toiletCount+s}",
+        "when": "includeHaul"
+      },
+      "Level, shim and caulk the base; test for leaks and correct flush before leaving"
+    ],
+    "placeholders": {
+      "companyName": "Trueset Plumbing LLC",
+      "companyLicense": "State plumbing lic. #",
+      "scope": "Replace two toilets with comfort-height units\nNew supply lines and shut-offs",
+      "exclusions": "Flange or subfloor repair found after removal\nTile or flooring repair",
+      "notes": "Old fixtures hauled away the same day."
+    },
+    "disclaimerTail": "Flange, subfloor or drain damage is only visible once the existing fixture is lifted; that repair is quoted separately."
+  },
+  "tree-service-bid-calculator": {
+    "jobTitle": "Tree work — {totalDbh~0} in of combined trunk diameter",
+    "priceField": "recommendedPrice",
+    "scope": [
+      "Carry out the tree work listed below",
+      {
+        "each": "trees",
+        "when": "onSiteHours",
+        "line": "{name} — {dbhInches~0} in diameter, about {heightFeet~0} ft"
+      },
+      {
+        "each": "trees",
+        "when": "grindStump",
+        "line": "Grind the stump of the {name} below grade and backfill"
+      },
+      {
+        "each": "trees",
+        "when": "nearStructure",
+        "line": "Rope and lower the {name} in sections, clear of the structure"
+      },
+      {
+        "line": "Chip and remove the brush from the property",
+        "when": "dumpFees"
+      },
+      {
+        "line": "Crane set for the sections that cannot be lowered by rope",
+        "when": "craneCost"
+      },
+      "Rake the work area and leave the site clear"
+    ],
+    "placeholders": {
+      "companyName": "Ironwood Tree Care LLC",
+      "scope": "Remove the backyard oak in sections\nGrind the stump and haul the brush",
+      "exclusions": "Utility line disconnection or reconnection\nLawn or hardscape repair from equipment access",
+      "notes": "Permits, where the municipality requires them, are quoted separately. Please move vehicles off the drive."
+    },
+    "disclaimerTail": "It is a work quote, not an arborist report, a tree risk assessment, or an opinion on the health or stability of any tree left standing."
+  },
+  "vinyl-liner-bid-calculator": {
+    "jobTitle": "Pool liner replacement — {waterSurfaceSf} sq ft",
+    "fields": {
+      "shapeLabel": {
+        "select": "shape"
+      },
+      "depthLabel": {
+        "select": "depth"
+      },
+      "milLabel": {
+        "select": "mil"
+      },
+      "beadLabel": {
+        "select": "bead"
+      },
+      "patternLabel": {
+        "select": "pattern"
+      },
+      "accessLabel": {
+        "select": "access"
+      }
+    },
+    "scope": [
+      "Replace the liner in a {shapeLabel} pool — {lengthFeet} ft × {widthFeet} ft, {depthLabel}",
+      "Supply a {milLabel} liner in {patternLabel}, {beadLabel} bead",
+      {
+        "line": "Fit {stairSf} sq ft of stair or bench liner",
+        "when": "stairSf"
+      },
+      "Site access: {accessLabel}",
+      {
+        "line": "Pump the pool down before removal",
+        "when": "pumpDown"
+      },
+      {
+        "line": "Replace the liner track",
+        "when": "replaceTrack"
+      },
+      {
+        "line": "Repair the cove at the wall-floor joint",
+        "when": "replaceCove"
+      },
+      {
+        "line": "Replace the wall foam",
+        "when": "replaceWallFoam"
+      },
+      {
+        "line": "Supply a winter cover",
+        "when": "includeCover"
+      },
+      "Vacuum-set the liner, cut in the fittings, refill and start up the equipment"
+    ],
+    "placeholders": {
+      "companyName": "Clearline Pools LLC",
+      "scope": "Replace a 20 ft × 40 ft vinyl liner, 20 mil\nNew liner track and cove repair",
+      "exclusions": "Water supplied to refill the pool\nWall or floor structural repair found after removal",
+      "notes": "Liner vacuum-set before filling; equipment started once the water is at the skimmer."
+    },
+    "disclaimerTail": "Wall, floor and cove condition is only visible once the old liner is out; repairs found at that point are quoted separately."
+  },
+  "walk-in-tub-bid-calculator": {
+    "jobTitle": "Walk-in tub installation — {tubCount} unit{tubCount+s}",
+    "fields": {
+      "scopeLabel": {
+        "select": "scope",
+        "map": {
+          "alcove-swap": "Alcove swap in the same footprint, on the existing drain",
+          "alcove-relocate": "Alcove replacement with the drain or supply relocated",
+          "new-construction": "New bathroom installation, no demolition",
+          "custom-opening": "Widen the alcove or convert an existing shower"
+        }
+      },
+      "tubLabel": {
+        "select": "tub",
+        "map": {
+          "soaker-acrylic": "acrylic soaker walk-in tub",
+          "soaker-cast": "cast soaker walk-in tub",
+          "whirlpool": "whirlpool walk-in tub",
+          "air-jet": "air-jet walk-in tub",
+          "bariatric": "extra-wide / bariatric walk-in tub"
+        }
+      },
+      "doorLabel": {
+        "select": "door",
+        "map": {
+          "inward": "Inward-swing door",
+          "outward": "Outward-swing door",
+          "walk-through": "Walk-through low-threshold entry, no swing door"
+        }
+      }
+    },
+    "scope": [
+      "{scopeLabel} — supply and install {tubCount} {tubLabel}",
+      "Door configuration: {doorLabel}",
+      {
+        "line": "Demolish and remove a cast-iron tub",
+        "when": "includeDemoCastIron"
+      },
+      {
+        "line": "Tile the surround",
+        "when": "includeTileSurround"
+      },
+      {
+        "line": "Fit grab bars",
+        "when": "includeGrabBars"
+      },
+      {
+        "line": "Fit a handheld shower",
+        "when": "includeHandheld"
+      },
+      {
+        "line": "Sister the floor joists to carry the filled weight",
+        "when": "includeFloorSister"
+      },
+      {
+        "line": "Permit and inspection coordination",
+        "when": "includePermit"
+      },
+      "Set, level and seal the unit; fill-test the door seal and drain before handover"
+    ],
+    "placeholders": {
+      "companyName": "Safestep Bath LLC",
+      "companyLicense": "State plumbing lic. #",
+      "scope": "Replace the existing tub with a soaker walk-in unit\nGrab bars and a handheld shower",
+      "exclusions": "Water heater upgrade if capacity is short\nBathroom flooring replacement",
+      "notes": "Door seal fill-tested before handover. Old tub removed the same day."
+    },
+    "disclaimerTail": "It is not an accessibility or medical assessment, and it is not a determination that the existing floor structure or hot-water supply is adequate without survey."
+  },
+  "water-softener-bid-calculator": {
+    "jobTitle": "Water treatment installation",
+    "fields": {
+      "capacityLabel": {
+        "select": "capacity"
+      },
+      "systemLabel": {
+        "select": "system"
+      },
+      "workLabel": {
+        "select": "work"
+      },
+      "pipeLabel": {
+        "select": "pipe"
+      }
+    },
+    "scope": [
+      "{workLabel} — supply and install a {capacityLabel} {systemLabel}",
+      "Plumb in {pipeFeet~0} ft of {pipeLabel} with a bypass valve",
+      {
+        "line": "Run {drainFeet~0} ft of drain line with an air gap",
+        "when": "needsDrain"
+      },
+      {
+        "line": "Fit an iron or sediment pre-filter",
+        "when": "addIron"
+      },
+      {
+        "line": "Fit a reverse-osmosis drinking-water system",
+        "when": "addRo"
+      },
+      {
+        "line": "Run a receptacle for the control head",
+        "when": "addElectrical"
+      },
+      {
+        "line": "Haul away the existing equipment",
+        "when": "haulAway"
+      },
+      "Charge the media, program the control head, and test the treated water before handover"
+    ],
+    "placeholders": {
+      "companyName": "Softline Water Systems LLC",
+      "companyLicense": "State plumbing lic. #",
+      "scope": "Install a 32,000-grain softener with bypass\nDrain line to the laundry standpipe",
+      "exclusions": "Well pump or pressure tank work\nWater testing beyond the hardness check",
+      "notes": "Hardness tested before and after; regeneration set to your usage."
+    },
+    "disclaimerTail": "Sizing follows the hardness and usage figures you supply; it is not a water-quality analysis or a treatment recommendation for contaminants that have not been tested for."
+  },
+  "well-pump-bid-calculator": {
+    "jobTitle": "Well pump service — {hp} HP",
+    "fields": {
+      "typeLabel": {
+        "select": "type"
+      },
+      "workLabel": {
+        "select": "work"
+      }
+    },
+    "scope": [
+      "{workLabel} — {hp} HP {typeLabel} pump",
+      "Well depth {wellDepthFeet} ft; set the pump and {cableFeet~0} ft of drop cable",
+      {
+        "line": "Free a seized or stuck pump from the casing",
+        "when": "stuckPump"
+      },
+      {
+        "line": "Replace the pressure tank",
+        "when": "replaceTank"
+      },
+      {
+        "line": "Replace the pressure switch",
+        "when": "replaceSwitch"
+      },
+      {
+        "line": "Replace the pitless adapter",
+        "when": "replacePitless"
+      },
+      {
+        "line": "Fit a variable-frequency drive",
+        "when": "addVfd"
+      },
+      "Pull, set and wire the pump; sanitise the well, then test pressure and flow before handover"
+    ],
+    "placeholders": {
+      "companyName": "Deepwell Pump Services LLC",
+      "scope": "Replace a 1 HP submersible pump at 220 ft\nNew drop cable and pressure switch",
+      "exclusions": "Well drilling, deepening or casing repair\nWater quality testing",
+      "notes": "Well sanitised after the pump is set; flush before drinking."
+    },
+    "disclaimerTail": "It is not a well yield test, a water-quality analysis, or a determination that the casing and grouting are sound."
+  },
+  "wheelchair-ramp-bid-calculator": {
+    "jobTitle": "Wheelchair ramp — {runFeet~0} ft of run",
+    "fields": {
+      "slopeLabel": {
+        "select": "slope"
+      },
+      "surfaceLabel": {
+        "select": "surface"
+      },
+      "layoutLabel": {
+        "select": "layout"
+      }
+    },
+    "scope": [
+      "Build a {layoutLabel} ramp — {runFeet~0} ft of run at {slopeLabel} for {riseInches} in of rise",
+      "Surface: {surfaceLabel}, {widthFeet} ft clear width — {rampSf~0} sq ft",
+      "Build {landingCount} landing{landingCount+s} — {landingSf~0} sq ft",
+      "Fit {handrailLf~0} lf of graspable handrail to both sides",
+      "Set {footingCount} footing{footingCount+s} below the frost line",
+      {
+        "line": "Remove and dispose of the existing steps",
+        "when": "demoExistingStairs"
+      },
+      {
+        "line": "Permit and inspection coordination",
+        "when": "includePermit"
+      },
+      "Set edge protection, check the running slope and cross slope, and leave the site clean"
+    ],
+    "placeholders": {
+      "companyName": "Levelway Access LLC",
+      "scope": "Build a 24 ft switchback ramp for 24 in of rise\nHandrails both sides and one landing",
+      "exclusions": "Door threshold or entry modification\nPermit fees paid to the authority",
+      "notes": "Built to a 1:12 running slope with level landings at every turn."
+    },
+    "disclaimerTail": "Slope, landing, width and handrail requirements are set by the ADA and by the code in force locally; this quote follows the configuration you specify and is not a compliance determination."
+  },
+  "window-cleaning-bid-calculator": {
+    "jobTitle": "Window cleaning — {totalPanes~0} pane{totalPanes+s}",
+    "priceField": "pricePerVisit",
+    "depositPercent": 0,
+    "scope": [
+      "Clean the glass listed below",
+      {
+        "each": "groups",
+        "when": "panes",
+        "line": "{name} — {panes~0} pane{panes+s}, {sides~0} side{sides+s}"
+      },
+      "Wipe the sills and frames and detail the edges on each pane cleaned",
+      {
+        "line": "Return {visitsPerMonth~0} time{visitsPerMonth+s} a month on the agreed schedule",
+        "when": "visitsPerMonth"
+      }
+    ],
+    "placeholders": {
+      "companyName": "Clearview Window Care LLC",
+      "scope": "Storefront glass inside and out\nMonthly service schedule",
+      "exclusions": "Hard-water stain removal and glass restoration\nScreen or track repair",
+      "notes": "Please keep the display area clear on service day. We work around opening hours where we can."
+    },
+    "disclaimerTail": "Cleaning removes surface soiling; it is not glass restoration, and mineral etching, scratches, or failed seals cannot be cleaned out."
+  }
+}

@@ -1,0 +1,32 @@
+name: plantation-shutter-bid-calculator
+description: A private browser calculator for window-treatment shops that prices a residential plantation-shutter install from openings, inside versus outside mount, paint-grade versus stain-grade, product-on-site hang versus measure-and-install versus template-and-custom, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent shutter shops will use an opening-versus-scope bid calculator because the generic "$250 a window special" they are shopped on cannot see that six 30×60 2-panel inside-mount paint-grade hangs are a different job from eight 48×80 4-panel outside-mount stain-grade openings on a second story with treatment removal and a bypass track.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-window special) are the two figures a shop actually decides on when an owner asks them to match a cheaper hang quote on a template-and-custom house.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing product-on-site hang, measure-and-install, and template-and-custom on the same openings, with panel count and square footage, changes the bid enough that shops notice which scope keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified window-treatment or shutter shops use the calculator twice within 90 days.
+  - Contractors report that splitting openings, mount, and extras is more work than their existing per-window method without changing the price they would have bid.
+  - The starting hours and shutter invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

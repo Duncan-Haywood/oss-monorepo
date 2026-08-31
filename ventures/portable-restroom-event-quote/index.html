@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Porta Potty Event Quote Calculator — Restroom Rental Bid</title>
+  <meta name="description" content="Price a portable restroom (porta potty) event rental from days on site, pump-outs, and two round trips — not a Saturday headcount special. See walk-away price, price per unit-day, and a starting fleet estimate.">
+  <meta property="og:title" content="Porta Potty Event Quote Calculator">
+  <meta property="og:description" content="Bid the extra days and the pump-outs, not the Saturday headcount. A free calculator for portable sanitation yards.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Porta Potty Event Quote Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Days-on-site rental, pump-out visits, two-round-trip mileage, weekend haul premium, starting fleet estimate from attendance and duration, walk-away price, price per unit-day, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a Friday-drop, Sunday-pickup weekend billed as three rental days, not one?","acceptedAnswer":{"@type":"Answer","text":"Because the unit sits on site and the yard's capital is tied up for every day between drop-off and pickup, not just the day of the event. A flat “Saturday special” that prices only the event day undercounts the rent by however many extra days the box actually occupies the lot."}},{"@type":"Question","name":"Does the suggested fleet size tell me how many units my event legally needs?","acceptedAnswer":{"@type":"Answer","text":"No. The people-per-unit figures are a starting planning estimate by event length, not a health-department code table or a permit requirement — local ordinances and venue rules may require more (or specify accessible-unit ratios) than this tool suggests. Confirm with your local health authority before finalizing a fleet for a permitted event."}},{"@type":"Question","name":"Why does mileage get charged twice?","acceptedAnswer":{"@type":"Answer","text":"Delivery is a round trip to drop units off, and pickup is a separate round trip to retrieve them — two trips, not one, even though it's the same event. If your yard also does a mid-event service run, that's an additional round trip the pump-out count should reflect."}},{"@type":"Question","name":"Does alcohol at the event actually change the numbers, or is that just a note?","acceptedAnswer":{"@type":"Answer","text":"It's a real adjustment: checking it shortens the people-per-unit figure by 20%, which raises the suggested fleet size, because alcohol consumption is a common industry planning adjustment for restroom demand. It is not a health-code rule, just a starting assumption you can override."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #2a2218; background: #f4efe6; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d9d0c2; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a2a120d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #5c5348; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7aa96; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: .87rem; }
+    .check input { width: auto; }
+    .unit-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .unit-row select, .unit-row input { padding: 10px 7px; }
+    .unit-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #6b6154; }
+    .unit-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7aa96; background: #f7f1e6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #2a2218; }
+    button:hover { background: #efe4d0; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #3d2a16; color: #f8f1e6; border-color: #3d2a16; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #c8e6a9; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #e0b36a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #6a4a12; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c5348; }
+    footer a { color: #8a4b12; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
+    .summary-status { font-size: .8rem; color: #e8d3a8; }
+    .suggest { background: #faf6ee; border: 1px dashed #c9b89a; border-radius: 9px; padding: 12px; font-size: .86rem; margin-top: 12px; }
+    .row-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .unit-head { display: none; }
+      .unit-row { grid-template-columns: 1fr 1fr; border: 1px solid #e6ddd0; border-radius: 9px; padding: 11px; }
+      .unit-row label { font-size: .78rem; gap: 5px; }
+      .unit-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .unit-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5c5348; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3d2a16; --pr-accent: #8a4b12;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR PORTABLE SANITATION YARDS</p>
+    <h1>Bid the extra days and the pump-outs, not the Saturday headcount.</h1>
+    <p>Price a porta potty / portable restroom event rental the way the yard actually loses money when it skips the math: every day the boxes sit, every extra pump-out, and two round trips of truck miles. You get the quote, the price per unit-day, and the number below which the job loses money. A starting fleet estimate from attendance is optional — it is not a health-code determination.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The event</h2>
+        <p class="hint">Days on site includes drop day and pickup day. Friday drop through Sunday pickup is three days, not one Saturday. Attendance is optional and only used for a starting fleet estimate.</p>
+        <div class="fields">
+          <label>Attendees (optional) <input id="attendees" type="number" min="0" step="10" value="200"></label>
+          <label>Event length (hours) <input id="eventHours" type="number" min="0" step="0.5" value="8"></label>
+          <label>Days on site <input id="daysOnSite" type="number" min="0" step="1" value="2"></label>
+          <label>Extra pump-out visits <input id="serviceVisits" type="number" min="0" step="1" value="1"></label>
+        </div>
+        <div class="fields" style="margin-top:13px">
+          <label class="check"><input id="alcohol" type="checkbox" checked> Alcohol is served</label>
+          <label class="check"><input id="foodService" type="checkbox"> Food is served</label>
+        </div>
+        <div id="suggestBox" class="suggest" hidden></div>
+        <div class="row-actions">
+          <button type="button" id="applySuggest">Use starting fleet estimate</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>The fleet</h2>
+        <p class="hint">One row per unit type. Daily rent is what the box earns sitting; service each is the pump-out price for that type. Starting rates are ballpark figures — replace them with your book.</p>
+        <div class="unit-row unit-head" aria-hidden="true">
+          <span>Unit type</span><span>Quantity</span><span>Rent / day</span><span>Service each</span><span></span>
+        </div>
+        <div id="units"></div>
+        <button type="button" id="addUnit">+ Add a unit type</button>
+      </section>
+
+      <section>
+        <h2>Haul and costs</h2>
+        <div class="fields">
+          <label>Delivery fee <input id="deliveryFee" type="number" min="0" step="1" value="85"></label>
+          <label>Pickup fee <input id="pickupFee" type="number" min="0" step="1" value="85"></label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.1" value="18"></label>
+          <label>Rate per mile <input id="ratePerMile" type="number" min="0" step="0.1" value="3.50"></label>
+          <label>Weekend / holiday premium on haul (%) <input id="weekendPremiumPct" type="number" min="0" step="1" value="0"></label>
+          <label>Consumables per unit <input id="consumablesPerUnit" type="number" min="0" step="0.5" value="8"></label>
+          <label>Other cost (permit, after-hours) <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="12"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="25"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 625"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Mileage is two round trips: one to drop and one to pick up (four times the one-way miles). A Saturday-special that only prices the event day never sees that line, and it is often the largest cost on a short rental.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">event quote</div>
+      <dl>
+        <dt>Rental (days on site)</dt><dd id="rental"></dd>
+        <dt>Pump-outs</dt><dd id="service"></dd>
+        <dt>Haul (drop, pickup, miles)</dt><dd id="haul"></dd>
+        <dt>Consumables &amp; other</dt><dd id="consumables"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per unit-day</dt><dd id="perUnitDay"></dd>
+        <dt>Price per attendee</dt><dd id="perAttendee"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the money goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting daily rents, pump-out prices, and fleet estimate are common ballpark figures, not a tariff, a health-code table, or a guarantee. Replace them with your book and confirm local requirements before sending a quote.</p>
+    </section>
+
+    <section><h2>Common questions</h2><h3>Why is a Friday-drop, Sunday-pickup weekend billed as three rental days, not one?</h3><p>Because the unit sits on site and the yard's capital is tied up for every day between drop-off and pickup, not just the day of the event. A flat &ldquo;Saturday special&rdquo; that prices only the event day undercounts the rent by however many extra days the box actually occupies the lot.</p><h3>Does the suggested fleet size tell me how many units my event legally needs?</h3><p>No. The people-per-unit figures are a starting planning estimate by event length, not a health-department code table or a permit requirement &mdash; local ordinances and venue rules may require more (or specify accessible-unit ratios) than this tool suggests. Confirm with your local health authority before finalizing a fleet for a permitted event.</p><h3>Why does mileage get charged twice?</h3><p>Delivery is a round trip to drop units off, and pickup is a separate round trip to retrieve them &mdash; two trips, not one, even though it's the same event. If your yard also does a mid-event service run, that's an additional round trip the pump-out count should reflect.</p><h3>Does alcohol at the event actually change the numbers, or is that just a note?</h3><p>It's a real adjustment: checking it shortens the people-per-unit figure by 20%, which raises the suggested fleet size, because alcohol consumption is a common industry planning adjustment for restroom demand. It is not a health-code rule, just a starting assumption you can override.</p></section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Fieldside Event Sanitation LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="25"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Standard units and one accessible unit for a one-day outdoor event&#10;Placement on level ground within hose and truck reach"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Overnight security, fencing, and lighting of the unit area&#10;Extra service visits beyond those listed, and pump-outs caused by use above the quoted attendance&#10;Damage, loss, or relocation of units after placement"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="We need level ground and clear truck access within 25 feet of each placement on both the delivery and the pickup date. Please confirm the site contact and the gate or access code before the delivery window."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or health-department advice, and it does not tell you what to charge or how many units an event requires. It does not determine ADA, OSHA, or local sanitation compliance. Verify every figure against your own rates, insurance, and a qualified professional before relying on it or sending a quote. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the event, fleet, miles, or prices.</p>
+    <p><a href="./how-many.html">How many porta potties for 200 people?</a> — a starting estimate, not a code table.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateQuote, suggestFleet, UNIT_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+
+    const COST_IDS = ['daysOnSite','serviceVisits','deliveryFee','pickupFee','milesOneWay','ratePerMile','weekendPremiumPct','consumablesPerUnit','otherCost','overheadRate','targetMargin','proposedPrice'];
+    const EVENT_IDS = ['attendees','eventHours'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const STARTING_UNITS = [
+      { name: 'Standard portable restroom', quantity: 4, rentPerDay: 18, serviceEach: 28 },
+      { name: 'Wheelchair-accessible unit', quantity: 1, rentPerDay: 40, serviceEach: 38 },
+    ];
+
+    const TYPE_OPTIONS = UNIT_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other unit</option>';
+
+    const unitsHost = el('units');
+    let rowSeq = 0;
+
+    function addUnitRow(unit) {
+      const id = `u${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'unit-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Unit type</span><select class="u-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-qty"><span class="lbl">Quantity</span><input class="u-qty" id="${id}-qty" type="number" min="0" step="1"></label>
+        <label for="${id}-rent"><span class="lbl">Rent per day</span><input class="u-rent" id="${id}-rent" type="number" min="0" step="1"></label>
+        <label for="${id}-svc"><span class="lbl">Service each</span><input class="u-svc" id="${id}-svc" type="number" min="0" step="1"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this unit type</span></button>`;
+
+      const typeField = row.querySelector('.u-type');
+      const rentField = row.querySelector('.u-rent');
+      const svcField = row.querySelector('.u-svc');
+      const presetIndex = UNIT_PRESETS.findIndex(p => p.label === unit.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      row.querySelector('.u-qty').value = unit.quantity;
+      rentField.value = unit.rentPerDay;
+      svcField.value = unit.serviceEach;
+
+      typeField.addEventListener('change', () => {
+        const preset = UNIT_PRESETS[Number(typeField.value)];
+        if (preset && !rentField.dataset.edited) rentField.value = preset.rentPerDay;
+        if (preset && !svcField.dataset.edited) svcField.value = preset.serviceEach;
+        count('quote_calculated');
+        update();
+      });
+      rentField.addEventListener('input', () => { rentField.dataset.edited = '1'; });
+      svcField.addEventListener('input', () => { svcField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('quote_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('unit_removed');
+        update();
+      });
+      unitsHost.append(row);
+    }
+
+    function readUnits() {
+      return [...unitsHost.querySelectorAll('.unit-row')].map(row => {
+        const preset = UNIT_PRESETS[Number(row.querySelector('.u-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          quantity: row.querySelector('.u-qty').value,
+          rentPerDay: row.querySelector('.u-rent').value,
+          serviceEach: row.querySelector('.u-svc').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      return {
+        units: readUnits(),
+        ...Object.fromEntries([...COST_IDS, ...EVENT_IDS].map(id => [id, el(id).value])),
+        alcohol: el('alcohol').checked,
+        foodService: el('foodService').checked,
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'event quote';
+      ['rental','service','haul','consumables','overhead','cost','profit','perUnitDay','perAttendee','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function updateSuggest() {
+      const box = el('suggestBox');
+      const attendees = el('attendees').value;
+      if (attendees === '' || Number(attendees) === 0) {
+        box.hidden = true;
+        return null;
+      }
+      try {
+        const fleet = suggestFleet({
+          attendees,
+          eventHours: el('eventHours').value,
+          alcohol: el('alcohol').checked,
+          foodService: el('foodService').checked,
+        });
+        const food = fleet.handwash > 0 ? `, plus ${fleet.handwash} handwash station${fleet.handwash === 1 ? '' : 's'}` : '';
+        box.hidden = false;
+        box.innerHTML = `<strong>Starting fleet estimate:</strong> ${fleet.standard} standard + ${fleet.ada} wheelchair-accessible (${fleet.restroomUnits} restrooms${food}). About ${fleet.peoplePerUnit} people per restroom at this duration${el('alcohol').checked ? ' with alcohol' : ''}. This is a planning starting point, not a health-code or ADA determination.`;
+        return fleet;
+      } catch {
+        box.hidden = true;
+        return null;
+      }
+    }
+
+    function update() {
+      updateSuggest();
+      const input = readInput();
+      if (input.units.length === 0) {
+        clearOutputs('Add a unit type to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one unit type above and the cost split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateQuote(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'event quote';
+      el('rental').textContent = money(result.rentalCost);
+      el('service').textContent = money(result.serviceCost);
+      el('haul').textContent = money(result.haulCost);
+      el('consumables').textContent = money(result.consumables + result.otherCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perUnitDay').textContent = result.pricePerUnitDay === null ? 'n/a' : money(result.pricePerUnitDay);
+      el('perAttendee').textContent = result.pricePerAttendee === null ? 'n/a' : money(result.pricePerAttendee);
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const lines = [
+        { name: 'Rental', amount: result.rentalCost, share: result.directCost === 0 ? 0 : result.rentalCost / result.directCost * 100 },
+        { name: 'Pump-outs', amount: result.serviceCost, share: result.directCost === 0 ? 0 : result.serviceCost / result.directCost * 100 },
+        { name: 'Haul (drop, pickup, miles)', amount: result.haulCost, share: result.directCost === 0 ? 0 : result.haulCost / result.directCost * 100 },
+        { name: 'Consumables & other', amount: result.consumables + result.otherCost, share: result.directCost === 0 ? 0 : (result.consumables + result.otherCost) / result.directCost * 100 },
+      ].filter(line => line.amount > 0);
+
+      el('split').innerHTML = lines.length === 0
+        ? '<li class="empty">No cost lines yet — set days, services, or haul above.</li>'
+        : lines
+          .slice()
+          .sort((a, b) => b.amount - a.amount)
+          .map(line => `<li><span>${line.name}</span><span>${line.share.toFixed(0)}% of direct</span>
+            <span class="bar"><span style="width:${line.share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed !== null) {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin.`;
+      } else if (result.restroomsLookLight) {
+        verdict.hidden = false;
+        verdict.className = 'verdict warn';
+        verdict.innerHTML = `Your quoted restrooms (${result.quotedRestrooms}) are below the starting estimate (${result.suggestion.restroomUnits}) for this attendance and duration. That is a flag to check with the event and the local health department — not a determination that the event is under-served.`;
+      } else {
+        verdict.hidden = true;
+      }
+    }
+
+    function summaryText(result) {
+      const fleet = result.units
+        .filter(unit => unit.quantity > 0)
+        .map(unit => `- ${unit.quantity}× ${unit.name} @ ${money(unit.rentPerDay)}/day`)
+        .join('\n');
+      return [
+        'PORTABLE RESTROOM EVENT QUOTE',
+        '',
+        `Quoted price: ${money(result.price)}`,
+        `Days on site: ${el('daysOnSite').value}`,
+        `Extra pump-out visits: ${el('serviceVisits').value}`,
+        `Price per unit-day: ${result.pricePerUnitDay === null ? 'n/a' : money(result.pricePerUnitDay)}`,
+        '',
+        'FLEET',
+        fleet || '- No units entered',
+        '',
+        'This is a draft for review. Confirm days on site, service schedule, mileage, permits, insurance, taxes, and all pricing before sending. It is not a health-code or accessibility determination.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateQuote(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    function applySuggest() {
+      const fleet = updateSuggest();
+      if (!fleet || fleet.restroomUnits === 0) {
+        el('summaryStatus').textContent = 'Enter attendees first.';
+        return;
+      }
+      unitsHost.innerHTML = '';
+      if (fleet.standard > 0) {
+        addUnitRow({ name: 'Standard portable restroom', quantity: fleet.standard, rentPerDay: 18, serviceEach: 28 });
+      }
+      if (fleet.ada > 0) {
+        addUnitRow({ name: 'Wheelchair-accessible unit', quantity: fleet.ada, rentPerDay: 40, serviceEach: 38 });
+      }
+      if (fleet.handwash > 0) {
+        addUnitRow({ name: 'Handwash / sanitizer station', quantity: fleet.handwash, rentPerDay: 22, serviceEach: 22 });
+      }
+      count('fleet_estimate_applied');
+      update();
+    }
+
+    el('addUnit').addEventListener('click', () => {
+      addUnitRow({ name: '', quantity: 1, rentPerDay: 18, serviceEach: 28 });
+      count('unit_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'quote_calculated'));
+    });
+    EVENT_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count('quote_calculated'));
+    });
+    ['alcohol','foodService'].forEach(id => {
+      el(id).addEventListener('change', () => { count('quote_calculated'); update(); });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('applySuggest').addEventListener('click', applySuggest);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    STARTING_UNITS.forEach(addUnitRow);
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'portable-restroom-event-quote-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Unit counts are guidance based on the attendance and hours you gave us, not a health, safety, or permit determination; event sanitation requirements are set by your local authority and the venue.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Delivery, placement, and pickup of the units listed below",
+        {
+          "each": "units",
+          "when": "quantity",
+          "line": "{quantity~0} × {name}"
+        },
+        {
+          "line": "On site for {daysOnSite~0} day{daysOnSite+s}",
+          "when": "daysOnSite"
+        },
+        {
+          "line": "{serviceVisits~0} scheduled service visit{serviceVisits+s} during the hire",
+          "when": "serviceVisits"
+        },
+        "Consumables stocked at delivery — paper, hand soap, and sanitiser"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Portable restrooms — {totalUnits~0} unit{totalUnits+s} for {daysOnSite~0} day{daysOnSite+s}'], result)[0] || 'Portable restroom hire for your event',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateQuote(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateQuote(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

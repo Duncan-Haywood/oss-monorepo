@@ -1,0 +1,27 @@
+name: vendor-rate-break-even
+description: A browser calculator that compares supplier, subcontractor, and equipment scenarios by job cost and break-even volume.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small service businesses lose margin by choosing vendor rates without spreading fixed fees across realistic job volume.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A side-by-side break-even comparison helps operators make a vendor decision in under five minutes.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three operators use the calculator twice within 90 days.
+  - Users cannot identify a vendor scenario that changes their per-job cost or break-even volume.
+links:
+  production: null
+  analytics: null

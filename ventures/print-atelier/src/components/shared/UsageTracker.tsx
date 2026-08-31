@@ -10,7 +10,8 @@ export function trackUsageEvent(
     | "storefront_search"
     | "checkout_add"
     | "preflight_completed"
-    | "preflight_exported",
+    | "preflight_exported"
+    | "preflight_compared",
   path: string,
 ): void {
   void fetch("/api/usage", {

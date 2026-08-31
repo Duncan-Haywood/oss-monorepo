@@ -1,0 +1,32 @@
+name: sump-pump-bid-calculator
+description: A private browser calculator for plumbers and basement shops that prices a sump-pump install from pit type, extra discharge past the included first fifteen feet, battery or water-powered backup, alarm, and freeze protection — and shows the hours the first new-pit-and-battery job actually consumes, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent plumbers and basement shops will use a pit-and-backup bid calculator because the generic "$450 pump swap" special they are shopped on cannot see that a 1/3 HP existing-pit replacement with fifteen included feet of discharge is a different job from a new basin cut through a slab with a 1/2 HP pump, extra discharge, a battery backup, and an alarm.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published swap special) are the two figures a shop actually decides on when a homeowner asks them to match a cheaper sump-pump quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating the pit, extra discharge, and backup as their own hours, instead of a blended add-on to a swap special, changes the bid enough that shops notice which part of a high number is the first saw cut.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified plumbers or basement shops use the calculator twice within 90 days.
+  - Shops report that splitting pit, discharge, and backup versus a swap-only special is more work than their existing method without changing the price they would have bid.
+  - The starting hours and material rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

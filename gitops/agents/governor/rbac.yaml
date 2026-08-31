@@ -11,13 +11,31 @@ rules:
   - apiGroups: ["batch"]
     resources: ["jobs"]
     verbs: ["get", "list", "watch", "create"]
+  # The only ConfigMap the governor ever touches is governor-state. Normal
+  # ticks GET then PUT/PATCH it by name -- `governor/state.yaml` seeds it in
+  # git, mirroring `portfolio-site-usage`, precisely so that path is the
+  # common case. There used to be a second, namespace-wide `configmaps` rule
+  # here (verbs get/list/create, no resourceNames) that granted read access
+  # to every ConfigMap in `agents` -- governor-policy, governor-script,
+  # governor-queue, codex-worker-script -- none of which governor.py ever
+  # requests over the API (it reads them from mounted volumes instead), plus
+  # a `list` verb `_load_state`/`_save_state` never call. That rule was cut
+  # down to bare `create`, below, rather than removed outright: if the
+  # ConfigMap is ever missing (pruned, first deploy, corruption),
+  # `_save_state` falls back to POSTing the collection endpoint, and losing
+  # that verb would turn a 404-then-fixed create path into a silent-ish 403
+  # instead -- the very first budget window would go unpersisted. `create`
+  # cannot be scoped with resourceNames (the object doesn't exist yet to
+  # name), but it's still safe unnamed: create only returns the object it
+  # made, never one it didn't, so it leaks nothing about sibling ConfigMaps
+  # the way an unnamed get/list would.
   - apiGroups: [""]
     resources: ["configmaps"]
     resourceNames: ["governor-state"]
     verbs: ["get", "update", "patch"]
   - apiGroups: [""]
     resources: ["configmaps"]
-    verbs: ["get", "list", "create"]
+    verbs: ["create"]
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["get", "list"]

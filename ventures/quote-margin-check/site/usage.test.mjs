@@ -50,11 +50,14 @@ test("recordEvent aggregates same-day events under one key", () => {
   recordEvent("report_generated");
   recordEvent("report_generated");
   recordEvent("csv_exported");
+  recordEvent("cost_spike_compared");
   const events = readLocalUsage();
   const keys = Object.keys(events);
   assert.equal(keys.filter((k) => k.startsWith("report_generated:")).length, 1);
   const key = keys.find((k) => k.startsWith("report_generated:"));
   assert.equal(events[key], 2);
+  const spikeKey = keys.find((k) => k.startsWith("cost_spike_compared:"));
+  assert.equal(events[spikeKey], 1);
 });
 
 test("opting out stops recording and is reversible", () => {

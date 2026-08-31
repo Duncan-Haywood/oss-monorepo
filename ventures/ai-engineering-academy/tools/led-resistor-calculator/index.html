@@ -22,6 +22,38 @@
   "description": "Free LED current-limiting resistor calculator: exact value, nearest standard E24 resistor, and recommended power rating. Runs entirely client-side."
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What resistor does this page's own default (9 V supply, one 2 V LED at 20 mA) need?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Exactly 350 Ω, dissipating 0.14 W. The nearest standard (E24) resistor is 360 Ω, which runs the LED at 19.44 mA instead of 20 mA and dissipates 0.136 W. This calculator recommends a 0.5 W part for it — it doubles the dissipation for a safety margin before picking a standard wattage, and 2× 0.14 W = 0.28 W crosses the 0.25 W step, so it rounds up to 0.5 W."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does adding more LEDs in series change the resistor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each LED's forward voltage subtracts from the headroom the resistor has to work with. Put three of this page's default 2 V LEDs in series (6 V total) on the same 9 V supply and the exact resistor drops to 150 Ω, dissipating 60 mW — and 150 Ω is itself a standard E24 value, so the nearest-standard row matches it exactly and the LEDs run at the full 20 mA target."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the calculator refuse some inputs instead of showing a result?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the supply voltage has to exceed the LEDs' total forward voltage with headroom left over for the resistor — without that headroom there is no valid resistor value. Five of this page's default 2 V LEDs in series need 10 V total, which exceeds the 9 V default supply, so the calculator reports the shortfall rather than returning a negative or zero resistance."
+      }
+    }
+  ]
+}
+</script>
 <style>
   :root {
     color-scheme: light dark;
@@ -119,6 +151,14 @@
     <div class="result" id="result" role="status" aria-live="polite"></div>
   </section>
 
+  <h2>Common questions</h2>
+  <h3>What resistor does this page's own default (9 V supply, one 2 V LED at 20 mA) need?</h3>
+  <p>Exactly 350 Ω, dissipating 0.14 W. The nearest standard (E24) resistor is 360 Ω, which runs the LED at 19.44 mA instead of 20 mA and dissipates 0.136 W. This calculator recommends a 0.5 W part for it — it doubles the dissipation for a safety margin before picking a standard wattage, and 2× 0.14 W = 0.28 W crosses the 0.25 W step, so it rounds up to 0.5 W.</p>
+  <h3>How does adding more LEDs in series change the resistor?</h3>
+  <p>Each LED's forward voltage subtracts from the headroom the resistor has to work with. Put three of this page's default 2 V LEDs in series (6 V total) on the same 9 V supply and the exact resistor drops to 150 Ω, dissipating 60 mW — and 150 Ω is itself a standard E24 value, so the nearest-standard row matches it exactly and the LEDs run at the full 20 mA target.</p>
+  <h3>Why does the calculator refuse some inputs instead of showing a result?</h3>
+  <p>Because the supply voltage has to exceed the LEDs' total forward voltage with headroom left over for the resistor — without that headroom there is no valid resistor value. Five of this page's default 2 V LEDs in series need 10 V total, which exceeds the 9 V default supply, so the calculator reports the shortfall rather than returning a negative or zero resistance.</p>
+
   <footer>
     <h2>Disclaimer</h2>
     <p>
@@ -131,6 +171,7 @@
       permitted by law, the authors accept no liability for any loss or
       damage arising from its use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
 
     <h2 id="privacy-heading">Privacy</h2>
     <p>

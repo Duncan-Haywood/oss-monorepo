@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Patio Door Bid Calculator — Panels, Glass, and Opening</title>
+  <meta name="description" content="Price a sliding glass or patio-door replacement from extra panels, impact glass, new-construction wrap, transom, sill pan, and balcony access — not a published $1,800-installed 6-foot vinyl special. See the walk-away number before you match a cheaper quote.">
+  <meta property="og:title" content="Patio Door Bid Calculator">
+  <meta property="og:description" content="A 6-foot vinyl 2-panel retrofit on the ground is not the same job as a 16-foot 4-panel impact-rated new-construction unit with a transom and a balcony. Bid the panels and the extras.">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Patio Door Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "2-panel versus 3-panel versus 4-panel, vinyl versus aluminum versus fiberglass versus wood-clad, dual-pane versus triple versus impact glass, retrofit versus new-construction, ground patio versus balcony, rolling screen, transom, interior trim, sill pan, threshold rebuild, tear-out, walk-away price, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is a balcony unit priced so much higher than the same door on a ground patio?","acceptedAnswer":{"@type":"Answer","text":"Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade."}},{"@type":"Question","name":"Does new-construction framing cost more than a retrofit, and why?","acceptedAnswer":{"@type":"Answer","text":"Yes — a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets a new sill pan and frame, and wraps and flashes it. Pick “New-construction (full frame + wrap)” only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid."}},{"@type":"Question","name":"What if I don't know exactly which extras (transom, sill pan, screen) apply?","acceptedAnswer":{"@type":"Answer","text":"Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged."}},{"@type":"Question","name":"Is this an engineering or code determination for impact glazing?","acceptedAnswer":{"@type":"Answer","text":"No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator — it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2834; background: #e4eaf0; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2a5a7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c4d0dc; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c28340d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5c6c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #7a8ea0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
+    label.check input { width: auto; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #7a8ea0; background: #eef3f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1c2834; }
+    button:hover { background: #dce6ee; }
+    .result { position: sticky; top: 15px; background: #1c2e42; color: #eef4f8; border-color: #1c2e42; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #7eb6d6; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5c6c; }
+    footer a { color: #2a5a7a; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #c8dce8; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5c6c; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1c2e42; --pr-accent: #2a5a7a;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This section (and any other direct section of a two-column .layout grid,
+       such as an FAQ block) is appended as a sibling of the sticky .result
+       panel, not inside the input column. Left to grid auto-placement it lands
+       in .result's own column, one row down — and because .result is
+       position: sticky and tall enough to graze that row, its own content can
+       render on top of #proposalSection and swallow every click on "Print
+       proposal", in a real browser, invisibly to every text-based check here.
+       Scoped to main.layout so it is a no-op on any page not built on that
+       two-column grid. See platform/proposal/verify.mjs and the postmortem on
+       home-elevator-bid-calculator (#2319). */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR WINDOW AND DOOR SHOPS</p>
+    <h1>Bid the panels, the glass, and the opening.</h1>
+    <p>Price a sliding glass or patio-door replacement the way the trade actually loses money: extra panels, impact glass, a full-frame new-construction wrap, a transom, a sill pan, and balcony access. You get the bid, the hours the first 4-panel unit actually consumes, and the walk-away number below which the job loses money.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The opening</h2>
+        <p class="hint">Start from a common job, then replace every figure with your takeoff. Changing configuration, frame, glazing, install method, or access never overwrites a rate you already typed. This prices a sliding or patio unit — not a pedestrian entry door, and not a window replacement.</p>
+        <div class="fields">
+          <label>Job preset
+            <select id="jobPresets">
+              <option value="">Choose a starting job…</option>
+            </select>
+          </label>
+          <label>Configuration
+            <select id="config">
+              <option value="two-6" selected>6-foot 2-panel</option>
+              <option value="two-8">8-foot 2-panel</option>
+              <option value="three-9">9-foot 3-panel</option>
+              <option value="three-12">12-foot 3-panel</option>
+              <option value="four-12">12-foot 4-panel</option>
+              <option value="four-16">16-foot 4-panel</option>
+            </select>
+          </label>
+          <label>Frame
+            <select id="frame">
+              <option value="vinyl" selected>Vinyl</option>
+              <option value="aluminum">Aluminum</option>
+              <option value="fiberglass">Fiberglass</option>
+              <option value="wood-clad">Wood-clad</option>
+            </select>
+          </label>
+          <label>Glazing
+            <select id="glazing">
+              <option value="dual" selected>Dual-pane Low-E</option>
+              <option value="triple">Triple-pane</option>
+              <option value="impact">Impact / hurricane</option>
+            </select>
+          </label>
+          <label>Install method
+            <select id="install">
+              <option value="retrofit" selected>Retrofit / pocket (existing frame)</option>
+              <option value="newcon">New-construction (full frame + wrap)</option>
+            </select>
+          </label>
+          <label>Access
+            <select id="access">
+              <option value="ground" selected>Ground patio</option>
+              <option value="balcony">Second-story balcony</option>
+            </select>
+          </label>
+          <label class="check"><input id="addScreen" type="checkbox"> Rolling screen</label>
+          <label class="check"><input id="addTransom" type="checkbox"> Transom</label>
+          <label class="check"><input id="addInteriorTrim" type="checkbox"> Interior trim / casing</label>
+          <label class="check"><input id="addSillPan" type="checkbox"> Sill pan / exterior flashing</label>
+          <label class="check"><input id="addThreshold" type="checkbox"> Threshold / sill rebuild</label>
+          <label class="check"><input id="tearOut" type="checkbox" checked> Tear-out / haul the old door</label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your crew rates</h2>
+        <div class="fields">
+          <label>Hours for the trip / setup <input id="hoursTrip" type="number" min="0" step="0.25" value="1"></label>
+          <label>Hours to set the unit <input id="hoursSet" type="number" min="0" step="0.1" value="4.5"></label>
+          <label>Frame set-hour premium <input id="hoursSetPremium" type="number" min="0" step="0.05" value="0"></label>
+          <label>Glazing set-hour premium <input id="hoursGlazingPremium" type="number" min="0" step="0.05" value="0"></label>
+          <label>Set-hour factor (new-con) <input id="setHourFactor" type="number" min="0" step="0.02" value="1"></label>
+          <label>New-construction wrap hours <input id="hoursNewcon" type="number" min="0" step="0.1" value="0"></label>
+          <label>Balcony / access hours <input id="hoursAccess" type="number" min="0" step="0.1" value="0"></label>
+          <label>Hours for a screen <input id="hoursScreen" type="number" min="0" step="0.1" value="0.9"></label>
+          <label>Hours for a transom <input id="hoursTransom" type="number" min="0" step="0.1" value="1.4"></label>
+          <label>Hours for interior trim <input id="hoursInteriorTrim" type="number" min="0" step="0.1" value="1.2"></label>
+          <label>Hours for a sill pan / flashing <input id="hoursSillPan" type="number" min="0" step="0.1" value="1.5"></label>
+          <label>Hours for a threshold rebuild <input id="hoursThreshold" type="number" min="0" step="0.1" value="1.3"></label>
+          <label>Hours to tear out the old unit <input id="hoursTearOut" type="number" min="0" step="0.1" value="1.4"></label>
+          <label>Site / travel hours <input id="siteHours" type="number" min="0" step="0.25" value="0.5"></label>
+          <label>Patio-door unit cost <input id="unitCost" type="number" min="0" step="10" value="980"></label>
+          <label>Config unit-cost multiplier <input id="unitCostMultiplier" type="number" min="0" step="0.05" value="1"></label>
+          <label>Glazing cost factor <input id="glazingCostFactor" type="number" min="0" step="0.02" value="1"></label>
+          <label>Screen <input id="screenCost" type="number" min="0" step="5" value="95"></label>
+          <label>Transom <input id="transomCost" type="number" min="0" step="5" value="380"></label>
+          <label>Interior trim <input id="trimCost" type="number" min="0" step="5" value="140"></label>
+          <label>Sill pan / flashing <input id="sillPanCost" type="number" min="0" step="5" value="165"></label>
+          <label>Threshold rebuild <input id="thresholdCost" type="number" min="0" step="5" value="95"></label>
+          <label>Dump / haul-away <input id="dumpFee" type="number" min="0" step="5" value="65"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="5" value="0"></label>
+          <label>Crew hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="48"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="32"></label>
+          <label>Travel, truck, recovery <input id="travelAndEquipment" type="number" min="0" step="5" value="110"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="16"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="32"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="25" placeholder="e.g. 1800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A $48/h installer loaded at 32% is $63.36. Quoting the raw wage on a published $1,800-installed special is how a 4-panel impact balcony unit that looked fine turns into a two-day loss after the first sill-pan rebuild.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">patio-door price</div>
+      <dl>
+        <dt>Unit and access</dt><dd id="scope"></dd>
+        <dt>Opening and extras</dt><dd id="accessBits"></dd>
+        <dt>Crew hours</dt><dd id="hours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Door + extras</dt><dd id="materials"></dd>
+        <dt>Travel + equipment</dt><dd id="soft"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit at this price</dt><dd id="profit"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates — wage, burden, overhead, and target margin — so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
+      <ul class="split" id="hourSplit"></ul>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the cost goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or a door design &mdash; replace them with your own takeoff.</p>
+    </section>
+
+    <section><h2>Common questions</h2><h3>Why is a balcony unit priced so much higher than the same door on a ground patio?</h3><p>Second-story access changes the labor, not the door: staging, hoisting the panels, and working a lift or scaffold add hours a ground-floor swap never sees. The calculator prices access as its own line so a 12-foot 4-panel unit on a balcony is not quoted off the same number as the identical door at grade.</p><h3>Does new-construction framing cost more than a retrofit, and why?</h3><p>Yes &mdash; a retrofit reuses the existing frame and trims to it, while new-construction tears back to the rough opening, sets a new sill pan and frame, and wraps and flashes it. Pick &ldquo;New-construction (full frame + wrap)&rdquo; only if the opening is actually being framed out; picking it for a pocket replacement will overstate the bid.</p><h3>What if I don't know exactly which extras (transom, sill pan, screen) apply?</h3><p>Leave them unchecked and price the base door first, then toggle each one to see its dollar impact before you walk the job. The starting hours per extra are common ballpark figures, not a manufacturer spec, so true them up against your own invoices once you have a few jobs logged.</p><h3>Is this an engineering or code determination for impact glazing?</h3><p>No. Impact/hurricane glazing requirements are set by local code and wind-zone maps, not by this calculator &mdash; it only prices the glazing option you select. Confirm the required rating with your local building department before ordering material.</p></section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Sightline Doors LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Replace an 8 ft two-panel patio door, fiberglass frame&#10;Sill pan and new interior trim"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Structural header changes&#10;Exterior siding or stucco repair beyond the opening"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Opening flashed and pan-sealed before the unit is set."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <footer>
+    <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, legal, tax, financial, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, may be taken offline without notice; there is no availability SLA.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your opening, wages, costs, or prices.</p>
+    <p>Related: <a href="how-much-to-charge-to-replace-a-sliding-glass-door.html">How much to charge to replace a sliding glass door</a>.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      calculateBid,
+      formatBidSummary,
+      JOB_PRESETS,
+      suggestedConfigKit,
+      suggestedFrameKit,
+      suggestedGlazingKit,
+      suggestedInstallKit,
+      suggestedAccessKit,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
+
+    const FIELD_IDS = [
+      'hoursTrip','hoursSet','hoursSetPremium','hoursGlazingPremium','setHourFactor',
+      'hoursNewcon','hoursAccess','hoursScreen','hoursTransom','hoursInteriorTrim',
+      'hoursSillPan','hoursThreshold','hoursTearOut','siteHours',
+      'unitCost','unitCostMultiplier','glazingCostFactor','screenCost','transomCost',
+      'trimCost','sillPanCost','thresholdCost','dumpFee','permitFee',
+      'hourlyWage','burdenRate','travelAndEquipment','overheadRate','targetMargin',
+      'proposedPrice',
+    ];
+    const FLAG_IDS = ['addScreen','addTransom','addInteriorTrim','addSillPan','addThreshold','tearOut'];
+    const SELECT_IDS = ['config','frame','glazing','install','access'];
+    const SUGGESTED_CONFIG_IDS = ['hoursSet','hoursInteriorTrim','unitCostMultiplier'];
+    const SUGGESTED_FRAME_IDS = ['unitCost','hoursSetPremium'];
+    const SUGGESTED_GLAZING_IDS = ['glazingCostFactor','hoursGlazingPremium'];
+    const SUGGESTED_INSTALL_IDS = ['setHourFactor','hoursNewcon'];
+    const SUGGESTED_ACCESS_IDS = ['hoursAccess'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const presets = el('jobPresets');
+    JOB_PRESETS.forEach((job, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = job.label;
+      presets.append(option);
+    });
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyKit(force, rates, ids) {
+      for (const [key, value] of Object.entries(rates)) {
+        if (force || !el(key).dataset.edited) el(key).value = value;
+      }
+      if (ids) {
+        /* keep ids referenced so a future kit field is not silently dropped */
+      }
+    }
+
+    function applyConfigKit(force) {
+      applyKit(force, suggestedConfigKit(el('config').value), SUGGESTED_CONFIG_IDS);
+    }
+    function applyFrameKit(force) {
+      applyKit(force, suggestedFrameKit(el('frame').value), SUGGESTED_FRAME_IDS);
+    }
+    function applyGlazingKit(force) {
+      applyKit(force, suggestedGlazingKit(el('glazing').value), SUGGESTED_GLAZING_IDS);
+    }
+    function applyInstallKit(force) {
+      applyKit(force, suggestedInstallKit(el('install').value), SUGGESTED_INSTALL_IDS);
+    }
+    function applyAccessKit(force) {
+      applyKit(force, suggestedAccessKit(el('access').value), SUGGESTED_ACCESS_IDS);
+    }
+
+    function applyJob(job) {
+      el('config').value = job.config;
+      el('frame').value = job.frame;
+      el('glazing').value = job.glazing;
+      el('install').value = job.install;
+      el('access').value = job.access;
+      applyConfigKit(true);
+      applyFrameKit(true);
+      applyGlazingKit(true);
+      applyInstallKit(true);
+      applyAccessKit(true);
+      [...SUGGESTED_CONFIG_IDS, ...SUGGESTED_FRAME_IDS, ...SUGGESTED_GLAZING_IDS, ...SUGGESTED_INSTALL_IDS, ...SUGGESTED_ACCESS_IDS]
+        .forEach(id => { el(id).dataset.edited = ''; });
+      el('addScreen').checked = job.addScreen;
+      el('addTransom').checked = job.addTransom;
+      el('addInteriorTrim').checked = job.addInteriorTrim;
+      el('addSillPan').checked = job.addSillPan;
+      el('addThreshold').checked = job.addThreshold;
+      el('tearOut').checked = job.tearOut;
+    }
+
+    function readInput() {
+      const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
+      for (const id of FLAG_IDS) values[id] = el(id).checked;
+      for (const id of SELECT_IDS) values[id] = el(id).value;
+      return values;
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'patio-door price';
+      ['scope','accessBits','hours','labor','materials','soft','overhead','cost','profit','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('hourSplit').innerHTML = '';
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    function barList(entries) {
+      return entries
+        .filter(([, share]) => share > 0)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, share]) => `<li><span>${label}</span><span>${share.toFixed(0)}%</span>
+          <span class="bar"><span style="width:${share.toFixed(1)}%"></span></span></li>`)
+        .join('');
+    }
+
+    function update() {
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'patio-door price';
+      el('scope').textContent = `${result.config} · ${result.frame} · ${result.glazing} · ${result.install} · ${result.access}`;
+      const extraBits = [
+        result.addScreen ? 'screen' : null,
+        result.addTransom ? 'transom' : null,
+        result.addInteriorTrim ? 'interior trim' : null,
+        result.addSillPan ? 'sill pan' : null,
+        result.addThreshold ? 'threshold rebuild' : null,
+        result.tearOut ? 'tear-out' : null,
+      ].filter(Boolean);
+      el('accessBits').textContent = extraBits.join(', ') || 'standard brochure hang';
+      el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('materials').textContent = money(result.materialCost);
+      el('soft').textContent = money(result.softCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('hourSplit').innerHTML = barList([
+        ['Trip / setup', result.hourShares.trip],
+        ['Set the unit', result.hourShares.set],
+        ['New-construction wrap', result.hourShares.wrap],
+        ['Access / balcony', result.hourShares.access],
+        ['Screen / transom / trim / sill / tear-out', result.hourShares.extras],
+        ['Site / travel', result.hourShares.site],
+      ]);
+      el('split').innerHTML = barList([
+        ['Labor', result.shares.labor],
+        ['Door + extras', result.shares.material],
+        ['Travel', result.shares.soft],
+        ['Overhead', result.shares.overhead],
+      ]);
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    async function copySummary() {
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      const text = formatBidSummary(calculateBid(readInput()), job?.label);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    presets.addEventListener('change', () => {
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
+      if (!job) return;
+      applyJob(job);
+      count('preset_applied');
+      update();
+    });
+
+    el('config').addEventListener('change', () => {
+      applyConfigKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('frame').addEventListener('change', () => {
+      applyFrameKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('glazing').addEventListener('change', () => {
+      applyGlazingKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('install').addEventListener('change', () => {
+      applyInstallKit(false);
+      count('bid_calculated');
+      update();
+    });
+    el('access').addEventListener('change', () => {
+      applyAccessKit(false);
+      count('bid_calculated');
+      update();
+    });
+
+    [...SUGGESTED_CONFIG_IDS, ...SUGGESTED_FRAME_IDS, ...SUGGESTED_GLAZING_IDS, ...SUGGESTED_INSTALL_IDS, ...SUGGESTED_ACCESS_IDS]
+      .forEach(id => el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; }));
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    FLAG_IDS.forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    // Derived from the very id lists `readInput()` reads and the options the
+    // selects actually offer, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    // This venture already lists its selects; reuse that rather than restating it.
+    const CHOICE_IDS = [...SELECT_IDS];
+    const BID_SPEC = {
+      key: 'patio-door-bid',
+      numbers: [...FIELD_IDS].filter(id => !CHOICE_IDS.includes(id)),
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kits would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
+    update();
+    persist();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'patio-door-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not a structural assessment of the opening or a determination that concealed framing is sound.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Supply and install a {configLabel} {frameLabel} patio door with {glazingLabel} glazing",
+        "Installation method: {installLabel}",
+        "Access: {accessLabel}",
+        {
+          "line": "Remove and dispose of the existing door",
+          "when": "tearOut"
+        },
+        {
+          "line": "Fit an insect screen",
+          "when": "addScreen"
+        },
+        {
+          "line": "Fit a transom above the unit",
+          "when": "addTransom"
+        },
+        {
+          "line": "Fit new interior trim",
+          "when": "addInteriorTrim"
+        },
+        {
+          "line": "Fit a sill pan under the unit",
+          "when": "addSillPan"
+        },
+        {
+          "line": "Fit a new threshold",
+          "when": "addThreshold"
+        },
+        "Flash, insulate and seal the opening; adjust the rollers and locks on completion"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "configLabel": el('config')?.selectedOptions?.[0]?.textContent?.trim(),
+        "frameLabel": el('frame')?.selectedOptions?.[0]?.textContent?.trim(),
+        "glazingLabel": el('glazing')?.selectedOptions?.[0]?.textContent?.trim(),
+        "installLabel": el('install')?.selectedOptions?.[0]?.textContent?.trim(),
+        "accessLabel": el('access')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Patio door replacement'], proposalFields(result))[0] || 'Patio door replacement',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

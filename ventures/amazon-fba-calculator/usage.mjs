@@ -11,9 +11,19 @@ function honorsBrowserSignal() {
 
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = "listing_profit_calculated") {
   if (optedOut || !storage || honorsBrowserSignal()) return;
-  const today = new Date().toISOString().slice(0, 10);
-  const current = JSON.parse(storage.getItem("amazon-fba-usage") || "{}");
-  current[event] = (current[event] || 0) + 1;
-  current.last_day = today;
-  storage.setItem("amazon-fba-usage", JSON.stringify(current));
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    let current = {};
+    try {
+      const stored = JSON.parse(storage.getItem("amazon-fba-usage") || "{}");
+      if (stored && typeof stored === "object" && !Array.isArray(stored)) current = stored;
+    } catch {
+      // A corrupt local counter should never stop the calculator from working.
+    }
+    current[event] = (Number.isFinite(current[event]) ? current[event] : 0) + 1;
+    current.last_day = today;
+    storage.setItem("amazon-fba-usage", JSON.stringify(current));
+  } catch {
+    // Storage can be unavailable in private browsing or with a blocked quota.
+  }
 }

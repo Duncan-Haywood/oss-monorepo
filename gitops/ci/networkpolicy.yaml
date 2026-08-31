@@ -1,0 +1,49 @@
+# A CI runner executes whatever a workflow file says to execute. On a private
+# repo that is only ever a collaborator's code, but it still runs on the same
+# node as marisstella.dev, so it is worth making the blast radius explicit.
+#
+# Egress to the internet is required and allowed: the runner has to reach
+# api.github.com to register, and every workflow here runs actions/setup-node
+# or setup-python, which download toolchains. What it does not need, and does
+# not get, is the cluster's own network -- pod and service CIDRs and the
+# Kubernetes API are excluded from the allowed range, so a workflow cannot
+# reach prod's pods, the agents namespace, or the API server.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: actions-runner
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: actions-runner
+  policyTypes:
+    - Ingress
+    - Egress
+  # Nothing in the cluster should ever open a connection to a CI runner.
+  ingress: []
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except:
+              # k3s defaults: pods 10.42.0.0/16, services 10.43.0.0/16. The
+              # private network the two nodes join over is 10.42.0.10/11 per
+              # infra/network.tf, inside the pod CIDR already excluded here.
+              - 10.42.0.0/16
+              - 10.43.0.0/16
+              # RFC1918 ranges the nodes themselves sit on.
+              - 172.16.0.0/12
+              - 192.168.0.0/16
+              # Link-local, which is where cloud metadata services live.
+              - 169.254.0.0/16
+    # DNS still has to work, and CoreDNS is inside the service CIDR excluded
+    # above, so it is allowed back in explicitly and only on port 53.
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

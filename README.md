@@ -12,6 +12,13 @@ Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
 lands: [`portfolio/usage/`](portfolio/usage/README.md).
 
+The operating priority is product value over administrative throughput. Existing
+work should be triaged proportionately, then the next session should leave a
+stranger with a runnable workflow, measured only with privacy-conscious,
+off-switchable event counts. A blocked CI provider or owner-only deployment
+permission is a dependency to report, not a reason to substitute more process
+work for building.
+
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
@@ -29,6 +36,10 @@ bootstrap/    one-time k3s + Argo CD (laptop SSH, not cloud-init)
 gitops/       App-of-Apps, AppProjects, prod/staging/agents
 ```
 
+Actions secrets for that stack (names only): `HETZNERSSHKEY`,
+`HETZNERREADAPIKEY`. `CLAUDETRIGGERAPIKEY` is the Claude routine
+trigger, not GitOps. Table: [`infra/OWNER_CHECKLIST.md`](infra/OWNER_CHECKLIST.md).
+
 ### ventures/
 
 Each venture is self-contained and carries a `VENTURE.yaml` at its root. That
@@ -39,15 +50,14 @@ change.
 Venture directories are kept cleanly bounded so a venture can be extracted
 with `git filter-repo` if it is ever sold or spun off.
 
-`mat-470-real-analysis` (private personal coursework) and
 `ubuntu-agent-server` (shared agent-hosting infra, not itself
-revenue-seeking) intentionally have no `VENTURE.yaml` — neither is a
-business the router should allocate profit-seeking effort to. Each carries a
+revenue-seeking) intentionally has no `VENTURE.yaml` — it is not a
+business the router should allocate profit-seeking effort to. It carries a
 `NOT-A-VENTURE` file recording why. `ai-first-markets` carries one too, for
 the same reason and by the same rule, but keeps its `VENTURE.yaml`: it is the
 portfolio's own scoring engine rather than a business, and its retained
-hypothesis record is the evidence that reclassification rests on. Whether any
-of the three belong under `ventures/` at all, or should move to
+hypothesis record is the evidence that reclassification rests on. Whether either
+belongs under `ventures/` at all, or should move to
 `platform/`/elsewhere, is still an open structural decision; the marker does
 not settle it.
 
@@ -121,8 +131,23 @@ and preserve the legal, privacy, and safety guardrails in
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). Pull requests are reviewed in
 proportion to risk and merged when their relevant checks are green.
 
+The venture list is allowed to grow when a new candidate is materially
+different from existing products and can be launched without new spend or
+payment collection. Adjacent improvements should still land in the closest
+existing venture to avoid duplicate products.
+
 ## History
 
 Ventures were merged in with `git subtree`, so each one's full commit history
 is preserved and attributed. The original standalone repositories still exist
 and were not deleted.
+
+## Product-first execution
+
+The current operating direction is to ship useful, free, local-first software
+for narrow customer problems, measure anonymous feature usage, and improve what
+people return to. New products should leave a stranger able to complete one
+valuable task without an account, payment, or a paid dependency. See
+[`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and
+[`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) for the launch checklist, safety
+guardrails, and opportunity-selection criteria.

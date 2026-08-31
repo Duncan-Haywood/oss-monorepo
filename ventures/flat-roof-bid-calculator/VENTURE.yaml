@@ -1,0 +1,32 @@
+name: flat-roof-bid-calculator
+description: A private browser calculator for low-slope roofing crews that prices a TPO, EPDM, PVC, or modified-bitumen roof from membrane squares, tear-off, insulation, parapet, and drains — the extras a per-square special cannot see — and shows the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Flat-roofing crews will use a membrane-and-insulation-aware bid calculator because a published price-per-square special cannot see that a 40-square 80-mil TPO tear-off with two polyiso layers and 80 lf of parapet is a different job than a 12-square TPO-45 recover on a garage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the membrane share of direct cost are the two numbers a contractor actually decides on when a prospect asks them to match a $650/square coupon, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Switching from a TPO-45 recover to an 80-mil tear-off with wet insulation, parapet flashing, and drains changes the resulting bid materially versus the same coupon written for plan squares, so making that field layer a required, explained output changes the price they send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified low-slope roofing contractors use the calculator twice within 90 days.
+  - Contractors report that counting membrane type, insulation, and parapet is more work than their existing square method without changing the price they would have bid.
+  - The starting waste and membrane figures prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

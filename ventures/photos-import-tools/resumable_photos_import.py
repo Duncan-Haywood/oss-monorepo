@@ -1172,15 +1172,22 @@ def main(argv: Iterable[str] = sys.argv[1:]) -> int:
                 "status_raw.json" if args.media_type == "raw" else "status.json"
             )
             if status_path.exists():
-                status = json.loads(status_path.read_text(encoding="utf-8"))
-                progress = status.get("progress", {})
-                errors = status.get("errors", {})
-                print(
-                    f"Strategy={progress.get('current_strategy')} batch={progress.get('current_batch_size')} "
-                    f"eta={progress.get('eta_human')} consecutive_failures={progress.get('consecutive_failures')}"
-                )
-                if errors.get("last_error"):
-                    print(f"Last error [{errors.get('last_error_category')}]: {errors.get('last_error')}")
+                try:
+                    status = json.loads(status_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    # Status is a convenience snapshot, not the source of truth.
+                    # Keep the manifest summary usable when a sync or interrupted
+                    # write leaves the snapshot unavailable.
+                    print("Progress snapshot unavailable; manifest summary is authoritative.")
+                else:
+                    progress = status.get("progress", {})
+                    errors = status.get("errors", {})
+                    print(
+                        f"Strategy={progress.get('current_strategy')} batch={progress.get('current_batch_size')} "
+                        f"eta={progress.get('eta_human')} consecutive_failures={progress.get('consecutive_failures')}"
+                    )
+                    if errors.get("last_error"):
+                        print(f"Last error [{errors.get('last_error_category')}]: {errors.get('last_error')}")
             return 0
         if args.command == "skip-uncertain":
             skipped = state.skip_uncertain("Skipped because previous Photos timeout may already have imported these files.")

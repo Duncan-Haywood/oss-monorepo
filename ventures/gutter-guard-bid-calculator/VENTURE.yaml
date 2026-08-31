@@ -1,0 +1,32 @@
+name: gutter-guard-bid-calculator
+description: A private browser calculator for gutter shops that prices a screen, foam, reverse-curve, or micromesh install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass, fascia repair, steep-roof access, and occupied-home landscaping — and shows the price per foot, the hours the first extra story actually consumes, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent gutter shops will use a feet-and-story bid calculator because the generic $8/foot leaf-filter special or Home Depot DIY micromesh price they are shopped on cannot see that a 140-foot one-story ranch with empty gutters is a different job from a 220-foot two-story colonial with packed gutters and rotten fascia.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published per-foot special) are the two figures a shop actually decides on when a homeowner asks them to match a cheaper screen quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating extra stories, extra feet, extra miters, extra downspouts, a clean-first pass, fascia repair, steep-roof access, and occupied-home landscaping as their own hours, instead of a blended add-on to the special, changes the bid enough that shops notice which part of a high number is the first extra story.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified gutter shops use the calculator twice within 90 days.
+  - Shops report that splitting feet, stories, and extras is more work than their existing special without changing the price they would have bid.
+  - The starting hours and coil rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

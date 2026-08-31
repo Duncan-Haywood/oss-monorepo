@@ -13,6 +13,7 @@ import {
   eaaRetestPriceRangeLabel,
 } from "@/lib/pricing/eaa-evidence";
 import { staticPageMetadata } from "@/lib/seo";
+import { EaaPreauditChecklist } from "@/components/marketing/eaa-preaudit-checklist";
 
 export const metadata: Metadata = staticPageMetadata({
   title: `Accessibility evidence — ${brand.name}`,
@@ -99,6 +100,7 @@ export default function AccessibilityEvidencePage() {
             lines is typically exempt. We will not take that inquiry as an evidence job.
           </p>
           <EaaEvidenceInquiry />
+          <EaaPreauditChecklist />
           <p className="mt-8 text-sm text-zinc-500">
             Operator notes live at{" "}
             <Link href={EAA_EVIDENCE_DOCS_PATH} className="underline underline-offset-2">

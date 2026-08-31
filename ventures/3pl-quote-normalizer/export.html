@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Export a 3PL quote record | Spreadsheet-ready CSV</title>
+  <meta name="description" content="Download a spreadsheet-ready CSV or JSON record of a normalized 3PL quote: line items, minimum-charge treatment, true cost per order, and the in-house comparison.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="export.html">
+  <meta property="og:title" content="Export a 3PL quote as CSV or JSON">
+  <meta property="og:description" content="Turn a normalized 3PL quote into a spreadsheet-ready record you can keep or share.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"3PL Quote Record Export","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Download a spreadsheet-ready CSV or JSON record of a normalized 3PL quote: line items, minimum-charge treatment, true cost per order, and the in-house comparison."}</script>
+  <style>
+    body{font:16px system-ui,sans-serif;max-width:720px;margin:auto;padding:24px;background:#f4f1ea;color:#17212b}
+    main{background:#fff;padding:24px;border-radius:14px}
+    label{font-weight:700;display:block;margin-top:12px}input,button{font:inherit;padding:10px;margin-top:5px}
+    input{border:1px solid #a9b4af;border-radius:7px;width:100%;box-sizing:border-box}
+    button{background:#c05430;color:#fff;border:0;border-radius:8px;font-weight:700;cursor:pointer;margin-right:8px}
+    button.secondary{background:#e8eee9;color:#123b36}
+    .note{color:#52605d;font-size:.9rem}
+    pre{white-space:pre-wrap;background:#f4f1ea;padding:12px;border-radius:8px;font-size:.8rem}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="note">FULFILLMENT DECISION TOOL</p>
+    <h1>Download a reviewable 3PL record</h1>
+    <p>Uses the same normalized monthly totals as the calculator. Open this page when you want a spreadsheet-ready record of the minimum-charge treatment and the in-house comparison without hunting for the download button on the quote form.</p>
+    <p><a href="./">← Normalize a quote first</a> if nothing is saved yet.</p>
+    <form id="form">
+      <label>Monthly orders<input name="orders" type="number" value="100" min="0"></label>
+      <label>Units / order<input name="unitsPerOrder" type="number" value="1.5" step=".1" min="0"></label>
+      <label>Pallets stored<input name="pallets" type="number" value="1" min="0"></label>
+      <label>Inbound units / month<input name="inboundUnits" type="number" value="150" min="0"></label>
+      <label>Receiving / unit ($)<input name="receivingPerUnit" type="number" value="0.12" step=".01" min="0"></label>
+      <label>Storage / pallet ($)<input name="storagePerPallet" type="number" value="18" step=".01" min="0"></label>
+      <label>First pick / order ($)<input name="firstPick" type="number" value="2.75" step=".01" min="0"></label>
+      <label>Additional pick / unit ($)<input name="additionalPick" type="number" value="0.5" step=".01" min="0"></label>
+      <label>Packaging / order ($)<input name="packaging" type="number" value="0.6" step=".01" min="0"></label>
+      <label>Shipping / order ($)<input name="shipping" type="number" value="8.5" step=".01" min="0"></label>
+      <label>Returns (% of orders)<input name="returnsRate" type="number" value="8" step=".1" min="0"></label>
+      <label>Fixed monthly fee ($)<input name="fixedFee" type="number" value="150" step=".01" min="0"></label>
+      <label>Minimum monthly spend ($)<input name="minimumMonthly" type="number" value="0" step=".01" min="0"></label>
+      <label>In-house cost / order ($)<input name="inHousePerOrder" type="number" value="13" step=".01" min="0"></label>
+      <p>
+        <button type="submit">Download CSV record</button>
+        <button class="secondary" id="json" type="button">Download JSON record</button>
+      </p>
+    </form>
+    <p id="status" class="note" aria-live="polite">Uses the saved calculator quote when one exists in this browser.</p>
+    <details><summary>Preview the record</summary><pre id="preview"></pre></details>
+    <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p class="note"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p class="note">Everything runs in your browser. Your data is never uploaded. Anonymous feature events are counted only in local storage.</p>
+    <p class="note">Free to use. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor on GitHub</a> if you want — refusing does not change the calculator.</p>
+  </main>
+  <script type="module">
+    import { calculate } from "./calc.mjs";
+    import { exportCsv, exportJson } from "./export.mjs";
+    import { record } from "./usage.mjs";
+
+    const form = document.querySelector("#form");
+    const status = document.querySelector("#status");
+    const preview = document.querySelector("#preview");
+    const saveKey = "3pl-quote-normalizer-inputs";
+
+    function values() {
+      return Object.fromEntries(new FormData(form));
+    }
+
+    function result() {
+      return calculate(values());
+    }
+
+    function download(content, name, type, eventName) {
+      const blob = new Blob([content], { type });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = name;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      record(eventName);
+    }
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(saveKey) || "null");
+      if (saved && typeof saved === "object") {
+        for (const [name, value] of Object.entries(saved)) {
+          const input = form.elements.namedItem(name);
+          if (input && typeof value === "string") input.value = value;
+        }
+        status.textContent = "Loaded the quote saved on the calculator in this browser.";
+      }
+    } catch {
+      status.textContent = "Local saving is unavailable in this browser. Type the quote here.";
+    }
+
+    function renderPreview() {
+      preview.textContent = exportCsv(result());
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      download(exportCsv(result()), "3pl-quote-normalized.csv", "text/csv", "review_record_exported");
+      status.textContent = "CSV record downloaded. Verify every rate before relying on it.";
+    });
+    document.querySelector("#json").addEventListener("click", () => {
+      download(exportJson(result()), "3pl-quote-normalized.json", "application/json", "review_record_json_exported");
+      status.textContent = "JSON record downloaded. Verify every rate before relying on it.";
+    });
+    form.addEventListener("input", renderPreview);
+    renderPreview();
+  </script>
+</body>
+</html>

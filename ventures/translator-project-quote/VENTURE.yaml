@@ -1,0 +1,27 @@
+name: translator-project-quote
+description: A private browser calculator for freelance translators to price word counts, fuzzy-match discounts, rush work, QA, and desktop publishing without underquoting the project.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Freelance translators will return to a quote calculator that models weighted word counts instead of treating every word as full price.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent minimum-price and target-price comparison is useful before accepting translation work.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified translators use the calculator twice within 90 days.
+  - Users do not identify a quote where weighted words or project add-ons changed their decision.
+links:
+  production: null
+  analytics: null

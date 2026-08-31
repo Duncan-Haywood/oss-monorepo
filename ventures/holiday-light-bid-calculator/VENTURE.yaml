@@ -1,0 +1,32 @@
+name: holiday-light-bid-calculator
+description: A private browser calculator for holiday lighting contractors that prices Christmas and holiday light hanging from eave lineal feet, hang-only versus hang-and-takedown versus full-service storage, 1-story versus 2-story versus 3-story access, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent holiday lighting contractors will use a hang-versus-take-down bid calculator because the generic "$3 / LF Christmas light hang special" they are shopped on cannot see that a 1-story ranch C9 hang-only is a different job from a two-story Victorian with icicles, tree wraps, January take-down, and off-season storage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published hang dump) are the two figures a contractor actually decides on when an owner asks them to match a cheaper hang-only quote on a full-service job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing hang-only, hang-and-takedown, and full-service on the same house, with story hours and a take-down ratio, changes the bid enough that contractors notice which scope keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified holiday lighting contractors use the calculator twice within 90 days.
+  - Contractors report that splitting hang, take-down, and extras is more work than their existing per-foot method without changing the price they would have bid.
+  - The starting hours and light rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,16 @@
+{
+  "invoice_number": "INV-1002",
+  "issue_date": "2026-08-24",
+  "currency": "EUR",
+  "supplier": {"id": "DE123", "name": "Supplier GmbH", "vat_id": "DE136695976"},
+  "customer": {"id": "DE456", "name": "Customer GmbH"},
+  "lines": [
+    {"description": "Consulting", "quantity": 2, "unit_price": 100, "tax_percent": 19, "net": 200},
+    {"description": "Books", "quantity": 1, "unit_price": 100, "tax_percent": 7, "net": 100}
+  ],
+  "tax_breakdown": [
+    {"tax_percent": 19, "taxable": 200, "tax": 38, "tax_category": "S"},
+    {"tax_percent": 7, "taxable": 100, "tax": 7, "tax_category": "AA"}
+  ],
+  "totals": {"net": 300, "tax": 45, "gross": 345}
+}

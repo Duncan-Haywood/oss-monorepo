@@ -1,0 +1,32 @@
+name: seller-net-sheet
+description: A private browser calculator for home sellers and listing agents that turns an offer into cash at closing — listing-broker pay, optional buyer-broker compensation, concessions, title, and payoff on separate lines — and compares two offers so the higher price is not mistaken for the higher net.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Listing agents and sellers will return to a net sheet that treats buyer-broker compensation as its own negotiated line, because generic closing-cost pages still model a single 5% or 6% commission and hide that a higher offer can leave less cash.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The sale price that hits a stated target net is the number a seller actually uses when setting a list price or writing a counter, more than the net on one example offer.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Copying a two-offer comparison into a text message or listing appointment changes whether the higher offer is accepted without a net check.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified sellers or listing agents use the calculator twice within 90 days.
+  - Users report that separating buyer-broker compensation does not change which offer they would have taken.
+  - Local transfer-tax and proration customs prove so dominant that a generic worksheet cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

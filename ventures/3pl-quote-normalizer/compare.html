@@ -5,12 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Compare 3PL Quotes Against a Target</title>
   <meta name="description" content="Compare normalized third-party logistics quotes and see which providers fit your monthly fulfillment budget.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="compare.html">
+  <meta property="og:title" content="Compare two 3PL quotes side by side">
+  <meta property="og:description" content="See which of two normalized 3PL quotes fits your monthly fulfillment budget, with an optional target total.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Compare 3PL Quotes Against a Target","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare two normalized monthly 3PL quote totals, named and side by side, against an optional target budget."}</script>
   <style>
     body{font:16px system-ui,sans-serif;max-width:700px;margin:auto;padding:24px;background:#f4f1ea;color:#17212b}
     main{background:#fff;padding:24px;border-radius:14px}
     form{display:grid;gap:14px}label{font-weight:700}input,button{font:inherit;padding:10px;margin-top:5px}
     input{border:1px solid #a9b4af;border-radius:7px;box-sizing:border-box;width:100%}
-    button{background:#d45c35;color:white;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+    button{background:#c05430;color:white;border:0;border-radius:8px;font-weight:700;cursor:pointer}
     .secondary{background:#e8eee9;color:#123b36}.note{color:#52605d;font-size:.9rem}
     .error{color:#a52f22;font-weight:700;min-height:1.5em}.result{font-size:1.2rem;font-weight:700;color:#123b36;min-height:1.5em}
     .target,.insight{font-weight:600;color:#52605d;line-height:1.5}
@@ -33,7 +38,8 @@
     <p id="result" class="result" aria-live="polite"></p>
     <p id="targetResult" class="target" aria-live="polite"></p>
      <button class="secondary" id="copy" type="button">Copy comparison</button> <button class="secondary" id="download" type="button">Download CSV record</button>
-    <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p>
+    <p class="note">Need a factual ask for the higher quote? <a href="./negotiation.html">Create a negotiation brief</a> from the same monthly totals.</p>
+    <p class="note"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, tax, legal, or engineering advice, and it does not replace a qualified professional. You are responsible for reviewing and verifying its output before relying on it.</p><p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
     <p class="note">Your inputs stay in this browser. No account, tracking cookie, or analytics vendor is used.</p>
   </main>
   <script type="module">

@@ -1,8 +1,8 @@
 name: hetzner-gitops CI
 
 # Validate the IaC + GitOps tree. Never tofu apply. Never start a Codex
-# Job. An optional HCLOUD_TOKEN is probed as Read-only (empty POST
-# /servers). SSH preflight is workflow_dispatch only.
+# Job. HETZNERREADAPIKEY (Read token) is probed via empty POST /servers.
+# SSH preflight is workflow_dispatch only and uses HETZNERSSHKEY.
 
 on:
   push:
@@ -11,6 +11,18 @@ on:
       - "infra/**"
       - "bootstrap/**"
       - "gitops/**"
+      # test_site_usage.py builds a real site with this and asserts the usage
+      # aggregator can still parse the URLs it emits. A layout change here is
+      # exactly the regression that gate exists for, so it has to trigger it.
+      - "platform/pages/build.mjs"
+      # test_manifests.py::test_portfolio_site_build_uses_flags_the_build_
+      # scripts_accept reads this file's own text to confirm it still parses
+      # the `--dist=` flag portfolio-site.yaml's build script passes it —
+      # the same cross-check build.mjs gets above, and for the same reason: a
+      # renamed flag would crash-loop the site the moment the owner seals the
+      # clone token. That check runs only when this workflow does, so a PR
+      # touching check.mjs alone has to trigger it too.
+      - "platform/pages/check.mjs"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   pull_request:
@@ -18,12 +30,14 @@ on:
       - "infra/**"
       - "bootstrap/**"
       - "gitops/**"
+      - "platform/pages/build.mjs"
+      - "platform/pages/check.mjs"
       - ".sops.yaml"
       - ".github/workflows/hetzner-gitops-ci.yml"
   workflow_dispatch:
     inputs:
       preflight:
-        description: SSH to the two hel1 boxes (read-only). Uses HETZNER_SSH_PRIVATE_KEY or SSH_PRIVATE_KEY.
+        description: SSH to the two hel1 boxes (read-only). Uses HETZNERSSHKEY.
         type: boolean
         default: false
 
@@ -32,12 +46,21 @@ permissions:
 
 jobs:
   gitops:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # test_site_usage.py runs platform/pages/build.mjs to check the usage
+      # aggregator against real published URLs, and skips itself when node is
+      # missing. GitHub's image happens to ship node; the self-hosted image
+      # has no apt and no sudo, so nothing guarantees it there. Installing it
+      # explicitly is what keeps that gate from silently skipping the day
+      # CI_RUNNER flips to self-hosted.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Install test deps
         run: pip install -r gitops/tests/requirements.txt pyflakes
       - name: pyflakes governor
@@ -50,17 +73,35 @@ jobs:
           python3 infra/tests/test_hcloud_scope.py
       - name: kustomize build
         run: |
-          curl -sL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz | tar -xz
-          sudo mv kustomize /usr/local/bin/
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -sL https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz | tar -xz -C "$RUNNER_TEMP/bin"
+          echo "$RUNNER_TEMP/bin" >> "$GITHUB_PATH"
+          export PATH="$RUNNER_TEMP/bin:$PATH"
           kustomize build gitops/apps >/tmp/apps.yaml
           kustomize build gitops/platform >/tmp/platform.yaml
           kustomize build gitops/prod >/tmp/prod.yaml
           kustomize build gitops/staging >/tmp/staging.yaml
           kustomize build gitops/agents >/tmp/agents.yaml
-          python3 -c "import yaml; [list(yaml.safe_load_all(open(p))) for p in ['/tmp/apps.yaml','/tmp/platform.yaml','/tmp/prod.yaml','/tmp/staging.yaml','/tmp/agents.yaml']]"
+          kustomize build gitops/ci >/tmp/ci.yaml
+          python3 -c "import yaml; [list(yaml.safe_load_all(open(p))) for p in ['/tmp/apps.yaml','/tmp/platform.yaml','/tmp/prod.yaml','/tmp/staging.yaml','/tmp/agents.yaml','/tmp/ci.yaml']]"
+      # Parsing as YAML only proves it is YAML. This proves the manifests are
+      # things Kubernetes would actually accept: right field names, right
+      # types, no typo'd key silently ignored on apply. -strict rejects
+      # unknown fields, which is the class this catches — a misspelled
+      # `readOnlyRootFilesystem` parses fine and protects nothing.
+      # CRDs (Argo Applications, cert-manager ClusterIssuers) have no schema
+      # here and are skipped rather than failed.
+      - name: kubeconform
+        run: |
+          mkdir -p "$RUNNER_TEMP/bin"
+          curl -sL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar -xz -C "$RUNNER_TEMP/bin"
+          export PATH="$RUNNER_TEMP/bin:$PATH"
+          kubeconform -strict -summary -verbose \
+            -kubernetes-version 1.31.0 -ignore-missing-schemas \
+            /tmp/apps.yaml /tmp/platform.yaml /tmp/prod.yaml /tmp/staging.yaml /tmp/agents.yaml /tmp/ci.yaml
 
   tofu:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - uses: opentofu/setup-opentofu@v1
@@ -74,52 +115,57 @@ jobs:
           tofu validate
 
   scripts:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # shellcheck-py ships the real shellcheck binary as a wheel. apt-get
+      # would need sudo and a package index, and the self-hosted runner image
+      # has neither -- this installs the same tool on either runner.
       - name: shellcheck
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq shellcheck
+          pip install shellcheck-py
           shellcheck bootstrap/install-k3s-server.sh \
             bootstrap/install-k3s-agent.sh \
             bootstrap/install-argocd.sh \
             bootstrap/preflight.sh \
             bootstrap/label-existing.sh \
             bootstrap/scripts/gen-age-key.sh \
+            bootstrap/scripts/seal-owner-secrets.sh \
             infra/scripts/discover.sh \
             infra/scripts/assert_hcloud_read_only.sh \
-            gitops/agents/workers/worker.sh
+            gitops/agents/workers/worker.sh \
+            gitops/ci/runner-entrypoint.sh
 
   hcloud-scope:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Prove HCLOUD_TOKEN is Read-only when present
+      - name: Prove HETZNERREADAPIKEY is Read-only
         env:
-          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+          HCLOUD_TOKEN: ${{ secrets.HETZNERREADAPIKEY }}
         run: |
           if [ -z "${HCLOUD_TOKEN}" ]; then
-            echo "HCLOUD_TOKEN secret unset — skip. A Read token is optional; a Write token is not allowed."
+            echo "HETZNERREADAPIKEY unset — skip. A Read token belongs here; a Write token does not."
             exit 0
           fi
           infra/scripts/assert_hcloud_read_only.sh
 
   preflight:
     if: github.event_name == 'workflow_dispatch' && inputs.preflight == true
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - name: SSH preflight (read-only)
         env:
-          HETZNER_SSH_PRIVATE_KEY: ${{ secrets.HETZNER_SSH_PRIVATE_KEY }}
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HETZNERSSHKEY: ${{ secrets.HETZNERSSHKEY }}
         run: |
           set -euo pipefail
-          KEY="${HETZNER_SSH_PRIVATE_KEY:-${SSH_PRIVATE_KEY:-}}"
+          KEY="${HETZNERSSHKEY:-}"
           if [ -z "${KEY}" ]; then
-            echo "No private key in HETZNER_SSH_PRIVATE_KEY or SSH_PRIVATE_KEY." >&2
-            echo "The key already in Actions secrets needs one of those names as an alias." >&2
+            echo "HETZNERSSHKEY is unset." >&2
             exit 1
           fi
           mkdir -p "${HOME}/.ssh"

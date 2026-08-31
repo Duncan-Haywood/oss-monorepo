@@ -144,7 +144,7 @@
           <label for="r">Resistance, R</label>
           <div class="field-unit">
             <input type="number" id="r" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="r-unit">
+            <select id="r-unit" aria-label="Resistance unit">
               <option value="1">Ω</option>
               <option value="1e3" selected>kΩ</option>
               <option value="1e6">MΩ</option>
@@ -155,7 +155,7 @@
           <label for="c">Capacitance, C</label>
           <div class="field-unit">
             <input type="number" id="c" inputmode="decimal" value="100" step="any" min="0" />
-            <select id="c-unit">
+            <select id="c-unit" aria-label="Capacitance unit">
               <option value="1e-12">pF</option>
               <option value="1e-9" selected>nF</option>
               <option value="1e-6">µF</option>
@@ -167,7 +167,7 @@
           <label for="l">Inductance, L</label>
           <div class="field-unit">
             <input type="number" id="l" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="l-unit">
+            <select id="l-unit" aria-label="Inductance unit">
               <option value="1e-9">nH</option>
               <option value="1e-6">µH</option>
               <option value="1e-3" selected>mH</option>
@@ -185,7 +185,7 @@
           <label for="target">Target cutoff frequency, f<sub>c</sub></label>
           <div class="field-unit">
             <input type="number" id="target" inputmode="decimal" value="1" step="any" min="0" />
-            <select id="target-unit">
+            <select id="target-unit" aria-label="Target cutoff frequency unit">
               <option value="1">Hz</option>
               <option value="1e3" selected>kHz</option>
               <option value="1e6">MHz</option>
@@ -203,7 +203,7 @@
           <label for="dr">Resistance, R (known)</label>
           <div class="field-unit">
             <input type="number" id="dr" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="dr-unit">
+            <select id="dr-unit" aria-label="Resistance unit">
               <option value="1">Ω</option>
               <option value="1e3" selected>kΩ</option>
               <option value="1e6">MΩ</option>
@@ -214,7 +214,7 @@
           <label for="dc">Capacitance, C (known)</label>
           <div class="field-unit">
             <input type="number" id="dc" inputmode="decimal" value="100" step="any" min="0" />
-            <select id="dc-unit">
+            <select id="dc-unit" aria-label="Capacitance unit">
               <option value="1e-12">pF</option>
               <option value="1e-9" selected>nF</option>
               <option value="1e-6">µF</option>
@@ -226,7 +226,7 @@
           <label for="dl">Inductance, L (known)</label>
           <div class="field-unit">
             <input type="number" id="dl" inputmode="decimal" value="10" step="any" min="0" />
-            <select id="dl-unit">
+            <select id="dl-unit" aria-label="Inductance unit">
               <option value="1e-9">nH</option>
               <option value="1e-6">µH</option>
               <option value="1e-3" selected>mH</option>
@@ -240,6 +240,14 @@
 
     <div class="result" id="result" role="status" aria-live="polite"></div>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>How do I calculate the cutoff frequency of an RC filter?</h3>
+  <p>For a first-order RC filter the -3 dB cutoff frequency is f_c = 1 / (2·π·R·C), where R is in ohms and C is in farads. The time constant is τ = R·C. Whether the filter is low-pass or high-pass only changes where the output is taken, not the cutoff frequency.</p>
+  <h3>What is the cutoff frequency of an RL filter?</h3>
+  <p>For a first-order RL filter the -3 dB cutoff frequency is f_c = R / (2·π·L), with R in ohms and L in henries. The time constant is τ = L / R.</p>
+  <h3>What does the -3 dB cutoff frequency mean?</h3>
+  <p>It is the frequency at which the filter's output power has fallen to half of the input (voltage down to about 70.7%). Beyond it, a first-order filter rolls off at -20 dB per decade (-6 dB per octave).</p>
 
   <footer>
     <h2>What this is (and isn't)</h2>
@@ -263,6 +271,7 @@
       by law, the authors accept no liability for any loss or damage arising
       from its use.
     </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
 
     <h2 id="privacy-heading">Privacy</h2>
     <p>
@@ -442,8 +451,7 @@
   }
   for (const el of document.querySelectorAll("input, select")) {
     if (el.name === "mode" || el === typeEl || el === solveForEl) continue;
-    el.addEventListener("input", () => update(true));
-    if (el.tagName === "SELECT") el.addEventListener("change", () => update(true));
+    el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => update(true));
   }
 
   // Initial paint.

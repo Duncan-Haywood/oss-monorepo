@@ -1,5 +1,5 @@
 name: einvoice-preflight
-description: A local JSON invoice checker that catches structural and arithmetic defects before a bookkeeper submits an e-invoice.
+description: A local JSON, UBL, CII, and Factur-X PDF invoice checker — browser or CLI — that unwraps embedded invoice XML and catches structural, arithmetic, header allowance/charge, mixed-rate tax-breakdown, invoice-period, payment-means, buyer and purchase-order reference, VAT, IBAN, BIC, remittance, credit-note document-type, and 0% tax-reason defects before a bookkeeper submits an e-invoice.
 stage: prototype
 owner: duncan
 hypotheses:
@@ -8,6 +8,30 @@ hypotheses:
     checked: null
     evidence: customer-contact
   - claim: Explainable rule IDs and downloadable JSON are useful enough for repeated integration checks.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a transposed IBAN before submission prevents a missed payment more often than a VAT-only preflight.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a BIC whose country does not match the IBAN prevents a SEPA reject more often than an IBAN-only preflight.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching an invoice period that ends before it starts prevents a network reject more often than a totals-only preflight.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a SEPA payment-means code without an IBAN prevents a network reject more often than an IBAN-only preflight.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a purchase-order field that repeats the invoice number prevents an AP bounce more often than a totals-only preflight.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Catching a header discount whose amount does not match its percent prevents a network reject more often than a line-only preflight.
     status: untested
     checked: null
     evidence: customer-contact

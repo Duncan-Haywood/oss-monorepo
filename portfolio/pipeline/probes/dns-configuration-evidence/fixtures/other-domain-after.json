@@ -1,0 +1,13 @@
+{
+  "domain": "other.test",
+  "captured_at": "2026-08-27T09:00:00Z",
+  "resolvers": [
+    {
+      "resolver": "1.1.1.1",
+      "query_status": "ok",
+      "records": {
+        "NS": ["ns1.other.test.", "ns2.other.test."]
+      }
+    }
+  ]
+}

@@ -5,7 +5,7 @@ sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
 
 import unittest
 
-from backup_evidence.report import build_history_report, classify_run, markdown_report
+from backup_evidence.report import build_history_report, build_trend, classify_run, markdown_report
 
 
 def run(exit_code=0, finished_at="2026-08-24T03:00:00Z", artifact=None, expected=None, tool="restic", started_at=None):
@@ -137,6 +137,72 @@ class HistoryReportTests(unittest.TestCase):
         output = markdown_report(report)
         self.assertIn("not a guarantee that your data is safe", output)
         self.assertIn("## Limits", output)
+
+
+class TrendTests(unittest.TestCase):
+    def _night(self, day, size, exit_code=0):
+        return run(
+            exit_code=exit_code,
+            started_at=f"2026-08-{day}T03:00:00Z",
+            finished_at=f"2026-08-{day}T03:04:00Z",
+            artifact={
+                "exists": True,
+                "size_bytes": size,
+                "modified_at": f"2026-08-{day}T03:03:50Z",
+            },
+            expected={"min_size_bytes": 1_000_000, "max_age_hours": 26},
+        )
+
+    def test_verified_nights_still_flag_a_twenty_percent_shrink(self):
+        trend = build_trend(
+            [
+                self._night("21", 50_000_000),
+                self._night("22", 51_200_000),
+                self._night("23", 50_400_000),
+                self._night("24", 12_000_000),
+            ]
+        )
+        latest = trend["latest"]
+        self.assertEqual(latest["status"], "verified")
+        self.assertTrue(latest["shrinking_vs_previous"])
+        self.assertTrue(latest["shrinking_vs_median"])
+        kinds = {alert["kind"] for alert in trend["alerts"]}
+        self.assertIn("shrinking_vs_previous", kinds)
+        self.assertIn("shrinking_vs_median", kinds)
+
+    def test_a_small_wobble_is_not_an_alert(self):
+        trend = build_trend(
+            [
+                self._night("21", 50_000_000),
+                self._night("22", 48_000_000),
+            ]
+        )
+        self.assertEqual(trend["alert_count"], 0)
+        self.assertFalse(trend["latest"]["shrinking_vs_previous"])
+
+    def test_status_regression_is_flagged_even_when_size_is_stable(self):
+        trend = build_trend(
+            [
+                self._night("23", 50_000_000),
+                self._night("24", 50_000_000, exit_code=1),
+            ]
+        )
+        self.assertTrue(trend["latest"]["status_regression"])
+        self.assertEqual(trend["alerts"][0]["kind"], "status_regression")
+
+    def test_markdown_includes_trend_only_when_attached(self):
+        records = [self._night("23", 50_000_000), self._night("24", 10_000_000)]
+        plain = markdown_report(build_history_report(records))
+        self.assertNotIn("Night-over-night trend", plain)
+        with_trend = build_history_report(records)
+        with_trend["trend"] = build_trend(records)
+        output = markdown_report(with_trend)
+        self.assertIn("Night-over-night trend", output)
+        self.assertIn("smaller than previous", output)
+
+    def test_invalid_shrink_ratio_falls_back_to_the_default(self):
+        trend = build_trend([self._night("23", 50_000_000)], shrink_ratio=2)
+        self.assertEqual(trend["shrink_ratio"], 0.2)
 
 
 if __name__ == "__main__":

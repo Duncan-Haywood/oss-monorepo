@@ -234,6 +234,6 @@ does not outrank that deploy.
 
 ## License
 
-Not yet chosen — add a `LICENSE` file before publishing if you want an
-explicit open-source license; the Connect IQ Store itself does not require
-one.
+MIT — see `LICENSE`. The Connect IQ Store itself does not require an
+open-source license to publish, but the rest of this portfolio's ventures
+carry one and this face is not a reason to be the exception.
