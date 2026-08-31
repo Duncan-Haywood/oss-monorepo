@@ -36773,6 +36773,20 @@ entries:
         signature but never named the tool that decides it, and told it to read
         check runs rather than the commit-status API.
       - >-
+        Then found two more holes in it by pointing it at a live PR of my own,
+        which is the case it had never been run on: a *queued* job carries no
+        `runner_id` yet, and a job the workflow *skipped* never carries one at
+        all -- and this repo's `preflight` is skipped in the same run as the
+        checks a session is asking about. Either aborted the entire report with
+        "has no runner_id field", which reads as the tool being broken at the
+        moment it is most wanted. Both are now their own verdicts. Exit status
+        gained the honest third case: 2 when a run has not finished, so
+        `if ci_starvation.py --run $ID` cannot pass on results nobody has yet,
+        while a starvation already decided still wins as 1. `seconds()` also
+        stopped reporting a skipped job as `-1s` (the API stamps it complete a
+        second before it starts). 55 unittests pass; verified against both live
+        runs again.
+      - >-
         The three owner asks are unchanged and remain the only thing between
         this portfolio and a live product: the read-only clone token for
         `tools.marisstella.dev`, the runner PAT plus `CI_RUNNER=self-hosted`,

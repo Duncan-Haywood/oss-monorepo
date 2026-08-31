@@ -72,7 +72,44 @@ class Classify(unittest.TestCase):
 
     def test_missing_runner_id_is_an_error_not_a_guess(self):
         with self.assertRaises(ValueError):
-            cs.classify({"id": 7})
+            cs.classify({"id": 7, "status": "completed"})
+
+    def test_an_unfinished_job_is_pending_not_a_crash(self):
+        """A queued job has no runner_id yet, which is not the unknown-shape case.
+
+        It is the ordinary state of a run you are watching, and raising there
+        aborted the whole report with "has no runner_id field" -- which reads
+        like the tool is broken at the moment a session points it at a live PR.
+        """
+        for status in ("queued", "in_progress", "waiting"):
+            with self.subTest(status=status):
+                verdict, reason = cs.classify(
+                    {"id": 7, "name": "validate", "status": status}
+                )
+                self.assertEqual(verdict, cs.PENDING)
+                self.assertIn(status, reason)
+
+    def test_a_job_the_workflow_skipped_is_not_starvation(self):
+        """This repo's `preflight` sits in the same run as the real checks."""
+        verdict, reason = cs.classify(
+            {
+                "id": 7,
+                "name": "preflight",
+                "status": "completed",
+                "conclusion": "skipped",
+            }
+        )
+        self.assertEqual(verdict, cs.SKIPPED)
+        self.assertIn("never needed a runner", reason)
+
+    def test_a_skipped_job_that_did_get_a_runner_is_still_read_normally(self):
+        verdict, _ = cs.classify(job(conclusion="skipped"))
+        self.assertEqual(verdict, cs.RAN)
+
+    def test_a_finished_job_is_still_decided_on_runner_id(self):
+        """`status: completed` must not shadow the verdict."""
+        verdict, _ = cs.classify(job(status="completed", runner_id=0, runner_name=""))
+        self.assertEqual(verdict, cs.STARVED)
 
 
 class Seconds(unittest.TestCase):
@@ -84,6 +121,17 @@ class Seconds(unittest.TestCase):
 
     def test_unparseable_timestamp_is_none_not_a_crash(self):
         self.assertIsNone(cs.seconds(job(completed_at="whenever")))
+
+    def test_a_skipped_jobs_backwards_stamps_are_no_duration(self):
+        """The API completes a skipped job a second before it starts."""
+        self.assertIsNone(
+            cs.seconds(
+                job(
+                    started_at="2026-08-31T05:49:16Z",
+                    completed_at="2026-08-31T05:49:15Z",
+                )
+            )
+        )
 
 
 class ExitStatus(unittest.TestCase):
@@ -99,7 +147,7 @@ class ExitStatus(unittest.TestCase):
     def test_all_ran_exits_zero(self):
         code, out = self.run_main([job()], ["--run", "1"])
         self.assertEqual(code, 0)
-        self.assertIn("ran on a real runner", out)
+        self.assertIn("got a real runner", out)
 
     def test_any_starved_exits_one(self):
         code, out = self.run_main(
@@ -114,9 +162,44 @@ class ExitStatus(unittest.TestCase):
             self.assertEqual(cs.main(["--run", "1"], api=api), 2)
 
     def test_unclassifiable_job_exits_two_rather_than_guessing(self):
-        api = unittest.mock.Mock(return_value={"jobs": [{"id": 7}]})
+        api = unittest.mock.Mock(
+            return_value={"jobs": [{"id": 7, "status": "completed"}]}
+        )
         with unittest.mock.patch("sys.stderr", io.StringIO()):
             self.assertEqual(cs.main(["--run", "1"], api=api), 2)
+
+    def test_a_skipped_job_does_not_stop_a_clean_verdict(self):
+        code, out = self.run_main(
+            [
+                job(),
+                {"id": 2, "name": "preflight", "status": "completed",
+                 "conclusion": "skipped"},
+            ],
+            ["--run", "1"],
+        )
+        self.assertEqual(code, 0)
+        self.assertIn("1 skipped by the workflow", out)
+
+    def test_an_unfinished_run_exits_two_not_zero(self):
+        """`if ci_starvation.py ...` must not pass on results nobody has yet."""
+        code, out = self.run_main(
+            [job(), {"id": 2, "name": "check", "status": "queued"}], ["--run", "1"]
+        )
+        self.assertEqual(code, 2)
+        self.assertIn("have not finished", out)
+
+    def test_a_decided_starvation_outranks_an_unfinished_job(self):
+        """It is already true and will not stop being true when the rest settle."""
+        code, out = self.run_main(
+            [
+                job(runner_id=0, runner_name=""),
+                {"id": 2, "name": "check", "status": "queued"},
+            ],
+            ["--run", "1"],
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("never got a runner", out)
+        self.assertIn("still running", out)
 
     def test_json_mode_emits_the_rows(self):
         code, out = self.run_main([job(runner_id=0, runner_name="")], ["--run", "1", "--json"])
@@ -318,7 +401,7 @@ class FromJson(unittest.TestCase):
     def test_healthy_payload_exits_zero(self):
         code, out = self.run_from_json({"jobs": [job()]})
         self.assertEqual(code, 0)
-        self.assertIn("ran on a real runner", out)
+        self.assertIn("got a real runner", out)
 
     def test_it_never_touches_the_api(self):
         api = unittest.mock.Mock()

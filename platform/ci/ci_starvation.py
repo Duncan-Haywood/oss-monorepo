@@ -59,8 +59,10 @@ free from the local git remote. `--repo owner/name`, `GITHUB_REPOSITORY`, and
 that same git remote are tried in order.
 
 Exit status: 0 if every job examined ran on a real runner, 1 if any was
-starved, 2 on a usage or API error. So `if ci_starvation.py --run $ID; then`
-reads as "these results are worth believing".
+starved, 2 if there is no answer to give — a usage or API error, or a run whose
+jobs have not finished. So `if ci_starvation.py --run $ID; then` reads as
+"these results are worth believing", and only ever succeeds when there are
+results.
 """
 
 import argparse
@@ -76,6 +78,8 @@ from datetime import datetime
 
 STARVED = "starved"
 RAN = "ran"
+PENDING = "pending"
+SKIPPED = "skipped"
 
 API_ROOT = "https://api.github.com/"
 
@@ -97,6 +101,24 @@ def classify(job):
     in three seconds, and a passing job can have an empty body -- so neither is
     allowed to change the verdict.
     """
+    # A job that has not finished carries no runner_id yet. That is not the
+    # "unknown shape" case below -- it is the ordinary state of a run you are
+    # watching, and it used to abort the whole report with "has no runner_id
+    # field", which reads like the tool is broken at the exact moment a session
+    # is trying to use it on a live PR. Report it and let main() decide what an
+    # unfinished run means for the exit status.
+    status = job.get("status")
+    if status in ("queued", "in_progress", "waiting", "requested", "pending"):
+        return PENDING, f"still {status} — no verdict until it finishes"
+
+    # A job a workflow's own `if:` excluded is never given a runner and never
+    # wanted one. It carries no runner_id, so without this it read as the
+    # unknown shape and aborted the report — and this repository has at least
+    # one such job (`preflight`) sitting in the same run as the checks a
+    # session is actually asking about.
+    if job.get("conclusion") == "skipped" and job.get("runner_id") is None:
+        return SKIPPED, "skipped by the workflow — never needed a runner"
+
     runner_id = job.get("runner_id")
     if runner_id is None:
         raise ValueError(
@@ -120,13 +142,18 @@ def seconds(job):
 
     fmt = "%Y-%m-%dT%H:%M:%SZ"
     try:
-        return int(
+        elapsed = int(
             (
                 datetime.strptime(completed, fmt) - datetime.strptime(started, fmt)
             ).total_seconds()
         )
     except ValueError:
         return None
+
+    # A job the workflow skipped is stamped completed a second *before* it
+    # started, so it renders as "-1s" — which looks like a bug in the tool
+    # rather than the API quirk it is. There is no duration to report.
+    return elapsed if elapsed >= 0 else None
 
 
 def report(jobs):
@@ -151,16 +178,18 @@ def render(rows):
     if not rows:
         return "no jobs found"
 
+    marks = {STARVED: "!!", PENDING: "..", SKIPPED: "--", RAN: "ok"}
     lines = []
     for row in rows:
         secs = "?" if row["seconds"] is None else f"{row['seconds']}s"
-        mark = "!!" if row["verdict"] == STARVED else "ok"
+        mark = marks.get(row["verdict"], "ok")
         lines.append(
-            f"  {mark}  {row['name']}  [{row['conclusion']}, {secs}]\n"
+            f"  {mark}  {row['name']}  [{row['conclusion'] or row['verdict']}, {secs}]\n"
             f"        {row['reason']}"
         )
 
     starved = [r for r in rows if r["verdict"] == STARVED]
+    pending = [r for r in rows if r["verdict"] == PENDING]
     lines.append("")
     if starved:
         lines.append(
@@ -169,10 +198,24 @@ def render(rows):
             "ran, and report the\nunblock in gitops/ci/README.md rather than "
             "re-diagnosing this next session."
         )
-    else:
+    elif pending:
         lines.append(
-            f"All {len(rows)} job(s) ran on a real runner. Any failure here is a "
-            "real result."
+            f"{len(pending)} of {len(rows)} job(s) have not finished, so this run "
+            "has no verdict\nyet. Nothing that did finish was starved. Re-run this "
+            "once the checks settle."
+        )
+    else:
+        ran = [r for r in rows if r["verdict"] == RAN]
+        skipped = len(rows) - len(ran)
+        tail = f" ({skipped} skipped by the workflow.)" if skipped else ""
+        lines.append(
+            f"All {len(ran)} job(s) that ran got a real runner. Any failure here "
+            f"is a real result.{tail}"
+        )
+    if starved and pending:
+        lines.append(
+            f"({len(pending)} job(s) still running — the starvation above is "
+            "already decided.)"
         )
     return "\n".join(lines)
 
@@ -361,7 +404,16 @@ def main(argv=None, api=None):
         return 2
 
     print(json.dumps(rows, indent=2) if args.json else render(rows))
-    return 1 if any(r["verdict"] == STARVED for r in rows) else 0
+
+    # A decided starvation outranks an unfinished job: it is already true and
+    # will not become less true when the rest settle. Otherwise an unfinished
+    # run has no answer, and saying 0 there would tell `if ci_starvation.py
+    # --run $ID` that results nobody has yet are worth believing.
+    if any(r["verdict"] == STARVED for r in rows):
+        return 1
+    if any(r["verdict"] == PENDING for r in rows):
+        return 2
+    return 0
 
 
 if __name__ == "__main__":
