@@ -30,8 +30,31 @@ export const SIZE_TIER_LABELS = {
 };
 
 const FULFILLMENT_METHODS = new Set(["wfs", "seller"]);
+export const FULFILLMENT_VALUES = [...FULFILLMENT_METHODS];
 
 export const DEFAULT_REFERRAL_MINIMUM = 0.3;
+
+// The numeric fields index.html's own `ids` array reads and writes, in the
+// same order. share.mjs imports this list rather than keeping its own, so a
+// new input field is shareable the day it ships instead of being silently
+// dropped from a link — the failure ebay-fee-calculator's share module hit
+// twice and where-to-sell-calculator's hit once, both by hand-maintaining a
+// second copy of this list.
+export const INPUT_FIELDS = [
+  "salePrice", "matchPrice", "referralRate", "referralMinimum", "length",
+  "width", "height", "weightLb", "monthsInStorage", "storageRate",
+  "fulfillmentFee", "costOfGoods", "inboundPerUnit", "sellerShippingCost",
+  "packagingCost", "adsPerUnit", "otherCost", "monthlySellerFee",
+  "monthlyUnits", "targetMargin", "twoDayShippingCost", "twoDayMinutes",
+  "twoDayHourlyWage", "wfsTakePct", "twoDayTakePct", "standardTakePct",
+  "returnRatePct", "wfsReturnFee", "sellerReturnLabel", "restockMinutes",
+  "restockHourlyWage", "unsellableReturnPct", "leftoverUnits",
+  "monthlySellThroughPct", "horizonMonths", "agedStorageRate",
+  "removalFee", "disposalFee", "acosPct", "extraAdUnits",
+  "attributedOrganicPct", "highAcosPct", "highExtraAdUnits",
+  "highAttributedOrganicPct", "holdTakePct", "matchTakePct",
+  "promoTakePct", "promoDays", "monthDays",
+];
 
 function number(value, name, fallback = 0) {
   if (value === undefined || value === null || value === "") {
