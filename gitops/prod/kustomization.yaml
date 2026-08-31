@@ -5,6 +5,7 @@ resources:
   - quota.yaml
   - landing.yaml
   - portfolio-site.yaml
+  - portfolio-apex.yaml
   - site-usage.yaml
 configMapGenerator:
   - name: portfolio-site-usage-script

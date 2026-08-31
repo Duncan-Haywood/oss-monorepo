@@ -608,13 +608,25 @@ spec:
       port: 80
       targetPort: http
 ---
-# The one Ingress this cluster serves on a public name.
+# The Ingress that serves the site's content, on the canonical public name.
 #
-# `tools.marisstella.dev`, NOT the apex. `infra/README.md` records that
-# marisstella.dev already resolves to this box for something else, and
-# `gitops/prod/landing.yaml` says in as many words that this stack must not
-# hijack that name. A subdomain cannot: ingress-nginx only answers for hosts
-# a rule names, so whatever serves the apex keeps serving it.
+# `tools.marisstella.dev`, NOT the apex — but no longer for the reason this
+# comment used to give. It said `infra/README.md` records that
+# marisstella.dev "already resolves to this box for something else", so
+# whatever serves the apex keeps serving it. That inference was wider than
+# the source: `infra/README.md` records where the A records point, not that
+# anything answers, and ingress-nginx runs `hostNetwork: true` on this node
+# and therefore holds :80/:443 itself. Nothing else was serving the apex; it
+# was falling to the default backend, which is what the owner reported in
+# issue #1925.
+#
+# The host below stays `tools.` anyway, because it is the canonical host
+# stamped into all 508 pages' canonical links, og:urls and sitemap entries
+# via PAGES_BASE_URL. The apex and `www` are handled next door in
+# `portfolio-apex.yaml`, which 301s them here rather than serving a second
+# uncanonical copy. Keep this Ingress single-host: the test in
+# `gitops/tests/test_manifests.py` pins that split so a later change cannot
+# quietly turn the canonical host into three.
 #
 # Publishing needs one DNS record — see gitops/README.md.
 apiVersion: networking.k8s.io/v1
