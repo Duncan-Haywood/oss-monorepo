@@ -779,3 +779,170 @@ def test_tick_records_the_run_against_the_item_it_started() -> None:
     decision, state = g.tick(_policy(), _state(), [], queue, NOW)
     assert decision.action == "start"
     assert state.runs_by_item == {decision.item.id: 1}
+
+
+# --- Empty-item damping ---------------------------------------------------
+#
+# Rotation fixed starvation but not waste: weighting by priority alone assumes
+# every item always has work. On 2026-08-31 two of the five provably did not --
+# the repo had zero open PRs and every branch was merged, so
+# `open-pr-repair-merge` (priority 6) and `branch-pr-drain` (5) were 13/25ths
+# of the weight and none of the output. On a ChatGPT plan credential that is
+# over half the included quota spent booting Codex to confirm there is nothing
+# to do.
+#
+# A run that changes nothing now says so, and the score is damped by how many
+# such runs an item has had in a row.
+
+
+def _finished_job(uid: str, item: str, *, noop: bool, duration: float = 60.0) -> g.JobView:
+    return g.JobView(
+        uid=uid,
+        active=0,
+        succeeded=True,
+        failed=False,
+        duration_seconds=duration,
+        item=item,
+        noop=noop,
+    )
+
+
+def test_a_noop_run_is_read_off_the_termination_message() -> None:
+    job = {
+        "metadata": {"uid": "u1", "name": "codex-x-1", "labels": {"governor.item": "x"}},
+        "status": {"succeeded": 1, "startTime": "2026-08-31T00:00:00Z",
+                   "completionTime": "2026-08-31T00:01:00Z"},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-x-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {"exitCode": 0,
+                                      "message": "codex-noop: no changes; not opening a PR"}}}
+        ]},
+    }]
+    view = g.job_view_from_k8s(job, pods)
+    assert view.noop is True
+    assert view.item == "x"
+    # It succeeded. A clean run that found nothing is not a failure.
+    assert view.succeeded is True and view.failed is False
+
+
+def test_a_productive_run_is_not_a_noop() -> None:
+    job = {
+        "metadata": {"uid": "u2", "name": "codex-y-1", "labels": {"governor.item": "y"}},
+        "status": {"succeeded": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-y-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {"exitCode": 0, "message": "opened PR #123"}}}
+        ]},
+    }]
+    assert g.job_view_from_k8s(job, pods).noop is False
+
+
+def test_a_quota_limit_is_never_counted_as_an_empty_item() -> None:
+    # A run cut off by the fleet's own budget says nothing about whether the
+    # item has work. Damping it would punish the item for the limit, and the
+    # cooldown already covers that case.
+    job = {
+        "metadata": {"uid": "u3", "name": "codex-z-1", "labels": {"governor.item": "z"}},
+        "status": {"failed": 1},
+    }
+    pods = [{
+        "metadata": {"labels": {"job-name": "codex-z-1"}},
+        "status": {"containerStatuses": [
+            {"state": {"terminated": {"exitCode": g.EXIT_LIMIT, "message": "codex-noop: x"}}}
+        ]},
+    }]
+    view = g.job_view_from_k8s(job, pods)
+    assert view.limit_hit is True
+    assert view.noop is False
+
+
+def test_an_item_that_keeps_finding_nothing_yields_the_quota() -> None:
+    # The real shape: the two top items are empty, the three below have work.
+    queue = [
+        _item(id="open-pr-repair-merge", priority=6),
+        _item(id="branch-pr-drain", priority=5),
+        _item(id="deploy-cicd-readiness", priority=4),
+        _item(id="seo-discoverability-audit", priority=3),
+        _item(id="product-feature-improvement", priority=2),
+    ]
+    empty = {"open-pr-repair-merge", "branch-pr-drain"}
+    state = _state()
+    policy = _policy(enabled=True)
+    picked: list[str] = []
+
+    for n in range(40):
+        item = g.pick_item(queue, state.runs_by_item, state.noops_by_item)
+        picked.append(item.id)
+        g.record_job_started(state, item.id)
+        state = g.absorb_finished_jobs(
+            state,
+            [_finished_job(f"u{n}", g._dns1123(item.id), noop=item.id in empty)],
+            NOW,
+        )
+        state = g.rollover(state, NOW, policy)
+
+    wasted = sum(1 for p in picked if p in empty)
+    # Undamped these two carry 13/25 of the weight. Damped, they must fall well
+    # under a third of the picks -- the quota goes to items that deliver.
+    assert wasted < len(picked) / 3, picked
+    # And the productive items actually get the ticks.
+    assert picked.count("deploy-cicd-readiness") > 0
+    assert picked.count("product-feature-improvement") > 0
+
+
+def test_the_first_productive_run_clears_the_damping() -> None:
+    state = _state(noops_by_item={"branch-pr-drain": 7})
+    state = g.absorb_finished_jobs(
+        state, [_finished_job("u9", "branch-pr-drain", noop=False)], NOW
+    )
+    assert "branch-pr-drain" not in state.noops_by_item
+
+
+def test_damping_is_capped_so_an_empty_item_can_still_find_new_work() -> None:
+    state = _state()
+    for n in range(50):
+        state = g.absorb_finished_jobs(
+            state, [_finished_job(f"u{n}", "branch-pr-drain", noop=True)], NOW
+        )
+    assert state.noops_by_item["branch-pr-drain"] == g.MAX_NOOP_DAMPING
+    # Capped damping still leaves it reachable: against a queue where every
+    # other item has run a lot this window, the damped item wins again.
+    queue = [_item(id="branch-pr-drain", priority=5), _item(id="other", priority=2)]
+    assert g.pick_item(queue, {"other": 40}, state.noops_by_item).id == "branch-pr-drain"
+
+
+def test_damping_survives_the_window_rollover() -> None:
+    # runs_by_item restarts each window on purpose. An item being empty is a
+    # fact about the repository, not the window -- if this reset, the fleet
+    # would re-buy the same discovery with a Codex Job every five hours.
+    state = _state(window_started_at=NOW - 20_000, noops_by_item={"branch-pr-drain": 4})
+    rolled = g.rollover(state, NOW, _policy())
+    assert rolled.runs_by_item == {}
+    assert rolled.noops_by_item == {"branch-pr-drain": 4}
+
+
+def test_damping_is_dropped_for_an_item_removed_from_the_queue() -> None:
+    # noops_by_item is never emptied by rollover, so a deleted or renamed item
+    # would otherwise leave its counter behind for good.
+    state = _state(noops_by_item={"branch-pr-drain": 3, "deleted-item": 9})
+    pruned = g.prune_noops(state, [_item(id="branch-pr-drain", priority=5)])
+    assert pruned.noops_by_item == {"branch-pr-drain": 3}
+
+
+def test_noop_counters_round_trip_through_the_state_configmap() -> None:
+    state = _state(noops_by_item={"branch-pr-drain": 2})
+    restored = g.state_from_dict(g.state_to_dict(state), NOW)
+    assert restored.noops_by_item == {"branch-pr-drain": 2}
+
+
+def test_a_crashed_run_neither_damps_nor_clears() -> None:
+    # An OOM kill or a rejected credential says nothing about the queue.
+    state = _state(noops_by_item={"branch-pr-drain": 3})
+    crashed = g.JobView(uid="u1", active=0, succeeded=False, failed=True,
+                        duration_seconds=5.0, item="branch-pr-drain", noop=False)
+    state = g.absorb_finished_jobs(state, [crashed], NOW)
+    assert state.noops_by_item == {"branch-pr-drain": 3}

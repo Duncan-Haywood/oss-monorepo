@@ -7,6 +7,32 @@ LIMIT_EXIT="${CODEX_LIMIT_EXIT:-42}"
 AUTH_EXIT="${CODEX_AUTH_EXIT:-43}"
 : "${QUEUE_ITEM_JSON:?QUEUE_ITEM_JSON is required}"
 
+# A run can finish perfectly and still change nothing: the item's work has run
+# out, so the agent looked, found no open PR to repair or no branch to drain,
+# and stopped. That is a correct outcome, not a failure, and this script keeps
+# exiting 0 for it.
+#
+# But the governor could not previously tell that run apart from one that
+# shipped a feature, so an item whose work had run out kept its full share of
+# the queue's weight forever. On 2026-08-31 the two highest-weighted items were
+# both in exactly that state, between them 13/25ths of the Codex budget spent
+# cloning the repo to confirm there was nothing to do.
+#
+# Report it instead. The marker goes to /dev/termination-log, which Kubernetes
+# copies into the container's terminated.message where the governor already
+# reads for limit errors — so the Job still shows as Succeeded and an operator
+# reading `kubectl get jobs` is not told a clean run failed.
+NOOP_MARKER="codex-noop"
+# Overridable so the test suite can run this script outside a container and
+# still assert the marker was written; in the Job it is the real path.
+NOOP_LOG="${CODEX_TERMINATION_LOG:-/dev/termination-log}"
+report_noop() {
+  echo "worker: $1"
+  # Absent (a plain `bash worker.sh`) or unwritable — the marker is best-effort
+  # and never worth failing a good run over.
+  printf '%s: %s\n' "$NOOP_MARKER" "$1" > "$NOOP_LOG" 2>/dev/null || true
+}
+
 export PATH="/usr/local/bin:$HOME/.npm-global/bin:$PATH"
 export npm_config_prefix="$HOME/.npm-global"
 mkdir -p "$HOME/.npm-global"
@@ -274,7 +300,7 @@ fi
 
 git add -A
 if git diff --cached --quiet && [[ -z "$(git log --oneline "$REF"..HEAD 2>/dev/null || true)" ]]; then
-  echo "no changes; not opening a PR"
+  report_noop "no changes; not opening a PR"
   exit 0
 fi
 
@@ -282,7 +308,7 @@ fi
 git reset --soft "$REF"
 git add -A
 if git diff --cached --quiet; then
-  echo "no changes after fold; not opening a PR"
+  report_noop "no changes after fold; not opening a PR"
   exit 0
 fi
 
