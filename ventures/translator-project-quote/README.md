@@ -42,10 +42,14 @@ inputs and run it yourself.
 
 Everything runs in your browser. Your word counts, rates, and costs are never
 uploaded. There are no accounts, cookies, or analytics vendors. The optional
-`page_viewed` and `quote_summary_copied` counters store only an aggregate event
-and date in local storage, honor Do Not Track and Global Privacy Control, and
-have a visible off-switch. No project text, client name, or identifier is
-recorded.
+`page_viewed`, `quote_summary_copied`, and `share_link_copied` counters store
+only an aggregate event and date in local storage, honor Do Not Track and
+Global Privacy Control, and have a visible off-switch. No project text,
+client name, or identifier is recorded.
+
+Your last entry is saved to local storage so a refresh doesn't lose it, and
+"Copy shareable link" puts the same inputs in the page's URL fragment (never
+sent to a server) so you can hand a client or colleague the exact quote.
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 does not change what the calculator does.
