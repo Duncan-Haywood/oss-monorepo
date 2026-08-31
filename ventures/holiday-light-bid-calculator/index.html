@@ -461,7 +461,7 @@
       el('price').className = 'hero-number';
       el('priceLabel').textContent = 'holiday-light price';
       el('area').textContent = `${result.eaveLf.toLocaleString('en-US')} LF`;
-      el('travel').textContent = `${result.travelMiles} mi · ${result.hoursTravel.toFixed(1)} h`;
+      el('travel').textContent = `${result.travelMiles} mi · ${(result.hoursTravel + result.hoursTakedownTravel).toFixed(1)} h`;
       el('hours').textContent = `${result.totalHours.toFixed(1)} h`;
       el('labor').textContent = money(result.laborCost);
       el('finishCost').textContent = money(result.finishMaterial);
@@ -486,6 +486,7 @@
         ['Timer', result.hourShares.timer],
         ['Steep pitch', result.hourShares.steep],
         ['Take-down', result.hourShares.takedown],
+        ['Take-down trip', result.hourShares.takedownTravel],
         ['Site', result.hourShares.site],
       ].filter(row => row[1] > 0);
       el('split').innerHTML = hourRows.length === 0
