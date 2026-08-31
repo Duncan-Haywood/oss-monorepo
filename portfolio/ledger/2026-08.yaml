@@ -36652,3 +36652,43 @@ entries:
         cleanly with install links for the two missing tools. Nothing here
         needed a code change; the unblock is unchanged and owner-only.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start, so the three-PR merge quota moved to
+        the branch-to-PR drain step. Fanned out 9 agents (in isolated git
+        worktrees, after an early near-miss where the first 5 were about to
+        share one working tree for concurrent checkouts/merges -- caught and
+        relaunched before any push) across the 51 remote branches carrying 2
+        or more commits ahead of `origin/main` -- effectively the entire
+        backlog with any realistic chance of unmerged value, out of ~291
+        branches total. 50 of the 51 were confirmed already superseded, most
+        via `supersede_check.py`'s identical-merge proof or RENAME SUSPECTED
+        section (same feature, renamed identifiers, `main` usually further
+        developed), a few by direct content diff where the tool timed out.
+        One, `claude/festive-mccarthy-hu9otk`, carried a materially more
+        complete multi-resolver consensus design for
+        `dns-configuration-evidence` than the thinner single-resolver version
+        a concurrent session had already shipped to `main` under the same
+        venture name -- merged onto current `main`, verified locally
+        (pytest, `validate_probe_index.py`, full `run_workflow_locally.py
+        --for-changes` 44/44 steps green), and shipped as #2369. This
+        matches and confirms, with a much larger sample than any prior
+        session checked, `gitops/agents/queue/README.md`'s 2026-08-31 note
+        that the branch backlog is effectively drained -- a future session
+        does not need to re-run this scale of sweep unless a large number of
+        new branches accumulate again.
+      - >-
+        Owner asked this run to prioritise CI/CD, Hetzner deployment and
+        Codex-on-included-quota work. Re-confirmed rather than re-derived
+        (matches #2307's and this month's prior same-day entry): the Codex
+        governor/queue/worker pipeline (`gitops/agents/`) and the
+        `tools.marisstella.dev` deploy path (`gitops/prod/portfolio-site.yaml`)
+        are both code-complete, tested, and blocked only on the three linked
+        owner-only secret seals already named in `infra/OWNER_CHECKLIST.md`
+        and `portfolio/ledger/decision_queue.py` (#1996, #1999, #2000).
+        Nothing agent-actionable remained to add; did not duplicate the
+        existing asks.
+    mrr_end: null
