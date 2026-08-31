@@ -40883,3 +40883,57 @@ entries:
         as the known account-level Actions outage, merged per the
         no-review-gate rule for product/platform PRs.
     mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        marketing-distribution queue item: shipped an embeddable-calculator
+        widget, the highest-value candidate the item names (checked first --
+        nothing under platform/pages/ already emitted an iframe-able view or
+        a copyable snippet; the other three candidates, category-hub landing
+        copy and an About/press-kit section, were already built). Every
+        published venture page now detects being framed cross-origin or
+        opened with ?embed=1 (a synchronous inline script, set before first
+        paint) and hides the promotional chrome -- all-tools bar,
+        sibling-tool footer, sponsor line -- behind a one-line bar that links
+        back to the plain page. Entry pages with a canonical URL also offer a
+        "Copy embed code" control with the exact <iframe> tag. No new
+        third-party script, font, CDN, or network call; the copy button
+        works independently of the DNT/GPC/opt-out-gated usage counter, only
+        its one increment (embed_snippet_copied) honouring it.
+      - >-
+        Caught in review before merging: the embed bar's first draft said
+        "no warranty" and "best-effort hosting, no SLA" to be visibly honest
+        about liability, which would have satisfied build.test.mjs's own
+        site-wide liability-clause regex on *every* page regardless of
+        whether the venture had actually written a clause -- a false pass in
+        exactly the check meant to catch a venture that forgot one. Reworded
+        to name neither phrase; both real clauses already live on the page
+        itself, so the bar's job is only the link back.
+      - >-
+        Merged as #2570. Verified: node --test platform/pages/*.test.mjs,
+        826/826 pass (7 new); a full build (PAGES_BASE_URL=
+        https://tools.marisstella.dev/ node build.mjs --out=dist) then
+        check.mjs dist -- 169 products, 508 pages, no dead links; python3 -m
+        pytest gitops/tests -q, 185/185 (test_site_usage.py and
+        test_manifests.py specifically, since a build.mjs change triggers
+        hetzner-gitops-ci.yml's path filter -- run_workflow_locally.py's own
+        subprocess hit the same PATH/PyYAML mismatch #2567's entry above
+        recorded, so this ran directly instead); run_workflow_locally.py
+        --for-changes, portfolio-pages.yml and portfolio-validate.yml both
+        clean, hetzner-gitops-ci's tofu step 127s (binary not installed
+        here, pre-existing, no infra/gitops files touched); and a Playwright
+        smoke test against the built site (19/19 checks) covering normal
+        load, ?embed=1, a real cross-origin <iframe> with no query flag, the
+        calculator still computing while embedded, and the copy button
+        actually placing the snippet on the clipboard.
+      - >-
+        Deploy is still owner-gated on the unsealed portfolio-site-repo
+        Secret (see CLAUDE.md), so this asset ships live the day
+        tools.marisstella.dev serves content rather than today. No account
+        was opened, nothing was submitted anywhere, and no claim was made
+        about existing traction -- per the mandate, building the asset is
+        this session's job; putting the portfolio's name on a forum or
+        directory is the owner's, and stays queued separately.
+    mrr_end: null
