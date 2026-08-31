@@ -561,16 +561,27 @@ def test_portfolio_site_repeats_security_headers_in_every_location() -> None:
         assert "X-Content-Type-Options nosniff" in block, block.splitlines()[0]
 
 
-def test_portfolio_site_starts_on_the_staging_certificate_issuer() -> None:
-    # Argo auto-syncs prod, so this Ingress exists before DNS for its host
-    # does. Against the prod issuer, challenges that cannot resolve burn
-    # Let's Encrypt limits for a name nobody can reach. Flipping to
-    # letsencrypt-prod is the last step of publishing, not part of landing
-    # the manifest — so this asserts the safe default rather than the
-    # eventual one.
+def test_portfolio_site_serves_a_publicly_trusted_certificate_issuer() -> None:
+    # This asserted `letsencrypt-staging` until 2026-08-31, and the reason was
+    # sound while it held: Argo auto-syncs prod, so the Ingress existed before
+    # DNS for its host did, and prod-issuer challenges that cannot resolve burn
+    # Let's Encrypt limits for a name nobody can reach.
+    #
+    # DNS resolved on 2026-08-29, which retired that reason — and left the
+    # assertion pinning the one state in which publishing cannot succeed.
+    # Staging is not a trusted root, so a site served under it meets every
+    # visitor with a browser interstitial. Because the only thing between this
+    # repo and a live site is the owner sealing `portfolio-site-repo`, a
+    # staging pin meant that seal would have published 508 pages nobody could
+    # open without clicking through a security warning.
+    #
+    # Pinning prod rather than merely allowing it: the flip is easy to undo by
+    # accident (both Ingresses carry the annotation and a revert of either one
+    # alone is silently wrong), and a regression here is invisible in review —
+    # it shows up as a warning interstitial in production or not at all.
     ingress = _portfolio_site()["Ingress"]
     issuer = ingress["metadata"]["annotations"]["cert-manager.io/cluster-issuer"]
-    assert issuer == "letsencrypt-staging"
+    assert issuer == "letsencrypt-prod"
 
 
 def test_portfolio_site_canonical_base_matches_the_ingress_host() -> None:

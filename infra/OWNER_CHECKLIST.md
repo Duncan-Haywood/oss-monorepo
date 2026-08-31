@@ -224,19 +224,27 @@ checklist used to list as step 1 does not need adding.
    account registration in place — no reissue, no downtime.
 
 **Step 1 is now the only thing standing between the portfolio and a live
-site.** Once it lands the site is reachable, on a Let's Encrypt
-**staging** certificate — browsers will warn, because staging is not a
-trusted root.
+site**, and as of 2026-08-31 it lands on a publicly trusted certificate
+rather than a warning page.
 
-3. **The issuer flip, last.** Only after a staging certificate has
-   issued, change the Ingress annotation
-   `cert-manager.io/cluster-issuer` in `gitops/prod/portfolio-site.yaml`
-   from `letsencrypt-staging` to `letsencrypt-prod`, and update
-   `gitops/tests/test_manifests.py::test_portfolio_site_starts_on_the_staging_certificate_issuer`
-   which pins it. Unlike 1–2 this one is not owner-only — it is an
-   ordinary code change an agent can open as a PR once you confirm the
-   staging certificate issued, and asking for it that way is less work
-   than editing two files by hand.
+3. ~~**The issuer flip, last.**~~ **Done 2026-08-31 — no action needed.**
+   Both `gitops/prod/portfolio-site.yaml` and
+   `gitops/prod/portfolio-apex.yaml` now carry
+   `cert-manager.io/cluster-issuer: letsencrypt-prod`.
+
+   This item used to say the flip came *after* step 1, once a staging
+   certificate had issued. That ordering was the bug: staging is not a
+   trusted root, so sealing the clone token first would have made the site
+   reachable and simultaneously unusable — a browser interstitial in front
+   of all 508 pages, and a handshake crawlers reject. The precondition the
+   staging default was protecting (DNS for `tools.marisstella.dev`) was
+   satisfied on 2026-08-29, so the flip was moved ahead of the seal.
+
+   Nothing here is owner-only, and nothing is left to ask a session for.
+   After you complete step 1, confirm the certificate with
+   `kubectl -n prod get certificate` — `portfolio-site-tls` and
+   `portfolio-apex-tls` should both reach `READY=True` within a minute or
+   two of the pods coming up.
 
 Deliberately **not** on this list: enabling GitHub Pages. That is a
 separate queued ask (`deploy-settings`) and, on its own, would not put

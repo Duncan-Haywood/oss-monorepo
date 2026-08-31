@@ -62,13 +62,14 @@
 #
 # TLS
 #
-# `letsencrypt-staging`, matching `portfolio-site.yaml`, which is deliberately
-# on staging until a staging certificate is confirmed to have issued for
-# `tools.marisstella.dev`. Both flip to `letsencrypt-prod` together — a
-# browser has to accept the certificate for `marisstella.dev` before it is
-# ever shown the redirect, so an apex on staging while the target is on prod
-# would put the warning interstitial on the front door only. Flipping one and
-# not the other is the mistake this paragraph exists to stop.
+# `letsencrypt-prod`, matching `portfolio-site.yaml`, which moved off staging
+# on 2026-08-31 once DNS for `tools.marisstella.dev` was confirmed — the full
+# reasoning is on that Ingress's annotation. Both move together — a browser
+# has to accept the certificate for `marisstella.dev` before it is ever shown
+# the redirect, so an apex on staging while the target is on prod would put
+# the warning interstitial on the front door only. Flipping one and not the
+# other is the mistake this paragraph exists to stop, in either direction:
+# a revert has to take both back too.
 #
 # cert-manager solves HTTP-01 by creating its own `cm-acme-http-solver-*`
 # Ingress for `/.well-known/acme-challenge/<token>` (see `solvers.http01.
@@ -81,7 +82,7 @@ kind: Ingress
 metadata:
   name: portfolio-apex-redirect
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     # 301 rather than 302: the apex is not a temporary home for these tools,
     # and a permanent redirect is what consolidates link equity onto the
     # canonical host instead of splitting it across three names.

@@ -11,10 +11,14 @@
 # against the prod issuer, were it wired here) before anyone has confirmed a
 # certificate actually issues -- not because DNS is missing.
 #
-# Flip the Ingress's `cert-manager.io/cluster-issuer` annotation in
-# gitops/prod/portfolio-site.yaml to `letsencrypt-prod` (and update the test
-# that pins it) once a staging certificate has actually issued -- see
-# gitops/README.md and infra/OWNER_CHECKLIST.md, "The issuer flip, last."
+# Both ClusterIssuers stay defined; which one an Ingress uses is that
+# Ingress's annotation. As of 2026-08-31 `gitops/prod/portfolio-site.yaml` and
+# `gitops/prod/portfolio-apex.yaml` both point at `letsencrypt-prod` -- DNS for
+# `tools.marisstella.dev` resolved on 2026-08-29, retiring the reason for the
+# staging default, and staging had to go before the site serves anyone rather
+# than after (an untrusted root would meet every visitor with an interstitial).
+# See gitops/README.md. `letsencrypt-staging` is kept here as the revert target
+# and for any future host that lands before its DNS does.
 #
 # HTTP-01 uses ingress-nginx on the control-plane node.
 #
