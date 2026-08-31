@@ -38148,3 +38148,27 @@ entries:
         (margin $151.80, 50.6%), and the portfolio-wide build+check still
         clean (169 products, 508 pages, no dead links). Merged (squash)
         into main.
+  - venture: notary-trip-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2450: a rejected figure (negative or non-numeric --
+        `type="number" min="0"` never blocks a typed leading "-") already
+        produced a message via `quoteResult()`, and `update()` already showed
+        it in `#quoteError`, but the error branch never touched `#total`,
+        `#breakdown`, or `#minimumNote` -- all three kept showing the *last
+        valid* quote right next to the error sentence. On a tool whose whole
+        job is a trustworthy number to quote a client, that stale total sat
+        one line above the error with nothing marking it as no longer
+        current. Same class of bug as job-margin-variance's #2446: a caught
+        rejection updates one error slot and leaves every derived output
+        stale. Fix hides `#total` and clears `#breakdown`/`#minimumNote`
+        alongside the error, restoring all three on the next valid
+        calculation. Verified: `node --test` 12/12 in
+        ventures/notary-trip-quote (was 11, added a regression test pinning
+        the catch-branch behavior), both `application/ld+json` blocks re-
+        parse as valid JSON unchanged, and the portfolio-wide
+        `build.mjs`/`check.mjs` pair still clean (169 products, 508 pages, no
+        dead links). Merged (squash) as #2450, `1f9d6c65c`.
+    mrr_end: null
