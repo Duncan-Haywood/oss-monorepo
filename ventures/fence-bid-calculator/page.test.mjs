@@ -97,3 +97,21 @@ test('decoding a share link marks hoursPerTearOutLf edited before any run is add
   assert.ok(addsRuns !== -1, 'applyShare never adds the shared runs');
   assert.ok(markEdited < addsRuns, 'hoursPerTearOutLf must be marked edited before runs are added, not after');
 });
+
+test('a run’s own cost and labor figures survive being rebuilt, not just its shape', () => {
+  // Regression caught by platform/pages/roundtrip.mjs: `addRunRow` matches a
+  // run's `name` against MATERIAL_PRESETS and, on a match, called
+  // `applyPreset(row, MATERIAL_PRESETS[presetIndex], true)` -- the *preset's*
+  // default material cost, post costs, and labor hours, discarding whatever
+  // the run itself carried. Every run created through the type dropdown
+  // matches a preset by name, so a setter who edits a preset's numbers to
+  // their own supplier costs saw that edit silently revert to the venture's
+  // default the moment the row was rebuilt from a share link -- a run this
+  // test names dropped 10 fields and moved the headline price by $2,350.96.
+  const addRun = /function addRunRow\(run\) \{([\s\S]*?)\n    \}/.exec(proposalScript);
+  assert.ok(addRun, 'no addRunRow function');
+  assert.match(addRun[1], /RUN_COST_KEYS/,
+    'addRunRow no longer overlays a run’s own cost figures onto the matched preset');
+  assert.doesNotMatch(addRun[1], /applyPreset\(row, MATERIAL_PRESETS\[presetIndex\] \?\? run, true\)/,
+    'reverted to applying the bare preset over a reconstructed run’s own costs');
+});

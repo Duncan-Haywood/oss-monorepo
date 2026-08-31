@@ -311,6 +311,16 @@
     const runsHost = el('runs');
     let rowSeq = 0;
 
+    // The cost and labor figures a run carries independently of which preset
+    // it started from — the tail of `RUN_KEYS` in share.mjs, after the shape
+    // fields (linearFeet, corners, walkGates, driveGates) that addRunRow
+    // already copies straight from `run` above.
+    const RUN_COST_KEYS = [
+      'materialPerLf', 'linePostCost', 'terminalPostCost', 'walkGateCost',
+      'driveGateCost', 'concretePerPost', 'hoursPerLf', 'hoursPerPost',
+      'hoursPerWalkGate', 'hoursPerDriveGate',
+    ];
+
     function applyPreset(row, preset, overwriteHours) {
       if (!preset) return;
       row.querySelector('.r-space').value = preset.postSpacingFt;
@@ -359,7 +369,21 @@
       row.querySelector('.r-corners').value = run.corners;
       row.querySelector('.r-walk').value = run.walkGates;
       row.querySelector('.r-drive').value = run.driveGates;
-      applyPreset(row, MATERIAL_PRESETS[presetIndex] ?? run, true);
+      const preset = MATERIAL_PRESETS[presetIndex];
+      // A run's material name matches a preset every time it was created
+      // through the type dropdown — including after a setter edits its cost
+      // or labor figures away from that preset's defaults. Reconstructing
+      // the row (a share link, `payload.runs.forEach(addRunRow)`) must keep
+      // those edits: applying the *preset's* numbers here silently reverted
+      // a hand-tuned material or labor cost back to the venture's default
+      // every time the row was rebuilt, which is exactly what
+      // `platform/pages/roundtrip.mjs` caught — a shared link's headline
+      // price came back different from the one the sender saw.
+      const ownCosts = {};
+      for (const key of RUN_COST_KEYS) {
+        if (run[key] !== undefined && run[key] !== '') ownCosts[key] = run[key];
+      }
+      applyPreset(row, preset ? { ...preset, ...ownCosts } : run, true);
       if (run.postSpacingFt) row.querySelector('.r-space').value = run.postSpacingFt;
 
       typeField.addEventListener('change', () => {
