@@ -38931,3 +38931,90 @@ entries:
         real local verification stays safer than a wide sweep landing
         mid-flight under other sessions' branches.
     mrr_end: null
+  - venture: concrete-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2483: added share.mjs, a "Copy share link"
+        button, and vendored proposal-terms.mjs so the deposit split and
+        payment terms ride in the link too. concrete-bid-calculator is one
+        of the itemised-row calculators (its pour is a list of slabs the
+        visitor grows at runtime), so platform/pages/link.mjs's generic
+        build-time share injector deliberately skips it -- confirmed by
+        reading that module's own exclusion comment before writing a
+        bespoke encoder, rather than assuming the gap was an oversight.
+      - >-
+        Verified: node --test in the venture, 100/100. Portfolio-wide node
+        --test platform/proposal/{sync,term-ids,discoverability}.test.mjs
+        and platform/pages/link.test.mjs: all pass, confirming the wiring
+        matches every other predate-spec calculator. node
+        platform/pages/build.mjs + check.mjs: 169 products, 508 pages, no
+        dead links. Live Chromium round trip: priced a slab at 7"
+        thickness with rebar reinforcement, pump access, a 45% deposit and
+        custom payment terms; the recipient's price matched to the cent
+        ($12,130.94) with every field round-tripped, no console errors.
+        Merged (squash) as #2483.
+      - >-
+        Follow-up in #2487: the share-link sentence landed in the visible
+        FAQ paragraph but not the matching schema.org FAQPage JSON-LD
+        block -- the copy search engines and AI assistants actually index.
+        Fixed to keep the two in sync.
+    mrr_end: null
+  - venture: fence-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found #2484 (a concurrent session's share-link PR for this same
+        venture) already merged while starting the identical work here --
+        this repo's expected concurrency, not a mistake by either session.
+        Rather than open a competing implementation, reviewed the merged
+        result instead: it carries the runs and cost fields but not the
+        proposal panel's five terms (deposit percent, price-held days,
+        payment terms, exclusions, notes). Confirmed as a real gap, not a
+        style preference -- platform/proposal/term-ids.test.mjs failed two
+        of its three assertions against #2484's merged state, the same bug
+        class documented for artificial-turf-bid-calculator on 2026-08-29
+        (a shared link reopens at the venture's deposit default while the
+        headline price still matches to the cent, so nothing on either
+        page says the money differs).
+      - >-
+        Shipped and merged #2487: vendored proposal-terms.mjs and wired it
+        into #2484's existing share.mjs/index.html via the standard
+        withTerms/splitTerms/readTerms/applyTerms/overlongTermsNote
+        pattern, without touching the venture's own encoder. Updated
+        page.test.mjs's load-time-decode assertion, which regex-matched
+        the literal pre-fix call and would otherwise have failed on the
+        corrected wiring, and added a dedicated test for the terms wiring
+        so it can't silently regress again.
+      - >-
+        Verified: node --test in the venture, 93/93 (92/93 immediately
+        before this fix -- the one failure was this gap, not a defect in
+        #2484's own share.mjs). Portfolio-wide node --test
+        platform/proposal/{sync,term-ids,discoverability}.test.mjs and
+        platform/pages/link.test.mjs: 61/61. node platform/pages/build.mjs
+        + check.mjs: 169 products, 508 pages, no dead links. Live Chromium
+        round trip: priced a run at 175 linear feet with rocky dig, steep
+        slope, a 40% deposit and custom payment terms; the recipient's
+        price matched to the cent ($17,904.82) with the deposit and
+        payment terms round-tripped too. Merged (squash) as #2487.
+    mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Investigated this session's explicit CI/CD, Hetzner marketing-site
+        deployment, and "Codex CLI on the built-in quota" asks. All three
+        are already fully built on main and already logged in the decision
+        queue (actions-runners-unavailable, portfolio-site-hetzner-deploy,
+        codex-governor-enable) -- code, k3s manifests, tests, and the
+        standing worker mandate all exist and are unused, blocked purely
+        on owner-only actions (sealing three secrets via
+        bootstrap/scripts/seal-owner-secrets.sh, one of which needs an
+        interactive `codex login` OAuth flow no agent can perform). Did
+        not rebuild or re-diagnose any of it -- confirmed the existing
+        writeup is current and pushed the unblock to the owner instead,
+        per this file's standing guidance against re-verifying settled
+        findings.
