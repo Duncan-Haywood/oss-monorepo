@@ -37744,3 +37744,39 @@ entries:
         and already covers deployment/CI as first-class work, organic-only
         distribution, and the repair-before-new ordering -- left unchanged.
     mrr_end: null
+  - venture: music-lesson-break-even
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2422: the lever-comparison table on the music
+        lesson pricing calculator compared tightening cancellations, adding
+        lessons, and travel, but never the most direct lever -- raising the
+        price itself. Added a `raise_to_target` row (rounds up to the nearest
+        $5 at or above the target price) that appears only when the entered
+        price is below target, matching the page's existing "reaches target"
+        message. Verified: `node --test *.test.mjs` in the venture (13/13,
+        11 pre-existing + 2 new); rebuilt the full Pages artifact afterward
+        (`build.mjs` + `check.mjs`: 169 products / 508 pages, no dead links;
+        `clauses.mjs --all`: all 169 surfaces still carry the no-warranty
+        clause). PR CI came back red/absent at 3s; confirmed runner_id: 0
+        starvation via `platform/ci/ci_starvation.py --run 33386641785` for
+        the `check` job -- merged on local verification per repo convention.
+      - >-
+        Separately this session: 0 open PRs existed at start, so the
+        merge-3-PRs quota was met vacuously (nothing to review, fix, or
+        merge). Did not re-run a bulk branch/PR sweep of the ~290 stale
+        remote branches -- a prior session this same day already sampled
+        ~140 of them and found zero unique candidates (all superseded by
+        `main`), so repeating that scan would not have been new information.
+        Confirmed (read-only) that the deployment/CI-CD/Hetzner-marketing/
+        Codex-CLI-on-Hetzner priorities this session was explicitly asked
+        about are each fully built and already queued in
+        `decision_queue.py` (#10 CI runner, #11 Codex CLI on the agent box
+        running an autonomous dev-loop prompt against this repo's own
+        conventions on the ChatGPT plan's included quota, #12 Codex governor
+        k8s fleet, #13 Hetzner static-site deploy) -- all four wait only on
+        owner secret-sealing / account actions typed out in
+        `infra/OWNER_CHECKLIST.md`. No duplicate queue rows added; no new
+        code written for any of the four since none was needed.
+    mrr_end: null
