@@ -51,6 +51,25 @@ is reported as a skip with that instruction rather than as a failure,
 because "the browser is not installed here" and "the site is broken" are
 not the same result.
 
+Installing it is two commands, and worth knowing because several ledger
+entries record "no headless browser available in this environment" and
+merged on unit tests alone. In a Claude Code web session a Chromium is
+already at `/opt/pw-browsers`; only the npm packages are missing, and they
+go in a scratch directory rather than this repo, which has no
+`package.json` and should not grow one for a check that is not in CI:
+
+    cd "$SCRATCH" && npm install playwright axe-core
+    PLAYWRIGHT="$SCRATCH/node_modules/playwright/index.js" \\
+    AXE="$SCRATCH/node_modules/axe-core/axe.min.js" \\
+    python3 platform/ci/browser_checks.py --dist=path/to/site
+
+`axe-core` is `contrast`'s dependency alone; without it that one check
+exits 2 and the other five still run. Do not run `npx playwright install`
+-- see the paragraph below on why the version pin does not matter here.
+Verified on 2026-08-31: all six checks ran this way against a
+`tools.marisstella.dev`-stamped artifact, and `journey`'s sitemap step
+found a real bug in itself doing so.
+
 It does find a browser, but only when you did not name one. `CHROME_PATH`
 still reuses a Chromium already on the machine and is passed through
 untouched; when it is unset, `PLAYWRIGHT_BROWSERS_PATH` is searched for one
