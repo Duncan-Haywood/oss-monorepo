@@ -38422,3 +38422,51 @@ entries:
         deleted or merged); `branch-cleanup.yml` already exists on `main` to
         do that but is capability-gated, per its own test suite.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed 0 open PRs and no branches with unique unshipped work this
+        run (checked `origin/claude/optimistic-heisenberg-iaisd4` itself too:
+        0 commits ahead of `main`). PR-drain quota met vacuously.
+      - >-
+        Re-confirmed, per an explicit ask this session for CI/CD, Hetzner
+        deployment, marketing-material deployment, and an autonomous Codex CLI
+        setup on the Hetzner box: unchanged from the prior same-day finding
+        (recorded just above) -- all of it is already built and code-complete,
+        blocked purely on the same four owner-only actions already queued in
+        `decision_queue.py` (#10 actions-runners-unavailable, #12
+        codex-governor-enable, #13 portfolio-site-hetzner-deploy). Actions API
+        spot-check (`Portfolio validate` on `main`) still shows every run
+        failing in ~4s -- unchanged. Added nothing new to the queue.
+      - >-
+        Shipped and merged #2464: swept all 163 ventures for the
+        stale-results-on-rejected-input bug class that 5+ prior sessions had
+        each found and fixed one instance of at a time (job-margin-variance
+        #2446, notary-trip-quote #2450, subscription-price-impact #2452,
+        retainage-cashflow-calculator #2453) without anyone sweeping the rest
+        of the fleet. A throwaway scanner (try block writes >=2 result
+        targets, catch block clears <=1) found exactly 8 remaining genuine
+        instances -- no false positives -- across
+        hvac-maintenance-contract-calculator, consent-change-record,
+        grant-deadline-tracker, mobile-detailing-bid-calculator,
+        music-lesson-break-even, pool-route-pricing, saas-seat-true-up, and
+        shopify-a11y-evidence. Two of the eight (consent-change-record,
+        shopify-a11y-evidence) had the sharper variant where a stale `latest`
+        variable let Download/Copy hand out a report for input no longer in
+        the textareas, not just a stale on-screen number. Fixed all 8 with the
+        established pattern (dedicated announced error region, clear every
+        derived field on catch, restore on success) and a regression test per
+        venture. Re-ran the scan afterward: 0 remaining candidates in the
+        fleet.
+      - >-
+        Verified before merge (Actions still runner-starved account-wide,
+        confirmed via a live API check this session, not just cited from a
+        prior one): `node --test` independently re-run in all 8 fixed
+        ventures (37+24+12+63+14+33+18+54 = 255 tests, 0 failures);
+        portfolio-wide `node platform/pages/build.mjs` + `check.mjs` run
+        twice (once pre-rebase, once post-rebase onto a `main` that had moved
+        3 commits in the interim) -- both times 169 products, 508 pages, no
+        dead links; full `platform/pages/*.test.mjs` suite, 790 pass.
+    mrr_end: null
