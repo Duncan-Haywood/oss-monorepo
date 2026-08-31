@@ -36891,3 +36891,53 @@ entries:
         failure, per the documented account-level Actions outage. Merged as
         #2372 on local verification.
     mrr_end: null
+  - venture: cleaning-dilution-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the mandatory PR/branch-drain phase first: `list_pull_requests`
+        and `search_pull_requests` both showed zero open PRs (the prior
+        session's #2373 had already merged before this one started), so the
+        quota was met by an empty queue. Verified the deploy/CI-CD/Codex-
+        on-Hetzner build-out (`gitops/agents/workers/mandate.md`,
+        `worker.sh`, `governor.py`, the queue items, `infra/OWNER_CHECKLIST.md`)
+        is already complete at the code level and blocked only on the same
+        three owner-only secret seals already tracked in the decision queue;
+        added nothing new there. `python3 -m pytest gitops/tests` (155/155)
+        and a full workflow-YAML parse sweep of all 220 `.github/workflows/`
+        files turned up no fresh, fixable gap in the delivery path beyond
+        what prior sessions already found and fixed.
+      - >-
+        Shipped a product improvement instead: `cleaning-dilution-calculator`
+        was one of eight ventures found (by grepping every calculator's
+        `index.html` for `share`/`clipboard`/`URLSearchParams`) with no
+        shareable-link or persistence mechanism at all -- of those, this one
+        had real numeric-only fields (8, no enums/text) and zero existing
+        `localStorage` persistence, so every refresh reset a janitorial
+        operator's dilution ratio, container price, and labor rate back to
+        the page defaults. Added `share.mjs` (the simpler
+        `retainage-cashflow-calculator`-style `encodeInputs`/`decodeInputs`
+        variant, since there are no choice/text/row fields to carry) plus
+        draft persistence to `localStorage`, wired so a shared link takes
+        priority over a saved draft on load.
+      - >-
+        Verified: `node --test *.test.mjs` in the venture, 12/12 passing
+        (3 new share tests: round-trip, negative/unknown-field rejection,
+        hash/query/bare-string prefixes). `node platform/pages/build.mjs`
+        + `check.mjs` still produce 169 tools / 508 pages with no dead
+        links, and the build's own "shareable bid link" counter now
+        includes this venture. Live Chromium pass against the actual built
+        Pages artifact: changed inputs, reloaded plain (draft restored),
+        clicked share, opened the resulting link in a **fresh browser
+        context** after changing the sender's own field, and confirmed the
+        recipient's page restored the sender's original numbers and
+        computed the same result ($3.90/gallon) rather than the sender's
+        later edit or the page defaults.
+      - >-
+        CI came back red (`build`/`check`/`validate`/`page-integrity`/
+        `link-contrast`, all completing in 3-5s); confirmed starvation via
+        `platform/ci/ci_starvation.py --run 33364866145` (`runner_id: 0`,
+        no steps) rather than treating red as a real failure. Merged as
+        #2374 on local verification.
+    mrr_end: null
