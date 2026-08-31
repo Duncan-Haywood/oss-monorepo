@@ -81,7 +81,18 @@ EXTRA_ASSET_NAMES = frozenset({"LICENSE", "LICENSE.md", "LICENSE.txt", "README.m
 # Test modules sit next to the product code in this repo (`calc.test.mjs` beside
 # `calc.mjs`). They must not ship: they are dead weight over the wire and they
 # leak fixture values into a public surface.
-EXCLUDED_NAME_PATTERNS = (".test.mjs", ".test.js", ".spec.mjs", ".spec.js")
+#
+# `foo.test.mjs` is the house convention, not a rule -- `retainage-cashflow-calculator`
+# ships its suite as bare `test.mjs`, which this pattern list did not match, so it
+# was shipping to the public site undetected. `platform/pages/build.mjs` (the
+# build this repo actually deploys with) hit the same gap and fixed it by widening
+# the match rather than renaming the venture; mirror that here instead of adding a
+# second acceptable spelling for the next venture to miss.
+_TEST_MODULE_RE = re.compile(r"(^|\.)test\.(mjs|js|py)$|^test_|_test\.(mjs|js|py)$")
+
+
+def _is_test_module(name: str) -> bool:
+    return bool(_TEST_MODULE_RE.search(name)) or name.endswith((".spec.mjs", ".spec.js"))
 
 EXCLUDED_DIRS = frozenset(
     {"node_modules", ".git", "dist", "build", "coverage", "__pycache__", ".pytest_cache"}
@@ -287,7 +298,7 @@ def discover_products(ventures_dir: Path | None = None) -> list[Product]:
 
 
 def _is_web_asset(path: Path) -> bool:
-    if any(path.name.endswith(pattern) for pattern in EXCLUDED_NAME_PATTERNS):
+    if _is_test_module(path.name):
         return False
     if path.name in EXTRA_ASSET_NAMES:
         return True
@@ -753,7 +764,7 @@ def check() -> int:
         assets = list(_iter_web_assets(product.source))
         if not any(a.name == "index.html" for a in assets):
             problems.append(f"{product.slug}: index.html is not a shippable web asset")
-        leaked = [a.name for a in assets if a.name.endswith(EXCLUDED_NAME_PATTERNS)]
+        leaked = [a.name for a in assets if _is_test_module(a.name)]
         if leaked:
             problems.append(f"{product.slug}: test modules would ship: {leaked}")
 
