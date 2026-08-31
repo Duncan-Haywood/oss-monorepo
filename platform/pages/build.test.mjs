@@ -66,6 +66,7 @@ import {
   renderCatalog,
 } from './build.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT } from './offline.mjs';
+import { EMBED_QUERY_PARAM, DEFAULT_EMBED_HEIGHT } from './embed.mjs';
 // The hub embeds these rather than paraphrasing them, so the tests that used to
 // pin its transcription line by line now compare against the definitions
 // themselves. See "the hub validates a saved bid with the tested definition".
@@ -3595,6 +3596,24 @@ test('the About page makes no off-origin request, which is the claim it makes', 
   // page that itself pulled a font or an analytics tag would make that a lie,
   // and it is the one page where the lie would be load-bearing.
   assert.deepEqual(offOriginResources(await read('about', 'index.html')), []);
+});
+
+test('the About page documents the embed feature that #2561 shipped, not just the per-tool box', async () => {
+  // The embed offer itself only exists on a tool's own footer (`embed.mjs`,
+  // `injectEmbedWidget`) -- nobody browsing the hub or About ever scrolls to
+  // one to discover the feature exists at all. This is the site-level surface
+  // for it: no snippet to copy (that one is already generated correctly, per
+  // tool, with that tool's own title and URL), just the fact that every tool
+  // supports it and the one shape the snippet always takes.
+  const { surfaces } = await site();
+  const about = await read('about', 'index.html');
+
+  assert.match(about, /Embedding a tool on your own page/);
+  assert.match(about, new RegExp(`Every one of the ${surfaces.length} tools here can be framed`));
+  // The illustrated snippet uses the real query param and default height the
+  // shipped feature uses, not numbers written by hand that could drift from it.
+  assert.match(about, new RegExp(`\\?${EMBED_QUERY_PARAM}=1`));
+  assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
 test('the hub sitemap holds the hub, the categories and About, and nothing else', () => {
