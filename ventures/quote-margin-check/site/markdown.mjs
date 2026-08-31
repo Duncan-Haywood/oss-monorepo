@@ -20,6 +20,7 @@ export function markdownReview(quote, report, checks, options = {}) {
     `- Overhead cost: ${money(quote.overhead)}`,
     `- Subcontractor cost: ${money(quote.subcontractor_cost)}`,
     `- Target hourly rate: ${money(quote.target_hourly_rate)}`,
+    `- Time buffer: ${formatDecimal(quote.time_buffer_percent)}%`,
     "",
     "## Derived arithmetic",
     "",
