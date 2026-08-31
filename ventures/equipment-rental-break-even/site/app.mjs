@@ -1,4 +1,5 @@
 import { calculate, buildSnapshotText } from "./model.mjs";
+import { encodeShare, decodeShare } from "./share.mjs";
 const ids = ["currency", "booking", "rental_days", "delivery", "cleaning", "damage", "purchase", "life", "fixed_monthly", "available", "target_margin"];
 const $ = (id) => document.getElementById(id);
 const values = () => Object.fromEntries(ids.map((id) => [id, id === "currency" ? $(id).value.trim() || "units" : Number($(id).value)]));
@@ -44,6 +45,30 @@ function render(count = true) {
     $("result").replaceChildren(error);
   }
 }
+async function writeClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const fallback = document.createElement("textarea");
+    fallback.value = text;
+    fallback.setAttribute("readonly", "");
+    fallback.style.position = "fixed";
+    fallback.style.opacity = "0";
+    document.body.append(fallback);
+    fallback.select();
+    document.execCommand("copy");
+    fallback.remove();
+  }
+}
+async function copyShare() {
+  const hash = encodeShare(values());
+  const url = `${location.origin}${location.pathname}#${hash}`;
+  await writeClipboard(url);
+  history.replaceState(null, "", `#${hash}`);
+  usage("share_copied");
+  $("share-status").textContent = "Share link copied";
+  setTimeout(() => { $("share-status").textContent = ""; }, 2500);
+}
 function usage(event) {
   if (localStorage.getItem("rental-usage-off") === "1" || navigator.doNotTrack === "1" || navigator.globalPrivacyControl === true) return;
   const data = JSON.parse(localStorage.getItem("rental-usage") || "{}");
@@ -61,4 +86,7 @@ $("save-draft").addEventListener("click", () => { if (!last) return; const name 
 $("drafts").addEventListener("change", (event) => { const draft = drafts().find((item) => item.id === event.target.value); if (draft) { applyDraft(draft); usage("draft_load"); } $("delete-draft").disabled = !event.target.value; });
 $("delete-draft").addEventListener("click", () => { const id = $("drafts").value; if (!id) return; localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts().filter((draft) => draft.id !== id))); showDrafts(); usage("draft_delete"); });
 $("clear-usage").addEventListener("click", () => { localStorage.removeItem("rental-usage"); localStorage.setItem("rental-usage-off", "1"); showUsage(); });
+$("copy-share").addEventListener("click", () => { copyShare().catch(() => { $("share-status").textContent = "Copy failed."; }); });
+const shared = decodeShare(location.hash);
+if (shared) applyDraft({ values: shared });
 render(false); showUsage(); showDrafts();
