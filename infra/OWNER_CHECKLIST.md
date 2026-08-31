@@ -258,7 +258,14 @@ Actions secrets. They cannot mint servers or raise an OpenAI hard limit.
 
 - Keep 6443 world-open until the private net (`10.42.0.10`) works, then
   flip `expose_k3s_api_publicly = false`.
-- What keeps serving on `marisstella.dev`. This stack will not steal it.
+- ~~What keeps serving on `marisstella.dev`. This stack will not steal it.~~
+  Resolved: nothing was serving it. ingress-nginx runs `hostNetwork: true`
+  on the cpx52, so it holds :80/:443 and no second listener could bind
+  there; the apex resolved to the box and fell to the default backend,
+  which is what issue #1925 reported. `gitops/prod/portfolio-apex.yaml`
+  now claims `marisstella.dev` and `www.marisstella.dev` and 301s both to
+  `tools.marisstella.dev`. No owner action — it goes live with the same
+  clone token the site itself waits on.
 - Whether `duncanhaywood.dev` should get an A record for a cluster
   status host later.
 - How high the isolated OpenAI hard limit should be (start low; raise

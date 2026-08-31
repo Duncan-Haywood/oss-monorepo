@@ -402,16 +402,92 @@ def test_portfolio_site_is_synced_by_prod() -> None:
 
 
 def test_portfolio_site_takes_a_subdomain_not_the_apex() -> None:
-    # infra/README.md records that marisstella.dev already resolves to this
-    # box for something else, and landing.yaml says the stack must not hijack
-    # it. ingress-nginx only answers for hosts a rule names, so a subdomain is
-    # safe and the bare apex is not.
+    # The content Ingress serves exactly one host, and it is the canonical one
+    # stamped into every page's canonical link (see the PAGES_BASE_URL test
+    # below). The apex and `www` reach the site through the 301 in
+    # `prod/portfolio-apex.yaml`, so adding either here would put two
+    # uncanonical copies of all 508 pages in front of crawlers.
     ingress = _portfolio_site()["Ingress"]
     hosts = [rule["host"] for rule in ingress["spec"]["rules"]]
     assert hosts == ["tools.marisstella.dev"]
     for host in hosts:
         assert host not in {"marisstella.dev", "www.marisstella.dev"}
     assert ingress["spec"]["tls"][0]["hosts"] == hosts
+
+
+def _portfolio_apex() -> dict:
+    docs = list(yaml.safe_load_all((ROOT / "prod" / "portfolio-apex.yaml").read_text()))
+    return [d for d in docs if d and d["kind"] == "Ingress"][0]
+
+
+def test_portfolio_apex_is_synced_by_prod() -> None:
+    kustomization = yaml.safe_load((ROOT / "prod" / "kustomization.yaml").read_text())
+    assert "portfolio-apex.yaml" in kustomization["resources"]
+
+
+def test_portfolio_apex_claims_both_bare_and_www() -> None:
+    # Issue #1925: the owner types marisstella.dev and gets nothing, because
+    # DNS points at a box whose only listener has no rule for that name.
+    # ingress-nginx matches the Host header exactly, so `www` needs its own
+    # rule — covering only the apex leaves half the front door shut.
+    apex = _portfolio_apex()
+    hosts = {rule["host"] for rule in apex["spec"]["rules"]}
+    assert hosts == {"marisstella.dev", "www.marisstella.dev"}
+    assert set(apex["spec"]["tls"][0]["hosts"]) == hosts
+
+
+def test_portfolio_apex_redirects_permanently_to_the_canonical_host() -> None:
+    # A 301 to the canonical host, not a second copy of the site: build.mjs
+    # stamps one canonical base into all 508 pages, and serving those bytes
+    # under two more names would contradict it on every page.
+    apex = _portfolio_apex()
+    annotations = apex["metadata"]["annotations"]
+    target = annotations["nginx.ingress.kubernetes.io/permanent-redirect"]
+    assert target == "https://tools.marisstella.dev/"
+    assert annotations["nginx.ingress.kubernetes.io/permanent-redirect-code"] == "301"
+
+    # The redirect target must stay the host the content Ingress actually
+    # serves. If someone renames that host and forgets this file, the front
+    # door 301s everyone into a name nothing answers for.
+    served = _portfolio_site()["Ingress"]["spec"]["rules"][0]["host"]
+    assert target == f"https://{served}/"
+
+
+def test_portfolio_apex_backend_is_the_real_site_not_a_stub() -> None:
+    # The backend is unreachable while the redirect annotation is set, so its
+    # only job is to decide what happens if that annotation is ever dropped:
+    # pointing at the live Service degrades to serving the site (whose pages
+    # carry the canonical tag anyway), while a stub would degrade to a 503.
+    site_service = None
+    for doc in yaml.safe_load_all((ROOT / "prod" / "portfolio-site.yaml").read_text()):
+        if doc and doc["kind"] == "Service":
+            site_service = doc["metadata"]["name"]
+    assert site_service is not None
+    for rule in _portfolio_apex()["spec"]["rules"]:
+        for path in rule["http"]["paths"]:
+            assert path["backend"]["service"]["name"] == site_service
+
+
+def test_portfolio_apex_matches_the_site_certificate_issuer() -> None:
+    # A browser has to accept the certificate for marisstella.dev before it is
+    # ever shown the redirect. If the apex sat on staging while the target was
+    # on prod, the front door would be the only page with a warning
+    # interstitial — so the two issuers move together or not at all.
+    apex_issuer = _portfolio_apex()["metadata"]["annotations"][
+        "cert-manager.io/cluster-issuer"
+    ]
+    site_issuer = _portfolio_site()["Ingress"]["metadata"]["annotations"][
+        "cert-manager.io/cluster-issuer"
+    ]
+    assert apex_issuer == site_issuer
+
+
+def test_portfolio_apex_uses_its_own_certificate_secret() -> None:
+    # Sharing `portfolio-site-tls` would make two Certificates fight over one
+    # Secret, each reissuing to drop the other's names.
+    apex = _portfolio_apex()["spec"]["tls"][0]["secretName"]
+    site = _portfolio_site()["Ingress"]["spec"]["tls"][0]["secretName"]
+    assert apex != site
 
 
 def test_portfolio_site_types_es_modules_as_javascript() -> None:

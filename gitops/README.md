@@ -67,9 +67,18 @@ Actions, which has failed without a runner on every workflow in this repo
 since 2026-08-26, nor on GitHub Pages, which is not enabled. Neither
 blocker sits in this path.
 
-A subdomain, not the apex. `marisstella.dev` already resolves to the
-cpx52 for something else and ingress-nginx only answers for hosts a rule
-names, so the apex keeps whatever serves it today.
+A subdomain, because `tools.marisstella.dev` is the canonical host
+stamped into every page's canonical link, og:url and sitemap entry. The
+apex and `www` are served by `prod/portfolio-apex.yaml`, which 301s them
+here rather than putting two uncanonical copies of all 508 pages in front
+of crawlers.
+
+This used to say the apex was left alone because it "already resolves to
+the cpx52 for something else". It does not: `infra/README.md` records
+where the A records point, not that anything answers them, and
+ingress-nginx runs `hostNetwork: true` on this node, so it holds :80/:443
+and nothing else can be bound there. The apex was falling to the default
+backend — which is exactly what issue #1925 reported.
 
 ### What is still needed to make it live
 
