@@ -37096,3 +37096,48 @@ entries:
         as a real failure, per the documented account-level Actions
         outage. Merged as #2383 on local verification.
     mrr_end: null
+  - venture: ltl-freight-class-estimator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        PR/branch-drain phase: zero open PRs (`list_pull_requests`), so the
+        quota was met by an empty queue.
+      - >-
+        Shipped #2385: `ltl-freight-class-estimator` was one of seven
+        ventures found (by grepping every venture's `index.html` for
+        `share.mjs`/`localStorage`) with no shareable-link or persistence
+        mechanism at all -- of those, this one is a clean five-numeric-field
+        calculator (length, width, height, weight, pieces) with zero
+        existing `localStorage` use, so every refresh reset a shipper's or
+        broker's pallet dimensions back to the page defaults (48x40x36,
+        500 lb, 1 piece) and there was no way to hand a coworker the exact
+        figures for a shipment other than retyping them. Added `share.mjs`
+        (the simpler `cleaning-dilution-calculator`-style
+        `encodeInputs`/`decodeInputs` variant, no choice/text/row fields to
+        carry) plus draft persistence to `localStorage`, wired so a shared
+        link takes priority over a saved draft on load, matching the
+        already-shipped pattern.
+      - >-
+        Verified: `node --test *.test.mjs` in the venture, 17/17 passing (5
+        new `share.mjs` tests: round-trip, unknown-field/negative
+        rejection, bare/`?`/`#`-prefixed decode, empty-decode).
+        `node platform/pages/build.mjs` + `check.mjs platform/pages/dist`
+        still produce 169 tools / 508 pages with no dead links. No
+        Chromium/jsdom was available in this session, so in its place: a
+        hand-rolled fake-DOM simulation of the exact wired script logic
+        (share.mjs + calc.mjs, real localStorage/hash semantics) confirmed
+        a draft restores after a simulated reload, a shared link opened
+        against a fresh empty `localStorage` overrides the draft and
+        reproduces the sender's original class/density (85, 12.5 lb/ft³ at
+        the default figures) rather than the sender's later edits or page
+        defaults, and the recipient's page matches
+        `estimateFreightClass` computed directly on the sender's original
+        numbers.
+      - >-
+        CI came back red (`build`/`check`/`validate`/`test`/`page-integrity`/
+        `link-contrast`, ~3s each, one `deploy` skipped); confirmed
+        starvation via `platform/ci/ci_starvation.py --run 33368349980`
+        (`runner_id: 0`, no steps) rather than treating red as a real
+        failure. Merged as #2385 on local verification.
+    mrr_end: null
