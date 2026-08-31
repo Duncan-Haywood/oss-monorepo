@@ -7,15 +7,21 @@
 # for a site nobody can reach yet is worth less than the path that makes it
 # reachable; above seo-discoverability-audit (3), because that item now
 # reports full coverage on both of its backlogs (169/169 FAQ, 169/169 guide
-# pages on 2026-08-31) and has been reduced to depth work, while the
-# distribution surface below has whole mechanisms missing rather than rows.
+# pages on 2026-08-31) and has been reduced to depth work.
+#
+# All four candidates below had a baseline shipped by 2026-08-31 (embed
+# widget #2561, several venture compare pages, the /c/ hub copy, and the
+# /about/ press kit) -- this item too is now depth work, same as the SEO one,
+# not "whole mechanisms missing" as an earlier revision of this comment said.
+# Kept above seo-discoverability-audit anyway: a distribution gap (nobody
+# finding a page at all) still costs more per run than a crawler-legibility
+# gap on a page already found, once genuine gaps of each kind exist.
 #
 # Why this item exists separately from the SEO one: seo-discoverability-audit
-# improves how a page reads to a crawler that has already found it. Nothing in
-# the queue works on how anyone finds the site in the first place. For a
-# brand-new domain those are different problems on different clocks -- organic
-# search rankings take months, and an embeddable widget or a comparison page
-# earns a link the week it ships.
+# improves how a page reads to a crawler that has already found it. This item
+# is about how anyone finds the site in the first place -- organic search
+# rankings take months, while an embed or a comparison page can earn a link
+# the week it ships.
 id: marketing-distribution
 repo: Duncan-Haywood/monorepo-projects
 ref: main
@@ -48,31 +54,40 @@ prompt: |
     PAGES_BASE_URL=https://tools.marisstella.dev/ node platform/pages/build.mjs
     node platform/pages/check.mjs --dist=platform/pages/dist
 
-  Candidates, best first. Confirm the gap is still real before you take one:
+  Candidates, best first. **All four below had a baseline already shipped as
+  of 2026-08-31** -- confirm the gap is still real, and past that, look for
+  the depth or coverage gap within the candidate rather than re-building the
+  mechanism from scratch:
 
-  1. **An embeddable widget.** A trade association, a supplier's blog, or a
-     forum post can host a calculator if there is a supported way to embed
-     one. There is none today: nothing under `platform/pages/` emits an
-     iframe-able view or a copyable embed snippet. This is the highest-value
-     candidate because an embed earns a real inbound link and puts the tool
-     in front of an audience that already exists, and because it costs $0 per
-     use -- the page is static and computes in the visitor's browser. Keep
-     the embedded view honest: same arithmetic, same disclaimer, a visible
-     link back to the full tool, and no tracking added on the host's page.
+  1. **An embeddable widget.** Done in #2561 (`platform/pages/embed.mjs`,
+     `injectEmbedWidget`, `pf-embed.js`/`pf-embed.css` at the site root,
+     17 passing tests in `embed.test.mjs`). Every entry page already carries
+     a copyable `<iframe>` snippet in its footer chrome. **Do not re-pick
+     this** unless you find entry pages it is silently skipping (check
+     `result.embedded.length` against the entry-page count in a real
+     `build.mjs` run) or a defect in the framing detection.
   2. **A comparison or "alternatives" page** for a tool whose niche has an
      obvious incumbent people search by name. High search intent, and the
      honest version is genuinely useful. Compare on facts you can verify from
      public documentation and cite them; if you cannot verify a competitor's
      number, leave the row out rather than estimating it. Never disparage.
+     Several ventures already have one (`marketplace-fee-compare`,
+     `3pl-quote-normalizer/compare.mjs`, `cut-list-optimizer`,
+     `shopify-permission-drift/site/compare.mjs`,
+     `mcp-supply-chain-watch/site/compare.mjs`, `seller-net-sheet`) --
+     the remaining gap is a tool with a genuine named incumbent and no
+     comparison page yet, not the mechanism itself.
   3. **A category hub that reads as a landing page** rather than a list. The
-     7 hubs under `/c/` are real pages already -- check whether one of them
-     states the problem its tools solve and who they are for before it starts
-     listing, and fix the weakest one if not.
-  4. **A press kit section on `/about/`** -- a one-paragraph description, the
-     tool count, what is and is not true about privacy, and the share-card
-     assets, so anyone writing about the site can quote it accurately without
-     asking. `/about/` already carries the positioning and the privacy claims;
-     this is about making them quotable, not rewriting them.
+     7 hubs under `/c/` (`CATEGORY_PAGE_COPY` in `build.mjs`) already each
+     carry a `title`/`description`/`intro`/`audience` naming the problem and
+     who it is for. Re-read all 7 against a fresh `check.mjs` run before
+     calling any of them weak -- the copy is deliberately data, not prose, so
+     a "gap" here is more likely a stale reading of this file than a real one.
+  4. **A press kit section on `/about/`** -- `renderAboutPage` in `build.mjs`
+     already has the one-liner, the paragraph, the facts list, the licence
+     and source link, and share-card meta tags (`og:image`, `SOCIAL_CARD_FILE`).
+     A real remaining gap here is narrow (e.g. a claim that has drifted from
+     what the build actually emits), not a missing section.
 
   Whatever you pick, it has to be finished, not scaffolded: real content or
   real behaviour, the liability disclaimer every user-facing surface here
