@@ -40434,3 +40434,52 @@ entries:
         entries above; not re-recorded per the "skip if already covered"
         rule.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran `deploy-cicd-readiness` again. `pytest gitops/tests -q` (183
+        passed), `kustomize build` on all six overlays piped through
+        `kubeconform -strict -kubernetes-version 1.31.0` (66 resources,
+        51 valid + 15 CRD/skip, 0 invalid), `node platform/pages/build.mjs`
+        + `check.mjs` (169 products, 508 pages, no dead links, matching
+        `infra/OWNER_CHECKLIST.md`'s 2026-08-31 rehearsal), and
+        `validate_workflows.py` (220 workflows) all came back clean before
+        touching anything. Checked open PRs first (none) and
+        `decision_queue.py` (the owner-only unblocks this item's remaining
+        steps sit behind -- `actions-runners-unavailable`,
+        `codex-governor-enable` -- are already queued, so nothing to
+        duplicate).
+      - >-
+        Found one real gap, in category 1 (a manifest under `gitops/` that
+        is wrong or incomplete): `gitops/ci/runner.yaml`'s `actions-runner`
+        Deployment carried no pod-level `securityContext` at all -- every
+        other workload in this repo (portfolio-site's three containers, its
+        refresh and usage CronJobs, the governor CronJob, prod's landing
+        page) already sets `runAsNonRoot`, each hardened in its own prior PR
+        (#2408, #2345, #2418) with the same "this was the one exception"
+        reasoning. The CI runner never got that pass.
+      - >-
+        Shipped and merged #2541: added `runAsNonRoot: true` to the pod
+        securityContext, with `readOnlyRootFilesystem` deliberately left off
+        (a workflow step can `npm ci` or run `actions/setup-node`, which
+        write into `$RUNNER_TOOL_CACHE` outside the one `work` emptyDir this
+        pod mounts -- narrowing that further would break arbitrary job
+        code). Confirmed `ghcr.io/actions/actions-runner:2.328.0` already
+        runs as its own unprivileged `runner` user by default via the
+        image's own OCI config on `ghcr.io` (fetched directly; `runner-
+        entrypoint.sh` itself never chowns, sudos or su's into another
+        account, and `cd`s straight into `/home/runner`), so this pins
+        existing behaviour rather than changing it. Added
+        `test_runner_pod_runs_as_the_images_own_unprivileged_user` to
+        `gitops/tests/test_ci_runner.py`, pinning both halves; confirmed it
+        fails without the manifest change and passes with it. Verified:
+        `pytest gitops/tests -q` 184 passed (was 183); `kustomize build
+        gitops/ci | kubeconform -strict` 5/5 valid. CI on the PR showed the
+        account-wide runner-starvation signature; confirmed job-by-job with
+        `ci_starvation.py 99650165447` (1 of 1 job starved, `runner_id: 0`)
+        rather than assumed, merged on the local verification above. No
+        functional change today -- `actions-runner-secrets` isn't sealed, so
+        the Deployment cannot start regardless.
+    mrr_end: null
