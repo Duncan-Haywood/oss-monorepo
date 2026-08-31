@@ -23,6 +23,12 @@ a synonym dictionary, so a spelling you did not list is still missed.
 The worked example (roofing, minimum 20,000) keeps the school roof and the
 clinic reroof and drops the $12,000 painting hall.
 
+Tenders whose deadline has already passed are hidden from the shortlist by
+default — a portal export usually still contains last week's notices, and a
+closed tender is not something anyone can act on. Uncheck "Hide tenders that
+already closed" to see them anyway; a shown-but-closed row is still marked
+Closed so it isn't mistaken for a live one.
+
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, or procurement
 advice, and it does not replace a qualified professional. **You are responsible
