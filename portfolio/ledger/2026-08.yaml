@@ -36985,3 +36985,36 @@ entries:
         re-verified per-run this time since the signature is already
         established and unchanged). Merged as #2376 on local verification.
     mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2378: `555-timer-calculator`'s discharge-current safety
+        check (`astableWarnings` in `calc.mjs`) charged the timing
+        capacitor's 2/3 Vcc through R1 and dropped R2's contribution
+        entirely. In the real topology the discharge transistor pulls pin 7
+        to ~0 V, so R1 sees the *full* supply and the capacitor drains back
+        through R2 into the same pin -- both currents converge there.
+        Verified the practical effect directly against the unpatched code
+        before writing the fix: `r1 = 1000` (this tool's own recommended
+        practical minimum, so no other warning fires), `r2 = 50`,
+        `supplyVolts = 15` -- real discharge-pin current is 215 mA, 15 mA
+        over the chip's absolute maximum, and the old formula reported
+        10 mA with *no warning at all*. A second case (`r1 = 30, r2 =
+        10000, 15V`) still warned under the old formula but understated the
+        current by a third (333 mA reported vs 501 mA real). Fixed to
+        `supplyVolts / r1 + (2/3 * supplyVolts) / r2`, reworded the
+        resulting message (current is no longer attributable to R1 alone),
+        and added two regression tests pinning the exact corrected numbers
+        on both component pairs. `grep`-confirmed no sibling venture shares
+        this formula and `index.html` has no hardcoded example figures left
+        stale by the change.
+      - >-
+        Verified: `node --test *.test.mjs` in the tool directory, 36/36
+        passing (2 new). CI checks came back red (`build`/`check`, ~3s
+        each); confirmed starvation via `platform/ci/ci_starvation.py
+        --run 33365245844` (`runner_id: 0`, no steps) rather than treating
+        red as a real failure, per the documented account-level Actions
+        outage. Merged as #2378 on local verification.
+    mrr_end: null
