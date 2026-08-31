@@ -40261,3 +40261,64 @@ entries:
         job-by-job with `ci_starvation.py --run 33436328936` (4 of 5 jobs
         starved) rather than assumed; merged on the local verification above.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Ran the mandate's open-PR phase and found the queue empty: zero open
+        PRs on the repository. The ~180 branches ahead of `main` are
+        squash-merge residue, matching the drain another session recorded in
+        f6f1bb341 the same day. Nothing to review, repair, or merge, so the
+        three-PR quota was vacuously met and the run moved to product work.
+      - >-
+        Found `main` red and fixed it. `Portfolio validate` had been failing
+        two steps since 2026-08-29 -- "Check every host in an owner ask has a
+        measured verdict" and "Egress-consolidation tests" -- and nobody had
+        seen it, because no Actions runner has picked up a job here since
+        2026-08-26. Every merge in that window landed on a red base. Found by
+        actually running `platform/ci/run_workflow_locally.py
+        portfolio-validate.yml` (44/46, 2 failed) rather than assuming the
+        red checks on GitHub were only the runner outage.
+      - >-
+        Root cause: `check_ask_hosts.py` tells a filename from a hostname by
+        asking whether this repository tracks a file by that name, which
+        cannot see a file living anywhere else. When
+        `agent-runner-subscription-login` described the Codex credential as a
+        bare `auth.json`, every rule accepted it -- host-shaped, alphabetic
+        last label, untracked here -- so the checker demanded an egress
+        verdict for a file on the owner's laptop.
+      - >-
+        Shipped and merged #2534: reject a token whose final label is a suffix
+        IANA has never delegated, before the filename test. Deliberately a
+        small explicit set, because the extension blocklist this file's own
+        comments reject failed by listing `.md` and `.sh` (Moldova and St
+        Helena) and silently dropping `obsidian.md` and `formulae.brew.sh`. An
+        IANA allowlist would be the general form and fails the wrong way -- a
+        host on a newly delegated TLD would vanish silently -- so a missing
+        suffix here keeps the check red and prints the token instead. Three
+        tests added, one pinning that the set never intersects a real ccTLD.
+        `asks.yaml` was left untouched: fixing the prose alone would leave the
+        trap for the next author.
+      - >-
+        Verified locally, since CI cannot run: portfolio-validate.yml 44/46
+        with 2 failed -> 46/46; `test_consolidate` 28 -> 31 tests all passing;
+        `pytest gitops/tests -q` 183 passed; `build.mjs` + `check.mjs` 169
+        products / 508 pages / no dead links; guide and FAQ coverage both
+        169/169; the five standalone checkers under `platform/ci/` all exit 0;
+        `browser_checks.py --checks journey` 0 failed checks and 0 page or
+        console errors. The four red checks on #2534 were confirmed starved
+        job-by-job with `ci_starvation.py` (`runner_id: 0`, 3-4s, no steps on
+        runs 33436856162, 33436856291, 33436856250 and 33436856167) rather
+        than assumed; merged on the local verification above.
+      - >-
+        Queue note for the next session: all three of the owner asks this
+        run's brief named -- deployment, CI/CD, and Codex spending the plan
+        quota on the Hetzner box -- are already built and tested, and all
+        three are blocked on seals from the same script,
+        `./bootstrap/scripts/seal-owner-secrets.sh all`, plus the repo
+        variable `CI_RUNNER=self-hosted` and the two governor flips. Nothing
+        was found that an agent could build to advance any of them. Public
+        reachability of the three hostnames could not be checked from this
+        session: the web-session proxy returns 403 on CONNECT to them.
+    mrr_end: null
