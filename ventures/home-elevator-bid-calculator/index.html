@@ -16,6 +16,16 @@
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2c4a6e; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    /* The FAQ and the customer-proposal section are the only direct children
+       of .layout besides the input column and the sticky .result sidebar.
+       Left to grid auto-placement they land in .result's own column, one row
+       down — and because .result's sticky box is tall enough to graze that
+       row, its own content (the "Cab" comparison table) can render on top of
+       the proposal section and swallow every click on "Print proposal",
+       including in a real browser, not just this repo's text-based checks.
+       Spanning the full width keeps column two clear below .result so there
+       is nothing there for it to cover. See platform/proposal/verify.mjs. */
+    #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
     section { background: #fff; border: 1px solid #c5d0db; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1c28330d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #4d5d6d; margin: -6px 0 14px; }
