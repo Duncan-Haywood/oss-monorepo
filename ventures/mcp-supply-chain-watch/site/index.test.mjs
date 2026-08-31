@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { faqEntries } from "../../../platform/pages/build.mjs";
 
 const dir = dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(join(dir, "index.html"), "utf8");
@@ -12,7 +13,6 @@ test("landing copy names the MCP manifest drift problem in the first screen", ()
   assert.match(html, /<title>MCP Supply-Chain Watch/);
   assert.match(html, /meta name="description"/);
   assert.match(html, /SoftwareApplication/);
-  assert.match(html, /FAQPage/);
   assert.match(html, /HowTo/);
   assert.match(html, /og:title/);
   assert.match(html, /og:description/);
@@ -42,14 +42,24 @@ test("links to the docs page and vice versa", () => {
   assert.match(docsHtml, /href="\.\/index\.html"/);
 });
 
-test("visible FAQ copy matches the JSON-LD FAQ questions, so they cannot drift apart", () => {
-  const ldMatch = html.match(/"@type": "FAQPage"[\s\S]*?"mainEntity": \[([\s\S]*?)\]\s*\}/);
-  assert.ok(ldMatch, "expected an inline FAQPage JSON-LD block");
-  const questionNames = [...ldMatch[1].matchAll(/"name": "([^"]+)"/g)].map((m) => m[1]);
-  assert.ok(questionNames.length >= 3);
-  for (const question of questionNames) {
-    assert.match(html, new RegExp(`<h3>${question.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h3>`));
+test("the entry page ships a real, question-shaped FAQ that build.mjs will turn into FAQPage schema", () => {
+  // No FAQPage block is authored in index.html itself: build.mjs's own
+  // faqEntries() derives it from this visible "Common questions" section at
+  // build time, which is what keeps the schema and the copy from drifting
+  // apart. This pins the derived outcome directly, the same way build.mjs
+  // will read it, rather than parsing a hand-written block that could go
+  // stale next to the copy.
+  assert.match(html, /<h2>Common questions<\/h2>/);
+  const entries = faqEntries(html);
+  assert.ok(entries.length >= 6, `expected at least 6 derived FAQ entries, got ${entries.length}`);
+  for (const { question, answer } of entries) {
+    assert.ok(question.endsWith("?"));
+    assert.ok(answer.length >= 40, `answer to "${question}" is too short to be a real explanation`);
   }
+  const questions = entries.map((e) => e.question);
+  assert.ok(questions.some((q) => /manifest/i.test(q)));
+  assert.ok(questions.some((q) => /alert severity/i.test(q)));
+  assert.ok(questions.some((q) => /instruction-bearing/i.test(q)));
 });
 
 test("docs page answers the specific question in its title and has its own FAQPage schema", () => {
