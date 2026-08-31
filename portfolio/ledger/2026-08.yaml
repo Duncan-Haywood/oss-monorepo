@@ -39551,6 +39551,66 @@ entries:
         labels ["ubuntu-latest"] so CI_RUNNER is still unset. Said so once on
         the PR and merged (squash).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Scheduled run explicitly asking to prioritize Hetzner deployment/
+        CI-CD and set up Codex CLI for unattended dev work. Zero open PRs
+        at session start (list_pull_requests and search_pull_requests both
+        confirmed empty), so the merge-quota phase was already satisfied.
+        Verified the deployment pipeline end to end rather than trusting
+        the prior session's read: node platform/pages/build.mjs (169
+        tools, clean) + check.mjs (508 pages, no dead links) and
+        python3 -m pytest gitops/tests (182/182) both pass locally.
+        Reported directly to the owner that both asks are already fully
+        built and gated on exactly the owner-only secret seals documented
+        in infra/OWNER_CHECKLIST.md and decision-queue items
+        portfolio-site-hetzner-deploy (#1999) and codex-governor-enable
+        (#1996) -- no new build needed, nothing to add to the queue.
+      - >-
+        Branch-to-PR drain, continued past the prior session's list: found
+        3 branches with commits ahead of main that session did not check
+        (it covered branches with >=4 commits ahead; these carry 1-2).
+        All three confirmed superseded, none needed a PR:
+        `claude/optimistic-heisenberg-hulxgw` (1 commit, "restore a run's
+        own rates when its material matches a preset" on
+        fence-bid-calculator) duplicates the fix already merged as #2500/
+        #2503 on main, which uses a more complete ownCosts-merge approach
+        covering the same 10 fields plus the hoursEdited-on-restore case
+        this branch's simpler restore-after-apply did not; verified via
+        `git merge-tree` (real conflict on the same hunk) and by running
+        the branch's own test suite in a worktree (94/94 passing, same
+        count main's version reports). `fix/governor-rbac-configmap-scope`
+        (2 commits, test-only) is superseded by main's own
+        `test_governor_role_reads_no_configmap_it_cannot_name` /
+        `test_governor_role_touches_exactly_one_configmap_by_name`, which
+        already lock in the #2276 state (unnamed configmaps rule removed
+        entirely) the branch's second test does not account for -- merging
+        it as-is would assert a `create` verb main's RBAC no longer
+        grants. `claude/codex-governor-ask-and-queue-drain-report` (1
+        commit, ledger-only) proposed the `codex-governor-enable` ask
+        entry now on main with `prs: [1996]`; its "IMPORTANT correction"
+        against ever using plan-quota login was itself superseded by the
+        more current infra/OWNER_CHECKLIST.md text (both credential routes
+        "equally supported," caution about a shared personal login rather
+        than an outright ban) that the merged version already carries.
+        Did not attempt the remaining ~155 branches at 1-3 commits ahead
+        (mostly single-purpose `cursor/`/`claude/` branches whose names
+        match already-shipped venture slugs) -- consistent with every
+        sampled branch and the prior session's 18-branch sweep, the prior
+        is now strong that they are superseded too, but that is an
+        inference, not a per-branch verification; flagging so a future
+        session samples further rather than assuming this note covers all
+        of them.
+      - >-
+        No new venture started: DIRECTION.md's deploy-first priority still
+        applies (nothing has a public URL yet), all 5 build-now pipeline
+        candidates are already shipped (prior session's finding, unchanged),
+        and no repairable open PR or unmerged branch with real net-new work
+        was found. Nothing shipped this run.
+    mrr_end: null
   - venture: medical-courier-route-margin
     agent_spend_usd: null
     human_hours: 0
