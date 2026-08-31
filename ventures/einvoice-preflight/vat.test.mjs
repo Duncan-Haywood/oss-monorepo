@@ -40,7 +40,7 @@ test("valid published VAT shapes produce no finding", () => {
     "ATU12345675",
     "FR40303265045",
     "BE0411905847",
-    "NL010000003B01",
+    "NL123456782B01",
     "IT00743110157",
     "PL5260250274",
     "SE556188740601",
@@ -65,6 +65,19 @@ test("checksum failure does not echo the number", () => {
   assert.equal(findings[0].message.includes("136695977"), false);
   assert.equal(findings[0].fix.includes("136695977"), false);
   assert.match(findings[0].message, /checksum/i);
+});
+
+test("NL elfproef weighs the check digit at -1, not +1", () => {
+  // 9*1+8*2+7*3+6*4+5*5+4*6+3*7+2*8-1*2 = 154, divisible by 11: a genuine
+  // valid Dutch VAT number under the real elfproef.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "NL123456782B01" }, "supplier"), []);
+  // Same 8 digits, wrong check digit: 156 - 3 = 153, not divisible by 11.
+  const findings = inspectPartyVat({ id: "S1", name: "A", vat_id: "NL123456783B01" }, "supplier");
+  assert.deepEqual(findings.map((item) => item.rule), ["INV-023"]);
+  // The old code weighed the check digit at +1 instead of -1, so it summed
+  // to 158 (not 154) for .782 — 158 % 11 = 4, which it read as invalid. It
+  // rejected a genuinely valid Dutch VAT number outright, on the very
+  // example the Dutch tax authority format uses.
 });
 
 test("explicit wrong shape is format not checksum", () => {

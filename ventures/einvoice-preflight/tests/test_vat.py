@@ -45,7 +45,7 @@ class VatChecksumTest(unittest.TestCase):
             "ATU12345675",
             "FR40303265045",
             "BE0411905847",
-            "NL010000003B01",
+            "NL123456782B01",
             "IT00743110157",
             "PL5260250274",
             "SE556188740601",
@@ -68,6 +68,16 @@ class VatChecksumTest(unittest.TestCase):
         self.assertNotIn("136695977", findings[0]["message"])
         self.assertNotIn("136695977", findings[0]["fix"])
         self.assertIn("checksum", findings[0]["message"])
+
+    def test_nl_elfproef_weighs_the_check_digit_at_minus_one(self):
+        # 9*1+8*2+7*3+6*4+5*5+4*6+3*7+2*8-1*2 = 154, divisible by 11: a
+        # genuine valid Dutch VAT number under the real elfproef.
+        self.assertEqual(
+            inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL123456782B01"}, "supplier"), []
+        )
+        # Same 8 digits, wrong check digit: 156 - 3 = 153, not divisible by 11.
+        findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL123456783B01"}, "supplier")
+        self.assertEqual([item["rule"] for item in findings], ["INV-023"])
 
     def test_explicit_wrong_shape_is_format_not_checksum(self):
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "DE123"}, "customer")
