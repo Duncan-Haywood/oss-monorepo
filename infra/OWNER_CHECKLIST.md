@@ -139,10 +139,21 @@ codes as exit 42 and a rejected credential as exit 43.
 7. Merge this PR, then from the laptop with the **write** token:
    `tofu plan` (must not replace either server) → `tofu apply` → the
    three bootstrap scripts.
-8. New OpenAI org + hard spend limit + project API key. Seal
-   `codex-secrets` (`OPENAI_API_KEY`, `GH_TOKEN`) in a follow-up PR.
-   Only then flip `gitops/agents/governor/cronjob.yaml` `suspend: false`
-   and `policy.json` `"enabled": true`.
+8. **Codex credential.** Pick one of the two routes described under
+   "Codex" above — they are equally supported and the choice is yours:
+   - *Plan quota (no money spent).* `codex login` once, then seal
+     `codex-secrets` with `CODEX_AUTH_JSON` (the whole contents of
+     `~/.codex/auth.json`) + `GH_TOKEN`. No OpenAI org, no API key, no
+     billing change. This is the "use the built-in quota" route.
+   - *Metered (euro ceiling).* New OpenAI org + hard spend limit +
+     project API key; seal `codex-secrets` with `OPENAI_API_KEY` +
+     `GH_TOKEN`.
+
+   Seal both and the subscription wins — it is the one that does not
+   bill, and the worker logs which mode it used. Either way, seal in a
+   follow-up PR, and only then flip
+   `gitops/agents/governor/cronjob.yaml` `suspend: false` and
+   `policy.json` `"enabled": true`.
 9. **Restore CI.** Every workflow has been red since 2026-08-26 with
    `runner_id: 0` and zero steps — jobs that were never assigned a
    runner, because metered Actions minutes on this private repo ran out.
