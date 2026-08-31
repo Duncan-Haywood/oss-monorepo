@@ -37697,6 +37697,48 @@ entries:
         44/44, pages build+check clean, all 135 venture suites, gitops 158 tests,
         plus a one-off validator confirming all 135 blocks parse, none duplicate,
         and every question and answer appears verbatim in visible page text.
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Triaged 10 stale remote branches assigned as candidates for merge
+        (claude/festive-mccarthy-{qb5q6b,jwkwz5}, claude/sweet-archimedes-6nrsur,
+        pr/where-to-sell-rank-by-profit-per-day,
+        cursor/amazon-fba-sourcing-check-20260824,
+        cursor/faire-wholesale-calculator-e3de,
+        cursor/print-preflight-value-20260824,
+        pr/invoice-payment-terms-calculator, pr/appointment-deposit-calculator,
+        cursor/invoice-payment-terms-ci-fix-20260825; a 20-commits-ahead 11th,
+        claude/festive-mccarthy-xrn3ua, turned out on inspection to be pure
+        vendor-watch work -- the sibling cluster another session in this run was
+        handling -- and was left untouched). All 10 opened as PRs (#2430-#2439)
+        and closed superseded, each with an evidence comment naming the twin.
+        Four (#2430 qb5q6b/sponsor-ready, #2432 sweet-archimedes-6nrsur, #2437
+        pr/invoice-payment-terms-calculator, #2439
+        cursor/invoice-payment-terms-ci-fix) hit supersede_check.py's exit 0
+        directly (identical-merge proof or empty diff). Six came back NOT
+        SUPERSEDED on the line-scan alone (1 to 433 unmatched lines) and needed
+        the manual RENAME SUSPECTED read CLAUDE.md asks for: in every one, the
+        branch's tip commit predates an independent, later, more complete
+        reimplementation of the same feature already on main -- confirmed by
+        diffing the actual product code, not just the line-scan's verdict.
+        Concretely: cursor/amazon-fba-sourcing-check-20260824's calc.mjs is
+        byte-identical to main's (main went on to fix a bug in it, #2376);
+        pr/where-to-sell-rank-by-profit-per-day's rank-by-days feature shipped
+        independently 5h later as #2155, with main's version keeping
+        per-channel granularity this branch had flattened away;
+        pr/appointment-deposit-calculator's own source branch was salvaged onto
+        main via #1835 three days before this branch's last commits, which never
+        merged that salvage back in; cursor/faire-wholesale-calculator-e3de and
+        cursor/print-preflight-value-20260824 both landed on main within a day
+        of the branch's tip and were extended many times since; claude/
+        festive-mccarthy-jwkwz5's consent-change-record predates main's #1223/
+        #1258, which additionally tracks persisting requests/cookies (survives-
+        the-consent-choice) that this branch never had. Net: zero merges from
+        this batch, ten fewer stale branches for the next session to
+        re-discover and re-litigate -- the exact re-derivation cost CLAUDE.md's
+        duplicate-PR section is written to avoid.
         Worth knowing for anyone reading that PR against build.mjs's
         "derive, don't author" comment: the build suppresses its derived block
         when a page authors one, so nothing duplicates, and faq-visible.test.mjs
