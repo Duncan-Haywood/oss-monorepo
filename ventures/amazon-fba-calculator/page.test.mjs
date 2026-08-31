@@ -52,6 +52,7 @@ const narfSeo = readFileSync(
   "utf8",
 );
 const acosSeo = readFileSync(new URL("./break-even-acos.html", import.meta.url), "utf8");
+const vsAmazonSeo = readFileSync(new URL("./vs-amazon-revenue-calculator.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -620,6 +621,22 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(acosSeo, /No warranty/);
   assert.match(acosSeo, /Best-effort hosting, no SLA/);
   assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(vsAmazonSeo, /No warranty/);
+  assert.match(vsAmazonSeo, /Best-effort hosting, no SLA/);
+  assert.match(vsAmazonSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test("the incumbent-comparison page links back, names the incumbent honestly, and gives no unverifiable Amazon numbers", () => {
+  assert.match(html, /vs-amazon-revenue-calculator\.html/);
+  assert.match(vsAmazonSeo, /<a href="\.\/">/);
+  // Names Amazon's own tool and links to Amazon's own domain so a reader can
+  // check the source directly -- this page must never claim a number for
+  // Amazon's calculator that only Amazon's own live schedule could confirm.
+  assert.match(vsAmazonSeo, /sellercentral\.amazon\.com/);
+  assert.match(vsAmazonSeo, /sell\.amazon\.com/);
+  assert.doesNotMatch(vsAmazonSeo, /Amazon('s)? (charges|fee is|costs?) \$/i);
+  assert.match(vsAmazonSeo, /not affiliated with, endorsed by, or sponsored by Amazon/i);
+  assert.match(vsAmazonSeo, /trademarks of Amazon\.com/i);
 });
 
 test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {

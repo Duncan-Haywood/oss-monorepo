@@ -60,6 +60,11 @@ units, compares that plan to Individual’s per-item selling fee, and shows
 
 [FBA vs FBM: which path leaves more?](fba-vs-fbm.html) answers that search
 question directly.
+[This calculator vs. Amazon's own Revenue Calculator](vs-amazon-revenue-calculator.html)
+says which of the two to open for which question — Amazon's own tool is the
+authoritative live fee lookup for one listing; this one is the FBA-vs-FBM
+decision, max buy cost, and the dozen follow-on scenarios built from your own
+numbers. Not affiliated with Amazon.
 [Should I stay under Low-Price FBA?](should-i-price-over-amazons-low-price-fba.html)
 answers the $9.99-versus-$12 pricing question: a one-cent raise usually
 loses, and the raise that matches the cheaper pick fee is
