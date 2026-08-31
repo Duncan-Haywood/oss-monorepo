@@ -38504,3 +38504,70 @@ entries:
         `ci_starvation.py`), not a real failure. Merged (squash) as
         #2465, `20e2cc1ff`.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed 0 open PRs at session start; PR-drain quota met vacuously
+        (`list_pull_requests` state=open returned `[]`). Re-confirmed, per
+        this session's own scheduled brief asking for CI/CD, Hetzner
+        deployment, marketing-material deployment, and an autonomous Codex
+        CLI setup on the Hetzner box: unchanged from same-day prior findings
+        (recorded just above) -- all of it is already built and
+        code-complete, blocked purely on the same owner-only actions already
+        queued in `decision_queue.py` (#10 actions-runners-unavailable, #12
+        codex-governor-enable, #13 portfolio-site-hetzner-deploy). Did not
+        duplicate any of those asks.
+      - >-
+        Shipped and merged #2468: found and fixed 6 more genuine instances of
+        the stale-results-on-rejected-input bug class (same class as #2446,
+        #2450, #2452, #2453, #2464, #2465) that the #2464 fleet sweep's
+        automated scanner (try block writes >=2 result targets, catch clears
+        <=1) missed, despite that entry's "0 remaining candidates" claim --
+        the scanner's regex-based detection has false negatives against
+        `querySelector`-with-local-variable code and multi-panel layouts
+        where a *second*, bespoke catch block sits alongside a correctly
+        clearing primary one. A background review agent read (not
+        regex-scanned) ~40 candidate files by hand and confirmed 13 real
+        instances; 7 turned out to overlap with #2464/#2465, which landed on
+        `main` while this branch was in flight (classic concurrent-session
+        collision, per this file's own `CLAUDE.md` warning). Resolved by
+        merging `main` into the branch and taking `main`'s already-shipped
+        fix+test for every overlapping venture
+        (mobile-detailing-bid-calculator, pool-route-pricing,
+        saas-seat-true-up, consent-change-record, grant-deadline-tracker,
+        hvac-maintenance-contract-calculator, shopify-a11y-evidence's
+        `index.html`), keeping only the 6 genuinely uncovered ventures:
+        appliance-repair-quote-calculator, cloud-egress-calculator,
+        invoice-payment-terms-calculator, quote-margin-check (the
+        `#sensitivity` overrun table), and three shopify-a11y-evidence
+        sibling pages the fleet sweep's `index.html` fix didn't reach
+        (`quote.html`, `theme-areas.html`,
+        `what-changed-between-axe-scans.html`). Three of the merge's
+        auto-combined `page.test.mjs` files (hvac, mobile-detailing,
+        pool-route-pricing) kept this branch's test asserting against the
+        implementation that lost the merge; caught by re-running each
+        venture's suite post-merge and replaced with `main`'s passing test.
+      - >-
+        Verified before merge: `node --test` in each of the 6 kept ventures,
+        all green; the 3 merge-fixed ventures' suites also re-run green after
+        the test-file correction; portfolio-wide `node
+        platform/pages/build.mjs` + `check.mjs` (169 products, 508 pages, no
+        dead links); `check_form_defaults.py`, `check_money_sign.py`,
+        `check_input_bounds.py`, `check_duplicate_symbols.py`,
+        `check_conflict_markers.py` all clean. CI showed the known
+        account-wide starvation signature (`ci_starvation.py --run
+        33404544800`: `runner_id: 0`, exit 1), confirmed rather than assumed.
+        Merged (squash) as #2468, `0eefd9d7d`.
+      - >-
+        Lesson for the next session: the #2464 fleet sweep's "0 remaining
+        candidates" re-scan should not be read as exhaustive -- its
+        regex-shaped detector has real false negatives (confirmed here) and
+        real false positives (the shared `clearOutputs()` helper family and
+        `ebay-fee-calculator`/`etsy-profit-calculator`-style direct clearing
+        both read as "buggy" to a naive catch-block-arity heuristic but
+        aren't). A careful hand read of the remaining candidate files is
+        still worth doing if reliability work continues on this bug class,
+        rather than trusting either scanner's exit code alone.
+    mrr_end: null
