@@ -1,5 +1,5 @@
 name: subcontractor-cashflow-planner
-description: A local-first cash-flow planner for subcontractors who need to see when project invoices may turn into cash and where a payment delay creates a funding gap.
+description: A local-first cash-flow planner for subcontractors who need to see when project invoices turn into cash, where a payment delay creates a funding gap, what bridging that gap costs, and which lever — a deposit, supplier terms, or shorter payment terms — closes it.
 stage: prototype
 owner: duncan
 hypotheses:
