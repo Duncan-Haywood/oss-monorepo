@@ -340,6 +340,22 @@ test("the hours-budget field says none rather than a negative hour count", async
   assert.match(page, /r\.cost_coverage <= 0 \? `none — direct costs leave nothing to pay for time`/);
 });
 
+test("a rejected quote clears the stale overrun-sensitivity table along with its sibling panels", async () => {
+  // The main catch block clears result/review/decision/ladder/costSpike/
+  // discountAsk/billing/killFee/targetBreakdown on a rejected input, but
+  // left the "If the work takes longer" (#sensitivity) overrun table
+  // showing the last valid scenario rows -- the one panel in that list with
+  // no corresponding clear. A visitor who missed the error message could
+  // read those stale overrun figures as the answer for the invalid quote
+  // now on screen.
+  const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
+  const catchMatch = page.match(/\} catch \(err\) \{([\s\S]*?)\n {4}\}\n {2}\}/);
+  assert.ok(catchMatch, "the main calculate() catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /result\.textContent = err\.message/, "the error message is never shown");
+  assert.match(body, /sensitivity\.querySelector\("tbody"\)\.innerHTML = ""/, "#sensitivity keeps its stale overrun rows instead of being cleared");
+});
+
 test("every scenario panel on the page reports a usage signal of its own", async () => {
   // The overrun table shipped without one, so nothing recorded whether the
   // time-overrun view was ever read while every panel beside it was counted.
