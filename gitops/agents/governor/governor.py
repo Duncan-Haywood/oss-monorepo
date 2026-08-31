@@ -48,6 +48,28 @@ LIMIT_PATTERNS = (
 
 EXIT_LIMIT = 42
 
+# A run that finished cleanly but produced nothing — no diff, so no commit, no
+# branch, no PR. `worker.sh` reports it by writing NOOP_MARKER to
+# /dev/termination-log (and, for a caller that would rather use an exit code,
+# by exiting EXIT_NOOP). Either signal means the same thing: the Job spent
+# Codex quota and the repository is unchanged.
+#
+# This is not a failure and must never be treated as one. It is the ordinary
+# outcome of an item whose work has run out — `open-pr-repair-merge` on a repo
+# with zero open PRs, `branch-pr-drain` when every branch is already merged.
+# Both were true here on 2026-08-31, and together those two items carry
+# 13/25ths of the weight `pick_item` hands out, so more than half of a plan's
+# included quota would go to Jobs that clone the repo, boot Codex, find nothing
+# and exit. See `noops_by_item` for what is done about it.
+NOOP_MARKER = "codex-noop"
+EXIT_NOOP = 44
+
+# Ceiling on the consecutive-no-op count that damps an item's score. Without it
+# an item that has been empty for a week sinks so far it can never run again —
+# and then it cannot discover that its work came back. Capped, a fully damped
+# item still surfaces every so often as a cheap probe.
+MAX_NOOP_DAMPING = 10
+
 
 @dataclass(frozen=True)
 class Policy:
@@ -81,6 +103,13 @@ class BudgetState:
     # window. `pick_item` divides by this so a permanently-enabled top item
     # cannot take every tick. Reset by `rollover`, which is what bounds it.
     runs_by_item: dict[str, int] = field(default_factory=dict)
+    # Consecutive finished Jobs for each item that changed nothing, keyed by the
+    # item's DNS-1123 form (the `governor.item` Job label is the only item
+    # identity a finished Job carries back). Reset to 0 by the first productive
+    # run, and deliberately *not* reset by `rollover`: an item whose work has
+    # run out is still empty in the next window, and re-learning that every five
+    # hours is the waste this counter exists to stop.
+    noops_by_item: dict[str, int] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -91,6 +120,13 @@ class JobView:
     failed: bool = False
     duration_seconds: float | None = None
     limit_hit: bool = False
+    # The `governor.item` label, i.e. the DNS-1123 form of the queue item id.
+    # Empty for a Job the governor did not label (an older one, or something
+    # else in the namespace) — such a Job is accounted for time but credited to
+    # no item, which is the safe direction.
+    item: str = ""
+    # The run finished cleanly and changed nothing. See NOOP_MARKER.
+    noop: bool = False
 
 
 @dataclass(frozen=True)
@@ -179,7 +215,9 @@ def load_queue(items: Iterable[dict[str, Any]]) -> list[QueueItem]:
 
 
 def pick_item(
-    queue: Iterable[QueueItem], runs_by_item: dict[str, int] | None = None
+    queue: Iterable[QueueItem],
+    runs_by_item: dict[str, int] | None = None,
+    noops_by_item: dict[str, int] | None = None,
 ) -> QueueItem | None:
     """Pick the next item, weighting priority against how often it has run.
 
@@ -202,17 +240,37 @@ def pick_item(
     highest-priority item, and over many picks the items run in roughly their
     weight ratio -- 7:6:5:4:3 for the five above. Ties break toward higher
     priority, then by id, so the choice stays deterministic.
+
+    That fixed starvation but not waste. Weighting by priority alone assumes
+    every item always has work, and two of the five provably do not: with zero
+    open PRs and every branch merged, `open-pr-repair-merge` and
+    `branch-pr-drain` are 13/25ths of the weight and 0 of the output. So the
+    score is damped a second time by `noops_by_item` -- how many finished runs
+    in a row that item changed nothing:
+
+        (priority + 1) / ((runs + 1) * (noops + 1))
+
+    An item that keeps coming up empty fades, handing its share to items that
+    still deliver; the first productive run clears the damping outright. The
+    fade is bounded by MAX_NOOP_DAMPING so an item never disappears, which is
+    what lets it notice its work has come back. Nothing here is disabled and no
+    priority is edited -- an empty item is quiet, not gone.
+
+    `noops_by_item` is keyed by the DNS-1123 item id, because a finished Job
+    carries its item only as the `governor.item` label.
     """
     enabled = [item for item in queue if item.enabled]
     if not enabled:
         return None
     runs = runs_by_item or {}
+    noops = noops_by_item or {}
 
     def rank(item: QueueItem) -> tuple[float, int, str]:
         # Sorted ascending, so negate the two "bigger wins" terms and leave the
         # id ascending -- the same final tiebreak the old `sorted(..., id)[0]`
         # used, which keeps the choice stable across governor restarts.
-        score = (item.priority + 1) / (runs.get(item.id, 0) + 1)
+        empty = min(noops.get(_dns1123(item.id), 0), MAX_NOOP_DAMPING)
+        score = (item.priority + 1) / ((runs.get(item.id, 0) + 1) * (empty + 1))
         return (-score, -item.priority, item.id)
 
     return min(enabled, key=rank)
@@ -248,7 +306,27 @@ def rollover(state: BudgetState, now: float, policy: Policy) -> BudgetState:
         # the one passed in drift into each other.
         accounted_job_uids=list(state.accounted_job_uids),
         runs_by_item=dict(runs),
+        # Deliberately survives the window reset above. `runs_by_item` is a
+        # within-window rotation and starting it over each window is the point;
+        # "this item has had nothing to do for three runs" is a fact about the
+        # repository, not about the window, and re-discovering it every five
+        # hours at the cost of a Codex Job is exactly the waste being removed.
+        # Bounded instead by MAX_NOOP_DAMPING per entry and by `prune_noops`,
+        # which drops ids no longer in the queue.
+        noops_by_item=dict(state.noops_by_item),
     )
+
+
+def prune_noops(state: BudgetState, queue: Iterable[QueueItem]) -> BudgetState:
+    """Drop damping for ids the queue no longer has.
+
+    `runs_by_item` is bounded because `rollover` empties it every window.
+    `noops_by_item` is not, by design, so an item deleted or renamed in git
+    would otherwise leave its counter behind forever.
+    """
+    live = {_dns1123(item.id) for item in queue}
+    state.noops_by_item = {k: v for k, v in state.noops_by_item.items() if k in live}
+    return state
 
 
 def decide(
@@ -283,7 +361,7 @@ def decide(
     if state.week_seconds_used >= week_budget:
         return Decision("hold", "weekly budget fraction exhausted")
 
-    item = pick_item(queue, state.runs_by_item)
+    item = pick_item(queue, state.runs_by_item, state.noops_by_item)
     if item is None:
         return Decision("hold", "queue empty")
 
@@ -328,6 +406,9 @@ def state_from_dict(raw: dict[str, Any] | None, now: float) -> BudgetState:
         runs_by_item={
             str(k): int(v) for k, v in (data.get("runs_by_item") or {}).items()
         },
+        noops_by_item={
+            str(k): int(v) for k, v in (data.get("noops_by_item") or {}).items()
+        },
     )
 
 
@@ -354,17 +435,28 @@ def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) 
     if start is not None and end is not None and end >= start:
         duration = end - start
     job_name = str(meta.get("name") or "")
+    item = str((meta.get("labels") or {}).get("governor.item") or "")
     limit_hit = False
+    noop = False
     for pod in pods:
         labels = (pod.get("metadata") or {}).get("labels") or {}
         if labels.get("job-name") != job_name:
             continue
         for container in (pod.get("status") or {}).get("containerStatuses") or []:
             terminated = ((container.get("state") or {}).get("terminated")) or {}
-            if int(terminated.get("exitCode") or 0) == EXIT_LIMIT:
+            exit_code = int(terminated.get("exitCode") or 0)
+            message = str(terminated.get("message") or "")
+            if exit_code == EXIT_LIMIT:
                 limit_hit = True
-            if parse_limit_error(str(terminated.get("message") or "")):
+            if parse_limit_error(message):
                 limit_hit = True
+            if exit_code == EXIT_NOOP or NOOP_MARKER in message:
+                noop = True
+    # A run that hit a quota limit did not "produce nothing" for any reason the
+    # queue can act on — it was cut off. Damping the item for that would punish
+    # it for the fleet's budget, and the limit cooldown already handles it.
+    if limit_hit:
+        noop = False
     return JobView(
         uid=uid,
         active=active,
@@ -372,6 +464,8 @@ def job_view_from_k8s(job: dict[str, Any], pods: Iterable[dict[str, Any]] = ()) 
         failed=failed,
         duration_seconds=duration,
         limit_hit=limit_hit,
+        item=item,
+        noop=noop,
     )
 
 
@@ -392,6 +486,17 @@ def absorb_finished_jobs(state: BudgetState, jobs: Iterable[JobView], now: float
             record_job_finished(state, job.duration_seconds)
         if job.limit_hit:
             record_limit(state, now)
+        # Only a run that reached its own end tells us anything about whether
+        # the item still has work. A crash, an OOM kill or a rejected
+        # credential says nothing about the queue, so it neither damps the item
+        # nor clears an existing damping.
+        if job.item and (job.noop or job.succeeded):
+            if job.noop:
+                state.noops_by_item[job.item] = min(
+                    state.noops_by_item.get(job.item, 0) + 1, MAX_NOOP_DAMPING
+                )
+            else:
+                state.noops_by_item.pop(job.item, None)
         seen.add(job.uid)
         state.accounted_job_uids.append(job.uid)
     if len(state.accounted_job_uids) > 200:
@@ -407,8 +512,10 @@ def tick(
     now: float,
 ) -> tuple[Decision, BudgetState]:
     jobs = list(jobs)
+    queue = list(queue)
     state = absorb_finished_jobs(state, jobs, now)
     state = rollover(state, now, policy)
+    state = prune_noops(state, queue)
     decision = decide(policy, state, count_running(jobs), queue, now)
     if decision.action == "start":
         record_job_started(state, decision.item.id if decision.item else None)
@@ -469,6 +576,7 @@ def build_job_manifest(
                                 {"name": "QUEUE_ITEM_JSON", "value": json.dumps(item.__dict__)},
                                 {"name": "AGENT_MODEL", "value": model},
                                 {"name": "CODEX_LIMIT_EXIT", "value": str(EXIT_LIMIT)},
+                                {"name": "CODEX_NOOP_EXIT", "value": str(EXIT_NOOP)},
                             ],
                             "envFrom": [{"secretRef": {"name": "codex-secrets", "optional": True}}],
                             "volumeMounts": [

@@ -24,11 +24,12 @@ verification does not come out clean: that PR is left open, no item will
 ever pick it up again, and the backlog grows by one per tick from then on.
 A fleet that only opens PRs has no drain.
 
-`pick_item` scores each enabled item `(priority + 1) / (runs + 1)` and takes
-the highest, where `runs` is how many Jobs that item has been started for in
-the current 5-hour window. So the top item opens every window, and over a
-window the five run in roughly `7:6:5:4:3` — priority sets *how often*, not
-*instead of*.
+`pick_item` scores each enabled item
+`(priority + 1) / ((runs + 1) * (noops + 1))` and takes the highest, where
+`runs` is how many Jobs that item has been started for in the current 5-hour
+window and `noops` is how many finished runs in a row that item changed
+nothing. So the top item opens every window, and over a window the five run in
+roughly `7:6:5:4:3` — priority sets *how often*, not *instead of*.
 
 It did not always. Until 2026-08-30 this was `sorted(key=(-priority, id))[0]`:
 the single highest-priority item, every tick, forever. `branch-pr-drain` took
@@ -39,6 +40,45 @@ the day the backlog drained: the repo hit zero open PRs with every one of
 ~180 unmerged branches superseded, so the top item had nothing left to do and
 would still have spent the whole budget re-triaging an empty queue. A queue
 whose lower items can never run is a queue with one item in it.
+
+## The `noops` term: an item whose work has run out
+
+Rotation fixed starvation but not waste. Weighting by priority alone assumes
+every item always has work, and on 2026-08-31 two of the five provably did
+not — the repo had **zero open PRs** and every branch with unique commits was
+already merged, so `open-pr-repair-merge` and `branch-pr-drain` had nothing to
+find. Between them that is `13/25`ths of the weight, so more than half of a
+ChatGPT plan's included quota would go to Jobs that clone the repo, boot
+Codex, confirm there is nothing to do, and exit.
+
+So a run that finishes cleanly and changes nothing now says so. `worker.sh`
+writes `codex-noop` to `/dev/termination-log`; Kubernetes surfaces that as the
+container's `terminated.message`, which is the field the governor already
+reads for limit errors. The Job still reports **Succeeded** — an empty run is a
+correct outcome, not a failure, and `kubectl get jobs` should not claim
+otherwise.
+
+The governor counts consecutive empty runs per item in `noops_by_item` and
+divides the score by `noops + 1`. An item that keeps coming up empty fades and
+hands its share to items that still deliver.
+
+Three properties keep this from becoming its own trap:
+
+- **The first productive run clears the counter outright.** Nothing is
+  disabled and no priority is edited in git — an empty item is quiet, not gone.
+- **The fade is capped** at `MAX_NOOP_DAMPING` (10), so a fully damped item
+  still surfaces occasionally. That is what lets it discover its work came
+  back; an item damped to zero could never find out.
+- **It survives the window rollover.** `runs_by_item` restarts every window on
+  purpose, but "this item has had nothing to do for six runs" is a fact about
+  the repository, not about the window. Re-buying that discovery with a Codex
+  Job every five hours is the exact waste being removed. `prune_noops` drops
+  ids the queue no longer has, which is what bounds the dict instead.
+
+A run cut off by a quota limit is never counted as empty: it says nothing
+about whether the item has work, and the limit cooldown already handles it.
+Neither is a `delivery: agent` run, whose prompt owns the push and legitimately
+leaves this script an unchanged tree.
 
 `deploy-cicd-readiness` sits second on purpose. The portfolio has 164
 finished tools and no public URL, so the delivery path is worth more per

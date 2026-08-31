@@ -280,3 +280,63 @@ def test_the_mandate_is_prepended_to_the_task_prompt(world) -> None:
     assert "Never push to the base branch" in prompt, "the mandate floor was not inherited"
     # Everything above the rule in mandate.md is a note to editors, not the agent.
     assert "This file is the standing brief" not in prompt.split("SENTINEL-TASK")[0][:200]
+
+
+# --- Reporting an empty run ----------------------------------------------
+#
+# A run that changes nothing is a correct outcome, but until 2026-08-31 the
+# governor could not tell it from one that shipped a feature, so an item whose
+# work had run out kept its full share of the Codex budget forever. The worker
+# now writes a marker to /dev/termination-log, which Kubernetes surfaces as the
+# container's terminated.message -- the same field the governor already reads
+# for limit errors.
+
+
+def test_an_empty_run_reports_the_noop_marker(world) -> None:
+    _codex_stub(world["bin"], script="true")
+    marker = world["tmp"] / "termination-log"
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-noop"},
+        env_extra={"CODEX_TERMINATION_LOG": str(marker)},
+    )
+
+    # Still a success. Telling the governor "nothing to do" must not make a
+    # clean run look like a failure to an operator reading `kubectl get jobs`.
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert not world["pr"].exists()
+    assert marker.exists(), "no termination marker was written:\n" + proc.stdout + proc.stderr
+    assert marker.read_text().startswith("codex-noop:"), marker.read_text()
+
+
+def test_a_productive_run_writes_no_noop_marker(world) -> None:
+    _codex_stub(world["bin"], script="printf 'hello\\n' > NEW.md")
+    marker = world["tmp"] / "termination-log"
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-work"},
+        env_extra={"CODEX_TERMINATION_LOG": str(marker)},
+    )
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert world["pr"].exists()
+    assert not marker.exists(), "a run that opened a PR was reported as empty"
+
+
+def test_delivery_agent_is_never_reported_as_empty(world) -> None:
+    # With delivery: agent the item's own prompt owns the push and the PR, so
+    # this script legitimately sees an unchanged tree. Calling that a no-op
+    # would damp an item that is in fact delivering every run.
+    _codex_stub(world["bin"], script="true")
+    marker = world["tmp"] / "termination-log"
+
+    proc = _invoke(
+        world,
+        item={"repo": "o/r", "ref": "main", "id": "demo-agent", "delivery": "agent"},
+        env_extra={"CODEX_TERMINATION_LOG": str(marker)},
+    )
+
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert not marker.exists(), "a delivery:agent run was reported as empty"
