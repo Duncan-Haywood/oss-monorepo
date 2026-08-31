@@ -25,3 +25,20 @@ export function calculateQuote(input) {
   const quote = Math.max(minimumFee, laborAndTravel);
   return { travelCost, travelTimeCost, appointmentCost, waitingCost, stateFees, witnessCost: witnessFee * witnesses, afterHoursFee, serviceSubtotal, laborAndTravel, quote, minimumApplied: minimumFee > laborAndTravel };
 }
+
+// The page recalculates on every keystroke, and a `type="number"` input lets
+// a visitor type a leading "-" (or paste one) even with `min="0"` set — the
+// browser only enforces `min` on form submission and the spinner buttons, not
+// on typed input. Before this wrapper existed, that single keystroke threw
+// out of the page's `update()` with no try/catch around it: the total froze
+// on its last value, the breakdown went stale, and nothing on screen told the
+// visitor their entry was the problem. `quoteResult` turns the same thrown
+// message calculateQuote already had into a value the page can render instead
+// of an exception it has to survive.
+export function quoteResult(input) {
+  try {
+    return { ok: true, ...calculateQuote(input) };
+  } catch (error) {
+    return { ok: false, message: error.message };
+  }
+}
