@@ -38762,3 +38762,66 @@ entries:
         agent-doable scope once a public URL exists, but nothing is live
         yet to launch, so no launch assets were built this run.
     mrr_end: null
+  - venture: security-camera-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed 0 open PRs at session start; `session_gate.py` read PROCEED
+        (meta-work 44%). `faq-coverage.mjs` and `guide-coverage.mjs` both
+        reported full coverage (169/169), so the SEO-audit queue item had no
+        row to fix; picked a `product-feature-improvement` slice instead. A
+        survey of every `*-bid-calculator` venture for `share.mjs` presence
+        found roughly half the ~103-venture family has the shareable-link
+        feature the other half (water-heater, gutter-guard, deck, siding,
+        and 50+ more) already ships; this venture was flat-field like the
+        ones that have it (`calc.mjs` already exports `INPUT_FIELDS`) and
+        had draft persistence but no share link, so it was a clean, real gap
+        rather than a mechanical sweep already exhausted (the
+        stale-results-on-rejected-input class was fully swept twice this
+        month, #2464 and #2468).
+      - >-
+        Shipped and merged #2478: added `share.mjs`
+        (`encodeInputs`/`decodeInputs`, single-sourced from `calc.mjs`'s
+        `INPUT_FIELDS`) and a "Copy share link" button, following the house
+        clipboard convention from #2448 (throw when the Clipboard API is
+        absent, `window.prompt` fallback on any failure, never report
+        "copied" on a no-op). A share link now wins over the local draft on
+        load.
+      - >-
+        Caught a real bug before it shipped, in the same bug class this
+        month's share-link and stale-output fixes have been finding
+        elsewhere: `hoursPerDrop` is an optional override where blank means
+        "use the construction-type preset," and `Number('')` is `0` in
+        JavaScript, so the first-pass encoder turned a blank override into
+        an explicit "0 hours per drop" and silently cratered the labour cost
+        the recipient saw ($11,725 -> $7,576 for the identical job, caught by
+        a live Playwright round-trip, not by the unit tests alone).
+        Generalized the blank-numeric-field skip -- previously special-cased
+        only for `proposedPrice` -- to every numeric field, with a
+        regression test, rather than adding a second special case.
+      - >-
+        Verified before merge: `node --test` in the venture, 91/91 (was 83).
+        A live Chromium pass (Playwright served over `http://`, since
+        `file://` throws CORS on the page's ES module imports) confirmed the
+        button copies a working link and that opening it in a fresh tab
+        reproduces the exact bid price. Portfolio-wide `node
+        platform/pages/build.mjs` + `check.mjs`: 169 products, 508 pages, no
+        dead links, and the build's generic bid-link injector correctly
+        detected this venture's own share control and dropped its overlay
+        page count from 155 to 154. Full `node --test
+        platform/pages/*.test.mjs`: 790/790. CI on the PR was not checked
+        against real failure -- verified entirely locally per this month's
+        standing account-wide runner-starvation finding. Merged (squash) as
+        #2478, `25c92af25`.
+      - >-
+        Lesson for the next session: `main` picked up
+        `marketplace-fee-compare: add a private "copy share link" feature`
+        (#2476) minutes before this PR merged -- same feature class, a
+        different venture, no collision. The `*-bid-calculator` share-link
+        gap is real and large (~50 of 103 ventures still lack it as of this
+        commit); it is fleet-sweep-shaped work, but per this repo's own
+        collision history, one venture per session with a real local
+        verification is safer than a wide sweep landing mid-flight under
+        other sessions' branches.
+    mrr_end: null
