@@ -36520,3 +36520,54 @@ entries:
         (`runner_id: 0`, no real runner assigned) per CLAUDE.md, not a real
         failure.
     mrr_end: null
+  - venture: grant-deadline-tracker
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Found a real, shipping bug via the same method the mcp-supply-chain-
+        watch entry above used (checking `faqEntries()` derivation counts
+        rather than trusting `faq-coverage.mjs`'s binary "covered" reading):
+        `grant-deadline-tracker/index.html` ships zero `FAQPage` structured
+        data despite six real, answerable question headings in its "Common
+        questions" section. Root cause was the opposite direction from the
+        mcp-supply-chain-watch case -- there a stale *authored* block
+        suppressed a fresher derivation; here the source carries no authored
+        block at all, only an HTML *comment* explaining that the schema is
+        derived by `build.mjs`, not hand-written. `injectChrome()`'s guard
+        against double-authoring a page's FAQ schema is a bare substring
+        check, `html.includes('FAQPage')`, which matched the comment's own
+        text and read it as "this venture already wrote its own" -- so
+        derivation was skipped and the built page shipped nothing.
+        `faq-coverage.mjs` could not see this either: it calls `faqEntries()`
+        directly against source and never re-checks the result against
+        `injectChrome`'s own suppression guard, so it reported "1 of 1
+        entry page(s) covered" while the built output carried none.
+      - >-
+        Fixed at the root rather than the one file: `build.mjs` now strips
+        `<!-- ... -->` comments before the `FAQPage` substring check, so an
+        explanatory comment can no longer be mistaken for an authored
+        schema block anywhere in the portfolio (confirmed by scanning every
+        `ventures/*/index.html` and `ventures/*/site/index.html` for
+        `FAQPage` outside a real JSON-LD block -- grant-deadline-tracker was
+        the only hit). Added a regression test in `build.test.mjs` pinning
+        that a comment mentioning "FAQPage" no longer suppresses derivation,
+        and a venture-level test in `grant-deadline-tracker/page.test.mjs`
+        that builds the page through `injectChrome()` and asserts the
+        output actually contains `"@type":"FAQPage"` -- catching the exact
+        gap `faq-coverage.mjs` and a source-only `faqEntries()` assertion
+        both miss.
+      - >-
+        Verified: `node --test ventures/grant-deadline-tracker/*.test.mjs`
+        22/22 (was 21, 1 new); full `node --test ventures/*/*.test.mjs`
+        12104/12104, zero regressions; full `node --test
+        platform/pages/*.test.mjs` 785/785; `build.mjs --out=<tmp>` +
+        `check.mjs <tmp>` -> 169 products, 508 pages, no dead links; hand-
+        confirmed the built `grant-deadline-tracker/index.html` now carries
+        all 6 derived Question/Answer pairs under `"@type":"FAQPage"`
+        (previously zero). CI on PR #2360 showed the account-level runner-
+        starvation signature on both the `validate` and the venture's own
+        `test` job (`runner_id: 0`, `runner_name: ""`, ~3-4s, checked via
+        the Actions jobs API directly since `gh` CLI is absent here and
+        `ci_starvation.py` needs it) -- not a real failure. Merged as #2360.
+    mrr_end: null
