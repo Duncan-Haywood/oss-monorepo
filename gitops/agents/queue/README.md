@@ -80,11 +80,15 @@ about whether the item has work, and the limit cooldown already handles it.
 Neither is a `delivery: agent` run, whose prompt owns the push and legitimately
 leaves this script an unchanged tree.
 
-`deploy-cicd-readiness` sits second on purpose. The portfolio has 164
-finished tools and no public URL, so the delivery path is worth more per
-run than another metadata pass — but its remaining *owner* steps (a sealed
-clone token, an ACME contact, `CI_RUNNER`, the governor flip) are not
-agent-actionable and are already queued. That item covers only the code
+`deploy-cicd-readiness` sits third on purpose, behind `open-pr-repair-merge`
+and `branch-pr-drain` (this used to say "second", from before
+`open-pr-repair-merge` was added above it). The portfolio has 164 finished
+tools and no public URL, so the delivery path is worth more per run than
+another metadata pass — but its remaining *owner* steps (a sealed clone
+token, `CI_RUNNER`, the governor flip) are not agent-actionable and are
+already queued. (A fourth step, an ACME contact, stopped being one on
+2026-08-30 — an ACME account contact is optional, so the issuers ship
+without one instead of with a placeholder.) That item covers only the code
 half, and says so. Enabling an item here does
 not spend anything by itself: the governor stays a no-op until an owner
 seals `codex-secrets` and flips `governor/policy.json` `enabled: true` and
