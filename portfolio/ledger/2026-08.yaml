@@ -40534,3 +40534,83 @@ entries:
         functional change today -- `actions-runner-secrets` isn't sealed, so
         the Deployment cannot start regardless.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Opened with the PR/branch drain: zero open PRs, so the merge quota
+        was vacuously met and no branch needed converting. Verified the
+        delivery path end-to-end as the init containers actually run it --
+        `build.mjs --out=` then `check.mjs --dist=` with
+        `PAGES_BASE_URL=https://tools.marisstella.dev/` (169 products, 7
+        category pages, 508 pages, no dead links, exit 0) -- plus `pytest
+        gitops/tests -q` (183 passed) and `publish_surface.py --check`
+        (matches snapshot). Audited the built site for day-one SEO defects:
+        506 pages, zero duplicate titles, zero duplicate meta descriptions,
+        no page missing an h1, a canonical or a description. That surface
+        is sound; the finding was elsewhere.
+      - >-
+        Shipped and merged #2545: both prod Ingresses carried
+        `cert-manager.io/cluster-issuer: letsencrypt-staging`, which is not
+        a publicly trusted root -- so sealing `portfolio-site-repo`, the one
+        owner action left before launch, would have published all 508 pages
+        behind a full-page browser interstitial and a handshake crawlers
+        reject. Live and reaching nobody. The flip was documented as the
+        step *after* the seal (`infra/OWNER_CHECKLIST.md` item 3), which is
+        the ordering bug. The staging default was correct while it held --
+        Argo syncs prod, so the Ingress existed before its A record -- but
+        DNS resolved on 2026-08-29 and this run re-confirmed all three
+        hostnames answer 89.167.29.39, retiring that reason two days ago.
+        Established the flip is non-worsening even if issuance fails
+        (cert-manager reissues into the same `secretName` and leaves the
+        existing contents alone until a new certificate is ready; failed
+        validations cap hourly and do not touch the weekly duplicate limit,
+        which counts only successes). Site and apex move together, pinned
+        by the existing equality test; the site's own test now pins prod.
+        184 passed. **Not verified against the cluster** -- this sandbox's
+        network policy 403s CONNECT to 89.167.29.39, so no session has yet
+        seen a certificate actually issue. `gitops/README.md` carries the
+        two confirmation commands and the exact revert.
+      - >-
+        Shipped and merged #2547: the Codex queue had five items and none
+        worked on how anyone *finds* the site --
+        `seo-discoverability-audit` improves how a page reads to a crawler
+        that already found it, and both its backlogs now report full
+        coverage (169/169 FAQ, 169/169 guide). Added
+        `marketing-distribution` at priority 4, between the delivery path
+        and the metadata pass, shifting the three above it up one to keep
+        the ordering strict. Named first candidate is an embeddable widget:
+        confirmed nothing under `platform/pages/` emits an iframe-able view
+        or a copy-paste embed snippet today, and an embed costs $0 per use
+        on a static page that computes in the visitor's browser. The prompt
+        is fenced and `test_governor.py` pins the fence -- never publish
+        outward, claims must be true, an asset that deploys rather than a
+        campaign document. Also retired `deploy-cicd-readiness` candidate 4,
+        which pointed at the letsencrypt flip that #2545 had just landed; a
+        stale pointer would have spent a metered Codex tick on a closed
+        task, the same failure the SEO item already had. 185 passed.
+      - >-
+        Learned, and worth not re-deriving: a "we cannot confirm X" gate is
+        not automatically load-bearing. The issuer flip sat for days behind
+        "once a staging certificate has actually issued", which no session
+        could observe. What moved it was checking the cost the other way --
+        waiting guaranteed a broken launch, acting was reversible and
+        non-worsening -- rather than trying harder to confirm X. That
+        reasoning is now written into `deploy-cicd-readiness` candidate 4 as
+        the shape to look for, and a run picking it must say which of the
+        two it established.
+      - >-
+        Flagged for the owner, not actionable here: 500 of 506 built pages
+        link to `https://github.com/sponsors/Duncan-Haywood`, deliberately
+        and under test (`build.test.mjs`: "only the sponsor link leaves").
+        Decision-queue row `funding-sponsors-live` still frames a
+        `.github/FUNDING.yml` Sponsor button as the *first* funding surface
+        tied to a real legal person -- but the shipped site already carries
+        a far larger one. If GitHub Sponsors is not enabled on that account,
+        those 500 links 404 the day the site goes live. Could not verify
+        from here: the sandbox proxy 403s github.com HTML, and it 403s the
+        plain profile URL too, so a 404 and a block are indistinguishable.
+        Did not change the links or add a decision-queue row -- the row
+        exists and the question is already the owner's.
+    mrr_end: null
