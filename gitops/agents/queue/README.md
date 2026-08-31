@@ -99,7 +99,7 @@ leaves this script an unchanged tree.
 
 `deploy-cicd-readiness` sits third on purpose, behind `open-pr-repair-merge`
 and `branch-pr-drain` (this used to say "second", from before
-`open-pr-repair-merge` was added above it). The portfolio has 164 finished
+`open-pr-repair-merge` was added above it). The portfolio has 169 finished
 tools and no public URL, so the delivery path is worth more per run than
 another metadata pass — but its remaining *owner* steps (a sealed clone
 token, `CI_RUNNER`, the governor flip) are not agent-actionable and are

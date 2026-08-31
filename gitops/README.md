@@ -56,7 +56,7 @@ quota. It is not a second copy of every product.
 
 ## The public product site
 
-`prod/portfolio-site.yaml` serves the portfolio's 164 finished static
+`prod/portfolio-site.yaml` serves the portfolio's 169 finished static
 tools on **`tools.marisstella.dev`**. It is the first thing in this
 cluster on a public name.
 
