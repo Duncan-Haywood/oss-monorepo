@@ -2,40 +2,317 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mobile Detailing Bid Calculator | Price a Profitable Detail Job</title>
+  <title>Mobile Detailing Bid Calculator — Price a Detail Job</title>
   <meta name="description" content="Free mobile detailing price calculator: include travel, labor, supplies, overhead, and card fees to find your break-even and target-margin quote.">
   <meta name="robots" content="index, follow"><meta property="og:title" content="Mobile Detailing Bid Calculator"><meta property="og:description" content="Stop undercharging for mobile detailing travel and setup. Build a transparent quote in your browser.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mobile Detailing Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private, browser-local calculator for mobile detailers to price jobs after travel, labor, supplies, overhead, and payment fees."}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mobile Detailing Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A private, browser-local calculator for mobile detailers to price jobs after travel, labor, supplies, overhead, and payment fees.","featureList":"Whole-stop hours across hands-on, travel, setup and cleanup time; loaded hourly rate from wage and payroll burden; round-trip vehicle cost per mile; supplies and job overhead; payment fee and target margin claim check; break-even quote; effective hourly on hands-on time and on the whole stop; shareable quote link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is the loaded labor cost $0 on the example, if the example books 3 labor hours?","acceptedAnswer":{"@type":"Answer","text":"The example's wage is set to $0 because it models an owner-operator: your own time isn't a separate line item, so the $128.52 contribution on the default $180 quote is your pay plus profit, not profit on top of a paid wage. Enter a real hourly wage here the moment you pay yourself a set rate or hire a second detailer — the burden percent then loads payroll taxes and insurance on top of it the same way it would for an employee."}},{"@type":"Question","name":"What is the break-even quote, and how is it different from the target-margin quote?","acceptedAnswer":{"@type":"Answer","text":"Break-even is the price that covers direct costs and the payment processing fee with zero contribution left over — on the defaults, $46.08 direct costs ÷ (1 − 3% fee) ≈ $47.51. The target-margin quote in \"Price for your target\" instead solves for a price where the fee and your target margin together claim their combined percentage of that price — on the defaults, 3% + 35% = 38%, so $46.08 ÷ (1 − 0.38) ≈ $74.32. Quoting at break-even leaves nothing for your time or profit; quoting below it loses money on the job."}},{"@type":"Question","name":"What happens if the payment fee and target margin together claim the whole price?","acceptedAnswer":{"@type":"Answer","text":"The page flags it instead of printing a number. If fee percent plus margin percent reaches or passes 100%, no price can satisfy both claims at once — the tool shows this as unreachable rather than a negative or infinite \"quote,\" which would read as real advice."}},{"@type":"Question","name":"What is the difference between \"hourly on hands-on time\" and \"hourly on the whole stop\"?","acceptedAnswer":{"@type":"Answer","text":"Hands-on hourly divides contribution by labor hours alone (3 hours on the default job); whole-stop hourly divides the same contribution by every hour the job occupies you — labor plus travel, setup, and cleanup (4.25 hours on the default). The whole-stop number is the one that is actually comparable across jobs with different drive times, since two jobs can pay the same hands-on rate while very different amounts of the day get eaten by travel."}},{"@type":"Question","name":"Does the price on this page include a deposit or my business details?","acceptedAnswer":{"@type":"Answer","text":"No — deposit percent and hold-days live in the separate proposal section below, which turns the same numbers into a printable quote for the customer. The pricing math above answers \"what should I charge\"; the proposal section turns that answer into a document with your business details and the customer's, which is only saved on your own device."}},{"@type":"Question","name":"Is my pricing or customer information uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The calculation and the proposal both run in your browser; your saved business details and any usage counts stay in local storage on this device, never sent to a server, and the opt-out checkbox above turns usage counting off entirely."}}]}</script>
   <style>
-    :root{font-family:system-ui,sans-serif;color:#202522;background:#f3f6f1}*{box-sizing:border-box}body{max-width:980px;margin:auto;padding:28px 16px}header{max-width:680px}h1{font-size:clamp(2.2rem,7vw,4.5rem);line-height:.95;letter-spacing:-.07em;margin:.2em 0}.lede{font-size:1.1rem;color:#4d5b52}.layout{display:grid;grid-template-columns:1fr .8fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #d4ded3;border-radius:16px;padding:20px;box-shadow:0 10px 30px #263b2910}h2{font-size:1.1rem;margin-top:0}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:grid;gap:5px;font-size:.86rem;font-weight:650;color:#4d5b52}input{width:100%;padding:10px;border:1px solid #aab9aa;border-radius:8px;font:inherit;color:inherit;background:#fff}.result{position:sticky;top:15px;background:#1d3b2b;color:#f6fff6;border-color:#1d3b2b}.big{font-size:3.2rem;font-weight:800;letter-spacing:-.06em;margin:8px 0;color:#c9f2a9}.warning{color:#ffd0a8}.result dl{display:grid;grid-template-columns:1fr auto;gap:10px;margin:22px 0}.result dt,.result dd{margin:0}.result dd{font-variant-numeric:tabular-nums}.result hr{border:0;border-top:1px solid #ffffff35}.result input{background:#294d39;color:#fff;border-color:#6f9578}.note{font-size:.82rem;color:#bdd0c0;line-height:1.45}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions button{cursor:pointer;padding:10px 12px;border-radius:8px;border:1px solid #9abb9d;background:#c9f2a9;color:#17331f;font:inherit;font-weight:700}.actions button:last-child{background:transparent;color:#f6fff6}.footer{margin-top:24px;font-size:.83rem;color:#526055}.footer label{display:inline-flex;display:flex;align-items:center;gap:7px}.footer input{width:auto}.status{min-height:1.2em}@media(max-width:700px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}body{padding-top:18px}}
-  </style>
+    :root{font-family:system-ui,sans-serif;color:#202522;background:#f3f6f1}*{box-sizing:border-box}body{max-width:980px;margin:auto;padding:28px 16px}header{max-width:680px}h1{font-size:clamp(2.2rem,7vw,4.5rem);line-height:.95;letter-spacing:-.07em;margin:.2em 0}.lede{font-size:1.1rem;color:#4d5b52}.seo-link{margin:10px 0 0;font-size:.9rem}.layout{display:grid;grid-template-columns:1fr .8fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #d4ded3;border-radius:16px;padding:20px;box-shadow:0 10px 30px #263b2910}h2{font-size:1.1rem;margin-top:0}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{display:grid;gap:5px;font-size:.86rem;font-weight:650;color:#4d5b52}input{width:100%;padding:10px;border:1px solid #aab9aa;border-radius:8px;font:inherit;color:inherit;background:#fff}.hint{grid-column:1/-1;margin:0;font-size:.82rem;line-height:1.45;color:#4d5b52}.hint.conflict{color:#8a3b12;font-weight:650}.result{position:sticky;top:15px;background:#1d3b2b;color:#f6fff6;border-color:#1d3b2b}.result a{color:inherit;text-decoration:underline}.big{font-size:3.2rem;font-weight:800;letter-spacing:-.06em;margin:8px 0;color:#c9f2a9}.warning{color:#ffd0a8}.result dl{display:grid;grid-template-columns:1fr auto;gap:10px;margin:22px 0}.result dt,.result dd{margin:0}.result dd{font-variant-numeric:tabular-nums}.result hr{border:0;border-top:1px solid #ffffff35}.result input{background:#294d39;color:#fff;border-color:#6f9578}.note{font-size:.82rem;color:#bdd0c0;line-height:1.45}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.actions button{cursor:pointer;padding:10px 12px;border-radius:8px;border:1px solid #9abb9d;background:#c9f2a9;color:#17331f;font:inherit;font-weight:700}.actions button:last-child{background:transparent;color:#f6fff6}.footer{margin-top:24px;font-size:.83rem;color:#526055}.footer label{display:inline-flex;display:flex;align-items:center;gap:7px}.footer input{width:auto}.status{min-height:1.2em}@media(max-width:700px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}body{padding-top:18px}}
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4d5b52; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1d3b2b; --pr-accent: #8a5a22;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
-  <header><p>FOR MOBILE DETAILERS AND OWNER-OPERATORS</p><h1>Price the drive, not just the detail.</h1><p class="lede">Build a minimum quote that accounts for round-trip travel, labor, supplies, overhead, and card fees before you promise a price.</p></header>
+  <header><p>FOR MOBILE DETAILERS AND OWNER-OPERATORS</p><h1>Price the drive, not just the detail.</h1><p class="lede">Build a minimum quote that accounts for the whole stop — travel, setup, cleanup, loaded wage, miles, supplies, overhead, and card fees — before you promise a price.</p><p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for mobile detailing?</a></p></header>
   <main class="layout"><section><h2>Job assumptions</h2><div class="fields">
     <label>Proposed quote ($)<input id="targetPrice" type="number" min="0" step="1" value="180"></label>
-    <label>Hands-on + setup hours<input id="laborHours" type="number" min="0.1" step="0.25" value="3"></label>
+    <label>Hands-on hours<input id="laborHours" type="number" min="0.1" step="0.25" value="3"></label>
+    <label>Travel hours<input id="travelHours" type="number" min="0" step="0.25" value="0.75"></label>
+    <label>Setup hours<input id="setupHours" type="number" min="0" step="0.25" value="0.25"></label>
+    <label>Cleanup hours<input id="cleanupHours" type="number" min="0" step="0.25" value="0.25"></label>
     <label>Round-trip travel miles<input id="travelMiles" type="number" min="0" step="1" value="24"></label>
     <label>Vehicle cost per mile ($)<input id="vehicleRate" type="number" min="0" step="0.01" value="0.67"></label>
+    <label>Hourly wage before burden ($ / hour, 0 to skip)<input id="wage" type="number" min="0" step="0.5" value="0"></label>
+    <label>Payroll burden (%)<input id="burdenPercent" type="number" min="0" step="1" value="25"></label>
     <label>Supplies and chemicals ($)<input id="supplies" type="number" min="0" step="1" value="18"></label>
     <label>Job overhead allocation ($)<input id="overhead" type="number" min="0" step="1" value="12"></label>
     <label>Payment fee (%)<input id="paymentRate" type="number" min="0" max="99.9" step="0.1" value="3"></label>
     <label>Target margin (%)<input id="targetMargin" type="number" min="0" max="99.9" step="1" value="35"></label>
-  </div><p class="note">Use your own vehicle rate, payment rate, and overhead allocation. The defaults are only a worked example.</p></section>
-  <section class="result"><h2>Quote check</h2><div id="contribution" class="big"></div><div id="caption">contribution after listed costs</div><dl><dt>Travel cost</dt><dd id="travelCost"></dd><dt>Direct costs + travel</dt><dd id="directCosts"></dd><dt>Payment fee</dt><dd id="paymentFee"></dd><dt>Break-even quote</dt><dd id="breakEven"></dd><dt>Effective hourly contribution</dt><dd id="effectiveHourly"></dd></dl><hr><h2>Price for your target</h2><p id="targetQuote"></p><div class="actions"><button id="copyLink" type="button">Copy shareable link</button><button id="reset" type="button">Reset example</button></div><p id="status" class="status note" role="status" aria-live="polite"></p><p class="note">This is arithmetic from your assumptions, not a promise of profit or a recommendation to accept a job.</p></section></main>
+    <p id="claimHint" class="hint" aria-live="polite"></p>
+  </div><p class="hint">Use your own vehicle rate, payment rate, and overhead allocation. The defaults are only a worked example. Fee and margin are both slices of the final price, so they can jointly claim the whole ticket.</p></section>
+  <section class="result"><h2>Quote check</h2><p id="errors" class="warning" role="alert" hidden></p><div id="contribution" class="big"></div><div id="caption">contribution after listed costs</div><dl><dt>Whole-stop hours</dt><dd id="totalHours"></dd><dt>Loaded hourly rate</dt><dd id="loadedLaborRate"></dd><dt>Loaded labor</dt><dd id="laborCost"></dd><dt>Travel cost</dt><dd id="travelCost"></dd><dt>Direct costs + travel</dt><dd id="directCosts"></dd><dt>Payment fee</dt><dd id="paymentFee"></dd><dt>Break-even quote</dt><dd id="breakEven"></dd><dt>Hourly on hands-on time</dt><dd id="effectiveHourly"></dd><dt>Hourly on the whole stop</dt><dd id="effectiveRate"></dd></dl><hr><h2>Price for your target</h2><p id="targetQuote"></p><div class="actions"><button id="reset" type="button">Reset example</button></div><p id="status" class="status note" role="status" aria-live="polite"></p><p class="note">This is arithmetic from your assumptions, not a promise of profit or a recommendation to accept a job.</p></section>
+  <section id="faq"><h2>Common questions</h2>
+    <h3>Why is the loaded labor cost $0 on the example, if the example books 3 labor hours?</h3>
+    <p>The example's wage is set to $0 because it models an owner-operator: your own time isn't a separate line item, so the $128.52 contribution on the default $180 quote <em>is</em> your pay plus profit, not profit on top of a paid wage. Enter a real hourly wage here the moment you pay yourself a set rate or hire a second detailer &mdash; the burden percent then loads payroll taxes and insurance on top of it the same way it would for an employee.</p>
+    <h3>What is the break-even quote, and how is it different from the target-margin quote?</h3>
+    <p>Break-even is the price that covers direct costs and the payment processing fee with zero contribution left over &mdash; on the defaults, $46.08 direct costs &divide; (1 &minus; 3% fee) &asymp; $47.51. The target-margin quote in "Price for your target" instead solves for a price where the fee and your target margin together claim their combined percentage of that price &mdash; on the defaults, 3% + 35% = 38%, so $46.08 &divide; (1 &minus; 0.38) &asymp; $74.32. Quoting at break-even leaves nothing for your time or profit; quoting below it loses money on the job.</p>
+    <h3>What happens if the payment fee and target margin together claim the whole price?</h3>
+    <p>The page flags it instead of printing a number. If fee percent plus margin percent reaches or passes 100%, no price can satisfy both claims at once &mdash; the tool shows this as unreachable rather than a negative or infinite "quote," which would read as real advice.</p>
+    <h3>What is the difference between "hourly on hands-on time" and "hourly on the whole stop"?</h3>
+    <p>Hands-on hourly divides contribution by labor hours alone (3 hours on the default job); whole-stop hourly divides the same contribution by every hour the job occupies you &mdash; labor plus travel, setup, and cleanup (4.25 hours on the default). The whole-stop number is the one that is actually comparable across jobs with different drive times, since two jobs can pay the same hands-on rate while very different amounts of the day get eaten by travel.</p>
+    <h3>Does the price on this page include a deposit or my business details?</h3>
+    <p>No &mdash; deposit percent and hold-days live in the separate proposal section below, which turns the same numbers into a printable quote for the customer. The pricing math above answers "what should I charge"; the proposal section turns that answer into a document with your business details and the customer's, which is only saved on your own device.</p>
+    <h3>Is my pricing or customer information uploaded anywhere?</h3>
+    <p>No. The calculation and the proposal both run in your browser; your saved business details and any usage counts stay in local storage on this device, never sent to a server, and the opt-out checkbox above turns usage counting off entirely.</p>
+  </section>
+<!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Curbside Shine Mobile Detailing LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="0"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Full interior and exterior detail on one mid-size vehicle&#10;Hand wash, chemical decontamination, and a single-stage machine polish"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Multi-stage paint correction, ceramic coating, and engine bay detailing&#10;Biohazard, mold, and pet-damage remediation&#10;Removal of etching, deep scratches, and permanent staining"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Please leave a parking space with room to open every door and work around the vehicle. We need access to an outside tap and a standard outlet unless we have agreed to bring our own water and power."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
   <footer class="footer"><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label><p><strong>No warranty.</strong> This free tool is not business, tax, financial, or professional advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p></footer>
   <script type="module">
-    import { calculateBid, defaults } from './calc.mjs'; import { recordUsage } from './usage.mjs';
-    const ids = Object.keys(defaults), field = id => document.getElementById(id), money = n => `$${n.toFixed(2)}`;
+    import { calculateBid, claimNote, defaults } from './calc.mjs'; import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    const ids = Object.keys(defaults), money = n => `$${n.toFixed(2)}`;
+    // Named `el` on purpose: `platform/proposal/adopt.mjs` generates its wiring
+    // against this helper, and its own loops bind a local `field`.
+    const el = id => document.getElementById(id);
     const safe = fn => { try { return fn(); } catch { return undefined; } };
-    function inputs(){ return Object.fromEntries(ids.map(id => [id, field(id).value])); }
-    function update(count = false){ try { const r = calculateBid(inputs()); field('contribution').textContent = money(r.contribution); field('contribution').className = `big ${r.contribution < 0 ? 'warning' : ''}`; field('caption').textContent = r.contribution < 0 ? 'loss after listed costs' : 'contribution after listed costs'; field('travelCost').textContent = money(r.travelCost); field('directCosts').textContent = money(r.directCosts); field('paymentFee').textContent = money(r.paymentFee); field('breakEven').textContent = money(r.breakEven); field('effectiveHourly').textContent = money(r.effectiveHourly); field('targetQuote').textContent = `Quote at least ${money(r.targetQuote)} to target a ${r.targetMargin.toFixed(1)}% margin.`; if(count) recordUsage(safe(() => localStorage), field('usageOptOut').checked); } catch(error) { field('contribution').textContent = error.message; } }
-    function persist(){ safe(() => localStorage.setItem('mobile-detailing-inputs', JSON.stringify(inputs()))); if(location.hash) history.replaceState(null,'',`${location.pathname}#${encodeURIComponent(JSON.stringify(inputs()))}`); }
-    function restore(){ const encoded = location.hash.slice(1); const saved = safe(() => JSON.parse(localStorage.getItem('mobile-detailing-inputs') || 'null')); const values = encoded ? safe(() => JSON.parse(decodeURIComponent(encoded))) : saved; if(values) ids.forEach(id => { if(values[id] !== undefined) field(id).value = values[id]; }); }
-    function flash(text){ field('status').textContent = text; setTimeout(() => field('status').textContent = '', 3000); }
-    restore(); ids.forEach(id => field(id).addEventListener('input', () => { update(); persist(); })); ids.forEach(id => field(id).addEventListener('change', () => update(true)));
-    field('copyLink').addEventListener('click', async () => { const url = `${location.href.split('#')[0]}#${encodeURIComponent(JSON.stringify(inputs()))}`; history.replaceState(null,'',url); try { await navigator.clipboard.writeText(url); flash('Link copied.'); } catch { flash('Link is in your address bar.'); } recordUsage(safe(() => localStorage), field('usageOptOut').checked, 'share_link_copied'); });
-    field('reset').addEventListener('click', () => { safe(() => localStorage.removeItem('mobile-detailing-inputs')); history.replaceState(null,'',location.pathname); ids.forEach(id => field(id).value = defaults[id]); update(); flash('Reset to the worked example.'); }); update();
+    // One place that honours the opt-out, so the proposal's counts cannot
+    // bypass the checkbox the footer promises.
+    function count(event){ recordUsage(safe(() => localStorage), el('usageOptOut').checked, event); }
+    let conflictRecorded = false;
+    function readInput(){ return Object.fromEntries(ids.map(id => [id, el(id).value])); }
+    function update(countUse = false){ try { const r = calculateBid(readInput()); el('errors').hidden = true; el('errors').textContent = ''; el('contribution').hidden = false; el('contribution').textContent = money(r.contribution); el('contribution').className = `big ${r.contribution < 0 ? 'warning' : ''}`; el('caption').textContent = r.contribution < 0 ? 'loss after listed costs — the proposed quote does not hide it' : 'contribution after listed costs'; el('travelCost').textContent = money(r.travelCost); el('directCosts').textContent = money(r.directCosts); el('paymentFee').textContent = money(r.paymentFee); el('breakEven').textContent = money(r.breakEven); el('effectiveHourly').textContent = money(r.effectiveHourly); el('totalHours').textContent = `${r.totalHours.toFixed(2)} h`; el('loadedLaborRate').textContent = `${money(r.loadedLaborRate)} / h`; el('laborCost').textContent = money(r.laborCost); el('effectiveRate').textContent = money(r.effectiveRate); el('claimHint').textContent = claimNote(r); el('claimHint').className = r.targetReachable ? 'hint' : 'hint conflict'; el('targetQuote').textContent = Number.isFinite(r.targetQuote) ? `Quote at least ${money(r.targetQuote)} to target a ${r.targetMargin.toFixed(1)}% margin.` : `A ${r.targetMargin.toFixed(1)}% margin is unreachable at a ${r.paymentRate.toFixed(1)}% payment fee — together they claim ${r.claimedSharePct.toFixed(1)}% of the price, leaving nothing for costs. Lower the target margin.`; if(!r.targetReachable && !conflictRecorded){ conflictRecorded = true; count('claim_conflict_shown'); } if(r.targetReachable) conflictRecorded = false; if(countUse) count(); } catch(error) {
+      // A rejected input (a negative number, non-numeric text) must not leave
+      // the last valid quote on screen next to a one-line error -- that reads
+      // as if the stale contribution, break-even, and target-quote figures
+      // still answer the inputs now in the form. Hide the hero and clear
+      // every derived field, announcing the message in its own region instead
+      // of overwriting the dollar hero with a sentence.
+      el('errors').textContent = error.message; el('errors').hidden = false; el('contribution').hidden = true; el('caption').textContent = ''; el('travelCost').textContent = ''; el('directCosts').textContent = ''; el('paymentFee').textContent = ''; el('breakEven').textContent = ''; el('effectiveHourly').textContent = ''; el('totalHours').textContent = ''; el('loadedLaborRate').textContent = ''; el('laborCost').textContent = ''; el('effectiveRate').textContent = ''; el('claimHint').textContent = ''; el('targetQuote').textContent = '';
+    } }
+    function persist(){ safe(() => localStorage.setItem('mobile-detailing-inputs', JSON.stringify(readInput()))); }
+    function restore(){ const values = safe(() => JSON.parse(localStorage.getItem('mobile-detailing-inputs') || 'null')); if(values) ids.forEach(id => { if(values[id] !== undefined) el(id).value = values[id]; }); }
+    function flash(text){ el('status').textContent = text; setTimeout(() => el('status').textContent = '', 3000); }
+    restore(); ids.forEach(id => el(id).addEventListener('input', () => { update(); persist(); })); ids.forEach(id => el(id).addEventListener('change', () => update(true)));
+    el('reset').addEventListener('click', () => { safe(() => localStorage.removeItem('mobile-detailing-inputs')); history.replaceState(null,'',location.pathname); ids.forEach(id => el(id).value = defaults[id]); update(); flash('Reset to the worked example.'); }); update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'mobile-detailing-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Detailing improves appearance but cannot reverse every defect; it is not a paint-condition, rust, or mechanical inspection, and some etching, staining, and swirl marks are permanent.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Mobile detailing carried out at your location on the date we agree",
+        {
+          "line": "{laborHours~1} hour{laborHours+s} of hands-on detailing on the vehicle",
+          "when": "laborHours"
+        },
+        {
+          "line": "Setup and breakdown of our equipment at your location",
+          "when": "setupHours"
+        },
+        {
+          "line": "Round trip of {travelMiles~0} miles to reach you",
+          "when": "travelMiles"
+        },
+        "Cleaning chemicals, pads, brushes, and towels supplied by us"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposedPrice,
+        jobTitle: scopeLines(['Mobile detailing — {laborHours~1} hour{laborHours+s} on site'], result)[0] || 'Mobile detailing',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

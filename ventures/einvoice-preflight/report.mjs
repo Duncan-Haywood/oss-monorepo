@@ -1,4 +1,6 @@
 import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
+import { looksLikeCii, parseCiiInvoice } from "./cii.mjs";
+import { envelopeNote, extractEmbeddedInvoice, looksLikePdf } from "./facturx.mjs";
 import { looksLikeXml, parseUblInvoice } from "./ubl.mjs";
 
 export const DEFAULT_MAX_BYTES = 1_048_576;
@@ -8,13 +10,30 @@ function redactValues(text) {
   return String(text).replace(/\b\d+(?:\.\d+)?\b/g, "[value]");
 }
 
-export function parseInvoiceSource(name, source) {
-  const text = typeof source === "string" ? source : new TextDecoder().decode(source);
-  if (looksLikeXml(name, text)) return parseUblInvoice(text);
-  return JSON.parse(text);
+export async function inspectInvoiceSource(name, source) {
+  let payload = source;
+  let envelope = "";
+  if (looksLikePdf(name, source)) {
+    const extracted = await extractEmbeddedInvoice(source);
+    payload = extracted.payload;
+    const peek = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
+    envelope = envelopeNote(extracted.label, looksLikeCii(peek) ? "cii" : "ubl");
+  }
+  const text = typeof payload === "string" ? payload : new TextDecoder().decode(payload);
+  let invoice;
+  if (looksLikeXml(name, text) || looksLikeCii(text)) {
+    invoice = looksLikeCii(text) ? parseCiiInvoice(text) : parseUblInvoice(text);
+  } else {
+    invoice = JSON.parse(text);
+  }
+  return { invoice, envelope };
 }
 
-export function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES } = {}) {
+export async function parseInvoiceSource(name, source) {
+  return (await inspectInvoiceSource(name, source)).invoice;
+}
+
+export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFiles = DEFAULT_MAX_FILES } = {}) {
   const reports = [];
   const readErrors = [];
   const parsed = [];
@@ -41,9 +60,9 @@ export function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES, maxFi
       continue;
     }
     try {
-      const invoice = parseInvoiceSource(name, source);
+      const { invoice, envelope } = await inspectInvoiceSource(name, source);
       const errors = checkInvoice(invoice);
-      reports.push({ file: name, errors });
+      reports.push({ file: name, errors, envelope });
       parsed.push({ name, invoice });
     } catch (error) {
       readErrors.push({
@@ -105,6 +124,7 @@ export function buildChecklist({ reports, readErrors }) {
   ];
   for (const report of reports) {
     lines.push(`[ ] Review ${report.file}`);
+    if (report.envelope) lines.push(`    ${report.envelope}`);
     if (report.errors.length === 0) {
       lines.push("    No supported defects found.");
       continue;
@@ -159,6 +179,7 @@ export function buildMarkdown({ reports, readErrors }) {
   }
   for (const report of reports) {
     lines.push(`## \`${escape(report.file)}\``);
+    if (report.envelope) lines.push("", report.envelope);
     if (report.errors.length === 0) {
       lines.push("", "Status: **PASS**", "", "No defects found in the supported checks.", "");
       continue;
@@ -206,4 +227,41 @@ export function buildJsonReport({ reports, readErrors }) {
       errors: report.errors,
     })),
   };
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  if (/[",\n\r]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
+  return text;
+}
+
+export function buildRemediationCsv({ reports, readErrors }) {
+  const grouped = new Map();
+  for (const report of reports) {
+    for (const finding of report.errors) {
+      const item = grouped.get(finding.rule) || {
+        rule: finding.rule,
+        occurrences: 0,
+        message: finding.message,
+        fix: finding.fix,
+      };
+      item.occurrences += 1;
+      grouped.set(finding.rule, item);
+    }
+  }
+  const rows = [...grouped.keys()].sort().map((rule) => grouped.get(rule));
+  if (readErrors.length) {
+    rows.push({
+      rule: "INV-READ",
+      occurrences: readErrors.length,
+      message: "Invoice could not be read.",
+      fix: "Resolve the read error and run the preflight again.",
+    });
+  }
+  const header = ["rule", "occurrences", "message", "fix"];
+  const lines = [
+    header.join(","),
+    ...rows.map((row) => header.map((key) => csvCell(row[key])).join(",")),
+  ];
+  return `${lines.join("\n")}\n`;
 }

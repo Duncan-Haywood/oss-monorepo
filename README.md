@@ -12,6 +12,13 @@ Agent instructions: [`AGENTS.md`](AGENTS.md). How to build one:
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). What to count and where it
 lands: [`portfolio/usage/`](portfolio/usage/README.md).
 
+The operating priority is product value over administrative throughput. Existing
+work should be triaged proportionately, then the next session should leave a
+stranger with a runnable workflow, measured only with privacy-conscious,
+off-switchable event counts. A blocked CI provider or owner-only deployment
+permission is a dependency to report, not a reason to substitute more process
+work for building.
+
 The point of consolidating: agent automation is repo-scoped. In a polyrepo
 setup every new venture costs a fresh onboarding pass across every agent
 surface (Claude Code, Cursor, Antigravity, CI). Here a new venture is a new
@@ -123,6 +130,11 @@ ship a runnable vertical slice, measure anonymous feature events without PII,
 and preserve the legal, privacy, and safety guardrails in
 [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md). Pull requests are reviewed in
 proportion to risk and merged when their relevant checks are green.
+
+The venture list is allowed to grow when a new candidate is materially
+different from existing products and can be launched without new spend or
+payment collection. Adjacent improvements should still land in the closest
+existing venture to avoid duplicate products.
 
 ## History
 

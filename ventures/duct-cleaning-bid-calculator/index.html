@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Duct Cleaning Bid Calculator | Price the Systems, the Vents, and the Coil — Not Just a $99 Whole-House Special</title>
+  <title>Duct Cleaning Bid Calculator — Systems, Vents, and Coil</title>
   <meta name="description" content="Price an air-duct cleaning job from extra systems, extra vents, extra stories, crawl access, and a coil clean — not a published $99 whole-house special. See the walk-away number before you match a cheaper ranch quote.">
   <meta property="og:title" content="Duct Cleaning Bid Calculator">
   <meta property="og:description" content="One furnace and ten vents on a ranch is not the same job as a two-system colonial with extra returns, a crawl, and a coil clean. Bid the systems and the vents.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Duct Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Residential versus two-system versus heavy-debris versus light-commercial, extra systems over the included first air handler, extra supply vents over the included ten, extra returns, extra stories, crawl access, occupied-home protection, evaporator coil clean, sanitizer fog, heavy debris, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Duct Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Residential versus two-system versus heavy-debris versus light-commercial, extra systems over the included first air handler, extra supply vents over the included ten, extra returns, extra stories, crawl access, occupied-home protection, evaporator coil clean, sanitizer fog, heavy debris, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this duct cleaning estimate include?","acceptedAnswer":{"@type":"Answer","text":"The price adds up loaded labor for the base setup plus every extra system, vent, return, and story beyond the ones you mark as included, plus crawl access, occupied-home protection, a coil clean, sanitizer, and heavy debris — then filters per system, consumables, sanitizer cost, travel and equipment, overhead, and your target margin. Nothing is a flat “$99 whole-house special” regardless of how many systems or vents the house actually has."}},{"@type":"Question","name":"Why do systems, vents, returns, and stories only bill past what's “included”?","acceptedAnswer":{"@type":"Answer","text":"Every job type already assumes a base setup — the one-system, 10-vent ranch the presets call the $99/$299 special — so the “included” fields are what that base setup already covers. Only systems, vents, returns, and stories beyond those thresholds add hours, which is why a two-system colonial with 18 vents and a crawl prices well above the ranch special even though both start from the same base setup hours."}},{"@type":"Question","name":"Why do coil clean, sanitizer, and heavy debris each get a separate checkbox instead of one lump “deep clean” option?","acceptedAnswer":{"@type":"Answer","text":"Each is a distinct task with its own hours and, for sanitizer, its own material cost — an evaporator coil clean, an antimicrobial fog, and extra time for pet hair or construction debris don't always travel together. Pricing them separately means a job with heavy debris but no coil work isn't charged for a coil clean it doesn't need, and vice versa."}},{"@type":"Question","name":"Why does crawl access add hours but occupied-home doesn't add a material cost?","acceptedAnswer":{"@type":"Answer","text":"Crawl or tight-attic access is purely a labor problem — it takes longer to reach and rig equipment in a confined space, with no extra materials. Occupied-home is the same: extra care and cleanup working around a resident adds hours but no separate line on the parts side. Coil and sanitizer, by contrast, use materials (a coil cleaner, an antimicrobial fog) on top of the hours."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. This calculator does not save your job inputs between visits and has no shareable bid link; only your business name and contact details for the printed proposal are kept in this browser's local storage, and “Forget my business details” clears them."}},{"@type":"Question","name":"Does this check indoor air quality, mold, or duct integrity?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and material costs are ballpark shop figures you can edit, not an indoor-air-quality test, a mold finding, a NADCA certification, a warranty, or a guarantee that any system will pass a later inspection. Cleaning removes accumulated debris from the existing ductwork; whether the ducts themselves are sealed, sized, or in good repair is a separate judgment call for the site visit."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #e6eef4; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,9 +25,11 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa0b0; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0b0; background: #e4eef4; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0b0; background: #e4eef4; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #d2e2ec; }
     .result { position: sticky; top: 15px; background: #16303c; color: #eef6f8; border-color: #16303c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -47,7 +50,64 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #16303c; --pr-accent: #1d5f78;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
@@ -151,7 +211,90 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and filter rates are common ballpark figures, not an industry standard, a NADCA certification, or an indoor-air-quality test &mdash; replace them with your own takeoff.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Clearflow Duct Services LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Clean one system, 10 supply vents and 2 returns&#10;New filter fitted"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Duct sealing, repair or replacement&#10;Mould remediation or air-quality testing"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Registers removed, cleaned and refitted."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this duct cleaning estimate include?</h3>
+      <p>The price adds up loaded labor for the base setup plus every extra system, vent, return, and story
+        beyond the ones you mark as included, plus crawl access, occupied-home protection, a coil clean,
+        sanitizer, and heavy debris &mdash; then filters per system, consumables, sanitizer cost, travel and
+        equipment, overhead, and your target margin. Nothing is a flat &ldquo;$99 whole-house special&rdquo;
+        regardless of how many systems or vents the house actually has.</p>
+
+      <h3>Why do systems, vents, returns, and stories only bill past what's &ldquo;included&rdquo;?</h3>
+      <p>Every job type already assumes a base setup &mdash; the one-system, 10-vent ranch the presets call
+        the $99/$299 special &mdash; so the &ldquo;included&rdquo; fields are what that base setup already
+        covers. Only systems, vents, returns, and stories beyond those thresholds add hours, which is why a
+        two-system colonial with 18 vents and a crawl prices well above the ranch special even though both
+        start from the same base setup hours.</p>
+
+      <h3>Why do coil clean, sanitizer, and heavy debris each get a separate checkbox instead of one lump &ldquo;deep clean&rdquo; option?</h3>
+      <p>Each is a distinct task with its own hours and, for sanitizer, its own material cost &mdash; an
+        evaporator coil clean, an antimicrobial fog, and extra time for pet hair or construction debris
+        don't always travel together. Pricing them separately means a job with heavy debris but no coil
+        work isn't charged for a coil clean it doesn't need, and vice versa.</p>
+
+      <h3>Why does crawl access add hours but occupied-home doesn't add a material cost?</h3>
+      <p>Crawl or tight-attic access is purely a labor problem &mdash; it takes longer to reach and rig
+        equipment in a confined space, with no extra materials. Occupied-home is the same: extra care and
+        cleanup working around a resident adds hours but no separate line on the parts side. Coil and
+        sanitizer, by contrast, use materials (a coil cleaner, an antimicrobial fog) on top of the hours.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. This
+        calculator does not save your job inputs between visits and has no shareable bid link; only your
+        business name and contact details for the printed proposal are kept in this browser's local
+        storage, and &ldquo;Forget my business details&rdquo; clears them.</p>
+
+      <h3>Does this check indoor air quality, mold, or duct integrity?</h3>
+      <p>No. Hours and material costs are ballpark shop figures you can edit, not an indoor-air-quality
+        test, a mold finding, a NADCA certification, a warranty, or a guarantee that any system will pass
+        a later inspection. Cleaning removes accumulated debris from the existing ductwork; whether the
+        ducts themselves are sealed, sized, or in good repair is a separate judgment call for the site
+        visit.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
@@ -169,6 +312,11 @@
       suggestedJobHours,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
 
     const FIELD_IDS = [
       'systems','vents','returns','stories',
@@ -182,7 +330,11 @@
     const FLAG_IDS = ['crawl','occupied','coil','sanitizer','heavyDebris'];
     const SELECT_IDS = ['jobType'];
     const SUGGESTED_JOB_IDS = ['hoursBaseSetup','filterCost'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const presets = el('jobPresets');
@@ -310,7 +462,11 @@
     }
 
     async function copySummary() {
-      const job = JOB_PRESETS[Number(presets.value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       const text = formatBidSummary(calculateBid(readInput()), job?.label);
       try {
         await navigator.clipboard.writeText(text);
@@ -331,7 +487,7 @@
     }
 
     presets.addEventListener('change', () => {
-      const job = JOB_PRESETS[Number(presets.value)];
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
       applyJob(job);
       count('preset_applied');
@@ -367,6 +523,157 @@
     });
 
     update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'duct-cleaning-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Duct cleaning removes accumulated debris; it is not an air-quality test, a mould assessment, or a duct-integrity survey.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "{jobLabel} — {systems} system{systems+s}, {vents} supply vent{vents+s}, {returns} return{returns+s}",
+        "Negative-air source removal with brush agitation at every register",
+        {
+          "line": "Clean the evaporator coil",
+          "when": "coil"
+        },
+        {
+          "line": "Apply an EPA-registered sanitiser to the ductwork",
+          "when": "sanitizer"
+        },
+        {
+          "line": "Additional time for heavy debris",
+          "when": "heavyDebris"
+        },
+        "Fit a new filter and confirm the system runs on completion"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "jobLabel": ({"residential":"Residential whole-house system clean","two_system":"Two-system / split-level house","heavy":"Heavy debris / pet hair","commercial":"Light commercial / multi-zone"})[el('jobType')?.value],
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Air duct cleaning — {vents} supply vents'], proposalFields(result))[0] || 'Air duct cleaning — supply vents',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

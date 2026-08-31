@@ -18,6 +18,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   new_seller: {
     id: "new_seller",
     label: "US new seller (first ~30 days after first sale)",
+    short: "New-seller 3%",
     note: "Promotional referral rate some new US shops see. It expires. Do not price a catalogue against it.",
     referralRate: 3,
     facilitationRate: 0,
@@ -27,6 +28,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   us_standard: {
     id: "us_standard",
     label: "US standard (most categories, mid-2026)",
+    short: "Today (6%)",
     note: "Unified US referral that already covers payment processing for domestic orders. Category exceptions exist.",
     referralRate: 6,
     facilitationRate: 0,
@@ -36,6 +38,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   us_jewelry: {
     id: "us_jewelry",
     label: "US jewelry (select items)",
+    short: "US jewelry 5%",
     note: "Some jewelry SKUs have been listed at a lower referral than the standard US rate. Confirm on the SKU.",
     referralRate: 5,
     facilitationRate: 0,
@@ -45,6 +48,7 @@ export const FEE_SCHEDULE_PRESETS = Object.freeze({
   oct_2026: {
     id: "oct_2026",
     label: "US from 1 Oct 2026 (announced: 8% + 1.5% facilitation on affiliate)",
+    short: "From 1 Oct 2026 (8% + 1.5%)",
     note: "Announced schedule, not a guarantee it ships unchanged. Facilitation applies to affiliate-sourced orders in this model.",
     referralRate: 8,
     facilitationRate: 1.5,
@@ -320,10 +324,241 @@ export function priceForTargetMargin(input) {
   );
 }
 
+/**
+ * Extra monthly orders a weaker path needs to match a stronger path's
+ * expected leftover. Null when the weaker path cannot catch up (zero or
+ * negative leftover while the stronger path is still positive).
+ */
+export function extraOrdersToMatch(stronger, weaker) {
+  const strongMonthly = stronger.monthlyProfit;
+  const weakPerOrder = weaker.expectedProfit;
+  if (strongMonthly <= weaker.monthlyProfit + 1e-9) return 0;
+  if (weakPerOrder <= 1e-9) return null;
+  return strongMonthly / weakPerOrder - weaker.monthlyOrders;
+}
+
+/**
+ * Three ways to handle postage on the same TikTok Shop SKU.
+ *
+ * Charging shipping and baking that charge into the item price look like
+ * a tie on referral: the published fee base is item + shipping charged.
+ * They are not a tie when creator commission is on item price only —
+ * moving the label into the item raises the affiliate payout. Eating the
+ * label (free shipping, same item price) drops the fee base and leaves
+ * postage as a cost you already pay.
+ *
+ * `freeShipPrice` is the list price you would actually put on a
+ * free-shipping listing. It defaults to item + shipping charged (same
+ * customer total) so the affiliate-on-item-only trap is visible without
+ * inventing a second price.
+ */
+export function compareFreeShipping(input = {}) {
+  const itemPrice = number(input.itemPrice, "Item price");
+  const shippingCharged = optionalNumber(input.shippingCharged, "Shipping charged", 0);
+  const freeShipPrice = optionalNumber(
+    input.freeShipPrice,
+    "Free-shipping item price",
+    itemPrice + shippingCharged,
+  );
+  const affiliateOnItemOnly = input.affiliateOnItemOnly !== false;
+
+  const charged = calculateOrder(input);
+  const eatLabel = calculateOrder({ ...input, shippingCharged: 0 });
+  const absorbPrice = itemPrice + shippingCharged;
+  const absorb = calculateOrder({ ...input, itemPrice: absorbPrice, shippingCharged: 0 });
+  const raised = calculateOrder({ ...input, itemPrice: freeShipPrice, shippingCharged: 0 });
+
+  const paths = [
+    { id: "charged", label: "Charge shipping", itemPrice, shippingCharged, result: charged },
+    { id: "eat", label: "Free shipping, same item price", itemPrice, shippingCharged: 0, result: eatLabel },
+    { id: "absorb", label: "Free shipping, same customer total", itemPrice: absorbPrice, shippingCharged: 0, result: absorb },
+    { id: "raised", label: "Free shipping at typed price", itemPrice: freeShipPrice, shippingCharged: 0, result: raised },
+  ];
+  const unique = [];
+  const seen = new Set();
+  for (const path of paths) {
+    const key = `${path.itemPrice.toFixed(4)}+${path.shippingCharged.toFixed(4)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(path);
+  }
+
+  const winner = unique.reduce((best, path) =>
+    path.result.expectedProfit > best.result.expectedProfit ? path : best,
+  );
+
+  return {
+    affiliateOnItemOnly,
+    absorbPrice,
+    freeShipPrice,
+    charged: paths[0],
+    eatLabel: paths[1],
+    absorb: paths[2],
+    raised: paths[3],
+    paths: unique,
+    winner: winner.id,
+    absorbRaisesAffiliate: absorb.affiliateFee - charged.affiliateFee,
+    referralTie: Math.abs(absorb.referralFee - charged.referralFee) < 1e-9,
+    extraOrdersForEat: extraOrdersToMatch(charged, eatLabel),
+    extraOrdersForRaised: extraOrdersToMatch(charged, raised),
+  };
+}
+
+export function freeShippingNote(comparison) {
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const charged = comparison.charged.result;
+  const raised = comparison.raised.result;
+  const delta = raised.expectedProfit - charged.expectedProfit;
+  if (comparison.affiliateOnItemOnly && comparison.absorbRaisesAffiliate > 1e-9 && comparison.referralTie) {
+    const extra = money(comparison.absorbRaisesAffiliate);
+    if (Math.abs(comparison.raised.itemPrice - comparison.absorbPrice) < 1e-9) {
+      return `Referral is a tie (same fee base), but moving the label into the item price pays creators ${extra} more because commission is on item price only.`;
+    }
+  }
+  if (delta >= -1e-9) {
+    return `Free shipping at ${money(comparison.freeShipPrice)} keeps ${money(delta)} more per order after returns than charging shipping.`;
+  }
+  const extra = comparison.extraOrdersForRaised;
+  if (extra == null) {
+    return `Free shipping at ${money(comparison.freeShipPrice)} loses ${money(-delta)} per order and cannot catch up at a non-positive leftover.`;
+  }
+  return `Free shipping at ${money(comparison.freeShipPrice)} keeps ${money(-delta)} less per order. About ${extra.toFixed(1)} extra orders per month would match charging shipping.`;
+}
+
+/**
+ * The margin a seller is trying to hold, as a target `calculateOrder` will
+ * accept. Returns null when there is nothing to hold: a SKU already losing
+ * money has no margin worth restoring (the break-even price is the honest
+ * answer there instead), and a 100% margin is not a target the validator
+ * takes — nor one any real order produces, since it would mean zero cost.
+ */
+function holdableMargin(margin) {
+  if (margin === null || margin <= 0 || margin >= 100) return null;
+  return margin;
+}
+
+/**
+ * What a fee-schedule change does to one SKU, and what it would take to hold
+ * the line.
+ *
+ * `compareFeeSchedules` answers "how much worse". That is only half of a
+ * decision: a seller reading it still has to work out what to *do*. The two
+ * levers are the list price and the unit cost, so this adds both — the price
+ * under the new schedule that restores today's margin, and the most the unit
+ * can cost before the SKU stops clearing at all.
+ *
+ * The organic and affiliate splits are separate because a facilitation rate
+ * only lands on affiliate-sourced orders. A schedule that adds one does not
+ * cost every order the same amount, and a seller whose volume is mostly
+ * organic can be reading a number that is not theirs.
+ */
+export function feeChangeImpact(input, fromId = "us_standard", toId = "oct_2026") {
+  if (!FEE_SCHEDULE_PRESETS[fromId]) throw new Error(`Unknown fee schedule: ${fromId}`);
+  if (!FEE_SCHEDULE_PRESETS[toId]) throw new Error(`Unknown fee schedule: ${toId}`);
+
+  const itemPrice = number(input.itemPrice, "Item price");
+  const beforeInput = applyFeePreset(input, fromId);
+  const afterInput = applyFeePreset(input, toId);
+
+  const before = calculateOrder(beforeInput);
+  const after = calculateOrder(afterInput);
+
+  const organic = (base) => calculateOrder({ ...base, affiliateRate: 0, forceAffiliate: false });
+  const affiliate = (base) => calculateOrder({ ...base, forceAffiliate: true });
+
+  const organicBefore = organic(beforeInput);
+  const organicAfter = organic(afterInput);
+  const affiliateBefore = affiliate(beforeInput);
+  const affiliateAfter = affiliate(afterInput);
+
+  const hold = holdableMargin(before.expectedMargin);
+  const priceToHoldMargin =
+    hold === null ? null : priceForTargetMargin({ ...afterInput, targetMargin: hold });
+
+  return {
+    from: FEE_SCHEDULE_PRESETS[fromId],
+    to: FEE_SCHEDULE_PRESETS[toId],
+    itemPrice,
+    before,
+    after,
+    // Positive means the change costs the seller, matching `compareFeeSchedules`.
+    extraCostPerOrder: before.expectedProfit - after.expectedProfit,
+    extraCostPerMonth: before.monthlyProfit - after.monthlyProfit,
+    organic: {
+      before: organicBefore,
+      after: organicAfter,
+      extraCostPerOrder: organicBefore.expectedProfit - organicAfter.expectedProfit,
+    },
+    affiliate: {
+      before: affiliateBefore,
+      after: affiliateAfter,
+      extraCostPerOrder: affiliateBefore.expectedProfit - affiliateAfter.expectedProfit,
+    },
+    marginBefore: before.expectedMargin,
+    marginAfter: after.expectedMargin,
+    heldMargin: hold,
+    priceToHoldMargin,
+    priceRise: priceToHoldMargin === null ? null : priceToHoldMargin - itemPrice,
+    breakEvenPriceAfter: breakEvenPrice(afterInput),
+    maxBuyCostBefore: maxBuyCost(beforeInput),
+    maxBuyCostAfter: maxBuyCost(afterInput),
+    stillClears: after.expectedProfit >= 0,
+    // Whether the SKU was already under water before the change. Without this
+    // the note blames the new schedule for a loss the old one was already
+    // making, which is the one thing a seller must not be told wrongly here.
+    clearedBefore: before.expectedProfit >= 0,
+  };
+}
+
+/** One sentence for the top of the fee-change page. */
+export function feeChangeNote(impact) {
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const cost = impact.extraCostPerOrder;
+
+  if (cost <= 1e-9) {
+    // A seller whose SKU is unaffected — or better off — should be told that
+    // plainly rather than being sold a price rise they do not need.
+    return `On these numbers the ${impact.to.label} schedule costs nothing extra on this SKU — there is nothing here to price against.`;
+  }
+
+  const head = `${impact.to.label} costs ${money(cost)} more per order on this SKU`;
+  const monthly =
+    impact.extraCostPerMonth > 1e-9
+      ? `, about ${money(impact.extraCostPerMonth)} a month at your current volume`
+      : "";
+
+  if (!impact.stillClears && !impact.clearedBefore) {
+    // Already losing money. Say so, rather than pinning it on the change.
+    return `${head}${monthly} — but this SKU already loses money at today's rates. It needs ${money(impact.breakEvenPriceAfter)} to clear under the new ones.`;
+  }
+  if (!impact.stillClears) {
+    return `${head}${monthly} — enough to tip this SKU from clearing to a loss. Break-even moves to ${money(impact.breakEvenPriceAfter)}.`;
+  }
+  if (impact.priceToHoldMargin === null) {
+    return `${head}${monthly}. There is no positive margin to hold here — it needs ${money(impact.breakEvenPriceAfter)} just to clear.`;
+  }
+  return `${head}${monthly}. Listing at ${money(impact.priceToHoldMargin)} instead of ${money(impact.itemPrice)} holds your ${impact.heldMargin.toFixed(1)}% margin.`;
+}
+
 export function maxBuyCost(input) {
   const probe = { ...input, cogs: 0 };
   const atZero = calculateOrder(probe);
-  if (atZero.expectedProfit < 0) return 0;
+  // When the SKU loses money even on free goods, no purchase cost clears it.
+  // Returning 0 here said "pay at most $0.00 and you break even", which is
+  // false — at $0.00 it is still under water — and is indistinguishable from
+  // the legitimate answer for a SKU that breaks even exactly at zero COGS.
+  // The fee-change page presents this as "the number to take to a supplier",
+  // so a 0 sent a seller to negotiate a price that was never going to work
+  // when the real answer is that the listing price has to move. `null` is
+  // what breakEvenPrice and priceForTargetMargin already return when no
+  // input reaches the target.
+  if (atZero.expectedProfit < 0) return null;
   let lo = 0;
   let hi = Math.max(1, Number(input.itemPrice) || 1);
   let found = false;
@@ -342,4 +577,68 @@ export function maxBuyCost(input) {
     else hi = mid;
   }
   return (lo + hi) / 2;
+}
+
+/**
+ * Selling `bundleQuantity` units in one discounted order against selling
+ * that many units as separate full-price orders.
+ *
+ * The two are not the same order scaled by a factor: a bundle pays the
+ * fixed per-order costs (payment processing's flat fee, one shot at a
+ * return) once, while `bundleQuantity` separate orders pay each of those
+ * once per order. `calculateOrder`'s `quantity` already models "one order
+ * of N units" correctly (`feeBase`/`referralFee`/`productCost` scale with
+ * it, `paymentFixed` does not), so the honest separate-orders total is
+ * `bundleQuantity` independent single-unit orders, not
+ * `calculateOrder({ quantity: bundleQuantity })` at full price.
+ */
+export function compareBundleDiscount(input = {}) {
+  const itemPrice = number(input.itemPrice, "Item price");
+  const bundleQuantity = optionalNumber(input.bundleQuantity, "Bundle quantity", 2, {
+    min: 2,
+  });
+  const bundleDiscountPct = optionalNumber(input.bundleDiscountPct, "Bundle discount", 10);
+  if (bundleDiscountPct >= 100) throw new Error("Bundle discount must be less than 100%");
+
+  const single = calculateOrder({ ...input, quantity: 1 });
+  const separateTotal = single.expectedProfit * bundleQuantity;
+
+  const bundlePrice = itemPrice * (1 - bundleDiscountPct / 100);
+  const bundle = calculateOrder({ ...input, quantity: bundleQuantity, itemPrice: bundlePrice });
+
+  const breakEvenBundlePrice = searchPrice(
+    { ...input, quantity: bundleQuantity },
+    (result) => result.expectedProfit >= separateTotal,
+  );
+  const breakEvenDiscountPct =
+    breakEvenBundlePrice === null ? null : (1 - breakEvenBundlePrice / itemPrice) * 100;
+
+  return {
+    bundleQuantity,
+    bundleDiscountPct,
+    bundlePrice,
+    single,
+    separateTotal,
+    bundle,
+    bundleGain: bundle.expectedProfit - separateTotal,
+    winner: bundle.expectedProfit >= separateTotal ? "bundle" : "separate",
+    breakEvenBundlePrice,
+    breakEvenDiscountPct,
+  };
+}
+
+export function bundleDiscountNote(comparison) {
+  const money = (value) => {
+    const sign = value < 0 ? "−" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const { bundleQuantity, bundleDiscountPct, bundleGain, winner, breakEvenDiscountPct } =
+    comparison;
+  if (winner === "bundle") {
+    return `A ${bundleQuantity}-pack at ${bundleDiscountPct}% off keeps ${money(bundleGain)} more than ${bundleQuantity} separate full-price orders, mostly by paying flat per-order costs once instead of ${bundleQuantity} times.`;
+  }
+  if (breakEvenDiscountPct === null) {
+    return `A ${bundleQuantity}-pack at ${bundleDiscountPct}% off keeps ${money(-bundleGain)} less than ${bundleQuantity} separate full-price orders, and no discount shallow enough recovers that — the separate orders' saved per-order fee is not worth the price cut here.`;
+  }
+  return `A ${bundleQuantity}-pack at ${bundleDiscountPct}% off keeps ${money(-bundleGain)} less than ${bundleQuantity} separate full-price orders. Dropping the discount to about ${breakEvenDiscountPct.toFixed(1)}% would match them.`;
 }

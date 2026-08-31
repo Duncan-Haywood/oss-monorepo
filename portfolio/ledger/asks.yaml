@@ -35,7 +35,16 @@
 # Schema (checked by `decision_queue.py --check` in CI):
 #   id           short slug, unique
 #   asks         list of #139 ask numbers this decision covers (may be empty)
-#   prs          list of open pull request numbers this decision covers
+#   prs          list of pull request numbers this decision relates to --
+#                provenance, not liveness. Every one named here was closed by
+#                2026-08-27 while the schema still said "open" and the summary
+#                line still counted them that way, which made the queue read
+#                seven items larger than it was. A decision does not stop
+#                being the owner's because its PR closed: `funding-sponsors-
+#                live` was merged and then reverted, and is still undecided.
+#                So when a PR here closes, re-read the `action` and say what
+#                the owner does *now* -- never leave it reading "merge or
+#                decline #N", which sends them to a closed page.
 #   gates        revenue | distribution | deployment | measurement
 #   exposure     none | credential | legal-person
 #   opened       "YYYY-MM-DD" the ask first appeared on #139
@@ -51,6 +60,65 @@
 
 decisions:
 
+- id: actions-runners-unavailable
+  asks: []
+  prs: [1842, 2021, 2022]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-26"
+  action: >-
+    Two independent unblocks now exist; either clears this row. (a) Check
+    Settings → Billing → Spending limit for Actions (and that the payment
+    method is current) — the metered GitHub-hosted allowance this repo has
+    used since 2026-08-26. (b) Cheaper and does not touch billing: run the
+    self-hosted-runner path #2021/#2022 already shipped on hardware you
+    already pay for — seal `actions-runner-secrets` (a fine-grained PAT,
+    Administration: Read and write) per
+    `gitops/ci/secrets/actions-runner-token.template.yaml`, then set repo
+    variable `CI_RUNNER=self-hosted`. Typed out as owner-checklist item 9
+    in `infra/OWNER_CHECKLIST.md`; details in `gitops/ci/README.md`. Since
+    roughly 22:10–23:25 UTC on 2026-08-26 every workflow using the default
+    `ubuntu-latest` label dies in 3–6 seconds with `runner_id: 0`, an empty
+    check-run output and a 404 on log download — confirmed still true as of
+    2026-08-29T21:51Z (`Portfolio validate` on `main`, job 99165691846, 4s,
+    `ubuntu-latest`). No agent can grant either unblock; both are
+    account-level actions (billing access or a sealed secret).
+  unlocks:
+    - "**Verification for the whole fleet.** `Portfolio validate`, `Conflict markers`, `duplicate-symbols-ci`, `agent-permission-harness CI` and the Pages build are the guards that stop a stale branch reverting newer work or re-declaring an existing export. All of them are dark, so every merge is landing on local verification alone."
+    - "The Pages build that `deploy-settings` would publish. That flip cannot produce a site while no runner will build one, so this ask now gates that one in practice."
+  blocked_by: []
+  note: >-
+    Recorded as a queue item on 2026-08-27, having been reported only on
+    #1842 and in the 2026-08 ledger until then. It belongs here because it
+    is owner-only and because it silently weakens every other row: a granted
+    ask still cannot ship if nothing can build.
+
+
+    Updated 2026-08-29: #2021/#2022 shipped the self-hosted-runner
+    alternative (all 242 `runs-on` lines across 217 workflows now read
+    `${{ vars.CI_RUNNER || 'ubuntu-latest' }}`, gated behind one unset repo
+    variable) — see the 2026-08 ledger entry for #2023. This row previously
+    named only the billing path and read as though nothing else could be
+    done; it can now be closed by whichever unblock the owner prefers
+    without waiting on the other.
+
+
+    Why it reads as normal and is not. `AGENTS.md` already warns that bot
+    pull requests opened with `GITHUB_TOKEN` show *zero* checks, so a session
+    is trained to treat a blank check list as expected and verify locally.
+    This outage looks identical at a glance and is not the same thing: these
+    runs exist, were scheduled, and failed before their first step. A run
+    that dies with no runner is not a red test and not an absent check —
+    it is no signal at all.
+
+
+    Cost while it stands, measured 2026-08-27T02:41Z: 4.5 hours, 72 commits
+    merged to `main` with no workflow having run on any of them. That number
+    only grows, and none of it is recoverable after the fact — the guards
+    cannot be replayed against history. Until it clears, run the workflows'
+    own commands locally before merging and say in the pull request exactly
+    what was run, which is what the merges in this window have been doing.
+
 - id: routine-trigger-cadence
   asks: []
   prs: [788]
@@ -58,10 +126,15 @@ decisions:
   exposure: none
   opened: "2026-08-24"
   action: >-
-    Merge or decline #788, and if merging, first create the
-    `CLAUDETRIGGERAPIKEY` repository secret it depends on (Settings ->
-    Secrets and variables -> Actions), since the PR body says the job fails
-    loudly on its first step without it.
+    Decide whether the 4-minute routine cadence runs, now that the merge half
+    is already done: #788 landed on 2026-08-24 and
+    `.github/workflows/claude-routine-trigger.yml` is on `main` today. Yes
+    means creating the `CLAUDETRIGGERAPIKEY` repository secret (Settings ->
+    Secrets and variables -> Actions) and accepting the spend below; no means
+    deleting the workflow file, which no session may do on its own because
+    the owner requested it. Until one of those, the schedule fires and every
+    run fails on its first step for want of the secret -- the safe state, but
+    a noisy one.
   unlocks:
     - >-
       A 4-minute cadence for the "continue work via api" scheduled routine,
@@ -78,12 +151,11 @@ decisions:
     change. `permissions: {}`, no third-party actions, token passed via
     `env:` not shell-spliced, `concurrency` with `cancel-in-progress` so
     deferred runs can't stack. `test` and the `agent-permission-harness`
-    suite pass; `validate` currently fails --
-    `platform/ci/publish_surface.py --check` flags the new workflow file as
-    not yet reflected in the publish-surface snapshot (classified `none`,
-    which looks right since the job only POSTs to `api.anthropic.com` and
-    never publishes) -- a `--write` re-run is needed before this is
-    mergeable regardless of the spend decision.
+    suite pass. The `validate` failure this row used to name -- the new
+    workflow missing from the publish-surface snapshot -- was resolved by
+    #1842's `--write` re-run; `publish_surface.py --check` reports 216
+    workflows, 0 live as of 2026-08-29, and the classification stands at
+    `none` since the job only POSTs to `api.anthropic.com`.
 
 - id: payout-rail
   asks: [2]
@@ -170,7 +242,8 @@ decisions:
     `portfolio/hosting/README.md`) — do not add Cloudflare or Vercel
     secrets as the way the portfolio goes live.
   unlocks:
-    - "**33 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes."
+    - "**161 finished, tested, free tools at once** -- every static venture surface in the repo, assembled into one Pages site by `platform/pages/build.mjs` and published by `.github/workflows/portfolio-pages.yml`. This is what the flip now publishes. (Was recorded as 33 until 2026-08-27; the portfolio grew ~5x since and the figure had not kept up, understating the payoff of this one flip.)"
+    - "Verified publishable on 2026-08-27, not merely assumed: `node platform/pages/build.mjs` produces 161 tools / 434 pages, and `node platform/pages/check.mjs dist` returns \"looks publishable: 161 products, 437 pages, no dead links\" (exit 0). Every inline script on every page parses, and all 446 pages pass the integrity sweep. There is no unfinished build work between this flip and a stranger using one of these tools."
     - Three ventures whose builds already pass but which deploy nothing.
     - "`retail-pilot-intel`'s docs deploy, which since #347 is green *and publishes nothing* -- the workflow skips the publish job rather than failing, so the record shows success for a site that does not exist. It no longer reads this variable: GitHub serves one Pages site per repo, so it moved to `RETAIL_PILOT_INTEL_PAGES` rather than racing the calculators for the origin."
   blocked_by: []
@@ -207,6 +280,72 @@ decisions:
     stop being true. Granting this ask is the thing that flips the Pages
     workflow from `gated` to `live`, and that flip is what will turn the
     check red until the snapshot is rewritten to record it.
+
+- id: agent-runner-subscription-login
+  asks: []
+  prs: [2000]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    **Read this first: you probably do not need this row.** If what you
+    want is "Codex spends the plan quota on a Hetzner box", seal
+    `CODEX_AUTH_JSON` under `codex-governor-enable` instead — that route
+    runs on the cpx22 the cluster already owns and needs no new machine.
+    This row is the *separate* LAN / Tailscale single-box runner, and it
+    is only worth doing if you actually want a second, non-Hetzner
+    machine running agents. `ventures/ubuntu-agent-server/README.md` is
+    explicit that the Hetzner boxes belong to the k3s + Argo path and
+    that a host must not be driven by both ("Do not dual-drive the same
+    host with both"), so do **not** point `make provision` at cpx22 or
+    cpx52. Then, per that README ("Guardrails, in order of how hard they
+    are to bypass by accident") and `config/repos.yml`'s comments: (1)
+    provision that LAN/Tailscale box (`make provision`, after filling in
+    `inventory.ini`, which ships as `REPLACE_ME`); (2) on that box, run
+    `codex login` interactively, once, against a subscription account
+    (ChatGPT Plus/Pro/Team's *included* usage — ansible cannot do an
+    interactive OAuth login for you); (3) only after watching a few dry
+    runs behave correctly, flip `agent_runner_start_disabled: false` in
+    `group_vars/all.yml` and `dry_run: false` on the repo entries in
+    `config/repos.yml` you want live (`make provision` again to apply).
+  unlocks:
+    - >-
+      Unattended Codex dev work on this repo's own issues, billed against
+      a subscription's included usage rather than metered per-token API
+      spend — the literal "use the Codex CLI to spend the built-in quota"
+      shape a 2026-08-29 scheduled session was asked for. The self-directed
+      prompt already points it at this repo's own conventions
+      (`CLAUDE.md`, `portfolio/DIRECTION.md`), widened for that ask in
+      #1999. It only proposes PRs; merging stays a human or a separate
+      supervised session, same as every other agent in this repo.
+  blocked_by: []
+  note: >-
+    Not a duplicate of `codex-governor-enable`, but the line between them
+    moved and this note used to draw it in the wrong place. It said that
+    row was "metered by an OpenAI project API key" and *this* row was the
+    subscription one, so the two were told apart by **which budget they
+    spend**. That stopped being true on 2026-08-29, when
+    `gitops/agents/workers/worker.sh` learned to seed `auth.json` from a
+    sealed `CODEX_AUTH_JSON` and prefer it over `OPENAI_API_KEY`: the
+    Kubernetes path now spends the plan quota too, and prefers it. What
+    still separates the two rows is **which machine**, not which budget —
+    `codex-governor-enable` is the k3s CronJob on the Hetzner cpx22,
+    this row is `ventures/ubuntu-agent-server`'s `agent_runner` role on a
+    separate LAN/Tailscale box.
+    Reading it the old way is expensive in both directions: it sends an
+    owner who wants the plan quota on Hetzner to ansible-provision a
+    machine k3s already owns (which that playbook's own README forbids),
+    and it makes the k3s route look like it costs money when sealing
+    `CODEX_AUTH_JSON` there costs nothing. Both existed on `main` before
+    this row; neither had a queue entry. `dry_run: true` and `agent_runner_start_disabled: true`
+    remain untouched by #1999/#2000 on purpose — widening the prompt is
+    not the same as flipping the switch, and only the owner flips it.
+    Which ChatGPT/Codex account to log in with (a dedicated one vs. the
+    owner's personal plan) is the owner's call to make explicitly, not an
+    agent's to infer from "use the built-in quota" — a personal Plus/Pro
+    login here competes with the owner's own interactive use of that
+    account and has no hard spend cap of its own; a dedicated plan avoids
+    that trade-off.
 
 - id: publication-identity
   asks: [0, 1, 5]
@@ -381,7 +520,13 @@ decisions:
   exposure: legal-person
   opened: "2026-08-24"
   action: >-
-    Merge or decline #839 (`.github/FUNDING.yml`, `github: [Duncan-Haywood]`).
+    Say yes or no to a live "Sponsor" button on this repo pointing at the
+    owner's own GitHub Sponsors profile. #839 is not the thing to act on --
+    it was merged on 2026-08-24 and reverted the same day by #862, so
+    `.github/FUNDING.yml` is absent from `main` today and the safe state is
+    already in place. Yes means re-landing that one file (15 lines, `github:
+    [Duncan-Haywood]`); no means this row closes and the portfolio carries no
+    funding surface.
   unlocks:
     - >-
       A live "Sponsor" button on the repo pointed at the owner's real GitHub
@@ -404,9 +549,12 @@ decisions:
     <cursoragent@cursor.com>") then edited that same open PR to fill in
     `github: [Duncan-Haywood]`, unilaterally turning a no-op placeholder into
     a live funding config, with no queue entry recording that an agent -- not
-    the PR's opener -- made that call. Left unmerged pending the owner's
-    decision on whether that Sponsors profile should be surfaced here at
-    all.
+    the PR's opener -- made that call. It then *was* merged, by the owner
+    treating it as a docs-only edit, and reverted hours later by #862 once a
+    concurrent session flagged it -- so the state pending the owner's decision
+    is `main` without the file, not a PR waiting to merge. This row said
+    "left unmerged" until 2026-08-29, which sent anyone acting on it to a
+    closed PR.
 
 - id: agent-cross-review-automerge
   asks: []
@@ -449,3 +597,182 @@ decisions:
     question, so the close's *outcome* (no unattended auto-merge enabled)
     was fine even though its stated rationale leaned on the same
     not-independently-verified "product-first direction" premise.
+
+- id: codex-governor-enable
+  asks: []
+  prs: [1996]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    Three linked owner steps, per `infra/OWNER_CHECKLIST.md`. (1) Choose a
+    credential. **Either** `CODEX_AUTH_JSON` -- the whole contents of
+    `~/.codex/auth.json` after one `codex login` -- which draws on a
+    ChatGPT plan's *included* usage, so a tick costs nothing extra; this is
+    the "use the built-in quota" route and it needs no OpenAI org, no API
+    key and no billing change. **Or** `OPENAI_API_KEY`, a project key
+    (never an Admin key) on a separate OpenAI org whose dashboard monthly
+    spend limit is set to "Enforce a hard limit"; this bills per token but
+    has a euro ceiling, which a plan does not -- a plan is capped only by
+    its 5-hour/weekly windows, shared with whoever is signed into that
+    account, so use a seat that is not your day-to-day login. Sealing both
+    is allowed and the subscription wins, because it is the one that does
+    not bill; the worker logs which mode it used on every run.
+    (2) Seal the chosen credential, with a scoped `GH_TOKEN` (Contents
+    read/write, Pull requests write, Metadata read only; no
+    Administration/Secrets/Workflows/Actions/Environments/Pages), into the
+    `codex-secrets` Kubernetes Secret per
+    `gitops/agents/secrets/codex-token.template.yaml`. (3) Only after that
+    seal, flip `gitops/agents/governor/cronjob.yaml` `suspend: false` and
+    `gitops/agents/governor/policy.json` `"enabled": true`.
+  unlocks:
+    - >-
+      A working, already-built "Codex CLI does unattended dev work on the
+      Hetzner agent box" pipeline: a budget-governed CronJob
+      (`gitops/agents/governor/governor.py`) that starts at most one Codex
+      worker Job every 5 minutes inside a 5-hour utilization window and a
+      weekly budget fraction, backs off on 429s, and picks work from
+      `gitops/agents/queue/*.yaml`. All of the code, RBAC, and tests for
+      this already exist and are unused -- `policy.json` reads `"enabled":
+      false` and the CronJob reads `suspend: true` today, exactly as
+      `OWNER_CHECKLIST.md` left them pending this ask.
+  blocked_by: []
+  note: >-
+    Not a duplicate of `routine-trigger-cadence` (which is about Claude
+    Code's own scheduled routine and its Anthropic-side spend) or of
+    `agent-cross-review-automerge` (unattended auto-*merge*, closed). This
+    is the third, distinct "unattended automation that spends paid API
+    budget" surface CLAUDE.md gates to the owner, and it had no queue row
+    of its own before this entry.
+
+    IMPORTANT correction to how this is sometimes described verbally: a
+    2026-08-29 scheduled session was asked to "set up the codex cli to use
+    up the built-in quota for dev work" on the Hetzner VM. `infra/
+    OWNER_CHECKLIST.md` line 80 already says, in the owner's own words,
+    "Do **not** `codex login` with your main ChatGPT/Plus/Pro account. That
+    burns the personal 5-hour / weekly quota and has no euro hard stop." A
+    personal-plan login is exactly what a literal reading of "use up the
+    built-in quota" would do, and it is the one path this checklist singles
+    out as wrong: no spend cap, and it competes with interactive use of the
+    same account. The already-built governor instead uses a project API key
+    under a *separate* org with a hard dollar limit -- metered spend with a
+    ceiling, not a personal-plan quota. No session should implement the
+    personal-login shape; this row exists so the owner chooses the
+    already-designed one deliberately rather than by default.
+
+    Also checked and not duplicative: 0 open PRs and no unmerged branch
+    with meaningful, non-superseded work were found in a 2026-08-29 queue-
+    drain pass (see the 2026-08.yaml ledger entry for that session), so
+    there was no existing PR to review, fix, or merge toward this.
+
+    UPDATE 2026-08-29 (later session, PR #2012). The paragraph above framed
+    this as "metered key, correct" vs "personal login, wrong". That framing
+    held partly because the subscription route did not work: the worker
+    checked that `CODEX_ACCESS_TOKEN` was set and never handed it to the
+    CLI, which reads a whole auth file from `$CODEX_HOME`. A
+    subscription-only Secret would have failed at the first API call. That
+    is fixed -- `CODEX_AUTH_JSON` is now a real, tested option, persisted
+    on a PVC because Codex rotates the credential on use.
+
+    What did NOT change, and is still this row's decision: which credential
+    to seal, and on which account. The checklist's objection to a *personal*
+    plan login stands verbatim in `infra/OWNER_CHECKLIST.md` -- no euro hard
+    stop, and the 5-hour/weekly windows are shared with the owner's own
+    interactive use. The metered-key path is untouched and still starts on a
+    Secret carrying only `OPENAI_API_KEY`. Both are documented with their
+    trade-offs in `gitops/agents/secrets/README.md`; the owner picks by
+    choosing what to seal, and the governor stays `suspend: true` /
+    `enabled: false` either way. No agent flipped anything.
+
+- id: portfolio-site-hetzner-deploy
+  asks: []
+  prs: [1999]
+  gates: deployment
+  exposure: credential
+  opened: "2026-08-29"
+  action: >-
+    ONE owner step remains, typed out with a verification command under
+    "Publish `tools.marisstella.dev`" in `infra/OWNER_CHECKLIST.md` (the
+    rationale is in `gitops/README.md`): mint a fine-grained GitHub token
+    scoped to this one repository with Contents:Read-only and nothing
+    else, then seal it into `prod/kustomization.yaml` per
+    `gitops/prod/secrets/portfolio-repo-token.template.yaml` (the repo is
+    private, so the in-cluster clone cannot be anonymous). Both of the
+    other steps this row used to list are gone and need no action. DNS:
+    `tools.marisstella.dev` already resolves to `89.167.29.39` (verified
+    2026-08-29 with `getent hosts tools.marisstella.dev`) --
+    `marisstella.dev`'s existing wildcard `A/*` record already covers the
+    subdomain. ACME contact: dropped 2026-08-30. This row used to ask for
+    a real mailbox to replace `replace-me@duncanhaywood.dev`, on the
+    stated grounds that Let's Encrypt would refuse to register the
+    placeholder. An ACME account contact is optional (RFC 8555 makes
+    `contact` optional and cert-manager's `email` follows), so
+    `platform/cert-manager/issuer.yaml` now omits `email` entirely and
+    registers normally -- no address to choose, nothing to wait on.
+    Adding a real one later, purely to receive Let's Encrypt's expiry
+    warnings, is a one-line change per issuer that cert-manager applies by
+    updating the existing account registration; it is optional and it does
+    not block anything. That single remaining step is all that stands
+    between the portfolio and a live site; after it the site is
+    reachable on a Let's Encrypt *staging* certificate, which
+    browsers warn about. The last step -- flipping the Ingress annotation
+    from `letsencrypt-staging` to `letsencrypt-prod` and updating the
+    test that pins it -- is an ordinary code change, not an owner action:
+    once you confirm the staging certificate issued, ask a session to
+    open that PR rather than editing two files by hand.
+  unlocks:
+    - >-
+      A public URL for 164 finished, tested, free tools at once --
+      `gitops/prod/portfolio-site.yaml` already builds `platform/pages/
+      build.mjs`'s output inside the k3s cluster and serves it through
+      ingress-nginx and cert-manager that are already running on the paid-
+      for cpx52 box. This path depends on neither GitHub Actions (dark
+      since 2026-08-26, see `actions-runners-unavailable`) nor GitHub
+      Pages (not enabled, and would not serve a private repo's Pages site
+      publicly even if it were -- see `deploy-settings`'s note). Of the
+      two live deploy asks, this is the cheaper one to grant: no billing
+      change, no new account -- DNS already resolves, so it is down to a
+      scoped read-only token and a real email address.
+  blocked_by: []
+  note: >-
+    Not a duplicate of `deploy-settings` (the GitHub Pages flip, opened
+    2026-08-19). That ask is now known to be insufficient on its own --
+    `portfolio/hosting/README.md`'s 2026-08-29 amendment records three
+    stacked blockers on the Pages route (not enabled, repo is private so
+    Pages would not go public on the free tier, and no Actions runner to
+    build the artifact since 2026-08-26). This row is the separate Hetzner
+    path merged in #1999, which shares none of those three blockers and
+    was not represented in this file before. Until any of these four steps
+    land, Argo syncs the manifests and the pods crash-loop on the missing
+    secret by design (fail closed), and `tools.marisstella.dev` serves
+    whatever placeholder currently answers for the cpx52.
+
+
+    This row is the one entry for the Hetzner site deploy. Do not add a
+    second. #2003 opened it; hours later #2006 added
+    `hetzner-portfolio-site-live` -- the same four owner steps, the same
+    #1999, written by a session that read `gitops/README.md` and did not
+    read this file. Two rows claiming PR 1999 trips
+    `decision_queue.py`'s own duplicate guard, so from that merge until
+    2026-08-29 the tool exited on `PR 1999 claimed by both ...` and
+    printed no queue at all: the owner could not read the deployment asks
+    that gate every live URL in the portfolio. The duplicate was removed
+    and its only unique claim is folded in above (that this path is a
+    second, independent route to the same outcome `deploy-settings`
+    targets, sharing none of its blockers). Before adding any deployment
+    ask, run `python3 portfolio/ledger/decision_queue.py` and read what is
+    already here.
+
+
+    Verified 2026-08-29 by a scheduled session, ahead of the owner steps:
+    the in-cluster build the pod runs was rehearsed locally with the
+    manifest's exact commands and `PAGES_BASE_URL=https://
+    tools.marisstella.dev/`. `build.mjs --out=` then `check.mjs --dist=`
+    produced 164 products / 446 pages / no dead links, with zero
+    `duncan-haywood.github.io` URLs surviving in the output, so the
+    canonical, `og:url` and sitemap entries stamp the Hetzner host and
+    not the dark Pages origin. `check.mjs` also exits 1 on both a missing
+    and an empty site directory, which is what makes the build container
+    fail the pod rather than serve an empty site. Nothing in the build
+    half of this deploy is waiting on anything; all four remaining steps
+    are the owner's.

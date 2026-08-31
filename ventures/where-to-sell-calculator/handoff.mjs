@@ -62,6 +62,54 @@ export const HANDOFFS = [
     },
     combine: { materialCost: ['itemCost', 'packagingCost'] },
   },
+  {
+    channel: 'amazon',
+    slug: 'amazon-fba-calculator',
+    label: 'Amazon FBA vs FBM calculator',
+    // What it adds: the FBA-versus-FBM split this page cannot make (it prices
+    // Amazon as one channel), plus size-tier fulfilment, storage by month,
+    // inbound placement, returns, Low-Price FBA, coupons, Subscribe & Save,
+    // Vine, and Seller Fulfilled Prime.
+    //
+    // `shippingCharged` has no home here and is deliberately dropped rather
+    // than mapped: Amazon's referral fee is charged on the order total, but
+    // this calculator takes the sale price and derives fulfilment from the
+    // size tier instead of from what the buyer was charged for postage.
+    // Folding postage into `salePrice` would inflate the referral fee and
+    // print a worse number than the seller will actually see.
+    fields: {
+      price: 'salePrice',
+      itemCost: 'costOfGoods',
+      shippingCost: 'fbmShippingCost',
+      packagingCost: 'packagingCost',
+      otherCost: 'otherCost',
+    },
+  },
+  {
+    channel: 'own-store',
+    slug: 'shopify-fee-calculator',
+    label: 'Shopify fee & profit calculator',
+    // What it adds: the question this page cannot ask, which is *which
+    // processor*. An own store has no marketplace commission, so the whole
+    // decision is Shopify Payments against PayPal or Stripe — and Shopify
+    // charges an extra third-party transaction fee on top of the outside
+    // processor's own rate, which generic fee pages leave out. Plus promos,
+    // Shop Pay Installments, shipping labels, POS, refunds and chargebacks.
+    //
+    // `monthlyOrders` travels because the Shopify plan is a monthly fee, and
+    // amortising it is the whole reason an own store can win on fees and lose
+    // on cash. Arriving without it would price the plan against this page's
+    // default order count rather than the seller's.
+    fields: {
+      price: 'price',
+      shippingCharged: 'shippingCharged',
+      shippingCost: 'shippingCost',
+      itemCost: 'costOfGoods',
+      packagingCost: 'packagingCost',
+      otherCost: 'otherCost',
+      monthlyOrders: 'monthlyOrders',
+    },
+  },
 ];
 
 const bySlugSafe = (value) => /^[a-z0-9-]+$/.test(value);

@@ -148,11 +148,12 @@ four candidates carrying a probe have moved and the table is re-ordered.
 | 14 | [Shopify app-permission drift record](candidates/shopify-permission-drift.md) | 6.75 | 4 | Probe; customer-authorized app inventory, with platform observability and App Store demand unmeasured |
 | 15 | [Tender radar](candidates/tender-radar.md) | 6.625 | 4 | Park; needs a channel partner |
 | 16 | [DNS configuration evidence monitor](candidates/dns-configuration-evidence.md) | 6.625 | 4 | Probe; needs an MSP or domain-operations channel and a history-value test |
-| 17 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
-| 18 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
-| 19 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
-| 20 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
-| 21 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
+| 17 | [Grant reporting tracker](candidates/grant-reporting-tracker.md) | 6.625 | 1 | Graduated 2026-08-24 as `ventures/grant-reporting-tracker`; browser-local award reporting queue and restricted-balance arithmetic for small nonprofits, with repeat usage and organic search demand still unmeasured |
+| 18 | [Repository branch hygiene and recovery](candidates/repository-branch-hygiene.md) | 6.5 | 4 | Graduated 2026-08-24 as `ventures/repository-branch-hygiene`; read-only pilot and distribution remain unmeasured |
+| 19 | [Backup verification evidence](candidates/backup-verification-evidence.md) | 6.5 | 4 | Probe; local exit-code/artifact classifier built, needs a real recurring job and a sysadmin/MSP channel |
+| 20 | [Software evidence provenance ledger](candidates/software-evidence-provenance.md) | 6.375 | 3 | Reject; existing provenance standards leave no defensible wedge and distribution is unresolved |
+| 21 | [E-invoice preflight](candidates/einvoice-preflight.md) | 6.125 | 4 | Reject broad version; narrow version conditional |
+| 22 | [Consent change record](candidates/consent-change-record.md) | 6.125 | 4 | Probe; needs an agency or privacy-implementation channel |
 
 **"No measured dimension has ever risen" is no longer true, and the way it
 stopped being true is the useful part.** This file said it across four

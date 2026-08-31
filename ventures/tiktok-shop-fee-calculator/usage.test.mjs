@@ -30,9 +30,11 @@ test("supports a named aggregate event without recording inputs", () => {
   recordUsage(storage, false, "schedule_compared");
   recordUsage(storage, false, "schedule_compared");
   recordUsage(storage, false, "affiliate_compared");
+  recordUsage(storage, false, "free_shipping_compared");
   const event = JSON.parse(storage.values.get("tiktok-shop-fee-usage"));
   assert.equal(event.schedule_compared, 2);
   assert.equal(event.affiliate_compared, 1);
+  assert.equal(event.free_shipping_compared, 1);
 });
 
 test("stores nothing beyond event counters and the day", () => {

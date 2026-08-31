@@ -329,7 +329,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Sump pump install') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const pump = PUMP_PRESETS.find((item) => item.id === result.pump)?.label ?? result.pump;
   const pit = PIT_PRESETS.find((item) => item.id === result.pit)?.label ?? result.pit;
   const backup = BACKUP_PRESETS.find((item) => item.id === result.backup)?.label ?? result.backup;

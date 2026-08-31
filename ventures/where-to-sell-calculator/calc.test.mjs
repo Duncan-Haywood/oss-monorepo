@@ -46,6 +46,18 @@ test("a monthly plan is spread over the orders it carries", () => {
   assert.ok(thin.profit < result.profit, "fewer orders must carry more of the plan");
 });
 
+test("subscription channels show orders needed to recover their monthly plan", () => {
+  const result = calculateChannel(preset("own-store"), shared);
+  assert.equal(result.ordersToCoverPlan, 2);
+
+  const impossible = calculateChannel(
+    { ...preset("own-store"), commissionRate: 99, paymentRate: 0 },
+    shared,
+  );
+  assert.equal(impossible.ordersToCoverPlan, null);
+  assert.equal(calculateChannel(preset("ebay"), shared).ordersToCoverPlan, 0);
+});
+
 test("subscription can be excluded, and is zero for channels without one", () => {
   const excluded = calculateChannel(preset("own-store"), { ...shared, includeSubscription: false });
   close(excluded.fees.subscription, 0, "excluded subscription");
@@ -117,6 +129,22 @@ test("price to match the best after returns matches expected keep", () => {
   const loser = comparison.results.find((result) => !result.isBest);
   const repriced = calculateChannel({ ...preset(loser.id), price: loser.priceToMatchBest }, shared);
   close(repriced.expectedProfit, comparison.best.expectedProfit, "repriced expected profit matches the winner");
+});
+
+test("price for target profit solves the same fee equation on every channel", () => {
+  const comparison = compareChannels([preset("ebay"), preset("etsy")], { ...shared, targetProfit: 20 });
+  for (const result of comparison.results) {
+    assert.ok(result.priceForTargetProfit > 0, `${result.label} should need a positive price`);
+    const repriced = calculateChannel({ ...preset(result.id), price: result.priceForTargetProfit }, shared);
+    close(repriced.profit, 20, `${result.label} target profit`);
+  }
+});
+
+test("target profit is not solved when the seller has not entered one", () => {
+  const comparison = compareChannels([preset("ebay"), preset("etsy")], shared);
+  for (const result of comparison.results) {
+    assert.equal(result.priceForTargetProfit, null, "no target means no answer, not a guessed one");
+  }
 });
 
 test("a fee-free direct sale beats the marketplaces at the same price", () => {
@@ -248,6 +276,103 @@ test("an unsold-item cost still shows up when the price is zero", () => {
   close(result.fees.listing, 0.2, "listing fee is charged regardless");
   assert.ok(result.profit < 0, "a zero-price order cannot be profitable");
   assert.equal(result.margin, 0, "margin is defined as zero when there is no revenue");
+});
+
+test("shipped days-to-sell already vary by channel, so the two rankings need not match out of the box", () => {
+  // An earlier draft of this feature shipped every channel with the same
+  // placeholder days-to-sell, so the two rankings agreed until a seller
+  // edited something. The shelf-time work replaced that with illustrative
+  // per-channel paces (eBay 21, Etsy 45, Amazon 28, own-store 40, local 14),
+  // so the full order can already differ in the shipped defaults. Local is
+  // both cheapest and fastest here, so it still wins either way — the winner
+  // agreeing is not evidence the two rankings are the same list.
+  const byProfit = compareChannels(CHANNEL_PRESETS, shared);
+  const byDay = compareChannels(CHANNEL_PRESETS, { ...shared, rankBy: "profitPerDay" });
+  assert.equal(byDay.ranked[0], byProfit.ranked[0], "local wins on fees and on speed at these shipped defaults");
+  assert.notDeepEqual(byDay.ranked, byProfit.ranked, "the rest of the order still reflects each channel's own pace");
+  assert.equal(byProfit.speedChangesTheAnswer, false, "the winner does not change, so there is nothing to call out");
+});
+
+test("profit per day and cash turnover divide by the holding period", () => {
+  const result = calculateChannel({ ...preset("ebay"), daysToSell: 10 }, shared);
+  close(result.profitPerDay, result.profit / 10, "profit per day");
+  close(result.cashTurnsPerYear, 36.5, "cash turns per year");
+});
+
+test("no holding period is unknown, not instant", () => {
+  const result = calculateChannel({ ...preset("ebay"), daysToSell: 0 }, shared);
+  assert.equal(result.profitPerDay, null);
+  assert.equal(result.cashTurnsPerYear, null);
+});
+
+test("turnover is a count of loops, not an annualised percentage", () => {
+  // A three-day flip annualises to four figures; stating it as a rate would
+  // read as a promise the tool cannot make. The count says the same thing.
+  const result = calculateChannel({ ...preset("ebay"), daysToSell: 3 }, shared);
+  close(result.cashTurnsPerYear, 365 / 3, "cash turns per year");
+  assert.equal(result.annualisedReturn, undefined, "no annualised rate is published");
+});
+
+test("a faster channel can beat a more profitable one on what the cash earns", () => {
+  // eBay nets less per sale than a local sale but is given a two-day turnaround
+  // against the local sale's ninety, which is the case the column exists for.
+  const channels = CHANNEL_PRESETS.map((channel) => {
+    if (channel.id === "ebay") return { ...channel, daysToSell: 2 };
+    if (channel.id === "local") return { ...channel, daysToSell: 90 };
+    return { ...channel, enabled: false };
+  });
+  const byProfit = compareChannels(channels, shared);
+  assert.equal(byProfit.best.id, "local", "the local sale still nets more per sale");
+  assert.equal(byProfit.fastestReturn.id, "ebay", "but eBay earns more per day of waiting");
+  assert.equal(byProfit.speedChangesTheAnswer, true);
+
+  const byDay = compareChannels(channels, { ...shared, rankBy: "profitPerDay" });
+  assert.equal(byDay.ranked[0], "eBay");
+  assert.equal(byDay.rankBy, "profitPerDay");
+});
+
+test("a channel with no holding period sorts last on speed rather than winning on an unknown", () => {
+  const channels = CHANNEL_PRESETS.map((channel) => {
+    if (channel.id === "ebay") return { ...channel, daysToSell: 5 };
+    if (channel.id === "local") return { ...channel, daysToSell: 0 };
+    return { ...channel, enabled: false };
+  });
+  const byDay = compareChannels(channels, { ...shared, rankBy: "profitPerDay" });
+  assert.equal(byDay.ranked[0], "eBay");
+  assert.equal(byDay.ranked[byDay.ranked.length - 1], "Local / direct");
+});
+
+test("with no holding period anywhere there is no speed winner to report", () => {
+  const channels = CHANNEL_PRESETS.map((channel) => ({ ...channel, daysToSell: 0 }));
+  const comparison = compareChannels(channels, shared);
+  assert.equal(comparison.fastestReturn, null);
+  assert.equal(comparison.speedChangesTheAnswer, false);
+});
+
+test("a negative holding period is rejected with the field named", () => {
+  assert.throws(
+    () => calculateChannel({ ...preset("ebay"), daysToSell: -3 }, shared),
+    /days to sell/,
+  );
+});
+
+test("ranking by profit stays the default for an unrecognised or absent mode", () => {
+  assert.equal(compareChannels(CHANNEL_PRESETS, shared).rankBy, "profit");
+  assert.equal(compareChannels(CHANNEL_PRESETS, { ...shared, rankBy: "nonsense" }).rankBy, "profit");
+});
+
+test("no speed upset is claimed when the profit winner was never timed", () => {
+  // Regression: the callout compared the two winners' per-day figures, and the
+  // profit winner's was null whenever its holding period was left blank.
+  const channels = CHANNEL_PRESETS.map((channel) => {
+    if (channel.id === "local") return { ...channel, daysToSell: 0 };
+    if (channel.id === "ebay") return { ...channel, daysToSell: 3 };
+    return { ...channel, enabled: false };
+  });
+  const comparison = compareChannels(channels, shared);
+  assert.equal(comparison.best.id, "local", "the untimed channel still nets more per sale");
+  assert.equal(comparison.fastestReturn.id, "ebay");
+  assert.equal(comparison.speedChangesTheAnswer, false, "nothing to compare it against");
 });
 
 test("monthly keep is per-sale profit times the shared order volume", () => {

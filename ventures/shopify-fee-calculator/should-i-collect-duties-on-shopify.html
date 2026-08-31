@@ -68,6 +68,10 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .span2 { grid-column: 1 / -1; }
     .result { position: sticky; top: 15px; background: #16382b; color: #f4fbf6; border-color: #16382b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -83,7 +87,16 @@
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
 </head>
 <body>
   <header>
@@ -201,6 +214,14 @@
       Shopify Payments with PayPal.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I collect duties on Shopify?</h3>
+  <p>Collecting duties at checkout (DDP) adds the duty to the card swipe — Shopify Payments charges its percentage on that extra amount — and usually lowers conversion. Letting the buyer pay at the door (DAP) keeps checkout cheaper and raises door-refuses. On the calculator defaults ($48 item + $6 shipping, 15% duty, 2.9%+$0.30, $14 cost, $5 outbound, $8 return, 55% DAP take / 18% refuse, 42% DDP take / 6% refuse) DAP expects $12.59 per international-interested visitor and DDP expects $12.00. That is arithmetic on your inputs, not advice to turn Shopify Markets duties on or off.</p>
+  <h3>Does Shopify charge fees on duties I collect?</h3>
+  <p>Card fees sit on the checkout total. If you collect $8.10 of duty on a $54 ticket, Shopify Payments at 2.9% + $0.30 charges $2.10 instead of $1.87 — $0.23 extra on the duty. You then remit the $8.10. A delivered DDP order on the defaults keeps $31.51 versus $31.74 on DAP.</p>
+  <h3>When does DAP lose to DDP on Shopify?</h3>
+  <p>When enough DAP buyers refuse the package at the door. A refuse refunds the checkout, leaves the leftover $0.30 fixed fee, and eats outbound plus the return label. On the defaults DAP refuses have to reach about 20.2% before DDP matches, or DDP take has to reach about 44.1%. At a 25% DAP refuse rate DDP keeps more ($12.00 vs $10.69).</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, customs, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

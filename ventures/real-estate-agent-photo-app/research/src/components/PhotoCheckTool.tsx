@@ -9,6 +9,7 @@ import {
   UNIMPLEMENTED_RULES,
   buildReshootPlan,
   checkBatch,
+  createEvidenceReport,
   formatReshootPlan,
   isListingPhoto,
   type PhotoReport,
@@ -26,7 +27,7 @@ function markdownCell(value: string): string {
   return value.replaceAll("|", "\\|").replaceAll("\n", " ");
 }
 
-function buildReportMarkdown(run: RunSummary): string {
+export function reportMarkdown(run: RunSummary): string {
   const findingCount = run.reports.reduce((count, report) => count + report.findings.length, 0);
   const blockingCount = run.reports.reduce(
     (count, report) => count + report.findings.filter((finding) => finding.severity === "blocking").length,
@@ -57,6 +58,9 @@ function buildReportMarkdown(run: RunSummary): string {
     "| --- | --- | --- | --- |",
     ...rows,
     "",
+    ...(run.skipped.length > 0
+      ? ["## Skipped files", "", ...run.skipped.map((name) => `- ${markdownCell(name)}`), ""]
+      : []),
     "## Scope and limitations",
     "",
     `This record checks file headers and filenames only: format, byte size, long edge, aspect ratio, branding/watermark filename tokens, and staged-photo pairing. It does not check ${UNIMPLEMENTED_RULES.join(", ")}. Those require a human review or the specific MLS board's rules.`,
@@ -64,6 +68,36 @@ function buildReportMarkdown(run: RunSummary): string {
     "A clean findings table is not a warranty that a board or portal will accept these photos. Review and verify this record before relying on it.",
     "",
   ].join("\n");
+}
+
+/** Plain-text handoff for email or a photographer thread. Filenames and rule ids only. */
+export function formatHandoffSummary(run: RunSummary): string {
+  const blockers = run.reports.reduce(
+    (total, report) => total + report.findings.filter((finding) => finding.severity === "blocking").length,
+    0,
+  );
+  const status = blockers === 0 ? "No blocking findings" : `${blockers} blocking finding${blockers === 1 ? "" : "s"}`;
+  const lines = [
+    `Listing Lens photo preflight | ${status}`,
+    `Checked ${run.reports.length} photo${run.reports.length === 1 ? "" : "s"} against ${SPEC_ID}`,
+    `Checked at: ${new Date(run.checkedAt).toISOString()}`,
+    "",
+  ];
+  for (const report of run.reports) {
+    lines.push(
+      `${report.info.name}: ${
+        report.findings.length === 0
+          ? "no findings"
+          : report.findings.map((finding) => `${finding.rule} (${finding.severity})`).join(", ")
+      }`,
+    );
+  }
+  if (run.skipped.length > 0) lines.push("", `Skipped non-photo files: ${run.skipped.join(", ")}`);
+  lines.push(
+    "",
+    "Evidence only: review this report against the destination MLS board's current rules before relying on it.",
+  );
+  return lines.join("\n");
 }
 
 async function toFileList(files: File[]): Promise<Array<{ name: string; data: Uint8Array }>> {
@@ -164,13 +198,17 @@ function ReshootList({ reports }: { reports: PhotoReport[] }) {
 // The JSON sibling of the Markdown record below: same run, machine-readable,
 // for agents who file preflight evidence rather than read it.
 function downloadJsonReport(run: RunSummary): void {
+  const evidence = createEvidenceReport(run.reports, run.skipped, run.checkedAt);
   const payload = {
     product: "Listing Lens MLS Photo Preflight",
-    spec_id: SPEC_ID,
-    spec_date: SPEC_DATE,
-    checked_at: run.checkedAt,
+    report_type: evidence.reportType,
+    spec_id: evidence.specId,
+    spec_date: evidence.specDate,
+    checked_at: evidence.checkedAt,
+    checked_photos: evidence.checkedPhotos,
     scope: "File headers and filenames only; not an MLS acceptance determination.",
-    photos: run.reports.map((report) => ({
+    unimplemented_rules: evidence.unimplementedRules,
+    photos: evidence.photos.map((report) => ({
       name: report.info.name,
       format: report.info.format,
       width: report.info.width,
@@ -178,7 +216,7 @@ function downloadJsonReport(run: RunSummary): void {
       bytes: report.info.nbytes,
       findings: report.findings,
     })),
-    skipped_non_photo_files: run.skipped,
+    skipped_non_photo_files: evidence.skippedFiles,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -188,6 +226,21 @@ function downloadJsonReport(run: RunSummary): void {
   link.click();
   URL.revokeObjectURL(url);
   recordUsageEvent("json_report_downloaded");
+}
+
+async function copyHandoff(run: RunSummary): Promise<void> {
+  const text = formatHandoffSummary(run);
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const area = document.createElement("textarea");
+    area.value = text;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand("copy");
+    area.remove();
+  }
+  recordUsageEvent("handoff_summary_copied");
 }
 
 // Usage-enabled state lives in localStorage, which the server cannot read, so
@@ -207,6 +260,7 @@ export function PhotoCheckTool() {
   const [run, setRun] = useState<RunSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [readError, setReadError] = useState<string | null>(null);
+  const [handoffCopied, setHandoffCopied] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const usageEnabled = useSyncExternalStore(
     subscribeUsage,
@@ -222,7 +276,7 @@ export function PhotoCheckTool() {
 
   function downloadReport() {
     if (!run) return;
-    const blob = new Blob([buildReportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
+    const blob = new Blob([reportMarkdown(run)], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -306,6 +360,18 @@ export function PhotoCheckTool() {
            </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                void copyHandoff(run).then(() => {
+                  setHandoffCopied(true);
+                  window.setTimeout(() => setHandoffCopied(false), 2000);
+                });
+              }}
+              className="rounded-lg border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white hover:bg-white/10"
+            >
+              {handoffCopied ? "Handoff copied" : "Copy handoff summary"}
+            </button>
             <button
               type="button"
               onClick={downloadReport}

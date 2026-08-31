@@ -1,6 +1,29 @@
+/**
+ * Whole calendar days from `today` to the due date: 0 on the day itself, -1 the
+ * day after it passed.
+ *
+ * The previous form took the difference between the due date's last second and
+ * the current instant and rounded it up, which is not the same question. It
+ * read a bid due today as "1 day(s) remain" and one due tomorrow as 2, so a
+ * contractor planned against a day they did not have. Worse at the other end:
+ * a deadline that expired last night produced a fraction between -1 and 0,
+ * which rounds up to 0, so `urgency` never reached `past-due` inside the first
+ * 24 hours — the page said "urgent" about a bid that could no longer be filed.
+ * An unparseable date produced NaN and printed "NaN day(s) remain"; it is now
+ * null, which the page already words as "add a deadline".
+ */
+export function daysUntilDue(dueDate, today = new Date()) {
+  if (!dueDate) return null;
+  const due = Date.parse(`${dueDate}T00:00:00`);
+  if (Number.isNaN(due)) return null;
+  // Both sides collapsed to local midnight before dividing, so a 23- or
+  // 25-hour day across a daylight-saving change cannot shift the answer.
+  const start = new Date(today).setHours(0, 0, 0, 0);
+  return Math.round((due - start) / 86400000);
+}
+
 export function assessBid(items, dueDate, today = new Date()) {
-  const due = dueDate ? new Date(`${dueDate}T23:59:59`) : null;
-  const daysRemaining = due ? Math.ceil((due - today) / 86400000) : null;
+  const daysRemaining = daysUntilDue(dueDate, today);
   const rows = items.map((item) => ({
     name: item.name.trim(),
     owner: item.owner.trim(),
@@ -17,6 +40,21 @@ export function assessBid(items, dueDate, today = new Date()) {
     daysRemaining,
     urgency: daysRemaining !== null && daysRemaining < 0 ? 'past-due' : daysRemaining !== null && daysRemaining <= 2 ? 'urgent' : 'normal',
   };
+}
+
+/**
+ * How the deadline is worded to the user. Zero is the case worth spelling out:
+ * "0 day(s) remain" is technically what the count says and reads as though
+ * there is no deadline pressure at all, on the one day there is most.
+ */
+export function deadlineSentence(daysRemaining) {
+  if (daysRemaining === null) return 'Add a deadline for urgency context.';
+  if (daysRemaining < 0) {
+    const days = Math.abs(daysRemaining);
+    return `The deadline passed ${days} day${days === 1 ? '' : 's'} ago.`;
+  }
+  if (daysRemaining === 0) return 'The deadline is today.';
+  return `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} remain${daysRemaining === 1 ? 's' : ''}.`;
 }
 
 export function markdownReport(result, opportunity, dueDate) {

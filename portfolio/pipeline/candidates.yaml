@@ -811,7 +811,13 @@ candidates:
     name: DNS configuration evidence monitor
     doc: candidates/dns-configuration-evidence.md
     verdict: probe
-    probe_status: "fixture-recorder-built; demand and distribution unmeasured"
+    probe_status: >-
+      step 1 partially run: local multi-resolver snapshot-diff tool built and
+      tested (12 tests) against fixtures, not live resolvers. Step 1's mutation
+      set (changed TXT, changed delegation, resolver disagreement, timeout,
+      unchanged) is covered, plus refusal, servfail and DNSSEC failure. The
+      scheduled resolver-poll loop and step 3 (10 practitioner conversations,
+      one paid pilot) are unstarted.
     graduate_as: venture
     host_venture: null
     scores:
@@ -886,5 +892,28 @@ candidates:
     floor: 1
     floor_dimension: ai_leverage
     mitigation: Keep the calculation deterministic and label operating assumptions as user-supplied planning inputs; measure repeat use before adding integrations.
+    first_experiment_days: 14
+    first_experiment_budget_usd: 0
+  - slug: grant-reporting-tracker
+    name: Grant reporting tracker
+    doc: candidates/grant-reporting-tracker.md
+    verdict: graduated
+    graduate_as: venture
+    host_venture: null
+    initiated: 2026-08-24
+    initiated_path: ventures/grant-reporting-tracker
+    scores:
+      ai_leverage: 1
+      autonomous_ops: 10
+      time_to_revenue: 6
+      gross_margin: 10
+      defensibility: 4
+      distribution: 6
+      liability_containment: 7
+      ethical_robustness: 9
+    composite: 6.625
+    floor: 1
+    floor_dimension: ai_leverage
+    mitigation: Keep date arithmetic and exports deterministic; label the queue as planning evidence and require users to verify each award agreement.
     first_experiment_days: 14
     first_experiment_budget_usd: 0

@@ -20,6 +20,22 @@ test("landing page is a complete calculator, not a placeholder", () => {
   assert.match(page, /id="rows"/);
   assert.match(page, /from "\.\/calc\.mjs"/);
   assert.match(page, /Price to match dine-in/);
+  assert.match(page, /copySummary/);
+  assert.match(page, /summary_copied/);
+});
+
+test("FAQ covers Uber Eats and Grubhub by name, not just DoorDash", () => {
+  // The header, meta description, and calculator itself all name DoorDash,
+  // Uber Eats, and Grubhub as first-class channels, but until now the FAQ
+  // (and its FAQPage schema) only ever answered a DoorDash-specific
+  // question -- a search for "how much does Uber Eats take" or "Grubhub
+  // commission" found nothing tailored on a page that answers exactly that.
+  assert.match(page, /How much does Uber Eats take from restaurants\?/);
+  assert.match(page, /How much commission does Grubhub charge restaurants\?/);
+  const faqBlockMatch = page.match(/"@type":\s*"FAQPage"[\s\S]*?<\/script>/);
+  assert.ok(faqBlockMatch, "FAQPage JSON-LD block should exist");
+  assert.match(faqBlockMatch[0], /Uber Eats take from restaurants/);
+  assert.match(faqBlockMatch[0], /Grubhub charge restaurants/);
 });
 
 test("disclaimer, privacy, opt-out, and optional sponsors are visible", () => {

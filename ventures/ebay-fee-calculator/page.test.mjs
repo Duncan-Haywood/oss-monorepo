@@ -13,6 +13,28 @@ test('the form exposes every calculator field so a saved or shared link can rest
   }
 });
 
+test('the result panel shows the item price that holds a typed leftover', () => {
+  assert.match(page, /id="targetProfit"/);
+  assert.match(page, /id="targetProfitPrice"/);
+  assert.match(page, /targetProfitPrice/);
+  assert.match(page, /target_profit_calculated/);
+});
+
+test('the result panel shows a sourcing ceiling for the typed target ROI', () => {
+  assert.match(page, /id="targetRoi"/);
+  assert.match(page, /id="sourcingCeiling"/);
+  assert.match(page, /id="sourcingCeilingBatch"/);
+  assert.match(page, /id="ceilingStatus"/);
+  assert.match(page, /calculateSourcingCeiling/);
+  assert.match(page, /sourcing_ceiling_calculated/);
+});
+
+test('the result panel shows the maximum item cost at the typed target margin', () => {
+  assert.match(page, /id="maxCostOfGoods"/);
+  assert.match(page, /maxCostOfGoods/);
+  assert.match(page, /max_acquisition_cost_calculated/);
+});
+
 test('the result panel shows expected profit after returns', () => {
   assert.match(page, /id="expectedProfit"/);
   assert.match(page, /id="cashEatenPerReturn"/);
@@ -238,7 +260,7 @@ test('the Promoted Listings Standard table has one cell per column and a counted
   assert.match(page, /are-ebay-promoted-listings-worth-it\.html/);
   assert.match(page, /"featureList":\s*"[^"]*Promoted Listings Standard vs skip/);
   const standardStart = page.indexOf('id="promotedStandardTable"');
-  const standardEnd = page.indexOf('id="promotedAdvanced"', standardStart);
+  const standardEnd = page.indexOf('id="promotedRateTable"', standardStart);
   const headerBlock = page.slice(standardStart, standardEnd === -1 ? undefined : standardEnd);
   const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
   assert.deepEqual(headers, [
@@ -250,6 +272,18 @@ test('the Promoted Listings Standard table has one cell per column and a counted
     'Expected after ads',
     'vs skip',
   ]);
+});
+
+test('the Promoted Listings Standard section also shows a rate ladder and an ad-rate cap', () => {
+  assert.match(page, /calculatePromotedTable/);
+  assert.match(page, /maxAffordablePromotedRate/);
+  assert.match(page, /id="promotedRateTable"/);
+  assert.match(page, /id="promotedRateCap"/);
+  const ladderStart = page.indexOf('id="promotedRateTable"');
+  const ladderEnd = page.indexOf('id="promotedAdvanced"', ladderStart);
+  const headerBlock = page.slice(ladderStart, ladderEnd === -1 ? undefined : ladderEnd);
+  const headers = [...headerBlock.matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+  assert.deepEqual(headers, ['Ad rate', 'Leftover', 'After returns', 'vs 0%']);
 });
 
 test('the Promoted Listings Advanced table has one cell per column and a counted event', () => {

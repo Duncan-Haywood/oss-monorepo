@@ -26,3 +26,19 @@ export function reviewItems(result) {
 export function summary(result) {
   return [`CAM reconciliation worksheet`, `Tenant area share: ${(result.share * 100).toFixed(2)}%`, `Modeled tenant share: $${result.modeledShare.toFixed(2)}`, `Net billed after credits: $${result.netBilled.toFixed(2)}`, `Variance (modeled less billed): $${result.variance.toFixed(2)}`, `Monthly equivalent: $${result.monthlyVariance.toFixed(2)}`, '', 'Review checklist:', ...reviewItems(result).map((item) => `- ${item}`), '', 'This is a math worksheet, not a lease interpretation or payment demand.'].join('\n');
 }
+
+export function reviewRecord(result) {
+  return {
+    format: 'cam-reconciliation-review',
+    version: 1,
+    calculations: {
+      tenantAreaShare: result.share,
+      modeledTenantShare: result.modeledShare,
+      netBilledAfterCredits: result.netBilled,
+      varianceModeledLessBilled: result.variance,
+      monthlyEquivalent: result.monthlyVariance,
+    },
+    reviewChecklist: reviewItems(result),
+    scope: 'Arithmetic worksheet only; not a lease interpretation, payment demand, legal advice, or compliance conclusion.',
+  };
+}

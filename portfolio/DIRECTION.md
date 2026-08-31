@@ -47,6 +47,19 @@ and others) and **none of them have a public URL**. Every usage reading is
 still a zero baseline. `python3 platform/ci/publish_surface.py` still
 reports nothing live on a push to `main`.
 
+That tool reads `gitops/` as well as the workflows since 2026-08-31, so
+"nothing live" is now a statement about both delivery paths rather than
+only the one this paragraph was written about. On the Hetzner path it
+reports, per hostname: `marisstella.dev` and `www.marisstella.dev` answer
+on merge already (annotation-only 301s, no workload, no Secret), and
+`tools.marisstella.dev` — the one that serves the 169 tools — fails closed
+on the unsealed Secret `portfolio-site-repo`. Since both redirects point
+at that host, no stranger reaches content, and the tool says so rather
+than letting "two hosts live" stand.
+
+One seal, not one build, is what stands between this paragraph and being
+obsolete: `./bootstrap/scripts/seal-owner-secrets.sh site`.
+
 Until at least one already-built user-facing surface is reachable by a
 stranger, **deploy beats another build**:
 
@@ -153,6 +166,12 @@ re-ask. `python3 platform/ci/publish_surface.py` still tells you whether a
 merge publishes anything live; it does not block the merge.
 
 ## Graduating new products
+
+The portfolio may expand beyond its current venture list when a candidate is
+genuinely new, addresses a narrow painful problem, and can ship a useful free
+slice with the safeguards below. Existing ventures remain the default home for
+adjacent features, but historical limits on the number of ventures are not a
+reason to defer a strong, non-duplicative product.
 
 1. Pick a niche from `portfolio/pipeline/` or invent one that is **not** in
    `screened-out.md`.

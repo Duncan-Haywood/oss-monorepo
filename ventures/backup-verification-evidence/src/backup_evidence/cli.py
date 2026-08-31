@@ -171,7 +171,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     records = []
     for path in args.records:
         records.append(json.loads(path.read_text(encoding="utf-8")))
-    report = build_history_report(records)
+    report = build_history_report(records, require_integrity=args.require_integrity)
     if args.trend:
         report["trend"] = build_trend(records, shrink_ratio=args.shrink_ratio)
     output = markdown_report(report) if args.format == "markdown" else json.dumps(report, indent=2) + "\n"
@@ -257,6 +257,11 @@ def build_parser() -> argparse.ArgumentParser:
     check.add_argument("--usage-file", type=Path, help="optional local event-count file")
     check.add_argument("--format", choices=("json", "markdown"), default="json")
     check.add_argument("--output", type=Path)
+    check.add_argument(
+        "--require-integrity",
+        action="store_true",
+        help="only treat a run as verified when the artifact was read end-to-end and found intact",
+    )
     check.add_argument(
         "--trend",
         action="store_true",

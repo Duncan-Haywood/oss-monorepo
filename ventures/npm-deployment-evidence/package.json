@@ -1,0 +1,9 @@
+{
+  "name": "npm-deployment-evidence",
+  "private": true,
+  "description": "Free client-side and CLI evidence reports showing which npm lockfile dependencies reach a deployed runtime.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "python3 -m http.server 8000"
+  }
+}

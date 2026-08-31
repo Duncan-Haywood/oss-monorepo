@@ -23,6 +23,10 @@ export function reportText(result) {
   lines.push('', `Largest movement to review: ${result.largest.label}.`, 'This is an arithmetic comparison, not a profitability determination.');
   return lines.join('\n');
 }
-const money = value => `$${value.toFixed(2)}`;
+const money = (value) => {
+  const format = (value) => `$${value.toFixed(2)}`;
+  const text = format(Math.abs(value));
+  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const signedMoney = value => `${value >= 0 ? '+' : '-'}$${Math.abs(value).toFixed(2)}`;
 const signed = value => `${value >= 0 ? '+' : ''}${value.toFixed(2)}`;

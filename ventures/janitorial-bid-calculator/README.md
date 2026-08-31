@@ -38,9 +38,11 @@ who price off the raw wage are short before they start.
 
 1. **Per-space labor.** Each row is a space type with its own cleanable square
    footage, production rate (sq ft per cleaner-hour), and cleanings per week.
-   Unlisted spaces (gym, server room, loading dock) use **Other space** and a
-   name the contractor types, so the labor split and the copied bid say what
-   is actually being cleaned instead of `Area 2`.
+   Every row can take an optional proposal name (for example two restroom
+   rows labelled "2nd floor" and "Lobby"). Unlisted spaces (gym, server room,
+   loading dock) use **Other space** and a name the contractor types, so the
+   labor split and the copied bid say what is actually being cleaned instead
+   of `Area 2`.
    Hours per visit = square feet ÷ production rate. Monthly hours multiply that
    by the weekly frequency and by 52/12 weeks — not 4, which understates the
    month by about 8%, more than the margin on a typical contract. **Other
@@ -48,7 +50,10 @@ who price off the raw wage are short before they start.
    show up as `Area N`.
 2. **Loaded labor.** Hourly wage × (1 + payroll burden %).
 3. **Other direct cost.** Supplies per square foot per month, plus equipment,
-   travel, and anything else billed to the job monthly.
+   travel, anything else billed to the job monthly, and **periodic services**
+   (lump cost per occurrence × times per year, averaged into the month). That
+   is how quarterly floor care or twice-yearly extraction belongs on a
+   recurring contract — not as a production-rate project invoiced once.
 4. **Overhead.** A percentage markup on that direct cost — office, admin, and
    sales recovery. It is not applied to itself or to profit.
 5. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a share
@@ -115,7 +120,6 @@ A second building is a different question. Open
 [`second-site.html`](second-site.html) to price the new site the same way,
 then add the drive as loaded labor and extra fuel. The first-building bid
 treats the van as already paid for; the hop to the next address is not free.
->>>>>>> origin/main
 
 The arithmetic lives in [`calc.mjs`](calc.mjs) with no DOM or network
 dependency, so it is testable and auditable on its own. See
@@ -155,7 +159,9 @@ Events counted: `bid_calculated`, `area_added`, `area_removed`,
 - Single currency and no tax handling; the contractor enters their own numbers.
 - Periodic service plus optional one-time project work (strip and wax,
   extraction, initial/post-construction) invoiced separately from the month.
-- "Other space" rows can be named; an empty name still falls back to `Area N`.
+- Any space row can take an optional proposal name; an empty Other-space
+  name still falls back to `Area N`. Catalog types without a typed name keep
+  the catalog label.
 - Day-porter / attendant shifts are modelled as scheduled coverage on the
   monthly contract. Crew-capacity checks the night-clean production visit
   against cleaners × available hours, not porter coverage.

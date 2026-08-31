@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sewer Line Replacement Bid Calculator | Open-Cut vs Pipe Burst vs CIPP — Price the Surface, Not Just the Foot</title>
+  <title>Sewer Line Replacement Bid Calculator — Open-Cut vs CIPP</title>
   <meta name="description" content="Price a sewer line replacement from open-cut, pipe bursting, or CIPP lining: footage, bury depth, laterals, and the surface you have to put back — not a published $125-a-foot special. See when trenchless wins and the walk-away number.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Sewer Line Replacement Bid Calculator">
   <meta property="og:description" content="40 feet under a lawn is not the same job as 80 feet under a driveway. Bid the method, the laterals, and the restore.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sewer Line Replacement Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (runs in a web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Open-cut versus pipe bursting versus CIPP lining, hard-surface restoration share, laterals and cleanouts, bury depth, occupied-house bypass, walk-away price, method comparison, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Sewer Line Replacement Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (runs in a web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Open-cut versus pipe bursting versus CIPP lining, hard-surface restoration share, laterals and cleanouts, bury depth, occupied-house bypass, walk-away price, method comparison, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is $129.60 a foot a rate I can quote from?","acceptedAnswer":{"@type":"Answer","text":"No — it is the finished price divided by the run, not a unit rate. The default job prices at $10,368.03 over 80 feet, but a large share of that is the excavator mobilization, the permit, the connection at each end, and restoration, none of which double when the run does. A 160-foot replacement is not $20,736. Use the per-foot figure to compare against a competitor’s per-foot quote on a similar run, then price the actual job from its own depth and access."}},{"@type":"Question","name":"Where do 40.75 hours go on a single sewer line?","acceptedAnswer":{"@type":"Answer","text":"Almost none of it is pipe-laying. The hours cover excavation to depth, shoring and spoil handling, the tie-in at the house and at the main, backfill in lifts, compaction, and the inspection wait — at a $56.70 loaded rate that is $2,310.53 of labor against $3,655 of material. Depth is the variable that moves this most: the same 80 feet at eight feet deep is a very different day from four feet."}},{"@type":"Question","name":"Why is the permit only $150 on a $10,000 job?","acceptedAnswer":{"@type":"Answer","text":"Because it is the permit fee itself, not the cost of complying with it. The inspection wait, the required bedding material, and the tie-in method your jurisdiction specifies are all in the hours and materials above. Treat the $150 as a placeholder to replace with your own authority’s schedule — some charge per connection, some by run length, and a few require a separate right-of-way permit for the portion in the street."}},{"@type":"Question","name":"Does this include putting the yard back?","acceptedAnswer":{"@type":"Answer","text":"Only the backfill and compaction. Replacing driveway, sidewalk, mature landscaping, or irrigation that sat over the trench is not in the default number, and on a front-yard run it is frequently the largest surprise on the final invoice. Price restoration separately and say so on the proposal, so the homeowner is not comparing your complete number against someone else’s excavation-only one."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1a2a32; background: #e6eef1; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -27,9 +28,11 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8aa0a8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0a8; background: #eef5f6; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0a8; background: #eef5f6; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1a2a32; }
     button:hover { background: #dcecee; }
     .result { position: sticky; top: 15px; background: #0f3d42; color: #eef7f7; border-color: #0f3d42; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -52,6 +55,64 @@
     .summary-status { font-size: .8rem; color: #9ee4df; }
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #6fa8ae; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #4a5c64; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #0a5560; --pr-accent: #0f7d8c;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #0a55600d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
     }
   </style>
 </head>
@@ -140,6 +201,42 @@
         </div>
         <p class="hint" style="margin-top:14px;margin-bottom:0">A $42/h tech loaded at 35% is $56.70. Quoting the raw wage on a published $125-a-foot special is how an 80-foot driveway open-cut that looked fine turns into a two-day loss after the first sawcut.</p>
       </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Trenchline Sewer & Drain"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(816) 555-0154"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="MO-MP-30871"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="1725 Southwest Blvd, Kansas City MO"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="S. Duffy"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="3402 Charlotte St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Replace 40 ft of 4-inch lateral&#10;Restore asphalt driveway"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Municipal tap or connection fees&#10;Landscaping beyond the trench line"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Utility locates called before digging. Bypass provided so the house stays usable."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
     </div>
 
     <section class="result" aria-live="polite">
@@ -182,7 +279,42 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard, a plumbing specification, or a code determination &mdash; replace them with your own takeoff.</p>
     </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+      <h3>Is $129.60 a foot a rate I can quote from?</h3>
+      <p>No &mdash; it is the finished price divided by the run, not a unit rate. The default job prices
+        at $10,368.03 over 80 feet, but a large share of that is the excavator mobilization, the permit,
+        the connection at each end, and restoration, none of which double when the run does. A 160-foot
+        replacement is not $20,736. Use the per-foot figure to compare against a competitor&rsquo;s
+        per-foot quote on a similar run, then price the actual job from its own depth and access.</p>
+
+      <h3>Where do 40.75 hours go on a single sewer line?</h3>
+      <p>Almost none of it is pipe-laying. The hours cover excavation to depth, shoring and spoil
+        handling, the tie-in at the house and at the main, backfill in lifts, compaction, and the
+        inspection wait &mdash; at a $56.70 loaded rate that is $2,310.53 of labor against $3,655 of
+        material. Depth is the variable that moves this most: the same 80 feet at eight feet deep is a
+        very different day from four feet.</p>
+
+      <h3>Why is the permit only $150 on a $10,000 job?</h3>
+      <p>Because it is the permit fee itself, not the cost of complying with it. The inspection wait,
+        the required bedding material, and the tie-in method your jurisdiction specifies are all in the
+        hours and materials above. Treat the $150 as a placeholder to replace with your own
+        authority&rsquo;s schedule &mdash; some charge per connection, some by run length, and a few
+        require a separate right-of-way permit for the portion in the street.</p>
+
+      <h3>Does this include putting the yard back?</h3>
+      <p>Only the backfill and compaction. Replacing driveway, sidewalk, mature landscaping, or
+        irrigation that sat over the trench is not in the default number, and on a front-yard run it is
+        frequently the largest surprise on the final invoice. Price restoration separately and say so on
+        the proposal, so the homeowner is not comparing your complete number against someone
+        else&rsquo;s excavation-only one.</p>
+    </section>
   </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
 
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
@@ -201,9 +333,17 @@
       JOB_PRESETS,
       suggestedMethodKit,
       suggestedSurfaceKit,
+    
+      METHOD_PRESETS,
+      SURFACE_PRESETS,
+      DIAMETER_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const FIELD_IDS = [
       'runFeet','hardFeet','depthFt','laterals','cleanouts','pits',
@@ -225,7 +365,11 @@
     const SUGGESTED_SURFACE_IDS = [
       'hoursPerFootHardRestore','restorePerFoot','hoursRestorePit','pitRestoreMaterial',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const presets = el('jobPresets');
@@ -371,7 +515,11 @@
     }
 
     async function copySummary() {
-      const job = JOB_PRESETS[Number(presets.value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       const text = formatBidSummary(calculateBid(readInput()), job?.label);
       try {
         await navigator.clipboard.writeText(text);
@@ -392,7 +540,7 @@
     }
 
     presets.addEventListener('change', () => {
-      const job = JOB_PRESETS[Number(presets.value)];
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
       applyJob(job);
       count('preset_applied');
@@ -467,7 +615,7 @@
 
     function persist() {
       try {
-        saveBid(localStorage, BID_SPEC, readInput());
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
       } catch {
         // A browser with site data blocked throws on access. Losing the save
         // is survivable; losing the calculator mid-bid is not.
@@ -475,7 +623,8 @@
     }
 
     async function copyLink() {
-      const query = encodeBid(BID_SPEC, readInput());
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
       const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
@@ -491,11 +640,15 @@
         fallback.remove();
       }
       count('link_copied');
-      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
-      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
-    const restored = restoreBid(BID_SPEC, {
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
       search: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });
@@ -525,7 +678,146 @@
     document.addEventListener('input', persist);
     document.addEventListener('change', persist);
 
+
+    // ---- Customer-facing proposal -------------------------------------------
+
+    const COMPANY_KEY = 'sewer-line-replace-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for its scope, figures, and performance. It was laid out with a free '
+      + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
+      + 'warranty. It is not a plumbing-code, structural, utility-locate, or municipal-permit determination.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    /**
+     * Default scope lines from the job the user actually priced, so the proposal
+     * is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Written by hand for the trade rather than derived from the pasted summary:
+     * that summary lists crew-hour breakdowns, which must not reach a customer.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const method = METHOD_PRESETS.find(item => item.id === result.method)?.label ?? '';
+      const surface = SURFACE_PRESETS.find(item => item.id === result.surface)?.label ?? '';
+      const diameter = DIAMETER_PRESETS.find(item => item.id === result.diameterIn)?.label ?? `${result.diameterIn}-inch`;
+      const suggested = [
+        `Replace ${result.runFeet} ft of ${diameter} sewer lateral${method ? ` by ${method.toLowerCase()}` : ''}`,
+        `Excavation to approximately ${result.depthFt} ft deep`,
+        result.pits > 0 ? `${result.pits} access pit${result.pits === 1 ? '' : 's'}` : '',
+        result.laterals > 0 ? `Reconnect ${result.laterals} branch lateral${result.laterals === 1 ? '' : 's'}` : '',
+        result.cleanouts > 0 ? `Install ${result.cleanouts} cleanout${result.cleanouts === 1 ? '' : 's'}` : '',
+        result.occupiedHouse ? 'Temporary bypass so the house stays in service' : '',
+        result.hardFeet > 0 && surface ? `Restore ${result.hardFeet} ft of ${surface.toLowerCase()}` : '',
+        result.lawnFeet > 0 ? `Backfill, grade, and seed ${result.lawnFeet} ft of lawn` : '',
+        'Permit pulled, utility locates called, and site left clean',
+      ].filter(Boolean);
+      scope.value = suggested.join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null ? result.price : result.proposed.price,
+        jobTitle: `Sewer lateral replacement — ${result.runFeet} ft`,
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from the document rather than called inside `update()`: every
+     * calculator in this portfolio has its own `update()` with its own shape,
+     * and one listener that works in all of them is what makes this feature
+     * copyable. Bubble phase, so it runs after the page's own field handlers
+     * have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
     update();
+    restoreCompany();
+    refreshProposal();
     persist();
   </script>
 </body>

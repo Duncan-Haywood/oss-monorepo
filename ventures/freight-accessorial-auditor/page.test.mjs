@@ -41,6 +41,9 @@ test("the page imports the audit it claims to run", () => {
   assert.match(scriptSource, /countUsage\("audit_completed"\)/);
   assert.match(scriptSource, /countUsage\("review_exported"\)/);
   assert.match(scriptSource, /countUsage\("draft_copied"\)/);
+  assert.match(scriptSource, /function fallbackCopy/);
+  assert.match(scriptSource, /execCommand\("copy"\)/);
+  assert.match(scriptSource, /copyText\(/);
 });
 
 test("figures named in schema.org featureList are actually rendered", () => {

@@ -70,6 +70,11 @@ Save a portable JSON evidence artifact for a ticket or approval queue:
 python3 src/permission_drift.py examples/before.json examples/after.json --output permission-drift-report.json
 ```
 
+`--output` always writes the structured JSON artifact atomically, independently
+of `--format`, which controls only what is printed to the terminal. A failed
+write never replaces an existing report with a partial file. That keeps a
+Markdown ticket review from overwriting the machine-readable evidence file.
+
 Use the report directly in a GitHub Actions log. Each changed app, scope, or
 webhook is emitted as a warning annotation, and the command exits successfully
 so the merchant or workflow owner can decide whether to block a deployment:

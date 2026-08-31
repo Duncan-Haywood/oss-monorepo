@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: ventures/ai-engineering-academy/site
@@ -33,10 +33,11 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
+      - run: node --test tools.test.mjs
       - run: npm run build
 
   tools-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     strategy:
       matrix:
         tool:

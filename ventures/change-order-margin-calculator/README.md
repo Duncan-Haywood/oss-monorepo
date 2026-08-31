@@ -1,8 +1,34 @@
 # Change Order Margin Calculator
 
 Price a construction or trade change order from the added labor, loaded wage,
-materials, subcontractor cost, overhead, and target margin. The result gives a
-target price, a walk-away cost floor, and a plain-text approval summary.
+materials, subcontractor cost, schedule delay, overhead, and target margin. The
+result gives a target price, a walk-away cost floor, what your contract's
+markup cap actually leaves you, and a plain-text approval summary.
+
+## The two lines that decide a change order
+
+Change orders are lost where they are priced, not where they are worked, and
+both of these were previously absent:
+
+- **Extended general conditions.** Added scope that pushes the schedule keeps
+  the supervisor, the trailer, and the rented plant on site for days nobody
+  billed. Enter days added and a daily rate; it is treated as a direct cost, so
+  overhead and margin carry on it like any other. Three days at $450 turns the
+  shipped $630 change order into $1,980 of direct cost and moves the target
+  price from $866.25 to $2,722.50.
+- **The contract's markup cap.** Most contracts cap change-order markup, which
+  means the target margin you enter may not be available to you at all. The cap
+  applies to cost while your own overhead comes out of the same allowance, so a
+  10% cap against 10% overhead earns exactly nothing -- on the shipped defaults
+  the cap and the $693.00 walk-away floor are the same number. At a 5% cap the
+  most you may bill is $661.50 and every change order under that contract is a
+  loss, which the page says before you have entered a proposed price, because
+  it is a fact about the contract rather than about the price.
+
+Both default to zero, so a contract with no cap on work that fits the existing
+schedule prices exactly as it did before, and every figure in
+[`how-to-price-a-change-order.html`](how-to-price-a-change-order.html) still
+holds.
 
 Open [`index.html`](index.html) directly or serve this directory statically.
 It has no dependencies, accounts, network calls, or paid APIs.

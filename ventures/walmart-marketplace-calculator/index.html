@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, 2-day vs WFS take-rate leftover, expected leftover after Walmart returns, leftover WFS keep vs remove vs dispose, Walmart Connect skip vs Sponsored Products leftover, hold vs match vs promo after Buy Box take, net profit, margin, ROI, break-even price, max buy cost, target-margin price"
+    "featureList": "WFS vs seller-fulfilled comparison, category referral, referral-fee floor, size-tier WFS fulfillment, storage, inbound, price-match profit, 2-day vs WFS take-rate leftover, expected leftover after Walmart returns, leftover WFS keep vs remove vs dispose, Walmart Connect skip vs Sponsored Products leftover, hold vs match vs promo after Buy Box take, net profit, margin, ROI, break-even price, max buy cost, target-margin price, shareable link"
   }
   </script>
   <script type="application/ld+json">
@@ -106,11 +106,17 @@
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8fa0b8; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result button#share { margin-top: 14px; width: 100%; border: 1px solid #4a6da8; border-radius: 7px; padding: 10px; font: inherit; font-weight: 650; background: #2e4d80; color: #f4f7fb; cursor: pointer; }
+    .result button#share:hover { background: #3a5d99; }
     .span2 { grid-column: 1 / -1; }
     .paths { display: flex; gap: 1rem; flex-wrap: wrap; }
     .paths label { display: flex; gap: .45rem; align-items: center; font-weight: 600; }
     .paths input { width: auto; }
     .result { position: sticky; top: 15px; background: #1b2a44; color: #f4f7fb; border-color: #1b2a44; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 3rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -222,7 +228,7 @@
         <label>Days in the month <input id="monthDays" type="number" min="1" step="1" value="30"></label>
       </div>
     </section>
-    <section class="result">
+    <section class="result" aria-live="polite">
       <h2>Listing result</h2>
       <div id="profit" class="hero-number">$—</div>
       <div id="label">estimated net profit on the selected path</div>
@@ -281,6 +287,7 @@
         <tbody id="matchTakeCompare"></tbody>
       </table>
       <p class="note">Transparent arithmetic from your inputs — not Walmart’s current fee schedule. Referral, WFS fulfillment, storage, and inbound vary by category, size, and account. Verify against Seller Center before buying inventory.</p>
+      <button type="button" id="share">Copy shareable link</button>
     </section>
   </main>
   <section class="faq" aria-labelledby="faq-heading">
@@ -313,6 +320,11 @@
       <a href="should-i-match-the-walmart-buy-box.html">Should I match the lower Walmart offer?</a>
       compares holding the list against a permanent match and a
       time-boxed promo after Buy Box take.
+      The carton itself is the one lever that leaves the price alone:
+      <a href="does-a-smaller-box-cut-wfs-fees.html">Does a smaller box cut my WFS fee?</a>
+      compares the box you ship against a repack, names which
+      measurement is over the Standard ceiling and by how much, and
+      nets the repack labour off the fee it saves.
     </p>
     <p>
       It does not recommend a price, a category, or a fulfillment method, and
@@ -320,6 +332,24 @@
       arithmetic comparison of the rates you entered.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I use WFS or seller fulfilled on Walmart Marketplace?</h3>
+  <p>Compare both paths on the same sale price and cost of goods. WFS adds a fulfillment fee, inbound to a Walmart warehouse, and monthly storage. Seller fulfilled replaces those with the shipping label you pay. This page does the arithmetic from the rates you enter; it does not recommend a fulfillment method.</p>
+  <h3>How do I calculate Walmart Marketplace seller fees?</h3>
+  <p>Start with the item price. Subtract the category referral fee (or the per-item minimum if that is larger), then WFS fulfillment and storage if you use WFS, or your own label if you ship. Enter the rates from your current Seller Center fee preview — this page does not publish Walmart's live schedule.</p>
+  <h3>If I have to match a lower Walmart price, do I still make money?</h3>
+  <p>Enter the competitive match price. The calculator re-runs the same costs at that price and shows whether profit stays non-negative. Matching is a common Walmart listing pressure; this is arithmetic, not a pricing recommendation.</p>
+  <h3>Should I buy a 2-day label myself or use WFS?</h3>
+  <p>WFS includes two-day delivery after inbound. A seller-fulfilled 2-day label plus pack time usually converts more than standard shipping and still often loses to WFS once take rate is mixed in. On the defaults WFS keeps $4.83 more per session than an $8.95 2-day label. Open the 2-day page to replace the label, minutes, and take rates from Seller Center.</p>
+  <h3>Do Walmart returns change whether WFS still beats seller fulfilled?</h3>
+  <p>The completed-sale table assumes the order sticks. On the defaults an 8% return mix still leaves seller fulfilled $0.16 ahead per unit ($7.33 vs $7.17) because the $4.50 outbound label plus a $5.50 return label is worse than WFS return processing, but not enough to flip an $0.59 completed-sale gap. At 20% returns WFS keeps $0.49 more. Open the returns page to replace the rate, WFS return fee, and return label from Seller Center.</p>
+  <h3>Should I pull leftover units out of WFS?</h3>
+  <p>Inbound and cost of goods are already spent on leftover units. On the defaults a 12% monthly sell-through over 4 months still leaves a $1.25 removal plus your own label $338.35 ahead of aged WFS storage ($599.66 vs $261.31). Keeping matches at about 41.3% monthly sell-through. Open the aged-inventory page to replace the leftover count, sell-through, aged rate, and removal fee from Seller Center.</p>
+  <h3>Should I run Walmart Connect ads on this listing?</h3>
+  <p>The ads-per-unit line is a completed-sale leftover. On the defaults — 60 organic units, 12 extra ad units, 15% ACOS, and 40% last-click on organic — skipping ads keeps $31.15 more than Sponsored Products ($518.99 vs $487.84). Ads match at about 11.5% ACOS. An 8% ACOS flips ahead by $31.83. Open the ads page to replace ACOS, extra units, and attribution from Ads Manager.</p>
+  <h3>Should I match a lower Walmart offer if it wins more of the Buy Box?</h3>
+  <p>The match field holds take fixed. On the defaults — $21.99 match, 60 completed sales at a 40% hold take, 70% match take, and a 10-day promo at 80% — permanently matching keeps $121.49 more than holding the list ($640.48 vs $518.99). A 10-day promo is $589.99. A 20-day promo flips ahead of the permanent match. Holding matches if match take falls to about 56.7%. Open the Buy Box page to replace the match price and take rates from Seller Center.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -344,6 +374,7 @@
       matchTakeNote,
     } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { decodeInputs, encodeInputs } from "./share.mjs";
 
     const ids = [
       "salePrice", "matchPrice", "referralRate", "referralMinimum", "length",
@@ -360,8 +391,40 @@
       "highAttributedOrganicPct", "holdTakePct", "matchTakePct",
       "promoTakePct", "promoDays", "monthDays",
     ];
-    const money = (value) => `$${value.toFixed(2)}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     let syncingFee = false;
+
+    function restoreInputs() {
+      const shared = decodeInputs(location.hash || location.search);
+      ids.forEach((id) => {
+        if (shared[id] === undefined) return;
+        document.getElementById(id).value = shared[id];
+        if (id === "fulfillmentFee") document.getElementById(id).dataset.auto = "0";
+      });
+      if (shared.fulfillmentMethod) {
+        const radio = document.querySelector(`input[name="fulfillmentMethod"][value="${shared.fulfillmentMethod}"]`);
+        if (radio) radio.checked = true;
+      }
+      if (shared.category) document.getElementById("category").value = shared.category;
+      if (shared.storageSeason) document.getElementById("storageSeason").value = shared.storageSeason;
+    }
+
+    function shareLink() {
+      const scenario = {
+        ...readInput(),
+        category: document.getElementById("category").value,
+        storageSeason: document.getElementById("storageSeason").value,
+      };
+      const link = `${location.href.split("#")[0]}#${encodeInputs(scenario)}`;
+      try { history.replaceState(null, "", link); } catch { /* file URLs may reject it */ }
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(link).catch(() => {});
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "share_link_copied");
+      window.prompt("Copy this private link:", link);
+    }
 
     function fulfillmentMethod() {
       return document.querySelector('input[name="fulfillmentMethod"]:checked').value;
@@ -409,7 +472,9 @@
         document.getElementById("roi").textContent = result.selected.roi === null ? "n/a" : `${result.selected.roi.toFixed(1)}%`;
         document.getElementById("breakEven").textContent = Number.isFinite(result.selected.breakEvenPrice)
           ? money(result.selected.breakEvenPrice) : "never";
-        document.getElementById("maxBuy").textContent = money(result.selected.breakEvenBuyCost);
+        document.getElementById("maxBuy").textContent = result.selected.breakEvenBuyCostRaw < 0
+          ? `${money(0)} — loses money even at $0 cost`
+          : money(result.selected.breakEvenBuyCost);
         document.getElementById("targetMarginPrice").textContent = Number.isFinite(result.selected.targetMarginPrice)
           ? money(result.selected.targetMarginPrice) : "unreachable";
         const extra = result.wfsAdvantage;
@@ -516,6 +581,8 @@
       });
     });
     document.getElementById("usageOptOut").addEventListener("change", update);
+    document.getElementById("share").addEventListener("click", shareLink);
+    restoreInputs();
     update();
   </script>
 </body>

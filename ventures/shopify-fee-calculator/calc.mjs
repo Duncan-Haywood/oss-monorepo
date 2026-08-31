@@ -213,6 +213,7 @@ function pathResult({
   cashInvested,
   shippingCharged,
   targetMarginRate,
+  targetProfit,
   feeParts,
 }) {
   const feeTotal = Object.values(feeParts).reduce((sum, value) => sum + value, 0);
@@ -220,6 +221,7 @@ function pathResult({
   const profit = revenue - costs;
   const fixedCash = processorFixed + cashInvested;
   const targetRevenueDenominator = 1 - percentRate - targetMarginRate;
+  const profitPriceDenominator = 1 - percentRate;
   return {
     fees: feeParts,
     feeTotal,
@@ -234,6 +236,10 @@ function pathResult({
       targetRevenueDenominator <= 0
         ? Infinity
         : Math.max(0, fixedCash / targetRevenueDenominator - shippingCharged),
+    targetProfitPrice:
+      profitPriceDenominator <= 0
+        ? Infinity
+        : Math.max(0, (targetProfit + fixedCash) / profitPriceDenominator - shippingCharged),
   };
 }
 
@@ -252,6 +258,7 @@ export function calculateOrder(input) {
   const monthlyPlan = number(input.monthlyPlan, "Monthly plan cost");
   const monthlyOrders = number(input.monthlyOrders, "Monthly orders", 1);
   const targetMargin = number(input.targetMargin, "Target margin");
+  const targetProfit = number(input.targetProfit, "Target net profit");
   const paymentMethod = input.paymentMethod ?? "shopify_payments";
 
   if (targetMargin >= 100) throw new Error("Target margin must be less than 100%");
@@ -274,6 +281,7 @@ export function calculateOrder(input) {
     cashInvested,
     shippingCharged,
     targetMarginRate,
+    targetProfit,
     feeParts: {
       shopifyPayments: revenue * (paymentsRate / 100) + paymentsFixed,
       shopifyThirdParty: 0,
@@ -288,6 +296,7 @@ export function calculateOrder(input) {
     cashInvested,
     shippingCharged,
     targetMarginRate,
+    targetProfit,
     feeParts: {
       shopifyPayments: 0,
       shopifyThirdParty: revenue * (shopifyTxnRate / 100),
@@ -383,8 +392,11 @@ export function comparePromos(input, promos = defaultPromoSet()) {
 }
 
 export function promoComparisonSummary(comparison) {
-  const money = (value) =>
-    `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const promoRows = comparison.rows.filter((row) => row.kind !== "list");
   if (promoRows.length === 0) return "Enter a promo to compare it against list price.";
 
@@ -1234,7 +1246,18 @@ export function compareManualPayment(input) {
   const monthlyHoldExtra = (holdKept - cardProfit) * monthlyOrders;
   const monthlyShippedExtra = (shippedKept - cardProfit) * monthlyOrders;
 
-  const breakEvenHoldPct = paidProfit > 1e-12 ? (cardProfit / paidProfit) * 100 : null;
+  // paidProfit can be negative -- holding for a bank transfer can lose money
+  // at 100% collection, not just cost more -- and the ratio still finds the
+  // real collection rate where holdKept ties the card path, whatever its
+  // sign (a card path that also loses money still ties a losing hold path
+  // at a real, positive collection rate). Gating on paidProfit > 0 (as this
+  // used to) always returned null in that case, even when a real crossing
+  // existed.
+  let breakEvenHoldPct = null;
+  if (Math.abs(paidProfit) > 1e-12) {
+    const rate = (cardProfit / paidProfit) * 100;
+    if (rate >= -1e-9 && rate <= 100 + 1e-9) breakEvenHoldPct = Math.max(0, rate);
+  }
   const shippedDenominator = manualRevenue;
   const breakEvenShippedPct =
     shippedDenominator > 1e-12
@@ -2221,6 +2244,25 @@ function abandonedCheckoutSummary({
   return `${leaveLine}${emailLine}${discountLine}${emailFloor}${discountFloor}${costFloor}${month}`;
 }
 
+// Solve rate/100 * profitAtFullRate - fixedCost = target for a recover rate
+// in [0, 100]. profitAtFullRate is the completed-order profit the rate
+// scales, and it can be negative -- a path can lose money on every
+// recovered checkout, not just cost more, and the straight ratio still
+// finds the real crossing whatever its sign. Gating the division on
+// profitAtFullRate > 0 (as this used to) silently reports "no rate can
+// match" whenever the order itself is already a loss, even when the
+// target is also negative and a real, positive rate ties the two together
+// (e.g. a -$0.89 completed order needing a -$0.18 leftover ties at 14.4%
+// recovery, not "unreachable").
+function breakEvenRecoverRate(target, fixedCost, profitAtFullRate) {
+  if (Math.abs(profitAtFullRate) <= 1e-12) {
+    return Math.abs(target + fixedCost) <= 1e-12 ? 0 : Infinity;
+  }
+  const rate = ((target + fixedCost) / profitAtFullRate) * 100;
+  if (rate < -1e-9 || rate > 100 + 1e-9) return Infinity;
+  return Math.max(0, rate);
+}
+
 /**
  * Same already-abandoned checkout, three ways leftover can still land.
  *
@@ -2307,21 +2349,8 @@ export function compareAbandonedCheckout(input) {
   ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
   const winner = winnerIds.length === 1 ? winnerIds[0].id : "tie";
 
-  let breakEvenEmailRecoverPct = Infinity;
-  if (fullProfit > 1e-12) {
-    const needed = (leave.expected + emailCost) / fullProfit * 100;
-    breakEvenEmailRecoverPct = needed < -1e-9 || needed > 100 + 1e-9
-      ? Infinity
-      : Math.max(0, needed);
-  }
-
-  let breakEvenDiscountRecoverPct = Infinity;
-  if (discountProfit > 1e-12) {
-    const needed = (email.expected + emailCost) / discountProfit * 100;
-    breakEvenDiscountRecoverPct = needed < -1e-9 || needed > 100 + 1e-9
-      ? Infinity
-      : Math.max(0, needed);
-  }
+  const breakEvenEmailRecoverPct = breakEvenRecoverRate(leave.expected, emailCost, fullProfit);
+  const breakEvenDiscountRecoverPct = breakEvenRecoverRate(email.expected, emailCost, discountProfit);
 
   let breakEvenEmailCostVsLeave = Infinity;
   const recoverLift = (emailRecoverPct - organicRecoverPct) / 100;
@@ -2565,14 +2594,21 @@ export function compareSubscriptions(input) {
   ].filter((row) => Math.abs(row.value - bestLifetime) <= 1e-9);
   const winner = winnerIds.length === 1 ? winnerIds[0].id : "tie";
 
+  // monthlyCycleProfit can be negative -- a subscription can lose money on
+  // every paid cycle, not just cost more, and the ratio still finds the
+  // real crossing cycle count whatever its sign (a losing one-time order
+  // and a losing subscription still tie at a positive cycle count). Gating
+  // on monthlyCycleProfit > 0 (as this used to) silently reported
+  // "no stay length can match" whenever the subscription itself lost money,
+  // even when the one-time path was also a loss and a real crossing existed.
   let breakEvenPaidCycles = Infinity;
-  if (monthlyCycleProfit > 1e-12) {
+  if (Math.abs(monthlyCycleProfit) > 1e-12) {
     const needed = oneTimeProfit / monthlyCycleProfit;
     breakEvenPaidCycles = needed < -1e-9 ? Infinity : needed;
   }
 
   let breakEvenSkipPct = Infinity;
-  if (monthlyCycleProfit > 1e-12 && expectedCycles > 1e-12) {
+  if (Math.abs(monthlyCycleProfit) > 1e-12 && expectedCycles > 1e-12) {
     const paidNeeded = oneTimeProfit / monthlyCycleProfit;
     const rate = (1 - paidNeeded / expectedCycles) * 100;
     breakEvenSkipPct = rate < -1e-9 || rate > 100 + 1e-9
@@ -2846,9 +2882,16 @@ export function comparePickup(input) {
   ].filter((row) => Math.abs(row.value - bestExpected) <= 1e-9);
   const winner = winnerIds.length === 1 ? winnerIds[0].id : "tie";
 
+  // freeDenom (and freeCompleted - shipExpected) can each be negative -- a
+  // no-show can be the *better* outcome than completing when cost of goods
+  // makes a completed free-pickup sale a bigger loss than the labor/bag
+  // cost of a no-show, in which case a higher no-show rate is what lifts
+  // free pickup up to match shipping, not down. Requiring freeCompleted to
+  // already lead at 0% no-show (as this used to) missed that crossing
+  // whenever the free path started behind but rose with no-show.
   let breakEvenNoShowPct = Infinity;
   const freeDenom = freeCompleted - noShowResult;
-  if (freeDenom > 1e-12 && freeCompleted > shipExpected + 1e-12) {
+  if (Math.abs(freeDenom) > 1e-12) {
     const needed = (freeCompleted - shipExpected) / freeDenom * 100;
     breakEvenNoShowPct = needed < -1e-9 || needed > 100 + 1e-9
       ? Infinity
@@ -3127,8 +3170,14 @@ export function compareUpsell(input) {
     breakEvenCheckoutTakePct = 0;
   }
 
+  // addOnProfit can be negative -- the add-on itself can lose money on
+  // every take, not just cost more -- and the ratio still finds the real
+  // crossing take rate whatever its sign. Gating on addOnProfit > 0 (as
+  // this used to) silently reported "no take rate can match" whenever the
+  // add-on was a loss leader, even when a real crossing existed because the
+  // checkout path was a bigger loss still.
   let breakEvenPostTakeVsCheckout = Infinity;
-  if (addOnProfit > 1e-12) {
+  if (Math.abs(addOnProfit) > 1e-12) {
     const needed = (checkoutExpected - heroProfit) / addOnProfit * 100;
     breakEvenPostTakeVsCheckout = needed < -1e-9 || needed > 100 + 1e-9
       ? Infinity
@@ -3215,12 +3264,25 @@ function refundedProfit({
     - allocatedPlanCost - returnShippingCost;
 }
 
+// Solve (1-rate)*completedProfit + rate*refundOutcomeProfit = 0 for a refund
+// rate in [0, 1]. completedProfit can be negative -- the order can already
+// be a loss before any refunds -- and "0" is not the break-even in that
+// case: at 0% refunds the order is already below zero, not sitting at it.
+// The old `completedProfit <= 0 -> return 0` branch reported a completed
+// loss as an already-break-even 0% refund rate, which is simply wrong (it
+// told a merchant losing money on every sale that refunds were a non-issue
+// at 0%). refundOutcomeProfit is a sum of costs so it is never positive, so
+// a convex mix of two non-positive numbers can never reach exactly zero
+// once completedProfit is negative -- the honest answer there is that no
+// refund rate reaches break-even, not "already there".
 function breakEvenRefundRate(completedProfit, refundOutcomeProfit) {
-  if (completedProfit <= 0) return 0;
   const gap = completedProfit - refundOutcomeProfit;
-  if (gap <= 0) return null;
+  if (Math.abs(gap) <= 1e-12) {
+    return Math.abs(completedProfit) <= 1e-12 ? 0 : null;
+  }
   const rate = (completedProfit / gap) * 100;
-  return rate > 100 ? null : rate;
+  if (rate < -1e-9 || rate > 100 + 1e-9) return null;
+  return Math.max(0, rate);
 }
 
 function pathAfterRefunds(path, remainingFees, refundRate, sunk) {

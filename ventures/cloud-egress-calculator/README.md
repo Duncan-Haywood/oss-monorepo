@@ -10,6 +10,7 @@ Open `index.html` directly, or serve this directory with any static HTTP server.
 
 - Compares two monthly scenarios using storage, request, and egress charges.
 - Shows the cheaper option, annualized savings, savings percentage, and a break-even outbound-transfer volume when the crossing is a positive GB figure.
+- Copies a short decision summary for a migration ticket (totals and the cheaper option only — no stored-GB, request, or rate-sheet inputs).
 - Downloads a portable JSON review record with the workload and calculated totals, while omitting provider rate inputs.
 - Compares origin-only egress against a CDN on the same download volume (`does-a-cdn-cut-s3-egress.html`), including miss-fetch cost and the hit-rate floor.
 - Compares keep-pulling a dataset across regions against copying it once (`does-a-replica-beat-cross-region-pull.html`), including the seed, change-sync, payback months, and the pull volume where they match.

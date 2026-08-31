@@ -51,6 +51,7 @@ const narfSeo = readFileSync(
   new URL("./should-i-use-amazon-remote-fulfillment.html", import.meta.url),
   "utf8",
 );
+const acosSeo = readFileSync(new URL("./break-even-acos.html", import.meta.url), "utf8");
 
 function parse(source) {
   const RAW = /<(textarea|script|style)\b[^>]*>/i;
@@ -112,15 +113,32 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(featureList[1], /size-tier packaging cliff/i);
   assert.match(featureList[1], /Seller Fulfilled Prime vs FBA vs FBM/i);
   assert.match(featureList[1], /restock vs low-inventory-level fee/i);
+  assert.match(featureList[1], /Vine leftover vs sellable/i);
   assert.match(featureList[1], /Amazon AWD vs send-all-to-FBA vs you-hold/i);
   assert.match(featureList[1], /Remote Fulfillment vs skip Canada vs a Canada FBA pile/i);
+  assert.match(featureList[1], /break-even ACOS/i);
+  assert.match(featureList[1], /target-margin ACOS/i);
   assert.match(markup, /peak-vs-off-peak-storage\.html/);
   assert.match(markup, /does-smaller-box-cut-amazon-fba-fees\.html/);
   assert.match(markup, /should-i-use-seller-fulfilled-prime\.html/);
   assert.match(markup, /low-inventory-level-fee\.html/);
+  assert.match(markup, /id="low-inventory"/);
+  assert.match(scriptSource, /compareLowInventory/);
+  assert.match(scriptSource, /low_inventory_compared/);
   assert.match(markup, /should-i-use-amazon-awd\.html/);
   assert.match(markup, /should-i-use-amazon-remote-fulfillment\.html/);
   assert.match(markup, /should-i-liquidate-aged-fba-inventory\.html/);
+  assert.match(markup, /id="liquidation"/);
+  assert.match(scriptSource, /compareLiquidation/);
+  assert.match(scriptSource, /liquidation_compared/);
+  assert.match(scriptSource, /agedRemovalFee/);
+  assert.match(markup, /is-amazon-vine-worth-it\.html/);
+  assert.match(markup, /id="vine"/);
+  assert.match(scriptSource, /compareVine/);
+  assert.match(scriptSource, /vine_compared/);
+  assert.match(markup, /id="sfp"/);
+  assert.match(scriptSource, /compareSfp/);
+  assert.match(scriptSource, /sfp_compared/);
   assert.match(markup, /id="returnsCompare"/);
   assert.match(markup, /id="returnRate"/);
   assert.match(markup, /do-amazon-returns-wipe-the-profit\.html/);
@@ -135,6 +153,30 @@ test("schema.org featureList names the comparisons the page actually renders", (
   assert.match(markup, /id="snsCompare"/);
   assert.match(markup, /does-this-amazon-coupon-still-pay\.html/);
   assert.match(markup, /does-subscribe-and-save-still-pay\.html/);
+  assert.match(markup, /break-even-acos\.html/);
+  assert.match(markup, /id="currentAcos"/);
+  assert.match(markup, /id="breakEvenAcos"/);
+  assert.match(markup, /id="targetMarginAcos"/);
+});
+
+test("the FBA vs FBM row template includes break-even ACOS", () => {
+  const compareMarkup = markup.split('id="compare"')[0];
+  const headerBlock = compareMarkup.slice(compareMarkup.lastIndexOf("<thead>"));
+  const headers = [...headerBlock.matchAll(/<th(?:\s[^>]*)?>([\s\S]*?)<\/th>/g)].map((m) =>
+    m[1].replace(/\s+/g, " ").trim(),
+  );
+  assert.deepEqual(headers, ["Path", "Fees", "Profit", "Max buy", "Break-even ACOS"]);
+  assert.match(scriptSource, /formatAcos\(path\.breakEvenAcos\)/);
+  assert.match(scriptSource, /formatAcos\(result\.selected\.currentAcos\)/);
+  assert.match(scriptSource, /formatAcos\(result\.selected\.breakEvenAcos\)/);
+  assert.match(scriptSource, /break_even_acos_calculated/);
+});
+
+test("ACOS SEO page names the question and keeps the playbook footer", () => {
+  assert.match(acosSeo, /What is break-even ACOS on Amazon/);
+  assert.match(acosSeo, /No warranty/);
+  assert.match(acosSeo, /Best-effort hosting, no SLA/);
+  assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 
 test("calculator page wires the Low-Price FBA comparison", () => {
@@ -575,6 +617,30 @@ test("pages keep the disclaimer and optional sponsor link", () => {
   assert.match(narfSeo, /No warranty/);
   assert.match(narfSeo, /Best-effort hosting, no SLA/);
   assert.match(narfSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(acosSeo, /No warranty/);
+  assert.match(acosSeo, /Best-effort hosting, no SLA/);
+  assert.match(acosSeo, /github\.com\/sponsors\/Duncan-Haywood/);
+});
+
+test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
+  assert.match(html, /id="buyCostStatus"/);
+  assert.match(scriptSource, /buyCostCheck/);
+  assert.match(scriptSource, /sourcing_check_used/);
+});
+
+test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {
+  assert.match(html, /id="buyCostStatus"/);
+  assert.match(scriptSource, /buyCostCheck/);
+  assert.match(scriptSource, /sourcing_check_used/);
+});
+
+test("max buy cost display says so when the listing already loses money at $0 cost", () => {
+  // Regression: the display used to show a bare $0.00 for both "you can pay
+  // up to $0 and break even" and "you lose money before buying a unit at
+  // all" -- the same figure for two opposite facts. It now reads the signed
+  // ceiling to tell them apart.
+  assert.match(scriptSource, /breakEvenBuyCostRaw < 0/);
+  assert.match(scriptSource, /loses money even at \$0 cost/);
 });
 
 test("calculator page classifies the typed buy cost against the zero-profit ceiling", () => {

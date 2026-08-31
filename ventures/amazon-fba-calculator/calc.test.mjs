@@ -20,6 +20,8 @@ import {
   compareSubscribeSave,
   compareVine,
   compareAgedInventory,
+  agedSurchargeMonths,
+  compareHoldVsRemove,
   compareLiquidation,
   liquidationNote,
   DEFAULT_LIQUIDATION_RECOVERY_PCT,
@@ -181,6 +183,23 @@ test("turns max buy cost into a sourcing checkpoint", () => {
   assert.equal(at.status, "at_ceiling");
 });
 
+test("a listing that already loses money at $0 cost reports above the ceiling, not at it", () => {
+  // Fees and non-COGS cash costs alone exceed a $3 sale price, so no sourcing
+  // cost -- not even free -- reaches break-even. The clamped display value
+  // (breakEvenBuyCost) floors at $0.00, which used to make a typed cost of $0
+  // read as "at the zero-profit ceiling": the same status a listing that
+  // genuinely breaks even on a free unit gets. That is the wrong message --
+  // this listing loses money before a unit is ever bought.
+  const losing = calculateListing({ ...base, salePrice: 3, costOfGoods: 0 });
+  assert.equal(losing.selected.breakEvenBuyCost, 0, "display value floors at $0");
+  assert.ok(losing.selected.breakEvenBuyCostRaw < 0, "the true ceiling is negative");
+
+  const atZeroCost = buyCostCheck(losing, 0);
+  assert.equal(atZeroCost.status, "above_ceiling");
+  assert.ok(atZeroCost.headroom < 0, "headroom reflects the real deficit, not 0");
+  assert.equal(atZeroCost.headroom, losing.selected.breakEvenBuyCostRaw);
+});
+
 test("FBM drops fulfillment and storage/inbound, and uses the seller's own label", () => {
   const r = calculateListing({ ...base, fulfillmentMethod: "fbm" });
   const allocated = 39.99 / 80;
@@ -219,6 +238,56 @@ test("break-even buy cost makes profit exactly zero when used as cost of goods",
   const r = calculateListing(base);
   const atBuy = calculateListing({ ...base, costOfGoods: r.selected.breakEvenBuyCost });
   near(atBuy.selected.profit, 0, "profit at max buy cost");
+});
+
+test("break-even ACOS is the ad spend that drives profit to zero", () => {
+  const r = calculateListing({ ...base, adsPerUnit: 0 });
+  near(r.fba.breakEvenAds, r.fba.profit, "FBA ads headroom equals profit before ads");
+  near(r.fba.breakEvenAcos, (r.fba.profit / 29.99) * 100, "FBA break-even ACOS");
+  near(r.fbm.breakEvenAds, r.fbm.profit, "FBM ads headroom equals profit before ads");
+  const atCap = calculateListing({ ...base, adsPerUnit: r.fba.breakEvenAds });
+  near(atCap.fba.profit, 0, "FBA profit at break-even ACOS spend");
+  assert.equal(atCap.fba.adsStillPay, true);
+});
+
+test("current ACOS and whether the spend still pays sit next to the cap", () => {
+  const r = calculateListing({ ...base, adsPerUnit: 1.5 });
+  near(r.fba.currentAcos, (1.5 / 29.99) * 100, "current ACOS");
+  near(r.fba.profitBeforeAds, r.fba.profit + 1.5, "profit before ads");
+  assert.equal(r.fba.adsStillPay, r.fba.profit >= 0);
+  const overspend = calculateListing({ ...base, adsPerUnit: r.fba.breakEvenAds + 2 });
+  assert.equal(overspend.fba.adsStillPay, false);
+  assert.ok(overspend.fba.profit < 0);
+});
+
+test("target-margin ACOS leaves the requested net margin after ads", () => {
+  const r = calculateListing({ ...base, adsPerUnit: 0, targetMargin: 20 });
+  assert.equal(r.fba.targetMarginReachableWithAds, true);
+  const atTarget = calculateListing({
+    ...base,
+    adsPerUnit: r.fba.targetMarginAds,
+    targetMargin: 20,
+  });
+  near(atTarget.fba.margin, 20, "margin at target-margin ACOS");
+});
+
+test("target-margin ACOS is zero when the unit cannot hit the margin even with no ads", () => {
+  const r = calculateListing({ ...base, costOfGoods: 28, adsPerUnit: 0, targetMargin: 40 });
+  assert.equal(r.fba.targetMarginReachableWithAds, false);
+  near(r.fba.targetMarginAcos, 0, "zero ACOS when unreachable");
+});
+
+test("ACOS is null when the sale price is zero", () => {
+  const r = calculateListing({ ...base, salePrice: 0, adsPerUnit: 0 });
+  assert.equal(r.fba.breakEvenAcos, null);
+  assert.equal(r.fba.currentAcos, null);
+});
+
+test("target-margin buy cost preserves the selected margin", () => {
+  const r = calculateListing(base);
+  const atTargetBuy = calculateListing({ ...base, costOfGoods: r.selected.targetMarginBuyCost });
+  near(atTargetBuy.selected.margin, base.targetMargin, "margin at target buy cost");
+  assert.ok(r.selected.targetMarginBuyCost < r.selected.breakEvenBuyCost);
 });
 
 test("calculates the sale price required for a target net margin", () => {
@@ -475,6 +544,21 @@ test("an unprofitable coupon cannot recover the month with more volume", () => {
   });
   assert.ok(comparison.none.profit > 0, "list still pays");
   assert.ok(comparison.typed.profit < 0, "80% coupon does not");
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(couponSummary(comparison), /cannot recover/i);
+});
+
+test("a coupon cannot be recovered when list price is already unprofitable too", () => {
+  // Same reasoning error compareSubscribeSave's offsetUnits was fixed for:
+  // a $12 listing with $8 COGS already loses money at list price, and a
+  // coupon can only lose more per unit (typed.profit < none.profit < 0).
+  // breakEvenUnits used to fall through to `null` ("not defined") here
+  // because its gate required none.profit > 0 before ever reporting
+  // Infinity -- silently hiding that no volume of couponed sales helps.
+  const lowMarginBase = { ...base, salePrice: 12 };
+  const comparison = compareCoupons({ ...lowMarginBase, couponPercent: 15, couponFee: 0.6 });
+  assert.ok(comparison.none.profit < 0, "list price already loses money");
+  assert.ok(comparison.typed.profit < comparison.none.profit, "coupon loses even more per unit");
   assert.equal(comparison.breakEvenUnits, Infinity);
   assert.match(couponSummary(comparison), /cannot recover/i);
 });
@@ -800,6 +884,31 @@ test("an unprofitable Subscribe & Save discount cannot be offset with more volum
   assert.ok(comparison.none.profit > 0, "list still pays");
   assert.ok(comparison.typed.profit < 0, "80% S&S does not");
   assert.equal(comparison.offsetUnits, Infinity);
+  assert.equal(comparison.breakEvenUnits, Infinity);
+  assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
+});
+
+test("Subscribe & Save cannot be offset when list price is already unprofitable too", () => {
+  // A $12 listing with $8 COGS and this fee structure loses money at list
+  // price already, and S&S loses more per unit (typed.profit < none.profit
+  // < 0) -- confirmed by both being negative below, reconstructed straight
+  // from calculateListing/subscribeSaveListing, not by calling
+  // compareSubscribeSave's own offsetUnits. No amount of additional
+  // S&S-only volume can close that gap, since each such sale itself loses
+  // money; offsetUnits must be Infinity regardless of the list row's sign.
+  const lowMarginBase = { ...base, salePrice: 12 };
+  const comparison = compareSubscribeSave({ ...lowMarginBase, snsPercent: 5, snsEnrollPct: 40 });
+  const listProfit = calculateListing(lowMarginBase).fba.profit;
+  const snsProfit = subscribeSaveListing(lowMarginBase, { snsPercent: 5 }).profit;
+  assert.ok(listProfit < 0, "list price already loses money");
+  assert.ok(snsProfit < listProfit, "S&S loses even more per unit");
+  near(comparison.none.profit, listProfit, "list row matches primary calc");
+  near(comparison.typed.profit, snsProfit, "S&S row matches primary calc");
+  assert.equal(comparison.offsetUnits, Infinity);
+  // breakEvenUnits shares the same gate as offsetUnits (both flag "the
+  // discounted unit itself does not pay") and used to fall through to
+  // `null` ("not defined") whenever the list row was unprofitable, exactly
+  // the reasoning error the comment above describes for offsetUnits.
   assert.equal(comparison.breakEvenUnits, Infinity);
   assert.match(subscribeSaveSummary(comparison), /cannot recover/i);
 });
@@ -1216,6 +1325,143 @@ test("summary names dispose and the sell-through floor", () => {
   assert.doesNotMatch(text, /should dispose|must remove|create a removal/i);
 });
 
+test("aged surcharge months start after the threshold, not on it", () => {
+  assert.equal(
+    agedSurchargeMonths({
+      monthsAlreadyStored: 5,
+      additionalMonths: 3,
+      agedStartsAfterMonths: 6,
+    }),
+    2,
+  );
+  assert.equal(
+    agedSurchargeMonths({
+      monthsAlreadyStored: 0,
+      additionalMonths: 6,
+      agedStartsAfterMonths: 6,
+    }),
+    0,
+  );
+  assert.equal(
+    agedSurchargeMonths({
+      monthsAlreadyStored: 6,
+      additionalMonths: 1,
+      agedStartsAfterMonths: 6,
+    }),
+    1,
+  );
+});
+
+test("hold wins when leftover FBA profit still beats paying to dispose", () => {
+  const cuFt = cubicFeet({ length: 8, width: 6, height: 2 });
+  const fulfillment = defaultFulfillmentFee("large_standard", 0.75);
+  const decision = compareHoldVsRemove({
+    remainingUnits: 20,
+    expectedMonthsToSell: 3,
+    monthsAlreadyStored: 5,
+    agedStartsAfterMonths: 6,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 1.5,
+    removalFeePerUnit: 1.04,
+    salvagePerUnit: 0,
+    cubicFeet: cuFt,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: fulfillment,
+    adsPerUnit: 0,
+  });
+
+  const storage = cuFt * 0.87 * 3;
+  const surcharge = cuFt * 1.5 * 2;
+  const holdNet = 29.99 - 29.99 * 0.15 - fulfillment - storage - surcharge;
+  near(decision.surchargeMonths, 2, "two aged months");
+  near(decision.holdNetPerUnit, holdNet, "hold net");
+  near(decision.removeNetPerUnit, -1.04, "dispose cost");
+  near(decision.holdAdvantage, (holdNet + 1.04) * 20, "advantage");
+  assert.equal(decision.betterPath, "hold");
+  assert.equal(decision.monthsUntilRemoveWins, null);
+});
+
+test("remove wins when future warehouse cost erases the leftover sale", () => {
+  const cuFt = cubicFeet({ length: 18, width: 14, height: 8 });
+  const fulfillment = defaultFulfillmentFee("large_standard", 10);
+  const decision = compareHoldVsRemove({
+    remainingUnits: 12,
+    expectedMonthsToSell: 6,
+    monthsAlreadyStored: 8,
+    agedStartsAfterMonths: 6,
+    storageRate: 2.4,
+    agedSurchargePerCuFt: 6,
+    removalFeePerUnit: 1.5,
+    salvagePerUnit: 4,
+    cubicFeet: cuFt,
+    salePrice: 29.99,
+    referralRate: 15,
+    fulfillmentFee: fulfillment,
+    adsPerUnit: 0,
+  });
+
+  const warehouse = cuFt * 2.4 * 6 + cuFt * 6 * 6;
+  const holdNet = 29.99 - 29.99 * 0.15 - fulfillment - warehouse;
+  const removeNet = 4 - 1.5;
+  near(decision.surchargeMonths, 6, "already aged");
+  near(decision.warehousePerUnit, warehouse, "warehouse");
+  near(decision.holdNetPerUnit, holdNet, "hold net");
+  near(decision.removeNetPerUnit, removeNet, "remove net");
+  assert.ok(holdNet < removeNet);
+  assert.equal(decision.betterPath, "remove");
+  assert.equal(decision.monthsUntilRemoveWins, 2);
+});
+
+test("sunk inbound and cost of goods do not change hold vs remove", () => {
+  const shared = {
+    remainingUnits: 5,
+    expectedMonthsToSell: 2,
+    monthsAlreadyStored: 1,
+    storageRate: 0.87,
+    agedSurchargePerCuFt: 0,
+    removalFeePerUnit: 1,
+    salvagePerUnit: 0,
+    cubicFeet: 0.2,
+    salePrice: 20,
+    referralRate: 15,
+    fulfillmentFee: 4,
+    adsPerUnit: 0,
+  };
+  const a = compareHoldVsRemove(shared);
+  const b = compareHoldVsRemove({ ...shared, costOfGoods: 50, inboundPerUnit: 8 });
+  near(a.holdAdvantage, b.holdAdvantage, "sunk costs ignored");
+});
+
+test("reports when extra months of holding would flip the decision", () => {
+  const decision = compareHoldVsRemove({
+    remainingUnits: 1,
+    expectedMonthsToSell: 1,
+    monthsAlreadyStored: 0,
+    agedStartsAfterMonths: 6,
+    storageRate: 10,
+    agedSurchargePerCuFt: 0,
+    removalFeePerUnit: 1,
+    salvagePerUnit: 0,
+    cubicFeet: 1,
+    salePrice: 20,
+    referralRate: 0,
+    fulfillmentFee: 0,
+    adsPerUnit: 0,
+  });
+  assert.equal(decision.betterPath, "hold");
+  assert.equal(decision.monthsUntilRemoveWins, 3);
+  assert.equal(decision.scenarios.length, 4);
+  near(decision.scenarios[0].additionalMonths, 1, "1-month row");
+  near(decision.scenarios[3].additionalMonths, 6, "6-month row");
+});
+
+test("rejects invalid hold-vs-remove inputs", () => {
+  assert.throws(() => compareHoldVsRemove({ remainingUnits: 0, salePrice: 10 }), /at least 1/);
+  assert.throws(() => compareHoldVsRemove({ remainingUnits: 1.5, salePrice: 10 }), /whole number/);
+  assert.throws(() => compareHoldVsRemove({ remainingUnits: 1, salePrice: -1 }), /Sale price/);
+});
+
 test("applyPlacementPreset fills illustrative inbound placement rates", () => {
   const filled = applyPlacementPreset({}, "large_standard");
   assert.equal(filled.placementMinimalPerUnit, PLACEMENT_PRESETS.large_standard.minimalPerUnit);
@@ -1463,6 +1709,18 @@ test("nextCheaperWeightLb steps into the previous fulfillment band", () => {
   assert.equal(nextCheaperWeightLb("large_bulky", 12), 2);
   assert.equal(nextCheaperWeightLb("large_bulky", 2), null);
   assert.throws(() => nextCheaperWeightLb("envelope", 1), /Unknown size tier/);
+});
+
+test("nextCheaperWeightLb heavier than every listed band still steps only one band down", () => {
+  // 10 lb (160 oz) is priced by defaultFulfillmentFee's per-pound formula,
+  // above every entry in STANDARD_WEIGHT_BAND_OZ (top entry is 80 oz / 5 lb).
+  // The next cheaper stop is 5 lb (the top of that heaviest listed band,
+  // where the fee flattens back to $6.44) — not 3 lb, which would silently
+  // skip the 5 lb band a shipper could reach with a much smaller trim.
+  assert.equal(nextCheaperWeightLb("large_standard", 10), 5);
+  assert.equal(nextCheaperWeightLb("large_standard", 20), 5);
+  // Exactly at the heaviest listed band still steps down one band, as before.
+  assert.equal(nextCheaperWeightLb("large_standard", 5), 3);
 });
 
 test("compareSizeTierPackaging: default 8×6×2 box drops a tier by flattening to 0.75 in", () => {

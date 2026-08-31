@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LTL Freight Class Estimator | Density Calculator</title>
-  <meta name="description" content="Estimate LTL freight class from pallet dimensions, weight, and piece count. See shipment cube and density before requesting a carrier quote.">
+  <meta name="description" content="Estimate LTL freight class from pallet dimensions, weight, and piece count — then see the packed height that reaches the next class down, and the height at which a carrier remeasure re-rates the shipment.">
   <meta property="og:title" content="LTL Freight Class Estimator">
-  <meta property="og:description" content="A private density calculator for small shippers and freight brokers estimating LTL class before a quote.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"LTL Freight Class Estimator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Shipment cube, density, estimated freight class, multi-piece pallet calculation"}</script>
+  <meta property="og:description" content="A private density calculator for small shippers and freight brokers: freight class, the repack that reaches the next class down, and the headroom before a remeasure costs one.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"LTL Freight Class Estimator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Shipment cube, density, estimated freight class, multi-piece pallet calculation, packed height and weight needed to reach the next class down, remeasure headroom before the class above"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does density decide the class rather than weight?","acceptedAnswer":{"@type":"Answer","text":"Because a trailer runs out of space long before it runs out of weight. A carrier is selling floor and cube, so the question that sets the rate is how much weight your freight brings per cubic foot it occupies. Density is total weight divided by total cube, and the class bands here run from class 50 at 50 lb/ft³ and up, down to class 500 below 0.5 lb/ft³. Light, bulky freight is expensive to move for exactly the reason it feels cheap to lift."}},{"@type":"Question","name":"How close am I to the next class down?","acceptedAnswer":{"@type":"Answer","text":"The estimate answers it in inches and pounds rather than in density, because nobody ships a lb/ft³. The worked example is a single 48″ × 40″ × 36″ pallet at 500 lb: 40 ft³, 12.5 lb/ft³, class 85. The next band down, class 77.5, starts at 13.5 lb/ft³, and the page states what that costs you on the dock — pack the same 500 lb to 33.3″ instead of 36″, or leave the height alone and put 540 lb on the pallet. Those are the only two levers in the formula: the footprint is the pallet and the weight is the goods, so height and load are what a shipper can actually move. Sometimes 2.7 inches is a strap pulled tighter. Sometimes it is not available, and it is worth knowing that before you quote rather than after."}},{"@type":"Question","name":"How much taller can the pallet get before it costs me a class?","acceptedAnswer":{"@type":"Answer","text":"The estimate states that too, and it is the number that catches people out. Class is set by the dimensions the carrier measures, not the ones on your bill of lading, and a dimensioner reading two inches of stretch wrap you did not count re-rates the shipment after it has shipped. The worked example above has 1.5″ of headroom: at 500 lb on a 48″ × 40″ footprint, anything over 37.5″ falls out of class 85 and into 92.5. When that clearance is under half an inch the page says the freight is on the band line instead of quoting a headroom figure, because at that point a tape measure and a dimensioner disagreeing is enough to change the bill."}},{"@type":"Question","name":"Which dimensions do I measure?","acceptedAnswer":{"@type":"Answer","text":"The packed outside dimensions, including the pallet, the stretch wrap, and anything that overhangs. Not the box, not the product. A carrier dimensioner measures the space your freight actually occupies on the trailer, so measuring the carton and ignoring a 2-inch overhang is how an estimate and a re-class notice end up disagreeing. Height is measured from the floor, pallet included."}},{"@type":"Question","name":"Is weight per piece or for the whole shipment?","acceptedAnswer":{"@type":"Answer","text":"Per piece — and pieces means identical ones. The estimate multiplies both cube and weight by the piece count, so density is unchanged by how many identical pallets you ship. That is correct for density, and it is also why a mixed shipment cannot be estimated in one pass here: if your pallets differ, run the heavy configuration and the light one separately, because the real shipment classes as its parts rather than its average."}},{"@type":"Question","name":"Why isn’t this an official freight class?","acceptedAnswer":{"@type":"Answer","text":"Because density is only one of the four things that set an NMFC classification. Handling, stowability, and liability — how fragile, how stackable, how valuable and how prone to theft or damage — can move the class regardless of how dense the freight is, and many commodities have their own NMFC item number that is not density-based at all. This is a planning estimate for the density half. Verify it with your carrier or a qualified freight professional before booking, and expect accessorials (liftgate, residential, inside delivery) to sit on top of whatever the class turns out to be."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the estimate runs entirely in your browser. Nothing about your freight is sent anywhere. The usage counter is a local, opt-out tally of which features were used, never your dimensions or weights."}},{"@type":"Question","name":"Are my numbers saved, and can I share them?","acceptedAnswer":{"@type":"Answer","text":"Your last entry is saved in this browser's local storage, so refreshing the page or coming back later restores it — nothing is uploaded. “Copy shareable link” puts the same dimensions, weight, and piece count in the page's URL fragment (after the #) instead, so sending that link to a broker or coworker opens this page with the exact same freight estimated, without either of you retyping anything. A link takes priority over a saved draft when you open one."}}]}</script>
   <style>
     :root { font-family: system-ui, sans-serif; color: #202a35; background: #f4efe7; }
     body { max-width: 940px; margin: 0 auto; padding: 34px 18px; }
@@ -17,38 +18,128 @@
     h2 { margin: 0 0 5px; font-size: 1.2rem; } .hint { color: #5b625f; font-size: .88rem; margin-top: 0; }
     .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; } label { display: grid; gap: 5px; font-weight: 650; font-size: .88rem; } input { width: 100%; box-sizing: border-box; padding: 11px; border: 1px solid #b8aea3; border-radius: 8px; font: inherit; background: white; }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #9a4c25; color: white; font: inherit; font-weight: 750; cursor: pointer; } button.secondary { background: #eee4d8; color: #57301f; } .actions { display: flex; gap: 9px; margin-top: 17px; flex-wrap: wrap; }
-     .result { background: #243d3b; color: #f4f5ed; border-color: #243d3b; position: sticky; top: 14px; } .class { font-size: 4.5rem; line-height: 1; color: #f2b66c; font-weight: 850; letter-spacing: -.08em; margin: 13px 0 4px; } .result dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; font-weight: 700; } .notice { border-left: 4px solid #f2b66c; padding-left: 11px; font-size: .86rem; color: #dce6de; } .threshold { color: #f2d6ad; font-size: .86rem; }
+     .result { background: #243d3b; color: #f4f5ed; border-color: #243d3b; position: sticky; top: 14px; }.result a{color:inherit;text-decoration:underline} .class { font-size: 4.5rem; line-height: 1; color: #f2b66c; font-weight: 850; letter-spacing: -.08em; margin: 13px 0 4px; } .result dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; font-weight: 700; } .notice { border-left: 4px solid #f2b66c; padding-left: 11px; font-size: .86rem; color: #dce6de; }
+    .levers { margin: 14px 0 4px; display: grid; gap: 9px; } .lever { margin: 0; font-size: .88rem; line-height: 1.45; color: #e6eee8; border-left: 3px solid #6f8f85; padding-left: 11px; } .lever:empty { display: none; } .lever b { color: #f2b66c; } .lever .warn { color: #f2d6ad; display: block; margin-top: 3px; }
     footer { color: #5b625f; font-size: .8rem; margin-top: 22px; } footer button { background: transparent; color: #9a4c25; padding: 0; font-size: inherit; }
     @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <header><p class="eyebrow">FOR SMALL SHIPPERS AND FREIGHT BROKERS</p><h1>Estimate the freight class before the quote.</h1><p>Enter the outside dimensions, weight, and number of identical pieces. You will see shipment cube, density, and a density-based LTL class estimate you can verify with your carrier.</p></header>
+  <header><p class="eyebrow">FOR SMALL SHIPPERS AND FREIGHT BROKERS</p><h1>Estimate the freight class before the quote.</h1><p>Enter the outside dimensions, weight, and number of identical pieces. You will see shipment cube, density, and a density-based LTL class estimate you can verify with your carrier.</p><p><a href="./how-to-calculate-freight-class.html">How do I calculate LTL freight class?</a></p></header>
   <main class="grid">
     <section><h2>Your freight</h2><p class="hint">Use the packed outside dimensions. Weight is per piece; pieces can be pallets, crates, or cartons.</p><div class="fields">
       <label>Length (inches)<input id="length" type="number" min="0.01" step="0.01" value="48"></label><label>Width (inches)<input id="width" type="number" min="0.01" step="0.01" value="40"></label><label>Height (inches)<input id="height" type="number" min="0.01" step="0.01" value="36"></label><label>Weight per piece (lb)<input id="weight" type="number" min="0.01" step="0.01" value="500"></label><label>Identical pieces<input id="pieces" type="number" min="1" step="1" value="1"></label>
-    </div><div class="actions"><button id="copy" type="button">Copy estimate</button><button class="secondary" id="reset" type="button">Reset example</button></div><p id="status" class="hint" role="status"></p></section>
-     <section class="result"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><p class="threshold" id="threshold"></p><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
+    </div><div class="actions"><button id="copy" type="button">Copy estimate</button><button id="repack" type="button">Copy repack target</button><button id="share" type="button">Copy shareable link</button><button class="secondary" id="reset" type="button">Reset example</button></div><p id="status" class="hint" role="status"></p></section>
+     <section class="result"><h2>Planning estimate</h2><p class="hint" style="color:#c7d7ce">Density-based class band</p><div class="class" id="freightClass">85</div><p id="band">Estimated freight class</p><div class="levers"><p class="lever" id="leverCheaper"></p><p class="lever" id="leverDearer"></p></div><dl><dt>Total cube</dt><dd id="cube">40.00 ft³</dd><dt>Total weight</dt><dd id="totalWeight">500 lb</dd><dt>Density</dt><dd id="density">12.50 lb/ft³</dd></dl><p class="notice">This is not an official NMFC classification or freight quote. Handling, stowability, liability, packaging, commodity, and carrier rules may change the result. Verify it before booking.</p></section>
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why does density decide the class rather than weight?</h3>
+      <p>Because a trailer runs out of space long before it runs out of weight. A carrier is selling
+        floor and cube, so the question that sets the rate is how much weight your freight brings per
+        cubic foot it occupies. Density is total weight divided by total cube, and the class bands here
+        run from class 50 at 50 lb/ft&sup3; and up, down to class 500 below 0.5 lb/ft&sup3;. Light,
+        bulky freight is expensive to move for exactly the reason it feels cheap to lift.</p>
+
+      <h3>How close am I to the next class down?</h3>
+      <p>The estimate answers it in inches and pounds rather than in density, because nobody ships a
+        lb/ft&sup3;. The worked example is a single 48&Prime; &times; 40&Prime; &times; 36&Prime; pallet
+        at 500 lb: 40 ft&sup3;, 12.5 lb/ft&sup3;, class 85. The next band down, class 77.5, starts at
+        13.5 lb/ft&sup3;, and the page states what that costs you on the dock &mdash; pack the same
+        500 lb to 33.3&Prime; instead of 36&Prime;, or leave the height alone and put 540 lb on the
+        pallet. Those are the only two levers in the formula: the footprint is the pallet and the
+        weight is the goods, so height and load are what a shipper can actually move. Sometimes 2.7
+        inches is a strap pulled tighter. Sometimes it is not available, and it is worth knowing that
+        before you quote rather than after.</p>
+
+      <h3>How much taller can the pallet get before it costs me a class?</h3>
+      <p>The estimate states that too, and it is the number that catches people out. Class is set by
+        the dimensions the <em>carrier</em> measures, not the ones on your bill of lading, and a
+        dimensioner reading two inches of stretch wrap you did not count re-rates the shipment after
+        it has shipped. The worked example above has 1.5&Prime; of headroom: at 500 lb on a
+        48&Prime; &times; 40&Prime; footprint, anything over 37.5&Prime; falls out of class 85 and into
+        92.5. When that clearance is under half an inch the page says the freight is on the band line
+        instead of quoting a headroom figure, because at that point a tape measure and a dimensioner
+        disagreeing is enough to change the bill.</p>
+
+      <h3>Which dimensions do I measure?</h3>
+      <p>The packed outside dimensions, including the pallet, the stretch wrap, and anything that
+        overhangs. Not the box, not the product. A carrier dimensioner measures the space your freight
+        actually occupies on the trailer, so measuring the carton and ignoring a 2-inch overhang is how
+        an estimate and a re-class notice end up disagreeing. Height is measured from the floor,
+        pallet included.</p>
+
+      <h3>Is weight per piece or for the whole shipment?</h3>
+      <p>Per piece &mdash; and pieces means identical ones. The estimate multiplies both cube and weight
+        by the piece count, so density is unchanged by how many identical pallets you ship. That is
+        correct for density, and it is also why a mixed shipment cannot be estimated in one pass here:
+        if your pallets differ, run the heavy configuration and the light one separately, because the
+        real shipment classes as its parts rather than its average.</p>
+
+      <h3>Why isn&rsquo;t this an official freight class?</h3>
+      <p>Because density is only one of the four things that set an NMFC classification. Handling,
+        stowability, and liability &mdash; how fragile, how stackable, how valuable and how prone to
+        theft or damage &mdash; can move the class regardless of how dense the freight is, and many
+        commodities have their own NMFC item number that is not density-based at all. This is a
+        planning estimate for the density half. Verify it with your carrier or a qualified freight
+        professional before booking, and expect accessorials (liftgate, residential, inside delivery)
+        to sit on top of whatever the class turns out to be.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the estimate runs entirely in your browser. Nothing
+        about your freight is sent anywhere. The usage counter is a local, opt-out tally of which
+        features were used, never your dimensions or weights.</p>
+
+      <h3>Are my numbers saved, and can I share them?</h3>
+      <p>Your last entry is saved in this browser's local storage, so refreshing the page or coming
+        back later restores it &mdash; nothing is uploaded. &ldquo;Copy shareable link&rdquo; puts the
+        same dimensions, weight, and piece count in the page's URL fragment (after the
+        <code>#</code>) instead, so sending that link to a broker or coworker opens this page with the
+        exact same freight estimated, without either of you retyping anything. A link takes priority
+        over a saved draft when you open one.</p>
+    </section>
   </main>
-  <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
+  <footer><strong>No warranty.</strong> Free and as-is. Not legal, tax, financial, or shipping advice. Verify the output with a qualified freight professional; you remain responsible for decisions made from it. No data is uploaded. Your last entry is kept in this browser's local storage so it survives a refresh, and a shareable link carries your numbers only in the URL you choose to send &mdash; never to a server. Usage counting is local and opt-out. <button id="clearUsage" type="button">Clear local usage count</button></footer>
   <script type="module">
     import { estimateFreightClass } from './calc.mjs';
     import { recordUsage, clearUsage } from './usage.mjs';
-    const ids = ['length', 'width', 'height', 'weight', 'pieces'];
+    import { encodeInputs, decodeInputs, NUMBER_FIELD_IDS as ids } from './share.mjs';
+    import { leverText } from './levers.mjs';
     const value = id => document.getElementById(id).value;
+    const storageKey = 'ltl-freight-class-draft';
     let countedSignature = '';
+    function currentInputs() { return Object.fromEntries(ids.map(id => [id, value(id)])); }
+    // Both copy buttons paste the levers, so both read them from the same place
+    // the panel does. Returns nothing rather than throwing on invalid input;
+    // every caller has already re-run `update` and bailed if that failed.
+    function leverLines() {
+      try { return leverText(estimateFreightClass(currentInputs())).plain; } catch { return []; }
+    }
+    // A link wins over a saved draft: opening a link someone sent means seeing
+    // their numbers, not the last shipment estimated on this device.
+    const fromLink = decodeInputs(location.hash);
+    let restored = fromLink;
+    if (Object.keys(fromLink).length === 0) {
+      try { restored = JSON.parse(localStorage.getItem(storageKey) || 'null') || {}; } catch { restored = {}; }
+    }
+    for (const id of ids) {
+      if (Object.prototype.hasOwnProperty.call(restored, id)) document.getElementById(id).value = restored[id];
+    }
     function update(count = true) {
       try {
         const result = estimateFreightClass(Object.fromEntries(ids.map(id => [id, value(id)])));
         document.getElementById('status').textContent = '';
         document.getElementById('freightClass').textContent = result.freightClass;
          document.getElementById('band').textContent = `Estimated class from ${result.bandMinimumDensity} lb/ft³ minimum density`;
-         document.getElementById('threshold').textContent = result.nextLowerClass
-           ? `${(result.nextLowerClassDensity - result.density).toFixed(2)} lb/ft³ more density reaches the ${result.nextLowerClass} band.`
-           : 'This is the densest band in the planning table.';
+        const levers = leverText(result);
+        document.getElementById('leverCheaper').innerHTML = levers.cheaper;
+        document.getElementById('leverDearer').innerHTML = levers.dearer;
+        document.getElementById('repack').disabled = levers.plain.length === 0;
         document.getElementById('cube').textContent = `${result.totalCube.toFixed(2)} ft³`;
         document.getElementById('totalWeight').textContent = `${result.totalWeight.toFixed(0)} lb`;
         document.getElementById('density').textContent = `${result.density.toFixed(2)} lb/ft³`;
+        try { localStorage.setItem(storageKey, JSON.stringify(currentInputs())); } catch {}
+        if (location.hash) history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
         const signature = ids.map(value).join('|');
         if (count && signature !== countedSignature) { recordUsage('estimate_completed'); countedSignature = signature; }
       } catch {
@@ -57,16 +148,34 @@
         document.getElementById('cube').textContent = '--';
         document.getElementById('totalWeight').textContent = '--';
          document.getElementById('density').textContent = '--';
-         document.getElementById('threshold').textContent = '';
+        document.getElementById('leverCheaper').innerHTML = '';
+        document.getElementById('leverDearer').innerHTML = '';
+        document.getElementById('repack').disabled = true;
         document.getElementById('status').textContent = 'Enter positive dimensions, weight, and a whole-number piece count.';
         return false;
       }
       return true;
     }
     ids.forEach(id => document.getElementById(id).addEventListener('input', () => update()));
-     document.getElementById('copy').addEventListener('click', async () => { if (!update(false)) return; const text = `Estimated LTL freight class: ${document.getElementById('freightClass').textContent}\nDensity: ${document.getElementById('density').textContent}\nTotal cube: ${document.getElementById('cube').textContent}\nTotal weight: ${document.getElementById('totalWeight').textContent}\n${document.getElementById('threshold').textContent}\nPlanning estimate only; verify with the carrier.`; try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); } catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; } });
+     document.getElementById('copy').addEventListener('click', async () => { if (!update(false)) return; const text = `Estimated LTL freight class: ${document.getElementById('freightClass').textContent}\nDensity: ${document.getElementById('density').textContent}\nTotal cube: ${document.getElementById('cube').textContent}\nTotal weight: ${document.getElementById('totalWeight').textContent}\n${leverLines().join('\n')}\nPlanning estimate only; verify with the carrier.`; try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Estimate copied.'; recordUsage('result_copied'); } catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; } });
+    // A separate button rather than more text in "Copy estimate": what gets
+    // sent to a warehouse is the instruction, not the classification, and this
+    // is also the only signal that anyone acts on the lever rather than reads it.
+    document.getElementById('repack').addEventListener('click', async () => {
+      if (!update(false)) return;
+      const lines = leverLines();
+      if (lines.length === 0) return;
+      const text = `${document.getElementById('length').value}″ x ${document.getElementById('width').value}″ x ${document.getElementById('height').value}″ at ${document.getElementById('weight').value} lb per piece — estimated class ${document.getElementById('freightClass').textContent}.\n${lines.join('\n')}\nPlanning estimate only; verify with the carrier.`;
+      try { await navigator.clipboard.writeText(text); document.getElementById('status').textContent = 'Repack target copied.'; recordUsage('repack_target_copied'); }
+      catch { document.getElementById('status').textContent = 'Copy is unavailable in this browser.'; }
+    });
     document.getElementById('reset').addEventListener('click', () => { [['length',48],['width',40],['height',36],['weight',500],['pieces',1]].forEach(([id, val]) => { document.getElementById(id).value = val; }); countedSignature = ''; update(false); });
     document.getElementById('clearUsage').addEventListener('click', () => { clearUsage(); document.getElementById('status').textContent = 'Local usage count cleared.'; });
+    document.getElementById('share').addEventListener('click', async () => {
+      history.replaceState(null, '', `${location.pathname}#${encodeInputs(currentInputs())}`);
+      try { await navigator.clipboard.writeText(location.href); document.getElementById('status').textContent = 'Link copied — it reopens this page with the same numbers.'; }
+      catch { document.getElementById('status').textContent = 'Link is in your address bar — copy it to share these numbers.'; }
+    });
     update(false);
   </script>
 </body>

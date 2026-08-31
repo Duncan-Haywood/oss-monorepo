@@ -21,8 +21,9 @@ test('nameless rows stay uniquely labelled', () => {
   assert.equal(displayAreaName(null, undefined, 4), 'Area 5');
 });
 
-test('nameForRow ignores a leftover custom name once a catalog type is picked', () => {
-  assert.equal(nameForRow('Restrooms (full clean)', 'Server room', 2), 'Restrooms (full clean)');
+test('nameForRow prefers a typed proposal name over the catalog label', () => {
+  assert.equal(nameForRow('Restrooms (full clean)', '2nd floor restrooms', 2), '2nd floor restrooms');
+  assert.equal(nameForRow('Restrooms (full clean)', '', 2), 'Restrooms (full clean)');
   assert.equal(nameForRow('', 'Server room', 2), 'Server room');
   assert.equal(nameForRow('', '  ', 2), 'Area 3');
 });

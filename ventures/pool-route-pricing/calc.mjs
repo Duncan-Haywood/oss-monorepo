@@ -9,6 +9,14 @@ const number = (value, label) => {
   return parsed;
 };
 
+/**
+ * @param {number} [input.currentPrice] What you actually charge per account
+ *   per month today. Optional — omit or leave blank to get only the minimum
+ *   price. When given, the result includes `current`: your real margin and
+ *   route profit at that price, so an operator checking an existing route
+ *   (not just pricing a new one) can see the gap to the target, not just the
+ *   floor.
+ */
 export function calculate(input) {
   const accounts = number(input.accounts, 'Accounts');
   const visits = number(input.visits, 'Visits per account');
@@ -26,5 +34,32 @@ export function calculate(input) {
   const totalCost = labor + variableCost + overheadCost;
   const minimumRouteRevenue = totalCost / (1 - targetMargin / 100);
   const minimumMonthlyPrice = accounts ? minimumRouteRevenue / accounts : 0;
-  return { accounts, visits, monthlyHours, labor, variableCost, overheadCost, totalCost, minimumRouteRevenue, minimumMonthlyPrice, targetMargin };
+
+  const hasCurrentPrice =
+    input.currentPrice !== null && input.currentPrice !== undefined && input.currentPrice !== '';
+  const currentPrice = hasCurrentPrice ? number(input.currentPrice, 'Price you currently charge') : null;
+
+  // What an existing route actually clears today, priced the same way as
+  // the minimum above — a share of route revenue, not a markup on cost —
+  // so "am I hitting my target margin?" and "what's the floor?" answer
+  // from the same arithmetic instead of two different formulas.
+  const current = currentPrice === null ? null : (() => {
+    const routeRevenue = currentPrice * accounts;
+    const profit = routeRevenue - totalCost;
+    const margin = routeRevenue === 0 ? 0 : (profit / routeRevenue) * 100;
+    return {
+      price: currentPrice,
+      routeRevenue,
+      profit,
+      margin,
+      meetsTarget: margin >= targetMargin - 1e-9,
+      belowBreakEven: profit < 0,
+      gapToMinimum: minimumMonthlyPrice - currentPrice,
+    };
+  })();
+
+  return {
+    accounts, visits, monthlyHours, labor, variableCost, overheadCost, totalCost,
+    minimumRouteRevenue, minimumMonthlyPrice, targetMargin, current,
+  };
 }

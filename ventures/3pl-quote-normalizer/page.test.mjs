@@ -2,6 +2,27 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+test('calculator includes the report region used by the page script', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /querySelector\('#report'\)/);
+  assert.match(page, /id="report"/);
+  assert.match(page, /aria-label="Copyable quote review report"/);
+});
+
+test('page exposes the line-by-line review export', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /Show line-by-line export/);
+  assert.match(page, /summary\(r\)/);
+  assert.match(page, /id="report"/);
+});
+
+test('calculator copy falls back when the Clipboard API is denied', async () => {
+  const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(page, /function fallbackCopy/);
+  assert.match(page, /execCommand\('copy'\)/);
+  assert.match(page, /async function copyText/);
+});
+
 test('page persists quote inputs locally', async () => {
   const page = await readFile(new URL('./index.html', import.meta.url), 'utf8');
   assert.match(page, /localStorage\.setItem\(saveKey/);
@@ -81,6 +102,21 @@ test('calculator exposes editable return fee assumptions', async () => {
   assert.match(script, /returnFee/);
   assert.match(script, /restockFee/);
   assert.match(script, /Return handling \/ order/);
+});
+
+test('dedicated export page uses the live calculator record and is linked', async () => {
+  const page = await readFile(new URL('./export.html', import.meta.url), 'utf8');
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
+  assert.match(page, /exportCsv/);
+  assert.match(page, /exportJson/);
+  assert.match(page, /review_record_exported/);
+  assert.match(page, /3pl-quote-normalized\.csv/);
+  assert.match(page, /not financial, tax, legal, or engineering advice/);
+  assert.match(page, /Best-effort hosting, no SLA/);
+  assert.match(page, /github.com\/sponsors\/Duncan-Haywood/);
+  assert.match(index, /export\.html/);
+  assert.match(sitemap, /export\.html/);
 });
 
 test('calculator exposes a local CSV export from its live form', async () => {
@@ -181,6 +217,66 @@ test('inbound page compares pallet, carton, and loose receiving', async () => {
   assert.match(index, /inbound.html/);
   assert.match(sitemap, /inbound.html/);
   assert.match(robots, /Sitemap:/);
+  assert.match(index, /id="inbound-methods"/);
+  assert.match(index, /compareInboundMethods/);
+  assert.match(index, /inboundComparisonSummary/);
+  assert.match(index, /name="palletInboundFee"/);
+  assert.match(index, /name="cartonInboundFee"/);
+  assert.match(index, /id="inboundRows"/);
+  assert.match(index, /inbound_methods_compared/);
+  const inboundTable = index.match(/<table id="inboundTable">[\s\S]*?<\/table>/);
+  assert.ok(inboundTable, "index.html is missing the inbound comparison table");
+  const columns = inboundTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderInbound[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderInbound emits a different cell count than the header row");
+});
+
+test('calculator surfaces compareKitting on the quote itself', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /id="kitting"/);
+  assert.match(index, /compareKitting/);
+  assert.match(index, /kittingSummary/);
+  assert.match(index, /id="kittingRows"/);
+  assert.match(index, /kitting_compared/);
+  assert.match(index, /name="kitFee"/);
+  assert.match(index, /name="aovLift"/);
+  const kittingTable = index.match(/<table id="kittingTable">[\s\S]*?<\/table>/);
+  assert.ok(kittingTable, "index.html is missing the kitting comparison table");
+  const columns = kittingTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderKitting[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderKitting emits a different cell count than the header row");
+});
+
+test('calculator surfaces compareReturnDisposition on the quote itself', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /id="return-disposition"/);
+  assert.match(index, /compareReturnDisposition/);
+  assert.match(index, /returnDispositionSummary/);
+  assert.match(index, /id="dispositionRows"/);
+  assert.match(index, /return_disposition_compared/);
+  assert.match(index, /name="unitCost"/);
+  assert.match(index, /name="restockableRate"/);
+  const dispositionTable = index.match(/<table id="dispositionTable">[\s\S]*?<\/table>/);
+  assert.ok(dispositionTable, "index.html is missing the return-disposition comparison table");
+  const columns = dispositionTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderDisposition[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderDisposition emits a different cell count than the header row");
+});
+
+test('calculator surfaces compareAgedStorage on the quote itself', async () => {
+  const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.match(index, /id="aged-storage"/);
+  assert.match(index, /compareAgedStorage/);
+  assert.match(index, /agedStorageSummary/);
+  assert.match(index, /id="agedRows"/);
+  assert.match(index, /aged_storage_compared/);
+  assert.match(index, /name="leftoverPallets"/);
+  assert.match(index, /name="longTermStoragePerPallet"/);
+  const agedTable = index.match(/<table id="agedTable">[\s\S]*?<\/table>/);
+  assert.ok(agedTable, "index.html is missing the aged-storage comparison table");
+  const columns = agedTable[0].match(/<th\b/g).length;
+  const cells = (index.match(/function renderAged[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "renderAged emits a different cell count than the header row");
 });
 
 test('inbound SEO page explains the container-fee arithmetic', async () => {

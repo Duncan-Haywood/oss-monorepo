@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kitchen Hood Cleaning Bid Calculator | Restaurant Exhaust Cleaning Price</title>
+  <title>Kitchen Hood Cleaning Bid Calculator — Exhaust Price</title>
   <meta name="description" content="Price a restaurant hood and exhaust cleaning from the system — canopy, filters, duct, and rooftop fan — plus grease load, after-hours access, and the walk-away number. Not a per-hood guess.">
   <meta property="og:title" content="Kitchen Hood Cleaning Bid Calculator">
   <meta property="og:description" content="Bid commercial kitchen exhaust the way the trade loses money by skipping — duct and fan first, hood count last.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Hood Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Canopy, filter, duct and fan labor hours, grease-load and access multipliers, after-hours premium, travel, consumables, overhead and margin, annual contract, walk-away price, hood-only vs system comparison"}</script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you price kitchen hood cleaning?","acceptedAnswer":{"@type":"Answer","text":"Price the exhaust system, not the hood count: canopy square feet and filters, plus horizontal and vertical duct, plus the fan. Apply a grease-load multiplier, an access multiplier, after-hours labor if you work after close, travel, chemicals, and disposal. Then add overhead and the margin you intend to keep."}},{"@type":"Question","name":"Why do per-hood quotes lose money?","acceptedAnswer":{"@type":"Answer","text":"Two kitchens can share a 10-foot canopy and have completely different labor. Eight feet of horizontal duct is a short add-on. Thirty feet of vertical duct and a rooftop fan through a hatch is most of the job. A flat per-hood number cannot see that."}},{"@type":"Question","name":"How often should a restaurant hood be cleaned?","acceptedAnswer":{"@type":"Answer","text":"Operators commonly schedule from annually on light cooking to monthly on solid-fuel or 24-hour lines. Frequency is an authority-having-jurisdiction and operator decision. This calculator does not determine a required interval."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Kitchen Hood Cleaning Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Canopy, filter, duct and fan labor hours, grease-load and access multipliers, after-hours premium, travel, consumables, overhead and margin, annual contract, walk-away price, hood-only vs system comparison, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
@@ -20,16 +19,19 @@
     section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     .comp-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(3, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
     .comp-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
     .comp-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
     button:hover { background: #e6ecf4; }
     .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
     .result { position: sticky; top: 15px; background: #3a2212; color: #f8f3ee; border-color: #3a2212; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -58,13 +60,71 @@
       .comp-row label:first-child { grid-column: 1 / -1; }
       .remove { grid-column: 1 / -1; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3a2212; --pr-accent: #9a4a12;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
     <p class="eyebrow">FOR KITCHEN EXHAUST CLEANING CONTRACTORS</p>
     <h1>Bid the duct and the fan, not the hood count.</h1>
     <p>Price a restaurant hood cleaning from the exhaust system your crew actually works: canopy and filters, then the horizontal and vertical duct, then the fan. Grease load, rooftop access, and after-hours labor change the hours more than the length of the hood. You get the job price, the annual contract, and the number below which the stop loses money.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for kitchen hood cleaning?</a></p>
   </header>
 
   <main class="layout">
@@ -121,6 +181,18 @@
           <summary>How often should a restaurant hood be cleaned?</summary>
           <p>Operators commonly schedule from annually on light cooking to monthly on solid-fuel or 24-hour lines. Frequency is an operator and authority-having-jurisdiction decision. This calculator does not determine a required interval.</p>
         </details>
+        <details>
+          <summary>How much does duct and fan work add over a per-hood price?</summary>
+          <p>On a default mix of a 40 sq ft canopy, six filters, 12 feet of horizontal duct, 20 feet of vertical duct, and a rooftop fan at heavy grease load, canopy and filters alone price near $495. Add the duct and fan and the same job prices near $1,982 — a $1,487 gap, because duct work is 68.6% of the production hours in this mix, not the hood.</p>
+        </details>
+        <details>
+          <summary>Does grease load only change the price, or also how often the job repeats?</summary>
+          <p>Both, and frequency usually matters more. Moving the same system from light to extra-heavy grease load roughly doubles the per-visit price (about $1,336 to $2,520 here), but the suggested cleaning frequency moves from once a year to monthly — 12 visits. That takes annual revenue from about $1,336 to roughly $30,237: the visit count, not the per-visit multiplier, drives most of the swing.</p>
+        </details>
+        <details>
+          <summary>Why does access — rooftop versus kitchen floor — matter so much?</summary>
+          <p>The access multiplier applies per component, and it can be the biggest single number in the bid. The same 20 feet of vertical duct at kitchen-floor access prices near $803 for the job; make it a ladder-and-hatch rooftop climb and the identical footage prices near $1,199 — about $396 more from access alone, before grease load or crew size are even considered.</p>
+        </details>
       </section>
     </div>
 
@@ -155,7 +227,47 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting minutes and grease-load figures are common ballpark starting points, not a standard, a code requirement, or a guarantee. Time your own crews and replace them.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Ashgate Hood &amp; Duct LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="0"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Canopy, filters, horizontal and vertical duct, rooftop fan&#10;Quarterly service schedule"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Fan motor, bearing, or belt replacement&#10;Access panel or clean-out door fabrication"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Work performed after close. Please leave the roof hatch key and clear the cooking line."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -167,13 +279,21 @@
   <script type="module">
     import { calculateBid, COMPONENT_PRESETS, GREASE_LOADS, ACCESS_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
     const COST_IDS = [
       'hourlyWage','burdenRate','crewSize','travelHours','travelTechs','afterHoursPremium',
       'consumablesPerJob','consumablesPerHoodSqFt','disposalFee','otherJobCost',
       'overheadRate','targetMargin','cleansPerYear','proposedPrice',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const STARTING = [
@@ -266,6 +386,29 @@
       el('verdict').hidden = true;
     }
 
+    /** The grease load the contractor picked, falling back to the first preset. */
+    function selectedGreaseLoad() {
+      return GREASE_LOADS.find(item => item.id === el('greaseLoad').value) || GREASE_LOADS[0];
+    }
+
+    /**
+     * The one place the job on screen is turned into a calculator input.
+     * `update`, the copied summary and the customer proposal all price the
+     * same object; separate literals at each call site is how they come to be
+     * priced from different fields — and the grease multiplier, derived from a
+     * select rather than read straight off it, is exactly the field that gets
+     * missed. The default parameter lets `update` pass rows it has already
+     * read rather than reading them twice.
+     */
+    function readInput(components = readComponents()) {
+      return {
+        components,
+        greaseMultiplier: selectedGreaseLoad().multiplier,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
     function update() {
       const components = readComponents();
       if (components.length === 0) {
@@ -273,15 +416,9 @@
         el('split').innerHTML = '<li class="empty">Add the hood, duct, and fan above and the hour split appears here.</li>';
         return;
       }
-      const load = GREASE_LOADS.find(item => item.id === el('greaseLoad').value) || GREASE_LOADS[0];
       let result;
       try {
-        result = calculateBid({
-          components,
-          greaseMultiplier: load.multiplier,
-          ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-          proposedPrice: el('proposedPrice').value,
-        });
+        result = calculateBid(readInput(components));
       } catch (error) {
         clearOutputs(error.message, true);
         return;
@@ -349,13 +486,7 @@
     }
 
     async function copySummary() {
-      const load = GREASE_LOADS.find(item => item.id === el('greaseLoad').value) || GREASE_LOADS[0];
-      const result = calculateBid({
-        components: readComponents(),
-        greaseMultiplier: load.multiplier,
-        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
-        proposedPrice: el('proposedPrice').value,
-      });
+      const result = calculateBid(readInput());
       const text = summaryText(result);
       try {
         await navigator.clipboard.writeText(text);
@@ -405,6 +536,171 @@
 
     STARTING.forEach(addRow);
     update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'hood-cleaning-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. Cleaning is performed to the accessible surfaces of the system; it is not a fire-code determination, a fire-suppression inspection, or a statement that any required cleaning interval has been met.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Clean the kitchen exhaust system components listed below",
+        {
+          "each": "components",
+          "when": "quantity",
+          "line": "{quantity~0} {name}"
+        },
+        {
+          "line": "Scheduled for a {greaseLabel}",
+          "when": "greaseLabel"
+        },
+        {
+          "line": "Scrape accessible duct and plenum surfaces to bare metal",
+          "when": "hoursByKind.duct"
+        },
+        {
+          "line": "Clean the fan housing and blade and re-seat the fan on its hinge",
+          "when": "hoursByKind.fan"
+        },
+        "Mask and protect the cooking line, then wash down and degrease the surrounding surfaces",
+        "Leave a dated service record and affix the service sticker",
+        {
+          "line": "Return {cleansPerYear~0} time{cleansPerYear+s} a year on the agreed schedule",
+          "when": "cleansPerYear"
+        }
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "greaseLabel": ({"light":"light grease load","moderate":"moderate grease load","heavy":"heavy grease load","extra_heavy":"extra-heavy grease load"})[el('greaseLoad')?.value],
+        "components": (Array.isArray(result['components']) ? result['components'] : [])
+          .map(row => ({
+            ...row,
+            "name": ({"Canopy hood (listed sq ft)":"sq ft of canopy hood","Hood filters (each)":"hood filters","Horizontal duct (linear ft)":"linear ft of horizontal duct","Vertical duct (linear ft)":"linear ft of vertical duct","Rooftop exhaust fan (each)":"rooftop exhaust fan","Wall exhaust fan (each)":"wall exhaust fan","Makeup-air unit (each)":"makeup-air unit","Clean-out door work (each)":"clean-out door"})[row['name']] ?? row['name'],
+          })),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.jobPrice : result.proposed.price,
+        jobTitle: scopeLines(['Kitchen exhaust cleaning — {hoodCount~0} hood system{hoodCount+s}'], proposalFields(result))[0] || 'Kitchen exhaust cleaning — hood system',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

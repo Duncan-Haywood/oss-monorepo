@@ -1,0 +1,10 @@
+{
+  "vendor": "AcmeSaaS",
+  "page_url": "https://acmesaas.test/legal/privacy",
+  "page_type": "privacy",
+  "captured_at": "2026-08-20T09:00:00Z",
+  "fetch_status": "ok",
+  "sections": [
+    {"heading": "Data retention", "text": "We retain account data for 90 days after deletion."}
+  ]
+}

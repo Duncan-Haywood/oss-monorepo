@@ -7,6 +7,15 @@
 
 export const SHARE_FIELDS = Object.freeze([
   'rooms',
+  // The board and texture the bid is for. Neither is arithmetic — the rates
+  // they stamp are — but both name the work on the customer's proposal
+  // ("textureLabel"), and they were reconstructed on arrival by matching the
+  // four carried rates back against the preset table. A setter who typed their
+  // own sheet price, which is the ordinary case, matched nothing: the
+  // recipient's page read "Other / custom rates" and "No texture" over the
+  // sender's Type X and orange peel, and printed a proposal that named neither.
+  'boardType',
+  'textureType',
   'openingSqFt',
   'openingCount',
   'wastePercent',

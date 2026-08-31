@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Walk-In Tub Bid Calculator | How Much to Charge to Install a Walk-In Tub</title>
+  <title>Walk-In Tub Bid Calculator — Price to Install a Tub</title>
   <meta name="description" content="Price a walk-in tub from tub count, acrylic soaker versus cast versus whirlpool versus air-jet versus extra-wide, alcove swap versus relocate versus new-construction versus custom opening, inward versus outward versus walk-through door, contractor-supplied versus customer-supplied tub, weekday versus only-bath-in-use versus Saturday / after-hours, and extras — plus the walk-away price a $3,499 installed special cannot see.">
   <meta property="og:title" content="Walk-In Tub Bid Calculator">
   <meta property="og:description" content="Bid a walk-in tub the way the trade does — alcove, unit, extras, who bought the tub, and whether Saturday still pays — not a published installed dump — and see the margin before you send the price.">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Walk-In Tub Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Tub count, acrylic soaker vs cast vs whirlpool vs air-jet vs extra-wide comparison, alcove swap vs relocate vs new-construction vs custom-opening comparison, inward vs outward vs walk-through door, contractor-supplied vs customer-supplied tub comparison, $995 install-only walk-away, weekday vs only-bath-in-use vs Saturday/after-hours comparison, $3499 Saturday walk-away, cast-iron demo tile grab-bar handheld floor-sister permit extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Walk-In Tub Bid Calculator", "applicationCategory": "BusinessApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Tub count, acrylic soaker vs cast vs whirlpool vs air-jet vs extra-wide comparison, alcove swap vs relocate vs new-construction vs custom-opening comparison, inward vs outward vs walk-through door, contractor-supplied vs customer-supplied tub comparison, $995 install-only walk-away, weekday vs only-bath-in-use vs Saturday/after-hours comparison, $3499 Saturday walk-away, cast-iron demo tile grab-bar handheld floor-sister permit extras, walk-away price, proposed-price margin check, copyable bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why is the tub itself half the price?","acceptedAnswer":{"@type":"Answer","text":"Because that is what the job mostly is. On the defaults the unit and materials invoice at $1,875.60 against $643.19 of labor for 11.78 hours, in a $3,757.32 price. Walk-in tubs vary enormously in dealer cost — a soaker and a hydrotherapy unit with a heated seat are not the same purchase — so your invoice cost, not your hourly rate, is what decides whether this bid works."}},{"@type":"Question","name":"Is 11.78 hours realistic when installers quote two days?","acceptedAnswer":{"@type":"Answer","text":"Those are usually two different scopes. This is the tub swap: demolition of the existing unit, setting and levelling, supply and drain connection, and the surround. The second day in a typical retail quote is normally tile or wall-panel finishing, an electrical circuit for the pump and heater, or a door widening — real work, but it is not in this number unless you add it."}},{"@type":"Question","name":"What is easy to miss when quoting one of these?","acceptedAnswer":{"@type":"Answer","text":"Three things, in rough order of how often they blow up a job: the drain, because a walk-in tub needs a fast-drain path and an existing shallow trap arm may not give one; the electrical, since most powered units want a dedicated GFCI circuit; and getting the unit into the room at all — they are large, rigid, and frequently will not pass an existing bathroom door. Walk those three before you commit to a price."}},{"@type":"Question","name":"Should I be making medical or accessibility claims in the proposal?","acceptedAnswer":{"@type":"Answer","text":"No, and this tool deliberately produces none. A walk-in tub is often bought for a mobility or safety reason, but grab-bar placement, entry height, and whether a specific unit suits a specific person are clinical and code questions, not pricing ones. Quote the installation; leave the suitability judgment to an occupational therapist or the applicable accessibility standard."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2a32; background: #e8eef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -25,9 +26,13 @@
     .checks { display: grid; gap: 8px; margin-top: 12px; }
     .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
     .checks input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0ab; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #8aa0ab; background: #eef5f7; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1f2a32; }
     button:hover { background: #dce8ec; }
     .result { position: sticky; top: 15px; background: #16323a; color: #eef5f7; border-color: #16323a; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #d8e6a9; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -54,7 +59,64 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4e5d66; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #16323a; --pr-accent: #1d6b7a;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
@@ -197,7 +259,78 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. The starting hours and material rates are common ballpark figures, not an industry standard, a benchmark, or a guarantee &mdash; time your own crews and replace them.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Safestep Bath LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State plumbing lic. #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Replace the existing tub with a soaker walk-in unit&#10;Grab bars and a handheld shower"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Water heater upgrade if capacity is short&#10;Bathroom flooring replacement"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Door seal fill-tested before handover. Old tub removed the same day."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+      <h3>Why is the tub itself half the price?</h3>
+      <p>Because that is what the job mostly is. On the defaults the unit and materials invoice at
+        $1,875.60 against $643.19 of labor for 11.78 hours, in a $3,757.32 price. Walk-in tubs vary
+        enormously in dealer cost &mdash; a soaker and a hydrotherapy unit with a heated seat are not
+        the same purchase &mdash; so your invoice cost, not your hourly rate, is what decides whether
+        this bid works.</p>
+
+      <h3>Is 11.78 hours realistic when installers quote two days?</h3>
+      <p>Those are usually two different scopes. This is the tub swap: demolition of the existing unit,
+        setting and levelling, supply and drain connection, and the surround. The second day in a
+        typical retail quote is normally tile or wall-panel finishing, an electrical circuit for the
+        pump and heater, or a door widening &mdash; real work, but it is not in this number unless you
+        add it.</p>
+
+      <h3>What is easy to miss when quoting one of these?</h3>
+      <p>Three things, in rough order of how often they blow up a job: the drain, because a walk-in tub
+        needs a fast-drain path and an existing shallow trap arm may not give one; the electrical, since
+        most powered units want a dedicated GFCI circuit; and getting the unit into the room at all
+        &mdash; they are large, rigid, and frequently will not pass an existing bathroom door. Walk
+        those three before you commit to a price.</p>
+
+      <h3>Should I be making medical or accessibility claims in the proposal?</h3>
+      <p>No, and this tool deliberately produces none. A walk-in tub is often bought for a mobility or
+        safety reason, but grab-bar placement, entry height, and whether a specific unit suits a
+        specific person are clinical and code questions, not pricing ones. Quote the installation; leave
+        the suitability judgment to an occupational therapist or the applicable accessibility standard.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
@@ -228,7 +361,13 @@
       JOB_PRESETS,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const JOB_IDS = [
       'scope', 'tub', 'door', 'tubCount', 'travelMiles',
@@ -258,7 +397,11 @@
       'siteHours', 'demoCastEach', 'tileEach', 'grabEach',
       'handheldEach', 'floorEach', 'permitEach', 'travelPerMile',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
     let supplyCounted = false;
     let accessCounted = false;
@@ -448,7 +591,11 @@
 
     async function copySummary() {
       const result = calculateBid(readInput());
-      const preset = JOB_PRESETS[Number(el('jobPresets').value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const preset = el('jobPresets').value === '' ? null : JOB_PRESETS[Number(el('jobPresets').value)];
       const text = formatBidSummary(result, preset ? preset.label : 'Walk-in tub install');
       try {
         await navigator.clipboard.writeText(text);
@@ -567,7 +714,7 @@
 
     function persist() {
       try {
-        saveBid(localStorage, BID_SPEC, readInput());
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
       } catch {
         // A browser with site data blocked throws on access. Losing the save
         // is survivable; losing the calculator mid-bid is not.
@@ -575,7 +722,8 @@
     }
 
     async function copyLink() {
-      const query = encodeBid(BID_SPEC, readInput());
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
       const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
@@ -591,11 +739,15 @@
         fallback.remove();
       }
       count('link_copied');
-      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
-      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
-    const restored = restoreBid(BID_SPEC, {
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
       search: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });
@@ -627,6 +779,171 @@
 
     update();
     persist();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'walk-in-tub-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not an accessibility or medical assessment, and it is not a determination that the existing floor structure or hot-water supply is adequate without survey.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "{scopeLabel} — supply and install {tubCount} {tubLabel}",
+        "Door configuration: {doorLabel}",
+        {
+          "line": "Demolish and remove a cast-iron tub",
+          "when": "includeDemoCastIron"
+        },
+        {
+          "line": "Tile the surround",
+          "when": "includeTileSurround"
+        },
+        {
+          "line": "Fit grab bars",
+          "when": "includeGrabBars"
+        },
+        {
+          "line": "Fit a handheld shower",
+          "when": "includeHandheld"
+        },
+        {
+          "line": "Sister the floor joists to carry the filled weight",
+          "when": "includeFloorSister"
+        },
+        {
+          "line": "Permit and inspection coordination",
+          "when": "includePermit"
+        },
+        "Set, level and seal the unit; fill-test the door seal and drain before handover"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "scopeLabel": ({"alcove-swap":"Alcove swap in the same footprint, on the existing drain","alcove-relocate":"Alcove replacement with the drain or supply relocated","new-construction":"New bathroom installation, no demolition","custom-opening":"Widen the alcove or convert an existing shower"})[el('scope')?.value],
+        "tubLabel": ({"soaker-acrylic":"acrylic soaker walk-in tub","soaker-cast":"cast soaker walk-in tub","whirlpool":"whirlpool walk-in tub","air-jet":"air-jet walk-in tub","bariatric":"extra-wide / bariatric walk-in tub"})[el('tub')?.value],
+        "doorLabel": ({"inward":"Inward-swing door","outward":"Outward-swing door","walk-through":"Walk-through low-threshold entry, no swing door"})[el('door')?.value],
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Walk-in tub installation — {tubCount} unit{tubCount+s}'], proposalFields(result))[0] || 'Walk-in tub installation — unit',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

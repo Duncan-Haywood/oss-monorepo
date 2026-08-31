@@ -42,7 +42,7 @@ concurrency:
 
 jobs:
   page-integrity:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
         with:

@@ -13,6 +13,7 @@ import { inspectInvoicePeriod } from "./period.mjs";
 import { inspectCommercialReferences } from "./reference.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
+import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
 
 function parseNumber(value) {
@@ -123,6 +124,9 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentMeans(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectPaymentTerms(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentBic(invoice)) {

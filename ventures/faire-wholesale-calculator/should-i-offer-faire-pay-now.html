@@ -112,7 +112,7 @@
     <label>Wholesale unit price ($) <input id="unitWholesale" type="number" min="0" step="0.01" value="20"></label>
     <label>Units <input id="quantity" type="number" min="1" step="1" value="10"></label>
     <label>Unit cost of goods ($) <input id="unitCogs" type="number" min="0" step="0.01" value="8"></label>
-    <label>Everyday opening discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" value="0"></label>
+    <label>Everyday opening discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" max="99.9" value="0"></label>
     <label>Shipping reimbursement ($) <input id="shippingReimbursement" type="number" min="0" step="0.01" value="15"></label>
     <label>Shipping you pay ($) <input id="shippingCost" type="number" min="0" step="0.01" value="15"></label>
     <label>Everyday commission (%) <input id="commissionRate" type="number" min="0" step="0.1" value="15"></label>
@@ -120,8 +120,8 @@
     <label>First-order extra rate (%) <input id="firstOrderExtraRate" type="number" min="0" step="0.1" value="0"></label>
     <label>Processing rate (%) <input id="paymentRate" type="number" min="0" step="0.1" value="1.9"></label>
     <label>Processing fixed fee ($) <input id="paymentFixed" type="number" min="0" step="0.01" value="0.30"></label>
-    <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" value="24"></label>
-    <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" value="2"></label>
+    <label>Annual carrying-cost assumption (%) <input id="annualCarryRate" type="number" min="0" step="0.1" max="999.9" value="24"></label>
+    <label>Pay Now discount (%) <input id="payNowRate" type="number" min="0" step="0.1" max="99.9" value="2"></label>
     <label>Pay Now take-rate (%) <input id="payNowTakePct" type="number" min="0" max="100" step="0.1" value="40"></label>
     <label>Extra first orders from Pay Now <input id="extraPayNowOrders" type="number" min="0" step="1" value="0"></label>
     <label>Net remittance wait (days) <input id="netWaitDays" type="number" min="0" step="1" value="60"></label>
@@ -158,6 +158,14 @@
     The calculator is arithmetic, not advice. It does not recommend
     turning Pay Now on, raising the discount, or skipping it.
   </p>
+  <h2>Common questions</h2>
+  <h3>Should I offer Faire Pay Now?</h3>
+  <p>On the calculator defaults — a $20 × 10 first marketplace order, a 2% Pay Now discount, 40% take-rate, and 24% money — skipping Pay Now keeps $69.16 after 60-day remittance. Offering it keeps $67.88 (−$1.28). Everyone taking it keeps $65.96. The 2% matches if Pay Now remittance falls to about 31.0 days or extra first orders rise to about 0.02. One extra first order flips the offer to $133.85 (+$64.69). A 1-day remittance flips everyone-takes to $72.47 (+$3.31). This page does the arithmetic from the rates you enter; it does not recommend turning Pay Now on.</p>
+  <h3>Is Faire Pay Now the same as next-day payout?</h3>
+  <p>No. Next-day payout is a processing percent you pay Faire so your remittance arrives sooner. Pay Now is a brand-funded extra percent so the retailer pays Faire immediately. Faire can still remit to you on your payout schedule. Generic 2/10 Net 30 is a third path: it has no marketplace commission on the discounted subtotal. This page holds those off the table so the comparison stays skip-versus-Pay Now.</p>
+  <h3>When does a Faire Pay Now discount still beat skipping it?</h3>
+  <p>When remittance actually lands sooner or extra first orders cover the 2%. On these defaults the same 60-day remittance loses $1.28 against skip. The discount matches if Pay Now remittance falls to about 31.0 days. One extra first order flips ahead by $64.69. A 1-day remittance flips everyone-takes ahead by $3.31. Paste the remittance days from your payout summary — this page does not publish Faire's live Pay Now schedule.</p>
+
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with Faire Wholesale, Inc.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>

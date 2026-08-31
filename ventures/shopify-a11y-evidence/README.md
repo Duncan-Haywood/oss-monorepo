@@ -4,7 +4,7 @@ Shopify merchants and agencies can paste an `axe-core` JSON export and create a 
 
 ## Run it
 
-Open `index.html` in a browser, paste the JSON exported by axe-core, and choose **Generate evidence record**. Use **Download .txt** to save a reviewable record. No account, network call, Shopify permission, or API key is required.
+Open `index.html` in a browser, paste the JSON exported by axe-core, and choose **Generate evidence record**. Use **Copy record** for an agency or client handoff, or **Download .txt** to save a dated record. Incomplete checks are included separately so uncertain results are not lost. No account, network call, Shopify permission, or API key is required.
 
 Open `quote.html` when the next question is money: the same export becomes a fix-first list, estimated hours, and a quote range at your hourly rate. After using it, you can answer “what will this remediation cost?” in a minute instead of reading every rule by hand. The hours are a planning estimate, not a fixed bid and not a compliance determination.
 
@@ -12,7 +12,7 @@ Open `theme-areas.html` with the same JSON when the next question is which file 
 
 Open `what-changed-between-axe-scans.html` when the next question is what a fix changed. Paste the earlier export and the later one. After using it, you can now show which rules resolved, which remain (with node-count change), and which appeared only after the change — a diff that used to mean reading two axe dashboards side by side. It is a diff of two supplied results, not a compliance determination.
 
-Everything runs in the browser. The JSON is never uploaded and there are no cookies or analytics vendors. The evidence page keeps an anonymous aggregate `report_generated` count in localStorage; the quote page adds `quote_generated`, `quote_copied`, and `quote_downloaded`; the theme-area page adds `theme_areas_generated`, `theme_areas_copied`, and `theme_areas_downloaded`; the compare page adds `comparison_generated`, `comparison_copied`, and `comparison_downloaded`. All have a visible opt-out. GitHub Sponsors is optional and does not change what the tool does.
+Everything runs in the browser. The JSON is never uploaded and there are no cookies or analytics vendors. The evidence page keeps anonymous aggregate `report_generated` and `report_copied` counts in localStorage; the quote page adds `quote_generated`, `quote_copied`, and `quote_downloaded`; the theme-area page adds `theme_areas_generated`, `theme_areas_copied`, and `theme_areas_downloaded`; the compare page adds `comparison_generated`, `comparison_copied`, and `comparison_downloaded`. All have a visible opt-out. GitHub Sponsors is optional and does not change what the tool does.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 

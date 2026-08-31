@@ -1,0 +1,53 @@
+name: vendor-rate-break-even CI
+
+# Test runner for the browser-local vendor-rate-break-even.
+# The product is static ES modules with no build step and no dependencies,
+# so this does no more than a contributor runs locally: `node --test`. It
+# publishes nothing, registers nothing, and spends no API budget — it is
+# not the unattended-automation kind of workflow CLAUDE.md gates.
+#
+# Same shape as gravel-driveway-bid-calculator-ci.yml. This venture shipped
+# with tests and without one of these, so nothing but a full local run of the
+# whole fleet's suite was gating a change to it — portfolio-validate.yml does
+# not run venture unit tests.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/vendor-rate-break-even/**"
+      - ".github/workflows/vendor-rate-break-even-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/vendor-rate-break-even/**"
+      - ".github/workflows/vendor-rate-break-even-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: vendor-rate-break-even-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: ventures/vendor-rate-break-even
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
+      # PRODUCT_PLAYBOOK.md 5b requires a no-warranty clause on every published
+      # page, and it is the half build.mjs cannot inject: what a tool is not
+      # advice *about* is written in the venture's own voice. Checked here so
+      # the venture that needs the clause is the one that goes red, before the
+      # merge, rather than the Pages job on main after it.
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs vendor-rate-break-even

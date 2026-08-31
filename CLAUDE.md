@@ -89,6 +89,39 @@ candidate list. Either:
 
 (1) comes first while `publish_surface.py` reports nothing live.
 
+**That tool now reads `gitops/` as well as `.github/workflows/`** (changed
+2026-08-31). It used to answer "what does a merge to `main` publish?" from the
+workflow files alone, which stopped being the whole answer when the site moved
+to Argo CD — a manifest merged to `main` *is* the deploy there, and no workflow
+runs. So it reported "nothing publishes" while `gitops/prod` carried three
+public hostnames, and would have gone on saying so on the day the site went up.
+It now prints the Argo surface too, per hostname, and for the portfolio site
+that reads:
+
+```
+    prod  (gitops/prod)
+      + https://marisstella.dev/            (301 redirect at the ingress)
+      - https://tools.marisstella.dev/      (serves content, waiting on Secret
+                                             portfolio-site-repo)
+      + https://www.marisstella.dev/        (301 redirect at the ingress)
+
+  No stranger can reach content yet, despite the hosts marked + above:
+    - prod: https://marisstella.dev/ answers on merge but 301s to
+      https://tools.marisstella.dev/, which is waiting on Secret
+      portfolio-site-repo.
+```
+
+Two of the three hostnames *do* answer on a merge today — the apex and `www`
+are annotation-only redirects needing no workload and no Secret. Both 301 to
+the one host that serves nothing, so the portfolio still has no reachable
+content. `--check` prints that dead-end as a note rather than leaving the
+"+" marks to be misread.
+
+So "nothing live" still holds, but it now means **one seal away**, not
+"nothing is built": `portfolio-site-repo`, via
+`./bootstrap/scripts/seal-owner-secrets.sh site`. Do not read it as a reason
+to build a twelfth calculator.
+
 A candidate becomes routable when it has `ventures/<slug>/VENTURE.yaml` or a
 `product_lines` entry on its host venture.
 
@@ -123,6 +156,45 @@ Exit 0 means the branch adds nothing `main` lacks and the close is safe.
 Exit 1 prints the lines the close would destroy. The rule above covers a
 survivor that is *another PR*; this covers a survivor that is *`main`
 itself*, which is the claim that has actually been wrong.
+
+Exit 0 now comes from either of two proofs, and the report names which:
+the original line scan, or an **identical-merge proof** — replaying the
+branch on `main` with `main` winning every conflict produces `main`'s tree
+exactly. The second exists because the first went silent: on 2026-08-27 it
+said NOT SUPERSEDED for 65 of 66 open PRs, none of which were mergeable
+either, because `main` keeps absorbing the same feature from a sibling
+branch under a different filename. A gate that never opens is a gate
+nobody uses.
+
+A **NOT SUPERSEDED** verdict may now carry a **RENAME SUSPECTED** section.
+It fires when most of a file's unmatched lines have a close twin already in
+`main` under different identifiers, and it prints each pair with the file
+the twin lives in:
+
+```
+  branch  export function largestCostComponent(result) {
+  base    export function largestCostDriver(result) {
+          ↳ ventures/3pl-quote-normalizer/calc.mjs  (85% alike)
+```
+
+This is the case neither proof above catches: the branch spells the feature
+`largestCostComponent`, `main` spells it `largestCostDriver`, so no line
+matches and no merge replay is clean, yet the work is shipped. Merging such
+a branch adds a second button, a second storage key, or a weaker copy of a
+live function.
+
+**It does not license a close, and the exit code stays 1.** Similarity is
+evidence to read, not a verdict: the one word that differs between two
+93%-alike lines can be the fix the branch exists to make. Read the pairs.
+If they are the same feature, close naming the *twin's file* — the rename
+report is what you looked at, not what decided it. If the branch changes
+what the twin does, that difference is the work and it still has to merge.
+
+**Your clone is shallow.** `git fetch --unshallow` before any of this.
+Without it there is no merge base with `main`, so `git merge` refuses with
+"unrelated histories" and `git diff origin/main <branch>` reports thousands
+of files. That is the clone, not the branch — do not read it as a conflict
+or as a reason to close anything.
 
 On 2026-08-24 between 17:24 and 17:25, two sessions closed finished,
 tested features minutes apart — #1006 ("superseded by the merged eBay
@@ -159,6 +231,87 @@ agent-permission-harness checks are failing" when neither check had ever
 run on it. If a PR shows no checks, verify locally (`node --test`, the
 venture's suite, a browser pass) and record what you ran; do not read the
 blank as a failure.
+
+**And while no runner is being assigned, red CI is not failed CI either.**
+Since 2026-08-26 every workflow in the repo fails without a runner, so checks
+now arrive *red* rather than absent — which reads very differently and is the
+easier mistake. On 2026-08-27 four PRs verified green locally each came back
+with `validate`, `check`, `test`, `build`, `site-test` and `page-integrity`
+failing; so did the merge of #1849, and every other session's merge that hour.
+
+**This is not an outage and it will not pass on its own.** Earlier revisions of
+this file called it one, and that word cost real time: an outage is something
+you wait out, so session after session re-derived the same signature, wrote it
+into the ledger, and moved on. The last green run was
+**2026-08-26T22:41:49Z** — a clean cliff, not a degradation. It affects all 218
+workflows at once, including ones that touch no code, which places it at the
+account level rather than anywhere in this repo. The repository is private and
+owned by a user account, so Actions minutes here are metered; the ceiling that
+was hit is some account-level Actions condition (exhausted included minutes, a
+spending limit, a payment problem, or Actions switched off).
+
+**Which one it is, is not knowable from a session.** Do not try to measure it:
+the run-timing API (`/actions/runs/<id>/timing`) reports a billable
+`total_ms` of 0 for this repo even on a *pre-cliff run that genuinely occupied
+a runner for 99 seconds*, so it cannot attribute burn per workflow, and any
+minute or dollar figure derived from it is fiction. The cost note inside
+`.github/workflows/claude-routine-trigger.yml` is likewise an estimate its
+author wrote, not a reading. Only the owner's billing page settles the
+sub-cause.
+
+**What a session should do about it is report the unblock, not re-diagnose.**
+The fix does not depend on which sub-cause it is — self-hosted runners are not
+metered, so they restore CI either way — and it is already built and waiting in
+[`gitops/ci/`](gitops/ci/README.md). All 218 workflows already read
+`runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}`, so one repository variable
+moves every one of them at once. It needs two owner actions nobody else can
+take: seal the runner PAT (`./bootstrap/scripts/seal-owner-secrets.sh`, which
+seals this and the two other secrets the portfolio is dark behind) and set
+`CI_RUNNER` = `self-hosted`. If you are writing this up, write *that* — a
+ledger entry re-confirming the signature adds nothing the next session did not
+already know.
+
+Tell them apart in one call, before you debug anything:
+
+```
+python3 platform/ci/ci_starvation.py --run <run_id>   # or a bare <job_id>
+```
+
+Exit 0 means every job ran on a real runner, so a failure there is a real
+result and yours to fix. Exit 1 means at least one job never got one.
+
+**It no longer needs the `gh` CLI** (changed 2026-08-31). It did until then,
+which meant it exited 2 with "the gh CLI is not installed" in the web sessions
+that run these routines — the one environment where a session is most likely to
+reach for it and least able to check by hand. It now falls back to
+`api.github.com` with `GH_TOKEN`/`GITHUB_TOKEN`, and `--from-json <file>` will
+classify a jobs payload you fetched some other way (the MCP
+`list_workflow_jobs` tool, say) with no credential of its own.
+
+**The one field that settles it is `runner_id`**, and that is the only thing
+the tool votes on. A starved job carries `"runner_id": 0` and
+`"runner_name": ""` — no runner was ever assigned, so no step ever ran. It also
+runs 3-6 seconds, has empty `output.title/summary/text`, and 404s on log
+download, but each of those has a benign explanation on its own: a real job
+*can* fail in three seconds, which is how a genuine failure gets waved through
+as "the outage". An unassigned runner cannot be anything else. Verified against
+both live cases on 2026-08-31 — today's `validate` job (`runner_id: 0`, 4s,
+no steps) and the last green one before the cliff (`runner_id: 1000027517`,
+95s, 38 steps).
+
+If it reports starvation, the failure is not yours: verify locally, say what
+you ran, and give the unblock above — do not "fix" green code, and do not
+spend the session re-establishing the signature.
+
+**And check for `check_runs`, not just statuses.** The commit-status API
+(`/commits/<sha>/status`, and the `get_status` method of the GitHub MCP tools)
+returns only *legacy commit statuses*. This repo's checks are **check runs**, so
+that call reports `total_count: 0` on a PR whose checks are running or already
+red. On 2026-08-28 that read as "no checks ran — absent CI" on four PRs that
+each had six to eight red check runs. Absent CI and red CI call for different
+handling under the rules above, so confirming which one you are looking at
+needs the check-runs endpoint (`/commits/<sha>/check-runs`) or the PR's own
+checks tab — never the bare status call.
 
 ## Ledger (minimal)
 

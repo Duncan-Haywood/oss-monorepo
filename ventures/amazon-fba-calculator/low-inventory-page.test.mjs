@@ -115,3 +115,44 @@ test("index and sitemap point at the low-inventory comparison", () => {
   assert.match(index, /low-inventory-level-fee\.html/);
   assert.match(sitemap, /low-inventory-level-fee\.html/);
 });
+
+// The calculator page now renders this comparison itself rather than only
+// linking out to the page above. These guard the wiring: renderLowInventory
+// writes into ids that must exist, reads inputs that must be in the ids list
+// the page collects, and emits one cell per column header.
+test("the calculator page carries the low-inventory section renderLowInventory writes into", () => {
+  const { markup, scripts } = parse(index);
+  const script = scripts.join("\n");
+  assert.match(markup, /id="low-inventory"/);
+  for (const id of [
+    "lowInventoryVerdict",
+    "lowInventoryRows",
+    "lowInventoryNote",
+    "onHandUnits",
+    "soldLast30Days",
+    "soldLast90Days",
+    "lowInventoryFee",
+  ]) {
+    assert.ok(markup.includes(`id="${id}"`), `index.html is missing #${id}`);
+  }
+  assert.match(script, /compareLowInventory/, "renderLowInventory must import the comparison");
+  assert.match(script, /lowInventoryNote/, "the note must come from calc.mjs, not be retyped");
+  assert.match(script, /"onHandUnits",/, "onHandUnits must be in the collected ids");
+  assert.match(script, /low_inventory_compared/, "changing restock fields must count usage");
+});
+
+test("the calculator's low-inventory table renders one cell per column", () => {
+  const { markup, scripts } = parse(index);
+  const table = markup.match(/<table id="lowInventoryTable">[\s\S]*?<\/table>/);
+  assert.ok(table, "index.html is missing the low-inventory table");
+  const columns = table[0].match(/<th\b/g).length;
+  const body = scripts.join("\n").match(/function renderLowInventory\([\s\S]*?\n    \}\n/);
+  assert.ok(body, "renderLowInventory not found on the calculator page");
+  const cells = body[0].match(/packCell\(tr,/g).length;
+  assert.equal(cells, columns, "renderLowInventory emits a different cell count than the header row");
+});
+
+test("a missing on-hand figure does not blank the profit result", () => {
+  const script = parse(index).scripts.join("\n");
+  assert.match(script, /try \{\s*renderLowInventory\(\{ \.\.\.readInput\(\), sizeTier: result\.sizeTier \}\);\s*\} catch \(lowInventoryError\) \{/);
+});

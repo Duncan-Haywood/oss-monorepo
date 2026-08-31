@@ -85,3 +85,16 @@ test("index and sitemap point at the POS comparison", () => {
   assert.match(index, /shopify-pos-vs-online-fees\.html/);
   assert.match(sitemap, /shopify-pos-vs-online-fees\.html/);
 });
+
+test("index surfaces compareOnlineVsPos on the order itself", () => {
+  assert.match(index, /compareOnlineVsPos/);
+  assert.match(index, /id="posCompare"/);
+  assert.match(index, /id="posHeadline"/);
+  assert.match(index, /pos_online_compared/);
+  assert.match(index, /id="posPaymentsRate"/);
+  const table = index.match(/<table id="posTable">[\s\S]*?<\/table>/);
+  assert.ok(table, "index.html is missing the POS comparison table");
+  const columns = table[0].match(/<th\b/g).length;
+  const cells = (index.match(/posRows\.map[\s\S]*?<\/td><\/tr>`/) || [""])[0].match(/<t[hd]\b/g) || [];
+  assert.equal(cells.length, columns, "POS row emits a different cell count than the header");
+});

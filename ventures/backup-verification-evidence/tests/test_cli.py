@@ -195,6 +195,35 @@ class CheckCommandTests(unittest.TestCase):
                 main(["check", str(record_path)])
             self.assertEqual(ctx.exception.code, 0)
 
+    def test_check_can_require_end_to_end_integrity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            record_path = Path(directory) / "run.json"
+            record_path.write_text(
+                json.dumps({
+                    "tool": "restic", "exit_code": 0,
+                    "finished_at": "2026-08-24T03:00:00Z",
+                    "artifact": {"exists": True, "size_bytes": 100},
+                }), encoding="utf-8"
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                main(["check", str(record_path), "--require-integrity"])
+            self.assertEqual(ctx.exception.code, 1)
+
+    def test_check_require_integrity_accepts_intact_artifact(self):
+        with tempfile.TemporaryDirectory() as directory:
+            record_path = Path(directory) / "run.json"
+            record_path.write_text(
+                json.dumps({
+                    "tool": "tar", "exit_code": 0,
+                    "finished_at": "2026-08-24T03:00:00Z",
+                    "artifact": {"exists": True, "size_bytes": 100,
+                                  "integrity": {"result": "intact", "format": "tar"}},
+                }), encoding="utf-8"
+            )
+            with self.assertRaises(SystemExit) as ctx:
+                main(["check", str(record_path), "--require-integrity"])
+            self.assertEqual(ctx.exception.code, 0)
+
 
 if __name__ == "__main__":
     unittest.main()

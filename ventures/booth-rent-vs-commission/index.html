@@ -20,38 +20,6 @@
     "featureList": "Commission vs booth-rent take-home, effective hourly rate including unpaid hours, break-even client count, max rent that matches current split, offered-lease comparison, copyable summary"
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How do I know if booth rent is worth it?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Compare your current book both ways. Booth rent keeps more of each ticket but you pay rent, card fees, backbar, and extra unpaid hours. If the hourly rate falls even when the weekly check rises, the move is costing you time you used to get paid for."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How many clients do I need to cover booth rent?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "The break-even client count is the weekly appointments at your average ticket that make booth take-home match your commission split, holding retail constant. Below that number the lease is larger than the extra you keep of each service."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What costs do stylists forget when leaving a commission salon?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Card processing, color and backbar used on clients, wholesale cost of retail, booth insurance, towels and laundry, and the unpaid booking and cleanup hours the front desk and assistants used to cover."
-        }
-      }
-    ]
-  }
-  </script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241b16; background: #f4efe8; }
     body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
@@ -63,12 +31,20 @@
     section { background: #fff; border: 1px solid #d9cfc3; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #3a24100d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #5c5148; margin: -6px 0 14px; }
+    /* Same .hint class, opposite background: the share-link warning sits inside
+       the dark result panel, where the light-page muted brown reads 2.11:1. The
+       hint it dims is the one telling the stylist the link carries their book,
+       rent and commission numbers in the URL — the sentence least worth
+       losing. */
+    .result .hint { color: #c4b8ad; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b9aa9a; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #b9aa9a; background: #f6f0e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b9aa9a; background: #f6f0e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #241b16; }
     button:hover { background: #eee4d6; }
     .result { position: sticky; top: 15px; background: #2b1d16; color: #f7f0e8; border-color: #2b1d16; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; }
     .negative { color: #ffb0a2; } .positive { color: #b8e3b4; }
     .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
@@ -101,6 +77,7 @@
     <p class="eyebrow">FOR STYLISTS, BARBERS, AND NAIL TECHS</p>
     <h1>Compare the hour, not just the check.</h1>
     <p>Booth rent keeps more of every ticket. It also adds rent, card fees, backbar, and the unpaid hours the salon used to cover. Enter your book once and see which deal actually pays you more &mdash; in dollars and per hour.</p>
+    <p class="note"><a href="how-many-clients-does-booth-rent-need.html">How many clients do I need before booth rent pays off?</a></p>
   </header>
 
   <main class="layout">
@@ -156,6 +133,22 @@
         <details>
           <summary>What costs do stylists forget?</summary>
           <p>Card processing, color used on clients, wholesale cost of retail, booth insurance, towels, and the booking and laundry hours the front desk used to do.</p>
+        </details>
+        <details>
+          <summary>What weekly rent would make booth rent match my commission split?</summary>
+          <p>On the default book here (14 clients/week at $85, 50% commission, standard card and backbar rates), booth rent matches commission's $603 weekly take-home at $451.17/week in rent — well above the $275/week entered. Above that number the lease is taking more than the split ever did; the calculator's "Max weekly rent to match split" updates for your own numbers.</p>
+        </details>
+        <details>
+          <summary>How many clients per week do I need before booth rent pays off?</summary>
+          <p>The break-even is wherever booth take-home first matches commission at the same ticket and retail. On the default book that lands around 8.4 clients/week — the entered 14/week is already past it, which is why "Extra clients to match" reads zero. Below break-even, commission's smaller cut of a smaller check still beats rent, fees, and backbar.</p>
+        </details>
+        <details>
+          <summary>Can adding more clients always make booth rent win?</summary>
+          <p>No. Each extra client only helps booth rent if what you keep per ticket after card fees, backbar, and the salon's own commission rate is still positive. At a 92% commission split, for instance, card fees and backbar alone push that past 100% — every added client helps commission by at least as much, so no amount of volume closes the gap. When that happens the calculator reports "volume cannot close this gap"; the fix is a lower rent or lower backbar, not more chair time.</p>
+        </details>
+        <details>
+          <summary>Why might booth rent win on the weekly check but lose per hour?</summary>
+          <p>Booth rent shifts laundry, booking, and restocking onto you, and those hours are unpaid on both sides but usually more of them on booth. On the default book, raising unpaid booth hours from 7 to 15 (no front desk covering that work) still leaves booth $176/week ahead in dollars — $779 vs commission's $603 — but its hourly rate falls to $23.97 against commission's $30.92. A bigger check spread over more unpaid hours can be the worse-paying job even while it wins on the total.</p>
         </details>
       </section>
     </div>
@@ -216,7 +209,11 @@
       'cardFeePercent','backbarPercent','retailCostPercent','otherWeeklyCost',
       'unpaidHoursBooth','offeredRentAmount','offeredRentCadence',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     function readInput() {

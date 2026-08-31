@@ -9,6 +9,131 @@ const supplySeo = readFileSync(new URL('./should-i-let-them-buy-the-paper.html',
 const initialSeo = readFileSync(new URL('./should-i-throw-in-the-initial-clean.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
 
+// Walk the document the way a browser does so an unclosed raw-text element
+// really does swallow everything after it. A sibling calculator shipped dead
+// that way while its unit tests stayed green by importing calc.mjs directly.
+const RAW_TEXT_ELEMENTS = ['textarea', 'script', 'style'];
+function parseRawText(source) {
+  const RAW = /<(textarea|script|style)\b[^>]*>/i;
+  let rest = source;
+  let markup = '';
+  const scripts = [];
+  for (;;) {
+    const open = rest.match(RAW);
+    if (!open) return { markup: markup + rest, scripts, unclosed: null };
+    const tag = open[1].toLowerCase();
+    const contentStart = open.index + open[0].length;
+    markup += rest.slice(0, contentStart);
+    const closer = new RegExp(`</${tag}\\s*>`, 'i').exec(rest.slice(contentStart));
+    if (!closer) return { markup, scripts, unclosed: tag };
+    if (tag === 'script') scripts.push(rest.slice(contentStart, contentStart + closer.index));
+    markup += closer[0];
+    rest = rest.slice(contentStart + closer.index + closer[0].length);
+  }
+}
+// Every derived value must come from the *parse*, never from the raw source.
+// Kept as one function so the guards below can be re-run against deliberately
+// broken input — see 'the structural guards actually fail on a swallowed
+// document'. This suite has already been loosened once by accident: as the
+// file grew, these two lines were replaced with plain regexes over `html`,
+// which is precisely the blind spot the parse exists to close, and no test
+// failed when that happened because a weakened guard passes.
+function derive(source) {
+  const { markup, scripts, unclosed } = parseRawText(source);
+  return {
+    markup,
+    unclosed,
+    scripts,
+    scriptSource: scripts.join('\n'),
+    declaredIds: new Set([...markup.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1])),
+  };
+}
+const { markup, scriptSource, declaredIds, unclosed } = derive(html);
+
+test('every raw-text element is closed', () => {
+  assert.equal(unclosed, null, `<${unclosed}> is never closed; everything after it is swallowed as text instead of parsed as markup`);
+  for (const tag of RAW_TEXT_ELEMENTS) {
+    const opened = (html.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+    const closed = (html.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+    assert.equal(opened, closed, `<${tag}> is opened ${opened}x but closed ${closed}x`);
+  }
+});
+
+test('the module script survives parsing and would actually execute', () => {
+  assert.match(markup, /<script type="module">/, 'the app script tag is missing or was swallowed by an earlier element');
+  assert.match(scriptSource, /calculateBid/, 'the app script did not parse as a script element');
+  assert.match(scriptSource, /from '\.\/calc\.mjs'/, 'the calculation module is not imported');
+  assert.match(scriptSource, /from '\.\/usage\.mjs'/, 'the usage module is not imported');
+});
+
+test('every element the script reaches for exists in the markup', () => {
+  const wanted = new Set([
+    ...[...scriptSource.matchAll(/\bel\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+    ...[...scriptSource.matchAll(/getElementById\(\s*'([\w-]+)'\s*\)/g)].map((m) => m[1]),
+  ]);
+  assert.ok(wanted.size > 0, 'no element lookups found; the script probably did not parse');
+  const missing = [...wanted].filter((id) => !declaredIds.has(id));
+  assert.deepEqual(missing, [], `script queries ids that no element declares: ${missing.join(', ')}`);
+});
+
+test('the area-row template and the reader agree on class names', () => {
+  for (const cls of ['a-type', 'a-name', 'a-sqft', 'a-rate', 'a-freq', 'remove']) {
+    const inTemplate = new RegExp(`class="${cls}[ "]`).test(scriptSource);
+    assert.ok(inTemplate, `the row template no longer emits .${cls}`);
+    assert.ok(scriptSource.includes(`.${cls}`), `nothing reads .${cls} back`);
+  }
+});
+
+test('other spaces have an editable name and the split escapes it before rendering', () => {
+  assert.match(scriptSource, /class="a-name"/);
+  assert.match(scriptSource, /maxlength="80"/);
+  assert.match(scriptSource, /nameForRow\(preset\?\.label, row\.querySelector\('\.a-name'\)\.value, index\)/);
+  assert.match(scriptSource, /escapeHtml\(item\.name\)/);
+});
+
+test('custom name is only shown for an Other space row', () => {
+  assert.match(html, /\.select-other \.custom-name \{ display: grid; \}/);
+  assert.match(scriptSource, /row\.classList\.toggle\('select-other', isOther\)/);
+  assert.match(scriptSource, /Name this space/);
+});
+
+// A structural guard that cannot fail proves nothing, and this one was
+// silently loosened once already. These cases assert the machinery still
+// *notices* a swallowed document, so a future rewrite back to a raw-source
+// regex breaks a test instead of quietly passing.
+test('the structural guards actually fail on a swallowed document', () => {
+  const broken = html.replace('</style>', '');
+  assert.notEqual(broken, html, 'index.html no longer contains </style>; this case needs updating');
+
+  const d = derive(broken);
+  assert.equal(d.unclosed, 'style', 'an unclosed <style> was not detected');
+  assert.doesNotMatch(d.markup, /<script type="module">/, 'the app script is still visible as markup after being swallowed');
+  assert.doesNotMatch(d.scriptSource, /calculateBid/, 'swallowed script text was still collected as executable script');
+
+  // The load-bearing one: ids after the swallow point must become invisible.
+  // If `declaredIds` is ever re-derived from the raw source again, this set
+  // stays full and this assertion is what catches it.
+  assert.ok(
+    d.declaredIds.size < declaredIds.size,
+    `ids are being read from the raw file, not the parse: ${d.declaredIds.size} of ${declaredIds.size} still visible after the document was swallowed`,
+  );
+});
+
+test('an unclosed module script is caught the same way', () => {
+  // Drop the *last* </script> so the app script itself is the unclosed one.
+  const at = html.lastIndexOf('</script>');
+  assert.ok(at > 0, 'index.html has no </script>; this case needs updating');
+  const d = derive(html.slice(0, at) + html.slice(at + '</script>'.length));
+  assert.equal(d.unclosed, 'script');
+});
+
+test('the guards pass on the unmodified page (control)', () => {
+  const d = derive(html);
+  assert.equal(d.unclosed, null);
+  assert.match(d.scriptSource, /calculateBid/);
+  assert.ok(d.declaredIds.size > 0);
+});
+
 test('the bid page wires the frequency-cut comparison without a build step', () => {
   assert.match(html, /compareFrequencyReduction/);
   assert.match(html, /frequencyReductionNote/);
@@ -127,11 +252,8 @@ test('the initial-clean landing page uses the same worked example the tests lock
   assert.match(sitemap, /should-i-throw-in-the-initial-clean\.html/);
 });
 
-// This suite predates the shared structural helpers, so it grows only the two
-// it needs for the save-and-share guards below: the app script's own source,
-// and the ids the markup declares.
-const scriptSource = [...html.matchAll(/<script type="module">([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n');
-const declaredIds = new Set([...html.matchAll(/\bid="([\w-]+)"/g)].map((m) => m[1]));
+// scriptSource / declaredIds come from parseRawText above so an unclosed
+// raw-text element cannot make these share guards look at swallowed markup.
 
 // The saved-and-shared bid is only trustworthy if it carries every field the
 // calculator reads. This repo has already shipped the opposite once: a

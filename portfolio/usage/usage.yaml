@@ -61,6 +61,11 @@ products:
           local_calculation_events: 0
           payment_draft_copies: 0
         note: Shipped browser-local retainage and payment-delay worksheet; public URL remains owner-gated.
+      - as_of: 2026-08-25
+        signals:
+          live_url_visitors: null
+          cash_flow_record_downloads: 0
+        note: Added a browser-local plain-text cash-flow record download for carrying a reviewed snapshot into a contractor's own records; public URL remains owner-gated.
       - as_of: 2026-08-26
         signals:
           live_url_visitors: null
@@ -72,7 +77,6 @@ products:
           release_schedule_views: 0
           share_link_copies: 0
         note: Added modeled retainage-reduction schedule and a shareable worksheet hash link; public URL remains owner-gated.
-
   - slug: 3pl-quote-normalizer
     surface: static-page-in-repo
     readings:
@@ -126,7 +130,6 @@ products:
           qualified_pilots: 0
           github_annotation_comparisons: 0
         note: Shipped fixture-backed local comparison and CI warning output; customer demand remains untested.
-        note: Shipped fixture-backed local comparison; customer demand remains untested.
       - as_of: 2026-08-24
         signals:
           markdown_reports_rendered: 1
@@ -292,6 +295,21 @@ products:
           owner-gated, so there is no traffic signal to read yet; the
           page's counter reports only to the visitor's own browser.
           Baseline row for the browser surface.
+      - as_of: 2026-08-27
+        signals:
+          report_generated_events: 0
+          batch_report_generated_events: 0
+        note: >-
+          Brought the CLI to parity with the browser: time overrun,
+          direct-cost rises, discount asks, the price ladder, and fixed
+          vs hourly now appear in the markdown, JSON, and CSV reports,
+          and batch CSV gained a survives_overrun_percent column so a
+          folder of quotes can be sorted by which stop clearing the
+          target first if the work runs long. A cross-implementation
+          test compares the Python and site/calc.mjs tables field by
+          field. The --usage-log counter still records only the event
+          name, format, and timestamp -- never quote values -- and
+          remains opt-in per invocation.
   - slug: quote-margin-check
     surface: static-page-in-repo
     readings:
@@ -355,6 +373,62 @@ products:
           Added a crawlable effective-hourly-rate guide next to the
           calculator. Public URL remains owner-gated; the page is
           documentation of the same arithmetic, not a second calculator.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          quote_decision_send: 0
+          quote_decision_revise: 0
+          quote_decision_hold: 0
+        note: >-
+          Added local send / revise / hold workflow choices after the
+          pre-send review. The buttons record only the chosen next step;
+          they are not a recommendation. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          rate_ladder_compared: 0
+        note: >-
+          Added a 50/75/100/125 hourly-target price ladder on the browser
+          calculator. Hours and direct costs stay fixed; the table is
+          arithmetic, not a recommended quote. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          quote_preset_selected: 0
+        note: >-
+          Added editable website, brand, and consulting quote starting points.
+          Presets are examples only. Public URL remains owner-gated, so this
+          is a zero baseline.
+
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          hours_budget_shown: 0
+        note: >-
+          Added a target-rate hours budget: leftover cash after direct costs
+          divided by the supplied target rate. Counted once per settled quote,
+          not per keystroke. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          time_buffer_compared: 0
+        note: >-
+          Added an optional time-buffer percentage that prices the same
+          target rate against buffered hours. Public URL remains
+          owner-gated; the counter stores only aggregate local events.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          overrun_sensitivity_compared: 0
+        note: >-
+          Two fixes found while draining the PR queue. The target-rate hours
+          budget is a signed figure and went negative once direct costs
+          passed the price, so the page told a freelancer the quote
+          "supports -4.00 total hours"; it now says there is no time budget
+          and why. The overrun sensitivity table was also the only scenario
+          panel with no usage signal, so nothing recorded whether it was
+          read. Public URL remains owner-gated; the counter stores only
+          aggregate local events and remains opt-out.
   - slug: mls-photo-spec-preflight
     surface: static-page-in-repo
     readings:
@@ -655,6 +729,15 @@ products:
           claims and upload time (claim-rate floor, quote ceiling,
           time ceiling). Still no public URL; local event
           ebay_labels_compared is opt-out and stores no inputs.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          max_acquisition_cost_calculated: 0
+        note: >-
+          Added the maximum item cost that still hits the typed target
+          margin at the current sale price, beside the ROI sourcing
+          ceiling. Still no public URL; local event
+          max_acquisition_cost_calculated is opt-out and stores no inputs.
   - slug: cut-list-optimizer
     surface: static-page-in-repo
     readings:
@@ -821,6 +904,15 @@ products:
           Added a private hash share link and copyable order summary on
           the main Shopify fee calculator. The link encodes inputs only
           and is never uploaded. Public URL remains owner-gated.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          handoff_opened: 0
+        note: >-
+          Added a partial-link decoder alongside the existing whole-scenario
+          share token, so where-to-sell-calculator's own-store row can hand an
+          item in. handoff_opened separates an arrival from a full share link
+          (share_link_opened). Public URL remains owner-gated.
   - slug: where-to-sell-calculator
     surface: static-page-in-repo
     readings:
@@ -834,6 +926,18 @@ products:
           subscription amortisation and the price each channel needs to match
           the best. Public URL remains owner-gated; the local-first counter
           reports only to the user's own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added per-channel time-to-sale: what each channel keeps per day of
+          waiting, a ranking toggle between profit-per-sale and profit-per-day,
+          and a callout when the two disagree. New opt-in event
+          `ranked_by_speed` is the one that answers whether sellers value the
+          speed view — the second hypothesis in VENTURE.yaml. Still no public
+          URL, so still no traffic signal; 34 unit tests pass and the primary
+          journey was verified in Chromium.
       - as_of: 2026-08-25
         signals:
           live_url_visitors: null
@@ -864,6 +968,24 @@ products:
           separable from ordinary fee use; event name and day only, opt-out,
           DNT/GPC honoured, never leaves the browser. Public URL still
           owner-gated, so this stays a zero baseline.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          handoff_amazon: 0
+        note: >-
+          Extended the "keep going with this item" handoff to Amazon, which
+          previously ended at a ranking with no way through. eBay and Etsy
+          already had one; own-store and local still have no prefillable
+          target. Public URL remains owner-gated.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          handoff_own-store: 0
+        note: >-
+          Extended the handoff to the own-store row. All four channels with a
+          dedicated calculator now carry the item through; local/direct and the
+          free-text "other" channel have no target by design. Public URL remains
+          owner-gated.
   - slug: no-show-fee-calculator
     surface: static-page-in-repo
     readings:
@@ -1009,6 +1131,17 @@ products:
           (2-day label, pack time, Prime take). Public URL remains
           owner-gated; local event sfp_compared is opt-out and stores
           no inputs.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          share_link_copied: 0
+          shared_link_opened: 0
+        note: >-
+          Added a shareable scenario link (every input in the URL fragment) and
+          prefill from where-to-sell-calculator's handoff. The two counters
+          separate "made a link" from "arrived on one", which is what will say
+          whether the cross-tool handoff is worth keeping. Public URL remains
+          owner-gated.
   - slug: einvoice-preflight
     surface: local-cli
     readings:
@@ -1511,6 +1644,474 @@ products:
           first. Counted locally through the same opt-out, DNT/GPC-respecting
           path as every other hub event; the cache is the visitor's own
           browser storage and is never read back by anyone. Baseline row.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          shop_rates_saved: 0
+          shop_rates_applied: 0
+          shop_rates_opened: 0
+          pages_carrying_shop_rates: 103
+        note: >-
+          The shop-rates bar now reaches four tools it was silently skipping:
+          snow removal (which spells the per-person wage `operatorWage`, now
+          aliased rather than renamed), and tree service, appliance repair and
+          the portable-restroom quote, which share burden, overhead and margin
+          but price labour differently and now carry the fields they do share
+          while naming the one they cannot. 99 pages to 103, and 3 of those 4
+          are whole tools that previously offered nothing. The signal to read
+          once live is `shop_rates_applied / shop_rates_saved` — whether a
+          contractor who saves their rates once actually meets them on a second
+          tool, which is the return-visit premise of the hub. Same local,
+          aggregate, opt-out, DNT/GPC-respecting path as every other hub event;
+          the rates never leave the visitor's browser. Still a baseline row:
+          the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          saved_bids_opened: 0
+          bid_saved: 0
+          bid_restored: 0
+          bid_restore_refused: 0
+          bid_deleted: 0
+          pages_carrying_saved_bids: 234
+        note: >-
+          Saved bids: every calculator with a form now keeps a finished bid
+          under a name the contractor chooses, and restores the whole job from
+          it. The gap this closes is the second half of a bid — the tool made
+          Tuesday's proposal a real document and still met Friday's "what was
+          that number again?" with a blank form. 234 pages, which is wider than
+          the shop-rates bar because it needs no per-field review: a bid never
+          crosses tools, so every field on the page is carried and none of them
+          has to mean the same thing anywhere else. The signal to read once
+          live is `bid_restored / bid_saved` — whether a saved bid is actually
+          returned to, which is the clearest return-visit evidence this
+          portfolio can collect without accounts. `bid_restore_refused` is
+          watched separately and is not a failure: it counts the times a form
+          no longer matched the saved job and the restore was declined rather
+          than half-applied. A number that climbs relative to `bid_restored`
+          would say the itemised tools change shape more than expected and the
+          rule needs to recreate rows rather than refuse. Same local,
+          aggregate, opt-out, DNT/GPC-respecting path as every other hub event;
+          the bids and the customer names in them never leave the browser and
+          are never read back by anyone. Still a baseline row: the public URL
+          remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          saved_bid_index_shown: 0
+          saved_bid_followed: 0
+          tools_reachable_from_a_saved_bid: 162
+        note: >-
+          The saved-bid index on the hub. Saved bids were already kept per tool
+          and restored per tool, and that is unchanged — a bid never crosses
+          tools, because the form it was priced on is the only form it fits.
+          What was left over was the question "which tool was it?": the store is
+          one `localStorage` key on one origin, so the hub has held every
+          visitor's whole bid list since the feature shipped and displayed none
+          of it. A contractor who saved "14 Oak St — Mrs Reid" in the gutter
+          calculator on Tuesday had to remember that on Friday, out of 162
+          tools, before the saved bid was worth anything. The hub now lists
+          every saved bid newest-first with the tool that priced it, linking to
+          `/<slug>/#pf-jobs`, where the band opens on arrival. The signal to
+          read once live is `saved_bid_followed / bid_saved` — whether a saved
+          bid is returned to *through the hub*, which separates "the tool
+          remembered" from "the contractor found it again". Read it beside
+          `bid_restored`: a `saved_bid_followed` that does not become a
+          `bid_restored` means the index sent someone to a form that had since
+          changed shape, and the refusal message is where they stopped.
+          Deliberately not gated on the counting opt-out, unlike "pick up where
+          you left off": that row is derived from counts and is genuinely empty
+          without them, whereas these are the visitor's own saved documents and
+          the tool pages already show them to someone who has opted out. Only
+          the two events are gated, by the same local, aggregate, opt-out and
+          DNT/GPC-respecting path as every other hub event. Neither event
+          carries a bid name or a slug — how often the index is used, never for
+          what, and no customer name reaches a URL, a fragment, or the counter.
+          Still a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          saved_bid_index_expanded: 0
+          bids_drawn_before_the_cut: 8
+        note: >-
+          Follow-up on the index above, and a correction to it: the list drew
+          eight rows and said nothing about the rest. Bids are capped at 25 per
+          tool, so a contractor working across three or four tools passes eight
+          quickly, and the section's own copy promises "bids you saved in any
+          tool" — a silent stop at eight contradicts it, and the likeliest
+          reading of a missing job is that the tool forgot it, which is the one
+          thing this feature exists to disprove. The list now says "Showing the
+          8 most recent of N saved bids" and offers "Show all N". N counts only
+          rows the visitor could actually open: the withdrawn-tool filter runs
+          before the cut rather than after, so the number offered is never
+          larger than the number of links behind it. `saved_bid_index_expanded`
+          is the reading — how often eight is not enough, which is what would
+          justify raising the default or grouping the list by tool. Same local,
+          aggregate, opt-out and DNT/GPC-respecting path; the event carries no
+          name and no slug. Still a baseline row: the public URL remains
+          owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          bids_backup_downloaded: 0
+          bids_backup_restored: 0
+          bids_backup_rejected: 0
+        note: >-
+          Backup and restore for saved bids. Everything the three rows above
+          built stands on one `localStorage` key in one browser, and the hub's
+          own copy said so — "clearing your browser data clears them." That is
+          honest and it is also a single point of loss with no way out of it:
+          the job priced on the phone on Tuesday is not on the laptop on
+          Friday, a reinstalled browser takes every bid with it, and Safari
+          evicts script-written storage on a site nobody has opened for seven
+          days, which is exactly the cadence a fortnightly tool has. Each of
+          those ends in a blank form and a customer asking what the number was
+          — the failure saved bids exist to prevent, arriving through the
+          storage rather than through the tool. The hub now writes every saved
+          bid plus the shop rates into a file the visitor keeps, and reads one
+          back on any browser on this origin. No account and no server: there
+          is nowhere here to upload to and no wish for one. A restore merges
+          and never deletes (the newer save wins where a job is on both sides,
+          so an old backup cannot take a re-priced job back in time), and
+          nothing is dropped silently — unreadable entries and bids past the
+          25-per-tool cap are counted in the status line. Shop rates are taken
+          only where there are none to overwrite, because they prefill 103
+          calculator pages and a file must not silently reprice them.
+          `bids_backup_restored` is the reading that matters: a restore is
+          either a visitor who had already lost their bids once or one working
+          across two devices, and both are stronger return-visit evidence than
+          a page view. `bids_backup_rejected` is watched separately and is not
+          a failure — it counts a wrong file refused rather than half-imported;
+          a number that climbs against `bids_backup_restored` would say the
+          file is hard to find again rather than hard to read. Same local,
+          aggregate, opt-out and DNT/GPC-respecting path as every other hub
+          event; no event carries a name, a slug, or a count of what was in the
+          file, and the file itself never leaves the browser. Still a baseline
+          row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          bid_marked_won: 0
+          bid_marked_lost: 0
+          bid_marked_waiting: 0
+          pages_carrying_bid_outcomes: 234
+        note: >-
+          Bid outcomes and follow-up. The four rows above make a bid a document,
+          keep it, index it and get it off one browser — and then stop at the
+          moment the contractor's money is actually decided. A one-truck trade's
+          largest lost revenue is not the job priced wrong; it is the quote
+          nobody chased. Nothing in the tool ever said "this quote is nineteen
+          days old and you have not heard back", because a saved bid had no
+          state beyond existing. Each one now carries an outcome — waiting, won
+          or lost — set from a select on its own row, and the band and the hub
+          both open with one sentence built from every bid on the device: "3
+          bids are waiting on an answer, the oldest saved 19 days ago. You have
+          won 4 of the 7 you have heard back on." Waiting is the absence of the
+          other two rather than a stored value, so every bid saved before this
+          shipped reads correctly and nothing migrates. Two correctness rules
+          are worth recording because both would fail silently: re-pricing a job
+          carries its outcome forward (saving over "14 Oak St" is the common
+          case, and a re-price is not the same event as hearing back, so
+          dropping it would move a won job back into the chase list), and a
+          backup merge resolves the outcome on its own clock (marking a bid won
+          does not move `at`, so under "later save wins" alone a win recorded on
+          the phone would be discarded as "unchanged" when that file reached the
+          laptop). The reading to take once live is `bid_marked_won /
+          (bid_marked_won + bid_marked_lost)` — a win rate the contractor can
+          see, and the first outcome signal in this portfolio that is about the
+          user's money rather than the tool's use. Read `bid_marked_waiting`
+          beside them: it counts a decision undone, and a number that climbs
+          would say the control is being hit by accident rather than used.
+          Counts are per event and carry no name, no slug and no amount; the
+          bids and the customer names in them never leave the browser. Same
+          local, aggregate, opt-out and DNT/GPC-respecting path as every other
+          hub event. Still a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          bid_lost_to_set: 0
+          bid_lost_to_cleared: 0
+          bid_undercut_shown: 0
+          pages_carrying_the_gap: 160
+        note: >-
+          What the lost job actually went for. The price band above can say
+          "every bid you won was $2,400 or under, and every one you lost $2,600
+          or over", which is the ceiling of what the tool could work out alone:
+          it knows the quotes that were refused and nothing about the quote that
+          was accepted. So a contractor learns they are losing above a figure
+          and still has to guess whether the winner was $200 under them or
+          $1,200 — two situations calling for opposite responses, and guessing
+          wrong is expensive in both directions. The number is usually just told
+          to them, and until now there was nowhere to put it. A lost row now
+          carries one optional box, and once two lost jobs have a figure the
+          panel reads "On the 2 you lost where you know the winning price, yours
+          averaged $500 more — 20% over. The closest was $400 over." When the
+          gap is negative or zero it says so at least as loudly: none of them
+          went to a cheaper bid, so price is not what decided these — the
+          finding that stops a contractor cutting a price that was never the
+          problem, and the one a cheaper quote cannot fix. Two a side before
+          anything is drawn, and it reports the figures it was given rather than
+          a target price. Two correctness rules, both of which would fail
+          silently: the figure belongs to the loss and not to the pricing, so
+          flipping a bid to won or back to waiting drops it rather than leaving
+          a winning price attached to a job nobody lost; and a backup merge
+          carries it with the decision it resolves, which is the defect class
+          that already cost this feature its outcomes once. The reading to take
+          once live is `bid_undercut_shown` against `bid_marked_lost` — how
+          often a recorded loss turns into an actual answer about price rather
+          than a row in a list. Counts are per event and carry no name, no slug
+          and no amount; the figure a contractor types is stored in their own
+          browser and never leaves it. Same local, aggregate, opt-out and
+          DNT/GPC-respecting path as every other hub event. Still a baseline
+          row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          bid_cost_set: 0
+          bid_cost_cleared: 0
+          bid_margin_shown: 0
+          pages_carrying_the_margin: 160
+        note: >-
+          What the won jobs actually kept. Every reading this panel had was
+          about winning — which quotes are still out, which have gone quiet,
+          where the price tips, how far under the winner was, how often the yes
+          comes — and none of them could tell a contractor whether the work they
+          win is worth having. That is the other half of pricing and it is the
+          half that decides whether a higher win rate is good news: a shop
+          winning 80% at a price that loses money on every job is in deeper
+          trouble than one winning 30%, and until now every signal here would
+          have read as going well. A won row now carries one optional box for
+          what the job came to once it was delivered, the mirror of "Went for"
+          on a lost one, and once three are costed the panel reads "The 3 you
+          finished here were priced at $2,200 and cost you $1,900 — you kept
+          $300, 14% of what you charged. They run from 4% to 40%, so the figure
+          above is not what any one of these jobs did — the low end is the one to
+          go back over." Three design rules, each of which would fail quietly.
+          The share is **pooled** — total kept over total charged — not the mean
+          of the per-job shares: on that same book the mean is 16% and 14% is
+          what went in the bank, and the mean flatters a shop whose small jobs
+          are its profitable ones, which is the common shape in the trades and
+          exactly the shape not to be flattered about. A job below its own cost
+          is named rather than averaged away, because one job at -15% inside
+          five at +18% barely moves a pooled total and is the finding with the
+          shortest path to money. And the loss quoted is the deepest in
+          *currency*, not in percent — on a book holding a $100 job that cost
+          $200 and a $10,000 job that cost $10,500, quoting the worst share
+          would point at the small job while the $500 hole went unmentioned.
+          Never a margin to aim for: there is no correct one, it moves with
+          trade and overhead and with what a shop counts as a cost, and a test
+          asserts "should", "aim", "target", "too high/low", "healthy", "ideal"
+          and "industry" appear in no branch. The reading to take once live is
+          `bid_cost_set` against `bid_marked_won` — how many wins a contractor
+          comes back to cost, which is the whole funnel this depends on, and the
+          one number that says whether an after-the-job input is something
+          people will actually do. Read `bid_margin_shown` beside it for how
+          often three on one tool accumulate. Counts are per event and carry no
+          name, no slug and no amount; the cost a contractor types is stored in
+          their own browser and never leaves it. Same local, aggregate, opt-out
+          and DNT/GPC-respecting path as every other hub event. Still a baseline
+          row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          saved_bid_keep_shown: 0
+          tools_compared_on_the_hub: 164
+        note: >-
+          Which of a contractor's trades the finished work is actually worth
+          doing. The margin reading added earlier the same day answers that for
+          one tool, in money, on that tool's own page — and a crew that fences,
+          decks and cleans gutters therefore reads three separate margins on
+          three separate pages and is never told the one thing that decides what
+          they go and sell: these are not the same number. The hub now puts them
+          beside each other. Once two trades each carry two costed wins it reads
+          "Of the 6 finished jobs you have costed, across 3 tools, Fence Bid
+          Calculator kept the most: 28% of what you charged on 2; Lawn Care Bid
+          Calculator kept 5% on 2. That gap is in which work you take rather
+          than across your prices." Deliberately no book-wide total: a pooled
+          figure would need one currency across every tool and, worse, it is the
+          average that buries the finding — a shop keeping 30% on gutters and
+          losing money on decks has a decks problem, and the mean of the two
+          describes no work they do. Percentages only, which is what makes it
+          safe across currencies (a share is a fact inside one bid's own
+          currency), pooled inside each trade so a small profitable job cannot
+          flatter a large thin one, and a trade priced in two currencies is
+          dropped rather than converted. A trade finishing below its own cost is
+          said plainly and first, because it is the one finding here that makes
+          winning more work actively worse. Never a share to aim for, pinned by
+          the same test over every branch. One wiring defect it exists to close:
+          the hub's `savedBids()` is a hand copy of `normalizeBid` and did not
+          carry `cost`, so any hub reading dividing a cost into a price would
+          have been injected on every visit and returned nothing forever — the
+          third time that field-by-field transcription has silently dropped a
+          reading, now pinned by a build test and by a browser step. The reading
+          to take once live is `saved_bid_keep_shown` against `bid_margin_shown`
+          — how many contractors cost enough jobs on more than one tool to get
+          the comparison, which is what says whether this portfolio's users work
+          one trade or several. Counts are per event and carry no name, no slug,
+          no trade and no figure; the costs stay in the visitor's own browser.
+          Same local, aggregate, opt-out and DNT/GPC-respecting path as every
+          other hub event. Still a baseline row: the public URL remains
+          owner-gated on `deploy-settings`.
+      - as_of: 2026-08-29
+        signals:
+          live_url_visitors: null
+          saved_bid_trend_shown: 0
+          decided_bids_needed_on_one_trade: 8
+        note: >-
+          Whether what a contractor changed is working. Every hub reading before
+          this one is a snapshot pooled over the whole book, which is the right
+          shape for "how am I doing" and the wrong shape for the question that
+          follows it: a book here is accumulated over months, so a shop that
+          raised its rates in June, or re-costed decks because the win rate told
+          them to in May, reads a rate that averages the before and the after.
+          The change is not merely invisible in it — it is diluted by exactly
+          the half of the book it was meant to fix. Once one trade carries eight
+          decided bids the hub now reads "Fence Bid Calculator has been landing
+          less often than it was: 0 of 6 on the 6 most recent, against 6 of 6
+          before them. The recent half starts 70 days back." The pooled win rate
+          on that identical book says "6 of 12 — 50%", which is true and
+          describes neither half of that shop's year. Split inside one tool and
+          never pooled across trades (a movement summed over a fence change and
+          a deck change describes neither); ordered by when a bid was priced
+          rather than when it was answered, because the price is what is under
+          examination and an old quote answered late would otherwise be credited
+          to prices this shop no longer charges; halves by count rather than by
+          calendar, so the two counts read straight across. Four decided bids a
+          side and forty points apart before it is a finding, both matching the
+          win rate's floors against the same step size — one bid of difference
+          is a single unusual job, not a change in how the work lands. The turn
+          is dated in days back off the recent half, which is a fact about the
+          sample rather than a claim about when anything changed, and the
+          sentence says plainly that a slow season moves this as much as a price
+          does. Never a rate to aim for and never a cause, pinned over both
+          branches. The reading to take once live is `saved_bid_trend_shown`
+          against `saved_bid_win_rate_shown` — what share of books here are long
+          enough to have a history at all, which is the first direct measure of
+          whether these tools are being returned to over months rather than used
+          once. Counts are per event and carry no name, no slug, no trade, no
+          figure and no direction. Same local, aggregate, opt-out and
+          DNT/GPC-respecting path as every other hub event. Still a baseline
+          row: the public URL remains owner-gated on `deploy-settings`.
+      - as_of: 2026-08-29
+        signals:
+          live_url_visitors: null
+          bid_trend_shown: 0
+          pages_carrying_the_panel: 237
+        note: >-
+          The same trend reading, moved to where it is worth the most: the
+          saved-bid panel on each tool's own page, as `toolTrendSentence`. The
+          hub is the page a contractor opens when a customer rings back; the
+          tool page is the page they are on while deciding what to charge for
+          the next job, which is the only moment the finding can still change an
+          outcome. It names no trade there — there is only one, and saying it
+          would be telling the reader where they are standing. Both sentences
+          are built on one `trendSplit`, so the two pages cannot disagree about
+          what moved, and the two injected bundles part company at the sentence
+          so neither page pays for the other's. It is the one reading in that
+          panel not gated on the page having a headline figure: it counts
+          outcomes and never reads a number, so a tool that stores no amounts
+          can still tell its user their quotes have stopped landing — a third of
+          the pages the panel reaches would otherwise have been silently
+          excluded. Counted as `bid_trend_shown`, local only, on change, with no
+          name, no trade, no figure and no direction. The reading to take once
+          live is `bid_trend_shown` against `saved_bid_trend_shown` — whether
+          this finding is met where it can still be acted on or only afterwards
+          on the hub, which is the first evidence about which of the two
+          surfaces the returning users of this portfolio actually live on. Still
+          a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
+      - as_of: 2026-08-29
+        signals:
+          live_url_visitors: null
+          saved_bid_mix_shown: 0
+          readings_the_hub_now_crosses: 2
+        note: >-
+          Whether the work a contractor wins is the work that pays. The panel
+          could already answer that question twice and had never once asked it:
+          `winRateSentence` names the trade that lands most often,
+          `keepSentence` names the trade that keeps most of what it charges, and
+          a shop reading those two lines one under the other reads two
+          compliments and one complaint. Crossed, the same two numbers say the
+          opposite. On the fixture the browser step drives — Fence landing 4 of
+          5 and keeping 5%, Deck landing 2 of 8 and keeping 28% — the hub now
+          reads "The work you win is not the work that pays", names both trades
+          with both of their figures, and points the price rise at the trade
+          that is *winning* rather than at the one that is losing. That is the
+          shape underpricing takes from the inside, and it is invisible from any
+          single tool page by construction: one tool knows its own win rate and
+          its own kept share, and the finding is that those two disagree between
+          trades. It is the strongest argument yet for the hub carrying a bid
+          panel at all. The mirror branch is drawn too and is a finding rather
+          than a consolation — where the best-landing trade is also the
+          best-keeping one, that is the single pairing on the page worth
+          answering with more selling rather than a price change. Where the two
+          rankings neither clearly oppose nor clearly agree it draws nothing: a
+          hedge would be a line on the busiest page in the site that changes
+          nothing anyone does. Sample bars are borrowed rather than invented —
+          four decided bids for a rate, two costed wins for a share, 40 points
+          of rate gap, 15 points of kept-share gap — and a tool must clear all
+          of them at once, which makes this strictly rarer than either
+          neighbour and is the right price for the one line here that tells
+          someone to raise a price. Never a rate, a margin or a mix to aim for,
+          pinned by the same test over every branch. Percentages and counts
+          only, so a book of dollar and euro jobs compares without a conversion
+          this site does not have; a trade priced in two currencies is dropped
+          rather than converted. The reading to take once live is
+          `saved_bid_mix_shown` against `saved_bid_keep_shown` — how many of
+          the contractors who cost their finished jobs have enough decided bids
+          on the same trades to get the cross, which is what says whether this
+          reading is worth the bar it sets or whether the bar has to come down.
+          Counts are per event and carry no name, no slug, no trade, no figure
+          and not even which of the two branches drew. Same local, aggregate,
+          opt-out and DNT/GPC-respecting path as every other hub event. Still a
+          baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
+      - as_of: 2026-08-29
+        signals:
+          live_url_visitors: null
+          bid_cost_gap_shown: 0
+          pages_carrying_the_ask: 160
+        note: >-
+          Named the narrowest point in this portfolio's money funnel instead of
+          going quiet at it. Every money reading built in the last week — the
+          tool page's `marginSentence`, the hub's `keepSentence`, the hub's
+          `mixSentence` — stands on one input no calculation can supply: what
+          the job came to once it was delivered. It is the only field here a
+          contractor has to come back *after* the work to fill in, it is
+          optional, and until now nothing in the product mentioned it. A
+          contractor who won six jobs, marked all six won and costed none saw
+          exactly what a fully costed book shows minus one paragraph, with no
+          way to tell that was a choice rather than a tool with nothing to
+          offer them. `costGapSentence` now says which: "None of the 3 jobs you
+          have won here carry what they came to once they were delivered. Put
+          that figure in the box beside 3 more of them and this panel starts
+          saying what your finished work actually kept — the one question every
+          reading above it leaves open, because they are all about winning the
+          work rather than about whether the work was worth winning." The
+          second branch is the honest one and fires while the margin *is*
+          drawing: "Of the 4 jobs you have won here, 3 carry what they came to
+          and 1 do not. A kept figure can only be drawn from the 3 — the rest
+          are missing from it rather than averaged into it." A pooled figure
+          over part of a book, printed where a reader takes it for the whole,
+          is the failure `marginSentence`'s own prose could warn about and only
+          a count can settle. Deliberately not a banner: it asks for exactly
+          what the reading still needs rather than for every row, it never
+          appears where costing every won job would still not reach the floor —
+          a prompt promising a reading the book cannot support is worse than
+          silence — and it disappears the moment the last won job carries a
+          cost. No money figure in any branch, so it is safe on a book priced
+          in more than one currency, and no "should", no share to aim for. The
+          reading to take once live is the funnel itself: `bid_cost_gap_shown`
+          as the denominator against `bid_cost_set` as the numerator, which is
+          the first direct measurement of whether naming a missing input gets
+          it filled in — and `bid_cost_set` against `bid_marked_won` remains
+          the outer funnel this sits inside. Counts are per event and carry no
+          name, no figure, no cost and not which branch drew. Same local,
+          aggregate, opt-out and DNT/GPC-respecting path as every other event.
+          Still a baseline row: the public URL remains owner-gated on
+          `deploy-settings`.
   - slug: walmart-marketplace-calculator
     surface: static-page-in-repo
     readings:
@@ -1542,6 +2143,20 @@ products:
           ticket still beats holding the list. Public URL remains
           owner-gated; the local-first counter reports only to the user's
           own browser and is opt-out. Baseline row.
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          wfs_box_compared: 0
+        note: >-
+          Added the size-tier repack decision — the only lever on this tool
+          that leaves the listing price alone. WFS fulfillment is a step
+          function of the shipped carton, so the page compares the box as
+          shipped against a proposed repack, names which of the four
+          Standard ceilings each box misses and by how much, and nets the
+          repack labour off the fee step. `wfs_box_compared` is the new
+          signal; it counts a comparison, never a person, and stays in the
+          visitor's own browser. Public URL remains owner-gated behind
+          `GITHUB_PAGES_ENABLED`, so this is another zero baseline.
   - slug: faire-wholesale-calculator
     surface: static-page-in-repo
     readings:
@@ -1949,6 +2564,15 @@ products:
   - slug: tiktok-shop-fee-calculator
     surface: static-page-in-repo
     readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Added a live free-shipping comparison (charge vs eat the label vs
+          bake postage into the item). Same customer total is a referral tie
+          and not an affiliate tie when commission is on item price only.
+          Public URL remains owner-gated.
       - as_of: 2026-08-24
         signals:
           live_url_visitors: null
@@ -1994,6 +2618,17 @@ products:
           event accessorials_compared is opt-out and stores no inputs.
 
   - slug: repository-branch-hygiene
+    surface: repository-cli
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_inventory_runs: 0
+        note: >-
+          Baseline row completing a slug-only stub that had carried no surface
+          and no readings. The venture is a read-only branch inventory CLI at
+          prototype stage with no public URL; nothing has been measured yet, so
+          this records an honest zero rather than implying a reading was taken.
   - slug: dns-configuration-evidence
     surface: local-cli
     readings:
@@ -2023,6 +2658,8 @@ products:
           Added a static landing page so the CLI has a public entry once
           Pages is enabled. Public URL remains owner-gated; no repository
           data is collected.
+      - as_of: 2026-08-26
+        signals:
           local_observations_compared: 0
           local_inconclusive_observations: 0
           qualified_operators: 0
@@ -2051,6 +2688,26 @@ products:
           calculator that prices travel labor and why a 16x7 is not two
           8x7s; public URL remains owner-gated and the browser counter is
           local and opt-out. Baseline row.
+  - slug: security-camera-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-28
+        signals:
+          live_url_visitors: null
+          bid_calculated: 0
+          proposal_printed: 0
+        note: >-
+          Adopted the customer proposal, the last of the 102 bid calculators to
+          do so. The blockers were this tool rather than the trade -- five house
+          conventions its page spelled differently -- so the page was brought to
+          the house shape and `calc.mjs` now echoes the job's defining inputs
+          (camera count, retention quoted, drives fitted) into the result the
+          scope is drafted from. The drafted scope names the retention quoted
+          and the retention the fitted drives actually hold, which is the
+          handover this venture exists to stop failing. `proposal_printed` is
+          the new signal; both count events, never people, and stay in the
+          visitor's own browser. Public URL remains owner-gated behind
+          `GITHUB_PAGES_ENABLED`, so this is a zero baseline.
   - slug: deck-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -2075,6 +2732,18 @@ products:
           prices bags from the R-value delta, air sealing, and access a
           flat attic special hides; public URL remains owner-gated and
           the browser counter is local and opt-out. Baseline row.
+  - slug: spray-foam-bid-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: >-
+          Rematched the unique spray-foam bid calculator (board feet, cell,
+          rim, ignition coating) that an attic-square-foot special cannot
+          see; public URL remains owner-gated and the browser counter is
+          local and opt-out. Baseline row.
   - slug: window-replacement-bid-calculator
     surface: static-page-in-repo
     readings:
@@ -2087,6 +2756,26 @@ products:
           United Inches, story access, and tear-out a per-window special
           hides; public URL remains owner-gated and the browser counter
           is local and opt-out. Baseline row.
+  - slug: marketplace-fee-compare
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          comparisons_run: 0
+          comparisons_copied: 0
+        note: >-
+          Shipped a cross-channel net-profit comparison: one item priced
+          against eBay, Etsy, Amazon, Walmart, TikTok Shop and an own-store
+          checkout at once. The portfolio already had a deep calculator for
+          each of those and none for the question a multi-channel seller
+          starts with, so this is a new answer rather than a seventh fee
+          engine — every row links onward to the per-channel tool for what a
+          headline rate cannot carry. Public URL remains owner-gated on
+          `GITHUB_PAGES_ENABLED`, so this is a zero baseline rather than a
+          demand result; the browser counters are local and opt-out. The
+          onward-click hypothesis in VENTURE.yaml is not measurable until a
+          public URL exists.
 # Example of the shape, once a product has shipped:
 #
 # products:
@@ -2276,6 +2965,17 @@ products:
           Repair-and-merge of unique #1230 cash runway planner onto
           current main. Public URL remains owner-gated; usage is opt-in
           and local-only. Baseline row.
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          forecast_runs: 0
+          csv_exported: 0
+        note: >-
+          Salvaged the unique work from #1226 onto current main: the
+          forecast now names the first week cash goes negative, rejects a
+          fractional collection delay it used to round up silently, and
+          reports a bad figure instead of leaving Download CSV inert.
+          Public URL remains owner-gated.
 
   - slug: ltl-freight-class-estimator
     surface: static-page-in-repo
@@ -2290,6 +2990,23 @@ products:
           onto current main. Public URL remains owner-gated; the
           local-first counter reports only to the user's own browser
           and is opt-out. Baseline row.
+      - as_of: 2026-08-31
+        signals:
+          live_url_visitors: null
+          estimate_completed: 0
+          result_copied: 0
+          repack_target_copied: 0
+        note: >-
+          Restated the density gap as the two levers a shipper controls:
+          the packed height and the per-piece weight that reach the next
+          class down, and the height at which a carrier remeasure re-rates
+          the freight into the class above. New signal
+          `repack_target_copied` fires only when someone copies the repack
+          instruction, so acting on a lever is separable from reading the
+          class — the outcome measure for this feature rather than another
+          view count. Event name and day only, opt-out, DNT/GPC honoured,
+          never leaves the browser. Public URL still owner-gated, so this
+          stays a zero baseline.
 
   - slug: hvac-maintenance-contract-calculator
     surface: static-page-in-repo
@@ -2317,6 +3034,14 @@ products:
           Repair-and-merge of unique #1441 subcontractor cash-flow
           planner onto current main. Public URL remains owner-gated;
           usage is opt-out and local-only. Baseline row.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          scenario_planned: 0
+        note: >-
+          Added retention-release timing: days after the invoice payment
+          when held-back retainage is modeled as arriving. Public URL
+          remains owner-gated; usage is opt-out and local-only.
 
   - slug: medical-courier-route-margin
     surface: static-page-in-repo
@@ -2369,6 +3094,27 @@ products:
           Repair-and-merge of unique #1411 public-record snapshot comparer
           onto current main. Local CLI only; --usage-file is opt-in and
           stores an aggregate count. Public URL remains owner-gated.
+
+  - slug: public-record-watch
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js/usage.js/
+          style.css): paste before/after register exports, get the identical
+          added/removed/changed report the CLI produces, parsed and rendered
+          client-side. Nothing is uploaded; register names and record fields
+          are never sent anywhere. This venture had a CLI but no way for a
+          stranger to try it without a clone and a Python install, same shape
+          as npm-deployment-evidence and vendor-change-evidence before their
+          own browser front ends. Public URL remains owner-gated on the same
+          two blockers as every other tool here; usage is opt-out and honors
+          DNT/GPC.
 
   - slug: contractor-bid-readiness
     surface: static-page-in-repo
@@ -2446,6 +3192,23 @@ products:
           opt-in and stores an aggregate count. Public URL remains
           owner-gated. Baseline row.
 
+  - slug: fifo-pick-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+          example_used: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js) that
+          runs the CLI's identical FIFO pick-order check client-side —
+          drag/drop or paste a pick-log CSV, never uploaded. Separate
+          surface from the existing repository-cli row per this file's own
+          rule; first reading is the baseline, no public URL yet.
+
   - slug: cleaning-dilution-calculator
     surface: static-page-in-repo
     readings:
@@ -2506,6 +3269,19 @@ products:
           Repair-and-merge of unique #1202 pool route pricing calculator
           onto current main. Public URL remains owner-gated; local counting
           is anonymous, honors DNT/GPC, and is off by a visible control.
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          local_estimate_events: 0
+          local_share_link_events: 0
+        note: >-
+          Added a private local draft (localStorage) so route assumptions
+          survive a reload, and a shareable link (URL hash, nothing
+          uploaded) so an operator can send a route to a partner without
+          retyping eight numbers -- this venture had share.mjs/persistence
+          that most sibling calculators already carry. New share-link
+          event added to the same anonymous, DNT/GPC-respecting counter.
+          Still zero because the surface is not public yet.
 
   - slug: construction-evidence-log
     surface: static-page-in-repo
@@ -2610,6 +3386,22 @@ products:
           Repair-and-merge of unique #1169 vendor-change evidence onto current
           main. Local snapshot compare only; failed fetches stay inconclusive.
           Keep #1368 open until supersede_check exits 0.
+
+  - slug: vendor-change-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          snapshot_compared: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js/usage.js/
+          style.css): paste before/after snapshots, get the identical
+          changed/unchanged/inconclusive report the CLI produces, parsed
+          entirely client-side. evidence.js ports vendor_change.py's compare()
+          rules line-for-line so the two surfaces cannot silently diverge.
 
   - slug: tender-radar
     surface: static-page-in-repo
@@ -2866,6 +3658,24 @@ products:
           Shipped a local package-lock v2/v3 production-vs-dev reachability
           report. No public URL; usage is an optional local aggregate
           counter only.
+
+  - slug: npm-deployment-evidence
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-30
+        signals:
+          live_url_visitors: null
+          report_generated: 0
+          markdown_downloaded: 0
+          json_downloaded: 0
+          example_used: 0
+        note: >-
+          Shipped a browser front end (index.html/evidence.js/app.js) that
+          runs the CLI's identical lockfile-classification logic
+          client-side — drag/drop or paste a package-lock.json, never
+          uploaded. Separate surface from the existing local-cli row per
+          this file's own rule; first reading is the baseline, no public
+          URL yet.
 
   - slug: cra-evidence-desk
     surface: local-cli
@@ -3383,3 +4193,61 @@ products:
           short-load fee, walk-away price). Distinct from concrete lifting.
           Public URL remains owner-gated; the browser counter is local,
           opt-out, and honors DNT/GPC. Baseline row.
+  - slug: grant-reporting-tracker
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-24
+        signals:
+          live_url_visitors: null
+          local_events_reported: 0
+        note: Shipped private browser deadline queue and CSV export; public publishing is owner-gated, so this is the initial baseline.
+  - slug: vendor-watch
+    surface: process-host-in-repo
+    readings:
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          check_started: 0
+        note: >-
+          Repair-and-merge of unique #905 vendor page change monitor. In-memory
+          snapshots only; usage events are event name + path + day, never the
+          checked URL. Public URL remains owner-gated.
+      - as_of: 2026-08-26
+        signals:
+          live_url_visitors: null
+          check_started: 0
+          check_unchanged: 0
+          check_changed: 0
+        note: >-
+          Snapshots moved into the visitor's own browser, so a baseline now
+          survives a restart and is never answered from another visitor's
+          snapshot. check_changed and check_unchanged are the outcome signals
+          worth watching: before this, a returning visitor could only ever see
+          check_first_snapshot, so repeat value was unmeasurable rather than
+          merely unmeasured. Public URL remains owner-gated.
+  - slug: appointment-deposit-calculator
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          deposit_calculated: 0
+          policy_copied: 0
+        note: >-
+          Salvage of unique closed #1218 appointment deposit calculator onto
+          current main. Distinct from the no-show fee calculator: this sets
+          the commitment before booking. Public URL remains owner-gated;
+          usage is opt-out and honors DNT/GPC. Baseline row.
+  - slug: sponsor-ready
+    surface: static-page-in-repo
+    readings:
+      - as_of: 2026-08-27
+        signals:
+          live_url_visitors: null
+          scan_completed: 0
+          summary_copied: 0
+        note: >-
+          Salvage of unique closed #922 GitHub Sponsors readiness checklist
+          onto current main. Distinct from grant-deadline-tracker and
+          grant-reporting-tracker. Public URL remains owner-gated; usage is
+          opt-out and honors DNT/GPC. Baseline row.

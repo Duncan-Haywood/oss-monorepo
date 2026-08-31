@@ -200,6 +200,31 @@ export function computeRecovery({ feeAmount, annualLostRevenue, annualFeeRevenue
 }
 
 /**
+ * Models how much of the appointment value represented by no-shows is
+ * recovered by the fee policy, and the annual dollar exposure still
+ * unrecovered at that rate. This is intentionally an estimate based on
+ * the user's enforcement assumption, not a claim about actual collections.
+ *
+ * `recoveredPct` is the same ratio as `computeRecovery`'s `recoveryRatePct`
+ * (kept as a separate export because both shipped independently and other
+ * call sites already depend on each name); `remainingAnnualExposure` is the
+ * one figure `computeRecovery` does not already surface at annual
+ * cadence — it clamps at zero so an enforcement rate that overshoots the
+ * modeled exposure never reads as negative "recovered more than possible".
+ *
+ * @param {{ annualFeeRevenue: number, annualLostRevenue: number }} args
+ */
+export function computeRecoveryEstimate({ annualFeeRevenue, annualLostRevenue }) {
+  const recoveredPct = annualLostRevenue > 0
+    ? round2((annualFeeRevenue / annualLostRevenue) * 100)
+    : 0;
+  return {
+    recoveredPct,
+    remainingAnnualExposure: round2(Math.max(0, annualLostRevenue - annualFeeRevenue)),
+  };
+}
+
+/**
  * Runs every calculation from a single validated input set.
  * @param {{ price: number, bookingsPerWeek: number, noShowRatePct: number, noticeHours: number, feePercent: number, enforcementRatePct: number, depositPercent?: number }} values
  */
@@ -222,6 +247,7 @@ export function computeAll(values) {
     annualLostRevenue,
     annualFeeRevenue,
   });
+  const { recoveredPct, remainingAnnualExposure } = computeRecoveryEstimate({ annualFeeRevenue, annualLostRevenue });
   return {
     feeAmount,
     noShowsPerYear,
@@ -232,6 +258,8 @@ export function computeAll(values) {
     monthlyExposure,
     monthlyFeeRevenue,
     monthlyUnrecovered,
+    recoveredPct,
+    remainingAnnualExposure,
     inputs: values,
   };
 }
@@ -648,11 +676,12 @@ export function generateDepositPolicyText({
  * Always returns text ending in the non-warranty note — callers should not
  * strip it.
  *
- * @param {{ businessName?: string, serviceName?: string, noticeHours: number, feePercent: number, feeAmount: number, currencySymbol?: string }} args
+ * @param {{ businessName?: string, serviceName?: string, collectionMethod?: string, noticeHours: number, feePercent: number, feeAmount: number, currencySymbol?: string }} args
  */
 export function generatePolicyText({
   businessName,
   serviceName,
+  collectionMethod = "payment-method",
   noticeHours,
   feePercent,
   feeAmount,
@@ -662,6 +691,12 @@ export function generatePolicyText({
   const what = serviceName && serviceName.trim() ? serviceName.trim() : "appointment";
   const notice = formatHours(noticeHours);
   const fee = `${currencySymbol}${feeAmount.toFixed(2)}`;
+  const collection = {
+    "payment-method": "We will charge the payment method you provided for the booking.",
+    invoice: "We will send an invoice for the cancellation or no-show fee, payable according to its terms.",
+    booking: "The fee will be collected when the booking is made, using the payment method offered at checkout.",
+    contact: "We will contact you to arrange payment of the cancellation or no-show fee.",
+  }[collectionMethod] ?? "We will contact you to arrange payment of the cancellation or no-show fee.";
 
   const lines = [
     `Cancellation & No-Show Policy — ${who}`,
@@ -669,6 +704,8 @@ export function generatePolicyText({
     `We ask for at least ${notice} of notice to cancel or reschedule your ${what}.`,
     "",
     `Cancellations or no-shows with less than ${notice} of notice will be charged ${feePercent}% of the ${what} price (${fee}).`,
+    "",
+    collection,
     "",
     "This isn't a penalty — a reserved slot that opens up with little notice usually can't be rebooked, so the fee covers that lost time.",
     "",
@@ -694,6 +731,7 @@ const SHARE_FIELDS = [
   "fillTwoDayPct",
   "businessName",
   "serviceName",
+  "collectionMethod",
 ];
 
 export const DRAFT_STORAGE_KEY = "no-show-fee-calculator:draft:v1";

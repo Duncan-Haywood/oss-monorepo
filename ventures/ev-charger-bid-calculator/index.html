@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>EV Charger Installation Bid Calculator | How Much to Charge to Install a Level 2 EVSE</title>
+  <title>EV Charger Installation Bid Calculator — Level 2 EVSE Cost</title>
   <meta name="description" content="Price a residential Level 2 EV charger install from the circuit, the run, the trench, and the panel work — not a flat hang fee. See labor hours, voltage drop, the walk-away price, and why a detached garage is a different job.">
   <meta property="og:title" content="EV Charger Installation Bid Calculator">
   <meta property="og:description" content="Bid the run and the panel, not the charger. Size the circuit at 125%, hold a 3% voltage drop, and see the walk-away number before you send the price.">
@@ -11,44 +11,11 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "EV Charger Installation Bid Calculator",
-        "applicationCategory": "BusinessApplication",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "featureList": "125% continuous-load breaker sizing, copper voltage-drop check, trench and panel-work labor, walk-away price, proposed-price margin check, shareable private quote link"
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How much should I charge to install an EV charger?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "There is no flat hang fee. A 20–25 foot indoor Level 2 install on a panel with a spare slot often lands near a thousand dollars of contractor price once wage burden, permit, and margin are in. The same 48 A charger on a 70-foot trench to a detached garage that also needs a service upgrade is several times that. Price the circuit, the run, the trench, and the panel work."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What size breaker does a Level 2 EV charger need?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "EVSE is a continuous load. Size the overcurrent device at 125% of the charger’s continuous current and round up to a standard breaker: 32 A → 40 A, 40 A → 50 A, 48 A → 60 A, 80 A → 100 A. Confirm against the charger nameplate and the adopted code in the jurisdiction."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "When does an EV charger install need a service upgrade?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "When the existing service does not have enough unused capacity for the new breaker. Subtract a realistic existing load from the service rating. If the remainder is smaller than the EVSE breaker, the bid should include a service upgrade or a load-management device — not a hope that the panel will be fine."
-            }
-          }
-        ]
-      }
-    ]
+    "@type": "SoftwareApplication",
+    "name": "EV Charger Installation Bid Calculator",
+    "applicationCategory": "BusinessApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "125% continuous-load breaker sizing, copper voltage-drop check, trench and panel-work labor, walk-away price, proposed-price margin check, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"
   }
   </script>
   <style>
@@ -62,12 +29,15 @@
     section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
     h2 { margin-top: 0; font-size: 1.15rem; }
     .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
     .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
     button:hover { background: #e6ecf4; }
     .result { position: sticky; top: 15px; background: #10263a; color: #f3f7fb; border-color: #10263a; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #9ee0b4; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -97,6 +67,78 @@
       .result { position: static; color: #10263a; background: #fff; border: 1px solid #10263a; }
       .summary-actions, footer label, #addNothing { display: none; }
       .negative { color: #9b2c1f; }
+    
+      /* The internal sheet is the contractor's own copy; a previewed proposal
+         never rides along with it. Scoped by `:not(.printing-proposal)` rather
+         than left to specificity — a bare `#proposalDoc` is an id selector and
+         outranks `body.printing-proposal .pr-shell`, which printed the
+         customer's copy blank. Mutually exclusive selectors cannot race. */
+      body:not(.printing-proposal) #proposalDoc { display: none !important; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #7fa8bc; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #10263a; --pr-accent: #1f6f8b;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #10263a0d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* This page prints two different sheets. It printed the contractor's own
+       bid — cost, overhead, profit — before the proposal existed, and that is
+       still a feature, so the two are separated by a body class rather than by
+       replacing the older rules: `printProposal` sets it, `afterprint` clears
+       it, and a plain Ctrl+P still yields the internal sheet.
+
+       The safety property is unchanged: whenever the customer's sheet is the
+       one printing, `main` is hidden outright rather than by an allow-list, so
+       a cost field added later cannot leak onto a customer's copy by omission.
+       If the class fails to apply the contractor gets their own sheet instead
+       of the proposal — visibly wrong, rather than silently over-sharing. */
+    @media print {
+      body.printing-proposal { max-width: none; padding: 0; background: #fff; }
+      body.printing-proposal header,
+      body.printing-proposal main,
+      body.printing-proposal footer,
+      body.printing-proposal .pr-shell > .pr-print-hint { display: none !important; }
+      body.printing-proposal .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      body.printing-proposal .pr-shell[hidden] { display: none !important; }
+      body.printing-proposal .pr-doc { max-width: none; font-size: 11pt; }
+      body.printing-proposal .pr-block, body.printing-proposal .pr-sign, body.printing-proposal .pr-price { break-inside: avoid; }
+      body.printing-proposal .pr-sign { margin-top: 26pt; }
+      body.printing-proposal a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
     }
   </style>
 </head>
@@ -105,6 +147,7 @@
     <p class="eyebrow">FOR ELECTRICAL CONTRACTORS</p>
     <h1>Bid the run and the panel, not the charger.</h1>
     <p>A Level 2 EVSE is a continuous load. Size the breaker at 125%, pick copper that holds a 3% voltage drop for the actual run, then add trench hours and panel work. A 25-foot indoor hang on a spare slot is one job. The same 48&nbsp;A charger on a 70-foot trench to a detached garage that also needs a service upgrade is several times that price — and a flat “EV charger install” quote cannot see the difference.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge to install an EV charger?</a></p>
   </header>
 
   <main class="layout">
@@ -178,8 +221,56 @@
         </details>
         <details>
           <summary>Do I have to include a service upgrade?</summary>
-          <p>Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation.</p>
+          <p>Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation. A 200&nbsp;A service already estimated at 190&nbsp;A of existing load has only 10&nbsp;A of headroom; a 48&nbsp;A charger needs a 60&nbsp;A breaker, so that job gets flagged even though the panel itself has a free slot.</p>
         </details>
+        <details>
+          <summary>Why does a long run sometimes need thicker wire than the breaker alone requires?</summary>
+          <p>Ampacity and voltage drop are two different limits. A 48&nbsp;A charger's 60&nbsp;A breaker is carried by #6 copper on ampacity alone, but at 160 feet that #6 run would sit past the 3% voltage-drop budget at 240&nbsp;V. The calculator checks both and upsizes to #4 (1.98% drop at 160 ft) whenever the shorter-run wire would fail the drop check — the wire size shown is whichever limit binds for the feet you entered, not just the breaker size.</p>
+        </details>
+        <details>
+          <summary>How much can a detached garage and a service upgrade add to the price?</summary>
+          <p>At the default rates, a 48&nbsp;A indoor hang on a spare slot with a 25-foot run prices near $1,263. Move the same charger to a detached garage with a 70-foot run, a 60-foot trench, and a service upgrade, and it prices near $4,587 — largely trench labor and restoration, the extra outdoor labor rate, and the 8 hours a service upgrade adds to the panel line. Same charger, almost 3.6&times; the price, because the job is not the charger.</p>
+        </details>
+        <details>
+          <summary>What does the baseline comparison number mean?</summary>
+          <p>The result panel prices your entered job against a fixed reference — the same wage, burden, overhead, and margin, but a 48&nbsp;A indoor hang, 20-foot run, spare panel slot, no trench, no hardware. At the defaults that baseline prices near $1,189, so a $1,263 quote reads as about 6% over it. That reference is the "easy garage" number a customer often has in mind from a flat-fee ad; the ratio shows how far your actual job's numbers move it, not whether either price is right.</p>
+        </details>
+      </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Voltway Electric"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(206) 555-0117"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="WA-ELC-88213"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="1120 NW Leary Way, Seattle WA"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="K. Nakamura"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="4408 Phinney Ave N"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install a 48 A hardwired Level 2 charger&#10;60 A circuit on a 40 ft run"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="The charger itself if customer-supplied&#10;Drywall patching and paint"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Charger mounted at 48 in to the handle. Circuit labelled at the panel."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
       </section>
     </div>
 
@@ -218,6 +309,10 @@
     </section>
   </main>
 
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the customer's sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not electrical, engineering, code, legal, tax, or financial advice, and it does not tell you what to charge or whether a panel is safe. It is not a permit load calculation and it does not determine NEC or local-code compliance. Verify every figure against your own takeoff, the nameplate, the adopted code, and a licensed electrician before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
@@ -228,7 +323,12 @@
   <script type="module">
     import { calculateBid, defaultInputs, PANEL_WORK, LOCATION_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
 
     const FIELD_IDS = [
       'chargerAmps','runFeet','trenchFeet','location','installType','panelWork',
@@ -236,9 +336,19 @@
       'overheadRate','targetMargin','permitFee','chargerHardware','otherMaterials',
       'otherHours','proposedPrice',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
     const DRAFT_KEY = 'ev-charger-bid-draft';
+    // Declared here (not beside COMPANY_KEY below) so persistDraft()/
+    // restoreDraft() a few lines down can read them without a
+    // temporal-dead-zone error — `restoreDraft()` runs before the script
+    // reaches the "Customer-facing proposal" section.
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
 
     function readInputs() {
       return Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
@@ -256,18 +366,42 @@
     }
 
     function persistDraft() {
-      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(readInputs())); } catch { /* private mode */ }
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          ...readInputs(),
+          // The deposit split, valid-until days, customer name/address, and the
+          // proposal's payment-terms/notes/exclusions text live on this same
+          // form but outside FIELD_IDS. Leaving them out is the local-draft
+          // version of the bug proposal-terms.mjs documents for shared links:
+          // the price restores exactly and the deposit quietly reverts to the
+          // page default, with nothing on screen saying so.
+          proposal: Object.fromEntries([...CLIENT_IDS, ...TERM_IDS].map((id) => [id, el(id).value])),
+        }));
+      } catch { /* private mode */ }
     }
 
     function restoreDraft() {
-      const fromUrl = decodeInputs(window.location.hash || window.location.search);
+      const incoming = splitTerms(window.location.hash || window.location.search);
+      // Written before the early return below: a link that carries only the
+      // terms is still a link worth opening.
+      applyTerms(decodeTerms(incoming.terms), el);
+      const fromUrl = decodeInputs(incoming.payload);
       if (Object.keys(fromUrl).length > 0) {
         writeInputs({ ...defaultInputs(), ...fromUrl });
         return;
       }
       try {
         const saved = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
-        if (saved && typeof saved === 'object') writeInputs({ ...defaultInputs(), ...saved });
+        if (saved && typeof saved === 'object') {
+          writeInputs({ ...defaultInputs(), ...saved });
+          // A share-link load above already applied its five terms via
+          // applyTerms() and carries no `.proposal` (customer name/address
+          // never ride a share link, by design). Only a local-draft load
+          // reaches here with one.
+          Object.entries(saved.proposal || {}).forEach(([id, value]) => {
+            if ([...CLIENT_IDS, ...TERM_IDS].includes(id) && el(id)) el(id).value = value;
+          });
+        }
       } catch { /* ignore a corrupt draft */ }
     }
 
@@ -424,18 +558,28 @@
     }
 
     async function copyLink() {
-      const encoded = encodeInputs(readInputs());
+      const terms = readTerms(el);
+      const encoded = withTerms(encodeInputs(readInputs()), terms);
       const url = `${location.origin}${location.pathname}#${encoded}`;
       history.replaceState(null, '', `#${encoded}`);
       await writeClipboard(url);
       count('share_link_copied');
-      el('summaryStatus').textContent = 'Share link copied';
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
     FIELD_IDS.forEach(id => {
       el(id).addEventListener('input', update);
       el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    // Client/deposit/proposal fields aren't calculator inputs, so update()
+    // never runs for them — without their own listener, editing only these
+    // and never touching a calculator field would save nothing.
+    [...CLIENT_IDS, ...TERM_IDS].forEach((id) => {
+      el(id)?.addEventListener('input', persistDraft);
     });
     el('usageOptOut').addEventListener('change', update);
     el('copySummary').addEventListener('click', () => {
@@ -450,7 +594,157 @@
     });
 
     restoreDraft();
+
+    // ---- Customer-facing proposal -------------------------------------------
+
+    const COMPANY_KEY = 'ev-charger-bid-company';
+
+    // Printed at the foot of the customer's copy. Typographic apostrophes only:
+    // a straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for its scope, figures, and performance. It was laid out with a free '
+      + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
+      + 'warranty. It is not an electrical, building-code, utility-service, or load-calculation determination.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    /**
+     * Default scope lines from the job the user actually priced, so the proposal
+     * is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Written by hand for the trade rather than derived from the pasted summary:
+     * that summary lists crew-hour breakdowns, which must not reach a customer.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const location = LOCATION_PRESETS.find(item => item.id === result.location)?.label ?? '';
+      const install = result.installType === 'nema_14_50' ? 'NEMA 14-50 receptacle' : 'hardwired charger';
+      // Contractor shorthand for the panel: only the options that are actual
+      // work belong on a customer's scope. "Spare breaker slot" is the absence
+      // of panel work.
+      const PANEL_WORK = {
+        relocate: 'Relocate circuits to make space in the panel',
+        subpanel: 'Install a new subpanel',
+        service_upgrade: 'Upgrade the electrical service to 200 A',
+      };
+      const suggested = [
+        `Install a ${result.chargerAmps} A Level 2 ${install} on a dedicated ${result.breakerAmps} A circuit`,
+        location ? `Location: ${location.replace(/\s*\(trench\)/, '')}` : '',
+        result.runFeet > 0 ? `${result.runFeet} ft of circuit run` : '',
+        result.trenchFeet > 0 ? `${result.trenchFeet} ft of trench, backfilled and reinstated` : '',
+        PANEL_WORK[result.panelWork] ?? '',
+        'Circuit labelled, charger commissioned, and permit inspection scheduled',
+      ].filter(Boolean);
+      scope.value = suggested.join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null ? result.price : result.proposed.price,
+        jobTitle: `EV charger installation — ${result.chargerAmps} A Level 2`,
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInputs());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Delegated from the document
+     * rather than called inside `update()`: every calculator has its own
+     * `update()` with its own shape, and one bubble-phase listener works in all
+     * of them, which is what makes this feature copyable.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInputs());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // This page prints two sheets, so the stylesheet is told which one is
+      // going out. Cleared on `afterprint` below.
+      document.body.classList.add('printing-proposal');
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    window.addEventListener('afterprint', () => {
+      document.body.classList.remove('printing-proposal');
+    });
+
+    // The contractor's own sheet clears the flag explicitly rather than trusting
+    // `afterprint` to have fired — a print dialogue the user cancels does not
+    // always deliver it, and a stale flag would print the customer's copy here.
+    el('printQuote').addEventListener('click', () => {
+      document.body.classList.remove('printing-proposal');
+    });
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
     update();
+    restoreCompany();
+    refreshProposal();
   </script>
 </body>
 </html>

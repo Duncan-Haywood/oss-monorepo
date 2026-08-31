@@ -172,8 +172,10 @@ export function calculateWeek(input) {
     weeklyOperatingCost,
     // Miles the truck must run loaded, at the offered rate after factoring,
     // to cover the week's cost. Null when there is no offer or the net rate
-    // is zero. Accessorial net is already inside offered.weeklyProfit, so
-    // the miles figure still uses the settled loaded rate against weeklyCost.
+    // is zero; floored at 0 when accessorial income alone already covers
+    // the week (see offerMilesToCover). Accessorial net is already inside
+    // offered.weeklyProfit, so the miles figure still uses the settled
+    // loaded rate against weeklyCost.
     loadedMilesToBreakEven: offerMilesToCover(offered, weeklyCost - accessorialNet),
   };
 }
@@ -250,7 +252,15 @@ function scoreOffer({
   };
 }
 
-function offerMilesToCover(offered, weeklyCost) {
+function offerMilesToCover(offered, netWeeklyCost) {
   if (!offered || offered.effectiveLoadedRate <= 0) return null;
-  return weeklyCost / offered.effectiveLoadedRate;
+  // Detention, layover, and unreimbursed lumper are netted out of cost before
+  // this runs. A big accessorial week (long detention, a real layover) can
+  // net that figure below zero on its own — the load's revenue isn't even
+  // needed to cover the week. Floor at 0 miles rather than reporting a
+  // negative "miles needed", which read as a broken result on an otherwise
+  // profitable week (accessorial income can offset cost even when the
+  // week's overall weeklyProfit is positive, since profit and this figure
+  // net accessorials against different bases).
+  return Math.max(0, netWeeklyCost) / offered.effectiveLoadedRate;
 }

@@ -66,6 +66,34 @@ export type PhotoReport = {
   findings: Finding[];
 };
 
+export type EvidenceReport = {
+  reportType: "listing-lens-photo-preflight";
+  specId: string;
+  specDate: string;
+  checkedAt: string;
+  checkedPhotos: number;
+  skippedFiles: string[];
+  unimplementedRules: readonly string[];
+  photos: PhotoReport[];
+};
+
+export function createEvidenceReport(
+  photos: PhotoReport[],
+  skippedFiles: string[],
+  checkedAt: string,
+): EvidenceReport {
+  return {
+    reportType: "listing-lens-photo-preflight",
+    specId: SPEC_ID,
+    specDate: SPEC_DATE,
+    checkedAt,
+    checkedPhotos: photos.length,
+    skippedFiles: [...skippedFiles],
+    unimplementedRules: UNIMPLEMENTED_RULES,
+    photos,
+  };
+}
+
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 function startsWith(data: Uint8Array, bytes: number[]): boolean {

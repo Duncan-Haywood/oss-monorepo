@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   scenarioCost,
   compareScenarios,
+  decisionSummary,
   reviewRecord,
   compareCdn,
   cdnNote,
@@ -58,6 +59,16 @@ test("defaults optional usage dimensions to zero", () => {
     { storage: result.storage, requests: result.requests, egress: result.egress, total: result.total },
     { storage: 0.2, requests: 0, egress: 0, total: 0.2 },
   );
+});
+
+test("creates a copyable decision summary without raw inputs", () => {
+  const summary = decisionSummary({
+    first: { name: "Current", storageGb: 1000, egressGb: 500, storageRate: 0.023, egressRate: 0.09 },
+    second: { name: "Alternative", storageGb: 1000, egressGb: 500, storageRate: 0.006, egressRate: 0 },
+  });
+  assert.match(summary, /Alternative is cheaper by \$62\.00\/month/);
+  assert.match(summary, /Annual impact: \$744\.00/);
+  assert.doesNotMatch(summary, /1000|0\.023/);
 });
 
 test("creates a portable review record without rate-sheet amounts", () => {

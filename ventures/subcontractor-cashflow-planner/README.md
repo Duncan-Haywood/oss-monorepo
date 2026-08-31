@@ -2,13 +2,40 @@
 
 A free, private browser calculator for independent subcontractors who need to
 know whether a project will create a working-capital gap before the invoice is
-paid. Enter the invoice, upfront materials, weekly business burn, payment
-terms, retention, late-payment buffer, and cash available. The planner shows
-the expected collection day, cash needed before payment, and any funding gap.
+paid. Enter the invoice, materials, weekly business burn, payment terms,
+retention, late-payment buffer, retention release timing, cash available, any
+deposit, the terms your supply house gives you, and the rate you would pay to
+borrow. The planner shows the expected collection day, retained cash release
+day, cash needed before payment, any funding gap, what that gap costs to carry,
+and how many further days of late payment the scenario survives.
 
-**After using this, you can now** see the cash you need to bridge a subcontract
-before ordering materials, **which used to take** a spreadsheet and a hopeful
-guess.
+**After using this, you can now** see the cash a subcontract needs, what
+bridging it costs, and how much late payment it survives, **which used to take**
+a spreadsheet and a hopeful guess.
+
+## The three levers
+
+A gap on its own is not a decision. These are the fields that move it, and the
+tool exists to say which one is worth pulling on a given job:
+
+- **Deposit or mobilisation payment.** Counts as cash in hand on day 0 and
+  comes off the payment still due on terms. On the shipped defaults a 25%
+  deposit closes the $1,900 gap outright.
+- **Supplier terms.** What matters is not their length but whether they outlast
+  the client. Paid on day 44, a net-30 materials invoice still leaves your
+  account first and only shortens the borrowing window; a net-45 one falls due
+  after the money lands and removes the need to bridge the materials at all.
+- **The rate you would borrow at.** A $1,900 gap carried from day 26 to day 44
+  at 12% costs about $6 — which usually reframes the gap as a financing
+  question rather than a reason to decline. Interest accrues on the daily
+  shortfall, which ramps up over the window, not on the peak gap for every day
+  of it. It is simple interest and ignores draw fees, minimums, and factoring
+  discounts, so read it as a floor.
+
+The scenario also reports **how many further days of late payment it survives**
+once it is covered. That figure can be zero while a surplus is showing: if the
+materials invoice falls due the day after payment was expected, one day of slip
+pulls the whole bill in ahead of the money.
 
 ## Run it
 
@@ -42,10 +69,14 @@ There are no cookies, accounts, analytics vendors, or uploads.
 
 ## Limits and disclaimer
 
-The result is a timing scenario, not a prediction. It does not model taxes,
-debt, staged billing, supplier credit, milestone approvals, or the date a
-retention amount is released. Confirm contract terms and funding decisions
-with a qualified accountant or adviser.
+The result is a timing scenario, not a prediction. It models one invoice with
+one materials bill; it does not model taxes, existing debt, staged or progress
+billing, multiple overlapping jobs, milestone approvals, or whether a retention
+amount is actually released on the day you enter. The financing cost is simple
+daily interest on the shortfall and is not a quote: it ignores draw fees,
+minimum charges, factoring discounts, and whether any credit is available to
+you at all. Confirm contract terms and funding decisions with a qualified
+accountant or adviser.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any
 kind, express or implied. It is not legal, tax, financial, or accounting advice,

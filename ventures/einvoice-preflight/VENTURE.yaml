@@ -1,5 +1,5 @@
 name: einvoice-preflight
-description: A local JSON and UBL invoice checker — browser or CLI — that catches structural, arithmetic, header allowance/charge, mixed-rate tax-breakdown, invoice-period, payment-means, buyer and purchase-order reference, VAT, IBAN, BIC, remittance, credit-note document-type, and 0% tax-reason defects before a bookkeeper submits an e-invoice.
+description: A local JSON, UBL, CII, and Factur-X PDF invoice checker — browser or CLI — that unwraps embedded invoice XML and catches structural, arithmetic, header allowance/charge, mixed-rate tax-breakdown, invoice-period, payment-means, buyer and purchase-order reference, VAT, IBAN, BIC, remittance, credit-note document-type, and 0% tax-reason defects before a bookkeeper submits an e-invoice.
 stage: prototype
 owner: duncan
 hypotheses:

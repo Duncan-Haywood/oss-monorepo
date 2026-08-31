@@ -8,6 +8,32 @@ and a recovery manifest.
 python3 src/branch_hygiene.py examples/snapshot.json --report report.txt --manifest recovery.json
 ```
 
+## Reviewing in the browser
+
+`index.html` is the same classifier running client-side. It exists because the
+person who reviews a branch queue is usually not the person with the checkout:
+the scanner needs commit ancestry, but reading the resulting queue needs
+nothing but the file. Open the page, paste a snapshot, and it produces the same
+report, recovery manifest, and approval-queue CSV — with no install, no
+account, and nothing uploaded.
+
+Produce the snapshot to paste with:
+
+```bash
+python3 src/branch_hygiene.py --repo /path/to/checkout --emit-snapshot > snapshot.json
+```
+
+`--emit-snapshot` prints the snapshot and exits, writing no report or manifest,
+so redirecting stdout to a file cannot leave two stale outputs beside it. Add
+`--pr-json prs.json` (see below) to resolve branches against real pull-request
+history rather than reporting them `uncertain`.
+
+The browser port lives in `scan.mjs` and is a deliberate line-by-line port of
+`scan()` in `src/branch_hygiene.py`. The two must never disagree about what a
+branch is, so `scan.test.mjs` runs both over the same snapshot and compares the
+report, manifest, and CSV byte for byte. **If you change a classification rule,
+change it in both files in the same commit.**
+
 For spreadsheet review, add `--csv approval-queue.csv`. The export contains
 branch metadata, a classification, and a human review action; it deliberately
 contains no shell commands and cannot approve or perform deletion.

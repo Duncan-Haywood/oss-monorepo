@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hot Tub Bid Calculator | Price the Crane, the Pad, and the Circuit — Not Just $499 Setup</title>
+  <title>Hot Tub Bid Calculator — Crane, Pad, and Circuit</title>
   <meta name="description" content="Price a hot-tub install from size, access path, circuit footage, pad, haul-away, and crane — not a published $499-delivery-and-setup special. See the walk-away number before you match a cheaper quote.">
   <meta property="og:title" content="Hot Tub Bid Calculator">
   <meta property="og:description" content="A compact tub dropped on an existing patio with a live 50-amp stub is not the same job as a large swim spa that needs a crane over the fence, a new pad, and a 60-amp disconnect. Bid the crane and the extras.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hot Tub Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Compact versus mid versus swim spa, driveway versus crane access, existing 50A versus new 60A disconnect, circuit footage, new pad, haul-away, cover lift, steps, gas run, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hot Tub Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Compact versus mid versus swim spa, driveway versus crane access, existing 50A versus new 60A disconnect, circuit footage, new pad, haul-away, cover lift, steps, gas run, walk-away price, proposed-price margin check, copyable customer-facing bid summary, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a dealer advertise a “$499 delivery and setup” special?","acceptedAnswer":{"@type":"Answer","text":"Because that price is written around one specific job, and it is the first preset here: a compact four-person spa, a driveway or patio drop with no crane, an existing 50A GFCI ten feet away, and an existing pad. That job really is close to $499 in setup labor. It stops being that job the moment the tub goes through a tight backyard gate, needs a crane over a fence, or has to wait on a new circuit — none of which the flat-fee flyer prices separately."}},{"@type":"Question","name":"Why does going through a gate or over a fence change the price?","acceptedAnswer":{"@type":"Answer","text":"Access is billed on its own line, separate from the set itself. A through-gate or tight-path delivery adds 1.8 hours of access labor. A crane or boom over a fence or house adds 3.6 hours and a separate crane/boom fee — the only access tier that bills a rig at all. A driveway or patio drop bills zero access hours, which is most of why it can be the cheap special."}},{"@type":"Question","name":"When does the calculator bill for the electrical circuit?","acceptedAnswer":{"@type":"Answer","text":"Only when the power scope is not “existing.” An existing 50A GFCI within 10 feet bills no circuit hours or material at all. A new 50A run bills the circuit kit plus a per-foot rate across the circuit footage you enter. A new 60A run adds the same per-foot billing plus a flat 1.2 hours for the disconnect itself — the half-day adder a coupon price never mentions."}},{"@type":"Question","name":"How does spa size change the price beyond the unit itself?","acceptedAnswer":{"@type":"Answer","text":"Size sets both the set-hours and a multiplier on the spa’s unit cost, not just a bigger box. A compact 4-person spa starts at 2.5 set hours and a 1× cost multiplier. A mid 6-person tub is 3.4 hours and 1.35×. A large swim spa is 5.2 hours and 2.1× — more than double the compact tub’s material cost before a single extra (pad, haul-away, crane) is added."}},{"@type":"Question","name":"What do the pad, haul-away, cover lift, steps, and gas extras add?","acceptedAnswer":{"@type":"Answer","text":"Each is its own toggle with its own hours and material cost, billed only when checked: a new concrete pad, hauling away an old tub, a cover lift, steps, and a gas line or conversion. None of them ride along with the base set price, so a mid-size tub with a new pad and haul-away can cost more than a large tub dropped on an existing pad with nothing to remove."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage so it is still here next visit. The optional usage counter records only which features were used and the day, never your spa size, wages, or prices."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #123038; background: #dceef2; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,9 +25,11 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #4a7f88; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #4a7f88; background: #d4eef2; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #4a7f88; background: #d4eef2; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #123038; }
     button:hover { background: #bfe3e8; }
     .result { position: sticky; top: 15px; background: #0b3a42; color: #e8f6f8; border-color: #0b3a42; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -47,7 +50,64 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #3a5c64; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #0b3a42; --pr-accent: #0d6e7a;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
@@ -164,7 +224,91 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and material rates are common ballpark figures, not an industry standard or an electrical design &mdash; replace them with your own takeoff.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Stillwater Spas LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Deliver and set a six-person spa on the existing pad&#10;New 50A GFCI circuit and disconnect"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Crane hire if the path is blocked on the day&#10;Decking or landscaping repair"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Water balanced at start-up; first filter clean at four weeks."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why can a dealer advertise a &ldquo;$499 delivery and setup&rdquo; special?</h3>
+      <p>Because that price is written around one specific job, and it is the first preset here: a
+        compact four-person spa, a driveway or patio drop with no crane, an existing 50A GFCI ten feet
+        away, and an existing pad. That job really is close to $499 in setup labor. It stops being that
+        job the moment the tub goes through a tight backyard gate, needs a crane over a fence, or has to
+        wait on a new circuit &mdash; none of which the flat-fee flyer prices separately.</p>
+
+      <h3>Why does going through a gate or over a fence change the price?</h3>
+      <p>Access is billed on its own line, separate from the set itself. A through-gate or tight-path
+        delivery adds 1.8 hours of access labor. A crane or boom over a fence or house adds 3.6 hours
+        <em>and</em> a separate crane/boom fee &mdash; the only access tier that bills a rig at all. A
+        driveway or patio drop bills zero access hours, which is most of why it can be the cheap
+        special.</p>
+
+      <h3>When does the calculator bill for the electrical circuit?</h3>
+      <p>Only when the power scope is not &ldquo;existing.&rdquo; An existing 50A GFCI within 10 feet
+        bills no circuit hours or material at all. A new 50A run bills the circuit kit plus a per-foot
+        rate across the circuit footage you enter. A new 60A run adds the same per-foot billing plus a
+        flat 1.2 hours for the disconnect itself &mdash; the half-day adder a coupon price never
+        mentions.</p>
+
+      <h3>How does spa size change the price beyond the unit itself?</h3>
+      <p>Size sets both the set-hours and a multiplier on the spa&rsquo;s unit cost, not just a bigger
+        box. A compact 4-person spa starts at 2.5 set hours and a 1&times; cost multiplier. A mid 6-person
+        tub is 3.4 hours and 1.35&times;. A large swim spa is 5.2 hours and 2.1&times; &mdash; more than
+        double the compact tub&rsquo;s material cost before a single extra (pad, haul-away, crane) is
+        added.</p>
+
+      <h3>What do the pad, haul-away, cover lift, steps, and gas extras add?</h3>
+      <p>Each is its own toggle with its own hours and material cost, billed only when checked: a new
+        concrete pad, hauling away an old tub, a cover lift, steps, and a gas line or conversion. None of
+        them ride along with the base set price, so a mid-size tub with a new pad and haul-away can cost
+        more than a large tub dropped on an existing pad with nothing to remove.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid
+        is saved in this browser&rsquo;s local storage so it is still here next visit. The optional usage
+        counter records only which features were used and the day, never your spa size, wages, or
+        prices.</p>
+    </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
@@ -184,6 +328,11 @@
       suggestedPowerKit,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
 
     const FIELD_IDS = [
       'circuitFeet',
@@ -200,7 +349,11 @@
     const SUGGESTED_SIZE_IDS = ['hoursSet','unitCostMultiplier'];
     const SUGGESTED_ACCESS_IDS = ['hoursAccess'];
     const SUGGESTED_POWER_IDS = ['hoursPower'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const presets = el('jobPresets');
@@ -341,7 +494,11 @@
     }
 
     async function copySummary() {
-      const job = JOB_PRESETS[Number(presets.value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       const text = formatBidSummary(calculateBid(readInput()), job?.label);
       try {
         await navigator.clipboard.writeText(text);
@@ -362,7 +519,7 @@
     }
 
     presets.addEventListener('change', () => {
-      const job = JOB_PRESETS[Number(presets.value)];
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
       applyJob(job);
       count('preset_applied');
@@ -408,6 +565,172 @@
     });
 
     update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'hot-tub-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not a structural determination that the deck, pad or slab will carry the filled weight of the spa.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Deliver, place and commission a {sizeLabel} spa",
+        "Site access: {accessLabel}",
+        "Electrical: {powerLabel}",
+        {
+          "line": "Run {circuitFeet~0} ft of new circuit to the spa disconnect",
+          "when": "circuitFeet"
+        },
+        {
+          "line": "Build the pad the spa sits on",
+          "when": "addPad"
+        },
+        {
+          "line": "Remove and dispose of the existing spa",
+          "when": "addHaul"
+        },
+        {
+          "line": "Fit a cover lift",
+          "when": "addCoverLift"
+        },
+        {
+          "line": "Fit steps",
+          "when": "addSteps"
+        },
+        {
+          "line": "Run a gas line to the heater",
+          "when": "addGas"
+        },
+        "Fill, start up, balance the water, and hand over the operating instructions"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "sizeLabel": el('size')?.selectedOptions?.[0]?.textContent?.trim(),
+        "accessLabel": el('access')?.selectedOptions?.[0]?.textContent?.trim(),
+        "powerLabel": el('power')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Hot tub installation'], proposalFields(result))[0] || 'Hot tub installation',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

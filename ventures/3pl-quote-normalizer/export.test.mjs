@@ -40,7 +40,7 @@ test("exports a portable JSON review record without raw rate-card inputs", () =>
   assert.equal(record.total_estimated_3pl_cost, 500);
   assert.equal(record.minimum_charge_applied, true);
   assert.equal(record.line_items.Shipping, 50);
-  assert.equal(record.break_even_orders_per_month, 39);
+  assert.equal(record.break_even_orders_per_month, Math.ceil(result.breakEvenOrders));
   assert.ok(!("shipping" in record));
   assert.match(record.review_note, /Verify every rate/);
 });

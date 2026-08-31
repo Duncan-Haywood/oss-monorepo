@@ -64,6 +64,13 @@ flagged. That is an observation, not a determination that data was lost —
 retention pruning and a genuinely smaller dataset shrink artifacts too. See
 [Why is my backup smaller than yesterday?](./shrinking.html).
 
+If your records were made with `--verify-integrity`, the page's "Require an
+end-to-end integrity read" checkbox mirrors `check --require-integrity`: any
+night without a conclusive `intact` read shows as `inconclusive` instead of
+`verified`, even when its exit code and size were fine. Leave it off and the
+page reports exactly what it did before — verified from exit code and stat
+alone.
+
 ### Why reading the file matters
 
 Exit code, size, and mtime share one blind spot: an archive that is **big,
@@ -120,6 +127,10 @@ PYTHONPATH=src python3 -m backup_evidence.cli record \
 # Check one or more recorded runs:
 PYTHONPATH=src python3 -m backup_evidence.cli check \
   runs/*.json --format markdown
+
+# Require a conclusive end-to-end artifact read before reporting success:
+PYTHONPATH=src python3 -m backup_evidence.cli check \
+  runs/*.json --require-integrity --format markdown
 ```
 
 `--verify-integrity` is opt-in: it reads the whole artifact, which costs I/O
@@ -145,6 +156,11 @@ without depending on this tool for the alerting itself. See
 `examples/run-verified.json`, `examples/run-suspicious.json`,
 `examples/run-failed.json`, and `examples/run-corrupt-artifact.json` for the
 run-record format and what triggers each state.
+
+By default, a stat-only run can be `verified` when its command, artifact
+existence, and configured size/age checks agree. Pass `--require-integrity` to
+make `check` exit non-zero unless the latest artifact was actually read to its
+end and reported `intact`; unsupported and capped reads remain inconclusive.
 
 The `--usage-file` flag on any subcommand appends one local, anonymized
 event-count file — see "Privacy" below. `--trend` also counts `trend_viewed`.

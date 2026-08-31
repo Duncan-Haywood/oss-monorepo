@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   site-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: ventures/concrete-lifting-bid-calculator

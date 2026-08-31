@@ -323,7 +323,11 @@ export function calculateBid(input) {
  * the customer-facing side.
  */
 export function formatBidSummary(result, jobLabel = 'Irrigation system install') {
-  const money = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const controller = CONTROLLER_PRESETS.find((item) => item.id === result.controller)?.label ?? result.controller;
   const backflow = BACKFLOW_PRESETS.find((item) => item.id === result.backflow)?.label ?? result.backflow;
   const soil = SOIL_PRESETS.find((item) => item.id === result.soil)?.label ?? result.soil;

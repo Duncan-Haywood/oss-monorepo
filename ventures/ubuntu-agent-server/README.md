@@ -212,6 +212,19 @@ no extra coordination logic needed.
    comments that on the issue — without touching git or GitHub beyond that
    comment. Flip to `false` per repo once you've watched it behave
    correctly a few times.
+
+   **One thing `dry_run` does not gate: filing the self-directed issue.**
+   On a repo with `self_directed: true`, step 3 above runs *before* any of
+   this — `maybe_self_direct()` is called from the poll loop and
+   `create_self_directed_issue()` shells out to `gh issue create`, neither
+   of which reads `dry_run`. So a dry-run self-directed repo will still
+   open one real GitHub issue per cooldown window (24h by default). That
+   is deliberate rather than an oversight: gating it too would leave a
+   dry-run self-directed repo doing nothing observable at all, and the
+   point of `dry_run` is to give you runs to watch. But it means "touches
+   nothing on GitHub beyond a comment" is true of the *work*, not of the
+   whole loop — worth knowing before you flip the kill switch, because
+   `Duncan-Haywood/monorepo-projects` is configured this way today.
 3. **Repo allowlist**: the runner only ever looks at repos explicitly listed
    in `config/repos.yml` — never "every repo this token can see." This file
    is real, version-controlled config now (see "Everything as code" below)
@@ -224,13 +237,27 @@ no extra coordination logic needed.
    This is the layer that matters if the model itself does something you
    didn't want, as opposed to the layers above which are about you
    controlling the blast radius of the system as a whole.
-6. **Content boundaries in every prompt**: both the per-issue prompt and the
-   self-directed prompt explicitly tell the agent not to touch
-   billing/pricing/payment/legal/marketing-copy files, deployment/infra
-   config, or anything secret-adjacent unless a human's issue explicitly
-   asked for that. This is a prompt-level instruction, not an enforced
-   technical boundary — the sandboxing above is what's actually
-   enforceable; treat this as defense in depth, not the real guardrail.
+6. **Content boundaries in every prompt**: the self-directed prompt tells the
+   agent not to take or move money, make legal/compliance claims, publish
+   under the owner's public name, touch secrets, collect personal data, or
+   fabricate marketing claims — the boundaries that protect *someone other
+   than us*, which is why they don't relax.
+
+   Two carve-outs that used to be on that list are deliberately gone:
+   **deployment/infra configuration and marketing material are now in
+   scope**, because the owner directed that deployment, CI/CD, and
+   marketing are priority work rather than off-limits. If you are running
+   this host for a different owner who has not said that, put those two
+   back in `SELF_DIRECTED_PROMPT`.
+
+   This is a prompt-level instruction, not an enforced technical boundary —
+   the sandboxing above is what's actually enforceable; treat this as
+   defense in depth, not the real guardrail.
+
+   The self-directed prompt also tells the agent to read the target repo's
+   own `CLAUDE.md`/`AGENTS.md`/`DIRECTION.md` first and let those win where
+   they're more specific. It is the fallback brief for repos that don't
+   carry one, not a competing policy.
 
 ### Everything as code
 
@@ -262,13 +289,51 @@ issue bodies get "high," everything else gets "low" — see
 want to refine the heuristic later, the data to justify a change is already
 sitting in `/srv/agents/logs/`.
 
-**Only wired up for Claude Code and Codex** — the two tools with confidently
-documented `--model` flags. `claude`: `haiku` (low) / `sonnet` (high).
-`codex`: model ID strings in `MODEL_BY_TIER` are a reasonable guess, not
-confirmed against current OpenAI naming — verify against your account
-before trusting this for that tool. Antigravity and opencode don't get
-tier routing (their model-selection flags aren't solidly documented enough
-to script against yet).
+**Claude Code routes by default; Codex is opt-in.** `claude` uses the stable
+tier *aliases* `haiku` (low) / `sonnet` (high), which resolve to whatever
+those tiers currently are and so don't go stale.
+
+Codex has no such aliases — `--model` wants a concrete ID. The IDs that used
+to be hardcoded here (`gpt-5-mini`/`gpt-5`) were written down as an admitted
+guess and never checked against a live account, and a wrong ID fails the run
+outright on *every* poll cycle. So codex now sends no `--model` at all by
+default, which means `codex exec` uses the model your signed-in ChatGPT plan
+serves — correct by construction, and the path that spends the plan's
+**included quota** rather than metered API credit.
+
+To opt back in, confirm the IDs on the box first:
+
+```bash
+codex exec --model <id> "hi"     # must not error before you trust it
+```
+
+then set **both** in `group_vars/all.yml` (one alone would route a single
+tier and silently leave the other unrouted, so half a pair is ignored):
+
+```yaml
+codex_model_low: "<verified-id>"
+codex_model_high: "<verified-id>"
+```
+
+Antigravity and opencode don't get tier routing (their model-selection flags
+aren't solidly documented enough to script against yet).
+
+#### Included quota vs. metered API billing
+
+Codex authenticates two ways, and they spend two different budgets:
+
+| How | What it spends |
+|---|---|
+| `codex login` (ChatGPT plan sign-in) | That plan's **included quota** — what this host is set up for |
+| `OPENAI_API_KEY` in the environment | The **metered API**, billed per token |
+
+Nothing in a run's output tells you which one served it, so a stray key on
+the box means the first sign is an invoice. `runners/codex.sh` therefore
+`unset`s `OPENAI_API_KEY` from the child environment unless you deliberately
+opt in with `codex_use_api_key: true`. It also preflights `codex login
+status` and fails with a pointer to `codex login` rather than letting an
+unauthenticated run fail once per poll cycle with an error that reads like a
+model problem. `make provision` reports the login state too.
 
 ### Per-tool headless invocation and sandboxing
 
@@ -279,7 +344,7 @@ isn't one flag reused four times. Scripts are in
 | Tool | Invocation | Autonomy mechanism |
 |---|---|---|
 | `claude` | `claude -p "<prompt>" --permission-mode auto` | Classifier-guarded `auto` mode: a separate model reviews each action, allows normal dev work (edits, tests, commits, pushing to any branch of *this* repo), blocks a documented list (force push, secret exfiltration, destructive deletes, deploys, merging its own PR, IAM/DNS changes, etc). Deliberately **not** `--dangerously-skip-permissions` — Anthropic's own docs say that mode is for "isolated environments like containers, VMs... where Claude Code cannot damage your host system." (With `use_docker_sandbox: true` this setup *does* become one of those isolated environments — worth reconsidering then.) |
-| `codex` | `codex exec --sandbox workspace-write --ask-for-approval never` | Real filesystem sandbox: writes are restricted to the working directory (the ephemeral clone) regardless of what the model tries. Blocked operations fail and get reported back to the model rather than hanging on an approval prompt nobody's there to answer. |
+| `codex` | `codex exec --sandbox workspace-write -c approval_policy="never" --json` | Real filesystem sandbox: writes are restricted to the working directory (the ephemeral clone) regardless of what the model tries. `codex exec` is non-interactive by construction — it never waits for a human, and a blocked operation fails and is reported back to the model. There is deliberately **no** `--ask-for-approval`: that flag was removed from `codex exec` upstream, and passing it makes the CLI exit 2 on argument parsing before generating a token (verified against codex-cli 0.151.0). `-c approval_policy="never"` is the supported spelling of the same intent, matching `gitops/agents/workers/worker.sh`. |
 | `antigravity` (`agy`) | `agy -p "<prompt>" --sandbox` | `--sandbox` enables real OS-level isolation (nsjail on Linux). Deliberately **not** `--dangerously-skip-permissions` — there's a documented upstream issue where combining it with `--sandbox` silently defeats the sandbox entirely (the bypass flag also auto-approves the "allowed to escape sandbox?" prompt). Needs a one-time manual step: run `agy` interactively once and set the autonomy level to `always-proceed` via `/permissions`, or unattended runs will block waiting for approval. **Lower confidence than the other three** — see below. |
 | `opencode` | `opencode run --auto "<prompt>"` | `--auto`: "Auto-approve permissions that are not explicitly denied," per opencode's own CLI docs. |
 
@@ -329,9 +394,12 @@ that tool fails in Docker mode, that's the first thing to suspect.
    — nothing broader) is a better fit here than a full-access token, since
    whatever `gh` can do, an agent running unattended can eventually do.
 2. **Authenticate each CLI you're using** — see the subscription-login note
-   below; unrelated to `gh`. For Antigravity specifically, also set
-   permissions to `always-proceed` via `/permissions` inside an interactive
-   `agy` session (see the table above).
+   below; unrelated to `gh`. For Codex that is `codex login` (the ChatGPT
+   plan sign-in, which is what draws on the included quota), confirmed with
+   `codex login status`; do **not** leave an `OPENAI_API_KEY` set on the box
+   unless you actually want metered API billing. For Antigravity
+   specifically, also set permissions to `always-proceed` via `/permissions`
+   inside an interactive `agy` session (see the table above).
 3. **Configure real repos**: edit `config/repos.yml` in this repo, commit,
    `make provision`, then flip `agent_runner_start_disabled: false` in
    `group_vars/all.yml` and provision again when ready.

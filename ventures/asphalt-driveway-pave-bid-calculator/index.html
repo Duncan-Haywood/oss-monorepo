@@ -3,14 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Asphalt Driveway Paving Bid Calculator | Overlay vs Mill-and-Overlay vs Full-Depth — Price the Tons, Not Just the Square Foot</title>
+  <title>Asphalt Driveway Paving Bid Calculator — Price by the Ton</title>
   <meta name="description" content="Price an asphalt driveway from overlay, mill-and-overlay, or full-depth: square footage, thickness, street apron, failed base, and sawcut — not a published $3.50-a-square-foot special. See the mix tons and the walk-away number.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
   <meta property="og:title" content="Asphalt Driveway Paving Bid Calculator">
   <meta property="og:description" content="800 square feet of sound asphalt is not the same job as 1,000 square feet with a failed base. Bid the method, the thickness, and the extra work.">
   <meta property="og:type" content="website">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Asphalt Driveway Paving Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (runs in a web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Overlay versus mill-and-overlay versus full-depth, mix tons from thickness, street apron, failed-base gravel, sawcut, walk-away price, method comparison, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Asphalt Driveway Paving Bid Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (runs in a web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": "Overlay versus mill-and-overlay versus full-depth, mix tons from thickness, street apron, failed-base gravel, sawcut, walk-away price, method comparison, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this paving estimate include?","acceptedAnswer":{"@type":"Answer","text":"The price adds up hot-mix tons for the driveway and apron by thickness, milling tons and dump cost for a mill-and-overlay, demo and dump tons for a full-depth replacement, a failed-base gravel patch, sawcut, tack coat, paving fabric when selected, a permit line, travel and equipment, overhead, and your target margin — all from the method, area, and rates you enter, not a flat price list."}},{"@type":"Question","name":"Why does the same driveway price differently as an overlay, mill-and-overlay, or full-depth job?","acceptedAnswer":{"@type":"Answer","text":"Each method starts from its own suggested machine hours and material rates: a full-depth job adds demo and base-gravel hours an overlay never touches, and a mill-and-overlay adds milling hours and dump cost an overlay skips. The three-way comparison prices your same takeoff under each method’s starting kit so you can see when a failed base or a thick apron flips which method is actually cheaper."}},{"@type":"Question","name":"Does it account for the street apron and a failed base separately from the driveway?","acceptedAnswer":{"@type":"Answer","text":"Yes. The apron is its own area and thickness, added to the driveway to get the total paved square footage that drives mix tons and most labor. A failed-base patch is a separate square footage and gravel thickness, capped at the paved area, and its gravel tons and hours only apply where you enter it."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage between visits, and a bid link you copy carries those same numbers in the page’s URL hash rather than sending anything to a server."}},{"@type":"Question","name":"What’s the difference between the bid price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The bid price already includes your target margin on top of labor, materials, and overhead. The walk-away price is the total cost underneath it — labor, mix, milling or demo dump, gravel, sawcut, and every other line item — the point below which the job stops being profitable at all."}},{"@type":"Question","name":"Does this check pavement condition, code, or engineering requirements?","acceptedAnswer":{"@type":"Answer","text":"No. Hours and material rates are ballpark shop figures you can edit, not a paving specification, a pavement-condition assessment, or an engineering stamp. Deciding whether a driveway needs a full-depth rebuild rather than an overlay is still a call for the site visit; this tool only prices whichever method you tell it to."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2420; background: #eceae4; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -27,9 +28,11 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #9a927f; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #9a927f; background: #f4f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #9a927f; background: #f4f1e8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1f2420; }
     button:hover { background: #e8e2d2; }
     .result { position: sticky; top: 15px; background: #2c2618; color: #f4f0e6; border-color: #2c2618; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -53,7 +56,64 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #5a564c; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #2c2618; --pr-accent: #6b4f1d;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
@@ -162,7 +222,91 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and mix rates are common ballpark figures, not an industry standard, a paving specification, or a code determination &mdash; replace them with your own takeoff.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Kestrel Paving LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Mill and overlay 1,200 sq ft at 2 in compacted&#10;New apron at the street"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Drainage structures or catch basins&#10;Sealcoating (recommended after one season)"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Keep vehicles off for 72 hours in warm weather."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>What does this paving estimate include?</h3>
+      <p>The price adds up hot-mix tons for the driveway and apron by thickness, milling tons and dump
+        cost for a mill-and-overlay, demo and dump tons for a full-depth replacement, a failed-base
+        gravel patch, sawcut, tack coat, paving fabric when selected, a permit line, travel and
+        equipment, overhead, and your target margin &mdash; all from the method, area, and rates you
+        enter, not a flat price list.</p>
+
+      <h3>Why does the same driveway price differently as an overlay, mill-and-overlay, or full-depth
+        job?</h3>
+      <p>Each method starts from its own suggested machine hours and material rates: a full-depth job
+        adds demo and base-gravel hours an overlay never touches, and a mill-and-overlay adds milling
+        hours and dump cost an overlay skips. The three-way comparison prices your same takeoff under
+        each method&rsquo;s starting kit so you can see when a failed base or a thick apron flips which
+        method is actually cheaper.</p>
+
+      <h3>Does it account for the street apron and a failed base separately from the driveway?</h3>
+      <p>Yes. The apron is its own area and thickness, added to the driveway to get the total paved
+        square footage that drives mix tons and most labor. A failed-base patch is a separate square
+        footage and gravel thickness, capped at the paved area, and its gravel tons and hours only
+        apply where you enter it.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your
+        bid is saved in this browser&rsquo;s local storage between visits, and a bid link you copy
+        carries those same numbers in the page&rsquo;s URL hash rather than sending anything to a
+        server.</p>
+
+      <h3>What&rsquo;s the difference between the bid price and the walk-away price?</h3>
+      <p>The bid price already includes your target margin on top of labor, materials, and overhead.
+        The walk-away price is the total cost underneath it &mdash; labor, mix, milling or demo dump,
+        gravel, sawcut, and every other line item &mdash; the point below which the job stops being
+        profitable at all.</p>
+
+      <h3>Does this check pavement condition, code, or engineering requirements?</h3>
+      <p>No. Hours and material rates are ballpark shop figures you can edit, not a paving
+        specification, a pavement-condition assessment, or an engineering stamp. Deciding whether a
+        driveway needs a full-depth rebuild rather than an overlay is still a call for the site visit;
+        this tool only prices whichever method you tell it to.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
@@ -182,7 +326,13 @@
       suggestedMethodKit,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
-    import { encodeBid, saveBid, clearBid, restoreBid } from './share.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const FIELD_IDS = [
       'drivewaySqFt','thicknessIn','apronSqFt','apronThicknessIn','failedBaseSqFt','sawcutLf',
@@ -200,7 +350,11 @@
       'hoursPerSqFtTack','hoursPerLfSawcut','hoursPerSqFtApronExtra',
       'mixPerTon','millDumpPerTon','demoDumpPerTon','gravelPerTon','tackPerSqFt','fabricPerSqFt',
     ];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const presets = el('jobPresets');
@@ -337,7 +491,11 @@
     }
 
     async function copySummary() {
-      const job = JOB_PRESETS[Number(presets.value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       const text = formatBidSummary(calculateBid(readInput()), job?.label);
       try {
         await navigator.clipboard.writeText(text);
@@ -358,7 +516,7 @@
     }
 
     presets.addEventListener('change', () => {
-      const job = JOB_PRESETS[Number(presets.value)];
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
       applyJob(job);
       count('preset_applied');
@@ -426,7 +584,7 @@
 
     function persist() {
       try {
-        saveBid(localStorage, BID_SPEC, readInput());
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
       } catch {
         // A browser with site data blocked throws on access. Losing the save
         // is survivable; losing the calculator mid-bid is not.
@@ -434,7 +592,8 @@
     }
 
     async function copyLink() {
-      const query = encodeBid(BID_SPEC, readInput());
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
       const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
       try {
         await navigator.clipboard.writeText(url);
@@ -450,11 +609,15 @@
         fallback.remove();
       }
       count('link_copied');
-      el('summaryStatus').textContent = 'Bid link copied — it reopens this bid';
-      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
-    const restored = restoreBid(BID_SPEC, {
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
       search: location.hash,
       storage: (() => { try { return localStorage; } catch { return null; } })(),
     });
@@ -486,6 +649,173 @@
 
     update();
     persist();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'asphalt-driveway-pave-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not a pavement design, a subgrade evaluation, or a drainage determination.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "{methodLabel} across {drivewaySqFt~0} sq ft of driveway",
+        "Place {newMixTons~2} tons of hot-mix asphalt at {thicknessIn} in compacted",
+        {
+          "line": "Mill {millDepthIn} in and haul off {millTons~2} tons of grindings",
+          "when": "millTons"
+        },
+        {
+          "line": "Remove and dispose of {demoTons~2} tons of existing pavement",
+          "when": "demoTons"
+        },
+        {
+          "line": "Place {baseTons~2} tons of compacted stone base",
+          "when": "baseTons"
+        },
+        {
+          "line": "Repair {failedBaseSqFt~0} sq ft of failed base",
+          "when": "failedBaseSqFt"
+        },
+        {
+          "line": "Saw-cut {sawcutLf} lf of clean edge",
+          "when": "sawcutLf"
+        },
+        {
+          "line": "Pave {apronSqFt~0} sq ft of apron at {apronThicknessIn} in",
+          "when": "apronSqFt"
+        },
+        {
+          "line": "Geotextile fabric under the new base",
+          "when": "fabric"
+        },
+        "Roll to grade, seal the joints, and leave the site clean"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "methodLabel": el('method')?.selectedOptions?.[0]?.textContent?.trim(),
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Asphalt driveway — {drivewaySqFt~0} sq ft'], proposalFields(result))[0] || 'Asphalt driveway — sq ft',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

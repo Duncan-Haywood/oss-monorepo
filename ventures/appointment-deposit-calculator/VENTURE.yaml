@@ -1,0 +1,27 @@
+name: appointment-deposit-calculator
+description: Free browser calculator for small service businesses that sets an appointment deposit, shows cash secured and balance due, and drafts a clear deposit and cancellation policy.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small appointment businesses will use a deposit calculator to choose a service-specific upfront amount and copy its policy draft into their booking workflow.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers asking how much deposit to charge need a decision tool distinct from no-show fee calculators.
+    status: untested
+    checked: null
+    evidence: in-repo
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No return usage or organic referral signal within 60 days of public deployment.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: null
+  analytics: null

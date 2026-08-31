@@ -59,7 +59,7 @@
     header { max-width: 740px; margin-bottom: 26px; }
     h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
-    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #386fd6; margin: 0 0 6px; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #3569cb; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .95fr); gap: 18px; align-items: start; }
     section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; }
     h2 { margin-top: 0; font-size: 1.15rem; }
@@ -67,6 +67,10 @@
     label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
     input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .result { position: sticky; top: 15px; background: #16324f; color: #f4f8fc; border-color: #16324f; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -78,11 +82,20 @@
     th:first-child, td:first-child { text-align: left; }
     tr.best { font-weight: 700; }
     footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
-    footer a { color: #386fd6; }
+    footer a { color: #3569cb; }
     .faq { margin-top: 18px; }
     .error { color: #ffb0a2; }
     @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
-  </style>
+  
+/* Two things pushed these pages sideways on a phone. A wide comparison
+   table, and a `1fr` grid track whose implicit min-content floor kept the
+   column wider than the screen no matter how narrow the screen got --
+   `minmax(0,1fr)` is the floor removal, and the grid children need
+   `min-width:0` for the same reason. Scoped to these containers rather
+   than `*`: the blanket version fixed three more pages and clipped text on
+   four others. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}.layout,.fields,.grid{grid-template-columns:minmax(0,1fr)}.layout>*,.fields>*{min-width:0}}
+</style>
 </head>
 <body>
   <header>
@@ -208,6 +221,14 @@
       on the main <a href="./">eBay fee calculator</a>.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I buy eBay shipping labels or use Pirate Ship?</h3>
+  <p>A cheaper Pirate Ship, Shippo, or carrier-account quote is not automatically more leftover. eBay labels auto-upload tracking and usually keep a lower item-not-received claim rate. On the calculator defaults ($40 item, $6 shipping charged, 13.25% final value fee, $12 cost, $5 eBay label, $4.25 third-party label, 10% returns, 0.8% eBay claims, 2.5% third-party claims, 4 minutes at $18) the eBay label expects $18.05, the timed third-party path expects $16.99, and the same third-party postage with no extra time expects $18.19. Four minutes wipes a $0.75 postage save. That is arithmetic on your inputs, not advice to buy a label.</p>
+  <h3>When does Pirate Ship beat an eBay shipping label?</h3>
+  <p>When the quote is cheap enough, the extra upload time is already sunk, and the claim-rate gap stays small. On the same $40 listing, a 4% third-party claim rate with no extra time expects $17.64 against $18.05 on the eBay label. A $180 item with $85 cost and a $12 eBay label versus a $9.50 third-party quote still prefers eBay ($56.68 vs $55.31) because 2.5% of a high sunk cost is already more than the postage save.</p>
+  <h3>Is this the same as shipping insurance or a Standard Envelope?</h3>
+  <p>No. Package protection is an add-on on a tracked label you already bought. Standard Envelope is cheap untracked mail versus a tracked label. This page is where you buy the tracked label: eBay Shipping versus Pirate Ship, Shippo, or a carrier account, after the claim rate that usually moves with seller protection and the minutes you spend uploading tracking.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

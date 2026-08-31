@@ -98,6 +98,23 @@ test('user-facing rule text is escaped before it reaches innerHTML', () => {
   }
 });
 
+test('invalid input clears the stale comparison and disarms Copy instead of leaving it next to a silent error', () => {
+  // Before this fix, the Compare click handler's catch block only set
+  // #error. `latest` stayed pointed at the previous comparison, and
+  // #headline, #stats, #rows, and #report kept showing the previous diff.
+  // A visitor who missed the one-line error could read that stale
+  // comparison as the answer for the invalid JSON just pasted in, and Copy
+  // could still export the stale comparison.
+  const catchMatch = scriptSource.match(/\} catch \(error\) \{([\s\S]*?)\n\s*\}\n\s*\}\);/);
+  assert.ok(catchMatch, "the Compare click handler's catch block was not found");
+  const body = catchMatch[1];
+  assert.match(body, /latest = null/, 'latest is not invalidated, so Copy could still export a stale comparison');
+  assert.match(body, /headlineEl\.textContent = /, '#headline keeps its stale comparison instead of being cleared');
+  assert.match(body, /statsEl\.textContent = /, '#stats keeps its stale figures instead of being reset');
+  assert.match(body, /rowsEl\.innerHTML = /, '#rows keeps its stale table instead of being cleared');
+  assert.match(body, /reportEl\.textContent = /, '#report keeps its stale copyable diff instead of being reset');
+});
+
 test('every module the page imports exists and exports what it names', async () => {
   const imports = [...scriptSource.matchAll(/import\s*\{([^}]+)\}\s*from\s*'([^']+)'/g)];
   assert.ok(imports.length >= 1);

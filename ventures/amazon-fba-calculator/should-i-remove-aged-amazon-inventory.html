@@ -18,7 +18,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "keep vs return removal vs dispose, leftover units after the horizon, carrying fees, sell-through that still ties dispose"
+    "featureList": "keep vs return removal vs dispose, leftover units after the horizon, carrying fees, sell-through that still ties dispose, forward-looking hold vs remove after remaining months and salvage"
   }
   </script>
   <script type="application/ld+json">
@@ -68,6 +68,10 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #8ea0b8; border-radius: 7px; padding: 10px; font: inherit; background: white; }
     .span2 { grid-column: 1 / -1; }
     .result { position: sticky; top: 15px; background: #1b2a44; color: #f4f7fb; border-color: #1b2a44; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
     .hero-number { font-size: 2.4rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #b6efc0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -78,6 +82,13 @@
     th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #ffffff22; }
     th:first-child, td:first-child { text-align: left; }
     tr.best { font-weight: 700; }
+    /* Bold on this page means "this is the winning option" (`tr.best`, and
+       `tr.winner-row` on the sibling pages). The hold-vs-remove table marks
+       something else -- the horizon the seller said they expect to sell in --
+       and that row is frequently *not* the highest-cash one: holding costs
+       accrue, so a shorter horizon usually nets more. Marking it bold read as
+       a recommendation the row does not make, so it gets its own tint. */
+    tr.yours td { background: #ffffff14; }
     footer { margin-top: 25px; font-size: .82rem; color: #445064; }
     footer a { color: #1f4f8a; }
     .faq { margin-top: 18px; }
@@ -123,7 +134,7 @@
         <label>Weight (lb) <input id="weightLb" type="number" min="0" step="0.01" value="0.75"></label>
         <label>Ads per unit <input id="adsPerUnit" type="number" min="0" step="0.01" value="0"></label>
         <label>Aged units <input id="agedUnits" type="number" min="1" step="1" value="80"></label>
-        <label>Monthly sell-through (%) <input id="monthlySellThroughPct" type="number" min="0" step="0.1" value="5"></label>
+        <label>Monthly sell-through (%) <input id="monthlySellThroughPct" type="number" min="0" step="0.1" max="100" value="5"></label>
         <label>Months to compare <input id="horizonMonths" type="number" min="1" step="1" value="3"></label>
         <label>Aged-inventory surcharge / unit / month <input id="aisPerUnit" type="number" min="0" step="0.01" value="1.50"></label>
         <label>Return removal / unit <input id="removalFee" type="number" min="0" step="0.01" value="1.04"></label>
@@ -161,6 +172,52 @@
       <p class="note">Cost of goods and inbound are already spent. The table only adds storage, the surcharge you type, expected sales at the typed sell-through, and the removal fee. Transparent arithmetic from your inputs — not Amazon aged-inventory policy or a removal-order rate card.</p>
     </section>
   </main>
+  <section id="hold-vs-remove" class="faq" aria-labelledby="hold-heading">
+    <h2 id="hold-heading">A different question: hold until they sell, or remove now?</h2>
+    <p>
+      The table above spreads sell-through over a horizon and charges a flat
+      per-unit surcharge every leftover month. This second check assumes the
+      remaining units sell after a typed number of months, and only bills the
+      aged-inventory surcharge for months after the threshold you type.
+      Salvage is what you recover if you pull them (liquidation, FBM, or $0).
+    </p>
+    <div class="layout">
+      <section>
+        <h2>Hold-until-sale assumptions</h2>
+        <div class="fields">
+          <label>Remaining units <input id="remainingUnits" type="number" min="1" step="1" value="20"></label>
+          <label>Months until they sell <input id="expectedMonthsToSell" type="number" min="0" step="1" value="3"></label>
+          <label>Months already stored <input id="monthsAlreadyStored" type="number" min="0" step="1" value="5"></label>
+          <label>Surcharge starts after (months) <input id="agedStartsAfterMonths" type="number" min="0" step="1" value="6"></label>
+          <label>Aged surcharge ($ / cu ft / month) <input id="agedSurchargePerCuFt" type="number" min="0" step="0.01" value="1.50"></label>
+          <label>Salvage if removed / unit <input id="salvagePerUnit" type="number" min="0" step="0.01" value="0"></label>
+        </div>
+      </section>
+      <section class="result">
+        <h2>Hold vs remove now</h2>
+        <div id="holdProfit" class="hero-number">$—</div>
+        <div id="holdLabel">hold still beats remove</div>
+        <p id="holdSummary" class="note"></p>
+        <dl>
+          <dt>Hold net (all remaining)</dt><dd id="holdTotal"></dd>
+          <dt>Remove net (all remaining)</dt><dd id="removeTotal"></dd>
+          <dt>Months until remove wins</dt><dd id="monthsUntilRemoveWins"></dd>
+          <dt>Aged months in the hold</dt><dd id="surchargeMonths"></dd>
+        </dl>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">If they sit</th>
+              <th scope="col">Hold net</th>
+              <th scope="col">Remove net</th>
+              <th scope="col">Hold advantage</th>
+            </tr>
+          </thead>
+          <tbody id="holdScenarios"></tbody>
+        </table>
+      </section>
+    </div>
+  </section>
   <section class="faq" aria-labelledby="faq-heading">
     <h2 id="faq-heading">What this checks</h2>
     <p>
@@ -201,6 +258,14 @@
       fulfillment paths and seller plans.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>Should I remove aged Amazon FBA inventory?</h3>
+  <p>On the calculator defaults ($29.99, 15% referral, $4.15 pick, 80 leftover units, 5% monthly sell-through, $1.50 aged-inventory surcharge) keeping over 3 months is −$109.82. A return removal is −$83.20. Disposing is −$25.60. Keeping loses $84.22 more than disposing. Keeping needs about 6.7% monthly sell-through to match dispose. That is arithmetic on your inputs, not advice to create a removal order.</p>
+  <h3>Does Amazon charge aged inventory surcharge on leftover FBA units?</h3>
+  <p>Amazon can add an aged-inventory surcharge on units that have sat past an age band. The amount is a line on your fee preview, not a published live schedule this page fetches. Type the per-unit monthly surcharge from that preview. Storage still sits on top.</p>
+  <h3>Is disposing leftover FBA cheaper than a return removal?</h3>
+  <p>A dispose order is usually a cheaper per-unit fee because the units do not come back. Cost of goods is already sunk — both paths spend a fee, and only a return gives you the units. Q4 storage is a different question: that is a seasonal rate, not an age surcharge.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -209,7 +274,7 @@
     <p>Free and open source. If it saved you from paying three more months of surcharge on a pile that was not going to sell, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
   </footer>
   <script type="module">
-    import { applyCategoryPreset, compareAgedInventory } from "./calc.mjs";
+    import { applyCategoryPreset, compareAgedInventory, compareHoldVsRemove, cubicFeet } from "./calc.mjs";
     import { recordUsage } from "./usage.mjs";
 
     const ids = [
@@ -217,6 +282,10 @@
       "length", "width", "height", "weightLb", "adsPerUnit",
       "agedUnits", "monthlySellThroughPct", "horizonMonths",
       "aisPerUnit", "removalFee", "disposalFee",
+    ];
+    const holdIds = [
+      "remainingUnits", "expectedMonthsToSell", "monthsAlreadyStored",
+      "agedStartsAfterMonths", "agedSurchargePerCuFt", "salvagePerUnit",
     ];
     const money = (value) => {
       const sign = value < 0 ? "-" : "";
@@ -274,10 +343,60 @@
         });
         document.getElementById("compare").innerHTML = "";
       }
+      try {
+        const holdInput = Object.fromEntries(holdIds.map((id) => [id, document.getElementById(id).value]));
+        const listing = readInput();
+        const hold = compareHoldVsRemove({
+          ...holdInput,
+          cubicFeet: cubicFeet({
+            length: listing.length,
+            width: listing.width,
+            height: listing.height,
+          }),
+          salePrice: listing.salePrice,
+          referralRate: listing.referralRate,
+          fulfillmentFee: listing.fulfillmentFee,
+          adsPerUnit: listing.adsPerUnit,
+          storageRate: listing.storageRate,
+          removalFeePerUnit: listing.removalFee,
+        });
+        const holdEl = document.getElementById("holdProfit");
+        holdEl.textContent = money(Math.abs(hold.holdAdvantage));
+        holdEl.className = `hero-number ${hold.holdAdvantage < 0 ? "negative" : "positive"}`;
+        document.getElementById("holdLabel").textContent =
+          hold.betterPath === "hold" ? "hold still beats remove" :
+          hold.betterPath === "remove" ? "remove now beats holding" :
+          "hold and remove leave the same cash";
+        document.getElementById("holdSummary").textContent =
+          hold.monthsUntilRemoveWins == null
+            ? `On these rates, holding for ${hold.expectedMonthsToSell} more months still beats removing.`
+            : `Removing starts to win at ${hold.monthsUntilRemoveWins} more month${hold.monthsUntilRemoveWins === 1 ? "" : "s"} of warehouse cost.`;
+        document.getElementById("holdTotal").textContent = money(hold.holdTotal);
+        document.getElementById("removeTotal").textContent = money(hold.removeTotal);
+        document.getElementById("monthsUntilRemoveWins").textContent =
+          hold.monthsUntilRemoveWins == null ? "does not flip in 36 months" : String(hold.monthsUntilRemoveWins);
+        document.getElementById("surchargeMonths").textContent = String(hold.surchargeMonths);
+        document.getElementById("holdScenarios").innerHTML = hold.scenarios.map((row) =>
+          `<tr class="${row.additionalMonths === hold.expectedMonthsToSell ? "yours" : ""}"><td>${row.additionalMonths} mo${row.additionalMonths === hold.expectedMonthsToSell ? " (you expect)" : ""}</td><td>${money(row.holdTotal)}</td><td>${money(row.removeTotal)}</td><td>${money(row.holdAdvantage)}</td></tr>`
+        ).join("");
+      } catch (error) {
+        document.getElementById("holdProfit").textContent = error.message;
+        document.getElementById("holdProfit").className = "hero-number error";
+        document.getElementById("holdLabel").textContent = "fix the inputs to see a result";
+        document.getElementById("holdSummary").textContent = "";
+        ["holdTotal", "removeTotal", "monthsUntilRemoveWins", "surchargeMonths"].forEach((id) => {
+          document.getElementById(id).textContent = "";
+        });
+        document.getElementById("holdScenarios").innerHTML = "";
+      }
     }
 
     function recordCompare() {
       recordUsage(localStorage, document.getElementById("usageOptOut").checked, "aged_inventory_compared");
+    }
+
+    function recordHold() {
+      recordUsage(localStorage, document.getElementById("usageOptOut").checked, "hold_vs_remove_compared");
     }
 
     document.getElementById("category").addEventListener("change", () => {
@@ -288,6 +407,8 @@
     });
     ids.forEach((id) => document.getElementById(id).addEventListener("input", update));
     ids.forEach((id) => document.getElementById(id).addEventListener("change", recordCompare));
+    holdIds.forEach((id) => document.getElementById(id).addEventListener("input", update));
+    holdIds.forEach((id) => document.getElementById(id).addEventListener("change", recordHold));
     document.getElementById("usageOptOut").addEventListener("change", update);
     update();
   </script>

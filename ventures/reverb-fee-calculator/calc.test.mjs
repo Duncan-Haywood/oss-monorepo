@@ -14,6 +14,8 @@ import {
   ILLUSTRATED_SAFE_SHIPPING_PREMIUM,
   compareBump,
   ILLUSTRATED_BUMP_DEFAULT,
+  compareReturnResolution,
+  returnResolutionNote,
 } from './calc.mjs';
 
 test('Reverb at the default list price keeps the published worked example', () => {
@@ -294,4 +296,118 @@ test('consignmentNote names the default worked example without telling you to co
   assert.match(note, /\$1049\.04/);
   assert.match(note, /\$734\.33/);
   assert.doesNotMatch(note, /you should|recommend|must consign/i);
+});
+
+test('the return path prices three legs of freight, not one', () => {
+  const comparison = compareReturnResolution(REVERB_DEFAULTS);
+  // Out at $65, back at $75, out again at $65 on the relist.
+  assert.equal(comparison.freightOnReturnPath, 205);
+  assert.equal(Number(comparison.returnPosition.toFixed(3)), 35.032);
+  assert.equal(Number(comparison.saleStandsPosition.toFixed(3)), 284.325);
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), 249.29);
+});
+
+test('the fee credit on a refund covers the percentages only, never the fixed line', () => {
+  const comparison = compareReturnResolution(REVERB_DEFAULTS);
+  // 5% of $800 plus 2.9% of $875 is $65.375 of the $65.675 charged; the
+  // $0.30 per-order fee is the rest and no refund returns it.
+  assert.equal(Number((comparison.percentFeeRate * 875).toFixed(3)), 65.375);
+  assert.equal(Number(comparison.unrefundedFees.toFixed(3)), Number((65.675 * 0.39).toFixed(3)));
+});
+
+test('the break-even partial refund exactly ties taking the return', () => {
+  const comparison = compareReturnResolution(REVERB_DEFAULTS);
+  assert.equal(Number(comparison.breakEvenPartialRefund.toFixed(2)), 261.20);
+  const atBreakEven = compareReturnResolution({
+    ...REVERB_DEFAULTS,
+    partialRefund: comparison.breakEvenPartialRefund,
+  });
+  assert.ok(Math.abs(atBreakEven.partialPosition - atBreakEven.returnPosition) < 1e-9);
+  assert.equal(comparison.breakEvenRefundCappedByOrder, false);
+});
+
+test('a refund a dollar either side of break-even lands on the expected side', () => {
+  const base = compareReturnResolution(REVERB_DEFAULTS);
+  const under = compareReturnResolution({ ...REVERB_DEFAULTS, partialRefund: base.breakEvenPartialRefund - 1 });
+  const over = compareReturnResolution({ ...REVERB_DEFAULTS, partialRefund: base.breakEvenPartialRefund + 1 });
+  assert.ok(under.partialPosition > under.returnPosition);
+  assert.ok(over.partialPosition < over.returnPosition);
+});
+
+test('the default $150 concession beats the return and full-refund-and-keep does not', () => {
+  const comparison = compareReturnResolution(REVERB_DEFAULTS);
+  assert.equal(Number(comparison.partialPosition.toFixed(2)), 141.16);
+  assert.ok(comparison.partialPosition > comparison.returnPosition);
+  assert.ok(comparison.rows[3].position < comparison.returnPosition);
+  assert.equal(comparison.winner, 'sale');
+  assert.equal(comparison.rows[2].itemRecovered, true);
+  assert.equal(comparison.rows[1].itemRecovered, false);
+});
+
+test('a relist that fetches the original price still loses the freight and the residue', () => {
+  const comparison = compareReturnResolution({ ...REVERB_DEFAULTS, relistPrice: 800 });
+  assert.equal(Number(comparison.relistHaircut.toFixed(2)), 0);
+  // Nothing given up on the price, and the return still costs the two extra
+  // legs of freight, the second prep, and the unrefunded processing.
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 65.675 * 0.39).toFixed(2)));
+});
+
+test('a relist price of $0 prices the piece as coming back unsellable', () => {
+  const comparison = compareReturnResolution({ ...REVERB_DEFAULTS, relistPrice: 0 });
+  assert.equal(comparison.itemResellable, false);
+  assert.equal(comparison.relistNet, -450);
+  assert.equal(comparison.relist, null);
+  // No second sale means no third leg of freight either.
+  assert.equal(comparison.freightOnReturnPath, 140);
+  assert.equal(Number(comparison.returnPosition.toFixed(3)), Number((-(65 + 75 + 10 + 65.675 * 0.39) - 450).toFixed(3)));
+  assert.ok(comparison.breakEvenRefundCappedByOrder);
+});
+
+test('a full fee refund still leaves the return costing freight and the haircut', () => {
+  const comparison = compareReturnResolution({ ...REVERB_DEFAULTS, feeRefundOnReturnPct: 100 });
+  assert.equal(comparison.unrefundedFees, 0);
+  assert.equal(Number(comparison.costOfTakingTheReturn.toFixed(2)), Number((65 + 75 + 10 + 73.68).toFixed(2)));
+  assert.ok(comparison.breakEvenPartialRefund > 0);
+});
+
+test('the return comparison refuses a refund larger than the order', () => {
+  assert.throws(
+    () => compareReturnResolution({ ...REVERB_DEFAULTS, partialRefund: 900 }),
+    /Partial refund cannot exceed the order total/,
+  );
+  assert.throws(
+    () => compareReturnResolution({ ...REVERB_DEFAULTS, feeRefundOnReturnPct: 140 }),
+    /at most 100%/,
+  );
+  assert.throws(
+    () => compareReturnResolution({ ...REVERB_DEFAULTS, returnShippingCost: -5 }),
+    /non-negative/,
+  );
+});
+
+test('returnResolutionNote names the ceiling without telling you what to do', () => {
+  const note = returnResolutionNote(compareReturnResolution(REVERB_DEFAULTS));
+  assert.match(note, /Taking the return costs \$249\.29/);
+  assert.match(note, /\$205\.00 of freight over three legs/);
+  assert.match(note, /\$25\.61 of fees no refund gives back/);
+  assert.match(note, /\$73\.68 given up on the relist/);
+  assert.match(note, /partial refund up to \$261\.20/);
+  assert.doesNotMatch(note, /you should|we recommend|must refund/i);
+});
+
+test('returnResolutionNote flips when the relist is worth more than the sale', () => {
+  const note = returnResolutionNote(compareReturnResolution({
+    ...REVERB_DEFAULTS,
+    relistPrice: 1400,
+  }));
+  assert.match(note, /Taking the return leaves \$[\d.]+ more/);
+  assert.match(note, /No partial refund is cheaper than shipping it back/);
+});
+
+test('returnResolutionNote counts two legs of freight when nothing goes back out', () => {
+  const note = returnResolutionNote(compareReturnResolution({ ...REVERB_DEFAULTS, relistPrice: 0 }));
+  assert.match(note, /\$140\.00 of freight over two legs/);
+  assert.doesNotMatch(note, /three legs/);
+  assert.match(note, /comes back unsellable/);
+  assert.match(note, /Even refunding the whole \$875\.00 order/);
 });

@@ -105,6 +105,14 @@
       <pre id="report" class="report">Your before → after comparison will appear here.</pre>
     </section>
   </main>
+  <h2>Common questions</h2>
+  <h3>How do I compare accessibility scans before and after a Shopify fix?</h3>
+  <p>Export axe-core JSON from the same storefront URL before the change and after it. Paste the earlier export in Before and the later export in After, then choose Compare scans. The page lists rules that disappeared, rules that remain (with node-count change), and rules that appeared only in the later scan. That is a diff of two supplied results, not a compliance determination.</p>
+  <h3>Does a resolved rule mean the storefront is compliant?</h3>
+  <p>No. A resolved rule only means that rule id was in the earlier export and not in the later one. Manual review is still required. The comparison does not prove a fix was complete.</p>
+  <h3>Is my axe JSON uploaded?</h3>
+  <p>No. Both scans stay in your browser. The tool counts only anonymous feature events in localStorage, with an opt-out.</p>
+
   <footer>
     <p class="muted"><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p class="muted"><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
@@ -190,6 +198,16 @@
         copyStatus.textContent = '';
         recordUsage(localStorage, optOut(), 'comparison_generated');
       } catch (error) {
+        // Invalid JSON on either side must not leave the last valid
+        // comparison on screen next to a silent failure -- a visitor who
+        // misses the error line could read the stale headline, stats, rows,
+        // and report as the diff for the exports just pasted in. Null
+        // `latest` too, so Copy cannot hand out the stale comparison.
+        latest = null;
+        headlineEl.textContent = 'No comparison yet.';
+        statsEl.textContent = 'Paste both exports and choose Compare scans.';
+        rowsEl.innerHTML = '';
+        reportEl.textContent = 'Your before → after comparison will appear here.';
         errorEl.textContent = error.message;
       }
     });

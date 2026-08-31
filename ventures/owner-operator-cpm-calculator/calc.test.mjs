@@ -209,6 +209,23 @@ test('default detention hours flip the starting $2.00 week after a $75 lumper', 
   assert.ok(compared.detentionHoursToCover < 6);
 });
 
+test('loaded miles to cover the week never goes negative when accessorials alone cover cost', () => {
+  // A long detention week (100 hours at $50/hr, net of factoring) throws off
+  // enough cash by itself to cover the whole week, even at a losing-looking
+  // $2.00 loaded rate. The truck still keeps money overall, but the "miles
+  // needed" figure used to divide (weeklyCost - accessorialNet) — a negative
+  // number here — straight through, so the app told a profitable driver they
+  // needed "-683 loaded miles" to break even.
+  const result = calculateWeek({
+    ...week(),
+    detentionHours: 100,
+    detentionPayPerHour: 50,
+  });
+  assert.ok(result.accessorialNet > result.weeklyCost);
+  assert.ok(result.offered.weeklyProfit > 0);
+  assert.equal(result.loadedMilesToBreakEven, 0);
+});
+
 test('detention hours to cover are null when the miles-only week already keeps money', () => {
   const compared = compareAccessorials({
     ...week(),

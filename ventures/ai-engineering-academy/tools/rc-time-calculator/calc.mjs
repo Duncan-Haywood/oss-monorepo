@@ -80,3 +80,34 @@ export function designForTime({ mode, targetTimeSeconds, solveFor, resistanceOhm
   const achieved = timeFromComponents({ mode, ...result, supplyVolts, initialVolts, thresholdVolts });
   return { componentLabel, exactValue, snappedValue, achievedTimeSeconds: achieved.timeSeconds, errorPercent: (achieved.timeSeconds / targetTimeSeconds - 1) * 100 };
 }
+
+/**
+ * Capacitor voltage after a given time. The inverse of `timeFromComponents`:
+ * that answers "how long to this threshold", this answers "what voltage
+ * after this delay" — the question when you already have the part values
+ * and a clock edge, not a target trip point.
+ */
+export function voltageAtTime({ mode, resistanceOhms, capacitanceFarads, supplyVolts, initialVolts = supplyVolts, timeSeconds }) {
+  if (!new Set(["charge", "discharge"]).has(mode)) throw new Error("Mode must be charge or discharge.");
+  positive(resistanceOhms, "Resistance");
+  positive(capacitanceFarads, "Capacitance");
+  positive(supplyVolts, "Supply voltage");
+  if (!Number.isFinite(timeSeconds) || timeSeconds < 0) throw new Error("Time must not be negative.");
+  const timeConstantSeconds = resistanceOhms * capacitanceFarads;
+  const ratio = Math.exp(-timeSeconds / timeConstantSeconds);
+  if (mode === "charge") {
+    const volts = supplyVolts * (1 - ratio);
+    return {
+      volts: toSignificant(volts, 9),
+      fractionOfSupply: toSignificant(volts / supplyVolts, 9),
+      timeConstantSeconds: toSignificant(timeConstantSeconds, 9),
+    };
+  }
+  positive(initialVolts, "Initial voltage");
+  const volts = initialVolts * ratio;
+  return {
+    volts: toSignificant(volts, 9),
+    fractionOfInitial: toSignificant(volts / initialVolts, 9),
+    timeConstantSeconds: toSignificant(timeConstantSeconds, 9),
+  };
+}

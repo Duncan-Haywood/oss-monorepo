@@ -27,6 +27,19 @@ test('custom space names stay available for Other rows', () => {
   assert.match(html, /e\.g\. Server room/);
 });
 
+test('the page exposes periodic-service rows distinct from one-time projects', () => {
+  for (const marker of [
+    'id="periodicServices"',
+    'id="addPeriodic"',
+    'id="periodic"',
+    'readPeriodic',
+    'Quarterly floor care',
+    'Periodic services',
+  ]) {
+    assert.match(html, new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+});
+
 test('the page ships a day-porter section and the search phrases contractors type', () => {
   for (const marker of [
     'id="addShift"',

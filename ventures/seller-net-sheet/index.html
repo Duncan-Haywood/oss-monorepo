@@ -21,38 +21,6 @@
     "featureList": "Seller net proceeds, listing vs buyer-broker lines, offer comparison, walk-away sale price for a target net, copyable worksheet"
   }
   </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "How do I calculate how much I will net from selling my house?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Start with the offer price. Subtract the loan payoff, the listing broker fee, any buyer-broker compensation the seller agrees to pay, other concessions, title and escrow, transfer tax, prorations, and remaining closing costs. What remains is an estimate of cash to the seller. This page does that arithmetic from the numbers you enter; it is not a closing disclosure."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is the higher offer always more money for the seller after NAR?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "No. Buyer-broker compensation is now a negotiated amount, not an automatic split of a 5% or 6% commission. A higher offer that asks the seller to pay the buyer’s broker and closing costs can leave less cash than a cleaner, lower offer. Compare both on a net sheet before deciding."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What sale price do I need to walk away with a target amount?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Enter the net you want, the loan payoff, and the same cost rates. Percentage fees scale with price; flat fees and the payoff do not. The calculator solves for the sale price that produces that net on those assumptions. Confirm the figure with title or escrow before listing or countering."
-        }
-      }
-    ]
-  }
-  </script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c14; background: #f3eee6; }
     body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
@@ -69,7 +37,16 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #b7a68c; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     .span2 { grid-column: 1 / -1; }
     .result { position: sticky; top: 15px; background: #2c2416; color: #f7f1e6; border-color: #2c2416; }
-    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    /* The comparison table's min-content width can exceed this panel, and a table overflows rather than shrinking. The columns that spilled were painted outside the panel's dark fill, in the panel's near-white ink, on the light page background — 1.05:1, so the last column of figures was invisible rather than merely clipped. Scrolling inside the panel keeps every cell on the fill its colour was chosen for. Same pattern the <=700px rule already uses, applied at every width because the panel is narrow on wide screens too. */
+    .result table { display: block; overflow-x: auto; max-width: 100%; }
+    /* Fluid rather than fixed: a six-figure net at 2.8rem is 290px of
+       unbreakable digits — "$119,057.50" has no space or hyphen to wrap at — so
+       on a 320px phone it painted past the edge of its own card and made the
+       page scroll sideways. clamp() keeps the headline as large as the card can
+       hold and never larger. */
+    .hero-number { font-size: clamp(1.9rem, 11vw, 2.8rem); font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; } .positive { color: #c6e8b0; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
     dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
@@ -195,6 +172,16 @@
       arithmetic comparison of the rates you entered.
     </p>
   </section>
+  <h2>Common questions</h2>
+  <h3>How do I calculate how much I will net from selling my house?</h3>
+  <p>Start with the offer price. Subtract the loan payoff, the listing broker fee, any buyer-broker compensation the seller agrees to pay, other concessions, title and escrow, transfer tax, prorations, and remaining closing costs. What remains is an estimate of cash to the seller. This page does that arithmetic from the numbers you enter; it is not a closing disclosure.</p>
+  <h3>Is the higher offer always more money for the seller after NAR?</h3>
+  <p>No. Buyer-broker compensation is now a negotiated amount, not an automatic split of a 5% or 6% commission. A higher offer that asks the seller to pay the buyer’s broker and closing costs can leave less cash than a cleaner, lower offer. Compare both on a net sheet before deciding.</p>
+  <h3>What sale price do I need to walk away with a target amount?</h3>
+  <p>Enter the net you want, the loan payoff, and the same cost rates. Percentage fees scale with price; flat fees and the payoff do not. The calculator solves for the sale price that produces that net on those assumptions. Confirm the figure with title or escrow before listing or countering.</p>
+  <h3>How do I estimate the Tax / HOA proration figure above?</h3>
+  <p>Take the annual property tax bill and divide by 365 for a daily rate, then multiply by the number of days in the tax period the seller is responsible for through closing. A $3,650 annual bill is $10/day; 80 days charged to the seller comes to $800 &mdash; which is why that field defaults to $800 above. Whether the seller owes days before or after closing depends on whether your local jurisdiction bills taxes in advance or in arrears, so use the title company's proration once you have it; this is a starting estimate, not the number on the closing statement.</p>
+
   <footer>
     <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or real-estate advice, and it does not replace a qualified professional, title company, escrow officer, or attorney. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>DoorDash Fee Calculator for Restaurants | Delivery App Margin</title>
+  <title>DoorDash Fee Calculator for Restaurants — Delivery Margin</title>
   <meta name="description" content="Free restaurant delivery fee calculator: put one ticket through dine-in, pickup, DoorDash, Uber Eats, and Grubhub. See net after commission, packaging, and extra labor — plus the menu price each app needs to match dine-in.">
   <meta name="robots" content="index, follow">
   <link rel="canonical" href=".">
@@ -19,7 +19,7 @@
     "applicationCategory": "BusinessApplication",
     "operatingSystem": "Any (runs in a web browser)",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "featureList": "DoorDash / Uber Eats / Grubhub commission comparison, dine-in vs pickup vs delivery, packaging and extra labor, menu price to match dine-in, monthly cash given up"
+    "featureList": "DoorDash / Uber Eats / Grubhub commission comparison, dine-in vs pickup vs delivery, packaging and extra labor, menu price to match dine-in, monthly cash given up, copyable decision summary"
   }
   </script>
   <script type="application/ld+json">
@@ -49,6 +49,22 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Take the profit you keep on the dine-in ticket, add packaging, extra labor, and any separate processing fee, then divide by one minus the commission rate. The last columns of the table do that from the rates you entered. A worked example is on the DoorDash fees page linked below."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does Uber Eats take from restaurants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Like DoorDash, Uber Eats commission depends on the plan and market, and commonly lands in a similar rough range of the order total, sometimes with a separate marketing or processing fee depending on the tier. The Uber Eats preset above starts at 30% as an illustrative default — replace it with the rate on your own statement, then this page shows the same dine-in-matching price and monthly gap it computes for DoorDash."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much commission does Grubhub charge restaurants?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Grubhub's commission also varies by plan and market, and is often bundled with marketing or delivery fees rather than one flat number. The Grubhub preset above starts at 25% as an illustrative default. Enter your own statement's rate to see the menu price Grubhub needs to match dine-in profit on this ticket, and how that compares to DoorDash and Uber Eats side by side."
         }
       }
     ]
@@ -91,7 +107,7 @@
     details p.note { font-size: .84rem; color: #6b5344; margin: 8px 0 0; }
     .error { color: #b91c1c; font-weight: 650; }
     .verdict .error { color: #fecaca; }
-    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #c4a58a; background: #fff; cursor: pointer; }
+    button { font: inherit; font-weight: 650; padding: 9px 14px; border-radius: 8px; border: 1px solid #c4a58a; background: #fff; cursor: pointer; color: #2a1f14; }
     button:hover { background: #fff4ea; }
     .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
     .faq { margin-top: 18px; }
@@ -142,6 +158,10 @@
         <div id="bestProfit" class="hero-number">$—</div>
         <p id="spread" class="note"></p>
         <p id="monthly" class="note"></p>
+        <div class="actions">
+          <button id="copySummary" type="button">Copy decision summary</button>
+          <span id="copyStatus" class="note" role="status" aria-live="polite"></span>
+        </div>
       </div>
       <div class="scroller">
         <table>
@@ -156,6 +176,7 @@
               <th scope="col">You keep</th>
               <th scope="col">Vs dine-in</th>
               <th scope="col">Price to match dine-in</th>
+              <th scope="col">Commission to match dine-in</th>
               <th scope="col">This month vs dine-in</th>
             </tr>
           </thead>
@@ -188,7 +209,11 @@
       bagging minutes at $18/hour add another $3.65 the percentage comparison
       never shows. The decision number is the listed price that leaves you the
       same cash as dine-in — often around 45% higher on that ticket — and the
-      monthly gap if you do not raise it.
+      monthly gap if you do not raise it. Since you cannot always set that
+      price yourself, the table also solves the other side: the commission
+      rate this path would need, at its current listed price, to match
+      dine-in — the number worth having ready when a plan renewal or a
+      lower-commission tier comes up.
       <a href="doordash-fees-for-restaurants.html">DoorDash fees on one restaurant ticket</a>
       works the default example through in full.
     </p>
@@ -204,6 +229,18 @@
       financial, or business advice.
     </p>
   </section>
+
+  <h2>Common questions</h2>
+  <h3>How much does DoorDash take from restaurants?</h3>
+  <p>It depends on the plan and market. Marketplace commissions commonly land between about 15% and 30% of the order total, and some plans add a separate processing fee. The number that matters is not the headline percentage: packaging, extra bagging minutes, and the price you list on the app all change what you keep. Enter the rate on your own statement above — this page does the arithmetic on the numbers you give it.</p>
+  <h3>Is DoorDash worth it for a restaurant?</h3>
+  <p>On fees alone, dine-in almost always leaves more than a marketplace order at the same menu price, because the app takes a commission dine-in does not. Whether that is worth it depends on whether the app brings tickets you would not have sold otherwise, and on whether you mark the delivery menu up enough to keep the same cash. This calculator shows the dine-in-matching price and the monthly gap; it does not know your incremental demand.</p>
+  <h3>How do I price a DoorDash menu to keep dine-in profit?</h3>
+  <p>Take the profit you keep on the dine-in ticket, add packaging, extra labor, and any separate processing fee, then divide by one minus the commission rate. The last columns of the table do that from the rates you entered. A worked example is on the DoorDash fees page linked below.</p>
+  <h3>How much does Uber Eats take from restaurants?</h3>
+  <p>Like DoorDash, Uber Eats commission depends on the plan and market, and commonly lands in a similar rough range of the order total, sometimes with a separate marketing or processing fee depending on the tier. The Uber Eats preset above starts at 30% as an illustrative default — replace it with the rate on your own statement, then this page shows the same dine-in-matching price and monthly gap it computes for DoorDash.</p>
+  <h3>How much commission does Grubhub charge restaurants?</h3>
+  <p>Grubhub's commission also varies by plan and market, and is often bundled with marketing or delivery fees rather than one flat number. The Grubhub preset above starts at 25% as an illustrative default. Enter your own statement's rate to see the menu price Grubhub needs to match dine-in profit on this ticket, and how that compares to DoorDash and Uber Eats side by side.</p>
 
   <footer>
     <label class="check"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
@@ -232,9 +269,22 @@
     const money = (value) =>
       Number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
     const signedMoney = (value) => `${value > 0 ? "−" : ""}${money(Math.abs(value))}`;
+    // A commission rate is only a real answer between 0% (already there at no
+    // commission) and 100% (calculateChannel itself refuses that boundary).
+    // Negative means extra cash — packaging, labor, a driver — already
+    // exceeds the gap, so no commission cut, however deep, gets there;
+    // >=100% means the same thing from the other side, since profit only
+    // falls as commission rises.
+    const commissionMatchText = (pct) =>
+      pct === null
+        ? "—"
+        : pct < 0 || pct >= 100
+        ? "not reachable by rate alone"
+        : `${pct.toFixed(1)}%`;
 
     const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));
     let channels = freshChannels();
+    let lastComparison = null;
 
     function readShared() {
       return Object.fromEntries(
@@ -324,6 +374,7 @@
     }
 
     function showError(message) {
+      lastComparison = null;
       document.getElementById("bestLabel").textContent = "Check the inputs";
       const profit = document.getElementById("bestProfit");
       profit.textContent = message;
@@ -331,6 +382,7 @@
       profit.style.fontSize = "1.1rem";
       document.getElementById("spread").textContent = "";
       document.getElementById("monthly").textContent = "";
+      document.getElementById("copyStatus").textContent = "";
       document.getElementById("rows").innerHTML = "";
     }
 
@@ -342,6 +394,7 @@
         showError(error.message);
         return;
       }
+      lastComparison = comparison;
 
       const profit = document.getElementById("bestProfit");
       profit.style.fontSize = "";
@@ -372,6 +425,7 @@
             <td class="money">${money(result.profit)}</td>
             <td class="money">${result.gapVsDineIn === null || result.gapVsDineIn === 0 ? "—" : signedMoney(result.gapVsDineIn)}</td>
             <td class="money">${result.priceToMatchDineIn === null ? "—" : money(result.priceToMatchDineIn)}</td>
+            <td class="money">${commissionMatchText(result.commissionToMatchDineIn)}</td>
             <td class="money">${result.monthlyGapVsDineIn === null || result.monthlyGapVsDineIn === 0 ? "—" : signedMoney(result.monthlyGapVsDineIn)}</td>
           </tr>`).join("");
     }
@@ -386,6 +440,31 @@
     document.getElementById("usageOptOut").addEventListener("change", (event) => {
       writeOptOut(localStorage, event.target.checked);
     });
+    document.getElementById("copySummary").addEventListener("click", async () => {
+      if (!lastComparison) {
+        document.getElementById("copyStatus").textContent = " Fix the inputs above before copying.";
+        return;
+      }
+      const ticketPrice = Number(document.getElementById("ticketPrice").value);
+      const monthlyOrders = Number(document.getElementById("monthlyOrders").value);
+      const lines = [
+        "Restaurant delivery margin comparison",
+        document.getElementById("bestLabel").textContent,
+        `Best path keeps ${money(lastComparison.best.profit)} on a ${money(ticketPrice)} ticket (${lastComparison.best.margin.toFixed(1)}% margin).`,
+        `At ${monthlyOrders} expected orders/month, the best path contributes ${money(lastComparison.best.profit * monthlyOrders)} before fixed overhead.`,
+        ...lastComparison.results.slice().sort((a, b) => a.rank - b.rank).map((result) =>
+          `${result.label}: keeps ${money(result.profit)}; price to match dine-in ${result.priceToMatchDineIn === null ? "not available" : money(result.priceToMatchDineIn)}; commission to match dine-in ${result.commissionToMatchDineIn === null ? "not available" : commissionMatchText(result.commissionToMatchDineIn)}.`),
+        "Rates are operator-entered assumptions. Verify against current statements before relying on this draft.",
+      ];
+      try {
+        await navigator.clipboard.writeText(lines.join("\n"));
+        document.getElementById("copyStatus").textContent = " Summary copied.";
+        recordUsage(localStorage, optedOut(), "summary_copied");
+      } catch {
+        document.getElementById("copyStatus").textContent = " Clipboard unavailable; use the table above.";
+      }
+    });
+
     document.getElementById("reset").addEventListener("click", () => {
       try {
         localStorage.removeItem(SAVE_KEY);

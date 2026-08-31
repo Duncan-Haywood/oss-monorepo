@@ -3,8 +3,10 @@
 // calc.test.mjs imports calc.mjs directly and never looks at the page, so it
 // stays green for a whole class of defect this page is exposed to:
 //
-//   1. A column added to <thead> without a matching cell in the row template
-//      (or the reverse) silently shifts every value one column left or right.
+//   1. A column added to <thead> without a matching entry in resultCells() (or
+//      the reverse) silently shifts every value one column left or right.
+//      Below ~700px the same declaration supplies the label printed beside each
+//      figure in card mode, so drift there mislabels the number outright.
 //      Nothing throws; the table just quietly reports margin under "Gives up".
 //   2. calc.mjs can compute a figure that index.html never renders. That is
 //      not hypothetical: `breakEvenPrice` and `roi` were computed and unit
@@ -17,7 +19,7 @@
 // `node --test`, matching cut-list-optimizer/page.test.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { CHANNEL_PRESETS, calculateChannel, compareChannels } from './calc.mjs';
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
@@ -48,11 +50,18 @@ function parse(source) {
 const { markup, scripts, unclosed } = parse(html);
 const scriptSource = scripts.join('\n');
 
-// The <tr> each table builds for a channel, lifted out of update(). There are
-// two independent tables now — keep and shelf time — and each has to be
-// checked against its own <thead>, not against every header on the page.
+// The body of resultCells() / shelfCells(), which declares one
+// [label, value, class] tuple per value column. Below ~700px the table is
+// restyled into one card per channel and the same labels print beside each
+// figure. The <tr> templates must still call those helpers so this check is
+// not verifying a declaration nothing renders.
+const keepCellsSource = scriptSource.match(/function resultCells\([\s\S]*?\n    \}/);
+const shelfCellsSource = scriptSource.match(/function shelfCells\([\s\S]*?\n    \}/);
 const rowTemplate = scriptSource.match(/<tr class="\$\{result\.isBest[\s\S]*?<\/tr>/);
 const shelfRowTemplate = scriptSource.match(/<tr class="\$\{result\.isShelfBest[\s\S]*?<\/tr>/);
+
+const labelsFrom = (source) =>
+  [...(source || '').matchAll(/\["([^"]+)",/g)].map((match) => match[1]);
 
 // Shelf-time headers carry data-table="shelf"; the keep table's do not.
 const headersFor = (table) =>
@@ -67,23 +76,59 @@ test('every raw-text element is closed', () => {
 test('the results row templates exist', () => {
   assert.ok(rowTemplate, 'could not find the per-channel <tr> template in update(); the tests below cannot check column alignment without it');
   assert.ok(shelfRowTemplate, 'could not find the shelf-time <tr> template in update()');
+  assert.ok(keepCellsSource, 'could not find resultCells() in the page script');
+  assert.ok(shelfCellsSource, 'could not find shelfCells() in the page script');
 });
 
-for (const [table, template] of [['keep', () => rowTemplate], ['shelf', () => shelfRowTemplate]]) {
-  test(`every ${table} column has a cell, and every cell has a column`, () => {
+test('the keep and shelf rows actually render the labelled cells', () => {
+  assert.match(
+    rowTemplate[0],
+    /resultCells\(result/,
+    'the keep row template no longer builds its cells from resultCells(); the label/heading check would then be checking a declaration nothing renders',
+  );
+  assert.match(
+    shelfRowTemplate[0],
+    /shelfCells\(result/,
+    'the shelf row template no longer builds its cells from shelfCells()',
+  );
+  assert.match(
+    scriptSource,
+    /function renderCells[\s\S]*cell-label/,
+    'cell labels must be real elements, not CSS-generated content, so they are readable in card mode',
+  );
+});
+
+for (const [table, source] of [['keep', keepCellsSource], ['shelf', shelfCellsSource]]) {
+  test(`every ${table} column has a labelled cell, and every labelled cell has a column`, () => {
     const headers = headersFor(table);
-    // One <th scope="row"> (the channel name) plus the <td>s.
-    const cells = (template()[0].match(/<t[hd][\s>]/g) || []).length;
+    const valueHeaders = headers.slice(1);
+    const labels = labelsFrom(source ? source[0] : '');
 
     assert.ok(headers.length > 0, `no column headers found for the ${table} table`);
-    assert.equal(
-      cells,
-      headers.length,
-      `the ${table} table declares ${headers.length} columns (${headers.join(' | ')}) but its row template emits ${cells} cells — ` +
-        'every value after the mismatch renders under the wrong heading',
+    assert.deepEqual(
+      labels,
+      valueHeaders,
+      `the ${table} card labels drifted from the table headings — ` +
+        'on a wide screen the value would sit under one heading and on a phone be captioned with another',
     );
   });
 }
+
+test('card mode is actually reachable', () => {
+  // The card layout is pure CSS; if the media query or the block-display rule
+  // is missing, the seller is back to dragging a fourteen-column table
+  // sideways on a phone, and nothing else in this suite would notice.
+  const style = html.slice(html.indexOf('<style>'), html.indexOf('</style>'));
+  const cardQuery = style.match(/@media \(max-width: 700px\) \{[\s\S]*?\n    \}/);
+  assert.ok(cardQuery, 'the narrow-screen card layout media query is missing');
+  assert.match(cardQuery[0], /tbody tr[\s\S]*?display: block|display: block[\s\S]*?tbody tr/,
+    'card mode must switch the table rows to block layout');
+  assert.match(cardQuery[0], /\.cell-label \{[^}]*display: inline/,
+    'card mode must reveal the per-cell labels hidden on wide screens');
+  // Caught in a phone screenshot, not by any assertion, so pin it here.
+  assert.match(cardQuery[0], /caption \{[^}]*display: block/,
+    'card mode must give <caption> block display, or it renders as a vertical sliver of text');
+});
 
 test('figures named in schema.org featureList are actually rendered', () => {
   const featureList = html.match(/"featureList":\s*"([^"]+)"/);
@@ -97,6 +142,7 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['margin', /result\.margin/],
     ['ROI', /result\.roi/],
     ['break-even price', /result\.breakEvenPrice/],
+    ['orders needed to cover a monthly plan', /result\.ordersToCoverPlan/],
     ['price needed to match the best channel', /result\.priceToMatchBest/],
     ['net profit per channel', /result\.profit/],
     ['expected monthly profit', /result\.monthlyProfit/],
@@ -106,14 +152,14 @@ test('figures named in schema.org featureList are actually rendered', () => {
     ['sell-through needed to match the fastest channel', /result\.sellThroughToMatchBest/],
   ];
 
-  const bothRows = rowTemplate[0] + shelfRowTemplate[0];
+  const renderedSource = keepCellsSource[0] + shelfCellsSource[0];
   for (const [claim, rendered] of claims) {
     assert.ok(
       featureList[1].toLowerCase().includes(claim.toLowerCase()),
       `featureList no longer advertises "${claim}"; update this test or restore the claim`,
     );
     assert.match(
-      bothRows,
+      renderedSource,
       rendered,
       `featureList advertises "${claim}" but neither results row renders ${rendered} — the page under-delivers against its own description`,
     );
@@ -168,8 +214,10 @@ test('every shared input the calculator reads is on the page and in the share li
   const calc = readFileSync(new URL('./calc.mjs', import.meta.url), 'utf8');
   const share = readFileSync(new URL('./share.mjs', import.meta.url), 'utf8');
   const readByCalc = new Set([...calc.matchAll(/\bshared\.([A-Za-z][A-Za-z0-9]*)/g)].map((m) => m[1]));
-  // Toggles, not numeric inputs: they ride the link as their own booleans.
-  for (const flag of ['includeSubscription', 'includeReturns']) readByCalc.delete(flag);
+  // Toggles/modes, not numeric inputs: they ride the link as their own
+  // boolean or string field rather than through the numeric SHARED_FIELDS
+  // list, and are covered by their own dedicated round-trip tests instead.
+  for (const flag of ['includeSubscription', 'includeReturns', 'rankBy']) readByCalc.delete(flag);
 
   for (const key of readByCalc) {
     assert.match(
@@ -191,29 +239,34 @@ test('figures that can be absent are rendered defensively', () => {
   // channel (the question is meaningless). Rendering null unguarded prints
   // "null%" or throws on .toFixed.
   assert.match(
-    rowTemplate[0],
+    keepCellsSource[0],
     /result\.roi === null/,
     'roi is null when nothing was invested; render a placeholder instead of calling .toFixed on null',
   );
   assert.match(
-    rowTemplate[0],
+    keepCellsSource[0],
     /result\.priceToMatchBest === null/,
     'priceToMatchBest is null on the best channel; render a placeholder instead of formatting null',
   );
   assert.match(
-    rowTemplate[0],
+    keepCellsSource[0],
+    /result\.ordersToCoverPlan === null/,
+    'ordersToCoverPlan is null when the unit economics cannot recover a plan; render a placeholder',
+  );
+  assert.match(
+    keepCellsSource[0],
     /result\.profitPerDay === null/,
     'profitPerDay is null when no days-to-sell was given; render a placeholder instead of formatting null',
   );
   assert.match(
-    rowTemplate[0],
+    keepCellsSource[0],
     /result\.daysToSell === null/,
     'daysToSell is null when no pace was given; render a placeholder instead of a blank cell',
   );
   // Null on the shelf leader, and also on any channel no sell-through can lift
   // to the leader's rate — a trailing row, not just the winning one.
   assert.match(
-    shelfRowTemplate[0],
+    shelfCellsSource[0],
     /result\.sellThroughToMatchBest === null/,
     'sellThroughToMatchBest is null when no sell-through catches the leader; render a placeholder instead of formatting null',
   );
@@ -295,4 +348,27 @@ test('a saved channel that says nothing about `enabled` is not switched on', () 
     'an absent `enabled` must be distinguished from an explicit one');
   assert.match(merge, /channel\.enabled !== false/,
     'and must fall back to the preset default');
+});
+
+// A page missing og:* renders as a bare link with no preview when shared —
+// PRODUCT_PLAYBOOK.md 5e requires Open Graph tags "so a shared link renders".
+// does-it-actually-sell-there.html, etsy-vs-ebay-fees.html, and
+// returns-change-the-ranking.html were all indexed, linked from index.html,
+// and shipped without any og:* tags at all.
+test('every published, indexable page carries Open Graph tags', () => {
+  const dir = new URL('./', import.meta.url);
+  const pages = readdirSync(dir).filter((name) => name.endsWith('.html'));
+  assert.ok(pages.length >= 4, 'expected at least the 4 known pages in this venture');
+  for (const page of pages) {
+    const source = readFileSync(new URL(page, dir), 'utf8');
+    assert.match(source, /<meta property="og:title" content="[^"]+">/, `${page} is missing og:title`);
+    assert.match(source, /<meta property="og:description" content="[^"]+">/, `${page} is missing og:description`);
+  }
+});
+
+test('share-link copy falls back when the Clipboard API is unavailable', () => {
+  assert.match(html, /function fallbackCopy/);
+  assert.match(html, /execCommand\("copy"\)/);
+  assert.match(html, /share_link_copied/);
+  assert.doesNotMatch(html, /window\.prompt\("Copy this share link:/);
 });

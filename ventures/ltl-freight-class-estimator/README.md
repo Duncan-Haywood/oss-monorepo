@@ -28,16 +28,38 @@ carrier can reclassify freight based on handling, stowability, liability,
 packaging, NMFC item, and current rules. Confirm the final class with the
 carrier or a qualified freight professional.
 
-The result also shows how far the shipment's density is from the next denser
-class band. That is a planning aid for comparing packaging options, not a
+## The two levers
+
+Knowing you are 1 lb/ft³ from the next band is not an instruction, because
+nobody ships a lb/ft³. Density is `weight × 1728 / (length × width × height)`,
+and of those four terms the footprint is the pallet and the weight is the goods
+— so height and load are the only ones a shipper can usually move on the day.
+
+The result restates the gap in both:
+
+- **Cheaper.** The packed height that reaches the next class down, and the
+  weight per piece that would reach it at the current height. When the height it
+  would take is under a bare pallet's own deck (~6″), the page drops that half
+  and says why, rather than printing a number nobody can execute.
+- **Dearer.** The height at which a carrier's dimensioner re-rates the shipment
+  into the class above, and how much clearance is left. Class follows the
+  dimensions the *carrier* measures, so this is the number that turns into a
+  re-class notice after the freight has already moved. Under half an inch of
+  clearance the page says the freight is on the band line instead of quoting a
+  headroom figure.
+
+"Copy repack target" puts those instructions on the clipboard as plain text for
+a warehouse email. It is a planning aid for comparing packaging options, not a
 promise that changing dimensions or weight will change a carrier's class.
 
 ## Privacy and usage
 
 Everything runs in the browser. Dimensions and weights are never uploaded. No
 accounts, cookies, tracking pixels, analytics vendor, IPs, or user identifiers
-are used. The tool optionally counts only `estimate_completed` and
-`result_copied` in localStorage, never the entered values. The footer clears the
+are used. The tool optionally counts only `estimate_completed`,
+`result_copied` and `repack_target_copied` in localStorage, never the entered
+values. `repack_target_copied` is the outcome measure for the levers above: it
+separates readers from shippers who took the instruction to a dock. The footer clears the
 counter, and Do Not Track or Global Privacy Control disables counting.
 
 ## Disclaimer

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { parseInputs, reconcile, reviewItems, summary } from './calc.mjs';
+import { parseInputs, reconcile, reviewItems, reviewRecord, summary } from './calc.mjs';
 
 const parsed = parseInputs({ annualExpenses: '120000', rentableArea: '10000', tenantArea: '1000', billedAmount: '10000', credits: '500' });
 assert.equal(parsed.ok, true);
@@ -12,6 +12,10 @@ assert.equal(result.monthlyVariance, 2500 / 12);
 assert.match(reviewItems(result).at(-1), /above net billed/);
 assert.match(summary(result), /Tenant area share: 10.00%/);
 assert.match(summary(result), /not a lease interpretation/);
+const record = reviewRecord(result);
+assert.equal(record.format, 'cam-reconciliation-review');
+assert.equal(record.calculations.netBilledAfterCredits, 9500);
+assert.match(record.scope, /not a lease interpretation/);
 assert.equal(parseInputs({ annualExpenses: '5', rentableArea: '0', tenantArea: '1', billedAmount: '2', credits: '0' }).ok, false);
 assert.equal(parseInputs({ annualExpenses: '5', rentableArea: '10', tenantArea: '11', billedAmount: '2', credits: '0' }).ok, false);
 console.log('cam reconciliation tests passed');

@@ -1,5 +1,5 @@
 name: tiktok-shop-fee-calculator
-description: A private browser calculator for TikTok Shop sellers that prices one SKU after referral, creator commission, fulfillment, ads, and returns — including the case where affiliate payout is kept on a refund — and compares the mid-2026 US defaults with the announced 1 October 2026 rates.
+description: A private browser calculator for TikTok Shop sellers that prices one SKU after referral, creator commission, fulfillment, ads, and returns — including the case where affiliate payout is kept on a refund — compares the mid-2026 US defaults with the announced 1 October 2026 rates — per order, per month, split by organic vs affiliate, with the list price that holds today's margin and the unit-cost ceiling that survives the change — and shows whether free shipping still leaves a profit when commission is on item price only.
 stage: prototype
 owner: duncan
 hypotheses:

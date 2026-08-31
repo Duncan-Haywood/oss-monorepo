@@ -56,6 +56,12 @@ export function nextDueFromInterval(awardDate, intervalMonths, today) {
     prev = due;
     due = next;
   }
+  // `due` lands exactly on `today` when today is itself an interval
+  // boundary. Without this check, `prev < today` is also true in that
+  // case (prev is always a strictly earlier boundary once the loop has
+  // run), so the day a report becomes due it was reported as overdue by
+  // a full interval, only to "improve" to correct the very next day.
+  if (due === today) return due;
   return prev < today ? prev : due;
 }
 
@@ -257,7 +263,11 @@ export function compareLateReport(input = {}, today = new Date()) {
  * Arithmetic only — it does not tell them to hire, write, or miss.
  */
 export function lateReportNote(comparison) {
-  const money = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const money = (value) => {
+    const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const text = format(Math.abs(value));
+    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const dueLine = comparison.days == null
     ? "The report date is not set."
     : comparison.days < 0

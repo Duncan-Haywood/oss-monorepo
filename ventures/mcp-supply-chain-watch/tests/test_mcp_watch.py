@@ -51,6 +51,37 @@ class McpWatchTests(unittest.TestCase):
                 load(str(path))
             self.assertIn("duplicate", str(error.exception))
 
+    def test_metadata_only_change_is_not_reported_as_a_description_change(self):
+        # Same description, same inputSchema -- only an annotations field differs.
+        # Regression for a bug where classify() fell through to "description
+        # changed" as a catch-all even when the description text was identical.
+        before = {
+            "tools": {
+                "search_inventory": {
+                    "name": "search_inventory",
+                    "description": "Search available inventory",
+                    "inputSchema": {"type": "object"},
+                    "annotations": {"readOnlyHint": True},
+                },
+            },
+        }
+        after = {
+            "tools": {
+                "search_inventory": {
+                    "name": "search_inventory",
+                    "description": "Search available inventory",
+                    "inputSchema": {"type": "object"},
+                    "annotations": {"readOnlyHint": False},
+                },
+            },
+        }
+        report = compare(before, after)
+        self.assertEqual(len(report["changes"]), 1)
+        change = report["changes"][0]
+        self.assertEqual(change["bucket"], "metadata-change")
+        self.assertNotIn("description changed", change["reason"])
+        self.assertIn("annotations", change["reason"])
+
     def test_markdown_report_is_reviewable_without_manifest_content(self):
         before, after = self.fixtures()
         output = markdown(compare(before, after))

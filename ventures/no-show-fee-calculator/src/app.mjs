@@ -94,6 +94,7 @@ function renderResults(result) {
   document.getElementById("out-monthly-exposure").textContent = fmtMoney(result.monthlyExposure);
   document.getElementById("out-monthly-fee-revenue").textContent = fmtMoney(result.monthlyFeeRevenue);
   document.getElementById("out-monthly-unrecovered").textContent = fmtMoney(result.monthlyUnrecovered);
+  document.getElementById("out-remaining-exposure").textContent = fmtMoney(result.remainingAnnualExposure);
 }
 
 function renderScenarios(values) {
@@ -280,6 +281,7 @@ function render() {
   policyEl.value = generatePolicyText({
     businessName: String(raw.businessName ?? ""),
     serviceName: String(raw.serviceName ?? ""),
+    collectionMethod: String(raw.collectionMethod ?? "payment-method"),
     noticeHours: parsed.values.noticeHours,
     feePercent: parsed.values.feePercent,
     feeAmount: result.feeAmount,
@@ -297,6 +299,7 @@ function countCalculation() {
   recordEvent("collection_policies_viewed");
   recordEvent("notice_windows_compared");
   recordEvent("overbooking_compared");
+  recordEvent("recovery_estimate_viewed");
   renderUsageSummary();
 }
 

@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gutter Guard Bid Calculator | Price the Feet, the Stories, and the Mesh — Not Just an $8/ft Special</title>
+  <title>Gutter Guard Bid Calculator — Feet, Stories, and Mesh</title>
   <meta name="description" content="Price a gutter guard install from extra stories, extra lineal feet, extra miters, extra downspouts, a clean-first pass, fascia repair, and steep-roof access — not a published $8/foot leaf-filter special. See the walk-away number before you match a cheaper screen quote.">
   <meta property="og:title" content="Gutter Guard Bid Calculator">
   <meta property="og:description" content="A one-story ranch with 140 feet of empty gutter is not the same job as a two-story colonial with 220 feet of micromesh, packed leaves, and rotten fascia. Bid the feet and the stories.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Guard Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Screen versus foam versus reverse-curve versus micromesh system type, extra stories over the included first floor, extra lineal feet over the included ranch run, extra miters, extra downspouts, clean-first of packed gutters, fascia repair, steep-roof access, occupied-home landscaping, walk-away price, proposed-price margin check, copyable customer-facing bid summary"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Gutter Guard Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Screen versus foam versus reverse-curve versus micromesh system type, extra stories over the included first floor, extra lineal feet over the included ranch run, extra miters, extra downspouts, clean-first of packed gutters, fascia repair, steep-roof access, occupied-home landscaping, walk-away price, proposed-price margin check, copyable customer-facing bid summary, saved bid that reopens on the next visit, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why can a competitor advertise “$8 a foot installed”?","acceptedAnswer":{"@type":"Answer","text":"Because that number is written around one specific house, and that house is the first preset here: a one-story ranch with 140 lineal feet of empty 5″ K-style, four miters, no extra downspouts, nobody home to work around. Priced honestly it really is cheap. What a per-foot special cannot see is the second story, the miter count, the downspouts, a clean-first pass, rotten fascia, and which guard is actually going on. Price your real house beside the special and the gap stops being an argument about who is honest and becomes a list of line items you can show the homeowner."}},{"@type":"Question","name":"What actually changes between screen, foam, reverse-curve, and micromesh?","acceptedAnswer":{"@type":"Answer","text":"The setup time and the coil, and they move together. Perforated screen — the “$8-a-foot special” system — starts at 1.5 hours of base setup and $2.25 a foot of material. Foam inserts start at 1.7 hours and $3.40. Reverse-curve or helmet is 2.1 hours and $6.25 because it is fitted under the shingle course. Micromesh or leaf-filter is 2.4 hours and $8.50, which is most of why a mesh quote lands at three or four times a screen quote on the identical gutter run. Changing the system refills those two starting numbers and leaves every rate you have already typed alone."}},{"@type":"Question","name":"Why does a second story cost more than the same footage on a ranch?","acceptedAnswer":{"@type":"Answer","text":"Because height is not footage, and the calculator bills them separately. Every extra 10 feet past the 120 included in a base setup adds 0.35 hours. A whole extra story adds 1.2 hours on its own, before a single extra foot is counted, and a steep roof adds another 0.9. That is ladder setting, walking the plank, and working off a roof edge instead of off a step ladder — the part a per-foot price silently averages away, and the reason a 180-foot colonial is not just “180 times the ranch rate.”"}},{"@type":"Question","name":"Why are miters and downspouts priced separately from the run?","acceptedAnswer":{"@type":"Answer","text":"Because a base setup already includes some of each — 120 feet, one story, four miters, and three downspouts by default — and only what is beyond that is billed. Each extra miter adds 0.15 hours plus an $8 kit; each extra downspout adds 0.25 hours plus a $22 adapter. A house with twelve corners is a different job from a rectangle with four, and this is where that shows up instead of quietly eating the margin."}},{"@type":"Question","name":"Should I clean the gutters before fitting, and what does it add?","acceptedAnswer":{"@type":"Answer","text":"If they are full, fitting over the debris is how a guard job comes back as a callback. Ticking clean-first bills it: 0.2 hours per 10 feet across the whole run, plus a $35 disposal cost. On the 220-foot mesh preset that is 4.4 hours of crew time — real money that a homeowner comparing your bid to a coupon price will not have in theirs, which is exactly why it belongs on the proposal as its own line rather than folded into a rate."}},{"@type":"Question","name":"Is my data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No account and no network requests — the calculator runs entirely in your browser. Your bid is saved in this browser’s local storage so it is still here next visit, and a bid link you copy carries those same numbers in the page’s address rather than sending anything to a server. The optional usage counter records only which features were used and the day, never your footage, wages, or prices."}},{"@type":"Question","name":"What’s the difference between the bid price and the walk-away price?","acceptedAnswer":{"@type":"Answer","text":"The bid price already carries your target margin on top of labor, coil, kits, and overhead. The walk-away price is the total cost underneath it — crew hours, guard material, miter kits, downspout adapters, fascia, disposal, travel and equipment — the point below which the install stops being profitable at all. Typing a number into “Price you’re considering” shows you the margin, or the loss, before you send it."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e2a22; background: #e6eee6; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
@@ -24,9 +25,11 @@
     input, select { width: 100%; box-sizing: border-box; border: 1px solid #7d9380; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
     label.check { display: flex; gap: 8px; align-items: center; font-weight: 650; }
     label.check input { width: auto; }
-    button { font: inherit; border-radius: 7px; border: 1px solid #7d9380; background: #eaf2ea; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #7d9380; background: #eaf2ea; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1e2a22; }
     button:hover { background: #d5ecd7; }
     .result { position: sticky; top: 15px; background: #16301c; color: #f3f9f4; border-color: #16301c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
     .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
     .negative { color: #ffb0a2; }
     dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
@@ -47,7 +50,64 @@
     @media (max-width: 780px) {
       .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
     }
-  </style>
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4d5b52; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #16301c; --pr-accent: #2d5a36;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
 </head>
 <body>
   <header>
@@ -139,9 +199,13 @@
       </dl>
       <div id="verdict" class="verdict" hidden></div>
       <div class="summary-actions">
+        <button type="button" id="copyLink">Copy bid link</button>
+        <button type="button" id="clearSaved">Start a fresh bid</button>
         <button type="button" id="copySummary">Copy bid summary</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <p id="restoreNote" class="note" role="status" aria-live="polite" hidden></p>
+      <p class="note" style="margin-top:8px">A bid link carries your own rates &mdash; wage, burden, overhead, and target margin &mdash; so the page reopens exactly as you left it. Send it to yourself or your crew. The customer should get the price, not the link.</p>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="hourSplit"></ul>
@@ -151,12 +215,111 @@
       <hr>
       <p class="note">Transparent arithmetic from your own inputs. Starting hours and coil rates are common ballpark figures, not an industry standard, a leak warranty, or a building-code determination &mdash; replace them with your own takeoff.</p>
     </section>
-  </main>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Leafline Gutter Protection LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Fit 140 lf of micromesh guard on a single-storey ranch&#10;Clean and flush before fitting"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Gutter or downspout replacement&#10;Roof repair"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Gutters flushed and tested after the guards go on."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end -->
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>Why can a competitor advertise &ldquo;$8 a foot installed&rdquo;?</h3>
+      <p>Because that number is written around one specific house, and that house is the first preset
+        here: a one-story ranch with 140 lineal feet of empty 5&Prime; K-style, four miters, no extra
+        downspouts, nobody home to work around. Priced honestly it really is cheap. What a per-foot
+        special cannot see is the second story, the miter count, the downspouts, a clean-first pass,
+        rotten fascia, and which guard is actually going on. Price your real house beside the special and
+        the gap stops being an argument about who is honest and becomes a list of line items you can show
+        the homeowner.</p>
+
+      <h3>What actually changes between screen, foam, reverse-curve, and micromesh?</h3>
+      <p>The setup time and the coil, and they move together. Perforated screen &mdash; the
+        &ldquo;$8-a-foot special&rdquo; system &mdash; starts at 1.5 hours of base setup and $2.25 a foot
+        of material. Foam inserts start at 1.7 hours and $3.40. Reverse-curve or helmet is 2.1 hours and
+        $6.25 because it is fitted under the shingle course. Micromesh or leaf-filter is 2.4 hours and
+        $8.50, which is most of why a mesh quote lands at three or four times a screen quote on the
+        identical gutter run. Changing the system refills those two starting numbers and leaves every
+        rate you have already typed alone.</p>
+
+      <h3>Why does a second story cost more than the same footage on a ranch?</h3>
+      <p>Because height is not footage, and the calculator bills them separately. Every extra 10 feet past
+        the 120 included in a base setup adds 0.35 hours. A whole extra story adds 1.2 hours on its own,
+        before a single extra foot is counted, and a steep roof adds another 0.9. That is ladder setting,
+        walking the plank, and working off a roof edge instead of off a step ladder &mdash; the part a
+        per-foot price silently averages away, and the reason a 180-foot colonial is not just
+        &ldquo;180 times the ranch rate.&rdquo;</p>
+
+      <h3>Why are miters and downspouts priced separately from the run?</h3>
+      <p>Because a base setup already includes some of each &mdash; 120 feet, one story, four miters, and
+        three downspouts by default &mdash; and only what is beyond that is billed. Each extra miter adds
+        0.15 hours plus an $8 kit; each extra downspout adds 0.25 hours plus a $22 adapter. A house with
+        twelve corners is a different job from a rectangle with four, and this is where that shows up
+        instead of quietly eating the margin.</p>
+
+      <h3>Should I clean the gutters before fitting, and what does it add?</h3>
+      <p>If they are full, fitting over the debris is how a guard job comes back as a callback. Ticking
+        clean-first bills it: 0.2 hours per 10 feet across the whole run, plus a $35 disposal cost. On the
+        220-foot mesh preset that is 4.4 hours of crew time &mdash; real money that a homeowner comparing
+        your bid to a coupon price will not have in theirs, which is exactly why it belongs on the
+        proposal as its own line rather than folded into a rate.</p>
+
+      <h3>Is my data uploaded anywhere?</h3>
+      <p>No account and no network requests &mdash; the calculator runs entirely in your browser. Your bid
+        is saved in this browser&rsquo;s local storage so it is still here next visit, and a bid link you
+        copy carries those same numbers in the page&rsquo;s address rather than sending anything to a
+        server. The optional usage counter records only which features were used and the day, never your
+        footage, wages, or prices.</p>
+
+      <h3>What&rsquo;s the difference between the bid price and the walk-away price?</h3>
+      <p>The bid price already carries your target margin on top of labor, coil, kits, and overhead. The
+        walk-away price is the total cost underneath it &mdash; crew hours, guard material, miter kits,
+        downspout adapters, fascia, disposal, travel and equipment &mdash; the point below which the
+        install stops being profitable at all. Typing a number into &ldquo;Price you&rsquo;re
+        considering&rdquo; shows you the margin, or the loss, before you send it.</p>
+    </section>
+  </main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
 
   <footer>
     <label class="check" style="font-weight:400"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not construction, roofing, building-code, legal, tax, or financial advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your lineal feet, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Your bid is saved in this browser so it is still here next visit, and &ldquo;Start a fresh bid&rdquo; deletes it; a bid link you copy holds those same numbers in the address itself, so treat one like your rate sheet. Usage counts are anonymous tallies of which features were used, stored locally, and never include your lineal feet, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-to-install-gutter-guards.html">How much to charge to install gutter guards</a>.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -169,6 +332,13 @@
       suggestedJobHours,
     } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    import { encodeBid, saveBid, clearBid, restoreBid,
+      withProposalTerms, readProposalTerms, overlongTermsNote } from './share.mjs';
 
     const FIELD_IDS = [
       'linealFeet','stories','miters','extraDownspouts','fasciaRepairFeet',
@@ -181,9 +351,13 @@
       'proposedPrice',
     ];
     const FLAG_IDS = ['cleanFirst','occupied','steepRoof'];
-    const SELECT_IDS = ['jobType'];
+    const CHOICE_IDS = ['jobType'];
     const SUGGESTED_JOB_IDS = ['hoursBaseSetup','materialPerFoot'];
-    const money = value => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const el = id => document.getElementById(id);
 
     const presets = el('jobPresets');
@@ -222,7 +396,7 @@
     function readInput() {
       const values = Object.fromEntries(FIELD_IDS.map(id => [id, el(id).value]));
       for (const id of FLAG_IDS) values[id] = el(id).checked;
-      for (const id of SELECT_IDS) values[id] = el(id).value;
+      for (const id of CHOICE_IDS) values[id] = el(id).value;
       return values;
     }
 
@@ -309,7 +483,11 @@
     }
 
     async function copySummary() {
-      const job = JOB_PRESETS[Number(presets.value)];
+      // `Number('')` is 0, so an index lookup reads the placeholder — "no job
+      // chosen" — as the *first* preset in the list. Left that way, reselecting
+      // the placeholder silently replaced a contractor's whole takeoff with a
+      // worked example, and `copySummary` titled their bid with it.
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       const text = formatBidSummary(calculateBid(readInput()), job?.label);
       try {
         await navigator.clipboard.writeText(text);
@@ -330,7 +508,7 @@
     }
 
     presets.addEventListener('change', () => {
-      const job = JOB_PRESETS[Number(presets.value)];
+      const job = presets.value === '' ? null : JOB_PRESETS[Number(presets.value)];
       if (!job) return;
       applyJob(job);
       count('preset_applied');
@@ -365,7 +543,253 @@
       }
     });
 
+    // Derived from the very id lists `readInput()` reads and the options the
+    // select actually offers, so a field added to the form is saved and
+    // shareable without touching this. The alternative — a second field list
+    // kept by hand — is how a shared link ends up quietly dropping a field and
+    // pricing a different job for the recipient than the sender saw.
+    const BID_SPEC = {
+      key: 'gutter-guard-bid',
+      numbers: FIELD_IDS,
+      flags: FLAG_IDS,
+      choices: Object.fromEntries(CHOICE_IDS.map(id => [id, [...el(id).options].map(option => option.value)])),
+    };
+
+    // A restored field counts as hand-entered. Without this the suggested-rate
+    // kit would overwrite it on the next apply, so a setter who tuned their
+    // own rate and copied the link would watch the recipient's page reset it
+    // to the ballpark figure.
+    function applyValues(values) {
+      for (const [id, value] of Object.entries(values)) {
+        const field = el(id);
+        if (!field) continue;
+        if (field.type === 'checkbox') field.checked = Boolean(value);
+        else field.value = value;
+        field.dataset.edited = '1';
+      }
+    }
+
+    function persist() {
+      try {
+        saveBid(localStorage, withProposalTerms(BID_SPEC), readProposalTerms(readInput(), el));
+      } catch {
+        // A browser with site data blocked throws on access. Losing the save
+        // is survivable; losing the calculator mid-bid is not.
+      }
+    }
+
+    async function copyLink() {
+      const values = readProposalTerms(readInput(), el);
+      const query = encodeBid(withProposalTerms(BID_SPEC), values);
+      const url = `${location.origin}${location.pathname}${query ? `#${query}` : ''}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('link_copied');
+      const leftBehind = overlongTermsNote(values);
+      el('summaryStatus').textContent = leftBehind
+        ? `Bid link copied — ${leftBehind}`
+        : 'Bid link copied — it reopens this bid, deposit and terms included';
+      // A warning is not cleared out from under the person it warns.
+      if (!leftBehind) setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    const restored = restoreBid(withProposalTerms(BID_SPEC), {
+      search: location.hash,
+      storage: (() => { try { return localStorage; } catch { return null; } })(),
+    });
+    applyValues(restored.values);
+
+    if (restored.source !== 'none') {
+      // Say which bid is on screen. Numbers that changed themselves between
+      // visits, with no explanation, are how a setter stops trusting the tool.
+      el('restoreNote').hidden = false;
+      el('restoreNote').textContent = restored.source === 'link'
+        ? 'Opened from a bid link — these are the sender’s numbers, not yours.'
+        : 'Picked up your last bid from this browser. “Start a fresh bid” clears it.';
+    }
+
+    el('copyLink').addEventListener('click', () => {
+      copyLink().catch(() => { el('summaryStatus').textContent = 'Copy failed; copy the address bar instead.'; });
+    });
+
+    el('clearSaved').addEventListener('click', () => {
+      try { clearBid(localStorage, BID_SPEC); } catch { /* storage blocked; the reload still clears the form */ }
+      location.href = location.pathname;
+    });
+
+    // Every input already calls `update()`; saving here means the bid is kept
+    // as it is typed rather than only when a button is pressed, which is the
+    // difference between surviving a closed tab and not.
+    document.addEventListener('input', persist);
+    document.addEventListener('change', persist);
+
     update();
+    persist();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'gutter-guard-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. No guard eliminates maintenance; heavy pollen, shingle grit and pine needles still require periodic cleaning.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Install {linealFeet} lf of {typeLabel} on a {stories}-storey house",
+        {
+          "line": "Fit guards across {miters} miter{miters+s}",
+          "when": "miters"
+        },
+        {
+          "line": "Fit guards at {downspoutCount} downspout{downspoutCount+s}",
+          "when": "downspoutCount"
+        },
+        {
+          "line": "Clean and flush the gutters before fitting",
+          "when": "cleanFirst"
+        },
+        {
+          "line": "Repair {fasciaRepairFeet} ft of fascia",
+          "when": "fasciaRepairFeet"
+        },
+        "Reseat and refasten loose hangers, then flush-test the runs"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "typeLabel": ({"screen":"Perforated screen guard","foam":"Foam insert guard","reverse":"Reverse-curve / helmet guard","mesh":"Micromesh / leaf-filter guard"})[el('jobType')?.value],
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Gutter guards — {linealFeet} lf'], proposalFields(result))[0] || 'Gutter guards — lf',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
   </script>
 </body>
 </html>

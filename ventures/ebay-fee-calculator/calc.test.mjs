@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateOrder, calculatePriceScenarios, calculateRepricingTable, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, comparePromotedStandard, promotedStandardNote, DEFAULT_PROMOTED_STANDARD_RATE, DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS, DEFAULT_MONTHLY_PROMOTED_LISTINGS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS, compareTopRatedPlus, topRatedPlusNote, DEFAULT_TRS_DISCOUNT_PCT, DEFAULT_STANDARD_SELL_THROUGH, DEFAULT_TRS_SELL_THROUGH, DEFAULT_STANDARD_RETURN_RATE, DEFAULT_TRS_RETURN_RATE, DEFAULT_MONTHLY_TRS_LISTINGS, compareManagedReturns, managedReturnsNote, DEFAULT_SELF_RETURN_LABEL, DEFAULT_SELF_RETURN_RATE, DEFAULT_MANAGED_RETURN_FEE, DEFAULT_MANAGED_RETURN_RATE, DEFAULT_BUYER_PAYS_RETURN_RATE, DEFAULT_MONTHLY_MANAGED_LISTINGS, compareGlobalShipping, globalShippingNote, DEFAULT_GSP_RETURN_RATE, DEFAULT_GSP_SELL_THROUGH, DEFAULT_SELF_SHIP_SHIPPING_CHARGED, DEFAULT_SELF_SHIP_SHIPPING_COST, DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST, DEFAULT_SELF_SHIP_INTL_FEE_RATE, DEFAULT_SELF_SHIP_RETURN_RATE, DEFAULT_SELF_SHIP_CLAIM_RATE, DEFAULT_SELF_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_GSP_LISTINGS, compareStoreTiers, storeTiersNote, storeBreakEvenOrders, STORE_TIER_PRESETS, DEFAULT_MONTHLY_STORE_ORDERS, DEFAULT_MONTHLY_STORE_FEE, compareBestOffer, bestOfferRows, bestOfferNote, bestOfferSummary, DEFAULT_INCOMING_BEST_OFFER, DEFAULT_INCOMING_WAIT_CHANCE, compareInternational, internationalNote, internationalSummary, ILLUSTRATIVE_INTL_FEE_RATE, DEFAULT_INTL_EXTRA_SHIPPING, compareFreeShipping, freeShippingNote, DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH, DEFAULT_FREE_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_FREE_SHIP_LISTINGS, comparePromotedAdvanced, promotedAdvancedNote, DEFAULT_ADVANCED_CPC, DEFAULT_ADVANCED_CLICKS, DEFAULT_ADVANCED_EXTRA_ORDERS, DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS, comparePackageProtection, packageProtectionNote, packageProtectionSummary, DEFAULT_SKIP_CLAIM_RATE, DEFAULT_INSURANCE_PREMIUM, DEFAULT_INSURANCE_CLAIM_RATE, DEFAULT_SIGNATURE_FEE, DEFAULT_SIGNATURE_CLAIM_RATE, DEFAULT_MONTHLY_PROTECTION_SHIPMENTS, compareEbayLabels, ebayLabelsNote, ebayLabelsSummary, DEFAULT_THIRD_PARTY_LABEL_COST, DEFAULT_EBAY_LABEL_CLAIM_RATE, DEFAULT_THIRD_PARTY_CLAIM_RATE, DEFAULT_LABEL_UPLOAD_MINUTES, DEFAULT_LABEL_UPLOAD_WAGE, DEFAULT_MONTHLY_LABEL_SHIPMENTS } from './calc.mjs';
+import { calculateOrder, calculateSourcingCeiling, calculatePriceScenarios, calculateRepricingTable, priceToMatchProfit, calculatePromotedTable, maxAffordablePromotedRate, compareListingFormat, listingFormatNote, comparePartialRefund, partialRefundNote, DEFAULT_PARTIAL_REFUND, DEFAULT_MONTHLY_CASES, compareAuthenticity, authenticityNote, DEFAULT_AUTHENTICITY_FEE_RATE, DEFAULT_AUTHENTICITY_EXTRA_SHIP, DEFAULT_WITHOUT_AG_SELL_THROUGH, DEFAULT_AUTHENTICITY_SELL_THROUGH, DEFAULT_AUTHENTICITY_RETURN_RATE, DEFAULT_MONTHLY_AG_LISTINGS, compareLocalPickup, localPickupNote, DEFAULT_SHIP_SELL_THROUGH, DEFAULT_PICKUP_SELL_THROUGH, DEFAULT_PICKUP_NO_SHOW, DEFAULT_PICKUP_MINUTES, DEFAULT_PICKUP_HOURLY_WAGE, DEFAULT_MONTHLY_PICKUP_LISTINGS, compareLotVsSingles, lotVsSinglesNote, DEFAULT_LOT_PIECE_COUNT, DEFAULT_SINGLE_EXPECTED_PRICE, DEFAULT_LOT_SELL_THROUGH, DEFAULT_SINGLE_SELL_THROUGH, DEFAULT_SINGLE_INSERTION_FEE, DEFAULT_MONTHLY_LOT_DECISIONS, compareStandardEnvelope, standardEnvelopeNote, DEFAULT_ENVELOPE_SHIPPING_COST, DEFAULT_ENVELOPE_PACKAGING_COST, DEFAULT_ENVELOPE_CLAIM_RATE, DEFAULT_ENVELOPE_FEE_REFUND_ON_CLAIM, DEFAULT_TRACKED_SELL_THROUGH, DEFAULT_ENVELOPE_SELL_THROUGH, DEFAULT_MONTHLY_ENVELOPE_LISTINGS, compareCombinedShipping, combinedShippingNote, DEFAULT_COMBINED_ITEM_COUNT, DEFAULT_COMBINED_SHIPPING_CHARGED, DEFAULT_COMBINED_SHIPPING_COST, DEFAULT_COMBINED_PACKAGING_COST, DEFAULT_COMBINED_RETURN_SHIPPING_COST, DEFAULT_COMBINED_FIXED_FEE, DEFAULT_MONTHLY_COMBINED_ORDERS, compareSellerInitiatedOffer, sellerInitiatedOfferNote, DEFAULT_OFFER_PERCENT, DEFAULT_WAIT_SELL_THROUGH, DEFAULT_OFFER_ACCEPT, DEFAULT_MONTHLY_OFFERS, comparePromotedOffsite, promotedOffsiteNote, DEFAULT_OFFSITE_SPEND, DEFAULT_OFFSITE_EXTRA_ORDERS, DEFAULT_MONTHLY_OFFSITE_CAMPAIGNS, comparePromotedStandard, promotedStandardNote, DEFAULT_PROMOTED_STANDARD_RATE, DEFAULT_PROMOTED_STANDARD_EXTRA_ORDERS, DEFAULT_MONTHLY_PROMOTED_LISTINGS, compareQuantityDiscount, quantityDiscountNote, DEFAULT_QTY_DISCOUNT_UNITS, DEFAULT_QTY_DISCOUNT_PERCENT, DEFAULT_QTY_SHIPPING_CHARGED, DEFAULT_QTY_SHIPPING_COST, DEFAULT_QTY_PACKAGING_COST, DEFAULT_QTY_RETURN_SHIPPING_COST, DEFAULT_QTY_FIXED_FEE, DEFAULT_SINGLES_SELL_THROUGH, DEFAULT_QTY_TAKE_PCT, DEFAULT_MONTHLY_QTY_ORDERS, compareSellerCoupon, sellerCouponNote, DEFAULT_COUPON_PERCENT, DEFAULT_COUPON_REDEEM_PCT, DEFAULT_LISTED_SELL_THROUGH, DEFAULT_COUPON_SELL_THROUGH, DEFAULT_DROP_SELL_THROUGH, DEFAULT_MONTHLY_COUPON_LISTINGS, compareImmediatePayment, immediatePaymentNote, DEFAULT_UNPAID_RATE, DEFAULT_LATER_SELL_THROUGH, DEFAULT_IMMEDIATE_SELL_THROUGH, DEFAULT_UNPAID_RELIST_FEE, DEFAULT_UNPAID_MINUTES, DEFAULT_UNPAID_HOURLY_WAGE, DEFAULT_MONTHLY_IMMEDIATE_LISTINGS, compareTopRatedPlus, topRatedPlusNote, DEFAULT_TRS_DISCOUNT_PCT, DEFAULT_STANDARD_SELL_THROUGH, DEFAULT_TRS_SELL_THROUGH, DEFAULT_STANDARD_RETURN_RATE, DEFAULT_TRS_RETURN_RATE, DEFAULT_MONTHLY_TRS_LISTINGS, compareManagedReturns, managedReturnsNote, DEFAULT_SELF_RETURN_LABEL, DEFAULT_SELF_RETURN_RATE, DEFAULT_MANAGED_RETURN_FEE, DEFAULT_MANAGED_RETURN_RATE, DEFAULT_BUYER_PAYS_RETURN_RATE, DEFAULT_MONTHLY_MANAGED_LISTINGS, compareGlobalShipping, globalShippingNote, DEFAULT_GSP_RETURN_RATE, DEFAULT_GSP_SELL_THROUGH, DEFAULT_SELF_SHIP_SHIPPING_CHARGED, DEFAULT_SELF_SHIP_SHIPPING_COST, DEFAULT_SELF_SHIP_RETURN_SHIPPING_COST, DEFAULT_SELF_SHIP_INTL_FEE_RATE, DEFAULT_SELF_SHIP_RETURN_RATE, DEFAULT_SELF_SHIP_CLAIM_RATE, DEFAULT_SELF_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_GSP_LISTINGS, compareStoreTiers, storeTiersNote, storeBreakEvenOrders, STORE_TIER_PRESETS, DEFAULT_MONTHLY_STORE_ORDERS, DEFAULT_MONTHLY_STORE_FEE, compareBestOffer, bestOfferRows, bestOfferNote, bestOfferSummary, DEFAULT_INCOMING_BEST_OFFER, DEFAULT_INCOMING_WAIT_CHANCE, compareInternational, internationalNote, internationalSummary, ILLUSTRATIVE_INTL_FEE_RATE, DEFAULT_INTL_EXTRA_SHIPPING, compareFreeShipping, freeShippingNote, DEFAULT_BUYER_PAYS_SHIP_SELL_THROUGH, DEFAULT_FREE_SHIP_SELL_THROUGH, DEFAULT_MONTHLY_FREE_SHIP_LISTINGS, comparePromotedAdvanced, promotedAdvancedNote, DEFAULT_ADVANCED_CPC, DEFAULT_ADVANCED_CLICKS, DEFAULT_ADVANCED_EXTRA_ORDERS, DEFAULT_MONTHLY_ADVANCED_CAMPAIGNS, comparePackageProtection, packageProtectionNote, packageProtectionSummary, DEFAULT_SKIP_CLAIM_RATE, DEFAULT_INSURANCE_PREMIUM, DEFAULT_INSURANCE_CLAIM_RATE, DEFAULT_SIGNATURE_FEE, DEFAULT_SIGNATURE_CLAIM_RATE, DEFAULT_MONTHLY_PROTECTION_SHIPMENTS, compareEbayLabels, ebayLabelsNote, ebayLabelsSummary, DEFAULT_THIRD_PARTY_LABEL_COST, DEFAULT_EBAY_LABEL_CLAIM_RATE, DEFAULT_THIRD_PARTY_CLAIM_RATE, DEFAULT_LABEL_UPLOAD_MINUTES, DEFAULT_LABEL_UPLOAD_WAGE, DEFAULT_MONTHLY_LABEL_SHIPMENTS } from './calc.mjs';
 
 const near = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg}: ${actual} vs ${expected}`);
 
@@ -18,6 +18,16 @@ test('computes fees, profit, margin and ROI for a typical resale order', () => {
   near(r.profit, 46 - 6.395 - 18, 'profit');
   near(r.margin, (46 - 6.395 - 18) / 46 * 100, 'margin');
   near(r.roi, (46 - 6.395 - 18) / 18 * 100, 'roi');
+  near(r.cashRecovered, 46 - 6.395, 'cash recovered');
+  near(r.cashRecoveryPct, (46 - 6.395) / 18 * 100, 'cash recovery percentage');
+  near(r.cashSurplus, r.profit, 'cash surplus agrees with profit');
+});
+
+test('reports a cash shortfall when fees leave less than the invested cash', () => {
+  const r = calculateOrder({ price: 10, finalValueRate: 20, fixedFee: 1, costOfGoods: 12 });
+  assert.ok(r.cashRecovered < r.cashInvested);
+  assert.ok(r.cashSurplus < 0);
+  near(r.cashSurplus, r.profit, 'shortfall agrees with profit');
 });
 
 test('applies promoted-listings and international rates on the full order total', () => {
@@ -34,12 +44,88 @@ test('break-even price makes profit exactly zero', () => {
   near(atBreakEven.profit, 0, 'profit at break-even');
 });
 
+test('priceToMatchProfit holds the typed leftover after percentage fees', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+  };
+  const hold = priceToMatchProfit(input, 20);
+  const atHold = calculateOrder({ ...input, price: hold });
+  assert.ok(Math.abs(atHold.profit - 20) < 0.02, `hold leftover ${atHold.profit}`);
+  near(calculateOrder({ ...input, targetProfit: 20 }).targetProfitPrice, hold, 'calculateOrder exposes the same price');
+});
+
+test('maxAffordablePromotedRate is the unpromoted margin leftover for ads', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1,
+  };
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  const cap = maxAffordablePromotedRate(input);
+  near(cap, unpromoted.margin, 'break-even ad cap equals unpromoted margin');
+  const atCap = calculateOrder({ ...input, promotedRate: cap });
+  near(atCap.profit, 0, 'profit at the break-even ad rate');
+});
+
+test('maxAffordablePromotedRate for a target margin subtracts that target', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20,
+  };
+  const unpromoted = calculateOrder({ ...input, promotedRate: 0 });
+  const cap = maxAffordablePromotedRate(input, { forTargetMargin: true });
+  near(cap, unpromoted.margin - 20, 'target-margin ad cap');
+  const atCap = calculateOrder({ ...input, promotedRate: cap });
+  near(atCap.margin, 20, 'margin at the target-margin ad cap');
+});
+
+test('calculatePromotedTable includes the typed rate and measures ad cost vs 0%', () => {
+  const input = {
+    price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 12, shippingCost: 5, packagingCost: 1, promotedRate: 5,
+  };
+  const rows = calculatePromotedTable(input, [0, 2, 8]);
+  assert.deepEqual(rows.map((row) => row.promotedRate), [0, 2, 5, 8]);
+  assert.deepEqual(rows.map((row) => row.isCurrent), [false, false, true, false]);
+  assert.equal(rows[0].isUnpromoted, true);
+  near(rows[2].profit, calculateOrder(input).profit, 'current row matches headline');
+  near(rows[0].profitDelta, 0, 'unpromoted row has no ad cost');
+  assert.ok(rows[3].profitDelta < rows[2].profitDelta, 'higher ad rate costs more');
+  near(rows[3].profitDelta, -46 * 0.08, 'ad cost is a share of order revenue');
+});
+
+test('priceToMatchProfit rejects a non-finite target and an unreachable fee stack', () => {
+  assert.throws(() => priceToMatchProfit({ price: 40 }, Number.NaN), /Target profit/);
+  assert.equal(priceToMatchProfit({ price: 40, finalValueRate: 80, promotedRate: 20, intlFeeRate: 10 }, 5), Infinity);
+});
+
 test('calculates the item price required for a target net margin', () => {
   const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1, targetMargin: 20 };
   const r = calculateOrder(input);
   const atTarget = calculateOrder({ ...input, price: r.targetMarginPrice });
   near(atTarget.margin, 20, 'margin at target price');
   near(r.targetMarginPrice, 18.3 / 0.6675 - 6, 'target margin price');
+});
+
+test('calculates the maximum acquisition cost for a target margin', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, shippingCost: 5, packagingCost: 1, targetMargin: 20 };
+  const r = calculateOrder({ ...input, costOfGoods: 12 });
+  const atMaxCost = calculateOrder({ ...input, costOfGoods: r.maxCostOfGoods });
+  near(atMaxCost.margin, 20, 'margin at maximum acquisition cost');
+  near(r.maxCostOfGoods, 46 * 0.6675 - 0.3 - 5 - 1, 'maximum acquisition cost');
+});
+
+test('clamps maximum acquisition cost at zero when the target is not met without sourcing cost', () => {
+  const r = calculateOrder({ price: 10, finalValueRate: 80, targetMargin: 20 });
+  assert.equal(r.maxCostOfGoods, 0);
+});
+
+test('maximum acquisition cost stays per item when the fixed fee is shared across a batch', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, shippingCost: 5, packagingCost: 1, targetMargin: 20, quantity: 3 };
+  const r = calculateOrder({ ...input, costOfGoods: 12 });
+  const atMaxCost = calculateOrder({ ...input, costOfGoods: r.maxCostOfGoods });
+  near(atMaxCost.margin, 20, 'batch margin at maximum acquisition cost');
+  near(r.maxCostOfGoods, 46 * 0.6675 - 0.3 / 3 - 5 - 1, 'batch maximum acquisition cost');
 });
 
 test('reports an unreachable target margin when fees leave no margin room', () => {
@@ -50,6 +136,35 @@ test('reports an unreachable target margin when fees leave no margin room', () =
 test('ROI is null when no cash was invested', () => {
   const r = calculateOrder({ price: 20, shippingCharged: 0, costOfGoods: 0, shippingCost: 0, packagingCost: 0, otherCost: 0 });
   assert.equal(r.roi, null);
+  assert.equal(r.cashRecoveryPct, null);
+  near(r.cashSurplus, r.profit, 'zero-investment surplus agrees with profit');
+});
+
+test('sourcing ceiling is the buy cost that still hits the target ROI', () => {
+  const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 12, shippingCost: 5, packagingCost: 1 };
+  const ceiling = calculateSourcingCeiling(input, 50);
+  near(ceiling.maximumAcquisitionCost, ((40 + 6) * (1 - 0.1325) - 0.3 - 5 - 1 - 0.5 * (5 + 1)) / 1.5, '50% ROI sourcing ceiling');
+  const atCeiling = calculateOrder({ ...input, costOfGoods: ceiling.maximumAcquisitionCost });
+  near(atCeiling.roi, 50, 'ROI at sourcing ceiling');
+  assert.equal(ceiling.isReachable, true);
+  assert.equal(ceiling.amountOverCeiling, 0);
+});
+
+test('sourcing ceiling stays per item across batches and flags unreachable targets', () => {
+  const input = { price: 40, shippingCharged: 6, quantity: 3, finalValueRate: 13.25, fixedFee: 0.3, shippingCost: 5, packagingCost: 1 };
+  const single = calculateSourcingCeiling({ ...input, quantity: 1 }, 100);
+  const batch = calculateSourcingCeiling(input, 100);
+  near(batch.maximumAcquisitionCost, single.maximumAcquisitionCost, 'batch ceiling remains per item');
+  near(batch.maximumBatchAcquisitionCost, batch.maximumAcquisitionCost * 3, 'batch buy budget is the per-item ceiling times units');
+  near(single.maximumBatchAcquisitionCost, single.maximumAcquisitionCost, 'one unit budget matches the per-item ceiling');
+  assert.equal(calculateSourcingCeiling({ price: 10, finalValueRate: 90, shippingCost: 5 }, 100).isReachable, false);
+  assert.throws(() => calculateSourcingCeiling(input, -1), /non-negative/);
+});
+
+test('sourcing ceiling does not hide invalid acquisition costs', () => {
+  assert.throws(() => calculateSourcingCeiling({ price: 40, costOfGoods: 'not-a-number' }, 50), /Cost of goods/);
+  assert.throws(() => calculateSourcingCeiling({ price: 40, costOfGoods: -1 }, 50), /Cost of goods/);
+  assert.throws(() => calculateSourcingCeiling({ price: 40, quantity: 1.5 }, 50), /whole number/);
 });
 
 test('margin is zero rather than NaN when revenue is zero', () => {
@@ -71,6 +186,9 @@ test('scales batch economics while keeping price thresholds per unit', () => {
   near(batch.feeTotal, (single.feeTotal - single.fees.fixed) * 3 + single.fees.fixed, 'batch fees charge the fixed fee once');
   near(batch.cashInvested, single.cashInvested * 3, 'batch investment');
   near(batch.profit, batch.revenue - batch.feeTotal - batch.cashInvested, 'batch profit');
+  near(batch.cashRecovered, batch.revenue - batch.feeTotal, 'batch cash recovered');
+  near(batch.cashSurplus, batch.profit, 'batch cash surplus');
+  near(batch.cashRecoveryPct, batch.cashRecovered / batch.cashInvested * 100, 'batch recovery percentage');
   near(batch.unitProfit, batch.profit / 3, 'unit profit');
   assert.ok(batch.breakEvenPrice < single.breakEvenPrice, 'larger batch lowers per-unit break-even');
 });
@@ -89,6 +207,15 @@ test('spreads one per-order fixed fee across a batch threshold', () => {
   const batch = calculateOrder(input);
   near(batch.fees.fixed, 0.3, 'fixed fee charged once per order');
   near(calculateOrder({ ...input, price: batch.breakEvenPrice }).profit, 0, 'batch break-even');
+});
+
+// Guards the seller-visible payoff of charging the order fee once: batching
+// five units must beat five separate single-unit orders by four fixed fees.
+test('batching beats five separate single-unit orders', () => {
+  const single = calculateOrder({ price: 40, quantity: 1, fixedFee: 0.3 });
+  const batch = calculateOrder({ price: 40, quantity: 5, fixedFee: 0.3 });
+  near(batch.fees.fixed, 0.3, 'one fixed fee for the order');
+  near(batch.profit - single.profit * 5, 0.3 * 4, 'batch saves four duplicate fixed fees');
 });
 
 test('rejects fractional or zero batch quantities', () => {
@@ -191,13 +318,54 @@ test('unrefunded fees stay in the return loss', () => {
   near(r.expectedProfit, -10.4, 'every order comes back');
 });
 
-test('break-even return rate is zero when the completed sale already loses', () => {
+// Regression: breakEvenReturnRate used to hard-code 0% whenever the
+// completed sale already lost money -- the same wrong-branch defect fixed
+// in shopify-fee-calculator's breakEvenRefundRate. At 0% returns, this
+// order's expected profit is -$16.625, not $0, so "0%" told a seller the
+// order was already break-even when it was already a $16.625 loss.
+// returnProfit here (-$5) is a smaller loss than completing the sale, but
+// it never reaches $0 even at a 100% return rate, so no return rate can
+// zero expected profit -- the honest answer is unreachable (Infinity), not
+// 0%. Brute force (independent of the formula under test) confirms
+// expectedProfit stays negative across the full [0, 100] range.
+test('break-even return rate is unreachable, not zero, when returning is a smaller loss but never a gain', () => {
   const r = calculateOrder({
     price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
     costOfGoods: 20, shippingCost: 5,
   });
   assert.ok(r.profit < 0, 'losing sale');
-  assert.equal(r.breakEvenReturnRate, 0);
+  near(r.returnProfit, -5, 'a return is a smaller loss, not a gain');
+  assert.equal(r.breakEvenReturnRate, Infinity);
+  for (let pct = 0; pct <= 100; pct += 5) {
+    const at = calculateOrder({
+      price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+      costOfGoods: 20, shippingCost: 5, returnRatePercent: pct,
+    });
+    assert.ok(at.expectedProfit < 0, `expected profit stays negative at ${pct}% returns, got ${at.expectedProfit}`);
+  }
+});
+
+// Regression: the same defect, but confirming a genuine reachable
+// break-even is still found once profit is negative -- returnProfit can be
+// exactly $0 (no unrefunded fees, no sunk shipping/packaging/return-label
+// cost) even though the completed sale lost money, and 100% returns is
+// then the real -- if extreme -- crossing point, not the 0% the old branch
+// reported.
+test('break-even return rate solves to 100% when a full-refund return costs nothing and the sale already lost money', () => {
+  const r = calculateOrder({
+    price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 20, shippingCost: 0, packagingCost: 0, otherCost: 0,
+    returnShippingCost: 0, feeRefundOnReturnPercent: 100,
+  });
+  assert.ok(r.profit < 0, 'losing sale');
+  near(r.returnProfit, 0, 'a full refund on this order sinks nothing');
+  near(r.breakEvenReturnRate, 100, 'only returning every order zeroes expected profit');
+  const atBreakEven = calculateOrder({
+    price: 10, shippingCharged: 0, finalValueRate: 13.25, fixedFee: 0.3,
+    costOfGoods: 20, shippingCost: 0, packagingCost: 0, otherCost: 0,
+    returnShippingCost: 0, feeRefundOnReturnPercent: 100, returnRatePercent: 100,
+  });
+  near(atBreakEven.expectedProfit, 0, 'expected profit actually reaches zero at the reported rate');
 });
 
 test('rejects a return rate or fee-refund rate above 100%', () => {
@@ -2280,4 +2448,173 @@ test('label note names the $1.07 drag, the $0.13 postage-only save, and the $3.1
   assert.equal(text, ebayLabelsNote(compareEbayLabels(LABEL_BASE)));
   assert.equal(text, ebayLabelsSummary(compareEbayLabels(LABEL_BASE)));
   assert.throws(() => ebayLabelsNote({}), /missing rows/);
+});
+
+// Regression: eight break-even/ceiling rates across this file shared one
+// defect, the same class fixed in etsy-profit-calculator's
+// breakEvenSellThroughRate and shopify-fee-calculator's six break-even
+// solvers -- each gated its division on "the scaled path's profit is
+// positive" and hard-coded 0% (or, for waitChanceCeiling, effectively
+// claimed a trivial tie at 0% chance) whenever that path was already
+// losing money, without checking whether the value it was being compared
+// against was also negative. When both are negative they can still cross
+// at a real, positive rate (breakEvenScaledRate(target, profitAtFullRate)
+// = target / profitAtFullRate * 100 is positive whenever target and
+// profitAtFullRate share a sign). A high cost-of-goods relative to price
+// makes both sides of each comparison lose money below; each case below
+// independently reconstructs the crossing by scaling the pipeline's own
+// per-unit/per-order fields (not by calling breakEvenScaledRate), and
+// confirms the reported rate actually ties the two paths.
+test('compareSellerInitiatedOffer.breakEvenAcceptPct solves when both accepting and waiting already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 25, shippingCost: 2,
+    offerPercent: 10, waitSellThroughPct: 40, offerAcceptPct: 55,
+  };
+  const r = compareSellerInitiatedOffer(input);
+  assert.ok(r.wait.expectedProfit < 0, 'waiting for list already loses money');
+  assert.ok(r.offer.soldExpectedProfit < 0, 'the discounted offer, if sold, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenAcceptPct) && r.breakEvenAcceptPct > 0,
+    `accept floor should be reachable and nonzero, got ${r.breakEvenAcceptPct}`,
+  );
+  assert.notEqual(r.breakEvenAcceptPct, 0);
+  near(
+    (r.breakEvenAcceptPct / 100) * r.offer.soldExpectedProfit,
+    r.wait.expectedProfit,
+    'accepting at the reported rate ties waiting',
+  );
+});
+
+test('compareQuantityDiscount.breakEvenTakePct solves when both singles and the discounted box already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    qtyDiscountUnits: 3, qtyDiscountPercent: 15, qtyTakePct: 60, singlesSellThroughPct: 40,
+  };
+  const r = compareQuantityDiscount(input);
+  assert.ok(r.singles.expectedProfit < 0, 'selling separately already loses money');
+  assert.ok(r.discount.soldExpectedProfit < 0, 'the discounted box, if taken, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenTakePct) && r.breakEvenTakePct > 0,
+    `take floor should be reachable and nonzero, got ${r.breakEvenTakePct}`,
+  );
+  assert.notEqual(r.breakEvenTakePct, 0);
+  near(
+    (r.breakEvenTakePct / 100) * r.discount.soldExpectedProfit,
+    r.singles.expectedProfit,
+    'taking the box at the reported rate ties selling separately',
+  );
+});
+
+test('compareSellerCoupon solves both sell-through floors when every path already loses money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    couponPercent: 15, couponRedeemPct: 40,
+    listedSellThroughPct: 40, couponSellThroughPct: 55, dropSellThroughPct: 50,
+  };
+  const r = compareSellerCoupon(input);
+  assert.ok(r.listed.expectedProfit < 0, 'staying listed already loses money');
+  assert.ok(r.coupon.soldExpectedProfit < 0, 'a coupon sale also loses money');
+  assert.ok(r.drop.soldExpectedProfit < 0, 'a dropped-list sale also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenCouponSellThroughPct) && r.breakEvenCouponSellThroughPct > 0,
+    `coupon ST floor should be reachable and nonzero, got ${r.breakEvenCouponSellThroughPct}`,
+  );
+  assert.ok(
+    Number.isFinite(r.breakEvenDropSellThroughPct) && r.breakEvenDropSellThroughPct > 0,
+    `drop ST floor should be reachable and nonzero, got ${r.breakEvenDropSellThroughPct}`,
+  );
+  near(
+    (r.breakEvenCouponSellThroughPct / 100) * r.coupon.soldExpectedProfit,
+    r.listed.expectedProfit,
+    'the coupon at its reported sell-through ties staying listed',
+  );
+  near(
+    (r.breakEvenDropSellThroughPct / 100) * r.drop.soldExpectedProfit,
+    r.coupon.expectedProfit,
+    'dropping the list at its reported sell-through ties the coupon',
+  );
+});
+
+test('compareImmediatePayment.breakEvenImmediateSellThroughPct solves when both paths already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    laterSellThroughPct: 40, immediateSellThroughPct: 55,
+  };
+  const r = compareImmediatePayment(input);
+  assert.ok(r.later.expectedProfit < 0, 'allowing later checkout already loses money');
+  assert.ok(r.immediate.soldExpectedProfit < 0, 'requiring immediate payment also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenImmediateSellThroughPct) && r.breakEvenImmediateSellThroughPct > 0,
+    `immediate ST floor should be reachable and nonzero, got ${r.breakEvenImmediateSellThroughPct}`,
+  );
+  near(
+    (r.breakEvenImmediateSellThroughPct / 100) * r.immediate.soldExpectedProfit,
+    r.later.expectedProfit,
+    'requiring immediate payment at its reported sell-through ties allowing later checkout',
+  );
+});
+
+test('compareGlobalShipping.breakEvenSelfShipSellThroughPct solves when both GSP and self-ship already lose money', () => {
+  const input = {
+    price: 20, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    gspSellThroughPct: 40, selfShipSellThroughPct: 55,
+  };
+  const r = compareGlobalShipping(input);
+  assert.ok(r.gsp.expectedProfit < 0, 'GSP already loses money');
+  assert.ok(r.selfShip.soldExpectedProfit < 0, 'self-shipping, after claims, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenSelfShipSellThroughPct) && r.breakEvenSelfShipSellThroughPct > 0,
+    `self-ship ST floor should be reachable and nonzero, got ${r.breakEvenSelfShipSellThroughPct}`,
+  );
+  near(
+    (r.breakEvenSelfShipSellThroughPct / 100) * r.selfShip.soldExpectedProfit,
+    r.gsp.expectedProfit,
+    'self-shipping at its reported sell-through ties GSP',
+  );
+});
+
+// The wait/offer prices share every cost and fee, so profit is strictly
+// increasing in price -- an incoming offer below list can never be a
+// *smaller* loss than waiting for list once list itself is a loss. The
+// true crossing is therefore never inside (0, 100) here; it is either the
+// trivial edge (identical prices) or unreachable. The old code still
+// hard-coded 0% ("the offer already ties waiting for free"), which is
+// wrong in the ordinary way this bug class is wrong: 0% claims the two
+// tie before any chance of a sale at all, when in fact waiting stays
+// strictly better than the offer at every chance from 0% to 100%.
+test('compareBestOffer.waitChanceCeiling reports unreachable, not zero, when the offer is a bigger loss than a losing list price', () => {
+  const input = {
+    price: 40, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 42, shippingCost: 2,
+  };
+  const r = compareBestOffer(input, 30, 50);
+  assert.ok(r.listing.profit < 0, 'list price already loses money');
+  assert.ok(r.offer.profit < 0, 'the incoming offer loses even more');
+  assert.equal(r.waitChanceCeiling, Infinity);
+  for (let pct = 0; pct <= 100; pct += 10) {
+    const expectedWaitProfit = r.listing.profit * (pct / 100);
+    assert.ok(
+      r.offer.profit < expectedWaitProfit,
+      `waiting should still beat the offer at ${pct}% chance, got offer ${r.offer.profit} vs wait ${expectedWaitProfit}`,
+    );
+  }
+});
+
+test('compareFreeShipping.breakEvenFreeShipSellThroughPct solves when both buyer-pays and free-shipping already lose money', () => {
+  const input = {
+    price: 20, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.3, costOfGoods: 22, shippingCost: 2,
+    buyerPaysSellThroughPct: 40, freeShipSellThroughPct: 55,
+  };
+  const r = compareFreeShipping(input);
+  assert.ok(r.buyerPays.expectedProfit < 0, 'buyer-pays shipping already loses money');
+  assert.ok(r.freeShip.soldExpectedProfit < 0, 'free shipping, if sold, also loses money');
+  assert.ok(
+    Number.isFinite(r.breakEvenFreeShipSellThroughPct) && r.breakEvenFreeShipSellThroughPct > 0,
+    `free-ship ST floor should be reachable and nonzero, got ${r.breakEvenFreeShipSellThroughPct}`,
+  );
+  assert.notEqual(r.breakEvenFreeShipSellThroughPct, 0);
+  near(
+    (r.breakEvenFreeShipSellThroughPct / 100) * r.freeShip.soldExpectedProfit,
+    r.buyerPays.expectedProfit,
+    'free shipping at its reported sell-through ties buyer-pays',
+  );
 });

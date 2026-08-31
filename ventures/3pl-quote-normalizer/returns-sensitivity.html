@@ -16,7 +16,7 @@
     label{font-weight:700;font-size:.9rem}
     input,button{display:block;width:100%;box-sizing:border-box;padding:10px;margin-top:5px;font:inherit}
     input{border:1px solid #a9b4af;border-radius:7px}
-    button{border:0;border-radius:8px;background:#d45c35;color:#fff;font-weight:700;cursor:pointer}
+    button{border:0;border-radius:8px;background:#c05430;color:#fff;font-weight:700;cursor:pointer}
     button.secondary{background:#e8eee9;color:#123b36}
     table{width:100%;border-collapse:collapse;margin-top:18px}
     th,td{text-align:right;padding:11px 8px;border-bottom:1px solid #ddd}
@@ -27,7 +27,10 @@
     .note{color:#52605d;font-size:.9rem}
     a{color:#123b36;font-weight:700}
     @media(max-width:700px){body{padding:12px}form{grid-template-columns:1fr}main,.card{padding:16px}}
-  </style>
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
 </head>
 <body>
 <main>
@@ -137,5 +140,9 @@
   });
   render();
 </script>
+  <h2>Common questions</h2>
+  <h3>When do 3PL return fees make in-house cheaper?</h3>
+  <p>Raise the assumed return rate while holding the rest of the rate card fixed. The quote flips when return handling plus restocking, on top of the other monthly lines, exceeds your in-house cost per order. A monthly minimum can hide that growth until returns push the subtotal above the floor.</p>
+
 </body>
 </html>
