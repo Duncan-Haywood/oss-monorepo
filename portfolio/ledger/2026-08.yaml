@@ -39086,3 +39086,46 @@ entries:
         rule, a branch that adds nothing over main gets skipped, not a
         throwaway PR. Did not delete any branches.
     mrr_end: null
+  - venture: owner-operator-cpm-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Both faq-coverage.mjs and guide-coverage.mjs already read 169/169,
+        so this was the depth pass the queued marketing-materials brief
+        asked for, not another presence surface. Read the venture's
+        index.html FAQ (7 existing Q&A, genuinely thorough -- CPM method,
+        deadhead, factoring, lumper handling, short-week fixed-cost
+        spread, break-even loaded miles, target take-home) plus both guide
+        pages before picking a gap, to avoid a rehash.
+      - >-
+        Found one real "what does this assume" gap grounded in calc.mjs:
+        calculateWeek computes fuelGallons = totalMiles / mpg from a
+        single "Average MPG" input applied to loaded and empty miles
+        combined -- it does not model the real gap between loaded and
+        unladen fuel economy that shows up in an owner-operator's own
+        logbook. Neither the FAQ nor either guide page said so. Shipped a
+        Common-questions Q&A stating the mechanism plainly, with the
+        answer's numbers ($1,524.19 fuel at the page's own 2,250-mile,
+        6.2-MPG, $4.20/gal starting figures) computed from calc.mjs
+        itself, not invented.
+      - >-
+        Verified: node --test ventures/owner-operator-cpm-calculator,
+        31/31. node platform/pages/build.mjs + check.mjs: 169 products,
+        508 pages, no dead links. faq-coverage.mjs and guide-coverage.mjs
+        both still 169/169. clauses.mjs: no-warranty clause still on the
+        venture's 3 published pages, untouched (diff is 2 lines, one
+        file). This venture hand-authors no FAQPage JSON-LD, so
+        build.mjs's derived schema picked the new pair up automatically --
+        confirmed in the built output. Playwright browser checks against
+        the full 169-tool build: sweep (169/169 tools answered), sideways
+        (507 pages, none scroll sideways at 360px), journey (0 failed, 0
+        console errors), contrast via axe-core (506 pages x 2 viewports,
+        no WCAG A/AA violations) all passed; presets/roundtrip/highlight
+        did not finish in the time available and were skipped -- they
+        exercise bid-save/preset machinery this static-copy change never
+        touches.
+      - >-
+        Opened and merged #2491 (squash) after local verification; no CI
+        wait (repo-wide Actions outage since 2026-08-26, unrelated).
+    mrr_end: null
