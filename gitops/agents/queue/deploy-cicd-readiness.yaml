@@ -3,8 +3,9 @@
 # the CronJob is unsuspended -- both still owner-only. See
 # infra/OWNER_CHECKLIST.md.
 #
-# Priority 4: below branch-pr-drain (5), because landing work that already
-# exists still comes first, and above the two content items. The portfolio
+# Priority 4: below open-pr-repair-merge (6) and branch-pr-drain (5),
+# because landing work that already exists still comes first, and above the
+# two content items. The portfolio
 # has 164 finished tools and no public URL, so the delivery path is worth
 # more per run than another metadata pass -- but only the parts an agent
 # can actually finish. The credential steps are owner-only and already

@@ -4,17 +4,30 @@ Each `*.yaml` file here is a job the governor may start. Argo syncs them
 into a ConfigMap. The governor does **not** keep eight Codex processes
 hot; it creates at most `maxConcurrent` Jobs (1 on the cpx22).
 
-`branch-pr-drain.yaml` (5), `deploy-cicd-readiness.yaml` (4),
-`seo-discoverability-audit.yaml` (3), and
+`open-pr-repair-merge.yaml` (6), `branch-pr-drain.yaml` (5),
+`deploy-cicd-readiness.yaml` (4), `seo-discoverability-audit.yaml` (3), and
 `product-feature-improvement.yaml` (2) are the real, enabled items — the
-same priority order they're named in. Drain the PR/branch backlog first,
-then the delivery path, then metadata and content, then general feature
-work; raise or disable an item in git to change that order.
+same priority order they're named in. Finish work that is already open
+first, then the branches that never got a PR, then the delivery path, then
+metadata and content, then general feature work; raise or disable an item
+in git to change that order.
+
+`open-pr-repair-merge` was added last and sits first, because the other four
+left a hole between them: every one of them *ends* by opening a pull
+request, and three actively steer around PRs that already exist —
+`branch-pr-drain` takes only branches "not already covered by an open pull
+request", and `product-feature-improvement` and `seo-discoverability-audit`
+each skip a venture that already has one. Nothing reviewed, repaired or
+merged an open PR. That is fine while every run merges its own work and
+fine while the queue is empty, and it fails the first time a run's
+verification does not come out clean: that PR is left open, no item will
+ever pick it up again, and the backlog grows by one per tick from then on.
+A fleet that only opens PRs has no drain.
 
 `pick_item` scores each enabled item `(priority + 1) / (runs + 1)` and takes
 the highest, where `runs` is how many Jobs that item has been started for in
 the current 5-hour window. So the top item opens every window, and over a
-window the four run in roughly `6:5:4:3` — priority sets *how often*, not
+window the five run in roughly `7:6:5:4:3` — priority sets *how often*, not
 *instead of*.
 
 It did not always. Until 2026-08-30 this was `sorted(key=(-priority, id))[0]`:
@@ -56,8 +69,10 @@ Who pushes the branch and opens the PR.
   to merge its own PR: a single folded commit cannot express either, and under
   `harness` the two would race and produce a duplicate PR.
 
-All three real items are `agent`, because all three tell the agent to open a PR
-and merge it under this repo's no-review-gate rule for product PRs.
+All five real items are `agent`. Four of them tell the agent to open a PR and
+merge it under this repo's no-review-gate rule for product PRs;
+`open-pr-repair-merge` pushes to a branch it did not create and merges someone
+else's PR, which a single folded commit cannot express either.
 
 ## The mandate
 

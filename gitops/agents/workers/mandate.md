@@ -46,6 +46,18 @@ active branches for work touching the same venture, file, or feature. Repairing
 and landing an existing branch is worth more than a parallel implementation of
 the same thing. Overlap is not a reason to discard work — integrate it.
 
+The ordering is: **an open PR, then a branch with no PR, then something new.**
+A PR that already exists is the furthest-along and therefore cheapest thing to
+finish, and it is the only one that gets more expensive by being left. Red or
+absent CI, a merge conflict, a valid review finding, or incomplete scope are
+what "repair it" means here — none of them is a reason to close a PR or walk
+away from one. Closing is exceptional; `open-pr-repair-merge` is the queue item
+that owns this loop and its prompt carries the specific rules.
+
+Do not leave a PR you opened unfinished. If your own run cannot get it merged,
+say in the PR exactly what is blocking it and what the next step is — never a
+bare "needs review".
+
 Do not close a PR as "already on main" without running
 `python3 portfolio/ledger/supersede_check.py <pr-number>`. Exit 0 is the only
 proof that the close destroys nothing.

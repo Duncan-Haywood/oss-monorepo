@@ -233,9 +233,11 @@ def test_delivery_reaches_the_worker_and_the_real_items_own_theirs() -> None:
     env = {e["name"]: e["value"] for e in manifest["spec"]["template"]["spec"]["containers"][0]["env"]}
     assert json.loads(env["QUEUE_ITEM_JSON"])["delivery"] == "agent"
 
-    # All four real items tell the agent to open its own PR and merge it, so
-    # the harness must not also fold and open one.
+    # All five real items own delivery themselves -- four open their own PR
+    # and merge it, and open-pr-repair-merge pushes to a branch it did not
+    # create -- so the harness must not also fold and open one.
     for name in (
+        "open-pr-repair-merge.yaml",
         "branch-pr-drain.yaml",
         "deploy-cicd-readiness.yaml",
         "seo-discoverability-audit.yaml",
@@ -271,9 +273,59 @@ def test_product_feature_improvement_queue_item_is_real_and_enabled() -> None:
     assert "merge it yourself" in item.prompt.lower()
 
 
+def test_open_pr_repair_merge_queue_item_is_real_and_enabled() -> None:
+    # The queue's drain. Every other real item ends by *opening* a PR, and
+    # three of them route around PRs that already exist -- branch-pr-drain
+    # takes only branches "not already covered by an open pull request", and
+    # product-feature-improvement and seo-discoverability-audit each skip a
+    # venture that already has one. So before this item existed, an open PR
+    # that a run left un-merged was picked up by nothing, ever, and the
+    # backlog could only grow. Assert the item stays real, enabled, and
+    # pointed at merging rather than reviewing.
+    text = (AGENTS / "queue" / "open-pr-repair-merge.yaml").read_text()
+    raw = g._minimal_yaml_mapping(text)
+    item = g.queue_item_from_dict(raw)
+    assert item.id == "open-pr-repair-merge"
+    assert item.enabled is True
+    assert item.repo == "Duncan-Haywood/monorepo-projects"
+    assert item.delivery == "agent"
+    # supersede_check is the gate CLAUDE.md requires before any "already on
+    # main" close; a prompt that drops it is how finished work got destroyed
+    # here twice.
+    assert "supersede_check.py" in item.prompt
+    # The point of the item is the merge, not the review.
+    assert "to merged" in item.prompt
+
+
+def test_no_real_queue_item_leaves_open_prs_to_nobody() -> None:
+    # The structural property, not just the one file: at least one enabled
+    # real item must be about finishing PRs that already exist. If someone
+    # disables or deletes open-pr-repair-merge without replacing it, the
+    # fleet goes back to being net-PR-producing with no drain -- which is
+    # the failure this item was added for and is invisible until a backlog
+    # has already built up.
+    real = [
+        g.queue_item_from_dict(g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text()))
+        for name in (
+            "open-pr-repair-merge.yaml",
+            "branch-pr-drain.yaml",
+            "deploy-cicd-readiness.yaml",
+            "seo-discoverability-audit.yaml",
+            "product-feature-improvement.yaml",
+        )
+    ]
+    drains = [
+        item
+        for item in real
+        if item.enabled and "open pull request" in item.prompt and "supersede_check.py" in item.prompt
+    ]
+    assert drains, "no enabled queue item repairs and merges an already-open PR"
+
+
 def test_governor_queue_configmap_includes_all_real_items() -> None:
     kustomization = (AGENTS / "kustomization.yaml").read_text()
     for entry in (
+        "open-pr-repair-merge.yaml=queue/open-pr-repair-merge.yaml",
         "branch-pr-drain.yaml=queue/branch-pr-drain.yaml",
         "deploy-cicd-readiness.yaml=queue/deploy-cicd-readiness.yaml",
         "seo-discoverability-audit.yaml=queue/seo-discoverability-audit.yaml",
@@ -285,7 +337,7 @@ def test_governor_queue_configmap_includes_all_real_items() -> None:
 def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_then_features() -> None:
     # pick_item weights `(priority + 1) / (runs + 1)`, so this ordering is
     # what sets how often each item runs relative to the others (roughly
-    # 6:5:4:3) and which one opens each window. It used to be far more
+    # 7:6:5:4:3) and which one opens each window. It used to be far more
     # load-bearing than that: pick_item took the single highest-priority item
     # every tick, so only `branch-pr-drain` could ever run and the other three
     # were unreachable. Landing existing branch/PR work still comes first --
@@ -294,13 +346,18 @@ def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_the
     # exists still comes first, and above the two content items" -- fixing
     # discoverability metadata and open-ended feature work are cheaper and
     # more bounded than keeping the delivery path code-complete, so they
-    # must stay behind it. This pins that four-way ordering against an
-    # accidental priority edit to any one item.
+    # must stay behind it. `open-pr-repair-merge` then sits above even
+    # branch-pr-drain: a branch that already has an open PR is further along
+    # than one without, so it is the cheaper thing to finish, and it is the
+    # only kind of work that gets more expensive by being left alone. This
+    # pins that five-way ordering against an accidental priority edit to any
+    # one item.
     items = {
         raw["id"]: raw["priority"]
         for raw in (
             g._minimal_yaml_mapping((AGENTS / "queue" / name).read_text())
             for name in (
+                "open-pr-repair-merge.yaml",
                 "branch-pr-drain.yaml",
                 "deploy-cicd-readiness.yaml",
                 "seo-discoverability-audit.yaml",
@@ -309,7 +366,8 @@ def test_real_queue_items_are_priority_ordered_pr_drain_then_deploy_then_seo_the
         )
     }
     assert (
-        items["branch-pr-drain"]
+        items["open-pr-repair-merge"]
+        > items["branch-pr-drain"]
         > items["deploy-cicd-readiness"]
         > items["seo-discoverability-audit"]
         > items["product-feature-improvement"]
