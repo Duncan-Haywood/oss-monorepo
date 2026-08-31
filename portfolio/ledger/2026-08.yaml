@@ -40125,3 +40125,43 @@ entries:
         `enabled: true` for the Codex fleet. Reported to the owner directly;
         not re-queued.
     mrr_end: null
+  - venture: asphalt-sealcoat-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2527: a FAQ depth fix, not a presence fix -- both
+        `faq-coverage.mjs` and `guide-coverage.mjs` already read 169/169
+        portfolio-wide at session start. Sampled ~35 ventures looking for a
+        genuine gap (most already carry deep, calc.mjs-derived copy) and
+        found one: the calculator's own `SURFACE_PRESETS` /
+        `CONDITION_COVERAGE` constants set real per-surface sealer coverage
+        (driveway 90/120 sq ft per gallon, parking lot 80/110, court 85/115,
+        walkway 95/125, times a 0.75-1.2x condition multiplier on the first
+        coat), but the page never stated a single one of those numbers,
+        despite "how many square feet does a gallon of sealcoat cover" being
+        an ordinary search query in this niche.
+      - >-
+        Added one FAQ question with the four coverage rates and a worked
+        example across all three conditions on the page's own defaults (800
+        sq ft driveway, 2 coats, $4.25/gal): good 14.07 gal/$59.81 sealer/
+        $362.27 job, oxidized 15.56 gal/$66.11/$371.93, failing 18.52
+        gal/$78.70/$391.23. Numbers came from running `calculateBid()`
+        against `calc.mjs`, then were independently re-derived by hand
+        against the source constants and matched exactly.
+      - >-
+        Verified: `node --test ventures/asphalt-sealcoat-bid-calculator/*.test.mjs`
+        (83 pass), `build.mjs` (169 tools, 508 pages, no errors), `check.mjs`
+        (publishable, no dead links), and confirmed the new question appears
+        in the built page's derived `FAQPage` JSON-LD. CI is still the known
+        starvation (`runner_id: 0`); merged on local verification per this
+        repo's rules.
+      - >-
+        Deploy/CI-CD/Codex-on-Hetzner status unchanged from the entry above
+        this one and from #2307 -- all three are code-complete and gated on
+        the same owner-only secret seals (`portfolio-site-repo`,
+        `actions-runner-secrets` + `CI_RUNNER=self-hosted`, `codex-secrets` +
+        `policy.json enabled:true`), all covered by one script,
+        `./bootstrap/scripts/seal-owner-secrets.sh`. Not re-queued; reported
+        to the owner directly this run.
+    mrr_end: null
