@@ -39611,3 +39611,76 @@ entries:
         and no repairable open PR or unmerged branch with real net-new work
         was found. Nothing shipped this run.
     mrr_end: null
+  - venture: medical-courier-route-margin
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2507. The calculator said whether a route offer made
+        money and stopped, which is the wrong half: the offer arrives with a
+        price on it and the decision is what to counter with. Added deadhead
+        miles and minutes (the unpaid run to the first stop and back, which had
+        nowhere to go -- 40 mi and 70 min turn the shipped $151.80 margin into
+        $90.33, 40% of it invisible), and break-even plus target-margin revenue
+        per route and per stop. Deadhead is entered separately from route miles
+        on purpose: billable miles are a rate conversation, deadhead is a
+        routing one, and folding them together hides which conversation to
+        have.
+      - >-
+        The break-even is the part worth remembering. Overhead here is a
+        percentage of revenue, so raising the price raises the overhead that
+        price must carry and break-even is a fixed point rather than a sum of
+        costs -- the shipped route costs $118.20 in labor, vehicle and
+        consumables but needs $131.33 ($21.89/stop) to reach zero, and
+        $28.14/stop for 20%. Tested by solving back the other way: feeding the
+        reported figure into calculateRoute lands on exactly zero margin, and
+        the target figure on exactly the target rate. Re-deriving the formula
+        in the test would not have caught a break-even that does not break
+        even. Also added break-even vehicle cost per mile ($5.06 against the
+        $0.72 entered), floored at zero so a route that loses money when
+        driving is free does not read as "any cost per mile works".
+      - >-
+        Verified: 16 venture tests (13 new), check_form_defaults,
+        check_input_bounds, check_money_sign, check_conflict_markers;
+        platform/pages build + check (169 products, 508 pages, no dead links);
+        faq-coverage 169/169; journey/sweep/highlight/sideways browser checks;
+        Chromium pass of the default, deadhead and unreachable-target
+        scenarios, no console errors. All three new fields default to neutral
+        so is-this-medical-courier-route-worth-it.html's figures are unchanged,
+        asserted by a test.
+    mrr_end: null
+  - venture: change-order-margin-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2508. Added extended general conditions (days added
+        x a daily rate, as a direct cost so overhead and margin carry on it --
+        3 days at $450 turns the shipped $630 change order into $1,980 of
+        direct cost and the target price from $866.25 to $2,722.50) and the
+        contract's change-order markup cap. The cap is the one likely to change
+        a contractor's answer: it applies to cost while their own overhead
+        comes out of the same allowance, so a 10% cap against 10% overhead
+        earns exactly nothing -- on the defaults the cap and the $693.00
+        walk-away floor are the same number -- and at 5% the most billable is
+        $661.50, under the floor, so every change order on that contract is a
+        loss. That warning fires before a proposed price is entered, unlike
+        every other message on the page, because the cap is a fact about the
+        contract rather than about the price.
+      - >-
+        Worth recording for the next session: the browser pass caught a defect
+        the unit tests could not. The "materials + subcontractor" readout is
+        rendered as directCost - loadedLabor, so once directCost carried the
+        new schedule cost it showed those dollars a second time under a label
+        that does not describe them ($1,700 where $350 was right, with the
+        delay also on its own line below). calc.mjs was correct throughout;
+        only looking at the rendered page found it. Any change that adds a term
+        to a total needs the readouts derived by subtraction re-checked.
+      - >-
+        Verified: 20 venture tests (11 new), the four repo checks, platform/pages
+        build + check (169 products, 508 pages, no dead links),
+        journey/sweep/highlight/sideways, and a Chromium pass of defaults, the
+        3-day delay, and the 10% and 5% caps before and after the double-count
+        fix. Both new fields default to zero so how-to-price-a-change-order.html
+        holds, asserted rather than assumed.
+    mrr_end: null
