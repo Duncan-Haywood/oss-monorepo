@@ -38024,3 +38024,68 @@ entries:
         (`translator-project-quote`) confirmed already on `main` before this
         change via `git stash`. Merged as PR #2442 (squash, `e063790`).
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2444: the public site now survives a broken build, an
+        expired clone token, or a GitHub outage. `gitops/prod/portfolio-
+        site.yaml` builds the whole portfolio in-pod on every start, so its
+        availability depended on GitHub being reachable, the 90-day clone
+        PAT being valid, and `main` producing a `check.mjs`-clean build --
+        all three at the moment a pod starts. Any one failing failed the
+        init container. `maxUnavailable: 0` then hid it: the rollout
+        stalled with the old pods still serving, and the refresh CronJob
+        only checked that `kubectl rollout restart` was *accepted*, never
+        that it finished. So the ordinary path was the PAT expiring, nobody
+        finding out, and the next node reboot taking all 169 tools to zero
+        with no way back. Added a `portfolio-site-cache` PVC holding the
+        last build that passed `check.mjs` (a pod that cannot build restores
+        it -- stale rather than dark), moved the build to a scratch volume
+        so a failed build can neither serve a partial site nor poison the
+        cache, and made the CronJob wait for its rollout and read
+        `/buildinfo.txt` so a rollout that completes *onto the cache* is not
+        reported as a publish. RBAC unchanged: it polls `get` because
+        `kubectl rollout status` opens a WATCH and `resourceNames` cannot
+        restrict `list`/`watch`.
+      - >-
+        Learned, and worth not re-deriving: shell embedded in YAML needs to
+        be executed, not grepped. The new `gitops/tests/test_portfolio_
+        site.py` extracts the init-container scripts, rewrites the container
+        paths to a tmpdir and runs them against stubbed `git`/`node` (16
+        tests, all six branches). It caught two real bugs before merge --
+        `mv -T` is not in busybox and the build image is `node:22-alpine`,
+        so the obvious atomic symlink swap would have failed on the first
+        cache write; and `set -e` is *suppressed* inside a command whose
+        status an `if` tests, so a failed `cp` into the cache kept going and
+        the group exited 0, reporting a cache that had not been written.
+        Both are now pinned by the tests that found them.
+      - >-
+        Session start: 0 open PRs (queue empty, so the three-PR merge quota
+        was satisfied by an empty queue, not skipped). Static-site checklist
+        confirmed saturated before choosing infrastructure work --
+        `guide-coverage.mjs` and `faq-coverage.mjs` both 169/169,
+        `platform/proposal` adopted by all 102 bid calculators -- which is
+        why the highest-value remaining work was the reliability of the
+        path that puts any of it in front of a stranger. Verified locally:
+        176 tests pass in `gitops/tests`, `validate_workflows.py` clean
+        (220 files), `check_conflict_markers.py` clean. All 6 red checks on
+        the PR classified by `ci_starvation.py` as `runner_id: 0` across
+        three separate runs -- starvation, not this branch. Merged as #2444
+        (squash, `ab4ab33`).
+      - >-
+        The run's brief asked for deployment/CI-CD, marketing materials on
+        the Hetzner boxes, and Codex on the agent box using the plan's
+        built-in quota. All three are built and owner-gated, and this was
+        re-confirmed rather than re-diagnosed: `gitops/ci/` needs the sealed
+        runner PAT plus `CI_RUNNER=self-hosted`; `gitops/prod/portfolio-
+        site.yaml` needs the sealed read-only clone token; both Codex paths
+        already default to the subscription credential (`worker.sh` writes
+        `CODEX_AUTH_JSON` to `$CODEX_HOME/auth.json`; `ubuntu-agent-server`'s
+        `runners/codex.sh` strips `OPENAI_API_KEY` unless
+        `CODEX_USE_API_KEY=true`) and need one interactive `codex login`
+        plus the governor enabled. `./bootstrap/scripts/seal-owner-secrets.sh`
+        does all three seals. Reported to the owner directly; no new queue
+        rows added.
+    mrr_end: null
