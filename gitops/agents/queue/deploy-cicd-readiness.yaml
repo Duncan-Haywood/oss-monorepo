@@ -3,10 +3,10 @@
 # the CronJob is unsuspended -- both still owner-only. See
 # infra/OWNER_CHECKLIST.md.
 #
-# Priority 4: below open-pr-repair-merge (6) and branch-pr-drain (5),
+# Priority 5: below open-pr-repair-merge (7) and branch-pr-drain (6),
 # because landing work that already exists still comes first, and above the
-# two content items. The portfolio
-# has 164 finished tools and no public URL, so the delivery path is worth
+# three content and distribution items. The portfolio
+# has 169 finished tools and no public URL, so the delivery path is worth
 # more per run than another metadata pass -- but only the parts an agent
 # can actually finish. The credential steps are owner-only and already
 # queued; this item exists to keep the code half complete and correct so
@@ -16,7 +16,7 @@ repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: deep
-priority: 4
+priority: 5
 enabled: true
 # This item's prompt opens its own PR and merges it, so worker.sh must not
 # fold the tree into one commit and open a second one.
@@ -42,12 +42,27 @@ prompt: |
   3. A gap between what `gitops/tests/` asserts and what the manifests
      actually say, in either direction.
   4. A documented ordinary-code-change follow-up that is being waited on
-     unnecessarily -- for example, flipping the portfolio-site Ingress
-     from `letsencrypt-staging` to `letsencrypt-prod` *once the ledger or
-     the checklist records that a staging certificate actually issued*,
-     which also means updating the test that pins the issuer. Do not make
-     that flip on a guess; if nothing records the staging certificate
-     issuing, this is not the task to pick.
+     unnecessarily -- a step some doc calls "last" whose stated
+     precondition has since been met, so the wait is now the only thing
+     holding it.
+
+     The worked example used to be this item's own suggestion: flip the
+     portfolio-site Ingress from `letsencrypt-staging` to
+     `letsencrypt-prod`. **That is done (#2545, 2026-08-31) -- do not pick
+     it again.** It is kept here because how it resolved is the shape to
+     look for. The doc gated it on "once a staging certificate has
+     actually issued", and no session could observe the cluster to confirm
+     that, so it sat. What moved it was noticing the gate had the cost
+     backwards: staging is not a trusted root, so the one owner action
+     left would have published all 508 pages behind a browser
+     interstitial, and cert-manager leaves an existing Secret's contents
+     alone until a new certificate is ready, making the flip
+     non-worsening even if issuance failed.
+
+     So: do not make a flip on a guess, but do check whether "we cannot
+     confirm X" is actually load-bearing, or whether waiting costs more
+     than acting and acting is reversible. Say which of the two you
+     established, in the PR.
 
   Hard limits. Never seal, invent, echo, or work around a secret, and
   never relax a manifest's fail-closed state to make something start:

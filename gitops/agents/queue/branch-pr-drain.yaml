@@ -14,7 +14,7 @@ repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: chore
-priority: 5
+priority: 6
 enabled: true
 # This item's prompt opens its own PR and merges it, so worker.sh must not
 # fold the tree into one commit and open a second one.

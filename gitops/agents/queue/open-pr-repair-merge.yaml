@@ -23,7 +23,7 @@ repo: Duncan-Haywood/monorepo-projects
 ref: main
 workdir: ""
 modelClass: deep
-priority: 6
+priority: 7
 enabled: true
 # This item's prompt opens, repairs and merges pull requests directly, so
 # worker.sh must not fold the tree into one commit and open a second one.
