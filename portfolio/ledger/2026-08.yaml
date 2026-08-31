@@ -41113,3 +41113,24 @@ entries:
         domain tried (sell.amazon.com), so a competitor's numbers could not be
         verified from this session -- left it rather than guess or go stale.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        deploy-cicd-readiness queue item, run directly rather than waiting on
+        the governor flip. Found a real gap: gitops/agents/networkpolicy.yaml's
+        governor-egress and worker-egress NetworkPolicies each had a DNS
+        egress rule (port 53, UDP+TCP) with no `to:` selector -- unrestricted-
+        destination egress on port 53, the same bug class as the port-443
+        leak #2562 already fixed in this same file, left sitting unfixed
+        right next to it. That is a live DNS-tunneling exfiltration path out
+        of the agents namespace. Fixed in #2584 (merged): scoped both rules
+        to namespaceSelector kube-system, matching
+        gitops/ci/networkpolicy.yaml's existing DNS-scoping pattern exactly;
+        added test_agents_dns_egress_is_scoped_to_kube_system as a
+        regression test. Verified: python3 -m pytest gitops/tests -q (193
+        passed, was 192), kustomize build gitops/agents (v5.6.0, the pinned
+        CI version) exit 0, kubeconform -strict against the built manifest
+        (16/16 valid, 0 errors). No behaviour change for legitimate traffic
+        -- pods already resolve via the ClusterDNS Service in kube-system.
