@@ -35842,3 +35842,50 @@ entries:
         products / 506 pages; confirmed the built page's derived JSON-LD
         carries all 7 questions matching visible copy. Merged (squash).
     mrr_end: null
+  - venture: mcp-supply-chain-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        The venture was a standard-library Python CLI with zero web presence
+        -- no landing page, no title/meta description, no schema.org or
+        OpenGraph tags -- unlike every other "evidence" family venture
+        (npm-deployment-evidence, shopify-permission-drift,
+        construction-evidence-log, etc.), which all ship a self-contained
+        browser page mirroring the CLI logic. Clearest discoverability gap
+        found that didn't overlap #2319-#2324's recent CSS/FAQ/probe work.
+      - >-
+        Shipped #2331: added `site/index.html`, a zero-dependency browser
+        tool running the same before/after MCP manifest-diff comparison as
+        `src/mcp_watch.py` (`compare.mjs` is a line-for-line JS port --
+        `classify()`, the instruction-bearing regex, severity ranking, a
+        canonical-JSON comparator standing in for Python's recursive dict
+        equality), plus `usage.mjs` (opt-in, DNT/GPC-honoring local
+        counting), SoftwareApplication/FAQPage/HowTo JSON-LD, OpenGraph tags,
+        `robots.txt`/`sitemap.xml`, and a docs page
+        (`what-is-mcp-tool-poisoning.html`) answering the specific question
+        the niche searches, cross-linked from the index page. Added a
+        `site-test` job to the venture's own CI workflow (Node test run plus
+        the no-warranty clause check), matching `shopify-permission-drift`'s
+        shape, so the venture is covered on its own PR rather than only by
+        the portfolio-wide backstop.
+      - >-
+        Verified: `node --test` in `site/` 19/19, including a test that
+        shells out to `python3 src/mcp_watch.py` on the shipped fixture and
+        asserts the JS and Python reports agree on every change's
+        kind/severity/tool/bucket; `python3 -m unittest discover` on the
+        existing CLI suite 5/5, untouched; a Playwright pass against the
+        page served over localhost (ES modules need real HTTP, not
+        `file://`) with zero console errors and the correct default-fixture
+        "Changed" verdict; `platform/pages/clauses.mjs`,
+        `platform/pages/faq-duplicate.mjs`,
+        `platform/ci/publish_surface.py --check`,
+        `platform/ci/check_form_defaults.py`,
+        `platform/ci/check_money_sign.py`, and
+        `platform/privacy/browser-signals.mjs` all pass clean with the new
+        pages included. CI came back red in 2-4s across all jobs with
+        `runner_id: 0` -- the confirmed starvation signature, not a real
+        failure. Merged (squash) after local verification. Not deployed --
+        publishing under the portfolio's name stays owner-gated -- but ready
+        to go live as-is.
+    mrr_end: null
