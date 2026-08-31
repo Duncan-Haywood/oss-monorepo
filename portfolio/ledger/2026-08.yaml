@@ -37804,3 +37804,54 @@ entries:
         session does not need a third sweep of this same ~150-branch
         remainder without new information.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2425: the hel1 Codex worker cloned with `--depth 50`, and
+        `--depth` implies `--single-branch`. Every Job therefore got a
+        checkout pinned to `+refs/heads/$REF:refs/remotes/origin/$REF` with
+        no merge base for anything else -- which is precisely what the
+        queue's top two items need. Reproduced against a `file://` remote:
+        merging the base into a fetched sibling branch aborts with
+        `fatal: refusing to merge unrelated histories`
+        (open-pr-repair-merge, priority 6), and `git branch -r` knows only
+        the base branch (branch-pr-drain, priority 5). It also disarmed
+        supersede_check.py, which mandate.md makes mandatory before any
+        close. Between them that is 11/25ths of the governor's weight aimed
+        at work the checkout could not do. Now clones full history and all
+        branches (~64 MiB). New test asserts not-shallow / siblings-visible
+        / merge-base-exists from inside the agent's own checkout, so
+        rewording the clone command cannot make it stale; the `gh` stub now
+        clones over `file://` because a plain local path makes git ignore
+        `--depth` outright, which is why 159 prior tests could not have
+        caught this. Reverted the flags and confirmed the test fails before
+        restoring. Latent, not observed -- the fleet is still inert -- which
+        is the reason to have fixed it before the first tick rather than
+        after.
+      - >-
+        Verified the Hetzner static-site path by running exactly what the
+        `build` init container of `gitops/prod/portfolio-site.yaml` runs:
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ node
+        platform/pages/build.mjs --out=... && node platform/pages/check.mjs
+        --dist=...`. Result: 169 products, 7 category pages, 508 pages,
+        1660 files, no dead links, and **zero** occurrences of
+        `duncan-haywood.github.io` anywhere in the output -- canonical,
+        og:image, sitemap `<loc>` and robots.txt all stamped
+        `tools.marisstella.dev`. The marketing surface it carries (the
+        /about press page with copy-pasteable boilerplate, per-tool share
+        cards, llms.txt, catalog.json, SoftwareApplication JSON-LD) builds
+        correctly under the Hetzner origin. So the deploy artifact is not
+        merely written, it is confirmed-good; the only thing between 169
+        tools and a public URL is the sealed read-only clone token.
+      - >-
+        No new marketing/distribution queue item added, deliberately. The
+        portfolio-level distribution assets a sixth item would produce
+        already exist and build clean (above), and faq-coverage.mjs /
+        guide-coverage.mjs both report 169 of 169. Per this queue's own
+        README the cost of an item with no work is that it keeps its share
+        of the budget regardless -- the exact failure the `noops` term was
+        added to correct. Recording the reasoning so the next session does
+        not re-open the question.
+    mrr_end: null
