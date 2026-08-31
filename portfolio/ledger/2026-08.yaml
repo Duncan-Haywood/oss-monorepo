@@ -39346,3 +39346,44 @@ entries:
         57 fields, headline $2,702.41, sender and a fresh recipient page
         agree exactly, no skip. Merged (squash) as #2498.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        One open PR at session start (#2495, security-camera-bid-calculator
+        proposal-terms wiring). Reviewed, verified locally (113 venture
+        tests + 13 platform/proposal tests, node platform/pages/build.mjs +
+        check.mjs: 169 products/508 pages/no dead links), confirmed CI red
+        was runner starvation via platform/ci/ci_starvation.py
+        (runner_id: 0), and merged as #2495. Queue was then empty, so per
+        CLAUDE.md's fewer-than-three rule that satisfied the merge phase
+        without opening a new build.
+      - >-
+        Re-confirmed the deploy/CI-CD/Codex asks are fully built and
+        owner-gated on exactly three sealed secrets, all handled by
+        ./bootstrap/scripts/seal-owner-secrets.sh (restore CI:
+        actions-runner-secrets + CI_RUNNER=self-hosted; publish
+        tools.marisstella.dev: portfolio-site-repo; Codex-on-Hetzner
+        spending the plan's built-in quota rather than metered API $:
+        CODEX_AUTH_JSON). Nothing new to add to the decision queue --
+        infra/OWNER_CHECKLIST.md items 8-9 and the "Publish
+        tools.marisstella.dev" section already carry the exact steps.
+        Reported to the owner directly since this run was explicitly asked
+        about deployment/CI-CD/Codex priority.
+      - >-
+        Ran the live-Chromium platform/pages/roundtrip.mjs sweep across all
+        169 tools (not run end-to-end in a single session before, per its
+        own log this covers ventures individual sessions had already
+        checked one at a time). Found and fixed a second share-link bug in
+        fence-bid-calculator, distinct from the proposal-terms class:
+        addRunRow() matched a run's material name against MATERIAL_PRESETS
+        and reapplied that preset's *default* cost/labor figures over
+        whatever the run itself carried, so a setter's hand-edited material
+        or labor cost silently reverted to the venture default every time a
+        run was rebuilt from a share link. 10 fields dropped, headline
+        price $3,359.27 -> $5,710.23 for the recipient. Fixed by overlaying
+        the run's own defined cost fields onto the matched preset; added a
+        regression test (94/94 passing); re-ran the live roundtrip probe
+        clean after the fix. Merged (squash) as #2500.
+    mrr_end: null
