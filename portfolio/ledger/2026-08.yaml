@@ -37687,3 +37687,60 @@ entries:
         already queued as distinct owner-only asks (decision_queue.py
         items already cover all three) -- no duplicate asks added.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged #2412 (the only open PR): FAQPage structured data across 135
+        ventures. Verified locally against runner starvation -- portfolio-validate
+        44/44, pages build+check clean, all 135 venture suites, gitops 158 tests,
+        plus a one-off validator confirming all 135 blocks parse, none duplicate,
+        and every question and answer appears verbatim in visible page text.
+        Worth knowing for anyone reading that PR against build.mjs's
+        "derive, don't author" comment: the build suppresses its derived block
+        when a page authors one, so nothing duplicates, and faq-visible.test.mjs
+        guards the drift those blocks now make possible. That test runs via
+        portfolio-pages.yml's `node --test "*.test.mjs"` glob, and that workflow
+        triggers on `ventures/**` -- so the guard fires on exactly the copy edit
+        that would cause drift.
+      - >-
+        Shipped #2420, two defects found while proving the artifact
+        gitops/prod/portfolio-site.yaml will publish. (1) 23 number inputs across
+        four ventures accepted a value their own calculator throws on. The page
+        answered "fix the highlighted input" and highlighted nothing, because
+        invalid.mjs finds the field by asking checkValidity() and a field
+        declaring no bound reports valid whatever is typed in it. Declared each
+        bound the calculator already enforces, matching sibling fields in the
+        same files, and added platform/ci/check_input_bounds.py + 15 tests to
+        portfolio-validate (now 46/46). (2) journey.mjs hardcoded the GitHub
+        Pages origin when rewriting sitemap <loc>s back to the local server, so
+        against a tools.marisstella.dev-stamped build every fetch went off-origin
+        and it reported "0 bad of 0" -- the exact silent-zero failure its own
+        comment warns about, reintroduced by the second deploy target. It now
+        reads the origin off the artifact's hub sitemap entry.
+      - >-
+        Learned, and wrote into platform/ci/browser_checks.py: the six browser
+        checks ARE runnable in a Claude Code web session. Several entries in this
+        file record "no headless browser available in this environment" and merged
+        on unit tests alone; in fact Chromium ships at /opt/pw-browsers and
+        browser_checks.py already discovers it past Playwright's build pin. Only
+        the npm packages are missing -- `npm install playwright axe-core` into a
+        scratch dir, then PLAYWRIGHT= and AXE=. Against the Hetzner-stamped
+        artifact: sweep 169/169 tools answered with no errors; journey went from
+        1 failed check to 0 (0 bad of 506, all 506 sitemap URLs resolve);
+        sideways, presets, roundtrip ok. contrast (axe WCAG 2.1 A/AA over 508
+        pages x 2 widths) was still running when this session ended -- it had
+        never started before, for want of axe-core, so its result is unknown
+        rather than clean.
+      - >-
+        Deployment, CI and the Codex worker were re-confirmed owner-gated and NOT
+        re-diagnosed: one run of ./bootstrap/scripts/seal-owner-secrets.sh all
+        covers all three (site -> portfolio-repo-token publishes 169 tools on the
+        Hetzner box without needing Actions; ci -> actions-runner-secrets plus
+        CI_RUNNER=self-hosted; agents -> codex-secrets, CODEX_AUTH_JSON being the
+        built-in-quota shape). Reported to the owner directly; no new queue rows.
+        gitops/agents/workers/mandate.md was read against the product-first brief
+        and already covers deployment/CI as first-class work, organic-only
+        distribution, and the repair-before-new ordering -- left unchanged.
+    mrr_end: null
