@@ -40165,3 +40165,53 @@ entries:
         `./bootstrap/scripts/seal-owner-secrets.sh`. Not re-queued; reported
         to the owner directly this run.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Drained the assigned 12-branch cluster (3pl-quote-normalizer,
+        chargeback-evidence-packet, invoice-payment-terms-calculator,
+        quote-margin-check) and opened zero PRs -- every branch is already
+        superseded. Recorded here so the next session does not re-run this:
+        `origin/cursor/3pl-quote-normalizer-compare-20260825`,
+        `-compare-20260824`, `-ship-20260824`,
+        `origin/cursor/chargeback-evidence-packet-launch-20260824`,
+        `origin/pr/invoice-payment-terms-calculator`,
+        `origin/cursor/invoice-payment-terms-ci-fix-20260825`,
+        `-clean-20260825` all return `supersede_check.py`'s identical-merge
+        proof against current `main` -- replaying each on `main` with
+        `main` winning every conflict reproduces `main`'s tree exactly.
+      - >-
+        The four `quote-margin-check` branches
+        (`quote-margin-risk-summary-20260825`, `-overrun-20260824`,
+        `-history-20260825`, `-csv-escape-20260824`) each return NOT
+        SUPERSEDED with a RENAME SUSPECTED section, and in every case the
+        twin the report names turned out to be the same feature under a
+        different name, confirmed by reading both sides: branch
+        `buildReviewSummary`/`overrun_sensitivity_viewed`/`loadHistory`/
+        `csvCell`-in-a-new-file match live
+        `formatReviewSummary`/`overrun_sensitivity_compared`/`listHistory`/
+        `csvCell`-in-`export.mjs` respectively, the last with a stronger
+        formula-injection guard `main` has that the branch does not. This is
+        the same fleet pattern #2516 already logged for a disjoint
+        `session/agent_*` branch set on this venture -- same venture,
+        different stale branches, same cause (many parallel agents building
+        the identical feature under different names).
+      - >-
+        `origin/cursor/chargeback-evidence-packet-main` took the
+        `identical-merge` proof itself several minutes (large whole-repo
+        diff -- this branch predates the bulk of the current tree) rather
+        than completing, so it was checked by hand instead: its tip commit
+        is titled `chargeback packet: save in-progress drafts locally
+        (#1144)`, an already-merged, already-superseded-since PR, and the
+        branch is a pre-refactor single-file prototype -- everything now
+        implemented as `ventures/chargeback-evidence-packet/packet.mjs`
+        (added after this branch's tip, via #1802/#1979/#2355 and others)
+        was still inline `<script>` in `index.html` here. Superseded.
+      - >-
+        Zero open PRs confirmed via `list_pull_requests` before starting.
+        Nothing merged, nothing closed (not this session's branches to
+        close -- out of scope per the task). No product code changed;
+        `portfolio/ledger/supersede_check.py` was the only tool run.
+    mrr_end: null
