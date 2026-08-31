@@ -38667,3 +38667,50 @@ entries:
         `runner_id: 0`), not a real failure. Merged (squash) as #2473,
         `44e4c827b`.
     mrr_end: null
+  - venture: marketplace-fee-compare
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Confirmed 0 open PRs at session start. Surveyed ~184 ventures for a
+        functionally-solid-but-thin one (per this session's product-depth
+        brief): most bid calculators already carry FAQ/disclaimer/usage/share
+        after the many prior FAQ and a11y sweeps recorded earlier this month,
+        so a naive grep for "missing FAQPage" or "missing usage.mjs" mostly
+        found ventures where the feature is present but inline or in a
+        differently-named file. Picked marketplace-fee-compare (5 commits,
+        51 passing tests, full disclaimer/privacy/usage/FAQ coverage) as
+        genuinely missing one depth feature every sibling bid calculator with
+        a `share.mjs` already has: a private "copy share link" that
+        reconstructs the comparison for a recipient without re-typing it.
+      - >-
+        Shipped #2476: `share.mjs` (allowlisted encode/decode of the item
+        fields and per-channel rate overrides into the URL fragment, same
+        pattern as ~60 sibling ventures), wired into `index.html` behind a
+        "Copy share link" button that decodes a shared link before the first
+        (uncounted) paint, a new `share_link_copied` usage event on the
+        existing local/opt-out counter, updated privacy prose and
+        `featureList`, and one new FAQ question mirrored word-for-word
+        between the JSON-LD and the visible "Common questions" section
+        (`faq-visible.test.mjs` enforces the match). `share.test.mjs`
+        round-trips every current form field and asserts the allowlist
+        matches the page's `FIELD_IDS`, guarding against the exact bug class
+        this repo's `CLAUDE.md` names: a `share.mjs` allowlist silently
+        dropping a field (`quantity`/`targetMargin` on
+        faire-wholesale-calculator).
+      - >-
+        Verified: `node --test "ventures/marketplace-fee-compare/*.test.mjs"`
+        64/64 (was 51); `node --test platform/pages/faq-visible.test.mjs`
+        (whole-portfolio scan) 4/4; `faq-duplicate.mjs` and `clauses.mjs`
+        clean for this venture; `build.mjs --out=dist` + `check.mjs dist`
+        169 products/508 pages/no dead links; `portfolio/router/validate.py`
+        182/182 VENTURE.yaml valid. Live headless-Chromium pass (Playwright):
+        edited price/category/an eBay rate override, copied the share link,
+        opened it fresh as a second page, and confirmed the recipient's form
+        and verdict text matched the sender's exactly with zero console
+        errors on either page; confirmed the local usage counter recorded
+        `share_link_copied`. CI showed the known account-wide
+        runner-starvation signature (`ci_starvation.py --run 33408668304`:
+        `runner_id: 0`, exit 1), not a real failure. Merged (squash) as
+        #2476, `d63403fb5`.
+    mrr_end: null
