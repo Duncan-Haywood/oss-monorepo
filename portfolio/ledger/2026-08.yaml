@@ -39250,6 +39250,34 @@ entries:
         or commit first and rebase instead, which is what the rest of
         this session's realignments used without incident.
     mrr_end: null
+  - venture: security-camera-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2495: fixed the share-link price-mismatch bug
+        class (deposit percent, valid-days, and three prose terms fields
+        were outside calc.mjs's INPUT_FIELDS, so share.mjs never carried
+        them -- a recipient's page reopened at the venture's default terms
+        while the headline price still matched to the cent). Vendored
+        platform/proposal/terms.mjs as proposal-terms.mjs + test, wired
+        withTerms/splitTerms/decodeTerms/readTerms/applyTerms/
+        overlongTermsNote into copyShare()/loadDraft(), matching the 12
+        other ventures on the shared bid spec. Same PR also included a fix
+        for fence-bid-calculator's addRunRow()/applyPreset() bug (see the
+        `portfolio` entry below and #2500's own entry for the fuller,
+        independently-verified account of that fix's effect).
+      - >-
+        Verified: node --test security-camera-bid-calculator 113/113,
+        fence-bid-calculator 94/94; portfolio-wide
+        platform/proposal/{term-ids,sync,discoverability}.test.mjs 13/13;
+        node platform/pages/build.mjs + check.mjs, 169 products/508 pages,
+        no dead links; live-Chromium platform/ci/browser_checks.py
+        --checks roundtrip across all 169 tools, clean both before/after.
+        All 10 GitHub checks were red on this PR; confirmed via
+        platform/ci/ci_starvation.py that every one was runner_id:0
+        (account-level Actions starvation, not a real failure) before
+        merging. Merged (squash) as #2495.
   - venture: window-cleaning-bid-calculator
     agent_spend_usd: null
     human_hours: 0
@@ -39350,6 +39378,83 @@ entries:
     agent_spend_usd: null
     human_hours: 0
     outcomes:
+      - >-
+        Branch-to-PR drain: investigated every origin/* branch carrying
+        commits not on main (~20, per gitops/agents/queue/README.md's now-
+        outdated 2026-08-31 claim that none remained). origin/tmp/ssh-key-
+        smoke (936 commits ahead) is a massively stale/divergent fork --
+        5617 files, 1.19M deletions vs 186K insertions relative to main --
+        left untouched, not a candidate for merge or close review. All 18
+        other branches investigated (claude/festive-mccarthy-{xrn3ua,
+        qb5q6b,jwkwz5,ocyq3v}, cursor/3pl-quote-normalizer-{compare-
+        20260824,compare-20260825,ship-20260824}, cursor/vendor-change-
+        watch-fix-20260824, claude/sweet-archimedes-{6nrsur,icmubl},
+        cursor/chargeback-evidence-packet-main, claude/funny-archimedes-
+        {895zx9,6av5kj}, pr/where-to-sell-rank-by-profit-per-day, pr/
+        invoice-payment-terms-calculator, cursor/print-preflight-value-
+        20260824, cursor/faire-wholesale-calculator-e3de, cursor/amazon-
+        fba-sourcing-check-20260824) were confirmed SUPERSEDED -- main
+        already has every feature they add, just reorganized, renamed, or
+        extended further. None needed a new PR or merge.
+      - >-
+        Process finding worth carrying forward: supersede_check.py resolves
+        a PR-number argument by fetching refs/pull/N/head into the shared
+        FETCH_HEAD ref. Two failure modes followed from that. First, running
+        it against several PR numbers concurrently in the same working tree
+        races on FETCH_HEAD -- three parallel invocations (PRs 2431, 1312,
+        898) all silently resolved to whichever fetch won, producing three
+        identical (and two wrong) reports; must be run strictly sequentially,
+        or with --no-fetch against a local origin/<branch> ref, when more
+        than one check is needed. Second, and more consequentially: a PR's
+        frozen head can be stale relative to the branch's current tip when
+        commits were pushed after the PR closed (found on 7 of the 18
+        branches here, including #1030, whose frozen head captured an
+        earlier venture name -- marketplace-fee-comparison -- that the
+        branch itself later renamed to where-to-sell-calculator). Checking
+        the PR number alone in that case gives a verdict about a commit
+        nobody is proposing to merge. Compare `git rev-parse refs/pull/N/
+        head` against `git rev-parse origin/<branch>` before trusting a
+        supersede_check verdict, and re-run against the live branch ref
+        when they differ. Several verdicts also required hand-verification
+        beyond the tool: it timed out (>280s) on three heavily-diverged
+        branches (971, 2435, and the PR-2430 duplicate), and on others
+        returned NOT SUPERSEDED by literal line-scan where the same feature
+        had shipped under different wording/variable names below the tool's
+        fuzzy-match threshold (e.g. #2433/#1030's where-to-sell-calculator
+        profit-per-day ranking -- the fifth attempt at a feature main
+        already has in full -- and #2434's amazon-fba buyCostCheck, where
+        main's field-id array is a strict superset that no longer matches
+        character-for-character). Posted evidence comments naming the exact
+        superseding code on the 9 closed PRs where the automated verdict
+        alone would have misled a future session (#905, #971, #1030, #2430,
+        #2431, #2433, #2434, #2435, #2436), so none of this needs
+        re-deriving.
+      - >-
+        Considered "fixing" the 5 portfolio/pipeline/candidates.yaml entries
+        still reading verdict: build-now whose ventures are already fully
+        shipped (quote-margin-check, consent-change-record,
+        shopify-permission-drift, eaa-remediation-pipeline, mls-photo-spec-
+        preflight) -- checked pipeline/README.md first and this is not a
+        bug: graduate_as: product-line candidates graduate by a
+        product_lines entry in the host venture's VENTURE.yaml, not by
+        flipping this field, and session_gate.py already reads that
+        correctly (PROCEED, no unbuilt build-now candidate named). No edit
+        made; flagging so the next session doesn't spend time on the same
+        wrong read.
+      - >-
+        Checked for further product work per DIRECTION.md's deploy-first
+        priority: platform/ci/publish_surface.py --check confirms the
+        Pages artifact is fully prepared (built 169 tools cleanly via
+        platform/pages/build.mjs, checked clean via check.mjs -- 169
+        products, 508 pages, no dead links) and still has no public URL;
+        the one remaining blocker is the owner-only
+        ./bootstrap/scripts/seal-owner-secrets.sh site seal, already queued
+        as decision-queue item deploy-settings -- no duplicate ask added.
+        platform/pages/faq-coverage.mjs and guide-coverage.mjs both report
+        169/169 full coverage. All 5 build-now pipeline candidates are
+        already shipped (previous outcome). DIRECTION.md is explicit that
+        cloning another undeployed calculator is not the answer while
+        deploy is pending, so no new venture was started this session.
       - >-
         One open PR at session start (#2495, security-camera-bid-calculator
         proposal-terms wiring). Reviewed, verified locally (113 venture
