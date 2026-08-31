@@ -14,7 +14,15 @@ export function calculateImpact(input) {
   const currentContribution = currentRevenue - monthlyCosts;
   const proposedContribution = proposedRevenue - monthlyCosts;
   const revenueChange = proposedRevenue - currentRevenue;
-  const breakEvenCustomers = proposedPrice === 0 ? Infinity : (currentRevenue / proposedPrice);
+  // A $0 proposed price cannot be reached by any customer count when current
+  // revenue is positive — that is a real Infinity, not a bug. But when
+  // current revenue is already $0 (a free plan staying free), $0 proposed
+  // revenue matches it trivially at any customer count, so break-even is 0,
+  // not unreachable. Checking currentRevenue first, rather than only
+  // proposedPrice, is what keeps those two zero-price scenarios apart.
+  const breakEvenCustomers = currentRevenue === 0
+    ? 0
+    : (proposedPrice === 0 ? Infinity : (currentRevenue / proposedPrice));
   const maxLostCustomers = Math.max(0, customers - breakEvenCustomers);
   const maxChurnRate = customers === 0 ? 0 : (maxLostCustomers / customers) * 100;
   const scenarios = [0, 5, 10, 15, 20].map(churn => {
