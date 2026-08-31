@@ -38381,3 +38381,44 @@ entries:
         the no-duplicate-asks rule; the precise unblock steps for each are
         already typed out there and in `infra/OWNER_CHECKLIST.md`.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        **Full census, not another sample.** Briefed to review every PR-less
+        branch and open/merge PRs for at least three with unique work. Zero
+        open PRs at session start. `git fetch --unshallow`, then classified
+        all 296 remote branches: 175 carry commits `main` lacks
+        (`git rev-list --count origin/main..<branch>`). Rather than sampling
+        another 15-35 as the three prior drain sessions did (`claude/clever-
+        bohr-rcp8ih`, `claude/codex-governor-ask-and-queue-drain-report`, and
+        #2462's same-day pass), checked all 175: triple-dot diff against
+        `main` per branch, a same-feature grep in `main`'s current files for
+        anything that read as new, and a portfolio-wide scan for any
+        `ventures/<slug>` directory in any of the 175 that does not exist on
+        `main` at all (the strongest signal a branch could hold a genuinely
+        unmerged product). Result: zero. Every branch's unique content is
+        already on `main`, generally with substantially more built on top
+        (e.g. a branch's `priceToMatchProfit` on eBay-fee or `loadedLaborRate`
+        on mobile-detailing, verbatim, plus features the branch never had).
+        The two directories the venture-scan did flag (`mat-470-real-
+        analysis`, `range-coach`) belong to `tmp/ssh-key-smoke` and `cursor/
+        saas-seat-true-up-20260824`, both already named by prior sessions as
+        unsafe bases (unrelated-history snapshot; bot commit against the
+        wrong working tree) rather than product candidates. Opened no
+        branch-recovery PRs; merging any would have deleted newer `main`
+        content, not added to it.
+      - >-
+        This closes the loop #2462 left open ("expect ~1 real find per 30-40
+        branches, do not budget for exhaustive triage") by actually running
+        the exhaustive pass and reporting what it costs: a full census over
+        175 branches, using diffstat plus a directory-existence scan rather
+        than per-branch supersede_check.py runs, found nothing beyond what
+        four independent partial samples already found. Worth recording so a
+        future session does not re-open this same "maybe the untouched 120
+        hide something" question -- they do not, as of this commit. The
+        stale-branch count itself is unchanged by this session (no branch was
+        deleted or merged); `branch-cleanup.yml` already exists on `main` to
+        do that but is capability-gated, per its own test suite.
+    mrr_end: null
