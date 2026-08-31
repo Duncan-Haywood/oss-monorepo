@@ -77,12 +77,56 @@ export async function collectPages({ venturesDir = path.join(REPO_ROOT, 'venture
     }
   }
 
-  return { pages, surfaces };
+  // Whether `slug` names a venture at all, which is a different question from
+  // whether it has a browser surface. Both produce zero surfaces, and the
+  // callers must not treat them alike: one is a CLI venture behaving
+  // normally, the other is a typo silently reporting nothing to do.
+  const known = slug === undefined ? true : await isVenture(venturesDir, slug);
+
+  return { pages, surfaces, known };
+}
+
+/**
+ * The exit for a slug that names no venture, shared by the three tools that
+ * take one.
+ *
+ * These tools all report rather than gate -- a venture with nothing to measure
+ * is a normal, passing result, and their CI passes a slug unconditionally, so
+ * a coverage number must never fail a run. But that made a mistyped slug
+ * indistinguishable from a real venture with no browser surface: both printed
+ * "nothing to measure" and exited 0. `faq-coverage.mjs amazon-fba-calculater`
+ * reported success for a venture that does not exist.
+ *
+ * A slug that names nothing is a usage error, not a measurement, so it is the
+ * one case that exits non-zero. That leaves "never a gate" intact: what fails
+ * here is the question, not the answer.
+ */
+export function unknownVenture(slug, { log = console.error } = {}) {
+  log(
+    `${slug}: no such venture.\n` +
+      'Nothing was measured. Check the spelling against `ls ventures/`; a\n' +
+      'venture that exists but ships no browser surface reports zero and exits 0.',
+  );
+  return 1;
+}
+
+/** Does `slug` name a directory under `venturesDir`? */
+async function isVenture(venturesDir, slug) {
+  // Guard against a slug that is a path rather than a name -- `foo/../bar`, or
+  // an absolute path -- which would otherwise stat something outside the tree.
+  if (slug !== path.basename(slug)) return false;
+  try {
+    return (await fs.stat(path.join(venturesDir, slug))).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 export async function main(argv = process.argv.slice(2)) {
   const slug = argv.find((arg) => !arg.startsWith('-'));
-  const { pages, surfaces } = await collectPages({ slug });
+  const { pages, surfaces, known } = await collectPages({ slug });
+
+  if (slug && !known) return unknownVenture(slug);
 
   if (slug && surfaces.length === 0) {
     // Not a failure: plenty of ventures are CLIs or libraries with no browser

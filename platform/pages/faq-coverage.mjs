@@ -28,7 +28,7 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectPages } from './clauses.mjs';
+import { collectPages, unknownVenture } from './clauses.mjs';
 import { faqEntries } from './build.mjs';
 
 /**
@@ -52,8 +52,10 @@ export async function main(argv = process.argv.slice(2)) {
   const quiet = argv.includes('--quiet');
   const slug = argv.find((arg) => !arg.startsWith('-'));
 
-  const { pages } = await collectPages({ slug });
+  const { pages, known } = await collectPages({ slug });
   const rows = coverage(pages);
+
+  if (slug && !known) return unknownVenture(slug);
 
   if (slug && rows.length === 0) {
     // Consistent with clauses.mjs: a CLI or library venture has no entry page,
