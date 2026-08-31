@@ -35610,3 +35610,47 @@ entries:
         still down (`runner_id: 0`, unrelated). Merged squash after local
         verification, no reviewer available.
     mrr_end: null
+  - venture: shop-rate-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start; the CI/CD, Hetzner-deploy, and
+        Codex-CLI-on-Hetzner asks this run's brief prioritized are the same
+        three rows (`actions-runners-unavailable`, `deploy-settings` /
+        `portfolio-site-hetzner-deploy`, `codex-governor-enable`) #2307,
+        #2308, and #2311/#2312's sessions already re-confirmed fully built
+        and owner-gated earlier today -- not re-verified a third time.
+        Sampled a different slice of the 175 branches carrying commits not
+        on `main` (`claude/festive-mccarthy-*`, `cursor/3pl-quote-normalizer-*`,
+        `cursor/vendor-change-watch-fix-20260824`,
+        `pr/where-to-sell-rank-by-profit-per-day`,
+        `pr/invoice-payment-terms-calculator`,
+        `cursor/chargeback-evidence-packet-main`) than the 19 already
+        checked in the #2311/#2312 ledger entry: spot-verified
+        `invoice-payment-terms-calculator`, the `3pl-quote-normalizer`
+        comparison page, `chargeback-evidence-packet`, `vendor-change-watch`,
+        and `where-to-sell-calculator`'s profit-per-day ranking are all
+        already on `main`. Same pattern as before -- no new PR needed.
+      - >-
+        Shipped #2315: a subagent survey across ~10 ventures not touched by
+        the recent FAQPage-JSON-LD sweeps (#2219, #2256, #2308, #2311) found
+        `shop-rate-calculator/README.md` describing its disclaimer only in
+        the abstract ("The disclaimer covers what this tool looks like it
+        is doing...") without ever quoting `PRODUCT_PLAYBOOK.md` §5b's
+        required boilerplate, unlike every comparable bid-calculator README
+        (`fence-bid-calculator`, `owner-operator-cpm-calculator`, etc.),
+        which carry an explicit `## Disclaimer` section. `index.html`'s
+        footer already had the full tailored text and every HTML page
+        passes `platform/pages/clauses.mjs` -- the gap was README-only, and
+        there is no automated README checker, which is how it slipped
+        through. Added a `## Disclaimer` section quoting the page's own
+        footer text, split the old combined "Privacy and disclaimers"
+        heading into `## Privacy` plus this, and added the missing
+        "MIT licensed" link to the venture's existing `LICENSE` file.
+        Docs-only, no calculator logic touched. Verified: venture's 70
+        tests still pass; merged current `main` (a concurrent session's
+        walmart-marketplace-calculator fix, #2313/#2314) with no conflicts
+        before pushing. Merged squash after local verification, no
+        reviewer available (Actions still down).
+    mrr_end: null
