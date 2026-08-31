@@ -35748,3 +35748,47 @@ entries:
         CSS rule applied portfolio-wide, or a fix to the generator's
         insertion point so future regenerations land correctly on their own.
     mrr_end: null
+  - venture: platform
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Followed up on #2319's "roughly 20 other calculators" estimate with a
+        fresh, authoritative sweep instead of trusting the number: `node
+        platform/pages/build.mjs && node platform/proposal/verify.mjs` (no
+        arguments -- every adopted calculator) found 19 of 103, not ~20, all
+        failing identically with `page.click: Timeout 30000ms exceeded` on
+        `#printProposal`. Checked each one's actual DOM/CSS rather than
+        assuming a shared cause: all 19 have the same structure --
+        `main.layout` (2-col CSS grid) with a `position: sticky` `.result`
+        sidebar, and `#proposalSection` (plus the FAQ section) generated as
+        a direct sibling of `.result` instead of nested in the left-column
+        `<div>` -- so grid auto-placement drops both into `.result`'s own
+        column, where the sticky sidebar's content paints over the print
+        button. Identical root cause as home-elevator-bid-calculator
+        (#2319) on every one; no venture needed a different fix.
+      - >-
+        Fixed `platform/proposal/adopt.mjs` at its insertion point rather
+        than hand-patching 19 pages: the generated stylesheet now emits
+        `#proposalSection, main.layout > section:not(.result) {
+        grid-column: 1 / -1; }`, scoped to `main.layout` so it is a no-op on
+        any page not built on that two-column grid -- safe for every other
+        adopted or future calculator regardless of layout. Regenerated the
+        19 affected pages by re-running `node platform/proposal/adopt.mjs
+        <slug>...`, which replaces only the marked generated region; each
+        page's diff came out as the identical 12-line CSS insertion; nothing
+        else moved. `home-elevator-bid-calculator` itself was left
+        untouched -- its hand-added override from #2319 keeps working and
+        would only become redundant-but-harmless if that page is ever
+        re-adopted later.
+      - >-
+        Verified locally (CI has had no runner since 2026-08-26; this PR's
+        checks completed in 2-5s with `runner_id: 0`, the confirmed outage
+        signature, not a real failure): each of the 19 touched ventures' own
+        `node --test` suite green (1006 combined assertions, 0 failures);
+        `node --test platform/proposal/*.test.mjs` 89/89; a full rebuild plus
+        `platform/pages/check.mjs` found no dead links across 506 pages; a
+        fresh `platform/proposal/verify.mjs` sweep after the fix went from
+        84/103 to 103/103 calculators handing the customer a sound proposal.
+        Merged as #2321 (squash).
+    mrr_end: null
