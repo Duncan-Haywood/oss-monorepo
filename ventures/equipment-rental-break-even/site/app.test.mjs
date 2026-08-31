@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
 import { calculate, buildSnapshotText } from "./model.mjs";
+import { encodeShare, decodeShare } from "./share.mjs";
 const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const app = fs.readFileSync(new URL("./app.mjs", import.meta.url), "utf8");
 test("landing page exposes searchable product, safety copy, and local app", () => {
@@ -11,8 +12,21 @@ test("landing page exposes searchable product, safety copy, and local app", () =
   assert.match(html, /app\.mjs/);
   assert.match(html, /Save draft/);
   assert.match(html, /Saved local drafts/);
+  assert.match(html, /Copy share link/);
   assert.match(html, /not a recommended price/);
   assert.match(html, /To the maximum extent permitted by law/);
+});
+test("app wires the share button to encode/decode and applies an incoming link on load", () => {
+  assert.match(app, /import \{ encodeShare, decodeShare \} from "\.\/share\.mjs";/);
+  assert.match(app, /"copy-share"\)\.addEventListener/);
+  assert.match(app, /decodeShare\(location\.hash\)/);
+  assert.match(app, /applyDraft\(\{ values: shared \}\)/);
+  assert.match(app, /usage\("share_copied"\)/);
+});
+test("a decoded share link round-trips into the same field shape applyDraft expects", () => {
+  const v = { currency: "USD", booking: 180, rental_days: 2, delivery: 45, cleaning: 20, damage: 12, purchase: 2400, life: 180, fixed_monthly: 75, available: 20, target_margin: 35 };
+  const decoded = decodeShare(encodeShare(v));
+  assert.deepEqual(decoded, v);
 });
 test("browser output treats the currency label as text and honors privacy signals", () => {
   assert.match(app, /replaceChildren\(\)/);
