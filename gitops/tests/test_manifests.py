@@ -289,28 +289,61 @@ def test_job_template_from_governor_hides_sa_token() -> None:
     assert "codex-worker" in rbac
 
 
-def test_governor_role_touches_exactly_one_configmap_by_name() -> None:
+def test_governor_role_reads_no_configmap_it_cannot_name() -> None:
     # governor.py's only ConfigMap calls (_load_state / _save_state) GET and
-    # PUT/POST a single named object, governor-state -- never a namespace-wide
-    # list, never any other ConfigMap. A second, unnamed `configmaps` rule
-    # (get/list/create) used to sit alongside the resourceNames-narrowed one,
-    # granting read access to every ConfigMap in `agents`
-    # (governor-policy, governor-script, governor-queue,
-    # codex-worker-script -- none of which governor.py ever requests over the
-    # API, it mounts them as volumes) plus a `list` verb nothing calls. Same
-    # shape `prod/site-usage.yaml`'s Role already avoids, and for the same
-    # reason: the ConfigMap this job writes is seeded in git
-    # (`governor/state.yaml`, mirroring `portfolio-site-usage`), so `create`
-    # is not needed either.
+    # PUT/POST a single object, governor-state -- never a namespace-wide list,
+    # never any other ConfigMap. An unnamed `configmaps` rule with verbs
+    # get/list/create used to sit alongside the resourceNames-narrowed one,
+    # granting read access to every ConfigMap in `agents` (governor-policy,
+    # governor-script, governor-queue, codex-worker-script -- none of which
+    # governor.py ever requests over the API, it mounts them as volumes) plus
+    # a `list` verb nothing calls. That rule was cut down to bare `create`.
+    #
+    # `create` itself has to stay, and unnamed: resourceNames cannot scope it
+    # (the object does not exist yet to name), and _save_state's create branch
+    # is the first-tick / recreate-after-loss path -- POSTing the collection
+    # endpoint when the ConfigMap is missing. Dropping the verb would turn
+    # that call into a silent-ish 403 and lose a budget window, which is the
+    # same class of bug by a different route. So the invariant worth locking
+    # is not "one rule" but "no readable ConfigMap this Role cannot name".
     docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
     role = next(d for d in docs if d and d["kind"] == "Role")
     rules = role["rules"]
     cm_rules = [r for r in rules if "configmaps" in r["resources"]]
-    assert len(cm_rules) == 1, cm_rules
-    assert cm_rules[0]["resourceNames"] == ["governor-state"]
-    assert sorted(cm_rules[0]["verbs"]) == ["get", "patch", "update"]
+
+    named = [r for r in cm_rules if r.get("resourceNames")]
+    assert len(named) == 1, named
+    assert named[0]["resourceNames"] == ["governor-state"]
+    assert sorted(named[0]["verbs"]) == ["get", "patch", "update"]
+
+    # Any rule that does NOT name its objects must not be able to read them.
+    # `create` returns the object it made, never one it did not, so it leaks
+    # nothing about the sibling ConfigMaps in the namespace; get/list/watch
+    # would.
+    for rule in cm_rules:
+        if rule.get("resourceNames"):
+            continue
+        assert sorted(rule["verbs"]) == ["create"], rule
+
     for rule in rules:
         assert "*" not in rule.get("verbs", [])
+
+
+def test_governor_save_state_create_path_has_the_rbac_verb_it_needs() -> None:
+    # Pairs the manifest with the code: _save_state falls back to POSTing the
+    # ConfigMap collection when _load_state found nothing to PUT. That call
+    # needs `create` in the Role. The two have drifted apart once already --
+    # a branch narrowed the Role to get/update/patch while this code path was
+    # still live -- so assert the dependency rather than leaving it implicit.
+    source = (AGENTS / "governor" / "governor.py").read_text()
+    assert '_k8s("POST", f"/api/v1/namespaces/{namespace}/configmaps"' in source
+
+    docs = list(yaml.safe_load_all((AGENTS / "governor" / "rbac.yaml").read_text()))
+    role = next(d for d in docs if d and d["kind"] == "Role")
+    grants_create = any(
+        "configmaps" in r["resources"] and "create" in r["verbs"] for r in role["rules"]
+    )
+    assert grants_create, role["rules"]
 
 
 def test_root_tracks_main_of_this_repo() -> None:
