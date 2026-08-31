@@ -183,6 +183,23 @@ test("turns max buy cost into a sourcing checkpoint", () => {
   assert.equal(at.status, "at_ceiling");
 });
 
+test("a listing that already loses money at $0 cost reports above the ceiling, not at it", () => {
+  // Fees and non-COGS cash costs alone exceed a $3 sale price, so no sourcing
+  // cost -- not even free -- reaches break-even. The clamped display value
+  // (breakEvenBuyCost) floors at $0.00, which used to make a typed cost of $0
+  // read as "at the zero-profit ceiling": the same status a listing that
+  // genuinely breaks even on a free unit gets. That is the wrong message --
+  // this listing loses money before a unit is ever bought.
+  const losing = calculateListing({ ...base, salePrice: 3, costOfGoods: 0 });
+  assert.equal(losing.selected.breakEvenBuyCost, 0, "display value floors at $0");
+  assert.ok(losing.selected.breakEvenBuyCostRaw < 0, "the true ceiling is negative");
+
+  const atZeroCost = buyCostCheck(losing, 0);
+  assert.equal(atZeroCost.status, "above_ceiling");
+  assert.ok(atZeroCost.headroom < 0, "headroom reflects the real deficit, not 0");
+  assert.equal(atZeroCost.headroom, losing.selected.breakEvenBuyCostRaw);
+});
+
 test("FBM drops fulfillment and storage/inbound, and uses the seller's own label", () => {
   const r = calculateListing({ ...base, fulfillmentMethod: "fbm" });
   const allocated = 39.99 / 80;

@@ -452,11 +452,18 @@ export function calculateListing(input) {
   const percentRate = referralRate / 100;
 
   function finish(path, cogsInCash) {
-    path.breakEvenBuyCost = Math.max(0, salePrice - path.feeTotal - (path.cashInvested - cogsInCash));
-    path.targetMarginBuyCost = Math.max(
-      0,
-      salePrice - path.feeTotal - (path.cashInvested - cogsInCash) - salePrice * targetMarginRate,
-    );
+    // The raw ceiling can be negative: fees and non-COGS cash costs alone
+    // already exceed the sale price, so no sourcing cost -- not even $0 --
+    // reaches break-even. Clamping that to 0 for display would read as "pay
+    // at most $0.00" -- a real, if tight, break-even point -- when the truth
+    // is that this listing loses money before a unit is even bought.
+    // `breakEvenBuyCostRaw` keeps the signed figure so `buyCostCheck` can
+    // tell the two apart instead of reporting "at the zero-profit ceiling"
+    // for a listing that is already under it.
+    const rawBreakEvenBuyCost = salePrice - path.feeTotal - (path.cashInvested - cogsInCash);
+    path.breakEvenBuyCostRaw = rawBreakEvenBuyCost;
+    path.breakEvenBuyCost = Math.max(0, rawBreakEvenBuyCost);
+    path.targetMarginBuyCost = Math.max(0, rawBreakEvenBuyCost - salePrice * targetMarginRate);
     return path;
   }
 
@@ -563,7 +570,13 @@ export function calculateListing(input) {
 export function buyCostCheck(result, costOfGoods) {
   const cost = number(costOfGoods, "Cost of goods");
   const maxBuy = result.selected.breakEvenBuyCost;
-  const headroom = maxBuy - cost;
+  // The comparison itself runs on the unclamped ceiling, not the display
+  // value. At a $0.00 clamped ceiling, "maxBuy - cost" reads as "at the
+  // ceiling" for a typed cost of $0 -- indistinguishable from a listing that
+  // genuinely breaks even on a free unit. The raw figure is negative there
+  // instead, so a $0 (or any) cost correctly lands above it.
+  const raw = result.selected.breakEvenBuyCostRaw ?? maxBuy;
+  const headroom = raw - cost;
   return {
     cost,
     maxBuy,

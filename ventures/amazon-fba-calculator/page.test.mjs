@@ -633,3 +633,12 @@ test("calculator page classifies the typed buy cost against the zero-profit ceil
   assert.match(scriptSource, /buyCostCheck/);
   assert.match(scriptSource, /sourcing_check_used/);
 });
+
+test("max buy cost display says so when the listing already loses money at $0 cost", () => {
+  // Regression: the display used to show a bare $0.00 for both "you can pay
+  // up to $0 and break even" and "you lose money before buying a unit at
+  // all" -- the same figure for two opposite facts. It now reads the signed
+  // ceiling to tell them apart.
+  assert.match(scriptSource, /breakEvenBuyCostRaw < 0/);
+  assert.match(scriptSource, /loses money even at \$0 cost/);
+});
