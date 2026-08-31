@@ -39684,3 +39684,29 @@ entries:
         fix. Both new fields default to zero so how-to-price-a-change-order.html
         holds, asserted rather than assumed.
     mrr_end: null
+  - venture: janitorial-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Looked but did not merge: origin/session/agent_ae7b0e41 (commit
+        0e6decf57, "save bid setup locally") adds state.mjs/state.test.mjs and
+        two buttons wiring a second, button-triggered local-storage
+        persistence path (areas + cost fields only). This is the same shape
+        as #2459's draft.mjs, merged and then reverted hours earlier the same
+        day as #2461 because it fought with share.mjs's existing
+        BID_SPEC-based saveBid/restoreBid, which already autosaves and
+        restores areas, shifts, projects, periodicServices, every cost field,
+        and proposal terms, plus share links. The branch's diff replaces the
+        same `STARTING_AREAS.forEach(addAreaRow)` line #2461's fix replaced
+        with restoreBid-based population, so merging it now would both
+        conflict there and, once resolved, reintroduce the identical
+        duplicate-area-row-on-load bug #2461 exists to prevent.
+        supersede_check.py against origin/main reports NOT SUPERSEDED (the
+        line-scan doesn't match state.mjs's text to share.mjs's, different
+        function/variable names for the same feature) -- read manually
+        instead per CLAUDE.md's RENAME SUSPECTED guidance, and it is the same
+        feature, already shipped in the more complete form. Did not open a
+        PR. No further action needed on this branch; a future session should
+        not re-attempt it without also re-checking share.mjs's BID_SPEC first.
+    mrr_end: null
