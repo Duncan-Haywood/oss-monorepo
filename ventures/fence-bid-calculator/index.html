@@ -320,6 +320,7 @@
       'driveGateCost', 'concretePerPost', 'hoursPerLf', 'hoursPerPost',
       'hoursPerWalkGate', 'hoursPerDriveGate',
     ];
+    const HOURS_KEYS = ['hoursPerLf', 'hoursPerPost', 'hoursPerWalkGate', 'hoursPerDriveGate'];
 
     function applyPreset(row, preset, overwriteHours) {
       if (!preset) return;
@@ -385,6 +386,17 @@
       }
       applyPreset(row, preset ? { ...preset, ...ownCosts } : run, true);
       if (run.postSpacingFt) row.querySelector('.r-space').value = run.postSpacingFt;
+      // A restored run's hours are a labor estimate tied to the site, not
+      // the material — the same reason a hand-typed hours figure survives a
+      // material swap (the listener below). Without this flag, a
+      // recipient who opens a share link and then merely tries a different
+      // material in the dropdown would see the sender's customized hours
+      // silently replaced by the newly-selected preset's stock hours,
+      // through the same `!row.dataset.hoursEdited` guard that call relies
+      // on.
+      if (HOURS_KEYS.some(key => run[key] !== undefined && run[key] !== '')) {
+        row.dataset.hoursEdited = '1';
+      }
 
       typeField.addEventListener('change', () => {
         const preset = MATERIAL_PRESETS[Number(typeField.value)];

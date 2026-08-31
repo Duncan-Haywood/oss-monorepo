@@ -115,3 +115,19 @@ test('a run’s own cost and labor figures survive being rebuilt, not just its s
   assert.doesNotMatch(addRun[1], /applyPreset\(row, MATERIAL_PRESETS\[presetIndex\] \?\? run, true\)/,
     'reverted to applying the bare preset over a reconstructed run’s own costs');
 });
+
+test('restoring a run’s own hours marks the row edited, so a later material change can’t re-clobber them', () => {
+  // A run's hours are a labor estimate tied to the job site (rocky ground,
+  // an awkward gate location), not to which material was picked, which is
+  // why a hand-typed hours figure is protected from `applyPreset`'s
+  // overwrite via `row.dataset.hoursEdited` (see the `r-hours*` input
+  // listener below). A run restored from a share link with its own hours
+  // starts that protection unset, so a recipient who merely tries a
+  // different material in the dropdown afterward would see the sender's
+  // customized hours silently replaced by that preset's stock hours.
+  const addRun = /function addRunRow\(run\) \{([\s\S]*?)\n    \}/.exec(proposalScript);
+  assert.ok(addRun, 'no addRunRow function');
+  assert.match(addRun[1], /HOURS_KEYS\.some\(key => run\[key\]/,
+    'a restored run’s hours never mark the row edited, so a later material change can wipe them out');
+  assert.match(addRun[1], /row\.dataset\.hoursEdited = '1'/);
+});
