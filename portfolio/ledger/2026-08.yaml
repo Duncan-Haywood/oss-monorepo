@@ -39280,3 +39280,36 @@ entries:
         built page's derived `FAQPage` JSON-LD contains the new question
         text verbatim, confirming schema and visible copy stayed in sync.
     mrr_end: null
+  - venture: window-cleaning-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Follow-up correction to the #2496 merge above, same session: the
+        `grep`-for-substring check used to verify the new FAQ question
+        reached the built page's JSON-LD was too weak -- it matched the
+        substring anywhere in the file, including the plain `<h3>` text,
+        not specifically inside a `FAQPage` block. This venture turned out
+        to be one of the ~37 that carries its own hand-authored `FAQPage`
+        `<script>` in `<head>` (`build.mjs` only derives one "where the
+        venture wrote none of its own" -- see its comment at the
+        `!html...includes('FAQPage')` check), so the merge landed a 4th
+        visible question with the JSON-LD still listing only the original
+        3: exactly the schema/visible-copy drift class AGENTS.md documents
+        from 2026-08-30. Caught it re-reading the source file after the
+        merge, before moving on. Fix: removed the stale hand-authored
+        `FAQPage` block entirely (same remedy `owner-operator-cpm-
+        calculator`'s FAQ-depth PR used, #2324) so `build.mjs`'s
+        `faqEntries()` now derives the schema fresh from visible copy on
+        every build -- 4 questions, byte-identical wording, and it cannot
+        drift again the way a hand-authored block can.
+      - >-
+        Verified this time by parsing the actual built JSON-LD (`json.
+        loads` on the `FAQPage` script block, not a substring grep) and
+        confirming all 4 question names appear, in order, matching the
+        page's `<h3>` text. Also re-ran: venture's calc.test.mjs 14/14;
+        platform/pages/{faq-visible,faq-coverage,faq-duplicate,secondary-
+        schema}.test.mjs 18/18; build.mjs --out=dist && check.mjs dist --
+        169 products, 508 pages, no dead links;
+        `faq-coverage.mjs window-cleaning-bid-calculator` -- 1/1 covered.
+    mrr_end: null
