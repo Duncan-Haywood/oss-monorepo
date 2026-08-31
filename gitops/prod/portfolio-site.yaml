@@ -101,7 +101,34 @@ data:
     # Dropping a field here is what makes the privacy claim structural: a
     # later change to the aggregator cannot start reporting an address that
     # was never written down.
-    log_format privacy '$time_iso8601 $status $uri';
+    #
+    # The fourth field is one bit: was this view served inside somebody else's
+    # page. It exists because the embed widget (#2561, #2567) is the only
+    # distribution channel this portfolio has that does not depend on ranking
+    # in search, and as shipped it is unmeasurable -- the snippet points at
+    # `/<slug>/?pfEmbed=1`, and `$uri` is resolved *past* the query string, so
+    # an embedded view and a direct visit produce byte-identical log lines.
+    # `usage/README.md` calls a number nobody wrote down one that does not
+    # exist; this is the one that was not being written down. Folded together,
+    # a tool with 300 hits could be 300 people finding it in search or one
+    # popular embed on a trade forum, and those imply opposite next moves.
+    #
+    # It is `$portfolio_embed_view` and NOT `$arg_pfEmbed`, and that is the
+    # whole safety property rather than a style preference. `$arg_` logs
+    # whatever a caller put in the URL, so `?pfEmbed=<anything>` would write
+    # that string into the log -- attacker-controlled content in the one file
+    # this manifest promises carries none. The map below has exactly two
+    # outcomes, neither of them caller-supplied, so no request can widen this
+    # field beyond the bit it is for. `gitops/tests/test_site_usage.py` pins
+    # both halves.
+    log_format privacy '$time_iso8601 $status $uri $portfolio_embed_view';
+
+    # The bit above. Two rows, two possible values, nothing from the caller --
+    # see the log_format comment for why that constraint is load-bearing.
+    map $arg_pfEmbed $portfolio_embed_view {
+      default "-";
+      1       "embed";
+    }
 
     # The one exception to "every page ships X-Frame-Options: DENY" below,
     # and why it has to be a `map` rather than a second `add_header` in

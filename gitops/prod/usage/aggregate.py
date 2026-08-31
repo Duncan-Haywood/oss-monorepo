@@ -70,10 +70,40 @@ HUB_KEY = "_hub"
 # would inflate every number by whatever each page happens to load.
 PAGE_SUFFIX = re.compile(r"(/|\.html)$")
 
-# `$time_iso8601 $status $uri`, exactly as the log_format in
-# portfolio-site.yaml emits it. Anything else on the line is not ours to
+# Views served inside somebody else's page are counted under their own prefix
+# rather than added to the tool's row.
+#
+# The embed widget (#2561, #2567) is the only distribution channel here that
+# does not depend on ranking in search, and the one question it has to answer
+# is whether anyone actually embedded a tool. That is unanswerable if an
+# embedded view is indistinguishable from a direct visit: 300 hits could be 300
+# people finding it in search or one popular embed on a trade forum, and those
+# imply opposite next moves. A prefix, so the rows sort together, and one that
+# cannot collide with a venture directory -- `slug_for` returns no key
+# containing "/" except the category pages, which use `c/`.
+EMBED_PREFIX = "embed/"
+
+# The value nginx's `$portfolio_embed_view` map writes for a framed view. Two
+# outcomes exist and this is the one that counts; anything else (including the
+# `-` placeholder, and including a line from a pod that has not rolled onto the
+# new format yet) reads as an ordinary visit.
+EMBED_FIELD = "embed"
+
+# `$time_iso8601 $status $uri $portfolio_embed_view`, exactly as the log_format
+# in portfolio-site.yaml emits it. Anything else on the line is not ours to
 # guess at, so it is skipped rather than parsed loosely.
-LOG_LINE = re.compile(r"^(?P<ts>\d{4}-\d{2}-\d{2})T\S*\s+(?P<status>\d{3})\s+(?P<uri>/\S*)$")
+#
+# The fourth field is optional in this pattern and that is deliberate, not
+# laziness. A rollout replaces the two pods one at a time, so for the length of
+# one deploy the aggregator reads three-field lines from the old pod and
+# four-field lines from the new one in the same batch. Requiring the field
+# would silently drop half of that day; making it optional counts every line
+# and merely attributes the old pod's embedded views to the tool's own row,
+# which is exactly what happened before this field existed.
+LOG_LINE = re.compile(
+    r"^(?P<ts>\d{4}-\d{2}-\d{2})T\S*\s+(?P<status>\d{3})\s+(?P<uri>/\S*)"
+    r"(?:\s+(?P<embed>\S+))?$"
+)
 
 
 def slug_for(uri: str) -> str | None:
@@ -119,6 +149,13 @@ def count_lines(lines: object, day: str) -> dict[str, int]:
             continue
         slug = slug_for(match.group("uri"))
         if slug:
+            # The prefix is applied here rather than inside `slug_for` on
+            # purpose: `slug_for` answers "which page is this", which is a
+            # property of the path alone, and the other caller in the tests
+            # relies on that. Whether it was framed is a property of the
+            # request, and it arrives in a different field.
+            if match.group("embed") == EMBED_FIELD:
+                slug = f"{EMBED_PREFIX}{slug}"
             counts[slug] += 1
     return dict(sorted(counts.items()))
 

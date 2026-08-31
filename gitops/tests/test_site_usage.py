@@ -1,9 +1,10 @@
 """The public site's usage signal: what it counts, and what it must never see.
 
 Two halves. The first pins the privacy property at its source — nginx is
-configured to write three fields, so no later change to the aggregator can
-start reporting an address or a user agent, because none was recorded. The
-second is ordinary unit coverage of the reduction from log lines to counts.
+configured to write four fields, none of which is caller-supplied, so no later
+change to the aggregator can start reporting an address, a user agent, or a
+string a visitor put in a URL, because none was recorded. The second is
+ordinary unit coverage of the reduction from log lines to counts.
 
 No cluster required.
 """
@@ -13,6 +14,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -154,6 +156,40 @@ def test_access_log_records_no_field_that_describes_a_visitor() -> None:
     assert "$time_iso8601" in log_format
     assert "$status" in log_format
     assert "$uri" in log_format
+    # `$arg_<name>` is on the banned list in spirit but not by string: it would
+    # write whatever a caller put in the URL straight into the log. The embed
+    # bit is logged through a mapped variable precisely so it cannot, and that
+    # substitution is the whole safety property -- assert it directly rather
+    # than trusting the comment beside it.
+    assert "$arg_" not in log_format, (
+        "an $arg_ variable logs caller-supplied text; map it to a fixed set of "
+        "values and log the mapped variable instead"
+    )
+
+
+def test_the_embed_bit_cannot_carry_anything_a_caller_chose() -> None:
+    # The fourth log field distinguishes a view served inside somebody else's
+    # page from a direct visit. It reads a query parameter, which is
+    # attacker-controlled, so the only thing standing between that and
+    # arbitrary text in the log is that the map has a fixed, closed set of
+    # outputs. A third row added later without noticing -- or a `default
+    # $arg_pfEmbed` -- would quietly turn this into `$args` by another name.
+    conf = _nginx_conf()
+    start = conf.index("map $arg_pfEmbed $portfolio_embed_view")
+    block = conf[start : conf.index("}", start)]
+    # `<key> <value>;` per row, with the value optionally quoted.
+    values = [
+        m.group(1)
+        for m in (
+            re.match(r'\s*\S+\s+"?([^";]*)"?\s*;\s*$', line)
+            for line in block.splitlines()[1:]
+            if line.strip()
+        )
+        if m
+    ]
+    assert values, "the embed map has no rows"
+    assert set(values) <= {"-", "embed"}, f"unexpected mapped value(s): {values}"
+    assert "$" not in "".join(values), "a mapped value must be a literal, never a variable"
 
 
 def test_the_privacy_format_is_the_one_actually_used() -> None:
@@ -380,6 +416,73 @@ def test_count_lines_counts_a_served_page_and_nothing_else() -> None:
         "",
     ]
     assert module.count_lines(lines, "2026-08-30") == {"roof-bid-calculator": 2}
+
+
+def test_an_embedded_view_is_counted_apart_from_a_direct_visit() -> None:
+    """The one question the embed widget exists to answer.
+
+    `platform/pages/embed.mjs` (#2561) is the only distribution channel here
+    that does not depend on ranking in search. Whether anyone actually embedded
+    a tool is unanswerable if a framed view and a direct visit land in the same
+    row: 300 hits could be 300 people finding it in search or one popular embed
+    on a trade forum, and those imply opposite next moves.
+
+    Note what the log line looks like. `$uri` is resolved *past* the query
+    string, so `/<slug>/?pfEmbed=1` and `/<slug>/` both log as
+    `/<slug>/index.html` -- which is why the distinction has to arrive in a
+    field of its own and cannot be recovered from the path.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-08-31T10:00:00+00:00 200 /deck-bid-calculator/index.html -",
+        "2026-08-31T10:00:01+00:00 200 /deck-bid-calculator/index.html embed",
+        "2026-08-31T10:00:02+00:00 200 /deck-bid-calculator/index.html embed",
+        # A tool's deep pages carry the split too: an embedder can frame one.
+        "2026-08-31T10:00:03+00:00 200 /deck-bid-calculator/worked-example.html embed",
+        # Not a page, framed or otherwise.
+        "2026-08-31T10:00:04+00:00 200 /deck-bid-calculator/calc.mjs embed",
+        # A framed view that 404d is not a view.
+        "2026-08-31T10:00:05+00:00 404 /deck-bid-calculator/index.html embed",
+    ]
+    assert module.count_lines(lines, "2026-08-31") == {
+        "deck-bid-calculator": 1,
+        "embed/deck-bid-calculator": 3,
+    }
+
+
+def test_a_three_field_line_still_counts_during_a_rollout() -> None:
+    """Backward compatibility, and it is not hypothetical.
+
+    A rollout replaces the two pods one at a time, so for the length of one
+    deploy this job reads three-field lines from the old pod and four-field
+    lines from the new one in the same batch. Requiring the fourth field would
+    silently drop half of that day's traffic -- the kind of gap that shows up
+    as an unexplained dip in a chart weeks later. The old lines count as
+    ordinary visits, which is exactly what they were before the field existed.
+    """
+    module = _load_aggregate()
+    lines = [
+        "2026-08-31T10:00:00+00:00 200 /deck-bid-calculator/index.html",
+        "2026-08-31T10:00:01+00:00 200 /deck-bid-calculator/index.html embed",
+    ]
+    assert module.count_lines(lines, "2026-08-31") == {
+        "deck-bid-calculator": 1,
+        "embed/deck-bid-calculator": 1,
+    }
+
+
+def test_only_the_exact_embed_value_splits_a_row() -> None:
+    """Anything the map cannot emit reads as an ordinary visit.
+
+    nginx's map has two outcomes and neither is caller-supplied, so these
+    values cannot reach the log today. Pinning the behaviour anyway is what
+    keeps a future widening of that map from silently minting rows named after
+    whatever a stranger put in the URL.
+    """
+    module = _load_aggregate()
+    for value in ("1", "true", "Embed", "embed=1", "embedded", "../../etc"):
+        line = f"2026-08-31T10:00:00+00:00 200 /deck-bid-calculator/index.html {value}"
+        assert module.count_lines([line], "2026-08-31") == {"deck-bid-calculator": 1}, value
 
 
 def test_merge_days_replaces_a_day_and_keeps_a_month() -> None:

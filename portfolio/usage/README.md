@@ -76,13 +76,20 @@ off `null`. Nothing would ever reach us.
 
 `gitops/prod/site-usage.yaml` closes that without asking the browser to send
 anything new. nginx already receives every request; the change is what it is
-allowed to write down. The access log is narrowed to three fields —
-`$time_iso8601 $status $uri` — so no client address, user agent, referrer or
-query string is recorded at all, and a nightly CronJob reduces a day of those
-lines to one integer per tool. Rule 1 above is enforced by what is never
-written, not by a promise to discard it afterwards. Shared bids travel in the
-URL *fragment*, which a browser never sends to a server, so they are not in
-the log by any route either.
+allowed to write down. The access log is narrowed to four fields —
+`$time_iso8601 $status $uri $portfolio_embed_view` — so no client address,
+user agent, referrer or query string is recorded at all, and a nightly CronJob
+reduces a day of those lines to one integer per tool. Rule 1 above is enforced
+by what is never written, not by a promise to discard it afterwards. Shared
+bids travel in the URL *fragment*, which a browser never sends to a server, so
+they are not in the log by any route either.
+
+The fourth field is one bit: was this view served inside somebody else's page.
+It is **not** the query parameter it derives from — `$arg_pfEmbed` would write
+whatever a caller put in the URL into the log, so nginx maps that parameter to
+one of exactly two literals and logs the mapped variable. Nothing a visitor
+chooses can reach the file. `gitops/tests/test_site_usage.py` pins both the
+substitution and the closed set of values.
 
 The last 30 days sit in a ConfigMap. Read them with:
 
@@ -90,8 +97,19 @@ The last 30 days sit in a ConfigMap. Read them with:
 kubectl -n prod get configmap portfolio-site-usage -o jsonpath='{.data.usage\.json}'
 ```
 
-Keys are catalogue slugs, plus `_hub` for the front page and `c/<category>`
-for a category page. Copy what matters into `usage.yaml` as a dated reading.
+Keys are catalogue slugs, plus `_hub` for the front page, `c/<category>` for a
+category page, and `embed/<slug>` for a view served inside somebody else's page
+through the embed widget.
+
+That last split is the point of the fourth field. The embed snippet points at
+`/<slug>/?pfEmbed=1`, and `$uri` is resolved *past* the query string, so a
+framed view and a direct visit are otherwise byte-identical in the log. Folded
+into one row, a tool with 300 hits could be 300 people finding it in search or
+one popular embed on a trade forum — and those imply opposite next moves. It is
+the only distribution channel here that does not wait on search rankings, so
+whether it works is worth being able to answer.
+
+Copy what matters into `usage.yaml` as a dated reading.
 That hop is manual on purpose: writing to this repository from inside the
 cluster would need a GitHub token with write access, and `gitops/README.md`
 keeps write credentials out of `prod`.
