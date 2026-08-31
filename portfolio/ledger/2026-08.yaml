@@ -41030,3 +41030,54 @@ entries:
         decision-queue rows 10-13. Nothing new to add; this entry exists so
         the next session does not re-derive the same confirmation.
     mrr_end: null
+  - venture: portfolio
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs at session start (all 2569 PRs on this repo closed or
+        merged), so mined the 300+ PR-less remote branches for the three-PR
+        merge quota instead, per the mandate's branch-to-PR-presumption. Opened
+        PRs for 5 branches that looked real and unique from `git diff --stat`
+        and passed their own tests (#2575-#2579), then found via
+        `supersede_check.py` and, where that returned a false NOT-SUPERSEDED
+        (comment/wording differences only, not behaviour), via direct
+        function-level code reading, that all 5 were already superseded or
+        outright duplicated by independently-shipped work on `main` --
+        `fence-bid-calculator`'s preset-restore bug (fixed differently by
+        #2500/#2503), `invoice-payment-terms-calculator` and
+        `appointment-deposit-calculator` (both fully re-shipped and evolved
+        further), the governor RBAC ConfigMap scoping (#2276/#2551/#2555), and
+        `where-to-sell-calculator`'s rank-by-return-per-day (#2155). Closed all
+        5 naming what supersedes each; merged none of them.
+      - >-
+        Extends `claude/clever-bohr-rcp8ih`'s 15-branch triage (merged this
+        session as #2583) with 12 more branches checked past the line-scan to
+        actual code comparison, same result every time: `main` already has the
+        feature, often more developed --
+        `cursor/amazon-fba-sourcing-check-20260824` and
+        `cursor/cut-list-linear-cost-20260824` (zero-profit-ceiling / linear
+        stock cost, both byte-identical to `main` after a hand-resolved
+        merge), `cursor/shopify-local-delivery-c4a1` and
+        `cursor/ebay-top-rated-plus-a8c1` (both landing-page + calc features
+        already live under the same names), `cursor/janitorial-frequency-cut-e646`
+        (`frequencyReductionNote` already in `main`'s `calc.mjs`),
+        `cursor/no-show-exposure-20260824` and
+        `cursor/change-order-margin-calculator-20260824` (identical-merge
+        proof). Between the two sessions, 27 of the highest-signal PR-less
+        branches are now confirmed superseded -- the backlog is not an
+        unmined vein for product code, only for the two ledger-append
+        branches this session found and merged (#2582, #2583) that a
+        prior session's work had never recorded.
+      - >-
+        Practical note for the next session: `supersede_check.py`'s line-scan
+        gave a false NOT-SUPERSEDED reading on 3 of these (`where-to-sell`,
+        `ebay-top-rated-plus`, `janitorial-frequency-cut`) because the branch's
+        comment prose or a differently-worded test name didn't textually match
+        main's rewrite, even though the underlying function/feature was
+        already there under the same or a renamed export. A `RENAME SUSPECTED`
+        section, or a plain `grep` for the branch's key function name in
+        main's calc.mjs, catches what the line count alone doesn't -- worth
+        running before trusting a lone NOT SUPERSEDED verdict on a branch this
+        old.
+    mrr_end: null
