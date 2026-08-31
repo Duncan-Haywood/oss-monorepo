@@ -54,3 +54,31 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
   assert.match(proposalMarkup, /customer&rsquo;s details are never saved|customer\u2019s details are never saved/,
     'the privacy claim the module actually enforces should be stated on the page');
 });
+
+// ---- Share link -------------------------------------------------------------
+
+test('a shared link is wired up: import, button, and load-time decode', () => {
+  assert.match(proposalScript, /import\s*\{\s*encodeShare,\s*decodeShare\s*\}\s*from\s*'\.\/share\.mjs'/);
+  assert.ok(proposalIds.has('copyShare'), 'missing #copyShare button');
+  assert.match(proposalScript, /applyShare\(decodeShare\(location\.hash\)\)/,
+    'an incoming share link is never decoded on load');
+});
+
+test('decoding a share link marks hoursPerTearOutLf edited before any run is added', () => {
+  // Regression: `addRunRow` -> `applyPreset` treats `hoursPerTearOutLf` as
+  // run-owned. A run that matches a preset re-copies that preset's own
+  // tear-out-hours figure over the page-level field, and a custom run (no
+  // matching preset) blanks it to `undefined` outright -- either way
+  // silently changing tear-out labor cost after a share link is opened,
+  // caught by a live round trip: $11,664.73 became $11,165.53 with the
+  // guard below removed. `dataset.edited` is the flag `applyPreset` already
+  // honors for "the user set this on purpose"; a share-link value must set
+  // it before `addRunRow` runs for any run, not after.
+  const apply = /function applyShare\(payload\) \{([\s\S]*?)\n    \}/.exec(proposalScript);
+  assert.ok(apply, 'no applyShare function');
+  const markEdited = apply[1].indexOf("el('hoursPerTearOutLf').dataset.edited = '1'");
+  const addsRuns = apply[1].indexOf('payload.runs.forEach(addRunRow)');
+  assert.ok(markEdited !== -1, 'applyShare never marks hoursPerTearOutLf edited');
+  assert.ok(addsRuns !== -1, 'applyShare never adds the shared runs');
+  assert.ok(markEdited < addsRuns, 'hoursPerTearOutLf must be marked edited before runs are added, not after');
+});
