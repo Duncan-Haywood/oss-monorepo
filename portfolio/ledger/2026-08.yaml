@@ -38172,3 +38172,35 @@ entries:
         `build.mjs`/`check.mjs` pair still clean (169 products, 508 pages, no
         dead links). Merged (squash) as #2450, `1f9d6c65c`.
     mrr_end: null
+  - venture: retainage-cashflow-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2453: same stale-output bug class as job-margin-variance
+        (#2446) and notary-trip-quote (#2450), a fourth instance found by
+        grepping other calculator ventures for the pattern. `calculate()`
+        only wrote `#errors` when `showErrors` was true (form submit only --
+        never on live typing via the per-field `input` listeners), and on an
+        invalid worksheet it never touched `#output`, `#scenarioSection`,
+        `#releaseSection`, `#rateSection`, or `#draftSection`. Clearing a
+        required field, or entering paid-to-date above contract value, while
+        typing left the *last valid* cash snapshot, delay scenarios, release
+        schedule, rate comparison, and downloadable report all on screen with
+        nothing marking them stale -- and the download/copy/JSON-snapshot
+        buttons inside `#draftSection` would still hand out those stale
+        figures. Fix hides all five result sections whenever the current
+        worksheet is invalid, independent of `showErrors`, restoring them on
+        the next successful calculation; the `showErrors` gate on the error
+        *text* itself was left alone since it's a deliberate choice from the
+        original ship (#1330) to avoid flashing a "field is required" message
+        on every keystroke. Verified: `node --test` 53/53 in
+        ventures/retainage-cashflow-calculator (was 52, added a regression
+        test pinning the hidden-sections behavior), both
+        `application/ld+json` blocks re-parse as valid JSON unchanged, and
+        the portfolio-wide `build.mjs`/`check.mjs` pair still clean (169
+        products, 508 pages, no dead links). Confirmed a clean merge against
+        latest `origin/main` (a concurrent session had just landed the same
+        bug class in `subscription-price-impact`, #2452, no file overlap)
+        before merging. Merged (squash) as #2453, `34bec5b1d`.
+    mrr_end: null
