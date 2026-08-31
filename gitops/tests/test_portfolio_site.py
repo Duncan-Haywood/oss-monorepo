@@ -340,6 +340,65 @@ def test_nginx_serves_buildinfo_uncached() -> None:
     assert 'add_header Cache-Control "no-store" always;' in conf
 
 
+def _nginx_conf() -> str:
+    return _kind("ConfigMap", "portfolio-site-nginx")["data"]["default.conf"]
+
+
+def _location_block(conf: str, needle: str) -> str:
+    start = conf.index(needle)
+    depth = 0
+    for i, ch in enumerate(conf[start:], start=start):
+        if ch == "{":
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                return conf[start:i + 1]
+    raise AssertionError(f"unterminated block at {needle!r}")
+
+
+def test_the_embed_query_param_gets_a_permissive_frame_policy() -> None:
+    """`platform/pages/embed.mjs` (PR #2561) ships an `<iframe>` snippet whose
+    `src` always appends `?pfEmbed=1`; without this, `X-Frame-Options: DENY`
+    -- sent on every page, including that one -- makes every browser refuse
+    to render it regardless of what the page's own HTML or JS says. Neither
+    `check.mjs` nor `build.test.mjs` could have caught this: the defect is a
+    response header, not anything a built page carries in its own markup.
+
+    `add_header` cannot itself branch on a query string, so the conditional
+    lives in two `map`s read by `location /`.
+    """
+    conf = _nginx_conf()
+
+    frame_options_map = _location_block(conf, "map $arg_pfEmbed $portfolio_frame_options")
+    assert "default DENY;" in frame_options_map
+    assert re.search(r'\b1\s+"";', frame_options_map), frame_options_map
+
+    ancestors_map = _location_block(conf, "map $arg_pfEmbed $portfolio_frame_ancestors")
+    assert re.search(r'default\s+"";', ancestors_map), ancestors_map
+    assert re.search(r'\b1\s+"frame-ancestors \*;";', ancestors_map), ancestors_map
+
+    root_location = _location_block(conf, "\n  location / {")
+    assert "add_header X-Frame-Options $portfolio_frame_options always;" in root_location
+    assert "add_header Content-Security-Policy $portfolio_frame_ancestors always;" in root_location
+    # The literal DENY must be gone from this one location -- a hardcoded
+    # value alongside the mapped one would win or lose depending on nginx's
+    # own tie-break, not on the query string a visitor's browser sent.
+    assert "X-Frame-Options DENY" not in root_location
+
+
+def test_every_other_location_still_denies_framing_unconditionally() -> None:
+    """The embed exception above must stay scoped to `location /` alone."""
+    conf = _nginx_conf()
+    root_location = _location_block(conf, "\n  location / {")
+    without_root = conf.replace(root_location, "")
+    # Every other location that sets its own headers, plus the server-level
+    # default, still hardcodes DENY -- unaffected by the map, and a floor
+    # rather than a target so a stricter location added later cannot make
+    # this start failing.
+    assert without_root.count("add_header X-Frame-Options DENY always;") >= 7
+
+
 def test_the_refresh_job_waits_for_the_rollout_it_triggers() -> None:
     job = _kind("CronJob", "portfolio-site-refresh")
     container = job["spec"]["jobTemplate"]["spec"]["template"]["spec"]["containers"][0]

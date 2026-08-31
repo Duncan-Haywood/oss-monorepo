@@ -103,6 +103,37 @@ data:
     # was never written down.
     log_format privacy '$time_iso8601 $status $uri';
 
+    # The one exception to "every page ships X-Frame-Options: DENY" below,
+    # and why it has to be a `map` rather than a second `add_header` in
+    # `location /`: `platform/pages/embed.mjs` shipped a full embeddable-
+    # widget feature (PR #2561) -- a copyable `<iframe>` snippet whose `src`
+    # always appends `?pfEmbed=1` to the tool's own canonical URL, plus
+    # `pf-embed.js`, which swaps that page's own chrome for a framing-aware
+    # bar when it sees that parameter (or an actual `top !== self`). None of
+    # that can override a response header the server already sent, so
+    # without this map the feature ships correct HTML, correct JS, and a
+    # passing test suite, and every browser still refuses to render the
+    # iframe -- `X-Frame-Options: DENY` is enforced before any page script
+    # runs, on the *plain* URL the snippet points at as much as on any other.
+    # `check.mjs` and `build.test.mjs` read only the built site, so neither
+    # one could have caught this: the defect is in the header a page never
+    # carries in its own markup.
+    #
+    # `add_header` cannot branch on a query string by itself, so `map` reads
+    # `$arg_pfEmbed` once here and both locations below reference the
+    # result. An empty mapped value is nginx's documented way to make
+    # `add_header` skip a header entirely -- so the default row (no
+    # parameter, or any value other than `1`) reproduces today's DENY
+    # exactly, for this path and for every other one on the site.
+    map $arg_pfEmbed $portfolio_frame_options {
+      default DENY;
+      1       "";
+    }
+    map $arg_pfEmbed $portfolio_frame_ancestors {
+      default "";
+      1       "frame-ancestors *;";
+    }
+
     server {
       listen 8080;
       server_name _;
@@ -216,7 +247,10 @@ data:
 
       # The site is wholly static and carries no user data: no cookies, no
       # login, no analytics beacon that needs a permissive frame policy.
-      # These headers cost nothing and close the obvious classes.
+      # These headers cost nothing and close the obvious classes. The one
+      # deliberate exception is `?pfEmbed=1` in `location /` below, which
+      # needs a frame policy for the opposite reason: that request exists to
+      # be framed.
       #
       # add_header does not merge across levels — a location that sets any
       # add_header drops every one inherited from the server block — which is
@@ -227,10 +261,16 @@ data:
 
       # Hashed asset names are not used here, so do not tell a browser to
       # hold a calculator for a year — a fix would never reach anyone.
+      #
+      # X-Frame-Options and Content-Security-Policy read the `map`s defined
+      # above the `server` block, not a literal value: `?pfEmbed=1` is the
+      # one case that gets a permissive frame policy instead of DENY. See
+      # the comment there for why a plain `add_header` cannot express this.
       location / {
         try_files $uri $uri/ $uri.html =404;
         add_header X-Content-Type-Options nosniff always;
-        add_header X-Frame-Options DENY always;
+        add_header X-Frame-Options $portfolio_frame_options always;
+        add_header Content-Security-Policy $portfolio_frame_ancestors always;
         add_header Referrer-Policy strict-origin-when-cross-origin always;
         add_header Cache-Control "public, max-age=300, must-revalidate" always;
       }
