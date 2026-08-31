@@ -36178,3 +36178,46 @@ entries:
         `node --test ventures/*/*.test.mjs` 12087/12087 (up from 12085, zero
         regressions). Shipped and merged as #2341.
     mrr_end: null
+  - venture: mcp-supply-chain-watch
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        `node platform/pages/faq-coverage.mjs` reports 169/169 entry pages
+        covered portfolio-wide, so this ran the underlying derivation count
+        (`faqEntries()` per page) to find the shallowest instead of trusting
+        that binary reading -- same method the #2337/#2338 "bare-floor"
+        entries used. mcp-supply-chain-watch came back the single lowest in
+        the portfolio at 2 real derived questions, and the reason was a real
+        bug, not just thin content: the page already carried a hand-authored
+        `FAQPage` JSON-LD block, and `build.mjs` skips derivation entirely
+        whenever a page already contains the literal string "FAQPage" --
+        so the built page was quietly shipping a stale 4-question block
+        that could drift from the copy the moment either changed, and
+        `faq-coverage.mjs`'s reported "2" undercounted what was actually
+        live by not accounting for that skip. Removed the hand-authored
+        block (matching #2324/#2337's fix for the identical drift risk);
+        reworded the 2 answers that were being silently dropped by the
+        derivation's own `readsAsCode()` code-identifier filter (both said
+        camelCase `inputSchema`, now "input schema"); added 3 new Q&A pairs
+        (alert-vs-review severity, the instruction-bearing wording list,
+        tool add/remove handling) read straight from `compare.mjs`'s own
+        `classify()`/`compare()` logic, not invented. Net 2 -> 7 real
+        derived entries. Updated `index.test.mjs`'s FAQ assertions to pin
+        the derived outcome via `build.mjs`'s own `faqEntries()` instead of
+        parsing the now-removed hand-authored block, the same pattern
+        `job-margin-variance/page.test.mjs` already uses.
+      - >-
+        Verified: `node platform/pages/faq-coverage.mjs mcp-supply-chain-watch`
+        -> "1 of 1 entry page(s) will ship derived FAQ schema"; venture suite
+        `node --test ventures/mcp-supply-chain-watch/site/*.test.mjs` 19/19;
+        `python3 -m pytest ventures/mcp-supply-chain-watch/tests/` 5/5; full
+        `node --test platform/pages/*.test.mjs` 784/784; `build.mjs --out=dist`
+        + `check.mjs dist` -> 169 products, 508 pages, no dead links;
+        `faq-duplicate.mjs` -> no duplicated FAQ questions; hand-parsed the
+        built page's one `FAQPage` script block and confirmed all 7 questions
+        match the visible copy verbatim. CI showed the account-level
+        runner-starvation signature (`runner_id: 0`, ~3s, per `CLAUDE.md`),
+        confirmed on the `validate` job before merging -- not a real failure.
+        Merged as #2346.
+    mrr_end: null
