@@ -61,8 +61,6 @@ import {
   categoryPagePath,
   CATEGORY_PATH_PREFIX,
   CHROME_MODULE_FILE,
-  renderChromeModule,
-  renderChromeStyle,
   renderHubSitemap,
   renderLlmsTxt,
   renderCatalog,
@@ -1523,87 +1521,6 @@ test('a fragment with no body is left alone rather than corrupted', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Embedding
-// ---------------------------------------------------------------------------
-// A trade association's blog or a supplier's site can only host one of these
-// calculators if there is a supported way to embed one. These tests pin the
-// three parts of that: the detection script that hides the site's own
-// promotional chrome when the page is framed or opened with ?embed=1, the
-// compact bar that stands in for it (same disclaimer's link, a way back to
-// the full tool), and the copyable <iframe> tag an entry page offers.
-
-test('an entry page with a canonical offers a copyable embed snippet', () => {
-  const html = injectChrome('<html><head></head><body><h1>Tool</h1></body></html>', {
-    slug: 'x', toRoot: '../', total: 2, related: [], canonical: CANONICAL, isEntry: true, title: 'Flat Roof Bid',
-  });
-  assert.ok(html.includes('data-pf-embed-copy'), 'a copy button is offered');
-  assert.match(html, /<textarea readonly[^>]*>&lt;iframe src="/);
-  assert.ok(html.includes(`${CANONICAL}?embed=1`), 'the snippet points at the embeddable URL');
-  assert.ok(html.includes('Flat Roof Bid'), 'the iframe title names the tool');
-  // Only one of each — a page must not offer to embed a copy of itself twice.
-  assert.equal((html.match(/data-pf-embed-copy/g) ?? []).length, 1);
-});
-
-test('a deep SEO page inside a tool is not offered as something to embed', () => {
-  const html = injectChrome('<html><head></head><body><h2>Should I do this?</h2></body></html>', {
-    slug: 'x', toRoot: '../', total: 2, related: [], canonical: `${CANONICAL}should-i.html`, isEntry: false,
-  });
-  assert.ok(!html.includes('data-pf-embed-copy'), 'only the calculator itself is worth embedding');
-  // It can still be opened embedded — a host may already link straight to it
-  // — so the compact link-back bar still applies.
-  assert.ok(html.includes('pf-embed-bar'));
-});
-
-test('a page with no canonical gets the embed bar but no snippet', () => {
-  const html = injectChrome('<html><head></head><body>x</body></html>', {
-    slug: 'x', toRoot: '../', total: 2, related: [], isEntry: true,
-  });
-  assert.ok(!html.includes('data-pf-embed-copy'), 'no absolute URL exists to embed');
-  assert.ok(html.includes('pf-embed-bar'), 'the bar still renders, falling back to the relative hub link');
-});
-
-test('the embed detection script runs synchronously, before the chrome it hides', () => {
-  const html = injectChrome('<html><head></head><body>x</body></html>', {
-    slug: 'x', toRoot: '../', total: 2, related: [],
-  });
-  const script = html.match(/<script>\(function\(\)\{try\{var q=new URLSearchParams[\s\S]*?<\/script>/)?.[0];
-  assert.ok(script, 'the detection script is present');
-  assert.ok(!/\bdefer\b|type="module"/.test(script), 'it must not be deferred — the class has to land before paint');
-  assert.ok(script.includes("classList.add('pf-embed')"));
-  assert.ok(script.includes('window.self!==window.top'), 'a real <iframe> is detected without a query flag');
-  assert.ok(script.includes("get('embed')"), 'and a shared link can force it with ?embed=1');
-  // Ahead of the chrome it is there to hide.
-  assert.ok(html.indexOf('pf-embed') < html.indexOf('pf-chrome-top'));
-});
-
-test('the embed bar carries a link back and does not double the availability clause', () => {
-  const html = injectChrome('<html><head></head><body>calculator</body></html>', {
-    slug: 'x', toRoot: '../', total: 2, related: [], canonical: CANONICAL, isEntry: true,
-  });
-  assert.match(html, /<p class="pf-chrome pf-embed-bar">[^<]*<a href="[^"]+" target="_top" rel="noopener">/);
-  assert.ok(html.includes(`href="${CANONICAL}"`), 'the bar links back to the plain, un-embedded page');
-  // This page gets NO_SLA_CLAUSE injected (it writes none itself); the embed
-  // bar must not add a second sighting of the same phrase.
-  assert.equal((html.match(/Best-effort hosting/gi) ?? []).length, 1);
-});
-
-test('embed CSS hides the promotional chrome and shows the compact bar instead', () => {
-  const css = renderChromeStyle();
-  assert.match(css, /html\.pf-embed \.pf-chrome-top,html\.pf-embed \.pf-chrome-foot\{display:none\}/);
-  assert.match(css, /html\.pf-embed \.pf-embed-bar\{display:block/);
-  assert.match(css, /\.pf-embed-bar\{display:none\}/, 'hidden outside embed mode');
-});
-
-test('the embed copy button works independently of the usage counter, which itself asks for nothing off-origin', () => {
-  const script = renderChromeModule();
-  assert.ok(script.includes('data-pf-embed-copy'));
-  assert.ok(script.includes('navigator.clipboard'));
-  assert.ok(script.includes("bump('tool_embedded:'"), 'embedded views are counted the same local, opt-out-able way');
-  assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(script), 'nothing is transmitted');
-  assert.ok(![...script.matchAll(/https?:\/\/[^'"\s]+/g)].length, 'no third-party address of any kind');
-});
-
-// ---------------------------------------------------------------------------
 // Discovery tags
 // ---------------------------------------------------------------------------
 
@@ -2120,18 +2037,8 @@ test('the chrome counts locally, honours opt-out, and asks for nothing off-origi
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(script), 'nothing is transmitted');
   assert.ok(!/fetch\(|XMLHttpRequest|navigator\.sendBeacon/.test(chrome), 'nothing is transmitted');
 
-  // Absolute rather than off-origin: the two new ones are the embed bar's own
-  // link back to this exact page — deliberately absolute, because a copied
-  // <iframe> tag can be pasted onto any origin, and a relative href there
-  // would resolve against the host's site rather than this one. Both are
-  // clicks a visitor makes, same as the sponsor link already here, never a
-  // request the page sends on its own.
   const offOrigin = [...chrome.matchAll(/(?:src|href)="(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(offOrigin, [
-    'https://github.com/sponsors/Duncan-Haywood',
-    'https://example.test/site/etsy-profit-calculator/?embed=1',
-    'https://example.test/site/etsy-profit-calculator/',
-  ], 'only the sponsor link and the embed bar’s own links leave');
+  assert.deepEqual(offOrigin, ['https://github.com/sponsors/Duncan-Haywood'], 'only the sponsor link leaves');
   // Nor does the shared file: an off-origin request from a script every page
   // loads would be the whole privacy claim undone in one line.
   assert.deepEqual([...script.matchAll(/https?:\/\/[^'"\s]+/g)].map((m) => m[0]), []);

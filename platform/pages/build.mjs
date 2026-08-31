@@ -3062,33 +3062,6 @@ const CHROME_CSS = `
 .pf-chrome-foot li{margin:0}
 .pf-chrome :focus-visible{outline:2px solid currentColor;outline-offset:2px}
 
-/* Embed mode. A page opened with ?embed=1, or inside a frame whose top is not
- * this origin, hides the promotional chrome (the link to every other tool, the
- * sibling list, the sponsors line) and shows a one-line bar instead: who made
- * it, the same no-warranty/no-SLA promise every hosted surface here carries,
- * and a link back to the full page. See injectChrome's embed-detection
- * script, which sets this class before first paint. */
-.pf-embed-bar{display:none}
-html.pf-embed .pf-chrome-top,html.pf-embed .pf-chrome-foot{display:none}
-html.pf-embed .pf-embed-bar{display:block;border-top:1px solid var(--pf-line);
-  background:var(--pf-fill);padding:8px 12px;font-size:.82rem;color:inherit;
-  font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-html.pf-embed .pf-embed-bar a{color:inherit}
-
-/* The "copy an <iframe> tag" control on each tool's own page. Not shown inside
- * an embed itself — a widget offering to embed a copy of itself is not useful
- * to the visitor reading it there. */
-.pf-embed-snip{margin-top:14px}
-.pf-embed-snip summary{cursor:pointer;font-weight:650}
-.pf-embed-snip textarea{width:100%;margin-top:8px;font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;
-  padding:8px;border:1px solid var(--pf-line);border-radius:6px;background:transparent;color:inherit;
-  resize:vertical;box-sizing:border-box}
-.pf-embed-snip button{margin-top:6px;font:inherit;padding:4px 10px;border:1px solid var(--pf-line);
-  border-radius:6px;background:transparent;color:inherit;cursor:pointer}
-.pf-embed-snip button:hover,.pf-embed-snip button:focus-visible{background:var(--pf-fill)}
-.pf-embed-snip [data-pf-embed-copied]{margin-left:8px;font-size:.82rem}
-html.pf-embed .pf-embed-snip{display:none}
-
 /* Site chrome is not part of anything a visitor prints.
  *
  * Nine bid calculators produce a customer proposal (platform/proposal), whose
@@ -3156,54 +3129,11 @@ const CHROME_SCRIPT = () => `
       }catch(e){}
     };
     bump('tool_viewed:'+slug);
-    if(document.documentElement.classList.contains('pf-embed'))bump('tool_embedded:'+slug);
     document.addEventListener('click',function(e){
       var a=e.target&&e.target.closest&&e.target.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
     });
   }catch(e){}
-})();
-(function(){
-  // The "copy embed code" button (see \`pf-embed-snip\` in pf-chrome.css and
-  // the snippet \`injectChrome\` writes). Kept as its own IIFE, outside the
-  // block above: copying the <iframe> tag is a feature the button promises,
-  // not a measurement, so it works the same whether or not this browser is
-  // being counted. Only the count inside \`done\` honours Do Not Track /
-  // Global Privacy Control / the site's own opt-out, same as every other
-  // number on this site — and it is a local increment, nothing is sent
-  // anywhere either way.
-  document.addEventListener('click',function(e){
-    var b=e.target&&e.target.closest&&e.target.closest('[data-pf-embed-copy]');
-    if(!b)return;
-    var ta=b.previousElementSibling;
-    if(!ta||ta.tagName!=='TEXTAREA')return;
-    var done=function(){
-      try{
-        if(navigator.doNotTrack!=='1'&&navigator.globalPrivacyControl!==true&&
-           localStorage.getItem('portfolio-hub-optout')!=='1'){
-          var k='portfolio-hub-usage';
-          var c=JSON.parse(localStorage.getItem(k)||'{}');
-          c['embed_snippet_copied']=(c['embed_snippet_copied']||0)+1;
-          c.last_day=new Date().toISOString().slice(0,10);
-          localStorage.setItem(k,JSON.stringify(c));
-        }
-      }catch(e){}
-      var s=b.nextElementSibling;
-      if(s&&s.hasAttribute('data-pf-embed-copied')){
-        s.hidden=false;
-        setTimeout(function(){s.hidden=true;},1500);
-      }
-    };
-    if(navigator.clipboard&&navigator.clipboard.writeText){
-      navigator.clipboard.writeText(ta.value).then(done,function(){
-        try{ta.select();document.execCommand('copy');}catch(err){}
-        done();
-      });
-    }else{
-      try{ta.select();document.execCommand('copy');}catch(err){}
-      done();
-    }
-  });
 })();
 `;
 
@@ -3729,21 +3659,6 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // second canonical is worse than none, because the crawler then picks one
   // arbitrarily.
   let headExtras = '';
-
-  // Embed detection, on every page. Set before <head> closes and run
-  // synchronously (no `defer`, no `type="module"`) so the class lands before
-  // first paint — a host page embedding this tool never sees the full "All N
-  // free tools" bar and sibling-tool footer flash before `.pf-embed` in
-  // `pf-chrome.css` hides them. `embed=1` covers a host that cannot or does
-  // not use an <iframe> (a link shared with the flag set); `window.self !==
-  // window.top` covers the normal case of the tool actually sitting inside
-  // one. No request, no third-party code — see `pf-embed-bar` and
-  // `pf-embed-snip` below for the two halves this pairs with.
-  headExtras +=
-    '\n<script>(function(){try{var q=new URLSearchParams(location.search).get(\'embed\');' +
-    'if(q===\'1\'||window.self!==window.top)document.documentElement.classList.add(\'pf-embed\');' +
-    '}catch(e){}})();</script>';
-
   if (canonical && !/<link[^>]+rel=["']canonical["']/i.test(html)) {
     // Under one origin every page is reachable at both `/tool/page.html` and,
     // for an index, `/tool/` — which splits the ranking of a page already
@@ -3815,39 +3730,6 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // Tested against the venture's own markup, before any chrome is added.
   const noSla = NO_SLA_PATTERN.test(html) ? '' : `    ${NO_SLA_CLAUSE}\n`;
 
-  // An <iframe>-able embed of the tool, and the compact bar it lands on. Both
-  // need an absolute URL — a copied `<iframe>` tag ships onto a stranger's
-  // page, where a relative one would resolve against their origin instead of
-  // this one — so both are skipped on the rare page built with no canonical.
-  // Only entry pages get the copyable snippet: a deep SEO page inside a tool
-  // ("does X still pay") is not the product to embed, but it can still be
-  // *opened* embedded (a host may already link straight to it), so the compact
-  // bar below still applies there.
-  const embedUrl = canonical ? `${canonical}?embed=1` : null;
-  const embedBackLink = canonical || hub;
-  // Wording deliberately avoids "no warranty" and the "best-effort hosting" /
-  // "no SLA" phrasing `NO_SLA_PATTERN` matches. Both clauses already live on
-  // the page itself (the venture's own markup for the first, either the
-  // venture or the injected footer for the second), and restating either
-  // here would do two things wrong at once: read as a second, differently
-  // worded sighting of a clause that is supposed to appear once, and — for
-  // "no warranty" specifically — satisfy `build.test.mjs`'s own site-wide
-  // liability-clause check on *every* page regardless of whether the venture
-  // actually wrote one, which is exactly the false-pass this bar must not
-  // become. This line's job is the link back, not a second disclaimer.
-  const embedBar = `<p class="pf-chrome pf-embed-bar">Free calculator from ${escapeHtml(SITE_NAME)}. <a href="${escapeHtml(embedBackLink)}" target="_top" rel="noopener">Full tool &amp; terms ↗</a></p>`;
-  const embedSnippet =
-    isEntry && embedUrl
-      ? `    <details class="pf-chrome pf-embed-snip">
-      <summary>Embed this calculator</summary>
-      <p>Add it to your own page — the same arithmetic, the same disclaimer, and a link back here. Nothing on your page is tracked by this embed.</p>
-      <textarea readonly rows="3" aria-label="Embed code">&lt;iframe src="${escapeHtml(embedUrl)}" width="100%" height="900" style="border:1px solid #ccc;border-radius:8px" loading="lazy" title="${escapeHtml(`${title || slug} — free calculator`)}"&gt;&lt;/iframe&gt;</textarea>
-      <button type="button" data-pf-embed-copy>Copy embed code</button>
-      <span data-pf-embed-copied hidden>Copied</span>
-    </details>
-`
-      : '';
-
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
     <h2>More free tools</h2>
@@ -3860,7 +3742,7 @@ ${noSla}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}    <p>
       <a href="https://github.com/sponsors/Duncan-Haywood">Sponsoring on GitHub</a>
       is optional and changes nothing about what these tools do.
     </p>
-${embedSnippet}  </div>
+  </div>
 </aside>
 <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(slug)}"></script>`;
 
@@ -3875,7 +3757,7 @@ ${embedSnippet}  </div>
 
   return withStyle
     .replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${topBar}`)
-    .replace(/<\/body>/i, `${footer}\n${embedBar}\n</body>`);
+    .replace(/<\/body>/i, `${footer}\n</body>`);
 }
 
 /** A copy-link button a venture wrote itself, in any of its four spellings. */
