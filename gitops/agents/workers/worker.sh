@@ -196,7 +196,31 @@ trap 'rm -rf "$WORKDIR_ROOT"' EXIT
 cd "$WORKDIR_ROOT"
 
 BRANCH="agent/codex/${ITEM_ID}-$(date -u +%Y%m%d%H%M%S)"
-gh repo clone "$REPO" repo -- --depth 50 --branch "$REF"
+# Full history, every branch. Deliberately NOT `--depth`, which this line
+# carried until it was measured.
+#
+# `--depth` implies `--single-branch`, so the clone came back with its refspec
+# pinned to `+refs/heads/$REF:refs/remotes/origin/$REF` and no merge base for
+# anything else. That breaks the queue's two highest-priority items outright:
+#
+#   open-pr-repair-merge (6)  resolves a conflict by merging $REF into a PR
+#                             branch. In a depth-50 clone that fetch comes back
+#                             shallow and the merge aborts with
+#                             `fatal: refusing to merge unrelated histories`.
+#   branch-pr-drain (5)       enumerates branches with unique commits. Under the
+#                             pinned refspec `git branch -r` knows only $REF, so
+#                             there is nothing to enumerate.
+#
+# It also disarms the one check CLAUDE.md and mandate.md both make mandatory
+# before closing a PR — `supersede_check.py` needs a merge base with `main`, and
+# CLAUDE.md's own note ("Your clone is shallow. `git fetch --unshallow` before
+# any of this") is written for exactly this failure. Nothing in the prompt told
+# the agent to unshallow, so between them those items are 11/25ths of the
+# governor's weight aimed at work the checkout cannot do.
+#
+# The pack is ~64 MiB. A few seconds and that much disk on the cpx22, once per
+# Job, is the whole cost of the fix.
+gh repo clone "$REPO" repo -- --branch "$REF"
 cd repo
 if [[ -n "$WORKDIR" ]]; then
   cd "$WORKDIR"

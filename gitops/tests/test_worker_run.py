@@ -57,7 +57,14 @@ def world(tmp_path: Path):
         'if [[ "$1" == "repo" && "$2" == "clone" ]]; then\n'
         '  shift 2; slug="$1"; dest="$2"; shift 2\n'
         '  [[ "${1:-}" == "--" ]] && shift\n'
-        f'  exec git clone "{origin}" "$dest" "$@"\n'
+        # `file://` rather than a bare path, deliberately. Over a plain local
+        # path git hardlinks the object store and prints "--depth is ignored in
+        # local clones" -- so a worker cloning shallowly would look healthy here
+        # while being shallow in the cluster, and the assertions in
+        # test_the_agent_checkout_can_reach_other_branches below could not fail.
+        # `file://` uses the real transport, where --depth and --single-branch
+        # behave as they do against GitHub.
+        f'  exec git clone "file://{origin}" "$dest" "$@"\n'
         "fi\n"
         'if [[ "$1" == "pr" && "$2" == "create" ]]; then\n'
         f'  printf \'%s\\n\' "$*" > "{tmp_path / "pr.txt"}"\n'
@@ -441,6 +448,81 @@ def test_work_left_uncommitted_beside_a_pushed_branch_is_not_lost(world) -> None
             cwd=world["origin"], capture_output=True, text=True, check=True,
         ).stdout
         assert blob == want, f"{path} did not reach the remote"
+
+
+# --- The checkout the agent is handed --------------------------------------
+
+
+def _push_sibling_branch(world, name: str = "sibling") -> None:
+    """Put a second branch on the origin that diverged well before its tip."""
+    seed = world["tmp"] / f"seed-{name}"
+    _run(["git", "clone", str(world["origin"]), str(seed)], world["tmp"])
+    _run(["git", "config", "user.email", "seed@example.invalid"], seed)
+    _run(["git", "config", "user.name", "Seed"], seed)
+    # Enough commits on main that a shallow clone's window would not reach back
+    # past the fork point. The worker used to clone at --depth 50.
+    for i in range(60):
+        (seed / "history.txt").write_text(f"{i}\n")
+        _run(["git", "add", "-A"], seed)
+        _run(["git", "commit", "-m", f"main {i}"], seed)
+    _run(["git", "checkout", "-b", name, "HEAD~55"], seed)
+    (seed / f"{name}.txt").write_text("work\n")
+    _run(["git", "add", "-A"], seed)
+    _run(["git", "commit", "-m", f"{name} work"], seed)
+    _run(["git", "push", "origin", "main", name], seed)
+
+
+def test_the_agent_checkout_can_reach_other_branches(world) -> None:
+    # The worker cloned with `--depth 50` until this test was written, and
+    # `--depth` implies `--single-branch`. Both of the queue's top two items
+    # need what that takes away:
+    #
+    #   open-pr-repair-merge  merges the base branch into a PR branch to resolve
+    #                         a conflict -- `fatal: refusing to merge unrelated
+    #                         histories` in a shallow clone.
+    #   branch-pr-drain       enumerates branches with unique commits -- under a
+    #                         pinned refspec there is exactly one to see.
+    #
+    # And `supersede_check.py`, which mandate.md makes mandatory before closing
+    # any PR, needs a merge base with `main`. So this asserts the three
+    # properties from inside the checkout the agent actually runs in, not on the
+    # clone flags, which is what would go stale if the command were reworded.
+    _push_sibling_branch(world)
+    probe = world["tmp"] / "checkout-probe.txt"
+    _codex_stub(
+        world["bin"],
+        script=(
+            f'{{ echo "shallow=$(git rev-parse --is-shallow-repository)"\n'
+            '  echo "remotes=$(git branch -r | tr -d " " | tr "\\n" ",")"\n'
+            '  if git merge-base main origin/sibling >/dev/null 2>&1; then\n'
+            '    echo "mergebase=yes"\n'
+            "  else\n"
+            '    echo "mergebase=no"\n'
+            "  fi\n"
+            f'}} > "{probe}"\n'
+            "printf 'hello\\n' > NEW.md"
+        ),
+    )
+
+    proc = _invoke(world, item={"repo": "o/r", "ref": "main", "id": "checkout-1"})
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+
+    report = dict(
+        line.split("=", 1) for line in probe.read_text().splitlines() if "=" in line
+    )
+    assert report["shallow"] == "false", (
+        "the agent's checkout is shallow, so merging the base branch into a PR "
+        "branch will abort with 'refusing to merge unrelated histories' and "
+        "supersede_check.py has no merge base to work from"
+    )
+    assert "origin/sibling" in report["remotes"], (
+        "the clone's refspec is pinned to the base branch, so branch-pr-drain "
+        f"cannot see any branch to drain; it sees {report['remotes']}"
+    )
+    assert report["mergebase"] == "yes", (
+        "no merge base between main and a sibling branch -- the conflict "
+        "resolution open-pr-repair-merge is built on cannot run"
+    )
 
 
 # --- The mandate must not forbid what the queue asks for -------------------
