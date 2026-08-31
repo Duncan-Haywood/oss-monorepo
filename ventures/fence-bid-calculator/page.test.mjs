@@ -60,8 +60,23 @@ test('the proposal promises the customer\u2019s details are not stored', () => {
 test('a shared link is wired up: import, button, and load-time decode', () => {
   assert.match(proposalScript, /import\s*\{\s*encodeShare,\s*decodeShare\s*\}\s*from\s*'\.\/share\.mjs'/);
   assert.ok(proposalIds.has('copyShare'), 'missing #copyShare button');
-  assert.match(proposalScript, /applyShare\(decodeShare\(location\.hash\)\)/,
+  // The hash is split into the venture's own payload and the proposal's
+  // pfterms segment (see proposal-terms.mjs) before either decoder sees it,
+  // so a deposit or payment-terms clause typed into the panel does not fail
+  // the venture's own JSON.parse and does not get silently dropped from the
+  // link either.
+  assert.match(proposalScript, /applyShare\(decodeShare\(incomingHash\.payload\)\)/,
     'an incoming share link is never decoded on load');
+});
+
+test('the proposal terms ride in the share link, not just the venture’s own fields', () => {
+  assert.match(proposalScript, /from\s*'\.\/proposal-terms\.mjs'/,
+    'proposal-terms.mjs is not imported; a deposit or payment-terms clause would silently drop from every shared link');
+  assert.match(proposalScript, /withTerms\(encodeShare\(readInput\(\)\), terms\)/);
+  assert.match(proposalScript, /splitTerms\(location\.hash\)/);
+  assert.match(proposalScript, /applyTerms\(decodeTerms\(incomingHash\.terms\), el\)/);
+  assert.match(proposalScript, /overlongTermsNote\(/,
+    'a term that does not fit in the link must be named to the sender, not silently dropped');
 });
 
 test('decoding a share link marks hoursPerTearOutLf edited before any run is added', () => {
