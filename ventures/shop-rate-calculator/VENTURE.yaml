@@ -1,0 +1,39 @@
+name: shop-rate-calculator
+description: A private browser calculator that works out a trade contractor's real labor burden per billable hour, their overhead rate as a percentage of direct cost, and the hourly rate a crew hour has to be sold at — from their own payroll, workers' comp, vehicles, benefits, office costs and billable-hour share — and then carries the crew wage, burden, overhead and target margin into every trade bid calculator on this site so no bid is priced from a remembered percentage.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small trade contractors will use a shop-rate calculator because every bid calculator they meet asks for a payroll burden and an overhead rate, and the figures they supply from memory — commonly 20% and 10% — are far enough from their own that the bids built on them are wrong in the same direction every time.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The billable-hour share, not the target margin, is the number that most changes a contractor's required rate, and showing that relationship is what makes the tool worth returning to rather than a one-time read.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Carrying the four computed rates straight into the site's other calculators is what converts this from an interesting number into a change in how the next bid is priced, and is measurable as the ratio of rates_carried to rate_calculated.
+    status: untested
+    checked: null
+    # `usage` is not a value the router accepts, and the ratio this claim names
+    # is not one a session can read: both counters come from strangers using a
+    # published page, and `links.production` is still null. That is exactly the
+    # condition `customer-contact` encodes -- settled by someone outside this
+    # repository, and blocked until the owner publishes -- so the router ranks
+    # it undispatchable rather than parking it at the top of a queue no session
+    # can clear.
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified trade contractors work out a rate and carry it into a bid calculator within 90 days.
+  - Contractors report that the inputs demand records they do not keep, so the tool cannot be completed without an accountant.
+  - The rates it produces prove so far from what shops actually bill that the arithmetic is rejected rather than acted on.
+links:
+  production: null
+  analytics: null

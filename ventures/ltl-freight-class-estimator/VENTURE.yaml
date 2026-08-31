@@ -1,0 +1,27 @@
+name: ltl-freight-class-estimator
+description: A browser-local density calculator that helps small shippers estimate an LTL freight class band before requesting a quote.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small shippers and freight brokers will return to a fast density calculator before requesting LTL quotes because carrier forms make the class input hard to estimate.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing the cube, density, and uncertainty band is more useful than a class number alone because packaging changes the billable result.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified shippers use the estimator twice within 90 days.
+  - Users report that the density estimate does not change the class they request from a carrier.
+links:
+  production: null
+  analytics: null

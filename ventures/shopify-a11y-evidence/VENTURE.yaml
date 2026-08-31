@@ -1,0 +1,35 @@
+name: shopify-a11y-evidence
+description: A browser-local accessibility evidence report for Shopify merchants and agencies using axe-core JSON exports.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Merchants and agencies need a dated, exportable record of accessibility checks rather than an unqualified compliance badge.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A useful report can begin from customer-supplied axe-core JSON without Shopify API access or server-side data retention.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Agencies will reuse a local hour-and-quote estimate from one axe export instead of pricing each rule by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Merchants and agencies will reuse a local before/after axe diff instead of reading two dashboards to see what a fix changed.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three agencies use the report twice within 90 days.
+  - Users cannot export a record that is clearer than the raw axe-core result.
+links:
+  production: null
+  analytics: null

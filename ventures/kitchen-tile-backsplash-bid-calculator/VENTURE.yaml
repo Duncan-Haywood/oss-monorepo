@@ -1,0 +1,44 @@
+name: kitchen-tile-backsplash-bid-calculator
+description: A private browser calculator for tile setters and kitchen remodelers that prices a kitchen tile backsplash from wall square feet, subway versus herringbone versus mosaic versus large-format, tile-only versus new-prep versus demo-and-replace, owner-supplied versus you-supply, weekday versus occupied versus after-hours, wall condition, extras, leftover-box round-up, and whether leftover still covers a laundry or pantry wall — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent tile setters and kitchen remodelers will use a wall-versus-pattern bid calculator because the generic "$35 a square foot installed" special they are shopped on cannot see that 30 SF of subway running-bond on painted drywall is a different job from 48 SF of herringbone mosaic with eight outlets, a cooktop cutout, Schluter edge, and demo of existing 4x4.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-SF dump) are the two figures a setter actually decides on when an owner asks them to match a cheaper subway quote on a herringbone demo job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing subway, herringbone, mosaic, and large-format on the same wall, next to tile-only versus demo-and-replace, changes the bid enough that setters quote the herringbone upgrade instead of matching the subway special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing you-supply versus owner-covers versus short/wrong-lot on the same wall, next to their install-only number, changes the bid enough that setters walk away from a $35 / SF "just set what I bought" herringbone demo.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing leftover after box round-up next to a laundry or pantry wall stops setters from assuming van leftover covers the next ticket.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing empty-weekday versus they-cook-around-you versus after-hours on the same wall, next to their Saturday number, changes the bid enough that setters walk away from a $35 / SF "same as weekday" Saturday herringbone demo.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified tile setters or kitchen remodelers use the calculator twice within 90 days.
+  - Contractors report that splitting wall, pattern, and extras is more work than their existing per-SF method without changing the price they would have bid.
+  - The starting hours and tile rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

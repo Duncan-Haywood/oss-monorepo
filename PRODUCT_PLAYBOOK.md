@@ -52,15 +52,17 @@ In rough order of preference:
    niches, and it makes the repo page the landing page.
 3. **Generator / checker that runs in the user's own CI.** A GitHub Action or a
    script they schedule. Their compute, their secrets, their data.
-4. **Small service on the VM.** Only when the product genuinely cannot be any
-   of the above. It costs us uptime and it holds data we then owe a duty of
-   care over — so keep it stateless, keep the data the user's, and say in the
-   README that it can go away.
+4. **Small service on the Hetzner product box.** Only when the product
+   genuinely cannot be any of the above. Keep it stateless, keep the data
+   the user's, and include the no-SLA clause in §5b. Never host a public
+   product on the agent box. Details: [`portfolio/hosting/README.md`](portfolio/hosting/README.md).
 
 Rules that keep the cost floor at zero: no per-user paid API on our account, no
 per-user database we pay for, no per-user human step, no account system unless
 the product is useless without one (and if you need one, prefer "bring your own
-GitHub login" over storing credentials).
+GitHub login" over storing credentials). Do not add Cloudflare or Vercel as
+the way a new product goes live — GitHub Pages and the existing Hetzner
+boxes are the host.
 
 ## 3. The API-key switch
 
@@ -129,6 +131,39 @@ first-run notice). Copy this, adjusting only the bracketed part:
 > on it**, and for meeting any obligation it helps you prepare for. To the
 > maximum extent permitted by law, the authors accept no liability for any
 > loss or damage arising from its use.
+>
+> **Best-effort hosting, no SLA.** These tools are free, experimental, and
+> may be slow, broken, moved, or taken offline without notice. We do not
+> promise uptime, backups of anything you type, or that a URL will keep
+> working. Do not use this as a system of record. If a tool needs to
+> survive, export your inputs and run it yourself.
+
+The no-SLA paragraph is required on every hosted surface (GitHub Pages or
+Hetzner). It covers availability. It does **not** let us store personal
+data on a box and call that fine — if anything leaves the browser, the
+privacy line in §5c has to name it.
+
+**You do not have to carry the no-SLA paragraph yourself.** The Pages build
+injects it into any published page that lacks one, because how these pages are
+hosted is the build's statement to make, not the venture's. Write it if you
+want it visible when the page is opened from a clone; leave it out and the
+hosted page still has it.
+
+**The no-warranty paragraph is yours**, and the build cannot write it: what a
+tool is not advice *about* — "not landscaping, construction, legal, tax, or
+financial advice" — only the venture knows. Check every HTML page in the
+venture, not just `index.html`:
+
+```
+node platform/pages/clauses.mjs <venture-slug>
+```
+
+Your venture's CI runs exactly that, so it fails on the PR. Do not rely on
+the Pages suite for it: bot PRs authored with `GITHUB_TOKEN` do not trigger
+Actions here, so that one first runs *after* the merge, on `main`, where it
+turns the Pages build red in a workflow you never touched. Six pages across
+three ventures reached `main` that way before the clause was injected — all
+of them copied a sibling's footer instead of this file.
 
 Non-negotiable positioning, because it is what keeps the liability containable:
 the product produces **evidence, drafts, checks, and monitoring**. The user
@@ -167,6 +202,17 @@ This is a build task and it ships with v0, not later:
       sitemap, and a `robots.txt` that lets assistants crawl. AI assistants are
       a first-class discovery channel now, and they read pages.
 - [ ] Open Graph tags so a shared link renders.
+- [ ] A launch date, so the tool enters the portfolio's Atom feed — `node
+      platform/pages/launched.mjs --write`, then commit
+      `platform/pages/launched.json`. The feed at `/feed.xml` is the only
+      surface that answers "what is new" rather than "what exists", and it is
+      how readers, aggregators and a niche community's own moderators pick a
+      tool up without anyone publishing outward. One command, and it is the
+      one discoverability step nothing else in the artifact reveals: a tool
+      without a date has correct pages, a correct sitemap entry and a correct
+      `llms.txt` line, and is simply never announced. `check.mjs` and
+      `platform/pages/launched.test.mjs` both fail if you forget, so this is a
+      reminder rather than a trap.
 - [ ] Repo topics and a one-line description that reads like a search result.
 - [ ] Prepare the listing artifact (description, screenshots, category) for any
       free channel the product fits — but **publishing under the portfolio's
@@ -206,12 +252,27 @@ Ship when every line is true:
 - [ ] Usage counting is in, and off-switchable.
 - [ ] Discoverability checklist above is done.
 - [ ] The venture's tests and linter pass, and you ran the product itself.
+- [ ] The §5b **no-warranty** clause is on every page the venture publishes,
+      not just the calculator — `node platform/pages/clauses.mjs <slug>`. The
+      venture's own CI runs this, so it fails on the PR rather than on `main`.
+      (The no-SLA clause is injected by the Pages build and is not yours to
+      carry; see §5b.)
 - [ ] `VENTURE.yaml` exists (or the slug is under `product_lines` in its host
       venture's) so the router can see it — `python3 portfolio/router/validate.py`.
 - [ ] CI green, merged, one ledger line in `portfolio/ledger/YYYY-MM.yaml`.
+- [ ] A stranger can reach it without cloning this repo — a public URL or an
+      install command. Merged-to-`main` is not deployed. Static products go
+      to GitHub Pages; processes go to the Hetzner product box
+      ([`portfolio/hosting/`](portfolio/hosting/README.md)). If Pages is
+      still gated, the next session prepares that deploy and points at
+      `deploy-settings`; it does not start a sibling product and does not
+      add Cloudflare or Vercel.
 
 ## 8. After it ships
 
+- **Deploy before you build the next one.** An undeployed product on `main`
+  outranks every unbuilt candidate. Usage cannot be read from a file nobody
+  can open.
 - **Watch usage, not opinions.** A product with real users outranks every
   candidate in the pipeline. If people come back, put the fleet's time there.
 - **If nobody uses it after a fair run**, say so plainly in one ledger line and

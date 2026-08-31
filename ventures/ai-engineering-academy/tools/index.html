@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Free Electronics Calculators — AI Engineering Academy</title>
+<meta name="description" content="A small set of free, private electronics calculators that run entirely in your browser: resistor color codes and Ohm's law, LED series resistors, voltage dividers with load correction, and 555 timer astable/monostable design. No signup, no ads, nothing uploaded." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%232b6cb0'/%3E%3Cpath d='M6 20h4l3-9 4 14 3-8h6' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+<meta property="og:title" content="Free Electronics Calculators" />
+<meta property="og:description" content="Resistor color codes, LED series resistors, voltage dividers, and 555 timers — free, private, and running entirely in your browser." />
+<meta property="og:type" content="website" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Free Electronics Calculators",
+  "description": "Free, client-side electronics calculators from AI Engineering Academy's Electrical Engineering track.",
+  "isAccessibleForFree": true,
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@type": "SoftwareApplication",
+          "name": "Resistor Color Code & Ohm's Law Calculator",
+          "url": "resistor-calculator/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any (runs in a web browser)",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "item": {
+          "@type": "SoftwareApplication",
+          "name": "LED Series Resistor Calculator",
+          "url": "led-resistor-calculator/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any (runs in a web browser)",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        }
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@type": "SoftwareApplication",
+          "name": "Voltage Divider Calculator",
+          "url": "voltage-divider-calculator/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any (runs in a web browser)",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        }
+      },
+       {
+         "@type": "ListItem",
+         "position": 4,
+        "item": {
+          "@type": "SoftwareApplication",
+          "name": "555 Timer Calculator",
+          "url": "555-timer-calculator/",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Any (runs in a web browser)",
+          "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+        }
+      }
+      ,{
+         "@type": "ListItem",
+         "position": 5,
+         "item": {"@type":"SoftwareApplication","name":"RC Charge and Discharge Time Calculator","url":"rc-time-calculator/","applicationCategory":"EducationalApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+       }
+       ,{
+         "@type": "ListItem",
+         "position": 6,
+         "item": {"@type":"SoftwareApplication","name":"RC / RL Filter Calculator","url":"rc-filter-calculator/","applicationCategory":"EducationalApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+        }
+     ]
+  }
+}
+</script>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8;
+    --accent: #2b6cb0; --panel: #f7f7f8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+  p.lede { color: var(--muted); margin-top: 0; }
+  ul.tools { list-style: none; margin: 2rem 0 0; padding: 0; }
+  ul.tools li {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1.1rem 1.25rem; margin-bottom: 1rem;
+  }
+  ul.tools h2 { font-size: 1.1rem; margin: 0; }
+  ul.tools h2 a { text-decoration: none; }
+  ul.tools h2 a:hover { text-decoration: underline; }
+  ul.tools p { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.92rem; }
+  ul.tools p.answers { color: var(--fg); font-size: 0.88rem; }
+  footer { border-top: 1px solid var(--border); margin-top: 2.5rem; padding-top: 1.5rem; font-size: 0.85rem; color: var(--muted); }
+  footer h2 { font-size: 0.95rem; }
+  a { color: var(--accent); }
+  code { background: var(--panel); padding: 0.1rem 0.3rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Free electronics calculators</h1>
+  <p class="lede">
+    Small, sharp tools for the parts of circuit design that are easy to get
+    subtly wrong. Every one is free with no signup, runs entirely in your
+    browser, and never uploads what you type — there is no server for it to go
+    to.
+  </p>
+
+  <ul class="tools">
+    <li>
+      <h2><a href="resistor-calculator/">Resistor color code &amp; Ohm's law calculator</a></h2>
+      <p>
+        Decode a 4-band or 5-band resistor into its resistance and tolerance,
+        and solve Ohm's law and power — give it any two of V, I, R, and P and
+        it fills in the rest.
+      </p>
+      <p class="answers">"What is brown-black-red-gold?" → 1 kΩ ±5%.</p>
+    </li>
+    <li>
+      <h2><a href="led-resistor-calculator/">LED series resistor calculator</a></h2>
+      <p>
+        Size the current-limiting resistor for one or several LEDs in series,
+        snap it to a resistor you can actually buy (E24), and check the power
+        rating you need so the resistor doesn't run hot.
+      </p>
+      <p class="answers">"Red LED, 5V supply, 20mA?" → 150 Ω dissipating 60 mW, so a ⅛W part is enough.</p>
+    </li>
+    <li>
+      <h2><a href="voltage-divider-calculator/">Voltage divider calculator</a></h2>
+      <p>
+        Compute a divider's output including the sag a real load causes — the
+        loading correction the textbook formula ignores — or design a divider
+        for a target output voltage using a buyable E24 resistor.
+      </p>
+      <p class="answers">"12V, two 10k resistors, 1k load?" → not 6V, and the tool shows how far off.</p>
+    </li>
+    <li>
+      <h2><a href="555-timer-calculator/">555 timer calculator</a></h2>
+      <p>
+        Astable and monostable, in both directions: analyse the parts you have,
+        or design from a target frequency, duty cycle, or pulse width. Flags the
+        designs a real chip can't run — duty cycles at or below 50%, an R1 that
+        over-currents the discharge pin, drift-prone resistor values.
+      </p>
+      <p class="answers">"1 kHz at 60% duty from a 100nF cap?" → the exact R1/R2 and the E24 pair to buy.</p>
+    </li>
+    <li>
+      <h2><a href="rc-filter-calculator/">RC / RL filter calculator</a></h2>
+      <p>
+        Cutoff frequency and time constant for all four first-order topologies
+        (RC or RL, low-pass or high-pass), plus a design mode that solves for
+        the missing component from a target cutoff and snaps it to a value you
+        can actually buy.
+      </p>
+      <p class="answers">"1 kHz low-pass with a 100nF cap?" → 1.59 kΩ, nearest E24 1.6 kΩ.</p>
+    </li>
+    <li>
+      <h2><a href="rc-time-calculator/">RC charge and discharge time calculator</a></h2>
+      <p>Find the time to reach a real capacitor voltage threshold, or design a buyable resistor or capacitor for a target delay.</p>
+      <p class="answers">"How long to charge 100 nF through 10 kΩ to 3.16 V from 5 V?" → about 1 ms.</p>
+    </li>
+  </ul>
+
+  <section>
+    <h2>Common questions</h2>
+    <h3>Why did the voltage divider calculator give a different answer than Vout = Vin &times; R2 / (R1 + R2)?</h3>
+    <p>
+      Because that textbook formula assumes nothing is drawing current from the
+      output. Add a real load and the divider sags &mdash; the calculator's
+      loading correction accounts for the load resistor pulling R2 down, which
+      is why &ldquo;12V, two 10k resistors, 1k load&rdquo; does not come out to
+      6V.
+    </p>
+    <h3>Are the resistor and capacitor values these tools suggest ones I can actually buy?</h3>
+    <p>
+      Where a tool has a design mode &mdash; the LED, voltage-divider,
+      555-timer, RC-filter, and RC-time calculators &mdash; it snaps the
+      computed value to the nearest standard E24 part and shows you the exact
+      pair, instead of leaving you to source an odd value like 8,342 &Omega;.
+    </p>
+    <h3>Can I use these for a safety-critical or production design?</h3>
+    <p>
+      No. They are educational calculators for getting the arithmetic right,
+      not a substitute for reading a datasheet, checking a component's real
+      tolerances, or measuring the circuit you actually built. Treat any
+      output as a starting point to verify, especially anything touching
+      mains voltage or driving real current.
+    </p>
+    <h3>Does anything I type get uploaded anywhere?</h3>
+    <p>
+      No &mdash; there is no server for it to go to. Every calculation runs in
+      your browser, and the only thing stored is an anonymous local count of
+      which features get used, kept in your own browser's storage and easy to
+      turn off on each tool's page.
+    </p>
+  </section>
+
+  <footer>
+    <h2>Disclaimer</h2>
+    <p>
+      <strong>No warranty.</strong> These tools are provided free and as-is,
+      without warranty of any kind, express or implied. They are not
+      engineering advice, and they do not replace reading a datasheet or
+      measuring the built circuit. <strong>You are responsible for reviewing
+      and verifying their output before relying on it</strong>, including for
+      anything safety-critical. To the maximum extent permitted by law, the
+      authors accept no liability for any loss or damage arising from their use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+
+    <h2>Privacy</h2>
+    <p>
+      Everything runs in your browser. Nothing you type is uploaded, and there
+      are no accounts, tracking cookies, or analytics vendor. Each tool counts
+      anonymous, local feature-use events in your own browser's
+      <code>localStorage</code> so this project's maintainers can tell whether
+      it gets used at all — nothing leaves your device, counting switches off
+      automatically if your browser sends Do Not Track or Global Privacy
+      Control, and each page has a toggle to turn it off by hand.
+    </p>
+
+    <p>
+      Part of <a href="../README.md">AI Engineering Academy</a>'s planned
+      Electrical Engineering track. MIT licensed — each tool ships its own
+      <code>LICENSE</code>.
+    </p>
+  </footer>
+</main>
+</body>
+</html>

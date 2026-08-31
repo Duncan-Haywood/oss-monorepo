@@ -1,0 +1,32 @@
+name: snow-removal-bid-calculator
+description: A private browser calculator for snow-removal contractors that prices a winter from route minutes, a loaded operator-and-truck hourly, salt, and expected snow and ice events — and shows the per-push price, the seasonal, and the storm count where a cheap seasonal goes underwater.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent snow-removal contractors will use a per-push vs seasonal calculator because the driveway prices they copy from neighbors cannot see deadhead, a loaded truck, salt, or a fourteen-storm winter, which is how a $350 seasonal that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The break-even storm count is the number a contractor actually decides on when a property manager asks them to sharpen a seasonal, more than the seasonal price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Pricing ice as its own event changes the resulting seasonal materially versus treating ice as included.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified snow-removal contractors use the calculator twice within 90 days of a bid-season window (August–November).
+  - Contractors report that entering minutes per stop is more work than their existing method without changing the price they would have bid.
+  - The starting minutes prove so far from real trucks' times that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

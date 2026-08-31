@@ -66,6 +66,34 @@ export type PhotoReport = {
   findings: Finding[];
 };
 
+export type EvidenceReport = {
+  reportType: "listing-lens-photo-preflight";
+  specId: string;
+  specDate: string;
+  checkedAt: string;
+  checkedPhotos: number;
+  skippedFiles: string[];
+  unimplementedRules: readonly string[];
+  photos: PhotoReport[];
+};
+
+export function createEvidenceReport(
+  photos: PhotoReport[],
+  skippedFiles: string[],
+  checkedAt: string,
+): EvidenceReport {
+  return {
+    reportType: "listing-lens-photo-preflight",
+    specId: SPEC_ID,
+    specDate: SPEC_DATE,
+    checkedAt,
+    checkedPhotos: photos.length,
+    skippedFiles: [...skippedFiles],
+    unimplementedRules: UNIMPLEMENTED_RULES,
+    photos,
+  };
+}
+
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 function startsWith(data: Uint8Array, bytes: number[]): boolean {
@@ -256,4 +284,144 @@ export function checkBatch(files: Array<{ name: string; data: Uint8Array }>): Ph
   const photos = files.filter((f) => isListingPhoto(f.name));
   const namesLower = new Set(photos.map((f) => f.name.toLowerCase()));
   return photos.map((f) => checkPhoto(f.name, f.data, namesLower));
+}
+
+/**
+ * What a photographer should do next after a preflight. Findings say what
+ * failed; this turns them into a recapture / desk-fix list they can take
+ * back to the property or the export folder.
+ *
+ * Kind is the highest-effort action that still applies:
+ * recapture > pair > reexport > rename. A clean report is omitted.
+ * This is not a board acceptance list — see UNIMPLEMENTED_RULES.
+ */
+export type ReshootKind = "recapture" | "reexport" | "rename" | "pair";
+
+export type ReshootItem = {
+  fileName: string;
+  kind: ReshootKind;
+  priority: Severity;
+  rules: string[];
+  action: string;
+};
+
+export type ReshootPlan = {
+  items: ReshootItem[];
+  recaptureCount: number;
+  deskFixCount: number;
+  blockingCount: number;
+};
+
+const KIND_RANK: Record<ReshootKind, number> = {
+  recapture: 0,
+  pair: 1,
+  reexport: 2,
+  rename: 3,
+};
+
+const RULE_GUIDANCE: Record<string, { kind: ReshootKind; action: string }> = {
+  long_edge: {
+    kind: "recapture",
+    action: `Re-export from RAW at ≥${MIN_LONG_EDGE_PX}px on the long edge. If the original is already smaller, recapture this room.`,
+  },
+  unreadable: {
+    kind: "recapture",
+    action: "Re-export as JPEG or PNG. This copy cannot be read.",
+  },
+  aspect: {
+    kind: "reexport",
+    action: "Recrop to 4:3, 3:2, 16:9, 5:4, or 1:1 before delivery.",
+  },
+  format: {
+    kind: "reexport",
+    action: "Re-export as JPEG or PNG.",
+  },
+  byte_size: {
+    kind: "reexport",
+    action: `Re-export under ${Math.round(MAX_BYTES / (1024 * 1024))} MiB.`,
+  },
+  branding_filename: {
+    kind: "rename",
+    action: "Rename so the filename does not contain logo, watermark, branded, brokerage, or headshot.",
+  },
+  staging_pair: {
+    kind: "pair",
+    action: "Add the unstaged original next to this file (same stem, or stem-original).",
+  },
+};
+
+function reshootItemFor(report: PhotoReport): ReshootItem | null {
+  if (report.findings.length === 0) return null;
+
+  let kind: ReshootKind = "rename";
+  const actions: string[] = [];
+  const rules: string[] = [];
+  let priority: Severity = "degrading";
+
+  for (const finding of report.findings) {
+    rules.push(finding.rule);
+    if (finding.severity === "blocking") priority = "blocking";
+    const guidance = RULE_GUIDANCE[finding.rule] ?? {
+      kind: "reexport" as const,
+      action: finding.detail,
+    };
+    if (KIND_RANK[guidance.kind] < KIND_RANK[kind]) kind = guidance.kind;
+    actions.push(guidance.action);
+  }
+
+  return {
+    fileName: report.info.name,
+    kind,
+    priority,
+    rules,
+    action: actions.join(" "),
+  };
+}
+
+export function buildReshootPlan(reports: PhotoReport[]): ReshootPlan {
+  const items = reports.map(reshootItemFor).filter((item): item is ReshootItem => item !== null);
+  return {
+    items,
+    recaptureCount: items.filter((item) => item.kind === "recapture").length,
+    deskFixCount: items.filter((item) => item.kind !== "recapture").length,
+    blockingCount: items.filter((item) => item.priority === "blocking").length,
+  };
+}
+
+export function formatReshootPlan(plan: ReshootPlan): string {
+  if (plan.items.length === 0) {
+    return [
+      "Reshoot / desk-fix list: nothing to fix on the checked floor spec.",
+      "This is not a warranty that any MLS will accept the photos. Not checked: " +
+        UNIMPLEMENTED_RULES.join(", ") +
+        ".",
+    ].join("\n");
+  }
+
+  const lines = [
+    "Reshoot / desk-fix list (file headers and filenames only — not MLS acceptance)",
+    "",
+  ];
+
+  const groups: Array<[string, ReshootKind[]]> = [
+    ["Go back to the property / re-export from RAW", ["recapture"]],
+    ["Fix at the desk", ["pair", "reexport", "rename"]],
+  ];
+
+  for (const [heading, kinds] of groups) {
+    const group = plan.items.filter((item) => kinds.includes(item.kind));
+    if (group.length === 0) continue;
+    lines.push(`${heading} (${group.length}):`);
+    for (const item of group) {
+      lines.push(`- ${item.fileName} [${item.kind}/${item.priority}]: ${item.action}`);
+    }
+    lines.push("");
+  }
+
+  lines.push(
+    "This list is generated from file headers and filenames only. It does not check " +
+      UNIMPLEMENTED_RULES.join(", ") +
+      ", and it is not a warranty that any MLS will accept the photos.",
+  );
+  return lines.join("\n").trimEnd();
 }

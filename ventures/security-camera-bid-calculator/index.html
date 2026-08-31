@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Security Camera Installation Bid Calculator — CCTV Storage</title>
+  <meta name="description" content="Price an IP security camera install from the drops, the cable, and the labour — and check the three things a camera bid gets wrong: days of recording the drives actually hold, PoE load against the switch budget, and runs past the 328 ft Ethernet limit.">
+  <meta property="og:title" content="Security Camera Installation Bid Calculator">
+  <meta property="og:description" content="Quote 30 days of recording and know the drives hold it. Storage, PoE budget, and run length checked before the bid goes out.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Security Camera Installation Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Recording storage sizing by resolution and codec, actual retention days from the drives purchased, recommended drive size, PoE load against switch budget, Ethernet run-length check, labour hours per drop by construction type, cable footage with waste allowance, cost floor and walk-away price, margin on revenue, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much should I charge to install security cameras?","acceptedAnswer":{"@type":"Answer","text":"There is no flat per-camera price. Eight cameras through an accessible attic is a different job from eight through masonry with a lift. This calculator prices the drops, the cable, the head end, and the labour from your own wage, burden, overhead, and margin, and gives a walk-away price to hold when a customer asks you to match a lower bid."}},{"@type":"Question","name":"How many terabytes do I need for 30 days of recording?","acceptedAnswer":{"@type":"Answer","text":"It depends on resolution, codec, camera count, and hours recorded per day. Eight 4 MP cameras on H.265 recording continuously use about 0.35 TB per day, so 30 days needs roughly 10.4 TB before usable-space headroom. This calculator computes it and, separately, the retention the drives you actually buy will deliver — those are different numbers, and the gap is where a handover fails."}},{"@type":"Question","name":"Is this a manufacturer specification or a code ruling?","acceptedAnswer":{"@type":"Answer","text":"No. Outputs are arithmetic on the numbers you enter. Bitrates are typical planning figures at 15 fps, not a guarantee any camera hits them — a scene full of moving foliage will exceed them. Nothing here is an ONVIF profile, a manufacturer specification, or a building, fire, or privacy-law ruling."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c5f7a; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #14303b; color: #f2f7f8; border-color: #14303b; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .result h2 { color: #f2f7f8; }
+    .hero-number { font-size: 2.7rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .hero-label { font-size: .78rem; text-transform: uppercase; letter-spacing: .07em; color: #9fc4cf; margin: 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 7px 12px; margin: 16px 0 0; font-size: .87rem; }
+    dt { color: #b6d2da; } dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 650; }
+    .checks { margin: 16px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .checks li { padding: 9px 11px; border-radius: 8px; margin-bottom: 7px; line-height: 1.4; }
+    .checks .ok { background: #1c4a3d; color: #cdebd8; }
+    .checks .warn { background: #5c2f24; color: #ffd9cf; }
+    .checks strong { display: block; margin-bottom: 2px; }
+    .err { background: #fdeceb; border: 1px solid #e5a49b; color: #8c2c1c; border-radius: 8px; padding: 11px; font-size: .86rem; margin: 14px 0 0; }
+    footer { margin-top: 30px; font-size: .78rem; color: #4a5666; line-height: 1.55; }
+    footer p { margin: 0 0 9px; }
+    .opt { display: flex; gap: 7px; align-items: center; font-weight: 500; font-size: .8rem; margin-bottom: 6px; }
+    .opt input { width: auto; }
+    .support { border-top: 1px solid #d3dce6; padding-top: 10px; }
+    .faq h3 { font-size: .95rem; margin: 16px 0 4px; }
+    .faq p { font-size: .87rem; margin: 0; color: #3d4857; }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: 1fr; }
+      .result { position: static; }
+      .fields { grid-template-columns: 1fr; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #14303b; --pr-accent: #1c5f7a;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">For low-voltage and security installers</p>
+    <h1>Security camera bid calculator</h1>
+    <p>Price the drops, the cable, and the head end from your own wage and margin — and check the three things a camera bid gets wrong before it goes out: whether the drives hold the recording days you are quoting, whether the switch can power the cameras, and whether any run is past the Ethernet limit.</p>
+    <p class="hint" style="margin-top:12px">Everything stays in this browser. Nothing is uploaded, and no camera layout or price leaves your device.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge to install security cameras?</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The system</h2>
+        <p class="hint">What is being recorded, and for how long the customer was told it would be kept.</p>
+        <div class="fields">
+          <label>Cameras <input id="cameraCount" type="number" min="1" step="1" value="8"></label>
+          <label>Resolution <select id="resolution"></select></label>
+          <label>Codec <select id="codec"></select></label>
+          <label>Recording <select id="recordingMode">
+            <option value="continuous">Continuous</option>
+            <option value="motion">Motion only</option>
+          </select></label>
+          <label>Motion share of day (%) <input id="motionPercent" type="number" min="0" max="100" step="1" value="25"></label>
+          <label>Hours recorded per day <input id="recordHoursPerDay" type="number" min="0" max="24" step="0.5" value="24"></label>
+          <label>Retention quoted (days) <input id="retentionDays" type="number" min="1" step="1" value="30"></label>
+          <label>Drive size (TB) <select id="driveSizeTb"></select></label>
+          <label>Drives fitted <input id="driveCount" type="number" min="0" step="1" value="2"></label>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Motion-only share is a planning estimate. A camera facing a busy street or moving foliage will record far more of the day than one in a stockroom.</p>
+      </section>
+
+      <section>
+        <h2>Power and cable</h2>
+        <p class="hint">The two site facts that turn into a change order when they are found on install day.</p>
+        <div class="fields">
+          <label>Watts per camera <input id="cameraWatts" type="number" min="0" step="0.5" value="9"></label>
+          <label>Switch PoE budget (W) <input id="switchPoeBudgetWatts" type="number" min="0" step="1" value="120"></label>
+          <label>Average cable per drop (ft) <input id="avgCableFeet" type="number" min="0" step="1" value="120"></label>
+          <label>Longest single run (ft) <input id="longestRunFeet" type="number" min="0" step="1" value="200"></label>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Typical draw: fixed dome or turret 6&nbsp;W, bullet with IR 9&nbsp;W, bullet with heater 13&nbsp;W, PTZ 25&nbsp;W. Heaters raise the winter load on a budget that looked fine in July.</p>
+      </section>
+
+      <section>
+        <h2>Labour</h2>
+        <p class="hint">Hours per drop follows the construction type until you type your own number, which then wins.</p>
+        <div class="fields">
+          <label>Construction <select id="construction"></select></label>
+          <label>Hours per drop (override) <input id="hoursPerDrop" type="number" min="0" step="0.1" value="" placeholder="from construction"></label>
+          <label>Commissioning hours <input id="commissioningHours" type="number" min="0" step="0.5" value="4"></label>
+          <label>Other hours <input id="otherHours" type="number" min="0" step="0.5" value="0"></label>
+          <label>Lift required <select id="liftRequired">
+            <option value="no">No</option>
+            <option value="yes">Yes (adds 4 h)</option>
+          </select></label>
+          <label>Hourly wage <input id="hourlyWage" type="number" min="0" step="0.5" value="38"></label>
+          <label>Labour burden (%) <input id="burdenRate" type="number" min="0" step="1" value="32"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Materials and margin</h2>
+        <div class="fields">
+          <label>Per camera <input id="cameraHardware" type="number" min="0" step="1" value="190"></label>
+          <label>NVR / recorder <input id="nvrHardware" type="number" min="0" step="1" value="700"></label>
+          <label>PoE switch <input id="switchHardware" type="number" min="0" step="1" value="350"></label>
+          <label>Drive price per TB <input id="drivePricePerTb" type="number" min="0" step="0.5" value="22"></label>
+          <label>Cable per foot <input id="cablePricePerFoot" type="number" min="0" step="0.01" value="0.22"></label>
+          <label>Other materials <input id="otherMaterials" type="number" min="0" step="1" value="150"></label>
+          <label>Overhead (%) <input id="overheadRate" type="number" min="0" step="1" value="12"></label>
+          <label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="35"></label>
+          <label>Permit fee <input id="permitFee" type="number" min="0" step="1" value="0"></label>
+          <label>Price you are considering <input id="proposedPrice" type="number" min="0" step="1" value="" placeholder="optional"></label>
+        </div>
+        <p class="hint" style="margin:12px 0 0">Margin is on revenue, not markup on cost. Quoting cost &times;&nbsp;1.35 and calling it a 35% margin is a 26% margin.</p>
+      </section>
+    </div>
+
+    <div>
+      <section class="result">
+        <h2>The bid</h2>
+        <p class="hero-label">Bid at target margin</p>
+        <p class="hero-number" id="bidPrice">&mdash;</p>
+        <p class="hero-label">Walk-away price &mdash; below this the job costs you money</p>
+        <p class="hero-number" id="costFloor" style="font-size:1.6rem">&mdash;</p>
+        <div id="error" class="err" hidden></div>
+        <ul class="checks" id="checks"></ul>
+        <dl>
+          <dt>Price per camera</dt><dd id="pricePerCamera"></dd>
+          <dt>Labour hours</dt><dd id="labourHours"></dd>
+          <dt>Loaded hourly rate</dt><dd id="loadedHourlyRate"></dd>
+          <dt>Labour cost</dt><dd id="labourCost"></dd>
+          <dt>Materials</dt><dd id="materialCost"></dd>
+          <dt>Cable needed</dt><dd id="totalCableFeet"></dd>
+          <dt>Overhead</dt><dd id="overheadCost"></dd>
+          <dt>Recording per day</dt><dd id="terabytesPerDay"></dd>
+          <dt>Storage for quoted days</dt><dd id="terabytesRequired"></dd>
+          <dt>Days these drives hold</dt><dd id="actualRetentionDays"></dd>
+          <dt>PoE load</dt><dd id="poeLoad"></dd>
+          <dt>Margin on your price</dt><dd id="proposedMarginPercent"></dd>
+        </dl>
+        <div style="margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button type="button" id="copyShare">Copy share link</button>
+          <span id="shareStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </div>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Northgate Low Voltage LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="TX-LV-ACR-118204"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install 8 x 4 MP cameras with an 8-channel recorder&#10;30 days retention on 2 x 8 TB drives"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Electrical work beyond the existing recorder outlet&#10;Network changes outside the camera VLAN&#10;Painting or finish carpentry after wall patching"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Cameras aimed and focused with the customer present. Recorder credentials handed over in writing and the default password changed."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <section class="faq">
+    <h2>What this does, and what it does not</h2>
+    <h3>Why "days the drives hold" is a separate number from "storage needed"</h3>
+    <p>The arithmetic asks for a figure like 10.4&nbsp;TB. You can buy 8&nbsp;TB or 12&nbsp;TB, not 10.4, and once the filesystem and the recorder's overwrite headroom take their slice you keep about 90% of the label. Quoting 30 days and handing over a system that holds 11 is the most common failed handover in this trade, so both numbers are shown and the shortfall is named.</p>
+    <h3>Why the PoE check matters more than it looks</h3>
+    <p>A switch over its budget does not fail cleanly. It drops cameras intermittently, often months later when heaters come on, and every one of those is a callback the bid never priced. The tool flags anything over 80% of the budget, because a system at its ceiling has nothing left for the camera added next spring.</p>
+    <h3>Bitrates are planning figures</h3>
+    <p>Figures assume roughly 15&nbsp;fps and typical scenes. H.265 is credited at half of H.264, and smart-codec modes conservatively rather than at the marketing number, because their saving only materialises on static scenes. A camera watching traffic or moving foliage will exceed these. Nothing here is a manufacturer specification or an ONVIF profile.</p>
+    <h3>This is not legal advice about recording</h3>
+    <p>Where cameras may point, whether audio may be recorded, signage, and how long footage may be kept are governed by law that varies by country, state, and sometimes by the room. This tool prices an install; it does not tell you whether the install is lawful.</p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>How much should I charge to install security cameras?</h3>
+  <p>There is no flat per-camera price. Eight cameras through an accessible attic is a different job from eight through masonry with a lift. This calculator prices the drops, the cable, the head end, and the labour from your own wage, burden, overhead, and margin, and gives a walk-away price to hold when a customer asks you to match a lower bid.</p>
+  <h3>How many terabytes do I need for 30 days of recording?</h3>
+  <p>It depends on resolution, codec, camera count, and hours recorded per day. Eight 4 MP cameras on H.265 recording continuously use about 0.35 TB per day, so 30 days needs roughly 10.4 TB before usable-space headroom. This calculator computes it and, separately, the retention the drives you actually buy will deliver — those are different numbers, and the gap is where a handover fails.</p>
+  <h3>Is this a manufacturer specification or a code ruling?</h3>
+  <p>No. Outputs are arithmetic on the numbers you enter. Bitrates are typical planning figures at 15 fps, not a guarantee any camera hits them — a scene full of moving foliage will exceed them. Nothing here is an ONVIF profile, a manufacturer specification, or a building, fire, or privacy-law ruling.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not electrical, engineering, code, security, privacy, legal, tax, or contracting advice, and it does not replace a licensed installer, a manufacturer's specification, or the authority having jurisdiction. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any permit, licensing, inspection, or privacy obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Nothing leaves your browser. A share link encodes only the inputs you put in the address bar; anonymous local usage counts stay on this device and never include the site, the camera count, wages, or prices. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    <label class="opt"><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> — support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import {
+      INPUT_FIELDS,
+      RESOLUTIONS,
+      CODECS,
+      CONSTRUCTION_TYPES,
+      DRIVE_SIZES_TB,
+      calculateBid,
+    } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import { encodeInputs, decodeInputs } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+
+    const el = id => document.getElementById(id);
+    const money = (n) => n.toLocaleString(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+    const money2 = (n) => n.toLocaleString(undefined, { style: 'currency', currency: 'USD' });
+
+    // Populated from the calc module rather than written twice in markup: a
+    // preset list that disagreed with the arithmetic would be a bug no test
+    // of either file alone could catch.
+    for (const r of RESOLUTIONS) el('resolution').add(new Option(r.label, r.resolution));
+    for (const c of CODECS) el('codec').add(new Option(c.label, c.codec));
+    for (const c of CONSTRUCTION_TYPES) el('construction').add(new Option(c.label, c.construction));
+    for (const size of DRIVE_SIZES_TB) el('driveSizeTb').add(new Option(size + ' TB', size));
+    el('resolution').value = '4mp';
+    el('codec').value = 'h265';
+    el('construction').value = 'attic';
+    el('driveSizeTb').value = '8';
+
+    function readInputs() {
+      return Object.fromEntries(INPUT_FIELDS.map((f) => [f, el(f)?.value ?? '']));
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    const STORAGE_KEY = 'security-camera-bid-draft';
+    function saveDraft() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(readInputs())); } catch { /* ignore */ }
+    }
+    function loadDraft() {
+      // A share link wins over a local draft — someone who opens a link a
+      // colleague sent them almost never wants yesterday's unrelated job to
+      // silently reappear instead of it.
+      const incoming = splitTerms(location.hash || location.search);
+      const shared = decodeInputs(incoming.payload);
+      const sharedTerms = decodeTerms(incoming.terms);
+      const sharedCount = Object.keys(shared).length;
+      const termsWritten = applyTerms(sharedTerms, el);
+      if (sharedCount > 0 || termsWritten > 0) {
+        for (const [k, v] of Object.entries(shared)) if (el(k) != null) el(k).value = v;
+        el('shareStatus').textContent =
+          `Loaded ${sharedCount} value${sharedCount === 1 ? '' : 's'} from the link — check them against your own job before you send a bid.`;
+        count('shared_link_opened');
+        saveDraft();
+        return;
+      }
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        if (!saved) return;
+        for (const [k, v] of Object.entries(saved)) if (el(k) != null) el(k).value = v;
+      } catch { /* ignore */ }
+    }
+
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeInputs(readInputs()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      const status = el('shareStatus');
+      const leftBehind = overlongTermsNote(terms);
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable');
+        await navigator.clipboard.writeText(url);
+        status.textContent = leftBehind
+          ? `Link copied — ${leftBehind}`
+          : 'Link copied. It carries your inputs, deposit and terms.';
+      } catch {
+        window.prompt('Copy this link:', url);
+        status.textContent = 'Clipboard unavailable — the link is in the prompt above.';
+      }
+      // Put it in the address bar too, so the browser's own bookmark and back
+      // button carry the scenario even if the clipboard was refused.
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+    }
+
+    function render() {
+      let result;
+      try {
+        result = calculateBid(readInputs());
+        el('error').hidden = true;
+      } catch (e) {
+        // A half-typed field is the normal case, not an exception worth a
+        // blank page: say what is wrong and leave the last good figures up.
+        el('error').hidden = false;
+        el('error').textContent = e.message;
+        return;
+      }
+
+      el('bidPrice').textContent = money(result.bidPrice);
+      el('costFloor').textContent = money(result.costFloor);
+      el('pricePerCamera').textContent = money(result.pricePerCamera);
+      el('labourHours').textContent = result.labourHours + ' h';
+      el('loadedHourlyRate').textContent = money2(result.loadedHourlyRate) + '/h';
+      el('labourCost').textContent = money(result.labourCost);
+      el('materialCost').textContent = money(result.materialCost);
+      el('totalCableFeet').textContent = result.cabling.totalCableFeet.toLocaleString() + ' ft';
+      el('overheadCost').textContent = money(result.overheadCost);
+      el('terabytesPerDay').textContent = result.storage.terabytesPerDay + ' TB';
+      el('terabytesRequired').textContent = result.storage.terabytesRequired + ' TB';
+      el('actualRetentionDays').textContent = Number.isFinite(result.storage.actualRetentionDays)
+        ? result.storage.actualRetentionDays + ' days' : '—';
+      el('poeLoad').textContent = result.poe.loadWatts + ' / ' + result.poe.budgetWatts + ' W';
+
+      const margin = el('proposedMarginPercent');
+      if (result.proposedMarginPercent == null) {
+        margin.textContent = '—';
+        margin.className = '';
+      } else {
+        margin.textContent = result.proposedMarginPercent.toFixed(1) + '%';
+        margin.className = result.proposedBeatsFloor ? 'positive' : 'negative';
+      }
+
+      // The checks are the reason to use this over a spreadsheet, so they sit
+      // above the cost breakdown rather than at the bottom of it.
+      const checks = el('checks');
+      checks.textContent = '';
+      if (result.warnings.length === 0) {
+        const li = document.createElement('li');
+        li.className = 'ok';
+        li.innerHTML = '<strong>Storage, power, and cable all check out.</strong>'
+          + 'The drives hold the days you are quoting, the switch has headroom, and no run is past the limit.';
+        checks.append(li);
+      } else {
+        for (const w of result.warnings) {
+          const li = document.createElement('li');
+          li.className = 'warn';
+          // textContent, not innerHTML: warning strings interpolate numbers
+          // from the form, and a form value must never become markup.
+          li.textContent = w;
+          checks.append(li);
+        }
+      }
+    }
+
+    let recordTimer;
+    function update() {
+      render();
+      saveDraft();
+      // Debounced so holding an arrow key on a number field records one use,
+      // not forty.
+      clearTimeout(recordTimer);
+      recordTimer = setTimeout(() => {
+        count('bid_calculated');
+      }, 800);
+    }
+
+    for (const field of INPUT_FIELDS) el(field)?.addEventListener('input', update);
+    for (const field of INPUT_FIELDS) el(field)?.addEventListener('change', update);
+    el('usageOptOut').addEventListener('change', saveDraft);
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('shareStatus').textContent = 'Copy failed.'; });
+    });
+
+    loadDraft();
+    render();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'security-camera-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is not an electrical or structural design, a determination that the existing supply, network or mounting surfaces are adequate, or advice on where cameras may lawfully point, whether audio may be recorded, or how long footage may be kept.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Supply and install {cameraCount} × {resolutionLabel} camera{cameraCount+s}",
+        {
+          "line": "{routingLabel}",
+          "when": "routingLabel"
+        },
+        "Pull and terminate approximately {cabling.totalCableFeet~0} ft of Cat6, the longest single run {cabling.longestRunFeet~0} ft",
+        {
+          "line": "{liftLabel}",
+          "when": "liftLabel"
+        },
+        "Supply and configure the recorder with {storage.driveCount} × {storage.driveSizeTb} TB drive{storage.driveCount+s}, {storage.purchasedTb~0} TB fitted",
+        "Record {recordingLabel} in {codecLabel} at approximately {storage.bitrateMbpsPerCamera} Mbps per camera",
+        "Retention quoted {storage.retentionDaysQuoted~0} days; at this configuration the drives fitted hold approximately {storage.actualRetentionDays~0} days",
+        "PoE load approximately {poe.loadWatts~0} W against the {poe.budgetWatts~0} W switch budget",
+        "Commission every camera, confirm recording and retention, and hand over with a walkthrough"
+      ];
+
+    /**
+     * Customer-readable words for the choices the contractor made, since the
+     * result mostly carries preset ids. See `fields` in trades.json.
+     */
+    function proposalFields(result) {
+      return {
+        ...result,
+        "resolutionLabel": el('resolution')?.selectedOptions?.[0]?.textContent?.trim(),
+        "codecLabel": el('codec')?.selectedOptions?.[0]?.textContent?.trim(),
+        "routingLabel": ({"open":"Cable run through open ceiling before it is closed in","attic":"Cable fished from the attic into finished walls","no-attic":"Cable fished through finished walls with no attic access, wall openings patched","masonry":"Cable run on masonry, surface raceway or cored penetrations as needed","soffit":"Cable run to exterior soffit at second-storey height"})[el('construction')?.value],
+        "recordingLabel": ({"continuous":"continuously","motion":"on motion"})[el('recordingMode')?.value],
+        "liftLabel": ({"no":"","yes":"Boom or scissor lift on site for the high mounts"})[el('liftRequired')?.value],
+      };
+    }
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, proposalFields(result)).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.bidPrice,
+        jobTitle: scopeLines(['Security camera installation — {cameraCount} camera{cameraCount+s}'], proposalFields(result))[0] || 'Security camera installation',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInputs());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInputs());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

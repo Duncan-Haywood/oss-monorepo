@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Siding Bid Calculator | Price the Squares and the Waste</title>
+  <meta name="description" content="Price a vinyl, fiber-cement, or engineered-wood siding job from wall area, waste, openings, stories, and tear-off — not a flat price per square foot. See labor hours, walk-away price, and the margin a neighborhood special actually leaves.">
+  <meta property="og:title" content="Siding Bid Calculator">
+  <meta property="og:description" content="Bid siding the way the trade does — net squares plus waste, then height, tear-off, wrap, and linear trim — and see the walk-away number before you send the quote.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Siding Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Per-elevation wall squares, waste factor, story multiplier, tear-off and housewrap, opening labor, linear trim, dumpster, travel, payroll burden, walk-away price, proposed-price margin check, private share link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I work out how many squares of siding a house needs?","acceptedAnswer":{"@type":"Answer","text":"Enter each elevation as a length × height row. The calculator adds them into gross wall area, subtracts the window and door area you enter, divides the remainder by 100 to get net squares, then adds waste to get the billable squares that material and install hours are priced from. Waste starts at 10% for vinyl and aluminum and 12% for fiber cement and engineered wood — those are common starting points, not a manufacturer allowance, and a cut-up elevation with lots of gables needs more."}},{"@type":"Question","name":"If I subtract the windows, why is there still a charge per opening?","acceptedAnswer":{"@type":"Answer","text":"Because the two are different costs. Subtracting opening square footage stops you buying siding for glass. Cutting and fitting around that opening is a labor line of its own — about 0.35 h per opening here — and the J-channel or window wrap around it is priced separately by the linear foot. A wall with fourteen windows and a wall with two can have the same net square footage and are nowhere near the same day's work; a per-square-foot quote cannot tell them apart."}},{"@type":"Question","name":"How much does a second or third storey add?","acceptedAnswer":{"@type":"Answer","text":"Install hours are multiplied by 1.0 for one storey, 1.35 for two, and 1.7 for three or more. That multiplier is height and staging — carrying material up, moving pump jacks, working off a plank — not \"a bigger house\", so it applies to install hours only and not to tear-off, housewrap, trim, or the flat add-ons. Scaffold or pump jacks are their own add-on line with hours and rental cost, because that is a job-level decision rather than something that scales with area."}},{"@type":"Question","name":"Does tear-off cost the same as installing?","acceptedAnswer":{"@type":"Answer","text":"No, it is its own hours-per-square figure, and the presets put it at roughly a third to a half of install: about 2.0 h/square against 4.5 for vinyl, 2.5 against 7.0 for fiber cement. Tear-off also brings the dumpster, which is a separate flat cost, and it is optional — a siding-over job turns tear-off hours off entirely while keeping housewrap, which is priced from net squares rather than billable squares because wrap does not need the cut waste."}},{"@type":"Question","name":"Why does a small siding repair still price at more than the material?","acceptedAnswer":{"@type":"Answer","text":"Round-trip drive time comes from the miles and speed you enter, setup is its own line, and a minimum on-site hours floor applies when the takeoff comes in under it — a crew that mobilizes has those hours gone whether the wall is four squares or forty. The trip or truck fee sits on top as a flat line. Making the floor visible is the point: it is what a \"just a couple of panels\" call actually costs you."}},{"@type":"Question","name":"Why isn't a 20% margin the same as adding 20% to my cost?","acceptedAnswer":{"@type":"Answer","text":"Margin here is a share of the final price — price = job cost ÷ (1 − margin) — which is how the quote reads to the homeowner and how your books read it. Overhead is a separate markup on the job's direct cost, applied before margin and never to itself or to profit. A $14,000 cost marked up 20% is $16,800, a 16.7% margin; a 20% target margin is $17,500. Everything stays in your browser: no account, no upload, the shareable link carries your inputs in the URL, and the optional local counter records only which features were used and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #e8eef4; }
+    body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a4b16; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .7fr); gap: 18px; align-items: start; }
+    section { background: #f7fafc; border: 1px solid #c9d4e0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4d5b6c; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a8b7c8; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .wall-row { display: grid; grid-template-columns: minmax(0, 2.4fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .wall-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5c6b7c; }
+    .wall-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a8b7c8; background: #eef3f8; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1b2430; }
+    button:hover { background: #e2eaf2; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .checks { display: grid; gap: 8px; margin: 4px 0 0; }
+    .checks label { display: flex; gap: 8px; align-items: center; font-weight: 550; }
+    .checks input { width: auto; }
+    .result { position: sticky; top: 15px; background: #1c2d3c; color: #f2f6f9; border-color: #1c2d3c; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.8rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #d48a4a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4d5b6c; }
+    footer a { color: #9a4b16; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #e8c9a4; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .wall-head { display: none; }
+      .wall-row { grid-template-columns: 1fr 1fr; border: 1px solid #d5dee8; border-radius: 9px; padding: 11px; }
+      .wall-row label { font-size: .78rem; gap: 5px; }
+      .wall-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .wall-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+    textarea { width: 100%; box-sizing: border-box; border: 1px solid #a8b4c2; border-radius: 7px; padding: 10px; font: inherit; background: #fff; resize: vertical; }
+    .proposal-status { font-size: .8rem; color: #4d5b6c; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. Only `--pr-accent` is
+       expected to change between ventures. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #1c2d3c; --pr-accent: #9a4b16;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #3a2a140d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR SIDING CONTRACTORS</p>
+    <h1>Bid the squares and the waste, not the house.</h1>
+    <p>A one-story vinyl wrap with four windows is not the same job as a two-story fiber-cement tear-off with gables. Price the net wall, the waste, the height, the openings, and the linear trim — then see the walk-away number before a price-per-square-foot special eats the week.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should I charge for vinyl siding?</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The walls</h2>
+        <p class="hint">One row per elevation. Length × height is the gross wall. Openings come off the total below — do not pre-subtract them here or you will double-count.</p>
+        <div class="wall-row wall-head" aria-hidden="true">
+          <span>Elevation</span><span>Length (ft)</span><span>Height (ft)</span><span></span>
+        </div>
+        <div id="walls"></div>
+        <button type="button" id="addWall">+ Add a wall</button>
+      </section>
+
+      <section>
+        <h2>The job</h2>
+        <div class="fields">
+          <label>Siding material
+            <select id="materialType">
+              <option value="vinyl" selected>Vinyl siding</option>
+              <option value="fiber-cement">Fiber cement</option>
+              <option value="engineered-wood">Engineered wood</option>
+              <option value="aluminum">Aluminum siding</option>
+              <option value="other">Other / custom rates</option>
+            </select>
+          </label>
+          <label>Stories <input id="stories" type="number" min="1" step="1" value="2"></label>
+          <label>Opening area (sq ft) <input id="openingSqFt" type="number" min="0" step="1" value="180"></label>
+          <label>Opening count (windows + doors) <input id="openingCount" type="number" min="0" step="1" value="12"></label>
+          <label>Waste (%) <input id="wastePercent" type="number" min="0" step="0.5" value="10"></label>
+          <label>Install hours / square <input id="hoursPerSquare" type="number" min="0" step="0.1" value="4.5"></label>
+          <label>Siding material / square <input id="materialPerSquare" type="number" min="0" step="1" value="185"></label>
+          <label>Tear-off hours / square <input id="tearOffHoursPerSquare" type="number" min="0" step="0.1" value="2"></label>
+          <label>Miles one way <input id="milesOneWay" type="number" min="0" step="0.5" value="14"></label>
+          <label>Travel speed (mph) <input id="speedMph" type="number" min="1" step="1" value="35"></label>
+        </div>
+        <div class="checks">
+          <label><input id="tearOff" type="checkbox" checked> Tear off existing siding</label>
+          <label><input id="housewrap" type="checkbox" checked> Housewrap / weather barrier</label>
+          <label><input id="addOn-scaffold" type="checkbox"> Scaffold / pump jacks</label>
+          <label><input id="addOn-soffitFascia" type="checkbox"> Soffit and fascia on this job</label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">A square is 100 sq ft of wall. Waste covers cuts, starter, and damaged pieces — vinyl often needs about 10%, fiber cement more. Stories multiply install hours. None of this is a manufacturer table or a weathertightness finding — it is a time and material budget you can edit.</p>
+      </section>
+
+      <section>
+        <h2>Linear trim</h2>
+        <p class="hint">Trim is where a price-per-square-foot bid goes quiet. A small house with many windows can spend as much on J-channel and corners as on a whole extra square of siding.</p>
+        <div class="fields">
+          <label>Starter strip (lf) <input id="acc-starter" type="number" min="0" step="1" value="136"></label>
+          <label>Outside corners (lf) <input id="acc-outsideCorner" type="number" min="0" step="1" value="72"></label>
+          <label>Inside corners (lf) <input id="acc-insideCorner" type="number" min="0" step="1" value="28"></label>
+          <label>J-channel / window wrap (lf) <input id="acc-jChannel" type="number" min="0" step="1" value="220"></label>
+          <label>Undersill / utility trim (lf) <input id="acc-undersill" type="number" min="0" step="1" value="40"></label>
+          <label>Housewrap ($ / sq ft) <input id="housewrapPerSqFt" type="number" min="0" step="0.01" value="0.38"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Installer hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="32"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="34"></label>
+          <label>Setup / breakdown (hours) <input id="setupHours" type="number" min="0" step="0.05" value="0.75"></label>
+          <label>Minimum on-site hours <input id="minOnSiteHours" type="number" min="0" step="0.25" value="4"></label>
+          <label>Trip / truck fee <input id="tripFee" type="number" min="0" step="1" value="85"></label>
+          <label>Dumpster (if tearing off) <input id="dumpsterCost" type="number" min="0" step="5" value="525"></label>
+          <label>Other cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="18"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="28"></label>
+          <label>Price you&rsquo;re considering (optional) <input id="proposedPrice" type="number" min="0" step="50" placeholder="e.g. 16400"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation (ladders and tear-off are not cheap), liability insurance, and paid time off. An installer paid $32 often costs more than $42 on the wall. Underestimating that is how an $8-a-foot special loses money.</p>
+      </section>
+
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the homeowner &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Halvorsen Exteriors LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(414) 555-0162"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="WI-DC-114902"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="5120 W North Ave, Milwaukee WI"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="T. Brennan"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="2233 N 68th St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Install 21 squares of fiber cement&#10;Wrap and flash 14 openings"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Sheathing replacement&#10;Window replacement"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Colour selected from samples on site before the order is placed."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your quote</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Net wall / billable squares</dt><dd id="squares"></dd>
+        <dt>On-site hours</dt><dd id="onSiteHours"></dd>
+        <dt>Travel hours (round trip)</dt><dd id="travelHours"></dd>
+        <dt>Total labor hours</dt><dd id="totalHours"></dd>
+        <dt>Loaded labor cost</dt><dd id="labor"></dd>
+        <dt>Siding material</dt><dd id="sidingMat"></dd>
+        <dt>Wrap + linear trim</dt><dd id="trimMat"></dd>
+        <dt>Add-on parts</dt><dd id="parts"></dd>
+        <dt>Dumpster + trip</dt><dd id="trip"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total cost</dt><dd id="cost"></dd>
+        <dt>Profit</dt><dd id="profit"></dd>
+        <dt>Price per billable square</dt><dd id="perSquare"></dd>
+        <dt>Price per net sq ft</dt><dd id="perSqFt"></dd>
+        <dt>Effective hourly rate</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy quote summary</button>
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the wall area goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and material figures are common ballpark numbers, not a manufacturer price list, a code table, or a guarantee &mdash; time your own crews and replace them. This is not a finding that any wall is weathertight, permitted, or due for replacement.</p>
+    </section>
+
+    <section id="faq">
+      <h2>Common questions</h2>
+
+      <h3>How do I work out how many squares of siding a house needs?</h3>
+      <p>Enter each elevation as a length &times; height row. The calculator adds them into gross wall area,
+        subtracts the window and door area you enter, divides the remainder by 100 to get net squares, then
+        adds waste to get the billable squares that material and install hours are priced from. Waste starts
+        at 10% for vinyl and aluminum and 12% for fiber cement and engineered wood &mdash; those are common
+        starting points, not a manufacturer allowance, and a cut-up elevation with lots of gables needs
+        more.</p>
+
+      <h3>If I subtract the windows, why is there still a charge per opening?</h3>
+      <p>Because the two are different costs. Subtracting opening square footage stops you buying siding for
+        glass. Cutting and fitting <em>around</em> that opening is a labor line of its own &mdash; about
+        0.35&nbsp;h per opening here &mdash; and the J-channel or window wrap around it is priced separately
+        by the linear foot. A wall with fourteen windows and a wall with two can have the same net square
+        footage and are nowhere near the same day's work; a per-square-foot quote cannot tell them apart.</p>
+
+      <h3>How much does a second or third storey add?</h3>
+      <p>Install hours are multiplied by 1.0 for one storey, 1.35 for two, and 1.7 for three or more. That
+        multiplier is height and staging &mdash; carrying material up, moving pump jacks, working off a
+        plank &mdash; not "a bigger house", so it applies to install hours only and not to tear-off,
+        housewrap, trim, or the flat add-ons. Scaffold or pump jacks are their own add-on line with hours
+        and rental cost, because that is a job-level decision rather than something that scales with area.</p>
+
+      <h3>Does tear-off cost the same as installing?</h3>
+      <p>No, it is its own hours-per-square figure, and the presets put it at roughly a third to a half of
+        install: about 2.0&nbsp;h/square against 4.5 for vinyl, 2.5 against 7.0 for fiber cement. Tear-off
+        also brings the dumpster, which is a separate flat cost, and it is optional &mdash; a siding-over
+        job turns tear-off hours off entirely while keeping housewrap, which is priced from net squares
+        rather than billable squares because wrap does not need the cut waste.</p>
+
+      <h3>Why does a small siding repair still price at more than the material?</h3>
+      <p>Round-trip drive time comes from the miles and speed you enter, setup is its own line, and a minimum
+        on-site hours floor applies when the takeoff comes in under it &mdash; a crew that mobilizes has
+        those hours gone whether the wall is four squares or forty. The trip or truck fee sits on top as a
+        flat line. Making the floor visible is the point: it is what a "just a couple of panels" call
+        actually costs you.</p>
+
+      <h3>Why isn't a 20% margin the same as adding 20% to my cost?</h3>
+      <p>Margin here is a share of the final price &mdash; price = job cost &divide;
+        (1&nbsp;&minus;&nbsp;margin) &mdash; which is how the quote reads to the homeowner and how your books
+        read it. Overhead is a separate markup on the job's direct cost, applied before margin and never to
+        itself or to profit. A $14,000 cost marked up 20% is $16,800, a 16.7% margin; a 20% target margin is
+        $17,500. Everything stays in your browser: no account, no upload, the shareable link carries your
+        inputs in the URL, and the optional local counter records only which features were used and the day.</p>
+    </section>
+  </main>
+
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when the sheet goes to the printer. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge or whether a wall may be resided. It is not a manufacturer, building-code, or insurance inspection. Verify every figure against your own payroll, insurance, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include the address, wall sizes, wages, or prices. A share link encodes only the quote fields in the page hash; it is not sent to us.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, MATERIAL_PRESETS, ACCESSORY_PRESETS, ADD_ON_PRESETS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+    import {
+      COMPANY_FIELDS,
+      buildProposal,
+      loadCompany,
+      saveCompany,
+      forgetCompany,
+      renderProposalHtml,
+    } from './proposal.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
+      overlongTermsNote } from './proposal-terms.mjs';
+
+    const COST_IDS = [
+      'stories','openingSqFt','openingCount','wastePercent','hoursPerSquare',
+      'materialPerSquare','tearOffHoursPerSquare','milesOneWay','speedMph',
+      'housewrapPerSqFt','hourlyWage','burdenRate','setupHours','minOnSiteHours',
+      'tripFee','dumpsterCost','otherCost','overheadRate','targetMargin','proposedPrice',
+    ];
+    const CHECK_IDS = ['tearOff', 'housewrap'];
+    const RATE_IDS = ['wastePercent', 'hoursPerSquare', 'materialPerSquare', 'tearOffHoursPerSquare'];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const STARTING_WALLS = [
+      { name: 'Front elevation', lengthFt: 40, heightFt: 18 },
+      { name: 'Rear elevation', lengthFt: 40, heightFt: 10 },
+      { name: 'Left gable', lengthFt: 28, heightFt: 14 },
+      { name: 'Right gable', lengthFt: 28, heightFt: 14 },
+    ];
+
+    const wallsHost = el('walls');
+    let rowSeq = 0;
+
+    function addWallRow(wall) {
+      const id = `w${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'wall-row';
+      row.innerHTML = `
+        <label for="${id}-name"><span class="lbl">Elevation</span><input class="w-name" id="${id}-name" type="text"></label>
+        <label for="${id}-len"><span class="lbl">Length (ft)</span><input class="w-len" id="${id}-len" type="number" min="0" step="0.5"></label>
+        <label for="${id}-ht"><span class="lbl">Height (ft)</span><input class="w-ht" id="${id}-ht" type="number" min="0" step="0.5"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this wall</span></button>`;
+      row.querySelector('.w-name').value = wall.name || '';
+      row.querySelector('.w-len').value = wall.lengthFt;
+      row.querySelector('.w-ht').value = wall.heightFt;
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('wall_removed');
+        update();
+      });
+      wallsHost.append(row);
+    }
+
+    function readWalls() {
+      return [...wallsHost.querySelectorAll('.wall-row')].map(row => ({
+        name: row.querySelector('.w-name').value,
+        lengthFt: row.querySelector('.w-len').value,
+        heightFt: row.querySelector('.w-ht').value,
+      }));
+    }
+
+    function readAccessories() {
+      return ACCESSORY_PRESETS.map(preset => ({
+        ...preset,
+        linearFeet: el(`acc-${preset.id}`).value,
+      }));
+    }
+
+    function readAddOns() {
+      return ADD_ON_PRESETS.map(preset => ({
+        ...preset,
+        enabled: el(`addOn-${preset.id}`).checked,
+      }));
+    }
+
+    function readInput() {
+      return {
+        walls: readWalls(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        tearOff: el('tearOff').checked,
+        housewrap: el('housewrap').checked,
+        accessories: readAccessories(),
+        addOns: readAddOns(),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function applyMaterialPreset(force) {
+      const preset = MATERIAL_PRESETS.find(item => item.id === el('materialType').value);
+      if (!preset) return;
+      RATE_IDS.forEach(id => {
+        const field = el(id);
+        if (force || !field.dataset.edited) {
+          field.value = preset[id];
+          delete field.dataset.edited;
+        }
+      });
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['squares','onSiteHours','travelHours','totalHours','labor','sidingMat','trimMat','parts','trip','overhead','cost','profit','perSquare','perSqFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    /**
+     * A preset id off a stranger's URL, put back on its select.
+     *
+     * Two rules, both learned from shipped defects. It is checked against the
+     * options this page actually offers, because a fragment is the one part of
+     * these pages a stranger writes and the value ends up on a document the
+     * contractor prints. And it is assigned *without* dispatching `change`:
+     * that handler re-stamps the preset's own rates over whatever is in the
+     * form, which on arrival would replace the sender's typed supplier price
+     * with the preset's — the failure `amazon-fba-calculator` shipped when it
+     * carried its placement presets by dispatching.
+     *
+     * Returns false when the link carried nothing usable, so the caller can
+     * fall back to reconstructing the choice from the rates that did travel.
+     */
+    function applySharedChoice(id, value) {
+      if (typeof value !== 'string' || value === '') return false;
+      const select = el(id);
+      if (!select) return false;
+      if (![...select.options].some(option => option.value === value)) return false;
+      select.value = value;
+      return true;
+    }
+
+    function applyShare(payload) {
+      if (!payload) return;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      CHECK_IDS.forEach(id => {
+        if (payload[id] !== undefined) el(id).checked = Boolean(payload[id]);
+      });
+      if (Array.isArray(payload.addOns)) {
+        ADD_ON_PRESETS.forEach(preset => {
+          const match = payload.addOns.find(item => item.id === preset.id);
+          if (match) el(`addOn-${preset.id}`).checked = match.enabled !== false;
+        });
+      }
+      if (Array.isArray(payload.accessories)) {
+        ACCESSORY_PRESETS.forEach(preset => {
+          const match = payload.accessories.find(item => item.id === preset.id);
+          if (match && match.linearFeet !== undefined) el(`acc-${preset.id}`).value = match.linearFeet;
+        });
+      }
+      if (Array.isArray(payload.walls) && payload.walls.length) {
+        wallsHost.innerHTML = '';
+        payload.walls.forEach(addWallRow);
+      }
+      if (!applySharedChoice('materialType', payload.materialType)) {
+        const match = MATERIAL_PRESETS.find(preset =>
+          Number(preset.hoursPerSquare) === Number(payload.hoursPerSquare) &&
+          Number(preset.wastePercent) === Number(payload.wastePercent) &&
+          Number(preset.materialPerSquare) === Number(payload.materialPerSquare)
+        );
+        el('materialType').value = match ? match.id : 'other';
+      }
+      RATE_IDS.forEach(id => { if (payload[id] !== undefined) el(id).dataset.edited = '1'; });
+    }
+
+    function update() {
+      const input = readInput();
+      if (input.walls.length === 0) {
+        clearOutputs('Add a wall to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one elevation above and the area split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(input);
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('squares').textContent = `${result.netWallSqFt.toFixed(0)} sq ft / ${result.billableSquares.toFixed(2)} sq`;
+      el('onSiteHours').textContent = `${result.onSiteHours.toFixed(2)} h${result.minimumApplied ? ' (minimum)' : ''}`;
+      el('travelHours').textContent = `${result.travelHours.toFixed(2)} h`;
+      el('totalHours').textContent = `${result.totalHours.toFixed(2)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('sidingMat').textContent = money(result.sidingMaterial);
+      el('trimMat').textContent = money(result.wrapMaterial + result.accessoryMaterial);
+      el('parts').textContent = money(result.addOnParts);
+      el('trip').textContent = money(result.dumpster + result.tripFee);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perSquare').textContent = result.pricePerSquare === null ? 'n/a' : money(result.pricePerSquare);
+      el('perSqFt').textContent = result.pricePerNetSqFt === null ? 'n/a' : `${money(result.pricePerNetSqFt)}/ft²`;
+      el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      const worked = result.walls.filter(wall => wall.grossSqFt > 0);
+      el('split').innerHTML = worked.length === 0
+        ? '<li class="empty">No wall has area yet — set length and height above.</li>'
+        : worked
+          .slice()
+          .sort((a, b) => b.grossSqFt - a.grossSqFt)
+          .map(wall => `<li><span>${wall.name} (${wall.lengthFt}×${wall.heightFt})</span><span>${wall.areaShare.toFixed(0)}% of wall area</span>
+            <span class="bar"><span style="width:${wall.areaShare.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
+      }
+    }
+
+    function summaryText(result) {
+      const walls = result.walls
+        .filter(wall => wall.grossSqFt > 0)
+        .map(wall => `- ${wall.name}: ${wall.lengthFt} ft × ${wall.heightFt} ft (${wall.grossSqFt.toFixed(0)} sq ft)`)
+        .join('\n');
+      const extras = [
+        result.tearOff ? 'tear-off' : null,
+        result.housewrap ? 'housewrap' : null,
+        ...result.addOns.map(item => item.label),
+      ].filter(Boolean).join('; ');
+      return [
+        'SIDING QUOTE',
+        '',
+        `Proposed price: ${money(result.price)}`,
+        `Walk-away (cost): ${money(result.breakEvenPrice)}`,
+        `Net wall: ${result.netWallSqFt.toFixed(0)} sq ft → ${result.billableSquares.toFixed(2)} billable squares at ${result.wastePercent}% waste`,
+        `Labor: ${result.totalHours.toFixed(2)} hours (${result.onSiteHours.toFixed(2)} on site + ${result.travelHours.toFixed(2)} travel)`,
+        `Stories: ${result.stories}`,
+        extras ? `Scope extras: ${extras}` : 'Scope extras: none',
+        '',
+        'WALLS',
+        walls || '- No walls entered',
+        '',
+        'This is a draft for review. Confirm measurements, waste, access, insurance, taxes, and all pricing before sending. It is not a manufacturer, code, or weathertightness inspection.',
+      ].join('\n');
+    }
+
+    async function writeClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      await writeClipboard(summaryText(result));
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    /**
+     * What the link carries: the priced job, plus the material choice that
+     * describes it. Kept out of `readInput` so `calculateBid` is still handed
+     * only the figures it computes with.
+     */
+    function readShareInput() {
+      return { ...readInput(), materialType: el('materialType').value };
+    }
+
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(readShareInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      await writeClipboard(url);
+      history.replaceState(null, '', `#${hash}`);
+      count('share_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('summaryStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addWall').addEventListener('click', () => {
+      addWallRow({ name: '', lengthFt: 24, heightFt: 10 });
+      count('wall_added');
+      update();
+    });
+
+    el('materialType').addEventListener('change', () => {
+      applyMaterialPreset(true);
+      count('bid_calculated');
+      update();
+    });
+    RATE_IDS.forEach(id => {
+      el(id).addEventListener('input', () => { el(id).dataset.edited = '1'; });
+    });
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    ACCESSORY_PRESETS.forEach(preset => {
+      el(`acc-${preset.id}`).addEventListener('input', update);
+      el(`acc-${preset.id}`).addEventListener('change', () => count('bid_calculated'));
+    });
+    ['tearOff', 'housewrap', ...ADD_ON_PRESETS.map(preset => `addOn-${preset.id}`)].forEach(id => {
+      el(id).addEventListener('change', () => {
+        count('bid_calculated');
+        update();
+      });
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+    el('copyShare').addEventListener('click', () => {
+      try {
+        copyShare().catch(() => { el('summaryStatus').textContent = 'Copy failed.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    const incoming = splitTerms(location.hash);
+    const shared = decodeShare(incoming.payload);
+    applyTerms(decodeTerms(incoming.terms), el);
+    if (shared) applyShare(shared);
+    if (!wallsHost.querySelector('.wall-row')) STARTING_WALLS.forEach(addWallRow);
+    if (!shared) applyMaterialPreset(false);
+
+    // ---- Customer-facing proposal -------------------------------------------
+    // See platform/proposal/README.md. Only COMPANY_KEY, PROPOSAL_DISCLAIMER and
+    // suggestScope are per-trade; the rest is the shared module.
+
+    const COMPANY_KEY = 'siding-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, '
+      + 'who is solely responsible for the work, the scope, and any permit or inspection it requires. '
+      + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
+      + 'it is not a structural, building-code, or engineering determination, and it does not warrant the condition of any sheathing or framing found behind the existing cladding.';
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
+    }
+
+    /**
+     * A first draft of the scope, from what the contractor already priced, so the
+     * proposal is useful before they type anything. Left alone once edited —
+     * a recalculation must never overwrite wording sent to a customer.
+     *
+     * Written by hand rather than derived from the on-screen breakdown: that
+     * breakdown carries crew hours and material cost, which must not reach a
+     * customer's copy.
+     */
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      const suggested = [
+        `Install ${result.billableSquares.toFixed(1)} squares of siding over `
+          + `${Math.round(result.netWallSqFt).toLocaleString('en-US')} sq ft of wall`,
+        result.stories > 1 ? `${result.stories}-storey elevations` : '',
+        result.tearOff ? 'Tear off and dispose of the existing siding' : '',
+        result.housewrap ? 'Install house wrap / weather-resistive barrier' : '',
+        result.openingCount > 0
+          ? `Trim and flash ${result.openingCount} opening${result.openingCount === 1 ? '' : 's'}`
+          : '',
+        'Site protection and clean-up on completion',
+      ];
+      scope.value = suggested.filter(Boolean).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // The customer is quoted the price the contractor is considering when
+        // they typed one; otherwise the calculated price. Printing a different
+        // number from the one on screen would be the worst bug this can have.
+        price: result.proposed === null || result.proposed === undefined
+          ? result.price
+          : result.proposed.price,
+        jobTitle: 'Siding replacement',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer\u2019s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes.
+     *
+     * Delegated from `document` rather than called inside `update()`: every
+     * calculator's `update()` has a different shape, and one bubble-phase
+     * listener works in all of them.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // would show a price the calculator no longer stands behind.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+
+    update();
+    restoreCompany();
+    refreshProposal();
+  </script>
+</body>
+</html>

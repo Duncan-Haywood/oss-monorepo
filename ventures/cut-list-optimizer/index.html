@@ -1,0 +1,835 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cut List Optimizer — Compare Sheet Sizes and Board Lengths</title>
+  <meta name="description" content="Free cut list optimizer for woodworkers and sign shops. Lay out plywood, MDF, or acrylic, compare 4×8 vs 5×5 sheets, and rank 8 ft vs 10 ft vs 12 ft boards before you buy. Nothing is uploaded.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Cut List Optimizer — compare sheet sizes and board lengths before you buy">
+  <meta property="og:description" content="Paste your parts, see the layout, and rank 4×8 against 5×5 — or 8 ft against 12 ft — by the material you would buy. Free, in your browser.">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Cut List Optimizer",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "sheet goods layout diagrams, guillotine cutting plans, saw kerf allowance, edge trim, grain direction lock, offcut list, compare 4x8 vs 5x5 sheet sizes, linear stock optimization, compare 8ft vs 10ft vs 12ft boards, material cost estimate for sheets and linear stock, printable job ticket",
+    "description": "A free browser tool that turns a parts list into a low-waste cutting plan and ranks common sheet and board sizes by the material you would actually buy. Runs entirely on the visitor's device."
+  }
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How does the sheet layout decide where each piece goes?","acceptedAnswer":{"@type":"Answer","text":"Largest pieces are placed first, into the first spot on the sheet they fit, with your saw kerf and edge trim already subtracted from the usable area. It is a fast, practical heuristic, not a proven-optimal packing — always confirm the diagram against your own stock and saw before cutting."}},{"@type":"Question","name":"What does adding grain to the end of a line do?","acceptedAnswer":{"@type":"Answer","text":"It locks that one piece to its listed orientation even when \"Pieces may be rotated 90°\" is checked for everything else. Use it for a veneer face, a printed panel, or anything where the direction has to run one way — leaving rotation on for the rest of the list still lets the layout use less material on parts that don't care which way they're cut."}},{"@type":"Question","name":"What's the difference between \"material used\" and \"offcut area\"?","acceptedAnswer":{"@type":"Answer","text":"Material used is the actual area of the parts you listed; offcut area is everything left over on the sheets you buy, including the strips lost to kerf and edge trim. Utilization is used area divided by total sheet area bought — on the default three-part list it lands well under 100%, because a sheet you buy is a fixed size whether or not the parts fill it."}},{"@type":"Question","name":"When should I use the sheet-size or board-length comparison instead of just my usual size?","acceptedAnswer":{"@type":"Answer","text":"Whenever more than one size is actually stocked at the yard. The comparison re-runs the same cut list against each candidate size — for example a 4×8 against a 5×5 or a half-sheet — and ranks them by sheets needed, or by total cost once you enter a price for each. A size that looks cheaper per sheet can still lose if it takes more sheets to fit the same parts."}},{"@type":"Question","name":"Does the planner use my on-hand offcuts before buying new stock?","acceptedAnswer":{"@type":"Answer","text":"Yes, on both tabs. Cuts and panels are placed into your listed offcuts first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the sheet-goods tab an offcut is sized as width x height and can be larger than the sheet you'd otherwise buy — a leftover full sheet, say. On both tabs an untouched offcut stays off the plan entirely, since it's still on the rack, not consumed. On the default examples, the on-hand list already covers part of the required list, which is why \"Sheets to buy\" or \"New pieces to buy\" can come in lower than the raw part count would suggest."}},{"@type":"Question","name":"Is my cut list uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below."}}]}</script>
+  <style>
+    :root { font-family: ui-sans-serif, system-ui, sans-serif; color: #20241d; background: #f1eee6; }
+    body { max-width: 1120px; margin: auto; padding: 34px 18px; }
+    header { max-width: 780px; }
+    .eyebrow { color: #af4d29; font-weight: 800; letter-spacing: .12em; font-size: .75rem; margin: 0; }
+    h1 { font: 800 clamp(2.2rem, 6.4vw, 4.4rem)/.96 Georgia, serif; letter-spacing: -.05em; margin: 8px 0 16px; }
+    p { line-height: 1.55; }
+    .tabs { display: flex; gap: 8px; margin-top: 26px; flex-wrap: wrap; }
+    .tabs button {
+      font: inherit; font-weight: 700; cursor: pointer; padding: 10px 18px;
+      border: 1px solid #d6d0c3; border-radius: 999px; background: #fffdf8; color: #20241d;
+    }
+    .tabs button[aria-selected="true"] { background: #24392b; border-color: #24392b; color: #f8f5eb; }
+    .tabs button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .actions button:focus-visible {
+      outline: 3px solid #af4d29; outline-offset: 2px;
+    }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; align-items: start; }
+    section { background: #fffdf8; border: 1px solid #d6d0c3; border-radius: 16px; padding: 22px; box-shadow: 0 10px 30px #3328170d; }
+    h2 { margin-top: 0; font-size: 1.1rem; }
+    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    label { display: grid; gap: 6px; font-size: .88rem; font-weight: 700; }
+    input, textarea, select { font: inherit; border: 1px solid #aaa394; border-radius: 8px; padding: 11px; background: #fff; color: inherit; }
+    textarea { min-height: 190px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .wide { grid-column: 1 / -1; }
+    .check { display: flex; align-items: center; gap: 8px; font-size: .88rem; font-weight: 700; }
+    .check input { width: auto; }
+    .summary { background: #24392b; color: #f8f5eb; border-color: #24392b; }
+    .big { font: 800 clamp(2.2rem, 6vw, 3.4rem) Georgia, serif; margin: 4px 0 6px; color: #e9be76; line-height: 1.05; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin: 18px 0 0; }
+    dt, dd { margin: 0; }
+    dd { font-variant-numeric: tabular-nums; font-weight: 700; }
+    .bar { border-top: 1px solid #ffffff30; padding: 11px 0; }
+    .bar strong { display: block; }
+    .tag {
+      display: inline-block; font-size: .68rem; letter-spacing: .08em; font-weight: 800;
+      border-radius: 999px; padding: 2px 8px; margin-right: 7px; vertical-align: 1px;
+    }
+    .tag-onhand { background: #e9be76; color: #24392b; }
+    .tag-buy { background: #ffffff26; color: #f8f5eb; }
+    .saved { background: #e9be76; color: #24392b; border-radius: 10px; padding: 11px 13px; font-weight: 700; font-size: .9rem; margin: 14px 0 0; }
+    .muted { opacity: .75; font-size: .84rem; }
+    .warn { background: #fdf1e6; color: #20241d; border: 1px solid #d9a273; border-radius: 10px; padding: 12px 14px; margin-top: 14px; font-size: .9rem; }
+    .warn:empty { display: none; }
+    .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
+    .actions button {
+      font: inherit; font-weight: 700; cursor: pointer; padding: 11px 18px; border-radius: 999px;
+      border: 1px solid #f8f5eb; background: #f8f5eb; color: #24392b;
+    }
+    .actions button[disabled] { opacity: .45; cursor: not-allowed; }
+    .actions button.secondary { background: transparent; color: #f8f5eb; }
+    .sheets { margin-top: 18px; display: grid; gap: 18px; }
+    .sheet-card svg { width: 100%; height: auto; background: #efeadf; border-radius: 8px; display: block; }
+    .sheet-card h3 { margin: 0 0 10px; font-size: 1rem; }
+    .piece-list { margin: 10px 0 0; padding-left: 18px; font-size: .85rem; line-height: 1.5; }
+    footer { font-size: .8rem; color: #5c5b52; margin-top: 28px; }
+    footer p { line-height: 1.5; }
+    .empty { color: #5c5b52; font-size: .9rem; }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .presets button {
+      font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer;
+      padding: 6px 12px; border-radius: 999px; border: 1px solid #aaa394;
+      background: #fff; color: inherit;
+    }
+    .compare { margin-top: 18px; }
+    .compare table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    .compare th, .compare td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #ffffff30; }
+    .compare th { font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; opacity: .8; }
+    .compare tr.winner { background: #e9be7624; }
+    .compare .pick { color: #e9be76; font-weight: 800; }
+    .compare:empty { display: none; }
+    .compare-fields { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; grid-column: 1 / -1; }
+    .compare-block { margin-top: 18px; }
+    .compare-block h2 { margin-bottom: 6px; }
+    .compare-table { width: 100%; border-collapse: collapse; font-size: .88rem; margin-top: 14px; }
+    .compare-table th, .compare-table td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #d6d0c3; vertical-align: top; }
+    .compare-table th { font-size: .75rem; letter-spacing: .04em; text-transform: uppercase; color: #5c5b52; }
+    .compare-table tr[data-winner="true"] { background: #e8f0e6; }
+    .compare-table tr[data-fits="false"] { opacity: .7; }
+    .compare-table tr[data-apply-stock] { cursor: pointer; }
+    .compare-table button {
+      font: inherit; font-weight: 700; cursor: pointer; padding: 6px 12px; border-radius: 999px;
+      border: 1px solid #24392b; background: #24392b; color: #f8f5eb;
+    }
+    .compare-table button[disabled] { opacity: .45; cursor: default; }
+    .winner-tag { color: #24392b; font-weight: 800; }
+    @media (max-width: 760px) {
+      .compare-fields { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 760px) {
+      .layout { grid-template-columns: 1fr; }
+      .fields { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { max-width: none; }
+      .tabs, .actions, footer label, header p { display: none; }
+      section { box-shadow: none; break-inside: avoid; }
+      .sheet-card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR WOODWORKERS, SIGN SHOPS, AND MAKERS</p>
+    <h1>Buy less stock. Cut with a plan.</h1>
+    <p>
+      Paste the pieces you need. Get a sheet-by-sheet layout for plywood, MDF, or acrylic,
+      or a bar-by-bar plan for linear stock — with your saw kerf accounted for and the
+      offcut shown before you buy. Compare a 4×8 against 5×5 Baltic birch or a half-sheet,
+      or 8 ft against 10 ft and 12 ft boards, when the store stocks more than one size.
+      <a href="compare-4x8-vs-5x5.html">4×8 vs 5×5 worked example</a>.
+    </p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Which kind of stock are you cutting?">
+    <button type="button" role="tab" id="tab-sheet" aria-controls="panel-sheet" aria-selected="true">Sheet goods</button>
+    <button type="button" role="tab" id="tab-linear" aria-controls="panel-linear" aria-selected="false">Linear stock</button>
+  </div>
+
+  <!-- ================= Sheet goods ================= -->
+  <div id="panel-sheet" role="tabpanel" aria-labelledby="tab-sheet">
+    <main class="layout">
+      <section>
+        <h2>Sheet stock and parts</h2>
+        <div class="fields">
+          <label>Sheet width<input id="sheet-width" type="number" min="0.01" step="0.01" value="96"></label>
+          <label>Sheet height<input id="sheet-height" type="number" min="0.01" step="0.01" value="48"></label>
+          <label>Saw kerf per cut<input id="sheet-kerf" type="number" min="0" step="0.001" value="0.125"></label>
+          <label>Edge trim per side<input id="sheet-trim" type="number" min="0" step="0.01" value="0"></label>
+          <label>Measurement unit
+            <select id="sheet-unit">
+              <option value="in">inches</option>
+              <option value="cm">centimeters</option>
+              <option value="mm">millimeters</option>
+            </select>
+          </label>
+          <label>Cost per sheet <span class="muted">optional</span><input id="sheet-cost" type="number" min="0" step="0.01" placeholder="62.00"></label>
+          <div class="wide">
+            <p style="margin:0 0 8px;font-weight:700;font-size:.88rem">Compare other sheet sizes</p>
+            <p class="muted" style="margin:0">
+              Rank this list against a second and third size before you buy.
+              Leave a row blank to skip it.
+            </p>
+            <div class="presets" role="group" aria-label="Common sheet sizes to compare">
+              <button type="button" id="preset-5x5">Use 5×5 Baltic birch</button>
+              <button type="button" id="preset-4x4">Use 4×4 half-sheet</button>
+              <button type="button" id="preset-5x10">Use 5×10</button>
+            </div>
+          </div>
+          <div class="compare-fields">
+            <label>Alt width<input id="sheet-alt1-width" type="number" min="0.01" step="0.01" placeholder="60"></label>
+            <label>Alt height<input id="sheet-alt1-height" type="number" min="0.01" step="0.01" placeholder="60"></label>
+            <label>Alt cost <span class="muted">optional</span><input id="sheet-alt1-cost" type="number" min="0" step="0.01" placeholder="55.00"></label>
+          </div>
+          <div class="compare-fields">
+            <label>Second alt width<input id="sheet-alt2-width" type="number" min="0.01" step="0.01" placeholder="48"></label>
+            <label>Second alt height<input id="sheet-alt2-height" type="number" min="0.01" step="0.01" placeholder="48"></label>
+            <label>Second alt cost <span class="muted">optional</span><input id="sheet-alt2-cost" type="number" min="0" step="0.01" placeholder="22.00"></label>
+          </div>
+          <div class="wide">
+            <label class="check"><input id="sheet-rotate" type="checkbox" checked> Pieces may be rotated 90°</label>
+            <p class="muted" style="margin:6px 0 0">
+              Turn this off for a veneer or a printed face where grain or print direction has to run one way.
+              Add <code>grain</code> to the end of a single line to pin just that piece.
+            </p>
+          </div>
+          <label class="wide">Parts, one per line
+            <span class="muted">
+              <code>24 x 12</code>, <code>24 x 12 x 3</code> for three of them,
+              <code>Shelf: 24 x 12 x 3</code> to name them
+            </span>
+            <textarea id="sheet-parts" spellcheck="false">Side: 72 x 11.25 x 2
+Shelf: 30 x 11.25 x 4
+Top: 31.5 x 11.25 x 2</textarea>
+          </label>
+          <label class="wide">Offcuts you already have
+            <span class="muted">Optional &mdash; sized <code>width x height</code>, used before anything is bought</span>
+            <textarea id="sheet-onhand" spellcheck="false">31.5 x 11.25</textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="summary">
+        <h2>Your sheet layout</h2>
+        <p class="big" id="sheet-headline">—</p>
+        <p class="muted" id="sheet-message" role="status" aria-live="polite">Enter your sheet size, saw kerf, and parts to see a layout.</p>
+        <dl>
+          <dt>Sheets to buy</dt><dd id="sheet-count">—</dd>
+          <dt>Material used</dt><dd id="sheet-utilization">—</dd>
+          <dt>Part area</dt><dd id="sheet-used">—</dd>
+          <dt>Offcut area</dt><dd id="sheet-waste">—</dd>
+          <dt>Material cost</dt><dd id="sheet-total-cost">—</dd>
+        </dl>
+        <div class="warn" id="sheet-oversize"></div>
+        <div class="compare" id="sheet-compare"></div>
+        <div class="actions">
+          <button type="button" id="sheet-copy" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="sheet-print">Print</button>
+          <span class="muted" id="sheet-copy-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </main>
+
+    <section class="sheets" id="sheet-diagrams" aria-label="Sheet layout diagrams">
+      <p class="empty">The layout for each sheet appears here.</p>
+    </section>
+  </div>
+
+  <!-- ================= Linear stock ================= -->
+  <div id="panel-linear" role="tabpanel" aria-labelledby="tab-linear" hidden>
+    <main class="layout">
+      <section>
+        <h2>Stock and required cuts</h2>
+        <div class="fields">
+          <label>Stock length<input id="stock" type="number" min="0.01" step="0.01" value="96"></label>
+          <label>Saw kerf per cut<input id="kerf" type="number" min="0" step="0.001" value="0.125"></label>
+          <label>Measurement unit
+            <select id="unit">
+              <option value="in">inches</option>
+              <option value="cm">centimeters</option>
+              <option value="mm">millimeters</option>
+              <option value="ft">feet</option>
+            </select>
+          </label>
+          <label>Cost per stock piece <span class="muted">optional</span><input id="stock-cost" type="number" min="0" step="0.01" placeholder="12.00"></label>
+          <label>Currency
+            <select id="currency">
+              <option value="$">$ USD</option>
+              <option value="&euro;">&euro; EUR</option>
+              <option value="&pound;">&pound; GBP</option>
+              <option value="C$">C$ CAD</option>
+              <option value="A$">A$ AUD</option>
+            </select>
+          </label>
+          <label class="wide">Required cuts, one per line
+            <span class="muted">Use <code>24 x 3</code> for three pieces at 24</span>
+            <textarea id="cuts" spellcheck="false">48 x 2
+30 x 4
+18 x 3
+12.5</textarea>
+          </label>
+          <label class="wide">Offcuts you already have
+            <span class="muted">Optional &mdash; these get used before anything is bought</span>
+            <textarea id="onhand" spellcheck="false">36 x 2
+22</textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="summary">
+        <h2>Your cutting plan</h2>
+        <p class="big" id="headline">—</p>
+        <p class="muted" id="message" role="status" aria-live="polite">Enter your stock length, saw kerf, and required cuts to see a plan.</p>
+        <p class="saved" id="saved" hidden></p>
+        <dl>
+          <dt>Stock pieces in plan</dt><dd id="bars">—</dd>
+          <dt>New pieces to buy</dt><dd id="purchased">—</dd>
+          <dt>Material cost</dt><dd id="linear-total-cost">—</dd>
+          <dt>Required material</dt><dd id="used">—</dd>
+          <dt>Offcut after kerf allowance</dt><dd id="waste">—</dd>
+          <dt>Stock utilization</dt><dd id="utilization">—</dd>
+        </dl>
+        <div id="plan"></div>
+        <div class="actions">
+          <button type="button" id="copy-plan" disabled>Copy cut plan</button>
+          <button type="button" class="secondary" id="linear-print">Print</button>
+          <span class="muted" id="copy-status" role="status" aria-live="polite"></span>
+        </div>
+      </section>
+    </main>
+
+    <section class="compare-block" id="linear-compare-block" aria-labelledby="linear-compare-heading">
+      <h2 id="linear-compare-heading">Which board length should you buy?</h2>
+      <p class="muted">
+        Same cuts, the lengths a yard sells. Ranked by purchased length, so an 8 ft
+        stick wins over a 12 ft stick when both cover the list with one bar.
+      </p>
+      <div id="linear-compare"><p class="empty">Enter required cuts to compare common stock lengths.</p></div>
+      <div class="actions">
+        <button type="button" id="linear-compare-copy" disabled>Copy length comparison</button>
+        <span class="muted" id="linear-compare-status" role="status" aria-live="polite"></span>
+      </div>
+    </section>
+  </div>
+
+  <section id="faq">
+    <h2>Common questions</h2>
+    <h3>How does the sheet layout decide where each piece goes?</h3>
+    <p>Largest pieces are placed first, into the first spot on the sheet they fit, with your saw kerf and edge trim already subtracted from the usable area. It is a fast, practical heuristic, not a proven-optimal packing — always confirm the diagram against your own stock and saw before cutting.</p>
+    <h3>What does adding <code>grain</code> to the end of a line do?</h3>
+    <p>It locks that one piece to its listed orientation even when "Pieces may be rotated 90°" is checked for everything else. Use it for a veneer face, a printed panel, or anything where the direction has to run one way — leaving rotation on for the rest of the list still lets the layout use less material on parts that don't care which way they're cut.</p>
+    <h3>What's the difference between "material used" and "offcut area"?</h3>
+    <p>Material used is the actual area of the parts you listed; offcut area is everything left over on the sheets you buy, including the strips lost to kerf and edge trim. Utilization is used area divided by total sheet area bought — on the default three-part list it lands well under 100%, because a sheet you buy is a fixed size whether or not the parts fill it.</p>
+    <h3>When should I use the sheet-size or board-length comparison instead of just my usual size?</h3>
+    <p>Whenever more than one size is actually stocked at the yard. The comparison re-runs the same cut list against each candidate size — for example a 4×8 against a 5×5 or a half-sheet — and ranks them by sheets needed, or by total cost once you enter a price for each. A size that looks cheaper per sheet can still lose if it takes more sheets to fit the same parts.</p>
+    <h3>Does the planner use my on-hand offcuts before buying new stock?</h3>
+    <p>Yes, on both tabs. Cuts and panels are placed into your listed offcuts first, and only the pieces that don't fit any offcut count toward new stock to purchase. On the sheet-goods tab an offcut is sized as <code>width x height</code> and can be larger than the sheet you'd otherwise buy — a leftover full sheet, say. On both tabs an untouched offcut stays off the plan entirely, since it's still on the rack, not consumed. On the default examples, the on-hand list already covers part of the required list, which is why "Sheets to buy" or "New pieces to buy" can come in lower than the raw part count would suggest.</p>
+    <h3>Is my cut list uploaded anywhere?</h3>
+    <p>No. The layout, comparisons, and printable plan are all computed in your browser. An optional saved draft and anonymous local usage counts stay on this device only — both can be turned off and cleared with the checkbox and button below.</p>
+  </section>
+
+  <footer>
+    <label class="check"><input id="optout" type="checkbox"> Do not keep anonymous local usage counts or saved drafts</label>
+    <div class="actions"><button type="button" id="clear-draft" class="draft-button">Clear saved draft</button><span id="draft-status" role="status" aria-live="polite">Drafts are saved only on this device.</span></div>
+    <p>
+      <strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind, express or implied.
+      It is not engineering, financial, or business advice and does not replace a qualified professional.
+      The layout is produced by a heuristic — it is not proven to be the best possible arrangement.
+      Review and verify the plan, dimensions, tool setup, and material before cutting.
+      To the maximum extent permitted by law, the authors accept no liability for loss or damage arising from its use.
+    </p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>
+      Every cut in a sheet plan runs edge to edge, so the layout can be cut on a table saw, track saw, or panel saw.
+      Kerf and edge trim are counted as waste rather than as usable material.
+    </p>
+    <p>
+      Everything runs in your browser. Your cut list is never uploaded. Anonymous calculation events and your optional
+      unfinished draft are kept only in local storage, can be switched off and cleared above, and are never sent to an analytics vendor.
+    </p>
+    <p>
+      Free and open source. If it saved you a sheet or a stick of stock, the
+      <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> —
+      <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.
+    </p>
+  </footer>
+
+  <script type="module">
+    import { parseCuts, parseStock, optimizeCutList, formatCutPlan, compareStockLengths, formatStockComparison } from './calc.mjs';
+    import { parsePanels, parseOnHandSheets, optimizeSheets, formatSheetPlan, compareSheetSizes, formatSheetComparison } from './sheet.mjs';
+    import { recordUsage, clearUsage } from './usage.mjs';
+    import { loadDraft, saveDraft, clearDraft } from './draft.mjs';
+
+    const $ = (id) => document.getElementById(id);
+    const optedOut = () => $('optout').checked;
+    const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (c) => (
+      { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+    ));
+
+    // Re-rendering is cheap and runs on every keystroke, but a usage count that
+    // ticks per keystroke measures typing, not cut plans. `ready` lets the
+    // settled-value ('change') listeners below count one plan per real edit.
+    const ready = { sheet: false, linear: false, sheetCompare: false };
+
+    const SHEET_PRESETS = {
+      '5x5': { width: 60, height: 60 },
+      '4x4': { width: 48, height: 48 },
+      '5x10': { width: 60, height: 120 },
+    };
+
+    function readAltCandidate(prefix) {
+      const width = Number($(prefix + '-width').value);
+      const height = Number($(prefix + '-height').value);
+      if (!(width > 0) || !(height > 0)) return null;
+      const rawCost = Number($(prefix + '-cost').value);
+      return {
+        width,
+        height,
+        costPerSheet: Number.isFinite(rawCost) && rawCost > 0 ? rawCost : null,
+      };
+    }
+
+    function firstOpenAltPrefix() {
+      for (const prefix of ['sheet-alt1', 'sheet-alt2']) {
+        if (!readAltCandidate(prefix)) return prefix;
+      }
+      return 'sheet-alt2';
+    }
+
+    function applyPreset(name) {
+      const preset = SHEET_PRESETS[name];
+      if (!preset) return;
+      const prefix = firstOpenAltPrefix();
+      $(prefix + '-width').value = String(preset.width);
+      $(prefix + '-height').value = String(preset.height);
+      renderSheet();
+      if (ready.sheetCompare) recordUsage(localStorage, optedOut(), 'sheet-compares');
+    }
+
+    /* ---------------- Sheet goods ---------------- */
+
+    const SHEET_STATS = ['sheet-count', 'sheet-utilization', 'sheet-used', 'sheet-waste', 'sheet-total-cost'];
+
+    function renderSheetSvg(result, sheet, index, unit) {
+      // An on-hand offcut is its own size, not the configured sheet size, and
+      // carries no factory-edge trim to draw — its edges were already square.
+      const w = sheet.width;
+      const h = sheet.height;
+      const trim = sheet.source === 'on-hand' ? 0 : result.trim;
+      const stroke = Math.max(w, h) / 900;
+      const fontSize = Math.max(w, h) / 42;
+      const pieces = sheet.placements.map((p) => {
+        const cx = p.x + p.width / 2;
+        const cy = p.y + p.height / 2;
+        const label = escapeHtml(p.label) + (p.rotated ? ' ↻' : '');
+        const dims = `${p.width.toFixed(2)} × ${p.height.toFixed(2)}`;
+        // Only label a piece physically big enough to read the label inside.
+        const roomForText = p.height > fontSize * 2.6 && p.width > fontSize * 4;
+        return `<g>
+            <rect x="${p.x}" y="${p.y}" width="${p.width}" height="${p.height}" fill="#cfe0cf" stroke="#24392b" stroke-width="${stroke}"/>
+            ${roomForText ? `<text x="${cx}" y="${cy - fontSize * 0.1}" font-size="${fontSize}" text-anchor="middle" fill="#20241d" font-weight="700">${label}</text>
+            <text x="${cx}" y="${cy + fontSize * 1.05}" font-size="${fontSize * 0.85}" text-anchor="middle" fill="#4a5a48">${dims}</text>` : ''}
+          </g>`;
+      }).join('');
+      const trimLine = trim > 0
+        ? `<rect x="${trim}" y="${trim}" width="${w - 2 * trim}" height="${h - 2 * trim}" fill="none" stroke="#af4d29" stroke-width="${stroke}" stroke-dasharray="${Math.max(w, h) / 90}"/>`
+        : '';
+      const sheetKind = sheet.source === 'on-hand' ? 'on-hand offcut' : 'sheet';
+      return `<svg viewBox="0 0 ${w} ${h}" role="img" preserveAspectRatio="xMidYMid meet">
+          <title>Sheet ${index + 1} layout: ${sheet.placements.length} pieces on a ${w} by ${h} ${escapeHtml(unit)} ${sheetKind}</title>
+          <rect x="0" y="0" width="${w}" height="${h}" fill="#efeadf" stroke="#aaa394" stroke-width="${stroke}"/>
+          ${trimLine}${pieces}
+        </svg>`;
+    }
+
+    function renderSheetPlan(result, unit) {
+      if (!result.sheets.length) {
+        $('sheet-diagrams').innerHTML = '<p class="empty">Nothing on this list fits a sheet that size.</p>';
+        return;
+      }
+      $('sheet-diagrams').innerHTML = result.sheets.map((sheet, index) => {
+        const pieces = sheet.placements.map((p) => (
+          `<li>${escapeHtml(p.label)} — ${p.width.toFixed(2)} × ${p.height.toFixed(2)} ${escapeHtml(unit)}`
+          + ` at x ${p.x.toFixed(2)}, y ${p.y.toFixed(2)}${p.rotated ? ' (rotated 90°)' : ''}</li>`
+        )).join('');
+        const keepers = sheet.offcuts.slice(0, 3)
+          .map((o) => `${o.width.toFixed(2)} × ${o.height.toFixed(2)}`).join(', ');
+        const tag = sheet.source === 'on-hand' ? ' — on-hand offcut' : '';
+        return `<div class="sheet-card">
+            <h3>Sheet ${index + 1}${tag} — ${sheet.placements.length} piece${sheet.placements.length === 1 ? '' : 's'}</h3>
+            ${renderSheetSvg(result, sheet, index, unit)}
+            <ol class="piece-list">${pieces}</ol>
+            ${keepers ? `<p class="muted">Offcuts worth keeping: ${keepers} ${escapeHtml(unit)}</p>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    function renderSheet() {
+      const unit = $('sheet-unit').value;
+      const rawCost = Number($('sheet-cost').value);
+      const sheetCost = Number.isFinite(rawCost) && rawCost > 0 ? rawCost : null;
+      try {
+        const result = optimizeSheets({
+          sheetWidth: Number($('sheet-width').value),
+          sheetHeight: Number($('sheet-height').value),
+          kerf: Number($('sheet-kerf').value),
+          trim: Number($('sheet-trim').value),
+          allowRotation: $('sheet-rotate').checked,
+          panels: parsePanels($('sheet-parts').value),
+          onHand: parseOnHandSheets($('sheet-onhand').value),
+        });
+        const count = result.sheets.length;
+        $('sheet-headline').textContent = !count
+          ? 'No sheets needed'
+          : result.sheetsPurchased === 0
+            ? 'Nothing to buy'
+            : `Buy ${result.sheetsPurchased} sheet${result.sheetsPurchased === 1 ? '' : 's'}`;
+        $('sheet-message').textContent = count
+          ? 'Largest pieces are placed first. Confirm every dimension against your own stock and saw.'
+          : 'No piece on this list fits a sheet that size.';
+        $('sheet-count').textContent = result.onHandUsed
+          ? `${result.sheetsPurchased} (+ ${result.onHandUsed} on-hand offcut${result.onHandUsed === 1 ? '' : 's'} used)`
+          : result.sheetsPurchased;
+        $('sheet-utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
+        $('sheet-used').textContent = `${result.panelArea.toFixed(2)} sq ${unit}`;
+        $('sheet-waste').textContent = `${result.wasteArea.toFixed(2)} sq ${unit}`;
+        $('sheet-total-cost').textContent = sheetCost ? (result.sheetsPurchased * sheetCost).toFixed(2) : 'add a sheet price';
+        $('sheet-oversize').innerHTML = result.oversize.length
+          ? `<strong>${result.oversize.length} piece${result.oversize.length === 1 ? ' does' : 's do'} not fit on a sheet this size:</strong> `
+            + result.oversize.map((p) => `${escapeHtml(p.label)} (${p.width} × ${p.height})`).join(', ')
+            + '. Check the size, lower the edge trim, or allow rotation.'
+          : '';
+        renderSheetPlan(result, unit);
+        let comparison = null;
+        try {
+          comparison = renderSheetComparison({
+            panels: parsePanels($('sheet-parts').value),
+            kerf: Number($('sheet-kerf').value),
+            trim: Number($('sheet-trim').value),
+            allowRotation: $('sheet-rotate').checked,
+            unit,
+            primary: {
+              width: Number($('sheet-width').value),
+              height: Number($('sheet-height').value),
+              costPerSheet: sheetCost,
+            },
+          });
+        } catch (compareError) {
+          $('sheet-compare').innerHTML = `<p class="muted">${escapeHtml(compareError.message)}</p>`;
+          ready.sheetCompare = false;
+        }
+        const planText = formatSheetPlan(result, { unit, sheetCost });
+        $('sheet-copy').disabled = false;
+        $('sheet-copy').dataset.plan = comparison
+          ? `${planText}\n${formatSheetComparison(comparison, { unit })}`
+          : planText;
+        ready.sheet = true;
+      } catch (error) {
+        // Every message thrown by sheet.mjs is written for the user, so it is
+        // shown as-is rather than replaced by a generic failure.
+        $('sheet-headline').textContent = 'Check your list';
+        $('sheet-message').textContent = error.message;
+        SHEET_STATS.forEach((id) => { $(id).textContent = '—'; });
+        $('sheet-oversize').innerHTML = '';
+        $('sheet-compare').innerHTML = '';
+        $('sheet-diagrams').innerHTML = '<p class="empty">The layout for each sheet appears here.</p>';
+        $('sheet-copy').disabled = true;
+        $('sheet-copy').dataset.plan = '';
+        ready.sheet = false;
+        ready.sheetCompare = false;
+      }
+    }
+
+    function renderSheetComparison({ panels, kerf, trim, allowRotation, unit, primary }) {
+      const candidates = [primary, readAltCandidate('sheet-alt1'), readAltCandidate('sheet-alt2')]
+        .filter(Boolean);
+      if (candidates.length < 2) {
+        $('sheet-compare').innerHTML = '';
+        ready.sheetCompare = false;
+        return null;
+      }
+      const comparison = compareSheetSizes({ panels, kerf, trim, allowRotation, unit, candidates });
+      const money = (value) => value == null ? 'add a price' : `$${value.toFixed(2)}`;
+      const rows = comparison.rows.map((row) => {
+        const pick = row === comparison.winner
+          ? '<span class="pick">Buy this size</span>'
+          : (row.fitsAll ? 'Fits' : `${row.oversizeCount} will not fit`);
+        return `<tr class="${row === comparison.winner ? 'winner' : ''}">
+            <td>${escapeHtml(row.label)}<br><span class="muted">${row.width.toFixed(2)} × ${row.height.toFixed(2)} ${escapeHtml(unit)}</span></td>
+            <td>${row.sheetCount}</td>
+            <td>${(row.utilization * 100).toFixed(1)}%</td>
+            <td>${money(row.totalCost)}</td>
+            <td>${pick}</td>
+          </tr>`;
+      }).join('');
+      let why = 'Ranked by sheets to buy. Add a price on every size to rank by cash.';
+      if (comparison.savings && comparison.savings.kind === 'cost' && comparison.savings.amount > 0) {
+        why = `${escapeHtml(comparison.winner.label)} costs $${comparison.savings.amount.toFixed(2)} less than ${escapeHtml(comparison.runnerUp.label)}. Confirm the yard's prices before you buy.`;
+      } else if (comparison.savings && comparison.savings.kind === 'sheets' && comparison.savings.amount > 0) {
+        why = `${escapeHtml(comparison.winner.label)} uses ${comparison.savings.amount} fewer sheet${comparison.savings.amount === 1 ? '' : 's'} than ${escapeHtml(comparison.runnerUp.label)}.`;
+      } else if (comparison.winner && !comparison.winner.fitsAll) {
+        why = 'No size on this list takes every piece. Check the dimensions or add a larger sheet.';
+      }
+      $('sheet-compare').innerHTML = `
+        <h3 style="margin:0 0 8px;font-size:1rem">Which size to buy</h3>
+        <p class="muted" style="margin:0 0 10px">${why}</p>
+        <table>
+          <thead><tr><th>Size</th><th>Sheets</th><th>Used</th><th>Material</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+      ready.sheetCompare = true;
+      return comparison;
+    }
+
+    /* ---------------- Linear stock ---------------- */
+
+    const LINEAR_STATS = ['bars', 'purchased', 'linear-total-cost', 'used', 'waste', 'utilization'];
+
+    function renderLinearCompareTable(comparison, unit) {
+      const rows = comparison.rows.map((row) => {
+        const winner = comparison.winner && row.id === comparison.winner.id;
+        const name = `${escapeHtml(row.label)}${row.current ? ' <span class="muted">on the form</span>' : ''}`;
+        if (!row.fits) {
+          return `<tr data-fits="false"><td>${name}</td><td colspan="3">${escapeHtml(row.error || 'At least one cut does not fit')}</td><td></td></tr>`;
+        }
+        const action = row.current
+          ? '<button type="button" disabled>Using this length</button>'
+          : `<button type="button">Use this length</button>`;
+        const apply = row.current ? '' : ` data-apply-stock data-length="${row.length}"`;
+        return `<tr data-fits="true" data-winner="${winner}"${apply}>
+            <td>${name}${winner ? ' <span class="winner-tag">buy this</span>' : ''}</td>
+            <td>${row.bars}</td>
+            <td>${row.buyLength.toFixed(2)} ${escapeHtml(unit)}</td>
+            <td>${(row.utilization * 100).toFixed(1)}%</td>
+            <td>${action}</td>
+          </tr>`;
+      }).join('');
+      return `<table class="compare-table">
+          <thead><tr><th>Stock</th><th>Pieces</th><th>Material bought</th><th>Used</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    function renderLinearComparison(cuts) {
+      const unit = $('unit').value;
+      const current = Number($('stock').value);
+      try {
+        const comparison = compareStockLengths({
+          cuts,
+          kerf: Number($('kerf').value),
+          unit,
+          current: current > 0 ? current : null,
+        });
+        $('linear-compare').innerHTML = renderLinearCompareTable(comparison, unit);
+        $('linear-compare-copy').disabled = false;
+        $('linear-compare-copy').dataset.plan = formatStockComparison(comparison, { unit });
+      } catch (error) {
+        $('linear-compare').innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`;
+        $('linear-compare-copy').disabled = true;
+        $('linear-compare-copy').dataset.plan = '';
+      }
+    }
+
+    function clearLinearComparison() {
+      $('linear-compare').innerHTML = '<p class="empty">Enter required cuts to compare common stock lengths.</p>';
+      $('linear-compare-copy').disabled = true;
+      $('linear-compare-copy').dataset.plan = '';
+    }
+
+    function renderLinear() {
+      const unit = $('unit').value;
+      const currency = $('currency').value;
+      const format = (n) => `${n.toFixed(2)} ${unit}`;
+      const money = (n) => `${currency}${n.toFixed(2)}`;
+      const rawCost = Number($('stock-cost').value);
+      const stockCost = Number.isFinite(rawCost) && rawCost >= 0 && $('stock-cost').value.trim() !== '' ? rawCost : null;
+      try {
+        const result = optimizeCutList({
+          stockLength: Number($('stock').value),
+          kerf: Number($('kerf').value),
+          cuts: parseCuts($('cuts').value),
+          onHand: parseStock($('onhand').value),
+          stockCost,
+        });
+        $('headline').textContent = result.purchased === 0
+          ? 'Nothing to buy'
+          : `Buy ${result.purchased} piece${result.purchased === 1 ? '' : 's'}`;
+        $('message').textContent = 'Largest cuts are placed first, into your shortest usable offcut before any new stock. Confirm against your actual saw and stock.';
+        $('bars').textContent = result.bars.length;
+        $('purchased').textContent = result.purchased;
+        $('used').textContent = format(result.totalCuts);
+        $('waste').textContent = format(result.waste);
+        $('utilization').textContent = `${(result.utilization * 100).toFixed(1)}%`;
+        $('linear-total-cost').textContent = result.totalCost === null ? 'add a stock price' : money(result.totalCost);
+
+        const saved = $('saved');
+        if (result.purchasesAvoided > 0) {
+          const value = result.savings === null ? '' : ` — ${money(result.savings)} you do not spend`;
+          saved.textContent = `Your offcuts covered ${result.purchasesAvoided} stock piece${result.purchasesAvoided === 1 ? '' : 's'}${value}.`;
+          saved.hidden = false;
+        } else {
+          saved.hidden = true;
+        }
+
+        // Mirrors formatCutPlan's labelling so the copied ticket and the screen
+        // name the same piece the same way.
+        let purchaseNumber = 0;
+        $('plan').innerHTML = result.bars.map((bar, i) => {
+          let tag = '';
+          let label = `Stock ${i + 1}`;
+          if (result.onHandUsed) {
+            purchaseNumber += bar.source === 'purchase' ? 1 : 0;
+            tag = bar.source === 'on-hand'
+              ? '<span class="tag tag-onhand">FROM YOUR RACK</span>'
+              : '<span class="tag tag-buy">BUY</span>';
+            label = bar.source === 'on-hand' ? format(bar.length) : `New piece ${purchaseNumber}`;
+          }
+          return `<div class="bar"><strong>${tag}${label}: ${bar.cuts.map(format).join(' + ')}</strong>`
+            + `<span class="muted">${format(bar.remaining)} remaining after kerf allowance</span></div>`;
+        }).join('');
+        $('copy-plan').disabled = false;
+        $('copy-plan').dataset.plan = formatCutPlan(result, {
+          stockUnit: unit,
+          stockLength: $('stock').value,
+          kerf: $('kerf').value,
+          currency,
+        });
+        renderLinearComparison(parseCuts($('cuts').value));
+        ready.linear = true;
+      } catch (error) {
+        $('headline').textContent = 'Check your list';
+        $('message').textContent = error.message;
+        $('saved').hidden = true;
+        LINEAR_STATS.forEach((id) => { $(id).textContent = '—'; });
+        $('plan').textContent = '';
+        $('copy-plan').disabled = true;
+        $('copy-plan').dataset.plan = '';
+        ready.linear = false;
+        try {
+          renderLinearComparison(parseCuts($('cuts').value));
+        } catch {
+          clearLinearComparison();
+        }
+      }
+    }
+
+    /* ---------------- Wiring ---------------- */
+
+    const DRAFT_FIELDS = [
+      'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand', 'sheet-unit', 'sheet-rotate',
+      'stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency',
+    ];
+
+    function draftValues() {
+      return Object.fromEntries(DRAFT_FIELDS.map((id) => [id, $(id).type === 'checkbox' ? $(id).checked : $(id).value]));
+    }
+
+    function restoreDraft() {
+      const draft = loadDraft(localStorage);
+      if (!draft) return false;
+      recordUsage(localStorage, optedOut(), 'draft-restores');
+      DRAFT_FIELDS.forEach((id) => {
+        if (!(id in draft)) return;
+        if ($(id).type === 'checkbox') $(id).checked = Boolean(draft[id]);
+        else $(id).value = String(draft[id]);
+      });
+      return true;
+    }
+
+    function persistDraft() {
+      if (optedOut()) return;
+      // Counted on the settled 'change' edit that calls this, not per keystroke,
+      // so draft-saves stays comparable to the run counts beside it.
+      if (saveDraft(localStorage, draftValues())) recordUsage(localStorage, optedOut(), 'draft-saves');
+    }
+
+    function wireInputs(ids, render, mode, runEvent) {
+      ids.forEach((id) => {
+        $(id).addEventListener('input', render);
+        $(id).addEventListener('change', () => {
+          render();
+          persistDraft();
+          if (ready[mode]) recordUsage(localStorage, optedOut(), runEvent);
+          if (mode === 'sheet' && ready.sheetCompare) recordUsage(localStorage, optedOut(), 'sheet-compares');
+        });
+      });
+    }
+
+    function wireCopy(buttonId, statusId, copyEvent) {
+      $(buttonId).addEventListener('click', async () => {
+        const status = $(statusId);
+        try {
+          await navigator.clipboard.writeText($(buttonId).dataset.plan || '');
+          status.textContent = 'Plan copied.';
+          recordUsage(localStorage, optedOut(), copyEvent);
+        } catch {
+          status.textContent = 'Clipboard access was blocked. Select the plan above and copy it manually.';
+        }
+        setTimeout(() => { status.textContent = ''; }, 4000);
+      });
+    }
+
+    function selectTab(name) {
+      for (const other of ['sheet', 'linear']) {
+        const selected = other === name;
+        $(`tab-${other}`).setAttribute('aria-selected', String(selected));
+        $(`panel-${other}`).hidden = !selected;
+      }
+    }
+
+    ['tab-sheet', 'tab-linear'].forEach((id) => {
+      $(id).addEventListener('click', () => selectTab(id.replace('tab-', '')));
+    });
+
+    wireInputs(
+      [
+        'sheet-width', 'sheet-height', 'sheet-kerf', 'sheet-trim', 'sheet-cost', 'sheet-parts', 'sheet-onhand',
+        'sheet-unit', 'sheet-rotate',
+        'sheet-alt1-width', 'sheet-alt1-height', 'sheet-alt1-cost',
+        'sheet-alt2-width', 'sheet-alt2-height', 'sheet-alt2-cost',
+      ],
+      renderSheet, 'sheet', 'sheet-runs',
+    );
+    ['preset-5x5', 'preset-4x4', 'preset-5x10'].forEach((id) => {
+      $(id).addEventListener('click', () => applyPreset(id.replace('preset-', '')));
+    });
+    wireInputs(['stock', 'kerf', 'cuts', 'unit', 'stock-cost', 'onhand', 'currency'], renderLinear, 'linear', 'runs');
+
+    wireCopy('sheet-copy', 'sheet-copy-status', 'sheet-copies');
+    wireCopy('copy-plan', 'copy-status', 'copies');
+    wireCopy('linear-compare-copy', 'linear-compare-status', 'compares');
+    $('sheet-print').addEventListener('click', () => window.print());
+    $('linear-print').addEventListener('click', () => window.print());
+
+    function closestFromEvent(event, selector) {
+      const start = event.target instanceof Element ? event.target : event.target.parentElement;
+      return start?.closest(selector) ?? null;
+    }
+
+    $('linear-compare').addEventListener('click', (event) => {
+      const row = closestFromEvent(event, '[data-apply-stock]');
+      if (!row) return;
+      $('stock').value = row.dataset.length;
+      renderLinear();
+      if (ready.linear) recordUsage(localStorage, optedOut(), 'compares');
+    });
+
+    // Opting out is not only "stop counting" — it clears what was already
+    // counted, so the checkbox means what a visitor reads it to mean.
+    $('optout').addEventListener('change', () => {
+      if (optedOut()) {
+        clearUsage(localStorage);
+        clearDraft(localStorage);
+      } else {
+        persistDraft();
+      }
+      renderSheet();
+      renderLinear();
+    });
+
+    $('clear-draft').addEventListener('click', () => {
+      clearDraft(localStorage);
+      $('draft-status').textContent = 'Saved draft cleared.';
+      setTimeout(() => { $('draft-status').textContent = ''; }, 4000);
+    });
+
+    const restored = restoreDraft();
+    renderSheet();
+    renderLinear();
+    if (restored) $('draft-status').textContent = 'Saved draft restored.';
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+name: carpet-install-bid-calculator
+description: A private browser calculator for carpet installers that prices a carpet installation from floor yards, stairs priced per step, stretch-in versus glue-down versus double-stick versus carpet tile, solid versus patterned waste, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent carpet installers will use a floor-versus-stair bid calculator because the generic "$2 a yard installed" special they are shopped on cannot see that a flat living-room stretch is a different job from a patterned glue-down with fourteen stairs, a tear-out, and a furniture move.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-yard dump) are the two figures an installer actually decides on when an owner asks them to match a cheaper living-room quote on a stair house.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing stretch-in, glue-down, double-stick, and carpet tile on the same floor, next to 0 versus 13 stairs, changes the bid enough that installers quote the wraps instead of matching the $2-a-yard special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified carpet installers use the calculator twice within 90 days.
+  - Contractors report that splitting floor yards, stairs, and extras is more work than their existing per-yard method without changing the price they would have bid.
+  - The starting hours and mill invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

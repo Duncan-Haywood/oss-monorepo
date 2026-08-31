@@ -1,0 +1,73 @@
+# Real, enabled queue item. Does not run until the governor's own kill
+# switch (gitops/agents/governor/policy.json "enabled") is also true and
+# the CronJob is unsuspended -- both still owner-only. See
+# infra/OWNER_CHECKLIST.md.
+#
+# Priority 4: below open-pr-repair-merge (6) and branch-pr-drain (5),
+# because landing work that already exists still comes first, and above the
+# two content items. The portfolio
+# has 164 finished tools and no public URL, so the delivery path is worth
+# more per run than another metadata pass -- but only the parts an agent
+# can actually finish. The credential steps are owner-only and already
+# queued; this item exists to keep the code half complete and correct so
+# that nothing but the flip is missing when it comes.
+id: deploy-cicd-readiness
+repo: Duncan-Haywood/monorepo-projects
+ref: main
+workdir: ""
+modelClass: deep
+priority: 4
+enabled: true
+# This item's prompt opens its own PR and merges it, so worker.sh must not
+# fold the tree into one commit and open a second one.
+delivery: agent
+prompt: |
+  Read this repo's CLAUDE.md, AGENTS.md, `gitops/README.md`,
+  `gitops/ci/README.md` and `portfolio/hosting/README.md` first. Delivery
+  here is GitOps: Argo CD syncs `gitops/` from `main`, so a correct
+  manifest merged to `main` is the deploy. You have no cluster access and
+  must not attempt any.
+
+  Pick ONE concrete, finishable defect or gap in the delivery path and fix
+  it. Candidates, best first:
+
+  1. A manifest under `gitops/` that is wrong, stale, or would not apply
+     cleanly -- an image tag, a probe, a resource limit, an RBAC rule
+     broader than the thing it guards, a Role that names a resource that
+     no longer exists.
+  2. A workflow under `.github/workflows/` that is broken for a reason
+     other than the runner outage: a step that cannot work on a
+     self-hosted runner, a dead action version, a check that passes
+     without testing anything.
+  3. A gap between what `gitops/tests/` asserts and what the manifests
+     actually say, in either direction.
+  4. A documented ordinary-code-change follow-up that is being waited on
+     unnecessarily -- for example, flipping the portfolio-site Ingress
+     from `letsencrypt-staging` to `letsencrypt-prod` *once the ledger or
+     the checklist records that a staging certificate actually issued*,
+     which also means updating the test that pins the issuer. Do not make
+     that flip on a guess; if nothing records the staging certificate
+     issuing, this is not the task to pick.
+
+  Hard limits. Never seal, invent, echo, or work around a secret, and
+  never relax a manifest's fail-closed state to make something start:
+  crash-looping on an absent Secret is the intended behaviour until an
+  owner seals it. Do not enable the governor, unsuspend its CronJob, or
+  set `CI_RUNNER` -- those are owner flips with real spend behind them.
+  Do not add a new host, cloud, or vendor. Do not bind an Ingress to
+  `marisstella.dev` itself.
+
+  If the gap you find is genuinely owner-only, do not add a decision-queue
+  row for it: run `python3 portfolio/ledger/decision_queue.py` first and
+  confirm it is almost certainly already there. Pick a different gap
+  instead.
+
+  Verify before you open anything: `python3 -m pytest gitops/tests -q`,
+  plus `kubeconform` or `kustomize build` on any manifest you touched if
+  the repo's own CI runs them. Record exactly what you ran and what it
+  said. A check that fails in 3-6 seconds with `runner_id: 0` is the known
+  Actions outage, not your regression.
+
+  Open the PR, note what you verified, and merge it yourself once sound,
+  per this repo's no-review-gate rule. Make the smallest correct change.
+  Do not start unrelated new work in this run.

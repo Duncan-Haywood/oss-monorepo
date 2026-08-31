@@ -1,0 +1,162 @@
+# AppProjects are the hard wall. Agents can only dest namespace agents.
+# Prod cannot see agent Secrets. Argo itself uses project `default` only
+# for the root Application.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: ingress, cert-manager, sealed-secrets, cluster policies
+  sourceRepos:
+    - https://github.com/Duncan-Haywood/monorepo-projects.git
+    - https://kubernetes.github.io/ingress-nginx
+    - https://charts.jetstack.io
+    - https://bitnami-labs.github.io/sealed-secrets
+  destinations:
+    - namespace: ingress-nginx
+      server: https://kubernetes.default.svc
+    - namespace: cert-manager
+      server: https://kubernetes.default.svc
+    - namespace: sealed-secrets
+      server: https://kubernetes.default.svc
+    - namespace: platform
+      server: https://kubernetes.default.svc
+    - namespace: kube-system
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: prod
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: User-facing workloads on the cpx52. Cannot dest agents.
+  sourceRepos:
+    - https://github.com/Duncan-Haywood/monorepo-projects.git
+  destinations:
+    - namespace: prod
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: policy
+      kind: "*"
+    # prod/secrets/portfolio-repo-token.template.yaml is sealed and added to
+    # prod/kustomization.yaml as the site's read-only clone token -- without
+    # this, Argo refuses to sync that SealedSecret the moment it lands,
+    # blocking the launch on a rule mismatch instead of the actual owner
+    # steps. agents and ci already whitelist this kind for the same reason.
+    - group: bitnami.com
+      kind: SealedSecret
+    # prod/portfolio-site.yaml's nightly refresh CronJob and its narrowly
+    # scoped Role/RoleBinding (restart this one Deployment, nothing else)
+    # ship in this venture too. Without these two entries Argo refuses to
+    # sync all three the same way it refused the SealedSecret above -- named
+    # by kind rather than "*" for this group, since rbac.authorization.k8s.io
+    # is the one whitelist that should not be wider than the resources it
+    # actually needs to admit.
+    - group: batch
+      kind: CronJob
+    - group: rbac.authorization.k8s.io
+      kind: Role
+    - group: rbac.authorization.k8s.io
+      kind: RoleBinding
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: staging
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: Staging namespace on the same cluster. Cannot dest prod or agents.
+  sourceRepos:
+    - https://github.com/Duncan-Haywood/monorepo-projects.git
+  destinations:
+    - namespace: staging
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: policy
+      kind: "*"
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: agents
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: Governor + Codex Jobs. Cannot dest prod or touch cluster-scoped objects.
+  sourceRepos:
+    - https://github.com/Duncan-Haywood/monorepo-projects.git
+  destinations:
+    - namespace: agents
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: batch
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: policy
+      kind: "*"
+    - group: rbac.authorization.k8s.io
+      kind: "*"
+    - group: bitnami.com
+      kind: SealedSecret
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ci
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  description: Self-hosted Actions runners. Cannot dest prod, agents or staging.
+  sourceRepos:
+    - https://github.com/Duncan-Haywood/monorepo-projects.git
+  destinations:
+    - namespace: ci
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist: []
+  namespaceResourceWhitelist:
+    - group: ""
+      kind: "*"
+    - group: apps
+      kind: "*"
+    - group: networking.k8s.io
+      kind: "*"
+    - group: policy
+      kind: "*"
+    - group: bitnami.com
+      kind: SealedSecret

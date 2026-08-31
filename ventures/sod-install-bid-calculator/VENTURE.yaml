@@ -1,0 +1,32 @@
+name: sod-install-bid-calculator
+description: A private browser calculator for landscapers that prices a sod installation from fescue, bermuda, or zoysia — lawn size, pallet coverage, soil prep, delivery, slope, and watering — and shows the pallet count, the dirt-work share, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent landscapers will use a pallet-and-prep bid calculator because the generic "$0.55 a square foot installed" Facebook special they are shopped on cannot see that 2,000 sq ft of fescue on ready soil is a different job from 8,000 sq ft of zoysia that needs the existing lawn stripped, hauled off, and watered three times.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published per-foot special) are the two figures a shop actually decides on when a homeowner asks them to match a cheaper fescue pickup quote on a strip-and-haul zoysia lawn.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing fescue, bermuda, and zoysia on the same lawn, with whole pallets and prep hours from the dirt, changes the bid enough that shops notice which grass keeps the margin.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified landscapers use the calculator twice within 90 days.
+  - Shops report that splitting grass, pallets, prep, and watering is more work than their existing per-foot method without changing the price they would have bid.
+  - The starting hours and farm rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

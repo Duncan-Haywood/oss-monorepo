@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Second janitorial site after drive time | Does the next building still pay?</title>
+  <meta name="description" content="A second commercial cleaning account looks profitable until you count the drive. Price the new building with loaded travel labor, extra fuel, and the same margin you keep on the first site.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="second-site.html">
+  <meta property="og:title" content="Does a second janitorial site still pay after the drive?">
+  <meta property="og:description" content="Drive time is loaded labor. See the second-building price that still holds your margin once the van is not free.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Second janitorial site drive-time calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Second-site production-rate bid, loaded drive-time labor, extra fuel, walk-away price, offered-price margin check"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
+    body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1c7a5e; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e6ecf4; }
+    .result { position: sticky; top: 15px; background: #143b31; color: #f2f8f5; border-color: #143b31; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .verdict.warn { background: #6b4a12; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #1c7a5e; }
+    .nav { margin: 0 0 18px; font-size: .9rem; }
+    .nav a { color: #1c7a5e; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #bce8cf; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <p class="nav"><a href="./">← First-building bid calculator</a></p>
+  <header>
+    <p class="eyebrow">FOR COMMERCIAL CLEANING CONTRACTORS</p>
+    <h1>Does the second building still pay after the drive?</h1>
+    <p>The production-rate bid on the first site treats the van as already paid for. The second site adds a hop. Those minutes are loaded labor, and the extra fuel is a monthly direct cost. This page prices the new building the same way as the first, then puts the drive on the bill before you say yes.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>The new building</h2>
+        <p class="hint">Same method as the first-building calculator: cleanable square feet divided by the rate your crew really hits. Put only incremental equipment here — do not re-enter the first site&rsquo;s truck.</p>
+        <div class="fields">
+          <label>Office / open floor (sq ft) <input id="officeSqFt" type="number" min="0" step="10" value="2000"></label>
+          <label>Office sq ft / hour <input id="officeRate" type="number" min="1" step="50" value="4000"></label>
+          <label>Restrooms (sq ft) <input id="restroomSqFt" type="number" min="0" step="10" value="200"></label>
+          <label>Restroom sq ft / hour <input id="restroomRate" type="number" min="1" step="50" value="1200"></label>
+          <label>Cleans per week <input id="cleaningsPerWeek" type="number" min="0" max="21" step="1" value="3"></label>
+          <label>Cleaner hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="17"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="28"></label>
+          <label>Supplies per sq ft / month <input id="suppliesPerSqFtMonth" type="number" min="0" step="0.001" value="0.005"></label>
+          <label>Incremental equipment / month <input id="equipmentMonthly" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+        </div>
+      </section>
+      <section>
+        <h2>The drive</h2>
+        <p class="hint">One-way minutes from your current route — home or the first building — to this address. Trips per week is how often the crew actually goes, which can be less than cleans per week if they stack two sites in one night.</p>
+        <div class="fields">
+          <label>Drive minutes, one way <input id="driveMinutesOneWay" type="number" min="0" step="1" value="25"></label>
+          <label>Trips per week <input id="tripsPerWeek" type="number" min="0" max="21" step="1" value="3"></label>
+          <label>Extra fuel, tolls, wear / month <input id="extraVehicleMonthly" type="number" min="0" step="1" value="80"></label>
+          <label>Price they offered (optional) <input id="offeredMonthly" type="number" min="0" step="10" placeholder="e.g. 450"></label>
+          <label>Profit you already keep / month (optional) <input id="existingMonthlyProfit" type="number" step="10" placeholder="e.g. 340"></label>
+        </div>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Second-site price</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">monthly, drive included, to hold your margin</div>
+      <dl>
+        <dt>If the van were free</dt><dd id="ignoredDrive"></dd>
+        <dt>Drive gap</dt><dd id="driveGap"></dd>
+        <dt>Hours on the road / month</dt><dd id="driveHours"></dd>
+        <dt>Drive share of this site&rsquo;s hours</dt><dd id="driveShare"></dd>
+        <dt>Loaded drive labor</dt><dd id="driveLabor"></dd>
+        <dt>Extra vehicle</dt><dd id="vehicle"></dd>
+        <dt>Walk-away (drive included)</dt><dd id="walkAway"></dd>
+        <dt>Building-only labor hours / month</dt><dd id="buildingHours"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div id="combined" class="note" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy reply</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting production rates are common ballpark figures, not an industry standard. Time your own crews and replace them. Confirm insurance, mileage policy, and overtime before you send a number.</p>
+    </section>
+  </main>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or business advice, and it does not tell you what to charge or whether to take a job. Verify every figure against your own payroll, insurance, fuel, and supply costs, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your buildings, wages, costs, or prices.</p>
+    <p>Free and open source. Support via the <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">GitHub Sponsors page</a> is optional and never changes what the tool does. <a href="./">First-building calculator</a> · <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">Source</a></p>
+  </footer>
+
+  <script type="module">
+    import { compareSecondSite, secondSiteNote } from './second-site.mjs';
+    import { recordUsage } from './usage.mjs';
+
+    const FIELD_IDS = [
+      'officeSqFt','officeRate','restroomSqFt','restroomRate','cleaningsPerWeek',
+      'hourlyWage','burdenRate','suppliesPerSqFtMonth','equipmentMonthly','overheadRate','targetMargin',
+      'driveMinutesOneWay','tripsPerWeek','extraVehicleMonthly','offeredMonthly','existingMonthlyProfit',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function readInput() {
+      const cleans = el('cleaningsPerWeek').value;
+      return {
+        candidate: {
+          areas: [
+            { name: 'Open office', squareFeet: el('officeSqFt').value, productionRate: el('officeRate').value, cleaningsPerWeek: cleans },
+            { name: 'Restrooms', squareFeet: el('restroomSqFt').value, productionRate: el('restroomRate').value, cleaningsPerWeek: cleans },
+          ],
+          hourlyWage: el('hourlyWage').value,
+          burdenRate: el('burdenRate').value,
+          suppliesPerSqFtMonth: el('suppliesPerSqFtMonth').value,
+          equipmentMonthly: el('equipmentMonthly').value,
+          otherMonthly: 0,
+          overheadRate: el('overheadRate').value,
+          targetMargin: el('targetMargin').value,
+        },
+        driveMinutesOneWay: el('driveMinutesOneWay').value,
+        tripsPerWeek: el('tripsPerWeek').value,
+        extraVehicleMonthly: el('extraVehicleMonthly').value,
+        offeredMonthly: el('offeredMonthly').value,
+        existingMonthlyProfit: el('existingMonthlyProfit').value,
+      };
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'monthly, drive included, to hold your margin';
+      ['ignoredDrive','driveGap','driveHours','driveShare','driveLabor','vehicle','walkAway','buildingHours']
+        .forEach(id => { el(id).textContent = ''; });
+      el('verdict').hidden = true;
+      el('combined').hidden = true;
+    }
+
+    function update() {
+      let result;
+      try {
+        result = compareSecondSite(readInput());
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.priceToHoldMargin);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'monthly, drive included, to hold your margin';
+      el('ignoredDrive').textContent = money(result.ignoredDrivePrice);
+      el('driveGap').textContent = money(result.driveGap);
+      el('driveHours').textContent = `${result.monthlyDriveHours.toFixed(1)} h`;
+      el('driveShare').textContent = `${result.driveShare.toFixed(0)}%`;
+      el('driveLabor').textContent = money(result.monthlyDriveLabor);
+      el('vehicle').textContent = money(result.extraVehicleMonthly);
+      el('walkAway').textContent = money(result.walkAwayMonthly);
+      el('buildingHours').textContent = `${result.building.monthlyHours.toFixed(1)} h`;
+
+      const verdict = el('verdict');
+      if (result.offered === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        if (result.offered.belowWalkAway) {
+          verdict.className = 'verdict bad';
+          verdict.innerHTML = `At ${money(result.offered.price)} this site <strong>loses ${money(Math.abs(result.offered.profit))} a month</strong> after the drive. Walk-away is ${money(result.walkAwayMonthly)}.`;
+        } else if (result.offered.missesTarget) {
+          verdict.className = 'verdict warn';
+          verdict.innerHTML = `At ${money(result.offered.price)} you cover cost after the drive but keep only a <strong>${result.offered.margin.toFixed(1)}% margin</strong> — ${money(result.priceToHoldMargin - result.offered.price)} short of the target.`;
+        } else {
+          verdict.className = 'verdict';
+          verdict.innerHTML = `At ${money(result.offered.price)} this site still holds a <strong>${result.offered.margin.toFixed(1)}% margin</strong> after the drive — ${money(result.offered.profit)} a month.`;
+        }
+      }
+
+      const combined = el('combined');
+      if (result.combinedProfitAtTarget === null) {
+        combined.hidden = true;
+      } else if (result.combinedProfitAtOffer !== null) {
+        combined.hidden = false;
+        combined.textContent = `Combined book at their offer: ${money(result.combinedProfitAtOffer)} / month. Combined book if you hold the target on this site: ${money(result.combinedProfitAtTarget)} / month.`;
+      } else {
+        combined.hidden = false;
+        combined.textContent = `If you already keep ${money(result.existingMonthlyProfit)} on the first site, holding the target here makes the book ${money(result.combinedProfitAtTarget)} / month.`;
+      }
+    }
+
+    async function copySummary() {
+      const result = compareSecondSite(readInput());
+      const text = secondSiteNote(result, { targetMargin: Number(el('targetMargin').value) });
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('second_site_summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    FIELD_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'offeredMonthly' ? 'second_site_offer_compared' : 'second_site_compared'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    update();
+  </script>
+</body>
+</html>

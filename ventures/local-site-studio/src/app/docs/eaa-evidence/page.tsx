@@ -61,6 +61,15 @@ export default function EaaEvidenceDocPage() {
         </li>
       </ul>
 
+      <h2>Free pre-audit checklist</h2>
+      <p>
+        The public product page includes a browser-only checklist for recording scope, critical
+        journeys, keyboard and assistive-technology checks, evidence, and open limitations. It
+        saves checked items in <code>localStorage</code> on the visitor&apos;s device and can export
+        a plain-text handoff. No checklist content, shop URL, or identity leaves the browser.
+        Anonymous feature counts are also local-only and can be disabled by the visitor.
+      </p>
+
       <h2>Accuracy, as printed to a buyer</h2>
       <p>
         Precision {eaaPrecisionLabel()}, recall {eaaRecallLabel()}, measured{" "}

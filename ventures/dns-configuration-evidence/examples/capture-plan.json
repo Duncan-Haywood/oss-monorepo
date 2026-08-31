@@ -1,0 +1,13 @@
+{
+  "authorized": true,
+  "domain": "example.test",
+  "timeout": 3.0,
+  "resolvers": [
+    {"id": "resolver-a", "address": "192.0.2.53"}
+  ],
+  "queries": [
+    {"name": "example.test", "type": "A"},
+    {"name": "example.test", "type": "TXT"},
+    {"name": "mail.example.test", "type": "MX"}
+  ]
+}

@@ -1,0 +1,32 @@
+name: sunroom-bid-calculator
+description: A private browser calculator for sunroom, three-season, and four-season crews that prices a residential sunroom from glazed-wall square feet, thermal floor, insulated roof, and HVAC — the extras a floor-square-foot special cannot see — and shows the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Sunroom and three-season crews will use a glass-and-slab-aware bid calculator because a published price-per-square-foot special cannot see that a 12×16 four-season room is a different job than a 10×12 vinyl three-season on an existing deck.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the glass share of direct cost are the two numbers a contractor actually decides on when a prospect asks them to match a $180/sf coupon, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Switching from a three-season on an existing deck to a four-season with a new slab plus an insulated roof changes the resulting bid materially versus the same coupon written for floor square feet, so making that envelope layer a required, explained output changes the price they send.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified sunroom or three-season contractors use the calculator twice within 90 days.
+  - Contractors report that counting glass and slab is more work than their existing square-foot method without changing the price they would have bid.
+  - The starting window-width and glass figures prove so far from real crews' practice that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,35 @@
+name: notary-trip-quote
+description: A private browser calculator for mobile notaries and loan signing agents — price travel, printing, witnesses, waiting and after-hours work before confirming a booking, or test a signing service's flat offer against what it actually pays per hour.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Mobile notaries lose profitable appointments when state fees, travel time, mileage, and waiting are mixed into one improvised quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A transparent quote breakdown and copyable booking summary will be reused for every new appointment.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Signing agents accept underpriced signing-service offers because the fee is compared against nothing — not against the paper and fuel it consumes, nor against the two to three hours it occupies.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Printing is the cost signing agents most often omit from their own rate card, because the package is printed twice and the time at the printer is unbilled.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified mobile notaries use the calculator twice within 90 days.
+  - Users say their existing fee sheet is faster and produces the same quote decisions.
+links:
+  production: null
+  analytics: null

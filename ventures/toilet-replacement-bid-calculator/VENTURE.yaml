@@ -1,0 +1,32 @@
+name: toilet-replacement-bid-calculator
+description: A private browser calculator for plumbers that prices a toilet replacement from toilet count, two-piece versus comfort-height versus one-piece versus bidet-combo, swap-only versus new-supply versus flange-repair versus full-reset, owner-supplied versus plumber-supplied, 10- versus 12- versus 14-inch rough-in, and extras — and shows the extra-work share and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent plumbers will use a closet-versus-scope bid calculator because the generic "$249 installed" special they are shopped on cannot see that a two-piece 12-inch swap on a good flange is a different job from a one-piece on a 10-inch rough-in with a rotten closet flange, a new shutoff, a bidet seat, and a haul-away.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the extra-work share (not the published installed dump) are the two figures a plumber actually decides on when an owner asks them to match a cheaper swap quote on a flange-repair job.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing two-piece, comfort-height, one-piece, and bidet-combo on the same closet, next to swap-only versus flange-repair, changes the bid enough that plumbers quote the upgrade instead of matching the $249 special.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified plumbers use the calculator twice within 90 days.
+  - Contractors report that splitting closet, bowl, and extras is more work than their existing installed-price method without changing the price they would have bid.
+  - The starting hours and fixture invoices prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

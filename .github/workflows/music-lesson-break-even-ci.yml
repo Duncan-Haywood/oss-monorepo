@@ -1,0 +1,41 @@
+name: music-lesson-break-even CI
+
+# Test runner for the browser-local music lesson pricing calculator. The
+# product is static ES modules with no build step and no dependencies, so
+# this does no more than a contributor runs locally: `node --test`. It
+# publishes nothing, registers nothing, and spends no API budget.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/music-lesson-break-even/**"
+      - ".github/workflows/music-lesson-break-even-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/music-lesson-break-even/**"
+      - ".github/workflows/music-lesson-break-even-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: music-lesson-break-even-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    defaults:
+      run:
+        working-directory: ventures/music-lesson-break-even
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
+      - name: Published pages carry the no-warranty clause
+        working-directory: .
+        run: node platform/pages/clauses.mjs music-lesson-break-even

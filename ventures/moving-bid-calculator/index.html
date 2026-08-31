@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Moving Company Bid Calculator — Stairs and Long Carry</title>
+  <meta name="description" content="Price a local moving job from inventory hours plus stairs, long carry, packing, and drive time — then see the walk-away price before you match a cheap bedroom-count quote.">
+  <meta property="og:title" content="Moving Company Bid Calculator">
+  <meta property="og:description" content="Bid the walk, not the bedroom count. See how stairs and a long carry change the hours — and the price — before you send the quote.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Moving Company Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Inventory hours by room or specialty item, stair and long-carry access hours that scale with cubic feet, packing and drive time, loaded crew wage, truck and materials, walk-away price, bedroom-count quote check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do movers price a local job?","acceptedAnswer":{"@type":"Answer","text":"From clock hours: load and unload time for the inventory, plus extra hours for stairs and a long carry that scale with cubic feet, plus packing and drive time. Hours times crew size times loaded wage, then truck, fuel, materials, overhead, and margin."}},{"@type":"Question","name":"Why can't I bid a move by bedroom count?","acceptedAnswer":{"@type":"Answer","text":"Two 3-bedroom houses can be a first-floor short carry or a third-floor walk-up with an 80-foot carry. Bedroom count cannot see the extra trips. That is how a Saturday that looked like $900 becomes a loss."}},{"@type":"Question","name":"How much extra should stairs add to a moving quote?","acceptedAnswer":{"@type":"Answer","text":"Stairs add trips, so the extra hours should scale with how much you are moving, not a flat surcharge. This tool starts from minutes per flight per 200 cubic feet and lets you replace that with a time from your own crew."}},{"@type":"Question","name":"Is this the price I should charge?","acceptedAnswer":{"@type":"Answer","text":"No. The output is arithmetic on the numbers you entered. It is not a recommended price, a tariff, or a guarantee. Verify every figure against your own payroll, insurance, and times before sending a bid."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef1f6; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 740px; margin-bottom: 26px; }
+    h1 { font-size: clamp(2rem, 6vw, 3.5rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #9a3d16; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #d3dce6; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1a2a4a0d; margin-bottom: 18px; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .hint { font-size: .82rem; color: #4a5666; margin: -6px 0 14px; }
+    .seo-link { margin: 10px 0 0; font-size: .9rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #a9b6c6; border-radius: 7px; padding: 10px; font: inherit; background: #fff; }
+    .item-row { display: grid; grid-template-columns: minmax(0, 2.6fr) repeat(2, minmax(0, 1fr)) auto; gap: 8px; align-items: end; margin-bottom: 10px; }
+    .item-row select, .item-row input { padding: 10px 7px; }
+    .item-head { font-size: .74rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #5a6779; }
+    .item-row .lbl { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6c6; background: #f3f6fa; padding: 10px 14px; cursor: pointer; font-weight: 650; color: #1d2530; }
+    button:hover { background: #e6ecf4; }
+    .remove { padding: 10px; color: #9b2c1f; border-color: #d8b6b0; background: #fdf3f1; }
+    .remove[disabled] { opacity: .4; cursor: not-allowed; }
+    .result { position: sticky; top: 15px; background: #3b2114; color: #f8f3ee; border-color: #3b2114; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.9rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb0a2; } .positive { color: #a9e6b0; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 20px 0; }
+    dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff2b; }
+    .note { font-size: .82rem; opacity: .84; }
+    .split { margin: 14px 0 0; padding: 0; list-style: none; font-size: .84rem; }
+    .split li { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 3px 0; }
+    .bar { grid-column: 1 / -1; height: 4px; border-radius: 2px; background: #ffffff2e; }
+    .bar > span { display: block; height: 100%; border-radius: 2px; background: #f0b27a; }
+    .verdict { margin-top: 14px; padding: 12px; border-radius: 9px; font-size: .87rem; background: #ffffff1a; }
+    .verdict.bad { background: #7d2317; }
+    .empty { font-size: .87rem; opacity: .84; }
+    footer { margin-top: 25px; font-size: .82rem; color: #4a5666; }
+    footer a { color: #9a3d16; }
+    .support { margin-top: 14px; }
+    .summary-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+    .summary-status { font-size: .8rem; color: #f0d2b0; }
+    .faq { margin-top: 8px; }
+    .faq details { border-top: 1px solid #e2e8f0; padding: 10px 0; }
+    .faq summary { cursor: pointer; font-weight: 650; }
+    @media (max-width: 780px) {
+      .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; }
+      .item-head { display: none; }
+      .item-row { grid-template-columns: 1fr 1fr; border: 1px solid #e0e6ee; border-radius: 9px; padding: 11px; }
+      .item-row label { font-size: .78rem; gap: 5px; }
+      .item-row .lbl { position: static; width: auto; height: auto; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
+      .item-row label:first-child { grid-column: 1 / -1; }
+      .remove { grid-column: 1 / -1; }
+    }
+  /* proposal:begin — generated by platform/proposal/adopt.mjs */
+    .proposal-status { font-size: .8rem; color: #4a5666; }
+
+    /* The proposal document. Screen preview and printed sheet share this one
+       block of rules, so what the contractor checks is what the customer gets.
+       Deliberately document-coloured rather than site-coloured — the customer
+       receives a quote, not a printout of a website. */
+    .pr-shell {
+      --pr-ink: #1c1a18; --pr-muted: #5c5854; --pr-line: #ded9d2; --pr-strong: #3b2114; --pr-accent: #9a3d16;
+      background: #fff; border: 1px solid var(--pr-line); border-radius: 14px; padding: 34px; margin-top: 18px; box-shadow: 0 8px 24px #1c1a180d;
+    }
+    .pr-doc { max-width: 760px; margin: 0 auto; color: var(--pr-ink); font-size: .92rem; }
+    .pr-head { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; border-bottom: 2px solid var(--pr-strong); padding-bottom: 14px; }
+    .pr-head h2 { margin: 0 0 4px; font-size: 1.35rem; letter-spacing: -.02em; }
+    .pr-contact { display: flex; flex-direction: column; font-size: .82rem; color: var(--pr-muted); }
+    .pr-license { margin: 6px 0 0; font-size: .78rem; color: var(--pr-muted); }
+    .pr-meta { text-align: right; font-size: .84rem; }
+    .pr-meta p { margin: 0 0 3px; }
+    .pr-kicker { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin: 20px 0 4px; }
+    .pr-block { margin: 16px 0; }
+    .pr-block h3 { margin: 0 0 6px; font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--pr-accent); }
+    .pr-block p, .pr-block li { margin: 0 0 4px; line-height: 1.45; }
+    .pr-block ul { margin: 0; padding-left: 18px; }
+    .pr-price { width: 100%; border-collapse: collapse; margin: 18px 0 6px; font-size: .95rem; }
+    .pr-price td { padding: 9px 4px; border-bottom: 1px solid var(--pr-line); }
+    .pr-price td:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .pr-price .pr-total td { font-size: 1.18rem; font-weight: 750; border-bottom: 2px solid var(--pr-strong); }
+    .pr-validity { font-size: .84rem; color: var(--pr-muted); margin: 0 0 4px; }
+    .pr-sign { display: grid; grid-template-columns: 2fr 1fr; gap: 26px; margin: 34px 0 0; }
+    .pr-rule { display: block; border-bottom: 1px solid var(--pr-ink); height: 30px; }
+    .pr-sign p { margin: 5px 0 0; font-size: .76rem; color: var(--pr-muted); }
+    .pr-disclaimer { margin: 26px 0 0; padding-top: 12px; border-top: 1px solid var(--pr-line); font-size: .72rem; line-height: 1.45; color: var(--pr-muted); }
+
+    @media (max-width: 600px) {
+      .pr-shell { padding: 18px; }
+      .pr-head, .pr-parties, .pr-sign { grid-template-columns: 1fr; flex-direction: column; }
+      .pr-meta { text-align: left; }
+    }
+
+    /* Printing sends the proposal and nothing else: no calculator, no cost
+       breakdown, no wages. Handing the customer a sheet with your loaded labour
+       rate on it is the one failure mode this feature must not have. `main` is
+       hidden outright rather than by an allow-list, so a cost field added to the
+       calculator later cannot leak onto a customer's copy by omission. */
+    @media print {
+      :root { background: #fff; }
+      body { max-width: none; padding: 0; }
+      header, main, footer, .pr-shell > .pr-print-hint { display: none !important; }
+      .pr-shell { display: block !important; border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; }
+      .pr-shell[hidden] { display: none !important; }
+      .pr-doc { max-width: none; font-size: 11pt; }
+      .pr-block, .pr-sign, .pr-price { break-inside: avoid; }
+      .pr-sign { margin-top: 26pt; }
+      a { text-decoration: none; color: inherit; }
+      @page { margin: 16mm; }
+    }
+/* proposal:end */</style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR LOCAL MOVING COMPANIES</p>
+    <h1>Bid the walk, not the bedroom count.</h1>
+    <p>Price a local move from the hours the crew will actually spend: inventory on a first-floor short carry, then the extra trips stairs and a long carry create, then packing and drive time. You get the job price, what it works out to per hour and per cubic foot, and the number below which the Saturday loses money.</p>
+    <p class="seo-link"><a href="./how-much-to-charge.html">How much should movers charge for a local move?</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>What you are moving</h2>
+        <p class="hint">One row per room or specialty item. Clock hours are first-floor, short-carry load and unload for the whole crew. Pick a type to start from a common figure, then replace it with a time from your own crew.</p>
+        <div class="item-row item-head" aria-hidden="true">
+          <span>Room or item</span><span>Cubic feet</span><span>Clock hours</span><span></span>
+        </div>
+        <div id="inventory"></div>
+        <button type="button" id="addItem">+ Add a room or item</button>
+      </section>
+
+      <section>
+        <h2>Access, packing, and drive</h2>
+        <p class="hint">Stairs and a long carry add hours from cubic feet &mdash; more cubes, more trips. Elevator wait is flat: the crew sits through it together. Minutes per 200 cu ft are starting points; time your own crew and replace them.</p>
+        <div class="fields">
+          <label>Flights of stairs at pickup <input id="originFlights" type="number" min="0" step="1" value="0"></label>
+          <label>Flights of stairs at drop-off <input id="destFlights" type="number" min="0" step="1" value="0"></label>
+          <label>Longest door-to-truck carry (ft) <input id="carryFeet" type="number" min="0" step="5" value="20"></label>
+          <label>Elevator wait (minutes) <input id="elevatorWaitMinutes" type="number" min="0" step="1" value="0"></label>
+          <label>Minutes / flight / 200 cu ft <input id="minutesPerFlightPer200CuFt" type="number" min="0" step="0.5" value="8"></label>
+          <label>Minutes / 50 ft carry / 200 cu ft <input id="minutesPer50ftCarryPer200CuFt" type="number" min="0" step="0.5" value="6"></label>
+          <label>Packing hours <input id="packingHours" type="number" min="0" step="0.25" value="0"></label>
+          <label>Drive hours (loaded + deadhead) <input id="driveHours" type="number" min="0" step="0.25" value="1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>Your costs</h2>
+        <div class="fields">
+          <label>Crew size <input id="crewSize" type="number" min="1" step="1" value="3"></label>
+          <label>Mover hourly wage <input id="hourlyWage" type="number" min="0" step="0.25" value="22"></label>
+          <label>Payroll burden (%) <input id="burdenRate" type="number" min="0" step="0.5" value="25"></label>
+          <label>Truck for this job <input id="truckCost" type="number" min="0" step="1" value="150"></label>
+          <label>Fuel &amp; tolls <input id="fuelTolls" type="number" min="0" step="1" value="40"></label>
+          <label>Materials (boxes, pads) <input id="materials" type="number" min="0" step="1" value="35"></label>
+          <label>Other job cost <input id="otherCost" type="number" min="0" step="1" value="0"></label>
+          <label>Overhead on direct cost (%) <input id="overheadRate" type="number" min="0" step="0.5" value="15"></label>
+          <label>Target net margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="0.5" value="20"></label>
+          <label>Bedroom-count quote you&rsquo;re matching (optional) <input id="proposedPrice" type="number" min="0" step="10" placeholder="e.g. 800"></label>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Payroll burden covers employer taxes, workers&rsquo; compensation, and paid time off &mdash; the part of a mover&rsquo;s cost that never shows up on their pay rate. Matching a cheap &ldquo;3-bedroom for $800&rdquo; quote without seeing stairs is the most common way a Saturday loses money.</p>
+      </section>
+
+      <section class="faq">
+        <h2>Questions movers actually type</h2>
+        <details>
+          <summary>Why can&rsquo;t I bid by bedroom count?</summary>
+          <p>Two 3-bedroom houses can be a first-floor short carry or a third-floor walk-up with an 80-foot carry. Bedroom count cannot see the extra trips. That is how a Saturday that looked like $900 becomes a loss.</p>
+        </details>
+        <details>
+          <summary>How much extra should stairs add?</summary>
+          <p>Stairs add trips, so the extra hours should scale with how much you are moving, not a flat surcharge. Start from minutes per flight per 200 cubic feet, then replace it with a time from your own crew.</p>
+        </details>
+        <details>
+          <summary>Is this the price I should charge?</summary>
+          <p>No. The output is arithmetic on the numbers you entered. It is not a recommended price, a tariff, or a guarantee. Verify every figure against your payroll, insurance, and times before sending a bid.</p>
+        </details>
+      </section>
+    </div>
+
+    <section class="result" aria-live="polite">
+      <h2>Your bid</h2>
+      <div id="price" class="hero-number">$&mdash;</div>
+      <div id="priceLabel">job price</div>
+      <dl>
+        <dt>Clock hours</dt><dd id="clockHours"></dd>
+        <dt>Person-hours</dt><dd id="personHours"></dd>
+        <dt>Loaded labor</dt><dd id="labor"></dd>
+        <dt>Truck, fuel, materials</dt><dd id="jobCosts"></dd>
+        <dt>Overhead</dt><dd id="overhead"></dd>
+        <dt>Total job cost</dt><dd id="cost"></dd>
+        <dt>Job profit</dt><dd id="profit"></dd>
+        <dt>Price per cu ft</dt><dd id="perCuFt"></dd>
+        <dt>Effective rate per mover</dt><dd id="hourlyRate"></dd>
+        <dt>Walk-away price</dt><dd id="breakEven"></dd>
+      </dl>
+      <div id="verdict" class="verdict" hidden></div>
+      <div class="summary-actions">
+        <button type="button" id="copySummary">Copy bid summary</button>
+        <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
+      <hr>
+      <p class="note" style="margin-bottom:4px"><strong>Where the day goes</strong></p>
+      <ul class="split" id="split"></ul>
+      <hr>
+      <p class="note">Transparent arithmetic from your own inputs. The starting hours and access minutes are common ballpark figures, not an industry standard, a tariff, or a guarantee &mdash; time your own crews and replace them.</p>
+    </section>
+  <!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+      <section id="proposalSection">
+        <h2>Hand the customer a proposal</h2>
+        <p class="hint">The price above is for you. This is the page you print or save as a PDF and give to the customer &mdash; your details, their details, the scope, the deposit split, and a line for them to sign. Your business details are saved on this device so you only type them once; the customer&rsquo;s details are never saved.</p>
+        <div class="fields">
+          <label>Your business name <input id="companyName" type="text" autocomplete="organization" placeholder="Kestrel Moving Co. LLC"></label>
+          <label>Phone <input id="companyPhone" type="tel" autocomplete="tel" placeholder="(555) 555-0138"></label>
+          <label>Email <input id="companyEmail" type="email" autocomplete="email" placeholder="bids@example.com"></label>
+          <label>Licence number (optional) <input id="companyLicense" type="text" placeholder="State licence #"></label>
+          <label>Your address (optional) <input id="companyAddress" type="text" autocomplete="street-address" placeholder="Street, city, state"></label>
+          <label>Customer name <input id="clientName" type="text" placeholder="L. Bergstrom"></label>
+          <label>Job address <input id="clientAddress" type="text" placeholder="812 Chamberlain St"></label>
+          <label>Deposit (%) <input id="depositPercent" type="number" min="0" max="100" step="5" value="30"></label>
+          <label>Hold this price for (days) <input id="validDays" type="number" min="0" max="365" step="1" value="30"></label>
+        </div>
+        <div class="fields" style="grid-template-columns:1fr;margin-top:13px">
+          <label>Scope lines &mdash; one per line, edit freely
+            <textarea id="proposalScope" rows="4" placeholder="Three bedroom house, load and unload&#10;Blanket wrap and floor protection at both ends"></textarea>
+          </label>
+          <label>Not included &mdash; one per line (optional)
+            <textarea id="proposalExclusions" rows="2" placeholder="Packing of boxes unless listed above&#10;Disconnection of appliances, gas, or electrical"></textarea>
+          </label>
+          <label>Payment terms, in your own words (optional)
+            <textarea id="paymentTerms" rows="2" placeholder="Deposit on acceptance, balance on completion."></textarea>
+          </label>
+          <label>Notes (optional)
+            <textarea id="proposalNotes" rows="2" placeholder="Please have boxes sealed and labelled by the room they go to. Reserve the elevator and loading zone if the building requires it."></textarea>
+          </label>
+        </div>
+        <div class="summary-actions">
+          <button type="button" id="printProposal">Print proposal / Save as PDF</button>
+          <button type="button" id="forgetCompany">Forget my business details</button>
+          <span id="proposalStatus" class="proposal-status" role="status" aria-live="polite"></span>
+        </div>
+        <p class="hint" style="margin-top:14px;margin-bottom:0">Everything on the printed page is text you typed or a number this calculator worked out. It contains no warranty, lien, or cancellation wording &mdash; those depend on your jurisdiction and your contract, and this tool is not the place to invent them.</p>
+      </section>
+<!-- proposal:end --></main><!-- proposal:begin — generated by platform/proposal/adopt.mjs -->
+  <!-- The proposal the customer receives. Hidden on screen until previewed, and
+       the only thing on the page when it prints. -->
+  <div id="proposalDoc" class="pr-shell" hidden></div>
+<!-- proposal:end -->
+
+  <h2>Common questions</h2>
+  <h3>How do movers price a local job?</h3>
+  <p>From clock hours: load and unload time for the inventory, plus extra hours for stairs and a long carry that scale with cubic feet, plus packing and drive time. Hours times crew size times loaded wage, then truck, fuel, materials, overhead, and margin.</p>
+  <h3>Why can't I bid a move by bedroom count?</h3>
+  <p>Two 3-bedroom houses can be a first-floor short carry or a third-floor walk-up with an 80-foot carry. Bedroom count cannot see the extra trips. That is how a Saturday that looked like $900 becomes a loss.</p>
+  <h3>How much extra should stairs add to a moving quote?</h3>
+  <p>Stairs add trips, so the extra hours should scale with how much you are moving, not a flat surcharge. This tool starts from minutes per flight per 200 cubic feet and lets you replace that with a time from your own crew.</p>
+  <h3>Is this the price I should charge?</h3>
+  <p>No. The output is arithmetic on the numbers you entered. It is not a recommended price, a tariff, or a guarantee. Verify every figure against your own payroll, insurance, and times before sending a bid.</p>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include addresses, inventory, wages, costs, or prices.</p>
+    <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { calculateBid, INVENTORY_PRESETS, ACCESS_DEFAULTS } from './calc.mjs';
+    import { recordUsage } from './usage.mjs';
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    import {
+      COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
+    } from './proposal.mjs';
+// proposal:end
+    const COST_IDS = [
+      'originFlights','destFlights','carryFeet','elevatorWaitMinutes',
+      'minutesPerFlightPer200CuFt','minutesPer50ftCarryPer200CuFt',
+      'packingHours','driveHours','crewSize','hourlyWage','burdenRate',
+      'truckCost','fuelTolls','materials','otherCost','overheadRate',
+      'targetMargin','proposedPrice',
+    ];
+    const money = (value) => {
+      const format = (value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const el = id => document.getElementById(id);
+
+    const STARTING_ITEMS = [
+      { name: '3 bedroom house', cubicFeet: 1100, clockHours: 5 },
+    ];
+
+    const TYPE_OPTIONS = INVENTORY_PRESETS
+      .map((preset, index) => `<option value="${index}">${preset.label}</option>`)
+      .join('') + '<option value="other">Other room or item</option>';
+
+    const inventoryHost = el('inventory');
+    let rowSeq = 0;
+
+    function addItemRow(item) {
+      const id = `i${++rowSeq}`;
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML = `
+        <label for="${id}-type"><span class="lbl">Room or item</span><select class="i-type" id="${id}-type">${TYPE_OPTIONS}</select></label>
+        <label for="${id}-cu"><span class="lbl">Cubic feet</span><input class="i-cu" id="${id}-cu" type="number" min="0" step="10"></label>
+        <label for="${id}-hours"><span class="lbl">Clock hours (first-floor short carry)</span><input class="i-hours" id="${id}-hours" type="number" min="0" step="0.25"></label>
+        <button type="button" class="remove">Remove<span class="lbl"> this item</span></button>`;
+
+      const typeField = row.querySelector('.i-type');
+      const cuField = row.querySelector('.i-cu');
+      const hoursField = row.querySelector('.i-hours');
+      const presetIndex = INVENTORY_PRESETS.findIndex(p => p.label === item.name);
+      typeField.value = presetIndex === -1 ? 'other' : String(presetIndex);
+      cuField.value = item.cubicFeet;
+      hoursField.value = item.clockHours;
+
+      typeField.addEventListener('change', () => {
+        const preset = INVENTORY_PRESETS[Number(typeField.value)];
+        if (preset && !cuField.dataset.edited) cuField.value = preset.cubicFeet;
+        if (preset && !hoursField.dataset.edited) hoursField.value = preset.clockHours;
+        count('bid_calculated');
+        update();
+      });
+      cuField.addEventListener('input', () => { cuField.dataset.edited = '1'; });
+      hoursField.addEventListener('input', () => { hoursField.dataset.edited = '1'; });
+      row.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', update);
+        input.addEventListener('change', () => count('bid_calculated'));
+      });
+      row.querySelector('.remove').addEventListener('click', () => {
+        row.remove();
+        count('item_removed');
+        update();
+      });
+      inventoryHost.append(row);
+    }
+
+    function readInventory() {
+      return [...inventoryHost.querySelectorAll('.item-row')].map(row => {
+        const preset = INVENTORY_PRESETS[Number(row.querySelector('.i-type').value)];
+        return {
+          name: preset ? preset.label : '',
+          cubicFeet: row.querySelector('.i-cu').value,
+          clockHours: row.querySelector('.i-hours').value,
+        };
+      });
+    }
+
+    function count(event) {
+      recordUsage(localStorage, el('usageOptOut').checked, event);
+    }
+
+    function clearOutputs(message, isError) {
+      el('price').textContent = message;
+      el('price').className = `hero-number ${isError ? 'negative' : ''}`;
+      el('priceLabel').textContent = isError ? 'check the highlighted input' : 'job price';
+      ['clockHours','personHours','labor','jobCosts','overhead','cost','profit','perCuFt','hourlyRate','breakEven']
+        .forEach(id => { el(id).textContent = ''; });
+      el('split').innerHTML = '';
+      el('verdict').hidden = true;
+    }
+
+    /**
+     * The one place the job on screen is turned into a calculator input.
+     * `update`, the copied summary and the customer proposal all price the
+     * same object; separate literals at each call site is how they come to be
+     * priced from different fields. The default parameter lets `update` pass
+     * rows it has already read rather than reading them twice.
+     */
+    function readInput(inventory = readInventory()) {
+      return {
+        inventory,
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+        proposedPrice: el('proposedPrice').value,
+      };
+    }
+
+    function update() {
+      const inventory = readInventory();
+      if (inventory.length === 0) {
+        clearOutputs('Add a room or item to price', false);
+        el('split').innerHTML = '<li class="empty">Add at least one room or item above and the day split appears here.</li>';
+        return;
+      }
+      let result;
+      try {
+        result = calculateBid(readInput(inventory));
+      } catch (error) {
+        clearOutputs(error.message, true);
+        return;
+      }
+
+      el('price').textContent = money(result.price);
+      el('price').className = 'hero-number';
+      el('priceLabel').textContent = 'job price';
+      el('clockHours').textContent = `${result.clockHours.toFixed(2)} h`;
+      el('personHours').textContent = `${result.personHours.toFixed(1)} h`;
+      el('labor').textContent = money(result.laborCost);
+      el('jobCosts').textContent = money(result.truckCost + result.fuelTolls + result.materials + result.otherCost);
+      el('overhead').textContent = money(result.overhead);
+      el('cost').textContent = money(result.totalCost);
+      el('profit').textContent = money(result.profit);
+      el('perCuFt').textContent = result.pricePerCuFt === null ? 'n/a' : `$${result.pricePerCuFt.toFixed(2)}`;
+      el('hourlyRate').textContent = result.effectiveHourlyPerMover === null ? 'n/a' : `${money(result.effectiveHourlyPerMover)}/h`;
+      el('breakEven').textContent = money(result.breakEvenPrice);
+
+      el('split').innerHTML = result.split.length === 0
+        ? '<li class="empty">No hours yet — add inventory, access, packing, or drive time.</li>'
+        : result.split
+          .map(row => `<li><span>${row.name}</span><span>${row.share.toFixed(0)}% · ${row.hours.toFixed(2)} h</span>
+            <span class="bar"><span style="width:${row.share.toFixed(1)}%"></span></span></li>`)
+          .join('');
+
+      const verdict = el('verdict');
+      if (result.proposed === null) {
+        verdict.hidden = true;
+      } else {
+        verdict.hidden = false;
+        verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
+        const rate = result.proposed.hourlyPerMover === null ? 'n/a' : `${money(result.proposed.hourlyPerMover)}/h`;
+        verdict.innerHTML = result.proposed.belowBreakEven
+          ? `At ${money(result.proposed.price)} this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
+          : `At ${money(result.proposed.price)} you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} per mover.`;
+      }
+    }
+
+    function summaryText(result) {
+      const items = result.inventory
+        .filter(item => item.cubicFeet > 0 || item.clockHours > 0)
+        .map(item => `- ${item.name}: ${item.cubicFeet.toLocaleString('en-US')} cu ft, ${item.clockHours.toFixed(2)} h first-floor`)
+        .join('\n');
+      return [
+        'LOCAL MOVING BID',
+        '',
+        `Proposed job price: ${money(result.price)}`,
+        `Crew clock time: ${result.clockHours.toFixed(2)} hours`,
+        `Person-hours: ${result.personHours.toFixed(1)}`,
+        `Access (stairs, carry, elevator): ${result.accessHours.toFixed(2)} hours (${result.accessHoursShare.toFixed(0)}% of the day)`,
+        `Price per cubic foot: ${result.pricePerCuFt === null ? 'n/a' : '$' + result.pricePerCuFt.toFixed(2)}`,
+        '',
+        'INVENTORY',
+        items || '- No inventory entered',
+        '',
+        'This is a draft for review. Confirm inventory, access, insurance, taxes, and all pricing before sending.',
+      ].join('\n');
+    }
+
+    async function copySummary() {
+      const result = calculateBid(readInput());
+      const text = summaryText(result);
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = text;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      count('summary_copied');
+      el('summaryStatus').textContent = 'Copied to clipboard';
+      setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
+    }
+
+    el('addItem').addEventListener('click', () => {
+      addItemRow({ name: '', cubicFeet: 100, clockHours: 0.4 });
+      count('item_added');
+      update();
+    });
+
+    COST_IDS.forEach(id => {
+      el(id).addEventListener('input', update);
+      el(id).addEventListener('change', () => count(id === 'proposedPrice' ? 'proposed_price_compared' : 'bid_calculated'));
+    });
+    el('usageOptOut').addEventListener('change', update);
+    el('copySummary').addEventListener('click', () => {
+      try {
+        copySummary().catch(() => { el('summaryStatus').textContent = 'Copy failed; select and copy the figures above.'; });
+      } catch (error) {
+        el('summaryStatus').textContent = error.message;
+      }
+    });
+
+    el('minutesPerFlightPer200CuFt').value = ACCESS_DEFAULTS.minutesPerFlightPer200CuFt;
+    el('minutesPer50ftCarryPer200CuFt').value = ACCESS_DEFAULTS.minutesPer50ftCarryPer200CuFt;
+    STARTING_ITEMS.forEach(addItemRow);
+    update();
+// proposal:begin — generated by platform/proposal/adopt.mjs
+    // ---- Customer-facing proposal -------------------------------------------
+    //
+    // Generated by `platform/proposal/adopt.mjs` from this venture's entry in
+    // `platform/proposal/trades.json`. Edit the trade copy there and re-run it
+    // rather than editing this block, or the next sweep will overwrite you.
+
+    const COMPANY_KEY = 'moving-bid-company';
+    const CLIENT_IDS = ['clientName', 'clientAddress'];
+    const TERM_IDS = ['depositPercent', 'validDays', 'paymentTerms', 'proposalNotes', 'proposalExclusions'];
+
+    // Printed at the foot of the customer's copy. It names what the document is
+    // (the contractor's own price) and what it is not, so the sheet cannot be
+    // read as this tool certifying the work. Typographic apostrophes only: a
+    // straight one closes this string and the whole module stops parsing.
+    const PROPOSAL_DISCLAIMER = 'This proposal states the price offered by the business named above, who is solely responsible for its scope, figures, and performance. It was laid out with a free browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no warranty. It is an estimate from the inventory described; it is not an inventory certification or a valuation of your goods.';
+
+    /**
+     * Default scope lines from the job the user actually priced, so the
+     * proposal is useful before they type anything. Left alone once edited — a
+     * recalculation must never overwrite wording already sent to a customer.
+     *
+     * Templates rather than string concatenation: `scopeLines` drops a line
+     * whose figure is missing instead of printing the word "undefined" on a
+     * customer's quote, which is the defect every hand-port hit at least once.
+     */
+    const SCOPE_TEMPLATES = [
+        "Load, transport, and unload the inventory listed below",
+        {
+          "each": "inventory",
+          "when": "cubicFeet",
+          "line": "{name} — {cubicFeet~0} cu ft"
+        },
+        "Blanket-wrap the furniture and protect floors and doorways at both addresses",
+        {
+          "line": "Stair carry at the addresses noted",
+          "when": "stairHours"
+        },
+        {
+          "line": "Long carry between the door and the truck",
+          "when": "carryHours"
+        },
+        {
+          "line": "Elevator use at the addresses noted",
+          "when": "elevatorHours"
+        },
+        {
+          "line": "Packing service as agreed",
+          "when": "packingHours"
+        },
+        "Disassemble and reassemble the items the crew takes apart",
+        "Place the furniture in the rooms you direct at the destination"
+      ];
+
+    function restoreCompany() {
+      const saved = loadCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) {
+        if (saved[field]) el(field).value = saved[field];
+      }
+    }
+
+    function suggestScope(result) {
+      const scope = el('proposalScope');
+      if (scope.dataset.edited) return;
+      scope.value = scopeLines(SCOPE_TEMPLATES, result).join('\n');
+    }
+
+    function readProposalInput(result) {
+      const values = Object.fromEntries(
+        [...COMPANY_FIELDS, ...CLIENT_IDS, ...TERM_IDS].map(id => [id, el(id).value]),
+      );
+      return {
+        ...values,
+        // Printing a different number from the one on screen would be the worst
+        // bug this feature can have.
+        price: result.proposed === null || result.proposed === undefined ? result.price : result.proposed.price,
+        jobTitle: scopeLines(['Local move — {totalCubicFeet~0} cu ft'], result)[0] || 'Local move — cu ft',
+        scope: el('proposalScope').value,
+      };
+    }
+
+    function showProposal() {
+      const result = calculateBid(readInput());
+      const proposal = buildProposal(readProposalInput(result));
+      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+        COMPANY_FIELDS.map(field => [field, el(field).value]),
+      ));
+      el('proposalDoc').innerHTML =
+        '<p class="pr-print-hint hint">This is the customer’s copy. Your costs, wages, and margin are not on it, and they are not printed.</p>'
+        + renderProposalHtml(proposal, { disclaimer: PROPOSAL_DISCLAIMER });
+      el('proposalDoc').hidden = false;
+      return proposal;
+    }
+
+    /**
+     * Keep the proposal honest as the bid changes. Bubble phase, so it runs
+     * after the page's own field handlers have recorded the change.
+     */
+    function refreshProposal(event) {
+      // Editing the proposal's own fields is not a change to the figures.
+      if (event && event.target.closest && event.target.closest('#proposalSection')) return;
+      let result;
+      try {
+        result = calculateBid(readInput());
+      } catch {
+        // An unpriceable job has no proposal; leaving the last one on screen
+        // invites printing a price the inputs no longer support.
+        el('proposalDoc').hidden = true;
+        return;
+      }
+      suggestScope(result);
+      // A stale sheet showing the previous price is how the wrong number
+      // reaches a customer. Any recalculation retires the rendered document.
+      if (!el('proposalDoc').hidden) {
+        el('proposalDoc').hidden = true;
+        el('proposalStatus').textContent = 'Figures changed — print again for an updated proposal';
+      }
+    }
+
+    function printProposal() {
+      let proposal;
+      try {
+        proposal = showProposal();
+      } catch (error) {
+        el('proposalStatus').textContent = error.message;
+        return;
+      }
+      el('proposalStatus').textContent = `Proposal ${proposal.reference} ready`;
+      count('proposal_printed');
+      el('proposalDoc').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // After paint, so the browser renders the document before the sheet is
+      // captured; without it an empty page can go to the printer.
+      requestAnimationFrame(() => requestAnimationFrame(() => window.print()));
+    }
+
+    el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
+    document.addEventListener('input', refreshProposal);
+    document.addEventListener('change', refreshProposal);
+    el('printProposal').addEventListener('click', printProposal);
+    el('forgetCompany').addEventListener('click', () => {
+      forgetCompany(localStorage, COMPANY_KEY);
+      for (const field of COMPANY_FIELDS) el(field).value = '';
+      el('proposalDoc').hidden = true;
+      el('proposalStatus').textContent = 'Business details removed from this device';
+      count('company_forgotten');
+    });
+
+    restoreCompany();
+    refreshProposal();
+// proposal:end
+  </script>
+</body>
+</html>

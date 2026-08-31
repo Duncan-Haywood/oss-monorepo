@@ -4,6 +4,7 @@ import { catalogArtworks } from "../src/lib/marketplace.ts";
 import {
   buildSitemapEntries,
   buildSitemapXml,
+  buildPrintStructuredData,
   evaluateSeoPagePublishability,
   formatSeoVolume,
   generateSeoLandingPages,
@@ -71,6 +72,7 @@ test("buildSitemapEntries only includes publishable print slugs plus static mark
   assert.ok(entries.some((entry) => entry.path === "/"));
   assert.ok(entries.some((entry) => entry.path === "/docs"));
   assert.ok(entries.some((entry) => entry.path === "/investor"));
+  assert.ok(entries.some((entry) => entry.path === "/print-file-preflight"));
   assert.equal(
     entries.filter((entry) => entry.path.startsWith("/prints/")).length,
     publishable.length,
@@ -102,4 +104,26 @@ test("buildSitemapXml emits valid urlset with consent-gated print locations", ()
   assert.match(xml, /<loc>https:\/\/printatelier\.com\/docs<\/loc>/);
   assert.match(xml, /<lastmod>2026-06-12T00:00:00.000Z<\/lastmod>/);
   assert.doesNotMatch(xml, /spring-bloom/);
+});
+
+test("buildPrintStructuredData describes a purchasable print only after publishability clears", () => {
+  const page = resolvePrintPage("midnight-coast");
+  assert.ok(page);
+
+  const publishable = buildPrintStructuredData(
+    page!,
+    { publishable: true, blockers: [], consentBlocked: false },
+    "https://example.test/",
+  );
+  const product = publishable["@graph"][0]!;
+  assert.equal(product["@type"], "Product");
+  assert.equal((product.offers as Record<string, unknown>).price, "85.00");
+  assert.equal((publishable["@graph"][1]!["@type"]), "BreadcrumbList");
+
+  const blocked = buildPrintStructuredData(page!, {
+    publishable: false,
+    blockers: ["Missing consent"],
+    consentBlocked: true,
+  });
+  assert.equal(blocked["@graph"][0]!.offers, undefined);
 });

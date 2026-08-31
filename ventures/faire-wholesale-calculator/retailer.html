@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Faire Retailer Margin Calculator | Landed Cost vs Shelf Price</title>
+  <meta name="description" content="Free Faire retailer calculator: see margin after wholesale cost, opening-order discount, shipping, unsold units, and your store's card fees.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="retailer.html">
+  <meta property="og:title" content="Faire Retailer Margin Calculator">
+  <meta property="og:description" content="Know whether a Faire opening order still works after shipping and the units you do not sell.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Faire Retailer Margin Calculator",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Faire landed cost, opening-order discount, unsold units, store payment fees, net profit, margin, ROI, retail price for a target margin"
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25221f; background: #f4efe6; }
+    body { max-width: 980px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 720px; margin-bottom: 26px; }
+    .eyebrow { font-size: .78rem; letter-spacing: .08em; font-weight: 700; color: #6a5840; }
+    h1 { font-size: clamp(2rem, 5vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    p { line-height: 1.5; }
+    nav { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 0; font-size: .92rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fffdf8; border: 1px solid #ded5c8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #40301a0d; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #b9ad9f; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .result { position: sticky; top: 15px; background: #243d35; color: #fffdf9; border-color: #243d35; }
+    /* The panel sets its own dark background but never a link colour, so any link inside it fell back to the browser default blue: 1.1:1 on this fill, invisible. Inheriting the panel ink cannot drift from the background the panel actually paints, and the underline carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0; }
+    .negative { color: #ffb6a6; } .positive { color: #c5edb5; }
+    dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin: 18px 0; } dt, dd { margin: 0; } dd { font-variant-numeric: tabular-nums; }
+    hr { border: 0; border-top: 1px solid #ffffff33; }
+    .note { font-size: .82rem; opacity: .85; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+    .actions button { flex: 1 1 auto; cursor: pointer; font: inherit; font-weight: 650; border-radius: 7px; padding: 9px 12px; border: 1px solid #ffffff40; background: #ffffff1a; color: inherit; }
+    #copyLink { background: #c5edb5; color: #16261f; border-color: #c5edb5; }
+    footer { margin-top: 25px; font-size: .82rem; color: #5c554d; }
+    @media (max-width: 780px) { .layout { grid-template-columns: 1fr; } .result { position: static; } .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR INDEPENDENT RETAILERS</p>
+    <h1>Know the margin after a Faire opening order lands.</h1>
+    <p>
+      Faire is free to join as a retailer. The cost is the wholesale invoice, shipping,
+      the units that do not sell, and the card fees on your own register.
+      Enter those numbers before you confirm the cart.
+    </p>
+    <nav>
+      <a href="./">Brand / seller fee calculator</a>
+      <a href="faire-direct-vs-marketplace.html">Faire Direct vs marketplace</a>
+      <a href="should-i-list-during-faire-open-house.html">Open House vs everyday</a>
+    </nav>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Order and sell-through assumptions</h2>
+      <div class="fields">
+        <label>Wholesale unit price <input id="unitWholesale" type="number" min="0" step="0.01" value="20"></label>
+        <label>Units bought <input id="quantity" type="number" min="1" step="1" value="10"></label>
+        <label>Units you expect to sell <input id="unitsSold" type="number" min="0" step="1" value="8"></label>
+        <label>Opening-order discount (%) <input id="openingDiscountRate" type="number" min="0" step="0.1" max="99.9" value="20"></label>
+        <label>Shipping you paid <input id="shippingPaid" type="number" min="0" step="0.01" value="12"></label>
+        <label>Retail selling price <input id="unitRetail" type="number" min="0" step="0.01" value="48"></label>
+        <label>Store payment rate (%) <input id="storePaymentRate" type="number" min="0" step="0.1" value="2.9"></label>
+        <label>Store payment fixed fee <input id="storePaymentFixed" type="number" min="0" step="0.01" value="0.30"></label>
+        <label>Other cost <input id="otherCost" type="number" min="0" step="0.01" value="0"></label>
+      </div>
+    </section>
+    <section class="result">
+      <h2>If this opening order sells through</h2>
+      <div id="profit" class="hero-number">$—</div>
+      <div id="label">estimated net after landed cost and store fees</div>
+      <dl>
+        <dt>Invoice after discount</dt><dd id="invoice"></dd>
+        <dt>Landed cost</dt><dd id="landed"></dd>
+        <dt>Landed per unit</dt><dd id="landedEach"></dd>
+        <dt>Retail revenue on units sold</dt><dd id="revenue"></dd>
+        <dt>Store payment fees</dt><dd id="storeFees"></dd>
+        <dt>Unsold units (already paid for)</dt><dd id="unsold"></dd>
+        <dt>Net margin on retail sales</dt><dd id="margin"></dd>
+        <dt>Return on landed cost</dt><dd id="roi"></dd>
+      </dl>
+      <hr>
+      <h2>Reprice the shelf</h2>
+      <label>Target margin (%) <input id="targetMargin" type="number" min="0" max="99.9" step="1" value="50"></label>
+      <p id="targetPrice"></p>
+      <div class="actions">
+        <button id="copyLink" type="button">Copy shareable link</button>
+        <button id="reset" type="button">Reset to defaults</button>
+      </div>
+      <p id="status" class="note" role="status" aria-live="polite"></p>
+      <p class="note">Unsold units stay in landed cost. That is the honest opening-order question: you already paid for them. This is arithmetic from your inputs, not a forecast of sell-through.</p>
+    </section>
+  </main>
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with Faire Wholesale, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Your prices and costs are never uploaded. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day; never the inputs. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>Free and open source. If it stopped you from buying an opening order that unsold units would sink, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. MIT licensed.</p>
+  </footer>
+  <script type="module">
+    import { calculateRetailerOrder, retailPriceForMargin } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+    import { encodeInputs, decodeInputs, RETAILER_FIELD_IDS } from "./share.mjs";
+
+    const INPUTS_KEY = "faire-wholesale-retailer-inputs";
+    const field = (id) => document.getElementById(id);
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const currentInputs = () => Object.fromEntries(RETAILER_FIELD_IDS.map((id) => [id, field(id).value]));
+    const safe = (fn) => { try { return fn(); } catch { return undefined; } };
+    let statusTimer;
+    function flash(message) {
+      const el = field("status");
+      el.textContent = message;
+      clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => { el.textContent = ""; }, 3000);
+    }
+    function apply(values) {
+      for (const id of RETAILER_FIELD_IDS) {
+        if (values[id] !== undefined) field(id).value = values[id];
+      }
+    }
+
+    function update() {
+      try {
+        const input = currentInputs();
+        const result = calculateRetailerOrder(input);
+        field("profit").textContent = money(result.profit);
+        field("profit").className = `hero-number ${result.profit < 0 ? "negative" : "positive"}`;
+        field("label").textContent = result.profit < 0 ? "loss if this is all you sell" : "estimated net after landed cost and store fees";
+        field("invoice").textContent = money(result.invoiceMerchandise);
+        field("landed").textContent = money(result.landedCost);
+        field("landedEach").textContent = money(result.landedPerUnit);
+        field("revenue").textContent = money(result.retailRevenue);
+        field("storeFees").textContent = money(result.storeFees);
+        field("unsold").textContent = `${result.unsoldUnits} (${money(result.unsoldAtLanded)})`;
+        field("margin").textContent = `${result.margin.toFixed(1)}%`;
+        field("roi").textContent = result.roi === null ? "n/a" : `${result.roi.toFixed(1)}%`;
+        const target = Number(input.targetMargin);
+        field("targetPrice").textContent = `Charge ${money(retailPriceForMargin(input, target))} at retail to target a ${target}% margin on the units you expect to sell.`;
+      } catch (error) {
+        field("profit").textContent = error.message;
+        field("profit").className = "hero-number negative";
+        field("label").textContent = "fix the inputs to see a result";
+        field("targetPrice").textContent = "";
+      }
+    }
+
+    function persist() {
+      const inputs = currentInputs();
+      safe(() => localStorage.setItem(INPUTS_KEY, JSON.stringify(inputs)));
+      if (location.hash || location.search) history.replaceState(null, "", `${location.pathname}#${encodeInputs(inputs, RETAILER_FIELD_IDS, false)}`);
+    }
+
+    const fromLink = decodeInputs(location.hash || location.search, RETAILER_FIELD_IDS, false);
+    if (Object.keys(fromLink).length) apply(fromLink);
+    else {
+      const saved = safe(() => JSON.parse(localStorage.getItem(INPUTS_KEY) || "null"));
+      if (saved) apply(decodeInputs(encodeInputs(saved, RETAILER_FIELD_IDS, false), RETAILER_FIELD_IDS, false));
+    }
+
+    RETAILER_FIELD_IDS.forEach((id) => {
+      field(id).addEventListener("input", () => { update(); persist(); });
+      field(id).addEventListener("change", () => recordUsage(safe(() => localStorage), field("usageOptOut").checked, id === "targetMargin" ? "scenario_compared" : "retailer_order_calculated"));
+    });
+    field("usageOptOut").addEventListener("change", update);
+
+    field("copyLink").addEventListener("click", async () => {
+      const query = encodeInputs(currentInputs(), RETAILER_FIELD_IDS, false);
+      history.replaceState(null, "", `${location.pathname}#${query}`);
+      try { await navigator.clipboard.writeText(location.href); flash("Link copied — it reopens the calculator with these numbers."); }
+      catch { flash("Link is in your address bar — copy it to share these numbers."); }
+      recordUsage(safe(() => localStorage), field("usageOptOut").checked, "link_copied");
+    });
+    field("reset").addEventListener("click", () => {
+      safe(() => localStorage.removeItem(INPUTS_KEY));
+      history.replaceState(null, "", location.pathname);
+      apply({
+        unitWholesale: 20, quantity: 10, unitsSold: 8, openingDiscountRate: 20,
+        shippingPaid: 12, unitRetail: 48, storePaymentRate: 2.9, storePaymentFixed: 0.3,
+        otherCost: 0, targetMargin: 50,
+      });
+      update();
+      flash("Reset to the default opening order.");
+    });
+    update();
+  </script>
+</body>
+</html>

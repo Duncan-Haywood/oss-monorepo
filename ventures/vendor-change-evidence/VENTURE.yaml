@@ -1,0 +1,32 @@
+name: vendor-change-evidence
+description: Local evidence monitor that compares customer-supplied SaaS terms, privacy, subprocessor, and security snapshots.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Procurement and security teams need source-linked vendor policy change history during recurring reviews.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: A portable local report is useful before a hosted monitor or integrations are required.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three qualified practitioners identify a recurring vendor review workflow after ten conversations.
+  - No practitioner values portable source-linked history over existing tools in the first pilot.
+
+links:
+  production: null
+  analytics: null

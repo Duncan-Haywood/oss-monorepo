@@ -1,0 +1,123 @@
+# The portfolio's front door: `marisstella.dev` and `www.marisstella.dev`.
+#
+# WHY THIS EXISTS
+#
+# Issue #1925, filed by the owner on 2026-08-28: "https://marisstella.dev/
+# does not resolve. no clear unified presence for the portfolio." Three
+# status comments on that issue have answered the *deploy* half of it — the
+# site is built, it is one sealed clone token from serving — and none of them
+# answered the half the title actually asks about. `portfolio-site.yaml`
+# claims `tools.marisstella.dev` and nothing else, so even after that token
+# is sealed, someone who types the portfolio's domain still gets nothing.
+# This is the manifest that makes the domain itself land somewhere.
+#
+# WHY IT IS A REDIRECT AND NOT A SECOND COPY OF THE SITE
+#
+# `platform/pages/build.mjs` stamps `PAGES_BASE_URL` into the canonical link,
+# the og:url and every sitemap entry of all 508 pages, and
+# `portfolio-site.yaml` sets that to `https://tools.marisstella.dev/`. One
+# canonical host, one indexed copy. Serving the same bytes on three hostnames
+# would put two uncanonical duplicates in front of crawlers and rely on the
+# `rel=canonical` tag to undo it; a 301 says the same thing without the
+# ambiguity, and it is what a browser follows without being asked twice.
+#
+# The redirect target is the canonical *root*, not the requested path.
+# ingress-nginx's `permanent-redirect` emits a literal `return 301 <target>`,
+# so `$request_uri` is not carried across. That is acceptable here and only
+# here: the apex has never served a page, so no deep link to
+# `marisstella.dev/<tool>/` exists anywhere to break, and every path that IS
+# linked or indexed is already an absolute `tools.` URL. Landing the front
+# door on the 169-tool hub is the whole job. If the apex ever needs to
+# preserve paths, the change is to drop the two redirect annotations below —
+# the backend already points at the real site, so the Ingress degrades into
+# serving it directly, and the canonical tag on every page then does the
+# consolidating.
+#
+# WHY THIS CANNOT HIJACK ANYTHING
+#
+# `portfolio-site.yaml` says in a comment that it stays off the apex because
+# "marisstella.dev already resolves to this box for something else", citing
+# `infra/README.md`. That file says something narrower than the inference
+# drawn from it: "`marisstella.dev` A records already point at the cpx52 —
+# this stack will not rewrite them." It records where DNS points, not that a
+# process is answering.
+#
+# Nothing else can be answering. `gitops/apps/ingress-nginx.yaml` runs the
+# controller as a DaemonSet with `hostNetwork: true` on the control-plane
+# node, so ingress-nginx holds :80 and :443 in the host's own network
+# namespace. A second listener on those ports would have failed to bind. The
+# owner's issue reports the observed consequence: the name resolves to the
+# box, the box's only listener has no rule for it, and the request falls to
+# the default backend.
+#
+# That argument also makes this manifest safe under its own negation. This
+# Ingress can only take effect if ingress-nginx owns the port; if some
+# non-Kubernetes service somehow owns it instead, ingress-nginx never sees
+# the request and this file changes nothing. There is no state in which it
+# displaces a live service.
+#
+# Rollback is deleting this one file from `kustomization.yaml`. It adds no
+# volume, no workload and no secret, and it does not touch the Ingress that
+# serves the site.
+#
+# TLS
+#
+# `letsencrypt-staging`, matching `portfolio-site.yaml`, which is deliberately
+# on staging until a staging certificate is confirmed to have issued for
+# `tools.marisstella.dev`. Both flip to `letsencrypt-prod` together — a
+# browser has to accept the certificate for `marisstella.dev` before it is
+# ever shown the redirect, so an apex on staging while the target is on prod
+# would put the warning interstitial on the front door only. Flipping one and
+# not the other is the mistake this paragraph exists to stop.
+#
+# cert-manager solves HTTP-01 by creating its own `cm-acme-http-solver-*`
+# Ingress for `/.well-known/acme-challenge/<token>` (see `solvers.http01.
+# ingress.class: nginx` in `gitops/platform/cert-manager/issuer.yaml`). That
+# is a separate, more specific location than the `/` Prefix below and it does
+# not inherit these annotations, so the redirect does not swallow the
+# challenge.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: portfolio-apex-redirect
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+    # 301 rather than 302: the apex is not a temporary home for these tools,
+    # and a permanent redirect is what consolidates link equity onto the
+    # canonical host instead of splitting it across three names.
+    nginx.ingress.kubernetes.io/permanent-redirect: https://tools.marisstella.dev/
+    nginx.ingress.kubernetes.io/permanent-redirect-code: "301"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - marisstella.dev
+        - www.marisstella.dev
+      secretName: portfolio-apex-tls
+  rules:
+    # Both names get their own rule rather than sharing one: ingress-nginx
+    # matches on the exact Host header, so `www` is not covered by the apex.
+    - host: marisstella.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            # Never reached while the redirect annotation is present. It
+            # points at the real site on purpose — see the note above about
+            # dropping the annotations — rather than at a stub that would
+            # turn a dropped annotation into a 503.
+            backend:
+              service:
+                name: portfolio-site
+                port:
+                  name: http
+    - host: www.marisstella.dev
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: portfolio-site
+                port:
+                  name: http

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How Much Cash Do You Need for Net 30, 45, 60, or 90 Payment Terms?</title>
+  <meta name="description" content="See exactly how much working capital net 15, 30, 45, 60, and 90 payment terms require on a $10,000 subcontract, and how the funding gap grows as terms stretch out.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://example.invalid/subcontractor-cashflow-planner/how-much-cash-do-i-need-for-net-30-payment-terms.html">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="How much cash do you need for net 30 payment terms?">
+  <meta property="og:description" content="A worked table: cash needed and funding gap at net 15, 30, 45, 60, and 90 terms on a $10,000 subcontract with $5,000 available.">
+  <meta property="og:url" content="https://example.invalid/subcontractor-cashflow-planner/how-much-cash-do-i-need-for-net-30-payment-terms.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much cash do I need to carry a subcontract on net 30 payment terms?","acceptedAnswer":{"@type":"Answer","text":"It depends on your materials cost and weekly burn rate, not just the invoice size. On this calculator's own defaults — $2,500 in materials, $700 a week in overhead, a 14-day late-payment buffer on top of the 30-day terms — cash needed before payment works out to $6,900. Compared against $5,000 in cash available for the project, that is a $1,900 funding gap you would need to bridge with more starting cash, a materials deposit, progress billing, or a line of credit."}},{"@type":"Question","name":"How much does the funding gap grow if payment terms stretch from net 30 to net 60 or net 90?","acceptedAnswer":{"@type":"Answer","text":"Roughly linearly with the extra weeks, because the calculator multiplies your weekly burn by the days until expected payment. Going from net 30 to net 60 on the same $10,000 subcontract raises cash needed from $6,900 to $9,900, and the funding gap from $1,900 to $4,900 — a $3,000 increase driven entirely by an extra 15 days (net 60 plus the same 14-day buffer versus net 30 plus that buffer) of overhead that has to be funded before the invoice pays. Net 90 terms nearly double cash needed again, to $12,900, for a $7,900 gap."}}]}</script>
+  <style>
+    :root { color-scheme: light; --ink:#17221f; --muted:#60706b; --paper:#f5f1e8; --card:#fffdf8; --accent:#b54c2d; --line:#d9d1c1; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
+    main { max-width:860px; margin:auto; padding:44px 20px 60px; } header { max-width:760px; margin-bottom:24px; }
+    h1 { font:700 clamp(1.9rem,5.5vw,3.2rem)/1.05 Georgia,serif; letter-spacing:-.03em; margin:0 0 16px; } h2 { font:700 1.45rem Georgia,serif; }
+    .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.78rem; }
+    .lede { color:var(--muted); font-size:1.1rem; max-width:680px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 8px 24px #51412712; margin:0 0 18px; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:.92rem; margin:8px 0 0; }
+    caption { caption-side:bottom; color:var(--muted); font-size:.82rem; text-align:left; padding-top:8px; }
+    th, td { border-bottom:1px solid var(--line); padding:9px 7px; text-align:right; vertical-align:top; }
+    th:first-child, td:first-child { text-align:left; }
+    .fine { color:var(--muted); font-size:.88rem; } footer { margin-top:24px; color:var(--muted); font-size:.86rem; } a { color:inherit; }
+  </style>
+</head>
+<body><main>
+  <p class="eyebrow"><a href="./">&larr; Subcontractor Cash Flow Planner</a></p>
+  <header>
+    <h1>How much cash do you need for net 30, 45, 60, or 90 payment terms?</h1>
+    <p class="lede">Payment terms are the single biggest lever in a subcontract's cash gap, because every extra day of terms is another day your materials and overhead sit unfunded. Here is the arithmetic on a $10,000 subcontract at five common terms, holding everything else — materials, weekly burn, retention, buffer, and starting cash — at the calculator's own defaults.</p>
+  </header>
+  <section class="card">
+    <h2>Cash needed and funding gap at five payment terms</h2>
+    <div class="table-wrap">
+    <table>
+      <caption>$10,000 invoice, $2,500 materials, $700/week burn, 10% retention, 14-day late-payment buffer, $5,000 cash available. Arithmetic only — no recommendation.</caption>
+      <thead>
+        <tr>
+          <th scope="col">Payment terms</th>
+          <th scope="col">Expected payment day*</th>
+          <th scope="col">Cash needed before payment</th>
+          <th scope="col">Funding gap</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Net 15</td><td>Day 29</td><td>$5,400</td><td>$400</td></tr>
+        <tr><td>Net 30</td><td>Day 44</td><td>$6,900</td><td>$1,900</td></tr>
+        <tr><td>Net 45</td><td>Day 59</td><td>$8,400</td><td>$3,400</td></tr>
+        <tr><td>Net 60</td><td>Day 74</td><td>$9,900</td><td>$4,900</td></tr>
+        <tr><td>Net 90</td><td>Day 104</td><td>$12,900</td><td>$7,900</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="fine">*Contract terms plus the calculator's 14-day late-payment buffer, which models the gap between "invoice due" and "invoice actually paid" that shows up across the trades even on paper-clean contracts.</p>
+    <p>Cash needed grows by exactly $700 for every extra 7 days of terms — that is the weekly burn rate doing the work, not the invoice size or retention, both of which are held constant across this table. The funding gap grows just as fast because starting cash ($5,000) does not move: each 15-day step from net 15 to net 90 adds roughly $1,500 to the gap.</p>
+    <p>The takeaway is not "avoid long terms" — longer terms are often non-negotiable on larger contracts. It is that the same $10,000 subcontract needs very different working capital depending on the terms alone, so the terms line in a contract is worth pricing into your cash plan before you sign, not after materials are already ordered.</p>
+    <p><a href="./">Open the calculator</a> and enter your own invoice, materials, burn rate, and terms to see your actual gap. Nothing you enter is uploaded.</p>
+    <p class="fine">This page is arithmetic, not legal, tax, financial, or accounting advice. It does not tell you what terms to accept or predict when a specific client will actually pay.</p>
+  </section>
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How much cash do I need to carry a subcontract on net 30 payment terms?</h3>
+    <p>It depends on your materials cost and weekly burn rate, not just the invoice size. On this calculator's own defaults — $2,500 in materials, $700 a week in overhead, a 14-day late-payment buffer on top of the 30-day terms — cash needed before payment works out to $6,900. Compared against $5,000 in cash available for the project, that is a $1,900 funding gap you would need to bridge with more starting cash, a materials deposit, progress billing, or a line of credit.</p>
+    <h3>How much does the funding gap grow if payment terms stretch from net 30 to net 60 or net 90?</h3>
+    <p>Roughly linearly with the extra weeks, because the calculator multiplies your weekly burn by the days until expected payment. Going from net 30 to net 60 on the same $10,000 subcontract raises cash needed from $6,900 to $9,900, and the funding gap from $1,900 to $4,900 — a $3,000 increase driven entirely by an extra 15 days (net 60 plus the same 14-day buffer versus net 30 plus that buffer) of overhead that has to be funded before the invoice pays. Net 90 terms nearly double cash needed again, to $12,900, for a $7,900 gap.</p>
+  </section>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, or accounting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your data is never uploaded. Optional usage counters record only feature names in local storage, never your inputs, output, or identity, with an opt-out on the calculator page.</p>
+    <p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change the calculator.</p>
+  </footer>
+</main></body></html>

@@ -10,6 +10,8 @@ offload support.
 - `resumable_photos_import.py` — stateful, restartable Photos importer
 - `photos_import_watchdog.py` — supervises JPEG and RAW import phases
 - `photos_import_errors.py` — classifies failures and selects recovery actions
+- `verify` command — reads every manifest file back and identifies missing,
+  empty, or unreadable media before a library or staging directory is retired
 - `sd_offload.py` — copies media from removable storage; `--verify hash`
   compares source/dest SHA-256 (default `size` compares byte counts only)
 - `atomic_io.py` — atomic JSON writer shared by the importer, watchdog, and
@@ -58,6 +60,19 @@ since a timeout may have imported them without confirming. Useful flags:
 `--batch-size` (default 10), `--timeout` seconds per file (default 180),
 `--attempts` retries for transient failures (default 3), `--photos-preflight`
 to check each file against Photos.app before importing it.
+
+After an import or before removing a source/staging copy, verify that the files
+tracked by a manifest are still present and readable. It exits with status 1 if
+any file is missing, empty, or unreadable:
+
+```bash
+.venv/bin/python resumable_photos_import.py verify \
+  --state-dir "/path/to/Photos_Organized/.import_state" \
+  --media-type jpeg --json
+```
+
+The audit reads files locally and appends only aggregate counts to the local
+`events_<media-type>.jsonl` usage log; it sends no telemetry or file contents.
 
 ### Unattended watchdog
 

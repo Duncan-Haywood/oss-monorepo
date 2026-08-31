@@ -75,6 +75,15 @@ def load_ledger() -> dict:
         "entries": len(entries),
         "null_spend": sum(1 for e in entries if e.get("agent_spend_usd") is None),
         "null_mrr": sum(1 for e in entries if e.get("mrr_end") is None),
+        # Two different facts, and conflating them is what broke the premise
+        # test on 2026-08-27. `null_mrr` counts rows that never *measured*
+        # revenue; `booked_mrr` counts rows reporting revenue they actually
+        # took. A row written `mrr_end: 0` — the spelling the ledger README's
+        # own example uses — is not unmeasured, it is a measured zero, and it
+        # supports the premise rather than contradicting it. Truthiness, to
+        # agree with `session_gate.py`'s "0 of N entries book any", which has
+        # counted it this way all along.
+        "booked_mrr": sum(1 for e in entries if e.get("mrr_end")),
         "portfolio_meta": sum(1 for e in entries if e.get("venture") == "portfolio"),
         "mention_reverify": sum(1 for e in entries if "re-verif" in text_of(e)),
         "mention_duplicate": sum(1 for e in entries if "duplicate" in text_of(e)),
@@ -223,6 +232,7 @@ def print_report(r: dict) -> None:
         f"  agent_spend_usd null            {led['null_spend']}/{led['entries']}"
     )
     print(f"  mrr_end null                    {led['null_mrr']}/{led['entries']}")
+    print(f"  entries booking revenue         {led['booked_mrr']}/{led['entries']}")
     print(
         f"  venture: portfolio (meta-work)  {led['portfolio_meta']}/{led['entries']}"
         f" ({led['portfolio_meta'] / led['entries']:.1%})"

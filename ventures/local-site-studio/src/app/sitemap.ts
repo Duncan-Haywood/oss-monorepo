@@ -27,6 +27,7 @@ const STATIC_ROUTES = [
   "",
   "/checkout",
   EAA_EVIDENCE_PATH,
+  "/accessibility-evidence/preaudit",
   ...CATEGORY_LANDING_ROUTES,
   "/docs",
   ...DOCS_PAGES.map((page) => page.href),

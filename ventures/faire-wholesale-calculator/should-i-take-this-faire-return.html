@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I take this Faire return? | Keep-it credit vs deny vs the label</title>
+  <meta name="description" content="On a completed $20 × 10 Faire first order, a 20% keep-it credit leaves $41.90. Denying at 50% they'll-drop-it leaves $37.95. Taking the full return leaves −$49.00 after the label.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="should-i-take-this-faire-return.html">
+  <meta property="og:title" content="Should I take this Faire return?">
+  <meta property="og:description" content="Keep-it credit vs deny vs taking the label on a completed Faire first order. Defaults leave $41.90, $37.95, and −$49.00.">
+  <meta property="og:type" content="article">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Faire return vs keep-it credit calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"completed first-order leftover, keep-it credit after commission giveback, deny leftover at typed odds, take-the-return leftover after label and restockable COGS"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should I take this Faire return?","acceptedAnswer":{"@type":"Answer","text":"On the calculator defaults — a completed $20 × 10 first marketplace order that booked $75.90, a 20% keep-it credit, 50% they'll-drop-it if you deny, an $18 return label, and 80% restockable — the keep-it credit leaves $41.90. Denying leaves $37.95. Taking the full return leaves −$49.00 because outbound shipping and the $10 new-customer fee are already sunk. This is not a recommendation to take, credit, or fight the return."}},{"@type":"Question","name":"When does taking a Faire return still beat a keep-it credit?","acceptedAnswer":{"@type":"Answer","text":"When only some units come back. Returning 2 of 10 with an $8 label leaves $46.52 and flips ahead of the $41.90 keep-it credit. A full return at these costs does not. Denying at 70% they'll-drop-it leaves $53.13 and flips ahead of the credit."}},{"@type":"Question","name":"Is a Faire return the same as Open House or Faire Direct?","acceptedAnswer":{"@type":"Answer","text":"No. Open House is whether to list during a 0% commission window. Faire Direct is 0% commission when you bring the retailer. This page starts after a completed first order, when the retailer wants goods back."}}]}</script>
+  <style>
+    :root { font-family: system-ui, sans-serif; color: #202b2b; background: #e8f0ed; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #176b53; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.1; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 1rem 0; }
+    label { display: grid; gap: 4px; font-size: .87rem; font-weight: 650; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #9aada6; border-radius: 8px; padding: 10px; font: inherit; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; }
+    th, td { padding: 8px 6px; text-align: right; border-bottom: 1px solid #cbd8d3; font-variant-numeric: tabular-nums; }
+    th:first-child, td:first-child { text-align: left; }
+    tr.winner-row td { font-weight: 700; }
+    .note { font-size: .9rem; color: #344640; }
+    footer { margin-top: 2rem; font-size: .85rem; color: #344640; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Faire seller fee calculator</a></p>
+  <h1>Should I take this Faire return?</h1>
+  <p>
+    Brands search this after Open House leftovers come back, or after a
+    boutique asks to return a first order. Taking the label looks like
+    “getting your inventory back” until you price the payout Faire claws
+    and the outbound shipping you already spent.
+  </p>
+  <p>
+    <strong>This is not Open House and not Faire Direct.</strong>
+    Those pages price listing and the channel. This page starts after a
+    completed first marketplace order, when the retailer wants goods back.
+  </p>
+  <p>
+    On the calculator defaults — $20 × 10, $8 cost, $15 shipping both
+    ways, 15% + $10, 60-day processing, already booked
+    <strong>$75.90</strong> — a 20% keep-it credit leaves
+    <strong>$41.90</strong> after reversing <strong>$6.00</strong> of
+    commission. Denying at 50% they'll-drop-it leaves
+    <strong>$37.95</strong>. Taking all 10 units back with an
+    <strong>$18.00</strong> label and 80% restockable leaves
+    <strong>−$49.00</strong>. Denying matches the credit at about
+    <strong>55.2%</strong> they'll-drop-it.
+  </p>
+  <p>
+    Returning 2 of 10 with an $8 label flips taking the return to
+    <strong>$46.52</strong>. Denying at 70% flips ahead to
+    <strong>$53.13</strong>.
+  </p>
+  <form id="returnForm" class="fields">
+    <label>Wholesale unit price <input id="unitWholesale" type="number" min="0" step="0.01" value="20"></label>
+    <label>Units on the order <input id="quantity" type="number" min="1" step="1" value="10"></label>
+    <label>Unit cost of goods <input id="unitCogs" type="number" min="0" step="0.01" value="8"></label>
+    <label>Shipping reimbursement <input id="shippingReimbursement" type="number" min="0" step="0.01" value="15"></label>
+    <label>Shipping you already paid <input id="shippingCost" type="number" min="0" step="0.01" value="15"></label>
+    <label>Units they want back <input id="returnUnits" type="number" min="1" step="1" value="10"></label>
+    <label>Return label you pay <input id="returnLabel" type="number" min="0" step="0.01" value="18"></label>
+    <label>Restockable (%) <input id="restockablePct" type="number" min="0" max="100" step="1" value="80"></label>
+    <label>Keep-it credit (%) <input id="keepDiscountPct" type="number" min="0" step="0.1" max="99.9" value="20"></label>
+    <label>They'll-drop-it if you deny (%) <input id="denyKeepPct" type="number" min="0" max="100" step="1" value="50"></label>
+  </form>
+  <p id="summary" class="note"></p>
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Choice</th>
+        <th scope="col">Leftover</th>
+        <th scope="col">vs keep-it</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p class="note">
+    The first-order fee and outbound label are already sunk on the
+    completed order. Taking the return claws back that slice of payout
+    and recovers only restockable COGS. The keep-it credit reverses
+    commission on the credited merchandise, not the $10 new-customer
+    fee. Complementary to
+    <a href="should-i-list-during-faire-open-house.html">Should I list during Faire Open House?</a>
+    and
+    <a href="faire-direct-vs-marketplace.html">Faire Direct vs marketplace</a>.
+    Open the
+    <a href="./#returnUnits">Faire seller fee calculator</a>
+    to change the wholesale price.
+  </p>
+  <h2>Common questions</h2>
+  <h3>Should I take this Faire return?</h3>
+  <p>On the calculator defaults — a completed $20 × 10 first marketplace order that booked $75.90, a 20% keep-it credit, 50% they'll-drop-it if you deny, an $18 return label, and 80% restockable — the keep-it credit leaves $41.90. Denying leaves $37.95. Taking the full return leaves −$49.00 because outbound shipping and the $10 new-customer fee are already sunk. This is not a recommendation to take, credit, or fight the return.</p>
+  <h3>When does taking a Faire return still beat a keep-it credit?</h3>
+  <p>When only some units come back. Returning 2 of 10 with an $8 label leaves $46.52 and flips ahead of the $41.90 keep-it credit. A full return at these costs does not. Denying at 70% they'll-drop-it leaves $53.13 and flips ahead of the credit.</p>
+  <h3>Is a Faire return the same as Open House or Faire Direct?</h3>
+  <p>No. Open House is whether to list during a 0% commission window. Faire Direct is 0% commission when you bring the retailer. This page starts after a completed first order, when the retailer wants goods back.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. It does not tell you to take a return, offer a credit, or deny it, and it does not publish Faire's live return policy. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with Faire Wholesale, Inc.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { compareFaireReturn, faireReturnNote } from "./calc.mjs";
+    import { recordUsage } from "./usage.mjs";
+
+    const ids = [
+      "unitWholesale", "quantity", "unitCogs", "shippingReimbursement",
+      "shippingCost", "returnUnits", "returnLabel", "restockablePct",
+      "keepDiscountPct", "denyKeepPct",
+    ];
+    const money = (value) => {
+      const sign = value < 0 ? "−" : "";
+      return `${sign}$${Math.abs(value).toFixed(2)}`;
+    };
+
+    function update() {
+      try {
+        const raw = Object.fromEntries(ids.map((id) => [id, document.getElementById(id).value]));
+        const result = compareFaireReturn({ ...raw, region: "north_america", payout: "day_60" });
+        document.getElementById("summary").textContent = faireReturnNote(result);
+        document.getElementById("rows").innerHTML = result.rows.map((row) => {
+          const vs = row.id === "keep" ? "Current" : money(row.leftover - result.keepAfter);
+          return `<tr class="${row.isBest ? "winner-row" : ""}"><td>${row.label}</td><td>${money(row.leftover)}</td><td>${vs}</td></tr>`;
+        }).join("");
+      } catch (error) {
+        document.getElementById("summary").textContent = error.message;
+        document.getElementById("rows").innerHTML = "";
+      }
+    }
+
+    ids.forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", () => {
+        recordUsage(localStorage, false, "faire_return_compared");
+      });
+    });
+    update();
+  </script>
+</body>
+</html>

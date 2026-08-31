@@ -4,6 +4,12 @@ Revenue is zero by design right now — everything ships free and full-feature �
 so **usage is the only honest signal about which product deserves more of the
 fleet's time.** This directory is where it lands.
 
+A reading cannot exist until a stranger can reach the product. While every
+row here is still a zero baseline with `live_url_visitors: null`, the next
+task is a public URL for something already on `main`, not another
+instrumented-but-undeployed calculator. See
+[`../DIRECTION.md`](../DIRECTION.md) "Current priority".
+
 Two rules decide everything else in this file:
 
 1. **Count events, never people.** No accounts, no cookies, no IP storage, no
@@ -60,6 +66,41 @@ An acceptable event payload, in full:
 
 Anything richer than that needs a reason written next to it in `usage.yaml`.
 
+## The published tool site counts itself
+
+Every venture's `usage.mjs` is `localStorage`-only: the count lives in the
+visitor's own browser and never transmits. That is the right default — a
+contractor's pricing must not leave their device — but taken alone it means
+publishing `tools.marisstella.dev` would *not* move any row in `usage.yaml`
+off `null`. Nothing would ever reach us.
+
+`gitops/prod/site-usage.yaml` closes that without asking the browser to send
+anything new. nginx already receives every request; the change is what it is
+allowed to write down. The access log is narrowed to three fields —
+`$time_iso8601 $status $uri` — so no client address, user agent, referrer or
+query string is recorded at all, and a nightly CronJob reduces a day of those
+lines to one integer per tool. Rule 1 above is enforced by what is never
+written, not by a promise to discard it afterwards. Shared bids travel in the
+URL *fragment*, which a browser never sends to a server, so they are not in
+the log by any route either.
+
+The last 30 days sit in a ConfigMap. Read them with:
+
+```bash
+kubectl -n prod get configmap portfolio-site-usage -o jsonpath='{.data.usage\.json}'
+```
+
+Keys are catalogue slugs, plus `_hub` for the front page and `c/<category>`
+for a category page. Copy what matters into `usage.yaml` as a dated reading.
+That hop is manual on purpose: writing to this repository from inside the
+cluster would need a GitHub token with write access, and `gitops/README.md`
+keeps write credentials out of `prod`.
+
+Two limits worth knowing before you read a number as gospel. It counts page
+views, not people or sessions — a contractor who opens one calculator six
+times in an afternoon is six. And it reads pod logs, so a day whose lines the
+kubelet has already rotated away is a day that undercounts.
+
 ## What to record here
 
 Update [`usage.yaml`](usage.yaml) whenever you read a number — shipping a
@@ -83,6 +124,25 @@ products:
 Keep the note to one line. If a number moved, say what you think moved it; if
 it didn't, say that — "listed for two weeks, still zero, stopping work on it"
 is a genuinely useful row and costs nothing to write.
+
+## Check it before you push
+
+```
+python3 portfolio/usage/validate_usage.py
+```
+
+It parses the file and enforces the two rules above: every product needs a
+`surface` and at least one reading, every reading needs a date, numeric (or
+null) signals, and a note, and no signal name may look like a person rather
+than an event. One product may appear once per surface it ships on — a CLI and
+a browser page are separate things to measure — but two rows for the same
+surface split one history in half, so that is an error.
+
+`portfolio-validate` runs this on every push and pull request touching
+`portfolio/usage/`. It exists because nothing read this file in CI: a merge
+resolution in #1387 left a stray blank line and a three-space `- slug:` under
+`products:`, the whole file stopped parsing as YAML, and it stayed that way
+with every check green.
 
 ## How to read it
 

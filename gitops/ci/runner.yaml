@@ -1,0 +1,89 @@
+# Self-hosted GitHub Actions runners on the cpx52.
+#
+# Why this exists: this repository is private and owned by a user account, so
+# GitHub-hosted Actions minutes are metered. Since 2026-08-26 every workflow
+# run has come back red in 3-6 seconds with `runner_id: 0`, `runner_name: ""`
+# and zero steps -- the signature of a job that was never assigned a runner at
+# all, not of a job that ran and failed. Self-hosted runners are not metered,
+# so they restore CI whether the ceiling that was hit was the included-minutes
+# allowance or a spending limit.
+#
+# Two replicas, not one: a PR here typically triggers a handful of workflows
+# (Portfolio validate, Page integrity, Conflict markers, the touched venture's
+# own CI). One ephemeral runner would serialise them and each pod restart costs
+# a fresh registration. Two is enough to keep a normal PR moving without
+# crowding prod on the shared box.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: actions-runner
+  labels:
+    app.kubernetes.io/name: actions-runner
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: actions-runner
+  # Ephemeral runners exit on purpose after each job, so a rolling update has
+  # nothing to roll: replace them and let the next job land on new pods.
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: actions-runner
+    spec:
+      # ci-low yields to prod-high. marisstella.dev shares this node, and a CI
+      # burst must never be the reason the public site loses a pod.
+      priorityClassName: ci-low
+      # The cpx22 is tainted for Codex Jobs and has 4 GB; a node --test sweep
+      # across 217 workflows does not fit beside a Codex worker there.
+      nodeSelector:
+        hcloud/node-role: control-plane
+      # Nothing in CI talks to the Kubernetes API, so it gets no token to talk
+      # with. This is the same posture the governor's Job template takes.
+      automountServiceAccountToken: false
+      restartPolicy: Always
+      containers:
+        - name: runner
+          image: ghcr.io/actions/actions-runner:2.328.0
+          command: ["/bin/bash", "/opt/runner/runner-entrypoint.sh"]
+          env:
+            - name: GITHUB_REPOSITORY
+              value: Duncan-Haywood/monorepo-projects
+            - name: RUNNER_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: RUNNER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: actions-runner-secrets
+                  key: RUNNER_TOKEN
+          volumeMounts:
+            - name: entrypoint
+              mountPath: /opt/runner
+              readOnly: true
+            - name: work
+              mountPath: /home/runner/_work
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 3Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+      volumes:
+        - name: entrypoint
+          configMap:
+            name: actions-runner-script
+            defaultMode: 0555
+        # emptyDir, not a PVC: a job's checkout is garbage the moment the job
+        # ends, and an ephemeral runner must not inherit the last one's tree.
+        - name: work
+          emptyDir:
+            sizeLimit: 8Gi

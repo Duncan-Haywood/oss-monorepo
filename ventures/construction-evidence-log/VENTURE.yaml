@@ -1,0 +1,27 @@
+name: construction-evidence-log
+description: Free browser-local daily log and change-order evidence pack for small construction contractors who need a clear record of work, delays, and customer-approved changes.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small contractors will use a fast local daily log to preserve facts and produce a reviewable record before a payment or scope dispute.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searchers looking for construction daily log templates and change-order documentation will prefer a free private tool over a generic project-management suite.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 10
+  protected: true
+kill_criteria:
+  - No return usage or organic referral signal within 60 days of public publishing.
+  - No unsolicited feedback, star, fork, or referral within 90 days of publishing.
+links:
+  production: null
+  analytics: null

@@ -33,7 +33,7 @@ defaults:
 
 jobs:
   xml-sanity:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
       - name: manifest.xml and resources/**/*.xml are well-formed

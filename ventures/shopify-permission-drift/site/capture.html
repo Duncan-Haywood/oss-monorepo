@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shopify Permission Capture | Turn an app export into an inventory</title>
+  <meta name="description" content="Free Shopify app-inventory capture: paste a customer-authorized Admin GraphQL appInstallations dump or inventory JSON and download the before/after file the permission drift checker expects. Runs in your browser — nothing is uploaded.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="./capture.html">
+  <meta property="og:title" content="Shopify Permission Capture — normalize an app export">
+  <meta property="og:description" content="Turn a Shopify appInstallations dump into the inventory JSON used to review scope and webhook changes. Free, private, runs in your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Shopify Permission Capture","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in a web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Normalize a customer-authorized Shopify app export into an inventory record. Evidence only; nothing is uploaded.","featureList":"GraphQL appInstallations normalize, granted vs declared scopes, webhook coverage warnings, downloadable inventory JSON"}
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"How do I create a Shopify app permission inventory without the Admin API?","acceptedAnswer":{"@type":"Answer","text":"Export only app metadata from a store you are authorized to administer — typically an Admin GraphQL appInstallations response with granted accessScopes and webhook topics. Paste it here, add the API version if the dump omitted it, and download the inventory JSON. The page does not connect to Shopify."}},
+    {"@type":"Question","name":"Does this treat requested scopes as granted?","acceptedAnswer":{"@type":"Answer","text":"No. Requested or declared scopes are stored separately. If an export has only declared scopes, capture refuses instead of inventing a granted list."}}
+  ]}
+  </script>
+  <style>
+    :root{font:16px system-ui,sans-serif;color:#14241c;background:#eef5f0}
+    body{max-width:1040px;margin:auto;padding:28px 18px}
+    h1{font-size:clamp(2rem,6vw,3.6rem);line-height:.95;letter-spacing:-.04em;max-width:18ch;margin:0 0 12px}
+    p{line-height:1.5}
+    .layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    section{background:#fff;border:1px solid #c5d6cb;border-radius:14px;padding:20px;box-shadow:0 8px 24px #17382a12}
+    textarea,input{width:100%;box-sizing:border-box;font:14px ui-monospace,monospace;padding:10px;border:1px solid #9eb5a5;border-radius:8px}
+    textarea{min-height:280px}
+    label{display:block;font-weight:650;font-size:.86rem;margin:10px 0}
+    button{background:#0d6b45;color:#fff;border:0;border-radius:8px;padding:11px 15px;font:inherit;font-weight:700;cursor:pointer;margin-right:8px;margin-top:8px}
+    button.secondary{background:#e4eee8;color:#14241c}
+    .muted{color:#51665b;font-size:.9rem}
+    .error{color:#a12727}
+    .warn{color:#8a5a00}
+    pre{white-space:pre-wrap;background:#f4f8f5;padding:14px;border-radius:8px;max-height:420px;overflow:auto;font:13px ui-monospace,monospace}
+    footer{margin-top:28px;font-size:.86rem;color:#51665b;border-top:1px solid #c5d6cb;padding-top:16px}
+    @media(max-width:800px){.layout{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <p class="muted">SHOPIFY PERMISSION EVIDENCE</p>
+  <h1>Turn an authorized app export into an inventory you can compare.</h1>
+  <p>Agencies reviewing an install usually have a GraphQL dump, not the inventory JSON the drift checker wants. Paste a customer-authorized <code>appInstallations</code> response (or an already-valid inventory). The page keeps granted scopes separate from declared ones, warns when webhooks were omitted, and never talks to Shopify.</p>
+  <p class="muted">Already have two inventories? <a href="./">Compare → drift record</a>.</p>
+  <main class="layout">
+    <section>
+      <h2>Paste export JSON</h2>
+      <textarea id="input" aria-label="Shopify app export JSON"></textarea>
+      <label>API version <input id="apiVersion" value="2026-07" autocomplete="off"></label>
+      <label>Captured at (ISO 8601, optional) <input id="capturedAt" placeholder="uses the export or now" autocomplete="off"></label>
+      <label>Authorization state <input id="authState" value="active" autocomplete="off"></label>
+      <p>
+        <button id="normalize" type="button">Normalize inventory</button>
+        <button id="example" class="secondary" type="button">Load example dump</button>
+      </p>
+      <p>
+        <button id="download" class="secondary" type="button">Download inventory.json</button>
+        <button id="copy" class="secondary" type="button">Copy inventory JSON</button>
+        <button id="optout" class="secondary" type="button">Turn usage counting off</button>
+      </p>
+      <p id="status" class="muted">Nothing is uploaded. The API version field is used only when the dump omits it.</p>
+      <p id="error" class="error" role="alert"></p>
+    </section>
+    <section aria-live="polite">
+      <h2>Normalized inventory</h2>
+      <p id="stats" class="muted">No capture yet.</p>
+      <pre id="report">Your inventory summary will appear here.</pre>
+    </section>
+  </main>
+  <h2>Common questions</h2>
+  <h3>How do I create a Shopify app permission inventory without the Admin API?</h3>
+  <p>Export only app metadata from a store you are authorized to administer — typically an Admin GraphQL appInstallations response with granted accessScopes and webhook topics. Paste it here, add the API version if the dump omitted it, and download the inventory JSON. The page does not connect to Shopify.</p>
+  <h3>Does this treat requested scopes as granted?</h3>
+  <p>No. Requested or declared scopes are stored separately. If an export has only declared scopes, capture refuses instead of inventing a granted list.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may move or disappear. Hosted URLs have no uptime commitment.</p>
+    <p>Local-only privacy: the export never leaves this browser. Anonymous feature events (<code>inventory_normalized</code>, <code>inventory_downloaded</code>, <code>inventory_copied</code>) are counted only in local storage and can be deleted with the button above. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing to sponsor does not change the tool. <a href="../LICENSE">License</a></p>
+  </footer>
+  <script type="module">
+    import { EXAMPLE_INSTALLATIONS, captureSummary, normalizeExport, parseJson, recordCaptureUsage, setUsageOptOut } from "./capture.mjs";
+
+    const input = document.querySelector("#input");
+    const report = document.querySelector("#report");
+    const stats = document.querySelector("#stats");
+    const error = document.querySelector("#error");
+    const status = document.querySelector("#status");
+    let latest = null;
+
+    function options() {
+      const captured = document.querySelector("#capturedAt").value.trim();
+      const apiVersion = document.querySelector("#apiVersion").value.trim();
+      const authorizationState = document.querySelector("#authState").value.trim();
+      return {
+        captured_at: captured || undefined,
+        api_version: apiVersion || undefined,
+        authorization_state: authorizationState || undefined,
+      };
+    }
+
+    function show(inventory) {
+      latest = inventory;
+      report.textContent = captureSummary(inventory) + "\n\n" + JSON.stringify(inventory, null, 2);
+      const missingWebhooks = inventory.limitations?.includes("webhooks_not_in_export");
+      stats.textContent = `${inventory.apps.length} apps from ${inventory.source}` + (missingWebhooks ? " — webhooks were not in the export." : ".");
+      stats.className = missingWebhooks ? "warn" : "muted";
+      error.textContent = "";
+    }
+
+    document.querySelector("#example").addEventListener("click", () => {
+      input.value = JSON.stringify(EXAMPLE_INSTALLATIONS, null, 2);
+      status.textContent = "Example Admin GraphQL dump loaded. It never leaves this browser.";
+    });
+
+    document.querySelector("#normalize").addEventListener("click", () => {
+      try {
+        const inventory = normalizeExport(parseJson(input.value), options());
+        show(inventory);
+        recordCaptureUsage("inventory_normalized", localStorage, globalThis.__usageOptOut);
+        status.textContent = "Normalized locally. Download this file as the Before or After export.";
+      } catch (err) {
+        latest = null;
+        error.textContent = err.message;
+        stats.textContent = "Capture failed.";
+        report.textContent = "Your inventory summary will appear here.";
+      }
+    });
+
+    document.querySelector("#download").addEventListener("click", () => {
+      if (!latest) {
+        error.textContent = "Normalize an export before downloading.";
+        return;
+      }
+      const blob = new Blob([JSON.stringify(latest, null, 2) + "\n"], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "shopify-app-inventory.json";
+      link.click();
+      URL.revokeObjectURL(link.href);
+      recordCaptureUsage("inventory_downloaded", localStorage, globalThis.__usageOptOut);
+    });
+
+    document.querySelector("#copy").addEventListener("click", async () => {
+      if (!latest) {
+        error.textContent = "Normalize an export before copying.";
+        return;
+      }
+      const text = JSON.stringify(latest, null, 2);
+      try {
+        if (navigator.clipboard) await navigator.clipboard.writeText(text);
+        else throw new Error("clipboard unavailable");
+        status.textContent = "Inventory JSON copied.";
+      } catch {
+        status.textContent = "Copy unavailable; select the JSON in the summary.";
+      }
+      recordCaptureUsage("inventory_copied", localStorage, globalThis.__usageOptOut);
+    });
+
+    document.querySelector("#optout").addEventListener("click", () => {
+      setUsageOptOut(true);
+      document.querySelector("#optout").textContent = "Usage counting is off";
+    });
+
+    input.value = JSON.stringify(EXAMPLE_INSTALLATIONS, null, 2);
+  </script>
+</body>
+</html>

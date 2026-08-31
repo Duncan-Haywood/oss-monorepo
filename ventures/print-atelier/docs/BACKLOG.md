@@ -42,6 +42,9 @@ _(agent assigns at run start)_
 
 ## done
 
+- [x] [product] Print-file preflight compare: rank up to five local masters by implied DPI at a chosen size
+- [x] [product] Private print-file preflight at `/print-file-preflight` with dated JSON export and anonymous usage events
+
 - [x] [platform] Google/Pinterest CAPI HTTP fire on checkout session (parity with Meta)
 - [x] [platform] Gelato order API scaffold from Stripe webhook (parity with Printful)
 - [x] [ops] Fulfillment submissions dashboard on `/admin-portal` with `GET /api/fulfillment/submissions`

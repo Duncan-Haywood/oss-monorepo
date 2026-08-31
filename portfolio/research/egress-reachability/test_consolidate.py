@@ -190,5 +190,51 @@ class AsksAreBackedByMeasurements(unittest.TestCase):
         self.assertIn("euvdservices.enisa.europa.eu", text)
 
 
+class PublicationHostsAreNotEgress(unittest.TestCase):
+    """A host the portfolio serves on is the other direction from egress.
+
+    The deployment asks added on 2026-08-29 name `tools.marisstella.dev`,
+    which nothing fetches and nothing can measure. Left unexempted it failed
+    this check, and `main` carried that failure unnoticed because no Actions
+    runner has run a job here since 2026-08-26.
+    """
+
+    def extract(self, text):
+        return check_ask_hosts.hostnames_in(text, filenames=set())
+
+    def test_the_site_host_is_not_demanded_of_the_egress_table(self):
+        self.assertEqual(self.extract("serve it on `tools.marisstella.dev`"), set())
+
+    def test_the_pages_origin_is_not_demanded_either(self):
+        self.assertEqual(self.extract("`duncan-haywood.github.io` is the base"), set())
+
+    def test_the_exemption_is_not_a_blanket(self):
+        """A third-party host in the very same sentence is still checked."""
+        found = self.extract(
+            "publish to `tools.marisstella.dev` after fetching `api.wordpress.org`"
+        )
+        self.assertEqual(found, {"api.wordpress.org"})
+
+    def test_every_exempt_host_is_one_this_repository_publishes_on(self):
+        """Guards against the list growing into an escape hatch: each entry
+        must be justified by something committed, not by prose in an ask."""
+        ingress = open(os.path.join(
+            check_ask_hosts.REPO, "gitops", "prod", "portfolio-site.yaml")).read()
+        build = open(os.path.join(
+            check_ask_hosts.REPO, "platform", "pages", "build.mjs")).read()
+        infra = open(os.path.join(
+            check_ask_hosts.REPO, "infra", "README.md")).read()
+        haystack = ingress + build + infra
+        for host in check_ask_hosts.PUBLICATION_HOSTS:
+            self.assertIn(host, haystack, f"{host} is exempt but unpublished")
+
+    def test_the_deploy_target_is_still_the_ingress_host(self):
+        """If the site ever moves, this fails rather than silently exempting a
+        name nothing serves any more."""
+        ingress = open(os.path.join(
+            check_ask_hosts.REPO, "gitops", "prod", "portfolio-site.yaml")).read()
+        self.assertIn("tools.marisstella.dev", ingress)
+
+
 if __name__ == "__main__":
     unittest.main()

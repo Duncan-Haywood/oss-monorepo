@@ -1,0 +1,32 @@
+name: mold-remediation-bid-calculator
+description: A private browser calculator for mold remediators that prices a containment, demolition, dry-out, and clearance job from extra zones, equipment days, demo square feet, HVAC cleaning, dumpster, and occupied-home access — and shows the price per square foot of affected area, the hours the first extra zone actually consumes, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent mold remediators will use a containment-and-demo bid calculator because the generic mold-special or dollars-per-square-foot rules of thumb they are shopped on cannot see that an 80-square-foot closet with one zone and one equipment day is a different job from an 800-square-foot finished basement with two zones, four dry-out days, and a clearance.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the hour split (not the published special) are the two figures a remediator actually decides on when a homeowner asks them to match a cheaper closet quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating extra containment, demolition, equipment days, clearance, HVAC cleaning, a dumpster, and occupied-home access as their own hours, instead of a blended add-on to the special, changes the bid enough that shops notice which part of a high number is the first extra zone.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified mold remediators use the calculator twice within 90 days.
+  - Remediators report that splitting containment, demo, and clearance is more work than their existing special without changing the price they would have bid.
+  - The starting hours and kit rates prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marketplace Fee Comparison — Which Channel Nets Most</title>
+  <meta name="description" content="Free side-by-side comparison of eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own Shopify store on one item. Enter the price and your landed cost once and see net profit on every channel. Runs entirely in your browser.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <meta property="og:title" content="Which marketplace nets the most on this item?">
+  <meta property="og:description" content="Type one item once. See net profit after fees on eBay, Etsy, Amazon, Walmart, TikTok Shop, and your own store — side by side.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Marketplace Fee Comparison",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "Side-by-side net profit across six selling channels, category referral rates for Amazon and Walmart, subscription fees spread over your own order volume, per-channel break-even price, editable fee rates, copyable comparison, own-store demand caveat, private share link"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Which marketplace has the lowest fees?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on the category and the price. Etsy's combined transaction and payment fee is about 9.5%, eBay's final value fee about 13.25%, and TikTok Shop's US referral about 6% — but Amazon and Walmart charge by category, from 8% on electronics to 20% on jewelry. On a $40 jewelry item Amazon takes about $8 and Etsy about $3.80; on a $40 electronics item Amazon takes about $3.20 and Etsy still takes $3.80. That is why this page asks for the category before ranking anything."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do marketplaces charge fees on the shipping the buyer pays?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, on all of the marketplaces compared here. The percentage is charged on the whole order — item price plus whatever shipping the buyer was charged. Folding postage into the item price and calling it free shipping does not avoid the fee, because the fee follows the total the buyer pays either way."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is selling on my own store really more profitable?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "On fees alone, almost always — an own-store checkout pays payment processing of roughly 2.9% plus 30 cents and no referral fee at all. But a marketplace fee buys buyers. Your own store sends you none, so that higher net profit only exists for a sale you brought yourself, and the advertising or audience-building that brings it is a real cost this comparison does not include."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Why is Faire not in the comparison?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Faire is wholesale. The buyer is a shop paying roughly half your retail price, and the economics turn on order size and reorder rate rather than on one retail order. Ranking it beside six retail channels would produce a number that looks comparable and is not."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I share this comparison with someone else?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. \"Copy share link\" puts the item, category, and any rate overrides you typed into the page's URL after a #, and copies that URL to your clipboard. A browser never sends the part of a URL after a # to a server, so the item price and costs still never leave your device, just this one link instead of your typed retype. Opening the link loads the same comparison; nothing about it is stored anywhere but in the URL itself."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fbfbfa; --fg: #1a1a19; --muted: #5c5c58; --card: #fff;
+      --border: #e2e2dd; --accent: #1c5d3a; --good: #17603b; --bad: #a3251b;
+      --warn-bg: #fdf4e3; --warn-fg: #6b4708;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #17181a; --fg: #ececeb; --muted: #a3a39e; --card: #202124;
+        --border: #34353a; --accent: #6fcf97; --good: #6fcf97; --bad: #ef8c82;
+        --warn-bg: #2c2517; --warn-fg: #e7c98a;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--fg);
+      font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width: 62rem; margin: 0 auto; padding: 2rem 1.1rem 4rem; }
+    h1 { font-size: 1.8rem; line-height: 1.2; margin: 0 0 .5rem; }
+    h2 { font-size: 1.15rem; margin: 2rem 0 .6rem; }
+    p.lede { color: var(--muted); max-width: 44rem; font-size: 1.05rem; }
+    section { background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem 1.15rem; margin-top: 1.25rem; }
+    .fields { display: grid; gap: .85rem 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
+    label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .2rem; }
+    .hint { display: block; font-weight: 400; color: var(--muted); font-size: .82rem; }
+    input, select, button { font: inherit; width: 100%; padding: .5rem .6rem;
+      border: 1px solid var(--border); border-radius: 7px;
+      background: var(--bg); color: var(--fg); }
+    button { background: var(--accent); color: var(--bg); font-weight: 700;
+      border: 0; cursor: pointer; width: auto; padding: .6rem 1rem; }
+    table { width: 100%; border-collapse: collapse; }
+    .scroll { overflow-x: auto; }
+    th, td { text-align: right; padding: .55rem .5rem; border-bottom: 1px solid var(--border);
+      white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; white-space: normal; min-width: 11rem; }
+    thead th { font-size: .82rem; color: var(--muted); }
+    tbody tr.best { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+    tbody tr.best td:first-child::after { content: " — best"; color: var(--accent); font-weight: 700; }
+    .profit-good { color: var(--good); font-weight: 700; }
+    .profit-bad { color: var(--bad); font-weight: 700; }
+    .verdict { font-size: 1.05rem; margin: 0 0 .4rem; }
+    .caveat { background: var(--warn-bg); color: var(--warn-fg);
+      padding: .7rem .85rem; border-radius: 8px; font-size: .9rem; margin-top: .8rem; }
+    .errors { color: var(--bad); font-weight: 700; white-space: pre-line; }
+    .fine { font-size: .87rem; color: var(--muted); }
+    details { margin-top: .9rem; }
+    summary { cursor: pointer; font-weight: 600; font-size: .92rem; }
+    .row-note { font-size: .85rem; color: var(--muted); }
+    a { color: var(--accent); }
+    .hidden { display: none; }
+    .actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-top: .9rem; }
+    @media (max-width: 640px) { .wrap { padding: 1.2rem .8rem 3rem; } }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Which marketplace nets the most on this item?</h1>
+    <p class="lede">
+      Type one item once and see what it leaves you on six selling channels side
+      by side, after each one's fees. Free, no signup, and nothing you type
+      leaves your browser.
+    </p>
+  </header>
+
+  <main>
+    <section>
+      <h2>The item</h2>
+      <div class="fields">
+        <div>
+          <label for="price">Item price
+            <span class="hint">What the buyer pays for the item</span></label>
+          <input id="price" type="number" min="0" step="0.01" value="40">
+        </div>
+        <div>
+          <label for="shippingCharged">Shipping charged to buyer
+            <span class="hint">0 if you offer free shipping</span></label>
+          <input id="shippingCharged" type="number" min="0" step="0.01" value="0">
+        </div>
+        <div>
+          <label for="itemCost">What the item cost you
+            <span class="hint">Purchase price or materials</span></label>
+          <input id="itemCost" type="number" min="0" step="0.01" value="12">
+        </div>
+        <div>
+          <label for="shippingCost">Shipping you pay
+            <span class="hint">The label, not what you charged</span></label>
+          <input id="shippingCost" type="number" min="0" step="0.01" value="5">
+        </div>
+        <div>
+          <label for="otherCost">Packaging and other
+            <span class="hint">Box, filler, insert, per order</span></label>
+          <input id="otherCost" type="number" min="0" step="0.01" value="1">
+        </div>
+        <div>
+          <label for="categoryId">Category
+            <span class="hint">Sets the Amazon and Walmart referral rate</span></label>
+          <select id="categoryId"></select>
+        </div>
+        <div>
+          <label for="monthlyOrders">Orders per month
+            <span class="hint">Spreads subscription fees over your volume</span></label>
+          <input id="monthlyOrders" type="number" min="1" step="1" value="50">
+        </div>
+      </div>
+      <p id="errors" class="errors" role="status"></p>
+    </section>
+
+    <section id="resultSection">
+      <h2>What each channel leaves you</h2>
+      <p id="verdict" class="verdict"></p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Channel</th>
+              <th scope="col">Fee rate</th>
+              <th scope="col">Channel fees</th>
+              <th scope="col">Net profit</th>
+              <th scope="col">Margin</th>
+              <th scope="col">Break-even price</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p id="demandCaveat" class="caveat hidden"></p>
+      <div class="actions">
+        <button id="copy" type="button">Copy this comparison</button>
+        <button id="copyShare" type="button">Copy share link</button>
+        <span id="copyStatus" class="fine" role="status"></span>
+      </div>
+
+      <details>
+        <summary>Adjust the fee rates</summary>
+        <p class="fine">
+          These are editable defaults taken from this site's per-channel
+          calculators, not a live fee schedule. If your statement says something
+          different — a negotiated rate, a category this table does not carry, a
+          promotional rate — put your number in and the ranking follows it.
+          Leave a box blank to go back to the default.
+        </p>
+        <div id="overrides" class="fields"></div>
+      </details>
+
+      <details>
+        <summary>What each channel's number leaves out</summary>
+        <ul id="notCovered" class="fine"></ul>
+        <p class="fine" id="excluded"></p>
+      </details>
+    </section>
+
+    <section>
+      <h2>How to read this</h2>
+      <p class="fine">
+        Every percentage here is charged on the <strong>whole order</strong> —
+        the item price plus any shipping the buyer paid. Folding postage into
+        the price to advertise free shipping does not avoid the fee.
+      </p>
+      <p class="fine">
+        Marketplace fees are taken out of your proceeds, not paid up front, so
+        they are not counted as cash you invested. That keeps margin comparable
+        across channels that charge very differently.
+      </p>
+      <p class="fine">
+        Subscriptions are spread over the orders-per-month figure you entered
+        rather than ignored. That is what stops a $39.99 Amazon plan from
+        looking free at two orders a month.
+      </p>
+      <p class="fine">
+        <strong>A marketplace fee buys buyers.</strong> Your own store charges no
+        referral fee and will almost always top this table on arithmetic — but it
+        sends you nobody. Read that row as "what I keep on a sale I brought
+        myself", and put the cost of bringing it against the difference.
+      </p>
+    </section>
+
+    <section>
+      <h2>Use it safely</h2>
+      <p class="fine">
+        Everything runs in your browser. Your prices, costs, and volumes are
+        never uploaded. We count only anonymous feature events in local storage
+        (comparisons run, comparisons copied, and share links copied) — never
+        people, content, IPs, or cookies. Counting honors Do Not Track and
+        Global Privacy Control. Turn it off with the checkbox below. A share
+        link encodes only the item, category, and rate fields in the page's
+        URL fragment (after the <code>#</code>); a browser never sends that
+        part of a URL to a server, so it is not sent to us either.
+      </p>
+      <label class="fine" style="font-weight:400">
+        <input id="usageOptOut" type="checkbox" style="width:auto"> Do not count anonymous local usage events
+      </label>
+      <p class="fine">
+        <strong>Fee rates change.</strong> The defaults here were current when
+        this page was written and are inputs, not a fee schedule. Confirm
+        against your own statement before pricing a catalogue against them.
+      </p>
+      <p class="fine">
+        <strong>No warranty.</strong> This tool is provided free and as-is,
+        without warranty of any kind, express or implied. It is not tax,
+        financial, or business advice, and it does not replace a qualified
+        professional. <strong>You are responsible for reviewing and verifying
+        its output before relying on it</strong>, and for meeting any obligation
+        it helps you prepare for. To the maximum extent permitted by law, the
+        authors accept no liability for any loss or damage arising from its use.
+      </p>
+      <p class="fine">
+        <strong>Best-effort hosting, no SLA.</strong> These tools are free,
+        experimental, and may be slow, broken, moved, or taken offline without
+        notice. We do not promise uptime, backups of anything you type, or that
+        a URL will keep working. Do not use this as a system of record.
+      </p>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+  import {
+    CATEGORY_PRESETS,
+    CHANNELS,
+    EXCLUDED_CHANNELS,
+    compareChannels,
+    compareSummary,
+    comparisonText,
+    loadItem,
+  } from "./calc.mjs";
+  import { recordUsage } from "./usage.mjs";
+  import { decodeShare, encodeShare } from "./share.mjs";
+
+  const FIELD_IDS = [
+    "price", "shippingCharged", "itemCost", "shippingCost",
+    "otherCost", "monthlyOrders", "categoryId",
+  ];
+
+  const el = (id) => document.getElementById(id);
+  const money = (value) => {
+    const sign = value < 0 ? "-" : "";
+    return `${sign}$${Math.abs(value).toFixed(2)}`;
+  };
+  const escapeHtml = (value) =>
+    String(value).replace(/[&<>"']/g, (ch) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+
+  function count(event) {
+    recordUsage(localStorage, el("usageOptOut").checked, event);
+  }
+
+  // Built from the model rather than written into the markup, so a channel
+  // added to calc.mjs cannot end up with a category dropdown, an override box,
+  // or a caveat that silently does not exist.
+  const categorySelect = el("categoryId");
+  categorySelect.innerHTML = Object.entries(CATEGORY_PRESETS)
+    .map(([id, preset]) => `<option value="${escapeHtml(id)}">${escapeHtml(preset.label)}</option>`)
+    .join("");
+
+  el("overrides").innerHTML = CHANNELS.map((channel) => `
+    <div>
+      <label for="rate-${escapeHtml(channel.id)}">${escapeHtml(channel.label)}
+        <span class="hint">${escapeHtml(channel.rateLabel)}, %</span></label>
+      <input id="rate-${escapeHtml(channel.id)}" type="number" min="0" max="99.9" step="0.01"
+             placeholder="default">
+    </div>`).join("");
+
+  el("notCovered").innerHTML = CHANNELS.map((channel) => `
+    <li><strong>${escapeHtml(channel.label)}</strong> — not included here:
+      ${escapeHtml(channel.notCovered)}
+      <a href="../${escapeHtml(channel.deepTool)}/">Open the ${escapeHtml(channel.deepToolLabel)}</a>.</li>`).join("");
+
+  el("excluded").innerHTML = EXCLUDED_CHANNELS.map((channel) =>
+    `<strong>${escapeHtml(channel.label)}</strong> is not in the table. ${escapeHtml(channel.why)}
+     <a href="../${escapeHtml(channel.deepTool)}/">Open the ${escapeHtml(channel.deepToolLabel)}</a>.`).join(" ");
+
+  function readItem() {
+    return Object.fromEntries(FIELD_IDS.map((id) => [id, el(id).value]));
+  }
+
+  function readOverrides() {
+    return Object.fromEntries(CHANNELS.map((channel) => [channel.id, el(`rate-${channel.id}`).value]));
+  }
+
+  // A shared link only ever fills in fields it carries and leaves every other
+  // field at the page's own default, so an old link missing a field this page
+  // has since added degrades to "use the default" rather than to a blank or a
+  // thrown error.
+  function applyShare(shared) {
+    if (!shared) return;
+    for (const [id, value] of Object.entries(shared.item)) {
+      if (el(id)) el(id).value = value;
+    }
+    for (const [id, value] of Object.entries(shared.overrides)) {
+      if (el(`rate-${id}`)) el(`rate-${id}`).value = value;
+    }
+  }
+
+  let lastRun = null;
+
+  function paint() {
+    let item;
+    let rows;
+    try {
+      item = loadItem(readItem());
+      rows = compareChannels(item, readOverrides());
+    } catch (error) {
+      el("errors").textContent = error.message;
+      el("resultSection").classList.add("hidden");
+      lastRun = null;
+      return;
+    }
+    el("errors").textContent = "";
+    el("resultSection").classList.remove("hidden");
+    lastRun = { item, rows };
+
+    el("verdict").textContent = compareSummary(rows);
+    el("rows").innerHTML = rows.map((row, index) => {
+      const subscription = row.monthlyFee > 0
+        ? `<span class="row-note"><br>includes ${money(row.subscriptionPerOrder)} of ${money(row.monthlyFee)}/mo${row.monthlyFeeNote ? ` (${escapeHtml(row.monthlyFeeNote)})` : ""}</span>`
+        : "";
+      return `<tr class="${index === 0 ? "best" : ""}">
+        <th scope="row">${escapeHtml(row.label)}${row.demandIncluded ? "" : '<span class="row-note"><br>you bring the buyer</span>'}</th>
+        <td>${row.percentRate}%<span class="row-note"><br>${escapeHtml(row.rateLabel)}</span></td>
+        <td>${money(row.channelFees)}${subscription}</td>
+        <td class="${row.profit >= 0 ? "profit-good" : "profit-bad"}">${money(row.profit)}</td>
+        <td>${row.margin.toFixed(1)}%</td>
+        <td>${money(row.breakEvenPrice)}</td>
+      </tr>`;
+    }).join("");
+
+    // Shown against the winner specifically, not as a footnote: an own-store
+    // row that tops the table on fees alone is the single most misleading
+    // thing this page can print if the caveat is somewhere else.
+    const caveat = el("demandCaveat");
+    if (!rows[0].demandIncluded) {
+      caveat.textContent =
+        `${rows[0].label} tops this table because it charges no referral fee — but it also sends you no buyers. ` +
+        `The next channel that does is ${rows.find((row) => row.demandIncluded)?.label ?? "none here"}, ` +
+        `at ${money(rows.find((row) => row.demandIncluded)?.profit ?? 0)}. The difference is your advertising budget.`;
+      caveat.classList.remove("hidden");
+    } else {
+      caveat.classList.add("hidden");
+    }
+  }
+
+  // A shared link is applied before the first paint, so the first thing a
+  // recipient sees is the comparison that was shared with them, not the
+  // page's own default item flashing and then being replaced.
+  applyShare(decodeShare(location.hash));
+
+  // The first render happens without counting it: a visit that bounces off the
+  // prefilled example must not log a comparison nobody asked for. Counting is
+  // attached to input below, and settles rather than firing per keystroke.
+  paint();
+
+  let settleTimer = null;
+  function onInput() {
+    paint();
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => {
+      if (lastRun) count("comparison_run");
+    }, 800);
+  }
+
+  for (const id of FIELD_IDS) {
+    el(id).addEventListener(id === "categoryId" ? "change" : "input", onInput);
+  }
+  for (const channel of CHANNELS) {
+    el(`rate-${channel.id}`).addEventListener("input", onInput);
+  }
+
+  el("copy").addEventListener("click", async () => {
+    if (!lastRun) {
+      el("copyStatus").textContent = "Fix the inputs above first.";
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(comparisonText(lastRun.item, lastRun.rows));
+      el("copyStatus").textContent = "Copied.";
+      count("comparison_copied");
+    } catch {
+      el("copyStatus").textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+
+  el("copyShare").addEventListener("click", async () => {
+    const hash = encodeShare(readItem(), readOverrides());
+    const url = `${location.origin}${location.pathname}#${hash}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      history.replaceState(null, "", `#${hash}`);
+      el("copyStatus").textContent = "Share link copied.";
+      count("share_link_copied");
+    } catch {
+      el("copyStatus").textContent = "Couldn't access the clipboard in this browser.";
+    }
+  });
+</script>
+  <h2>Common questions</h2>
+  <h3>Which marketplace has the lowest fees?</h3>
+  <p>It depends on the category and the price. Etsy's combined transaction and payment fee is about 9.5%, eBay's final value fee about 13.25%, and TikTok Shop's US referral about 6% — but Amazon and Walmart charge by category, from 8% on electronics to 20% on jewelry. On a $40 jewelry item Amazon takes about $8 and Etsy about $3.80; on a $40 electronics item Amazon takes about $3.20 and Etsy still takes $3.80. That is why this page asks for the category before ranking anything.</p>
+  <h3>Do marketplaces charge fees on the shipping the buyer pays?</h3>
+  <p>Yes, on all of the marketplaces compared here. The percentage is charged on the whole order — item price plus whatever shipping the buyer was charged. Folding postage into the item price and calling it free shipping does not avoid the fee, because the fee follows the total the buyer pays either way.</p>
+  <h3>Is selling on my own store really more profitable?</h3>
+  <p>On fees alone, almost always — an own-store checkout pays payment processing of roughly 2.9% plus 30 cents and no referral fee at all. But a marketplace fee buys buyers. Your own store sends you none, so that higher net profit only exists for a sale you brought yourself, and the advertising or audience-building that brings it is a real cost this comparison does not include.</p>
+  <h3>Why is Faire not in the comparison?</h3>
+  <p>Faire is wholesale. The buyer is a shop paying roughly half your retail price, and the economics turn on order size and reorder rate rather than on one retail order. Ranking it beside six retail channels would produce a number that looks comparable and is not.</p>
+  <h3>Can I share this comparison with someone else?</h3>
+  <p>Yes. "Copy share link" puts the item, category, and any rate overrides you typed into the page's URL after a #, and copies that URL to your clipboard. A browser never sends the part of a URL after a # to a server, so the item price and costs still never leave your device, just this one link instead of your typed retype. Opening the link loads the same comparison; nothing about it is stored anywhere but in the URL itself.</p>
+
+</body>
+</html>

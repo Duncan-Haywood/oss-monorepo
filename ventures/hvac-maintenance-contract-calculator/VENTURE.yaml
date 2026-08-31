@@ -1,0 +1,28 @@
+name: hvac-maintenance-contract-calculator
+description: A free browser calculator for independent HVAC contractors that prices a recurring preventive-maintenance agreement from visits, labor, callbacks, parts reserve, travel, overhead, and target margin.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent HVAC contractors will use a maintenance-plan calculator because one-off service pricing tools do not expose the annual labor and callback reserve hidden inside a recurring agreement.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing a break-even monthly floor and effective revenue per technician hour helps contractors avoid underpriced agreements when a customer asks for a discount.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified HVAC contractors use the calculator twice within 90 days of publication.
+  - Contractors say the annual service and callback inputs do not change the price they would quote.
+  - Real maintenance plans require data or integrations unavailable to a local-first calculator.
+links:
+  production: null
+  analytics: null

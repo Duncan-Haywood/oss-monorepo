@@ -1,0 +1,32 @@
+name: garage-door-bid-calculator
+description: A private browser calculator for garage-door technicians that prices a replacement or broken-spring service from parts, loaded shop labor, and travel — and shows when a cheap spring special loses money on the drive, and why a 16×7 is not two 8×7s.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Independent garage-door techs will use a travel-aware bid calculator because the advertised spring specials they copy from other shops cannot see that forty minutes each way at a loaded wage often costs more than the hour in the driveway.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The travel share of price and the walk-away number are the two figures a tech actually decides on when a homeowner asks them to match a $189 special, more than the parts total itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Treating a double door as two singles is the replacement-side error this tool catches — slab cost scales with area, but the trip and the opener happen once, so the double is not 2× the single.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified garage-door techs use the calculator twice within 90 days.
+  - Techs report that splitting travel from shop labor is more work than their existing method without changing the price they would have bid.
+  - The starting part and hour figures prove so far from real invoices that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

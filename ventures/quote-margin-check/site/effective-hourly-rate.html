@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How to calculate your effective hourly rate on a fixed-price quote</title>
+<meta name="description" content="Learn how to calculate the effective hourly rate of a fixed-price freelance quote by including delivery, admin, revision, and direct-cost assumptions." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="effective-hourly-rate.html" />
+<meta property="og:title" content="Calculate your effective hourly rate on a fixed-price quote" />
+<meta property="og:description" content="A practical, transparent method for checking whether a fixed-price quote accounts for every hour and direct cost." />
+<meta property="og:type" content="article" />
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "Calculate your effective hourly rate on a fixed-price quote",
+  "description": "Include every hour and direct cost in a fixed-price project before comparing the result with your target rate.",
+  "step": [
+    { "@type": "HowToStep", "name": "Count total hours", "text": "Add delivery, administration, and revision hours." },
+    { "@type": "HowToStep", "name": "Count direct costs", "text": "Add project overhead and subcontractor costs." },
+    { "@type": "HowToStep", "name": "Calculate the rate", "text": "Subtract direct costs from the quoted price and divide by total hours." },
+    { "@type": "HowToStep", "name": "Compare with your target", "text": "Compare the result and the target price with the rate you supplied." }
+  ]
+}
+</script>
+<style>
+  :root { color-scheme: light dark; --bg: #fff; --fg: #1a1a1a; --muted: #5a5a5a; --border: #d8d8d8; --panel: #f7f7f8; --accent: #2b6cb0; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #14161a; --fg: #eaeaea; --muted: #a3a3a3; --border: #33363c; --panel: #1d2026; --accent: #6ea8ff; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { line-height: 1.2; } h2 { margin-top: 2rem; }
+  .formula { padding: 1rem; overflow-x: auto; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; font-family: ui-monospace, monospace; }
+  .note { color: var(--muted); }
+  a { color: var(--accent); }
+  footer { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<main>
+  <p><a href="index.html">Quote Margin Check</a></p>
+  <h1>How to calculate your effective hourly rate on a fixed-price quote</h1>
+  <p>A fixed-price quote can look good until the hours you do not invoice separately are included. Your effective hourly rate is the amount left for your work divided by every hour the project is expected to consume.</p>
+
+  <h2>1. Count every project hour</h2>
+  <p>Add delivery work, administration, and revisions. Administration includes calls, project management, proposals, invoicing, and handoff. If you expect to spend time on it, include it in the estimate.</p>
+  <p class="formula">total hours = delivery hours + admin hours + revision hours</p>
+
+  <h2>2. Count direct costs</h2>
+  <p>List costs that belong to this project, such as subcontractor work, project-specific tools, and materials. Keep the currency and assumptions consistent with the quote.</p>
+  <p class="formula">direct costs = overhead + subcontractor cost</p>
+
+  <h2>3. Calculate the effective hourly rate</h2>
+  <p>Subtract direct costs from the quoted price, then divide by total hours. This is an arithmetic view of the supplied assumptions, not a promise that the project will be profitable.</p>
+  <p class="formula">effective hourly rate = (quoted price - direct costs) / total hours</p>
+
+  <h2>4. Compare with your target rate</h2>
+  <p>To estimate the price needed for your supplied target rate, multiply total hours by that rate and add direct costs.</p>
+  <p class="formula">target price = (total hours × target hourly rate) + direct costs</p>
+  <p>On the calculator example — $2,400 quoted, 35 hours, $480 of direct costs, $75 target — the leftover rate is $54.86/hour and the price that would hold $75/hour is $3,105. That is arithmetic on the supplied figures, not advice to raise the quote.</p>
+  <p>Use the <a href="index.html">free Quote Margin Check calculator</a> to change the assumptions and review overrun scenarios before sending the quote. Your own scope, cost, and rate decisions remain yours.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Everything runs in your browser. We count only anonymous local feature-use events, never your quote data; usage counting can be turned off on the calculator page.</p>
+    <p><a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+</main>
+</body>
+</html>

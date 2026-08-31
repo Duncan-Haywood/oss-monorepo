@@ -1,0 +1,32 @@
+name: hood-cleaning-bid-calculator
+description: A private browser calculator for commercial kitchen exhaust cleaning contractors that prices a hood-cleaning stop from the system — canopy, filters, duct, and fan — plus grease load, rooftop access, after-hours labor, and margin, and shows the hood-only bid that would have lost money, the annual contract, and the walk-away price.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Kitchen exhaust contractors will use a system-component bid calculator because the per-hood quotes they find online and reuse from last year's route cannot see that a short canopy with a long vertical duct and a rooftop fan is a different job from the same canopy with eight feet of horizontal duct, which is how a bid that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The hood-only versus full-system comparison and the walk-away price are the two numbers a contractor actually decides on when a restaurant asks them to match a cheaper per-hood quote, more than the job price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: After-hours premium and rooftop-access multipliers are the costs most often left out of a small contractor's own spreadsheet, so making them required, explained inputs changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified kitchen-exhaust contractors use the calculator twice within 90 days.
+  - Contractors report that splitting hood, duct, and fan is more work than their existing per-hood method without changing the price they would have bid.
+  - The starting production minutes prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

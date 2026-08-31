@@ -59,11 +59,14 @@ on:
     paths:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
+      - "ventures/**/*.html"
+      - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
+      - "portfolio/usage/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -75,6 +78,8 @@ on:
       - "portfolio/ledger/test_session_gate.py"
       - "portfolio/ledger/decision_queue.py"
       - "portfolio/ledger/test_decision_queue.py"
+      - "portfolio/ledger/supersede_check.py"
+      - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
@@ -83,11 +88,14 @@ on:
     paths:
       - "ventures/**/VENTURE.yaml"
       - "ventures/**/NOT-A-VENTURE"
+      - "ventures/**/*.html"
+      - "platform/pages/**"
       - "portfolio/router/**"
       - "portfolio/pipeline/**"
       - "portfolio/research/README.md"
       - "portfolio/research/egress-reachability/**"
       - "portfolio/scoring/**"
+      - "portfolio/usage/**"
       - "portfolio/ledger/break-even.md"
       - "portfolio/ledger/break_even.py"
       - "portfolio/ledger/test_break_even.py"
@@ -99,6 +107,8 @@ on:
       - "portfolio/ledger/test_session_gate.py"
       - "portfolio/ledger/decision_queue.py"
       - "portfolio/ledger/test_decision_queue.py"
+      - "portfolio/ledger/supersede_check.py"
+      - "portfolio/ledger/test_supersede_check.py"
       - "portfolio/ledger/asks.yaml"
       - "portfolio/ledger/2026-08.yaml"
       - "platform/ci/**"
@@ -110,13 +120,19 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # For the liability-clause check below. Everything else in this job is
+      # Python; the Pages tooling that knows which pages get published is not.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
       - name: Install dependencies
         run: pip install -r portfolio/router/requirements.txt pytest
@@ -136,6 +152,16 @@ jobs:
       - name: Probe-index validator unit tests
         working-directory: portfolio/pipeline/probes
         run: python3 -m unittest test_validate_probe_index
+
+      # The evidence-boundary probes assert the rule their candidate write-ups
+      # each name as the failure mode that would mislead a customer: a fetch or
+      # resolver failure must never render as "nothing changed". Nothing ran
+      # them until now, so that rule could regress silently.
+      - name: Evidence-boundary probe tests
+        run: |
+          python3 -m pytest -q \
+            portfolio/pipeline/probes/vendor-change-evidence/test_vendor_diff.py \
+            portfolio/pipeline/probes/dns-configuration-evidence/test_dns_diff.py
 
       # The index above checks a probe's *figures*; it does not run the probe.
       # A probe whose tests never execute in CI can rot while its row still
@@ -166,6 +192,26 @@ jobs:
         working-directory: portfolio/router
         run: python3 -m unittest test_allocate
 
+      # The check itself needs a repository to read, and builds throwaway ones
+      # rather than mocking git -- so it needs an identity to commit with, which
+      # a bare runner does not have.
+      - name: Supersede-check unit tests
+        working-directory: portfolio/ledger
+        run: |
+          git config --global user.email "ci@example.com"
+          git config --global user.name "CI"
+          python3 -m unittest test_supersede_check
+
+      # usage.yaml is the portfolio's only honest signal while revenue is zero,
+      # and nothing read it in CI: #1387 left it unparseable and no check
+      # noticed. These two steps are that missing guard.
+      - name: Validate the usage ledger is readable
+        run: python3 portfolio/usage/validate_usage.py
+
+      - name: Usage-validator unit tests
+        working-directory: portfolio/usage
+        run: python3 -m unittest test_validate_usage
+
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py
 
@@ -173,8 +219,108 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_validate_workflows
 
+      # The local workflow runner is what sessions verify with while no
+      # runner picks up a job here, so its own tests have to run somewhere.
+      - name: Local workflow-runner unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_run_workflow_locally
+
+      # And the tool that says whether a red check ran at all. Same reason:
+      # it is what a session reaches for when CI comes back red, so it must
+      # not be the thing that is broken.
+      - name: CI-starvation classifier unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_ci_starvation
+
+      # A calculator whose shipped defaults fail constraint validation cannot be
+      # submitted at all: the browser refuses before dispatching the event, so
+      # the page's own handler never runs and the button silently does nothing.
+      # calc.mjs tests all pass in that state, because the arithmetic is fine.
+      - name: Check every calculator's default form state can actually be submitted
+        run: python3 platform/ci/check_form_defaults.py
+
+      - name: Form-default checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_form_defaults
+
+      # The other direction of the same question. `check_form_defaults.py` asks
+      # whether the values a page ships with satisfy the constraints it
+      # declares; this asks whether those constraints are wide enough to let a
+      # visitor type something `calc.mjs` will throw on. When they are, the
+      # page prints "fix the highlighted input" and highlights nothing, because
+      # `invalid.mjs` finds the field by asking `checkValidity()` and a field
+      # with no declared bound reports valid whatever is in it. 23 inputs
+      # across four ventures were in that state on 2026-08-31.
+      - name: Check no input accepts a value its own calculator throws on
+        run: python3 platform/ci/check_input_bounds.py
+
+      - name: Input-bounds checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_input_bounds
+
+      # Every venture vendors its own money() -- 322 copies of one function --
+      # and it spelled a negative "$-9.24" instead of "-$9.24", and a rounded-off
+      # -0 as "$-0.00". 11,172 unit tests went green over both, because not one
+      # asserted on a negative rendering. A new calculator is usually a copy of
+      # the nearest existing one, so the broken spelling is the one that spreads.
+      - name: Check no calculator puts the minus sign inside the currency symbol
+        run: python3 platform/ci/check_money_sign.py
+
+      - name: Money-sign checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_money_sign
+
       - name: Check what a merge to main can publish still matches the snapshot
         run: python3 platform/ci/publish_surface.py --check
+
+      # Backstop for the per-venture no-warranty check now wired into each
+      # venture's own CI. A venture workflow only fires on its own paths, so it
+      # cannot cover a slug whose workflow was never created -- which is
+      # exactly how carpet-install-bid-calculator reached main with no CI at
+      # all, already inside the Pages build. This walks every surface the Pages
+      # site would publish, so a new venture is covered before anyone
+      # remembers to give it a workflow.
+      #
+      # The no-SLA half is not checked here: build.mjs injects it into every
+      # published page, so it holds by construction.
+      - name: Every published page carries the no-warranty clause
+        run: node platform/pages/clauses.mjs
+
+      - name: Clause-checker unit tests
+        run: node --test platform/pages/clauses.test.mjs
+
+      # The FAQ backlog was drained by six concurrent sessions on 2026-08-30,
+      # each appending a "Common questions" section to whichever ventures its
+      # own snapshot reported as missing. Two snapshots overlapped by five
+      # ventures, and the merge auto-resolved one file into two complete FAQ
+      # sections with no conflict and no failing test. `no-show-fee-calculator`
+      # reached main in the same shape from an older route.
+      #
+      # Checked centrally because the defect is created by a *merge*: no
+      # per-venture workflow fires on a file its own branch never edited.
+      - name: No page carries a duplicated FAQ section or question
+        run: node platform/pages/faq-duplicate.mjs
+
+      - name: Duplicate-FAQ checker unit tests
+        run: node --test platform/pages/faq-duplicate.test.mjs
+
+      # Every venture footer offers the local usage counter's opt-out "with Do
+      # Not Track / Global Privacy Control", and Global Privacy Control is a
+      # valid opt-out signal under CCPA and several state privacy laws. That
+      # promise held in 150 of 155 usage modules and was tested in 23: the
+      # per-venture test is six boilerplate lines, so it got skipped, and five
+      # ventures shipped a counter that ignored both signals.
+      #
+      # Checked centrally for the same reason as the clause above -- one guard
+      # covers a venture that does not have its own workflow yet. The check is
+      # behavioural, not a grep: reading `globalPrivacyControl` proves nothing
+      # if the module never branches on it, so each recorder is called under
+      # each signal with a storage spy.
+      - name: Usage counters honour Do Not Track and Global Privacy Control
+        run: node platform/privacy/browser-signals.mjs
+
+      - name: Browser-signal checker unit tests
+        run: node --test platform/privacy/browser-signals.test.mjs
 
       - name: Publish-surface unit tests
         working-directory: platform/ci

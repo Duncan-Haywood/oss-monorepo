@@ -1,0 +1,8 @@
+{
+  "name": "commercial-photo-license-calculator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Free local-first commercial photography usage-rights quote worksheet.",
+  "scripts": {"test": "node --test test/*.test.mjs"}
+}

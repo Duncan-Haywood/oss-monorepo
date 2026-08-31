@@ -1,0 +1,32 @@
+name: retaining-wall-bid-calculator
+description: A private browser calculator for hardscape contractors that prices a retaining wall from face area, drain-stone volume, geogrid layers, corners, and the engineer/permit step a per-linear-foot quote hides — then shows price per foot, crew hours, and the walk-away number.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Hardscape contractors will use a bid calculator that prices height, drainage, and geogrid separately because a flat per-linear-foot rule treats a 3 ft garden wall as the same job as a 6 ft engineered wall of the same length.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the price per foot that still covers height extras are the two numbers a contractor decides on when a homeowner asks them to match a cheaper quote.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Engineer and permit fees that do not scale with length change the bid materially on short, tall walls, which is where per-foot matching is most common.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified hardscape or landscape contractors use the calculator twice within 90 days.
+  - Contractors report that splitting height, drainage, and geogrid is more work than their existing per-foot method without changing the price they would have bid.
+  - The starting wall-type or height factors prove so far from real crews that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://example.invalid/hardwood-refinishing-bid-calculator/sitemap.xml

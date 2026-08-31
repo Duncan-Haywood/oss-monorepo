@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cra-evidence-desk"
+version = "0.1.0"
+description = "Local SBOM/advisory evidence and customer-reviewed CRA draft generator"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: prod
+resources:
+  - quota.yaml
+  - landing.yaml
+  - portfolio-site.yaml
+  - portfolio-apex.yaml
+  - site-usage.yaml
+configMapGenerator:
+  - name: portfolio-site-usage-script
+    files:
+      - aggregate.py=usage/aggregate.py
+generatorOptions:
+  # The CronJob names this ConfigMap directly, so it must not grow a content
+  # hash. Editing the script therefore does not roll a Deployment — nothing
+  # long-running mounts it, and the next scheduled run picks the change up.
+  disableNameSuffixHash: true
+# `secrets/portfolio-repo-token.sealed.yaml` joins this list once the owner
+# has sealed the read-only clone token — see secrets/*.template.yaml. Until
+# then the site's `fetch` init container fails closed, which is why the
+# placeholder landing above stays.
