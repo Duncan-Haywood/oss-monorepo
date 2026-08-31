@@ -40322,3 +40322,28 @@ entries:
         reachability of the three hostnames could not be checked from this
         session: the web-session proxy returns 403 on CONNECT to them.
     mrr_end: null
+  - venture: wheelchair-ramp-bid-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed the FAQPage JSON-LD/visible-text quote mismatch
+        (`platform/pages/faq-visible.test.mjs`) that had been called out as a
+        known pre-existing failure, unrelated to the change at hand, in
+        PR #2530 and left unfixed there and in other recent PRs. The JSON-LD
+        quoted "ADA" with straight quotes; the visible prose it is supposed
+        to mirror uses curly-quote entities. Merged as #2536.
+      - >-
+        `node --test platform/pages/faq-visible.test.mjs`: 4/4 pass (was
+        3/4). `node --test platform/pages/*.test.mjs`: 819/819 pass (was
+        818/819). `build.mjs` + `check.mjs`: clean, 169 products / 508 pages,
+        no dead links.
+      - >-
+        No open PRs existed at the start of this run (queue empty, quota
+        trivially met). Confirmed via `session_gate.py` (PROCEED),
+        `decision_queue.py`, and `platform/ci/publish_surface.py --check`
+        that deployment/CI/codex-governor state is unchanged from the prior
+        entry above (same three owner-only seals block all of it) -- not
+        re-recorded here per the "skip if the latest entry already covers
+        it" rule.
+    mrr_end: null
