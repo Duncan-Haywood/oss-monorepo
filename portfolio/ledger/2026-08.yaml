@@ -36473,3 +36473,50 @@ entries:
         entry above this one (#2355, recorded by #2357) -- not repeated
         here to avoid a duplicate record of the same PR.
     mrr_end: null
+  - venture: garmin-world-traveler-watchface
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Definition-of-done audit of the A-M half of `ventures/` found this
+        venture's README explicitly flagging its own LICENSE as "Not yet
+        chosen" -- the one PRODUCT_PLAYBOOK.md 5a item with no reason to be
+        an exception here. Added the MIT LICENSE every other venture in the
+        portfolio already carries and updated the README to point at it.
+        No behavior change; no test suite exists for Monkey C / Connect IQ
+        in this repo (already documented in the venture's own VENTURE.yaml),
+        so nothing to run beyond confirming the license text matches a
+        sibling venture's verbatim.
+    mrr_end: null
+  - venture: ai-engineering-academy
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Same A-M audit found rc-time-calculator (one of the six electronics
+        calculators behind this venture's `tools/` hub) still on the
+        pre-fix usage.mjs its five siblings moved off: index.html called
+        `recordEvent('calculation')` straight from the `input` handler
+        across twelve fields, so typing "10" into one field alone recorded
+        two calculations -- the exact keystroke-inflation bug
+        rc-filter-calculator's usage.mjs already documents fixing. Ported
+        the settled-event pattern (`recordEventSettled` /
+        `flushSettledEvents` / `cancelSettledEvents` /
+        `isUsageCountingEnabled`) into this tool's usage.mjs, switched the
+        page to call the debounced version, and added the usage.test.mjs
+        it was the only one of the six missing (opt-out, DNT/GPC, and the
+        keystroke-burst-collapses-to-one-event case). Also fixed a stale
+        `build.mjs` comment ("Five electronics calculators") that
+        undercounted this same tool.
+      - >-
+        Verified: `node --test` across all of
+        `ventures/ai-engineering-academy/**/*.test.mjs` 164/164 passed (up
+        from 150); `python3 portfolio/router/validate.py` 182/182 valid;
+        `node platform/pages/clauses.mjs ai-engineering-academy` -> 7
+        published pages carry the no-warranty clause; full `node --test
+        platform/pages/build.test.mjs` 237/237 passed, confirming the
+        comment-only build.mjs edit changed no behavior. CI on this PR is
+        expected to show the account-level runner-starvation signature
+        (`runner_id: 0`, no real runner assigned) per CLAUDE.md, not a real
+        failure.
+    mrr_end: null
