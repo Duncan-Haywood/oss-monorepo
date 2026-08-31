@@ -158,6 +158,27 @@ def test_runner_cannot_reach_the_cluster() -> None:
     assert pod["automountServiceAccountToken"] is False
 
 
+def test_runner_pod_runs_as_the_images_own_unprivileged_user() -> None:
+    # Every other workload in this repo (portfolio-site's three containers,
+    # its refresh and usage CronJobs, the governor, prod's landing page) pins
+    # runAsNonRoot -- this Deployment was the one exception, carrying no pod
+    # securityContext at all since it was added. The official actions-runner
+    # image already runs as its own unprivileged `runner` user, so this pins
+    # that expectation rather than changing behaviour, and fails the pod
+    # closed instead of silently starting as root if a future image tag ever
+    # changed that default.
+    pod = _ci_docs()["Deployment"]["spec"]["template"]["spec"]
+    assert pod["securityContext"]["runAsNonRoot"] is True
+
+    # Deliberately NOT readOnlyRootFilesystem, unlike every sibling above: a
+    # workflow step can `npm ci` or run actions/setup-node, both of which
+    # write into $RUNNER_TOOL_CACHE and other paths outside the one `work`
+    # emptyDir this pod mounts -- inherent to running arbitrary job code.
+    assert "readOnlyRootFilesystem" not in pod["securityContext"]
+    container = _ci_docs()["Deployment"]["spec"]["template"]["spec"]["containers"][0]
+    assert "readOnlyRootFilesystem" not in container["securityContext"]
+
+
 def test_runner_yields_to_prod_and_stays_off_the_codex_node() -> None:
     pod = _ci_docs()["Deployment"]["spec"]["template"]["spec"]
     assert pod["priorityClassName"] == "ci-low"
