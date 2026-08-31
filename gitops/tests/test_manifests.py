@@ -342,6 +342,39 @@ def test_worker_egress_cannot_reach_the_kube_apiserver() -> None:
         assert blocked in internet["except"], blocked
 
 
+def test_agents_dns_egress_is_scoped_to_kube_system() -> None:
+    # Regression, same class as test_worker_egress_cannot_reach_the_kube_
+    # apiserver above but for the DNS rule rather than the HTTPS one: both
+    # governor-egress and worker-egress used to allow port 53 with no `to:`
+    # at all, which in NetworkPolicy semantics is "port 53 to any
+    # destination" -- an open DNS-tunneling exfiltration path that the 443
+    # restriction does nothing to close, sitting right next to a file whose
+    # own top comment claims "DNS" as a scoped, understood allowance.
+    # gitops/ci/networkpolicy.yaml already scopes its DNS rule `to:`
+    # kube-system (where CoreDNS actually runs); this pins agents/
+    # networkpolicy.yaml to the same shape for both pods that get DNS here.
+    docs = list(yaml.safe_load_all((AGENTS / "networkpolicy.yaml").read_text()))
+    policies = {
+        d["metadata"]["name"]: d
+        for d in docs
+        if d and d["kind"] == "NetworkPolicy"
+    }
+    for name in ("governor-egress", "worker-egress"):
+        dns_rules = [
+            r
+            for r in policies[name]["spec"]["egress"]
+            if {p["protocol"] for p in r.get("ports", [])} == {"UDP", "TCP"}
+            and all(p["port"] == 53 for p in r["ports"])
+        ]
+        assert len(dns_rules) == 1, (name, dns_rules)
+        to = dns_rules[0].get("to")
+        assert to, f"{name}'s DNS rule has no `to:` -- it allows port 53 to any destination"
+        assert to[0]["namespaceSelector"]["matchLabels"]["kubernetes.io/metadata.name"] == "kube-system", (
+            name,
+            to,
+        )
+
+
 def test_root_tracks_main_of_this_repo() -> None:
     root = yaml.safe_load((ROOT / "root.yaml").read_text())
     assert root["spec"]["source"]["repoURL"].endswith("Duncan-Haywood/monorepo-projects.git")
