@@ -5,6 +5,20 @@ manifests so an agent team can see what a connected server added, removed, or
 changed since approval. After using this, you can now produce reviewable drift
 evidence in seconds, which used to require manually inspecting two exports.
 
+**Browser tool** (no install, nothing uploaded): open
+[`site/index.html`](site/index.html) directly in a browser, or serve the
+`site/` directory statically — it is a self-contained, zero-dependency page
+running the same comparison logic as the CLI below (see
+[`site/compare.mjs`](site/compare.mjs), cross-checked against the Python CLI
+in tests). It also links to
+[`site/what-is-mcp-tool-poisoning.html`](site/what-is-mcp-tool-poisoning.html),
+a reference page on the attack this checker is built to catch. Not yet
+deployed to a public URL — publishing under the portfolio's name is
+owner-gated per `portfolio/DIRECTION.md` — but it's ready to deploy as-is.
+The static surface includes crawlable `robots.txt` and `sitemap.xml` files.
+
+**CLI**, for scripting or CI:
+
 ```bash
 python3 src/mcp_watch.py examples/before.json examples/after.json
 python3 src/mcp_watch.py examples/before.json examples/after.json --output drift.json --usage-log usage.jsonl
@@ -46,4 +60,5 @@ does not change what the tool does.
 ```bash
 cd ventures/mcp-supply-chain-watch
 python3 -m unittest discover -s tests -v
+node --test site/*.test.mjs
 ```
