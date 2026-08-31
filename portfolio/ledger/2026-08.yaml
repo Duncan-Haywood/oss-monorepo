@@ -40937,3 +40937,41 @@ entries:
         this session's job; putting the portfolio's name on a forum or
         directory is the owner's, and stays queued separately.
     mrr_end: null
+  - venture: portfolio-pages
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Correction to the entry above: #2570 (the embed widget just recorded)
+        was a duplicate. Before starting, open PRs were checked
+        (list_pull_requests / search_pull_requests, both empty) but recent
+        commits were not, and a concurrent session had already shipped an
+        equivalent, more complete feature -- #2561 ("add a supported embed
+        widget for calculators", its own embed.mjs/embed.test.mjs module) plus
+        the follow-up #2567 fixing X-Frame-Options: DENY at the infra level
+        (gitops/prod/portfolio-site.yaml), a step #2570 had no equivalent of
+        and without which no iframe embed would actually render regardless of
+        the client-side logic. #2561's diff and #2570's diff touched
+        different, non-overlapping lines of build.mjs, so GitHub's merge
+        produced no textual conflict -- but the result shipped two separate
+        "Embed this calculator" boxes and two link-back bars on every entry
+        page (confirmed on the built roofing-bid-calculator page:
+        pf-embed-snip and pf-embed-offer both present).
+      - >-
+        Reverted as #2572, a clean `git revert` of #2570's squash-merge
+        commit. Verified: the three touched files are byte-identical to the
+        tree immediately after #2567/#2568 (empty diff); a full build +
+        check.mjs shows the built page back to exactly one embed box; node
+        --test platform/pages/*.test.mjs 836/836 pass, matching #2561/#2567's
+        own reported count. Net effect on main: zero -- #2561/#2567 stand as
+        the shipped feature, exactly as if #2570 had never merged. The
+        marketing-distribution queue item's asset is #2561/#2567, not this
+        session's work.
+      - >-
+        Process gap this exposed: "check open PRs and recent commits" in the
+        queue item and in CLAUDE.md's own duplicate-PR guidance was read as
+        satisfied by the open-PR check alone. A recent-commits check (git log
+        --oneline -20, or a search for the feature's own likely keywords in
+        merged PRs) before starting build work would have caught this before
+        any code was written, not after two merges and a revert.
+    mrr_end: null
