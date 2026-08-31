@@ -7,7 +7,7 @@
   <meta name="description" content="Price a flooring install from waste, tear-out, and stairs — not a flat dollar per square foot. See purchased material, kitchen tile demo hours, tread labor, and the walk-away price.">
   <meta property="og:title" content="Flooring Bid Calculator">
   <meta property="og:description" content="Bid the waste and the tear-out, not the room count. Purchased material, demo hours, stairs, and the number below which the job loses money.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Flooring Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Waste-adjusted purchased material, tear-out hours by room, stair tread labor, walk-away break-even price, price per square foot installed, effective hourly billing rate, proposed-price margin check, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Flooring Bid Calculator","applicationCategory":"BusinessApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Waste-adjusted purchased material, tear-out hours by room, stair tread labor, walk-away break-even price, price per square foot installed, effective hourly billing rate, proposed-price margin check, shareable bid link, printable customer proposal with scope, deposit split, price-held date and signature line"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much waste should I add to an LVP flooring bid?","acceptedAnswer":{"@type":"Answer","text":"Straight-lay LVP commonly starts around 8% waste; diagonal or herringbone often needs 12% or more. Waste is extra material you buy, not extra floor the customer sees. This calculator applies your waste percent to purchased square footage and underlayment, then shows the dollars that waste actually costs."}},{"@type":"Question","name":"Why does a price per square foot underbid a kitchen or stairs?","acceptedAnswer":{"@type":"Answer","text":"Tear-out is a different job from the install. Ceramic tile demo can take more hours than laying new LVP in the same room. Stairs are priced per tread, not as hallway square footage. A blended $/sq ft on the finished floor cannot see either one."}},{"@type":"Question","name":"Is this a quote I can send a customer?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you enter — a draft to check against your own invoices, payroll, and a walk-through. Copy the bid summary, then verify every figure before you send a price."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2530; background: #eef2f7; }
@@ -226,6 +226,10 @@
         <button type="button" id="downloadSummary">Download .txt</button>
         <span id="summaryStatus" class="summary-status" role="status" aria-live="polite"></span>
       </div>
+      <div class="summary-actions">
+        <button type="button" id="copyShare">Copy share link</button>
+        <span id="shareStatus" class="summary-status" role="status" aria-live="polite"></span>
+      </div>
       <hr>
       <p class="note" style="margin-bottom:4px"><strong>Where the hours go</strong></p>
       <ul class="split" id="split"></ul>
@@ -281,13 +285,17 @@
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, or engineering advice, and it does not tell you what to charge. Verify every figure against your own payroll, insurance, supplier invoices, and a walk-through, and against a qualified professional, before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
-    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rooms, wages, costs, or prices.</p>
+    <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your rooms, wages, costs, or prices. A share link encodes only the job details you see on screen into the web address itself, so copying one and sending it does not upload anything either.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="https://github.com/Duncan-Haywood/monorepo-projects" rel="noopener">project is on GitHub</a> &mdash; support is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
     import { calculateBid, MATERIAL_PRESETS, TEAROUT_PRESETS } from './calc.mjs';
     import { recordUsage } from './usage.mjs';
+    import { encodeShare, decodeShare } from './share.mjs';
+    import {
+      withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
+    } from './proposal-terms.mjs';
 // proposal:begin — generated by platform/proposal/adopt.mjs
     import {
       COMPANY_FIELDS, buildProposal, renderProposalHtml, scopeLines, loadCompany, saveCompany, forgetCompany,
@@ -415,6 +423,47 @@
         ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
         proposedPrice: el('proposedPrice').value,
       };
+    }
+
+    // The same rows readRooms() returns, but as the label-carrying shape
+    // addRoomRow() accepts rather than the derived shape calculateBid() wants
+    // (tearoutHoursPer100/disposalPerSqFt instead of the preset's own name).
+    // A share link has to restore the preset the sender picked, not just its
+    // numeric side effects, so it needs the labels readRooms() throws away.
+    function shareRooms() {
+      return [...roomsHost.querySelectorAll('.room-row')].map(row => {
+        const matPreset = MATERIAL_PRESETS[Number(row.querySelector('.r-mat').value)];
+        const tearPreset = TEAROUT_PRESETS[Number(row.querySelector('.r-tear').value)];
+        return {
+          name: row.querySelector('.r-name').value,
+          material: matPreset ? matPreset.label : 'Other material',
+          squareFeet: row.querySelector('.r-sqft').value,
+          wastePct: row.querySelector('.r-waste').value,
+          installSqFtPerHour: row.querySelector('.r-rate').value,
+          tearout: tearPreset ? tearPreset.label : TEAROUT_PRESETS[0].label,
+        };
+      });
+    }
+
+    function shareInput() {
+      return {
+        rooms: shareRooms(),
+        ...Object.fromEntries(COST_IDS.map(id => [id, el(id).value])),
+      };
+    }
+
+    function applyShare(payload) {
+      if (!payload) return false;
+      COST_IDS.forEach(id => {
+        if (payload[id] !== undefined && el(id)) el(id).value = payload[id];
+      });
+      if (Array.isArray(payload.rooms) && payload.rooms.length > 0) {
+        roomsHost.replaceChildren();
+        rowSeq = 0;
+        payload.rooms.forEach(addRoomRow);
+        return true;
+      }
+      return false;
     }
 
     function update() {
@@ -545,6 +594,32 @@
       setTimeout(() => { el('summaryStatus').textContent = ''; }, 2500);
     }
 
+    async function copyShare() {
+      const terms = readTerms(el);
+      const hash = withTerms(encodeShare(shareInput()), terms);
+      const url = `${location.origin}${location.pathname}#${hash}`;
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const fallback = document.createElement('textarea');
+        fallback.value = url;
+        fallback.setAttribute('readonly', '');
+        fallback.style.position = 'fixed';
+        fallback.style.opacity = '0';
+        document.body.append(fallback);
+        fallback.select();
+        document.execCommand('copy');
+        fallback.remove();
+      }
+      history.replaceState(null, '', `#${hash}`);
+      count('share_link_copied');
+      const leftBehind = overlongTermsNote(terms);
+      el('shareStatus').textContent = leftBehind
+        ? `Share link copied — ${leftBehind}`
+        : 'Share link copied — deposit and terms included';
+      setTimeout(() => { el('shareStatus').textContent = ''; }, 2500);
+    }
+
     el('addRoom').addEventListener('click', () => {
       addRoomRow({ name: '', material: '', squareFeet: 0, wastePct: 8, installSqFtPerHour: 80, tearout: 'None — empty or new construction' });
       count('room_added');
@@ -570,8 +645,18 @@
         el('summaryStatus').textContent = error.message;
       }
     });
+    el('copyShare').addEventListener('click', () => {
+      copyShare().catch(() => { el('shareStatus').textContent = 'Copy failed.'; });
+    });
 
-    STARTING_ROOMS.forEach(addRoomRow);
+    // A share link wins over the starting sample rooms, the same way it wins
+    // over a local draft on the calculators that have one — someone who opens
+    // a link a contractor sent them should see that contractor's rooms, not
+    // three generic starter rooms.
+    const incomingHash = splitTerms(location.hash);
+    const sharedInputs = decodeShare(incomingHash.payload);
+    applyTerms(decodeTerms(incomingHash.terms), el);
+    if (!applyShare(sharedInputs)) STARTING_ROOMS.forEach(addRoomRow);
     update();
 // proposal:begin — generated by platform/proposal/adopt.mjs
     // ---- Customer-facing proposal -------------------------------------------
