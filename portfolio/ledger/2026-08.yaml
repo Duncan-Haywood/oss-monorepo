@@ -37052,3 +37052,47 @@ entries:
         errors in calculators whose own docstring/comment described the
         correct behavior that the code did not actually implement.
     mrr_end: null
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2383: `listingAtPrice`'s `finish()` in `calc.mjs` clamped
+        the "Max buy cost" ceiling to `Math.max(0, salePrice - feeTotal -
+        (cashInvested - cogsInCash))`. When fees and non-COGS cash costs
+        (fulfillment fee, referral, packaging, inbound, storage) alone
+        already exceed the sale price, the clamp silently floored the
+        displayed ceiling at $0.00 -- indistinguishable from a listing
+        that genuinely breaks even on a free unit, when the listing is
+        actually a guaranteed loss at any sourcing cost. Same bug class
+        already fixed in this repo for `amazon-fba-calculator`'s
+        `maxBuyCost` (#2376) and, per that entry, for the eBay/Shopify/
+        Faire/Etsy break-even solvers and `tiktok-shop-fee-calculator` --
+        this instance in the Walmart calculator hadn't been caught.
+        Verified by hand: an otherwise-default WFS listing at
+        `salePrice: 3, costOfGoods: 0` loses $3.04 (fulfillment fee $3.45
+        + referral $0.45 + ~$1.64 non-COGS cash costs against a $3 sale
+        price), but the old code reported "Max buy cost: $0.00" as if
+        sourcing at $0 broke even. Fixed by mirroring the FBA fix exactly:
+        added the unclamped, signed `breakEvenBuyCostRaw` alongside the
+        existing clamped `breakEvenBuyCost` (purely additive -- the
+        compare table and the existing max-buy-cost test are untouched),
+        and updated the "Max buy cost" display to read "$0.00 -- loses
+        money even at $0 cost" instead of a bare $0.00 when the raw
+        ceiling is negative. `grep`-confirmed no other `ventures/*/calc.mjs`
+        still has this unclamped-raw gap (checked both the
+        `Math.max(0, ...breakEvenBuyCost)` pattern and the `maxBuyCost`
+        field name); `index.html` has no hardcoded example figures made
+        stale by the change.
+      - >-
+        Verified: `node --test calc.test.mjs` in the venture, 55/55 passing
+        (1 new regression test pinning the corrected clamped $0 display
+        value and the new signed `breakEvenBuyCostRaw` on the losing
+        scenario above). `node --test *.test.mjs` (full suite including
+        `page.test.mjs`, `share.test.mjs`, `usage.test.mjs`, and the other
+        JSDOM page tests), 128/128 passing. CI came back red (`validate`,
+        2s); confirmed starvation via `platform/ci/ci_starvation.py --run
+        33368203202` (`runner_id: 0`, no steps) rather than treating red
+        as a real failure, per the documented account-level Actions
+        outage. Merged as #2383 on local verification.
+    mrr_end: null
