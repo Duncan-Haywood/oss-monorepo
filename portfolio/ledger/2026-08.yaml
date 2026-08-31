@@ -38089,3 +38089,35 @@ entries:
         does all three seals. Reported to the owner directly; no new queue
         rows added.
     mrr_end: null
+  - venture: job-margin-variance
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2446: a rejected input (negative or non-numeric) in any of
+        the six fields threw inside `calculate()`, but `update()` only
+        overwrote the headline currency `<output>` with the error text --
+        every other derived figure (estimated/actual cost, cost variance,
+        labor-hour variance, "largest movement") kept showing the *last
+        valid* calculation. On a tool whose whole purpose is a trustworthy
+        number for a job folder, a visitor could miss the one-line error and
+        mistake stale numbers for the answer to the invalid inputs now on
+        screen. Added an `#errors` region with `role="alert"`; on rejection
+        the script now hides the headline and clears every derived field
+        instead of leaving them stale, restoring normal display once inputs
+        are valid again. `calc.mjs` arithmetic was already correct and
+        untouched. Verified: `node --test` 17/17 (added a regression test
+        pinning the catch-block behavior), manual trace of the shipped
+        default inputs still giving `costVariance=60` / `largest=Materials`
+        matching the README/SEO worked example, and the portfolio-wide
+        `build.mjs`/`check.mjs` pair still clean (169 products, 508 pages,
+        no dead links). Merged (squash) into main.
+      - >-
+        Same session, separate check: re-verified the PR/branch backlog by
+        content diff (not branch names) on the three `pr/*`-prefixed
+        branches plus 20 more candidates spanning most active ventures --
+        every one superseded by a fuller implementation already on `main`.
+        Corroborates rather than contradicts this month's prior "queue
+        empty" entries; forcing a merge of any of them would have added a
+        weaker duplicate of a live feature.
+    mrr_end: null
