@@ -39387,3 +39387,62 @@ entries:
         regression test (94/94 passing); re-ran the live roundtrip probe
         clean after the fix. Merged (squash) as #2500.
     mrr_end: null
+  - venture: subcontractor-cashflow-planner
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped and merged #2504. Open-PR queue was empty repo-wide at the
+        start of the run (list_pull_requests and search_pull_requests both
+        zero), so per CLAUDE.md's fewer-than-three rule the merge phase was
+        satisfied without a repair and the run went to product depth. Picked
+        this venture because calc.mjs was the thinnest in the portfolio at 22
+        lines, and because session_gate.py flagged 3 distinct sessions inside
+        a 15-minute window all working bid-calculator share links -- this
+        sits outside that collision surface. Nothing had touched
+        ventures/subcontractor-cashflow-planner/ on main.
+      - >-
+        The tool reported that a funding gap existed and stopped at its size,
+        which is not yet a decision. Added the three levers a subcontractor
+        actually pulls: supplier terms on materials (previously priced as
+        cash out on day 0), a deposit or mobilisation payment, and the rate
+        they would borrow at. New outputs: the day the balance goes negative,
+        the cost to carry the shortfall, and how many further days of late
+        payment a covered scenario survives. The supplier-terms result is the
+        non-obvious one -- what matters is not the length of the terms but
+        whether they outlast the client. Paid day 44, a net-30 supply account
+        still puts the $2,500 out first and only shortens the borrowing
+        window; net-45 falls due after the money lands and erases the gap.
+        The absorbable-delay figure surfaces the matching cliff: it reads 0 on
+        a $600 surplus when the materials invoice is due the day after
+        payment was expected.
+      - >-
+        Interest accrues on the daily shortfall, which ramps across the
+        window, not on the peak gap for every day of it -- charging the peak
+        roughly doubles the answer, and a cost that overstates is as useless
+        for the decision as one that understates. All three new fields default
+        to the neutral value, so the net-30 guide page's worked figures
+        ($6,900, $1,900, $12,900, $7,900) are unchanged and a test asserts
+        that neutrality. Also removed the CSV export's second hand-maintained
+        copy of the column-name list (both sides now read CSV_FIELDS from
+        calc.mjs -- the drift shape that exports an added column under the
+        previous column's label), and corrected the README's now-false claim
+        that supplier credit is not modelled.
+      - >-
+        Verified: node --test in the venture, 21/21 (10 new calc cases, 4 new
+        page cases covering input bounds, the shared field list, and
+        visible-FAQ/JSON-LD sync -- this page hand-authors its own FAQPage so
+        build.mjs does not derive one, and nothing else kept the two in step
+        after #2497). check_form_defaults, check_input_bounds,
+        check_money_sign, check_conflict_markers, check_duplicate_symbols all
+        clean. node platform/pages/build.mjs + check.mjs: 169 products, 508
+        pages, no dead links; faq-coverage and guide-coverage still 169/169.
+        platform/ci/browser_checks.py --checks journey,sweep,highlight,sideways
+        all pass. Manual Chromium pass of the three new scenarios plus a
+        save/reload draft round-trip, no console or page errors. CI red was
+        runner starvation: page-integrity fails in 4-6s on the last six
+        commits to main (03fc60fa, 5852b4d0, 4440a1b3, 3b37d5dc, 96acaa35,
+        0bbbfb25), i.e. red on the base branch too, and the job carries
+        labels ["ubuntu-latest"] so CI_RUNNER is still unset. Said so once on
+        the PR and merged (squash).
+    mrr_end: null
