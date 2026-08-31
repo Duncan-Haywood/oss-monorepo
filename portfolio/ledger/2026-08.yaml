@@ -36834,3 +36834,60 @@ entries:
         run, so the PR-drain quota was met trivially; #2368 was opened and
         merged within it.
     mrr_end: null
+  - venture: walmart-marketplace-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Zero open PRs and zero unmerged branches at session start (checked all
+        290 remote branches against `main`, cross-referenced the 174 with
+        commits `main` doesn't have -- every one already shipped under the
+        same feature name), so the PR-drain quota was met by an empty queue.
+        Confirmed the deploy/CI-CD/Codex-on-Hetzner asks (`infra/OWNER_CHECKLIST.md`)
+        are unchanged since the last session that recorded them: fully built,
+        blocked only on the owner sealing three secrets from a laptop with a
+        kubeconfig, which this session cannot do. Added nothing new to the
+        decision queue.
+      - >-
+        Shipped #2372: `walmart-marketplace-calculator` was the one calculator
+        in the marketplace-fee-calculator family (eBay, Etsy, Reverb, Shopify,
+        Faire, Amazon FBA, TikTok Shop) missing a "copy shareable link" button
+        -- verified by grepping its `index.html` for `share`/`clipboard`/
+        `URLSearchParams`/`location.hash` and finding none. It is also the
+        most input-heavy calculator in the family (49 fields across five
+        comparisons: WFS vs seller-fulfilled, price match, 2-day take,
+        returns, aged-inventory removal, Walmart Connect ads, Buy Box match),
+        so losing everything on refresh cost the most here. Added
+        `calc.mjs`'s `INPUT_FIELDS`/`FULFILLMENT_VALUES` exports (single-
+        sourced from `index.html`'s own `ids` array, with a test pinning the
+        two together) and `share.mjs` (encode/decode to a URL fragment, plus
+        an `ENUM_FIELDS` allowlist so a shared link's category/storage-season
+        label agrees with the numeric rate it filled) -- mirroring the pattern
+        already proven in `amazon-fba-calculator` and `ebay-fee-calculator`,
+        whose own hand-maintained field lists each silently dropped a field
+        at least once before being rebuilt this way.
+      - >-
+        Verified two ways: `node --test *.test.mjs` in the venture, 127/127
+        passing (9 new in `share.test.mjs`, including one that asserts
+        `INPUT_FIELDS` matches the page's actual `ids` array byte-for-byte).
+        Then a live Chromium/Playwright pass against the page directly:
+        changed six inputs, clicked the button, confirmed the resulting URL
+        hash carried every changed field, reloaded that URL in a fresh
+        context, and confirmed the restored inputs actually drove a live
+        computed result ($19.79, not the page defaults or an error). That
+        pass also surfaced a pre-existing, portfolio-wide characteristic
+        (not a regression from this change): every calculator using
+        `<script type="module">` with local imports fails CORS on a plain
+        `file://` open in Chromium and needs `--allow-file-access-from-files`
+        or an http(s) origin -- which is how the GitHub Pages deployment
+        already serves them, so it does not affect the shipped site, but is
+        worth knowing if a session ever double-clicks a raw `index.html` to
+        check it and sees a dead page.
+      - >-
+        CI checks came back red (`build`/`check`/`validate`/`site-test`/
+        `page-integrity`/`link-contrast`, 2-4s each); confirmed starvation
+        via `platform/ci/ci_starvation.py --run 33363919673`
+        (`runner_id: 0`, no steps) rather than treating red as a real
+        failure, per the documented account-level Actions outage. Merged as
+        #2372 on local verification.
+    mrr_end: null
