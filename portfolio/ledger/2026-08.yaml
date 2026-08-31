@@ -38825,3 +38825,54 @@ entries:
         verification is safer than a wide sweep landing mid-flight under
         other sessions' branches.
     mrr_end: null
+  - venture: portfolio-site
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped the portfolio's front door. `marisstella.dev` and
+        `www.marisstella.dev` both resolved to the cpx52 (89.167.29.39,
+        confirmed this session) but no Ingress claimed either name, so both
+        fell to ingress-nginx's default backend -- which is exactly what the
+        owner reported in issue #1925 on 2026-08-28 and what three status
+        comments on that issue had not answered, all three having addressed
+        only the deploy half. `gitops/prod/portfolio-apex.yaml` now claims
+        both names and 301s them to `https://tools.marisstella.dev/`.
+        Merged (squash) as #2481, `e20a4edd1`.
+      - >-
+        The finding worth keeping: the reason three files gave for staying
+        off the apex was wrong. `portfolio-site.yaml`, `gitops/README.md`
+        and `infra/OWNER_CHECKLIST.md` each said `marisstella.dev` "already
+        resolves to this box for something else", citing `infra/README.md`
+        -- which records only where the A records point, not that anything
+        answers them. `gitops/apps/ingress-nginx.yaml` runs the controller
+        with `hostNetwork: true` on that node, so it holds :80/:443 in the
+        host namespace and no second listener could have bound there.
+        Nothing was being hijacked because nothing was serving. All three
+        files are corrected in the same PR rather than left for a fourth
+        session to re-derive.
+      - >-
+        A 301 rather than a second copy of the site: `build.mjs` stamps
+        `PAGES_BASE_URL` into the canonical link, og:url and sitemap entry
+        of all 508 pages, so serving the same bytes under three hostnames
+        would contradict every page's own canonical tag. Kept as a separate
+        Ingress so the content Ingress stays single-host (its existing test
+        still pins that) and the front door can be removed without touching
+        the site.
+      - >-
+        Verified locally, CI being dark under the standing account-wide
+        runner-starvation finding (`ci_starvation.py` on runs 33409545475,
+        33409545642 and 33409545644: every job `runner_id: 0`):
+        `pytest gitops/tests` 182 passed (176 before, 6 new); `kustomize
+        build` clean on all six overlays; `kubeconform -strict` on rendered
+        prod 21/21 valid; `validate_workflows.py` 220 valid;
+        `PAGES_BASE_URL=https://tools.marisstella.dev/ build.mjs` +
+        `check.mjs` 169 products / 508 pages / no dead links with zero files
+        carrying a stale `github.io` canonical. Live HTTP was NOT verified
+        and is not claimed -- this session's egress proxy 403s that domain.
+      - >-
+        Also merged #2473 (queue README priority/ACME drift), which was the
+        only open PR at session start; the queue was empty afterwards. Both
+        merges land with no new owner action: the apex redirect goes live on
+        the same sealed clone token the site itself already waits on.
+    mrr_end: null
