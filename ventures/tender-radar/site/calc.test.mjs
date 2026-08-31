@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseTenders, filterTenders, parseTradeTerms, escapeHtml, safeUrl, toCsv, isUrgent } from "./calc.mjs";
+import { parseTenders, filterTenders, parseTradeTerms, escapeHtml, safeUrl, toCsv, isUrgent, isClosed } from "./calc.mjs";
 
 const SAMPLE = `title,buyer,deadline,category,value,url
 School roof repairs,City Council,2026-09-18,roofing,85000,https://example.test/tender
@@ -71,6 +71,38 @@ test("flags a deadline closing soon as urgent, not one that already passed", () 
   assert.equal(isUrgent("2026-08-30", "2026-08-30"), true, "due today is urgent");
   assert.equal(isUrgent("2026-09-06", "2026-08-30"), true, "7 days out is the edge of the window");
   assert.equal(isUrgent("2026-09-07", "2026-08-30"), false, "8 days out is outside the window");
+});
+
+test("filterTenders hides tenders whose deadline already passed by default", () => {
+  // The bug this guards: a shortlist that includes tenders nobody can act on
+  // any more, mixed in indistinguishably with ones that are still open,
+  // contradicts the tool's whole purpose ("the tenders worth your time").
+  const rows = parseTenders(`title,buyer,deadline,category,value,url
+Closed roof job,City,2026-08-20,roofing,50000,https://example.test/closed
+Open roof job,City,2026-09-18,roofing,50000,https://example.test/open`);
+  const shortlist = filterTenders(rows, { today: "2026-08-30" });
+  assert.equal(shortlist.length, 1);
+  assert.equal(shortlist[0].title, "Open roof job");
+});
+
+test("filterTenders keeps closed tenders when hideClosed is false", () => {
+  const rows = parseTenders(`title,buyer,deadline,category,value,url
+Closed roof job,City,2026-08-20,roofing,50000,https://example.test/closed
+Open roof job,City,2026-09-18,roofing,50000,https://example.test/open`);
+  const shortlist = filterTenders(rows, { today: "2026-08-30", hideClosed: false });
+  assert.equal(shortlist.length, 2);
+});
+
+test("filterTenders does not hide anything when today is not supplied (unchanged default)", () => {
+  const rows = parseTenders(`title,buyer,deadline,category,value,url
+Closed roof job,City,2026-08-20,roofing,50000,https://example.test/closed`);
+  assert.equal(filterTenders(rows, {}).length, 1);
+});
+
+test("isClosed is true only once the deadline has passed", () => {
+  assert.equal(isClosed("2026-08-29", "2026-08-30"), true, "a passed deadline is closed");
+  assert.equal(isClosed("2026-08-30", "2026-08-30"), false, "due today is not yet closed");
+  assert.equal(isClosed("2026-08-31", "2026-08-30"), false, "due tomorrow is not closed");
 });
 
 test("CSV export quotes embedded quotes", () => {
