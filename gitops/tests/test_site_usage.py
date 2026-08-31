@@ -11,13 +11,50 @@ No cluster required.
 from __future__ import annotations
 
 import importlib.util
+import json
+import os
+import shutil
+import subprocess
+import tempfile
+import urllib.parse
 from pathlib import Path
 
+import pytest
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = ROOT.parent
 SITE_USAGE = ROOT / "prod" / "site-usage.yaml"
 AGGREGATE = ROOT / "prod" / "usage" / "aggregate.py"
+
+# Enough of a venture for `discoverSurfaces` to publish it: an entry page with
+# a title and a description. Everything else the builder adds itself.
+FIXTURE_INDEX = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Widget Fee Calculator | Know your margin before you list</title>
+<meta name="description" content="Work out the marketplace fee on a widget
+sale and the price that protects your margin, free and in your browser.">
+</head><body><h1>Widget fee calculator</h1>
+<p>Enter your sale price and see what actually lands.</p>
+<a href="worked-example.html">A worked example</a>
+</body></html>
+"""
+
+FIXTURE_SUBPAGE = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>How much does a widget sale really leave? | Worked example</title>
+<meta name="description" content="A full worked example of a widget sale, fee
+by fee, so you can see where the margin goes before you list.">
+</head><body><h1>A worked example</h1><p>Fee by fee.</p></body></html>
+"""
+
+
+def _write_fixture_venture(venture: Path, *, nested: bool) -> None:
+    """A minimal publishable venture, authored flat or under `site/`."""
+    web_root = venture / "site" if nested else venture
+    web_root.mkdir(parents=True, exist_ok=True)
+    (web_root / "index.html").write_text(FIXTURE_INDEX, encoding="utf-8")
+    (web_root / "worked-example.html").write_text(FIXTURE_SUBPAGE, encoding="utf-8")
 
 
 def _load_aggregate():
@@ -211,6 +248,109 @@ def test_slug_for_buckets_pages_and_ignores_assets() -> None:
     # them would scale every number by whatever each page happens to load.
     for asset in ("/amazon-fba-calculator/calc.mjs", "/pf-chrome.css", "/sitemap.xml", "/icon-192.png"):
         assert slug_for(asset) is None, asset
+
+
+def test_every_published_tool_is_reachable_by_slug_for() -> None:
+    """The aggregator's URL assumptions, checked against URLs the builder emits.
+
+    `slug_for` is the whole of the usage signal: whatever it returns becomes a
+    row in the ConfigMap, and whatever it collapses is lost with no error
+    anywhere. Its other test asserts on paths a human typed into this file,
+    which is exactly the shape that cannot catch the failure that matters --
+    `build.mjs` is a separate tree in a separate language, and nothing today
+    ties its published URL layout to the parser that reads it back.
+
+    That failure is silent and total. `slug_for` never raises and, for any
+    page-shaped path, never returns None; it just returns the first path
+    segment. So if the builder ever moved products under a shared prefix
+    (`/tools/<slug>/`, a locale root, a version root), every tool would bucket
+    into one row named after the prefix. `check.mjs` would still pass -- the
+    links all resolve -- the site would look right, and the portfolio's only
+    metric while everything is free would quietly become a single number. The
+    first hint would be someone reading the ConfigMap weeks later.
+
+    So build a real (small) site with the real builder and assert the
+    round-trip: the URL the catalogue advertises for a tool must parse back to
+    that same tool's slug, and no published page may land in a bucket the
+    catalogue cannot explain.
+    """
+    node = shutil.which("node")
+    if node is None:  # pragma: no cover - depends on the runner's toolchain
+        pytest.skip("node is required to run the site builder")
+
+    slug_for = _load_aggregate().slug_for
+    build_mjs = REPO_ROOT / "platform" / "pages" / "build.mjs"
+
+    with tempfile.TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        ventures = root / "ventures"
+        out = root / "out"
+
+        # Two ventures, because the flattening of an authored `site/` subdir
+        # into `/<slug>/` is itself part of the URL contract under test.
+        _write_fixture_venture(ventures / "widget-fee-calculator", nested=False)
+        _write_fixture_venture(ventures / "nested-bid-calculator", nested=True)
+
+        proc = subprocess.run(
+            [
+                node,
+                "--input-type=module",
+                "-e",
+                "const m = await import(process.env.BUILD_MJS);\n"
+                "await m.buildSite({\n"
+                "  venturesDir: process.env.VENTURES_DIR,\n"
+                "  outDir: process.env.OUT_DIR,\n"
+                "  baseUrl: 'https://tools.example.com/',\n"
+                "});\n",
+            ],
+            env={
+                **os.environ,
+                "BUILD_MJS": build_mjs.as_uri(),
+                "VENTURES_DIR": str(ventures),
+                "OUT_DIR": str(out),
+            },
+            capture_output=True,
+            text=True,
+            timeout=300,
+        )
+        assert proc.returncode == 0, f"build.mjs failed:\n{proc.stdout}\n{proc.stderr}"
+
+        catalog = json.loads((out / "catalog.json").read_text())
+        tools = catalog["tools"]
+        assert tools, "the fixture build published no tools"
+
+        # 1. The advertised URL for a tool parses back to that tool.
+        for tool in tools:
+            path = urllib.parse.urlparse(tool["url"]).path
+            assert slug_for(path) == tool["slug"], (
+                f"catalog advertises {tool['url']} for {tool['slug']!r}, "
+                f"but the usage aggregator would record it as "
+                f"{slug_for(path)!r}"
+            )
+
+        # 2. Every published page lands in a bucket the catalogue explains.
+        #    `_hub` and the root pages are named here rather than derived,
+        #    so adding a new top-level page is a deliberate edit to this list
+        #    and not something that silently grows a row.
+        known = (
+            {t["slug"] for t in tools}
+            | {f"c/{c['id']}" for c in catalog["categories"]}
+            | {"_hub", "about", "404", "offline"}
+        )
+        for page in sorted(out.rglob("*.html")):
+            uri = "/" + page.relative_to(out).as_posix()
+            bucket = slug_for(uri)
+            assert bucket in known, (
+                f"{uri} would be counted as {bucket!r}, which is neither a "
+                f"catalogue slug, a category page, nor a known root page"
+            )
+
+        # 3. A tool's own sub-pages count towards that tool, not somewhere
+        #    else. This is what makes a per-tool number mean "visits to this
+        #    tool" rather than "visits to its front page".
+        example = out / "widget-fee-calculator" / "worked-example.html"
+        assert example.is_file(), "fixture sub-page was not published"
+        assert slug_for("/widget-fee-calculator/worked-example.html") == "widget-fee-calculator"
 
 
 def test_count_lines_ignores_other_days_so_a_rerun_is_not_a_double_count() -> None:
