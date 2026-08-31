@@ -135,7 +135,7 @@ def test_dry_run_checks_preflight_without_asking_for_a_token(sandbox: dict) -> N
 
 def test_preflight_names_every_missing_tool_not_just_the_first(sandbox: dict) -> None:
     # The owner runs this once, on a laptop, and each round trip is a day of
-    # 168 built tools staying unreachable. A preflight that exits on the first
+    # 169 built tools staying unreachable. A preflight that exits on the first
     # missing prerequisite hides the second one until the re-run, so the fix
     # for "missing: kubectl" is followed by "missing: kubeseal" and another
     # wait. Both names have to arrive in the same report.

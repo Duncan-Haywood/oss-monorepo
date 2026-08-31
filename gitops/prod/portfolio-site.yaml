@@ -3,7 +3,7 @@
 #
 # WHY THIS EXISTS
 #
-# `platform/pages/build.mjs` assembles 164 finished tools into one static
+# `platform/pages/build.mjs` assembles 169 finished tools into one static
 # site (hub, per-tool pages, sitemaps, robots.txt, social cards). Until now
 # the only way to publish it was `.github/workflows/portfolio-pages.yml` ->
 # GitHub Pages, which is blocked twice over: Pages is not enabled on the
@@ -13,7 +13,7 @@
 # cert-manager and an auto-syncing `prod` Application with nothing in it but
 # a placeholder that says "add an Ingress when a product is ready".
 #
-# 164 products are ready. This is that Ingress, plus the workload behind it.
+# 169 products are ready. This is that Ingress, plus the workload behind it.
 #
 # It deliberately does NOT depend on GitHub Actions: Argo syncs this file
 # straight from `main`, and the site is built inside the cluster. That is
