@@ -20,8 +20,7 @@ See [Driving the customer journey](#driving-the-customer-journey).
 Run all six with one command, which builds, serves and tears down for you:
 
 ```
-PLAYWRIGHT=$(npm root -g)/playwright/index.js \
-  python3 platform/ci/browser_checks.py            # all six, fresh build
+python3 platform/ci/browser_checks.py            # all six, fresh build
 python3 platform/ci/browser_checks.py --checks sweep,sideways --dist platform/pages/dist
 ```
 
@@ -32,6 +31,28 @@ older build is an error, not a false pass), and it serves through a *threading*
 server, so the single-threaded `http.server` drops that produce phantom
 `requestfailed` findings do not happen. Every check still runs standalone
 exactly as documented — this only orchestrates them.
+
+It finds Playwright and axe-core rather than asking you to name them, so the
+`PLAYWRIGHT=$(npm root -g)/playwright/index.js` prefix these commands used to
+carry is only needed where a global, `NODE_PATH`, or in-repo install is not
+what you have. `PLAYWRIGHT` and `AXE` still win when set.
+
+**Read its exit code as three outcomes, not two.** Each check exits `1` for a
+defect it found and `2` for "nothing was verified" — a missing dependency, an
+empty page list, a `DIST` that is not there — and the runner keeps them apart:
+
+| exit | meaning |
+|---|---|
+| 0 | every requested check ran and passed |
+| 1 | a check found a real defect — this is the one to fix |
+| 2 | everything that ran passed, but something did not run |
+
+A `2` names what skipped and why. It matters most for `contrast`, the WCAG
+check, whose `axe-core` is the one dependency Playwright does not bring: on a
+machine without it that check skips, and until 2026-08-31 the run reported
+`1 of 6 checks failed: contrast` instead — a missing npm package dressed as an
+accessibility regression, which is the same "absent CI is not failed CI"
+conflation `CLAUDE.md` warns about, in this repo's own tooling.
 
 Then serve it and click around:
 

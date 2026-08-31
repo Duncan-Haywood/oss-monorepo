@@ -228,5 +228,199 @@ class DiscoverChrome(unittest.TestCase):
         self.assertIsNone(bc.discover_chrome({"PLAYWRIGHT_BROWSERS_PATH": root}))
 
 
+class Classification(unittest.TestCase):
+    """Exit 2 means "nothing was verified", and must never read as a failure.
+
+    Every check in `platform/pages/` reserves 2 for a dependency it could not
+    load, an empty page list, or a DIST that is not there, and 1 for a defect
+    it actually found. This orchestrator used to collapse both into
+    "FAILED (exit N)" and return 1, so a machine without `axe-core` reported
+    `1 of 6 checks failed: contrast` -- a missing npm package presented as an
+    accessibility regression. That is the same conflation `CLAUDE.md` spends
+    three paragraphs on for CI ("absent CI is not failed CI"), reproduced in
+    the repo's own tooling.
+    """
+
+    def test_zero_is_a_pass(self):
+        self.assertEqual(bc.classify(0), "ok")
+        self.assertFalse(bc.is_skip(0))
+        self.assertFalse(bc.is_failure(0))
+
+    def test_two_is_a_skip(self):
+        self.assertEqual(bc.classify(bc.SKIP_EXIT), "skip")
+        self.assertTrue(bc.is_skip(2))
+        self.assertFalse(bc.is_failure(2))
+
+    def test_one_is_a_real_failure(self):
+        self.assertEqual(bc.classify(1), "fail")
+        self.assertTrue(bc.is_failure(1))
+        self.assertFalse(bc.is_skip(1))
+
+    def test_a_timeout_is_a_failure_not_a_skip(self):
+        """124 is invented by run_check, not exited by a check.
+
+        A check that was running and did not finish is the shape of a page
+        that hangs, which is a defect. Treating it as "could not verify"
+        would let a hang pass as an environment problem.
+        """
+        self.assertTrue(bc.is_failure(bc.TIMEOUT_EXIT))
+        self.assertIn("timed out", bc.outcome_label(bc.TIMEOUT_EXIT))
+
+    def test_an_unexpected_code_is_a_failure(self):
+        # Anything the contract does not name is treated as a defect, so a new
+        # exit code cannot quietly become a skip.
+        for rc in (3, 5, 127, 255):
+            self.assertTrue(bc.is_failure(rc), rc)
+
+    def test_the_skip_banner_never_says_failed(self):
+        self.assertNotIn("FAIL", bc.outcome_label(bc.SKIP_EXIT).upper())
+        self.assertIn("did not run", bc.outcome_label(bc.SKIP_EXIT))
+
+    def test_every_class_has_a_summary_mark_of_equal_width(self):
+        # The summary is a column; a mark of a different width misaligns it.
+        marks = [bc.SUMMARY_MARK[k] for k in ("ok", "skip", "fail")]
+        self.assertEqual({len(m) for m in marks}, {4})
+
+
+class RunOutcome(unittest.TestCase):
+    """What `main()` returns once each check has reported."""
+
+    def _run(self, codes):
+        """Drive main() over a real served tree with faked check results."""
+        dist = tempfile.mkdtemp(prefix="bc-outcome-")
+        try:
+            with open(os.path.join(dist, "index.html"), "w", encoding="utf-8") as fh:
+                fh.write("<html></html>")
+            names = list(codes)
+
+            def fake_run_check(name, base, env, timeout):
+                return codes[name], ""
+
+            err, out = io.StringIO(), io.StringIO()
+            with mock.patch.object(bc, "run_check", fake_run_check), \
+                 mock.patch.object(bc, "playwright_available", lambda env: True), \
+                 mock.patch.object(bc, "discover_axe", lambda env: None), \
+                 contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+                rc = bc.main(["--dist", dist, "--checks", ",".join(names)])
+            return rc, err.getvalue() + out.getvalue()
+        finally:
+            shutil.rmtree(dist, ignore_errors=True)
+
+    def test_all_passing_is_zero(self):
+        rc, text = self._run({"sideways": 0, "presets": 0})
+        self.assertEqual(rc, 0)
+        self.assertIn("all 2 browser checks passed", text)
+
+    def test_a_skip_alone_is_two_not_one(self):
+        """The whole point: a missing dependency is not a red suite."""
+        rc, text = self._run({"sideways": 0, "contrast": 2})
+        self.assertEqual(rc, 2)
+        self.assertNotIn("checks failed", text)
+        self.assertIn("did NOT run", text)
+        self.assertIn("contrast", text)
+
+    def test_a_skip_is_never_reported_as_all_passed(self):
+        """A gate that skips quietly stops being a gate."""
+        _, text = self._run({"sideways": 0, "contrast": 2})
+        self.assertNotIn("all 2 browser checks passed", text)
+        self.assertIn("the 1 check(s) that ran passed", text)
+
+    def test_a_real_failure_is_one(self):
+        rc, text = self._run({"sideways": 1, "presets": 0})
+        self.assertEqual(rc, 1)
+        self.assertIn("1 of 2 checks failed: sideways", text)
+
+    def test_a_failure_outranks_a_skip(self):
+        """A defect must not be downgraded to "could not verify" by a skip."""
+        rc, text = self._run({"sideways": 1, "contrast": 2, "presets": 0})
+        self.assertEqual(rc, 1)
+        self.assertIn("checks failed: sideways", text)
+        # ...and the skip is still reported rather than swallowed.
+        self.assertIn("did NOT run", text)
+
+    def test_the_summary_marks_each_class_distinctly(self):
+        _, text = self._run({"sideways": 1, "contrast": 2, "presets": 0})
+        self.assertIn("FAIL  sideways", text)
+        self.assertIn("skip  contrast", text)
+        self.assertIn("ok    presets", text)
+
+
+class DiscoverModules(unittest.TestCase):
+    """Finding Playwright and axe-core where npm actually put them.
+
+    `contrast.mjs` resolves `axe-core/axe.min.js` relative to itself, so it
+    sees a copy installed into this repo and nothing else -- and this repo has
+    no `package.json` and should not grow one for a check that is not in CI.
+    A global or scratch install is therefore invisible to it, and the WCAG
+    check skips on a machine that has axe-core sitting right there.
+    """
+
+    def _module(self, root, relpath):
+        path = os.path.join(root, relpath)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("// stub\n")
+        return path
+
+    def setUp(self):
+        self.root = tempfile.mkdtemp(prefix="bc-modules-")
+        # npm is not consulted in these tests: the global root is a real
+        # subprocess and its answer varies per machine.
+        patcher = mock.patch.object(bc, "npm_global_root", lambda env: None)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def tearDown(self):
+        shutil.rmtree(self.root, ignore_errors=True)
+
+    def test_an_explicit_axe_choice_is_never_overridden(self):
+        self._module(self.root, os.path.join("axe-core", "axe.min.js"))
+        env = {"NODE_PATH": self.root, "AXE": "/somewhere/else"}
+        self.assertIsNone(bc.discover_axe(env))
+
+    def test_an_explicit_playwright_choice_is_never_overridden(self):
+        self._module(self.root, os.path.join("playwright", "index.js"))
+        env = {"NODE_PATH": self.root, "PLAYWRIGHT": "/somewhere/else"}
+        self.assertIsNone(bc.discover_playwright(env))
+
+    def test_axe_on_node_path_is_found(self):
+        want = self._module(self.root, os.path.join("axe-core", "axe.min.js"))
+        self.assertEqual(bc.discover_axe({"NODE_PATH": self.root}), want)
+
+    def test_playwright_on_node_path_is_found(self):
+        want = self._module(self.root, os.path.join("playwright", "index.js"))
+        self.assertEqual(bc.discover_playwright({"NODE_PATH": self.root}), want)
+
+    def test_nothing_found_changes_nothing(self):
+        # None means "leave the environment alone", so the check's own message
+        # gets to report the miss instead of a wrong guess pre-empting it.
+        self.assertIsNone(bc.discover_axe({"NODE_PATH": self.root}))
+        self.assertIsNone(bc.discover_playwright({"NODE_PATH": self.root}))
+        self.assertIsNone(bc.discover_axe({}))
+
+    def test_the_nearest_root_wins(self):
+        """NODE_PATH order is the caller's stated preference; keep it."""
+        second = tempfile.mkdtemp(prefix="bc-modules2-")
+        try:
+            want = self._module(self.root, os.path.join("axe-core", "axe.min.js"))
+            self._module(second, os.path.join("axe-core", "axe.min.js"))
+            env = {"NODE_PATH": os.pathsep.join([self.root, second])}
+            self.assertEqual(bc.discover_axe(env), want)
+        finally:
+            shutil.rmtree(second, ignore_errors=True)
+
+    def test_a_directory_in_the_modules_place_is_not_offered(self):
+        # `axe.min.js` as a directory resolves nowhere; only a readable file
+        # is a usable answer.
+        os.makedirs(os.path.join(self.root, "axe-core", "axe.min.js"))
+        self.assertIsNone(bc.discover_axe({"NODE_PATH": self.root}))
+
+    def test_the_repo_itself_is_searched(self):
+        """A `npm install` run in the repo root is the other common shape."""
+        roots = bc.module_search_roots({})
+        self.assertIn(os.path.join(bc.REPO_ROOT, "node_modules"), roots)
+        self.assertIn(os.path.join(bc.PAGES, "node_modules"), roots)
+
+
 if __name__ == "__main__":
     unittest.main()
