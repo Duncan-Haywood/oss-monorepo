@@ -56,6 +56,12 @@ export function nextDueFromInterval(awardDate, intervalMonths, today) {
     prev = due;
     due = next;
   }
+  // `due` lands exactly on `today` when today is itself an interval
+  // boundary. Without this check, `prev < today` is also true in that
+  // case (prev is always a strictly earlier boundary once the loop has
+  // run), so the day a report becomes due it was reported as overdue by
+  // a full interval, only to "improve" to correct the very next day.
+  if (due === today) return due;
   return prev < today ? prev : due;
 }
 

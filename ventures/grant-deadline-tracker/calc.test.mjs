@@ -83,6 +83,19 @@ test("nextDueFromInterval returns the current overdue period, not the first inte
   assert.equal(nextDueFromInterval("2026-03-01", 6, "2026-08-26"), "2026-09-01");
 });
 
+test("nextDueFromInterval reports the report due today, not a full interval overdue, when today lands exactly on the boundary", () => {
+  // Award 2025-01-01, every 6 months: boundaries fall on 2025-07-01,
+  // 2026-01-01, 2026-07-01, 2027-01-01 (three periods elapsed by the last).
+  // The day before, and the day after, both already read correctly (one
+  // interval apart, as expected for a still-open and a freshly-overdue
+  // report). Only the exact boundary day was wrong: it fell back all the
+  // way to the *previous* boundary, six months too early, instead of the
+  // one landing on today.
+  assert.equal(nextDueFromInterval("2025-01-01", 6, "2026-12-31"), "2026-07-01");
+  assert.equal(nextDueFromInterval("2025-01-01", 6, "2027-01-01"), "2027-01-01");
+  assert.equal(nextDueFromInterval("2025-01-01", 6, "2027-01-02"), "2027-01-01");
+});
+
 test("escapes private CSV export values", () => {
   const csv = csvReport(summarize([food], "2026-08-25"));
   assert.match(csv, /"Food, Inc\."/);
