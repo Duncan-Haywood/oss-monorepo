@@ -1,5 +1,17 @@
-# Cluster-internal status page. No Ingress on marisstella.dev — that name
-# already points at this box and this stack must not hijack it.
+# Cluster-internal status page. This ConfigMap/Deployment/Service carry no
+# Ingress of their own and never have.
+#
+# The comment here used to stop at that and say "marisstella.dev already
+# points at this box and this stack must not hijack it" -- true when #1486
+# first adopted this namespace and nothing in gitops claimed that name yet.
+# It stopped being the whole story on #2481: portfolio-apex.yaml, in this
+# same directory, now binds an Ingress to marisstella.dev and www on
+# purpose, 301-redirecting both to tools.marisstella.dev. That is not this
+# file hijacking the name -- it is the deliberate, documented follow-up the
+# original comment was waiting for, landed elsewhere. Leaving this page's
+# text saying "add an Ingress in a follow-up PR when ready" after that PR
+# merged would read as marisstella.dev still being unclaimed in this tree,
+# which is the one way to get a second, conflicting Ingress opened for it.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -12,9 +24,11 @@ data:
     <title>hel1-k3s prod</title>
     <body>
     <h1>hel1-k3s prod</h1>
-    <p>This namespace is the GitOps destination for products. It does not
-    serve marisstella.dev. Add an Ingress in a follow-up PR when a product
-    is ready to take that name.</p>
+    <p>This namespace is the GitOps destination for products. This page
+    itself has no public Ingress. marisstella.dev and www.marisstella.dev
+    are already claimed in this directory by portfolio-apex.yaml, which
+    301-redirects both to tools.marisstella.dev -- do not add a second
+    Ingress for either host.</p>
     </body>
     </html>
 ---
