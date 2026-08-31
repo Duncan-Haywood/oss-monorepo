@@ -11,44 +11,11 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "SoftwareApplication",
-        "name": "EV Charger Installation Bid Calculator",
-        "applicationCategory": "BusinessApplication",
-        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-        "featureList": "125% continuous-load breaker sizing, copper voltage-drop check, trench and panel-work labor, walk-away price, proposed-price margin check, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How much should I charge to install an EV charger?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "There is no flat hang fee. Use this page: a short indoor 48 A job on a spare slot often lands near $1,200–$1,400 at the default rates. Switch the location to a detached garage, add a 60-foot trench, and pick a service upgrade — the same charger becomes a several-thousand-dollar job. That gap is the whole product."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What size breaker and wire does a 48 A charger need?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "48 A continuous × 1.25 = 60 A breaker. Copper #6 usually carries that ampacity; a long run may upsize to hold 3% voltage drop at 240 V. The result panel shows the gauge and the calculated drop for the feet you entered."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Do I have to include a service upgrade?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation."
-            }
-          }
-        ]
-      }
-    ]
+    "@type": "SoftwareApplication",
+    "name": "EV Charger Installation Bid Calculator",
+    "applicationCategory": "BusinessApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "featureList": "125% continuous-load breaker sizing, copper voltage-drop check, trench and panel-work labor, walk-away price, proposed-price margin check, shareable private quote link, printable customer proposal with scope, deposit split, price-held date and signature line"
   }
   </script>
   <style>
@@ -254,7 +221,19 @@
         </details>
         <details>
           <summary>Do I have to include a service upgrade?</summary>
-          <p>Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation.</p>
+          <p>Only if the existing service does not have the headroom. Enter the service rating and a honest existing-load estimate. If the new breaker is larger than the unused capacity, the tool flags it — it does not decide the upgrade for you, and it is not a permit load calculation. A 200&nbsp;A service already estimated at 190&nbsp;A of existing load has only 10&nbsp;A of headroom; a 48&nbsp;A charger needs a 60&nbsp;A breaker, so that job gets flagged even though the panel itself has a free slot.</p>
+        </details>
+        <details>
+          <summary>Why does a long run sometimes need thicker wire than the breaker alone requires?</summary>
+          <p>Ampacity and voltage drop are two different limits. A 48&nbsp;A charger's 60&nbsp;A breaker is carried by #6 copper on ampacity alone, but at 160 feet that #6 run would sit past the 3% voltage-drop budget at 240&nbsp;V. The calculator checks both and upsizes to #4 (1.98% drop at 160 ft) whenever the shorter-run wire would fail the drop check — the wire size shown is whichever limit binds for the feet you entered, not just the breaker size.</p>
+        </details>
+        <details>
+          <summary>How much can a detached garage and a service upgrade add to the price?</summary>
+          <p>At the default rates, a 48&nbsp;A indoor hang on a spare slot with a 25-foot run prices near $1,263. Move the same charger to a detached garage with a 70-foot run, a 60-foot trench, and a service upgrade, and it prices near $4,587 — largely trench labor and restoration, the extra outdoor labor rate, and the 8 hours a service upgrade adds to the panel line. Same charger, almost 3.6&times; the price, because the job is not the charger.</p>
+        </details>
+        <details>
+          <summary>What does the baseline comparison number mean?</summary>
+          <p>The result panel prices your entered job against a fixed reference — the same wage, burden, overhead, and margin, but a 48&nbsp;A indoor hang, 20-foot run, spare panel slot, no trench, no hardware. At the defaults that baseline prices near $1,189, so a $1,263 quote reads as about 6% over it. That reference is the "easy garage" number a customer often has in mind from a flat-fee ad; the ratio shows how far your actual job's numbers move it, not whether either price is right.</p>
         </details>
       </section>
 
