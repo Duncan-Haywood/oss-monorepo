@@ -1,0 +1,27 @@
+name: tiktok-shop-fee-calculator
+description: A private browser calculator for TikTok Shop sellers that prices one SKU after referral, creator commission, fulfillment, ads, and returns — including the case where affiliate payout is kept on a refund — compares the mid-2026 US defaults with the announced 1 October 2026 rates — per order, per month, split by organic vs affiliate, with the list price that holds today's margin and the unit-cost ceiling that survives the change — and shows whether free shipping still leaves a profit when commission is on item price only.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: TikTok Shop sellers will return to a calculator that compares organic vs affiliate profit on the same SKU after returns, because generic "TikTok takes 6%" pages hide the creator commission that is often not clawed back.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Seeing the same order under the announced 1 October 2026 8% + 1.5% facilitation schedule changes a pricing or commission decision before Q4 demand arrives.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified TikTok Shop sellers use the calculator twice within 90 days.
+  - Users do not find the organic-vs-affiliate or return-clawback comparison materially different from a single 6% referral estimate.
+links:
+  production: null
+  analytics: null

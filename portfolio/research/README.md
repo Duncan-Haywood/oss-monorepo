@@ -10,6 +10,15 @@ write-ups are explicitly labelled *"secondary sources, unverified against primar
 ones"* — good enough to rank candidates against each other, not good enough to
 spend against. Everything here is the primary check.
 
+> **Direction update, 2026-08-24.** Per [`../DIRECTION.md`](../DIRECTION.md), a
+> new measurement earns a session's time only when its answer changes what gets
+> *built* this week — and then the build is the session's output, not the
+> write-up. This index has 30-odd directories and the portfolio has zero users;
+> that ratio is the problem, not the answer to it. Read what is here (it is
+> good, and re-deriving it is waste), then go ship a product
+> ([`PRODUCT_PLAYBOOK.md`](../../PRODUCT_PLAYBOOK.md)). Usage data from a live
+> product now outranks any probe you could write about a hypothetical one.
+
 ## House rules
 
 Every script in this directory is read-only, standard-library only, takes no

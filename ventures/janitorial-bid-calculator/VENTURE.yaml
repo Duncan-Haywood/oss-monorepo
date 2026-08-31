@@ -1,0 +1,40 @@
+name: janitorial-bid-calculator
+description: A private browser calculator for commercial cleaning contractors that prices a janitorial contract from per-space production rates and optional day-porter shifts — labor hours, loaded wage, supplies, overhead, and margin — and shows the price per square foot, the effective hourly rate, and the walk-away price below which the job loses money.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Small commercial cleaning contractors will use a production-rate bid calculator because the generic price-per-square-foot rules of thumb they find online cannot see that a building's restrooms take several times the labor per square foot of its open office, which is how a bid that looked profitable turns out not to be.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The walk-away price and the effective hourly rate are the two numbers a contractor actually decides on when a prospect asks them to sharpen their pencil, more than the monthly price itself.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Payroll burden is the cost most often left out of a small contractor's own spreadsheet, so making it a required, explained input changes the resulting bid materially.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing restroom-stock vs they-buy-everything vs emergency-fill changes a bid that dropped the whole supplies line when the building offered to buy the paper.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing one-time vs amortized vs thrown-in on a 5x takeover clean stops contractors from giving away month 1 to win a monthly that the prospect can cancel after 30 days.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three qualified commercial cleaning contractors use the calculator twice within 90 days.
+  - Contractors report that the per-space production-rate model is more work than their existing method without changing the price they would have bid.
+  - The starting production rates prove so far from real crews' rates that the tool cannot be used without data we have no way to gather.
+links:
+  production: null
+  analytics: null

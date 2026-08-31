@@ -7,6 +7,35 @@ import type { ProgressEntry } from "./types";
  */
 export const progressLog: ProgressEntry[] = [
   {
+    date: "2026-08-27",
+    agent: "cursor/branch-and-pr-integration-4d4e",
+    summary:
+      "Remeshed the leftover MLS preflight export extra: a run can now copy a short handoff summary in addition to the dated Markdown and JSON downloads.",
+    changes: [
+      "research/src/components/PhotoCheckTool.tsx adds Copy handoff summary next to the dated Markdown and JSON downloads. The text lists filenames, rule ids, and skipped files — never photo pixels — and states it is evidence only.",
+      "Added an opt-out local handoff_summary_copied usage event. Clipboard write falls back to execCommand when the Clipboard API is unavailable.",
+    ],
+    nextUp: [
+      "Human: run the check against a real delivery folder once a concierge listing exists.",
+      "Agent: keep leftover wording PRs open until supersede_check.py exits 0.",
+    ],
+  },
+  {
+    date: "2026-08-24",
+    agent: "session/agent_0f91c692-9c76-4ae5-bc98-79b2014f706e",
+    summary:
+      "Completed the customer-facing artifact for the MLS photo-spec preflight product line: a browser run can now be retained as a dated Markdown findings record.",
+    changes: [
+      "research/src/components/PhotoCheckTool.tsx now creates a local Markdown download with the checked timestamp, dated spec identifier, file-level findings, skipped-file count, and explicit out-of-scope checks. Table values are escaped so imported filenames or parser details cannot corrupt the record format.",
+      "Added an opt-out local report_downloaded usage event. Photo bytes, findings, and filenames remain in the browser; no analytics vendor, account, or server endpoint was introduced.",
+      "Added the p2-photo-preflight-record roadmap task and recorded the local-export product decision.",
+    ],
+    nextUp: [
+      "Human: run the check against a real delivery folder once a concierge listing exists; the current record is still based on the dated generic floor spec, not a board-specific acceptance rule.",
+      "Agent: validate the research build and browser download behavior, then use local usage readings to decide whether a PDF or board-profile feature is worth building.",
+    ],
+  },
+  {
     date: "2026-06-13",
     agent: "initial-scaffold",
     summary:
@@ -609,6 +638,66 @@ export const progressLog: ProgressEntry[] = [
     nextUp: [
       "Human: same seven items remain the highest-leverage next steps — see blockers.ts. The CI outage (now ~9.5 days, confirmed account/org-level via the job-log-404 check, not a workflow bug — still the single most time-sensitive item) and the cron-cadence reconsideration are the two most worth a direct look.",
       "Agent (next session): if recentlyConfirmedWithinHours(24) is true, do only the cheap check per step 0a and skip the branch/commit/PR entirely if nothing's different. For the CI blocker specifically, pulling the newest run's job list (runner_id:0/empty-runner_name/~2-4s duration) is sufficient re-verification — no need to re-fetch job logs again since the 404 finding is now a permanent, one-time diagnosis (ci.yml isn't going to change on its own).",
+    ],
+  },
+  {
+    date: "2026-08-24",
+    agent: "claude/exciting-brown-5nvsyb",
+    summary:
+      "Wired the MLS photo-spec preflight check into the pipeline CLI. portfolio/pipeline/candidates/mls-photo-spec-preflight.md graduated as a product_lines entry on this venture on 2026-08-24 (session_gate.py's build-now marker) and already shipped a browser tool (research/src/app/photo-check/) using research/src/lib/photo-spec.ts, but the actual local CLI a photographer/agent runs (pipeline/) had no way to run the same check — only the enhance/microsite/log-lead commands existed. That meant the check the candidate write-up sells ('a dated file the agent can keep next to the delivery') was reachable only through the marketing site, not through the tool that produces the delivery folder.",
+    changes: [
+      "pipeline/src/preflight.ts: reads a delivery directory, filters to .jpg/.jpeg/.png, and runs the shared research/src/lib/photo-spec.ts checkBatch() against it — same rule set and same disclosed UNIMPLEMENTED_RULES as the browser tool, imported directly (no logic duplicated or re-ported).",
+      "pipeline/src/cli-preflight.ts: `npm run preflight -- --dir <delivery-dir>` — prints per-photo findings (blocking/degrading), a summary line, and the floor-spec disclaimer; exits 1 when any blocking finding is present, matching cli.ts's coverage-check exit-code convention.",
+      "pipeline/src/preflight.test.ts: exercises preflightDir end-to-end against a real temp directory with sharp-generated synthetic PNGs (long_edge and branding_filename failures, a passing photo, a non-image file correctly ignored, and an all-clean folder), plus package.json's test script now runs it.",
+      "Manually ran the CLI against a synthetic delivery folder (not just the test suite): confirmed the printed report, exit code 1 on blocking findings, exit code 0 on a clean folder, and the usage error when --dir is omitted.",
+      "Verified: `npm test` and `npx tsc --noEmit` both clean in pipeline/ (strict mode, no new findings). research/ and docs-site/ untouched by this change; re-verified their builds anyway per AGENTS.md's 'build research/ and docs-site/ for anything you touched' — see this entry's next changes/verification note.",
+    ],
+    nextUp: [
+      "Human: same long-open blockers remain (see process/blockers.ts) — booking a real concierge shoot is still what turns this from a synthetic-fixture check into the real one the candidate write-up's first experiment needs (running the check on an enhance.ts-produced delivery from an actual listing).",
+      "Agent (next session): once a real delivery folder exists (from a real or realistic test shoot), run `npm run preflight -- --dir <delivery>` against it and fold the result into the candidate write-up's first-experiment section as real evidence instead of the current fixture-only precision/recall claim.",
+    ],
+  },
+  {
+    date: "2026-08-25",
+    agent: "cursor/deploy-built-products-priority-ffdc",
+    summary:
+      "Added a deploy-first task to the Listing Lens roadmap so already-built public surfaces (research report, /photo-check) outrank more process work, matching the portfolio Current priority in DIRECTION.md.",
+    changes: [
+      "process/roadmap.ts: new p0-deploy-built-surfaces (not_started, owner both) — done when a stranger can open the existing research report and /photo-check without cloning the repo. Points at the existing deploy-settings owner ask; does not open a second one.",
+    ],
+    nextUp: [
+      "Agent: prepare the public deploy artifact for the already-built research / photo-check surfaces; do not start p3-app-scope or another tool.",
+      "Human: flip deploy-settings (Pages / Cloudflare credentials) if that is what unblocks the URL. Same long-open blockers in process/blockers.ts otherwise stand.",
+    ],
+  },
+  {
+    date: "2026-08-25",
+    agent: "cursor/product-first-development-mandate-b002",
+    summary:
+      "Turned MLS photo-check findings into a copyable reshoot / desk-fix list so a photographer knows which rooms to recapture versus which files to rename, recrop, or pair — complementary to the three open evidence-download PRs (#1333, #1358, #1385).",
+    changes: [
+      "research/src/lib/photo-spec.ts: buildReshootPlan + formatReshootPlan map each finding to recapture / pair / reexport / rename with disclosed unimplemented rules on the copied text.",
+      "research/src/components/PhotoCheckTool.tsx: What to fix next panel and Copy shot list; usage events reshoot_list_viewed / reshoot_list_copied stay localStorage-only.",
+      "pipeline/src/cli-preflight.ts: prints the same list after the findings so the CLI path matches the browser.",
+      "Tests: three new photo-spec cases (9/9). Did not add a second download/export — those PRs already cover that.",
+    ],
+    nextUp: [
+      "Keep #1333/#1358/#1385 open for the evidence-record download; do not close them as superseded by this list.",
+      "Public URL is still owner-gated (deploy-settings). Do not add another trade bid calculator.",
+    ],
+  },
+  {
+    date: "2026-08-26",
+    agent: "cursor/listing-lens-photo-read-recovery-20260824",
+    summary:
+      "Made the Listing Lens browser preflight recover cleanly when a selected photo cannot be read.",
+    changes: [
+      "PhotoCheckTool now catches delayed File.arrayBuffer failures, stops the processing state, and renders an actionable alert without an unhandled rejection.",
+      "Added a focused regression test for specific and unknown read-error messages; research test command now runs both the photo-spec and component helper checks.",
+      "Kept the existing Markdown/JSON evidence downloads and reshoot list from main. No photo data, filenames, or error contents are sent to usage tracking.",
+    ],
+    nextUp: [
+      "Human: run the preflight against a real listing delivery after the first concierge shoot; the check remains a dated floor-spec observation, not an MLS acceptance guarantee.",
     ],
   },
 ];

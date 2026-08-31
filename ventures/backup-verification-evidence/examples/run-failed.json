@@ -1,0 +1,7 @@
+{
+  "tool": "borg",
+  "exit_code": 2,
+  "started_at": "2026-08-26T03:00:00Z",
+  "finished_at": "2026-08-26T03:00:41Z",
+  "log_tail": "borg: error: repository is locked by another process"
+}

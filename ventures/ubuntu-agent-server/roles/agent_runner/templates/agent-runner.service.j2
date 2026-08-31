@@ -8,6 +8,17 @@ Type=oneshot
 User={{ agent_user }}
 Environment=AGENT_RUNNER_USE_DOCKER={{ use_docker_sandbox | lower }}
 Environment=AGENT_RUNNER_DOCKER_IMAGE=agent-runner:latest
+{# default('') throughout: an operator editing their own group_vars/all.yml
+   (which the README tells them to do) shouldn't get a template crash for
+   not having copied across vars added after they forked it. #}
+{% if codex_model_low | default('') and codex_model_high | default('') %}
+# Both halves or neither — see MODEL_BY_TIER in agent_runner.py.
+Environment=CODEX_MODEL_LOW={{ codex_model_low }}
+Environment=CODEX_MODEL_HIGH={{ codex_model_high }}
+{% endif %}
+{% if codex_use_api_key | default(false) %}
+Environment=CODEX_USE_API_KEY=true
+{% endif %}
 ExecStart=/usr/bin/python3 /srv/agents/bin/agent_runner.py
 StandardOutput=journal
 StandardError=journal

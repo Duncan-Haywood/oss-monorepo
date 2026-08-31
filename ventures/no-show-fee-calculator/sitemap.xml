@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/should-i-overbook-or-charge-a-no-show-fee.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://duncan-haywood.github.io/monorepo-projects/no-show-fee-calculator/24h-vs-48h-cancellation-notice.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+</urlset>

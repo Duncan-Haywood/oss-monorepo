@@ -2,24 +2,40 @@
 
 This document defines the quality standards and completeness requirements for all ventures and the platform. It serves as the baseline for product maturity and readiness.
 
-## Scope note: reference material, not a gate on shipping
+## Scope note: reference material, not a work queue
 
-Per [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) and `CLAUDE.md`
-("Ship without review ceremony"): the job is shipping products people use,
-merging on green CI, without a review cycle — not raising tier scores. This
-document is useful reference material for *how* to make something more solid
-when you're already touching it for another reason. It is not a checklist
-that blocks a merge, and no venture should hold a working feature back to
-satisfy a tier before shipping it.
+**Updated 2026-08-24 for [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md).**
+This is a checklist to reach for when a product has users and something in here
+would fix a problem they are actually having. It is not a mandate to spend
+sessions raising tier scores, and a tier number is not a goal.
 [`portfolio/pipeline/distribution-first.md`](portfolio/pipeline/distribution-first.md)
-and [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md) are
-still right that polishing an unshipped, unmeasured product is the more
-expensive mistake than shipping something imperfect and finding out whether
-anyone uses it. Raising a venture's tier is worth doing when a session is
-already touching that venture's code for another reason, not as a standalone
-goal. A generic scheduled brief should run `portfolio/ledger/session_gate.py`
-first, as `CLAUDE.md` directs, and default to building or shipping a feature
-over working through this framework's tiers.
+and [`portfolio/ledger/break-even.md`](portfolio/ledger/break-even.md) reach the
+same conclusion from the cost and distribution angles: polishing an unshipped,
+unmeasured product is the more expensive mistake than shipping something
+imperfect and finding out whether anyone uses it.
+
+Three things this document no longer implies:
+
+- **It is not a review gate.** Human code review was removed from the dev flow:
+  you verify by running the tests, the linter, and the product itself, and merge
+  when CI is green. What still needs the account owner is the short owner-only
+  list in `DIRECTION.md`, not this framework.
+- **It is not the default next task.** The default is putting something a
+  stranger can already run on a public URL. If `main` has undeployed
+  products, that deploy outranks this tier chart and outranks the next
+  `build-now` candidate. Host is GitHub Pages or the Hetzner product box
+  ([`portfolio/hosting/README.md`](portfolio/hosting/README.md)). See
+  [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md)
+  "Current priority". `python3 portfolio/ledger/session_gate.py` names a
+  concrete target in two seconds; take that over the roadmap here.
+- **It does not outrank the five things every product ships** — license,
+  disclaimer, privacy line, usage counting, and discoverability. Those are in
+  [`PRODUCT_PLAYBOOK.md`](PRODUCT_PLAYBOOK.md) and they are the real definition
+  of done. A Tier 3 product that a stranger cannot find or safely use has failed
+  at something this tier chart does not measure.
+
+Use it as reference — the checklists below are good ones — in the order the
+product's own users would rank them.
 
 ## Quality Tiers
 

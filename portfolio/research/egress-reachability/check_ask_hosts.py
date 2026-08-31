@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """Every host the owner is asked to allowlist must have a measured verdict.
 
+Egress only. Hosts this portfolio *publishes on* are exempt — see
+`PUBLICATION_HOSTS` below for why measuring those is not just unnecessary
+but actively misleading.
+
 `portfolio/ledger/asks.yaml` is the queue of decisions waiting on the account
 owner, and one of its rows asks for a read-only egress allowlist covering a
 named list of hosts. That row is only worth the owner's attention if each host
@@ -73,6 +77,40 @@ _FALLBACK_FILENAMES = {
     "distribution-first.md", "re-verification.md",
 }
 
+# Hosts this portfolio *publishes to*, which are not egress at all.
+#
+# This checker asks one question: has every host the owner is being asked to
+# allowlist been measured as denied? That question is about hosts a session
+# needs to *fetch from*. A deployment ask names the hosts the portfolio
+# *serves its own products on*, and those are the other direction entirely —
+# nothing fetches them, so nothing can measure them, and there is no
+# allowlist entry to justify.
+#
+# Without this exemption the two deployment asks added on 2026-08-29 made
+# the check fail, and it has been failing on `main` ever since — invisibly,
+# because no GitHub Actions runner has picked up a job in this repository
+# since 2026-08-26 (`actions-runners-unavailable` in asks.yaml).
+#
+# The fix the failure message proposes is actively wrong here. Probing
+# `tools.marisstella.dev` from a session records a denial for a name that is
+# not deployed yet, in the same table the egress ask reads, where it would
+# read as evidence that the portfolio's own publication target is
+# egress-blocked. Measuring the wrong direction is worse than not measuring.
+#
+# Keep this list to hosts this repository actually publishes on, and keep it
+# explicit: a rule like "skip deployment-gated asks" would also skip a
+# third-party host such a row legitimately needed to fetch from.
+PUBLICATION_HOSTS = {
+    # gitops/prod/portfolio-site.yaml serves the assembled static site here.
+    "tools.marisstella.dev",
+    # platform/pages/build.mjs's DEFAULT_BASE_URL — the GitHub Pages origin
+    # the same artifact would use if `deploy-settings` were ever granted.
+    "duncan-haywood.github.io",
+    # infra/README.md: already resolves to the cpx52 for something else. Named
+    # in asks only to say the deploy must not take it.
+    "marisstella.dev",
+}
+
 
 def _tracked_basenames() -> set[str]:
     try:
@@ -99,6 +137,8 @@ def hostnames_in(text: str, filenames: set[str] | None = None) -> set[str]:
             continue
         if token in filenames:
             continue  # a file in this repository, not a host
+        if token in PUBLICATION_HOSTS:
+            continue  # somewhere this portfolio publishes, not somewhere it fetches
         found.add(token)
     return found
 

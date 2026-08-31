@@ -1,7 +1,18 @@
 import { NextResponse } from "next/server";
 import { recordUsageEvent, type UsageEventName } from "@/lib/usage-events";
 
-const eventNames: UsageEventName[] = ["page_view", "catalog_cta", "room_visualizer_cta"];
+const eventNames: UsageEventName[] = [
+  "page_view",
+  "catalog_cta",
+  "room_visualizer_cta",
+  "storefront_search",
+  "checkout_add",
+  "checkout_remove",
+  "checkout_quantity_change",
+  "preflight_completed",
+  "preflight_exported",
+  "preflight_compared",
+];
 
 export async function POST(request: Request) {
   try {

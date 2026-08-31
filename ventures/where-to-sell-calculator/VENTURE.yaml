@@ -1,0 +1,39 @@
+name: where-to-sell-calculator
+description: A private browser calculator that puts one item through every channel a small seller can list it on — eBay, Etsy, Amazon, an own store, a direct sale — and reports net profit after each channel's fee shape and expected keep after returns, plus the price each channel needs to match the best one, and expected monthly cash when volumes differ. It then ranks the same channels on what one listing is worth per month of shelf once sell-through, time to sale, renewal listing fees and tied-up cash are counted, because the channel that pays best per sale is often not the channel to list on.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: A seller who has just seen a channel win will open that channel's own calculator if the item carries over, and will not if it means retyping the item — so the handoff, not the depth of the second tool, is what decides whether the portfolio's deeper scenarios ever get used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers who can list the same item in more than one place will use a single cross-channel comparison in preference to opening three single-marketplace calculators and reconciling them by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Weighting each channel by how fast it sells changes the answer often enough to be worth entering, because a reseller with finite cash is choosing return per day rather than profit per sale.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Amortising monthly plans over expected orders and counting per-listing fees changes which channel wins often enough that the comparison alters a listing decision, rather than confirming the one the seller already made.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Sellers will accept that the channel paying most per sale is not always where the listing belongs, and will supply their own sell-through and time-to-sale figures rather than treating the shelf-time table as noise on top of the fee table.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - Fewer than three sellers use the comparison twice within 90 days.
+  - Sellers report that the winning channel is always the one they had already chosen, so the comparison changes no decision.
+links:
+  production: null
+  analytics: null

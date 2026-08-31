@@ -1,27 +1,57 @@
 import DemoNav from "@/components/shared/DemoNav";
 import ProductDetailPreviewCTA from "@/components/ProductDetailPreviewCTA";
 import RoomPreviewExperiment from "@/components/RoomPreviewExperiment";
+import StorefrontSearchForm from "@/components/StorefrontSearchForm";
+import StorefrontCheckoutCTA from "@/components/StorefrontCheckoutCTA";
 import { calculatePrintEconomics, catalogArtworks } from "@/lib/marketplace";
-import { ShoppingBag, Search, Heart, Image as ImageIcon } from "lucide-react";
+import { validateCheckoutLineItem } from "@/lib/checkout";
+import { resolvePrintHref } from "@/lib/seo";
+import {
+  buildStorefrontHref,
+  filterStorefrontListings,
+  listStorefrontArtists,
+  listStorefrontStyles,
+} from "@/lib/storefront-catalog";
+import { ShoppingBag, Heart, Image as ImageIcon } from "lucide-react";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 type StorefrontPageProps = {
-  searchParams?: {
+  searchParams: Promise<{
     style?: string;
-  };
+    q?: string;
+    artist?: string;
+    view?: string;
+  }>;
 };
 
-export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
+function firstParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) {
+    return value[0] ?? "";
+  }
+  return value ?? "";
+}
+
+export default async function StorefrontPage({ searchParams }: StorefrontPageProps) {
+  const params = await searchParams;
   const cartCount = 2;
-  const liveArtworks = catalogArtworks.filter((artwork) => artwork.status === "Live");
-  const filters = ["All", ...Array.from(new Set(liveArtworks.map((artwork) => artwork.style)))];
-  const requestedFilter = searchParams?.style;
-  const activeFilter = filters.includes(requestedFilter ?? "") ? requestedFilter ?? "All" : "All";
-  const visibleArtworks =
-    activeFilter === "All"
-      ? liveArtworks
-      : liveArtworks.filter((artwork) => artwork.style === activeFilter);
+  const query = firstParam(params.q);
+  const artist = firstParam(params.artist).trim();
+  const styles = listStorefrontStyles(catalogArtworks);
+  const artists = listStorefrontArtists(catalogArtworks);
+  const styleChips = ["All", ...styles];
+  const requestedFilter = firstParam(params.style);
+  const activeFilter = styleChips.includes(requestedFilter) ? requestedFilter : "All";
+  const view = firstParam(params.view) === "artists" ? "artists" : "catalog";
+  const visibleArtworks = filterStorefrontListings(catalogArtworks, {
+    query,
+    style: activeFilter,
+    artist,
+  });
   const listingLabel = visibleArtworks.length === 1 ? "listing" : "listings";
+  const liveCount = filterStorefrontListings(catalogArtworks).length;
+  const hasActiveSearch = Boolean(query.trim() || artist || activeFilter !== "All");
 
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
@@ -29,17 +59,17 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
 
       <div className="bg-white border-b border-stone-200">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <div className="flex-1 max-w-md relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
-            <input
-              type="text"
-              placeholder="Search by style, color, artist..."
-              className="w-full pl-10 pr-4 py-2 bg-stone-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
+          <StorefrontSearchForm defaultQuery={query} style={activeFilter} artist={artist} />
           <div className="flex items-center gap-4 text-sm">
-            <button className="text-stone-600 hover:text-stone-900">Artists</button>
-            <button className="text-stone-600 hover:text-stone-900">Collections</button>
+            <Link
+              href="/storefront?view=artists"
+              className={`hover:text-stone-900 ${view === "artists" ? "font-medium text-stone-900" : "text-stone-600"}`}
+            >
+              Artists
+            </Link>
+            <a href="#catalog" className="text-stone-600 hover:text-stone-900">
+              Collections
+            </a>
             <a href="/checkout" className="relative" aria-label="View checkout">
               <ShoppingBag className="w-5 h-5 text-stone-700" />
               {cartCount > 0 && (
@@ -61,7 +91,7 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
             Museum-quality prints from independent artists
           </h1>
           <p className="text-stone-300 max-w-lg mb-8">
-            {liveArtworks.length} launch-ready pieces digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of net profit goes to the artist.
+            {liveCount} launch-ready pieces digitized with AI-enhanced capture. Printed on archival paper and shipped directly to your door. 30% of net profit goes to the artist.
           </p>
           <div className="flex gap-3">
             <a href="#catalog" className="bg-white text-stone-900 px-6 py-3 rounded-md font-medium hover:bg-stone-100 transition">
@@ -75,89 +105,182 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
       </section>
 
       <section id="catalog" className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
+        {view === "artists" ? (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-stone-900">Artists in this catalog</h2>
+            <p className="text-sm text-stone-500 mt-1">
+              Filter the live storefront by the artist who made the work.
+            </p>
+            <ul className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {artists.map((name) => {
+                const count = filterStorefrontListings(catalogArtworks, { artist: name }).length;
+                return (
+                  <li key={name}>
+                    <Link
+                      href={buildStorefrontHref({ artist: name, query, style: activeFilter })}
+                      className={`block rounded-2xl border p-4 transition ${
+                        artist === name
+                          ? "border-stone-900 bg-stone-900 text-white"
+                          : "border-stone-200 bg-white hover:border-stone-400"
+                      }`}
+                    >
+                      <p className="font-semibold">{name}</p>
+                      <p className={`text-sm ${artist === name ? "text-stone-300" : "text-stone-500"}`}>
+                        {count} live {count === 1 ? "print" : "prints"}
+                      </p>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ) : null}
+
+        <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
           <div>
-            <h2 className="text-2xl font-bold text-stone-900">Trending This Week</h2>
-            <p className="text-sm text-stone-500">{visibleArtworks.length} shared-catalog {listingLabel} in this view</p>
+            <h2 className="text-2xl font-bold text-stone-900">
+              {query.trim() ? `Results for “${query.trim()}”` : "Trending This Week"}
+            </h2>
+            <p className="text-sm text-stone-500">
+              {visibleArtworks.length} shared-catalog {listingLabel}
+              {artist ? ` by ${artist}` : ""}
+              {activeFilter !== "All" ? ` in ${activeFilter}` : ""}
+              {" in this view"}
+            </p>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
-            {filters.map((f) => (
-              <a
-                key={f}
-                href={f === "All" ? "/storefront" : `/storefront?style=${encodeURIComponent(f)}`}
-                style={{ marginRight: 8, marginBottom: 8 }}
-                className={`mr-2 mb-2 px-3 py-1.5 rounded-full text-sm transition last:mr-0 ${
-                  activeFilter === f
+            {styleChips.map((styleName) => (
+              <Link
+                key={styleName}
+                href={buildStorefrontHref({
+                  query,
+                  artist,
+                  style: styleName,
+                })}
+                className={`mb-2 px-3 py-1.5 rounded-full text-sm transition ${
+                  activeFilter === styleName
                     ? "bg-stone-900 text-white"
                     : "bg-white border border-stone-200 text-stone-600 hover:border-stone-400"
                 }`}
               >
-                {f}
-              </a>
+                {styleName}
+              </Link>
             ))}
           </div>
         </div>
 
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
-          {visibleArtworks.slice(0, 3).map((art) => {
-            const economics = calculatePrintEconomics({
-              retailPrice: art.retailPrice,
-              fulfillmentCost: art.fulfillmentCost,
-            });
+        {hasActiveSearch ? (
+          <p className="mb-4 text-sm">
+            <Link href="/storefront" className="text-indigo-700 hover:underline">
+              Clear search and filters
+            </Link>
+          </p>
+        ) : null}
 
-            return (
-              <div key={`${art.slug}-preview`} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
-                <div className={`h-16 w-14 shrink-0 rounded-xl ${art.imageClass}`} />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-stone-900">{art.title}</p>
-                  <p className="text-xs text-stone-500">{art.artistName} • ${art.retailPrice}</p>
-                  <p className="text-xs font-medium text-emerald-700">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        {visibleArtworks.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-stone-300 bg-white px-6 py-12 text-center">
+            <h3 className="text-lg font-semibold text-stone-900">No prints match this search</h3>
+            <p className="mt-2 text-sm text-stone-500">
+              Try a color, artist name, or style — or browse the full live catalog.
+            </p>
+            <Link
+              href="/storefront"
+              className="mt-4 inline-block rounded-md bg-stone-900 px-4 py-2 text-sm font-medium text-white hover:bg-stone-700"
+            >
+              Browse all live prints
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
+              {visibleArtworks.slice(0, 3).map((art) => {
+                const economics = calculatePrintEconomics({
+                  retailPrice: art.retailPrice,
+                  fulfillmentCost: art.fulfillmentCost,
+                });
+                const href = resolvePrintHref(art);
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {visibleArtworks.map((art) => {
-            const economics = calculatePrintEconomics({
-              retailPrice: art.retailPrice,
-              fulfillmentCost: art.fulfillmentCost,
-            });
+                return (
+                  <Link
+                    key={`${art.slug}-preview`}
+                    href={href}
+                    className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3 shadow-sm hover:border-stone-400"
+                  >
+                    <div className={`h-16 w-14 shrink-0 rounded-xl ${art.imageClass}`} />
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-stone-900">{art.title}</p>
+                      <p className="text-xs text-stone-500">{art.artistName} • ${art.retailPrice}</p>
+                      <p className="text-xs font-medium text-emerald-700">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
 
-            return (
-              <div key={art.id} className="group">
-                <div className={`relative aspect-[4/5] ${art.imageClass} rounded-lg overflow-hidden mb-3`}>
-                  {art.badge && (
-                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
-                      {art.badge}
-                    </span>
-                  )}
-                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
-                    <button className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
-                      <Heart className="w-4 h-4 text-stone-600" />
-                    </button>
-                  </div>
-                  <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-stone-700 flex items-center gap-1">
-                    <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
-                  </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
-                    <Link href={`/prints/${art.slug}`} className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
-                      Quick View — ${art.retailPrice}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {visibleArtworks.map((art) => {
+                const economics = calculatePrintEconomics({
+                  retailPrice: art.retailPrice,
+                  fulfillmentCost: art.fulfillmentCost,
+                });
+                const href = resolvePrintHref(art);
+
+                return (
+                  <article key={art.id} className="group">
+                    <Link href={href} className="block">
+                      <div className={`relative aspect-[4/5] ${art.imageClass} rounded-lg overflow-hidden mb-3`}>
+                        {art.badge && (
+                          <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] font-bold text-stone-700">
+                            {art.badge}
+                          </span>
+                        )}
+                        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition">
+                          <span className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                            <Heart className="w-4 h-4 text-stone-600" aria-hidden="true" />
+                          </span>
+                        </div>
+                        <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-stone-700 flex items-center gap-1">
+                          <ImageIcon className="w-3 h-3" /> {art.hasRoomMockups ? "Room Preview" : "Preview Soon"}
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition flex items-end justify-center pb-4">
+                          <span className="opacity-0 group-hover:opacity-100 bg-white text-stone-900 px-4 py-2 rounded-md text-sm font-medium transition shadow-lg">
+                            Quick View — ${art.retailPrice}
+                          </span>
+                        </div>
+                      </div>
+                      <h3 className="font-semibold text-stone-900 group-hover:text-indigo-700 group-hover:underline">{art.title}</h3>
                     </Link>
-                  </div>
-                </div>
-                <Link href={`/prints/${art.slug}`} className="font-semibold text-stone-900 hover:text-indigo-700 hover:underline">{art.title}</Link>
-                <p className="text-sm text-stone-500">{art.artistName}</p>
-                <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
-                <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
-              </div>
-            );
-          })}
-        </div>
+                    <p className="text-sm text-stone-500">
+                      <Link
+                        href={buildStorefrontHref({ artist: art.artistName })}
+                        className="hover:underline"
+                      >
+                        {art.artistName}
+                      </Link>
+                    </p>
+                    <p className="text-sm font-medium text-stone-900 mt-1">From ${art.retailPrice}</p>
+                    <p className="text-xs text-stone-400 mt-1">Artist earns ${economics.artistShare.toFixed(2)} per print</p>
+                    {(() => {
+                      const eligibility = validateCheckoutLineItem(art);
+                      return (
+                        <StorefrontCheckoutCTA
+                          artworkSlug={art.slug}
+                          eligible={eligibility.eligible}
+                          blockers={eligibility.blockers}
+                        />
+                      );
+                    })()}
+                  </article>
+                );
+              })}
+            </div>
+          </>
+        )}
 
         <ProductDetailPreviewCTA />
-        <div id="visualizer"><RoomPreviewExperiment /></div>
+        <div id="visualizer">
+          <RoomPreviewExperiment />
+        </div>
       </section>
 
       <footer className="bg-stone-900 text-stone-400 text-sm py-8 mt-12">
@@ -165,9 +288,10 @@ export default function StorefrontPage({ searchParams }: StorefrontPageProps) {
           <p>Print Atelier — Interactive Storefront Demo</p>
           <p className="text-xs mt-1 text-stone-500">Programmatic SEO pages and dynamic ads drive traffic to pages like this</p>
           <p className="mx-auto mt-3 max-w-2xl text-xs leading-5 text-stone-500">
-            Estimates in the visualizer are illustrative scenarios, not financial, legal, tax, or
-            investment advice. Print Atelier makes no earnings, conversion, fulfillment, or
-            compliance warranty.
+            Search and catalog filters run in this demo only. They do not collect payment, identity,
+            or third-party tracking. Estimates in the visualizer are illustrative scenarios, not
+            financial, legal, tax, or investment advice. Print Atelier makes no earnings,
+            conversion, fulfillment, or compliance warranty.
           </p>
         </div>
       </footer>

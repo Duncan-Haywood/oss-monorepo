@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Does a Bid Due Today Count as a Day Remaining?</title>
+<meta name="description" content="A worked table: a bid due today reads as 0 days remaining, not 1, and a deadline that passed overnight reads past-due immediately rather than a day later — the exact fixture the bid-readiness checklist's own test suite runs.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/contractor-bid-readiness/does-a-bid-due-today-count-as-a-day-remaining.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Does a bid due today count as a day remaining?">
+<meta property="og:description" content="A worked table showing why a bid due today reads as 0 days remaining, and why a deadline that passed overnight is already past-due rather than merely urgent.">
+<meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/contractor-bid-readiness/does-a-bid-due-today-count-as-a-day-remaining.html">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a bid due today count as a day remaining, or zero?","acceptedAnswer":{"@type":"Answer","text":"Zero. The checklist sets both the deadline and the current moment to local midnight before subtracting, so a bid due today reads as 0 days remaining no matter what time it is checked — 9am or 11:30pm the same day both read 0. An earlier version measured to the due date's last second and rounded up, which read a bid due today as 1 day remaining and one due tomorrow as 2, understating how little time was actually left."}},{"@type":"Question","name":"Why does a deadline that passed overnight show past-due immediately instead of after a full day?","acceptedAnswer":{"@type":"Answer","text":"Because the day count is whole calendar days from local midnight, not hours since the deadline. A bid due 2099-01-01 checked the next morning already reads −1 day and past-due, whether it is 9am or 11:45pm that next day. The earlier per-second version produced a fraction between −1 and 0 for the first 24 hours after a deadline, which rounds up to 0 — so the page still called the bid urgent, not past-due, on the one day it could no longer be filed."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#17211b;background:#f5f2e9}body{max-width:900px;margin:auto;padding:1.5rem}a{color:#b0451c}.eyebrow{font-weight:700;letter-spacing:.04em;color:#b0451c;font-size:.85rem}header{margin:1rem 0}h1{font-size:clamp(1.7rem,5vw,2.6rem);line-height:1.05;margin:.3rem 0;max-width:26ch;color:#173f35}.lede{font-size:1.05rem;max-width:64ch;color:#4a554d}section{background:#fff;border:1px solid #d8d2c4;border-radius:12px;padding:1.1rem 1.3rem;box-shadow:0 4px 0 #ded8ca;margin:1rem 0}h2{margin-top:0;color:#173f35}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.95rem}caption{caption-side:bottom;color:#4a554d;font-size:.85rem;text-align:left;padding-top:.6rem}th,td{border-bottom:1px solid #d8d2c4;padding:.5rem .45rem;text-align:left}.fine{font-size:.88rem;color:#4a554d}footer{color:#4a554d;font-size:.86rem}footer p{margin:.6rem 0}</style>
+</head>
+<body>
+<main>
+<p class="eyebrow"><a href="./">&larr; Contractor Bid Readiness Checklist</a></p>
+<header>
+<h1>Does a bid due today count as a day remaining?</h1>
+<p class="lede">No — it reads as zero. The table below is the exact fixture the checklist's own test suite runs to confirm the day count, and the urgency label it drives, match what the calendar actually says.</p>
+</header>
+<section>
+<h2>What the checklist reports, checked at a fixed moment</h2>
+<div class="table-wrap">
+<table>
+<caption>All rows checked from 2099-01-01 09:00 or 23:30 local time, both giving the same day count — the count depends only on the calendar date, never the time of day.</caption>
+<thead>
+<tr><th scope="col">Due date</th><th scope="col">Days remaining</th><th scope="col">Wording shown</th><th scope="col">Urgency</th></tr>
+</thead>
+<tbody>
+<tr><td>2099-01-01 (today)</td><td>0</td><td>The deadline is today.</td><td>urgent</td></tr>
+<tr><td>2099-01-02 (tomorrow)</td><td>1</td><td>1 day remains.</td><td>urgent</td></tr>
+<tr><td>2099-01-08 (in a week)</td><td>7</td><td>7 days remain.</td><td>normal</td></tr>
+<tr><td>2098-12-31 (passed yesterday)</td><td>−1</td><td>The deadline passed 1 day ago.</td><td>past-due</td></tr>
+</tbody>
+</table>
+</div>
+<p class="fine">Urgency turns to <strong>urgent</strong> at 2 days remaining or fewer, including zero, and to <strong>past-due</strong> the moment the count goes negative — there is no window where a bid that can no longer be filed is still labeled urgent.</p>
+<p>Both the deadline and the moment you check are set to local midnight before the subtraction, so the count is whole calendar days, never a fraction of one. That also means the same due date returns the same day count whether you check first thing in the morning or right before the browser tab closes at night, and it holds across a daylight-saving change, where the day itself is 23 or 25 hours long.</p>
+<p><a href="./">Open the checklist</a> and add your own deadline to see the count and the urgency label together. Nothing you type leaves your browser.</p>
+<p class="fine">This page explains arithmetic, not contracting or legal advice. It does not replace reading the original solicitation for its actual submission deadline and time zone.</p>
+</section>
+<section>
+<h2>Common questions</h2>
+<h3>Does a bid due today count as a day remaining, or zero?</h3>
+<p>Zero. The checklist sets both the deadline and the current moment to local midnight before subtracting, so a bid due today reads as 0 days remaining no matter what time it is checked — 9am or 11:30pm the same day both read 0. An earlier version measured to the due date's last second and rounded up, which read a bid due today as 1 day remaining and one due tomorrow as 2, understating how little time was actually left.</p>
+<h3>Why does a deadline that passed overnight show past-due immediately instead of after a full day?</h3>
+<p>Because the day count is whole calendar days from local midnight, not hours since the deadline. A bid due 2099-01-01 checked the next morning already reads −1 day and past-due, whether it is 9am or 11:45pm that next day. The earlier per-second version produced a fraction between −1 and 0 for the first 24 hours after a deadline, which rounds up to 0 — so the page still called the bid urgent, not past-due, on the one day it could no longer be filed.</p>
+<h3>Does the count ever shift because of daylight saving time?</h3>
+<p>No. Both the deadline and today are collapsed to local midnight before the difference is taken, so a 23- or 25-hour day across a spring-forward or fall-back change cannot shift the day count by one.</p>
+</section>
+<footer>
+<p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, or contracting advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+<p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record.</p>
+<p>Everything runs in your browser. Your bid details are never uploaded. Anonymous local counts record only feature names and can be disabled on the checklist page; Do Not Track and Global Privacy Control disable them automatically.</p>
+<p>Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Refusing does not change the checklist.</p>
+</footer>
+</main>
+</body></html>

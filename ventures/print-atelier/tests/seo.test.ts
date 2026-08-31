@@ -4,12 +4,15 @@ import { catalogArtworks } from "../src/lib/marketplace.ts";
 import {
   buildSitemapEntries,
   buildSitemapXml,
+  buildPrintStructuredData,
   evaluateSeoPagePublishability,
   formatSeoVolume,
   generateSeoLandingPages,
   getPublishableSeoSlugs,
   getSeoIntentLabel,
   getSeoPageBySlug,
+  resolvePrintHref,
+  resolvePrintPage,
 } from "../src/lib/seo.ts";
 import { buildListingConsentGate, defaultListingConsentRecords } from "../src/lib/marketplace.ts";
 
@@ -69,6 +72,7 @@ test("buildSitemapEntries only includes publishable print slugs plus static mark
   assert.ok(entries.some((entry) => entry.path === "/"));
   assert.ok(entries.some((entry) => entry.path === "/docs"));
   assert.ok(entries.some((entry) => entry.path === "/investor"));
+  assert.ok(entries.some((entry) => entry.path === "/print-file-preflight"));
   assert.equal(
     entries.filter((entry) => entry.path.startsWith("/prints/")).length,
     publishable.length,
@@ -76,6 +80,20 @@ test("buildSitemapEntries only includes publishable print slugs plus static mark
   for (const slug of publishable) {
     assert.ok(entries.some((entry) => entry.path === `/prints/${slug}`));
   }
+});
+
+test("resolvePrintPage accepts a catalog slug and prefers a publishable room-style page", () => {
+  const fromCatalog = resolvePrintPage("midnight-coast");
+  assert.ok(fromCatalog);
+  assert.equal(fromCatalog?.artworkSlug, "midnight-coast");
+  assert.equal(fromCatalog?.intent, "room-style");
+  assert.ok(fromCatalog?.slug.startsWith("midnight-coast-"));
+
+  const fromSeo = resolvePrintPage(fromCatalog!.slug);
+  assert.equal(fromSeo?.slug, fromCatalog?.slug);
+
+  assert.equal(resolvePrintPage("not-a-print"), undefined);
+  assert.equal(resolvePrintHref({ slug: "midnight-coast" }), `/prints/${fromCatalog!.slug}`);
 });
 
 test("buildSitemapXml emits valid urlset with consent-gated print locations", () => {
@@ -86,4 +104,26 @@ test("buildSitemapXml emits valid urlset with consent-gated print locations", ()
   assert.match(xml, /<loc>https:\/\/printatelier\.com\/docs<\/loc>/);
   assert.match(xml, /<lastmod>2026-06-12T00:00:00.000Z<\/lastmod>/);
   assert.doesNotMatch(xml, /spring-bloom/);
+});
+
+test("buildPrintStructuredData describes a purchasable print only after publishability clears", () => {
+  const page = resolvePrintPage("midnight-coast");
+  assert.ok(page);
+
+  const publishable = buildPrintStructuredData(
+    page!,
+    { publishable: true, blockers: [], consentBlocked: false },
+    "https://example.test/",
+  );
+  const product = publishable["@graph"][0]!;
+  assert.equal(product["@type"], "Product");
+  assert.equal((product.offers as Record<string, unknown>).price, "85.00");
+  assert.equal((publishable["@graph"][1]!["@type"]), "BreadcrumbList");
+
+  const blocked = buildPrintStructuredData(page!, {
+    publishable: false,
+    blockers: ["Missing consent"],
+    consentBlocked: true,
+  });
+  assert.equal(blocked["@graph"][0]!.offers, undefined);
 });

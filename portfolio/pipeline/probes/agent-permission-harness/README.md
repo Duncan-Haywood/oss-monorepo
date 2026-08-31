@@ -54,7 +54,10 @@ itself in exactly those terms. Writer sets are ordered, widest last:
 ## The result
 
 Full report: [`results-2026-08-23.md`](results-2026-08-23.md). Regenerate with
-`python3 harness.py`. [`results-2026-08-21.md`](results-2026-08-21.md) is kept
+`python3 check_results_current.py --write` — not `python3 harness.py` on its
+own, which omits the provenance header the check expects and so fails it
+without changing a single finding.
+[`results-2026-08-21.md`](results-2026-08-21.md) is kept
 as the prior snapshot: the two differ only in R7, and the difference is the
 subject of the amendment below.
 
@@ -186,17 +189,26 @@ that flatters it.
 
 `instruction_closure()` now walks to a fixed point. Against this repository:
 
-| | Files |
-|---|---:|
-| prompt input | 1 |
-| depth 1 — paths the prompt names | 21 |
-| depth 2 | 56 |
-| depth 3 | 40 |
-| depth 4 | 4 |
-| **instruction set (fixed point)** | **121** |
+| | Files | (as measured 2026-08-23) |
+|---|---:|---:|
+| prompt input | 1 | 1 |
+| depth 1 — paths the prompt names | 4 | 21 |
+| depth 2 | 33 | 56 |
+| depth 3 | 10 | 40 |
+| depth 4 | 27 | 4 |
+| **instruction set (fixed point)** | **74** | **121** |
 
-The first-hop number is unchanged, so nothing above it is retracted; what
-changed is that the walk no longer stops there. Three things are worth naming
+The right column is the measurement this amendment was written against, kept
+because the argument below is stated in its numbers. The left column is the
+current checkout: the fleet prompt was rewritten on 2026-08-24 to name four
+documents instead of twenty-one, and documentation added since brought the
+result back up to 74. See the sixth-instance note at the end of this file for
+both moves. The artifact
+[`results-2026-08-23.md`](results-2026-08-23.md) is the checked figure; this
+table is prose, which is exactly why it went stale once already.
+
+At the time of this amendment the first-hop number was unchanged, so nothing
+above it was retracted; what changed is that the walk no longer stops there. Three things are worth naming
 about the result:
 
 - **The reachable set is what an attacker would pick.** Depth 2 includes
@@ -385,6 +397,65 @@ path at depth 3 (`39 → 40`), in the pull request that also shipped a
 per-engagement positive control on the template-side evidence record. The new
 path is not named here: naming it is how the surface grew. Corrected in the
 same pull request that moved the number.
+
+**Sixth instance, 2026-08-24: the prompt itself was rewritten, and the depth
+table above stopped describing this repository.** The company-direction pull
+request replaced the fleet prompt's ~52 lines of reading orders with four named
+documents (`AGENTS.md`, `CLAUDE.md`, `portfolio/DIRECTION.md`,
+`portfolio/pipeline/README.md`), taking depth 1 from `21` to `4` and the fixed
+point from `121` to `41`. It regenerated the results artifact and left the table
+above reading `21 / 56 / 40 / 4 = 121` — a figure for a prompt that no longer
+exists, surviving for the usual reason: **nothing recomputes the table, only the
+artifact.**
+
+A follow-up pull request then took `41` to `72` by adding `PRODUCT_PLAYBOOK.md`
+and `portfolio/usage/README.md` and naming them from three documents already at
+depth 1; merging main brought two more depth-2 paths in, for `74`
+(`4 / 33 / 10 / 27`) in the tree this table was regenerated against. Both new
+files are ordinary documentation. The 27 files that appeared at depth 4 are the
+compounding this rule exists to show: a document that is *itself* newly inside
+the closure brings everything it names, so the surface grows by far more than
+the count of files a diff adds — two new documents, thirty-three new files in the
+instruction set.
+
+That same pull request also hit the race this probe's CI had against `main`:
+two runs on one commit computed `72` and then `73`, because the default
+`pull_request` checkout measures an ephemeral merge-with-main preview while
+concurrent sessions push to `main` continuously. The workflow now checks out the
+PR's head SHA, making the measurement a function of the commit under test. A
+closure count is only reproducible if the thing measured holds still.
+
+Pinning the head SHA fixed the half of that race a pull request can see. The
+other half only shows up after merge, and on 2026-08-24 it had `main` red
+continuously — runs 436, 442, 447, 458 and 463. Checking out the head SHA makes
+the number right *for that commit*; it does not make it right for `main`, which
+by then also contains whatever else landed. So a pull request adding an
+unrelated markdown file that names a new path is green at its head, enlarges the
+closure, and turns the next push to `main` red. Regenerating the snapshot is not
+a fix either: `#954` regenerated `77`, merged, and two minutes later `#946` and
+`#942` made it `78`. The snapshot-regen PR chasing that (`#955`) was redundant
+before it could land.
+
+The gate now runs [`check_results_current.py`](check_results_current.py), which
+masks R7's repository census — closure size, per-depth histogram, first-hop
+count, sampled paths — on both sides and compares everything else byte for byte.
+A finding that appears, disappears, moves line or changes rule still fails. This
+is the choice the test suite had already made: `TestHeadlineNumbersAgainstThisRepo`
+asserts the closure *claim* and declines to pin the count, "because the exact
+count moves with every venture added". The committed artifact still carries the
+real numbers for a reader; they are simply no longer a merge-blocking assertion
+about a repository that never holds still. **Byte-equality is the wrong gate for
+a measurement whose subject is the whole repository** — the staleness it reported
+was real, but unfixable by whoever happened to merge next.
+
+Both corrections are in this pull request: the artifact is regenerated and the
+depth table now reads the current checkout. Two things worth keeping from the
+pair. **Shrinking the prompt is the lever that works** — dropping seventeen
+depth-1 reading orders cut the surface by two thirds, far more than any
+individual document does. And **a cross-reference is not free**: the direction
+this repository is now run on asks for less required reading, and every "see also"
+added to a directed document is measured here whether or not it was written as an
+instruction.
 
 ## What this probe deliberately does not do
 

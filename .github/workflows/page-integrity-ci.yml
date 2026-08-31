@@ -1,0 +1,58 @@
+name: Page integrity
+
+# Every browser-local product in this portfolio is static HTML plus ES modules,
+# and every venture's tests import `calc.mjs` directly without ever loading the
+# page. That gap shipped a completely dead product: cut-list-optimizer's
+# index.html opened `<textarea id="cuts">` and never closed it, so the parser
+# swallowed the results panel, the disclaimer, the opt-out and the entire
+# `<script type="module">` as literal text. The calculator never ran once, and
+# three pull requests merged green over the top of it.
+#
+# This job answers the one question those unit tests cannot: would a browser
+# actually run this page. It sweeps every .html under ventures/, so a new
+# venture is covered the day it lands with nothing to wire up — the venture that
+# broke had no CI at all, and a guard you must opt into would not have caught it.
+#
+# It runs `node --test` (the checker's own tests, including the real broken
+# blobs from git history) and then the sweep. No dependencies, no build step, no
+# network, no publishing — it is not the unattended-automation kind of workflow
+# CLAUDE.md gates.
+
+on:
+  pull_request:
+    paths:
+      - "ventures/**/*.html"
+      - "platform/webcheck/**"
+      - ".github/workflows/page-integrity-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/**/*.html"
+      - "platform/webcheck/**"
+      - ".github/workflows/page-integrity-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A second push to the same branch makes the first run irrelevant.
+concurrency:
+  group: page-integrity-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  page-integrity:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The checker's tests read historical blobs of a page that shipped
+          # broken, so they need real history rather than a shallow clone.
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Checker unit tests
+        run: node --test platform/webcheck/*.test.mjs
+      - name: Sweep every product page
+        run: node platform/webcheck/check_pages.mjs

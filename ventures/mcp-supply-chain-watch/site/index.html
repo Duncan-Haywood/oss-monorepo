@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP Supply-Chain Watch | Compare MCP tool manifests for drift</title>
+  <meta name="description" content="Free MCP tool manifest drift checker: paste two locally captured Model Context Protocol server manifests and see which tools were added, removed, or had their description or inputSchema change. Runs in your browser — nothing is uploaded, no server is contacted.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href=".">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%234338ca'/%3E%3Cpath d='M8 16h16M16 8v16' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+  <meta property="og:title" content="MCP Supply-Chain Watch — compare MCP tool manifests for drift">
+  <meta property="og:description" content="See exactly which MCP server tools were added, removed, or changed description/inputSchema between two captures. Free, private, runs in your browser.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "MCP Supply-Chain Watch",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any (runs in a web browser)",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "description": "Compare two locally captured MCP tool manifests and list tool additions, removals, schema changes, and description changes, including a model-directed instruction signal. Evidence only; nothing is uploaded and no server is contacted.",
+    "featureList": "Before-and-after manifest compare, tool add/remove detection, inputSchema diff, instruction-bearing description signal, portable JSON report, ticket-ready summary"
+  }
+  </script>
+  <!-- Structured FAQ data is derived by platform/pages/build.mjs from the
+       visible "Common questions" section below at build time, not authored
+       here -- a hand-written block would drift from the copy it describes. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "Compare two MCP tool manifest captures",
+    "step": [
+      { "@type": "HowToStep", "name": "Capture before", "text": "Save a JSON manifest of the server's tools at approval time: each tool's name, description, and inputSchema." },
+      { "@type": "HowToStep", "name": "Capture after", "text": "Later, or before trusting the server again, save a second manifest the same way." },
+      { "@type": "HowToStep", "name": "Compare", "text": "Paste both captures here, or load the files, and review the listed changes before re-approving the server." }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1e1b3a; background: #eef0fc; }
+    body { max-width: 1080px; margin: 0 auto; padding: 32px 18px; }
+    header { max-width: 760px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); line-height: 1.05; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #4338ca; margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr); gap: 18px; align-items: start; }
+    section { background: #fff; border: 1px solid #c7caf0; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #1e1b3a10; }
+    h2 { margin-top: 0; font-size: 1.15rem; }
+    .editors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { display: grid; gap: 6px; font-size: .87rem; font-weight: 650; }
+    textarea { width: 100%; min-height: 220px; box-sizing: border-box; border: 1px solid #9a9fd6; border-radius: 8px; padding: 10px; font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; background: #f7f7fd; resize: vertical; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    button, .file-btn { border: 0; border-radius: 8px; padding: 10px 14px; font: inherit; font-weight: 650; cursor: pointer; background: #4338ca; color: #fff; }
+    button.secondary, .file-btn { background: #eef0fc; color: #4338ca; border: 1px solid #9a9fd6; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .file-btn input { display: none; }
+    .result { position: sticky; top: 14px; background: #211c4d; color: #f2f2fc; border-color: #211c4d; }
+    /* Same fix shopify-permission-drift needed: a dark panel with no explicit
+       link colour falls back to the browser default blue, which is nearly
+       invisible on this fill. Inherit the panel ink instead; the underline
+       carries the affordance. */
+    .result a { color: inherit; text-decoration: underline; }
+    .hero { font-size: 2.2rem; font-weight: 750; letter-spacing: -.04em; margin: 8px 0 4px; }
+    .hero.changed { color: #ffd39a; }
+    .hero.unchanged { color: #b8c2ff; }
+    .hero.inconclusive, .hero.invalid { color: #ffb0a2; }
+    .note { font-size: .82rem; opacity: .85; }
+    .example-note { margin: 0 0 12px; padding: 8px 10px; border: 1px dashed #8a8fd0; border-radius: 8px; font-size: .85rem; color: #3a3670; background: #f3f3fc; }
+    .example-note[hidden] { display: none; }
+    ul.changes { margin: 12px 0 0; padding-left: 1.1rem; }
+    ul.changes li { margin: 0 0 8px; }
+    ul.changes li.alert { font-weight: 650; }
+    .error { color: #ffb0a2; }
+    .copy-status { font-size: .85rem; min-height: 1.2em; }
+    .faq, .schema { margin-top: 18px; }
+    footer { margin-top: 22px; font-size: .82rem; color: #3a3670; }
+    footer a { color: #4338ca; }
+    pre.schema { overflow: auto; background: #1e1b3a; color: #eef0fc; padding: 12px; border-radius: 8px; font-size: .78rem; }
+    @media (max-width: 860px) {
+      .layout, .editors { grid-template-columns: 1fr; }
+      .result { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR AGENT TEAMS AND MCP INTEGRATORS</p>
+    <h1>See what an MCP server's tools changed — before you trust it again.</h1>
+    <p>
+      Paste two locally captured MCP tool manifests. This page lists added or
+      removed tools, <code>inputSchema</code> changes, and description
+      changes — including a separate flag when a changed description newly
+      reads like an instruction aimed at the calling model rather than a
+      human reviewer. It does not contact any server; everything runs here,
+      and nothing is uploaded.
+    </p>
+    <p class="eyebrow">Need this in CI? The same comparison ships as a standard-library-only Python CLI in this tool's repository — see the README.</p>
+  </header>
+  <main class="layout">
+    <section>
+      <h2>Before and after manifests</h2>
+      <p id="exampleNote" class="example-note">Showing the shipped fixture. Replace either side with your own capture, then compare.</p>
+      <div class="editors">
+        <label>Before (approval-time capture)
+          <textarea id="before" spellcheck="false" aria-describedby="exampleNote"></textarea>
+        </label>
+        <label>After (later capture)
+          <textarea id="after" spellcheck="false"></textarea>
+        </label>
+      </div>
+      <div class="actions">
+        <button id="compareBtn" type="button">Compare manifests</button>
+        <button id="exampleBtn" class="secondary" type="button">Load fixture example</button>
+        <label class="file-btn">Load before file<input id="beforeFile" type="file" accept="application/json,.json"></label>
+        <label class="file-btn">Load after file<input id="afterFile" type="file" accept="application/json,.json"></label>
+        <button id="clearBtn" class="secondary" type="button">Clear</button>
+      </div>
+    </section>
+    <section class="result" aria-live="polite">
+      <h2>Drift record</h2>
+      <div id="status" class="hero">—</div>
+      <p id="review" class="note">Paste two manifests, or load the fixture, to see a record.</p>
+      <ul id="changes" class="changes"></ul>
+      <p id="meta" class="note"></p>
+      <div class="actions">
+        <button id="downloadBtn" class="secondary" type="button" disabled>Download JSON report</button>
+        <button id="copyBtn" class="secondary" type="button" disabled>Copy ticket summary</button>
+      </div>
+      <p id="copyStatus" class="copy-status" role="status"></p>
+    </section>
+  </main>
+  <section class="faq" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">What this checks</h2>
+    <p>
+      An agent team approves an MCP server's tools once, then keeps calling
+      it. The useful question later is which <strong>tool descriptions</strong>
+      and <strong>input schemas</strong> actually changed since that approval
+      — this record answers that from two captures you already made. It does
+      not connect to the server and does not decide whether a change is safe.
+    </p>
+    <p>
+      A changed description that newly contains model-directed language
+      (phrasing like "ignore previous instructions" or "send the result to")
+      is reported as its own <strong>instruction-bearing</strong> bucket,
+      separate from an ordinary wording change — this is the shape of a
+      tool-poisoning or rug-pull attempt, where a server waits until after
+      approval to add instructions aimed at the calling model.
+    </p>
+  </section>
+  <section class="schema" aria-labelledby="schema-heading">
+    <h2 id="schema-heading">Manifest shape</h2>
+    <p>
+      Each capture is JSON you control. Required: <code>tools</code>, a list
+      where every entry has a unique string <code>name</code>. Optional but
+      compared when present: <code>description</code> and
+      <code>inputSchema</code>. Optional top-level fields
+      <code>server</code> and <code>captured</code> are carried into the
+      report but not compared themselves.
+    </p>
+    <pre class="schema">{
+  "server": "inventory-mcp",
+  "captured": "2026-08-20T09:00:00Z",
+  "tools": [
+    {
+      "name": "search_inventory",
+      "description": "Search available inventory",
+      "inputSchema": { "type": "object", "properties": { "query": { "type": "string" } } }
+    }
+  ]
+}</pre>
+  </section>
+  <h2>Common questions</h2>
+  <h3>How do I compare two MCP tool manifests for drift?</h3>
+  <p>Capture a server's tool manifest (its declared name, description, and input schema for every tool) at approval time, and again later. Paste the earlier capture as Before and the later one as After. The page lists which tools were added, removed, or changed, without contacting the server itself.</p>
+  <h3>Does this tool connect to my MCP servers?</h3>
+  <p>No. Comparison runs entirely in your browser from the two JSON manifests you paste or load from a file. There are no accounts, no server connections, and no upload.</p>
+  <h3>What is MCP tool poisoning?</h3>
+  <p>It is when a connected MCP server changes a tool's description or schema after an agent team has already approved it, adding text meant to influence the calling model rather than the human reviewer — for example instructions to exfiltrate data or ignore prior guidance. This page flags a changed description that newly contains model-directed language as its own severity bucket, separate from an ordinary wording change.</p>
+  <h3>Why is a metadata-only change reported separately from a description or schema change?</h3>
+  <p>A field like an annotation or version tag can change without the description text or input schema changing at all. Reporting it as its own category keeps the more sensitive description and schema signals from being diluted by routine metadata churn.</p>
+  <h3>Which changes get flagged as alert severity versus review?</h3>
+  <p>Alert severity is reserved for a removed tool and for a description change that newly reads like an instruction aimed at the calling model. A newly added tool, a changed input schema on an existing tool, and an ordinary description change are all listed at review severity instead — one level down, because they are still worth a look but are not on their own evidence of tampering.</p>
+  <h3>What wording trips the instruction-bearing flag?</h3>
+  <p>A changed description is flagged instruction-bearing when the new text contains language such as "ignore," "disregard," "override," "system message," "you must," "do not tell," "send ... to," or "reveal," and the earlier description did not already contain that same wording. Requiring the wording to be new, not just present, keeps a tool whose description always mentioned one of those words from being flagged every time something unrelated about it changes.</p>
+  <h3>What counts as a tool being added or removed?</h3>
+  <p>Every tool name present in the After manifest but missing from the Before manifest is listed as added, at review severity. Every name present in Before but missing from After is listed as removed, at alert severity — the same severity as an instruction-bearing description change, because a tool quietly disappearing deserves the same scrutiny as one that quietly changed.</p>
+  <p class="seo-link"><a href="./what-is-mcp-tool-poisoning.html">What is an MCP tool poisoning attack, and how would I catch one?</a></p>
+
+  <footer>
+    <label><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, financial, security, or compliance advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free and experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use it as a system of record; if you need it to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. Manifest JSON never leaves this page. There are no accounts, cookies, tracking pixels, or analytics vendors. The optional local counter records only the event name and day — never server names, tool names, descriptions, or schemas. Turn it off above, or with Do Not Track / Global Privacy Control.</p>
+    <p>The same comparison is available as a local CLI in this repository if you need a CI artifact. Optional <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> never changes what the tool does. MIT licensed. <a href="https://github.com/Duncan-Haywood/monorepo-projects">Source on GitHub</a>.</p>
+  </footer>
+  <script type="module">
+    import {
+      EXAMPLE_AFTER,
+      EXAMPLE_BEFORE,
+      compare,
+      formatChange,
+      parseManifest,
+      renderMarkdown,
+    } from "./compare.mjs";
+    import { recordEvent, setUsageCountingEnabled } from "./usage.mjs";
+
+    const DRAFT_KEY = "mcp-supply-chain-watch:drafts";
+    const beforeEl = document.getElementById("before");
+    const afterEl = document.getElementById("after");
+    const exampleNote = document.getElementById("exampleNote");
+    const statusEl = document.getElementById("status");
+    const reviewEl = document.getElementById("review");
+    const changesEl = document.getElementById("changes");
+    const metaEl = document.getElementById("meta");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyStatus = document.getElementById("copyStatus");
+    const usageOptOut = document.getElementById("usageOptOut");
+
+    let lastReport = null;
+
+    function pretty(value) {
+      return JSON.stringify(value, null, 2);
+    }
+
+    function saveDrafts() {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({
+          before: beforeEl.value,
+          after: afterEl.value,
+        }));
+      } catch {
+        // private mode / quota
+      }
+    }
+
+    function loadDrafts() {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function setExampleFlag() {
+      const isExample =
+        beforeEl.value.trim() === pretty(EXAMPLE_BEFORE) &&
+        afterEl.value.trim() === pretty(EXAMPLE_AFTER);
+      exampleNote.hidden = !isExample;
+    }
+
+    function renderError(message) {
+      lastReport = null;
+      statusEl.textContent = "Invalid";
+      statusEl.className = "hero invalid";
+      reviewEl.textContent = message;
+      changesEl.replaceChildren();
+      metaEl.textContent = "";
+      downloadBtn.disabled = true;
+      copyBtn.disabled = true;
+    }
+
+    function renderReport(report) {
+      lastReport = report;
+      const label = report.changes.length ? "Changed" : "Unchanged";
+      statusEl.textContent = label;
+      statusEl.className = `hero ${report.changes.length ? "changed" : "unchanged"}`;
+      const alerts = report.changes.filter((c) => c.severity === "alert").length;
+      reviewEl.textContent = report.changes.length
+        ? `Review required: yes${alerts ? ` (${alerts} at alert severity)` : ""}. Evidence only — you decide what each change means.`
+        : "Review required: no. The two manifests match on every tool.";
+      changesEl.replaceChildren();
+      if (!report.changes.length) {
+        const item = document.createElement("li");
+        item.textContent = "No differences listed.";
+        changesEl.append(item);
+      } else {
+        for (const change of report.changes) {
+          const item = document.createElement("li");
+          item.textContent = formatChange(change);
+          item.className = change.severity;
+          changesEl.append(item);
+        }
+      }
+      metaEl.textContent = `Server: ${report.server || "unknown"} — before ${report.before || "unknown"} → after ${report.after || "unknown"}`;
+      downloadBtn.disabled = false;
+      copyBtn.disabled = false;
+    }
+
+    function runCompare({ count } = { count: false }) {
+      copyStatus.textContent = "";
+      setExampleFlag();
+      try {
+        const report = compare(parseManifest(beforeEl.value), parseManifest(afterEl.value));
+        renderReport(report);
+        if (count) recordEvent("manifest_compared");
+      } catch (error) {
+        renderError(error.message);
+      }
+    }
+
+    function loadExample({ count } = { count: false }) {
+      beforeEl.value = pretty(EXAMPLE_BEFORE);
+      afterEl.value = pretty(EXAMPLE_AFTER);
+      saveDrafts();
+      runCompare({ count: false });
+      if (count) recordEvent("example_loaded");
+    }
+
+    function readFileInto(input, target) {
+      const file = input.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        target.value = String(reader.result || "");
+        saveDrafts();
+        runCompare({ count: false });
+        recordEvent("manifest_file_loaded");
+      };
+      reader.readAsText(file);
+      input.value = "";
+    }
+
+    document.getElementById("compareBtn").addEventListener("click", () => {
+      runCompare({ count: true });
+    });
+    document.getElementById("exampleBtn").addEventListener("click", () => loadExample({ count: true }));
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      beforeEl.value = "";
+      afterEl.value = "";
+      lastReport = null;
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+      statusEl.textContent = "—";
+      statusEl.className = "hero";
+      reviewEl.textContent = "Paste two manifests, or load the fixture, to see a record.";
+      changesEl.replaceChildren();
+      metaEl.textContent = "";
+      downloadBtn.disabled = true;
+      copyBtn.disabled = true;
+      exampleNote.hidden = true;
+    });
+    document.getElementById("beforeFile").addEventListener("change", (event) => {
+      readFileInto(event.target, beforeEl);
+    });
+    document.getElementById("afterFile").addEventListener("change", (event) => {
+      readFileInto(event.target, afterEl);
+    });
+    beforeEl.addEventListener("input", saveDrafts);
+    afterEl.addEventListener("input", saveDrafts);
+    downloadBtn.addEventListener("click", () => {
+      if (!lastReport) return;
+      const blob = new Blob([JSON.stringify(lastReport, null, 2) + "\n"], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "mcp-drift-report.json";
+      link.click();
+      URL.revokeObjectURL(url);
+      recordEvent("report_exported");
+      copyStatus.textContent = "Downloaded mcp-drift-report.json. The file is the comparison result only.";
+    });
+    copyBtn.addEventListener("click", async () => {
+      if (!lastReport) return;
+      const text = renderMarkdown(lastReport);
+      try {
+        await navigator.clipboard.writeText(text);
+        copyStatus.textContent = "Ticket summary copied. It lists tool names and change kinds, not descriptions or schemas.";
+      } catch {
+        copyStatus.textContent = "Clipboard unavailable. Select and copy the summary from a downloaded report instead.";
+      }
+      recordEvent("summary_copied");
+    });
+    usageOptOut.addEventListener("change", () => {
+      setUsageCountingEnabled(!usageOptOut.checked);
+    });
+
+    const drafts = loadDrafts();
+    if (drafts?.before || drafts?.after) {
+      beforeEl.value = drafts.before || "";
+      afterEl.value = drafts.after || "";
+      if (drafts.before && drafts.after) runCompare({ count: false });
+      else setExampleFlag();
+    } else {
+      loadExample({ count: false });
+    }
+    recordEvent("page_viewed");
+  </script>
+</body>
+</html>

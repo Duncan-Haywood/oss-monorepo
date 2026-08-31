@@ -1,0 +1,105 @@
+name: einvoice-preflight CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/einvoice-preflight/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: einvoice-preflight-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/einvoice-preflight
+
+jobs:
+  cli-test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m unittest discover -s tests -v
+
+  browser-test:
+    # The browser tool is a second, independent implementation of the same
+    # readers and rules as the Python CLI, and until 2026-08-26 none of its 170
+    # tests ran here: this workflow was Python-only, so `node --test` had never
+    # executed in CI for this venture.
+    #
+    # That is how the page shipped unable to read any of the UBL examples it
+    # invites visitors to drop in. The Python reader treats the party
+    # identifier as optional (EN 16931 BT-29/BT-46), the JS reader required it,
+    # and every hand-written JS fixture happened to supply one -- so the
+    # divergence was invisible from both sides. examples.test.mjs now runs the
+    # shipped examples through the browser reader, which is the check that
+    # would have caught it.
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node --test
+
+  examples:
+    # The shipped examples are the tool's documentation. If a clean one starts
+    # failing preflight, or the defective one stops being caught, the README
+    # is lying to whoever tries the first command in it.
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Discovered rather than listed: a hard-coded list silently stops
+      # covering an example that is added, and fails the whole job over one
+      # that is renamed or removed. Anything named *-with-defects.* must fail
+      # preflight; everything else in examples/ must pass it.
+      - name: Clean examples pass
+        run: |
+          set -eu
+          found=0
+          for example in examples/*; do
+            case "$example" in *-with-defects.*) continue;; esac
+            echo "--- $example"
+            python3 -m einvoice_preflight "$example"
+            found=$((found + 1))
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::no clean examples found — examples/ should not be empty"
+            exit 1
+          fi
+      - name: The defective examples are caught
+        run: |
+          set -eu
+          found=0
+          for example in examples/*-with-defects.*; do
+            [ -e "$example" ] || continue
+            echo "--- $example"
+            if python3 -m einvoice_preflight "$example"; then
+              echo "::error::$example passed preflight but must fail it"
+              exit 1
+            fi
+            found=$((found + 1))
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "::error::no defective example found — the failing path is then untested"
+            exit 1
+          fi

@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import { clearSession, readSession } from "../auth/demoAuth";
 import { DemoGuide } from "./DemoGuide";
+import { EngagementSummary } from "./EngagementSummary";
+import { EngagementTracker } from "./EngagementTracker";
 import { storeProfile } from "../data/demoStore";
+import type { DataSourceKind } from "../lib/pilot-kpis";
 
 const ownerNav = [
   { to: "/value", label: "Business value" },
@@ -26,10 +29,12 @@ export function PortalShell({
   children,
   title,
   subtitle,
+  dataSource = "illustrative",
 }: {
   children: ReactNode;
   title: string;
   subtitle?: string;
+  dataSource?: DataSourceKind;
 }) {
   const session = readSession();
   const isOwner = session?.role === "owner";
@@ -42,6 +47,7 @@ export function PortalShell({
 
   return (
     <div className="portal-layout">
+      <EngagementTracker />
       <aside className="portal-sidebar">
         <div className="brand">
           <span className="brand-mark">RPI</span>
@@ -67,7 +73,9 @@ export function PortalShell({
         </nav>
 
         <div className="sidebar-meta">
-          <span className="pill pill-demo">Illustrative data</span>
+          <span className={dataSource === "live" ? "pill pill-ok" : "pill pill-demo"}>
+            {dataSource === "live" ? "Live SQLite" : "Illustrative data"}
+          </span>
           <p>{storeProfile.pilotWeek}</p>
           <p className="muted">{storeProfile.lastSync}</p>
           <p className="role-tag">
@@ -79,6 +87,7 @@ export function PortalShell({
               demos.
             </p>
           ) : null}
+          <EngagementSummary />
           <button type="button" className="btn-ghost" onClick={signOut}>
             Sign out
           </button>

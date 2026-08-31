@@ -1,0 +1,39 @@
+name: cra-evidence-desk CI
+
+# Standard-library Python CLI. Keep exact-match SBOM/advisory drafts
+# covered independently of the portfolio-wide validation workflow.
+on:
+  pull_request:
+    paths:
+      - "ventures/cra-evidence-desk/**"
+      - ".github/workflows/cra-evidence-desk-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/cra-evidence-desk/**"
+      - ".github/workflows/cra-evidence-desk-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cra-evidence-desk-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: ventures/cra-evidence-desk
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run evidence-desk tests
+        run: python3 -m unittest discover -s . -p 'test_*.py' -v
+      - name: Example SBOM produces a customer-reviewed draft
+        run: PYTHONPATH=src python3 -m cra_evidence_desk examples/sbom.json examples/advisories.json --product "Demo service" --version 2026.08 --format draft

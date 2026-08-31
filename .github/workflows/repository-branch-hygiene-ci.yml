@@ -1,0 +1,40 @@
+name: repository-branch-hygiene CI
+
+on:
+  pull_request:
+    paths:
+      - "ventures/repository-branch-hygiene/**"
+      - ".github/workflows/repository-branch-hygiene-ci.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ventures/repository-branch-hygiene/**"
+      - ".github/workflows/repository-branch-hygiene-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: ventures/repository-branch-hygiene
+
+jobs:
+  test:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m unittest discover -s tests -v
+
+  lint:
+    runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.15.8
+      - run: ruff check .

@@ -26,6 +26,7 @@ export type SeoLandingPage = {
   artworkSlug: string;
   artworkTitle: string;
   artistName: string;
+  retailPrice: number;
   tags: string[];
   estimatedMonthlySearchVolume: number;
   readinessScore: number;
@@ -118,6 +119,7 @@ function buildPage(
     artworkSlug: artwork.slug,
     artworkTitle: artwork.title,
     artistName: artwork.artistName,
+    retailPrice: artwork.retailPrice,
     tags: artwork.tags,
     estimatedMonthlySearchVolume: estimateSearchVolume(artwork, intent),
     readinessScore: artwork.readinessScore ?? 0,
@@ -184,6 +186,55 @@ export type SeoPublishState = {
   consentBlocked: boolean;
 };
 
+export type PrintStructuredData = {
+  "@context": "https://schema.org";
+  "@graph": Array<Record<string, unknown>>;
+};
+
+/** Builds crawlable product facts without exposing blocked listings as purchasable. */
+export function buildPrintStructuredData(
+  page: SeoLandingPage,
+  publishState: SeoPublishState,
+  baseUrl = "https://printatelier.com",
+): PrintStructuredData {
+  const productUrl = `${baseUrl.replace(/\/$/, "")}/prints/${page.slug}`;
+  const product: Record<string, unknown> = {
+    "@type": "Product",
+    "@id": `${productUrl}#product`,
+    name: page.artworkTitle,
+    description: page.metaDescription,
+    url: productUrl,
+    category: "Fine Art Prints",
+    brand: { "@type": "Brand", name: "Print Atelier" },
+    manufacturer: { "@type": "Person", name: page.artistName },
+  };
+
+  if (publishState.publishable) {
+    product.offers = {
+      "@type": "Offer",
+      url: productUrl,
+      priceCurrency: "USD",
+      price: page.retailPrice.toFixed(2),
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+    };
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      product,
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Storefront", item: `${baseUrl.replace(/\/$/, "")}/storefront` },
+          { "@type": "ListItem", position: 2, name: page.artworkTitle, item: productUrl },
+        ],
+      },
+    ],
+  };
+}
+
 export function evaluateSeoPagePublishability(
   page: SeoLandingPage,
   consentItem?: ListingConsentGateItem,
@@ -219,6 +270,63 @@ export function getSeoPageBySlug(
   artworks: CatalogArtwork[] = catalogArtworks,
 ): SeoLandingPage | undefined {
   return generateSeoLandingPages(artworks).pages.find((page) => page.slug === slug);
+}
+
+const PRINT_INTENT_PRIORITY: SeoLandingIntent[] = [
+  "room-style",
+  "long-tail-tag",
+  "artist-story",
+  "payout-proof",
+];
+
+function preferPrintPage(pages: SeoLandingPage[]): SeoLandingPage | undefined {
+  return [...pages].sort(
+    (left, right) =>
+      PRINT_INTENT_PRIORITY.indexOf(left.intent) - PRINT_INTENT_PRIORITY.indexOf(right.intent),
+  )[0];
+}
+
+/**
+ * Accepts either a programmatic SEO slug or a catalog artwork slug.
+ * Storefront cards use catalog slugs (`midnight-coast`); landing pages use
+ * intent suffixes (`midnight-coast-landscape-wall-art`). Linking the former
+ * without this resolver 404s.
+ */
+export function resolvePrintPage(
+  slug: string,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): SeoLandingPage | undefined {
+  const exact = getSeoPageBySlug(slug, artworks);
+  if (exact) {
+    return exact;
+  }
+
+  const forArtwork = generateSeoLandingPages(artworks).pages.filter(
+    (page) => page.artworkSlug === slug,
+  );
+  if (forArtwork.length === 0) {
+    return undefined;
+  }
+
+  const withState = getSeoPagesWithPublishState(consentRecords, artworks);
+  const publishable = forArtwork.filter((page) =>
+    withState.find((item) => item.slug === page.slug)?.publishState.publishable,
+  );
+  return preferPrintPage(publishable.length > 0 ? publishable : forArtwork);
+}
+
+export function resolvePrintHref(
+  artwork: Pick<CatalogArtwork, "slug">,
+  consentRecords: ListingConsentRecord[] = defaultListingConsentRecords,
+  artworks: CatalogArtwork[] = catalogArtworks,
+): string {
+  const page = resolvePrintPage(artwork.slug, consentRecords, artworks);
+  return `/prints/${page?.slug ?? artwork.slug}`;
+}
+
+export function getCatalogArtworkSlugs(artworks: CatalogArtwork[] = catalogArtworks): string[] {
+  return artworks.map((artwork) => artwork.slug);
 }
 
 export function getSeoPagesWithPublishState(
@@ -259,6 +367,7 @@ const staticMarketRoutes: SitemapEntry[] = [
   { path: "/docs", changeFrequency: "weekly", priority: 0.9 },
   { path: "/investor", changeFrequency: "weekly", priority: 0.85 },
   { path: "/storefront", changeFrequency: "daily", priority: 0.8 },
+  { path: "/print-file-preflight", changeFrequency: "weekly", priority: 0.75 },
   { path: "/artist-portal", changeFrequency: "weekly", priority: 0.75 },
   { path: "/capture", changeFrequency: "weekly", priority: 0.7 },
 ];

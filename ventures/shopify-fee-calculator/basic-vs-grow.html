@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should I upgrade from Shopify Basic to Grow? | Plan fee break-even</title>
+  <meta name="description" content="See when Shopify Grow pays for itself versus Basic: extra monthly plan cost divided by the per-order fee savings on Shopify Payments or PayPal. Free, runs in your browser.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="basic-vs-grow.html">
+  <meta property="og:title" content="When does Shopify Grow beat Basic?">
+  <meta property="og:description" content="The upgrade is extra monthly fee versus lower per-order rates. Enter your volume and payment path.">
+  <meta property="og:type" content="website">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "When does upgrading from Shopify Basic to Grow pay for itself?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Grow costs more each month and usually charges a lower Shopify Payments rate and a lower third-party transaction fee. It starts paying from those rates alone when monthly orders times the per-order fee savings exceed the extra monthly plan cost. Enter the rates from your statements — this page does not publish Shopify's live schedule."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does PayPal change the Basic vs Grow break-even?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. On a third-party processor path, Shopify's extra transaction fee often drops when you move up a plan, so the per-order savings can be larger than on Shopify Payments and Grow can cover its extra monthly cost at a lower volume."
+        }
+      }
+    ]
+  }
+  </script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #12241c; background: #e8f3ec; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    a { color: #0d6b45; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); letter-spacing: -.04em; line-height: 1.08; margin: 0 0 12px; }
+    h2 { font-size: 1.2rem; }
+    .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d6b45; margin: 0 0 8px; }
+    section { background: #fff; border: 1px solid #c5d9cc; border-radius: 14px; padding: 20px; margin: 18px 0; box-shadow: 0 8px 24px #17382a10; }
+    .fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 13px; }
+    label { display: grid; gap: 5px; font-size: .87rem; font-weight: 650; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #8eae9a; border-radius: 7px; padding: 10px; font: inherit; background: white; }
+    .hero { font-size: 1.8rem; font-weight: 750; letter-spacing: -.04em; margin: 0 0 8px; }
+    .note, footer { font-size: .85rem; color: #3d5649; }
+    table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+    th, td { padding: 8px 4px; text-align: right; border-bottom: 1px solid #c5d9cc; }
+    th:first-child, td:first-child { text-align: left; }
+    .error { color: #9b2c2c; }
+    @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }
+  
+/* A wide table used to push the whole page sideways on a phone: the visitor scrolled the document to read a column, and the form scrolled away with it. Letting the table scroll inside itself keeps every column reachable and the page still. */
+@media (max-width:700px){table{display:block;overflow-x:auto;max-width:100%}}
+</style>
+</head>
+<body>
+  <p class="eyebrow">FOR SHOPIFY MERCHANTS</p>
+  <p><a href="./">← Shopify fee calculator</a></p>
+  <h1>When does Shopify Grow beat Basic?</h1>
+  <p>
+    Merchants search this because Grow’s monthly bill is higher, but the
+    processing rates on the plan picker are usually lower. The only number
+    that turns that into a decision is volume: extra monthly plan cost
+    divided by what each order saves in fees on your payment path.
+  </p>
+  <p>
+    This page uses the same illustrative US online defaults as the
+    <a href="./">Shopify fee calculator</a>. Replace them with the rates on
+    your current statements. It does not publish Shopify’s live schedule and
+    it does not recommend a plan — higher tiers also change features this
+    arithmetic cannot see.
+  </p>
+
+  <section>
+    <h2>Your volume and payment path</h2>
+    <div class="fields">
+      <label>Typical order total (item + shipping charged)
+        <input id="revenue" type="number" min="0" step="0.01" value="54">
+      </label>
+      <label>Orders per month
+        <input id="monthlyOrders" type="number" min="1" step="1" value="100">
+      </label>
+      <label class="span2">Payment path
+        <select id="paymentMethod">
+          <option value="shopify_payments" selected>Shopify Payments</option>
+          <option value="third_party">PayPal / Stripe / other</option>
+        </select>
+      </label>
+    </div>
+    <p id="headline" class="hero">Calculating…</p>
+    <p id="detail" class="note"></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Plan</th>
+          <th>Monthly</th>
+          <th>Fees / order</th>
+          <th>Fee + plan / month</th>
+          <th>vs Basic</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <p class="note">
+      “vs Basic” here is the monthly fee-and-plan gap, not net profit. Cost of
+      goods is the same on every plan, so it cancels. Open the
+      <a href="./">full calculator</a> to include shipping you pay, packaging,
+      and a target margin.
+    </p>
+  </section>
+
+  <section>
+    <h2>The arithmetic</h2>
+    <p>
+      On the illustrative defaults, Grow is $66 more per month than Basic
+      ($105 − $39). Shopify Payments drops from 2.9% to 2.7% on the same
+      $54 order — eleven cents. $66 ÷ $0.108 is about
+      <strong>612 orders/month</strong> before Grow’s rates cover the extra
+      subscription.
+    </p>
+    <p>
+      On a third-party path the Shopify transaction fee often drops as well
+      (2% → 1% on those same defaults). That is 54 cents more saved on the
+      same $54 order, so Grow can cover the extra $66 at a much lower
+      volume. If most checkouts already use Shopify Payments, use that path;
+      if they use PayPal, use that one. Mixing them needs a weighted average
+      you can approximate by changing the order total and volume.
+    </p>
+    <p>
+      Advanced and Plus follow the same rule: extra monthly cost divided by
+      per-order fee savings. The full calculator ranks all four plans on
+      your real costs, not just fees.
+    </p>
+  </section>
+
+  <h2>Common questions</h2>
+  <h3>When does upgrading from Shopify Basic to Grow pay for itself?</h3>
+  <p>Grow costs more each month and usually charges a lower Shopify Payments rate and a lower third-party transaction fee. It starts paying from those rates alone when monthly orders times the per-order fee savings exceed the extra monthly plan cost. Enter the rates from your statements — this page does not publish Shopify's live schedule.</p>
+  <h3>Does PayPal change the Basic vs Grow break-even?</h3>
+  <p>Yes. On a third-party processor path, Shopify's extra transaction fee often drops when you move up a plan, so the per-order savings can be larger than on Shopify Payments and Grow can cover its extra monthly cost at a lower volume.</p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+    <p>Everything runs in your browser. There are no accounts, cookies, tracking pixels, or analytics vendors. Optional local counts on the main calculator record only an event name and day.</p>
+    <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { comparePlans, upgradeBreakEvenOrders } from "./calc.mjs";
+
+    const money = (value) => {
+      const format = (value) => `$${value.toFixed(2)}`;
+      const text = format(Math.abs(value));
+      return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+    };
+    const signedMoney = (value) => {
+      if (Math.abs(value) < 0.005) return "same";
+      return value > 0 ? `+${money(value)}` : money(value);
+    };
+
+    function readInput() {
+      const revenue = Number(document.getElementById("revenue").value);
+      const shippingCharged = 0;
+      const price = revenue;
+      return {
+        price,
+        shippingCharged,
+        monthlyOrders: document.getElementById("monthlyOrders").value,
+        paymentMethod: document.getElementById("paymentMethod").value,
+        planId: "basic",
+        costOfGoods: 0,
+        shippingCost: 0,
+        packagingCost: 0,
+        otherCost: 0,
+      };
+    }
+
+    function update() {
+      try {
+        const input = readInput();
+        const comparison = comparePlans(input);
+        const step = upgradeBreakEvenOrders("basic", "grow", input);
+        const basic = comparison.plans.find((plan) => plan.id === "basic");
+        const grow = comparison.plans.find((plan) => plan.id === "grow");
+        const pathLabel = input.paymentMethod === "third_party"
+          ? "PayPal / Stripe / other"
+          : "Shopify Payments";
+        if (step.neverPays) {
+          document.getElementById("headline").textContent =
+            "Grow’s illustrative rates do not save enough per order to cover the extra monthly fee.";
+        } else {
+          const needed = Math.ceil(step.breakEvenOrders - 1e-9);
+          const atVolume = comparison.monthlyOrders >= step.breakEvenOrders;
+          document.getElementById("headline").textContent = atVolume
+            ? `At ${comparison.monthlyOrders} orders/month on ${pathLabel}, Grow is ahead of Basic on fees and plan.`
+            : `Grow covers its extra ${money(step.extraMonthly)} / month at ${needed} orders/month on ${pathLabel}.`;
+        }
+        document.getElementById("detail").textContent =
+          `Illustrative savings of ${money(step.feeSavings)} in fees per order. At your volume Grow is ${signedMoney(grow.monthlyProfit - basic.monthlyProfit)} versus Basic this month.`;
+        document.getElementById("rows").innerHTML = comparison.plans.map((plan) => {
+          const monthlyOutlay = plan.monthlyFeeTotal + plan.monthlyPlan;
+          const vsBasic = (basic.monthlyFeeTotal + basic.monthlyPlan) - monthlyOutlay;
+          const name = plan.id === "basic" ? "Basic (starting point)" : plan.label;
+          return `<tr><td>${name}</td><td>${money(plan.monthlyPlan)}</td><td>${money(plan.perOrderFees)}</td><td>${money(monthlyOutlay)}</td><td>${signedMoney(vsBasic)}</td></tr>`;
+        }).join("");
+        document.getElementById("headline").className = "hero";
+      } catch (error) {
+        document.getElementById("headline").textContent = error.message;
+        document.getElementById("headline").className = "hero error";
+        document.getElementById("detail").textContent = "Fix the inputs to see a result.";
+        document.getElementById("rows").innerHTML = "";
+      }
+    }
+
+    ["revenue", "monthlyOrders", "paymentMethod"].forEach((id) => {
+      document.getElementById(id).addEventListener("input", update);
+      document.getElementById(id).addEventListener("change", update);
+    });
+    update();
+  </script>
+</body>
+</html>

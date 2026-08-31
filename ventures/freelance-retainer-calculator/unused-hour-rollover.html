@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Should Unused Retainer Hours Roll Over?</title>
+  <meta name="description" content="A leftover retainer hour that rolls into next month is unpaid delivery. Compare expire, cap-at-buffer, and unlimited one-month rollover before you write the clause.">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Should Unused Retainer Hours Roll Over?">
+  <meta property="og:description" content="On a $1,725 / 20-hour block, a 10-hour first month plus unlimited rollover is 30 hours next month for $57.50/hr — $750 of unpaid time.">
+  <meta property="og:url" content="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/unused-hour-rollover.html">
+  <link rel="canonical" href="https://duncan-haywood.github.io/monorepo-projects/freelance-retainer-calculator/unused-hour-rollover.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Should unused retainer hours roll over?","acceptedAnswer":{"@type":"Answer","text":"Only if the rolled hours still leave month 2 at or above your hourly floor. On the default $1,725 / 20-hour plan, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 of unpaid time. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr."}},{"@type":"Question","name":"How do I cap unused-hour rollover without killing the deal?","acceptedAnswer":{"@type":"Answer","text":"Cap rolled hours at the unpaid-overage buffer — monthly price divided by hourly floor, minus included hours. On the default plan that is 3 hours. Hours above the cap expire or bill at the floor."}}]}</script>
+</head>
+<body>
+  <main class="shell">
+    <p class="eyebrow"><a href="./">← Freelance retainer calculator</a></p>
+    <header>
+      <h1>Unused hours that roll over are unpaid work next month.</h1>
+      <p class="lede">Clients ask for rollover because a quiet first month feels like they overpaid. The clause they want is a second month where you deliver the leftover for free. Price that gift before you write it.</p>
+    </header>
+    <section class="workspace" aria-label="Unused-hour rollover comparison">
+      <form id="rolloverForm" class="card">
+        <h2>The quoted block</h2>
+        <p class="note">Defaults match the calculator’s $1,725 / 20-hour plan at a $75 floor. Month 1 at 50% leaves 10 hours. Month 2 uses the full new block plus whatever rolled.</p>
+        <label>Monthly retainer <span data-currency-symbol>$</span><input id="rolloverPrice" type="number" min="0" step="25" value="1725" required></label>
+        <label>Included hours <span>hours</span><input id="rolloverHours" type="number" min="1" step="1" value="20" required></label>
+        <label>Hourly floor <span data-currency-symbol>$</span><input id="rolloverRate" type="number" min="1" step="1" value="75" required></label>
+        <label>Month 1 usage <span>%</span><input id="rolloverMonth1" type="number" min="0" max="200" step="5" value="50" required></label>
+        <label>Month 2 new-block usage <span>%</span><input id="rolloverMonth2" type="number" min="0" max="200" step="5" value="100" required></label>
+        <label>Currency <select id="rolloverCurrency"><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="CAD">CAD ($)</option><option value="AUD">AUD ($)</option></select></label>
+        <button type="submit">Compare rollover clauses</button>
+        <p id="rolloverErrors" class="error" role="alert" hidden></p>
+      </form>
+      <section id="rolloverResults" class="card result" aria-live="polite" hidden>
+        <p class="eyebrow">UNPAID HOURS NEXT MONTH</p>
+        <div class="answer"><span>Unused after month 1</span><strong id="pageRolloverUnused">0 hours</strong></div>
+        <div class="answer"><span>Month 2 if leftover rolls</span><strong id="pageRolloverMonth2">0 hours</strong></div>
+        <div class="table-wrap">
+          <table class="usage-table">
+            <caption>Expire vs cap-at-buffer vs unlimited one-month rollover. Arithmetic only.</caption>
+            <thead>
+              <tr>
+                <th scope="col">If the agreement says</th>
+                <th scope="col">Hours rolled</th>
+                <th scope="col">Month 2 hours</th>
+                <th scope="col">Month 2 $/hr</th>
+                <th scope="col">Covers floor?</th>
+                <th scope="col">Unpaid gift</th>
+              </tr>
+            </thead>
+            <tbody id="pageRolloverRows"></tbody>
+          </table>
+        </div>
+        <p id="pageRolloverVerdict" class="verdict"></p>
+      </section>
+    </section>
+    <section class="copy card">
+      <h2>How the gift is calculated</h2>
+      <p>Month 1 unused hours = included hours minus hours they actually used. Month 2 hours under unlimited rollover = new-block hours plus that leftover. Month 2 effective rate = monthly price ÷ those hours. The unpaid gift is leftover hours × hourly floor.</p>
+      <ul>
+        <li>Default $1,725 / 20 hours / $75 floor.</li>
+        <li>Month 1 at 50%: 10 hours used, 10 leftover.</li>
+        <li>Expire: month 2 is 20 hours at $86.25/hr. Gift $0.</li>
+        <li>Cap at the 3-hour buffer: month 2 is 23 hours at $75/hr. Gift $225.</li>
+        <li>Unlimited rollover: month 2 is 30 hours at $57.50/hr. Gift $750.</li>
+      </ul>
+      <p>The 3-hour buffer is the unpaid-overage break-even minus included hours ($1,725 ÷ $75 − 20). A cap there keeps a catch-up month on the floor. Unlimited rollover spends that buffer and then some.</p>
+      <h2>What to put in the agreement</h2>
+      <p>Write “unused hours expire at month-end” or “up to N unused hours may roll once, then expire or bill at the floor.” Do not write “hours roll over” with no cap and no expiry. A quiet first month plus a catch-up second month is the usual pattern after a kickoff delay, a vacation, or a stakeholder who was not ready.</p>
+      <p>Price the block first, then check rollover, then check the float. <a href="index.html">Open the retainer calculator</a> to pair this with usage. <a href="retainer-vs-hourly.html">Retainer vs hourly</a> is the one-month view. <a href="retainer-payment-terms.html">Payment terms</a> is the cash-float view.</p>
+      <p class="note">This page is a planning aid, not financial or legal advice. Review the numbers and the contract before you send either. Hosted URLs, when they exist, carry no availability SLA.</p>
+    </section>
+  <h2>Common questions</h2>
+  <h3>Should unused retainer hours roll over?</h3>
+  <p>Only if the rolled hours still leave month 2 at or above your hourly floor. On the default $1,725 / 20-hour plan, a 10-hour first month plus unlimited rollover into a full second month is 30 hours for $1,725 — $57.50/hr, $750 of unpaid time. Cap rollover at the 3-hour buffer and month 2 stays at $75/hr.</p>
+  <h3>How do I cap unused-hour rollover without killing the deal?</h3>
+  <p>Cap rolled hours at the unpaid-overage buffer — monthly price divided by hourly floor, minus included hours. On the default plan that is 3 hours. Hours above the cap expire or bill at the floor.</p>
+
+    <footer>
+      <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial advice and does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Hosted URLs, when they exist, carry no availability SLA.</p>
+      <p>Everything runs in your browser. Your numbers are never uploaded. There are no accounts, cookies, or analytics vendors. We count only anonymous feature events in this browser (<code>unused_hour_rollover_compared</code>); <label><input id="optOut" type="checkbox"> don't count my usage</label>. Your browser's Do Not Track or Global Privacy Control signal also disables counting.</p>
+      <p>Free and open source. If it stopped you from giving away a catch-up month, the <a href="https://github.com/Duncan-Haywood/monorepo-projects">project is on GitHub</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does.</p>
+    </footer>
+  </main>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

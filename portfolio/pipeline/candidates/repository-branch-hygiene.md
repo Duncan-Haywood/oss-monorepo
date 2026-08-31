@@ -63,15 +63,45 @@ Seven days, under EUR150:
 
 1. Build a local, read-only scanner over synthetic repositories covering merged,
    closed, reopened, moved-tip, shared-ref, fork, and protected-branch cases.
+   **Built 2026-08-24** — [`probes/repository-branch-hygiene/`](../probes/repository-branch-hygiene/).
 2. Produce a human-readable report and recovery manifest for each proposed
    cleanup, then verify that every unique commit remains recoverable.
+   **Built and checked 2026-08-24**, by test rather than by assertion: every
+   commit the manifest calls exclusive is confirmed unreachable from all other
+   refs, and every `duplicate`/`shared` ref is confirmed to lose nothing when
+   deleted *alone*.
 3. Show the report to ten GitHub-heavy agencies or teams operating automated PR
    fleets. Ask three to provide a repository for a read-only pilot and one to
-   pre-pay EUR50/month for a recurring report.
+   pre-pay EUR50/month for a recurring report. **Unrun** — customer contact, and
+   the step that actually decides this candidate.
 
 Kill it if fewer than three qualified teams will run the read-only pilot or if no
 team values the recovery report enough to pay. Do not add write permissions until
 the report itself demonstrates paid value.
+
+**What steps 1–2 established, 2026-08-24.** No score moves; this is software
+evidence, and distribution (the floor, 4) is untouched by it.
+
+- The seven scenarios classify correctly against an oracle the fixture builds
+  itself, so the tests do not grade the scanner against its own output.
+- **The safety boundary needed a correction the write-up did not anticipate.**
+  Two refs at the same tip are each individually safe to delete and are not
+  *jointly* safe. Per-ref verdicts approved as a batch would destroy the
+  commit while every individual verdict stayed true. A test pins the loss, and
+  no category the report emits says "delete" — the strongest is "review".
+- Three defects surfaced and are kept as regression tests: `duplicate_of` named
+  an arbitrary ref rather than preferring a protected branch; the first real
+  repository run classified every tracked branch as `shared` with its own
+  remote copy; and a Cursor Bugbot review on the pull request caught that
+  grouping refs by name (the second fix) then compared only each name's
+  primary tip, so a diverged remote copy at another branch's exact SHA could
+  leave a commit reported as exclusively unique while a live ref elsewhere
+  still reached it — the recoverability claim itself.
+- **`moved` is not reachable outside the fixture.** It needs a branch's tip as
+  recorded when its PR was last seen closed; no bare scan has that. PR #829's
+  107 moved tips are why the category matters, and wiring the scanner to a real
+  snapshot source is unbuilt — so the candidate's most distinctive claim is the
+  one still resting on someone else's measurement.
 
 ## Mitigations required by the rubric
 
