@@ -102,11 +102,23 @@ spec:
   # asks for still reaches back past its first second. The job counts by the
   # date written in each line rather than by that window, so a late or retried
   # run records the same row instead of a doubled one.
+  #
+  # This must stay AHEAD of `portfolio-site-refresh` (01:00). That job does a
+  # rollout restart, which deletes the pods this one reads the access log out
+  # of; running after it would count a day whose log had already been thrown
+  # away. `portfolio-site.yaml`'s CronJob comment has the full coupling, and
+  # `gitops/tests/test_site_usage.py` fails if the two schedules invert.
   schedule: "31 0 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 2
   failedJobsHistoryLimit: 3
-  startingDeadlineSeconds: 3600
+  # 10 minutes, not the usual hour. This bounds how late a missed run may
+  # start, which is what keeps the ordering above true: at 3600 a delayed job
+  # could first start at 01:31, half an hour after the restart had already
+  # discarded the log it came to read, and would record a near-empty day as if
+  # it were real. Missing the window entirely leaves no row, which is honest;
+  # recording a wrong one is not.
+  startingDeadlineSeconds: 600
   jobTemplate:
     spec:
       backoffLimit: 2

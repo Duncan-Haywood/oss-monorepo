@@ -445,6 +445,39 @@ spec:
 # something restarts them. Argo will not do that — this manifest does not
 # change when a venture does. A nightly rollout restart is the cheapest way
 # to keep the public site within a day of `main` while the runners are down.
+#
+# THIS JOB DESTROYS THE USAGE LOG. READ BEFORE CHANGING THE SCHEDULE.
+#
+# `site-usage.yaml` counts page views by reading the nginx access log back out
+# of the *running* pods (`GET /pods/<name>/log`). A rollout restart replaces
+# both pods with new ones under new names, so the old pods — and every access
+# line they held — are deleted. Nothing recovers them: `?previous=true` returns
+# the previous container in the *same* pod, and a rollout does not reuse pods.
+#
+# So this job's schedule sets how much of each day the usage signal can see.
+# Until 2026-08-31 it ran at 04:17 while the aggregator ran at 00:31 and
+# counted *yesterday*: at 00:31 the only pods alive had started at 04:17 the
+# previous morning, so every daily row silently lost 00:00–04:17 — a little
+# over four hours, 18% of every day, always the same hours, biased against
+# whichever timezones are awake in them. Not noise that averages out: a
+# systematic undercount in the one number `portfolio/DIRECTION.md` says the
+# portfolio steers by. Found by reading, before the site was ever public, so
+# no collected data is affected.
+#
+# Two rules keep it honest, and `gitops/tests/test_site_usage.py` pins both:
+#
+#   1. This job must run AFTER the aggregator on the same day, never before.
+#      Restarting first throws away the day it was about to count.
+#   2. The residual loss is midnight → this job's start (now ~1h). It cannot
+#      reach zero: the aggregator can only count a day once that day has
+#      closed, so the restart is always some minutes into the new day.
+#
+# And the change this comment exists to stop: **do not make this more
+# frequent to publish faster.** Restarting hourly would cut publish lag to an
+# hour and cut the usage signal to roughly nothing, because each restart
+# discards the hour before it. If the site needs to be fresher than daily, the
+# fix is to stop rebuilding on pod start (bake the site into an image, or have
+# the aggregator ship lines somewhere durable first) — not a tighter cron.
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -479,9 +512,13 @@ kind: CronJob
 metadata:
   name: portfolio-site-refresh
 spec:
-  # 04:17 UTC — off the hour, so this does not land with everything else
-  # that runs at midnight.
-  schedule: "17 4 * * *"
+  # 01:00 UTC, chosen against `site-usage.yaml`'s 00:31 aggregation rather
+  # than for its own sake: late enough that the aggregator has read yesterday
+  # out of the pods before they are replaced (its startingDeadlineSeconds is
+  # 600, so it cannot begin after 00:41, leaving a 19-minute cushion), and as
+  # early as that constraint allows, because everything before this time is
+  # the part of today the usage log will not survive to report.
+  schedule: "0 1 * * *"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
