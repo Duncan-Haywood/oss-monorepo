@@ -536,6 +536,19 @@
         field("profit").textContent = error.message;
         field("profit").className = "hero-number negative";
         field("label").textContent = "fix the inputs to see a result";
+        // A rejected input (a negative number, a discount at or above 100%, an
+        // out-of-range percentage) threw before reaching any of these seven
+        // lines, so they kept showing the *last valid* order's subtotal,
+        // fees, payout, cash, margin, and ROI right next to the error message
+        // above them -- easy to misread as the answer for what is now in the
+        // form. Clear them along with every other derived section below.
+        field("subtotal").textContent = "";
+        field("commission").textContent = "";
+        field("processing").textContent = "";
+        field("payoutAmount").textContent = "";
+        field("cash").textContent = "";
+        field("margin").textContent = "";
+        field("roi").textContent = "";
         field("compare").replaceChildren();
         field("lifetime").replaceChildren();
         field("lifetimeNote").textContent = "";
