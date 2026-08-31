@@ -37855,3 +37855,43 @@ entries:
         added to correct. Recording the reasoning so the next session does
         not re-open the question.
     mrr_end: null
+  - venture: translator-project-quote
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Shipped #2428: shareable-link and draft persistence, ported from the
+        `share.mjs` pattern six-plus sibling calculators already carried
+        (ltl-freight-class-estimator, retainage-cashflow-calculator, and
+        others). The 11 quote inputs (word counts, fuzzy rate, hourly rate,
+        QA hours, DTP cost, rush fee, minimum price, target margin,
+        currency) had zero persistence -- a refresh silently reset a
+        translator's real pricing data, and the only "copy" affordance
+        copied the output text, not the inputs behind it, so there was no
+        way to hand a client the exact quote. Added `share.mjs`
+        (encode/decode, 7 round-trip tests), wired `localStorage` draft
+        autosave and a "Copy shareable link" button into `index.html`
+        (link wins over a saved draft on open), and disclosed both in the
+        FAQ/FAQPage JSON-LD, footer, and README privacy section alongside
+        the new `share_link_copied` usage counter.
+      - >-
+        Verified locally rather than on CI, which was starved for this PR
+        the same way `ci_starvation.py --run 33388086695` confirmed for
+        every other PR this week (`runner_id: 0`, all 7 checks dead in
+        3-4s): `node --test` 15/15 (7 new + existing calc/usage suites), a
+        Playwright/Chromium smoke test against the real `index.html`
+        (default calc renders, share link round-trips `new_words` and
+        `currency`, a fresh page load restores the same values from the
+        localStorage draft), and `platform/pages/build.mjs` +
+        `check.mjs` clean (169 products, 508 pages, no dead links).
+      - >-
+        Session start: 0 open PRs (the sole one, #2424, had already been
+        merged by a concurrent session before this session's first list
+        call) and CI account-wide starvation reconfirmed unchanged since
+        2026-08-26. The Hetzner deploy, self-hosted-runner, and
+        Codex-on-agent-box asks in this run's brief were all already fully
+        built and owner-gated (sealed clone token; sealed runner PAT +
+        `CI_RUNNER=self-hosted`; one interactive `codex login` +
+        `dry_run: false`) -- reported to the owner directly rather than
+        re-diagnosed; no new queue rows added.
+    mrr_end: null
