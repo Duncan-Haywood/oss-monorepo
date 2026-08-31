@@ -39129,3 +39129,84 @@ entries:
         Opened and merged #2491 (squash) after local verification; no CI
         wait (repo-wide Actions outage since 2026-08-26, unrelated).
     mrr_end: null
+  - venture: portfolio-site
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Fixed the instrument the whole portfolio steers by.
+        `platform/ci/publish_surface.py` answers "what does a merge to `main`
+        publish?" and answered it from `.github/workflows/` alone. That
+        stopped being the whole answer on 2026-08-29, when the site moved to
+        Argo CD: a manifest merged to `main` *is* the deploy there, no
+        workflow runs, so the tool printed "No workflow publishes anything on
+        a push to main" while `gitops/prod` carried three public hostnames.
+        Both `portfolio/DIRECTION.md` and `CLAUDE.md` gate "deploy beats
+        another build" on that answer, so an instrument blind to the
+        portfolio's own chosen delivery path held the gate shut by
+        construction, and would have gone on reporting nothing live on the
+        day the site came up. Same failure mode the tool exists to prevent --
+        a frozen claim about a live configuration -- arriving from the one
+        direction it could not see. Merged (squash) as #2490, `05256e4f0`.
+      - >-
+        NEW FINDING, and a correction to this ledger. The 2026-08-30
+        portfolio-site entry says "the apex redirect goes live on the same
+        sealed clone token the site itself already waits on". It does not.
+        `gitops/prod/portfolio-apex.yaml` is an annotation-only Ingress --
+        "no volume, no workload and no secret", per its own comment -- so
+        ingress-nginx answers the 301 itself and never reaches the backend.
+        `marisstella.dev` and `www.marisstella.dev` therefore answer on a
+        merge *today*, with nothing sealed; only `tools.marisstella.dev`,
+        whose pod clones the repo, waits on `portfolio-site-repo`. The first
+        cut of this change classified per Application and reproduced the same
+        conflation, which is how it was caught: it reported all three hosts
+        blocked on a token two of them never touch.
+      - >-
+        The second-order trap, recorded because it is the more tempting
+        error: once the per-host split was right, the table read "2 of 3
+        hosts live", which is a *worse* falsehood than the one it replaced --
+        both redirects point at the blocked host, so no visitor reaches
+        content either way. `dead_end_redirects()` derives that from the
+        redirect annotation and both the table and `--check` print it, rather
+        than leaving a future session to notice that a live 301 to a dark
+        origin is not a public URL. The summary line counts hostnames
+        actually serving content (0), not Applications classified `live` (1).
+      - >-
+        Two provenance decisions worth not re-deriving. Secret provenance
+        reads the kustomization's `resources:` list, not the directory:
+        `gitops/prod/secrets/portfolio-repo-token.template.yaml` is committed
+        and deliberately *not* in the kustomization, so reading the directory
+        would count it as provided and report the site live while it serves
+        nothing. And Ingress `tls.secretName`s are excluded, because
+        cert-manager mints those on admission -- counting them would pin
+        every public host at `gated` forever and the tool could never report
+        a live site at all.
+      - >-
+        Verified locally, Actions being runner-starved account-wide since
+        2026-08-26 -- `ci_starvation.py` on all four of this PR's check runs
+        (33415977605, 33415977449, 33415977438, 33415977419): every job
+        `runner_id: 0`, 2-3s, no steps. `python3 -m unittest discover` in
+        `platform/ci` 375 passed (353 before; 22 new in
+        `test_publish_surface.py`, 60 total there); `pytest gitops/tests` 182
+        passed; `validate_workflows.py` 220 valid;
+        `check_duplicate_symbols.py` clean plus its 24 guard tests;
+        `publish_surface.py --check` clean against the re-derived snapshot;
+        `platform/pages/build.mjs` + `check.mjs` 169 products / 508 pages /
+        no dead links; `node --test platform/pages/*.test.mjs` 790/790. All
+        re-run after merging origin/main, which moved 6 commits mid-run.
+        Live HTTP was NOT verified and is not claimed -- this session's
+        egress proxy 403s both marisstella.dev and tools.marisstella.dev.
+      - >-
+        Session context, so the next run does not redo it: zero open PRs at
+        start and at push. The branch backlog was independently swept this
+        same hour by the session that recorded the entry above and shipped
+        #2486; my own merge-replay plus added-line scan over all ~72
+        branches ahead of `main`, with the top six spot-verified against
+        main's actual code, reached the identical verdict, so no second
+        account of it is added here. The three owner blockers are unchanged
+        and all still one script: `./bootstrap/scripts/seal-owner-secrets.sh`
+        (site token, CI runner PAT, Codex credential), plus `CI_RUNNER` =
+        `self-hosted` and the governor's two flips. The built-in-quota Codex
+        route is already wired and preferred by `worker.sh`; nothing new was
+        found there and no ask was added.
+    mrr_end: null
