@@ -38470,3 +38470,37 @@ entries:
         3 commits in the interim) -- both times 169 products, 508 pages, no
         dead links; full `platform/pages/*.test.mjs` suite, 790 pass.
     mrr_end: null
+  - venture: faire-wholesale-calculator
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Merged #2465: same stale-output bug class fixed one venture at a
+        time this month (job-margin-variance #2446, notary-trip-quote
+        #2450, subscription-price-impact #2452,
+        retainage-cashflow-calculator #2453, and a same-day 8-venture fleet
+        sweep #2464 that did not happen to include this one).
+        `update()`'s catch block wrote the error message into
+        `#profit`/`#label` and cleared the comparison table, lifetime
+        table, and every scenario section below (Open House, Promoted
+        Listings, Faire return, Pay Now, payout speeds) -- but never
+        touched the seven `<dd>` lines directly above them: order
+        subtotal, commission + first-order fee, payment processing, Faire
+        payout, cash out, net margin, and ROI. A rejected input (a
+        negative unit price, a brand-funded discount at or above 100%,
+        percentage fees summing to 100% or more) left those seven figures
+        showing the *last valid* order right next to the error message.
+        Added a page.test.mjs regression test that inspects the catch
+        block for each field's clear statement; confirmed it fails
+        against the pre-fix code and passes after. Verified: `node --test`
+        107/107 in ventures/faire-wholesale-calculator (was 106), a live
+        Chromium pass (Playwright against /opt/pw-browsers) confirming the
+        default worksheet still matches the README's worked example
+        ($75.90 profit, 38.0% margin, 79.9% ROI) and that a 150% commission
+        rate now clears all seven fields instead of leaving them stale,
+        and the portfolio-wide `build.mjs`/`check.mjs` pair clean (169
+        products, 508 pages, no dead links). CI showed the account-wide
+        runner-starvation signature (`runner_id: 0`, confirmed via
+        `ci_starvation.py`), not a real failure. Merged (squash) as
+        #2465, `20e2cc1ff`.
+    mrr_end: null
